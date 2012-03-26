@@ -716,7 +716,8 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
 	guint8 modulation_system = 0;
 
 	frequency = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency, tvb, offset, 4, "Frequency", "%2u%01u,%01u%02u%02u GHz",
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency, tvb, offset, 4,
+		"Frequency", "%2u%01u,%01u%02u%02u GHz",
 		MPEG_SECT_BCD44_TO_DEC(frequency >> 24),
 		MPEG_SECT_BCD44_TO_DEC(frequency >> 16) / 10,
 		MPEG_SECT_BCD44_TO_DEC(frequency >> 16) % 10,
@@ -725,7 +726,8 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
 	offset += 4;
 
 	orbital_position = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_orbital_position, tvb, offset, 2, "Orbital Position", "%2u%1u,%1u degrees",
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_orbital_position, tvb, offset, 2,
+		"Orbital Position", "%2u%1u,%1u degrees",
 		MPEG_SECT_BCD44_TO_DEC(orbital_position >> 8),
 		MPEG_SECT_BCD44_TO_DEC(orbital_position) / 10,
 		MPEG_SECT_BCD44_TO_DEC(orbital_position) % 10);
@@ -744,7 +746,8 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
 	offset++;
 
 	symbol_rate = tvb_get_ntohl(tvb, offset) >> 4;
-	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_symbol_rate, tvb, offset, 4, "Symbol Rate", "%2u%02u%02u%01u,%01u KSymbol/s",
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_symbol_rate, tvb, offset, 4,
+		"Symbol Rate", "%2u%02u%02u%01u,%01u KSymbol/s",
 		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 24),
 		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 16),
 		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 8),
@@ -809,7 +812,8 @@ proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_
 	guint32 frequency = 0, symbol_rate = 0;
 
 	frequency = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_frequency, tvb, offset, 4, "Frequency", "%2u%02u,%02u%02u MHz",
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_frequency, tvb, offset, 4,
+		"Frequency", "%2u%02u,%02u%02u MHz",
 		MPEG_SECT_BCD44_TO_DEC(frequency >> 24),
 		MPEG_SECT_BCD44_TO_DEC(frequency >> 16),
 		MPEG_SECT_BCD44_TO_DEC(frequency >> 8),
@@ -824,7 +828,8 @@ proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_
 	offset++;
 
 	symbol_rate = tvb_get_ntohl(tvb, offset) >> 4;
-	proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_symbol_rate, tvb, offset, 4, "Symbol Rate", "%2u%02u%02u%01u,%01u KSymbol/s",
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_symbol_rate, tvb, offset, 4,
+		"Symbol Rate", "%2u%02u%02u%01u,%01u KSymbol/s",
 		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 24),
 		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 16),
 		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 8),
@@ -1621,7 +1626,8 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
 		offset++;
 
 		time_offset = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_string_format_value(tree, hf_mpeg_descr_local_time_offset_offset, tvb, offset, 2, "Local Time Offset", "%02u:%02u",
+		proto_tree_add_string_format_value(tree, hf_mpeg_descr_local_time_offset_offset, tvb, offset, 2,
+			"Local Time Offset", "%02u:%02u",
 			MPEG_SECT_BCD44_TO_DEC(time_offset >> 8),
 			MPEG_SECT_BCD44_TO_DEC(time_offset));
 		offset += 2;
@@ -1630,12 +1636,15 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
 		if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &time_of_change) < 0) {
 			proto_tree_add_text(tree, tvb, offset, 5, "Time of Change : Unparseable time");
 		} else {
-			proto_tree_add_time_format(tree, hf_mpeg_descr_local_time_offset_time_of_change, tvb, offset, 5, &time_of_change, "Time of Change : %s UTC", abs_time_to_str(&time_of_change, ABSOLUTE_TIME_UTC, FALSE));
+			proto_tree_add_time_format(tree, hf_mpeg_descr_local_time_offset_time_of_change, tvb, offset, 5,
+			&time_of_change, "Time of Change : %s UTC",
+			abs_time_to_str(&time_of_change, ABSOLUTE_TIME_UTC, FALSE));
 		}
 		offset += 5;
 
 		time_offset = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_string_format_value(tree, hf_mpeg_descr_local_time_offset_next_time_offset, tvb, offset, 2, "Next Time Offset", "%02u:%02u",
+		proto_tree_add_string_format_value(tree, hf_mpeg_descr_local_time_offset_next_time_offset, tvb, offset, 2,
+			"Next Time Offset", "%02u:%02u",
 			MPEG_SECT_BCD44_TO_DEC(time_offset >> 8),
 			MPEG_SECT_BCD44_TO_DEC(time_offset));
 		offset += 2;
@@ -1811,7 +1820,8 @@ proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, 
 	guint32 centre_freq;
 
 	centre_freq = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_string_format_value(tree, hf_mpeg_descr_terrestrial_delivery_centre_frequency, tvb, offset, 4, "CentreFrequency", "%u0 Hz", centre_freq);
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_terrestrial_delivery_centre_frequency, tvb, offset, 4,
+		"CentreFrequency", "%u0 Hz", centre_freq);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_bandwidth, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2505,7 +2515,8 @@ proto_register_mpeg_descriptor(void)
 		/* 0x02 Video Stream Descriptor */
 		{ &hf_mpeg_descr_video_stream_multiple_frame_rate_flag, {
 			"Multiple Frame Rate Flag", "mpeg_descr.video_stream.multiple_frame_rate_flag",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_video_stream_multiple_frame_rate_flag_vals), MPEG_DESCR_VIDEO_STREAM_MULTIPLE_FRAME_RATE_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_video_stream_multiple_frame_rate_flag_vals),
+			MPEG_DESCR_VIDEO_STREAM_MULTIPLE_FRAME_RATE_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_video_stream_frame_rate_code, {
@@ -2566,7 +2577,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_audio_stream_variable_rate_audio_indicator, {
 			"Variable Rate Audio Indicator", "mpeg_descr.audio_stream.vbr_indicator",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_audio_stream_variable_rate_audio_indicator_vals), MPEG_DESCR_AUDIO_STREAM_VARIABLE_RATE_AUDIO_INDICATOR_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_audio_stream_variable_rate_audio_indicator_vals),
+			MPEG_DESCR_AUDIO_STREAM_VARIABLE_RATE_AUDIO_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_audio_stream_reserved, {
@@ -2860,17 +2872,20 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_satellite_delivery_west_east_flag, {
 			"West East Flag", "mpeg_descr.sat_delivery.west_east_flag",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_west_east_flag_vals), MPEG_DESCR_SATELLITE_DELIVERY_WEST_EAST_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_west_east_flag_vals),
+			MPEG_DESCR_SATELLITE_DELIVERY_WEST_EAST_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_satellite_delivery_polarization, {
 			"Polarization", "mpeg_descr.sat_delivery.polarization",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_polarization_vals), MPEG_DESCR_SATELLITE_DELIVERY_POLARIZATION_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_polarization_vals),
+			MPEG_DESCR_SATELLITE_DELIVERY_POLARIZATION_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_satellite_delivery_roll_off, {
 			"Roll Off", "mpeg_descr.sat_delivery.roll_off",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_roll_off_vals), MPEG_DESCR_SATELLITE_DELIVERY_ROLL_OFF_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_roll_off_vals),
+			MPEG_DESCR_SATELLITE_DELIVERY_ROLL_OFF_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_satellite_delivery_zero, {
@@ -2880,12 +2895,14 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_satellite_delivery_modulation_system, {
 			"Modulation System", "mpeg_descr.sat_delivery.modulation_system",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_modulation_system_vals), MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_modulation_system_vals),
+			MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_satellite_delivery_modulation_type, {
 			"Modulation Type", "mpeg_descr.sat_delivery.modulation_type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_modulation_type_vals), MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_TYPE_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_modulation_type_vals),
+			MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_TYPE_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_satellite_delivery_symbol_rate, {
@@ -2895,7 +2912,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_satellite_delivery_fec_inner, {
 			"FEC Inner", "mpeg_descr.sat_delivery.fec_inner",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_fec_inner_vals), MPEG_DESCR_SATELLITE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_fec_inner_vals),
+			MPEG_DESCR_SATELLITE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
 		} },
 
 		/* 0x44 Cable Delivery System Descriptor */
@@ -2911,7 +2929,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_cable_delivery_fec_outer, {
 			"FEC Outer", "mpeg_descr.cable_delivery.fec_outer",
-			FT_UINT16, BASE_HEX, VALS(mpeg_descr_cable_delivery_fec_outer_vals), MPEG_DESCR_CABLE_DELIVERY_FEC_OUTER_MASK, NULL, HFILL
+			FT_UINT16, BASE_HEX, VALS(mpeg_descr_cable_delivery_fec_outer_vals),
+			MPEG_DESCR_CABLE_DELIVERY_FEC_OUTER_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_cable_delivery_modulation, {
@@ -2926,7 +2945,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_cable_delivery_fec_inner, {
 			"FEC Inner", "mpeg_descr.cable_delivery.fec_inner",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_cable_delivery_fec_inner_vals), MPEG_DESCR_CABLE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_cable_delivery_fec_inner_vals),
+			MPEG_DESCR_CABLE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
 		} },
 
 		/* 0x45 VBI Data Descriptor */
@@ -2947,7 +2967,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_vbi_data_field_parity, {
 			"Field Parity", "mpeg_descr.vbi_data.field_parity",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_vbi_data_field_parity_vals), MPEG_DESCR_VBI_DATA_FIELD_PARITY_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_vbi_data_field_parity_vals),
+			MPEG_DESCR_VBI_DATA_FIELD_PARITY_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_vbi_data_line_offset, {
@@ -3039,12 +3060,14 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_linkage_target_listed, {
 			"Target Listed", "mpeg_descr.linkage.target_listed",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_linkage_target_listed_vals), MPEG_DESCR_LINKAGE_TARGET_LISTED_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_linkage_target_listed_vals),
+			MPEG_DESCR_LINKAGE_TARGET_LISTED_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_linkage_event_simulcast, {
 			"Event Simulcast", "mpeg_descr.linkage.evt_simulcast",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_linkage_event_simulcast_vals), MPEG_DESCR_LINKAGE_EVENT_SIMULCAST_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_linkage_event_simulcast_vals),
+			MPEG_DESCR_LINKAGE_EVENT_SIMULCAST_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_linkage_reserved2, {
@@ -3142,7 +3165,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_component_stream_content, {
 			"Stream Content", "mpeg_descr.component.stream_content",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_component_stream_content_vals), MPEG_DESCR_COMPONENT_STREAM_CONTENT_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_component_stream_content_vals),
+			MPEG_DESCR_COMPONENT_STREAM_CONTENT_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_component_type, {
@@ -3152,7 +3176,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_component_content_type, {
 			"Stream Content and Component Type", "mpeg_descr.component.content_type",
-			FT_UINT16, BASE_HEX, VALS(mpeg_descr_component_content_type_vals), MPEG_DESCR_COMPONENT_CONTENT_TYPE_MASK, NULL, HFILL
+			FT_UINT16, BASE_HEX, VALS(mpeg_descr_component_content_type_vals),
+			MPEG_DESCR_COMPONENT_CONTENT_TYPE_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_component_tag, {
@@ -3190,7 +3215,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_content_nibble_level_1, {
 			"Nibble Level 1", "mpeg_descr.content.nibble_lvl_1",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_nibble_level_1_vals), MPEG_DESCR_CONTENT_NIBBLE_LEVEL_1_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_nibble_level_1_vals),
+			MPEG_DESCR_CONTENT_NIBBLE_LEVEL_1_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_content_nibble_level_2, {
@@ -3211,7 +3237,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_teletext_type, {
 			"Teletext Type", "mpeg_descr.teletext.type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_teletext_type_vals), MPEG_DESCR_TELETEXT_TYPE_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_teletext_type_vals),
+			MPEG_DESCR_TELETEXT_TYPE_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_teletext_magazine_number, {
@@ -3253,7 +3280,8 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_local_time_offset_polarity, {
 			"Time Offset Polarity", "mpeg_descr.local_time_offset.polarity",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_local_time_offset_polarity_vals), MPEG_DESCR_LOCAL_TIME_OFFSET_POLARITY, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_local_time_offset_polarity_vals),
+			MPEG_DESCR_LOCAL_TIME_OFFSET_POLARITY, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_local_time_offset_offset, {
@@ -3300,22 +3328,26 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_terrestrial_delivery_bandwidth, {
 			"Bandwidth", "mpeg_descr_terr_delivery.bandwidth",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_bandwidth_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_BANDWIDTH_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_bandwidth_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_BANDWIDTH_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_priority, {
 			"Priority", "mpeg_descr_terr_delivery.priority",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_priority_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_PRIORITY_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_priority_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_PRIORITY_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_time_slicing_indicator, {
 			"Time Slicing Indicator", "mpeg_descr_terr_delivery.time_slicing_ind",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_time_slicing_indicator_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_TIME_SLICING_INDICATOR_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_time_slicing_indicator_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_TIME_SLICING_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_mpe_fec_indicator, {
 			"MPE-FEC Indicator", "mpeg_descr_terr_delivery.mpe_fec_ind",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_mpe_fec_indicator_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_MPE_FEC_INDICATOR_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_mpe_fec_indicator_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_MPE_FEC_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_reserved1, {
@@ -3325,37 +3357,44 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_terrestrial_delivery_constellation, {
 			"Constellation", "mpeg_descr_terr_delivery.constellation",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_constellation_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_CONSTELLATION_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_constellation_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_CONSTELLATION_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_hierarchy_information, {
 			"Hierarchy Information", "mpeg_descr_terr_delivery.hierarchy_information",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_hierarchy_information_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_HIERARCHY_INFORMATION_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_hierarchy_information_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_HIERARCHY_INFORMATION_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_code_rate_hp_stream, {
 			"Code Rate High Priority Stream", "mpeg_descr_terr_delivery.code_rate_hp_stream",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_HP_STREAM_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_HP_STREAM_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_code_rate_lp_stream, {
 			"Code Rate Low Priority Stream", "mpeg_descr_terr_delivery.code_rate_lp_stream",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_LP_STREAM_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_LP_STREAM_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_guard_interval, {
 			"Guard Interval", "mpeg_descr_terr_delivery.guard_interval",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_guard_interval_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_GUARD_INTERVAL_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_guard_interval_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_GUARD_INTERVAL_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_transmission_mode, {
 			"Transmission Mode", "mpeg_descr_terr_delivery.transmission_mode",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_transmission_mode_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_TRANSMISSION_MODE_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_transmission_mode_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_TRANSMISSION_MODE_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_other_frequency_flag, {
 			"Other Frequency Flag", "mpeg_descr_terr_delivery.other_freq_flag",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_other_frequency_flag_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_OTHER_FREQUENCY_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_other_frequency_flag_vals),
+			MPEG_DESCR_TERRESTRIAL_DELIVERY_OTHER_FREQUENCY_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_terrestrial_delivery_reserved2, {
@@ -3420,22 +3459,26 @@ proto_register_mpeg_descriptor(void)
 		/* 0x6A AC-3 Descriptor */
 		{ &hf_mpeg_descr_ac3_component_type_flag, {
 			"Component Type Flag", "mpeg_descr.ac3.component_type_flag",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_component_type_flag_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_component_type_flag_vals),
+			MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_ac3_bsid_flag, {
 			"BSID Flag", "mpeg_descr.ac3.bsid_flag",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_bsid_flag_vals), MPEG_DESCR_AC3_BSID_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_bsid_flag_vals),
+			MPEG_DESCR_AC3_BSID_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_ac3_mainid_flag, {
 			"Main ID Flag", "mpeg_descr.ac3_main_id_flag",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_mainid_flag_vals), MPEG_DESCR_AC3_MAINID_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_mainid_flag_vals),
+			MPEG_DESCR_AC3_MAINID_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_ac3_asvc_flag, {
 			"ASVC Flag", "mpeg_descr.ac3.asvc_flag",
-			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_asvc_flag_vals), MPEG_DESCR_AC3_ASVC_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_asvc_flag_vals),
+			MPEG_DESCR_AC3_ASVC_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_ac3_reserved, {
@@ -3450,17 +3493,20 @@ proto_register_mpeg_descriptor(void)
 
 		{ &hf_mpeg_descr_ac3_component_type_full_service_flag, {
 			"Full Service Flag", "mpeg_descr.ac3.component_type.full_service_flag",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_full_service_flag_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_FULL_SERVICE_FLAG_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_full_service_flag_vals),
+			MPEG_DESCR_AC3_COMPONENT_TYPE_FULL_SERVICE_FLAG_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_ac3_component_type_service_type_flags, {
 			"Service Type Flags", "mpeg_descr.ac3.component_type.service_type_flags",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_service_type_flags_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_SERVICE_TYPE_FLAGS_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_service_type_flags_vals),
+			MPEG_DESCR_AC3_COMPONENT_TYPE_SERVICE_TYPE_FLAGS_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_ac3_component_type_number_of_channels_flags, {
 			"Number of Channels Flags", "mpeg_descr.ac3.component_type.number_chan_flags",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_number_of_channels_flags_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_NUMBER_OF_CHANNELS_FLAGS, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_number_of_channels_flags_vals),
+			MPEG_DESCR_AC3_COMPONENT_TYPE_NUMBER_OF_CHANNELS_FLAGS, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_ac3_bsid, {
@@ -3492,12 +3538,14 @@ proto_register_mpeg_descriptor(void)
 		/* 0x77 Content Identifier Descriptor */
 		{ &hf_mpeg_descr_content_identifier_crid_type, {
 			"CRID Type", "mpeg_descr.content_identifier.crid_type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_identifier_crid_type_vals), MPEG_DESCR_CONTENT_IDENTIFIER_CRID_TYPE_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_identifier_crid_type_vals),
+			MPEG_DESCR_CONTENT_IDENTIFIER_CRID_TYPE_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_content_identifier_crid_location, {
 			"CRID Location", "mpeg_descr.content_identifier.crid_location",
-			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_identifier_crid_location_vals), MPEG_DESCR_CONTENT_IDENTIFIER_CRID_LOCATION_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_identifier_crid_location_vals),
+			MPEG_DESCR_CONTENT_IDENTIFIER_CRID_LOCATION_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_descr_content_identifier_crid_length, {
