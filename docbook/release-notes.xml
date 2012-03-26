@@ -62,8 +62,8 @@ Wireshark Info
             <!-- Fixed in trunk: r41008 -->
             <!-- Fixed in trunk-1.6: r41578 -->
             <!-- Fixed in trunk-1.4: r41769 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6809">Bug
-            6809</ulink>)
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6804">Bug
+            6804</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
           <!-- <para>
@@ -109,9 +109,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          non-IPP packets to or from port 631 are dissected as IPP.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6765">Bug
+          6765</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           IAX2 dissector reads past end of packet for unknown IEs.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6815">Bug
           6815</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Pcap-NG files with SHB options longer than 100 bytes aren't recognized as pcap-NG files, and options longer than 100 bytes in other blocks aren't handled either.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6846">Bug
+          6846</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Patch to fix DTLS decryption.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6847">Bug
+          6847</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -147,6 +165,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+HTTP,
 MySQL,
 PacketBB,
 PGM,
@@ -158,7 +177,7 @@ TCP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+Endace ERF, Pcap-NG.
 
     </para>
     </section>

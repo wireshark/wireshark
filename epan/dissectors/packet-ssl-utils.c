@@ -2049,7 +2049,6 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
     return(0);
 }
 
-#if 0
 static gint
 dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
         guint32 datalen, guint8* mac)
@@ -2058,7 +2057,8 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     gint md;
     guint32 len;
     guint8 buf[20];
-    guint32 netnum;
+    gint16 temp;
+
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
     ssl_debug_printf("dtls_check_mac mac type:%s md %d\n",
         digests[decoder->cipher_suite->dig-0x40], md);
@@ -2069,7 +2069,7 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     /* hash sequence number */
     fmt_seq(decoder->seq,buf);
     buf[0]=decoder->epoch>>8;
-    buf[1]=decoder->epoch;
+    buf[1]=(guint8)decoder->epoch;
 
     ssl_hmac_update(&hm,buf,8);
 
@@ -2078,10 +2078,12 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     ssl_hmac_update(&hm,buf,1);
 
     /* hash version,data length and data */
-    *((gint16*)buf) = g_htons(ver);
+    temp = g_htons(ver);
+    memcpy(buf, &temp, 2);
     ssl_hmac_update(&hm,buf,2);
 
-    *((gint16*)buf) = g_htons(datalen);
+    temp = g_htons(datalen);
+    memcpy(buf, &temp, 2);
     ssl_hmac_update(&hm,buf,2);
     ssl_hmac_update(&hm,data,datalen);
     /* get digest and digest len */
@@ -2093,7 +2095,6 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 
     return(0);
 }
-#endif
 
 #ifdef HAVE_LIBZ
 int
@@ -2206,14 +2207,23 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     }
     else if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
         ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
-        /* following the openssl dtls errors the right test is:
-        if(dtls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)< 0) { */
-        if(tls_check_mac(decoder,ct,TLSV1_VERSION,out_str->data,worklen,mac)< 0) {
+        /* Try rfc-compliant mac first, and if failed, try old openssl's non-rfc-compliant mac */
+        if(dtls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)>= 0) {
+            ssl_debug_printf("ssl_decrypt_record: mac ok\n");
+        }
+        else if(tls_check_mac(decoder,ct,TLSV1_VERSION,out_str->data,worklen,mac)>= 0) {
+            ssl_debug_printf("ssl_decrypt_record: dtls rfc-compliant mac failed, but old openssl's non-rfc-compliant mac ok\n");
+        }
+        /*
+        else if(ssl_ignore_mac_failed) {
+ 	    ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
+        }
+        */
+        else{
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;
         }
     }
-    ssl_debug_printf("ssl_decrypt_record: mac ok\n");
     *outl = worklen;
 
     if (decoder->compression > 0) {

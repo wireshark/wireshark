@@ -350,11 +350,13 @@ static int erf_read_header(FILE_T fh,
   }
 
   if (*packet_size == 0) {
-    /* Again a corrupt packet, bail out */
+    /* If this isn't a pad record, it's a corrupt packet; bail out */
+    if ((erf_header->type & 0x7F) != ERF_TYPE_PAD) {
    *err = WTAP_ERR_BAD_RECORD;
    *err_info = g_strdup_printf("erf: File has 0 byte packet");
 
    return FALSE;
+  }
   }
 
   if (phdr != NULL) {
