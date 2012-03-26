@@ -994,10 +994,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
         offset = offset + 5;
 
         while (length>1) {
-            /* length can only be a multiple of 2, otherwise there is
-               something broken -> so decode down until length is 1 */
-            if (length!=1) {
-                /* fetch two bytes */
+		/* fetch two bytes */
                 rt_block = tvb_get_ntohs(tvb, offset);
 
                 /* Mask out the lower 8 bits */
@@ -1276,7 +1273,6 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
                     offset = offset+1+(tvb_get_guint8(tvb, offset));
                     break;
                 }
-            }
         }
 }
 
