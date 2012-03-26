@@ -536,6 +536,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-dvb-ipdc.c
 	dissectors/packet-dvb-nit.c
 	dissectors/packet-dvb-sdt.c
+	dissectors/packet-dvb-tdt.c
 	dissectors/packet-dvbci.c
 	dissectors/packet-dvmrp.c
 	dissectors/packet-e100.c

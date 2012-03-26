@@ -3412,6 +3412,7 @@ Guy Martin		<gmsoft [AT] tuxicoman.be> {
 	DVB Event Information Table (EIT) dissector
 	DVB Network Information Table (NIT) dissector
 	DVB Service Description Table (SDT) dissector
+	DVB Time and Date Table (TDT) dissector
 	MPEG2 Conditional Access Table (CA) dissector
 	MPEG2 descriptors dissector
 	MPEG2 Program Associate Table (PAT) dissector
