@@ -131,20 +131,32 @@ static guint num_header_fields = 0;
 static GHashTable* header_fields_hash = NULL;
 
 static void
-header_fields_update_cb(void* r, const char** err)
+header_fields_update_cb(void *r, const char **err)
 {
-	header_field_t* rec = r;
+	header_field_t *rec = r;
+	char c;
 
 	if (rec->header_name == NULL) {
 		*err = ep_strdup_printf("Header name can't be empty");
-	} else {
-		g_strstrip(rec->header_name);
-		if (rec->header_name[0] != 0) {
-			*err = NULL;
-		} else {
-			*err = ep_strdup_printf("Header name can't be empty");
-		}
+		return;
 	}
+
+	g_strstrip(rec->header_name);
+	if (rec->header_name[0] == 0) {
+		*err = ep_strdup_printf("Header name can't be empty");
+		return;
+	}
+
+	/* Check for invalid characters (to avoid asserting out when
+	 * registering the field).
+	 */
+	c = proto_check_field_name(rec->header_name);
+	if (c) {
+		*err = ep_strdup_printf("Header name can't contain '%c'", c);
+		return;
+	}
+
+	*err = NULL;
 }
 
 static void *
