@@ -134,8 +134,14 @@ static int hf_ipv6_opt_type                     = -1;
 static int hf_ipv6_opt_length                   = -1;
 static int hf_ipv6_opt_pad1                     = -1;
 static int hf_ipv6_opt_padn                     = -1;
+static int hf_ipv6_opt_tel                      = -1;
 static int hf_ipv6_opt_rtalert                  = -1;
 static int hf_ipv6_opt_jumbo                    = -1;
+static int hf_ipv6_opt_calipso_doi              = -1;
+static int hf_ipv6_opt_calipso_cmpt_length      = -1;
+static int hf_ipv6_opt_calipso_sens_level       = -1;
+static int hf_ipv6_opt_calipso_checksum         = -1;
+static int hf_ipv6_opt_calipso_cmpt_bitmap      = -1;
 static int hf_ipv6_opt_qs_func                  = -1;
 static int hf_ipv6_opt_qs_rate                  = -1;
 static int hf_ipv6_opt_qs_ttl                   = -1;
@@ -143,6 +149,7 @@ static int hf_ipv6_opt_qs_ttl_diff              = -1;
 static int hf_ipv6_opt_qs_unused                = -1;
 static int hf_ipv6_opt_qs_nonce                 = -1;
 static int hf_ipv6_opt_qs_reserved              = -1;
+static int hf_ipv6_opt_experimental             = -1;
 static int hf_ipv6_opt_unknown                  = -1;
 static int hf_ipv6_dst_opt                      = -1;
 static int hf_ipv6_hop_opt                      = -1;
@@ -884,6 +891,15 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                                             offset, opt_len, ENC_NA);
                 offset += opt_len;
                 break;
+            case IP6OPT_TEL:
+                if (opt_len != 1) {
+                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
+                        "Tunnel Encapsulation Limit: Invalid length (%u bytes)", opt_len);
+                }
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_tel, tvb,
+                                            offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                break;
             case IP6OPT_JUMBO:
                 if (opt_len != 4) {
                     expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
@@ -891,7 +907,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb,
                                             offset, 4, ENC_BIG_ENDIAN);
-                offset += opt_len;
+                offset += 4;
                 break;
             case IP6OPT_RTALERT:
               {
@@ -902,7 +918,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 }
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_rtalert, tvb,
                                             offset, 2, ENC_BIG_ENDIAN);
-                offset += opt_len;
+                offset += 2;
                 break;
               }
             case IP6OPT_HOME_ADDRESS:
@@ -913,9 +929,30 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 proto_tree_add_item(opt_tree, hf_ipv6_mipv6_home_address, tvb,
                                     offset, 16, ENC_NA);
                 SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
-                offset += opt_len;
+                offset += 16;
                 break;
-
+            case IP6OPT_CALIPSO:
+              {
+                guint8 cmpt_length;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_doi, tvb,
+                                            offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_length, tvb,
+                                            offset, 1, ENC_BIG_ENDIAN);
+                cmpt_length = tvb_get_guint8(tvb, offset);
+                offset += 1;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_sens_level, tvb,
+                                            offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                /* Need to add Check Checksum..*/
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_checksum, tvb,
+                                            offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_bitmap, tvb,
+                                              offset, cmpt_length, ENC_BIG_ENDIAN);
+                offset += cmpt_length;
+                break;
+              }
             case IP6OPT_QUICKSTART:
               {
 
@@ -957,7 +994,18 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 
               }
               break;
-
+            case IP6OPT_EXP_1E:
+            case IP6OPT_EXP_3E:
+            case IP6OPT_EXP_5E:
+            case IP6OPT_EXP_7E:
+            case IP6OPT_EXP_9E:
+            case IP6OPT_EXP_BE:
+            case IP6OPT_EXP_DE:
+            case IP6OPT_EXP_FE:
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_experimental, tvb,
+                                    offset, opt_len, ENC_NA);
+                offset += opt_len;
+              break;
             default:
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
                                     offset, opt_len, ENC_NA);
@@ -2272,10 +2320,34 @@ proto_register_ipv6(void)
       { "Router Alert",         "ipv6.opt.router_alert",
                                 FT_UINT16, BASE_DEC, VALS(rtalertvals), 0x0,
                                 NULL, HFILL }},
+    { &hf_ipv6_opt_tel,
+      { "Tunnel Encapsulation Limit", "ipv6.opt.tel",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                "How many further levels of encapsulation are permitted", HFILL }},
     { &hf_ipv6_opt_jumbo,
       { "Jumbo",                "ipv6.opt.jumbo",
                                 FT_UINT32, BASE_DEC, NULL, 0x0,
                                 "Length of the IPv6 packet in octets", HFILL }},
+    { &hf_ipv6_opt_calipso_doi,
+      { "CALIPSO Domain of Interpretation","ipv6.opt.calipso.doi",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_calipso_cmpt_length,
+      { "Compartment Length","ipv6.opt.calipso.cmpt.length",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_calipso_sens_level,
+      { "Sensitivity Level","ipv6.opt.calipso.sens_level",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_calipso_checksum,
+      { "Checksum","ipv6.opt.calipso.checksum",
+                                FT_UINT16, BASE_HEX, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_calipso_cmpt_bitmap,
+      { "Compartment Bitmap","ipv6.opt.calipso.cmpt_bitmap",
+                                FT_BYTES, BASE_NONE, NULL, 0x0,
+                                NULL, HFILL }},
     { &hf_ipv6_opt_qs_func,
       { "Function",             "ipv6.opt.qs_func",
                                 FT_UINT8, BASE_DEC, VALS(qs_func_vals), QS_FUNC_MASK,
@@ -2303,6 +2375,10 @@ proto_register_ipv6(void)
     { &hf_ipv6_opt_qs_reserved,
       { "Reserved",             "ipv6.opt.qs_reserved",
                                 FT_UINT32, BASE_HEX, NULL, 0x0003,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_experimental,
+      { "Experimental Option","ipv6.opt.experimental",
+                                FT_BYTES, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_ipv6_opt_unknown,
       { "Unknown Option Payload","ipv6.opt.unknown",
