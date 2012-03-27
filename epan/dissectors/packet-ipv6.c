@@ -149,6 +149,13 @@ static int hf_ipv6_opt_qs_ttl_diff              = -1;
 static int hf_ipv6_opt_qs_unused                = -1;
 static int hf_ipv6_opt_qs_nonce                 = -1;
 static int hf_ipv6_opt_qs_reserved              = -1;
+static int hf_ipv6_opt_rpl_flag                 = -1;
+static int hf_ipv6_opt_rpl_flag_o               = -1;
+static int hf_ipv6_opt_rpl_flag_r               = -1;
+static int hf_ipv6_opt_rpl_flag_f               = -1;
+static int hf_ipv6_opt_rpl_flag_rsv             = -1;
+static int hf_ipv6_opt_rpl_instance_id          = -1;
+static int hf_ipv6_opt_rpl_senderrank           = -1;
 static int hf_ipv6_opt_experimental             = -1;
 static int hf_ipv6_opt_unknown                  = -1;
 static int hf_ipv6_dst_opt                      = -1;
@@ -247,6 +254,7 @@ static int hf_geoip_dst_lon             = -1;
 
 static gint ett_ipv6                    = -1;
 static gint ett_ipv6_opt                = -1;
+static gint ett_ipv6_opt_flag           = -1;
 static gint ett_ipv6_version            = -1;
 static gint ett_ipv6_shim6              = -1;
 static gint ett_ipv6_shim6_option       = -1;
@@ -949,7 +957,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                                             offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_calipso_cmpt_bitmap, tvb,
-                                              offset, cmpt_length, ENC_BIG_ENDIAN);
+                                              offset, cmpt_length, ENC_NA);
                 offset += cmpt_length;
                 break;
               }
@@ -992,6 +1000,28 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                   offset += 4;
                 }
 
+              }
+              break;
+            case IP6OPT_RPL:
+              {
+                proto_tree *flag_tree;
+                proto_item *ti_flag;
+
+                ti_flag = proto_tree_add_item(opt_tree, hf_ipv6_opt_rpl_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+                flag_tree = proto_item_add_subtree(ti_flag, ett_ipv6_opt_flag);
+                proto_tree_add_item(flag_tree, hf_ipv6_opt_rpl_flag_o, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(flag_tree, hf_ipv6_opt_rpl_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(flag_tree, hf_ipv6_opt_rpl_flag_f, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(flag_tree, hf_ipv6_opt_rpl_flag_rsv, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset +=1;
+
+                proto_tree_add_item(flag_tree, hf_ipv6_opt_rpl_instance_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset +=1;
+
+                proto_tree_add_item(flag_tree, hf_ipv6_opt_rpl_senderrank, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset +=2;
+
+                /* TODO: Add dissector of sub TLV */
               }
               break;
             case IP6OPT_EXP_1E:
@@ -2376,6 +2406,34 @@ proto_register_ipv6(void)
       { "Reserved",             "ipv6.opt.qs_reserved",
                                 FT_UINT32, BASE_HEX, NULL, 0x0003,
                                 NULL, HFILL }},
+    { &hf_ipv6_opt_rpl_flag,
+      { "Flag",                 "ipv6.opt.rpl.flag",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_rpl_flag_o,
+      { "Down",                 "ipv6.opt.rpl.flag.o",
+                                FT_BOOLEAN, 8, NULL, 0x80,
+                                "The packet is expected to progress Up or Down", HFILL }},
+    { &hf_ipv6_opt_rpl_flag_r,
+      { "Rank Error",           "ipv6.opt.rpl.flag.r",
+                                FT_BOOLEAN, 8, NULL, 0x40,
+                                "Indicating whether a rank error was detected", HFILL }},
+    { &hf_ipv6_opt_rpl_flag_f,
+      { "Forwarding Error",     "ipv6.opt.rpl.flag.f",
+                                FT_BOOLEAN, 8, NULL, 0x20,
+                                "Indicating that this node can not forward the packet further towards the destination", HFILL }},
+    { &hf_ipv6_opt_rpl_flag_rsv,
+      { "Reserved",     "ipv6.opt.rpl.flag.rsv",
+                                FT_UINT8, BASE_HEX, NULL, 0x1F,
+                                "Reserved (Must Be Zero)", HFILL }},
+    { &hf_ipv6_opt_rpl_instance_id,
+      { "RPLInstanceID",        "ipv6.opt.rpl.instance_id",
+                                FT_UINT8, BASE_HEX, NULL, 0x0,
+                                "Indicating the DODAG instance along which the packet is sent", HFILL }},
+    { &hf_ipv6_opt_rpl_senderrank,
+      { "Sender Rank",          "ipv6.opt.rpl.sender_rank",
+                                FT_UINT16, BASE_HEX, NULL, 0x0,
+                                "Set to zero by the source and to DAGRank(rank) by a router that forwards inside the RPL network", HFILL }},
     { &hf_ipv6_opt_experimental,
       { "Experimental Option","ipv6.opt.experimental",
                                 FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2695,6 +2753,7 @@ proto_register_ipv6(void)
   static gint *ett[] = {
     &ett_ipv6,
     &ett_ipv6_opt,
+    &ett_ipv6_opt_flag,
     &ett_ipv6_version,
     &ett_ipv6_shim6,
     &ett_ipv6_shim6_option,
