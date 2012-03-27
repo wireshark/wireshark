@@ -1,4 +1,4 @@
-Wireshark 1.6.5 Release Notes
+Wireshark 1.6.6 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,89 +14,120 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2012-01
+     o wnpa-sec-2012-04
 
-       Laurent Butti discovered that Wireshark failed to properly
-       check record sizes for many packet capture file formats. (Bug
-       6663, bug 6666, bug 6667, bug 6668, bug 6669, bug 6670)
+       The ANSI A dissector could dereference a NULL pointer and
+       crash. (Bug 6823)
 
-       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
 
-     o wnpa-sec-2012-02
+     o wnpa-sec-2012-05
 
-       Wireshark could dereference a NULL pointer and crash. (Bug
-       6634)
+       The IEEE 802.11 dissector could go into an infinite loop. (Bug
+       6809)
 
-       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+       Versions affected: 1.6.0 to 1.6.5.
 
-     o wnpa-sec-2012-03
+     o wnpa-sec-2012-06
 
-       The RLC dissector could overflow a buffer. (Bug 6391)
+       The pcap and pcap-ng file parsers could crash trying to read
+       ERF data. (Bug 6804)
 
-       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
+
+     o wnpa-sec-2012-07
+
+       The MP2T dissector could try to allocate too much memory and
+       crash. (Bug 6804)
+
+       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
+
+     o The Windows installers now include GnuTLS 1.12.18, which fixes
+       several vulnerabilities.
 
    The following bugs have been fixed:
 
-     o "Closing File!" Dialog Hangs. (Bug 3046)
+     o ISO SSAP: ActivityStart: Invalid decoding the activity
+       parameter as a BER Integer. (Bug 2873)
 
-     o Sub-fields of data field should appear in exported PDML as
-       children of the data field instead of as siblings to it. (Bug
-       3809)
+     o Forward slashes in URI need to be converted to backslashes if
+       WIN32. (Bug 5237)
 
-     o Incorrect time differences displayed with time reference set.
-       (Bug 5580)
+     o Character echo pauses in Capture Filter field in Capture
+       Options. (Bug 5356)
 
-     o Wrong packet type association of SNMP trap after TFTP
-       transfer. (Bug 5727)
+     o Some PGM options are not parsed correctly. (Bug 5687)
 
-     o SSL/TLS decryption needs wireshark to be rebooted. (Bug 6032)
+     o dumpcap crashes when capturing from pipe to a pcap-ng file
+       (e.g., when passing data from CACE Pilot to Wireshark). (Bug
+       5939)
 
-     o Export HTTP Objects -> save all crashes Wireshark. (Bug 6250)
+     o Unable to rearrange columns in preferences on Windows. (Bug
+       6077) (Note: this bug still affects the 64-bit package)
 
-     o Wireshark Netflow dissector complains there is no template
-       found though the template is exported. (Bug 6325)
+     o No error for UDP/IPv6 packet with zero checksum. (Bug 6232)
 
-     o DCERPC EPM tower UUID must be interpreted always as little
-       endian. (Bug 6368)
+     o Wireshark installer doesn't add access_bpf in 10.5.8. (Bug
+       6526)
 
-     o Crash if no recent files. (Bug 6549)
+     o Corrupted Diameter dictionary file that crashes Wireshark.
+       (Bug 6664)
 
-     o IPv6 frame containing routing header with 0 segments left
-       calculates wrong UDP checksum. (Bug 6560)
+     o packetBB dissector bug: More than 1000000 items in the tree --
+       possible infinite loop. (Bug 6687)
 
-     o IPv4 UDP/TCP Checksum incorrect if routing header present.
-       (Bug 6561)
+     o ZEP dissector: Timestamp not always displayed correctly.
+       Fractional seconds never displayed. (Bug 6703)
 
-     o Incorrect Parsing of SCPS Capabilities Option introduced in
-       response to bug 6194. (Bug 6562)
+     o GOOSE Messages don't use the length field to perform the
+       dissection. (Bug 6734)
 
-     o Various crashes after loading NetMon2.x capture file. (Bug
-       6578)
+     o Ethernet traces in K12 text format sometimes give bogus
+       "malformed frame" errors and other problems. (Bug 6735)
 
-     o Fixed compilation of dumpcap on some systems (when
-       MUST_DO_SELECT is defined). (Bug 6614)
+     o max_ul_ext isn't printed/decoded to the packet details log in
+       GTP protocol packet. (Bug 6761)
 
-     o SIGSEGV in SVN 40046. (Bug 6634)
+     o non-IPP packets to or from port 631 are dissected as IPP. (Bug
+       6765)
 
-     o Wireshark dissects TCP option 25 as an "April 1" option. (Bug
-       6643)
+     o lua proto registration fails for uppercase proto /
+       g_ascii_strdown problem. (Bug 6766)
 
-     o ZigBee ZCL Dissector reports invalid status. (Bug 6649)
+     o no menu item Fle->Export->SSL Session Keys in GTK. (Bug 6813)
 
-     o ICMPv6 DNSSL option malformed on padding. (Bug 6660)
+     o IAX2 dissector reads past end of packet for unknown IEs. (Bug
+       6815)
 
-     o Wrong tvb_get_bits function call in packet-csn1.c. (Bug 6708)
+     o TShark 1.6.5 immediately crashes on SSL decryption (every
+       time). (Bug 6817)
 
-     o [UDP] - Length Field of Pseudo Header while computing CheckSum
-       is not correct. (Bug 6711)
+     o USB: unknown GET DESCRIPTOR response triggers assert failure.
+       (Bug 6826)
 
-     o pcapio.c: bug in libpcap_write_interface_description_block.
-       (Bug 6719)
+     o IEEE1588 PTPv2 over IPv6. (Bug 6836)
 
-     o Memory leaks in various dissectors.
+     o Patch to fix DTLS decryption. (Bug 6847)
 
-     o Bytes highlighted in wrong Byte pane when field selected in
-       Details pane.
+     o Expression... dialog crash. (Bug 6891)
+
+     o display filter "gtp.msisdn" not working. (Bug 6947)
+
+     o Multiprotocol Label Switching Echo - Return Code: Reserved
+       (5). (Bug 6951)
+
+     o ISAKMP : VendorID CheckPoint : Malformed Packet. (Bug 6972)
+
+     o Adding a Custom HTTP Header Field with a trailing colon causes
+       wireshark to immediately crash (and crash upon restart). (Bug
+       6982)
+
+     o Radiotap dissector lists a bogus "DBM TX Attenuation" bit.
+       (Bug 7000)
+
+     o MySQL dissector assertion. (Ask 8649)
+
+     o Radiotap header format data rate alignment issues. (Ask 8649)
 
   New and Updated Features
 
@@ -108,16 +139,13 @@ What's New
 
   Updated Protocol Support
 
-   BGP, BMC CSN1, DCERPC EPM, DCP(ETSI) DMP DTLS GSM Management, H245
-   HPTEAM, ICMPv6, IEEE 802.15.4 IPSEC IPv4, IPv6, ISAKMP KERBEROS
-   LDSS NFS RLC, RPC-NETLOGON RRC RTMPT SIGCOMP SSL SYSLOG TCP, UDP,
-   XML ZigBee ZCL
+   ANSI A, BSSGP, DIAMETER, DTLS, GOOSE, GSM Management, GTP, HTTP,
+   IAX2, IEEE 802.11, IPP, ISAKMP, ISO SSAP, MP2T, MPLS, MySQL, NTP,
+   PacketBB, PGM, Radiotap, SSL, TCP, UDP, USB, WSP
 
   New and Updated Capture File Support
 
-   Accellent 5Views, AIX iptrace, HP-UX nettl, I4B, Microsoft Network
-   Monitor, Novell LANalyzer, PacketLogger, Pcap-ng, Sniffer,
-   Tektronix K12, WildPackets {Airo,Ether}Peek.
+   Endace ERF, Pcap-NG, Tektronix K12
 
 Getting Wireshark
 
@@ -166,8 +194,8 @@ Known Problems
    Summary pane selected frame highlighting not maintained. (Bug
    4445)
 
-   Wireshark and TShark will display incorrect delta times in some
-   cases. (Bug 4985 and bug 5580)
+   Wireshark and TShark will display incorrect delta times when
+   displayed as a custom column. (Bug 4985)
 
 Getting Help
 
