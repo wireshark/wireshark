@@ -89,6 +89,14 @@ Wireshark Info
           </para> -->
         </listitem>
 
+        <listitem>
+          <para>
+            The Windows installers now include GnuTLS 1.12.18, which fixes
+	    <ulink url="http://www.gnu.org/software/gnutls/security.html">several
+	    vulnerabilities</ulink>.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

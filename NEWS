@@ -1,4 +1,4 @@
-Wireshark 1.4.11 Release Notes
+Wireshark 1.4.12 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,96 +14,66 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2012-01
+     o wnpa-sec-2012-04
 
-       Laurent Butti discovered that Wireshark failed to properly
-       check record sizes for many packet capture file formats. (Bug
-       6663, bug 6666, bug 6667, bug 6668, bug 6669, bug 6670)
+       The ANSI A dissector could dereference a NULL pointer and
+       crash. (Bug 6823)
 
-       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
 
-     o wnpa-sec-2012-02
+     o wnpa-sec-2012-06
 
-       Wireshark could dereference a NULL pointer and crash. (Bug
-       6634)
+       The pcap and pcap-ng file parsers could crash trying to read
+       ERF data. (Bug 6804)
 
-       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
 
-     o wnpa-sec-2012-03
+     o wnpa-sec-2012-07
 
-       The RLC dissector could overflow a buffer. (Bug 6391)
+       The MP2T dissector could try to allocate too much memory and
+       crash. (Bug 6804)
 
-       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
+
+     o The Windows installers now include GnuTLS 1.12.18, which fixes
+       several vulnerabilities.
 
    The following bugs have been fixed:
 
-     o "Closing File!" Dialog Hangs. (Bug 3046)
+     o Some PGM options are not parsed correctly. (Bug 5687)
 
-     o Sub-fields of data field should appear in exported PDML as
-       children of the data field instead of as siblings to it. (Bug
-       3809)
+     o dumpcap crashes when capturing from pipe to a pcap-ng file
+       (e.g., when passing data from CACE Pilot to Wireshark). (Bug
+       5939)
 
-     o Patch to fix memory leaks/errors in Lua plugin. (Bug 5575)
+     o No error for UDP/IPv6 packet with zero checksum. (Bug 6232)
 
-     o Incorrect time differences displayed with time reference set.
-       (Bug 5580)
+     o packetBB dissector bug: More than 1000000 items in the tree --
+       possible infinite loop. (Bug 6687)
 
-     o Wrong packet type association of SNMP trap after TFTP
-       transfer. (Bug 5727)
+     o Ethernet traces in K12 text format sometimes give bogus
+       "malformed frame" errors and other problems. (Bug 6735)
 
-     o Export HTTP Objects -> save all crashes Wireshark. (Bug 6250)
+     o non-IPP packets to or from port 631 are dissected as IPP. (Bug
+       6765)
 
-     o Wireshark crashes if a field of type BASE_CUSTOM is applied as
-       a column. (Bug 6503)
+     o IAX2 dissector reads past end of packet for unknown IEs. (Bug
+       6815)
 
-     o Filter Expression dialog can only be opened once. (Bug 6537)
+     o Pcap-NG files with SHB options longer than 100 bytes aren't
+       recognized as pcap-NG files, and options longer than 100 bytes
+       in other blocks aren't handled either. (Bug 6846)
 
-     o 80211 QoS Control: Add Raw TID. (Bug 6548)
+     o Patch to fix DTLS decryption. (Bug 6847)
 
-     o CAPWAP dissector tries to allocate -1 bytes of memory during
-       reassembly. (Bug 6555)
+     o Expression... dialog is crash. (Bug 6891)
 
-     o IPv6 frame containing routing header with 0 segments left
-       calculates wrong UDP checksum. (Bug 6560)
+     o ISAKMP : VendorID CheckPoint : Malformed Packet. (Bug 6972)
 
-     o IPv4 UDP/TCP Checksum incorrect if routing header present.
-       (Bug 6561)
+     o Radiotap dissector lists a bogus "DBM TX Attenuation" bit.
+       (Bug 7000)
 
-     o Incorrect Parsing of SCPS Capabilities Option introduced in
-       response to bug 6194. (Bug 6562)
-
-     o Add more length checks for integer values in SNMP variable
-       bindings. (Bug 6564)
-
-     o UCP dissector bug of operation 61. (Bug 6570)
-
-     o Various crashes after loading NetMon2.x capture file. (Bug
-       6578)
-
-     o SIGSEGV in SVN 40046. (Bug 6634)
-
-     o Wireshark dissects TCP option 25 as an "April 1" option. (Bug
-       6643)
-
-     o ZigBee ZCL Dissector reports invalid status. (Bug 6649)
-
-     o Large packet length crashes Wireshark. (Bug 6663)
-
-     o 5views capture file that crashes wireshark. (Bug 6666)
-
-     o i4b capture file that crashes wireshark. (Bug 6667)
-
-     o iptrace capture file that crashes wireshark. (Bug 6668)
-
-     o netmon2 capture file that crashes wireshark. (Bug 6669)
-
-     o novell capture file that crashes wireshark. (Bug 6670)
-
-     o [UDP] - Length Field of Pseudo Header while computing CheckSum
-       is not correct. (Bug 6711)
-
-     o pcapio.c: bug in libpcap_write_interface_description_block.
-       (Bug 6719)
+     o MySQL dissector assertion. (Ask 8649)
 
   New and Updated Features
 
@@ -115,14 +85,11 @@ What's New
 
   Updated Protocol Support
 
-   CAPWAP, HTTP, IEEE 802.11, IPv4, IPv6, RLC, SNMP, TCP, TFTP,
-   ZigBee ZCL
+   HTTP, ISAKMP, MySQL, PacketBB, PGM, TCP, UDP
 
   New and Updated Capture File Support
 
-   Accellent 5Views, AIX iptrace, HP-UX nettl, I4B, Microsoft Network
-   Monitor, Novell LANalyzer, PacketLogger, Pcap-ng, Sniffer,
-   Tektronix K12, WildPackets {Airo,Ether}Peek.
+   Endace ERF, Pcap-NG.
 
 Getting Wireshark
 
