@@ -78,9 +78,6 @@
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
 #endif
-#if defined(HAVE_AIRPCAP)
-#include "../../image/toolbar/capture_airpcap_16.xpm"
-#endif
 #if defined(HAVE_PCAP_REMOTE)
 #include "ui/gtk/remote_icons.h"
 #endif

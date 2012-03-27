@@ -216,7 +216,7 @@ store_selected(GtkWidget *choose_bt, gpointer name)
 /* start capture button was pressed */
 static void
 #ifdef HAVE_AIRPCAP
-capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
+capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
 #else
 capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
 #endif
@@ -418,7 +418,7 @@ GtkWidget * capture_get_if_icon(interface_t *device)
   case IF_DIALUP:
     return xpm_to_widget(modem_16_xpm);
 #endif
-  case IF_WIRELESS: 
+  case IF_WIRELESS:
     return pixbuf_to_widget(network_wireless_pb_data);
 #ifdef HAVE_AIRPCAP
   case IF_AIRPCAP:
@@ -633,7 +633,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     reactivate_window(cap_if_w);
     return;
   }
-  
+
   if (global_capture_opts.all_ifaces->len == 0) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                   "There are no interfaces on which a capture can be done.");
@@ -818,13 +818,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
     gtk_list = g_array_remove_index(gtk_list, ifs);
     g_array_insert_val(gtk_list, ifs, data);
-    
+
     row++;
     if (row <= 10) {
         /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
       gtk_widget_get_preferred_size(GTK_WIDGET(data.choose_bt), &requisition, NULL);
       height += requisition.height;
-    } 
+    }
   }
 
   g_string_free(if_tool_str, TRUE);
