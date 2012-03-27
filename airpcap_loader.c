@@ -1388,7 +1388,7 @@ get_airpcap_interface_list(int *err, char **err_str)
     airpcap_if_info_t *if_info;
     int n_adapts;
     AirpcapDeviceDescription *devsList, *adListEntry;
-    char errbuf[PCAP_ERRBUF_SIZE];
+    char errbuf[AIRPCAP_ERRBUF_SIZE];
 
     *err = 0;
 
