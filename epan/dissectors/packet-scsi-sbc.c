@@ -123,6 +123,12 @@ static int hf_scsi_sbc_disable_write		= -1;
 static int hf_scsi_sbc_xdwrite_flags		= -1;
 static int hf_scsi_sbc_xdwriteread_flags	= -1;
 static int hf_scsi_sbc_xpwrite_flags		= -1;
+static int hf_scsi_sbc_unmap_flags		= -1;
+static int hf_scsi_sbc_unmap_anchor	       	= -1;
+static int hf_scsi_sbc_unmap_data_length       	= -1;
+static int hf_scsi_sbc_unmap_block_descriptor_data_length = -1;
+static int hf_scsi_sbc_unmap_lba		= -1;
+static int hf_scsi_sbc_unmap_num_blocks		= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
@@ -141,6 +147,8 @@ static gint ett_scsi_synccache			= -1;
 static gint ett_scsi_verify			= -1;
 static gint ett_scsi_wrverify			= -1;
 static gint ett_scsi_writesame			= -1;
+static gint ett_scsi_unmap			= -1;
+static gint ett_scsi_unmap_block_descriptor	= -1;
 
 
 
@@ -1056,6 +1064,59 @@ dissect_sbc_writesame16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 static void
+dissect_sbc_unmap (tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, guint offset, gboolean isreq,
+                            gboolean iscdb,
+                            guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    static const int *unmap_fields[] = {
+	&hf_scsi_sbc_unmap_anchor,
+	NULL
+    };
+
+    if (!tree)
+        return;
+
+    if (isreq && iscdb) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_unmap_flags,
+            ett_scsi_unmap, unmap_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item (tree, hf_scsi_sbc_alloclen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+    } else if (isreq) {
+        proto_tree_add_item (tree, hf_scsi_sbc_unmap_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_sbc_unmap_block_descriptor_data_length, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+	offset += 8;
+	while (tvb_reported_length_remaining(tvb, offset) >=16) {
+	    proto_tree *tr;
+	    proto_item *it;
+	    gint64 lba;
+	    gint32 num_blocks;
+
+	    it = proto_tree_add_text(tree, tvb, offset, 16, "UNMAP Block Descriptor: LBA ");
+	    tr = proto_item_add_subtree(it, ett_scsi_unmap_block_descriptor);
+
+	    proto_tree_add_item (tr, hf_scsi_sbc_unmap_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
+	    lba = tvb_get_ntoh64 (tvb, offset);
+
+	    proto_tree_add_item (tr, hf_scsi_sbc_unmap_num_blocks, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+	    num_blocks = tvb_get_ntohl(tvb, offset+8);
+
+	    if (num_blocks > 1) {
+                proto_item_append_text (it, "%" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u  ", lba, lba+num_blocks-1);
+	    } else {
+                proto_item_append_text (it, "%" G_GINT64_MODIFIER "u  ", lba);
+	    }
+
+	    offset += 16;
+	}
+    }
+}
+
+static void
 dissect_sbc_readdefectdata12 (tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *tree, guint offset, gboolean isreq,
                             gboolean iscdb,
@@ -1265,6 +1326,7 @@ const value_string scsi_sbc_vals[] = {
     {SCSI_SBC_SYNCCACHE10       , "Synchronize Cache(10)"},
     {SCSI_SBC_SYNCCACHE16       , "Synchronize Cache(16)"},
     {SCSI_SPC_TESTUNITRDY       , "Test Unit Ready"},
+    {SCSI_SBC_UNMAP             , "Unmap"},
     {SCSI_SBC_VERIFY10          , "Verify(10)"},
     {SCSI_SBC_VERIFY12          , "Verify(12)"},
     {SCSI_SBC_VERIFY16          , "Verify(16)"},
@@ -1359,7 +1421,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x3f*/{dissect_sbc_writelong10},
 /*SBC 0x40*/{NULL},
 /*SBC 0x41*/{dissect_sbc_writesame10},
-/*SBC 0x42*/{NULL},
+/*SBC 0x42*/{dissect_sbc_unmap}, 
 /*SBC 0x43*/{NULL},
 /*SBC 0x44*/{NULL},
 /*SBC 0x45*/{NULL},
@@ -1772,6 +1834,24 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_xpwrite_flags,
           {"Flags", "scsi.sbc.xpwrite.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
            HFILL}},
+        { &hf_scsi_sbc_unmap_anchor,
+          {"ANCHOR", "scsi.sbc.unmap.anchor", FT_BOOLEAN, 8, NULL,
+           0x01, NULL, HFILL}},
+        { &hf_scsi_sbc_unmap_flags,
+          {"Flags", "scsi.sbc.unmap_flags", FT_UINT8, BASE_HEX,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_unmap_data_length,
+          {"Data Length", "scsi.sbc.unmap.data_length", FT_UINT16, BASE_DEC,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_unmap_block_descriptor_data_length,
+          {"Block Descriptor Data Length", "scsi.sbc.unmap.block_descriptor_data_length", FT_UINT16, BASE_DEC,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_unmap_lba,
+          {"LBA", "scsi.sbc.unmap.lba", FT_UINT64, BASE_DEC,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_unmap_num_blocks,
+          {"Num Blocks", "scsi.sbc.unmap.num_blocks", FT_UINT32, BASE_DEC,
+           NULL, 0, NULL, HFILL}},
 	};
 
 
@@ -1793,7 +1873,9 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_synccache,
 		&ett_scsi_verify,
 		&ett_scsi_wrverify,
-		&ett_scsi_writesame
+		&ett_scsi_writesame,
+		&ett_scsi_unmap,
+		&ett_scsi_unmap_block_descriptor
 	};
 
 	/* Register the protocol name and description */

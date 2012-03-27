@@ -55,6 +55,7 @@
 #define SCSI_SBC_STARTSTOPUNIT          0x1B
 #define SCSI_SBC_SYNCCACHE10            0x35
 #define SCSI_SBC_SYNCCACHE16            0x91
+#define SCSI_SBC_UNMAP                  0x42
 #define SCSI_SBC_VERIFY10               0x2F
 #define SCSI_SBC_VERIFY12               0xAF
 #define SCSI_SBC_VERIFY16               0x8F
