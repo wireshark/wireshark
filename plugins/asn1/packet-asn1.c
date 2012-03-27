@@ -4666,7 +4666,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 
 		if (ISOPTIONAL) { /* must check the tag */
 			while(! MATCH) {   /* check optional here again...? */
-				if (asn1_verbose)
+				if (asn1_verbose && info)
 					g_message("    got %c%d, found %c%d", tag_class[class], tag,
 							tag_class[info->tclass], info->tag);
 				NEXT;
@@ -4686,7 +4686,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 						out->flags |= OUT_FLAG_noname;
 						if (asn1_verbose)
 							g_message("    *end of optional list...");
-						info = 0; /* this is not valid any more... */
+						info = NULL; /* this is not valid any more... */
 					}
 					break;  /* end of list */
 				}
