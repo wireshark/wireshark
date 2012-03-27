@@ -1731,12 +1731,18 @@ AC_DEFINE(WS_VAR_IMPORT, extern, [Define as the string to precede external varia
 AC_DEFINE(WS_MSVC_NORETURN,, [Define as the string to precede declarations of routines that never return])
 
 AC_ARG_ENABLE(airpcap,
+[
   AC_HELP_STRING( [--enable-airpcap],
-                  [use AirPcap in Wireshark @<:@default=no@:>@]),
+                  [use AirPcap in Wireshark @<:@default=yes@:>@])
+],[
   enable_airpcap=$enableval
   if test x$enable_airpcap != xno; then
 	AC_DEFINE(HAVE_AIRPCAP, 1, [Enable AirPcap])
   fi
+],[
+  enable_airpcap=yes
+  AC_DEFINE(HAVE_AIRPCAP, 1, [Enable AirPcap])
+]
 )
 
 dnl Checks for typedefs, structures, and compiler characteristics.
