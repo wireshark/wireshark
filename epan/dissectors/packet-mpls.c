@@ -13,9 +13,9 @@
  *
  * (c) Copyright 2011, Shobhank Sharma <ssharma5@ncsu.edu>
  *     - Removed some mpls preferences which are no longer relevant/needed like 
- *	  decode PWAC payloads as PPP traffic and assume all channel types except
+ *       decode PWAC payloads as PPP traffic and assume all channel types except
  *       0x21 are raw BFD. 
- *     - MPLS extension from PW-ACH to MPLS Generic Associated Channel as per RFC 5586	
+ *     - MPLS extension from PW-ACH to MPLS Generic Associated Channel as per RFC 5586
  *     - Updated Pseudowire Associated Channel Types as per http://www.iana.org/assignments/pwe3-parameters
  *
  * (c) Copyright 2011, Jaihari Kalijanakiraman <jaiharik@ipinfusion.com>
@@ -83,7 +83,7 @@ const value_string special_labels[] = {
     {LABEL_IP6_EXPLICIT_NULL,   "IPv6 Explicit-Null"},
     {LABEL_IMPLICIT_NULL,       "Implicit-Null"},
     {LABEL_OAM_ALERT,           "OAM Alert"},
-    {LABEL_GACH, 		"Generic Associated Channel Label (GAL)"},
+    {LABEL_GACH,                "Generic Associated Channel Label (GAL)"},
     {0, NULL }
 };
 
@@ -297,13 +297,13 @@ static const value_string mpls_pwac_types[] = {
     { 0x0024, "Protection State Coordination Protocol (PSC)"},
     { 0x0025, "On-Demand CV"},
     { 0x0026, "LI"},
-    { 0x0057, "IPv6 packet" },	
+    { 0x0057, "IPv6 packet" },
     { 0x0058, "Fault OAM"},
     { 0x7FF8, "Reserved for Experimental Use"},
     { 0x7FF9, "Reserved for Experimental Use"},
     { 0x7FFA, "Reserved for Experimental Use"},
     { 0x7FFB, "Reserved for Experimental Use"},
-    { 0x7FFC, "Reserved for Experimental Use"},    	
+    { 0x7FFC, "Reserved for Experimental Use"},
     { 0x7FFD, "Reserved for Experimental Use"},
     { 0x7FFE, "Reserved for Experimental Use"},
     { 0x7FFF, "Reserved for Experimental Use"},
@@ -373,7 +373,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             (channel_type == ACH_TYPE_ONDEMAND_CV)) {
             switch (channel_type) { 
                 case ACH_TYPE_BFD_CC:
-     
+
                     proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
                                                 tvb, (offset + 2), 2, channel_type,
                                                 "Channel Type: %s (0x%04x)",
@@ -382,7 +382,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = offset + 4;
                     next_tvb = tvb_new_subset_remaining (tvb, offset);
                     dissect_bfd_control (next_tvb, pinfo, tree);
-  
+
                 break;
 
                 case ACH_TYPE_BFD_CV:
@@ -397,17 +397,17 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     dissect_bfd_control (next_tvb, pinfo, tree);
                     next_tvb = tvb_new_subset_remaining (tvb, offset);
                     dissect_bfd_mep (next_tvb, tree);
-  	
- 	         break;
 
- 	        case ACH_TYPE_ONDEMAND_CV:
+                break;
+
+                case ACH_TYPE_ONDEMAND_CV:
   
                     proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
                                                 tvb, (offset + 2), 2, channel_type,
                                                 "Channel Type: %s (0x%04x)",
                                                 val_to_str (channel_type, mpls_pwac_types, "On-Demand CV"),
                                                 channel_type);
- 	                offset = offset + 4;
+                       offset = offset + 4;
                     next_tvb = tvb_new_subset_remaining (tvb, offset);
                     dissect_mpls_echo (next_tvb, pinfo, tree); 
  
@@ -415,7 +415,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             return;
         }
-     
+
 
         proto_tree_add_uint_format(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
                                    tvb, 2, 2, channel_type,
@@ -555,8 +555,8 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
         decode_mpls_label(tvb, offset, &label, &exp, &bos, &ttl);
-	
-	/* FF: export (last shim in stack) info to subdissectors */
+
+        /* FF: export (last shim in stack) info to subdissectors */
         mplsinfo.label = label;
         mplsinfo.exp = exp;
         mplsinfo.bos = bos;
@@ -596,19 +596,19 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         offset += 4;
         
-	if (label == LABEL_GACH && !bos)
+        if (label == LABEL_GACH && !bos)
         {
-	    proto_tree_add_text(tree, tvb, 0, -1, "Invalid Label");	
-	}
+            proto_tree_add_text(tree, tvb, 0, -1, "Invalid Label");
+        }
 
-	if (label == LABEL_GACH && bos) {
-	    g_strlcpy(PW_ACH,"Generic Associated Channel Header",50);
-	    next_tvb = tvb_new_subset_remaining(tvb, offset);
-	    dissect_pw_ach( next_tvb, pinfo, tree );
-	    return;	
-	}
-	else
-	g_strlcpy(PW_ACH,"PW Associated Channel Header",50);
+        if (label == LABEL_GACH && bos) {
+            g_strlcpy(PW_ACH,"Generic Associated Channel Header",50);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            dissect_pw_ach( next_tvb, pinfo, tree );
+            return;
+        }
+        else
+        g_strlcpy(PW_ACH,"PW Associated Channel Header",50);
 
         if (bos) break;
     }
@@ -798,3 +798,15 @@ proto_reg_handoff_mpls(void)
     dissector_pw_cesopsn            = find_dissector("pw_cesopsn_mpls");
 
 }
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
