@@ -75,6 +75,10 @@ static dissector_handle_t data_handle;
 
 #define EAPOL_HDR_LEN	4
 
+#define EAPOL_2001      1
+#define EAPOL_2004      2
+#define EAPOL_2010      3
+
 #define EAP_PACKET		0
 #define EAPOL_START		1
 #define EAPOL_LOGOFF		2
@@ -84,6 +88,13 @@ static dissector_handle_t data_handle;
 #define EAPOL_RSN_KEY		2 /* TBD, may change in final IEEE 802.1X-REV
 				   */
 #define EAPOL_WPA_KEY		254
+
+static const value_string eapol_version_vals[] = {
+    { EAPOL_2001,   "802.1X-2001" },
+    { EAPOL_2004,   "802.1X-2004" },
+    { EAPOL_2010,   "802.1X-2010" },
+    { 0,            NULL }
+};
 
 static const value_string eapol_type_vals[] = {
     { EAP_PACKET,            "EAP Packet" },
@@ -327,7 +338,7 @@ proto_register_eapol(void)
   static hf_register_info hf[] = {
 	{ &hf_eapol_version, {
 		"Version", "eapol.version", FT_UINT8, BASE_DEC,
-		NULL, 0x0, NULL, HFILL }},
+		VALS(eapol_version_vals), 0x0, NULL, HFILL }},
 	{ &hf_eapol_type, {
 		"Type", "eapol.type", FT_UINT8, BASE_DEC,
 		VALS(eapol_type_vals), 0x0, NULL, HFILL }},
