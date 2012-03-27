@@ -215,11 +215,7 @@ store_selected(GtkWidget *choose_bt, gpointer name)
 
 /* start capture button was pressed */
 static void
-#ifdef HAVE_AIRPCAP
 capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
-#else
-capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
-#endif
 {
   if_dlg_data_t data;
   guint ifs;
@@ -842,9 +838,9 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   window_set_cancel_button(cap_if_w, close_bt, window_cancel_button_cb);
   gtk_widget_set_tooltip_text(close_bt, "Close this window.");
   options_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_OPTIONS);
-  g_signal_connect(options_bt, "clicked", G_CALLBACK(capture_prepare_cb), device.name);
+  g_signal_connect(options_bt, "clicked", G_CALLBACK(capture_prepare_cb), NULL);
   capture_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
-  g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), device.name);
+  g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), NULL);
   gtk_widget_get_preferred_size(GTK_WIDGET(close_bt), &requisition, NULL);
   /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
   height += requisition.height + 40 + ifs;
