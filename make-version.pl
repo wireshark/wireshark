@@ -75,7 +75,7 @@ my $set_release = 0;
 my %version_pref = (
 	"version_major" => 1,
 	"version_minor" => 6,
-	"version_micro" => 6,
+	"version_micro" => 7,
 	"version_build" => 0,
 
 	"enable"        => 1,
