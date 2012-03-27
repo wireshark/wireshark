@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.12">
+  <!ENTITY WiresharkCurrentVersion "1.4.13">
 
 ]>
 
@@ -37,64 +37,20 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-04.html">wnpa-sec-2012-04</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
           </para>
           <para>
-            The ANSI A dissector could dereference a NULL pointer and crash.
-            <!-- Fixed in trunk: r40962 -->
-            <!-- Fixed in trunk-1.6: r41568 -->
-            <!-- Fixed in trunk-1.4: r41768 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6823">Bug
-            6823</ulink>)
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
+          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.6.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-06.html">wnpa-sec-2012-06</ulink>
-          </para>
-          <para>
-            The pcap and pcap-ng file parsers could crash trying to read ERF data.
-            <!-- Fixed in trunk: r41008 -->
-            <!-- Fixed in trunk-1.6: r41578 -->
-            <!-- Fixed in trunk-1.4: r41769 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6804">Bug
-            6804</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-07.html">wnpa-sec-2012-07</ulink>
-          </para>
-          <para>
-            The MP2T dissector could try to allocate too much memory and crash.
-            <!-- Fixed in trunk: r41001, r41002 -->
-            <!-- Fixed in trunk-1.6: r41057 -->
-            <!-- Fixed in trunk-1.4: r41776 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6804">Bug
-            6804</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            The Windows installers now include GnuTLS 1.12.18, which fixes
-	    <ulink url="http://www.gnu.org/software/gnutls/security.html">several
-	    vulnerabilities</ulink>.
-          </para>
         </listitem>
 
       </itemizedlist>
@@ -116,84 +72,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Some PGM options are not parsed correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5687">Bug
-          5687</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          dumpcap crashes when capturing from pipe to a pcap-ng file (e.g., when passing data from CACE Pilot to Wireshark).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5939">Bug
-          5939</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          No error for UDP/IPv6 packet with zero checksum.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6232">Bug
-          6232</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          packetBB dissector bug: More than 1000000 items in the tree -- possible infinite loop.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6687">Bug
-          6687</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Ethernet traces in K12 text format sometimes give bogus &quot;malformed frame&quot; errors and other problems.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6735">Bug
-          6735</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          non-IPP packets to or from port 631 are dissected as IPP.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6765">Bug
-          6765</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IAX2 dissector reads past end of packet for unknown IEs.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6815">Bug
-          6815</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Pcap-NG files with SHB options longer than 100 bytes aren't recognized as pcap-NG files, and options longer than 100 bytes in other blocks aren't handled either.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6846">Bug
-          6846</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Patch to fix DTLS decryption.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6847">Bug
-          6847</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Expression... dialog is crash.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6891">Bug
-          6891</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ISAKMP : VendorID CheckPoint : Malformed Packet.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6972">Bug
-          6972</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Radiotap dissector lists a bogus &quot;DBM TX Attenuation&quot; bit.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7000">Bug
-          7000</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  MySQL dissector assertion.
-          (<ulink url="http://ask.wireshark.org/questions/8649">Ask
-          8649</ulink>)
-        </para></listitem>
-
       </itemizedlist>
 
     </para>
@@ -203,7 +81,7 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
 
-There are no new features in this release.
+.
 
     </para>
     </section>
@@ -211,7 +89,7 @@ There are no new features in this release.
     <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
-There are no new protocols in this release.
+.
 
     </para>
     </section>
@@ -221,13 +99,6 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-HTTP,
-ISAKMP,
-MySQL,
-PacketBB,
-PGM,
-TCP,
-UDP
 
     </para>
     </section>
@@ -235,7 +106,7 @@ UDP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF, Pcap-NG.
+.
 
     </para>
     </section>
