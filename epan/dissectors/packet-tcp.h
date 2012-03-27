@@ -118,7 +118,7 @@ struct tcp_acked {
 	guint32  rto_frame;
 	nstime_t rto_ts;	/* Time since previous packet for
 				   retransmissions. */
-	guint16 flags;
+	guint16 flags; /* see TCP_A_* in packet-tcp.c */
 	guint32 dupack_num;	/* dup ack number */
 	guint32 dupack_frame;	/* dup ack to frame # */
 	guint32 bytes_in_flight; /* number of bytes in flight */

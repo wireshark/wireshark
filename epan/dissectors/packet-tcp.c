@@ -94,6 +94,7 @@ static int hf_tcp_checksum_bad = -1;
 static int hf_tcp_checksum_good = -1;
 static int hf_tcp_len = -1;
 static int hf_tcp_urgent_pointer = -1;
+static int hf_tcp_analysis = -1;
 static int hf_tcp_analysis_flags = -1;
 static int hf_tcp_analysis_bytes_in_flight = -1;
 static int hf_tcp_analysis_acks_frame = -1;
@@ -753,15 +754,18 @@ pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
 /* when this function returns, it will (if createflag) populate the ta pointer.
  */
 static void
-tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_analysis *tcpd)
+tcp_analyze_get_acked_struct(guint32 frame, guint32 seq, guint32 ack, gboolean createflag, struct tcp_analysis *tcpd)
 {
-    if (!tcpd)
-        return;
+    emem_tree_key_t key[] = {{1, &frame}, {1, &seq}, {1, &ack}, {0, NULL}};
 
-    tcpd->ta=se_tree_lookup32(tcpd->acked_table, frame);
+    if (!tcpd) {
+        return;
+    }
+
+    tcpd->ta = se_tree_lookup32_array(tcpd->acked_table, key);
     if((!tcpd->ta) && createflag){
-        tcpd->ta=se_alloc0(sizeof(struct tcp_acked));
-        se_tree_insert32(tcpd->acked_table, frame, (void *)tcpd->ta);
+        tcpd->ta = se_alloc0(sizeof(struct tcp_acked));
+        se_tree_insert32_array(tcpd->acked_table, key, (void *)tcpd->ta);
     }
 }
 
@@ -829,7 +833,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     &&  seq==tcpd->fwd->nextseq
     &&  tcpd->rev->window==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_ZERO_WINDOW_PROBE;
         goto finished_fwd;
@@ -843,7 +847,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     if( window==0
     && (flags&(TH_RST|TH_FIN|TH_SYN))==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_ZERO_WINDOW;
     }
@@ -861,7 +865,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     &&  GT_SEQ(seq, tcpd->fwd->nextseq)
     &&  (flags&(TH_RST))==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_LOST_PACKET;
 
@@ -880,7 +884,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     &&  seq==(tcpd->fwd->nextseq-1)
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_KEEP_ALIVE;
     }
@@ -896,7 +900,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     &&  ack==tcpd->fwd->lastack
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_WINDOW_UPDATE;
     }
@@ -915,7 +919,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     &&  (seq+seglen)==(tcpd->rev->lastack+(tcpd->rev->window<<(tcpd->rev->win_scale==-2?0:tcpd->rev->win_scale)))
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_WINDOW_FULL;
     }
@@ -934,7 +938,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     && (tcpd->rev->lastsegmentflags&TCP_A_KEEP_ALIVE)
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_KEEP_ALIVE_ACK;
         goto finished_fwd;
@@ -955,7 +959,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     && (tcpd->rev->lastsegmentflags&TCP_A_ZERO_WINDOW_PROBE)
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_ZERO_WINDOW_PROBE_ACK;
         goto finished_fwd;
@@ -974,7 +978,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ){
         tcpd->fwd->dupacknum++;
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_DUPLICATE_ACK;
         tcpd->ta->dupack_num=tcpd->fwd->dupacknum;
@@ -1004,7 +1008,7 @@ finished_fwd:
     &&  (flags&(TH_ACK))!=0 ){
 /*QQQ tested*/
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
         /* update 'max seq to be acked' in the other direction so we don't get
@@ -1044,7 +1048,7 @@ finished_fwd:
         &&  tcpd->rev->lastack==seq
         &&  t<20000000 ){
             if(!tcpd->ta){
-                tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+                tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
             }
             tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
             goto finished_checking_retransmission_type;
@@ -1060,7 +1064,7 @@ finished_fwd:
         if( t<3000000
         && tcpd->fwd->nextseq != seq + seglen ){
             if(!tcpd->ta){
-                tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+                tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
             }
             tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
             goto finished_checking_retransmission_type;
@@ -1068,7 +1072,7 @@ finished_fwd:
 
         /* Then it has to be a generic retransmission */
         if(!tcpd->ta){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_RETRANSMISSION;
         nstime_delta(&tcpd->ta->rto_ts, &pinfo->fd->abs_ts, &tcpd->fwd->nextseqtime);
@@ -1145,7 +1149,7 @@ finished_checking_retransmission_type:
 
         /* If this ack matches the segment, process accordingly */
         if(ack==ual->nextseq){
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
             tcpd->ta->frame_acked=ual->frame;
             nstime_delta(&tcpd->ta->ts, &pinfo->fd->abs_ts, &ual->ts);
         }
@@ -1206,7 +1210,7 @@ finished_checking_retransmission_type:
 
         if (in_flight>0 && in_flight<2000000000) {
             if(!tcpd->ta){
-                tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+                tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
             }
             tcpd->ta->bytes_in_flight = in_flight;
         }
@@ -1536,7 +1540,8 @@ tcp_sequence_number_analysis_print_bytes_in_flight(packet_info * pinfo _U_,
 }
 
 static void
-tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree, struct tcp_analysis *tcpd)
+tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
+                          struct tcp_analysis *tcpd, guint32 seq, guint32 ack)
 {
     struct tcp_acked *ta = NULL;
     proto_item *item;
@@ -1547,14 +1552,14 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
         return;
     }
     if(!tcpd->ta){
-        tcp_analyze_get_acked_struct(pinfo->fd->num, FALSE, tcpd);
+        tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, FALSE, tcpd);
     }
     ta=tcpd->ta;
     if(!ta){
         return;
     }
 
-    item=proto_tree_add_text(parent_tree, tvb, 0, 0, "SEQ/ACK analysis");
+    item=proto_tree_add_item(parent_tree, hf_tcp_analysis, tvb, 0, 0, ENC_NA);
     PROTO_ITEM_SET_GENERATED(item);
     tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
@@ -4096,7 +4101,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tcpd=get_tcp_conversation_data(conv,pinfo);
         }
         if(!tcpd->ta)
-            tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
+            tcp_analyze_get_acked_struct(pinfo->fd->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
         tcpd->ta->flags|=TCP_A_REUSED_PORTS;
     }
 
@@ -4587,7 +4592,14 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
     if(tcp_analyze_seq){
-        tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd);
+        guint32 use_seq = tcph->th_seq;
+        guint32 use_ack = tcph->th_ack;
+        /* May need to recover absolute values here... */
+        if (tcp_relative_seq) {
+            use_seq += tcpd->fwd->base_seq;
+            use_ack += tcpd->rev->base_seq;
+        }
+        tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
     }
 
     /* handle conversation timestamps */
@@ -4812,6 +4824,10 @@ proto_register_tcp(void)
         { &hf_tcp_checksum_bad,
         { "Bad Checksum",       "tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+
+        { &hf_tcp_analysis,
+        { "SEQ/ACK analysis",   "tcp.analysis", FT_NONE, BASE_NONE, NULL, 0x0,
+            "This frame has some of the TCP analysis shown", HFILL }},
 
         { &hf_tcp_analysis_flags,
         { "TCP Analysis Flags",     "tcp.analysis.flags", FT_NONE, BASE_NONE, NULL, 0x0,
