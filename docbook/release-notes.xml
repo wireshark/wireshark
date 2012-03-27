@@ -105,6 +105,14 @@ Wireshark Info
           </para> -->
         </listitem>
 
+        <listitem>
+          <para>
+            The Windows installers now include GnuTLS 1.12.18, which fixes
+	    <ulink url="http://www.gnu.org/software/gnutls/security.html">several
+	    vulnerabilities</ulink>.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -282,6 +290,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Adding a Custom HTTP Header Field with a trailing colon causes wireshark to immediately crash (and crash upon restart).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6982">Bug
+          6982</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Radiotap dissector lists a bogus &quot;DBM TX Attenuation&quot; bit.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7000">Bug
           7000</ulink>)
@@ -332,6 +346,7 @@ DTLS,
 GOOSE,
 GSM Management,
 GTP,
+HTTP,
 IAX2,
 IEEE 802.11,
 IPP,
