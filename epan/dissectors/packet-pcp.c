@@ -982,8 +982,6 @@ static int dissect_pcp_message_result(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                 pmvalueblock_offset, pmvalueblock_value_length-4, ENC_ASCII|ENC_NA);
                             break;
                         case PM_TYPE_AGGREGATE:
-                            proto_tree_add_item(pcp_result_instance_tree, hf_pcp_instance_value_aggr, tvb,
-                                pmvalueblock_offset, pmvalueblock_value_length-4, ENC_NA);
                         case PM_TYPE_AGGREGATE_STATIC:
                             proto_tree_add_item(pcp_result_instance_tree, hf_pcp_instance_value_aggr, tvb,
                                 pmvalueblock_offset, pmvalueblock_value_length-4, ENC_NA);
