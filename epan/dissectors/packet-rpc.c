@@ -864,7 +864,6 @@ typedef struct _gssauth_context_info_t {
 } gssauth_context_info_t;
 
 
-#include <stdio.h>
 static int
 dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 			    packet_info *pinfo, rpc_conv_info_t *rpc_conv_info _U_,
