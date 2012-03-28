@@ -34,12 +34,16 @@ if "%VS_VERSION%"=="" goto no_vs_version
 
 rem Target API
 
-if not "%FrameworkDir%"=="" (
-  echo %FrameworkDir% | find "64"
-  if not errorlevel 1 (
-    set API_BITS=64
-  ) else (
-    set API_BITS=32
+if not "%FrameworkDir64%"=="" (
+  set API_BITS=64
+) else (
+  if not "%FrameworkDir%"=="" (
+    echo %FrameworkDir% | find "64"
+    if not errorlevel 1 (
+      set API_BITS=64
+    ) else (
+      set API_BITS=32
+    )
   )
 )
 
