@@ -50,6 +50,7 @@ const value_string ssl_version_short_names[] = {
     { SSL_VER_TLS,        "TLSv1" },
     { SSL_VER_TLSv1DOT1,  "TLSv1.1" },
     { SSL_VER_DTLS,       "DTLSv1.0" },
+    { SSL_VER_DTLS1DOT2,  "DTLSv1.2" },
     { SSL_VER_PCT,        "PCT" },
     { SSL_VER_TLSv1DOT2,  "TLSv1.2" },
     { 0x00, NULL }
@@ -410,6 +411,7 @@ const value_string ssl_31_content_type[] = {
 };
 
 const value_string ssl_versions[] = {
+    { 0xfefd, "DTLS 1.2" },
     { 0xfeff, "DTLS 1.0" },
     { 0x0100, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { 0x0303, "TLS 1.2" },
@@ -1909,7 +1911,8 @@ static gint prf(SslDecryptSession* ssl,StringInfo* secret,gchar* usage,StringInf
     if (ssl->version_netorder==SSLV3_VERSION){
         ret = ssl3_prf(secret,usage,rnd1,rnd2,out);
     }else if (ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION || 
-            ssl->version_netorder==DTLSV1DOT0_VERSION || ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
+            ssl->version_netorder==DTLSV1DOT0_VERSION || ssl->version_netorder==DTLSV1DOT2_VERSION ||
+            ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
         ret = tls_prf(secret,usage,rnd1,rnd2,out);
     }else{
         if (ssl->cipher_suite.dig == DIG_SHA384){
@@ -2571,6 +2574,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         memcpy(out_str->data,out_str->data+(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0),worklen);
     }
     if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
+      ssl->version_netorder==DTLSV1DOT2_VERSION ||
       ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
         worklen=worklen-decoder->cipher_suite->block;
         memcpy(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
@@ -2607,6 +2611,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         }
     }
     else if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
+        ssl->version_netorder==DTLSV1DOT2_VERSION ||
         ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
         /* Try rfc-compliant mac first, and if failed, try old openssl's non-rfc-compliant mac */
         if(dtls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)>= 0) {

@@ -484,6 +484,11 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      offset, conv_version,
                                      ssl_session);
         break;
+      case SSL_VER_DTLS1DOT2:
+        offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
+                                     offset, conv_version,
+                                     ssl_session);
+        break;
 
         /* that failed, so apply some heuristics based
          * on this individual packet
@@ -802,6 +807,16 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
           }
           /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
+      if (version == DTLSV1DOT2_VERSION)
+        {
+
+          *conv_version = SSL_VER_DTLS1DOT2;
+          if (ssl) {
+            ssl->version_netorder = version;
+            ssl->state |= SSL_VERSION;
+          }
+          /*ssl_set_conv_version(pinfo, ssl->version);*/
+        }
     }
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
@@ -809,6 +824,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         {
           col_set_str(pinfo->cinfo, COL_PROTOCOL,
                       val_to_str_const(SSL_VER_DTLS, ssl_version_short_names, "SSL"));
+        }
+      else if (version == DTLSV1DOT2_VERSION)
+        {
+          col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                      val_to_str_const(SSL_VER_DTLS1DOT2, ssl_version_short_names, "SSL"));
         }
       else
         {
@@ -1620,6 +1640,7 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
       case SSL_HND_HELLO_EXT_HEARTBEAT:
           proto_tree_add_item(ext_tree, hf_dtls_heartbeat_extension_mode,
                               tvb, offset, 1, ENC_BIG_ENDIAN);
+          offset += ext_len;
           break;
       default:
           proto_tree_add_bytes_format(ext_tree, hf_dtls_handshake_extension_data,
@@ -2092,6 +2113,10 @@ dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     proto_tree_add_item(tree, hf_dtls_handshake_finished,
                         tvb, offset, 12, ENC_NA);
     break;
+  case SSL_VER_DTLS1DOT2:
+    proto_tree_add_item(tree, hf_dtls_handshake_finished,
+                        tvb, offset, 12, ENC_NA);
+    break;
   }
 }
 
@@ -2185,7 +2210,8 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
 
   /* now check to see if the version byte appears valid */
   version = tvb_get_ntohs(tvb, offset + 1);
-  if (version != DTLSV1DOT0_VERSION && version != DTLSV1DOT0_VERSION_NOT)
+  if (version != DTLSV1DOT0_VERSION && version != DTLSV1DOT2_VERSION &&
+      version != DTLSV1DOT0_VERSION_NOT)
     {
       return 0;
     }

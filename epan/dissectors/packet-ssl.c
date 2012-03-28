@@ -2381,6 +2381,7 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         case SSL_HND_HELLO_EXT_HEARTBEAT:
             proto_tree_add_item(ext_tree, hf_ssl_heartbeat_extension_mode,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += ext_len;
             break;
         default:
             proto_tree_add_bytes_format(ext_tree, hf_ssl_handshake_extension_data,

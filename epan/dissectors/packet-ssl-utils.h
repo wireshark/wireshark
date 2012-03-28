@@ -63,6 +63,7 @@
 #define SSL_VER_TLS                       3
 #define SSL_VER_TLSv1DOT1                 4
 #define SSL_VER_DTLS                      5
+#define SSL_VER_DTLS1DOT2                 8
 #define SSL_VER_PCT                       6
 #define SSL_VER_TLSv1DOT2                 7
 
@@ -206,6 +207,7 @@ typedef struct _StringInfo {
 #define TLSV1DOT2_VERSION      0x303
 #define DTLSV1DOT0_VERSION     0xfeff
 #define DTLSV1DOT0_VERSION_NOT 0x100
+#define DTLSV1DOT2_VERSION     0xfefd
 
 #define SSL_CLIENT_RANDOM       (1<<0)
 #define SSL_SERVER_RANDOM       (1<<1)
