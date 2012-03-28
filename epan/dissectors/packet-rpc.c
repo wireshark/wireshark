@@ -45,6 +45,7 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #include <epan/garrayfix.h>
+#include <epan/emem.h>
 
 /*
  * See:
@@ -196,6 +197,9 @@ static int hf_rpc_authgss_proc = -1;
 static int hf_rpc_authgss_seq = -1;
 static int hf_rpc_authgss_svc = -1;
 static int hf_rpc_authgss_ctx = -1;
+static int hf_rpc_authgss_ctx_create_frame = -1;
+static int hf_rpc_authgss_ctx_destroy_frame = -1;
+static int hf_rpc_authgss_ctx_len = -1;
 static int hf_rpc_authgss_major = -1;
 static int hf_rpc_authgss_minor = -1;
 static int hf_rpc_authgss_window = -1;
@@ -250,6 +254,7 @@ static gint ett_rpc_gss_token = -1;
 static gint ett_rpc_gss_data = -1;
 static gint ett_rpc_array = -1;
 static gint ett_rpc_authgssapi_msg = -1;
+static gint ett_gss_context = -1;
 
 static dissector_handle_t rpc_tcp_handle;
 static dissector_handle_t rpc_handle;
@@ -470,6 +475,13 @@ typedef struct _rpc_conv_info_t {
         emem_tree_t *xids;
 } rpc_conv_info_t;
 
+
+/* we can not hang this off the conversation structure above since the context
+   will be reused across all tcp connections between the client and the server.
+   a global tree for all contexts should still be unlikely to have collissions
+   here.
+*/
+emem_tree_t *authgss_contexts = NULL;
 
 unsigned int
 rpc_roundup(unsigned int a)
@@ -846,8 +858,94 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	return offset;
 }
 
+typedef struct _gssauth_context_info_t {
+	guint32	create_frame;
+	guint32 destroy_frame;
+} gssauth_context_info_t;
+
+
+#include <stdio.h>
 static int
-dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
+			    packet_info *pinfo, rpc_conv_info_t *rpc_conv_info _U_,
+			    gboolean is_create, gboolean is_destroy)
+{
+	proto_item *context_item;
+	proto_tree *context_tree;
+	int old_offset = offset;
+	int context_offset;
+	guint32 context_length;
+	gssauth_context_info_t *context_info;
+	emem_tree_key_t tkey[2];
+	guint32 key[4] = {0,0,0,0};
+
+	context_item = proto_tree_add_text(tree, tvb, offset, -1,
+		       			"GSS Context");
+
+	context_tree = proto_item_add_subtree(context_item,
+		    ett_gss_context);
+
+	context_length = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(context_tree, hf_rpc_authgss_ctx_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	context_offset = offset;
+	proto_tree_add_item(context_tree, hf_rpc_authgss_ctx, tvb, offset, context_length, ENC_NA);
+	offset += context_length;
+
+	offset = (offset + 3) & 0xffffffc;
+
+	if (context_length > 16) {
+		/* we only track contexts up to 16 bytes in size */
+		return offset;
+	}
+
+	tvb_memcpy(tvb, key, context_offset, context_length);
+	tkey[0].length = 4;
+	tkey[0].key    = &key[0];
+	tkey[1].length = 0;
+	tkey[1].key  = NULL;
+	
+	context_info = se_tree_lookup32_array(authgss_contexts, &tkey[0]);
+	if(context_info == NULL) {
+		tvb_memcpy(tvb, key, context_offset, context_length);
+		tkey[0].length = 4;
+		tkey[0].key    = &key[0];
+		tkey[1].length = 0;
+		tkey[1].key  = NULL;
+	
+	   	context_info = se_alloc(sizeof(gssauth_context_info_t));
+		context_info->create_frame  = 0;
+		context_info->destroy_frame = 0;
+		se_tree_insert32_array(authgss_contexts, &tkey[0], context_info);
+	}
+	if (is_create) {
+		context_info->create_frame = pinfo->fd->num;
+	}
+	if (is_destroy) {
+		context_info->destroy_frame = pinfo->fd->num;
+	}
+
+	if (context_info->create_frame) {
+		proto_item *it;
+		it = proto_tree_add_uint(context_tree, hf_rpc_authgss_ctx_create_frame, tvb, 0, 0, context_info->create_frame);
+		PROTO_ITEM_SET_GENERATED(it);
+	}
+
+	if (context_info->destroy_frame) {
+		proto_item *it;
+		it = proto_tree_add_uint(context_tree, hf_rpc_authgss_ctx_destroy_frame, tvb, 0, 0, context_info->destroy_frame);
+		PROTO_ITEM_SET_GENERATED(it);
+	}
+
+	proto_item_set_len(context_item, offset - old_offset);
+
+	return offset;
+}
+
+static int
+dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
+			 packet_info *pinfo, rpc_conv_info_t *rpc_conv_info)
 {
 	guint agc_v;
 	guint agc_proc;
@@ -878,8 +976,7 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 				    tvb, offset+0, 4, agc_svc);
 	offset += 4;
 
-	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_ctx,
-			offset);
+	offset = dissect_rpc_authgss_context(tree, tvb, offset, pinfo, rpc_conv_info, FALSE, agc_proc == RPCSEC_GSS_DESTROY ? TRUE : FALSE);
 
 	return offset;
 }
@@ -965,7 +1062,8 @@ dissect_rpc_authgssapi_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 }
 
 static int
-dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
+		 packet_info *pinfo, rpc_conv_info_t *rpc_conv_info)
 {
 	guint flavor;
 	guint length;
@@ -1000,7 +1098,7 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 			break;
 
 		case RPCSEC_GSS:
-			dissect_rpc_authgss_cred(tvb, ctree, offset+8);
+			dissect_rpc_authgss_cred(tvb, ctree, offset+8, pinfo, rpc_conv_info);
 			break;
 
 		case AUTH_GSSAPI:
@@ -1144,12 +1242,11 @@ dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 static int
 dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
-    packet_info *pinfo)
+			    packet_info *pinfo, rpc_conv_info_t *rpc_conv_info)
 {
 	int major, minor, window;
 
-	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_ctx,
-			offset);
+	offset = dissect_rpc_authgss_context(tree, tvb, offset, pinfo, rpc_conv_info, TRUE, FALSE);
 
 	major = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
@@ -1316,7 +1413,8 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 
 
 static int
-dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
+			      packet_info *pinfo _U_)
 {
 	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_data,
 			offset);
@@ -2131,7 +2229,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			rpc_conv_info = se_alloc(sizeof(rpc_conv_info_t));
 			rpc_conv_info->xids=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rpc_xids");
-
 			conversation_add_proto_data(conversation, proto_rpc, rpc_conv_info);
 		}
 
@@ -2197,7 +2294,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		offset += 16;
 
-		offset = dissect_rpc_cred(tvb, rpc_tree, offset);
+		offset = dissect_rpc_cred(tvb, rpc_tree, offset, pinfo, rpc_conv_info);
 		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
 
 		/* pass rpc_info to subdissectors */
@@ -2566,7 +2663,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			else {
 				offset = dissect_rpc_authgss_initres(tvb,
-					ptree, offset, pinfo);
+					ptree, offset, pinfo, rpc_conv_info);
 			}
 			break;
 
@@ -2585,7 +2682,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
 				offset = dissect_rpc_authgss_priv_data(tvb,
-						ptree, offset);
+						ptree, offset, pinfo);
 			}
 			break;
 
@@ -3636,6 +3733,15 @@ proto_register_rpc(void)
 		{ &hf_rpc_authgss_ctx, {
 			"GSS Context", "rpc.authgss.context", FT_BYTES,
 			BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_rpc_authgss_ctx_create_frame, {
+			"Created in frame", "rpc.authgss.context.created_frame", FT_FRAMENUM,
+			BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_rpc_authgss_ctx_destroy_frame, {
+			"Destroyed in frame", "rpc.authgss.context.destroyed_frame", FT_FRAMENUM,
+			BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_rpc_authgss_ctx_len, {
+			"GSS Context Length", "rpc.authgss.context.length", FT_UINT32,
+			BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_authgss_major, {
 			"GSS Major Status", "rpc.authgss.major", FT_UINT32,
 			BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -3760,6 +3866,7 @@ proto_register_rpc(void)
 		{ &hf_rpc_reassembled_length,
 		{ "Reassembled RPC length", "rpc.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL }},
+
 	};
 	static gint *ett[] = {
 		&ett_rpc,
@@ -3775,6 +3882,7 @@ proto_register_rpc(void)
 		&ett_rpc_array,
 		&ett_rpc_authgssapi_msg,
 		&ett_rpc_unknown_program,
+		&ett_gss_context,
 	};
 	module_t *rpc_module;
 
@@ -3851,6 +3959,8 @@ proto_reg_handoff_rpc(void)
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
 	gssapi_handle = find_dissector("gssapi");
 	data_handle = find_dissector("data");
+
+	authgss_contexts=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gss_contexts");
 }
 
 /*
