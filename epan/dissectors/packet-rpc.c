@@ -1770,7 +1770,6 @@ make_fake_rpc_prog_if_needed (rpc_prog_info_key *prpc_prog_key, guint prog_ver)
 	}
 }
 
-
 static gboolean
 dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvbuff_t *frag_tvb, fragment_data *ipfd_head, gboolean is_tcp,
@@ -2294,11 +2293,16 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 16;
 
 		offset = dissect_rpc_cred(tvb, rpc_tree, offset, pinfo, rpc_conv_info);
-		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
-
 		/* pass rpc_info to subdissectors */
 		rpc_call->request=TRUE;
 		pinfo->private_data=rpc_call;
+
+		if (gss_proc == RPCSEC_GSS_DESTROY) {
+			/* there is no verifier for GSS destroy packets */
+			break;
+		}
+
+		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
 
 		/* go to the next dissector */
 
