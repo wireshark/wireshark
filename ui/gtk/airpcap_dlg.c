@@ -2331,7 +2331,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_show (move_key_down_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), move_key_down_bt);
 #if GTK_CHECK_VERSION(2,18,0)
-    gtk_widget_set_can_default (move_key_down_bt, GTK_CAN_DEFAULT);
+    gtk_widget_set_can_default (move_key_down_bt, TRUE);
 #else
     GTK_WIDGET_SET_FLAGS (move_key_down_bt, GTK_CAN_DEFAULT);
 #endif
