@@ -225,8 +225,6 @@ static int mpls_filter[MPLSF_MAX];
 
 static gint mpls_default_payload = 0;
 
-static int hf_mpls_1st_nibble = -1;
-
 static int hf_mpls_pw_ach_ver = -1;
 static int hf_mpls_pw_ach_res = -1;
 static int hf_mpls_pw_ach_channel_type = -1;
@@ -687,11 +685,6 @@ proto_register_mpls(void)
         {&mpls_filter[MPLSF_TTL],
          {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
-
-        /* 1st nibble */
-        {&hf_mpls_1st_nibble,
-         {"MPLS 1st nibble", "mpls.1st_nibble", FT_UINT8,
-          BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         /* PW Associated Channel Header fields */
         {&hf_mpls_pw_ach_ver,
