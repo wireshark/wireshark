@@ -102,6 +102,16 @@ static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
 static int hf_catapult_dct2000_lte_ccpri_status = -1;
 static int hf_catapult_dct2000_lte_ccpri_channel = -1;
 
+static int hf_catapult_dct2000_lte_monitor_cpu_user = -1;
+static int hf_catapult_dct2000_lte_monitor_cpu_sys = -1;
+static int hf_catapult_dct2000_lte_monitor_cpu_load = -1;
+
+static int hf_catapult_dct2000_lte_nas_rrc_opcode = -1;
+static int hf_catapult_dct2000_lte_nas_rrc_establish_cause = -1;
+static int hf_catapult_dct2000_lte_nas_rrc_priority = -1;
+static int hf_catapult_dct2000_lte_nas_rrc_release_cause = -1;
+
+
 /* UMTS RLC fields */
 static int hf_catapult_dct2000_ueid = -1;
 static int hf_catapult_dct2000_rbid = -1;
@@ -255,6 +265,20 @@ static const value_string transport_channel_type_vals[] = {
     { 10,    "EDCH"},
     { 0,     NULL}
 };
+
+#define LTE_NAS_RRC_DATA_IND       0x02
+#define LTE_NAS_RRC_DATA_REQ       0x03
+#define LTE_NAS_RRC_ESTABLISH_REQ  0x06
+#define LTE_NAS_RRC_RELEASE_IND    0x08
+
+static const value_string lte_nas_rrc_opcode_vals[] = {
+    { LTE_NAS_RRC_DATA_IND,        "Data-Ind"},
+    { LTE_NAS_RRC_DATA_REQ,        "Data-Req"},
+    { LTE_NAS_RRC_ESTABLISH_REQ,   "Establish-Req"},
+    { LTE_NAS_RRC_RELEASE_IND,     "Release-Ind"},
+    { 0,     NULL}
+};
+
 
 
 #define MAX_OUTHDR_VALUES 32
@@ -2217,37 +2241,52 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if ((strcmp(protocol_name, "nas_rrc_r8_lte") == 0) ||
              (strcmp(protocol_name, "nas_rrc_r9_lte") == 0)) {
         gboolean nas_body_found = TRUE;
-        guint8 opcode = tvb_get_guint8(tvb, offset++);
+        guint8 opcode = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_opcode,
+                            tvb, offset++, 1, ENC_BIG_ENDIAN);
+
+        offset++;   /* Skip overall length */
+
         switch (opcode) {
-            case 2:  /* DATA IND */
-            case 3:  /* DATA REQ */
+            case LTE_NAS_RRC_DATA_IND:
+            case LTE_NAS_RRC_DATA_REQ:
                 /* UEId */
-                offset += 2; /* tag */
-                offset += 2; /* 2 wasted bytes */
+                offset++; /* tag */
+                offset += 2; /* 2 wasted bytes of UEId*/
                 proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 break;
-            case 6:  /* ESTABLISH REQ */
+            case LTE_NAS_RRC_ESTABLISH_REQ:
                 /* UEId */
-                offset += 2; /* tag */
-                offset += 2; /* 2 wasted bytes */
+                offset++; /* tag */
+                offset += 2; /* 2 wasted bytes of UEId*/
                 proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                offset += 3;   /* Establish cause */
-                offset += 3;   /* Priority */
+                /* Establish cause. TODO: value_string */
+                offset += 2;  /* tag + length */
+                proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_establish_cause,
+                                    tvb, offset++, 1, ENC_BIG_ENDIAN);
+
+                /* Priority.  TODO: Vals are low | high */
+                offset += 2;  /* tag + length */
+                proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_priority,
+                                    tvb, offset++, 1, ENC_BIG_ENDIAN);
                 break;
-            case 8:  /* RELEASE IND */
+            case LTE_NAS_RRC_RELEASE_IND:
                 /* UEId */
-                offset += 2; /* tag */
-                offset += 2; /* 2 wasted bytes */
+                offset++; /* tag */
+                offset += 2; /* 2 wasted bytes of UEId*/
                 proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                offset += 3;   /* Release cause */
+                /* Release cause.  TODO: value_string */
+                offset += 2;  /* tag + length */
+                proto_tree_add_item(tree, hf_catapult_dct2000_lte_nas_rrc_release_cause,
+                                    tvb, offset++, 1, ENC_BIG_ENDIAN);
                 break;
 
             default:
@@ -2425,6 +2464,30 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     expert_add_info_format(pinfo, string_ti, PI_SEQUENCE, PI_ERROR,
                                           "%s", string);
                 }
+
+                #define MONITOR_PREFIX ">> INFO ALL:    Monitor: CPU=["
+                if (strncmp(string, MONITOR_PREFIX, strlen(MONITOR_PREFIX)) == 0) {
+                    gint user_cpu, sys_cpu, load_cpu;
+                    int matched;
+                    matched = sscanf(string+strlen(MONITOR_PREFIX),
+                                     "User%%=%d Sys%%=%d Load%%=%d",
+                                     &user_cpu, &sys_cpu, &load_cpu);
+                    if (matched == 3) {
+                        proto_item *ti;
+                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_user,
+                                                 tvb, 0, 0, user_cpu);
+                        PROTO_ITEM_SET_GENERATED(ti);
+
+                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_sys,
+                                                 tvb, 0, 0, sys_cpu);
+                        PROTO_ITEM_SET_GENERATED(ti);
+
+                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_load,
+                                                 tvb, 0, 0, load_cpu);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                    }
+                }
+
                 return;
             }
 
@@ -3105,6 +3168,51 @@ void proto_register_catapult_dct2000(void)
               NULL, HFILL
             }
         },
+
+        { &hf_catapult_dct2000_lte_monitor_cpu_user,
+            { "User CPU",
+              "dct2000.lte.monitor.cpu.user", FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_monitor_cpu_sys,
+            { "Sys CPU",
+              "dct2000.lte.monitor.cpu.sys", FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_monitor_cpu_load,
+            { "Load CPU",
+              "dct2000.lte.monitor.cpu.load", FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_catapult_dct2000_lte_nas_rrc_opcode,
+            { "NAS RRC Opcode",
+              "dct2000.lte.nas-rrc.opcode", FT_UINT8, BASE_DEC, VALS(lte_nas_rrc_opcode_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_nas_rrc_establish_cause,
+            { "Establish Cause",
+              "dct2000.lte.nas-rrc.establish-cause", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_nas_rrc_priority,
+            { "Priority",
+              "dct2000.lte.nas-rrc.priority", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_nas_rrc_release_cause,
+            { "Priority",
+              "dct2000.lte.nas-rrc.priority", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
 
         { &hf_catapult_dct2000_ueid,
             { "UE Id",
