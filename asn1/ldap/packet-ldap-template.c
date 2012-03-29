@@ -1634,7 +1634,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 sasl_len;
 	guint32 ldap_len;
 	gboolean ind;
-    conversation_t *conversation;
+	conversation_t *conversation;
 	ldap_conv_info_t *ldap_info = NULL;
 
 	/*

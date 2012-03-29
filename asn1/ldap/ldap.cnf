@@ -470,25 +470,21 @@ ldap_conv_info_t *ldap_info;
 
   /* if we have an attribute type that isn't binary see if there is a better dissector */
   if(!attr_type || !next_tvb || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree)) {
-	offset = old_offset;
+    offset = old_offset;
 
-	/* do the default thing */
-	%(DEFAULT_BODY)s
+    /* do the default thing */
+    %(DEFAULT_BODY)s
 
-  }
+    len = tvb_length_remaining(next_tvb, 0);
 
-  len = tvb_length_remaining(next_tvb, 0);
+    for(i = 0; i < len; i++)
+      if(!g_ascii_isprint(tvb_get_guint8(next_tvb, i)))
+        break;
 
-  for(i = 0; i < len; i++)
-    if(!g_ascii_isprint(tvb_get_guint8(next_tvb, i)))
-      break;
-
-  if(i == len) {
-    string = tvb_get_ephemeral_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
-
-
-    proto_item_set_text(actx->created_item, "%%s", string);
-
+    if(i == len) {
+      string = tvb_get_ephemeral_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
+      proto_item_set_text(actx->created_item, "AttributeValue: %%s", string);
+    }
   }
 
 #.FN_BODY AuthenticationChoice VAL_PTR = &branch
