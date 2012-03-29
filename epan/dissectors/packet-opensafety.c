@@ -745,10 +745,11 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
     guint8      db0Offset, db0, sacmd, payloadOffset, payloadSize, n;
     guint       dataLength;
     gint        calcDataLength;
-    gboolean    isRequest;
+    gboolean    isResponse, decodePayload;
     guint8     *payload;
 
     dataLength = tvb_get_guint8(message_tvb, OSS_FRAME_POS_LEN + frameStart1);
+    decodePayload = FALSE;
 
     db0Offset = frameStart1 + OSS_FRAME_POS_DATA;
     db0 = bytes[db0Offset];
@@ -757,7 +758,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
     if ( ( sacmd & OPENSAFETY_SSDO_SACMD_TGL ) == OPENSAFETY_SSDO_SACMD_TGL )
         sacmd = sacmd & ( ~OPENSAFETY_SSDO_SACMD_TGL );
 
-    isRequest = ( ( OSS_FRAME_ID(bytes, frameStart1) & 0x04 ) == 0x04 );
+    isResponse = ( ( OSS_FRAME_ID(bytes, frameStart1) & 0x04 ) == 0x04 );
 
     if ( validSCMUDID )
     {
@@ -768,10 +769,15 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                                 frameStart2,
                                 ( ( OSS_FRAME_ADDR(bytes, frameStart1) ) ^ ( OSS_FRAME_ADDR(bytes, frameStart2) ) ));
     }
-    else if ( ! isRequest )
+    else if ( ! isResponse )
     {
         PACKET_RECEIVER(pinfo, OSS_FRAME_ADDR(bytes, frameStart1), frameStart1, frameStart2,
         		        -1 * ( ( OSS_FRAME_ADDR(bytes, frameStart1) ) ^ ( OSS_FRAME_ADDR(bytes, frameStart2) ) ) );
+    }
+    else if ( isResponse )
+    {
+        PACKET_SENDER(pinfo, OSS_FRAME_ADDR(bytes, frameStart1), frameStart1, frameStart2,
+                        -1 * ( ( OSS_FRAME_ADDR(bytes, frameStart1) ) ^ ( OSS_FRAME_ADDR(bytes, frameStart2) ) ) );
     }
 
     if ( ( OSS_FRAME_ID(bytes, frameStart1) == OPENSAFETY_MSG_SSDO_SLIM_SERVICE_REQUEST ) ||
@@ -798,7 +804,8 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                                      OSS_FRAME_ID(bytes, frameStart1),
                                      "%s", val_to_str_const(OSS_FRAME_ID(bytes, frameStart1), message_type_values, "Unknown") );
 
-    if ( isRequest )
+
+    if ( isResponse )
     {
         if ( validSCMUDID )
         {
@@ -810,7 +817,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
             proto_tree_add_uint(ssdo_tree, hf_oss_ssdo_server, message_tvb, frameStart1, 2, OSS_FRAME_ADDR(bytes, frameStart1));
         }
     }
-    else if ( ! isRequest )
+    else if ( ! isResponse )
     {
         if ( validSCMUDID )
         {
@@ -860,56 +867,68 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, prot
                 val_to_str_const(abortcode, abort_codes, "Unknown"));
 
 
-    } else if ( ( isRequest && (sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED ||
-            sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXPEDITED ||
-            sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MIDDLE ||
-            sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END
-                                ) ) ||
-         ( !isRequest && (sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED ||
-            sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED ||
-            sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE ||
-            sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END
-                                 ) )
-    )
-    {
-        if ( ( sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED ) || ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED ) )
+    } else {
+
+        /* Either the SSDO msg is a response, then data is sent by the server and only in uploads,
+         * or the message is a request, then data is comming from the client and payload data is
+         * sent in downloads */
+        if ( ( isResponse && (sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED ||
+                    sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_EXPEDITED ||
+                    sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_MIDDLE ||
+                    sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_SEGMENT_END ) )||
+                    ( !isResponse && (sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED ||
+                    sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_EXPEDITED ||
+                    sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_MIDDLE ||
+                    sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_SEGMENT_END ) ) )
+                {
+                   decodePayload = TRUE;
+                }
+
+        if ( decodePayload )
         {
-            payloadOffset += 4;
-            /* using payloadSize as helper var for for-loop */
-            payloadSize = dataLength - (payloadOffset - db0Offset);
-            payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
-            for ( n = 0; n < payloadSize; n++)
-                payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
 
-            /* reading real size */
-            payloadSize = 0;
-            for ( n = 0; n < 4; n++ )
+        /* If payload data has to be calculated, either a total size is given, or not */
+            if ( ( sacmd == OPENSAFETY_MSG_SSDO_DOWNLOAD_INITIATE_SEGMENTED ) ||
+                    ( sacmd == OPENSAFETY_MSG_SSDO_UPLOAD_INITIATE_SEGMENTED )
+                )
             {
-                payloadSize += ( bytes[frameStart1 + OSS_FRAME_POS_DATA + 4 + n] ) << (8 * n);
+                payloadOffset += 4;
+                /* using payloadSize as helper var for for-loop */
+                payloadSize = dataLength - (payloadOffset - db0Offset);
+                payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
+                for ( n = 0; n < payloadSize; n++)
+                    payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
+
+                /* reading real size */
+                payloadSize = 0;
+                for ( n = 0; n < 4; n++ )
+                {
+                    payloadSize += ( bytes[frameStart1 + OSS_FRAME_POS_DATA + 4 + n] ) << (8 * n);
+                }
+
+                calcDataLength = dataLength - (payloadOffset - db0Offset);
+
+                item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, payloadOffset - 4, 4,
+                        payloadSize, "%d octets total (%d octets in this frame)", payloadSize, calcDataLength);
+                if ( (gint) calcDataLength > (gint) 0 )
+                {
+                    proto_tree_add_bytes(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, payload );
+                } else {
+                    opensafety_add_warning1(pinfo, item, "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
+                }
             }
-
-            calcDataLength = dataLength - (payloadOffset - db0Offset);
-
-            item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, payloadOffset - 4, 4,
-                    payloadSize, "%d octets total (%d octets in this frame)", payloadSize, calcDataLength);
-            if ( (gint) calcDataLength > (gint) 0 )
+            else
             {
-                proto_tree_add_bytes(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, calcDataLength, payload );
-            } else {
-                opensafety_add_warning1(pinfo, item, "Calculation for payload length yielded non-positive result [%d]", (guint) calcDataLength );
-            }
-        }
-        else
-        {
-            payloadSize = dataLength - (payloadOffset - db0Offset);
-            payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
-            for ( n = 0; n < payloadSize; n++)
-                payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
+                payloadSize = dataLength - (payloadOffset - db0Offset);
+                payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
+                for ( n = 0; n < payloadSize; n++)
+                    payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
 
-            item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, 0, 0, payloadSize,
-                    "%d octets", payloadSize);
-            PROTO_ITEM_SET_GENERATED(item);
-            proto_tree_add_bytes(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, payloadSize, payload );
+                item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, 0, 0, payloadSize,
+                        "%d octets", payloadSize);
+                PROTO_ITEM_SET_GENERATED(item);
+                proto_tree_add_bytes(ssdo_tree, hf_oss_ssdo_payload, message_tvb, payloadOffset, payloadSize, payload );
+            }
         }
     }
 }
