@@ -289,11 +289,11 @@ C_ARES_PKG=1.7.1
 #PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 
 #
-# Optional: the GNUTLS library enables ssl decryption.
+# Optional: the GnuTLS library enables ssl decryption.
 #
-# If you have the GNUTLS library, set this to the package version.
+# If you have the GnuTLS library, set this to the package version.
 #
-# If you don't have GNUTLS, comment this line out, so that GNUTLS_PKG
+# If you don't have GnuTLS, comment this line out, so that GNUTLS_PKG
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
@@ -497,15 +497,15 @@ C_ARES_PKG=1.7.1
 #PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 
 #
-# Optional: the GNUTLS library enables ssl decryption.
+# Optional: the GnuTLS library enables ssl decryption.
 #
-# If you have the GNUTLS library, set this to the package version.
+# If you have the GnuTLS library, set this to the package version.
 #
-# If you don't have GNUTLS, comment this line out, so that GNUTLS_PKG
+# If you don't have GnuTLS, comment this line out, so that GNUTLS_PKG
 # isn't defined.
 #
 # Platform SDK conflicts with openssl.h header
-GNUTLS_PKG=2.12.18-1.2
+GNUTLS_PKG=2.12.18-1.2-1
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
