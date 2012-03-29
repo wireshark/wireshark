@@ -2743,6 +2743,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						pinfo, ptree, 4,
 						dissect_function,
 						progname);
+					offset = tvb_length(pinfo->gssapi_decrypted_tvb);
 				}
 			}
 			break;
