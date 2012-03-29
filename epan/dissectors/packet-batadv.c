@@ -36,14 +36,16 @@
 /* Start content from packet-batadv.h */
 #define ETH_P_BATMAN  0x4305
 
-#define BATADV_PACKET_V5        0x01
-#define BATADV_ICMP_V5          0x02
-#define BATADV_UNICAST_V5       0x03
-#define BATADV_BCAST_V5         0x04
-#define BATADV_VIS_V5           0x05
-#define BATADV_UNICAST_FRAG_V12 0x06
-#define BATADV_TT_QUERY_V14     0x07
-#define BATADV_ROAM_ADV_V14     0x08
+#define BATADV_PACKET_V5         0x01
+#define BATADV_ICMP_V5           0x02
+#define BATADV_UNICAST_V5        0x03
+#define BATADV_BCAST_V5          0x04
+#define BATADV_VIS_V5            0x05
+#define BATADV_UNICAST_FRAG_V12  0x06
+#define BATADV_TT_QUERY_V14      0x07
+#define BATADV_ROAM_ADV_V14      0x08
+#define BATADV_ROAM_ADV_V14      0x08
+#define BATADV_UNICAST_4ADDR_V14 0x09
 
 #define ECHO_REPLY 0
 #define DESTINATION_UNREACHABLE 3
@@ -60,6 +62,11 @@
 #define TT_CLIENT_ROAM  0x02
 
 #define BAT_RR_LEN 16
+
+#define UNICAST_4ADDR_DATA            0x01
+#define UNICAST_4ADDR_DAT_DHT_GET     0x02
+#define UNICAST_4ADDR_DAT_DHT_PUT     0x03
+#define UNICAST_4ADDR_DAT_CACHE_REPLY 0x04
 
 struct batman_packet_v5 {
 	guint8  packet_type;
@@ -200,7 +207,18 @@ struct unicast_packet_v14 {
 	guint8  ttvn; /* destination translation table version number */
 	address dest;
 };
-#define UNICAST_PACKET_V14_SIZE 12
+#define UNICAST_PACKET_V14_SIZE 10
+
+struct unicast_4addr_packet_v14 {
+	guint8  packet_type;
+	guint8  version;  /* batman version field */
+	guint8  ttl;
+	guint8  ttvn; /* destination translation table version number */
+	address dest;
+	address src;
+	guint8  subtype;
+};
+#define UNICAST_4ADDR_PACKET_V14_SIZE 17
 
 struct unicast_frag_packet_v12 {
 	guint8   packet_type;
@@ -334,6 +352,7 @@ static gint ett_batadv_bcast = -1;
 static gint ett_batadv_icmp = -1;
 static gint ett_batadv_icmp_rr = -1;
 static gint ett_batadv_unicast = -1;
+static gint ett_batadv_unicast_4addr = -1;
 static gint ett_batadv_unicast_frag = -1;
 static gint ett_batadv_vis = -1;
 static gint ett_batadv_vis_entry = -1;
@@ -381,6 +400,13 @@ static int hf_batadv_unicast_version = -1;
 static int hf_batadv_unicast_dst = -1;
 static int hf_batadv_unicast_ttl = -1;
 static int hf_batadv_unicast_ttvn = -1;
+
+static int hf_batadv_unicast_4addr_version = -1;
+static int hf_batadv_unicast_4addr_dst = -1;
+static int hf_batadv_unicast_4addr_ttl = -1;
+static int hf_batadv_unicast_4addr_ttvn = -1;
+static int hf_batadv_unicast_4addr_src = -1;
+static int hf_batadv_unicast_4addr_subtype = -1;
 
 static int hf_batadv_unicast_frag_version = -1;
 static int hf_batadv_unicast_frag_dst = -1;
@@ -441,6 +467,14 @@ static int hf_batadv_batman_flags_vis_server = -1;
 static int hf_batadv_batman_flags_primaries_first_hop = -1;
 static int hf_batadv_unicast_frag_flags_head = -1;
 static int hf_batadv_unicast_frag_flags_largetail = -1;
+
+static const value_string unicast_4addr_typenames[] = {
+	{ UNICAST_4ADDR_DATA, "Data" },
+	{ UNICAST_4ADDR_DAT_DHT_GET, "DHT Get" },
+	{ UNICAST_4ADDR_DAT_DHT_PUT, "DHT Put" },
+	{ UNICAST_4ADDR_DAT_CACHE_REPLY, "DHT Cache Reply" },
+	{ 0, NULL }
+};
 
 static const value_string icmp_packettypenames[] = {
 	{ ECHO_REPLY, "ECHO_REPLY" },
@@ -511,6 +545,9 @@ static void dissect_batadv_unicast(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+static void dissect_batadv_unicast_4addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -579,6 +616,9 @@ static void dissect_batman_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		break;
 	case BATADV_ROAM_ADV_V14:
 		dissect_batadv_roam_adv(tvb, pinfo, tree);
+		break;
+	case BATADV_UNICAST_4ADDR_V14:
+		dissect_batadv_unicast_4addr(tvb, pinfo, tree);
 		break;
 	default:
 		/* dunno */
@@ -2080,6 +2120,107 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 }
 
+static void dissect_batadv_unicast_4addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8 version;
+
+	/* set protocol name */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_UNICAST_4ADDR");
+
+	version = tvb_get_guint8(tvb, 1);
+	switch (version) {
+	case 14:
+		dissect_batadv_unicast_4addr_v14(tvb, pinfo, tree);
+		break;
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
+		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
+	}
+}
+
+static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	struct unicast_4addr_packet_v14 *unicast_4addr_packeth;
+	const guint8  *dest_addr, *src_addr;
+
+	tvbuff_t *next_tvb;
+	guint length_remaining;
+	int offset = 0;
+	proto_tree *batadv_unicast_4addr_tree = NULL;
+
+	unicast_4addr_packeth = ep_alloc(sizeof(struct unicast_4addr_packet_v14));
+
+	unicast_4addr_packeth->version = tvb_get_guint8(tvb, 1);
+	unicast_4addr_packeth->ttl = tvb_get_guint8(tvb, 2);
+	unicast_4addr_packeth->ttvn = tvb_get_guint8(tvb, 3);
+	dest_addr = tvb_get_ptr(tvb, 4, 6);
+	SET_ADDRESS(&unicast_4addr_packeth->dest, AT_ETHER, 6, dest_addr);
+	src_addr = tvb_get_ptr(tvb, 10, 6);
+	SET_ADDRESS(&unicast_4addr_packeth->src, AT_ETHER, 6, src_addr);
+	unicast_4addr_packeth->subtype = tvb_get_guint8(tvb, 16);
+
+	/* Set info column */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+		     val_to_str(unicast_4addr_packeth->subtype, unicast_4addr_typenames, "Unknown (0x%02x)"));
+
+	/* Set tree info */
+	if (tree) {
+		proto_item *ti;
+
+		if (PTREE_DATA(tree)->visible) {
+			ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_4ADDR_PACKET_V14_SIZE,
+			                                    "B.A.T.M.A.N. Unicast 4Addr, Dst: %s (%s)",
+			                                    get_ether_name(dest_addr), ether_to_str(dest_addr));
+		} else {
+			ti = proto_tree_add_item(tree, proto_batadv_plugin, tvb, 0, UNICAST_4ADDR_PACKET_V14_SIZE, ENC_NA);
+		}
+		batadv_unicast_4addr_tree = proto_item_add_subtree(ti, ett_batadv_unicast_4addr);
+	}
+
+	/* items */
+	proto_tree_add_uint_format(batadv_unicast_4addr_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_UNICAST_4ADDR_V14,
+					"Packet Type: %s (%u)", "BATADV_UNICAST_4ADDR", BATADV_UNICAST_4ADDR_V14);
+	offset += 1;
+
+	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_ttvn, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_ether(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_dst, tvb, offset, 6, dest_addr);
+	offset += 6;
+
+	proto_tree_add_ether(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_src, tvb, offset, 6, src_addr);
+	offset += 6;
+
+	proto_tree_add_item(batadv_unicast_4addr_tree, hf_batadv_unicast_4addr_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dest_addr);
+	SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dest_addr);
+	SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src_addr);
+	SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src_addr);
+
+	tap_queue_packet(batadv_tap, pinfo, unicast_4addr_packeth);
+
+	length_remaining = tvb_length_remaining(tvb, offset);
+
+	if (length_remaining != 0) {
+		next_tvb = tvb_new_subset(tvb, offset, length_remaining, -1);
+
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+		}
+
+		call_dissector(eth_handle, next_tvb, pinfo, tree);
+	}
+}
+
 static void dissect_batadv_unicast_frag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 version;
@@ -3197,6 +3338,36 @@ void proto_register_batadv(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_batadv_unicast_4addr_version,
+		  { "Version", "batadv.unicast_4addr.version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_4addr_dst,
+		  { "Destination", "batadv.unicast_4addr.dst",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_4addr_ttl,
+		  { "Time to Live", "batadv.unicast_4addr.ttl",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_4addr_ttvn,
+		  { "TT Version", "batadv.unicast_4addr.ttvn",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_4addr_src,
+		  { "Source", "batadv.unicast_4addr.src",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_4addr_subtype,
+		  { "Subtype", "batadv.unicast_4addr.subtype",
+		    FT_UINT8, BASE_DEC, VALS (&unicast_4addr_typenames), 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_batadv_unicast_frag_version,
 		  { "Version", "batadv.unicast_frag.version",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3461,6 +3632,7 @@ void proto_register_batadv(void)
 		&ett_batadv_icmp,
 		&ett_batadv_icmp_rr,
 		&ett_batadv_unicast,
+		&ett_batadv_unicast_4addr,
 		&ett_batadv_unicast_frag,
 		&ett_batadv_vis,
 		&ett_batadv_vis_entry,
