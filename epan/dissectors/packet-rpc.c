@@ -82,6 +82,8 @@ static gboolean rpc_find_fragment_start = FALSE;
 
 static int rpc_tap = -1;
 
+static dissector_handle_t spnego_krb5_wrap_handle = NULL;
+
 static const value_string rpc_msg_type[] = {
 	{ RPC_CALL, "Call" },
 	{ RPC_REPLY, "Reply" },
@@ -255,6 +257,7 @@ static gint ett_rpc_gss_data = -1;
 static gint ett_rpc_array = -1;
 static gint ett_rpc_authgssapi_msg = -1;
 static gint ett_gss_context = -1;
+static gint ett_gss_wrap = -1;
 
 static dissector_handle_t rpc_tcp_handle;
 static dissector_handle_t rpc_handle;
@@ -560,6 +563,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	guint32 fill_length_copy;
 
 	int exception = 0;
+	int string_item_offset;
 
 	char *string_buffer = NULL;
 	char *string_buffer_print = NULL;
@@ -656,6 +660,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	}
 
 	if (tree) {
+		string_item_offset = offset;
 		string_item = proto_tree_add_text(tree, tvb,offset+0, -1,
 		    "%s: %s", proto_registrar_get_name(hfindex),
 		    string_buffer_print);
@@ -1410,13 +1415,39 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
-
 static int
 dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 			      packet_info *pinfo _U_)
 {
-	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_data,
-			offset);
+	int length;
+	int return_offset;
+
+	length = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_rpc_authgss_data_length,
+				    tvb, offset, 4, length);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_rpc_authgss_data, tvb, offset, length,
+				ENC_NA);
+
+
+	/* cant decrypt if we dont have SPNEGO */
+	if (!spnego_krb5_wrap_handle) {
+		offset += length;
+		return offset;
+	}
+
+	return_offset = call_dissector(spnego_krb5_wrap_handle,
+		             tvb_new_subset_remaining(tvb, offset),
+			     pinfo, tree);
+
+	if (!pinfo->gssapi_decrypted_tvb) {
+		/* failed to decrypt the data */
+		offset += length;
+		return offset;
+	}	
+
+	offset += length;
 	return offset;
 }
 
@@ -2018,15 +2049,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
 
-	if (tree) {
-		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1,
+	rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1,
 		    ENC_NA);
-		rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
+	rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
 
-		if (is_tcp) {
-			show_rpc_fraginfo(tvb, frag_tvb, rpc_tree, rpc_rm,
-			    ipfd_head, pinfo);
-		}
+	if (is_tcp) {
+		show_rpc_fraginfo(tvb, frag_tvb, rpc_tree, rpc_rm,
+		    ipfd_head, pinfo);
 	}
 
 	xid      = tvb_get_ntohl(tvb, offset + 0);
@@ -2570,38 +2599,62 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	*/
 	tap_queue_packet(rpc_tap, pinfo, rpc_call);
 
+
+	/* If this is encrypted data we have to try to decrypt the data first before we
+	 * we create a tree.
+	 * the reason for this is because if we can decrypt the data we must create the
+	 * item/tree for the next protocol using the decrypted tdb and not the current
+	 * tvb.
+	 */
+	pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
+	pinfo->gssapi_wrap_tvb=NULL;
+	pinfo->gssapi_encrypted_tvb=NULL;
+	pinfo->gssapi_decrypted_tvb=NULL;
+	if (flavor == FLAVOR_GSSAPI && gss_proc == RPCSEC_GSS_DATA && gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
+		proto_item *gss_item;
+		proto_tree *gss_tree;
+
+		gss_item = proto_tree_add_text(tree, tvb, offset, -1, "GSS-Wrap");
+		gss_tree = proto_item_add_subtree(gss_item, ett_gss_wrap);
+
+		offset = dissect_rpc_authgss_priv_data(tvb, gss_tree, offset, pinfo);
+		if (pinfo->gssapi_decrypted_tvb) {
+			proto_tree_add_item(gss_tree, hf_rpc_authgss_seq, pinfo->gssapi_decrypted_tvb, 0, 4, ENC_BIG_ENDIAN);
+
+			/* Switcheroo to the new tvb that contains the decrypted payload */
+			tvb = pinfo->gssapi_decrypted_tvb;
+			offset = 4;
+		}
+	}
+
+
 	/* create here the program specific sub-tree */
 	if (tree && (flavor != FLAVOR_AUTHGSSAPI_MSG)) {
-		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, -1,
-		    ENC_NA);
-		if (pitem) {
-			ptree = proto_item_add_subtree(pitem, ett);
-		}
+		proto_item *tmp_item;
 
-		if (ptree) {
-			proto_item *tmp_item;
+		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, -1, ENC_NA);
+		ptree = proto_item_add_subtree(pitem, ett);
 
-			tmp_item=proto_tree_add_uint(ptree,
+		tmp_item=proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
+		PROTO_ITEM_SET_GENERATED(tmp_item);
+		if (rpc_prog && (rpc_prog->procedure_hfs->len > vers) )
+			procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
+		else {
+			/*
+			 * No such element in the GArray.
+			 */
+			procedure_hf = 0;
+		}
+		if (procedure_hf != 0 && procedure_hf != -1) {
+			tmp_item=proto_tree_add_uint(ptree,
+				procedure_hf, tvb, 0, 0, proc);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
-			if (rpc_prog && (rpc_prog->procedure_hfs->len > vers) )
-				procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
-			else {
-				/*
-				 * No such element in the GArray.
-				 */
-				procedure_hf = 0;
-			}
-			if (procedure_hf != 0 && procedure_hf != -1) {
-				tmp_item=proto_tree_add_uint(ptree,
-					procedure_hf, tvb, 0, 0, proc);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
-			} else {
-				tmp_item=proto_tree_add_uint_format(ptree,
-					hf_rpc_procedure, tvb, 0, 0, proc,
-					"Procedure: %s (%u)", procname, proc);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
-			}
+		} else {
+			tmp_item=proto_tree_add_uint_format(ptree,
+				hf_rpc_procedure, tvb, 0, 0, proc,
+				"Procedure: %s (%u)", procname, proc);
+			PROTO_ITEM_SET_GENERATED(tmp_item);
 		}
 	}
 
@@ -2684,8 +2737,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						progname);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
-				offset = dissect_rpc_authgss_priv_data(tvb,
-						ptree, offset, pinfo);
+				if (pinfo->gssapi_decrypted_tvb) {
+					call_dissect_function(
+						pinfo->gssapi_decrypted_tvb,
+						pinfo, ptree, 4,
+						dissect_function,
+						progname);
+				}
 			}
 			break;
 
@@ -3886,6 +3944,7 @@ proto_register_rpc(void)
 		&ett_rpc_authgssapi_msg,
 		&ett_rpc_unknown_program,
 		&ett_gss_context,
+		&ett_gss_wrap,
 	};
 	module_t *rpc_module;
 
@@ -3961,6 +4020,7 @@ proto_reg_handoff_rpc(void)
 	heur_dissector_add("tcp", dissect_rpc_tcp_heur, proto_rpc);
 	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
 	gssapi_handle = find_dissector("gssapi");
+	spnego_krb5_wrap_handle = find_dissector("spnego-krb5-wrap");
 	data_handle = find_dissector("data");
 
 	authgss_contexts=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "gss_contexts");
