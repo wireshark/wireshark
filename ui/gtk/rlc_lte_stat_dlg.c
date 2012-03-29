@@ -994,7 +994,7 @@ static void set_channel_filter_expression(guint16  ueid,
     int offset = 0;
 
     /* Show MAC RACH (preamble attempts and RAR PDUs) */
-    if (showMACSRs) {
+    if (showMACRACH) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                          "(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %u)) or (",
                                          ueid);
@@ -1106,7 +1106,7 @@ static void set_channel_filter_expression(guint16  ueid,
     }
 
     /* Close () if open */
-    if (showMACRACH) {
+    if (showDCTErrors) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
     }
 
@@ -1116,9 +1116,10 @@ static void set_channel_filter_expression(guint16  ueid,
     }
 
     /* Close () if open */
-    if (showDCTErrors) {
+    if (showMACRACH) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
     }
+
 
     /* Set its value to our new string */
     gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
