@@ -532,7 +532,7 @@ SUFFIXES = .sh
 ps.c: print.ps $(srcdir)/tools/rdps.py
 	$(PYTHON) $(srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
 
-services: tools/make-services.pl
+services:
 	$(PERL) $(srcdir)/tools/make-services.pl
 
 CLEANFILES =		\
