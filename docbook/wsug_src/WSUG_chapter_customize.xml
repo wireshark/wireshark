@@ -1057,6 +1057,21 @@ standard libpcap format.
 	    <itemizedlist>
 	      <listitem>
 		<para>
+		  Custom HTTP headers (custom_http_header_fields)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  Custom IMF headers (imf_header_fields)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  Custom LDAP AttributeValue types (custom_ldap_attribute_types)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
 		  Display Filter Macros (dfilter_macros) (<xref linkend="ChDisplayFilterMacrosSection"/>)
 		</para>
 	      </listitem>
