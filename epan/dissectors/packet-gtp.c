@@ -254,6 +254,7 @@ static int hf_gtp_ext_gcsi = -1;
 static int hf_gtp_ext_dti = -1;
 static int hf_gtp_ra_prio_lcs = -1;
 static int hf_gtp_bcm = -1;
+static int hf_gtp_fqdn = -1;
 static int hf_gtp_rim_routing_addr = -1;
 
 /* Initialize the subtree pointers */
@@ -327,6 +328,7 @@ static gint ett_gtp_ext_ps_handover_xid = -1;
 static gint ett_gtp_target_id = -1;
 static gint ett_gtp_utran_cont = -1;
 static gint ett_gtp_bcm = -1;
+static gint ett_gtp_fqdn = -1;
 static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_uli_rai = -1;
@@ -755,9 +757,9 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
                                               /* 3G   187 TLV MBMS Distribution Acknowledgement 7.7.86 */
                                               /* 3G   188 TLV Reliable INTER RAT HANDOVER INFO  7.7.87 */
                                               /* 3G   189 TLV RFSP Index        7.7.88 */
-                                              /* 3G   190 TLV Fully Qualified Domain Name (FQDN)        7.7.90 */
+#define GTP_EXT_FQDN                  0xBE    /* 3G   190 TLV Fully Qualified Domain Name (FQDN)        7.7.90 */
 #define GTP_EXT_EVO_ALLO_RETE_P1      0xBF    /* 3G   191 TLV Evolved Allocation/Retention Priority I   7.7.91 */
-                                              /* 3G   192 TLV Evolved Allocation/Retention Priority II  7.7.92 */
+#define GTP_EXT_EVO_ALLO_RETE_P2      0xC0    /* 3G   192 TLV Evolved Allocation/Retention Priority II  7.7.92 */
                                               /* 3G   193 TLV Extended Common Flags     7.7.93 */
                                               /* 3G   194 TLV User CSG Information (UCI)        7.7.94 */
                                               /* 3G   195 TLV CSG Information Reporting Action  7.7.95 */
@@ -902,9 +904,9 @@ static const value_string gtp_val[] = {
     {187, "MBMS Distribution Acknowledgement"},   /* 7.7.86 */
     {188, "Reliable INTER RAT HANDOVER INFO"},   /* 7.7.87 */
     {189, "RFSP Index"},   /* 7.7.88 */
-    {190, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
+    {GTP_EXT_FQDN, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
     {GTP_EXT_EVO_ALLO_RETE_P1, "Evolved Allocation/Retention Priority I"},   /* 7.7.91 */
-    {192, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
+    {GTP_EXT_EVO_ALLO_RETE_P2, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
     {193, "Extended Common Flags"},   /* 7.7.93 */
     {194, "User CSG Information (UCI)"},   /* 7.7.94 */
     {195, "CSG Information Reporting Action"},   /* 7.7.95 */
@@ -1042,9 +1044,9 @@ static const value_string gtpv1_val[] = {
     {187, "MBMS Distribution Acknowledgement"},   /* 7.7.86 */
     {188, "Reliable INTER RAT HANDOVER INFO"},   /* 7.7.87 */
     {189, "RFSP Index"},   /* 7.7.88 */
-    {190, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
-    {GTP_EXT_EVO_ALLO_RETE_P1, "Evolved Allocation/Retention Priority I"},   /* 7.7.91 */
-    {192, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
+/* 190 */  {GTP_EXT_FQDN, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
+/* 191 */  {GTP_EXT_EVO_ALLO_RETE_P1, "Evolved Allocation/Retention Priority I"},   /* 7.7.91 */
+/* 192 */  {GTP_EXT_EVO_ALLO_RETE_P2, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
     {193, "Extended Common Flags"},   /* 7.7.93 */
     {194, "User CSG Information (UCI)"},   /* 7.7.94 */
     {195, "CSG Information Reporting Action"},   /* 7.7.95 */
@@ -1756,7 +1758,9 @@ static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * 
 static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
@@ -1860,7 +1864,9 @@ static const gtp_opt_t gtpopt[] = {
     {GTP_EXT_DIRECT_TUNNEL_FLGS, decode_gtp_direct_tnl_flg},    /* 7.7.81 */
     {GTP_EXT_CORRELATION_ID, decode_gtp_corrl_id},  /* 7.7.82 */
     {GTP_EXT_BEARER_CONTROL_MODE, decode_gtp_bearer_cntrl_mod}, /* 7.7.83 */
+    {GTP_EXT_FQDN, decode_gtp_fqdn}, /* ?.?.?? */
     {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1}, /* 7.7.91 */
+    {GTP_EXT_EVO_ALLO_RETE_P2, decode_gtp_evolved_allc_rtn_p2}, /* ?.?.?? */
     {GTP_EXT_REL_PACK, decode_gtp_rel_pack},    /* charging */
     {GTP_EXT_CAN_PACK, decode_gtp_can_pack},    /* charging */
     {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
@@ -4495,6 +4501,31 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
     }
 }
 
+static void
+decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
+{
+    guint8 *fqdn = NULL;
+    int name_len, tmp;
+
+    if (length > 0) {
+        name_len = tvb_get_guint8(tvb, offset);
+
+        if (name_len < 0x20) {
+            fqdn = tvb_get_ephemeral_string(tvb, offset + 1, length - 1);
+            for (;;) {
+                if (name_len >= length - 1)
+                    break;
+                tmp = name_len;
+                name_len = name_len + fqdn[tmp] + 1;
+                fqdn[tmp] = '.';
+            }
+        } else
+            fqdn = tvb_get_ephemeral_string(tvb, offset, length);
+
+        proto_tree_add_string(tree, hf_gtp_fqdn, tvb, offset, length, fqdn);
+    }
+}
+
 /*
  * GPRS:        9.60 v7.6.0, chapter 7.9.20
  * UMTS:        29.060 v4.0, chapter 7.7.29 PDP Context
@@ -6557,8 +6588,29 @@ decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  * 7.7.87 Reliable INTER RAT HANDOVER INFO
  * 7.7.88 RFSP Index
  * 7.7.89 PDP Type
+ */
+/*
  * 7.7.90 Fully Qualified Domain Name (FQDN)
  */
+static int
+decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree_fqdn;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str_ext_const(GTP_EXT_FQDN, &gtp_val_ext, "Unknown field"));
+    ext_tree_fqdn = proto_item_add_subtree(te, ett_gtp_fqdn);
+
+    proto_tree_add_text(ext_tree_fqdn, tvb, offset + 1, 2, "FQDN length : %u", length);
+    decode_fqdn(tvb, offset + 3, length, ext_tree_fqdn);
+
+    return 3 + length;
+}
+
 /*
  * 7.7.91 Evolved Allocation/Retention Priority I
  */
@@ -6589,6 +6641,33 @@ decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _
 
 /*
  * 7.7.92 Evolved Allocation/Retention Priority II
+ */
+static int
+decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P2, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pci, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return 3 + length;
+
+
+}
+
+/*
  * 7.7.93 Extended Common Flags
  * 7.7.94 User CSG Information (UCI)
  * 7.7.95 CSG Information Reporting Action
@@ -7709,6 +7788,11 @@ void proto_register_gtp(void)
           FT_UINT8, BASE_DEC, VALS(gtp_pdp_bcm_type_vals), 0,
           NULL, HFILL}
         },
+        { &hf_gtp_fqdn,
+         {"FQDN", "gtp.fqdn",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "Fully Qualified Domain Name", HFILL}
+        },
         { &hf_gtp_rim_routing_addr,
          {"RIM Routing Address value", "gtp.rim_routing_addr_val",
           FT_BYTES, BASE_NONE, NULL, 0,
@@ -7786,6 +7870,7 @@ void proto_register_gtp(void)
         &ett_gtp_target_id,
         &ett_gtp_utran_cont,
         &ett_gtp_bcm,
+        &ett_gtp_fqdn,
         &ett_gtp_cdr_ver,
         &ett_gtp_cdr_dr,
         &ett_gtp_ext_hdr,
