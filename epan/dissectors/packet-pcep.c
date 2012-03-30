@@ -25,6 +25,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * Added support of "A Set of Monitoring Tools for Path Computation Element
+ * (PCE)-Based Architecture" (RFC 5886)
+ * (c) Copyright 2012 Svetoslav Duhovnikov <duhovnikov[AT]gmail.com>
  */
 
 #ifdef HAVE_CONFIG_H
@@ -54,7 +58,12 @@
 #define PCEP_CLOSE_OBJ			15
 #define PCEP_PATH_KEY_OBJ		16
 #define PCEP_XRO_OBJ			17
+#define PCEP_OBJ_MONITORING		19
+#define PCEP_OBJ_PCC_ID_REQ		20
 #define PCEP_OF_OBJ			21
+#define PCEP_OBJ_PCE_ID			25
+#define PCEP_OBJ_PROC_TIME 		26
+#define PCEP_OBJ_OVERLOAD 		27
 
 /*Subobjects of EXPLICIT ROUTE Object*/
 #define PCEP_SUB_IPv4				1
@@ -177,6 +186,26 @@
 /*Mask for the flags of XRO Object*/
 #define  PCEP_XRO_F			0x0001
 
+/*Mask for the flags of MONITORING Object*/
+#define  PCEP_OBJ_MONITORING_FLAGS_L		0x000001
+#define  PCEP_OBJ_MONITORING_FLAGS_G		0x000002
+#define  PCEP_OBJ_MONITORING_FLAGS_P		0x000004
+#define  PCEP_OBJ_MONITORING_FLAGS_C		0x000008
+#define  PCEP_OBJ_MONITORING_FLAGS_I		0x000010
+#define  PCEP_OBJ_MONITORING_FLAGS_RESERVED 	0xFFFFE0
+
+/*Define types for PCC-ID-REQ Object*/
+#define  PCEP_OBJ_PCC_ID_REQ_IPv4 		1
+#define  PCEP_OBJ_PCC_ID_REQ_IPv6 		2
+
+/*Define types for PCE-ID Object*/
+#define  PCEP_OBJ_PCE_ID_IPv4 			1
+#define  PCEP_OBJ_PCE_ID_IPv6 			2
+
+/*Mask for the flags of PROC-TIME Object*/
+#define  PCEP_OBJ_PROC_TIME_FLAGS_E		0x0001
+#define  PCEP_OBJ_PROC_TIME_FLAGS_RESERVED 	0xFFFE
+
 /*Mask for the flags of IPv4, IPv6 and UNnumbered InterfaceID Subobjects of RRO Object*/
 #define PCEP_SUB_LPA			0x01
 #define PCEP_SUB_LPU			0x02
@@ -231,7 +260,31 @@ static gint ett_pcep_obj_close = -1;
 static gint ett_pcep_obj_path_key = -1;
 static gint ett_pcep_obj_xro = -1;
 static gint pcep_xro_flags_f= -1;
+static gint ett_pcep_obj_monitoring = -1;
+static gint pcep_obj_monitoring_flags_reserved = -1;
+static gint pcep_obj_monitoring_flags_l= -1;
+static gint pcep_obj_monitoring_flags_g= -1;
+static gint pcep_obj_monitoring_flags_p= -1;
+static gint pcep_obj_monitoring_flags_c= -1;
+static gint pcep_obj_monitoring_flags_i= -1;
+static gint pcep_obj_monitoring_monitoring_id_number = -1;
+static gint ett_pcep_obj_pcc_id_req = -1;
+static gint pcep_obj_pcc_id_req_ipv4 = -1;
+static gint pcep_obj_pcc_id_req_ipv6 = -1;
 static gint ett_pcep_obj_of = -1;
+static gint ett_pcep_obj_pce_id = -1;
+static gint pcep_obj_pce_id_ipv4 = -1;
+static gint pcep_obj_pce_id_ipv6 = -1;
+static gint ett_pcep_obj_proc_time = -1;
+static gint pcep_obj_proc_time_flags_reserved = -1;
+static gint pcep_obj_proc_time_flags_e = -1;
+static gint pcep_obj_proc_time_cur_proc_time = -1;
+static gint pcep_obj_proc_time_min_proc_time = -1;
+static gint pcep_obj_proc_time_max_proc_time = -1;
+static gint pcep_obj_proc_time_ave_proc_time = -1;
+static gint pcep_obj_proc_time_var_proc_time = -1;
+static gint ett_pcep_obj_overload = -1;
+static gint pcep_obj_overload_duration = -1;
 static gint pcep_subobj_flags_lpa= -1;
 static gint pcep_subobj_flags_lpu= -1;
 static gint pcep_subobj_label_flags_gl= -1;
@@ -246,7 +299,9 @@ typedef enum {
 	PCEP_MSG_PATH_COMPUTATION_REPLY,
 	PCEP_MSG_NOTIFICATION,
 	PCEP_MSG_ERROR,
-	PCEP_MSG_CLOSE
+	PCEP_MSG_CLOSE,
+ 	PCEP_MSG_PATH_COMPUTATION_MONITORING_REQUEST,
+	PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY
 } pcep_message_types;
 
 static const value_string message_type_vals[] = {
@@ -257,6 +312,8 @@ static const value_string message_type_vals[] = {
 	{PCEP_MSG_NOTIFICATION,			"NOTIFICATION MESSAGE"			},
 	{PCEP_MSG_ERROR,			"ERROR MESSAGE"			  	},
 	{PCEP_MSG_CLOSE,			"CLOSE MESSAGE"			  	},
+	{PCEP_MSG_PATH_COMPUTATION_MONITORING_REQUEST,	"PATH COMPUTATION MONITORING REQUEST MESSAGE"	},
+	{PCEP_MSG_PATH_COMPUTATION_MONITORING_REPLY,	"PATH COMPUTATION MONITORING REPLY MESSAGE"	},
 	{0,			         	NULL            		  	}
 };
 
@@ -278,7 +335,12 @@ static const value_string pcep_class_vals[] = {
 	{PCEP_CLOSE_OBJ,		"CLOSE OBJECT"			},
 	{PCEP_PATH_KEY_OBJ,		"PATH-KEY OBJECT"		},
 	{PCEP_XRO_OBJ,			"EXCLUDE ROUTE OBJECT (XRO)"	},
+	{PCEP_OBJ_MONITORING,		"MONITORING OBJECT"		},
+	{PCEP_OBJ_PCC_ID_REQ,		"PCC-ID-REQ OBJECT"		},
 	{PCEP_OF_OBJ,			"OBJECTIVE FUNCTION OBJECT (OF)"},
+	{PCEP_OBJ_PCE_ID,		"PCE-ID OBJECT"			},
+	{PCEP_OBJ_PROC_TIME,		"PROC-TIME OBJECT"		},
+	{PCEP_OBJ_OVERLOAD,		"OVERLOAD OBJECT"		},
 	{0,			         NULL            		}
 };
 
@@ -535,6 +597,8 @@ enum pcep_filter_keys{
     PCEPF_NOTIFICATION,
     PCEPF_ERROR,
     PCEPF_CLOSE,
+    PCEPF_PATH_COMPUTATION_MONITORING_REQUEST,
+    PCEPF_PATH_COMPUTATION_MONITORING_REPLY,
 
     PCEPF_OBJECT_CLASS,
     PCEPF_OBJ_OPEN,
@@ -558,7 +622,12 @@ enum pcep_filter_keys{
     PCEPF_OBJ_CLOSE,
     PCEPF_OBJ_PATH_KEY,
     PCEPF_OBJ_XRO,
+    PCEPF_OBJ_MONITORING,
+    PCEPF_OBJ_PCC_ID_REQ,
     PCEPF_OBJ_OF,
+    PCEPF_OBJ_PCE_ID,
+    PCEPF_OBJ_PROC_TIME,
+    PCEPF_OBJ_OVERLOAD,
     PCEPF_SUBOBJ,
     PCEPF_SUBOBJ_IPv4,
     PCEPF_SUBOBJ_IPv6,
@@ -598,7 +667,12 @@ static gint *ett[] = {
 	&ett_pcep_obj_close,
 	&ett_pcep_obj_path_key,
 	&ett_pcep_obj_xro,
+	&ett_pcep_obj_monitoring,
+	&ett_pcep_obj_pcc_id_req,
 	&ett_pcep_obj_of,
+	&ett_pcep_obj_pce_id,
+	&ett_pcep_obj_proc_time,
+	&ett_pcep_obj_overload,
 	&ett_pcep_obj_unknown
 };
 
@@ -2040,6 +2114,78 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, i
 }
 
 /*------------------------------------------------------------------------------
+ * MONITORING OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_MONITORING_MIN_LEN 8
+
+static void
+dissect_pcep_obj_monitoring(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, int obj_length)
+{
+	proto_item *ti;
+	proto_tree *monitoring_flags;
+
+	if (obj_length < OBJ_HDR_LEN + OBJ_MONITORING_MIN_LEN) {
+		proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
+		    "Bad MONITORING object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN + OBJ_MONITORING_MIN_LEN);
+		return;
+	}
+
+	proto_tree_add_text(pcep_object_tree, tvb, offset2, 1, "Reserved: 0x%02x", tvb_get_guint8(tvb, offset2));
+	ti = proto_tree_add_text(pcep_object_tree, tvb, offset2+1, 3, "Flags: 0x%06x", tvb_get_ntoh24(tvb, offset2+1));
+	monitoring_flags = proto_item_add_subtree(ti, ett_pcep_obj_monitoring);
+	proto_tree_add_item(monitoring_flags, pcep_obj_monitoring_flags_reserved, tvb, offset2 + 1, 3, ENC_NA);
+	proto_tree_add_item(monitoring_flags, pcep_obj_monitoring_flags_i, tvb, offset2 + 1, 3, ENC_NA);
+	proto_tree_add_item(monitoring_flags, pcep_obj_monitoring_flags_c, tvb, offset2 + 1, 3, ENC_NA);
+	proto_tree_add_item(monitoring_flags, pcep_obj_monitoring_flags_p, tvb, offset2 + 1, 3, ENC_NA);
+	proto_tree_add_item(monitoring_flags, pcep_obj_monitoring_flags_g, tvb, offset2 + 1, 3, ENC_NA);
+	proto_tree_add_item(monitoring_flags, pcep_obj_monitoring_flags_l, tvb, offset2 + 1, 3, ENC_NA);
+	proto_tree_add_item(pcep_object_tree, pcep_obj_monitoring_monitoring_id_number, tvb, offset2 + 4, 4, ENC_NA);
+
+	/* The object can have optional TLV(s)*/
+	offset2 += OBJ_MONITORING_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN + OBJ_MONITORING_MIN_LEN;
+	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_monitoring);
+}
+
+/*------------------------------------------------------------------------------
+ * PCC-ID-REQ OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_PCC_ID_REQ_IPV4_LEN	4
+#define OBJ_PCC_ID_REQ_IPV6_LEN	16
+
+static void
+dissect_pcep_obj_pcc_id_req(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, int obj_length, int type)
+{
+	switch(type)
+	{
+		case PCEP_OBJ_PCC_ID_REQ_IPv4:
+			if (obj_length != OBJ_HDR_LEN + OBJ_PCC_ID_REQ_IPV4_LEN) {
+				proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
+					"Bad IPv4 PCC-ID-REQ object length %u, should be %u", obj_length,
+					OBJ_HDR_LEN + OBJ_PCC_ID_REQ_IPV4_LEN);
+				return;
+			}
+			proto_tree_add_item(pcep_object_tree, pcep_obj_pcc_id_req_ipv4, tvb, offset2, 4, ENC_NA);
+			break;
+
+		case PCEP_OBJ_PCC_ID_REQ_IPv6:
+			if (obj_length != OBJ_HDR_LEN + OBJ_PCC_ID_REQ_IPV6_LEN) {
+				proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
+					"Bad IPv6 PCC-ID-REQ object length %u, should be %u", obj_length,
+					OBJ_HDR_LEN + OBJ_PCC_ID_REQ_IPV6_LEN);
+				return;
+			}
+			proto_tree_add_item(pcep_object_tree, pcep_obj_pcc_id_req_ipv6, tvb, offset2, 16, ENC_NA);
+			break;
+
+		default:
+			proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length - OBJ_HDR_LEN, "UNKNOWN Type Object (%u)", type);
+			break;
+	}
+}
+
+/*------------------------------------------------------------------------------
  * OF OBJECT
  *------------------------------------------------------------------------------*/
 #define OF_OBJ_MIN_LEN 4
@@ -2065,6 +2211,93 @@ dissect_pcep_of_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, in
 	obj_length -= OBJ_HDR_LEN+OF_OBJ_MIN_LEN;
 	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_open);
 }
+
+/*------------------------------------------------------------------------------
+ * PCE-ID OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_PCE_ID_IPV4_LEN	4
+#define OBJ_PCE_ID_IPV6_LEN	16
+
+static void
+dissect_pcep_obj_pce_id(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, int obj_length, int type)
+{
+	switch(type)
+	{
+		case PCEP_OBJ_PCE_ID_IPv4:
+			if (obj_length != OBJ_HDR_LEN + OBJ_PCE_ID_IPV4_LEN) {
+				proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
+					"Bad IPv4 PCE-ID object length %u, should be %u", obj_length,
+					OBJ_HDR_LEN + OBJ_PCE_ID_IPV4_LEN);
+				return;
+			}
+			proto_tree_add_item(pcep_object_tree, pcep_obj_pce_id_ipv4, tvb, offset2, 4, ENC_NA);
+			break;
+
+		case PCEP_OBJ_PCE_ID_IPv6:
+			if (obj_length != OBJ_HDR_LEN + OBJ_PCE_ID_IPV6_LEN) {
+				proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
+					"Bad IPv6 PCE-ID object length %u, should be %u", obj_length,
+					OBJ_HDR_LEN + OBJ_PCE_ID_IPV6_LEN);
+				return;
+			}
+			proto_tree_add_item(pcep_object_tree, pcep_obj_pce_id_ipv6, tvb, offset2, 16, ENC_NA);
+			break;
+
+		default:
+			proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length - OBJ_HDR_LEN, "UNKNOWN Type Object (%u)", type);
+			break;
+	}
+}
+
+/*------------------------------------------------------------------------------
+ * PROC-TIME OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_PROC_TIME_LEN 24
+
+static void
+dissect_pcep_obj_proc_time(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, int obj_length)
+{
+	proto_item *ti;
+	proto_tree *proc_time_flags;
+
+	if (obj_length != OBJ_HDR_LEN + OBJ_PROC_TIME_LEN) {
+		proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
+			"Bad PROC-TIME object length %u, should be %u", obj_length,
+		    OBJ_HDR_LEN + OBJ_PROC_TIME_LEN);
+		return;
+	}
+
+	proto_tree_add_text(pcep_object_tree, tvb, offset2, 2, "Reserved: 0x%04x", tvb_get_ntohs(tvb, offset2));
+	ti = proto_tree_add_text(pcep_object_tree, tvb, offset2 + 2, 2, "Flags: 0x%04x ", tvb_get_ntohs(tvb, offset2 + 2));
+	proc_time_flags = proto_item_add_subtree(ti, ett_pcep_obj_proc_time);
+	proto_tree_add_item(proc_time_flags, pcep_obj_proc_time_flags_reserved, tvb, offset2 + 2, 2, ENC_NA);
+	proto_tree_add_item(proc_time_flags, pcep_obj_proc_time_flags_e, tvb, offset2 + 2, 2, ENC_NA);
+	proto_tree_add_item(pcep_object_tree, pcep_obj_proc_time_cur_proc_time, tvb, offset2 + 4, 4, ENC_NA);
+	proto_tree_add_item(pcep_object_tree, pcep_obj_proc_time_min_proc_time, tvb, offset2 + 8, 4, ENC_NA);
+	proto_tree_add_item(pcep_object_tree, pcep_obj_proc_time_max_proc_time, tvb, offset2 + 12, 4, ENC_NA);
+	proto_tree_add_item(pcep_object_tree, pcep_obj_proc_time_ave_proc_time, tvb, offset2 + 16, 4, ENC_NA);
+	proto_tree_add_item(pcep_object_tree, pcep_obj_proc_time_var_proc_time, tvb, offset2 + 20, 4, ENC_NA);
+}
+
+/*------------------------------------------------------------------------------
+ * OVERLOAD OBJECT
+ *------------------------------------------------------------------------------*/
+#define OBJ_OVERLOAD_LEN 4
+
+static void
+dissect_pcep_obj_overload(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, int obj_length)
+{
+	if (obj_length != OBJ_HDR_LEN + OBJ_OVERLOAD_LEN) {
+		proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
+		    "Bad OVERLOAD object length %u, should be %u", obj_length,
+		    OBJ_HDR_LEN + OBJ_OVERLOAD_LEN);
+		return;
+	}
+	proto_tree_add_text(pcep_object_tree, tvb, offset2, 1, "Flags: 0x%02x", tvb_get_guint8(tvb, offset2));
+	proto_tree_add_text(pcep_object_tree, tvb, offset2 + 1, 1, "Reserved: 0x%02x", tvb_get_guint8(tvb, offset2 + 1));
+	proto_tree_add_item(pcep_object_tree, pcep_obj_overload_duration, tvb, offset2 + 2, 2, ENC_NA);
+}
+
 
 /*------------------------------------------------------------------------------*/
 /* Dissect in Objects */
@@ -2170,9 +2403,34 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, tvbuff_t *tvb, int len, int offset,
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_xro);
 		break;
 
+	case PCEP_OBJ_MONITORING:
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_MONITORING], tvb, offset, -1, ENC_NA);
+		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_monitoring);
+		break;
+
+	case PCEP_OBJ_PCC_ID_REQ:
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_PCC_ID_REQ], tvb, offset, -1, ENC_NA);
+		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_pcc_id_req);
+		break;
+
 	case PCEP_OF_OBJ:
 		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_OF], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_of);
+		break;
+
+	case PCEP_OBJ_PCE_ID:
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_PCE_ID], tvb, offset, -1, ENC_NA);
+		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_pce_id);
+		break;
+
+	case PCEP_OBJ_PROC_TIME:
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_PROC_TIME], tvb, offset, -1, ENC_NA);
+		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_proc_time);
+		break;
+
+	case PCEP_OBJ_OVERLOAD:
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_OVERLOAD], tvb, offset, -1, ENC_NA);
+		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_overload);
 		break;
 
 	default:
@@ -2271,8 +2529,28 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, tvbuff_t *tvb, int len, int offset,
 	    dissect_pcep_xro_obj(pcep_object_tree, tvb, offset+4, obj_length, obj_class);
 	    break;
 
+	case PCEP_OBJ_MONITORING:
+	    dissect_pcep_obj_monitoring(pcep_object_tree, tvb, offset+4, obj_length);
+	    break;
+
+	case PCEP_OBJ_PCC_ID_REQ:
+	    dissect_pcep_obj_pcc_id_req(pcep_object_tree, tvb, offset+4, obj_length, type);
+	    break;
+
 	case PCEP_OF_OBJ:
 	    dissect_pcep_of_obj(pcep_object_tree, tvb, offset+4, obj_length);
+	    break;
+
+	case PCEP_OBJ_PCE_ID:
+	    dissect_pcep_obj_pce_id(pcep_object_tree, tvb, offset+4, obj_length, type);
+	    break;
+
+	case PCEP_OBJ_PROC_TIME:
+	    dissect_pcep_obj_proc_time(pcep_object_tree, tvb, offset+4, obj_length);
+	    break;
+
+	case PCEP_OBJ_OVERLOAD:
+	    dissect_pcep_obj_overload(pcep_object_tree, tvb, offset+4, obj_length);
 	    break;
 
 	default:
@@ -2336,6 +2614,8 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_i
     case PCEPF_NOTIFICATION:
     case PCEPF_ERROR:
     case PCEPF_CLOSE:
+    case PCEPF_PATH_COMPUTATION_MONITORING_REQUEST:
+    case PCEPF_PATH_COMPUTATION_MONITORING_REPLY:
 	hidden_item = proto_tree_add_boolean(pcep_header_tree, pcep_filter[PCEPF_MSG + message_type], tvb, offset+1, 1, 1);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
@@ -2417,6 +2697,12 @@ proto_register_pcep(void){
 			NULL, HFILL }},
 		{&pcep_filter[PCEPF_CLOSE],
 		 { "Close Message", "pcep.msg.close", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{&pcep_filter[PCEPF_PATH_COMPUTATION_MONITORING_REQUEST],
+		 { "Path Computation Monitoring Request Message", "pcep.msg.path.computation.monitoring.request", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{&pcep_filter[PCEPF_PATH_COMPUTATION_MONITORING_REPLY],
+		 { "Path Computation Monitoring Reply Mesagge", "pcep.msg.path.computation.monitoring.reply", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		/*Object header*/
@@ -2567,9 +2853,87 @@ proto_register_pcep(void){
 		{&pcep_filter[PCEPF_OBJ_XRO],
 		 { "EXCLUDE ROUTE object (XRO)", "pcep.obj.xro", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+
+		{&pcep_filter[PCEPF_OBJ_MONITORING],
+		 { "MONITORING object", "pcep.obj.monitoring", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{&pcep_obj_monitoring_flags_reserved,
+		 { "Reserved Flags", "pcep.obj.monitoring.flags.reserved", FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+			 PCEP_OBJ_MONITORING_FLAGS_RESERVED, NULL, HFILL }},
+		{&pcep_obj_monitoring_flags_l,
+		 { "Liveness (L)", "pcep.obj.monitoring.flags.l", FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+			 PCEP_OBJ_MONITORING_FLAGS_L, NULL, HFILL }},
+		{&pcep_obj_monitoring_flags_g,
+		 { "General (G)", "pcep.obj.monitoring.flags.g", FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+			 PCEP_OBJ_MONITORING_FLAGS_G, NULL, HFILL }},
+		{&pcep_obj_monitoring_flags_p,
+		 { "Processing Time (P)", "pcep.obj.monitoring.flags.p", FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+			PCEP_OBJ_MONITORING_FLAGS_P, NULL, HFILL }},
+		{&pcep_obj_monitoring_flags_c,
+		 { "Overload (C)", "pcep.obj.monitoring.flags.c", FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+			PCEP_OBJ_MONITORING_FLAGS_C, NULL, HFILL }},
+		{&pcep_obj_monitoring_flags_i,
+		 { "Incomplete (I)", "pcep.obj.monitoring.flags.i", FT_BOOLEAN, 24, TFS(&tfs_set_notset),
+			PCEP_OBJ_MONITORING_FLAGS_I, NULL, HFILL }},
+		{ &pcep_obj_monitoring_monitoring_id_number,
+		  { "Monitoring ID Number", "pcep.obj.monitoring.monidnumber", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+
+		{&pcep_filter[PCEPF_OBJ_PCC_ID_REQ],
+		 { "PCC-ID-REQ object", "pcep.obj.pccidreq", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{ &pcep_obj_pcc_id_req_ipv4,
+		 { "IPv4 address", "pcep.obj.pccidreq.ipv4", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &pcep_obj_pcc_id_req_ipv6,
+		  { "IPv6 address", "pcep.obj.pccidreq.ipv6", FT_IPv6, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
 		{&pcep_filter[PCEPF_OBJ_OF],
 		 { "OBJECTIVE FUNCTION object (OF)", "pcep.obj.of", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
+
+		{&pcep_filter[PCEPF_OBJ_PCE_ID],
+		 { "PCE-ID object", "pcep.obj.pceid", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{ &pcep_obj_pce_id_ipv4,
+		 { "IPv4 address", "pcep.obj.pceid.ipv4", FT_IPv4, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &pcep_obj_pce_id_ipv6,
+		 { "IPv6 address", "pcep.obj.pceid.ipv6", FT_IPv6, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+
+		{&pcep_filter[PCEPF_OBJ_PROC_TIME],
+		 { "PROC-TIME object", "pcep.obj.proctime", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{&pcep_obj_proc_time_flags_reserved,
+		 { "Reserved Flags", "pcep.obj.proctime.flags.reserved", FT_BOOLEAN, 16, TFS(&tfs_set_notset),
+			PCEP_OBJ_PROC_TIME_FLAGS_RESERVED, NULL, HFILL }},
+		{&pcep_obj_proc_time_flags_e,
+		 { "Estimated (E)", "pcep.obj.proctime.flags.e", FT_BOOLEAN, 16, TFS(&tfs_set_notset),
+			PCEP_OBJ_PROC_TIME_FLAGS_E,	NULL, HFILL }},
+		{ &pcep_obj_proc_time_cur_proc_time,
+		  { "Current processing time", "pcep.obj.proctime.curproctime", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &pcep_obj_proc_time_min_proc_time,
+		  { "Minimum processing time", "pcep.obj.proctime.minproctime", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &pcep_obj_proc_time_max_proc_time,
+		  { "Maximum processing time", "pcep.obj.proctime.maxproctime", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &pcep_obj_proc_time_ave_proc_time,
+		  { "Average processing time", "pcep.obj.proctime.aveproctime", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &pcep_obj_proc_time_var_proc_time,
+		  { "Variance processing time", "pcep.obj.proctime.varproctime", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+
+		{&pcep_filter[PCEPF_OBJ_OVERLOAD],
+		 { "OVERLOAD object", "pcep.obj.overload", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{ &pcep_obj_overload_duration,
+		 { "Overload Duration", "pcep.obj.overload.duration", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 
 		/*Subobjects*/
 		{&pcep_filter[PCEPF_SUBOBJ],
