@@ -462,14 +462,19 @@ ldap_conv_info_t *ldap_info;
   gchar		*string;
   guint32	i, len;
   int           old_offset = offset;
+  gint          *hf_id;
 
   /* attr_type, should be set before calling this function */
 
   /* extract the value of the octetstring */
   offset = dissect_ber_octet_string(FALSE, actx, NULL, tvb, offset, hf_index, &next_tvb);
 
+  /* first check if we have a custom attribute type configured */
+  if ((hf_id = get_hf_for_header (attr_type)) != NULL)
+    proto_tree_add_item (tree, *hf_id, next_tvb, 0, tvb_length_remaining(next_tvb, 0), FALSE);
+
   /* if we have an attribute type that isn't binary see if there is a better dissector */
-  if(!attr_type || !next_tvb || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree)) {
+  else if(!attr_type || !next_tvb || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree)) {
     offset = old_offset;
 
     /* do the default thing */

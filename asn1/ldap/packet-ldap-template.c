@@ -104,6 +104,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/uat.h>
 
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
@@ -238,7 +239,7 @@ static const value_string ldap_ProtocolOp_choice_vals[] = {
   {   3, "searchRequest" },
   {   4, "searchResEntry" },
   {   5, "searchResDone" },
-  {	  6, "searchResRef" },
+  {   6, "searchResRef" },
   {   7, "modifyRequest" },
   {   8, "modifyResponse" },
   {   9, "addRequest" },
@@ -387,6 +388,139 @@ static const true_false_string tfs_ntver_vl = {
 	"Global Catalog not requested"
 };
 
+/* Stuff for generation/handling of fields for custom AttributeValues */
+typedef struct _attribute_type_t {
+  gchar* attribute_type;
+  gchar* attribute_desc;
+} attribute_type_t;
+
+static attribute_type_t* attribute_types = NULL;
+static guint num_attribute_types = 0;
+
+static GHashTable* attribute_types_hash = NULL;
+
+static void
+attribute_types_update_cb(void *r, const char **err)
+{
+  attribute_type_t *rec = r;
+  char c;
+
+  if (rec->attribute_type == NULL) {
+    *err = ep_strdup_printf("Attribute type can't be empty");
+    return;
+  }
+
+  g_strstrip(rec->attribute_type);
+  if (rec->attribute_type[0] == 0) {
+    *err = ep_strdup_printf("Attribute type can't be empty");
+    return;
+  }
+
+  /* Check for invalid characters (to avoid asserting out when
+   * registering the field).
+   */
+  c = proto_check_field_name(rec->attribute_type);
+  if (c) {
+    *err = ep_strdup_printf("Attribute type can't contain '%c'", c);
+    return;
+  }
+
+  *err = NULL;
+}
+
+static void *
+attribute_types_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+  attribute_type_t* new_rec = n;
+  const attribute_type_t* old_rec = o;
+
+  new_rec->attribute_type = g_strdup(old_rec->attribute_type);
+  new_rec->attribute_desc = g_strdup(old_rec->attribute_desc);
+
+  return new_rec;
+}
+
+static void
+attribute_types_free_cb(void*r)
+{
+  attribute_type_t* rec = r;
+
+  if (rec->attribute_type) g_free(rec->attribute_type);
+  if (rec->attribute_desc) g_free(rec->attribute_desc);
+}
+
+UAT_CSTRING_CB_DEF(attribute_types, attribute_type, attribute_type_t)
+UAT_CSTRING_CB_DEF(attribute_types, attribute_desc, attribute_type_t)
+
+/*
+ *
+ */
+static gint*
+get_hf_for_header(char* attribute_type)
+{
+  gint* hf_id = NULL;
+
+  if (attribute_types_hash) {
+    hf_id = (gint*) g_hash_table_lookup(attribute_types_hash, attribute_type);
+  } else {
+    hf_id = NULL;
+  }
+
+  return hf_id;
+}
+
+/*
+ *
+ */
+static void
+attribute_types_initialize_cb(void)
+{
+  static hf_register_info* hf;
+  gint* hf_id;
+  guint i;
+  gchar* attribute_type;
+
+  if (attribute_types_hash) {
+    guint hf_size = g_hash_table_size (attribute_types_hash);
+    /* Unregister all fields */
+    for (i = 0; i < hf_size; i++) {
+      proto_unregister_field (proto_ldap, *(hf[i].p_id));
+
+      g_free (hf[i].p_id);
+      g_free ((char *) hf[i].hfinfo.name);
+      g_free ((char *) hf[i].hfinfo.abbrev);
+      g_free ((char *) hf[i].hfinfo.blurb);
+    }
+    g_hash_table_destroy (attribute_types_hash);
+    g_free (hf);
+    attribute_types_hash = NULL;
+  }
+
+  if (num_attribute_types) {
+    attribute_types_hash = g_hash_table_new(g_str_hash, g_str_equal);
+    hf = g_malloc0(sizeof(hf_register_info) * num_attribute_types);
+
+    for (i = 0; i < num_attribute_types; i++) {
+      hf_id = g_malloc(sizeof(gint));
+      *hf_id = -1;
+      attribute_type = g_strdup(attribute_types[i].attribute_type);
+
+      hf[i].p_id = hf_id;
+      hf[i].hfinfo.name = attribute_type;
+      hf[i].hfinfo.abbrev = g_strdup_printf("ldap.AttributeValue.%s", attribute_type);
+      hf[i].hfinfo.type = FT_STRING;
+      hf[i].hfinfo.display = BASE_NONE;
+      hf[i].hfinfo.strings = NULL;
+      hf[i].hfinfo.blurb = g_strdup(attribute_types[i].attribute_desc);
+      hf[i].hfinfo.same_name_prev = NULL;
+      hf[i].hfinfo.same_name_next = NULL;
+
+      g_hash_table_insert(attribute_types_hash, attribute_type, hf_id);
+    }
+
+    proto_register_field_array(proto_ldap, hf, num_attribute_types);
+  }
+}
 
 /* MS-ADTS specification, section 7.3.1.1, NETLOGON_NT_VERSION Options Bits */
 static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
@@ -2080,9 +2214,16 @@ void proto_register_ldap(void) {
 
 #include "packet-ldap-ettarr.c"
   };
+  /* UAT for header fields */
+  static uat_field_t custom_attribute_types_uat_fields[] = {
+     UAT_FLD_CSTRING(attribute_types, attribute_type, "Attribute type", "Attribute type"),
+     UAT_FLD_CSTRING(attribute_types, attribute_desc, "Description", "Description of the value matching type"),
+     UAT_END_FIELDS
+  };
 
-    module_t *ldap_module;
-
+  module_t *ldap_module;
+  uat_t *attributes_uat;
+  
   /* Register protocol */
   proto_ldap = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
@@ -2106,6 +2247,25 @@ void proto_register_ldap(void) {
   prefs_register_uint_preference(ldap_module, "ssl.port", "LDAPS TCP Port",
 				 "Set the port for LDAP operations over SSL",
 				 10, &global_ldaps_tcp_port);
+  /* UAT */
+  attributes_uat = uat_new("Custom AttributeValue types Table",
+                           sizeof(attribute_type_t),
+                           "custom_ldap_attribute_types",
+                           TRUE,
+                           (void*) &attribute_types,
+                           &num_attribute_types,
+                           UAT_CAT_FIELDS,
+                           NULL,
+                           attribute_types_copy_cb,
+                           attribute_types_update_cb,
+                           attribute_types_free_cb,
+                           attribute_types_initialize_cb,
+                           custom_attribute_types_uat_fields);
+
+  prefs_register_uat_preference(ldap_module, "custom_ldap_attribute_types",
+                                "Custom AttributeValue types",
+                                "A table to define custom LDAP attribute type values for which fields can be setup and used for filtering/data extraction etc.",
+                                attributes_uat);
 
   prefs_register_obsolete_preference(ldap_module, "max_pdu");
 
