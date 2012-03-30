@@ -402,6 +402,7 @@ static int hf_nfs_r_netid = -1;
 static int hf_nfs_gsshandle4 = -1;
 static int hf_nfs_r_addr = -1;
 static int hf_nfs_createmode4 = -1;
+static int hf_nfs_op_mask = -1;
 
 /* NFSv4.1 */
 static int hf_nfs_length4_minlength = -1;
@@ -8086,6 +8087,7 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_VERIFY,			"VERIFY"		},
 	{	NFS4_OP_WRITE,			"WRITE"			},
 	{	NFS4_OP_RELEASE_LOCKOWNER,	"RELEASE_LOCKOWNER"	},
+	{       NFS4_OP_BACKCHANNEL_CTL,	"BACKCHANNEL_CTL"       },
 	{	NFS4_OP_BIND_CONN_TO_SESSION,	"BIND_CONN_TO_SESSION"	},
 	{	NFS4_OP_EXCHANGE_ID,		"EXCHANGE_ID"		},
 	{	NFS4_OP_CREATE_SESSION,		"CREATE_SESSION"	},
@@ -8359,7 +8361,7 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 	proto_item *op_fitem = NULL;
 	proto_tree *op_newftree = NULL;
 	guint32 *bitmap=NULL;
-	guint32 fattr;
+	guint32 op;
 	guint32 i;
 	gint j;
 	guint32 sl;
@@ -8387,10 +8389,10 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 		bitmap[i] = tvb_get_ntohl(tvb, offset);
 		sl = 0x00000001;
 		for (j = 0; j < 32; j++) {
-			fattr = 32 * i + j;
+			op = 32 * i + j;
 			if (bitmap[i] & sl) {
 				op_fitem = proto_tree_add_uint(newftree,
-				hf_nfs_recc_attr, tvb, offset, 4, fattr);
+				hf_nfs_op_mask, tvb, offset, 4, op);
 				if (op_fitem == NULL) break;
 					op_newftree = proto_item_add_subtree(op_fitem, ett_nfs_bitmap4);
 				if (op_newftree == NULL) break;
@@ -12261,6 +12263,10 @@ proto_register_nfs(void)
 		{ &hf_nfs_mode3_xoth, {
 			"S_IXOTH", "nfs.mode3.xoth", FT_BOOLEAN, 32,
 			TFS(&tfs_yes_no), 0x001, NULL, HFILL }},
+
+		{ &hf_nfs_op_mask, {
+			"op_mask", "nfs.op_mask", FT_UINT32, BASE_DEC,
+			VALS(names_nfsv4_operation), 0, "Operation Mask", HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_nfsstat, {
