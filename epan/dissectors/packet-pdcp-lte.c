@@ -635,6 +635,9 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     if (!createdChannel) {
         expectedSequenceNumber = (p_channel_status->previousSequenceNumber + 1) % snLimit;
     }
+    else {
+        expectedSequenceNumber = sequenceNumber;
+    }
 
     /* Set report for this frame */
     /* For PDCP, sequence number is always expectedSequence number */
@@ -2022,7 +2025,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         col_set_writable(pinfo->cinfo, FALSE);
     }
     else {
-        /* TODO: won't help with multiple PDCP PDUs / frame */
+        /* TODO: won't help with multiple PDCP-or-traffic PDUs / frame... */
         col_clear(pinfo->cinfo, COL_INFO);
         col_set_writable(pinfo->cinfo, TRUE);
     }
