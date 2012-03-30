@@ -5767,7 +5767,7 @@ dissect_gtp_mbms_ses_dur(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree
 
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_days, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_days, tvb, offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_s, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     return 3;
@@ -5803,7 +5803,7 @@ decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pro
      * for which the maximum allowed value is 18 days. For the whole session duration the seconds
      * and days are added together and the maximum session duration is 19 days.
      */
-    proto_tree_add_item(ext_tree, hf_gtp_mbms_ses_dur_days, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_mbms_ses_dur_days, tvb, offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_mbms_ses_dur_s, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     return 3 + length;
@@ -7661,12 +7661,12 @@ void proto_register_gtp(void)
         },
         {&hf_gtp_mbms_ses_dur_days,
          {"Estimated session duration days", "gtp.mbms_ses_dur_days",
-          FT_UINT8, BASE_DEC, NULL, 0xfe,
+          FT_UINT24, BASE_DEC, NULL, 0x00007F,
           NULL, HFILL}
         },
         {&hf_gtp_mbms_ses_dur_s,
          {"Estimated session duration seconds", "gtp.mbms_ses_dur_s",
-          FT_UINT24, BASE_DEC, NULL, 0x01ffff,
+          FT_UINT24, BASE_DEC, NULL, 0xFFFF80,
           NULL, HFILL}
         },
         {&hf_gtp_mbms_sa_code,
