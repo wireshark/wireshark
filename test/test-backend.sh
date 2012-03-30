@@ -114,7 +114,7 @@ test_suite_run() {
 		fi
 		echo "### Test suite results ###"
 		echo -n -e $color_green
-		echo "Ok    : $TEST_OK"
+		echo "OK    : $TEST_OK"
 		echo -n -e $color_red
 		echo "Failed: $TEST_FAILED"
 		echo -n -e $color_yellow
@@ -278,7 +278,7 @@ test_step_ok() {
 	echo -n -e $color_green
 
 	if [ $TEST_OUTPUT = "VERBOSE" ]; then
-		echo " Ok"
+		echo " OK"
 	else
 		echo -n .
 	fi
@@ -336,9 +336,13 @@ test_step_output_print() {
 	done
 }
 
-## Emacs
-## Local Variables:
-## tab-width: 8
-## indent-tabs-mode: t
-## sh-basic-offset: 8
-## End:
+# Editor modelines
+#
+# Local Variables:
+# sh-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# ex: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:

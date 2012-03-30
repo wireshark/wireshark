@@ -28,8 +28,10 @@
 if [ -n "${OS#Windows}" ] ; then
 	WS_SYSTEM="Windows"
 	export CYGWIN="$CYGWIN error_start=c:\cygwin\bin\dumper.exe -d %1 %2"
+	DIR_SEP="\\"
 else
 	WS_SYSTEM=`uname -s`
+	DIR_SEP="/"
 fi
 
 
@@ -83,6 +85,14 @@ fi
 # Tell Wireshark to quit after capuring packets.
 export WIRESHARK_QUIT_AFTER_CAPTURE="True"
 
+CAPTURE_DIR="captures${DIR_SEP}"
+
+# Configuration paths
+TEST_HOME="$PWD/fakehome"
+if [ "$WS_SYSTEM" == "Windows" ] ; then
+    TEST_HOME="`cygpath -w $TEST_HOME`"
+fi
+
 # Display our environment
 
 ##printf "\n ------- Info =-----------------\n"
@@ -92,3 +102,13 @@ export WIRESHARK_QUIT_AFTER_CAPTURE="True"
 ##ls -l $(which wireshark) $(which tshark) $(which dumpcap)
 ##printf " ----------------------------------\n\n"
 
+# Editor modelines
+#
+# Local Variables:
+# sh-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# ex: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:

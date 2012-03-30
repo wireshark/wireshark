@@ -49,8 +49,15 @@ if [ $PRINT_USAGE -ne 0 ] ; then
 Usage: $THIS [-c] [-h] [-s <suite>]
   -c: Disable color output
   -h: Print this message and exit
-  -s: Run a suite.  Must be one of: all, capture, clopts, io, or
+  -s: Run a suite.  Must be one of:
+      all
+      capture
+      clopts
+      decryption
+      fileformats
+      io
       prerequisites
+      unittests
 FIN
         exit 0
 fi
@@ -63,6 +70,7 @@ source suite-io.sh
 source suite-capture.sh
 source suite-unittests.sh
 source suite-fileformats.sh
+source suite-decryption.sh
 
 
 #check prerequisites
@@ -95,6 +103,7 @@ test_suite() {
 	test_suite_add "Capture" capture_suite
 	test_suite_add "Unit tests" unittests_suite
 	test_suite_add "File formats" fileformats_suite
+	test_suite_add "Decryption" decryption_suite
 }
 
 
@@ -122,11 +131,20 @@ if [ -n "$RUN_SUITE" ] ; then
 	  "clopts")
 	    test_suite_run "Command line options" clopt_suite
             exit $? ;;
+	  "decryption")
+	    test_suite_run "Decryption" decryption_suite
+            exit $? ;;
+	  "fileformats")
+            test_suite_run "File formats" fileformats_suite
+            exit $? ;;
 	  "io")
 	    test_suite_run "File I/O" io_suite
             exit $? ;;
 	  "prerequisites")
             test_suite_run "Prerequisites" prerequisites_suite
+            exit $? ;;
+	  "unittests")
+            test_suite_run "Unit tests" unittests_suite
             exit $? ;;
         esac
 fi
