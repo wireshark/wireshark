@@ -30,6 +30,7 @@ EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
 UAT_FILES="
+	80211_keys
 	ssl_keys
 "
 
@@ -48,6 +49,23 @@ DIFF_OUT=./diff-output.txt
 # deleting files we shouldn't.
 DC_ID="suite-decryption.sh-$$"
 
+
+# WPA PSK
+decryption_step_80211_wpa_psk() {
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-o "wlan.enable_decryption: TRUE" \
+		-Tfields -e http.request.uri \
+		-r captures/wpa-Induction.pcap \
+		-R http \
+		| grep favicon.ico > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt IEEE 802.11 WPA PSK"
+		return
+	fi
+	test_step_ok
+}
+
 # SSL
 decryption_step_ssl() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri -r captures/rsasnakeoil2.pcap -R http | grep favicon.ico > /dev/null 2>&1
@@ -59,9 +77,8 @@ decryption_step_ssl() {
 	test_step_ok
 }
 
-
 tshark_decryption_suite() {
-	# Microsecond pcap direct read is used as the baseline.
+	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
 	test_step_add "SSL Decryption" decryption_step_ssl
 }
 
