@@ -23,9 +23,9 @@
 #define AIRPCAP_H__EAE405F5_0171_9592_B3C2_C19EC426AD34__INCLUDED_
 
 #ifdef _MSC_VER
-// This disables a VS warning for zero-sized arrays.
+/* This disables a VS warning for zero-sized arrays. */
 #pragma warning( disable : 4200)
-// This stops VS2005 ranting against stdio.
+/* This stops VS2005 ranting against stdio. */
 #pragma warning( disable : 4996)
 #endif
 
@@ -82,39 +82,39 @@ extern "C" {
 */
 typedef struct _AirpcapDeviceDescription
 {
-	struct	_AirpcapDeviceDescription *next;			///< Next element in the list
-	gchar *	Name;										///< Device name
-	gchar *	Description;								///< Device description
+	struct	_AirpcapDeviceDescription *next;			/* < Next element in the list */
+	gchar *	Name;							/* < Device name */
+	gchar *	Description;						/* < Device description */
 } AirpcapDeviceDescription, *PAirpcapDeviceDescription;
 
 #define MAX_ENCRYPTION_KEYS 64
 
-#define WEP_KEY_MAX_SIZE 32		///< Maximum size of a WEP key, in bytes. This is the size of an entry in the
-								///< AirpcapWepKeysCollection structure
+#define WEP_KEY_MAX_SIZE 32		/* < Maximum size of a WEP key, in bytes. This is the size of an entry in the
+					   < AirpcapWepKeysCollection structure. */
 
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma pack(push)
 #pragma pack(1)
-#endif // __MINGW32__
+#endif
 #endif
 
-#define AIRPCAP_KEYTYPE_WEP		0	///< Key type: WEP. The key can have an arbitrary length smaller than 32 bytes.
-#define AIRPCAP_KEYTYPE_TKIP	1	///< Key type: TKIP (WPA). NOT SUPPORTED YET.
-#define AIRPCAP_KEYTYPE_CCMP	2	///< Key type: CCMP (WPA2). NOT SUPPORTED YET.
+#define AIRPCAP_KEYTYPE_WEP	0	/* < Key type: WEP. The key can have an arbitrary length smaller than 32 bytes. */
+#define AIRPCAP_KEYTYPE_TKIP	1	/* < Key type: TKIP (WPA). NOT SUPPORTED YET. */
+#define AIRPCAP_KEYTYPE_CCMP	2	/* < Key type: CCMP (WPA2). NOT SUPPORTED YET. */
 
 /*!
   \brief WEP key container
 */
 typedef struct _AirpcapKey
 {
-	guint KeyType;						///< Type of key, can be on of: \ref AIRPCAP_KEYTYPE_WEP, \ref AIRPCAP_KEYTYPE_TKIP, \ref AIRPCAP_KEYTYPE_CCMP. Only AIRPCAP_KEYTYPE_WEP is supported by the driver at the moment.
-	guint KeyLen;						///< Length of the key, in bytes
-	guint8 KeyData[WEP_KEY_MAX_SIZE];		///< Key Data
+	guint KeyType;				/* < Type of key, can be on of: \ref AIRPCAP_KEYTYPE_WEP, \ref AIRPCAP_KEYTYPE_TKIP, \ref AIRPCAP_KEYTYPE_CCMP. Only AIRPCAP_KEYTYPE_WEP is supported by the driver at the moment. */
+	guint KeyLen;				/* < Length of the key, in bytes */
+	guint8 KeyData[WEP_KEY_MAX_SIZE];	/* < Key Data */
 }
 #ifdef __MINGW32__
 __attribute__((__packed__))
-#endif // __MINGW32__
+#endif
 AirpcapKey, *PAirpcapKey;
 
 /*!
@@ -124,10 +124,10 @@ AirpcapKey, *PAirpcapKey;
 */
 typedef enum _AirpcapChannelBand
 {
-    AIRPCAP_CB_AUTO = 1,				///< Automatically pick the best frequency band
-    AIRPCAP_CB_2_4_GHZ = 2,				///< 2.4 GHz frequency band
-    AIRPCAP_CB_4_GHZ = 4,				///< 4 GHz frequency band
-    AIRPCAP_CB_5_GHZ = 5				///< 5 GHz frequency band
+    AIRPCAP_CB_AUTO = 1,				/* < Automatically pick the best frequency band */
+    AIRPCAP_CB_2_4_GHZ = 2,				/* < 2.4 GHz frequency band */
+    AIRPCAP_CB_4_GHZ = 4,				/* < 4 GHz frequency band */
+    AIRPCAP_CB_5_GHZ = 5				/* < 5 GHz frequency band */
 }AirpcapChannelBand, *PAirpcapChannelBand;
 
 /*!
@@ -136,10 +136,10 @@ typedef enum _AirpcapChannelBand
 */
 typedef enum _AirpcapValidationType
 {
-    AIRPCAP_VT_ACCEPT_EVERYTHING = 1,		///< Accept all the frames the device captures
-    AIRPCAP_VT_ACCEPT_CORRECT_FRAMES = 2,	///< Accept correct frames only, i.e. frames with correct Frame Check Sequence (FCS).
-    AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES = 3,	///< Accept corrupt frames only, i.e. frames with wrong Frame Check Sequence (FCS).
-	AIRPCAP_VT_UNKNOWN = 4					///< Unknown validation type. You should see it only in case of error.
+    AIRPCAP_VT_ACCEPT_EVERYTHING = 1,		/* < Accept all the frames the device captures */
+    AIRPCAP_VT_ACCEPT_CORRECT_FRAMES = 2,	/* < Accept correct frames only, i.e. frames with correct Frame Check Sequence (FCS). */
+    AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES = 3,	/* < Accept corrupt frames only, i.e. frames with wrong Frame Check Sequence (FCS). */
+	AIRPCAP_VT_UNKNOWN = 4			/* < Unknown validation type. You should see it only in case of error. */
 }AirpcapValidationType, *PAirpcapValidationType;
 
 /*!
@@ -149,8 +149,8 @@ typedef enum _AirpcapValidationType
 */
 typedef enum _AirpcapDecryptionState
 {
-    AIRPCAP_DECRYPTION_ON = 1,				///< This adapter performs decryption
-    AIRPCAP_DECRYPTION_OFF = 2				///< This adapter does not perform decryption
+    AIRPCAP_DECRYPTION_ON = 1,				/* < This adapter performs decryption */
+    AIRPCAP_DECRYPTION_OFF = 2				/* < This adapter does not perform decryption */
 }AirpcapDecryptionState, *PAirpcapDecryptionState;
 
 
@@ -159,11 +159,11 @@ typedef enum _AirpcapDecryptionState
 */
 typedef struct _AirpcapMacAddress
 {
-	guint8 Address[6];		///< MAC address bytes
+	guint8 Address[6];		/* < MAC address bytes */
 }
 #ifdef __MINGW32__
 __attribute__((__packed__))
-#endif // __MINGW32__
+#endif
 AirpcapMacAddress, *PAirpcapMacAddress;
 
 /*!
@@ -180,14 +180,14 @@ AirpcapMacAddress, *PAirpcapMacAddress;
 	KeysCollection = (PAirpcapKeysCollection)malloc(KeysCollectionSize);
 	if(!KeysCollection)
 	{
-		// Error
+		Error
 	}
   \endcode
 */
 typedef struct _AirpcapKeysCollection
 {
-	guint nKeys;												///< Number of keys in the collection
-	AirpcapKey Keys[0];										///< Array of nKeys keys.
+	guint nKeys;					/* < Number of keys in the collection */
+	AirpcapKey Keys[0];				/* < Array of nKeys keys. */
 } AirpcapKeysCollection, *PAirpcapKeysCollection;
 
 /*!
@@ -197,28 +197,28 @@ typedef struct _AirpcapKeysCollection
 */
 typedef struct _AirpcapBpfHeader
 {
-	guint TsSec;			///< Timestamp associated with the captured packet. SECONDS.
-	guint TsUsec;		///< Timestamp associated with the captured packet. MICROSECONDS.
-	guint Caplen;		///< Length of captured portion. The captured portion <b>can be different</b> from the original packet, because it is possible (with a proper filter) to instruct the driver to capture only a portion of the packets.
-	guint Originallen;	///< Original length of packet
-	guint16	Hdrlen;		///< Length of bpf header (this struct plus alignment padding). In some cases, a padding could be added between the end of this structure and the packet data for performance reasons. This field can be used to retrieve the actual data of the packet.
+	guint TsSec;		/* < Timestamp associated with the captured packet. SECONDS. */
+	guint TsUsec;		/* < Timestamp associated with the captured packet. MICROSECONDS. */
+	guint Caplen;		/* < Length of captured portion. The captured portion <b>can be different</b> from the original packet, because it is possible (with a proper filter) to instruct the driver to capture only a portion of the packets. */
+	guint Originallen;	/* < Original length of packet */
+	guint16	Hdrlen;		/* < Length of bpf header (this struct plus alignment padding). In some cases, a padding could be added between the end of this structure and the packet data for performance reasons. This field can be used to retrieve the actual data of the packet. */
 }
 #ifdef __MINGW32__
 __attribute__((__packed__))
-#endif // __MINGW32__
+#endif
 AirpcapBpfHeader, *PAirpcapBpfHeader;
 
-/// Helper macros to extract packets coming from the driver. Rounds up to the next even multiple of AIRPCAP_ALIGNMENT.
+/* Helper macros to extract packets coming from the driver. Rounds up to the next even multiple of AIRPCAP_ALIGNMENT. */
 #define AIRPCAP_ALIGNMENT sizeof(int)
 #define AIRPCAP_WORDALIGN(x) (((x)+(AIRPCAP_ALIGNMENT-1))&~(AIRPCAP_ALIGNMENT-1))
 
 #ifdef _WIN32
 #ifndef __MINGW32__
 #pragma pack(pop)
-#endif // __MINGW32__
+#endif
 #endif
 
-#define AIRPCAP_ERRBUF_SIZE 512		///< Size of the error buffer, in bytes
+#define AIRPCAP_ERRBUF_SIZE 512		/* < Size of the error buffer, in bytes */
 
 #ifndef __AIRPCAP_DRIVER__
 
@@ -229,10 +229,10 @@ AirpcapBpfHeader, *PAirpcapBpfHeader;
 #undef _AirpcapLinkType
 typedef enum _AirpcapLinkType
 {
-    AIRPCAP_LT_802_11 = 1,				///< plain 802.11 linktype. Every packet in the buffer contains the raw 802.11 frame, including MAC FCS.
-    AIRPCAP_LT_802_11_PLUS_RADIO = 2,	///< 802.11 plus radiotap linktype. Every packet in the buffer contains a radiotap header followed by the 802.11 frame. MAC FCS is included.
-	AIRPCAP_LT_UNKNOWN = 3,				///< Unknown linktype. You should see it only in case of error.
-	AIRPCAP_LT_802_11_PLUS_PPI = 4			///< 802.11 plus PPI header linktype. Every packet in the buffer contains a PPI header followed by the 802.11 frame. MAC FCS is included.
+    AIRPCAP_LT_802_11 = 1,		/* < plain 802.11 linktype. Every packet in the buffer contains the raw 802.11 frame, including MAC FCS. */
+    AIRPCAP_LT_802_11_PLUS_RADIO = 2,	/* < 802.11 plus radiotap linktype. Every packet in the buffer contains a radiotap header followed by the 802.11 frame. MAC FCS is included. */
+	AIRPCAP_LT_UNKNOWN = 3,		/* < Unknown linktype. You should see it only in case of error. */
+	AIRPCAP_LT_802_11_PLUS_PPI = 4	/* < 802.11 plus PPI header linktype. Every packet in the buffer contains a PPI header followed by the 802.11 frame. MAC FCS is included. */
 }AirpcapLinkType, *PAirpcapLinkType;
 
 #if !defined(AIRPCAP_HANDLE__EAE405F5_0171_9592_B3C2_C19EC426AD34__DEFINED_)
@@ -249,15 +249,15 @@ typedef struct _AirpcapHandle AirpcapHandle, *PAirpcapHandle;
 */
 typedef struct _AirpcapStats
 {
-	guint Recvs;			///< Number of packets that the driver received by the adapter
-						///< from the beginning of the current capture. This value includes the packets
-						///< dropped because of buffer full.
-	guint Drops;			///< number of packets that the driver dropped from the beginning of a capture.
-						///< A packet is lost when the the buffer of the driver is full.
-	guint IfDrops;		///< Packets dropped by the card before going to the USB bus.
-						///< Not supported at the moment.
-	guint Capt;			///< number of packets that pass the BPF filter, find place in the kernel buffer and
-						///< therefore reach the application.
+	guint Recvs;		/* < Number of packets that the driver received by the adapter */
+				/* < from the beginning of the current capture. This value includes the packets */
+				/* < dropped because of buffer full. */
+	guint Drops;		/* < number of packets that the driver dropped from the beginning of a capture. */
+				/* < A packet is lost when the the buffer of the driver is full. */
+	guint IfDrops;		/* < Packets dropped by the card before going to the USB bus. */
+				/* < Not supported at the moment. */
+	guint Capt;		/* < number of packets that pass the BPF filter, find place in the kernel buffer and */
+				/* < therefore reach the application. */
 }AirpcapStats, *PAirpcapStats;
 
 /*!
@@ -266,7 +266,7 @@ typedef struct _AirpcapStats
 */
 typedef struct _AirpcapChannelInfo
 {
-	guint Frequency;	///< Channel frequency, in MHz.
+	guint Frequency;	/* < Channel frequency, in MHz. */
 	/*!
 		\brief 802.11n specific. Offset of the extension channel in case of 40MHz channels.
 
@@ -278,7 +278,7 @@ typedef struct _AirpcapChannelInfo
 		In case of 802.11a/b/g channels (802.11n legacy mode), this field should be set to 0.
 	*/
 	gchar ExtChannel;
-	guint8 Reserved[3];	///< Reserved. It should be set to {0,0,0}.
+	guint8 Reserved[3];	/* < Reserved. It should be set to {0,0,0}. */
 }
 	AirpcapChannelInfo, *PAirpcapChannelInfo;
 
@@ -905,10 +905,10 @@ gboolean AirpcapConvertChannelToFrequency(guint Channel, guint * PFrequency);
 
 /*@}*/
 
-#endif // __AIRPCAP_DRIVER__
+#endif /* __AIRPCAP_DRIVER__ */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // !defined(AIRPCAP_H__EAE405F5_0171_9592_B3C2_C19EC426AD34__INCLUDED_)
+#endif /* !defined(AIRPCAP_H__EAE405F5_0171_9592_B3C2_C19EC426AD34__INCLUDED_) */
