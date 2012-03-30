@@ -40,7 +40,7 @@ fi
 
 #TS_ARGS="-Tfields -e frame.number -e frame.time_epoch -e frame.time_delta"
 TS_DC_ARGS=""
-TS_DC_ENV="HOME=${TEST_HOME}"
+TS_DC_ENV="${HOME_ENV}=${TEST_HOME}"
 
 DIFF_OUT=./diff-output.txt
 

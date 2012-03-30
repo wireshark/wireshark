@@ -87,10 +87,12 @@ CAPTURE_DIR="captures/"
 
 # Configuration paths
 TEST_HOME="$PWD/fakehome"
+HOME_ENV="HOME"
 
 if [ "$WS_SYSTEM" == "Windows" ] ; then
-    TEST_HOME="`cygpath -w $TEST_HOME`"
-    CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
+	TEST_HOME="`cygpath -w $TEST_HOME`"
+	HOME_ENV="APPDATA"
+	CAPTURE_DIR="`cygpath -w $CAPTURE_DIR`"
 fi
 
 # Display our environment
