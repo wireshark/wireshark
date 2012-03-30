@@ -85,7 +85,7 @@ decryption_prep_step() {
 			test_remark_add "../$UAT exists. One or more tests may fail."
 		else
 			echo "# Created by $DC_ID" > ../$UAT
-			sed -e "s:%test_keys_dir%:${TEST_KEYS_DIR}:" < ./config/$UAT.tmpl >> ../$UAT
+			sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\}|" < ./config/$UAT.tmpl >> ../$UAT
 		fi
 	done
 }
