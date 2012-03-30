@@ -563,7 +563,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	guint32 fill_length_copy;
 
 	int exception = 0;
-	int string_item_offset;
+	/* int string_item_offset; */
 
 	char *string_buffer = NULL;
 	char *string_buffer_print = NULL;
@@ -660,7 +660,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	}
 
 	if (tree) {
-		string_item_offset = offset;
+		/* string_item_offset = offset; */
 		string_item = proto_tree_add_text(tree, tvb,offset+0, -1,
 		    "%s: %s", proto_registrar_get_name(hfindex),
 		    string_buffer_print);
@@ -909,7 +909,7 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 	tkey[0].key    = &key[0];
 	tkey[1].length = 0;
 	tkey[1].key  = NULL;
-	
+
 	context_info = se_tree_lookup32_array(authgss_contexts, &tkey[0]);
 	if(context_info == NULL) {
 		tvb_memcpy(tvb, key, context_offset, context_length);
@@ -917,7 +917,7 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 		tkey[0].key    = &key[0];
 		tkey[1].length = 0;
 		tkey[1].key  = NULL;
-	
+
 	   	context_info = se_alloc(sizeof(gssauth_context_info_t));
 		context_info->create_frame  = 0;
 		context_info->destroy_frame = 0;
@@ -1420,7 +1420,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 			      packet_info *pinfo _U_)
 {
 	int length;
-	int return_offset;
+	/* int return_offset; */
 
 	length = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_uint(tree, hf_rpc_authgss_data_length,
@@ -1437,7 +1437,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return offset;
 	}
 
-	return_offset = call_dissector(spnego_krb5_wrap_handle,
+	/* return_offset = */ call_dissector(spnego_krb5_wrap_handle,
 		             tvb_new_subset_remaining(tvb, offset),
 			     pinfo, tree);
 
@@ -1445,7 +1445,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 		/* failed to decrypt the data */
 		offset += length;
 		return offset;
-	}	
+	}
 
 	offset += length;
 	return offset;
