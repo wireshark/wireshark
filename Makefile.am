@@ -520,7 +520,7 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) $(srcdir)/tools/make-tapreg-dotc
 ps.c: print.ps $(srcdir)/tools/rdps.py
 	$(PYTHON) $(srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
 
-services: tools/make-services.pl
+services:
 	$(PERL) $(srcdir)/tools/make-services.pl
 
 #
