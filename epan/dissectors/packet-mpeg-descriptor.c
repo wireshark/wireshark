@@ -922,6 +922,15 @@ proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint8 len, 
 	}
 }
 
+/* 0x47 Bouquet Name Descriptor */
+static int hf_mpeg_descr_bouquet_name = -1;
+
+static void
+proto_mpeg_descriptor_dissect_bouquet_name(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_mpeg_descr_bouquet_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+}
+
 /* 0x48 Service Descriptor */
 static int hf_mpeg_descr_service_type = -1;
 static int hf_mpeg_descr_service_provider_name_length = -1;
@@ -999,7 +1008,15 @@ static int hf_mpeg_descr_linkage_target_listed = -1;
 static int hf_mpeg_descr_linkage_event_simulcast = -1;
 static int hf_mpeg_descr_linkage_reserved2 = -1;
 
+static int hf_mpeg_descr_linkage_interactive_network_id = -1;
+static int hf_mpeg_descr_linkage_population_id_loop_count = -1;
+static int hf_mpeg_descr_linkage_population_id = -1;
+static int hf_mpeg_descr_linkage_population_id_base = -1;
+static int hf_mpeg_descr_linkage_population_id_mask = -1;
+
 static int hf_mpeg_descr_linkage_private_data_byte = -1;
+
+static gint ett_mpeg_descriptor_linkage_population_id = -1;
 
 #define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK	0xF0
 #define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_SHIFT	0x04
@@ -1024,6 +1041,7 @@ static const value_string mpeg_descr_linkage_linkage_type_vals[] = {
 	{ 0x0B, "IP/MAC Notification Service" },
 	{ 0x0C, "TS containing INT BAT or NIT" },
 	{ 0x0D, "Event linkage" },
+	{ 0x81, "RCS FLS" },
 
 	{ 0x00, NULL }
 };
@@ -1063,6 +1081,10 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint8 len, p
 
 	guint8 linkage_type, hand_over_type, origin_type;
 	guint end = offset + len;
+	guint population_id_loop_count = 0;
+	guint16 population_id_base = 0, population_id_mask = 0;
+	proto_item *pi = NULL;
+	proto_tree *population_tree = NULL;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_linkage_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -1095,15 +1117,36 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint8 len, p
 			offset += 2;
 		}
 
-	}
-
-	if (linkage_type == 0x0D) {
+	} else if (linkage_type == 0x0D) {
 		proto_tree_add_item(tree, hf_mpeg_descr_linkage_target_event_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_mpeg_descr_linkage_target_listed, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_mpeg_descr_linkage_event_simulcast, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_mpeg_descr_linkage_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+	} else if (linkage_type == 0x81) {
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_interactive_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		population_id_loop_count = tvb_get_guint8(tvb, offset) + 1;
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_population_id_loop_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+
+		while (population_id_loop_count--) {
+
+			population_id_base = tvb_get_ntohs(tvb, offset);
+			population_id_mask = tvb_get_ntohs(tvb, offset + 2);
+			pi = proto_tree_add_string_format_value(tree, hf_mpeg_descr_linkage_population_id, tvb, offset, 4, "Population ID", "0x%04x/0x%04x",
+				population_id_base, population_id_mask);
+			population_tree = proto_item_add_subtree(pi, ett_mpeg_descriptor_linkage_population_id);
+
+			proto_tree_add_item(population_tree, hf_mpeg_descr_linkage_population_id_base, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(population_tree, hf_mpeg_descr_linkage_population_id_mask, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+		}
+
 	}
 
 	if (end - offset > 0)
@@ -2416,6 +2459,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case 0x45: /* VBI Data Descriptor */
 			proto_mpeg_descriptor_dissect_vbi_data(tvb, offset, len, descriptor_tree);
 			break;
+		case 0x47: /* Bouquet Name Descriptor */
+			proto_mpeg_descriptor_dissect_bouquet_name(tvb, offset, len, descriptor_tree);
+			break;
 		case 0x48: /* Service Descriptor */
 			proto_mpeg_descriptor_dissect_service(tvb, offset, descriptor_tree);
 			break;
@@ -2981,6 +3027,12 @@ proto_register_mpeg_descriptor(void)
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
+		/* 0x47 Bouquet Name Descriptor */
+		{ &hf_mpeg_descr_bouquet_name, {
+			"Bouquet Name Descriptor", "mpeg_descr.bouquet_name.name",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
 		/* 0x48 Service Descriptor */
 		{ &hf_mpeg_descr_service_type, {
 			"Service Type", "mpeg_descr.svc.type",
@@ -3078,6 +3130,31 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_linkage_private_data_byte, {
 			"Private Data", "mpeg_descr.linkage.private_data",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_interactive_network_id, {
+			"Interactive Network ID", "mpeg_descr.interactive_network_id",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_population_id_loop_count, {
+			"Population ID loop count", "mpeg_descr.population_id_loop_count",
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_population_id, {
+			"Population ID", "mpeg_descr.population_id",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_population_id_base, {
+			"Population ID Base", "mpeg_descr.population_id_base",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_population_id_mask, {
+			"Population ID Mask", "mpeg_descr.population_id_mask",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
 
 		/* 0x4D Short Event Descriptor */
@@ -3740,7 +3817,8 @@ proto_register_mpeg_descriptor(void)
 		&ett_mpeg_descriptor_vbi_data_service,
 		&ett_mpeg_descriptor_content_identifier_crid,
 		&ett_mpeg_descriptor_service_list,
-		&ett_mpeg_descriptor_ac3_component_type
+		&ett_mpeg_descriptor_ac3_component_type,
+		&ett_mpeg_descriptor_linkage_population_id
 	};
 
 	proto_mpeg_descriptor = proto_register_protocol("MPEG2 Descriptors", "MPEG Descriptor", "mpeg_descr");
