@@ -50,7 +50,7 @@ DC_ID="suite-decryption.sh-$$"
 
 # SSL
 decryption_step_ssl() {
-	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri -r captures/rsasnakeoil2.cap -R http | grep favicon.ico > /dev/null 2>&1
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri -r captures/rsasnakeoil2.pcap -R http | grep favicon.ico > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "Failed to decrypt SSL"
