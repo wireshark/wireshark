@@ -5856,7 +5856,7 @@ void proto_register_ldap(void) {
 				 "Set the port for LDAP operations over SSL",
 				 10, &global_ldaps_tcp_port);
   /* UAT */
-  attributes_uat = uat_new("Custom AttributeValue types Table",
+  attributes_uat = uat_new("Custom LDAP AttributeValue types",
                            sizeof(attribute_type_t),
                            "custom_ldap_attribute_types",
                            TRUE,
