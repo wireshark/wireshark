@@ -69,6 +69,7 @@
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/uat_gui.h"
+#include "ui/gtk/new_packet_list.h"
 #include "ui/gtk/old-gtk-compat.h"
 
 # define BUTTON_SIZE_X -1
@@ -714,6 +715,15 @@ static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 	set_buttons(uat,row);
 }
 
+static void uat_apply_changes(uat_t *uat) {
+	if(strcmp(uat->category, UAT_CAT_FIELDS) == 0) {
+		/* Recreate list with new fields and redissect packets */
+		new_packet_list_recreate ();
+	} else if(cfile.state != FILE_CLOSED) {
+		redissect_packets ();
+	}
+}
+
 static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 	uat_t* uat = u;
 	gchar* err = NULL;
@@ -726,7 +736,7 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 			report_failure("Error while loading %s: %s",uat->name,err);
 		}
 
-		redissect_packets ();
+		uat_apply_changes (uat);
 	}
 
 	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
@@ -741,7 +751,7 @@ static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
 
 	if (uat->changed) {
 		if (uat->post_update_cb) uat->post_update_cb();
-		redissect_packets ();
+		uat_apply_changes (uat);
 	}
 }
 
@@ -757,7 +767,7 @@ static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 		}
 
 		if (uat->post_update_cb) uat->post_update_cb();
-		redissect_packets ();
+		uat_apply_changes (uat);
 	}
 
 	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);

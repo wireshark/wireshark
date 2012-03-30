@@ -1216,7 +1216,7 @@ proto_register_imf(void)
                                TRUE,
                                (void*) &header_fields,
                                &num_header_fields,
-                               UAT_CAT_GENERAL,
+                               UAT_CAT_FIELDS,
                                NULL,
                                header_fields_copy_cb,
                                header_fields_update_cb,

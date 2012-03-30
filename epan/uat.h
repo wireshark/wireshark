@@ -226,6 +226,7 @@ typedef struct _uat_field_t {
 #define UAT_CAT_PORTS "Port Assignments"
 #define UAT_CAT_CRYPTO "Decryption"
 #define UAT_CAT_FFMT "File Formats"
+#define UAT_CAT_FIELDS "Header Fields"
 
 /** Create a new uat
  *
