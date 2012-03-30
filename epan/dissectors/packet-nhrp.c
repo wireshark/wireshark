@@ -124,6 +124,7 @@ static int hf_nhrp_devcap_ext_srccap = -1;
 static int hf_nhrp_devcap_ext_srccap_V = -1;
 static int hf_nhrp_devcap_ext_dstcap = -1;
 static int hf_nhrp_devcap_ext_dstcap_V = -1;
+static int hf_nhrp_unknown_ext_value = -1;
 
 static gint ett_nhrp = -1;
 static gint ett_nhrp_hdr = -1;
@@ -956,9 +957,8 @@ void dissect_nhrp_ext(tvbuff_t *tvb,
 				break;
 
 			default:
-				proto_tree_add_text(nhrp_tree, tvb, offset, len,
-					"Extension Value: %s",
-					tvb_bytes_to_str(tvb, offset, len));
+				proto_tree_add_item(nhrp_tree, hf_nhrp_unknown_ext_value, tvb,
+					offset, len, ENC_NA);
 				break;
 			}
 skip_switch:
@@ -1160,6 +1160,8 @@ proto_register_nhrp(void)
 		  { "Destination Capabilities",	"nhrp.devcap_ext.dstcap",	FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_nhrp_devcap_ext_dstcap_V,
 		  { "VPN-aware",				"nhrp.devcap_ext.dstcap.V",	FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }},
+		{ &hf_nhrp_unknown_ext_value,
+		  { "Extension Value",			"nhrp.unknown_ext.value",	FT_BYTES, 	BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
