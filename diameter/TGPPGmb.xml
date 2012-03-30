@@ -7,7 +7,7 @@
 	These AVP:s collide(share AVP code number) with other 3GPP AVP:s  (3GPP Cx imscxdx.xml)
 	comment out these if you want to use them.
 -->
-    
+
 		<avp name="3GPP-IMSI" code="1" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
@@ -92,7 +92,7 @@
 
     <!-- Note: The AVP codes from 1 to 255 are reserved for backwards compatibility with 3GPP RADIUS Vendor Specific
          Attributes (See TS 29.061 [13]) -->
-    <!-- 
+    <!--
     <avp name="Reserved" code="28" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
       <type type-name="OctetString"/>
     </avp>
@@ -296,6 +296,12 @@
 		<avp name="MBMS-GW-UDP-Port-Indicator" code="928" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="UDP-PORT-REQUIRED" code="1"/>
+		</avp>
+		<avp name="MBMS-Data-Transfer-Start" code="929" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="MBMS-Data-Transfer-Stop" code="930" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
 		</avp>
 <!--
 Note: The AVP codes from 929 to 999 are reserved for TS 29.061
