@@ -48,7 +48,7 @@ test_single_char_options()
 
 # check exit status when reading an existing file
 clopts_step_existing_file() {
-	$TSHARK -r $CAPFILE > ./testout.txt 2>&1
+	$TSHARK -r "${CAPTURE_DIR}dhcp.pcap" > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status: $RETURNVALUE"
@@ -182,7 +182,7 @@ clopts_step_valid_name_resolving() {
 
 # check exit status of some basic functions
 clopts_suite_basic() {
-	test_step_add "Exit status for existing file: \""$CAPFILE"\" must be 0" clopts_step_existing_file
+	test_step_add "Exit status for existing file: \"""${CAPTURE_DIR}dhcp.pcap""\" must be 0" clopts_step_existing_file
 	test_step_add "Exit status for none existing files must be 2" clopts_step_nonexisting_file
 }
 

@@ -168,7 +168,7 @@ capture_step_10packets_stdout() {
 # capture packets via a fifo
 capture_step_fifo() {
 	mkfifo 'fifo'
-	(cat $CAPFILE; sleep 1; tail -c +25 $CAPFILE) > fifo &
+	(cat "${CAPTURE_DIR}dhcp.pcap"; sleep 1; tail -c +25 "${CAPTURE_DIR}dhcp.pcap") > fifo &
 	$DUT -i fifo $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
@@ -201,7 +201,7 @@ capture_step_fifo() {
 
 # capture packets via a fifo
 capture_step_stdin() {
-	(cat $CAPFILE; sleep 1; tail -c +25 $CAPFILE) | \
+	(cat "${CAPTURE_DIR}dhcp.pcap"; sleep 1; tail -c +25 "${CAPTURE_DIR}dhcp.pcap") | \
 	$DUT -i - $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \

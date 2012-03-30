@@ -27,7 +27,6 @@
 #
 
 # an existing capture file
-CAPFILE=./dhcp.pcap
 USE_COLOR=1
 RUN_SUITE=""
 PRINT_USAGE=0

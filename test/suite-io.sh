@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-# 
+#
 
 
 # common exit status values
@@ -32,7 +32,7 @@ EXIT_ERROR=2
 
 # input of file
 io_step_input_file() {
-	$DUT -r dhcp.pcap -w ./testout.pcap > ./testout.txt 2>&1
+	$DUT -r "${CAPTURE_DIR}dhcp.pcap" -w ./testout.pcap > ./testout.txt 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
@@ -47,7 +47,7 @@ io_step_input_file() {
 		test_step_failed "No output file!"
 		return
 	fi
-	
+
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout.txt
 	grep -Ei 'Number of packets:[[:blank:]]+4' ./testout.txt > /dev/null
@@ -63,9 +63,9 @@ io_step_input_file() {
 	fi
 }
 
-# piping input file to stdout using "-w -" 
+# piping input file to stdout using "-w -"
 io_step_output_piping() {
-	$DUT -r dhcp.pcap -w - > ./testout.pcap 2>./testout.txt
+	$DUT -r "${CAPTURE_DIR}dhcp.pcap" -w - > ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		test_step_failed "exit status of $DUT: $RETURNVALUE"
@@ -78,7 +78,7 @@ io_step_output_piping() {
 		test_step_failed "No output file!"
 		return
 	fi
-	
+
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout2.txt 2>&1
 	grep -Ei 'Number of packets:[[:blank:]]+4' ./testout2.txt > /dev/null
@@ -93,9 +93,9 @@ io_step_output_piping() {
 	fi
 }
 
-# piping input file to stdout using "-w -" 
+# piping input file to stdout using "-w -"
 io_step_input_piping() {
-	cat -B dhcp.pcap | $DUT -r - -w ./testout.pcap 2>./testout.txt
+	cat -B "${CAPTURE_DIR}dhcp.pcap" | $DUT -r - -w ./testout.pcap 2>./testout.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		$TSHARK -D
@@ -110,7 +110,7 @@ io_step_input_piping() {
 		test_step_failed "No output file!"
 		return
 	fi
-	
+
 	# ok, we got a capture file, does it contain exactly 10 packets?
 	$CAPINFOS ./testout.pcap > ./testout2.txt 2>&1
 	grep -Ei 'Number of packets:[[:blank:]]+4' ./testout2.txt > /dev/null
@@ -141,7 +141,7 @@ tshark_io_suite() {
 dumpcap_io_suite() {
 	#DUT="$DUMPCAP -Q"
 	DUT=$DUMPCAP
-	
+
 	test_step_add "Input file" io_step_input_file
 }
 
