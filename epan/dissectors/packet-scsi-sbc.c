@@ -129,6 +129,13 @@ static int hf_scsi_sbc_unmap_data_length       	= -1;
 static int hf_scsi_sbc_unmap_block_descriptor_data_length = -1;
 static int hf_scsi_sbc_unmap_lba		= -1;
 static int hf_scsi_sbc_unmap_num_blocks		= -1;
+static int hf_scsi_sbc_ptype			= -1;
+static int hf_scsi_sbc_prot_en			= -1;
+static int hf_scsi_sbc_p_i_exponent		= -1;
+static int hf_scsi_sbc_lbppbe			= -1;
+static int hf_scsi_sbc_lbpme			= -1;
+static int hf_scsi_sbc_lbprz			= -1;
+static int hf_scsi_sbc_lalba			= -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
@@ -684,6 +691,13 @@ static const value_string scsi_ssu_pwrcnd_val[] = {
     {0x9, "Reserved"},
     {0xA, "Force Idle Condition Timer to zero"},
     {0xB, "Force Standby Condition Timer to zero"},
+    {0, NULL},
+};
+
+static const value_string scsi_ptype_val[] = {
+    {0x0, "Type 1 protection" },
+    {0x1, "Type 2 protection" },
+    {0x2, "Type 3 protection" },
     {0, NULL},
 };
 
@@ -1273,6 +1287,21 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                 proto_tree_add_text (tree, tvb, offset, 8, "LBA: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "u %s)",
                              len, tot_len, un);
                 proto_tree_add_item (tree, hf_scsi_sbc_blocksize, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+
+
+                proto_tree_add_item (tree, hf_scsi_sbc_prot_en, tvb, offset+12, 1, ENC_BIG_ENDIAN);
+		if (tvb_get_guint8(tvb, offset+12) & 0x01) {
+			/* only decode the protection type if protection is enabled */
+        	        proto_tree_add_item (tree, hf_scsi_sbc_ptype, tvb, offset+12, 1, ENC_BIG_ENDIAN);
+		}
+
+                proto_tree_add_item (tree, hf_scsi_sbc_p_i_exponent, tvb, offset+13, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tree, hf_scsi_sbc_lbppbe, tvb, offset+13, 1, ENC_BIG_ENDIAN);
+
+                proto_tree_add_item (tree, hf_scsi_sbc_lbpme, tvb, offset+14, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tree, hf_scsi_sbc_lbprz, tvb, offset+14, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tree, hf_scsi_sbc_lalba, tvb, offset+14, 2, ENC_BIG_ENDIAN);
+
                 break;
             }
         }
@@ -1852,6 +1881,27 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_unmap_num_blocks,
           {"Num Blocks", "scsi.sbc.unmap.num_blocks", FT_UINT32, BASE_DEC,
            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_ptype,
+          {"PTYPE", "scsi.sbc.ptype", FT_UINT8, BASE_DEC,
+           VALS(scsi_ptype_val), 0x0e, NULL, HFILL}},
+        { &hf_scsi_sbc_prot_en,
+          {"PROT_EN", "scsi.sbc.prot_en", FT_BOOLEAN, 8,
+           NULL, 0x01, NULL, HFILL}},
+        { &hf_scsi_sbc_p_i_exponent,
+          {"P_I_EXPONENT", "scsi.sbc.p_i_exponent", FT_UINT8, BASE_DEC,
+           NULL, 0xf0, NULL, HFILL}},
+        { &hf_scsi_sbc_lbppbe,
+          {"LOGICAL_BLOCKS_PER_PHYSICAL_BLOCK_EXPONENT", "scsi.sbc.lbppbe", FT_UINT8, BASE_DEC,
+           NULL, 0x0f, NULL, HFILL}},
+        { &hf_scsi_sbc_lbpme,
+          {"LBPME", "scsi.sbc.lbpme", FT_BOOLEAN, 8,
+           NULL, 0x80, NULL, HFILL}},
+        { &hf_scsi_sbc_lbprz,
+          {"LBPRZ", "scsi.sbc.lbprz", FT_BOOLEAN, 8,
+           NULL, 0x40, NULL, HFILL}},
+        { &hf_scsi_sbc_lalba,
+          {"LOWEST_ALIGNED_LBA", "scsi.sbc.lalba", FT_UINT16, BASE_DEC,
+           NULL, 0x3fff, NULL, HFILL}},
 	};
 
 
