@@ -784,7 +784,7 @@ static void set_filter_expression(guint16  ueid,
 
 
     /* Show MAC RACH (preamble attempts and RAR PDUs) */
-    if (showSRs) {
+    if (showRACH) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                          "(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %u)) or (",
                                          ueid);
