@@ -67,10 +67,10 @@ tshark_decryption_suite() {
 
 decryption_cleanup_step() {
 	for UAT in $UAT_FILES ; do
-		grep $DC_ID ../$UAT > /dev/null 2>&1
+		grep $DC_ID $WS_BIN_PATH/$UAT > /dev/null 2>&1
 		RETURNVALUE=$?
 		if [ $RETURNVALUE -eq $EXIT_OK ]; then
-			rm -f ../$UAT
+			rm -f $WS_BIN_PATH/$UAT
 		fi
 	done
 	rm -rf fakehome
@@ -81,11 +81,11 @@ decryption_prep_step() {
 	mkdir fakehome
 
 	for UAT in $UAT_FILES ; do
-		if [ -f ../$UAT ] ; then
-			test_remark_add "../$UAT exists. One or more tests may fail."
+		if [ -f $WS_BIN_PATH/$UAT ] ; then
+			test_remark_add "$WS_BIN_PATH/$UAT exists. One or more tests may fail."
 		else
-			echo "# Created by $DC_ID" > ../$UAT
-			sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\}|" < ./config/$UAT.tmpl >> ../$UAT
+			echo "# Created by $DC_ID" > $WS_BIN_PATH/$UAT
+			sed -e "s|TEST_KEYS_DIR|${TEST_KEYS_DIR//\\/\\\\x5c}|" < ./config/$UAT.tmpl >> $WS_BIN_PATH/$UAT
 		fi
 	done
 }
