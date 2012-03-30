@@ -31,11 +31,13 @@
 #include <glib.h>
 
 #ifndef HAVE_GETOPT
-#include "wsutil/wsgetopt.h"
+#  include "wsutil/wsgetopt.h"
+#else
+#  include <getopt.h>
 #endif
 
 #ifdef HAVE_LIBPORTAUDIO
-#include <portaudio.h>
+#  include <portaudio.h>
 #endif /* HAVE_LIBPORTAUDIO */
 
 #include <epan/epan.h>
@@ -87,27 +89,27 @@
 #include "ui/ui_util.h"
 
 #ifdef HAVE_LIBPCAP
-#include "capture_ui_utils.h"
-#include "capture-pcap-util.h"
-#include "capture_ifinfo.h"
-#include "capture.h"
-#include "capture_sync.h"
+#  include "capture_ui_utils.h"
+#  include "capture-pcap-util.h"
+#  include "capture_ifinfo.h"
+#  include "capture.h"
+#  include "capture_sync.h"
 #endif
 
 #ifdef _WIN32
-#include "capture-wpcap.h"
-#include "capture_wpcap_packet.h"
-#include <tchar.h> /* Needed for Unicode */
-#include <wsutil/unicode-utils.h>
-#include <commctrl.h>
-#include <shellapi.h>
+#  include "capture-wpcap.h"
+#  include "capture_wpcap_packet.h"
+#  include <tchar.h> /* Needed for Unicode */
+#  include <wsutil/unicode-utils.h>
+#  include <commctrl.h>
+#  include <shellapi.h>
 #endif /* _WIN32 */
 
 #ifdef HAVE_AIRPCAP
-#include <airpcap.h>
-#include "airpcap_loader.h"
-//#include "airpcap_dlg.h"
-//#include "airpcap_gui_utils.h"
+#  include <airpcap.h>
+#  include "airpcap_loader.h"
+//#  include "airpcap_dlg.h"
+//#  include "airpcap_gui_utils.h"
 #endif
 
 #include <epan/crypt/airpdcap_ws.h>
