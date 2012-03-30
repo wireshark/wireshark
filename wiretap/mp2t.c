@@ -49,9 +49,19 @@
 #define MP2T_QAM256_BITRATE 38810700    /* bits per second */
 #define MP2T_QAM64_BITRATE  26970350    /* bits per second */
 
+/* we try to detect trailing data up to 40 bytes after each packet */
+#define TRAILER_LEN_MAX 40
+
+/* number of consecutive packets we must read to decide that a file
+   is actually an mpeg2 ts */
+#define SYNC_STEPS   10
+
+
 typedef struct {
     guint32 offset;
     struct wtap_nstime now;
+    /* length of trailing data (e.g. FEC) that's appended after each packet */
+    guint8  trailer_len;
 } mp2t_filetype_t;
 
 static gboolean
@@ -81,6 +91,7 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     mp2t = (mp2t_filetype_t*) wth->priv;
 
     *data_offset = mp2t->offset;
+    /* read only the actual mpeg2 ts packet, not including a trailer */
     buffer_assure_space(wth->frame_buffer, MP2T_SIZE);
     if (FALSE == mp2t_read_data(buffer_start_ptr(wth->frame_buffer),
                                 MP2T_SIZE, err, err_info, wth->fh))
@@ -88,12 +99,19 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         return FALSE;
     }
 
-    mp2t->offset += MP2T_SIZE;
+    /* if there's a trailer, skip it and go to the start of the next packet */
+    if (mp2t->trailer_len!=0 &&
+        (-1 == file_seek(wth->fh, mp2t->trailer_len, SEEK_CUR, err))) {
+        return FALSE;
+    }
+
+    mp2t->offset += MP2T_SIZE + mp2t->trailer_len;
+
     /* XXX - relative, not absolute, time stamps */
     wth->phdr.presence_flags = WTAP_HAS_TS;
 
     /* It would be really cool to be able to configure the bitrate... */
-    tmp = MP2T_SIZE * 8;
+    tmp = (MP2T_SIZE+mp2t->trailer_len) * 8;
     tmp *= 1000000000;
     tmp /= MP2T_QAM256_BITRATE;
 
@@ -126,15 +144,18 @@ int
 mp2t_open(wtap *wth, int *err, gchar **err_info)
 {
     int bytes_read;
-    guint8 buffer[MP2T_SIZE];
+    guint8 buffer[MP2T_SIZE+TRAILER_LEN_MAX];
+    guint8 trailer_len = 0;
+    guint sync_steps = 0;
     int i;
     int first;
     mp2t_filetype_t *mp2t;
 
-    errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(buffer, sizeof(buffer), wth->fh);
 
-    if (sizeof(buffer) != bytes_read) {
+    errno = WTAP_ERR_CANT_READ;
+    bytes_read = file_read(buffer, MP2T_SIZE, wth->fh);
+
+    if (MP2T_SIZE != bytes_read) {
         *err = file_error(wth->fh, err_info);
         return (*err == 0) ? 0 : -1;
     }
@@ -146,24 +167,50 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
             break;
         }
     }
-
     if (-1 == first) {
-        return 0;
+        return 0; /* wrong file type - not an mpeg2 ts file */
     }
 
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
         return -1;
     }
-    /* read the first 10 packets and make sure they all start with a sync byte */
-    for (i = 0; i < 10; i++) {
-       bytes_read = file_read(buffer, sizeof(buffer), wth->fh);
+    /* read some packets and make sure they all start with a sync byte */
+    do {
+       bytes_read = file_read(buffer, MP2T_SIZE+trailer_len, wth->fh);
        if (bytes_read < 0)
           return -1;  /* read error */
-       if (bytes_read < (int)sizeof(buffer))
-          break;  /* file has < 10 packets, that's ok if we're still in sync */
-       if (buffer[0] != MP2T_SYNC_BYTE)
-          return 0;  /* not a valid mpeg2 ts */
-    }
+       if (bytes_read < MP2T_SIZE+trailer_len)
+          break;  /* end of file, that's ok if we're still in sync */
+
+       if (buffer[0] == MP2T_SYNC_BYTE) {
+               sync_steps++;
+       }
+       else {
+           /* no sync byte found, check if trailing data is appended
+              and we have to increase the packet size */
+
+           /* if we've already detected a trailer field, we must remain in sync
+              another mismatch means we have no mpeg2 ts file */
+           if (trailer_len>0)
+               return 0;
+
+           /* check if a trailer is appended to the packet */
+           for (i=0; i<TRAILER_LEN_MAX; i++) {
+               if (buffer[i] == MP2T_SYNC_BYTE) {
+                   trailer_len = i;
+                   if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
+                       return -1;
+                   }
+                   sync_steps = 0;
+                   break;
+               }
+           }
+           /* no sync byte found in the vicinity, this is no mpeg2 ts file */
+           if (i==TRAILER_LEN_MAX)
+               return 0;
+       }
+    } while (sync_steps < SYNC_STEPS);
+
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
         return -1;
     }
@@ -184,6 +231,7 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
     mp2t->offset = (guint32) first;
     mp2t->now.secs = 0;
     mp2t->now.nsecs = 0;
+    mp2t->trailer_len = trailer_len;
 
     return 1;
 }
