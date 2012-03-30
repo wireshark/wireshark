@@ -7418,25 +7418,25 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 {
-	proto_item			*ti				= NULL;
-	proto_item			*command_item			= NULL;
-	proto_item			*journal_item			= NULL;
-	proto_tree			*rtp_midi_tree			= NULL;
-	proto_tree			*rtp_midi_commands_tree		= NULL;
-	proto_tree			*rtp_midi_journal_tree		= NULL;
-	proto_tree			*rtp_midi_chanjournals_tree	= NULL;
-	unsigned int			 offset				= 0;
+	proto_item		*ti				= NULL;
+	proto_item		*command_item			= NULL;
+	proto_item		*journal_item			= NULL;
+	proto_tree		*rtp_midi_tree			= NULL;
+	proto_tree		*rtp_midi_commands_tree		= NULL;
+	proto_tree		*rtp_midi_journal_tree		= NULL;
+	proto_tree		*rtp_midi_chanjournals_tree	= NULL;
+	unsigned int		 offset				= 0;
 
-	guint8				flags;				/* used for command-section and journal-section*/
-	guint8				octet;
+	guint8			flags;		/* used for command-section and journal-section*/
+	guint8			octet;
 	unsigned int		cmd_len;
 	unsigned int		cmd_count;
-	guint8				runningstatus;
+	guint8			runningstatus;
 
-	int					consumed;
-	unsigned int		rsoffset;
+	int			consumed;
+	unsigned int		rsoffset = 0;
 
-	guint8				totchan;
+	guint8			totchan;
 
 	unsigned int		i;
 
@@ -7470,7 +7470,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 		offset += 2;
 	} else {
 		proto_tree_add_item( rtp_midi_tree, hf_rtp_midi_shortlen, tvb, offset, 1, ENC_BIG_ENDIAN );
-			offset++;
+		offset++;
 	}
 
 	/* if we have a command-section -> dissect it */
