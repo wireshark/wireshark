@@ -377,6 +377,8 @@ static const struct {
 	{ 235,		WTAP_ENCAP_DVBCI },
 	/* MUX27010 */
 	{ 236,		WTAP_ENCAP_MUX27010 },
+	/* NFLOG */
+	{ 239,		WTAP_ENCAP_NFLOG },
 	/* netANALYZER pseudo-header followed by Ethernet with CRC */
 	{ 240,		WTAP_ENCAP_NETANALYZER },
 	/* netANALYZER pseudo-header in transparent mode */

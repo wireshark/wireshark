@@ -878,6 +878,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-netsync.c
 	dissectors/packet-nettl.c
 	dissectors/packet-newmail.c
+	dissectors/packet-nflog.c
 	dissectors/packet-nfs.c
 	dissectors/packet-nfsacl.c
 	dissectors/packet-nfsauth.c
