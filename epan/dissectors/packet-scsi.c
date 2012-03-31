@@ -298,7 +298,14 @@ static int hf_scsi_log_ta_aif                   = -1;
 static int hf_scsi_log_ta_fwf                   = -1;
 static int hf_scsi_log_ta_wmicf                 = -1;
 static int hf_scsi_log_ta_wmoa                  = -1;
-
+static int hf_scsi_sbc_treshold_exponent        = -1;
+static int hf_scsi_sbc_lbpu                     = -1;
+static int hf_scsi_sbc_lbpws                    = -1;
+static int hf_scsi_sbc_lbpws10                  = -1;
+static int hf_scsi_sbc_lbprz                    = -1;
+static int hf_scsi_sbc_anc_sup                  = -1;
+static int hf_scsi_sbc_dp                       = -1;
+static int hf_scsi_sbc_ptype                    = -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -408,6 +415,12 @@ static const value_string scsi_spc_vals[] = {
     {0, NULL},
 };
 
+static const value_string provisioning_vals[] = {
+    {0, "No provisioning"},
+    {1, "Resource provisionied"},
+    {2, "Thin provisioned"},
+    {0, NULL},
+};
 
 static const value_string log_flags_tmc_vals[] = {
     {0, "Every update of the cumulative value"},
@@ -430,6 +443,7 @@ static const value_string scsi_select_report_val[] = {
 #define SCSI_EVPD_ASCIIOPER       0x82
 #define SCSI_EVPD_DEVID           0x83
 #define SCSI_EVPD_BLKLIMITS       0xb0
+#define SCSI_EVPD_LBP             0xb2
 
 static const value_string scsi_evpd_pagecode_val[] = {
     {SCSI_EVPD_SUPPPG,    "Supported Vital Product Data Pages"},
@@ -444,8 +458,9 @@ static const value_string scsi_evpd_pagecode_val[] = {
     {SCSI_EVPD_DEVSERNUM, "Unit Serial Number Page"},
     {SCSI_EVPD_OPER,      "Implemented Operating Definition Page"},
     {SCSI_EVPD_ASCIIOPER, "ASCII Implemented Operating Definition Page"},
-    {SCSI_EVPD_DEVID,     "Device Identification Page"},
+    {SCSI_EVPD_DEVID,     "Device Identification Page"}, 
     {SCSI_EVPD_BLKLIMITS, "Block Limits Page"},
+    {SCSI_EVPD_LBP,        "Logical Block Provisioning Page"},
     {0, NULL},
 };
 
@@ -2086,6 +2101,22 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                      "Product Serial Number: %s",
                                      tvb_format_text (tvb, offset, plen));
             }
+            break;
+        case SCSI_EVPD_LBP:
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_treshold_exponent, tvb, offset, 1, ENC_BIG_ENDIAN);
+	    offset += 1;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_lbpu, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_lbpws, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_lbpws10, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_lbprz, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_anc_sup, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_dp, tvb, offset, 1, ENC_NA);
+	    offset += 1;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_sbc_ptype, tvb, offset, 1, ENC_BIG_ENDIAN);
+	    offset += 1;
+
             break;
         }
     }
@@ -5593,6 +5624,30 @@ proto_register_scsi (void)
            NULL, HFILL}},
         { &hf_scsi_log_ta_wmoa,
           {"worm medium overwrite attempted", "scsi.log.ta.wmoa", FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_treshold_exponent,
+          {"Treshold Exponent", "scsi.sbc.treshold_exponent", FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_lbpu,
+          {"LBPU", "scsi.sbc.lbpu", FT_BOOLEAN, 8, NULL, 0x80,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_lbpws,
+          {"LBPWS", "scsi.sbc.lbpws", FT_BOOLEAN, 8, NULL, 0x40,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_lbpws10,
+          {"LBPWS10", "scsi.sbc.lbpws10", FT_BOOLEAN, 8, NULL, 0x20,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_lbprz,
+          {"LBPRZ", "scsi.sbc.lbprz", FT_BOOLEAN, 8, NULL, 0x04,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_anc_sup,
+          {"ANC_SUP", "scsi.sbc.anc_sup", FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_dp,
+          {"DP", "scsi.sbc.dp", FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}},
+        { &hf_scsi_sbc_ptype,
+          {"Provisioning Type", "scsi.sbc.ptype", FT_UINT8, BASE_DEC, VALS(provisioning_vals), 0x07,
            NULL, HFILL}},
     };
 
