@@ -1,6 +1,6 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
- * Copyright 2000-2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2000-2012 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Copyright 2011 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
  * $Id$
@@ -32,8 +32,8 @@
  * - RFC 4895
  * - RFC 4960
  * - RFC 5061
+ * - RFC 6525
  * - http://tools.ietf.org/html/draft-stewart-sctp-pktdrprep-02
- * - http://tools.ietf.org/html/draft-stewart-sctpstrrst-01
  * - http://tools.ietf.org/html/draft-ladha-sctp-nonce-02
  * - http://tools.ietf.org/html/draft-tuexen-tsvwg-sctp-sack-immediately-00
  *
@@ -175,6 +175,11 @@ static int hf_senders_next_tsn = -1;
 static int hf_receivers_next_tsn = -1;
 static int hf_stream_reset_rsp_result = -1;
 static int hf_stream_reset_sid = -1;
+static int hf_add_outgoing_streams_number_streams = -1;
+static int hf_add_outgoing_streams_reserved = -1;
+static int hf_add_incoming_streams_number_streams = -1;
+static int hf_add_incoming_streams_reserved = -1;
+
 static int hf_random_number = -1;
 static int hf_chunks_to_auth = -1;
 static int hf_hmac_id = -1;
@@ -294,7 +299,7 @@ static gboolean enable_ulp_dissection = TRUE;
 #define SCTP_NR_SACK_CHUNK_ID           16
 #define SCTP_ASCONF_ACK_CHUNK_ID      0x80
 #define SCTP_PKTDROP_CHUNK_ID         0x81
-#define SCTP_STREAM_RESET_CHUNK_ID    0x82
+#define SCTP_RE_CONFIG_CHUNK_ID       0x82
 #define SCTP_PAD_CHUNK_ID             0x84
 #define SCTP_FORWARD_TSN_CHUNK_ID     0xC0
 #define SCTP_ASCONF_CHUNK_ID          0xC1
@@ -320,7 +325,7 @@ static const value_string chunk_type_values[] = {
   { SCTP_NR_SACK_CHUNK_ID,           "NR-SACK" },
   { SCTP_ASCONF_ACK_CHUNK_ID,        "ASCONF_ACK" },
   { SCTP_PKTDROP_CHUNK_ID,           "PKTDROP" },
-  { SCTP_STREAM_RESET_CHUNK_ID,      "STREAM_RESET" },
+  { SCTP_RE_CONFIG_CHUNK_ID,         "RE_CONFIG" },
   { SCTP_PAD_CHUNK_ID,               "PAD" },
   { SCTP_FORWARD_TSN_CHUNK_ID,       "FORWARD_TSN" },
   { SCTP_ASCONF_CHUNK_ID,            "ASCONF" },
@@ -1136,12 +1141,13 @@ static const value_string stream_reset_result_values[] = {
   { 2, "Denied"                              },
   { 3, "Error - Wrong SSN"                   },
   { 4, "Error - Request already in progress" },
+  { 5, "Error - Bad sequence number"         },
   { 0, NULL                                  }
 };
 
 
 static void
-dissect_stream_reset_response_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+dissect_re_configuration_response_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
   guint length;
 
@@ -1153,6 +1159,46 @@ dissect_stream_reset_response_parameter(tvbuff_t *parameter_tvb, proto_tree *par
     proto_tree_add_item(parameter_tree, hf_senders_next_tsn,   parameter_tvb, SENDERS_NEXT_TSN_OFFSET,   SENDERS_NEXT_TSN_LENGTH,   ENC_BIG_ENDIAN);
   if (length >= PARAMETER_HEADER_LENGTH + STREAM_RESET_SEQ_NR_LENGTH + STREAM_RESET_RSP_RESULT_LENGTH + SENDERS_NEXT_TSN_LENGTH + RECEIVERS_NEXT_TSN_LENGTH)
     proto_tree_add_item(parameter_tree, hf_receivers_next_tsn, parameter_tvb, RECEIVERS_NEXT_TSN_OFFSET, RECEIVERS_NEXT_TSN_LENGTH, ENC_BIG_ENDIAN);
+}
+
+#define ADD_OUTGOING_STREAM_REQ_SEQ_NR_LENGTH      4
+#define ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_LENGTH 2
+#define ADD_OUTGOING_STREAM_REQ_RESERVED_LENGTH    2
+
+#define ADD_OUTGOING_STREAM_REQ_SEQ_NR_OFFSET      PARAMETER_VALUE_OFFSET
+#define ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_OFFSET (ADD_OUTGOING_STREAM_REQ_SEQ_NR_OFFSET + ADD_OUTGOING_STREAM_REQ_SEQ_NR_LENGTH)
+#define ADD_OUTGOING_STREAM_REQ_RESERVED_OFFSET    (ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_OFFSET + ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_LENGTH)
+
+static void
+dissect_add_outgoing_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+{
+  guint length;
+
+  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+
+  proto_tree_add_item(parameter_tree, hf_stream_reset_req_seq_nr,             parameter_tvb, ADD_OUTGOING_STREAM_REQ_SEQ_NR_OFFSET,      ADD_OUTGOING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_add_outgoing_streams_number_streams, parameter_tvb, ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_OFFSET, ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_add_outgoing_streams_reserved,       parameter_tvb, ADD_OUTGOING_STREAM_REQ_RESERVED_OFFSET,    ADD_OUTGOING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
+}
+
+#define ADD_INCOMING_STREAM_REQ_SEQ_NR_LENGTH      4
+#define ADD_INCOMING_STREAM_REQ_NUM_STREAMS_LENGTH 2
+#define ADD_INCOMING_STREAM_REQ_RESERVED_LENGTH    2
+
+#define ADD_INCOMING_STREAM_REQ_SEQ_NR_OFFSET      PARAMETER_VALUE_OFFSET
+#define ADD_INCOMING_STREAM_REQ_NUM_STREAMS_OFFSET (ADD_INCOMING_STREAM_REQ_SEQ_NR_OFFSET + ADD_OUTGOING_STREAM_REQ_SEQ_NR_LENGTH)
+#define ADD_INCOMING_STREAM_REQ_RESERVED_OFFSET    (ADD_INCOMING_STREAM_REQ_NUM_STREAMS_OFFSET + ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_LENGTH)
+
+static void
+dissect_add_incoming_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+{
+  guint length;
+
+  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+
+  proto_tree_add_item(parameter_tree, hf_stream_reset_req_seq_nr,             parameter_tvb, ADD_INCOMING_STREAM_REQ_SEQ_NR_OFFSET,      ADD_INCOMING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_add_incoming_streams_number_streams, parameter_tvb, ADD_INCOMING_STREAM_REQ_NUM_STREAMS_OFFSET, ADD_INCOMING_STREAM_REQ_NUM_STREAMS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_add_incoming_streams_reserved,       parameter_tvb, ADD_INCOMING_STREAM_REQ_RESERVED_OFFSET,    ADD_INCOMING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1336,59 +1382,63 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
   proto_item_append_text(parameter_item, " (Type %u, value length: %u byte%s)", type, parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
-#define HEARTBEAT_INFO_PARAMETER_ID             0x0001
-#define IPV4ADDRESS_PARAMETER_ID                0x0005
-#define IPV6ADDRESS_PARAMETER_ID                0x0006
-#define STATE_COOKIE_PARAMETER_ID               0x0007
-#define UNREC_PARA_PARAMETER_ID                 0x0008
-#define COOKIE_PRESERVATIVE_PARAMETER_ID        0x0009
-#define HOSTNAME_ADDRESS_PARAMETER_ID           0x000b
-#define SUPPORTED_ADDRESS_TYPES_PARAMETER_ID    0x000c
-#define OUTGOING_SSN_RESET_REQUEST_PARAMETER_ID 0x000d
-#define INCOMING_SSN_RESET_REQUEST_PARAMETER_ID 0x000e
-#define SSN_TSN_RESET_REQUEST_PARAMETER_ID      0x000f
-#define STREAM_RESET_RESPONSE_PARAMETER_ID      0x0010
-#define ECN_PARAMETER_ID                        0x8000
-#define NONCE_SUPPORTED_PARAMETER_ID            0x8001
-#define RANDOM_PARAMETER_ID                     0x8002
-#define CHUNKS_PARAMETER_ID                     0x8003
-#define HMAC_ALGO_PARAMETER_ID                  0x8004
-#define SUPPORTED_EXTENSIONS_PARAMETER_ID       0x8008
-#define FORWARD_TSN_SUPPORTED_PARAMETER_ID      0xC000
-#define ADD_IP_ADDRESS_PARAMETER_ID             0xC001
-#define DEL_IP_ADDRESS_PARAMETER_ID             0xC002
-#define ERROR_CAUSE_INDICATION_PARAMETER_ID     0xC003
-#define SET_PRIMARY_ADDRESS_PARAMETER_ID        0xC004
-#define SUCCESS_REPORT_PARAMETER_ID             0xC005
-#define ADAP_LAYER_INDICATION_PARAMETER_ID      0xC006
+#define HEARTBEAT_INFO_PARAMETER_ID               0x0001
+#define IPV4ADDRESS_PARAMETER_ID                  0x0005
+#define IPV6ADDRESS_PARAMETER_ID                  0x0006
+#define STATE_COOKIE_PARAMETER_ID                 0x0007
+#define UNREC_PARA_PARAMETER_ID                   0x0008
+#define COOKIE_PRESERVATIVE_PARAMETER_ID          0x0009
+#define HOSTNAME_ADDRESS_PARAMETER_ID             0x000b
+#define SUPPORTED_ADDRESS_TYPES_PARAMETER_ID      0x000c
+#define OUTGOING_SSN_RESET_REQUEST_PARAMETER_ID   0x000d
+#define INCOMING_SSN_RESET_REQUEST_PARAMETER_ID   0x000e
+#define SSN_TSN_RESET_REQUEST_PARAMETER_ID        0x000f
+#define RE_CONFIGURATION_RESPONSE_PARAMETER_ID    0x0010
+#define ADD_OUTGOING_STREAMS_REQUEST_PARAMETER_ID 0x0011
+#define ADD_INCOMING_STREAMS_REQUEST_PARAMETER_ID 0x0012
+#define ECN_PARAMETER_ID                          0x8000
+#define NONCE_SUPPORTED_PARAMETER_ID              0x8001
+#define RANDOM_PARAMETER_ID                       0x8002
+#define CHUNKS_PARAMETER_ID                       0x8003
+#define HMAC_ALGO_PARAMETER_ID                    0x8004
+#define SUPPORTED_EXTENSIONS_PARAMETER_ID         0x8008
+#define FORWARD_TSN_SUPPORTED_PARAMETER_ID        0xC000
+#define ADD_IP_ADDRESS_PARAMETER_ID               0xC001
+#define DEL_IP_ADDRESS_PARAMETER_ID               0xC002
+#define ERROR_CAUSE_INDICATION_PARAMETER_ID       0xC003
+#define SET_PRIMARY_ADDRESS_PARAMETER_ID          0xC004
+#define SUCCESS_REPORT_PARAMETER_ID               0xC005
+#define ADAP_LAYER_INDICATION_PARAMETER_ID        0xC006
 
 static const value_string parameter_identifier_values[] = {
-  { HEARTBEAT_INFO_PARAMETER_ID,             "Heartbeat info"              },
-  { IPV4ADDRESS_PARAMETER_ID,                "IPv4 address"                },
-  { IPV6ADDRESS_PARAMETER_ID,                "IPv6 address"                },
-  { STATE_COOKIE_PARAMETER_ID,               "State cookie"                },
-  { UNREC_PARA_PARAMETER_ID,                 "Unrecognized parameter"      },
-  { COOKIE_PRESERVATIVE_PARAMETER_ID,        "Cookie preservative"         },
-  { HOSTNAME_ADDRESS_PARAMETER_ID,           "Hostname address"            },
-  { OUTGOING_SSN_RESET_REQUEST_PARAMETER_ID, "Outgoing SSN reset request"  },
-  { INCOMING_SSN_RESET_REQUEST_PARAMETER_ID, "Incoming SSN reset request"  },
-  { SSN_TSN_RESET_REQUEST_PARAMETER_ID,      "SSN/TSN reset request"       },
-  { STREAM_RESET_RESPONSE_PARAMETER_ID,      "Stream reset response"       },
-  { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID,    "Supported address types"     },
-  { ECN_PARAMETER_ID,                        "ECN"                         },
-  { NONCE_SUPPORTED_PARAMETER_ID,            "Nonce supported"             },
-  { RANDOM_PARAMETER_ID,                     "Random"                      },
-  { CHUNKS_PARAMETER_ID,                     "Authenticated Chunk list"    },
-  { HMAC_ALGO_PARAMETER_ID,                  "Requested HMAC Algorithm"    },
-  { SUPPORTED_EXTENSIONS_PARAMETER_ID,       "Supported Extensions"        },
-  { FORWARD_TSN_SUPPORTED_PARAMETER_ID,      "Forward TSN supported"       },
-  { ADD_IP_ADDRESS_PARAMETER_ID,             "Add IP address"              },
-  { DEL_IP_ADDRESS_PARAMETER_ID,             "Delete IP address"           },
-  { ERROR_CAUSE_INDICATION_PARAMETER_ID,     "Error cause indication"      },
-  { SET_PRIMARY_ADDRESS_PARAMETER_ID,        "Set primary address"         },
-  { SUCCESS_REPORT_PARAMETER_ID,             "Success report"              },
-  { ADAP_LAYER_INDICATION_PARAMETER_ID,      "Adaptation Layer Indication" },
-  { 0,                                       NULL                          } };
+  { HEARTBEAT_INFO_PARAMETER_ID,               "Heartbeat info"               },
+  { IPV4ADDRESS_PARAMETER_ID,                  "IPv4 address"                 },
+  { IPV6ADDRESS_PARAMETER_ID,                  "IPv6 address"                 },
+  { STATE_COOKIE_PARAMETER_ID,                 "State cookie"                 },
+  { UNREC_PARA_PARAMETER_ID,                   "Unrecognized parameter"       },
+  { COOKIE_PRESERVATIVE_PARAMETER_ID,          "Cookie preservative"          },
+  { HOSTNAME_ADDRESS_PARAMETER_ID,             "Hostname address"             },
+  { OUTGOING_SSN_RESET_REQUEST_PARAMETER_ID,   "Outgoing SSN reset request"   },
+  { INCOMING_SSN_RESET_REQUEST_PARAMETER_ID,   "Incoming SSN reset request"   },
+  { SSN_TSN_RESET_REQUEST_PARAMETER_ID,        "SSN/TSN reset request"        },
+  { RE_CONFIGURATION_RESPONSE_PARAMETER_ID,    "Re-configuration response"    },
+  { ADD_OUTGOING_STREAMS_REQUEST_PARAMETER_ID, "Add outgoing streams request" },
+  { ADD_INCOMING_STREAMS_REQUEST_PARAMETER_ID, "Add incoming streams request" },
+  { SUPPORTED_ADDRESS_TYPES_PARAMETER_ID,      "Supported address types"      },
+  { ECN_PARAMETER_ID,                          "ECN"                          },
+  { NONCE_SUPPORTED_PARAMETER_ID,              "Nonce supported"              },
+  { RANDOM_PARAMETER_ID,                       "Random"                       },
+  { CHUNKS_PARAMETER_ID,                       "Authenticated Chunk list"     },
+  { HMAC_ALGO_PARAMETER_ID,                    "Requested HMAC Algorithm"     },
+  { SUPPORTED_EXTENSIONS_PARAMETER_ID,         "Supported Extensions"         },
+  { FORWARD_TSN_SUPPORTED_PARAMETER_ID,        "Forward TSN supported"        },
+  { ADD_IP_ADDRESS_PARAMETER_ID,               "Add IP address"               },
+  { DEL_IP_ADDRESS_PARAMETER_ID,               "Delete IP address"            },
+  { ERROR_CAUSE_INDICATION_PARAMETER_ID,       "Error cause indication"       },
+  { SET_PRIMARY_ADDRESS_PARAMETER_ID,          "Set primary address"          },
+  { SUCCESS_REPORT_PARAMETER_ID,               "Success report"               },
+  { ADAP_LAYER_INDICATION_PARAMETER_ID,        "Adaptation Layer Indication"  },
+  { 0,                                         NULL                           } };
 
 #define SCTP_PARAMETER_BIT_1  0x8000
 #define SCTP_PARAMETER_BIT_2 0x4000
@@ -1468,8 +1518,14 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
   case SSN_TSN_RESET_REQUEST_PARAMETER_ID:
     dissect_ssn_tsn_reset_request_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
-  case STREAM_RESET_RESPONSE_PARAMETER_ID:
-    dissect_stream_reset_response_parameter(parameter_tvb, parameter_tree, parameter_item);
+  case RE_CONFIGURATION_RESPONSE_PARAMETER_ID:
+    dissect_re_configuration_response_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case ADD_OUTGOING_STREAMS_REQUEST_PARAMETER_ID:
+    dissect_add_outgoing_streams_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case ADD_INCOMING_STREAMS_REQUEST_PARAMETER_ID:
+    dissect_add_incoming_streams_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ECN_PARAMETER_ID:
     dissect_ecn_parameter(parameter_tvb);
@@ -3428,17 +3484,17 @@ dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree 
   }
 }
 
-#define STREAM_RESET_PARAMETERS_OFFSET CHUNK_HEADER_LENGTH
+#define RE_CONFIG_PARAMETERS_OFFSET CHUNK_HEADER_LENGTH
 
 static void
-dissect_stream_reset_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item _U_)
+dissect_re_config_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item _U_)
 {
   tvbuff_t *parameters_tvb;
 
   if (chunk_tree) {
-    parameters_tvb = tvb_new_subset(chunk_tvb, STREAM_RESET_PARAMETERS_OFFSET,
-                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_length_remaining(chunk_tvb, STREAM_RESET_PARAMETERS_OFFSET)),
-                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, STREAM_RESET_PARAMETERS_OFFSET)));
+    parameters_tvb = tvb_new_subset(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET,
+                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_length_remaining(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET)),
+                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, RE_CONFIG_PARAMETERS_OFFSET)));
     dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
   }
 }
@@ -3726,8 +3782,8 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   case SCTP_FORWARD_TSN_CHUNK_ID:
     dissect_forward_tsn_chunk(chunk_tvb, length, chunk_tree, chunk_item);
     break;
-  case SCTP_STREAM_RESET_CHUNK_ID:
-    dissect_stream_reset_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
+  case SCTP_RE_CONFIG_CHUNK_ID:
+    dissect_re_config_chunk(chunk_tvb, length, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_AUTH_CHUNK_ID:
     dissect_auth_chunk(chunk_tvb, length, chunk_tree, chunk_item);
@@ -4097,13 +4153,17 @@ proto_register_sctp(void)
     { &hf_cookie_preservative_increment,            { "Suggested Cookie life-span increment (msec)",    "sctp.parameter_cookie_preservative_incr",              FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_hostname,                                 { "Hostname",                                       "sctp.parameter_hostname",                              FT_STRING,  BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_supported_address_type,                   { "Supported address type",                         "sctp.parameter_supported_addres_type",                 FT_UINT16,  BASE_DEC,  VALS(address_types_values),                     0x0,                                NULL, HFILL } },
-    { &hf_stream_reset_req_seq_nr,                  { "Stream reset request sequence number",           "sctp.parameter_stream_reset_request_sequence_number",  FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_stream_reset_rsp_seq_nr,                  { "Stream reset response sequence number",          "sctp.parameter_stream_reset_response_sequence_number", FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_stream_reset_req_seq_nr,                  { "Re-configuration request sequence number",       "sctp.parameter_reconfig_request_sequence_number",      FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_stream_reset_rsp_seq_nr,                  { "Re-configuration response sequence number",      "sctp.parameter_reconfig_response_sequence_number",     FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_senders_last_assigned_tsn,                { "Senders last assigned TSN",                      "sctp.parameter_senders_last_assigned_tsn",             FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_senders_next_tsn,                         { "Senders next TSN",                               "sctp.parameter_senders_next_tsn",                      FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_receivers_next_tsn,                       { "Receivers next TSN",                             "sctp.parameter_receivers_next_tsn",                    FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_stream_reset_rsp_result,                  { "Result",                                         "sctp.parameter_stream_reset_response_result",          FT_UINT32,  BASE_DEC,  VALS(stream_reset_result_values),               0x0,                                NULL, HFILL } },
-    { &hf_stream_reset_sid,                         { "Stream Identifier",                              "sctp.parameter_stream_reset_sid",                      FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_stream_reset_rsp_result,                  { "Result",                                         "sctp.parameter_reconfig_response_result",              FT_UINT32,  BASE_DEC,  VALS(stream_reset_result_values),               0x0,                                NULL, HFILL } },
+    { &hf_stream_reset_sid,                         { "Stream Identifier",                              "sctp.parameter_reconfig_sid",                          FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_add_outgoing_streams_number_streams,      { "Number of streams",                              "sctp.parameter_add_outgoing_streams_number",           FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_add_outgoing_streams_reserved,            { "Reserved",                                       "sctp.parameter_add_outgoing_streams_reserved",         FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_add_incoming_streams_number_streams,      { "Number of streams",                              "sctp.parameter_add_incoming_streams_number",           FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_add_incoming_streams_reserved,            { "Reserved",                                       "sctp.parameter_add_incoming_streams_reserved",         FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_asconf_seq_nr,                            { "Sequence number",                                "sctp.asconf_seq_nr_number",                            FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_asconf_ack_seq_nr,                        { "Sequence number",                                "sctp.asconf_ack_seq_nr_number",                        FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_correlation_id,                           { "Correlation_id",                                 "sctp.correlation_id",                                  FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
@@ -4111,7 +4171,7 @@ proto_register_sctp(void)
     { &hf_random_number,                            { "Random number",                                  "sctp.random_number",                                   FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_chunks_to_auth,                           { "Chunk type",                                     "sctp.chunk_type_to_auth",                              FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_hmac_id,                                  { "HMAC identifier",                                "sctp.hmac_id",                                         FT_UINT16,  BASE_DEC,  VALS(hmac_id_values),                           0x0,                                NULL, HFILL } },
-    { &hf_hmac,                                     { "HMAC",                                           "sctp.hmac",                                            FT_BYTES,   BASE_NONE,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_hmac,                                     { "HMAC",                                           "sctp.hmac",                                            FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_shared_key_id,                            { "Shared key identifier",                          "sctp.shared_key_id",                                   FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_supported_chunk_type,                     { "Supported chunk type",                           "sctp.supported_chunk_type",                            FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_cause_code,                               { "Cause code",                                     "sctp.cause_code",                                      FT_UINT16,  BASE_HEX,  VALS(cause_code_values),                        0x0,                                NULL, HFILL } },
