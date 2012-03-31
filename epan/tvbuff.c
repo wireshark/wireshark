@@ -3323,15 +3323,14 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 				 * when uncompr is NULL logic below doesn't create tvb 
 				 * which is later interpreted as decompression failed.
 				 */
-				uncompr = (bytes_pass || ret != Z_STREAM_END) ?
+				uncompr = (bytes_pass || err != Z_STREAM_END) ?
 						g_memdup(strmbuf, bytes_pass) :
 						g_strdup("");
 			} else {
 				guint8 *new_data = g_malloc0(bytes_out + bytes_pass);
 
-				g_memmove(new_data, uncompr, bytes_out);
-				g_memmove((new_data + bytes_out), strmbuf,
-					bytes_pass);
+				memcpy(new_data, uncompr, bytes_out);
+				memcpy(new_data + bytes_out, strmbuf, bytes_pass);
 
 				g_free(uncompr);
 				uncompr = new_data;
