@@ -3315,7 +3315,17 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 #endif
 
 			if (uncompr == NULL) {
-				uncompr = g_memdup(strmbuf, bytes_pass);
+				/* 
+				 * This is ugly workaround for bug #6480
+				 * (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6480)
+				 *
+				 * g_memdup(..., 0) returns NULL (g_malloc(0) also)
+				 * when uncompr is NULL logic below doesn't create tvb 
+				 * which is later interpreted as decompression failed.
+				 */
+				uncompr = (bytes_pass || ret != Z_STREAM_END) ?
+						g_memdup(strmbuf, bytes_pass) :
+						g_strdup("");
 			} else {
 				guint8 *new_data = g_malloc0(bytes_out + bytes_pass);
 
