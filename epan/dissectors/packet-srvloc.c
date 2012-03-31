@@ -416,7 +416,7 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         switch (encoding) {
 
         case CHARSET_ISO_10646_UCS_2:
-                unicode_str = tvb_get_ephemeral_unicode_string(tvb, offset, length/2, ENC_BIG_ENDIAN);
+                unicode_str = tvb_get_ephemeral_unicode_string(tvb, offset, length, ENC_BIG_ENDIAN);
                 proto_tree_add_string(tree, hf, tvb, offset, length,
                                     unicode_str);
                 break;
@@ -545,14 +545,14 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 break;
             }
             /* Parse the attribute name */
-            tmp = tvb_get_ephemeral_unicode_string(tvb, offset, (length-offset)/2, ENC_BIG_ENDIAN);
+            tmp = tvb_get_ephemeral_unicode_string(tvb, offset, length-offset, ENC_BIG_ENDIAN);
             type_len = (int)strcspn(tmp, "=");
-            attr_type = tvb_get_ephemeral_unicode_string(tvb, offset, type_len, ENC_BIG_ENDIAN);
+            attr_type = tvb_get_ephemeral_unicode_string(tvb, offset, type_len*2, ENC_BIG_ENDIAN);
             proto_tree_add_string(tree, hf, tvb, offset, type_len*2, attr_type);
             offset += (type_len*2)+2;
             /* If this is the attribute svcname */
             if (strcmp(attr_type, "svcname-ws")==0) {
-                tmp = tvb_get_ephemeral_unicode_string(tvb, offset, (length-offset)/2, ENC_BIG_ENDIAN);
+                tmp = tvb_get_ephemeral_unicode_string(tvb, offset, length-offset, ENC_BIG_ENDIAN);
                 type_len = (int)strcspn(tmp, ")");
                 add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
                 offset += (type_len*2)+4;

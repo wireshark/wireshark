@@ -832,7 +832,7 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	REPORT_DISSECTOR_BUG("Error!!!!!\n");
 
       if(c->flags & RDP_FI_UNICODE) {
-	string = tvb_get_ephemeral_unicode_string(tvb, offset, len/2, ENC_LITTLE_ENDIAN);
+	string = tvb_get_ephemeral_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
 	proto_item_append_text(pi, " (%s)", string);
       }
 

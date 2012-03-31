@@ -1005,7 +1005,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
         char *str;
 
         /* unicode string */
-        str=tvb_get_ephemeral_unicode_string(tvb, offset, (len-2)/2, ENC_LITTLE_ENDIAN);
+        str=tvb_get_ephemeral_unicode_string(tvb, offset, len-2, ENC_LITTLE_ENDIAN);
         proto_tree_add_string(tree, hf_usb_bString, tvb, offset, len-2, str);
         offset += len-2;
     }

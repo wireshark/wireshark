@@ -271,7 +271,7 @@ static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packe
 		 offset += 4;
 
 		 if (unicode) {
-			 char *unicode_str = tvb_get_ephemeral_unicode_string(tvb, offset, length/2, ENC_LITTLE_ENDIAN);
+			 char *unicode_str = tvb_get_ephemeral_unicode_string(tvb, offset, length, ENC_LITTLE_ENDIAN);
 			 proto_tree_add_string(tree, hf_id, tvb, offset, length, unicode_str);
 		 } else {
 			 proto_tree_add_item(tree, hf_id, tvb, offset, length, FALSE);
@@ -408,7 +408,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 
-				name_string = tvb_get_ephemeral_unicode_string (tvb, offset, tag_length / 2, ENC_LITTLE_ENDIAN);
+				name_string = tvb_get_ephemeral_unicode_string (tvb, offset, tag_length, ENC_LITTLE_ENDIAN);
 				proto_tree_add_string_format(tag_tree, hf_tnef_property_tag_name_string, tvb, offset,
 							     tag_length, name_string, "Name: %s", name_string);
 				offset += tag_length;

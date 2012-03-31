@@ -2799,8 +2799,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		g_free(utf8_text);
 		g_iconv_close(cd);
 	    } else {
-		/* tvb_get_ephemeral_unicode_string takes the length in number of guint16's */
-		ustr = tvb_get_ephemeral_unicode_string(tvb, offset, (length>>1), ENC_BIG_ENDIAN);
+		ustr = tvb_get_ephemeral_unicode_string(tvb, offset, length, ENC_BIG_ENDIAN);
 		proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
 	    }
 	}

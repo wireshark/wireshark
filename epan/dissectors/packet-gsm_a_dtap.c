@@ -742,8 +742,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 		}
 		else
 		{
-			/* tvb_get_ephemeral_unicode_string takes the length in number of guint16's */
-			net_name = tvb_get_ephemeral_unicode_string(tvb, curr_offset, ((len - 1) >> 1), ENC_BIG_ENDIAN);
+			net_name = tvb_get_ephemeral_unicode_string(tvb, curr_offset, (len - 1), ENC_BIG_ENDIAN);
 			proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Text String: %s", net_name);
 		}
 		break;

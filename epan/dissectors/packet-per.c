@@ -771,7 +771,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 		length=1024;
 	}
 
-	str = tvb_get_ephemeral_unicode_string(tvb, offset>>3, length, ENC_BIG_ENDIAN);
+	str = tvb_get_ephemeral_unicode_string(tvb, offset>>3, length*2, ENC_BIG_ENDIAN);
 
 	proto_tree_add_string(tree, hf_index, tvb, offset>>3, length*2, str);
 

@@ -1,5 +1,5 @@
 /* packet-nflog.c
- * Copyright 2011,2012 Jekub Zawadzki <darkjames-ws@darkjames.pl>
+ * Copyright 2011,2012 Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
  * $Id$
  *
