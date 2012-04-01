@@ -317,11 +317,12 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   | 0 |      SN       |    CRC    |
                 *   +===+===+===+===+===+===+===+===+
                 */
-            col_set_str(pinfo->cinfo, COL_INFO, "U0-0");
+            col_set_str(pinfo->cinfo, COL_INFO, "UO-0");
             sn = tvb_get_bits8(tvb,(offset<<3)+1, 4);
             proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
             proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
             offset++;
+
             /* Show SN in info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
             break;
@@ -1267,6 +1268,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     proto_item         *ir_item, *item;
     proto_tree         *ir_tree;
+    int                 ir_item_start;
     int                 x_bit_offset;
     gboolean            d = FALSE;
     guint8              oct, profile, val_len;
@@ -1317,6 +1319,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
     ir_item = proto_tree_add_item(tree, hf_rohc_ir_packet, tvb, offset, 1, ENC_BIG_ENDIAN);
     ir_tree = proto_item_add_subtree(ir_item, ett_rohc_ir);
+    ir_item_start = offset;
     d = oct & 0x01;
     x_bit_offset = offset;
     offset++;
@@ -1413,6 +1416,9 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             break;
     }
 
+    /* Set length of IR header */
+    proto_item_set_len(ir_item, offset-ir_item_start);
+
     return offset;
 }
 
@@ -1422,6 +1428,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     proto_item         *ir_item, *item;
     proto_tree         *ir_tree;
+    gint                ir_item_start;
     guint8              profile, val_len;
     gint16              feedback_data_len = 0;
     rohc_cid_context_t *rohc_cid_context;
@@ -1433,6 +1440,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     ir_item = proto_tree_add_item(tree, hf_rohc_ir_dyn_packet, tvb, offset, 1, ENC_BIG_ENDIAN);
     ir_tree = proto_item_add_subtree(ir_item, ett_rohc_ir_dyn);
+    ir_item_start = offset;
     offset++;
 
     if(p_rohc_info->large_cid_present == TRUE){
@@ -1498,15 +1506,19 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     switch(profile){
         case ROHC_PROFILE_RTP:
-            dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, ir_tree, offset, profile, rohc_cid_context);
+            offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, ir_tree, offset, profile, rohc_cid_context);
             break;
         default:
             proto_tree_add_text(ir_tree, tvb, offset, feedback_data_len, "profile-specific information[Not dissected yet]");
             break;
     }
-    return offset;
 
+    /* Set length of IR-DYN header */
+    proto_item_set_len(ir_item, offset-ir_item_start);
+
+    return offset;
 }
+
 static void
 dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1642,8 +1654,10 @@ start_over:
          *    the header MUST be discarded without further action.
          */
 
+        int feedback_start = offset;
+
         if(is_add_cid){
-            proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
+            p_rohc_info->last_created_item = proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_str(pinfo->cinfo, COL_INFO, "Error packet");
             proto_tree_add_text(rohc_tree, tvb, offset, -1, "Error packet");
             pinfo->private_data = save_private_data;
@@ -1698,6 +1712,9 @@ start_over:
             if(offset<length)
                 goto start_over;
             pinfo->private_data = save_private_data;
+
+            proto_item_set_len(p_rohc_info->last_created_item, offset-feedback_start);
+
             return;
         }
     }/*feedback */
@@ -1791,7 +1808,7 @@ start_over:
 /* Set up rohc_cid_hash which holds data for a CID
  * needed to dissect subsequent packages.
  * XXXX ToDo:
- * A better Key than just the CID may have to be deviced.
+ * A better Key than just the CID may have to be devised.
  *
  */
 
@@ -1892,13 +1909,13 @@ proto_register_rohc(void)
             },
             { &hf_rohc_sn,
               { "SN(lsb)","rohc.sn",
-                FT_UINT16, BASE_HEX, NULL, 0x0fff,
+                FT_UINT16, BASE_HEX_DEC, NULL, 0x0fff,
                 NULL , HFILL
               }
             },
             { &hf_rohc_fb1_sn,
               { "SN","rohc.fb1_sn",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
@@ -1916,7 +1933,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_rtp_crc,
               { "CRC","rohc.crc",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
@@ -2024,7 +2041,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_rtp_ssrc,
               { "SSRC","rohc.rtp.ssrc",
-                FT_UINT32, BASE_HEX, NULL, 0x0,
+                FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
