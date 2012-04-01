@@ -2100,7 +2100,6 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
     case CC_SNA_EW:
     case CC_SNA_EWA:
     case CC_SNA_EAU:
-      /* Note: EW/EWA
       /* WCC */
       if ((offset - start) < sf_body_length)
         offset += dissect_wcc(tn3270_tree, tvb, offset);
