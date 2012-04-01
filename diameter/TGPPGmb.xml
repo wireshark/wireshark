@@ -298,10 +298,10 @@
 			<enum name="UDP-PORT-REQUIRED" code="1"/>
 		</avp>
 		<avp name="MBMS-Data-Transfer-Start" code="929" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Time"/>
+			<type type-name="Unsigned64"/>
 		</avp>
 		<avp name="MBMS-Data-Transfer-Stop" code="930" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Time"/>
+			<type type-name="Unsigned64"/>
 		</avp>
 <!--
 Note: The AVP codes from 929 to 999 are reserved for TS 29.061
