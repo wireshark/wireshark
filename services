@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-03-23
+# 2012-03-28
 # 
 # Note
 # 
@@ -4685,8 +4685,13 @@ autodesk-nlm	2080/udp	# Autodesk NLM (FLEXlm)        [Greg_Suppes]              
 kme-trap-port	2081/tcp	# KME PRINTER TRAP PORT        [Masakatsu_Matsuo]                        [Masakatsu_Matsuo]
 kme-trap-port	2081/udp	# KME PRINTER TRAP PORT        [Masakatsu_Matsuo]                        [Masakatsu_Matsuo]
 infowave	2082/tcp	# Infowave Mobility Server     [Kaz_Kylheku]                             [Kaz_Kylheku]
-infowave	2082/udp	# Infowave Mobiltiy Server     [Kaz_Kylheku]                             [Kaz_Kylheku]
-radsec	2083/tcp	# Secure Radius Service        [Mike_McCauley]                           [Mike_McCauley]                                           2005-05
+infowave	2082/udp	# Infowave Mobility Server     [Kaz_Kylheku]                             [Kaz_Kylheku]
+# The TCP port 2083 was already previously assigned by IANA for
+# "RadSec", an early implementation of RADIUS/TLS, prior to
+radsec	2083/tcp	# Secure Radius Service        [IESG]                                    [IETF_Chair]                                              2005-05                   [RFC-ietf-radext-radsec-12]                                   issuance of this RFC. This early implementation can be
+# configured to be compatible to RADIUS/TLS as specified by the
+# IETF. See [RFC-ietf-radext-radsec-12], Appendix A for
+# details.
 radsec	2083/udp	# Secure Radius Service        [Mike_McCauley]                           [Mike_McCauley]                                           2005-05
 sunclustergeo	2084/tcp	# SunCluster Geographic        [Steve_McKinty]                           [Steve_McKinty]                                           2005-11
 sunclustergeo	2084/udp	# SunCluster Geographic        [Steve_McKinty]                           [Steve_McKinty]                                           2005-11
@@ -13311,8 +13316,8 @@ npmp	8450/udp	# npmp                         [Ian_Chard]                        
 cisco-avp	8470/tcp	# Cisco Address Validation     [Cullen_Jennings]                         [Cullen_Jennings]                                         2009-02-13
 # Protocol
 # 8470        udp    Reserved
-pim-port	8471/tcp	# PIM over Reliable Transport  [IESG]                                    [IETF_Chair]                                              2008-08-21                [RFC-ietf-pim-port-09]
-pim-port	8471/sctp	# PIM over Reliable Transport  [IESG]                                    [IETF_Chair]                                              2008-08-21                [RFC-ietf-pim-port-09]
+pim-port	8471/tcp	# PIM over Reliable Transport  [IESG]                                    [IETF_Chair]                                              2008-08-21                [RFC6559]
+pim-port	8471/sctp	# PIM over Reliable Transport  [IESG]                                    [IETF_Chair]                                              2008-08-21                [RFC6559]
 # 8471        udp    Reserved
 otv	8472/tcp	# Overlay Transport            [Dino_Farinacci]                          [Dino_Farinacci]                                          2008-01-07
 # Virtualization (OTV)
