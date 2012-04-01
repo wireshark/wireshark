@@ -1245,19 +1245,15 @@ static const value_string vals_tn3270_header_response_flags_response[] = {
 /*
  * Data structure attached to a conversation, giving authentication
  * information from a bind request.
- * We keep a linked list of them, so that we can free up all the
- * authentication mechanism strings.
  */
 typedef struct tn3270_conv_info_t {
-  struct tn3270_conv_info_t *next;
-
   address outbound_addr;
   guint32 outbound_port;
   address inbound_addr;
   guint32 inbound_port;
   gint    extended;
-  guint8  maxrows;
-  guint8  maxcols;
+  guint8  altrows;
+  guint8  altcols;
   guint8  rows;
   guint8  cols;
 } tn3270_conv_info_t;
@@ -2080,10 +2076,10 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                       ENC_BIG_ENDIAN);
   offset += 1;
 
-  /* FIXME: the spec is ambiguous at best about what to expect here,
-     need a live sample to validate. */
   switch (cmd) {
     case CC_SNA_BSC:
+      /* FIXME: the spec is ambiguous at best about what to expect here,
+         need a live sample to validate. */
       offset += dissect_ccc(tn3270_tree, tvb, offset);
       proto_tree_add_item(tn3270_tree,
                           hf_tn3270_bsc,
@@ -3700,6 +3696,7 @@ dissect_query_reply_implicit_partitions_sd_parms(proto_tree *tn3270_tree, tvbuff
 
   switch (sdp) {
     case QR_IP_SDP_DISPLAY:
+      /* XXX: Save default and alternate screen size info as reported ? */
       offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
                                     sdp1);
       break;
@@ -4407,7 +4404,16 @@ process_outbound_structured_field(proto_tree *sf_tree, tvbuff_t *tvb, gint offse
       offset += dissect_create_partition(sf_tree, tvb, offset, sf_body_length);
       break;
     case SF_OB_ERASE_OR_RESET:
-      /* Bit 0: 0= Use default size; 1= use alternate size */
+      /* Bit 0: 0= Use default screen size; 1= use alternate screen size     */
+      /* XXX: Not really valid: See comment under dissect_outbound_stream(). */
+      if ((tvb_get_guint8(tvb, offset) & 0x80) != 0) {
+        tn3270_info->rows = tn3270_info->altrows;
+        tn3270_info->cols = tn3270_info->altcols;
+      }
+      else {
+        tn3270_info->rows = 24;
+        tn3270_info->cols = 80;
+      }
       proto_tree_add_bits_item(sf_tree,
                                hf_tn3270_erase_flags,
                                tvb, offset<<3,
@@ -4812,7 +4818,7 @@ dissect_buffer_address(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                                        hf,
                                        tvb, offset, 2,
                                        buffer_addr,
-                                       "14-bit address, %u = row %u, column %u, for %ux%u display (0x%04x)",
+                                       "14-bit address, %u = row %u, column %u [assuming a %ux%u display] (0x%04x)",
                                        address_value,
                                        (address_value / colsx) + 1,
                                        (address_value % colsx) + 1,
@@ -4837,7 +4843,7 @@ dissect_buffer_address(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, gint
                                        hf,
                                        tvb, offset, 2,
                                        buffer_addr,
-                                       "12-bit address, %u = row %u, column %u, for %ux%u display (0x%04x)",
+                                       "12-bit address, %u = row %u, column %u [assuming a %ux%u display] (0x%04x)",
                                        address_value,
                                        (address_value / colsx) + 1,
                                        (address_value % colsx) + 1,
@@ -5000,20 +5006,9 @@ dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
         case OC_SBA:
           offset += dissect_buffer_address(tn3270_tree, tvb, offset, hf_tn3270_buffer_address, tn3270_info);
           break;
-        case OC_PT:   /* XXX: This was previously commented out; I don't know why */
+        case OC_PT:   /* XXX: This case was previously commented out; I don't know why */
         case OC_IC:
           break;
-#if 0 /* XXX: AFAIK these are command codes; I don't know why these entries were here ... */
-      /*      Is there a mechanism whereby rows/cols can be changed "on the fly" ?                           */
-        case EW:
-          ROWS = 24;
-          COLS = 80;
-          break;
-        case EWA:
-          ROWS = MAXROWS;
-          COLS = MAXCOLS;
-          break;
-#endif
         default:
           proto_tree_add_text(tn3270_tree, tvb, offset, 1, "Bogus value: %u", order_code);
           break;
@@ -5104,6 +5099,26 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
 
   /* Command Code*/
   command_code = tvb_get_guint8(tvb, offset);
+
+  /* XXX: Storing rows/cols each time they change is not valid         */
+  /*      since packets can (will be) randomly selected for dissection */
+  /*      after the initial dissection pass. In actuality screen size  */
+  /*      "state" needs to be associated in some manner with each      */
+  /*      frame of a conversation.                                     */
+  switch (command_code) {
+    case CC_EW:
+    case CC_SNA_EW:
+      tn3270_info->rows = 24;
+      tn3270_info->cols = 80;
+      break;
+    case CC_EWA:
+    case CC_SNA_EWA:
+      tn3270_info->rows = tn3270_info->altrows;
+      tn3270_info->cols = tn3270_info->altcols;
+      break;
+    default:
+      break;
+  }
 
   switch (command_code) {
     case CC_W:
@@ -5306,18 +5321,23 @@ add_tn3270_conversation(packet_info *pinfo, int tn3270e, gint model)
 
   /* The maximum rows/cols is tied to the 3270 model number */
   switch (model) {
+    default:
+    case 2:
+      tn3270_info->altrows = 24;
+      tn3270_info->altcols = 80;
+      break;
+    case 3:
+      tn3270_info->altrows = 32;
+      tn3270_info->altcols = 80;
+      break;
     case 4:
-      tn3270_info->maxrows = 32;
-      tn3270_info->maxcols = 80;
+      tn3270_info->altrows = 43;
+      tn3270_info->altcols = 80;
       break;
     case 5:
-      tn3270_info->maxrows = 27;
-      tn3270_info->maxcols = 132;
+      tn3270_info->altrows = 27;
+      tn3270_info->altcols = 132;
       break;
-    case 2:
-    default:
-      tn3270_info->maxrows = 24;
-      tn3270_info->maxcols = 80;
   }
   tn3270_info->rows = 24;
   tn3270_info->cols = 80;
@@ -7059,7 +7079,7 @@ proto_register_tn3270(void)
          NULL, HFILL }
     },
     { &hf_tn3270_ipdd_wd,
-      {  "Width of the Implicit Partition default screen siz (in character cells)",
+      {  "Width of the Implicit Partition default screen size (in character cells)",
          "tn3270.ipdd_wd",
          FT_UINT16, BASE_DEC, NULL, 0x0,
          NULL, HFILL }
