@@ -263,7 +263,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 {
 	io_stat_graph_t *graph = g;
 	io_stat_t *io;
-    io_item_t *it;
+	io_item_t *it;
 	nstime_t time_delta;
 	int idx;
 
@@ -273,7 +273,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 		return FALSE;
 	}
 
-    io = graph->io;  /* Point up to the parent io_stat_t struct */
+	io = graph->io;  /* Point up to the parent io_stat_t struct */
 	io->needs_redraw = TRUE;
 
 	/*
@@ -307,8 +307,8 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
 	/* Point to the appropriate io_item_t struct */
 	it = &graph->items[idx];
-    
-    /* Set the first and last frame num in current interval matching the target field+filter  */
+
+	/* Set the first and last frame num in current interval matching the target field+filter  */
 	if (it->first_frame_in_invl == 0) {
 		it->first_frame_in_invl = pinfo->fd->num;
 	}
@@ -326,7 +326,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 		}
 
 		/* Update the appropriate counters. If fields==0, this is the first seen
-        *  value so set any min/max values accordingly. */
+		 *  value so set any min/max values accordingly. */
 		for(i=0; i<gp->len; i++) {
 			int new_int;
 			float new_float;
@@ -400,7 +400,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					t = t * 1000000 + new_time->nsecs / 1000;
 					j = idx;
 					/* 
-                    * Handle current interval */
+					 * Handle current interval */
 					pt = pinfo->fd->rel_ts.secs * 1000000 + pinfo->fd->rel_ts.nsecs / 1000;
 					pt = pt % (io->interval * 1000);
 					if(pt > t) {
@@ -457,7 +457,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	double value=0;
 	int adv_type;
 	io_item_t *it;
-    guint32 interval;
+	guint32 interval;
 
 	it = &io->graphs[graph].items[idx];
 
@@ -590,15 +590,15 @@ get_it_value(io_stat_t *io, int graph, int idx)
 			}
 			break;
 		case CALC_TYPE_LOAD:
-            if (idx==io->num_items) { 
-                interval = (guint32)((cfile.elapsed_time.secs*1000) + 
-                                    ((cfile.elapsed_time.nsecs+500000)/1000000));
-                interval -= (io->interval * idx);
-            } else {
-                interval = io->interval;
-            }
-            value = (guint32) ((it->time_tot.secs*1000000 + it->time_tot.nsecs/1000) / interval);
-			break; 
+			if (idx==(int)io->num_items) {
+				interval = (guint32)((cfile.elapsed_time.secs*1000) +
+				           ((cfile.elapsed_time.nsecs+500000)/1000000));
+				interval -= (io->interval * idx);
+			} else {
+				interval = io->interval;
+			}
+			value = (guint32) ((it->time_tot.secs*1000000 + it->time_tot.nsecs/1000) / interval);
+			break;
 		default:
 			break;
 		}
