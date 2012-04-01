@@ -637,6 +637,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree *h263_payload_tree	= NULL;
 	guint32 data;
 	guint8 startcode;
+	int length;
 
 	col_append_str( pinfo->cinfo, COL_INFO, "H263 payload ");
 
@@ -645,6 +646,12 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	  h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
 	}
 
+	length = tvb_reported_length_remaining(tvb,0);
+	if(length<4){
+		if( tree )
+			proto_tree_add_item( h263_payload_tree, hf_h263_data, tvb, offset, -1, ENC_NA );
+		return;
+	}
 	/* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx. */
 	data = tvb_get_ntohl(tvb, offset);
 
