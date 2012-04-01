@@ -239,6 +239,11 @@ from RFC2716, pg 17
 #define EAP_TLS_FLAG_L 0x80 /* Length included */
 #define EAP_TLS_FLAG_M 0x40 /* More fragments  */
 #define EAP_TLS_FLAG_S 0x20 /* EAP-TLS start   */
+#define EAP_TLS_FLAG_R1 0x10 /* Reserved1 */
+#define EAP_TLS_FLAG_R2 0x08 /* Reserved2 */
+#define EAP_TLS_FLAG_R3 0x04 /* Reserved3, used by EAP_PEAP_FLAG_VERSION */
+#define EAP_TLS_FLAG_R4 0x02 /* Reserved4, used by EAP_PEAP_FLAG_VERSION */
+#define EAP_TLS_FLAG_R5 0x01 /* Reserved5, used by EAP_PEAP_FLAG_VERSION */
 #define EAP_PEAP_FLAG_VERSION 0x07 /* EAP-PEAP version */
 
 /*
@@ -806,30 +811,45 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean more_fragments;
 	gboolean has_length;
 	guint32 length;
+	gboolean is_start;
 	int eap_tls_seq = -1;
 	guint32 eap_reass_cookie = 0;
 	gboolean needs_reassembly = FALSE;
 
 	more_fragments = test_flag(flags,EAP_TLS_FLAG_M);
 	has_length = test_flag(flags,EAP_TLS_FLAG_L);
-	if (test_flag(flags,EAP_TLS_FLAG_S)) 
+	is_start = test_flag(flags,EAP_TLS_FLAG_S);
+	if (is_start) 
 		conversation_state->eap_tls_seq = -1;
 
 	/* Flags field, 1 byte */
 	if (tree) {
-	  proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags(0x%X): %s%s%s",
-			      flags,
-			      has_length                      ? "Length ":"",
-			      more_fragments                  ? "More "  :"",
-			      test_flag(flags,EAP_TLS_FLAG_S) ? "Start " :"");
-	  if (eap_type == EAP_TYPE_PEAP || eap_type == EAP_TYPE_TTLS ||
-	      eap_type == EAP_TYPE_FAST) {
-	    proto_tree_add_text(eap_tree, tvb, offset, 1,
-				"%s version %d",
+		if (eap_type == EAP_TYPE_PEAP || eap_type == EAP_TYPE_TTLS ||
+			eap_type == EAP_TYPE_FAST) {
+			proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags: %s%s%s%s%s(0x%X)",
+				has_length                          ? "Length " : "",
+				more_fragments                      ? "More "   : "",
+				is_start                            ? "Start "  : "",
+				test_flag(flags,EAP_TLS_FLAG_R1)    ? "Reserved1 " : "",
+				test_flag(flags,EAP_TLS_FLAG_R2)    ? "Reserved2 " : "",
+				flags);
+			proto_tree_add_text(eap_tree, tvb, offset, 1,
+				"Version: %sv%d",
 				eap_type == EAP_TYPE_PEAP ? "PEAP" :
-				(eap_type == EAP_TYPE_TTLS ? "TTLS" : "FAST"),
-				flags & EAP_PEAP_FLAG_VERSION);
-	  }
+                	(eap_type == EAP_TYPE_TTLS ? "TTLS" : "FAST"),
+                    flags & EAP_PEAP_FLAG_VERSION);
+		} else {
+			proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags: %s%s%s%s%s%s%s%s(0x%X)",
+				has_length                          ? "Length " : "",
+				more_fragments                      ? "More "   : "",
+				is_start                            ? "Start "  : "",
+				test_flag(flags,EAP_TLS_FLAG_R1)    ? "Reserved1 " : "",
+				test_flag(flags,EAP_TLS_FLAG_R2)    ? "Reserved2 " : "",
+				test_flag(flags,EAP_TLS_FLAG_R3)    ? "Reserved3 " : "",
+				test_flag(flags,EAP_TLS_FLAG_R4)    ? "Reserved4 " : "",
+				test_flag(flags,EAP_TLS_FLAG_R5)    ? "Reserved5 " : "",
+				flags);
+		}
 	}
 	size--;
 	offset++;
