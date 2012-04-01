@@ -238,9 +238,9 @@ io_stat_reset(io_stat_t *io)
 			nstime_set_zero(&ioi->time_max);
 			nstime_set_zero(&ioi->time_min);
 			nstime_set_zero(&ioi->time_tot);
-		    ioi->first_frame_in_invl=0;
-		    ioi->last_frame_in_invl=0;
-        }
+			ioi->first_frame_in_invl=0;
+			ioi->last_frame_in_invl=0;
+		}
 	}
 	io->last_interval=0xffffffff;
 	io->max_interval=0;
@@ -689,16 +689,16 @@ io_stat_draw(io_stat_t *io)
 		return;
 	}
 	io->needs_redraw=FALSE;
-    /*  
-    * Set max_interval to duration rounded to the nearest ms. Add the Tick Interval so the last 
-    * interval will be displayed. For example, if duration = 11.844 secs and 'Tick Interval'== 1, 
-    * max_interval=12000; if 0.1, 11900; if 0.01, 11850; and if 0.001, 11845. 
-    */
-    io->max_interval = (guint32)((cfile.elapsed_time.secs*1000) + 
-                                 ((cfile.elapsed_time.nsecs+500000)/1000000) + 
-                                 io->interval);
+	/*  
+	 * Set max_interval to duration rounded to the nearest ms. Add the Tick Interval so the last 
+	 * interval will be displayed. For example, if duration = 11.844 secs and 'Tick Interval'== 1, 
+	 * max_interval=12000; if 0.1, 11900; if 0.01, 11850; and if 0.001, 11845. 
+	 */
+	io->max_interval = (guint32)((cfile.elapsed_time.secs*1000) + 
+	                             ((cfile.elapsed_time.nsecs+500000)/1000000) + 
+	                             io->interval);
 	io->max_interval = (io->max_interval / io->interval) * io->interval;
-    /*
+	/*
 	 * Find the length of the intervals we have data for
 	 * so we know how large arrays we need to malloc()
 	 */
@@ -941,8 +941,8 @@ io_stat_draw(io_stat_t *io)
 				}
 			}
 
-	        pango_layout_set_text(layout, label_string, -1);
-	        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+			pango_layout_set_text(layout, label_string, -1);
+			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
 #if GTK_CHECK_VERSION(2,22,0)
 			cr = cairo_create (io->surface);
@@ -958,12 +958,12 @@ io_stat_draw(io_stat_t *io)
 	}
 
 	/* If we have not specified the last_interval via the GUI, just pick the current end of the
-    *  capture so that it scrolls nicely when doing live captures.
-	*/
+	 *  capture so that it scrolls nicely when doing live captures.
+	 */
 	if(io->last_interval==0xffffffff) {
-        last_interval = io->max_interval;
+		last_interval = io->max_interval;
 	} else {
-        last_interval = io->last_interval;
+		last_interval = io->last_interval;
 	}
 
 /*XXX*/
@@ -1078,11 +1078,11 @@ io_stat_draw(io_stat_t *io)
 			mavg_cumulated += get_it_value(io, i, warmup_interval/io->interval);
 			mavg_in_average_count++;
 			for(warmup_interval += io->interval;
-                ((warmup_interval < (first_interval + (io->filter_order/2) * io->interval)) &&
-                 (warmup_interval <= (io->num_items * io->interval)));
-                warmup_interval += io->interval) {
-				
-                mavg_cumulated += get_it_value(io, i, warmup_interval / io->interval);
+			    ((warmup_interval < (first_interval + (io->filter_order/2) * io->interval)) &&
+			    (warmup_interval <= (io->num_items * io->interval)));
+			    warmup_interval += io->interval) {
+
+				mavg_cumulated += get_it_value(io, i, warmup_interval / io->interval);
 				mavg_in_average_count++;
 				mavg_right++;
 			}
@@ -1090,9 +1090,9 @@ io_stat_draw(io_stat_t *io)
 		}
 
 		/* initialize prev x/y to the value of the first interval */
-		prev_x_pos = draw_width-1 - 
-                     io->pixels_per_tick * ((last_interval - first_interval) / io->interval) +
-                     io->left_x_border;
+		prev_x_pos = draw_width-1 -
+		             io->pixels_per_tick * ((last_interval - first_interval) / io->interval) +
+		             io->left_x_border;
 		val = get_it_value(io, i, first_interval / io->interval);
 
 		if(io->filter_type==MOVING_AVERAGE_FILTER
@@ -1107,18 +1107,18 @@ io_stat_draw(io_stat_t *io)
 				prev_y_pos = (guint32)(draw_height - 1 + top_y_border);
 			} else {
 				prev_y_pos = (guint32) (
-                    (draw_height - ystart)-1 -
-                    ((log10((double)((gint64)val)) * (draw_height - ystart)) / log10((double)max_y)) +
-                    top_y_border
-                );
+				                        (draw_height - ystart)-1 -
+				                        ((log10((double)((gint64)val)) * (draw_height - ystart)) / log10((double)max_y)) +
+				                        top_y_border
+				                       );
 			}
 		} else {
 			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
 		}
 
 		for(interval = first_interval;
-            interval < last_interval;
-            interval += io->interval) {
+			interval < last_interval;
+			interval += io->interval) {
 			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval)+io->left_x_border;
 
 			val = get_it_value(io, i, interval/io->interval);
@@ -1150,15 +1150,15 @@ io_stat_draw(io_stat_t *io)
 					y_pos=(guint32)(draw_height-1+top_y_border);
 				} else {
 					y_pos = (guint32) (
-                        (draw_height - ystart) - 1 - 
-                        (log10((double)(gint64)val) * (draw_height - ystart)) / log10((double)max_y) + 
-                        top_y_border
-                    );
+					                   (draw_height - ystart) - 1 -
+					                   (log10((double)(gint64)val) * (draw_height - ystart)) / log10((double)max_y) + 
+					                   top_y_border
+					                  );
 				}
 			} else {
-				y_pos = (guint32)(draw_height - 1 - 
-                                  ((val * draw_height) / max_y) +
-                                  top_y_border);
+				y_pos = (guint32)(draw_height - 1 -
+				                  ((val * draw_height) / max_y) +
+				                  top_y_border);
 			}
 
 			switch(io->graphs[i].plot_style){
@@ -1428,7 +1428,7 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 	io_stat_reset(io);
 
 	error_string=enable_graph(&io->graphs[0], NULL, NULL);
-        g_assert((error_string == NULL) && "Can't attach io_stat tap !");
+	g_assert((error_string == NULL) && "Can't attach io_stat tap !");
 #if 0
 	if(error_string){
 
@@ -1482,13 +1482,13 @@ static gboolean
 pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 {
 	io_stat_t *io = g;
-    io_stat_graph_t *graph;
-    io_item_t *it;
+	io_stat_graph_t *graph;
+	io_item_t *it;
 	guint32 draw_width, interval, last_interval, frame_num=0;
 	int i;
-    gboolean load=FALSE, outstanding_call=FALSE;
+	gboolean load=FALSE, outstanding_call=FALSE;
 	
-    draw_width = io->pixmap_width - io->right_x_border - io->left_x_border;
+	draw_width = io->pixmap_width - io->right_x_border - io->left_x_border;
 
 	if ((event->x <= (draw_width+io->left_x_border+1-(draw_width/io->pixels_per_tick)*io->pixels_per_tick)) ||
 	    (event->x >= (draw_width+io->left_x_border-io->pixels_per_tick/2))) {
@@ -1496,58 +1496,58 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 	      return FALSE;
 	}
 
-    /* 
-    * An interval in the IO Graph drawing area has been clicked. If left-clicked (button 1), the frame
-    * with the first response in that interval or if left-clicked (button 3) the last is highlighted.    
-	*/
+	/* 
+	 * An interval in the IO Graph drawing area has been clicked. If left-clicked (button 1), the frame
+	 * with the first response in that interval or if left-clicked (button 3) the last is highlighted.    
+	 */
 #if GTK_CHECK_VERSION(2,22,0)
 	if ((event->button==1 || event->button==3) && io->surface!=NULL) {
 #else
 	if ((event->button==1 || event->button==3) && io->pixmap!=NULL) {
 #endif
-        if (io->last_interval==0xffffffff)
-            last_interval = io->max_interval; 
-		else 
+		if (io->last_interval==0xffffffff)
+			last_interval = io->max_interval;
+		else
 			last_interval = io->last_interval;
 
-        /* Get the interval that was clicked */
-        interval = (guint32) (
-            (last_interval / io->interval) - 
-            ((draw_width + io->left_x_border - event->x-io->pixels_per_tick / 2 - 1) / io->pixels_per_tick)
-        );
-        
-        /* Determine the lowest or highest frame number depending on whether button 1 or 3 was clicked,
-        *  respectively, among the up to 5 currently displayed graphs. */
-        for(i=0; i<MAX_GRAPHS; i++) {           
-            graph = &io->graphs[i];            
-            if(graph->display) {
-                it = &graph->items[interval];
-                if (event->button==1) {
-                    if(frame_num==0 || (it->first_frame_in_invl < frame_num)) 
-                        frame_num = it->first_frame_in_invl;
-                } else {
-                    if(it->last_frame_in_invl > frame_num)
-                        frame_num = it->last_frame_in_invl;
-                }
-                if(graph->calc_type==CALC_TYPE_LOAD) {
-                    load = TRUE;
-                    if (it->time_tot.secs + it->time_tot.nsecs > 0)
-                        outstanding_call = TRUE;
-                }
-            }
-        }
+		/* Get the interval that was clicked */
+		interval = (guint32) (
+				      (last_interval / io->interval) - 
+				      ((draw_width + io->left_x_border - event->x-io->pixels_per_tick / 2 - 1) / io->pixels_per_tick)
+				     );
 
-        /* XXX - If the frame numbers of *calls* can somehow be determined, the first call or
-        *        response, whichever is first, and the last call or response, whichever is last,
-        *       could be highlighted. */
-        if(frame_num==0 && load && outstanding_call) {        
-            statusbar_push_temporary_msg(
-                "There is no response but at least one call is outstanding in this interval.");
-            return FALSE;   
-        }
-   
-        if (frame_num != 0) 
-			cf_goto_frame(&cfile, frame_num);      
+		/* Determine the lowest or highest frame number depending on whether button 1 or 3 was clicked,
+		 *  respectively, among the up to 5 currently displayed graphs. */
+		for(i=0; i<MAX_GRAPHS; i++) {
+			graph = &io->graphs[i];
+			if(graph->display) {
+				it = &graph->items[interval];
+				if (event->button==1) {
+					if(frame_num==0 || (it->first_frame_in_invl < frame_num))
+						frame_num = it->first_frame_in_invl;
+				} else {
+					if(it->last_frame_in_invl > frame_num)
+						frame_num = it->last_frame_in_invl;
+				}
+				if(graph->calc_type==CALC_TYPE_LOAD) {
+					load = TRUE;
+					if (it->time_tot.secs + it->time_tot.nsecs > 0)
+						outstanding_call = TRUE;
+				}
+			}
+		}
+
+		/* XXX - If the frame numbers of *calls* can somehow be determined, the first call or
+		 *        response, whichever is first, and the last call or response, whichever is last,
+		 *       could be highlighted. */
+		if(frame_num==0 && load && outstanding_call) {
+			statusbar_push_temporary_msg(
+			    "There is no response but at least one call is outstanding in this interval.");
+			return FALSE;
+		}
+	
+		if (frame_num != 0) 
+			cf_goto_frame(&cfile, frame_num);
 	}
 	return TRUE;
 }
@@ -1623,12 +1623,12 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 	guint32 mi;
 
 	mi=(guint32) (gtk_adjustment_get_value(io->scrollbar_adjustment) + gtk_adjustment_get_page_size(io->scrollbar_adjustment));
-	
-    if (io->last_interval==mi) {
+
+	if (io->last_interval==mi) {
 		return;
 	}
 
-  	io->last_interval = (mi/io->interval)*io->interval;
+	io->last_interval = (mi/io->interval)*io->interval;
 	io_stat_redraw(io);
 	return;
 }
@@ -2243,7 +2243,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &gio->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_SELECTED, &gio->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_INSENSITIVE, &gio->rgba_color);
-#else	
+#else
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color);
