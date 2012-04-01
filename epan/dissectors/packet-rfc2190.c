@@ -81,52 +81,64 @@ static void
 dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
     proto_item *ti					= NULL;
-    proto_tree *rfc2190_tree			= NULL;
-    unsigned int offset				= 0;
-    unsigned int rfc2190_version		= 0;
+    proto_tree *rfc2190_tree		= NULL;
+    int offset						= 0;
+    unsigned int rfc2190_version	= 0;
     tvbuff_t *next_tvb;
+	int hdr_len						= 0;
 
     rfc2190_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.263 ");
 
+	/* Three formats (mode A, mode B and mode C) are defined for H.263
+	 * payload header. In mode A, an H.263 payload header of four bytes is
+	 * present before actual compressed H.263 video bitstream in a packet.
+	 * It allows fragmentation at GOB boundaries. In mode B, an eight byte
+	 * H.263 payload header is used and each packet starts at MB boundaries
+	 * without the PB-frames option. Finally, a twelve byte H.263 payload
+	 * header is defined in mode C to support fragmentation at MB boundaries
+	 * for frames that are coded with the PB-frames option.
+	 */
     if( rfc2190_version == 0x00) {
         col_append_str( pinfo->cinfo, COL_INFO, "MODE A ");
+		hdr_len = 4;
     }
     else if( rfc2190_version == 0x02) {
         col_append_str( pinfo->cinfo, COL_INFO, "MODE B ");
+		hdr_len = 8;
     }
     else if( rfc2190_version == 0x03) {
         col_append_str( pinfo->cinfo, COL_INFO, "MODE C ");
+		hdr_len = 12;
     }
 
     if ( tree ) {
-        ti = proto_tree_add_item( tree, proto_rfc2190, tvb, offset, -1, ENC_NA );
+        ti = proto_tree_add_item( tree, proto_rfc2190, tvb, offset, hdr_len, ENC_NA );
         rfc2190_tree = proto_item_add_subtree( ti, ett_rfc2190 );
 
         /* FBIT 1st octet, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
+		proto_tree_add_item( rfc2190_tree, hf_rfc2190_ftype, tvb, offset, 1, ENC_BIG_ENDIAN );
         /* PBIT 1st octet, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_pbframes, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
+		proto_tree_add_item( rfc2190_tree, hf_rfc2190_pbframes, tvb, offset, 1, ENC_BIG_ENDIAN );
         /* SBIT 1st octet, 3 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x38 ) >> 3 );
+		proto_tree_add_item( rfc2190_tree, hf_rfc2190_sbit, tvb, offset, 1, ENC_BIG_ENDIAN );
         /* EBIT 1st octet, 3 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_ebit, tvb, offset, 1, tvb_get_guint8( tvb, offset )  & 0x7 );
-
+		proto_tree_add_item( rfc2190_tree, hf_rfc2190_ebit, tvb, offset, 1, ENC_BIG_ENDIAN );
         offset++;
 
         /* SRC 2nd octet, 3 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_srcformat, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
+		proto_tree_add_item( rfc2190_tree, hf_rfc2190_srcformat, tvb, offset, 1, ENC_BIG_ENDIAN );
 
         if(rfc2190_version == 0x00) { /* MODE A */
             /* I flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
+			proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, (offset<<3)+3, 1, ENC_BIG_ENDIAN);
             /* U flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x08 );
+			proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, (offset<<3)+4, 1, ENC_BIG_ENDIAN);
             /* S flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x04 );
+			proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, (offset<<3)+5, 1, ENC_BIG_ENDIAN);
             /* A flag, 1 bit */
-            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x02 );
+			proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, (offset<<3)+6, 1, ENC_BIG_ENDIAN);
 
             /* Reserved 2nd octect, 1 bit + 3rd octect 3 bits */
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
@@ -134,10 +146,9 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             offset++;
 
             /* DBQ 3 octect, 2 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >> 3 );
+			proto_tree_add_item( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ENC_BIG_ENDIAN );
             /* TRB 3 octect, 3 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x07 ) );
-
+			proto_tree_add_item( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ENC_BIG_ENDIAN );
             offset++;
 
             /* TR 4 octect, 8 bits */
@@ -199,9 +210,9 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset+=2;
 
                 /* DBQ 11th octect, 2 bits */
-                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >>3 );
+                proto_tree_add_item( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ENC_BIG_ENDIAN );
                 /* TRB 11th octect, 3 bits */
-                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x07 );
+                proto_tree_add_item( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ENC_BIG_ENDIAN );
 
                 offset++;
 
@@ -227,7 +238,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 
     /* The rest of the packet is the H.263 stream */
-    next_tvb = tvb_new_subset( tvb, offset, tvb_length(tvb) - offset, tvb_reported_length(tvb) - offset);
+    next_tvb = tvb_new_subset_remaining( tvb, offset);
     call_dissector(h263_handle,next_tvb,pinfo,tree);
 }
 
@@ -255,9 +266,9 @@ proto_register_rfc2190(void)
 				"F",
 				"rfc2190.ftype",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x80,
 				"Indicates the mode of the payload header (MODE A or B/C)", HFILL
 			}
 		},
@@ -267,9 +278,9 @@ proto_register_rfc2190(void)
 				"p/b frame",
 				"rfc2190.pbframes",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x40,
 				"Optional PB-frames mode as defined by H.263 (MODE C)", HFILL
 			}
 		},
@@ -281,7 +292,7 @@ proto_register_rfc2190(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x38,
 				"Start bit position specifies number of most significant bits that shall be ignored in the first data byte.", HFILL
 			}
 		},
@@ -293,7 +304,7 @@ proto_register_rfc2190(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x7,
 				"End bit position specifies number of least significant bits that shall be ignored in the last data byte.", HFILL
 			}
 		},
@@ -305,7 +316,7 @@ proto_register_rfc2190(void)
 				FT_UINT8,
 				BASE_DEC,
 				VALS(h263_srcformat_vals),
-				0x0,
+				0xe0,
 				"Source format specifies the resolution of the current picture.", HFILL
 			}
 		},
@@ -315,7 +326,7 @@ proto_register_rfc2190(void)
 				"Inter-coded frame",
 				"rfc2190.picture_coding_type",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
 				0x0,
 				"Picture coding type, intra-coded (false) or inter-coded (true)", HFILL
@@ -327,7 +338,7 @@ proto_register_rfc2190(void)
 				"Motion vector",
 				"rfc2190.unrestricted_motion_vector",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
 				0x0,
 				"Unrestricted Motion Vector option for current picture", HFILL
@@ -339,7 +350,7 @@ proto_register_rfc2190(void)
 				"Syntax-based arithmetic coding",
 				"rfc2190.syntax_based_arithmetic",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
 				0x0,
 				"Syntax-based Arithmetic Coding option for current picture", HFILL
@@ -351,7 +362,7 @@ proto_register_rfc2190(void)
 				"Advanced prediction option",
 				"rfc2190.advanced_prediction",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
 				0x0,
 				"Advanced Prediction option for current picture", HFILL
@@ -365,7 +376,7 @@ proto_register_rfc2190(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x18,
 				"Differential quantization parameter used to calculate quantizer for the B frame based on quantizer for the P frame, when PB-frames option is used.", HFILL
 			}
 		},
@@ -377,7 +388,7 @@ proto_register_rfc2190(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x07,
 				"Temporal Reference for the B frame as defined by H.263", HFILL
 			}
 		},
