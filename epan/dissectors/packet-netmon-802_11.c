@@ -162,7 +162,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  return offset;
+  /* no return */
 
 skip:
   offset = length;
