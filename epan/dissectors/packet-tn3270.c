@@ -4,13 +4,23 @@
  * References:
  *  3270 Information Display System: Data Stream Programmer's Reference
  *    GA23-0059-07
- *    (http://publib.boulder.ibm.com/cgi-bin/bookmgr_OS390/BOOKS/CN7P4000)
- *
- *  (Paragraph references in the comments in this file (e.g., 6.15) are to the above document)
+ *    http://publib.boulder.ibm.com/cgi-bin/bookmgr_OS390/BOOKS/CN7P4000
+ *    (Paragraph references in the comments in this file (e.g., 6.15) are to the above document)
  *
  *  3174 Establishment Controller Functional Description
  *    GA23-0218-11
- *    (http://publib.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/cn7a7003)
+ *    http://publib.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/cn7a7003
+ *
+ *
+ *  RFC 1041: Telnet 3270 Regime Option
+ *    http://tools.ietf.org/html/rfc1041
+ *
+ *  RFC 1576: TN3270 Current Practices
+ *    http://tools.ietf.org/html/rfc1576
+ *
+ *  RFC 2355: TN3270 Enhancements
+ *    http://tools.ietf.org/html/rfc2355
+ *
  *
  * Copyright 2009, Robert Hogan <robert@roberthogan.net>
  *
@@ -55,8 +65,8 @@
  *  document, the references to bit numbers in the text and tables
  *  are based upon the "MSB 0" bit numbering scheme.
  *  That is: bits are numbered in a byte from left-to-right:
- *    "Bit 0": MSB
- *    "Bit 7": LSB
+ *    "Bit 0" is the MSB of the byte
+ *    "Bit 7" is the LSB of the byte
  */
 
 /*
@@ -584,6 +594,37 @@ static const value_string vals_read_partition_reqtype[] = {
   { 0x00, "QCODE List" },
   { 0x01, "Equivalent + QCODE List" },
   { 0x02, "All" },
+  { 0x00, NULL }
+};
+
+/*--- 5.34 Data Chain ----- */
+#define DATA_CHAIN_GROUP_MASK           0x60
+#define DATA_CHAIN_INBOUND_CONTROL_MASK 0x18
+
+static const value_string vals_data_chain_group[] = {
+  { 0x00, "Continue" },
+  { 0x01, "End" },
+  { 0x02, "Begin" },
+  { 0x03, "Only" },
+  { 0x00, NULL }
+};
+
+static const value_string vals_data_chain_inbound_control[] = {
+  { 0x00, "No Change" },
+  { 0x01, "Enable Inbound Data Chaining" },
+  { 0x02, "Disable Inbound Data Chaining" },
+  { 0x03, "Reserved" },
+  { 0x00, NULL }
+};
+
+/*--- 5.35 Destination or Origin ----- */
+#define DESTINATION_OR_ORIGIN_FLAGS_INPUT_CONTROL_MASK 0xC0
+
+static const value_string vals_destination_or_origin_flags_input_control[] = {
+  { 0x00, "Enable input" },
+  { 0x01, "No Change" },
+  { 0x02, "Disable Input" },
+  { 0x03, "Reserved" },
   { 0x00, NULL }
 };
 
@@ -1256,8 +1297,10 @@ static int hf_tn3270_c_seqoff = -1;
 static int hf_tn3270_c_sequence = -1;
 static int hf_tn3270_cursor_address = -1;
 static int hf_tn3270_cw = -1;
-static int hf_tn3270_data_chain_bitmask = -1;
-static int hf_tn3270_destination_or_origin_bitmask = -1;
+static int hf_tn3270_data_chain_fields = -1;
+static int hf_tn3270_data_chain_group = -1;
+static int hf_tn3270_data_chain_inbound_control = -1;
+static int hf_tn3270_destination_or_origin_flags_input_control = -1;
 static int hf_tn3270_destination_or_origin_doid = -1;
 static int hf_tn3270_erase_flags = -1;
 static int hf_tn3270_exception_or_status_flags = -1;
@@ -1583,6 +1626,7 @@ static gint ett_tn3270_cs_descriptor_flags = -1;
 static gint ett_tn3270_color_flags = -1;
 static gint ett_tn3270_ccc = -1;
 static gint ett_tn3270_msr_state_mask = -1;
+static gint ett_tn3270_data_chain_fields = -1;
 static gint ett_tn3270_query_list = -1;
 
 static gint dissect_orders_and_data(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3270_conv_info_t *tn3270_info);
@@ -2056,6 +2100,7 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
     case CC_SNA_EW:
     case CC_SNA_EWA:
     case CC_SNA_EAU:
+      /* Note: EW/EWA
       /* WCC */
       if ((offset - start) < sf_body_length)
         offset += dissect_wcc(tn3270_tree, tvb, offset);
@@ -2487,7 +2532,33 @@ dissect_type_1_text(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   return (offset - start);
 }
 
-/* 5.34 Data Chain - Search for DATA_CHAIN*/
+/* 5.34 Data Chain */
+static guint
+dissect_data_chain(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
+                       gint sf_body_length)
+{
+  gint start = offset;
+
+  static const gint *byte[] = {
+    &hf_tn3270_data_chain_group,
+    &hf_tn3270_data_chain_inbound_control,
+    NULL
+  };
+
+  static const hf_items data_chain_fields[] = {
+    { &hf_tn3270_data_chain_fields, &ett_tn3270_data_chain_fields, 1, byte, 0 },
+    { &hf_tn3270_resbyte, NULL, 1, NULL, ENC_BIG_ENDIAN },
+    { NULL, NULL, 0, NULL, 0 }
+  };
+
+  offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
+                                data_chain_fields);
+
+  offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_body_length);
+
+  return (offset - start);
+}
+
 /* 5.35 Destination/Origin -  Search for DESTINATION_OR_ORIGIN*/
 
 /* 5.36 Object Control */
@@ -4337,9 +4408,10 @@ process_outbound_structured_field(proto_tree *sf_tree, tvbuff_t *tvb, gint offse
       offset += dissect_create_partition(sf_tree, tvb, offset, sf_body_length);
       break;
     case SF_OB_ERASE_OR_RESET:
+      /* Bit 0: 0= Use default size; 1= use alternate size */
       proto_tree_add_bits_item(sf_tree,
                                hf_tn3270_erase_flags,
-                               tvb, offset,
+                               tvb, offset<<3,
                                1,
                                ENC_BIG_ENDIAN);
       offset += 1;
@@ -4417,15 +4489,15 @@ process_outbound_structured_field(proto_tree *sf_tree, tvbuff_t *tvb, gint offse
       /*TODO: use bits_text */
       proto_tree_add_bits_item(sf_tree,
                                hf_tn3270_begin_end_flags1,
-                               tvb, offset,
-                               1,
+                               tvb, offset<<3,
+                               2,
                                ENC_BIG_ENDIAN);
       offset += 1;
-      proto_tree_add_bits_item(sf_tree,
-                               hf_tn3270_begin_end_flags2,
-                               tvb, offset,
-                               1,
-                               ENC_BIG_ENDIAN);
+      proto_tree_add_item(sf_tree,
+                          hf_tn3270_begin_end_flags2,
+                          tvb, offset,
+                          1,
+                          ENC_BIG_ENDIAN);
       offset += 1;
       break;
     case SF_OB_LOAD_COLOR_TABLE:
@@ -4518,22 +4590,11 @@ process_outbound_inbound_structured_field(proto_tree *tn3270_tree, tvbuff_t *tvb
 
   switch (sf_id) {
     case SF_OB_IB_DATA_CHAIN:
-      proto_tree_add_bits_item(tn3270_tree,
-                               hf_tn3270_data_chain_bitmask,
-                               tvb, offset,
-                               1,
-                               ENC_BIG_ENDIAN);
-      offset += 1;
-      proto_tree_add_item(tn3270_tree,
-                          hf_tn3270_resbyte,
-                          tvb, offset,
-                          1,
-                          ENC_BIG_ENDIAN);
-      offset += 1;
+      offset += dissect_data_chain(tn3270_tree, tvb, offset, sf_body_length);
       break;
     case SF_OB_IB_DESTINATION_OR_ORIGIN:
-      proto_tree_add_bits_item(tn3270_tree,
-                               hf_tn3270_destination_or_origin_bitmask,
+      proto_tree_add_item(tn3270_tree,
+                               hf_tn3270_destination_or_origin_flags_input_control,
                                tvb, offset,
                                1,
                                ENC_BIG_ENDIAN);
@@ -6075,19 +6136,31 @@ proto_register_tn3270(void)
     /* END - 5.30 - Set Reply Mode */
 
     /* 5.34 - Data Chain */
-    { &hf_tn3270_data_chain_bitmask,
-      {  "Mask",
-         "tn3270.data_chain_bitmask",
+    { &hf_tn3270_data_chain_fields,
+      {  "Data Chain Fields",
+         "tn3270.data_chain_fields",
          FT_UINT8, BASE_HEX, NULL, 0x0,
+         NULL, HFILL }
+    },
+    { &hf_tn3270_data_chain_group,
+      {  "Data Chain Group",
+         "tn3270.data_chain_group",
+         FT_UINT8, BASE_HEX, VALS(vals_data_chain_group), DATA_CHAIN_GROUP_MASK,
+         NULL, HFILL }
+    },
+    { &hf_tn3270_data_chain_inbound_control,
+      {  "Data Chain Inbound Control",
+         "tn3270.data_chain_inbound_control",
+         FT_UINT8, BASE_HEX, VALS(vals_data_chain_inbound_control), DATA_CHAIN_INBOUND_CONTROL_MASK,
          NULL, HFILL }
     },
     /* END - 5.34 - Data Chain */
 
     /* 5.35 - Destination/Origin */
-    { &hf_tn3270_destination_or_origin_bitmask,
-      {  "Mask",
-         "tn3270.destination_or_origin_bitmask",
-         FT_UINT8, BASE_HEX, NULL, 0x0,
+    { &hf_tn3270_destination_or_origin_flags_input_control,
+      {  "Input Control",
+         "tn3270.destination_or_origin_flags_input_control",
+         FT_UINT8, BASE_HEX, VALS(vals_destination_or_origin_flags_input_control), DESTINATION_OR_ORIGIN_FLAGS_INPUT_CONTROL_MASK,
          NULL, HFILL }
     },
     { &hf_tn3270_destination_or_origin_doid,
@@ -7564,6 +7637,7 @@ proto_register_tn3270(void)
     &ett_tn3270_wcc,
     &ett_tn3270_ccc,
     &ett_tn3270_msr_state_mask,
+    &ett_tn3270_data_chain_fields,
     &ett_tn3270_query_list
   };
 
