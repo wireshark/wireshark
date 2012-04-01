@@ -2389,6 +2389,9 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
         col_set_writable(pinfo->cinfo, FALSE);
     }
+    else {
+        col_clear(pinfo->cinfo, COL_INFO);
+    }
 
     call_dissector(rohc_handle, rohc_tvb, pinfo, tree);
 
