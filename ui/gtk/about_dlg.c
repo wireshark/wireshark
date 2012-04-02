@@ -53,6 +53,7 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/plugins_dlg.h"
+#include "ui/gtk/gui_utils.h"
 
 #include "../../image/wssplash-dev.xpm"
 #include "webbrowser.h"
@@ -107,7 +108,7 @@ splash_update_label(GtkWidget *win, const char *message)
        the splash screen window gets updated. */
     while (gtk_events_pending()) gtk_main_iteration();
 }
-#if GTK_CHECK_VERSION(3,0,0)
+
 GtkWidget*
 splash_new(const char *message)
 {
@@ -127,7 +128,7 @@ splash_new(const char *message)
        can't handle the pixmap. */
     gtk_widget_realize(win);
 
-    main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+    main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_box), 24);
     gtk_container_add(GTK_CONTAINER(win), main_box);
 
@@ -141,7 +142,7 @@ splash_new(const char *message)
     gtk_container_add(GTK_CONTAINER(main_box), main_lb);
     g_object_set_data(G_OBJECT(win), "protocol_label", main_lb);
 
-    percentage_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
+    percentage_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
     gtk_box_pack_start(GTK_BOX(main_box), percentage_box, TRUE, TRUE, 3);
 
     prog_bar = gtk_progress_bar_new();
@@ -159,59 +160,6 @@ splash_new(const char *message)
 
     return win;
 }
-#else
-GtkWidget*
-splash_new(const char *message)
-{
-    GtkWidget *win;
-    GtkWidget *main_lb;
-
-    GtkWidget *main_vb;
-    GtkWidget *percentage_hb;
-    GtkWidget *prog_bar;
-    GtkWidget *percentage_lb;
-
-    win = splash_window_new();
-
-    /* When calling about_wireshark(), we must realize the top-level
-       widget for the window, otherwise GTK will throw a warning
-       because we don't have a colormap associated with that window and
-       can't handle the pixmap. */
-    gtk_widget_realize(win);
-
-    main_vb = gtk_vbox_new(FALSE, 6);
-    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 24);
-    gtk_container_add(GTK_CONTAINER(win), main_vb);
-
-    about_wireshark(win, main_vb);
-
-    main_lb = gtk_label_new(message);
-    gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
-    g_object_set_data(G_OBJECT(win), "splash_label", main_lb);
-
-    main_lb = gtk_label_new("");
-    gtk_container_add(GTK_CONTAINER(main_vb), main_lb);
-    g_object_set_data(G_OBJECT(win), "protocol_label", main_lb);
-
-    percentage_hb = gtk_hbox_new(FALSE, 1);
-    gtk_box_pack_start(GTK_BOX(main_vb), percentage_hb, TRUE, TRUE, 3);
-
-    prog_bar = gtk_progress_bar_new();
-    gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, TRUE, TRUE, 3);
-    g_object_set_data(G_OBJECT(win), "progress_bar", prog_bar);
-
-    percentage_lb = gtk_label_new("  0%");
-    gtk_misc_set_alignment(GTK_MISC(percentage_lb), 0.0f, 0.0f);
-    gtk_box_pack_start(GTK_BOX(percentage_hb), percentage_lb, FALSE, TRUE, 3);
-    g_object_set_data(G_OBJECT(win), "percentage_label", percentage_lb);
-
-    gtk_widget_show_all(win);
-
-    splash_update_label(win, message);
-
-    return win;
-}
-#endif /* GTK_CHECK_VERSION(3,0,0) */
 
 void
 splash_update(register_action_e action, const char *message, gpointer client_data)
@@ -349,14 +297,13 @@ splash_destroy(GtkWidget *win)
     return FALSE;
 }
 
-#if GTK_CHECK_VERSION(3,0,0)
 static GtkWidget *
 about_wireshark_page_new(void)
 {
   GtkWidget   *main_box, *msg_label /*, *icon*/;
   gchar       *message;
 
-  main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+  main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_box), 12);
 
   g_object_set(gtk_widget_get_settings(main_box),
@@ -388,46 +335,7 @@ about_wireshark_page_new(void)
 
   return main_box;
 }
-#else
-static GtkWidget *
-about_wireshark_page_new(void)
-{
-  GtkWidget   *main_vb, *msg_label /*, *icon*/;
-  gchar       *message;
 
-  main_vb = gtk_vbox_new(FALSE, 6);
-  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
-
-  g_object_set(gtk_widget_get_settings(main_vb),
-    "gtk-label-select-on-focus", FALSE, NULL);
-
-  about_wireshark(top_level, main_vb);
-
-  /* Construct the message string */
-  message = g_strdup_printf(
-       "Version " VERSION "%s\n"
-       "\n"
-       "%s"
-       "\n"
-       "%s"
-       "\n"
-       "%s"
-       "\n"
-       "Wireshark is Open Source Software released under the GNU General Public License.\n"
-       "\n"
-       "Check the man page and http://www.wireshark.org for more information.",
-       wireshark_svnversion, get_copyright_info(), comp_info_str->str,
-       runtime_info_str->str);
-
-  msg_label = gtk_label_new(message);
-  g_free(message);
-  gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
-  gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
-  gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
-
-  return main_vb;
-}
-#endif /* GTK_CHECK_VERSION(3,0,0) */
 static GtkWidget *
 about_authors_page_new(void)
 {
@@ -595,7 +503,6 @@ about_license_page_new(void)
   return page;
 }
 
-#if GTK_CHECK_VERSION(3,0,0)
 void
 about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
 {
@@ -627,7 +534,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);
   gtk_container_set_border_width(GTK_CONTAINER(about_wireshark_w), 6);
 
-  main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 12);
+  main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_box), 6);
   gtk_container_add(GTK_CONTAINER(about_wireshark_w), main_box);
 
@@ -673,85 +580,6 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   gtk_widget_show_all(about_wireshark_w);
   window_present(about_wireshark_w);
 }
-#else
-void
-about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
-{
-  GtkWidget   *main_vb, *main_nb, *bbox, *ok_btn;
-  GtkWidget   *page_lb, *about_page, *folders_page;
-
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
-  GtkWidget   *plugins_page;
-#endif
-
-  GtkWidget   *authors_page, *license_page;
-
-  if (about_wireshark_w != NULL) {
-    /* There's already an "About Wireshark" dialog box; reactivate it. */
-    reactivate_window(about_wireshark_w);
-    return;
-  }
-
-  /*
-   * XXX - use GtkDialog?  The GNOME 2.x GnomeAbout widget does.
-   * Should we use GtkDialog for simple_dialog() as well?  Or
-   * is the GTK+ 2.x GtkDialog appropriate but the 1.2[.x] one
-   * not?  (The GNOME 1.x GnomeAbout widget uses GnomeDialog.)
-   */
-  about_wireshark_w = dlg_window_new("About Wireshark");
-  /* set the initial position (must be done, before show is called!) */
-  /* default position is not appropriate for the about dialog */
-  gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER_ON_PARENT);
-  gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);
-  gtk_container_set_border_width(GTK_CONTAINER(about_wireshark_w), 6);
-
-  main_vb = gtk_vbox_new(FALSE, 12);
-  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
-  gtk_container_add(GTK_CONTAINER(about_wireshark_w), main_vb);
-
-  main_nb = gtk_notebook_new();
-  gtk_box_pack_start(GTK_BOX(main_vb), main_nb, TRUE, TRUE, 0);
-
-  about_page = about_wireshark_page_new();
-  page_lb = gtk_label_new("Wireshark");
-  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), about_page, page_lb);
-
-  authors_page = about_authors_page_new();
-  page_lb = gtk_label_new("Authors");
-  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), authors_page, page_lb);
-
-  folders_page = about_folders_page_new();
-  page_lb = gtk_label_new("Folders");
-  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), folders_page, page_lb);
-
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
-  plugins_page = about_plugins_page_new();
-  page_lb = gtk_label_new("Plugins");
-  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), plugins_page, page_lb);
-#endif
-
-  license_page = about_license_page_new();
-  page_lb = gtk_label_new("License");
-  /* set a minmum width to avoid a lot of line breaks at the wrong places */
-  gtk_widget_set_size_request(license_page, 600, -1);
-  gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), license_page, page_lb);
-
-  /* Button row */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
-
-  ok_btn = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-  gtk_widget_grab_focus(ok_btn);
-  gtk_widget_grab_default(ok_btn);
-  window_set_cancel_button(about_wireshark_w, ok_btn, window_cancel_button_cb);
-
-  g_signal_connect(about_wireshark_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-  g_signal_connect(about_wireshark_w, "destroy", G_CALLBACK(about_wireshark_destroy_cb), NULL);
-
-  gtk_widget_show_all(about_wireshark_w);
-  window_present(about_wireshark_w);
-}
-#endif /*GTK_CHECK_VERSION(3,0,0)*/
 
 static void
 about_wireshark_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
