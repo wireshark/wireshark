@@ -827,12 +827,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (eap_type == EAP_TYPE_PEAP || eap_type == EAP_TYPE_TTLS ||
 			eap_type == EAP_TYPE_FAST) {
 			proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags: %s%s%s%s%s(0x%X)",
-				has_length                          ? "Length " : "",
-				more_fragments                      ? "More "   : "",
-				is_start                            ? "Start "  : "",
+				has_length                          ? "Length "    : "",
+				more_fragments                      ? "More "      : "",
+				is_start                            ? "Start "     : "",
 				test_flag(flags,EAP_TLS_FLAG_R1)    ? "Reserved1 " : "",
 				test_flag(flags,EAP_TLS_FLAG_R2)    ? "Reserved2 " : "",
-				flags);
+				flags & ~EAP_PEAP_FLAG_VERSION);
 			proto_tree_add_text(eap_tree, tvb, offset, 1,
 				"Version: %sv%d",
 				eap_type == EAP_TYPE_PEAP ? "PEAP" :
@@ -840,9 +840,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     flags & EAP_PEAP_FLAG_VERSION);
 		} else {
 			proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags: %s%s%s%s%s%s%s%s(0x%X)",
-				has_length                          ? "Length " : "",
-				more_fragments                      ? "More "   : "",
-				is_start                            ? "Start "  : "",
+				has_length                          ? "Length "    : "",
+				more_fragments                      ? "More "      : "",
+				is_start                            ? "Start "     : "",
 				test_flag(flags,EAP_TLS_FLAG_R1)    ? "Reserved1 " : "",
 				test_flag(flags,EAP_TLS_FLAG_R2)    ? "Reserved2 " : "",
 				test_flag(flags,EAP_TLS_FLAG_R3)    ? "Reserved3 " : "",
