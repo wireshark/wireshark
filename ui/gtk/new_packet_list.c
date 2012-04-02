@@ -1742,6 +1742,12 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 		}
 	}
 
+	/* Check if we are clearing the comment */
+	if(strlen(new_packet_comment) == 0) {
+		g_free(new_packet_comment);
+		new_packet_comment = NULL;
+	}
+
 	/* The comment has changed, let's update it */
 	g_free(record->fdata->opt_comment);
 	record->fdata->opt_comment = new_packet_comment;
