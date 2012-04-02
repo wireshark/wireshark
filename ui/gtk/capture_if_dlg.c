@@ -378,7 +378,8 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   /* Note that we no longer have a "Capture Options" dialog box. */
   cap_if_w = NULL;
 #ifdef HAVE_AIRPCAP
-  airpcap_set_toolbar_stop_capture(airpcap_if_active);
+  if (airpcap_if_active)
+    airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
 }
 
@@ -660,12 +661,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
     } else {
       /* default adapter is not airpcap... or is airpcap but is not found*/
-      airpcap_set_toolbar_stop_capture(airpcap_if_active);
+      if (airpcap_if_active)
+        airpcap_set_toolbar_stop_capture(airpcap_if_active);
       airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
     }
   }
-
-  airpcap_set_toolbar_start_capture(airpcap_if_active);
+  if (airpcap_if_active)
+    airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
 
   make_gtk_array();

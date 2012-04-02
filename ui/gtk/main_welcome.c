@@ -1180,7 +1180,8 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
             break;
         }
     }
-    airpcap_set_toolbar_start_capture(airpcap_if_active);
+    if (airpcap_if_active)
+      airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
     capture_start_cb(NULL, NULL);
 }

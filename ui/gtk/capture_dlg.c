@@ -239,7 +239,8 @@ void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 #ifdef HAVE_AIRPCAP
-  airpcap_set_toolbar_stop_capture(airpcap_if_active);
+  if (airpcap_if_active)
+    airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
 
   capture_stop(&global_capture_opts);
@@ -250,7 +251,8 @@ void
 capture_restart_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 #ifdef HAVE_AIRPCAP
-  airpcap_set_toolbar_start_capture(airpcap_if_active);
+  if (airpcap_if_active)
+    airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
 
   capture_restart(&global_capture_opts);
@@ -4176,7 +4178,8 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
-  airpcap_set_toolbar_start_capture(airpcap_if_active);
+  if (airpcap_if_active)
+    airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
 
   if (cap_open_w) {
@@ -4619,7 +4622,8 @@ capture_prep_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 #ifdef HAVE_AIRPCAP
   /* update airpcap toolbar */
-  airpcap_set_toolbar_stop_capture(airpcap_if_active);
+  if (airpcap_if_active)
+    airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
