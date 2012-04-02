@@ -1903,9 +1903,11 @@ GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean ho
 		}
 	}
 #else
-	GtkWidget widget;
+	GtkWidget *widget;
 
-	widget = gtk_box_new(rientation, spacing);
+	widget = gtk_box_new(orientation, spacing);
 	gtk_box_set_homogeneous(GTK_BOX(widget), homogeneous);
+
+	return widget;
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 }
