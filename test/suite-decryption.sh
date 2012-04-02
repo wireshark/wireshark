@@ -31,6 +31,7 @@ EXIT_ERROR=2
 
 UAT_FILES="
 	80211_keys
+	dtlsdecrypttablefile
 	ssl_keys
 "
 
@@ -51,6 +52,7 @@ DC_ID="suite-decryption.sh-$$"
 
 
 # WPA PSK
+# http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
 decryption_step_80211_wpa_psk() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-o "wlan.enable_decryption: TRUE" \
@@ -66,7 +68,23 @@ decryption_step_80211_wpa_psk() {
 	test_step_ok
 }
 
+# DTLS
+# http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
+decryption_step_dtls() {
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+		-Tfields -e data.data \
+		-r captures/snakeoil-dtls.pcap -R http \
+		| grep "69:74:20:77:6f:72:6b:20:21:0a" > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt SSL"
+		return
+	fi
+	test_step_ok
+}
+
 # SSL
+# http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
 decryption_step_ssl() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri -r captures/rsasnakeoil2.pcap -R http | grep favicon.ico > /dev/null 2>&1
 	RETURNVALUE=$?
@@ -79,6 +97,7 @@ decryption_step_ssl() {
 
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
+	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption" decryption_step_ssl
 }
 
