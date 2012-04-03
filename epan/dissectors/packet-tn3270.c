@@ -125,14 +125,14 @@
 #define CC_SNA_BSC  0xF7   /* local copy in a BSC environment */
 
 static const value_string vals_command_codes[] = {
-  { CC_W,       "Write" },
-  { CC_EW,      "Erase/Write" },
-  { CC_EWA,     "Erase/Write Alternate" },
-  { CC_EAU,     "Erase All Unprotected" },
-  { CC_WSF,     "Write Structured Field" },
-  { CC_RB,      "Read Buffer" },
-  { CC_RM,      "Read Modified" },
-  { CC_RMA,     "Read Modified All" },
+  { CC_W,       "Write (Local)" },
+  { CC_EW,      "Erase/Write (Local)" },
+  { CC_EWA,     "Erase/Write Alternate (Local)" },
+  { CC_EAU,     "Erase All Unprotected (Local)" },
+  { CC_WSF,     "Write Structured Field (Local)" },
+  { CC_RB,      "Read Buffer (Local)" },
+  { CC_RM,      "Read Modified (Local)" },
+  { CC_RMA,     "Read Modified All (Local)" },
   { CC_SNA_W,   "Write" },
   { CC_SNA_EW,  "Erase/Write" },
   { CC_SNA_EWA, "Erase/Write Alternate" },
