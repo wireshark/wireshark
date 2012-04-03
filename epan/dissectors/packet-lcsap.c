@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-lcsap.c                                                             */
-/* ../../../tools/asn2wrs.py -p lcsap -c ../../../asn1/lcsap/lcsap.cnf -s ../../../asn1/lcsap/packet-lcsap-template -D ../../../asn1/lcsap -O ../../../epan/dissectors LCS-AP-CommonDataTypes.asn LCS-AP-Constants.asn LCS-AP-Containers.asn LCS-AP-IEs.asn LCS-AP-PDU-Contents.asn LCS-AP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p lcsap -c ./lcsap.cnf -s ./packet-lcsap-template -D . -O ../../epan/dissectors LCS-AP-CommonDataTypes.asn LCS-AP-Constants.asn LCS-AP-Containers.asn LCS-AP-IEs.asn LCS-AP-PDU-Contents.asn LCS-AP-PDU-Descriptions.asn */
 
 /* Input file: packet-lcsap-template.c */
 
@@ -106,7 +106,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_Return_Error_Cause =  18,
   id_Source_Identity =  19,
   id_UE_Positioning_Capability =  20,
-  id_Velocity_Estimate =  21
+  id_Velocity_Estimate =  21,
+  id_LCS_Service_Type_ID =  22
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
@@ -134,6 +135,7 @@ static int hf_lcsap_LCS_Cause_PDU = -1;           /* LCS_Cause */
 static int hf_lcsap_LCS_Client_Type_PDU = -1;     /* LCS_Client_Type */
 static int hf_lcsap_LCS_Priority_PDU = -1;        /* LCS_Priority */
 static int hf_lcsap_LCS_QoS_PDU = -1;             /* LCS_QoS */
+static int hf_lcsap_LCS_Service_Type_ID_PDU = -1;  /* LCS_Service_Type_ID */
 static int hf_lcsap_MultipleAPDUs_PDU = -1;       /* MultipleAPDUs */
 static int hf_lcsap_Network_Element_PDU = -1;     /* Network_Element */
 static int hf_lcsap_Payload_Type_PDU = -1;        /* Payload_Type */
@@ -151,11 +153,11 @@ static int hf_lcsap_Reset_Request_PDU = -1;       /* Reset_Request */
 static int hf_lcsap_Reset_Acknowledge_PDU = -1;   /* Reset_Acknowledge */
 static int hf_lcsap_LCS_AP_PDU_PDU = -1;          /* LCS_AP_PDU */
 static int hf_lcsap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_lcsap_ieid = -1;                    /* ProtocolIE_ID */
+static int hf_lcsap_id = -1;                      /* ProtocolIE_ID */
 static int hf_lcsap_criticality = -1;             /* Criticality */
 static int hf_lcsap_ie_field_value = -1;          /* T_ie_field_value */
 static int hf_lcsap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_lcsap_extid = -1;                   /* ProtocolExtensionID */
+static int hf_lcsap_ext_id = -1;                  /* ProtocolExtensionID */
 static int hf_lcsap_extensionValue = -1;          /* T_extensionValue */
 static int hf_lcsap_direction_Of_Altitude = -1;   /* Direction_Of_Altitude */
 static int hf_lcsap_altitude = -1;                /* Altitude */
@@ -186,7 +188,7 @@ static int hf_lcsap_degreesLongitude = -1;        /* DegreesLongitude */
 static int hf_lcsap_pLMN_ID = -1;                 /* PLMN_ID */
 static int hf_lcsap_eNB_ID = -1;                  /* ENB_ID */
 static int hf_lcsap_GNSS_Positioning_Data_Set_item = -1;  /* GNSS_Positioning_Method_And_Usage */
-static int hf_lcsap_bearing = -1;                 /* Bearing */
+static int hf_lcsap_bearing = -1;                 /* INTEGER_0_359 */
 static int hf_lcsap_horizontal_Speed = -1;        /* INTEGER_0_2047 */
 static int hf_lcsap_horizontal_Speed_And_Bearing = -1;  /* Horizontal_Speed_And_Bearing */
 static int hf_lcsap_vertical_Velocity = -1;       /* Vertical_Velocity */
@@ -414,6 +416,7 @@ static const value_string lcsap_ProtocolIE_ID_vals[] = {
   { id_Source_Identity, "id-Source-Identity" },
   { id_UE_Positioning_Capability, "id-UE-Positioning-Capability" },
   { id_Velocity_Estimate, "id-Velocity-Estimate" },
+  { id_LCS_Service_Type_ID, "id-LCS-Service-Type-ID" },
   { 0, NULL }
 };
 
@@ -442,7 +445,7 @@ dissect_lcsap_T_ie_field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t ProtocolIE_Field_sequence[] = {
-  { &hf_lcsap_ieid          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_ProtocolIE_ID },
+  { &hf_lcsap_id            , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_ProtocolIE_ID },
   { &hf_lcsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Criticality },
   { &hf_lcsap_ie_field_value, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_T_ie_field_value },
   { NULL, 0, 0, NULL }
@@ -481,7 +484,7 @@ dissect_lcsap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t ProtocolExtensionField_sequence[] = {
-  { &hf_lcsap_extid         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_ProtocolExtensionID },
+  { &hf_lcsap_ext_id        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_ProtocolExtensionID },
   { &hf_lcsap_criticality   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Criticality },
   { &hf_lcsap_extensionValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_T_extensionValue },
   { NULL, 0, 0, NULL }
@@ -567,7 +570,7 @@ dissect_lcsap_Accuracy_Fulfillment_Indicator(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_lcsap_Altitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -1066,6 +1069,16 @@ dissect_lcsap_Horizontal_Accuracy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static int
+dissect_lcsap_INTEGER_0_359(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 359U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lcsap_INTEGER_0_2047(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 2047U, NULL, FALSE);
@@ -1075,7 +1088,7 @@ dissect_lcsap_INTEGER_0_2047(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t Horizontal_Speed_And_Bearing_sequence[] = {
-  { &hf_lcsap_bearing       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Bearing },
+  { &hf_lcsap_bearing       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_INTEGER_0_359 },
   { &hf_lcsap_horizontal_Speed, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_INTEGER_0_2047 },
   { NULL, 0, 0, NULL }
 };
@@ -1429,6 +1442,16 @@ static int
 dissect_lcsap_LCS_QoS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lcsap_LCS_QoS, LCS_QoS_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_LCS_Service_Type_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 127U, NULL, FALSE);
 
   return offset;
 }
@@ -1924,6 +1947,14 @@ static int dissect_LCS_QoS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_LCS_Service_Type_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_LCS_Service_Type_ID(tvb, offset, &asn1_ctx, tree, hf_lcsap_LCS_Service_Type_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_MultipleAPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2141,6 +2172,7 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.ies", id_Source_Identity, new_create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_UE_Positioning_Capability, new_create_dissector_handle(dissect_UE_Positioning_Capability_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Velocity_Estimate, new_create_dissector_handle(dissect_Velocity_Estimate_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_LCS_Service_Type_ID, new_create_dissector_handle(dissect_LCS_Service_Type_ID_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.imsg", id_Location_Service_Request, new_create_dissector_handle(dissect_Location_Request_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.sout", id_Location_Service_Request, new_create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.uout", id_Location_Service_Request, new_create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
@@ -2227,6 +2259,10 @@ void proto_register_lcsap(void) {
       { "LCS-QoS", "lcsap.LCS_QoS",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lcsap_LCS_Service_Type_ID_PDU,
+      { "LCS-Service-Type-ID", "lcsap.LCS_Service_Type_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lcsap_MultipleAPDUs_PDU,
       { "MultipleAPDUs", "lcsap.MultipleAPDUs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2295,8 +2331,8 @@ void proto_register_lcsap(void) {
       { "ProtocolIE-Field", "lcsap.ProtocolIE_Field",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lcsap_ieid,
-      { "ieid", "lcsap.ieid",
+    { &hf_lcsap_id,
+      { "id", "lcsap.id",
         FT_UINT32, BASE_DEC, VALS(lcsap_ProtocolIE_ID_vals), 0,
         "ProtocolIE_ID", HFILL }},
     { &hf_lcsap_criticality,
@@ -2311,8 +2347,8 @@ void proto_register_lcsap(void) {
       { "ProtocolExtensionField", "lcsap.ProtocolExtensionField",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lcsap_extid,
-      { "extid", "lcsap.extid",
+    { &hf_lcsap_ext_id,
+      { "id", "lcsap.id",
         FT_UINT8, BASE_DEC, VALS(lcsap_ProtocolIE_ID_vals), 0,
         "ProtocolExtensionID", HFILL }},
     { &hf_lcsap_extensionValue,
@@ -2438,7 +2474,7 @@ void proto_register_lcsap(void) {
     { &hf_lcsap_bearing,
       { "bearing", "lcsap.bearing",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "INTEGER_0_359", HFILL }},
     { &hf_lcsap_horizontal_Speed,
       { "horizontal-Speed", "lcsap.horizontal_Speed",
         FT_UINT32, BASE_DEC, NULL, 0,

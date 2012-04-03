@@ -1,83 +1,85 @@
 -- $Id$
--- ETSI TS 129 171 V9.2.0 (2010-10)
+-- ETSI TS 129 171 V11.1.0 (2012-03)
 -- ************************************************************** 
 -- 
 -- Constant definitions 
 -- 
 -- ************************************************************** 
  
-LCS-AP-Constants { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)  
-eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-Constants (4)} 
- 
-DEFINITIONS AUTOMATIC TAGS ::=  
- 
-BEGIN 
- 
--- ************************************************************** 
--- 
--- Elementary Procedures 
--- 
--- ************************************************************** 
- 
- 
-id-Location-Service-Request                     INTEGER ::= 0 
-id-Connection-Oriented-Information-Transfer     INTEGER ::= 1 
-id-Connectionless-Information-Transfer          INTEGER ::= 2 
-id-Location-Abort                               INTEGER ::= 3 
-id-Reset                                        INTEGER ::= 4 
- 
- 
--- ************************************************************** 
--- 
--- IEs 
--- 
--- ************************************************************** 
- 
- 
-id-Accuracy-Fulfillment-Indicator       INTEGER ::= 0 
-id-APDU                                 INTEGER ::= 1 
-id-Correlation-ID                       INTEGER ::= 2 
-id-Destination-ID                       INTEGER ::= 3 
-id-E-UTRAN-Cell-Identifier              INTEGER ::= 4 
-id-Include-Velocity                     INTEGER ::= 5 
-id-IMEI                                 INTEGER ::= 6 
-id-IMSI                                 INTEGER ::= 7 
-id-LCS-Client-Type                      INTEGER ::= 8 
-id-LCS-Priority                         INTEGER ::= 9 
-id-LCS-QOS                              INTEGER ::= 10 
-id-LCS-Cause                            INTEGER ::= 11 
-id-Location-Estimate                    INTEGER ::= 12 
-id-Location-Type                        INTEGER ::= 13 
-id-MultipleAPDUs                        INTEGER ::= 14 
-id-Payload-Type                         INTEGER ::= 15 
-id-Positioning-Data                     INTEGER ::= 16 
-id-Return-Error-Request                 INTEGER ::= 17 
-id-Return-Error-Cause                   INTEGER ::= 18 
-id-Source-Identity                      INTEGER ::= 19 
-id-UE-Positioning-Capability            INTEGER ::= 20 
-id-Velocity-Estimate                    INTEGER ::= 21 
- 
- 
--- ************************************************************** 
--- 
--- Extension constants 
--- 
--- ************************************************************** 
- 
--- ************************************************************** 
--- 
--- Lists 
---  
--- ************************************************************** 
- 
- 
-max-No-Of-Points                    INTEGER ::= 15 
-max-Set                             INTEGER ::= 9 
-max-GNSS-Set                        INTEGER ::= 9 
- 
- 
-maxProtocolExtensions               INTEGER ::= 65535 
-maxProtocolIEs                      INTEGER ::= 65535 
- 
-END 
+LCS-AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-Constants (4)}
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+
+id-Location-Service-Request						INTEGER ::= 0
+id-Connection-Oriented-Information-Transfer 	INTEGER ::= 1
+id-Connectionless-Information-Transfer 			INTEGER ::= 2
+id-Location-Abort 								INTEGER ::= 3
+id-Reset										INTEGER ::= 4
+
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+
+id-Accuracy-Fulfillment-Indicator	INTEGER ::= 0
+id-APDU								INTEGER ::= 1
+id-Correlation-ID					INTEGER ::= 2
+id-Destination-ID					INTEGER ::= 3
+id-E-UTRAN-Cell-Identifier			INTEGER ::= 4
+id-Include-Velocity					INTEGER ::= 5
+id-IMEI								INTEGER ::= 6
+id-IMSI								INTEGER ::= 7
+id-LCS-Client-Type					INTEGER ::= 8
+id-LCS-Priority						INTEGER ::= 9
+id-LCS-QOS							INTEGER ::= 10
+id-LCS-Cause						INTEGER ::= 11
+id-Location-Estimate				INTEGER ::= 12
+id-Location-Type					INTEGER ::= 13
+id-MultipleAPDUs 					INTEGER ::= 14
+id-Payload-Type						INTEGER ::= 15
+id-Positioning-Data					INTEGER ::= 16
+id-Return-Error-Request				INTEGER ::= 17
+id-Return-Error-Cause				INTEGER ::= 18
+id-Source-Identity					INTEGER ::= 19
+id-UE-Positioning-Capability		INTEGER ::= 20
+id-Velocity-Estimate				INTEGER ::= 21 
+id-LCS-Service-Type-ID				INTEGER ::= 22
+
+
+
+-- **************************************************************
+--
+-- Extension constants
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+
+max-No-Of-Points 			INTEGER ::= 15
+max-Set						INTEGER ::= 9
+max-GNSS-Set				INTEGER ::= 9
+
+
+maxProtocolExtensions 		INTEGER ::= 65535
+maxProtocolIEs				INTEGER ::= 65535
+
+END

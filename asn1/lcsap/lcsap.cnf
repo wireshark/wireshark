@@ -38,14 +38,14 @@ SuccessfulOutcome/value SuccessfulOutcome_value
 UnsuccessfulOutcome/value UnsuccessfulOutcome_value
 
 #.FIELD_RENAME
-
 InitiatingMessage/value initiatingMessagevalue
 UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 
+PrivateIE-Field/id private_id
+ProtocolExtensionField/id ext_id
 
-
-
+#PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
@@ -213,6 +213,7 @@ id-Return-Error-Request             ProtocolIE-ID
 id-Location-Estimate                ProtocolIE-ID
 id-Source-Identity                  ProtocolIE-ID
 id-Destination-ID                   ProtocolIE-ID
+id-LCS-Service-Type-ID              ProtocolIE-ID
 
 
 #.REGISTER_NEW
@@ -238,10 +239,11 @@ Positioning-Data                        N lcsap.ies id-Positioning-Data
 Return-Error-Type                       N lcsap.ies id-Return-Error-Request
 Return-Error-Cause                      N lcsap.ies id-Return-Error-Cause
 Network-Element                         N lcsap.ies id-Source-Identity
-Correlation-ID						    N lcsap.ies id-Correlation-ID
 UE-Positioning-Capability               N lcsap.ies id-UE-Positioning-Capability
 Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
 
+#LCS-AP-PROTOCOL-EXTENSION
+LCS-Service-Type-ID						N lcsap.extension id-LCS-Service-Type-ID
 
 
 
