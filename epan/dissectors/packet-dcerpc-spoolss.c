@@ -494,7 +494,7 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = pinfo->private_data;
 	guint32 buffer_len, len;
 	gchar *s;
-	proto_item *item;
+	proto_item *item = NULL;
 
 	if (di->conformant_run)
 		return offset;
@@ -506,8 +506,8 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	s = tvb_get_ephemeral_unicode_stringz(tvb, offset, &len, ENC_LITTLE_ENDIAN);
 
-    if (tree && buffer_len) {
-        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
+	if (tree && buffer_len) {
+		tvb_ensure_bytes_exist(tvb, offset, buffer_len);
 
 		item = proto_tree_add_string(
 			tree, hf_string_parm_data, tvb, offset, len, s);
@@ -516,7 +516,7 @@ dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
-	
+
 	/* Append string to upper level item */
 	if (tree && item) {
 		item = item->parent != NULL ? item->parent : item;
