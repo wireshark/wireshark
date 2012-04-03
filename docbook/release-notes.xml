@@ -35,6 +35,16 @@ Wireshark Info
 
       <itemizedlist>
 
+<!-- Sort by bug # -->
+<!--
+        <listitem><para>
+	  Wireshark will strip the paint off your car, then apply a hideous
+	  flame job to the hood and fenders using gray, red, and black primer.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=0000">Bug
+          0000</ulink>)
+        </para></listitem>
+-->
+
 	<listitem><para>
 	  .
 	</para></listitem>
@@ -132,10 +142,100 @@ Wireshark Info
 
 <!-- Sorted, one per line -->
 
+Aastra Signalling Protocol (AASP),
+Bandwidth Reservation Protocol (BRP),
+Bazaar,
+BitTorrent DHT,
+C12.22,
+CANopen,
+CIP Motion,
+CIP Safety,
+Cisco FabricPath MiM,
+DVB Bouquet Association Table,
+DVB Event Information Table,
+DVB MultiProtocol Encapsulation (DVB-MPE),
+DVB Network Information Table,
+DVB Service Description Table,
+DVB Time and Date Table,
+DVB Time Offset Table,
+DVB/ETSI IP Data Cast (IPDC) Electronic Service Guide (ESG),
+ECP VDP,
+EIA-709.1 (LonTalk),
+EIA-852 (CN/IP),
+ELCOM,
+Ericsson A-bis OML (OM 2000),
+Ericsson HDLC,
+Ericsson Proprietary PCAP,
+ETSI CAT,
+ETV-AM Data,
+ETV-AM EISS Section,
+Flight Message Transfer Protocol (FMTP),
+Gadu-Gadu,
+GEO-Mobile Radio (1) BCCH,
+GEO-Mobile Radio (1) Common,
+GEO-Mobile Radio (1) DTAP,
+GEO-Mobile Radio (1) Radio Resource,
+GSM A-bis OML,
+GSM CBCH,
+GSM Cell Broadcast Service,
+GSM SIM,
+H.248.2,
+Hadoop Distributed File System (HDFS),
+HART/IP,
+Hazelcast,
+HDFS Data,
+High bandwidth Digital Content Protection (HDCP),
+High-availability Seamless Redundancy (HSR),
+HomePlug AV,
+HSR/PRP,
+IEEE 1722.1,
+Kismet drone/server protocol,
+KristalliNet,
+LCS-AP,
+Link Access Procedure, Satellite channel (LAPSat),
+LTE Positioning Protocol A (LPPa),
+LTE Positioning Protocol,
+M3 Application Protocol (M3AP),
+MAC Address Acquisition Protocol,
+Microsoft Credential Security Support Provider (CredSSP),
+MPEG Conditional Access,
+MPEG descriptors,
+MPEG DSM-CC,
+MPEG Program Association Table (PAT),
+MPEG Program Map Table,
+MPEG Section,
+MPLS Packet Loss and Delay Measurement,
+MPLS-TP Protection State Coordination,
+Multiple VLAN Registration Protocol (MRVP),
+Netfilter LOG,
+NOE,
+NXP MiFare,
+NXP PN532,
+openSAFETY,
+Performance Co-Pilot (PCP),
+PPI Sensor,
+RDP,
+RTP-MIDI,
+SBc Application Part (SBc-AP),
+Solaris IP over InfiniBand,
+Sony FeliCa,
+T.124,
+UA (Universal Alcatel),
+UA3G,
+UASIP,
+UAUDP,
+USB Integrated Circuit Card Interface Device Class (CCID),
+Virtual eXtensible Local Area Network (VXLAN),
+VSS-Monitoring,
+Vuze DHT,
+XMCP
+
     </para>
     </section>
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
+
+Too many protocols have been updated to list here.
 
     </para>
     </section>
@@ -144,6 +244,23 @@ Wireshark Info
     <para>
 
 <!-- Sorted, one per line -->
+
+Aethra Telecommunications' PC108,
+Catapult DCT2000,
+Citrix NetScaler,
+Endace ERF,
+Generic MIME,
+IBM iSeries,
+LANalyzer,
+Microsoft NetMon,
+MPEG2-TS,
+Network Instruments Observer,
+Nokia DCT3,
+pcap,
+pcap-ng,
+Solaris snoop,
+TamoSoft CommView,
+Tektronix K12xx
 
     </para>
     </section>
