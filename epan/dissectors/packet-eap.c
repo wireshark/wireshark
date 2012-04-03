@@ -48,8 +48,6 @@ static gint ett_eap = -1;
 
 static dissector_handle_t ssl_handle;
 
-
-
 const value_string eap_code_vals[] = {
     { EAP_REQUEST,  "Request" },
     { EAP_RESPONSE, "Response" },
@@ -239,27 +237,29 @@ from RFC2716, pg 17
 #define EAP_TLS_FLAG_L 0x80 /* Length included */
 #define EAP_TLS_FLAG_M 0x40 /* More fragments  */
 #define EAP_TLS_FLAG_S 0x20 /* EAP-TLS start   */
-#define EAP_TLS_FLAG_R1 0x10 /* Reserved1 */
-#define EAP_TLS_FLAG_R2 0x08 /* Reserved2 */
-#define EAP_TLS_FLAG_R3 0x04 /* Reserved3, used by EAP_PEAP_FLAG_VERSION */
-#define EAP_TLS_FLAG_R4 0x02 /* Reserved4, used by EAP_PEAP_FLAG_VERSION */
-#define EAP_TLS_FLAG_R5 0x01 /* Reserved5, used by EAP_PEAP_FLAG_VERSION */
-#define EAP_PEAP_FLAG_VERSION 0x07 /* EAP-PEAP version */
+
+#define EAP_TLS_FLAGS_VERSION 0x07 /* Version mask for PEAP, TTLS, FAST */
 
 /*
  * reassembly of EAP-TLS
  */
 static GHashTable *eaptls_fragment_table = NULL;
 
-static int   hf_eaptls_fragment  = -1;
-static int   hf_eaptls_fragments = -1;
-static int   hf_eaptls_fragment_overlap = -1;
-static int   hf_eaptls_fragment_overlap_conflict = -1;
-static int   hf_eaptls_fragment_multiple_tails = -1;
-static int   hf_eaptls_fragment_too_long_fragment = -1;
-static int   hf_eaptls_fragment_error = -1;
-static int   hf_eaptls_fragment_count = -1;
-static int   hf_eaptls_reassembled_length = -1;
+static int hf_eaptls_flags = -1;
+static int hf_eaptls_flag_l = -1;
+static int hf_eaptls_flag_m = -1;
+static int hf_eaptls_flag_s = -1;
+static int hf_eaptls_flags_version = -1;
+static int hf_eaptls_len = -1;
+static int hf_eaptls_fragment  = -1;
+static int hf_eaptls_fragments = -1;
+static int hf_eaptls_fragment_overlap = -1;
+static int hf_eaptls_fragment_overlap_conflict = -1;
+static int hf_eaptls_fragment_multiple_tails = -1;
+static int hf_eaptls_fragment_too_long_fragment = -1;
+static int hf_eaptls_fragment_error = -1;
+static int hf_eaptls_fragment_count = -1;
+static int hf_eaptls_reassembled_length = -1;
 static gint ett_eaptls_fragment  = -1;
 static gint ett_eaptls_fragments = -1;
 static gint ett_eap_sim_attr = -1;
@@ -810,7 +810,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 flags   = tvb_get_guint8(tvb, offset);
 	gboolean more_fragments;
 	gboolean has_length;
-	guint32 length;
 	gboolean is_start;
 	int eap_tls_seq = -1;
 	guint32 eap_reass_cookie = 0;
@@ -819,36 +818,20 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	more_fragments = test_flag(flags,EAP_TLS_FLAG_M);
 	has_length = test_flag(flags,EAP_TLS_FLAG_L);
 	is_start = test_flag(flags,EAP_TLS_FLAG_S);
-	if (is_start) 
+
+	if (is_start)
 		conversation_state->eap_tls_seq = -1;
 
 	/* Flags field, 1 byte */
 	if (tree) {
+        proto_tree_add_item(eap_tree, hf_eaptls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eaptls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eaptls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eaptls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+
 		if (eap_type == EAP_TYPE_PEAP || eap_type == EAP_TYPE_TTLS ||
 			eap_type == EAP_TYPE_FAST) {
-			proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags: %s%s%s%s%s(0x%X)",
-				has_length                          ? "Length "    : "",
-				more_fragments                      ? "More "      : "",
-				is_start                            ? "Start "     : "",
-				test_flag(flags,EAP_TLS_FLAG_R1)    ? "Reserved1 " : "",
-				test_flag(flags,EAP_TLS_FLAG_R2)    ? "Reserved2 " : "",
-				flags & ~EAP_PEAP_FLAG_VERSION);
-			proto_tree_add_text(eap_tree, tvb, offset, 1,
-				"Version: %sv%d",
-				eap_type == EAP_TYPE_PEAP ? "PEAP" :
-                	(eap_type == EAP_TYPE_TTLS ? "TTLS" : "FAST"),
-                    flags & EAP_PEAP_FLAG_VERSION);
-		} else {
-			proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags: %s%s%s%s%s%s%s%s(0x%X)",
-				has_length                          ? "Length "    : "",
-				more_fragments                      ? "More "      : "",
-				is_start                            ? "Start "     : "",
-				test_flag(flags,EAP_TLS_FLAG_R1)    ? "Reserved1 " : "",
-				test_flag(flags,EAP_TLS_FLAG_R2)    ? "Reserved2 " : "",
-				test_flag(flags,EAP_TLS_FLAG_R3)    ? "Reserved3 " : "",
-				test_flag(flags,EAP_TLS_FLAG_R4)    ? "Reserved4 " : "",
-				test_flag(flags,EAP_TLS_FLAG_R5)    ? "Reserved5 " : "",
-				flags);
+            proto_tree_add_item(eap_tree, hf_eaptls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 	}
 	size--;
@@ -856,9 +839,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Length field, 4 bytes, OPTIONAL. */
 	if ( has_length ) {
-	  length = tvb_get_ntohl(tvb, offset);
 	  if (tree)
-	    proto_tree_add_text(eap_tree, tvb, offset, 4, "Length: %i",length);
+        proto_tree_add_item(eap_tree, hf_eaptls_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  size   -= 4;
 	  offset += 4;
 	}
@@ -1234,6 +1216,24 @@ proto_register_eap(void)
 	{ &hf_eap_type_nak, {
 		"Desired Auth Type", "eap.desired_type", FT_UINT8, BASE_DEC,
 		VALS(eap_type_vals), 0x0, NULL, HFILL }},
+    { &hf_eaptls_flags, {
+          "Flags", "eaptls.flags", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eaptls_flag_l, {
+          "Length Included", "eaptls.flags.len_included", FT_BOOLEAN, 8,
+          NULL, EAP_TLS_FLAG_L, NULL, HFILL }},
+    { &hf_eaptls_flag_m, {
+          "More Fragments", "eaptls.flags.more_fragments", FT_BOOLEAN, 8,
+          NULL, EAP_TLS_FLAG_M, NULL, HFILL }},
+    { &hf_eaptls_flag_s, {
+          "Start", "eaptls.flags.start", FT_BOOLEAN, 8,
+          NULL, EAP_TLS_FLAG_S, NULL, HFILL }},
+    { &hf_eaptls_flags_version, {
+          "Version", "eaptls.flags.version", FT_UINT8, BASE_DEC,
+          NULL, EAP_TLS_FLAGS_VERSION, NULL, HFILL }},
+    { &hf_eaptls_len, {
+          "Length", "eaptls.len", FT_UINT32, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
 	{ &hf_eaptls_fragment,
 	  { "EAP-TLS Fragment", "eaptls.fragment",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
