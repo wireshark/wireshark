@@ -60,8 +60,8 @@ Altitude-And-Direction ::= SEQUENCE {
 Angle ::= INTEGER (0..179)
 
 -- B
-
-Bearing ::= INTEGER (0..359)
+-- WS mod
+-- Bearing ::= INTEGER (0..359)
 
 
 -- C

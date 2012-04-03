@@ -42,7 +42,6 @@ InitiatingMessage/value initiatingMessagevalue
 UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 
-PrivateIE-Field/id private_id
 ProtocolExtensionField/id ext_id
 
 #PrivateIE-Field/value private_value
