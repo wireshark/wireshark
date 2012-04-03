@@ -1136,9 +1136,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   } else
     fdata->flags.passed_dfilter = 1;
 
-  /* We're done with this list */
-  g_slist_free(edt.pi.dependent_frames);
-
   if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
     cf->displayed_count++;
 

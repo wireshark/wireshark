@@ -209,6 +209,8 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 {
 	g_assert(edt);
 
+	g_slist_free(edt->pi.dependent_frames);
+
 	/* Free the data sources list. */
 	free_data_sources(&edt->pi);
 
