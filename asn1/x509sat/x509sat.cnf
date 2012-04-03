@@ -356,7 +356,7 @@ XDayOf/fifth				fifth_dayof
 	if (! wide_tvb) {
 		return offset;
 	}
-	string = tvb_get_ephemeral_unicode_string (wide_tvb, 0, tvb_length(wide_tvb) / 2, ENC_BIG_ENDIAN);
+	string = tvb_get_ephemeral_unicode_string (wide_tvb, 0, tvb_length(wide_tvb), ENC_BIG_ENDIAN);
 	proto_item_append_text(actx->created_item, " %s", string);	
 
 #.END
