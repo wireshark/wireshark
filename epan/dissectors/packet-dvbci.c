@@ -1449,7 +1449,7 @@ dvbci_init(void)
    (used for host control and operator profile)
    return the number of bytes dissected */
 static gint
-dissect_desc_loop(int len_hf, 
+dissect_desc_loop(int len_hf,
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     gint offset_start;
@@ -4106,7 +4106,8 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 "Second byte of an LPDU must be 0x80 or 0x00");
     }
 
-    if (payload_len > buf_size_host) {
+    /* buf_size_host==0 -> we did not capture the buffer size negotiation */
+    if (buf_size_host!=0 && payload_len>buf_size_host) {
         pi = proto_tree_add_text(
                 link_tree, tvb, 2, payload_len, "Payload too large");
         expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
