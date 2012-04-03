@@ -1991,6 +1991,7 @@ decode_main_voice_mode(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 			offset++;
 			length--;
 		}
+		/* FALLTHROUGH */
 	case 0x02: /* Group Listening */
 	case 0x03: /* On Hook Dial */
 	case 0x04: /* Handsfree */
@@ -2151,6 +2152,7 @@ decode_set_clck(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 		{
 			call_timer = 1;
 		}
+		/* FALLTHROUGH */
 	case 0x00: /* Set Current Time/Call Timer */
 	case 0x01: /* Set Current Time */
 		{
