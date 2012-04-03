@@ -23,6 +23,20 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
+# To do:
+#   ANSI C12.22
+#   DVB-CI
+#   IEEE 802.15.4
+#   IPsec / ESP
+#   ISAKMP / IKEv2
+#   PKCS#12
+#   SNMP
+#   DCERPC NETLOGON
+#   Kerberos
+#   KINK
+#   LDAP
+#   NTLMSSP
+#   SPNEGO
 
 # common exit status values
 EXIT_OK=0
