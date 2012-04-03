@@ -141,6 +141,7 @@ static int write_stub_header(guint8 *frame_buffer, char *timestamp_string,
                              gchar *protocol_name, gchar *variant_name,
                              gchar *outhdr_name);
 static guint8 hex_from_char(gchar c);
+static void   prepare_hex_byte_from_chars_table(void);
 static guint8 hex_byte_from_chars(gchar *c);
 static gchar char_from_hex(guint8 hex);
 
@@ -178,6 +179,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     gint firstline_length = 0;
     dct2000_file_externals_t *file_externals;
     static gchar linebuff[MAX_LINE_LENGTH];
+    static gboolean hex_byte_table_values_set = FALSE;
 
     /* Clear errno before reading from the file */
     errno = 0;
@@ -199,6 +201,11 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
         return 0;
     }
 
+    /* Make sure table is ready for use */
+    if (!hex_byte_table_values_set) {
+        prepare_hex_byte_from_chars_table();
+        hex_byte_table_values_set = TRUE;
+    }
 
     /*********************************************************************/
     /* Need entry in file_externals table                                */
@@ -1423,29 +1430,30 @@ hex_from_char(gchar c)
     return 0xff;
 }
 
-/* Extract and return a byte value from 2 ascii hex chars, starting from the given pointer */
-static guint8
-hex_byte_from_chars(gchar *c)
+
+
+/* Table allowing fast lookup from a pair of ascii hex characters to a guint8 */
+static guint8 s_tableValues[255][255];
+
+/* Prepare table values so ready so don't need to check inside hex_byte_from_chars() */
+static void  prepare_hex_byte_from_chars_table(void)
 {
-    static guchar hex_char_array[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                                         'a', 'b', 'c', 'd', 'e', 'f' };
+    guchar hex_char_array[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                                  'a', 'b', 'c', 'd', 'e', 'f' };
 
-    /* Populate lookup table first time */
-    static guint8 tableValues[255][255];
-    static gint tableSet = FALSE;
-    if (!tableSet) {
-        gint i, j;
-        for (i=0; i < 16; i++) {
-            for (j=0; j < 16; j++) {
-                tableValues[hex_char_array[i]][hex_char_array[j]] = i*16 + j;
-            }
+    gint i, j;
+    for (i=0; i < 16; i++) {
+        for (j=0; j < 16; j++) {
+            s_tableValues[hex_char_array[i]][hex_char_array[j]] = i*16 + j;
         }
-
-        tableSet = TRUE;
     }
+}
 
+/* Extract and return a byte value from 2 ascii hex chars, starting from the given pointer */
+static guint8 hex_byte_from_chars(gchar *c)
+{
     /* Return value from quick table lookup */
-    return tableValues[(unsigned char)c[0]][(unsigned char)c[1]];
+    return s_tableValues[(unsigned char)c[0]][(unsigned char)c[1]];
 }
 
 
