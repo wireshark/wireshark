@@ -89,6 +89,8 @@ static int hf_needed = -1;
 static int hf_returned = -1;
 static int hf_buffer_size = -1;
 static int hf_buffer_data = -1;
+static int hf_string_parm_size = -1;
+static int hf_string_parm_data= -1;
 static int hf_offset = -1;
 static int hf_level = -1;
 static int hf_access_required = -1;
@@ -103,7 +105,7 @@ static int hf_sharename = -1;
 static int hf_portname = -1;
 static int hf_printerlocation = -1;
 static int hf_drivername = -1;
-static int hf_architecture = -1;
+static int hf_environment = -1;
 static int hf_username = -1;
 static int hf_documentname = -1;
 static int hf_outputfile = -1;
@@ -481,6 +483,59 @@ dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		tvb, offset, pinfo, tree, drep,
 		dissect_spoolss_buffer_data, NDR_POINTER_UNIQUE,
 		"Buffer", -1);
+
+	return offset;
+}
+
+static int
+dissect_spoolss_string_parm_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, guint8 *drep)
+{
+	dcerpc_info *di = pinfo->private_data;
+	guint32 buffer_len, len;
+	gchar *s;
+	proto_item *item;
+
+	if (di->conformant_run)
+		return offset;
+
+	/* Dissect size and data */
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				hf_string_parm_size, &buffer_len);
+
+	s = tvb_get_ephemeral_unicode_stringz(tvb, offset, &len, ENC_LITTLE_ENDIAN);
+
+    if (tree && buffer_len) {
+        tvb_ensure_bytes_exist(tvb, offset, buffer_len);
+
+		item = proto_tree_add_string(
+			tree, hf_string_parm_data, tvb, offset, len, s);
+	}
+	offset += buffer_len;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+	
+	/* Append string to upper level item */
+	if (tree && item) {
+		item = item->parent != NULL ? item->parent : item;
+		proto_item_append_text(item, ": %s", s);
+	}
+
+	return offset;
+}
+
+/* Dissect a spoolss string parameter */
+
+static int
+dissect_spoolss_string_parm(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		       proto_tree *tree, guint8 *drep, const char *text)
+{
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_spoolss_string_parm_data, NDR_POINTER_UNIQUE,
+		text, -1);
 
 	return offset;
 }
@@ -5332,7 +5387,6 @@ SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
 /*
  * DRIVER_INFO_1
  */
@@ -5396,7 +5450,7 @@ dissect_DRIVER_INFO_2(tvbuff_t *tvb, int offset,
 			struct_start, NULL);
 
 	offset = dissect_spoolss_relstr(
-			tvb, offset, pinfo, subtree, drep, hf_architecture,
+			tvb, offset, pinfo, subtree, drep, hf_environment,
 			struct_start, NULL);
 
 	offset = dissect_spoolss_relstr(
@@ -5442,7 +5496,7 @@ dissect_DRIVER_INFO_3(tvbuff_t *tvb, int offset,
 		struct_start, NULL);
 
 	offset = dissect_spoolss_relstr(
-		tvb, offset, pinfo, subtree, drep, hf_architecture,
+		tvb, offset, pinfo, subtree, drep, hf_environment,
 		struct_start, NULL);
 
 	offset = dissect_spoolss_relstr(
@@ -5505,7 +5559,7 @@ dissect_DRIVER_INFO_6(tvbuff_t *tvb, int offset,
 			struct_start, NULL);
 
 	offset = dissect_spoolss_relstr(
-			tvb, offset, pinfo, subtree, drep, hf_architecture,
+			tvb, offset, pinfo, subtree, drep, hf_environment,
 			struct_start, NULL);
 
 	offset = dissect_spoolss_relstr(
@@ -5600,7 +5654,7 @@ dissect_DRIVER_INFO_101(tvbuff_t *tvb, int offset,
 			struct_start, NULL);
 
 	offset = dissect_spoolss_relstr(
-			tvb, offset, pinfo, subtree, drep, hf_architecture,
+			tvb, offset, pinfo, subtree, drep, hf_environment,
 			struct_start, NULL);
 
 	proto_tree_add_text(subtree,tvb,offset,0,"Unknown Data Follows");
@@ -5628,7 +5682,7 @@ SpoolssEnumPrinterDrivers_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Environment", hf_servername, 0);
+		"Environment", hf_environment, 0);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
@@ -5747,7 +5801,7 @@ SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_str_pointer_item(
 		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
-		"Architecture", hf_architecture, 0);
+		"Environment", hf_environment, 0);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_level, &level);
@@ -6878,6 +6932,54 @@ SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+SpoolssGetPrinterDriverDirectory_q(tvbuff_t *tvb, int offset,
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+	guint32 level;
+
+	/* Parse packet */
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+		"Name", hf_servername, 0);
+
+	offset = dissect_ndr_str_pointer_item(
+		tvb, offset, pinfo, tree, drep, NDR_POINTER_UNIQUE,
+		"Environment", hf_environment, 0);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_level, &level);
+
+	offset = dissect_spoolss_buffer(
+		tvb, offset, pinfo, tree, drep, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
+
+	return offset;
+}
+
+static int
+SpoolssGetPrinterDriverDirectory_r(tvbuff_t *tvb, int offset,
+				      packet_info *pinfo, proto_tree *tree,
+				      guint8 *drep)
+{
+	/* Parse packet */
+
+	offset = dissect_spoolss_string_parm(
+		tvb, offset, pinfo, tree, drep, "Directory");
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
+
+	offset = dissect_doserror(
+		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
+
+	return offset;
+}
+
 /*
  * List of subdissectors for this pipe.
  */
@@ -6908,7 +7010,7 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	{ SPOOLSS_GETPRINTERDRIVER, "GetPrinterDriver",
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_GETPRINTERDRIVERDIRECTORY, "GetPrinterDriverDirectory",
-	  NULL, SpoolssGeneric_r },
+	  SpoolssGetPrinterDriverDirectory_q, SpoolssGetPrinterDriverDirectory_r },
 	{ SPOOLSS_DELETEPRINTERDRIVER, "DeletePrinterDriver",
 	  NULL, SpoolssGeneric_r },
 	{ SPOOLSS_ADDPRINTPROCESSOR, "AddPrintProcessor",
@@ -7240,6 +7342,14 @@ proto_register_dcerpc_spoolss(void)
 		  { "Buffer data", "spoolss.buffer.data", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, "Contents of buffer", HFILL }},
 
+		{ &hf_string_parm_size,
+		  { "String buffer size", "spoolss.string.buffersize", FT_UINT32, BASE_DEC,
+		    NULL, 0x0, "Size of string buffer", HFILL }},
+
+		{ &hf_string_parm_data,
+		  { "String data", "spoolss.string.data", FT_STRINGZ, BASE_NONE,
+		    NULL, 0x0, "Contents of string", HFILL }},
+
 		{ &hf_offset,
 		  { "Offset", "spoolss.offset", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "Offset of data", HFILL }},
@@ -7285,8 +7395,8 @@ proto_register_dcerpc_spoolss(void)
 		  { "Printer location", "spoolss.printerlocation", FT_STRING,
 		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
-		{ &hf_architecture,
-		  { "Architecture name", "spoolss.architecture", FT_STRING,
+		{ &hf_environment,
+		  { "Environment name", "spoolss.environment", FT_STRING,
 		    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 		{ &hf_drivername,
