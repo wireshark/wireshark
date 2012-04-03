@@ -1657,7 +1657,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 			}
 
 			if (used_too_many_bytes) {
-				expert_add_info_format(actx->pinfo, actx->created_item, PI_PROTOCOL, PI_WARN, 
+				expert_add_info_format(actx->pinfo, actx->created_item, PI_PROTOCOL, PI_WARN,
 					"Value is encoded with too many bytes(9 leading zero or one bits), hf_abbr: %s",hfi->abbrev);
 			}
 		}
@@ -4345,7 +4345,7 @@ malformed:
  	} else {
  		error_tree = tree;
  	}
- 	
+
  	cause = proto_tree_add_string_format(error_tree, hf_ber_error, tvb, offset, len, "invalid_utctime", "%s", error_str);
 	expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding");
 	g_free (error_str);
@@ -4538,8 +4538,8 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 		sep = " (";
 		term = FALSE;
 		while (*bf) {
-			proto_tree_add_boolean(tree, **bf, tmp_tvb, 0, tvb_len, val);
 			if (**bf >= 0) {
+				proto_tree_add_boolean(tree, **bf, tmp_tvb, 0, tvb_len, val);
 				hfi = proto_registrar_get_nth(**bf);
 				if(val & hfi->bitmask) {
 					proto_item_append_text(actx->created_item, "%s%s", sep, hfi->name);
@@ -4997,7 +4997,7 @@ proto_reg_handoff_ber(void)
 	syntax_names[i].value = 0;
 	syntax_names[i].strptr = NULL;
 
-	/* allow the dissection of BER/DER carried over a TCP transport 
+	/* allow the dissection of BER/DER carried over a TCP transport
 	   by using "Decode As..." */
 	dissector_add_handle("tcp.port", ber_handle);
 
