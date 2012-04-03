@@ -305,13 +305,6 @@ Tektronix K12xx
   <section id="KnownProblems"><title>Known Problems</title>
 
     <para>
-      Wireshark might make your system disassociate from a wireless network
-      on OS X 10.4.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315">Bug
-      1315</ulink>)
-    </para>
-
-    <para>
       Dumpcap might not quit if Wireshark or TShark crashes.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419">Bug
       1419</ulink>)
@@ -367,17 +360,8 @@ Tektronix K12xx
 
     <para>
       Wireshark and TShark will display incorrect delta times in some cases.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5356">Bug
-      4985</ulink>
-      and
-      <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5356">bug
-      5580</ulink>)
-    </para>
-
-    <para>
-      Character echo pauses in Capture Filter field in Capture Options.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5356">Bug
-      5356</ulink>)
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985">Bug
+      4985</ulink>)
     </para>
 
   </section>
