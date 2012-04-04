@@ -2270,7 +2270,7 @@ static const value_string gsm_a_bssmap_ch_mode_vals[] = {
     { 7,    "data, 14.5 kbit/s downlink and 43.5 kbit/s uplink" },
     { 10,   "data, 14.5 kbit/s downlink and 29.0 kbit/s uplink" },
     { 15,   "data, 29.0 kbit/s downlink and 43.5 kbit/s uplink" },
-    { 0, NULL },
+    { 0, NULL }
 };
 static const value_string gsm_a_bssmap_channel_vals[] = {
     { 0,    "None(Current Channel Type 1 - Reserved)" },
@@ -2289,28 +2289,28 @@ static const value_string gsm_a_bssmap_channel_vals[] = {
     { 14,   "6 Full Rate TCHs" },
     { 15,   "7 Full Rate TCHs" },
     { 4,    "8 Full Rate TCHs" },
-    { 0, NULL },
+    { 0, NULL }
 };
 static const value_string gsm_a_bssmap_trace_bss_record_type_vals[] = {
     { 0,    "Basic" },
     { 1,    "Handover" },
     { 2,    "Radio" },
     { 3,    "No BSS Trace" },
-    { 0, NULL },
+    { 0, NULL }
 };
 static const value_string gsm_a_bssmap_trace_msc_record_type_vals[] = {
     { 0,    "Basic" },
     { 1,    "Detailed (optional)" },
     { 2,    "Spare" },
     { 3,    "No MSC Trace" },
-    { 0, NULL },
+    { 0, NULL }
 };
 static const value_string gsm_a_bssmap_trace_invoking_event_vals[] = {
     { 0,    "MOC, MTC, SMS MO, SMS MT, PDS MO, PDS MT, SS, Location Updates, IMSI attach, IMSI detach" },
     { 1,    "MOC, MTC, SMS_MO, SMS_MT, PDS MO, PDS MT, SS only" },
     { 2,    "Location updates, IMSI attach IMSI detach only" },
     { 3,    "Operator definable" },
-    { 0, NULL },
+    { 0, NULL }
 };
 static guint16
 be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -2823,7 +2823,7 @@ static const value_string gsm_a_bssmap_smi_vals[] = {
     { 5,    "Reserved" },
     { 6,    "Reserved" },
     { 7,    "Reserved" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static guint16
@@ -3009,7 +3009,7 @@ static const value_string gsm_a_apdu_protocol_id_strings[] = {
     { 1,    "BSSLAP" },
     { 2,    "LLP" },
     { 3,    "SMLCPP" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static guint16
@@ -3148,7 +3148,7 @@ static const value_string gsm_a_bssmap_serv_ho_inf_vals[] = {
     { 5,    "no information available for service based handover" },
     { 6,    "no information available for service based handover" },
     { 7,    "no information available for service based handover" },
-    { 0, NULL },
+    { 0, NULL }
 };
 static guint16
 be_serv_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -3297,7 +3297,7 @@ static const value_string gsm_a_bssmap_paging_cause_vals[] = {
     { 1,    "Paging is for a short message" },
     { 2,    "Paging is for a USSD" },
     { 3,    "Spare" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static guint16
@@ -3391,7 +3391,7 @@ static const value_string gsm_a_bssmap_talker_pri_vals[] = {
     { 1,    "Privileged Priority" },
     { 2,    "Emergency Priority" },
     { 3,    "Reserved for future use" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static guint16
@@ -4150,19 +4150,19 @@ be_fe_gprs_suspend_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 static const value_string gsm_a_bssmap_dtm_info_dtm_ind_vals[] = {
     { 0,    "The MS has resources allocated exclusively for the CS domain in the old cell" },
     { 1,    "The MS has resources allocated for both the CS and PS domains in the old cell" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string gsm_a_bssmap_dtm_info_sto_ind_vals[] = {
     { 0,    "The MS is in multislot operation in the old cell" },
     { 1,    "The MS is in single timeslot operation in the old cell" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string gsm_a_bssmap_dtm_info_egprs_ind_vals[] = {
     { 0,    "The MS has no TBF using E-GPRS in the old cell" },
     { 1,    "The MS has a TBF using E-GPRS in the old cell" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static guint16
@@ -4205,7 +4205,7 @@ static const value_string gsm_a_bssmap_cell_load_nrt_vals[] = {
     { 1,    "NRT load is medium" },
     { 2,    "NRT load is high. (Probability to admit a new user is low.)" },
     { 3,    "NRT overload. (Probability to admit a new user is low, packets are discarded and the source is recommended to reduce the data flow.)" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 /* 3.2.3.11 Cell Load Information Group */
@@ -6483,7 +6483,10 @@ dissect_bssmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * create the protocol tree
      */
-    if (str == NULL)
+    /* These two conditions are actually the same, but checking idx makes it
+     * obvious we won' t use a potentially negative idx in the else case.
+     */
+    if (str == NULL || idx < 0)
     {
         bssmap_item =
         proto_tree_add_protocol_format(tree, proto_a_bssmap, tvb, 0, len,
