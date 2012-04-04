@@ -52,6 +52,18 @@ static int hf_eap_notification = -1;
 static int hf_eap_md5_value_size = -1;
 static int hf_eap_md5_value = -1;
 
+static int hf_eap_sim_subtype = -1;
+static int hf_eap_sim_subtype_attribute = -1;
+static int hf_eap_sim_subtype_type = -1;
+static int hf_eap_sim_subtype_length = -1;
+static int hf_eap_sim_subtype_value = -1;
+
+static int hf_eap_aka_subtype = -1;
+static int hf_eap_aka_subtype_attribute = -1;
+static int hf_eap_aka_subtype_type = -1;
+static int hf_eap_aka_subtype_length = -1;
+static int hf_eap_aka_subtype_value = -1;
+
 static gint ett_eap = -1;
 
 static dissector_handle_t ssl_handle;
@@ -133,6 +145,26 @@ const value_string eap_type_vals[] = {
   { 255,         "Experimental [RFC3748]" },
   { 0,          NULL }
 
+};
+
+static const value_string eap_sim_subtype_vals[] = {
+    { SIM_START, "Start" },
+    { SIM_CHALLENGE, "Challenge" },
+    { SIM_NOTIFICATION, "Notification" },
+    { SIM_RE_AUTHENTICATION, "Re-authentication" },
+    { SIM_CLIENT_ERROR, "Client-Error" },
+    { 0, NULL }
+};
+
+static const value_string eap_aka_subtype_vals[] = {
+    { AKA_CHALLENGE, "AKA-Challenge" },
+    { AKA_AUTHENTICATION_REJECT, "AKA-Authentication-Reject" },
+    { AKA_SYNCHRONIZATION_FAILURE, "AKA-Synchronization-Failure" },
+    { AKA_IDENTITY, "AKA-Identity" },
+    { AKA_NOTIFICATION, "Notification" },
+    { AKA_REAUTHENTICATION, "Re-authentication" },
+    { AKA_CLIENT_ERROR, "Client-Error" },
+    { 0, NULL }
 };
 
 /*
@@ -476,27 +508,8 @@ static void
 dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 {
 	gint left = size;
-	enum {
-		SIM_START = 10,
-		SIM_CHALLENGE = 11,
-		SIM_NOTIFICATION = 12,
-		SIM_RE_AUTHENTICATION = 13,
-		SIM_CLIENT_ERROR = 14
-	} subtype;
-	static const value_string subtypes[] = {
-		{ SIM_START, "Start" },
-		{ SIM_CHALLENGE, "Challenge" },
-		{ SIM_NOTIFICATION, "Notification" },
-		{ SIM_RE_AUTHENTICATION, "Re-authentication" },
-		{ SIM_CLIENT_ERROR, "Client-Error" },
-		{ 0, NULL }
-	};
-
-	subtype = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(eap_tree, tvb, offset, 1,
-			    "subtype: %d (%s)",
-			    subtype, val_to_str(subtype, subtypes, "Unknown"));
-
+    proto_tree_add_item(eap_tree, hf_eap_sim_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    
 	offset++;
 	left--;
 
@@ -509,36 +522,27 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 	/* Rest of EAP-SIM data is in Type-Len-Value format. */
 	while (left >= 2) {
-		guint8 type, length;
+		guint8 length;
 		proto_item *pi;
 		proto_tree *attr_tree;
 		int aoffset;
 		gint aleft;
 		aoffset = offset;
-		type = tvb_get_guint8(tvb, aoffset);
 		length = tvb_get_guint8(tvb, aoffset + 1);
 		aleft = 4 * length;
 
-		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
-					 "Attribute: %s",
-					 val_to_str(type, eap_sim_aka_attributes,
-						    "Unknown %u"));
+        pi = proto_tree_add_item(eap_tree, hf_eap_sim_subtype_attribute, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
 		attr_tree = proto_item_add_subtree(pi, ett_eap_sim_attr);
-		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
-				    "Type: %u", type);
+        proto_tree_add_item(attr_tree, hf_eap_sim_subtype_type, tvb, aoffset, 1, ENC_BIG_ENDIAN);
 		aoffset++;
 		aleft--;
 
 		if (aleft <= 0)
 			break;
-		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
-				    "Length: %d (%d bytes)",
-				    length, 4 * length);
+        proto_tree_add_item(attr_tree, hf_eap_sim_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
 		aoffset++;
 		aleft--;
-		proto_tree_add_text(attr_tree, tvb, aoffset, aleft,
-				    "Value: %s",
-				    tvb_bytes_to_str(tvb, aoffset, aleft));
+        proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
 
 		offset += 4 * length;
 		left -= 4 * length;
@@ -549,31 +553,8 @@ static void
 dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 {
 	gint left = size;
-	enum {
-		AKA_CHALLENGE = 1,
-		AKA_AUTHENTICATION_REJECT = 2,
-		AKA_SYNCHRONIZATION_FAILURE = 4,
-		AKA_IDENTITY = 5,
-		AKA_NOTIFICATION = 12,
-		AKA_REAUTHENTICATION = 13,
-		AKA_CLIENT_ERROR = 14
-	} subtype;
-	static const value_string subtypes[] = {
-		{ AKA_CHALLENGE, "AKA-Challenge" },
-		{ AKA_AUTHENTICATION_REJECT, "AKA-Authentication-Reject" },
-		{ AKA_SYNCHRONIZATION_FAILURE, "AKA-Synchronization-Failure" },
-		{ AKA_IDENTITY, "AKA-Identity" },
-		{ AKA_NOTIFICATION, "Notification" },
-		{ AKA_REAUTHENTICATION, "Re-authentication" },
-		{ AKA_CLIENT_ERROR, "Client-Error" },
-		{ 0, NULL }
-	};
-
-	subtype = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(eap_tree, tvb, offset, 1,
-			    "subtype: %d (%s)",
-			    subtype, val_to_str(subtype, subtypes, "Unknown"));
-
+    proto_tree_add_item(eap_tree, hf_eap_aka_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    
 	offset++;
 	left--;
 
@@ -586,36 +567,27 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 	/* Rest of EAP-AKA data is in Type-Len-Value format. */
 	while (left >= 2) {
-		guint8 type, length;
+		guint8 length;
 		proto_item *pi;
 		proto_tree *attr_tree;
 		int aoffset;
 		gint aleft;
 		aoffset = offset;
-		type = tvb_get_guint8(tvb, aoffset);
 		length = tvb_get_guint8(tvb, aoffset + 1);
 		aleft = 4 * length;
 
-		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
-					 "Attribute: %s",
-					 val_to_str(type, eap_sim_aka_attributes,
-						    "Unknown %u"));
+		pi = proto_tree_add_item(eap_tree, hf_eap_aka_subtype_attribute, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
 		attr_tree = proto_item_add_subtree(pi, ett_eap_aka_attr);
-		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
-				    "Type: %u", type);
+		proto_tree_add_item(attr_tree, hf_eap_aka_subtype_type, tvb, aoffset, 1, ENC_BIG_ENDIAN);
 		aoffset++;
 		aleft--;
 
 		if (aleft <= 0)
 			break;
-		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
-				    "Length: %d (%d bytes)",
-				    length, 4 * length);
+		proto_tree_add_item(attr_tree, hf_eap_aka_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
 		aoffset++;
 		aleft--;
-		proto_tree_add_text(attr_tree, tvb, aoffset, aleft,
-				    "Value: %s",
-				    tvb_bytes_to_str(tvb, aoffset, aleft));
+		proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
 
 		offset += 4 * length;
 		left -= 4 * length;
@@ -1286,6 +1258,36 @@ proto_register_eap(void)
 	  { "Reassembled EAP-TLS Length", "eap.tls.reassembled.length",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"Total length of the reassembled payload", HFILL }},
+    { &hf_eap_sim_subtype, {
+          "Subtype", "eap.sim.subtype", FT_UINT8, BASE_DEC,
+          VALS(eap_sim_subtype_vals), 0x0, NULL, HFILL }},
+    { &hf_eap_sim_subtype_attribute, {
+          "Attribute", "eap.sim.subtype.attribute", FT_UINT8, BASE_DEC,
+          VALS(eap_sim_aka_attributes), 0x0, NULL, HFILL }},
+    { &hf_eap_sim_subtype_type, {
+          "Type", "eap.sim.subtype.type", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_sim_subtype_length, {
+          "Length", "eap.sim.subtype.length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_sim_subtype_value, {
+          "Value", "eap.sim.subtype.value", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_aka_subtype, {
+          "Subtype", "eap.aka.subtype", FT_UINT8, BASE_DEC,
+          VALS(eap_aka_subtype_vals), 0x0, NULL, HFILL }},
+    { &hf_eap_aka_subtype_attribute, {
+          "Attribute", "eap.aka.subtype.attribute", FT_UINT8, BASE_DEC,
+          VALS(eap_sim_aka_attributes), 0x0, NULL, HFILL }},
+    { &hf_eap_aka_subtype_type, {
+          "Type", "eap.aka.subtype.type", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_aka_subtype_length, {
+          "Length", "eap.aka.subtype.length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_aka_subtype_value, {
+          "Value", "eap.aka.subtype.value", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
 
 	/* Expanded type fields */
 	{ &hf_eapext_vendorid,
