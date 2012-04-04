@@ -263,7 +263,8 @@ pcap,
 pcap-ng,
 Solaris snoop,
 TamoSoft CommView,
-Tektronix K12xx
+Tektronix K12xx,
+XML
 
     </para>
     </section>
