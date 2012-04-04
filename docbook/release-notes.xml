@@ -143,6 +143,7 @@ Wireshark Info
 <!-- Sorted, one per line -->
 
 Aastra Signalling Protocol (AASP),
+ActiveMQ OpenWire,
 Bandwidth Reservation Protocol (BRP),
 Bazaar,
 BitTorrent DHT,
@@ -225,6 +226,8 @@ UA3G,
 UASIP,
 UAUDP,
 USB Integrated Circuit Card Interface Device Class (CCID),
+V5 Data Link Layer (V5DL),
+V5 Envelope Function (V5EF),
 Virtual eXtensible Local Area Network (VXLAN),
 VSS-Monitoring,
 Vuze DHT,
@@ -362,6 +365,12 @@ Tektronix K12xx
       Wireshark and TShark will display incorrect delta times in some cases.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985">Bug
       4985</ulink>)
+    </para>
+
+    <para>
+      Rearranging columns in preferences doesn't work on 64-bit Windows.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
+      6077</ulink>)
     </para>
 
   </section>
