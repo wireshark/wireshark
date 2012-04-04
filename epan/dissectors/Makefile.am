@@ -143,6 +143,6 @@ MAINTAINERCLEANFILES =	\
 	Makefile.in
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput \
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build \
 		$(ALL_DISSECTORS_SRC) $(DISSECTOR_INCLUDES) \
 		packet-dcerpc-nt.c

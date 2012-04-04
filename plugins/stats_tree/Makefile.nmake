@@ -55,4 +55,4 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(TAP_SRC) $(TAP_INCLUDES)
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build $(TAP_SRC) $(TAP_INCLUDES)

@@ -102,4 +102,4 @@ dumpabi: all abi-descriptor.xml
 checkapi:
 ## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
 ##	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
-	$(PERL) ../tools/checkAPIs.pl -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
+	$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(NONGENERATED_C_FILES) $(GENERATOR_FILES)

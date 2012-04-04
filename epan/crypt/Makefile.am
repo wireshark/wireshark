@@ -50,5 +50,5 @@ EXTRA_DIST = \
 	Makefile.nmake 
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
 	$(LIBAIRPDCAP_SRC)

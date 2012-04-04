@@ -84,7 +84,7 @@ init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wt
 	$(PERL) make-init-lua.pl "../.." template-init.lua > init.lua
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
 	$(MODULES)	\
 	init_wslua.c \
 	register_wslua.c \

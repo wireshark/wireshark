@@ -36,5 +36,5 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g deprecated-gtk \
+	$(PERL) ../../tools/checkAPIs.pl -g deprecated-gtk -build \
 	$(WIRESHARK_WIN32_SRC)

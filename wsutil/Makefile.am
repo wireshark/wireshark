@@ -138,6 +138,6 @@ dumpabi: all abi-descriptor.xml
 
 checkapi:
 #	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
-	$(PERL) ../tools/checkAPIs.pl -g termoutput \
+	$(PERL) ../tools/checkAPIs.pl -g termoutput -build \
 	$(LIBWSUTIL_SRC)
 #	file_util.c unicode-utils.c

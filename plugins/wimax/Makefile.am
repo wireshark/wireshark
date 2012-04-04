@@ -126,7 +126,7 @@ EXTRA_DIST = \
 	CMakeLists.txt
 
 checkapi:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
 	$(DISSECTOR_SRC) \
 	$(DISSECTOR_INCLUDES) \
 	$(DISSECTOR_SUPPORT_SRC)

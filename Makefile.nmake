@@ -1182,7 +1182,7 @@ install-all: install-generated-files
 	cd ..
 
 checkapi_local:
-	$(PERL) tools/checkAPIs.pl \
+	$(PERL) tools/checkAPIs.pl -build \
 	$(wireshark_SOURCES) \
 	$(TSHARK_TAP_SRC) \
 #	$(EXTRA_wireshark_SOURCES)

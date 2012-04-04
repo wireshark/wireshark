@@ -81,6 +81,6 @@ grammar.c : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/gramma
 		(rm -f grammar.c grammar.h ; false)
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
 		$(GENERATOR_FILES)	\
 		$(NONGENERATED_C_FILES)

@@ -67,6 +67,6 @@ $(LEMON)\lemon.exe:
 	cd ../epan/dfilter
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
 		$(GENERATOR_FILES)	\
 		$(NONGENERATED_C_FILES)

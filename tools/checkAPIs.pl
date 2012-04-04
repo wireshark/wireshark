@@ -1324,7 +1324,7 @@ sub checkAddTextCalls($$)
 		$okay_add_text_count++;
 	}
 	# Then count how many proto_tree_add_*() calls there are
-	while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z]+ \W* \( /gox) {
+	while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z0-9]+ \W* \( /gox) {
 		$add_xxx_count++;
 	}
 
@@ -1633,6 +1633,7 @@ my $check_value_string_array_null_termination = 1;      # default: enabled
 my $machine_readable_output = 0;                        # default: disabled
 my $check_hf = 1;                                       # default: enabled
 my $debug_flag = 0;
+my $buildbot_flag = 0;
 
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
@@ -1640,6 +1641,7 @@ my $result = GetOptions(
                         'check-value-string-array-null-termination!' => \$check_value_string_array_null_termination,
                         'Machine-readable' => \$machine_readable_output,
                         'nohf' => \$check_hf,
+			'build' => \$buildbot_flag,
                         'debug' => \$debug_flag
                         );
 if (!$result) {
@@ -1730,7 +1732,9 @@ while ($_ = $ARGV[0])
         #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename.": ".join(',', @foundAPIs)."\n"
         #}
 
-	#checkAddTextCalls(\$fileContents, $filename);
+	if (! $buildbot_flag) {
+		checkAddTextCalls(\$fileContents, $filename);
+	}
 
         # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {

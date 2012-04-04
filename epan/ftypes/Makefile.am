@@ -47,5 +47,5 @@ EXTRA_DIST = \
 	Makefile.nmake
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
 		$(NONGENERATED_C_FILES)

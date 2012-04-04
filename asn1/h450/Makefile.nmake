@@ -28,7 +28,7 @@ include Makefile.common
 include ../Makefile.inc.nmake
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl \
+	$(PERL) ../../tools/checkAPIs.pl -build \
 	$(PROTOCOL_NAME).cnf \
 	packet-$(PROTOCOL_NAME)-template.c
 

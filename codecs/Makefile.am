@@ -45,6 +45,6 @@ EXTRA_DIST = \
        CMakeLists.txt
 
 checkapi: 
-	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
+	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
 	G711a/G711adecode.c \
 	G711u/G711udecode.c

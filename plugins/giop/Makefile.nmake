@@ -52,7 +52,7 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput \
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build \
 	packet-cosnaming.c \
 	packet-coseventcomm.c \
 	packet-tango.c \

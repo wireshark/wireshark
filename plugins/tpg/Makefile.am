@@ -76,4 +76,4 @@ http-parser.c: http.tpg $(TPG)/tpg.pl $(TPG)/TPG.pm
 	$(PERL) -I$(TPG) $(TPG)/tpg.pl http.tpg
 
 checkapi:
-	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC) $(DISSECTOR_INCLUDES)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build $(DISSECTOR_SRC) $(DISSECTOR_INCLUDES)

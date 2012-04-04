@@ -1029,7 +1029,7 @@ dumpabi:
 	$(MAKE) -C wsutil dumpabi
 
 checkapi_local:
-	$(PERL) tools/checkAPIs.pl \
+	$(PERL) tools/checkAPIs.pl -build \
 	$(TSHARK_TAP_SRC) \
 	$(wireshark_SOURCES)
 #	$(EXTRA_wireshark_SOURCES)

@@ -72,9 +72,9 @@ doxygen: doxygen.cfg doxygen-run doxygen.chm
 checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
-	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk \
+	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk -build \
 	$(WIRESHARK_UI_SRC)
 
 checkapi-todo:
-	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo \
+	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
 	$(WIRESHARK_UI_SRC)
