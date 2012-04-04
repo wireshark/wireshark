@@ -642,7 +642,7 @@ open_capture_device(interface_options *interface_opts,
                filled in on a failure to open an rpcap: URL. */
             g_strlcpy(*open_err_str,
                       "Unknown error (pcap bug; actual error cause not reported)",
-                      sizef *open_err_str);
+                      sizeof *open_err_str);
         }
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
               "pcap_open() returned %p.", (void *)pcap_h);
