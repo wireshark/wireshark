@@ -637,6 +637,13 @@ open_capture_device(interface_options *interface_opts,
                            (interface_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
                            (interface_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
                            CAP_READ_TIMEOUT, &auth, *open_err_str);
+        if ((*open_err_str)[0] == '\0') {
+            /* Work around known WinPcap bug wherein no error message is
+               filled in on a failure to open an rpcap: URL. */
+            g_strlcpy(*open_err_str,
+                      "Unknown error (pcap bug; actual error cause not reported)",
+                      sizef *open_err_str);
+        }
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
               "pcap_open() returned %p.", (void *)pcap_h);
     } else
