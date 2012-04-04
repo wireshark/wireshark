@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V10.4.0 (2011-12)
+-- 3GPP TS 36.331 V10.5.0 (2012-03)﻿
 -- $Id$
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
@@ -50,10 +50,10 @@ VarLogMeasReport-r10 ::=				SEQUENCE {
 	tce-Id-r10							OCTET STRING (SIZE (1)),
 	plmn-Identity-r10					PLMN-Identity,
 	absoluteTimeInfo-r10				AbsoluteTimeInfo-r10,
-	logMeasInfoList-r10					VarLogMeasInfoList-r10
+	logMeasInfoList-r10					LogMeasInfoList2-r10
 }
 
-VarLogMeasInfoList-r10 ::=				SEQUENCE (SIZE (1..maxLogMeas-r10)) OF LogMeasInfo-r10
+LogMeasInfoList2-r10 ::=				SEQUENCE (SIZE (1..maxLogMeas-r10)) OF LogMeasInfo-r10
 
 
 VarMeasConfig ::=					SEQUENCE {

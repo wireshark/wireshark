@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V10.4.0 (2011-12)
+-- 3GPP TS 36.331 V10.5.0 (2012-03)﻿
 -- $Id$
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -2922,8 +2922,8 @@ ARFCN-ValueUTRA ::=					INTEGER (0..16383)
 BandclassCDMA2000 ::=					ENUMERATED {
 											bc0, bc1, bc2, bc3, bc4, bc5, bc6, bc7, bc8,
 											bc9, bc10, bc11, bc12, bc13, bc14, bc15, bc16,
-											bc17, spare14, spare13, spare12, spare11, spare10,
-											spare9, spare8, spare7, spare6, spare5, spare4,
+											bc17, bc18-v9a0, bc19-v9a0, bc20-v9a0, bc21-v9a0,
+											spare10, spare9, spare8, spare7, spare6, spare5, spare4,
 											spare3, spare2, spare1, ...}
 
 
@@ -3806,8 +3806,16 @@ UE-EUTRA-Capability-v920-IEs ::=		SEQUENCE {
 }
 
 UE-EUTRA-Capability-v940-IEs ::=	SEQUENCE {
-	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING UE-EUTRA-Capability-v9a0-IEs)
+																			OPTIONAL,
 	nonCriticalExtension				UE-EUTRA-Capability-v1020-IEs		OPTIONAL
+}
+
+UE-EUTRA-Capability-v9a0-IEs ::=	SEQUENCE {
+	featureGroupIndRel9Add-r9			BIT STRING (SIZE (32))				OPTIONAL,
+	fdd-Add-UE-EUTRA-Capabilities-r9	UE-EUTRA-CapabilityAddXDD-Mode-r9	OPTIONAL,
+	tdd-Add-UE-EUTRA-Capabilities-r9	UE-EUTRA-CapabilityAddXDD-Mode-r9	OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
 UE-EUTRA-Capability-v1020-IEs ::=	SEQUENCE {
@@ -3815,11 +3823,22 @@ UE-EUTRA-Capability-v1020-IEs ::=	SEQUENCE {
 	phyLayerParameters-v1020			PhyLayerParameters-v1020				OPTIONAL,
 	rf-Parameters-v1020					RF-Parameters-v1020						OPTIONAL,
 	measParameters-v1020				MeasParameters-v1020					OPTIONAL,
-	featureGroupIndicators-v1020		BIT STRING (SIZE (32))					OPTIONAL,
+	featureGroupIndRel10-r10			BIT STRING (SIZE (32))					OPTIONAL,
 	interRAT-ParametersCDMA2000-v1020	IRAT-ParametersCDMA2000-1XRTT-v1020		OPTIONAL,
 	ue-BasedNetwPerfMeasParameters-r10	UE-BasedNetwPerfMeasParameters-r10		OPTIONAL,
 	interRAT-ParametersUTRA-TDD-v1020	IRAT-ParametersUTRA-TDD-v1020			OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}								OPTIONAL
+}
+
+UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
+	phyLayerParameters-r9				PhyLayerParameters					OPTIONAL,
+	featureGroupIndicators-r9			BIT STRING (SIZE (32))				OPTIONAL,
+	featureGroupIndRel9Add-r9			BIT STRING (SIZE (32))				OPTIONAL,
+	interRAT-ParametersGERAN-r9			IRAT-ParametersGERAN				OPTIONAL,
+	interRAT-ParametersUTRA-r9			IRAT-ParametersUTRA-v920			OPTIONAL,
+	interRAT-ParametersCDMA2000-r9		IRAT-ParametersCDMA2000-1XRTT-v920	OPTIONAL,
+	neighCellSI-AcquisitionParameters-r9	NeighCellSI-AcquisitionParameters-r9	OPTIONAL,
+	...
 }
 
 AccessStratumRelease ::=			ENUMERATED {

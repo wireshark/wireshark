@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V10.4.0 Release 10) packet dissection
+ * (3GPP TS 36.331 V10.5.0 Release 10) packet dissection
  * Copyright 2008, Vincent Helfre
  *
  * $Id$
@@ -94,6 +94,38 @@ static int hf_lte_rrc_eutra_cap_feat_group_ind_29 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_30 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_31 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_32 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_33 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_34 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_35 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_36 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_37 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_38 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_39 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_40 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_41 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_42 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_43 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_44 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_45 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_46 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_47 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_48 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_49 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_50 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_51 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_52 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_53 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_54 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_55 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_56 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_57 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_58 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_59 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_60 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_61 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_62 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_63 = -1;
+static int hf_lte_rrc_eutra_cap_feat_group_ind_64 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_101 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_102 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_103 = -1;
@@ -133,7 +165,8 @@ static int ett_lte_rrc = -1;
 #include "packet-lte-rrc-ett.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
-static gint ett_lte_rrc_featureGroupIndicatorsV1020 = -1;
+static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
+static gint ett_lte_rrc_featureGroupIndRel10 = -1;
 static gint ett_lte_rrc_neighCellConfig = -1;
 static gint ett_lte_rrc_absTimeInfo = -1;
 
@@ -267,6 +300,134 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_31_val = {
   "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_32_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_33_val = {
+  "Inter-RAT ANR features for UTRAN - Supported",
+  "Inter-RAT ANR features for UTRAN - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_34_val = {
+  "Inter-RAT ANR features for GERAN - Supported",
+  "Inter-RAT ANR features for GERAN - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_35_val = {
+  "Inter-RAT ANR features for 1xRTT - Supported",
+  "Inter-RAT ANR features for 1xRTT - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_36_val = {
+  "Inter-RAT ANR features for HRPD - Supported",
+  "Inter-RAT ANR features for HRPD - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_37_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_38_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_39_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_40_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_41_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_42_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_43_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_44_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_45_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_46_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_47_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_48_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_49_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_50_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_51_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_52_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_53_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_54_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_55_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_56_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_57_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_58_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_59_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_60_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_61_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_62_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_63_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string lte_rrc_eutra_cap_feat_group_ind_64_val = {
   "Undefined - Supported",
   "Undefined - Not supported"
 };
@@ -633,6 +794,134 @@ void proto_register_lte_rrc(void) {
       { "Indicator 32", "lte-rrc.eutra_cap_feat_group_ind_32",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_32_val), 0,
         "EUTRA Feature Group Indicator 32", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_33,
+      { "Indicator 33", "lte-rrc.eutra_cap_feat_group_ind_33",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_33_val), 0,
+        "EUTRA Feature Group Indicator 33", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_34,
+      { "Indicator 34", "lte-rrc.eutra_cap_feat_group_ind_34",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_34_val), 0,
+        "EUTRA Feature Group Indicator 34", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_35,
+      { "Indicator 35", "lte-rrc.eutra_cap_feat_group_ind_35",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_35_val), 0,
+        "EUTRA Feature Group Indicator 35", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_36,
+      { "Indicator 36", "lte-rrc.eutra_cap_feat_group_ind_36",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_36_val), 0,
+        "EUTRA Feature Group Indicator 36", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_37,
+      { "Indicator 37", "lte-rrc.eutra_cap_feat_group_ind_37",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_37_val), 0,
+        "EUTRA Feature Group Indicator 37", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_38,
+      { "Indicator 38", "lte-rrc.eutra_cap_feat_group_ind_38",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_38_val), 0,
+        "EUTRA Feature Group Indicator 38", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_39,
+      { "Indicator 39", "lte-rrc.eutra_cap_feat_group_ind_39",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_39_val), 0,
+        "EUTRA Feature Group Indicator 39", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_40,
+      { "Indicator 40", "lte-rrc.eutra_cap_feat_group_ind_40",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_40_val), 0,
+        "EUTRA Feature Group Indicator 40", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_41,
+      { "Indicator 41", "lte-rrc.eutra_cap_feat_group_ind_41",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_41_val), 0,
+        "EUTRA Feature Group Indicator 41", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_42,
+      { "Indicator 42", "lte-rrc.eutra_cap_feat_group_ind_42",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_42_val), 0,
+        "EUTRA Feature Group Indicator 42", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_43,
+      { "Indicator 43", "lte-rrc.eutra_cap_feat_group_ind_43",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_43_val), 0,
+        "EUTRA Feature Group Indicator 43", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_44,
+      { "Indicator 44", "lte-rrc.eutra_cap_feat_group_ind_44",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_44_val), 0,
+        "EUTRA Feature Group Indicator 44", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_45,
+      { "Indicator 45", "lte-rrc.eutra_cap_feat_group_ind_45",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_45_val), 0,
+        "EUTRA Feature Group Indicator 45", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_46,
+      { "Indicator 46", "lte-rrc.eutra_cap_feat_group_ind_46",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_46_val), 0,
+        "EUTRA Feature Group Indicator 46", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_47,
+      { "Indicator 47", "lte-rrc.eutra_cap_feat_group_ind_47",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_47_val), 0,
+        "EUTRA Feature Group Indicator 47", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_48,
+      { "Indicator 48", "lte-rrc.eutra_cap_feat_group_ind_48",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_48_val), 0,
+        "EUTRA Feature Group Indicator 48", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_49,
+      { "Indicator 49", "lte-rrc.eutra_cap_feat_group_ind_49",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_49_val), 0,
+        "EUTRA Feature Group Indicator 49", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_50,
+      { "Indicator 50", "lte-rrc.eutra_cap_feat_group_ind_50",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_50_val), 0,
+        "EUTRA Feature Group Indicator 50", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_51,
+      { "Indicator 51", "lte-rrc.eutra_cap_feat_group_ind_51",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_51_val), 0,
+        "EUTRA Feature Group Indicator 51", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_52,
+      { "Indicator 52", "lte-rrc.eutra_cap_feat_group_ind_52",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_52_val), 0,
+        "EUTRA Feature Group Indicator 52", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_53,
+      { "Indicator 53", "lte-rrc.eutra_cap_feat_group_ind_53",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_53_val), 0,
+        "EUTRA Feature Group Indicator 53", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_54,
+      { "Indicator 54", "lte-rrc.eutra_cap_feat_group_ind_54",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_54_val), 0,
+        "EUTRA Feature Group Indicator 54", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_55,
+      { "Indicator 55", "lte-rrc.eutra_cap_feat_group_ind_55",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_55_val), 0,
+        "EUTRA Feature Group Indicator 55", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_56,
+      { "Indicator 56", "lte-rrc.eutra_cap_feat_group_ind_56",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_56_val), 0,
+        "EUTRA Feature Group Indicator 56", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_57,
+      { "Indicator 57", "lte-rrc.eutra_cap_feat_group_ind_57",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_57_val), 0,
+        "EUTRA Feature Group Indicator 57", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_58,
+      { "Indicator 58", "lte-rrc.eutra_cap_feat_group_ind_58",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_58_val), 0,
+        "EUTRA Feature Group Indicator 58", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_59,
+      { "Indicator 59", "lte-rrc.eutra_cap_feat_group_ind_59",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_59_val), 0,
+        "EUTRA Feature Group Indicator 59", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_60,
+      { "Indicator 60", "lte-rrc.eutra_cap_feat_group_ind_60",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_60_val), 0,
+        "EUTRA Feature Group Indicator 60", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_61,
+      { "Indicator 61", "lte-rrc.eutra_cap_feat_group_ind_61",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_61_val), 0,
+        "EUTRA Feature Group Indicator 61", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_62,
+      { "Indicator 62", "lte-rrc.eutra_cap_feat_group_ind_62",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_62_val), 0,
+        "EUTRA Feature Group Indicator 62", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_63,
+      { "Indicator 63", "lte-rrc.eutra_cap_feat_group_ind_63",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_63_val), 0,
+        "EUTRA Feature Group Indicator 63", HFILL }},
+    { &hf_lte_rrc_eutra_cap_feat_group_ind_64,
+      { "Indicator 64", "lte-rrc.eutra_cap_feat_group_ind_64",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_64_val), 0,
+        "EUTRA Feature Group Indicator 64", HFILL }},
     { &hf_lte_rrc_eutra_cap_feat_group_ind_101,
       { "Indicator 101", "lte-rrc.eutra_cap_feat_group_ind_101",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_eutra_cap_feat_group_ind_101_val), 0,
@@ -769,7 +1058,8 @@ void proto_register_lte_rrc(void) {
 #include "packet-lte-rrc-ettarr.c"
 
     &ett_lte_rrc_featureGroupIndicators,
-    &ett_lte_rrc_featureGroupIndicatorsV1020,
+    &ett_lte_rrc_featureGroupIndRel9Add,
+    &ett_lte_rrc_featureGroupIndRel10,
     &ett_lte_rrc_neighCellConfig,
     &ett_lte_rrc_absTimeInfo,
   };
