@@ -34,6 +34,7 @@
 #include <epan/reassemble.h>
 #include <epan/emem.h>
 #include <epan/eap.h>
+#include <epan/expert.h>
 
 #include "packet-wps.h"
 
@@ -43,6 +44,13 @@ static int hf_eap_identifier = -1;
 static int hf_eap_len = -1;
 static int hf_eap_type = -1;
 static int hf_eap_type_nak = -1;
+
+static int hf_eap_identity = -1;
+
+static int hf_eap_notification = -1;
+
+static int hf_eap_md5_value_size = -1;
+static int hf_eap_md5_value = -1;
 
 static gint ett_eap = -1;
 
@@ -243,42 +251,42 @@ from RFC2716, pg 17
 /*
  * reassembly of EAP-TLS
  */
-static GHashTable *eaptls_fragment_table = NULL;
+static GHashTable *eap_tls_fragment_table = NULL;
 
-static int hf_eaptls_flags = -1;
-static int hf_eaptls_flag_l = -1;
-static int hf_eaptls_flag_m = -1;
-static int hf_eaptls_flag_s = -1;
-static int hf_eaptls_flags_version = -1;
-static int hf_eaptls_len = -1;
-static int hf_eaptls_fragment  = -1;
-static int hf_eaptls_fragments = -1;
-static int hf_eaptls_fragment_overlap = -1;
-static int hf_eaptls_fragment_overlap_conflict = -1;
-static int hf_eaptls_fragment_multiple_tails = -1;
-static int hf_eaptls_fragment_too_long_fragment = -1;
-static int hf_eaptls_fragment_error = -1;
-static int hf_eaptls_fragment_count = -1;
-static int hf_eaptls_reassembled_length = -1;
-static gint ett_eaptls_fragment  = -1;
-static gint ett_eaptls_fragments = -1;
+static int hf_eap_tls_flags = -1;
+static int hf_eap_tls_flag_l = -1;
+static int hf_eap_tls_flag_m = -1;
+static int hf_eap_tls_flag_s = -1;
+static int hf_eap_tls_flags_version = -1;
+static int hf_eap_tls_len = -1;
+static int hf_eap_tls_fragment  = -1;
+static int hf_eap_tls_fragments = -1;
+static int hf_eap_tls_fragment_overlap = -1;
+static int hf_eap_tls_fragment_overlap_conflict = -1;
+static int hf_eap_tls_fragment_multiple_tails = -1;
+static int hf_eap_tls_fragment_too_long_fragment = -1;
+static int hf_eap_tls_fragment_error = -1;
+static int hf_eap_tls_fragment_count = -1;
+static int hf_eap_tls_reassembled_length = -1;
+static gint ett_eap_tls_fragment  = -1;
+static gint ett_eap_tls_fragments = -1;
 static gint ett_eap_sim_attr = -1;
 static gint ett_eap_aka_attr = -1;
 static gint ett_eap_exp_attr = -1;
 
-static const fragment_items eaptls_frag_items = {
-	&ett_eaptls_fragment,
-	&ett_eaptls_fragments,
-	&hf_eaptls_fragments,
-	&hf_eaptls_fragment,
-	&hf_eaptls_fragment_overlap,
-	&hf_eaptls_fragment_overlap_conflict,
-	&hf_eaptls_fragment_multiple_tails,
-	&hf_eaptls_fragment_too_long_fragment,
-	&hf_eaptls_fragment_error,
-	&hf_eaptls_fragment_count,
+static const fragment_items eap_tls_frag_items = {
+	&ett_eap_tls_fragment,
+	&ett_eap_tls_fragments,
+	&hf_eap_tls_fragments,
+	&hf_eap_tls_fragment,
+	&hf_eap_tls_fragment_overlap,
+	&hf_eap_tls_fragment_overlap_conflict,
+	&hf_eap_tls_fragment_multiple_tails,
+	&hf_eap_tls_fragment_too_long_fragment,
+	&hf_eap_tls_fragment_error,
+	&hf_eap_tls_fragment_count,
 	NULL,
-	&hf_eaptls_reassembled_length,
+	&hf_eap_tls_reassembled_length,
 	"fragments"
 };
 
@@ -329,9 +337,9 @@ test_flag(unsigned char flag, unsigned char mask)
 }
 
 static void
-eaptls_defragment_init(void)
+eap_tls_defragment_init(void)
 {
-  fragment_table_init(&eaptls_fragment_table);
+  fragment_table_init(&eap_tls_fragment_table);
 }
 
 static void
@@ -746,11 +754,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       **********************************************************************/
       case EAP_TYPE_ID:
 	if (tree) {
-	  proto_tree_add_text(eap_tree, tvb, offset, size,
-			      "Identity (%d byte%s): %s",
-			      size, plurality(size, "", "s"),
-			      tvb_format_text(tvb, offset, size));
-         }
+	  proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_BIG_ENDIAN);
+    }
 	if(!pinfo->fd->flags.visited) {
 	  conversation_state->leap_state = 0;
 	  conversation_state->eap_tls_seq = -1;
@@ -761,10 +766,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       **********************************************************************/
       case EAP_TYPE_NOTIFY:
 	if (tree) {
-	  proto_tree_add_text(eap_tree, tvb, offset, size,
-			      "Notification (%d byte%s): %s",
-			      size, plurality(size, "", "s"),
-			      tvb_format_text(tvb, offset, size));
+	  proto_tree_add_item(eap_tree, hf_eap_notification, tvb,
+			      offset, size, ENC_BIG_ENDIAN);
 	}
 	break;
       /*********************************************************************
@@ -781,21 +784,22 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	  guint8 value_size = tvb_get_guint8(tvb, offset);
 	  gint extra_len = size - 1 - value_size;
-	  proto_tree_add_text(eap_tree, tvb, offset, 1, "Value-Size: %d%s",
-			      value_size,
-			      value_size > size - 1 ? " (overflow)": "");
+	  proto_item *item;
+	  item = proto_tree_add_item(eap_tree, hf_eap_md5_value_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  if (value_size > size - 1)
+      {
+        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Overflow");
 	    value_size = size - 1;
+      }
+        
 	  offset++;
-	  proto_tree_add_text(eap_tree, tvb, offset, value_size,
-			      "Value: %s",
-			      tvb_bytes_to_str(tvb, offset, value_size));
+      proto_tree_add_item(eap_tree, hf_eap_md5_value, tvb, offset, value_size, ENC_BIG_ENDIAN);
 	  offset += value_size;
 	  if (extra_len > 0) {
-	    proto_tree_add_text(eap_tree, tvb, offset, extra_len,
-				"Extra data (%d byte%s): %s", extra_len,
-				plurality(extra_len, "", "s"),
-				tvb_bytes_to_str(tvb, offset, extra_len));
+          proto_tree_add_text(eap_tree, tvb, offset, extra_len,
+           "Extra data (%d byte%s): %s", extra_len,
+           plurality(extra_len, "", "s"),
+           tvb_bytes_to_str(tvb, offset, extra_len));
 	  }
 	}
 	break;
@@ -824,14 +828,14 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Flags field, 1 byte */
 	if (tree) {
-        proto_tree_add_item(eap_tree, hf_eaptls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tree, hf_eaptls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tree, hf_eaptls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tree, hf_eaptls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eap_tls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eap_tls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eap_tls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		if (eap_type == EAP_TYPE_PEAP || eap_type == EAP_TYPE_TTLS ||
 			eap_type == EAP_TYPE_FAST) {
-            proto_tree_add_item(eap_tree, hf_eaptls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(eap_tree, hf_eap_tls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 	}
 	size--;
@@ -840,7 +844,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Length field, 4 bytes, OPTIONAL. */
 	if ( has_length ) {
 	  if (tree)
-        proto_tree_add_item(eap_tree, hf_eaptls_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eap_tls_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  size   -= 4;
 	  offset += 4;
 	}
@@ -997,7 +1001,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    pinfo->fragmented = TRUE;
 	    fd_head = fragment_add_seq(tvb, offset, pinfo,
 				   eap_reass_cookie,
-				   eaptls_fragment_table,
+				   eap_tls_fragment_table,
 				   eap_tls_seq,
 				   size,
 				   more_fragments);
@@ -1011,7 +1015,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					     fd_head->len);
 		add_new_data_source(pinfo, next_tvb, "Reassembled EAP-TLS");
 
-		show_fragment_seq_tree(fd_head, &eaptls_frag_items,
+		show_fragment_seq_tree(fd_head, &eap_tls_frag_items,
 		    eap_tree, pinfo, next_tvb, &frag_tree_item);
 
 		call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
@@ -1216,60 +1220,72 @@ proto_register_eap(void)
 	{ &hf_eap_type_nak, {
 		"Desired Auth Type", "eap.desired_type", FT_UINT8, BASE_DEC,
 		VALS(eap_type_vals), 0x0, NULL, HFILL }},
-    { &hf_eaptls_flags, {
-          "Flags", "eaptls.flags", FT_UINT8, BASE_HEX,
+    { &hf_eap_identity, {
+          "Identity", "eap.identity", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
-    { &hf_eaptls_flag_l, {
-          "Length Included", "eaptls.flags.len_included", FT_BOOLEAN, 8,
+    { &hf_eap_notification, {
+          "Notification", "eap.notification", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_md5_value_size, {
+          "Value-Size", "eap.md5.value_size", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_md5_value, {
+          "Value", "eap_md5.value", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_tls_flags, {
+          "EAP-TLS Flags", "eap_tls.flags", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_tls_flag_l, {
+          "Length Included", "eap_tls.flags.len_included", FT_BOOLEAN, 8,
           NULL, EAP_TLS_FLAG_L, NULL, HFILL }},
-    { &hf_eaptls_flag_m, {
-          "More Fragments", "eaptls.flags.more_fragments", FT_BOOLEAN, 8,
+    { &hf_eap_tls_flag_m, {
+          "More Fragments", "eap_tls.flags.more_fragments", FT_BOOLEAN, 8,
           NULL, EAP_TLS_FLAG_M, NULL, HFILL }},
-    { &hf_eaptls_flag_s, {
-          "Start", "eaptls.flags.start", FT_BOOLEAN, 8,
+    { &hf_eap_tls_flag_s, {
+          "Start", "eap_tls.flags.start", FT_BOOLEAN, 8,
           NULL, EAP_TLS_FLAG_S, NULL, HFILL }},
-    { &hf_eaptls_flags_version, {
-          "Version", "eaptls.flags.version", FT_UINT8, BASE_DEC,
+    { &hf_eap_tls_flags_version, {
+          "Version", "eap_tls.flags.version", FT_UINT8, BASE_DEC,
           NULL, EAP_TLS_FLAGS_VERSION, NULL, HFILL }},
-    { &hf_eaptls_len, {
-          "Length", "eaptls.len", FT_UINT32, BASE_DEC,
+    { &hf_eap_tls_len, {
+          "EAP-TLS Length", "eap_tls.len", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
-	{ &hf_eaptls_fragment,
-	  { "EAP-TLS Fragment", "eaptls.fragment",
+	{ &hf_eap_tls_fragment,
+	  { "EAP-TLS Fragment", "eap_tls.fragment",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
-	{ &hf_eaptls_fragments,
-	  { "EAP-TLS Fragments", "eaptls.fragments",
+	{ &hf_eap_tls_fragments,
+	  { "EAP-TLS Fragments", "eap_tls.fragments",
 	        FT_NONE, BASE_NONE, NULL, 0x0,
 	        NULL, HFILL }},
-	{ &hf_eaptls_fragment_overlap,
-	  { "Fragment overlap",	"eaptls.fragment.overlap",
+	{ &hf_eap_tls_fragment_overlap,
+	  { "Fragment Overlap",	"eap_tls.fragment.overlap",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"Fragment overlaps with other fragments", HFILL }},
-	{ &hf_eaptls_fragment_overlap_conflict,
-	  { "Conflicting data in fragment overlap",	"eaptls.fragment.overlap.conflict",
+	{ &hf_eap_tls_fragment_overlap_conflict,
+	  { "Conflicting Data In Fragment Overlap",	"eap_tls.fragment.overlap.conflict",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"Overlapping fragments contained conflicting data", HFILL }},
-	{ &hf_eaptls_fragment_multiple_tails,
-	  { "Multiple tail fragments found",	"eaptls.fragment.multipletails",
+	{ &hf_eap_tls_fragment_multiple_tails,
+	  { "Multiple Tail Fragments Found",	"eap_tls.fragment.multipletails",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"Several tails were found when defragmenting the packet", HFILL }},
-	{ &hf_eaptls_fragment_too_long_fragment,
-	  { "Fragment too long",	"eaptls.fragment.toolongfragment",
+	{ &hf_eap_tls_fragment_too_long_fragment,
+	  { "Fragment Too Long",	"eap_tls.fragment.toolongfragment",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"Fragment contained data past end of packet", HFILL }},
-	{ &hf_eaptls_fragment_error,
-	  { "Defragmentation error", "eaptls.fragment.error",
+	{ &hf_eap_tls_fragment_error,
+	  { "Defragmentation Error", "eap_tls.fragment.error",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL }},
-	{ &hf_eaptls_fragment_count,
-	  { "Fragment count", "eaptls.fragment.count",
+	{ &hf_eap_tls_fragment_count,
+	  { "Fragment Count", "eap_tls.fragment.count",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-		"The total length of the reassembled payload", HFILL }},
-	{ &hf_eaptls_reassembled_length,
-	  { "Reassembled EAP-TLS length", "eaptls.reassembled.length",
+		"Total length of the reassembled payload", HFILL }},
+	{ &hf_eap_tls_reassembled_length,
+	  { "Reassembled EAP-TLS Length", "eap_tls.reassembled.length",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
-		"The total length of the reassembled payload", HFILL }},
+		"Total length of the reassembled payload", HFILL }},
 
 	/* Expanded type fields */
 	{ &hf_eapext_vendorid,
@@ -1284,8 +1300,8 @@ proto_register_eap(void)
   };
   static gint *ett[] = {
 	&ett_eap,
-	&ett_eaptls_fragment,
-	&ett_eaptls_fragments,
+	&ett_eap_tls_fragment,
+	&ett_eap_tls_fragments,
 	&ett_eap_sim_attr,
 	&ett_eap_aka_attr,
 	&ett_eap_exp_attr
@@ -1297,7 +1313,7 @@ proto_register_eap(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   new_register_dissector("eap", dissect_eap, proto_eap);
-  register_init_routine(eaptls_defragment_init);
+  register_init_routine(eap_tls_defragment_init);
 }
 
 void
