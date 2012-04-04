@@ -978,7 +978,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	}
 	/* search the call information in the SIP_HASH */
 	callsinfo = g_hash_table_lookup(tapinfo->callsinfo_hashtable[SIP_HASH], key);
-		
+
 	/* not in the hash? then create a new entry if the message is INVITE -i.e. if this session is a call*/
 	if ((callsinfo==NULL) &&(pi->request_method!=NULL)){
 		if (strcmp(pi->request_method,"INVITE")==0){
@@ -4010,20 +4010,18 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	}
 
-	if (callsinfo != NULL) {
-		callsinfo->call_active_state = pi->call_active_state;
-		if ((callsinfo->call_state != VOIP_COMPLETED) && (pi->call_state == VOIP_COMPLETED))
-			tapinfo->completed_calls++;
+	callsinfo->call_active_state = pi->call_active_state;
+	if ((callsinfo->call_state != VOIP_COMPLETED) && (pi->call_state == VOIP_COMPLETED))
+		tapinfo->completed_calls++;
         if (pi->call_state != VOIP_NO_STATE)
-			callsinfo->call_state = pi->call_state;
-		if (pi->call_comment) {
-			g_free(callsinfo->call_comment);
-			callsinfo->call_comment=g_strdup(pi->call_comment);
-		}
-		callsinfo->stop_fd = pinfo->fd;
-		++(callsinfo->npackets);
-		++(tapinfo->npackets);
+		callsinfo->call_state = pi->call_state;
+	if (pi->call_comment) {
+		g_free(callsinfo->call_comment);
+		callsinfo->call_comment=g_strdup(pi->call_comment);
 	}
+	callsinfo->stop_fd = pinfo->fd;
+	++(callsinfo->npackets);
+	++(tapinfo->npackets);
 
 	/* add to the graph */
 	add_to_graph(tapinfo, pinfo, (pi->frame_label)?pi->frame_label:"VoIP msg", pi->frame_comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
