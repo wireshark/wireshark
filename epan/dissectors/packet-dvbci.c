@@ -393,6 +393,8 @@ typedef struct _apdu_info_t {
      * (otherwise, we set this to LEN_FIELD_ANY) */
     guint32 len_field;
     guint8 direction;
+    guint16 res_class;
+    guint8  res_min_ver;
     void (*dissect_payload)(guint32, gint,
             tvbuff_t *, gint, packet_info *, proto_tree *);
 } apdu_info_t;
@@ -555,105 +557,105 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 
 
 static const apdu_info_t apdu_info[] = {
-    {T_PROFILE_ENQ,         0, 0,             DIRECTION_ANY,    NULL},
-    {T_PROFILE,             0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_rm},
-    {T_PROFILE_CHANGE,      0, 0,             DIRECTION_ANY,    NULL},
+    {T_PROFILE_ENQ,         0, 0,             DIRECTION_ANY,    RES_CLASS_RM, 1, NULL},
+    {T_PROFILE,             0, LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_RM, 1, dissect_dvbci_payload_rm},
+    {T_PROFILE_CHANGE,      0, 0,             DIRECTION_ANY,    RES_CLASS_RM, 1, NULL},
 
-    {T_APP_INFO_ENQ,        0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_APP_INFO,            6, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ap},
-    {T_ENTER_MENU,          0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_REQUEST_CICAM_RESET, 0, 0,             DATA_CAM_TO_HOST, NULL},
-    {T_DATARATE_INFO,       0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_ap},
+    {T_APP_INFO_ENQ,        0, 0,             DATA_HOST_TO_CAM, RES_CLASS_AP, 1, NULL},
+    {T_APP_INFO,            6, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_AP, 1, dissect_dvbci_payload_ap},
+    {T_ENTER_MENU,          0, 0,             DATA_HOST_TO_CAM, RES_CLASS_AP, 1, NULL},
+    {T_REQUEST_CICAM_RESET, 0, 0,             DATA_CAM_TO_HOST, RES_CLASS_AP, 3, NULL},
+    {T_DATARATE_INFO,       0, 1,             DATA_HOST_TO_CAM, RES_CLASS_AP, 3, dissect_dvbci_payload_ap},
 
-    {T_CA_INFO_ENQ,         0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_CA_INFO,             0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
-    {T_CA_PMT,              6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
-    {T_CA_PMT_REPLY,        8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
+    {T_CA_INFO_ENQ,         0, 0,             DATA_HOST_TO_CAM, RES_CLASS_CA, 1, NULL},
+    {T_CA_INFO,             0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_CA, 1, dissect_dvbci_payload_ca},
+    {T_CA_PMT,              6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_CA, 1, dissect_dvbci_payload_ca},
+    {T_CA_PMT_REPLY,        8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_CA, 1, dissect_dvbci_payload_ca},
 
-    {T_AUTH_REQ,            2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_aut},
-    {T_AUTH_RESP,           2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_aut},
+    {T_AUTH_REQ,            2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_AUT, 1, dissect_dvbci_payload_aut},
+    {T_AUTH_RESP,           2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_AUT, 1, dissect_dvbci_payload_aut},
 
-    {T_TUNE,                0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    {T_REPLACE,             0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    {T_CLEAR_REPLACE,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    {T_ASK_RELEASE,         0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_TUNE_BROADCAST_REQ,  5, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    {T_TUNE_REPLY,          1, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hc},
-    {T_ASK_RELEASE_REPLY,   1, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_TUNE,                0, 8,             DATA_CAM_TO_HOST, RES_CLASS_HC, 1, dissect_dvbci_payload_hc},
+    {T_REPLACE,             0, 5,             DATA_CAM_TO_HOST, RES_CLASS_HC, 1, dissect_dvbci_payload_hc},
+    {T_CLEAR_REPLACE,       0, 1,             DATA_CAM_TO_HOST, RES_CLASS_HC, 1, dissect_dvbci_payload_hc},
+    {T_ASK_RELEASE,         0, 0,             DATA_HOST_TO_CAM, RES_CLASS_HC, 1, NULL},
+    {T_TUNE_BROADCAST_REQ,  5, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_HC, 2, dissect_dvbci_payload_hc},
+    {T_TUNE_REPLY,          1, 1,             DATA_HOST_TO_CAM, RES_CLASS_HC, 2, dissect_dvbci_payload_hc},
+    {T_ASK_RELEASE_REPLY,   1, 1,             DATA_CAM_TO_HOST, RES_CLASS_HC, 2, dissect_dvbci_payload_hc},
 
-    {T_DATE_TIME_ENQ,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
-    {T_DATE_TIME,           5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt},
+    {T_DATE_TIME_ENQ,       0, 1,             DATA_CAM_TO_HOST, RES_CLASS_DT, 1, dissect_dvbci_payload_dt},
+    {T_DATE_TIME,           5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_DT, 1, dissect_dvbci_payload_dt},
 
-    {T_CLOSE_MMI,           1, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_mmi},
-    {T_DISPLAY_CONTROL,     1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_DISPLAY_REPLY,       1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_ENQ,                 2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_ANSW,                1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_MENU_LAST,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_MENU_MORE,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_MENU_ANSW,           0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_LIST_LAST,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_LIST_MORE,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_CLOSE_MMI,           1, LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_DISPLAY_CONTROL,     1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_DISPLAY_REPLY,       1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_ENQ,                 2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_ANSW,                1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_MENU_LAST,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_MENU_MORE,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_MENU_ANSW,           0, 1,             DATA_HOST_TO_CAM, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_LIST_LAST,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
+    {T_LIST_MORE,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_MMI, 1, dissect_dvbci_payload_mmi},
 
-    {T_HOST_COUNTRY_ENQ,    0, 0,             DATA_CAM_TO_HOST, NULL},
-    {T_HOST_COUNTRY,        0, 3,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hlc},
-    {T_HOST_LANGUAGE_ENQ,   0, 0,             DATA_CAM_TO_HOST, NULL},
-    {T_HOST_LANGUAGE,       0, 3,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hlc},
+    {T_HOST_COUNTRY_ENQ,    0, 0,             DATA_CAM_TO_HOST, RES_CLASS_HLC, 1, NULL},
+    {T_HOST_COUNTRY,        0, 3,             DATA_HOST_TO_CAM, RES_CLASS_HLC, 1, dissect_dvbci_payload_hlc},
+    {T_HOST_LANGUAGE_ENQ,   0, 0,             DATA_CAM_TO_HOST, RES_CLASS_HLC, 1, NULL},
+    {T_HOST_LANGUAGE,       0, 3,             DATA_HOST_TO_CAM, RES_CLASS_HLC, 1, dissect_dvbci_payload_hlc},
 
-    {T_CAM_FIRMWARE_UPGRADE,          0, 3, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
-    {T_CAM_FIRMWARE_UPGRADE_REPLY,    0, 1, DATA_HOST_TO_CAM, dissect_dvbci_payload_cup},
-    {T_CAM_FIRMWARE_UPGRADE_PROGRESS, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
-    {T_CAM_FIRMWARE_UPGRADE_COMPLETE, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
+    {T_CAM_FIRMWARE_UPGRADE,          0, 3, DATA_CAM_TO_HOST, RES_CLASS_CUP, 1, dissect_dvbci_payload_cup},
+    {T_CAM_FIRMWARE_UPGRADE_REPLY,    0, 1, DATA_HOST_TO_CAM, RES_CLASS_CUP, 1, dissect_dvbci_payload_cup},
+    {T_CAM_FIRMWARE_UPGRADE_PROGRESS, 0, 1, DATA_CAM_TO_HOST, RES_CLASS_CUP, 1, dissect_dvbci_payload_cup},
+    {T_CAM_FIRMWARE_UPGRADE_COMPLETE, 0, 1, DATA_CAM_TO_HOST, RES_CLASS_CUP, 1, dissect_dvbci_payload_cup},
 
-    {T_CC_OPEN_REQ,                0,  0,             DATA_CAM_TO_HOST, NULL},
-    {T_CC_OPEN_CNF,                0,  1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_DATA_REQ,                3,  LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_DATA_CNF,                2,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_SYNC_REQ,                0,  0,             DATA_CAM_TO_HOST, NULL},
-    {T_CC_SYNC_CNF,                0,  1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_SAC_DATA_REQ,            8,  LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_cc},
-    {T_CC_SAC_DATA_CNF,            8,  LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_cc},
-    {T_CC_SAC_SYNC_REQ,            8,  LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_SAC_SYNC_CNF,            8,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_PIN_CAPABILITIES_REQ,    0,  0,             DATA_HOST_TO_CAM, NULL},
-    {T_CC_PIN_CAPABILITIES_REPLY,  7,  7,             DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_PIN_CMD,                 1,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_PIN_REPLY,               1,  1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_PIN_EVENT,              25, 25,             DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_PIN_PLAYBACK,           16, 16,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_PIN_MMI_REQ,             1,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_OPEN_REQ,                0,  0,             DATA_CAM_TO_HOST, RES_CLASS_CC, 1, NULL},
+    {T_CC_OPEN_CNF,                0,  1,             DATA_HOST_TO_CAM, RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_DATA_REQ,                3,  LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_DATA_CNF,                2,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_SYNC_REQ,                0,  0,             DATA_CAM_TO_HOST, RES_CLASS_CC, 1, NULL},
+    {T_CC_SYNC_CNF,                0,  1,             DATA_HOST_TO_CAM, RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_SAC_DATA_REQ,            8,  LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_SAC_DATA_CNF,            8,  LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_SAC_SYNC_REQ,            8,  LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_SAC_SYNC_CNF,            8,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_CC, 1, dissect_dvbci_payload_cc},
+    {T_CC_PIN_CAPABILITIES_REQ,    0,  0,             DATA_HOST_TO_CAM, RES_CLASS_CC, 2, NULL},
+    {T_CC_PIN_CAPABILITIES_REPLY,  7,  7,             DATA_CAM_TO_HOST, RES_CLASS_CC, 2, dissect_dvbci_payload_cc},
+    {T_CC_PIN_CMD,                 1,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_CC, 2, dissect_dvbci_payload_cc},
+    {T_CC_PIN_REPLY,               1,  1,             DATA_CAM_TO_HOST, RES_CLASS_CC, 2, dissect_dvbci_payload_cc},
+    {T_CC_PIN_EVENT,              25, 25,             DATA_CAM_TO_HOST, RES_CLASS_CC, 2, dissect_dvbci_payload_cc},
+    {T_CC_PIN_PLAYBACK,           16, 16,             DATA_HOST_TO_CAM, RES_CLASS_CC, 2, dissect_dvbci_payload_cc},
+    {T_CC_PIN_MMI_REQ,             1,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_CC, 2, dissect_dvbci_payload_cc},
 
-    {T_REQUEST_START,       2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ami},
-    {T_REQUEST_START_ACK,   0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_ami},
-    {T_FILE_REQUEST,        1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ami},
-    {T_FILE_ACKNOWLEDGE,    2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ami},
-    {T_APP_ABORT_REQUEST,   0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami},
-    {T_APP_ABORT_ACK,       0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami},
+    {T_REQUEST_START,       2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
+    {T_REQUEST_START_ACK,   0, 1,             DATA_HOST_TO_CAM, RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
+    {T_FILE_REQUEST,        1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
+    {T_FILE_ACKNOWLEDGE,    2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
+    {T_APP_ABORT_REQUEST,   0, LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
+    {T_APP_ABORT_ACK,       0, LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
 
-    {T_COMMS_CMD,           1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_lsc},
-    {T_COMMS_REPLY,         0, 2,             DATA_HOST_TO_CAM, dissect_dvbci_payload_lsc},
-    {T_COMMS_SEND_LAST,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_lsc},
-    {T_COMMS_SEND_MORE,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_lsc},
-    {T_COMMS_RCV_LAST,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_lsc},
-    {T_COMMS_RCV_MORE,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_lsc},
+    {T_COMMS_CMD,           1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_REPLY,         0, 2,             DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_SEND_LAST,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_SEND_MORE,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_RCV_LAST,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_RCV_MORE,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
 
-    {T_OPERATOR_STATUS_REQ,       0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_OPERATOR_STATUS,           0, 6,             DATA_CAM_TO_HOST, dissect_dvbci_payload_opp},
-    {T_OPERATOR_NIT_REQ,          0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_OPERATOR_NIT,              2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_opp},
-    {T_OPERATOR_INFO_REQ,         0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_OPERATOR_INFO,             1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_opp},
-    {T_OPERATOR_SEARCH_START,     3, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_opp},
-    {T_OPERATOR_SEARCH_STATUS,    0, 6,             DATA_CAM_TO_HOST, dissect_dvbci_payload_opp},
-    {T_OPERATOR_EXIT,             0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_OPERATOR_TUNE,             2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_opp},
-    {T_OPERATOR_TUNE_STATUS,      5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_opp},
-    {T_OPERATOR_ENTITLEMENT_ACK,  0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_OPERATOR_SEARCH_CANCEL,    0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_OPERATOR_STATUS_REQ,       0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
+    {T_OPERATOR_STATUS,           0, 6,             DATA_CAM_TO_HOST, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
+    {T_OPERATOR_NIT_REQ,          0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
+    {T_OPERATOR_NIT,              2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
+    {T_OPERATOR_INFO_REQ,         0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
+    {T_OPERATOR_INFO,             1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
+    {T_OPERATOR_SEARCH_START,     3, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
+    {T_OPERATOR_SEARCH_STATUS,    0, 6,             DATA_CAM_TO_HOST, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
+    {T_OPERATOR_EXIT,             0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
+    {T_OPERATOR_TUNE,             2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
+    {T_OPERATOR_TUNE_STATUS,      5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
+    {T_OPERATOR_ENTITLEMENT_ACK,  0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
+    {T_OPERATOR_SEARCH_CANCEL,    0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
 
-    {T_SAS_CONNECT_RQST,    0, 8,             DATA_HOST_TO_CAM, dissect_dvbci_payload_sas},
-    {T_SAS_CONNECT_CNF,     0, 9,             DATA_CAM_TO_HOST, dissect_dvbci_payload_sas},
-    {T_SAS_ASYNC_MSG,       3, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_sas}
+    {T_SAS_CONNECT_RQST,    0, 8,             DATA_HOST_TO_CAM, RES_CLASS_SAS, 1, dissect_dvbci_payload_sas},
+    {T_SAS_CONNECT_CNF,     0, 9,             DATA_CAM_TO_HOST, RES_CLASS_SAS, 1, dissect_dvbci_payload_sas},
+    {T_SAS_ASYNC_MSG,       3, LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_SAS, 1, dissect_dvbci_payload_sas}
 };
 
 static const value_string dvbci_apdu_tag[] = {
@@ -3560,8 +3562,8 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 
 
 static void
-dissect_dvbci_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint8 direction)
+dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
+        packet_info *pinfo, proto_tree *tree, guint8 direction)
 {
     proto_item  *ti;
     proto_tree  *app_tree = NULL;
@@ -3570,6 +3572,8 @@ dissect_dvbci_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint         offset;
     proto_item  *pi;
     apdu_info_t *ai;
+    guint32      apdu_res_id;
+    const gchar *ai_res_class_str;
 
 
     apdu_len = tvb_reported_length(tvb);
@@ -3643,6 +3647,28 @@ dissect_dvbci_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
                 "Length field for %s must be %d", tag_str, ai->len_field);
         return;
+    }
+    if (circuit) {
+        apdu_res_id =
+            GPOINTER_TO_UINT(circuit_get_proto_data(circuit, proto_dvbci));
+
+        ai_res_class_str = val_to_str(ai->res_class, dvbci_res_class, "Unknown");
+
+        if(RES_CLASS(apdu_res_id) != ai->res_class) {
+            pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
+                    "Invalid resource class for this apdu");
+            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                    "%s can only be sent on a %s session",
+                    tag_str, ai_res_class_str);
+        }
+        if(RES_VER(apdu_res_id) < ai->res_min_ver) {
+            pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
+                    "Invalid resource version for this apdu");
+            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                    "%s apdu requires at least %s version %d",
+                    tag_str, ai_res_class_str, ai->res_min_ver);
+        }
+        /* don't return, we can continue dissecting the APDU */
     }
     if (ai->len_field!=0) {
         if (!ai->dissect_payload) {
@@ -3807,7 +3833,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (payload_tvb) {
         proto_item_set_len(ti, spdu_len-tvb_reported_length(payload_tvb));
-        dissect_dvbci_apdu(payload_tvb, pinfo, tree, direction);
+        dissect_dvbci_apdu(payload_tvb, circuit, pinfo, tree, direction);
     }
     else {
         proto_item_set_len(ti, spdu_len);
