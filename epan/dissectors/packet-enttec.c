@@ -282,7 +282,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		dmx_epstr = ep_strbuf_new_label(NULL);
 		for (r=0; r < row_count;r++) {
 			for (c=0;(c < global_disp_col_count) && (((r*global_disp_col_count)+c) < ui);c++) {
-				if ((c % (global_disp_col_count/2)) == 0) {
+				if ((global_disp_col_count > 1) && (c % (global_disp_col_count/2)) == 0) {
 					ep_strbuf_append_c(dmx_epstr, ' ');
 				}
 				v = dmx_data[(r*global_disp_col_count)+c];

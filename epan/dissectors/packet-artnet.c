@@ -804,7 +804,7 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
   /*     ToDo: consider recoding slightly ...                                                    */
   for (r=0; r < row_count;r++) {
     for (c=0;(c < global_disp_col_count) && (((r*global_disp_col_count)+c) < length);c++) {
-      if ((c % (global_disp_col_count/2)) == 0) {
+      if ((global_disp_col_count > 1) && (c % (global_disp_col_count/2)) == 0) {
         ptr += g_snprintf(ptr, (gulong)(sizeof string - strlen(string)), " ");
       }
 
