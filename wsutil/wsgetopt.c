@@ -534,7 +534,7 @@ _getopt_internal_r (int argc, char *const *argv, const char *optstring,
 			    || !strchr (optstring, argv[d->optind][1])))))
     {
       char *nameend;
-      unsigned int namelen;
+      size_t namelen;
       const struct option *p;
       const struct option *pfound = NULL;
       struct option_list
