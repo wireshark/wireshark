@@ -147,7 +147,7 @@ const value_string eap_type_vals[] = {
 
 };
 
-static const value_string eap_sim_subtype_vals[] = {
+const value_string eap_sim_subtype_vals[] = {
     { SIM_START, "Start" },
     { SIM_CHALLENGE, "Challenge" },
     { SIM_NOTIFICATION, "Notification" },
@@ -156,7 +156,7 @@ static const value_string eap_sim_subtype_vals[] = {
     { 0, NULL }
 };
 
-static const value_string eap_aka_subtype_vals[] = {
+const value_string eap_aka_subtype_vals[] = {
     { AKA_CHALLENGE, "AKA-Challenge" },
     { AKA_AUTHENTICATION_REJECT, "AKA-Authentication-Reject" },
     { AKA_SYNCHRONIZATION_FAILURE, "AKA-Synchronization-Failure" },
@@ -665,12 +665,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * Get the state information for the conversation; attach some if
    * we don't find it.
    */
-  conversation_state = conversation_get_proto_data(conversation, proto_eap);
+  conversation_state = (conv_state_t *)conversation_get_proto_data(conversation, proto_eap);
   if (conversation_state == NULL) {
     /*
      * Attach state information to the conversation.
      */
-    conversation_state = se_alloc(sizeof (conv_state_t));
+    conversation_state = se_new(conv_state_t);
     conversation_state->eap_tls_seq = -1;
     conversation_state->eap_reass_cookie = 0;
     conversation_state->leap_state = -1;
@@ -863,7 +863,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	       first pass through the capture.
 	    */
 	  /* See if we have a remembered defragmentation EAP ID. */
-	  packet_state = p_get_proto_data(pinfo->fd, proto_eap);
+	  packet_state = (frame_state_t *)p_get_proto_data(pinfo->fd, proto_eap);
 	  if (packet_state == NULL) {
 	    /*
 	     * We haven't - does this message require reassembly?
@@ -924,7 +924,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * This frame requires reassembly; remember the reassembly
 		 * ID for subsequent accesses to it.
 		 */
-		packet_state = se_alloc(sizeof (frame_state_t));
+		packet_state = se_new(frame_state_t);
 		packet_state->info = eap_reass_cookie;
 		p_add_proto_data(pinfo->fd, proto_eap, packet_state);
 	      }
@@ -1045,7 +1045,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* This part is state-dependent. */
 
 	  /* See if we've already remembered the state. */
-	  packet_state = p_get_proto_data(pinfo->fd, proto_eap);
+	  packet_state = (frame_state_t *)p_get_proto_data(pinfo->fd, proto_eap);
 	  if (packet_state == NULL) {
 	    /*
 	     * We haven't - compute the state based on the current
@@ -1064,7 +1064,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	     * Remember the state for subsequent accesses to this
 	     * frame.
 	     */
-	    packet_state = se_alloc(sizeof (frame_state_t));
+	    packet_state = se_new(frame_state_t);
 	    packet_state->info = leap_state;
 	    p_add_proto_data(pinfo->fd, proto_eap, packet_state);
 
