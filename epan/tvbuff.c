@@ -62,7 +62,7 @@ ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
 
 
 static guint64
-_tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits);
+_tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
 static void
 tvb_init(tvbuff_t *tvb, const tvbuff_type type)
@@ -1648,14 +1648,14 @@ static const guint8 bit_mask8[] = {
 
 /* Get 1 - 8 bits */
 guint8
-tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits)
+tvb_get_bits8(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits)
 {
 	return (guint8)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
 /* Get 1 - 16 bits */
 void
-tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, gboolean lsb0)
+tvb_get_bits_buf(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, guint8 *buf, gboolean lsb0)
 {
 	guint8 bit_mask, bit_shift;
 	/* Byte align offset */
@@ -1726,14 +1726,14 @@ tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, g
 }
 
 guint8 *
-ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean lsb0)
+ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0)
 {
 	gint    no_of_bytes;
 	guint8 *buf;
 
 	/* XXX, no_of_bits == -1 -> to end of tvb? */
 
-	if (no_of_bits < 0 || bit_offset < 0) {
+	if (no_of_bits < 0) {
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
@@ -1745,7 +1745,7 @@ ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean lsb0)
 
 /* Get 9 - 16 bits */
 guint16
-tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint encoding _U_)
+tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits,const guint encoding _U_)
 {
 	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
 	return (guint16)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -1753,7 +1753,7 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint
 
 /* Get 1 - 32 bits */
 guint32
-tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
 	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
 	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -1761,7 +1761,7 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guin
 
 /* Get 1 - 64 bits */
 guint64
-tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
 	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
 	return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -1773,7 +1773,7 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guin
  * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
  */
 static guint64
-_tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
+_tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits)
 {
 	guint64 value;
 	guint octet_offset = bit_offset >> 3;
@@ -1847,7 +1847,7 @@ _tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
 }
 /* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
 guint32
-tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
 	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
 	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -3315,12 +3315,12 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 #endif
 
 			if (uncompr == NULL) {
-				/* 
+				/*
 				 * This is ugly workaround for bug #6480
 				 * (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6480)
 				 *
 				 * g_memdup(..., 0) returns NULL (g_malloc(0) also)
-				 * when uncompr is NULL logic below doesn't create tvb 
+				 * when uncompr is NULL logic below doesn't create tvb
 				 * which is later interpreted as decompression failed.
 				 */
 				uncompr = (bytes_pass || err != Z_STREAM_END) ?

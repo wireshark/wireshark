@@ -7311,7 +7311,7 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
-			 const gint bit_offset, const gint no_of_bits,
+			 const guint bit_offset, const gint no_of_bits,
 			 const guint encoding)
 {
 	header_field_info *hfinfo;
@@ -7329,7 +7329,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 
 static proto_item *
 _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
-			    const gint bit_offset, const gint no_of_bits,
+			    const guint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const guint encoding)
 {
 	gint     offset;
@@ -7353,7 +7353,6 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 						      hf_field->abbrev, hf_field->name));
 	}
 
-	DISSECTOR_ASSERT(bit_offset >= 0);
 	DISSECTOR_ASSERT(no_of_bits >  0);
 
 	/* Byte align offset */
@@ -7449,14 +7448,14 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 
 proto_item *
 proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
-				       const gint bit_offset, const crumb_spec_t *crumb_spec,
+				       const guint bit_offset, const crumb_spec_t *crumb_spec,
 				       guint64 *return_value)
 {
 	proto_item *pi;
 	gint        no_of_bits;
 	gint        octet_offset;
-	gint        mask_initial_bit_offset;
-	gint        mask_greatest_bit_offset;
+	guint       mask_initial_bit_offset;
+	guint       mask_greatest_bit_offset;
 	guint       octet_length;
 	guint8      i;
 	char       *bf_str;
@@ -7609,7 +7608,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 }
 
 void
-proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset,
+proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset,
 				const crumb_spec_t *crumb_spec, guint16 crumb_index)
 {
 	header_field_info *hf_info;
@@ -7630,7 +7629,7 @@ proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *
 
 proto_item *
 proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
-			    const gint bit_offset, const gint no_of_bits,
+			    const guint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const guint encoding)
 {
 	proto_item *item;
@@ -7646,7 +7645,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 
 static proto_item *
 _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
-				 tvbuff_t *tvb, const gint bit_offset,
+				 tvbuff_t *tvb, const guint bit_offset,
 				 const gint no_of_bits, void *value_ptr,
 				 gchar *value_str)
 {
@@ -7667,7 +7666,6 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 					     hf_field->abbrev, hf_field->name));
 	}
 
-	DISSECTOR_ASSERT(bit_offset >= 0);
 	DISSECTOR_ASSERT(no_of_bits > 0);
 
 	/* Byte align offset */
@@ -7747,7 +7745,7 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 
 proto_item *
 proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
-				 tvbuff_t *tvb, const gint bit_offset,
+				 tvbuff_t *tvb, const guint bit_offset,
 				 const gint no_of_bits, void *value_ptr,
 				 gchar *value_str)
 {
@@ -7769,7 +7767,7 @@ proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 
 proto_item *
 proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index,
-				      tvbuff_t *tvb, const gint bit_offset,
+				      tvbuff_t *tvb, const guint bit_offset,
 				      const gint no_of_bits, guint32 value,
 				      const char *format, ...)
 {
@@ -7799,7 +7797,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index,
 
 proto_item *
 proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index,
-				       tvbuff_t *tvb, const gint bit_offset,
+				       tvbuff_t *tvb, const guint bit_offset,
 				       const gint no_of_bits, float value,
 				       const char *format, ...)
 {
@@ -7818,7 +7816,7 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index,
 
 proto_item *
 proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index,
-				     tvbuff_t *tvb, const gint bit_offset,
+				     tvbuff_t *tvb, const guint bit_offset,
 				     const gint no_of_bits, gint32 value,
 				     const char *format, ...)
 {
@@ -7848,7 +7846,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index,
 
 proto_item *
 proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index,
-					 tvbuff_t *tvb, const gint bit_offset,
+					 tvbuff_t *tvb, const guint bit_offset,
 					 const gint no_of_bits, guint32 value,
 					 const char *format, ...)
 {

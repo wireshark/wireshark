@@ -385,7 +385,7 @@ typedef struct field_info {
 
 /*
  * This structure describes one segment of a split-bits item
- * crumb_bit_offset is the bit offset in the input tvb of the first (most significant) bit of this crumb 
+ * crumb_bit_offset is the bit offset in the input tvb of the first (most significant) bit of this crumb
  * crumb_bit_length is the number of contiguous bits of this crumb.
  * The first element of an array of bits_specs describes the most significant crumb of the output value.
  * The second element of an array of bits_specs describes the next-most significant crumb of the output value, etc.
@@ -1899,7 +1899,7 @@ proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param encoding data encoding
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding);
+proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const guint encoding);
 
 /** Add bits to a proto_tree, using the text label registered to that item.
 *  The item is extracted from the tvbuff handed to it as a set
@@ -1912,13 +1912,13 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, co
  @param tree the tree to append this item to
  @param hf_index field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
- @param bit_offset of the first crumb in tvb expressed in bits 
+ @param bit_offset of the first crumb in tvb expressed in bits
  @param pointer to crumb_spec array
  @param return_value if a pointer is passed here the value is returned.
  @return the newly created item */
 extern proto_item *
 proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
-			    const gint bit_offset, const crumb_spec_t *crumb_spec,
+			    const guint bit_offset, const crumb_spec_t *crumb_spec,
 			    guint64 *return_value);
 
 
@@ -1932,11 +1932,11 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
  @param tree the tree to append this item to
  @param hf_index field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
- @param bit_offset of the first crumb in tvb expressed in bits 
+ @param bit_offset of the first crumb in tvb expressed in bits
  @param pointer to crumb_spec array
  @param index into the crumb_spec array for this crumb */
-void 
-proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, 
+void
+proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset,
                                 const crumb_spec_t *crumb_spec, guint16 crumb_index);
 
 /** Add bits to a proto_tree, using the text label registered to that item.
@@ -1950,7 +1950,7 @@ proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *
  @param encoding data encoding
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, guint64 *return_value, const guint encoding);
+proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, guint64 *return_value, const guint encoding);
 
 /** Add bits for a FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32
     header field to a proto_tree, with the format generating the
@@ -1964,7 +1964,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
  @param format printf like format string
  @return the newly created item */
 extern proto_item *
-proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
+proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_BOOLEAN header field to a proto_tree, with
@@ -1980,7 +1980,7 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index, tvbu
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
+proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_INT8, FT_INT16, FT_INT24 or FT_INT32
@@ -1996,7 +1996,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index, t
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
+proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	gint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add bits for a FT_FLOAT header field to a proto_tree, with
@@ -2012,7 +2012,7 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index, tvbuf
  @param ... printf like parameters
  @return the newly created item */
 extern proto_item *
-proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits,
+proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits,
 	float value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Check if given string is a valid field name

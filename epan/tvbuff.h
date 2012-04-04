@@ -301,26 +301,26 @@ extern void tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
 extern void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint representation);
 
 /* Fetch a specified number of bits from bit offset in a tvb.
-   All of these functions are equivalent, except for the type of the retun value. 
+   All of these functions are equivalent, except for the type of the retun value.
    Note that the parameter encoding (where supplied) is meaningless and ignored */
 
 /* get 1 - 8 bits returned in a guint8 */
-extern guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits);
+extern guint8 tvb_get_bits8(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits);
 /* get 1 - 16 bits returned in a guint16 */
-extern guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
+extern guint16 tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
 /* get 1 - 32 bits returned in a guint32 */
-extern guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
+extern guint32 tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
 /* get 1 - 64 bits returned in a guint64 */
-extern guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
+extern guint64 tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding);
 
 /**
  *  This function has EXACTLY the same behaviour as
  *  tvb_get_bits32()
  */
-extern guint32 tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding);
+extern guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const guint encoding);
 
-void tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, gboolean lsb0);
-guint8 *ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean lsb0);
+void tvb_get_bits_buf(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, guint8 *buf, gboolean lsb0);
+guint8 *ep_tvb_get_bits(tvbuff_t *tvb, guint bit_offset, gint no_of_bits, gboolean lsb0);
 
 /** Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough

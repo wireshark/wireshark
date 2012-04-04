@@ -892,7 +892,7 @@ rel_time_to_secs_str(const nstime_t *rel_time)
  */
 
 char *
-decode_bits_in_field(const gint bit_offset, const gint no_of_bits, const guint64 value)
+decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value)
 {
 	guint64 mask = 0,tmp;
 	char *str;
@@ -1097,4 +1097,3 @@ gchar* guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len) {
   *tempptr   = '\0';
   return buf;
 }
-

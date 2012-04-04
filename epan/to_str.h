@@ -87,7 +87,7 @@ extern gchar*	rel_time_to_secs_str(const nstime_t*);
 extern gchar*	guid_to_str(const e_guid_t*);
 extern gchar*	guid_to_str_buf(const e_guid_t*, gchar*, int);
 
-extern char *decode_bits_in_field(const gint bit_offset, const gint no_of_bits, const guint64 value);
+extern char *decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value);
 
 extern char	*other_decode_bitfield_value(char *buf, const guint32 val, const guint32 mask,
     const int width);
