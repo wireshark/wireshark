@@ -459,9 +459,6 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 		}
 	}
 
-	if(!te)
-		return (0);
-
 	if (te->stats.channel == 0 && si->stats.channel != 0) {
 		te->stats.channel = si->stats.channel;
 	}
