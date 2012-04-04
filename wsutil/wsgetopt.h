@@ -168,7 +168,8 @@ extern int __posix_getopt (int ___argc, char *const *___argv,
 #  endif
 # endif
 #else /* not __GNU_LIBRARY__ */
-extern int getopt ();
+extern int getopt (int ___argc, char *const *___argv,
+		   const char *__shortopts);
 #endif /* __GNU_LIBRARY__ */
 
 #ifndef __need_getopt
