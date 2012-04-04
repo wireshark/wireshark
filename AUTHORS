@@ -2180,6 +2180,7 @@ metatech                <metatechbe [AT] gmail.com> {
  	Distributed Relational Database Architecture protocol support
  	Borland StarTeam protocol support
  	Adobe Real Time Messaging Protocol support
+ 	ActiveMQ OpenWire protocol support
 }
 
 Brian Wheeler           <Brian.Wheeler [AT] arrisi.com> {
