@@ -621,7 +621,7 @@ static void RTP_packet_draw(void *prs _U_)
 				gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
 												(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
 												duration/1000,(duration%1000), rtp_listinfo->ssrc);
-			}else{
+			}else {
 				new_gai = g_malloc(sizeof(graph_analysis_item_t));
 				new_gai->fd = rtp_listinfo->start_fd;
 				COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
@@ -1027,7 +1027,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			}
 
 		}
-		else{
+		else {
 			frame_label = g_strdup(pi->request_method);
 
 			if ((strcmp(pi->request_method,"INVITE")==0)&&(ADDRESSES_EQUAL(&tmp_src,&(callsinfo->initial_speaker)))) {
@@ -1172,7 +1172,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					 forward = TRUE;
 				} else if ((tmp_isupinfo->dpc == mtp3_opc)&&(tmp_isupinfo->opc == mtp3_dpc)) {
 					 forward = FALSE;
-				} else{
+				} else {
 					right_pair = FALSE;
 				}
 
@@ -1183,7 +1183,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 						found = TRUE;
 					} else if (pi->message_type != 1) {
 						found = TRUE;
-					} else{
+					} else {
 						tmp_listinfo->call_active_state=VOIP_INACTIVE;
 					}
 				}
@@ -1268,7 +1268,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					if (forward) {
 						callsinfo->call_state=VOIP_CANCELLED;
 					}
-					else{
+					else {
 						callsinfo->call_state=VOIP_REJECTED;
 						tapinfo->rejected_calls++;
 					}
@@ -1672,7 +1672,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 				if (ADDRESSES_EQUAL(&(callsinfo->initial_speaker), actrace_direction?&pstn_add:&(pinfo->src) )) {  /* forward direction */
 					callsinfo->call_state=VOIP_CANCELLED;
 				}
-				else{												/* reverse */
+				else {												/* reverse */
 					callsinfo->call_state=VOIP_REJECTED;
 					tapinfo->rejected_calls++;
 				}
@@ -1874,122 +1874,119 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	}
 
-	if (callsinfo!=NULL) {
+	h225_frame_num = pinfo->fd->num;
+	h225_call_num = callsinfo->call_num;
 
-		h225_frame_num = pinfo->fd->num;
-		h225_call_num = callsinfo->call_num;
+	/* let's analyze the call state */
 
-		/* let's analyze the call state */
-
-		callsinfo->stop_fd = pinfo->fd;
-		++(callsinfo->npackets);
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
+	callsinfo->stop_fd = pinfo->fd;
+	++(callsinfo->npackets);
+	/* increment the packets counter of all calls */
+	++(tapinfo->npackets);
 
 
-		/* XXX: it is supposed to be initialized isn't it? */
-		g_assert(tmp_h323info != NULL);
+	/* XXX: it is supposed to be initialized isn't it? */
+	g_assert(tmp_h323info != NULL);
 
-		/* change the status */
-		if (pi->msg_type == H225_CS) {
+	/* change the status */
+	if (pi->msg_type == H225_CS) {
 
-			/* this is still IPv4 only, because the dissector is */
-			if (pi->is_h245 == TRUE) {
-				h245_add = g_malloc(sizeof (h245_address_t));
-				h245_add->h245_address.type=AT_IPv4;
-				h245_add->h245_address.len=4;
-				h245_add->h245_address.data = g_malloc(sizeof(pi->h245_address));
-				memcpy((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
-				h245_add->h245_port = pi->h245_port;
-				add_h245_Address(tmp_h323info, h245_add);
-			}
+		/* this is still IPv4 only, because the dissector is */
+		if (pi->is_h245 == TRUE) {
+			h245_add = g_malloc(sizeof (h245_address_t));
+			h245_add->h245_address.type=AT_IPv4;
+			h245_add->h245_address.len=4;
+			h245_add->h245_address.data = g_malloc(sizeof(pi->h245_address));
+			memcpy((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
+			h245_add->h245_port = pi->h245_port;
+			add_h245_Address(tmp_h323info, h245_add);
+		}
 
-			if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
+		if (pi->cs_type != H225_RELEASE_COMPLET) tmp_h323info->is_h245Tunneling = pi->is_h245Tunneling;
 
-			frame_label = g_strdup(pi->frame_label);
+		frame_label = g_strdup(pi->frame_label);
 
-			switch(pi->cs_type) {
-			case H225_SETUP:
-				tmp_h323info->is_faststart_Setup = pi->is_faststart;
+		switch(pi->cs_type) {
+		case H225_SETUP:
+			tmp_h323info->is_faststart_Setup = pi->is_faststart;
 
-				/* Set the Setup address if it was not set */
-				if (tmp_h323info->h225SetupAddr.type == AT_NONE)
-					COPY_ADDRESS(&(tmp_h323info->h225SetupAddr), &(pinfo->src));
-				callsinfo->call_state=VOIP_CALL_SETUP;
+			/* Set the Setup address if it was not set */
+			if (tmp_h323info->h225SetupAddr.type == AT_NONE)
+				COPY_ADDRESS(&(tmp_h323info->h225SetupAddr), &(pinfo->src));
+			callsinfo->call_state=VOIP_CALL_SETUP;
+			comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+									  (pi->is_faststart==TRUE?"on":"off"));
+			break;
+		case H225_CONNECT:
+			callsinfo->call_state=VOIP_IN_CALL;
+			if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
 				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
 										  (pi->is_faststart==TRUE?"on":"off"));
-				break;
-			case H225_CONNECT:
-				callsinfo->call_state=VOIP_IN_CALL;
-				if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
-					comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-											  (pi->is_faststart==TRUE?"on":"off"));
-				break;
-			case H225_RELEASE_COMPLET:
-				if (callsinfo->call_state==VOIP_CALL_SETUP) {
-					if (ADDRESSES_EQUAL(&(tmp_h323info->h225SetupAddr),&(pinfo->src))) {  /* forward direction */
-						callsinfo->call_state=VOIP_CANCELLED;
-					}
-					else{												/* reverse */
-						callsinfo->call_state=VOIP_REJECTED;
-						tapinfo->rejected_calls++;
-					}
-				} else {
-						callsinfo->call_state=VOIP_COMPLETED;
-						tapinfo->completed_calls++;
+			break;
+		case H225_RELEASE_COMPLET:
+			if (callsinfo->call_state==VOIP_CALL_SETUP) {
+				if (ADDRESSES_EQUAL(&(tmp_h323info->h225SetupAddr),&(pinfo->src))) {  /* forward direction */
+					callsinfo->call_state=VOIP_CANCELLED;
 				}
-				comment = g_strdup("H225 No Q931 Rel Cause");
-				break;
-			case H225_PROGRESS:
-			case H225_ALERTING:
-			case H225_CALL_PROCEDING:
-				if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
-				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-										  (pi->is_faststart==TRUE?"on":"off"));
-				break;
-			default:
-				comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
-										  (pi->is_faststart==TRUE?"on":"off"));
-
-			}
-		}
-		else if (pi->msg_type == H225_RAS) {
-			switch(pi->msg_tag) {
-			case 18:  /* LRQ */
-				if (!pi->is_duplicate) {
-					g_free(callsinfo->to_identity);
-					callsinfo->to_identity=g_strdup(pi->dialedDigits);
-					tmp_h323info->requestSeqNum = pi->requestSeqNum;
+				else {	/* reverse */
+					callsinfo->call_state=VOIP_REJECTED;
+					tapinfo->rejected_calls++;
 				}
-			case 19: /* LCF */
-				if (strlen(pi->dialedDigits))
-					comment = g_strdup_printf("H225 RAS dialedDigits: %s", pi->dialedDigits);
-				else
-					comment = g_strdup("H225 RAS");
-				break;
-			default:
-				comment = g_strdup("H225 RAS");
+			} else {
+					callsinfo->call_state=VOIP_COMPLETED;
+					tapinfo->completed_calls++;
 			}
-			frame_label = g_strdup(val_to_str_const(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
-		} else {
-			frame_label = g_strdup("H225: Unknown");
-			comment = NULL;
+			comment = g_strdup("H225 No Q931 Rel Cause");
+			break;
+		case H225_PROGRESS:
+		case H225_ALERTING:
+		case H225_CALL_PROCEDING:
+			if (pi->is_faststart == TRUE) tmp_h323info->is_faststart_Proc = TRUE;
+			comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+									  (pi->is_faststart==TRUE?"on":"off"));
+			break;
+		default:
+			comment = g_strdup_printf("H225 TunnH245:%s FS:%s", (tmp_h323info->is_h245Tunneling==TRUE?"on":"off"),
+									  (pi->is_faststart==TRUE?"on":"off"));
+
 		}
-
-		/* add to graph analysis */
-
-		/* if the frame number exists in graph, append to it*/
-		if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
-			/* if not exist, add to the graph */
-			add_to_graph(tapinfo, pinfo, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
-		}
-
-		/* Add the H245 info if exists to the Graph */
-		h245_add_to_graph(pinfo->fd->num);
-
-		g_free(frame_label);
-		g_free(comment);
 	}
+	else if (pi->msg_type == H225_RAS) {
+		switch(pi->msg_tag) {
+		case 18:  /* LRQ */
+			if (!pi->is_duplicate) {
+				g_free(callsinfo->to_identity);
+				callsinfo->to_identity=g_strdup(pi->dialedDigits);
+				tmp_h323info->requestSeqNum = pi->requestSeqNum;
+			}
+		case 19: /* LCF */
+			if (strlen(pi->dialedDigits))
+				comment = g_strdup_printf("H225 RAS dialedDigits: %s", pi->dialedDigits);
+			else
+				comment = g_strdup("H225 RAS");
+			break;
+		default:
+			comment = g_strdup("H225 RAS");
+		}
+		frame_label = g_strdup(val_to_str_const(pi->msg_tag, h225_RasMessage_vals, "<unknown>"));
+	} else {
+		frame_label = g_strdup("H225: Unknown");
+		comment = NULL;
+	}
+
+	/* add to graph analysis */
+
+	/* if the frame number exists in graph, append to it*/
+	if (!append_to_frame_graph(tapinfo, pinfo->fd->num, pi->frame_label, comment)) {
+		/* if not exist, add to the graph */
+		add_to_graph(tapinfo, pinfo, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
+	}
+
+	/* Add the H245 info if exists to the Graph */
+	h245_add_to_graph(pinfo->fd->num);
+
+	g_free(frame_label);
+	g_free(comment);
 
 	tapinfo->redraw = TRUE;
 
