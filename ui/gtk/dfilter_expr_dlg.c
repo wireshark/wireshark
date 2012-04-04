@@ -796,7 +796,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), "]", 1, &pos);
         g_free(range_str);
     }
-    if (item_str != NULL && !relation_is_presence_test(item_str)) {
+    if (!relation_is_presence_test(item_str)) {
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), " ", 1, &pos);
         gtk_editable_insert_text(GTK_EDITABLE(filter_te), item_str,
                                  (gint) strlen(item_str), &pos);
