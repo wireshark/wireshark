@@ -231,6 +231,7 @@ extern "C" {
 #define WTAP_ENCAP_PPP_ETHER                    139
 #define WTAP_ENCAP_NFC_LLCP                     140
 #define WTAP_ENCAP_NFLOG                        141
+#define WTAP_ENCAP_V5_EF                        142
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

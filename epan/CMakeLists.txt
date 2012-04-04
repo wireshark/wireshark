@@ -1136,6 +1136,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-uts.c
 	dissectors/packet-v120.c
 	dissectors/packet-v52.c
+	dissectors/packet-v5dl.c
+	dissectors/packet-v5ef.c
 	dissectors/packet-v5ua.c
 	dissectors/packet-vcdu.c
 	dissectors/packet-vicp.c

@@ -37,7 +37,8 @@ enum EyeSDN_TYPES {
     EYESDN_ENCAP_MTP2,
     EYESDN_ENCAP_DPNSS,
     EYESDN_ENCAP_DASS2,
-    EYESDN_ENCAP_BACNET
+    EYESDN_ENCAP_BACNET,
+    EYESDN_ENCAP_V5_EF
 };
 
 gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err);

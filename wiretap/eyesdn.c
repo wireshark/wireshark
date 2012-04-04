@@ -271,7 +271,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 			}
 		} else { /* D channel */
 			if(wth) {
-				wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
+			        wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
 			}
 		}
 		break;
@@ -351,10 +351,18 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 		break;
 
 	case EYESDN_ENCAP_BACNET: /* BACNET async over HDLC frames */
-		/* pseudo_header->isdn.uton = direction & 1; */
-		/* pseudo_header->isdn.channel = channel; */
+	        pseudo_header->isdn.uton = direction & 1;
+		pseudo_header->isdn.channel = channel;
 		if(wth) {
 			wth->phdr.pkt_encap = WTAP_ENCAP_BACNET_MS_TP;
+		}
+		break;
+
+	case EYESDN_ENCAP_V5_EF: /* V5EF */
+		pseudo_header->isdn.uton = direction & 1;
+		pseudo_header->isdn.channel = channel;
+		if(wth) {
+			wth->phdr.pkt_encap = WTAP_ENCAP_V5_EF;
 		}
 		break;
 	}
@@ -518,6 +526,10 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 
 	case WTAP_ENCAP_BACNET_MS_TP:
 		protocol=EYESDN_ENCAP_BACNET;
+		break;
+	    
+	case WTAP_ENCAP_V5_EF:
+		protocol=EYESDN_ENCAP_V5_EF;
 		break;
 
 	default:
