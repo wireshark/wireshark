@@ -586,7 +586,7 @@ static gint
 dissect_om2k_attr_unkn(tvbuff_t *tvb, gint offset, gint len, gint iei, proto_tree *tree)
 {
 	proto_tree_add_bytes_format(tree, hf_om2k_unknown_val, tvb,
-				    offset, len, tvb_get_ptr(tvb, offset, len),
+				    offset, len, NULL,
 				    "%s: %s",
 				    val_to_str_ext(iei, &om2k_attr_vals_ext, "0x%02x"),
 				    tvb_bytes_to_str(tvb, offset, len));
