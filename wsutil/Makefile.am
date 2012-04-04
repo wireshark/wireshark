@@ -96,7 +96,8 @@ EXTRA_libwsutil_la_SOURCES=	\
 	strptime.c		\
 	strptime.h		\
 	wsgetopt.c		\
-	wsgetopt.h
+	wsgetopt.h		\
+	wsgetopt_int.h
 
 libwsutil_la_DEPENDENCIES=	\
 	$(wsutil_optional_objects) \
