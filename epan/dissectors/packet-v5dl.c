@@ -371,11 +371,7 @@ proto_reg_handoff_v5dl(void)
 	static gboolean init = FALSE;
 
 	if (!init) {
-		dissector_handle_t v5dl_handle;
-
-		v5dl_handle = find_dissector("v5dl");
 		data_handle = find_dissector("v52");
-
 		init = TRUE;
 	} 
 }
