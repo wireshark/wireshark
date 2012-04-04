@@ -227,18 +227,16 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	if (pref_heuristic_media || pref_heuristic_tcp || pref_heuristic_udp) {
-		if (tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
-			dissect_xml(tvb, pinfo, tree);
+	if (tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
+		dissect_xml(tvb, pinfo, tree);
+		return TRUE;
+	} else if (pref_heuristic_unicode) {
+		const guint8 *data = tvb_get_ephemeral_unicode_string(tvb, 0, tvb_length(tvb), ENC_LITTLE_ENDIAN);
+		tvbuff_t *unicode_tvb = tvb_new_child_real_data(tvb, data, tvb_length(tvb)/2, tvb_length(tvb)/2);
+		if (tvbparse_peek(tvbparse_init(unicode_tvb,0,-1,NULL,want_ignore), want_heur)) {
+			add_new_data_source(pinfo, unicode_tvb, "UTF8");
+			dissect_xml(unicode_tvb, pinfo, tree);
 			return TRUE;
-		} else if (pref_heuristic_unicode) {
-			const guint8 *data = tvb_get_ephemeral_unicode_string(tvb, 0, tvb_length(tvb), ENC_LITTLE_ENDIAN);
-			tvbuff_t *unicode_tvb = tvb_new_child_real_data(tvb, data, tvb_length(tvb)/2, tvb_length(tvb)/2);
-			if (tvbparse_peek(tvbparse_init(unicode_tvb,0,-1,NULL,want_ignore), want_heur)) {
-				add_new_data_source(pinfo, unicode_tvb, "UTF8");
-				dissect_xml(unicode_tvb, pinfo, tree);
-				return TRUE;
-			}
 		}
 	}
 	return FALSE;
@@ -1417,5 +1415,6 @@ proto_reg_handoff_xml(void)
 	xml_handle = find_dissector("xml");
 
 	g_hash_table_foreach(media_types,add_dissector_media,NULL);
+	heur_dissector_add("wtap_file", dissect_xml_heur, xml_ns.hf_tag);
 
 }

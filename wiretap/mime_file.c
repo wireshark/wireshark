@@ -73,8 +73,12 @@ static const guint8 jpeg_jfif_magic[] = { 0xFF, 0xD8, /* SOF */
 					  0xFF        /* start of the next marker */
 					};
 
+/* <?xml */
+static const guint8 xml_magic[] = { '<', '?', 'x', 'm', 'l' };
+
 static const mime_files_t magic_files[] = {
-	{ jpeg_jfif_magic, sizeof(jpeg_jfif_magic) }
+	{ jpeg_jfif_magic, sizeof(jpeg_jfif_magic) },
+	{ xml_magic, sizeof(xml_magic) }
 };
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
