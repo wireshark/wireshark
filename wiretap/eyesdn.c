@@ -271,7 +271,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 			}
 		} else { /* D channel */
 			if(wth) {
-			        wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
+				wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
 			}
 		}
 		break;
