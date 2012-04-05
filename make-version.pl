@@ -95,7 +95,9 @@ my %version_pref = (
 my $srcdir = ".";
 my $svn_info_cmd = "";
 
-$ENV{LANG} = "C";  # Ensure we run with correct locale
+# Ensure we run with correct locale
+$ENV{LANG} = "C";
+$ENV{LC_ALL} = "C";
 
 # Run "svn info".  Parse out the most recent modification time and the
 # revision number.
