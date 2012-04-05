@@ -241,6 +241,24 @@ void fec_dissector(struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *of
 			*offset += 8;
 			break;
 
+		case 3:
+		case 4:
+			f.fec->sbn = tvb_get_ntohl(tvb, *offset);
+			f.fec->sbn = f.fec->sbn >> 20;
+			f.fec->esi = tvb_get_ntohl(tvb, *offset);
+			f.fec->esi &= 0xfffff;
+			
+			if (tree)
+			{
+				proto_tree_add_uint(fec_tree, f.hf->sbn, tvb, *offset, 4, f.fec->sbn);
+				proto_tree_add_uint(fec_tree, f.hf->esi, tvb, *offset, 4, f.fec->esi);
+			}
+			
+			f.fec->sbn_present = TRUE;
+			f.fec->esi_present = TRUE;
+			*offset += 4;
+			break;
+			
 		case 129:
 			f.fec->sbn = tvb_get_ntohl(tvb, *offset);
 			f.fec->sbl = tvb_get_ntohs(tvb, *offset+4);
