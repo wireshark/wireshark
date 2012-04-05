@@ -50,6 +50,7 @@
 #include <epan/tap.h>
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
+#include "packet-ip.h"
 
 #ifdef HAVE_GEOIP_V6
 #include "GeoIP.h"
@@ -1126,29 +1127,6 @@ static const value_string shim6_protocol[] = {
   { 0, NULL }
 };
 
-static const value_string dscp_vals[] = {
-                  { IPDSFIELD_DSCP_DEFAULT, "Default"               },
-                  { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
-                  { IPDSFIELD_DSCP_CS2,     "Class Selector 2"      },
-                  { IPDSFIELD_DSCP_CS3,     "Class Selector 3"      },
-                  { IPDSFIELD_DSCP_CS4,     "Class Selector 4"      },
-                  { IPDSFIELD_DSCP_CS5,     "Class Selector 5"      },
-                  { IPDSFIELD_DSCP_CS6,     "Class Selector 6"      },
-                  { IPDSFIELD_DSCP_CS7,     "Class Selector 7"      },
-                  { IPDSFIELD_DSCP_AF11,    "Assured Forwarding 11" },
-                  { IPDSFIELD_DSCP_AF12,    "Assured Forwarding 12" },
-                  { IPDSFIELD_DSCP_AF13,    "Assured Forwarding 13" },
-                  { IPDSFIELD_DSCP_AF21,    "Assured Forwarding 21" },
-                  { IPDSFIELD_DSCP_AF22,    "Assured Forwarding 22" },
-                  { IPDSFIELD_DSCP_AF23,    "Assured Forwarding 23" },
-                  { IPDSFIELD_DSCP_AF31,    "Assured Forwarding 31" },
-                  { IPDSFIELD_DSCP_AF32,    "Assured Forwarding 32" },
-                  { IPDSFIELD_DSCP_AF33,    "Assured Forwarding 33" },
-                  { IPDSFIELD_DSCP_AF41,    "Assured Forwarding 41" },
-                  { IPDSFIELD_DSCP_AF42,    "Assured Forwarding 42" },
-                  { IPDSFIELD_DSCP_AF43,    "Assured Forwarding 43" },
-                  { IPDSFIELD_DSCP_EF,      "Expedited Forwarding"  },
-                  { 0,                      NULL                    } };
 
 static void
 dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
