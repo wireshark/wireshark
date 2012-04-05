@@ -171,7 +171,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 
 		case WTAP_ENCAP_MTP2_WITH_PHDR:
-		case WTAP_ENCAP_MTP2:
 			pinfo->p2p_dir = pinfo->pseudo_header->mtp2.sent ?
 			    P2P_DIR_SENT : P2P_DIR_RECV;
 			pinfo->link_number  = pinfo->pseudo_header->mtp2.link_number;

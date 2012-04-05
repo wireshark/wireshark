@@ -330,7 +330,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 		pseudo_header->mtp2.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
 		pseudo_header->mtp2.link_number = channel;		
 		if(wth) {
-			wth->phdr.pkt_encap = WTAP_ENCAP_MTP2;
+			wth->phdr.pkt_encap = WTAP_ENCAP_MTP2_WITH_PHDR;
 		}
 		break;
 
@@ -459,7 +459,7 @@ int eyesdn_dump_can_write_encap(int encap)
 	case WTAP_ENCAP_DPNSS:
 	case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
 	case WTAP_ENCAP_LAPB:
-	case WTAP_ENCAP_MTP2:
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
 	case WTAP_ENCAP_BACNET_MS_TP:
 	case WTAP_ENCAP_PER_PACKET:
 		return 0;
@@ -520,7 +520,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 		protocol=EYESDN_ENCAP_LAPB;
 		break;
 
-	case WTAP_ENCAP_MTP2:
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
 		protocol=EYESDN_ENCAP_MTP2;
 		break;
 
