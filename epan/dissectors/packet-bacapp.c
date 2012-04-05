@@ -9674,8 +9674,7 @@ fWhoIsRequest  (tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint offse
         switch (tag_no) {
         case 0:
             /* DeviceInstanceRangeLowLimit Optional */
-            fUnsigned32(tvb, offset+tag_len, lvt, &val);
-            if (col_get_writable(pinfo->cinfo))
+            if (col_get_writable(pinfo->cinfo) && fUnsigned32(tvb, offset+tag_len, lvt, &val))
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
             offset = fDevice_Instance (tvb, tree, offset,
                 hf_Device_Instance_Range_Low_Limit);
@@ -9683,8 +9682,7 @@ fWhoIsRequest  (tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint offse
         case 1:
             /* DeviceInstanceRangeHighLimit Optional but
                 required if DeviceInstanceRangeLowLimit is there */
-            fUnsigned32(tvb, offset+tag_len, lvt, &val);
-            if (col_get_writable(pinfo->cinfo))
+            if (col_get_writable(pinfo->cinfo) && fUnsigned32(tvb, offset+tag_len, lvt, &val))
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%d ", val);
             offset = fDevice_Instance (tvb, tree, offset,
                 hf_Device_Instance_Range_High_Limit);
