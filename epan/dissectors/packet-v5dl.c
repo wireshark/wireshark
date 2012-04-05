@@ -74,7 +74,7 @@ static gint ett_v5dl_address = -1;
 static gint ett_v5dl_control = -1;
 static gint ett_v5dl_checksum = -1;
 
-static dissector_handle_t data_handle;
+static dissector_handle_t v52_handle;
 
 /*
  * Bits in the address field.
@@ -138,13 +138,22 @@ dissect_v5dl(tvbuff_t*, packet_info*, proto_tree*);
 static void
 dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*v5dl_tree, *addr_tree, *checksum_tree;
-	proto_item	*v5dl_ti, *addr_ti, *checksum_ti;
+	proto_tree	*v5dl_tree, *addr_tree;
+	proto_item	*v5dl_ti, *addr_ti;
 	int		direction;
-	guint16		control, checksum, checksum_calculated;
-	int		v5dl_header_len, checksum_offset;
+	guint		v5dl_header_len;
+	guint16		control;
+#if 0
+	proto_tree	*checksum_tree;
+	proto_item	*checksum_ti;
+	guint16		checksum, checksum_calculated;
+	guint		checksum_offset;
+#endif
 	guint16		addr, cr, eah, eal, v5addr;
 	gboolean	is_response = 0;
+#if 0
+	guint		length, reported_length;
+#endif
 	tvbuff_t	*next_tvb;
 	const char	*srcname = "?";
 	const char	*dstname = "?";
@@ -212,13 +221,36 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree)
 		proto_item_set_len(v5dl_ti, v5dl_header_len);
 
-	if (NULL != p_get_proto_data(pinfo->fd, proto_v5dl)) {
-		/* check checksum */
-		checksum_offset = tvb_length(tvb) - 2;
-		checksum = tvb_get_guint8(tvb, checksum_offset); /* high byte */
-		checksum <<= 8;
-		checksum |= tvb_get_guint8(tvb, checksum_offset+1) & 0x00FF; /* low byte */
-		checksum_calculated = crc16_ccitt_tvb(tvb, tvb_length(tvb) - 2);
+	/*
+	 * XXX - the sample capture supplied with bug 7027 does not
+	 * appear to include checksums in the packets.
+	 */
+#if 0
+	/*
+	 * Check the checksum, if available.
+	 * The checksum is a CCITT CRC-16 at the end of the packet, so
+	 * if we don't have the entire packet in the capture - i.e., if
+	 * tvb_length(tvb) != tvb_reported_length(tvb) we can't check it.
+	 */
+	length = tvb_length(tvb);
+	reported_length = tvb_reported_length(tvb);
+
+	/*
+	 * If the reported length isn't big enough for the V5DL header
+	 * and 2 bytes of checksum, the packet is malformed, as the
+	 * checksum overlaps the header.
+	 */
+	if (reported_length < v5dl_header_len + 2)
+		THROW(ReportedBoundsError);
+
+	if (length == reported_length) {
+		/*
+		 * There's no snapshot length cutting off any of the
+		 * packet.
+		 */
+		checksum_offset = reported_length - 2;
+		checksum = tvb_get_ntohs(tvb, checksum_offset);
+		checksum_calculated = crc16_ccitt_tvb(tvb, checksum_offset);
 		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
 		if (checksum == checksum_calculated) {
@@ -233,14 +265,46 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_bad, tvb, checksum_offset, 2, TRUE);
 		}
 
-		next_tvb = tvb_new_subset(tvb, v5dl_header_len, tvb_length_remaining(tvb,v5dl_header_len) - 2, -1);
-
-	} else
-		next_tvb = tvb_new_subset_remaining(tvb, v5dl_header_len);
+		/*
+		 * Remove the V5DL header *and* the checksum.
+		 */
+		next_tvb = tvb_new_subset(tvb, v5dl_header_len,
+		    tvb_length_remaining(tvb, v5dl_header_len) - 2,
+		    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
+	} else {
+		/*
+		 * Some or all of the packet is cut off by a snapshot
+		 * length.
+		 */
+		if (length == reported_length - 1) {
+			/*
+			 * One byte is cut off, so there's only one
+			 * byte of checksum in the captured data.
+			 * Remove that byte from the captured length
+			 * and both bytes from the reported length.
+			 */
+			next_tvb = tvb_new_subset(tvb, v5dl_header_len,
+			    tvb_length_remaining(tvb, v5dl_header_len) - 1,
+			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
+		} else {
+			/*
+			 * Two or more bytes are cut off, so there are
+			 * no bytes of checksum in the captured data.
+			 * Just remove the checksum from the reported
+			 * length.
+			 */
+			next_tvb = tvb_new_subset(tvb, v5dl_header_len,
+			    tvb_length_remaining(tvb, v5dl_header_len),
+			    tvb_reported_length_remaining(tvb, v5dl_header_len) - 2);
+		}
+	}
+#else
+	next_tvb = tvb_new_subset_remaining(tvb, v5dl_header_len);
+#endif
 
 	if (XDLC_IS_INFORMATION(control)) {
-		/* call next protocol */
-	        call_dissector(data_handle,next_tvb, pinfo, tree);
+		/* call V5.2 dissector */
+	        call_dissector(v52_handle, next_tvb, pinfo, tree);
 	}
 }
 
@@ -356,13 +420,12 @@ proto_register_v5dl(void)
         &ett_v5dl_checksum
     };
 
-	proto_v5dl = proto_register_protocol("V5 Data Link Layer",
+    proto_v5dl = proto_register_protocol("V5 Data Link Layer",
 					 "V5DL", "v5dl");
-	proto_register_field_array (proto_v5dl, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array (proto_v5dl, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("v5dl", dissect_v5dl, proto_v5dl);
-
+    register_dissector("v5dl", dissect_v5dl, proto_v5dl);
 }
 
 void
@@ -371,7 +434,7 @@ proto_reg_handoff_v5dl(void)
 	static gboolean init = FALSE;
 
 	if (!init) {
-		data_handle = find_dissector("v52");
+		v52_handle = find_dissector("v52");
 		init = TRUE;
 	} 
 }
