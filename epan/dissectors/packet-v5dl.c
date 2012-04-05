@@ -314,7 +314,7 @@ proto_reg_handoff_v5dl(void);
 void
 proto_register_v5dl(void)
 {
-    static hf_register_info hf[] = {
+	static hf_register_info hf[] = {
 
 	{ &hf_v5dl_direction,
 	  { "Direction", "v5dl.direction", FT_UINT8, BASE_DEC, VALS(v5dl_direction_vals), 0x0,
@@ -353,79 +353,79 @@ proto_register_v5dl(void)
 	  	NULL, HFILL }},
 
 	{ &hf_v5dl_n_r,
-	    { "N(R)", "v5dl.control.n_r", FT_UINT16, BASE_DEC,
+	  { "N(R)", "v5dl.control.n_r", FT_UINT16, BASE_DEC,
 		NULL, XDLC_N_R_EXT_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_n_s,
-	    { "N(S)", "v5dl.control.n_s", FT_UINT16, BASE_DEC,
+	  { "N(S)", "v5dl.control.n_s", FT_UINT16, BASE_DEC,
 		NULL, XDLC_N_S_EXT_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_p,
-	    { "Poll", "v5dl.control.p", FT_BOOLEAN, 8,
+	  { "Poll", "v5dl.control.p", FT_BOOLEAN, 8,
 		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_v5dl_p_ext,
-	    { "Poll", "v5dl.control.p", FT_BOOLEAN, 16,
+	  { "Poll", "v5dl.control.p", FT_BOOLEAN, 16,
 		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
 	{ &hf_v5dl_f,
-	    { "Final", "v5dl.control.f", FT_BOOLEAN, 8,
+	  { "Final", "v5dl.control.f", FT_BOOLEAN, 8,
 		TFS(&tfs_set_notset), XDLC_P_F, NULL, HFILL }},
 
 	{ &hf_v5dl_f_ext,
-	    { "Final", "v5dl.control.f", FT_BOOLEAN, 16,
+	  { "Final", "v5dl.control.f", FT_BOOLEAN, 16,
 		TFS(&tfs_set_notset), XDLC_P_F_EXT, NULL, HFILL }},
 
 	{ &hf_v5dl_s_ftype,
-	    { "Supervisory frame type", "v5dl.control.s_ftype", FT_UINT16, BASE_HEX,
+	  { "Supervisory frame type", "v5dl.control.s_ftype", FT_UINT16, BASE_HEX,
 		VALS(stype_vals), XDLC_S_FTYPE_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_u_modifier_cmd,
-	    { "Command", "v5dl.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
+	  { "Command", "v5dl.control.u_modifier_cmd", FT_UINT8, BASE_HEX,
 		VALS(modifier_vals_cmd), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_u_modifier_resp,
-	    { "Response", "v5dl.control.u_modifier_resp", FT_UINT8, BASE_HEX,
+	  { "Response", "v5dl.control.u_modifier_resp", FT_UINT8, BASE_HEX,
 		VALS(modifier_vals_resp), XDLC_U_MODIFIER_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_ftype_i,
-	    { "Frame type", "v5dl.control.ftype", FT_UINT16, BASE_HEX,
+	  { "Frame type", "v5dl.control.ftype", FT_UINT16, BASE_HEX,
 		VALS(ftype_vals), XDLC_I_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_ftype_s_u,
-	    { "Frame type", "v5dl.control.ftype", FT_UINT8, BASE_HEX,
+	  { "Frame type", "v5dl.control.ftype", FT_UINT8, BASE_HEX,
 		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_ftype_s_u_ext,
-	    { "Frame type", "v5dl.control.ftype", FT_UINT16, BASE_HEX,
+	  { "Frame type", "v5dl.control.ftype", FT_UINT16, BASE_HEX,
 		VALS(ftype_vals), XDLC_S_U_MASK, NULL, HFILL }},
 
 	{ &hf_v5dl_checksum,
-	    { "Checksum", "v5dl.checksum", FT_UINT16, BASE_HEX,
+	  { "Checksum", "v5dl.checksum", FT_UINT16, BASE_HEX,
 		NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 	{ &hf_v5dl_checksum_good,
-	    { "Good Checksum", "v5dl.checksum_good", FT_BOOLEAN, BASE_NONE,
+	  { "Good Checksum", "v5dl.checksum_good", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
 
 	{ &hf_v5dl_checksum_bad,
-	    { "Bad Checksum", "v5dl.checksum_bad", FT_BOOLEAN, BASE_NONE,
+	  { "Bad Checksum", "v5dl.checksum_bad", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }}
-    };
+	};
 
-    static gint *ett[] = {
-        &ett_v5dl,
-        &ett_v5dl_address,
-        &ett_v5dl_control,
-        &ett_v5dl_checksum
-    };
+	static gint *ett[] = {
+		&ett_v5dl,
+		&ett_v5dl_address,
+		&ett_v5dl_control,
+		&ett_v5dl_checksum
+	};
 
-    proto_v5dl = proto_register_protocol("V5 Data Link Layer",
-					 "V5DL", "v5dl");
-    proto_register_field_array (proto_v5dl, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	proto_v5dl = proto_register_protocol("V5 Data Link Layer",
+					     "V5DL", "v5dl");
+	proto_register_field_array (proto_v5dl, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("v5dl", dissect_v5dl, proto_v5dl);
+	register_dissector("v5dl", dissect_v5dl, proto_v5dl);
 }
 
 void
