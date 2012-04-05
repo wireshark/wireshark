@@ -234,6 +234,11 @@ struct tcp_analysis {
 	 * stream index numbering
 	 */
 	guint32         stream;
+
+	/* Remembers the server port on the SYN (or SYN|ACK) packet to
+	 * help determine which dissector to call
+	 */
+	guint16 server_port;
 };
 
 /* Structure that keeps per packet data. First used to be able

@@ -463,6 +463,7 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->flow1.valid_bif = 1;
     tcpd->flow2.valid_bif = 1;
     tcpd->stream = tcp_stream_index++;
+    tcpd->server_port = 0;
 
     return tcpd;
 }
@@ -3821,7 +3822,8 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     /* Do lookups with the subdissector table.
-       We try the port number with the lower value first, followed by the
+       Try the server port captured on the SYN or SYN|ACK packet.  After that
+       try the port number with the lower value first, followed by the
        port number with the higher value.  This means that, for packets
        where a dissector is registered for *both* port numbers:
 
@@ -3835,6 +3837,13 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
        XXX - we ignore port numbers of 0, as some dissectors use a port
        number of 0 to disable the port. */
+
+    if (tcpd && tcpd->server_port != 0 &&
+        dissector_try_uint(subdissector_table, tcpd->server_port, next_tvb, pinfo, tree)){
+        pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
+        return TRUE;
+    }
+
     if (src_port > dst_port) {
         low_port = dst_port;
         high_port = src_port;
@@ -4323,12 +4332,18 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if(tcph->th_flags & TH_SYN) {
-        if(tcph->th_flags & TH_ACK)
-            expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK): server port %s",
+        if(tcph->th_flags & TH_ACK) {
+           expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK): server port %s",
                                    get_tcp_port(tcph->th_sport));
-        else
-            expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN): server port %s",
+           /* Save the server port to help determine dissector used */
+           tcpd->server_port = tcph->th_sport;
+        }
+        else {
+           expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN): server port %s",
                                    get_tcp_port(tcph->th_dport));
+           /* Save the server port to help determine dissector used */
+           tcpd->server_port = tcph->th_dport;
+        }
     }
     if(tcph->th_flags & TH_FIN)
         /* XXX - find a way to know the server port and output only that one */
