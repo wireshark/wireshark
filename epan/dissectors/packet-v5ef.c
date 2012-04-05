@@ -1,4 +1,4 @@
-/* packet-lapd.c
+/* packet-v5ef.c
  * Routines for V5 envelope function frame disassembly
  * Rolf Fiedler <rolf.fiedler@innoventif.de>
  *
