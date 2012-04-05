@@ -1644,6 +1644,12 @@ ip_checksum(const guint8 *ptr, int len)
   return in_cksum(&cksum_vec[0], 1);
 }
 
+proto_item *
+add_ip_version_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	return proto_tree_add_item(tree, hf_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
+
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -1684,9 +1690,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
-
-    proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,
-                        hi_nibble(iph->ip_v_hl));
+	add_ip_version_to_tree(ip_tree, tvb, offset);
   }
 
   /* if IP is not referenced from any filters we don't need to worry about
@@ -2151,7 +2155,7 @@ proto_register_ip(void)
   static hf_register_info hf[] = {
     { &hf_ip_version,
       { "Version", "ip.version", FT_UINT8, BASE_DEC,
-        NULL, 0x0, NULL, HFILL }},
+        NULL, 0xf0, NULL, HFILL }},
 
     { &hf_ip_hdr_len,
       { "Header Length", "ip.hdr_len", FT_UINT8, BASE_DEC,
