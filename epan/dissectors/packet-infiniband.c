@@ -2122,40 +2122,40 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gint32
 find_next_header_sequence(guint32 OpCode)
 {
-    if(contains(OpCode, &opCode_PAYLD[0], (gint32)sizeof(opCode_PAYLD)))
+    if(contains(OpCode, &opCode_PAYLD[0], (gint32)array_length(opCode_PAYLD)))
         return PAYLD;
 
-    if(contains(OpCode, &opCode_IMMDT_PAYLD[0], (gint32)sizeof(opCode_IMMDT_PAYLD)))
+    if(contains(OpCode, &opCode_IMMDT_PAYLD[0], (gint32)array_length(opCode_IMMDT_PAYLD)))
         return IMMDT_PAYLD;
 
-    if(contains(OpCode, &opCode_RDETH_DETH_PAYLD[0], (gint32)sizeof(opCode_RDETH_DETH_PAYLD)))
+    if(contains(OpCode, &opCode_RDETH_DETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_PAYLD)))
         return RDETH_DETH_PAYLD;
 
-    if(contains(OpCode, &opCode_RETH_PAYLD[0], (gint32)sizeof(opCode_RETH_PAYLD)))
+    if(contains(OpCode, &opCode_RETH_PAYLD[0], (gint32)array_length(opCode_RETH_PAYLD)))
         return RETH_PAYLD;
 
-    if(contains(OpCode, &opCode_RDETH_AETH_PAYLD[0], (gint32)sizeof(opCode_RDETH_AETH_PAYLD)))
+    if(contains(OpCode, &opCode_RDETH_AETH_PAYLD[0], (gint32)array_length(opCode_RDETH_AETH_PAYLD)))
         return RDETH_AETH_PAYLD;
 
-    if(contains(OpCode, &opCode_AETH_PAYLD[0], (gint32)sizeof(opCode_AETH_PAYLD)))
+    if(contains(OpCode, &opCode_AETH_PAYLD[0], (gint32)array_length(opCode_AETH_PAYLD)))
         return AETH_PAYLD;
 
-    if(contains(OpCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (gint32)sizeof(opCode_RDETH_DETH_IMMDT_PAYLD)))
+    if(contains(OpCode, &opCode_RDETH_DETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_IMMDT_PAYLD)))
         return RDETH_DETH_IMMDT_PAYLD;
 
-    if(contains(OpCode, &opCode_RETH_IMMDT_PAYLD[0], (gint32)sizeof(opCode_RETH_IMMDT_PAYLD)))
+    if(contains(OpCode, &opCode_RETH_IMMDT_PAYLD[0], (gint32)array_length(opCode_RETH_IMMDT_PAYLD)))
         return RETH_IMMDT_PAYLD;
 
-    if(contains(OpCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (gint32)sizeof(opCode_RDETH_DETH_RETH_PAYLD)))
+    if(contains(OpCode, &opCode_RDETH_DETH_RETH_PAYLD[0], (gint32)array_length(opCode_RDETH_DETH_RETH_PAYLD)))
         return RDETH_DETH_RETH_PAYLD;
 
-    if(contains(OpCode, &opCode_ATOMICETH[0], (gint32)sizeof(opCode_ATOMICETH)))
+    if(contains(OpCode, &opCode_ATOMICETH[0], (gint32)array_length(opCode_ATOMICETH)))
         return ATOMICETH;
 
-    if(contains(OpCode, &opCode_IETH_PAYLD[0], (gint32)sizeof(opCode_IETH_PAYLD)))
+    if(contains(OpCode, &opCode_IETH_PAYLD[0], (gint32)array_length(opCode_IETH_PAYLD)))
         return IETH_PAYLD;
 
-    if(contains(OpCode, &opCode_RDETH_DETH_ATOMICETH[0], (gint32)sizeof(opCode_RDETH_DETH_ATOMICETH)))
+    if(contains(OpCode, &opCode_RDETH_DETH_ATOMICETH[0], (gint32)array_length(opCode_RDETH_DETH_ATOMICETH)))
         return RDETH_DETH_ATOMICETH;
 
     if((OpCode ^ RC_ACKNOWLEDGE) == 0)
