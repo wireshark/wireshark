@@ -47,5 +47,6 @@ guint16 ip_checksum(const guint8 *ptr, int len);
 WS_VAR_IMPORT const value_string dscp_vals[];
 
 proto_item *add_ip_version_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset);
+proto_item *add_ip_dscp_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset);
 
 #endif
