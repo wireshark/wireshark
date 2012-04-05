@@ -129,7 +129,13 @@ nflog_tvb_test_order(tvbuff_t *tvb, int offset, guint16 (*val16_get)(tvbuff_t *,
 {
 	while (tvb_length_remaining(tvb, offset) > 4) {
 		guint16 tlv_len = val16_get(tvb, offset + 0);
-		guint16 tlv_type = (val16_get(tvb, offset + 2) & 0x7fff);
+		guint16 tlv_type;
+
+		/* malformed */
+		if (tlv_len < 4)
+			return 0;
+
+		tlv_type = (val16_get(tvb, offset + 2) & 0x7fff);
 
 		if (tlv_type >= 0x100)
 			break;
@@ -216,12 +222,21 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* TLVs */
 	while (tvb_length_remaining(tvb, offset) >= 4) {
 		guint16 tlv_len = val16_get(tvb, offset + 0);
-		guint16 tlv_type = (val16_get(tvb, offset + 2) & 0x7fff);
-		guint16 value_len = tlv_len - 4;
+		guint16 tlv_type;
+		guint16 value_len;
 
 		proto_tree *tlv_tree;
 
+		/* malformed */
+		if (tlv_len < 4)
+			return;
+
+		value_len = tlv_len - 4;
+		tlv_type = (val16_get(tvb, offset + 2) & 0x7fff);
+
 		if (nflog_tree) {
+			gboolean handled = FALSE;
+
 			ti = proto_tree_add_bytes_format(nflog_tree, hf_nflog_tlv, tvb, offset, tlv_len, NULL, "TLV Type: %s (%u), Length: %u", val_to_str_const(tlv_type, nflog_tlv_vals, "Unknown"), tlv_type, tlv_len);
 			tlv_tree = proto_item_add_subtree(ti, ett_nflog_tlv);
 
@@ -231,22 +246,27 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case WS_NFULA_PAYLOAD:
 					break;
 				case WS_NFULA_PREFIX:
-					/* value_len >= 1 */
-					proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix, tvb, offset + 4, value_len, ENC_NA);
+					if (value_len >= 1) {
+						proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix, tvb, offset + 4, value_len, ENC_NA);
+						handled = TRUE;
+					}
 					break;
 				case WS_NFULA_UID:
-					/* value_len == 4 */
-					proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+					if (value_len == 4) {
+						proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+						handled = TRUE;
+					}
 					break;
 				case WS_NFULA_GID:
-					/* value_len == 4 */
-					proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+					if (value_len == 4) {
+						proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+						handled = TRUE;
+					}
 					break;
-				/* ... */
-
-				default:
-					proto_tree_add_item(tlv_tree, hf_nflog_tlv_unknown, tvb, offset + 4, value_len, ENC_NA);
 			}
+
+			if (!handled)
+					proto_tree_add_item(tlv_tree, hf_nflog_tlv_unknown, tvb, offset + 4, value_len, ENC_NA);
 		}
 
 		if (tlv_type == WS_NFULA_PAYLOAD)
@@ -321,7 +341,7 @@ proto_register_nflog(void)
 
 	module_t *pref;
 
-	proto_nflog = proto_register_protocol("Linux Netfilter LOG (NFLOG)", "NFLOG", "nflog");
+	proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
 
 	pref = prefs_register_protocol(proto_nflog, NULL);
 	prefs_register_enum_preference(pref, "byte_order_type", "Byte Order", "Byte Order", &nflog_byte_order, byte_order_types, FALSE);
