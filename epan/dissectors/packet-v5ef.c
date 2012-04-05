@@ -53,7 +53,7 @@ static int hf_v5ef_ea2 = -1;
 static gint ett_v5ef = -1;
 static gint ett_v5ef_address = -1;
 
-static dissector_handle_t v52_handle, lapd_handle;
+static dissector_handle_t v5dl_handle, lapd_handle;
 
 /*
  * Bits in the address field.
@@ -143,7 +143,7 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         next_tvb = tvb_new_subset_remaining(tvb, v5ef_header_len);
 
-        if(efaddr>8175) call_dissector(v52_handle,next_tvb, pinfo, tree);
+        if(efaddr>8175) call_dissector(v5dl_handle,next_tvb, pinfo, tree);
         else call_dissector(lapd_handle,next_tvb, pinfo, tree);
 }
 
@@ -153,7 +153,7 @@ proto_reg_handoff_v5ef(void);
 void
 proto_register_v5ef(void)
 {
-    static hf_register_info hf[] = {
+	static hf_register_info hf[] = {
 
 	{ &hf_v5ef_direction,
 	  { "Direction", "v5ef.direction", FT_UINT8, BASE_DEC, VALS(v5ef_direction_vals), 0x0,
@@ -178,12 +178,12 @@ proto_register_v5ef(void)
 	{ &hf_v5ef_ea2,
 	  { "EA2", "v5ef.ea2", FT_UINT16, BASE_DEC, NULL, V5EF_EA2,
 	  	"Second Address Extension bit", HFILL }},
-    };
+	};
 
-    static gint *ett[] = {
-        &ett_v5ef,
-        &ett_v5ef_address,
-    };
+	static gint *ett[] = {
+		&ett_v5ef,
+		&ett_v5ef_address,
+	};
 
 	proto_v5ef = proto_register_protocol("V5 Envelope Function (v5ef)",
 					 "v5ef", "v5ef");
@@ -206,7 +206,7 @@ proto_reg_handoff_v5ef(void)
 		dissector_add_uint("wtap_encap", WTAP_ENCAP_V5_EF, v5ef_handle);
 
 		lapd_handle = find_dissector("lapd");
-		v52_handle = find_dissector("v5dl");
+		v5dl_handle = find_dissector("v5dl");
 		init = TRUE;
 	}
 }
