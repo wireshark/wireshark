@@ -51,6 +51,7 @@ static int hf_eap_notification = -1;
 
 static int hf_eap_md5_value_size = -1;
 static int hf_eap_md5_value = -1;
+static int hf_eap_md5_extra_data = -1;
 
 static int hf_eap_sim_subtype = -1;
 static int hf_eap_sim_subtype_attribute = -1;
@@ -63,6 +64,14 @@ static int hf_eap_aka_subtype_attribute = -1;
 static int hf_eap_aka_subtype_type = -1;
 static int hf_eap_aka_subtype_length = -1;
 static int hf_eap_aka_subtype_value = -1;
+
+static int hf_eap_leap_version = -1;
+static int hf_eap_leap_count = -1;
+static int hf_eap_leap_peer_challenge = -1;
+static int hf_eap_leap_peer_response = -1;
+static int hf_eap_leap_ap_challenge = -1;
+static int hf_eap_leap_ap_response = -1;
+static int hf_eap_leap_name = -1;
 
 static gint ett_eap = -1;
 
@@ -176,7 +185,7 @@ References:
   5) 3GPP TS 24.302
 */
 
-const value_string eap_sim_aka_attributes[] = {
+const value_string eap_sim_aka_attribute_vals[] = {
 	{ 1, "AT_RAND" },
 	{ 2, "AT_AUTN" },
 	{ 3, "AT_RES" },
@@ -328,19 +337,19 @@ static const fragment_items eap_tls_frag_items = {
  Currently this is limited to WifiProtectedSetup. Maybe we need
  a generic method to support EAP extended types ?
 *********************************************************************/
-static int   hf_eapext_vendorid   = -1;
-static int   hf_eapext_vendortype = -1;
+static int   hf_eap_ext_vendor_id   = -1;
+static int   hf_eap_ext_vendor_type = -1;
 
 /* Vendor-Type and Vendor-id */
 #define WFA_VENDOR_ID         0x00372A
 #define WFA_SIMPLECONFIG_TYPE 0x1
 
-static const value_string eapext_vendorid_vals[] = {
+static const value_string eap_ext_vendor_id_vals[] = {
   { WFA_VENDOR_ID, "WFA" },
   { 0, NULL }
 };
 
-static const value_string eapext_vendortype_vals[] = {
+static const value_string eap_ext_vendor_type_vals[] = {
   { WFA_SIMPLECONFIG_TYPE, "SimpleConfig" },
   { 0, NULL }
 };
@@ -350,10 +359,10 @@ dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 	       gint size, packet_info* pinfo)
 {
 
-  proto_tree_add_item(eap_tree, hf_eapext_vendorid,   tvb, offset, 3, ENC_BIG_ENDIAN);
+  proto_tree_add_item(eap_tree, hf_eap_ext_vendor_id,   tvb, offset, 3, ENC_BIG_ENDIAN);
   offset += 3; size -= 3;
 
-  proto_tree_add_item(eap_tree, hf_eapext_vendortype, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(eap_tree, hf_eap_ext_vendor_type, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4; size -= 4;
 
   /* Generic method to support multiple vendor-defined extended types goes here :-) */
@@ -760,7 +769,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  item = proto_tree_add_item(eap_tree, hf_eap_md5_value_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  if (value_size > size - 1)
       {
-        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Overflow");
+        expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Overflow");
 	    value_size = size - 1;
       }
         
@@ -768,10 +777,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(eap_tree, hf_eap_md5_value, tvb, offset, value_size, ENC_BIG_ENDIAN);
 	  offset += value_size;
 	  if (extra_len > 0) {
-          proto_tree_add_text(eap_tree, tvb, offset, extra_len,
-           "Extra data (%d byte%s): %s", extra_len,
-           plurality(extra_len, "", "s"),
-           tvb_bytes_to_str(tvb, offset, extra_len));
+          proto_tree_add_item(eap_tree, hf_eap_md5_extra_data, tvb, offset, extra_len, ENC_BIG_ENDIAN);
 	  }
 	}
 	break;
@@ -1008,7 +1014,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	}
 	}
-	break; /*  EAP_TYPE_TLS */
+	break; /*  EAP_TYPE_LEAP */
       /*********************************************************************
                                   Cisco's Lightweight EAP (LEAP)
       http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
@@ -1019,9 +1025,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Version (byte) */
 	  if (tree) {
-	    field = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_text(eap_tree, tvb, offset, 1,
-				"Version: %i",field);
+        proto_tree_add_item(eap_tree, hf_eap_leap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  }
 	  offset++;
 
@@ -1036,8 +1040,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /* Count   (byte) */
 	  count = tvb_get_guint8(tvb, offset);
 	  if (tree) {
-	    proto_tree_add_text(eap_tree, tvb, offset, 1,
-				"Count: %i",count);
+        proto_tree_add_item(eap_tree, hf_eap_leap_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  }
 	  offset++;
 
@@ -1078,41 +1081,38 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  leap_state = packet_state->info;
 
 	  if (tree) {
-
-	    if        (leap_state==1) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count,
-				  "Peer Challenge [8] Random Value:\"%s\"",
-				  tvb_bytes_to_str(tvb, offset, count));
-	    } else if (leap_state==2) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count,
-				  "Peer Response [24] NtChallengeResponse(%s)",
-				  tvb_bytes_to_str(tvb, offset, count));
-	    } else if (leap_state==3) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count,
-				  "AP Challenge [8] Random Value:\"%s\"",
-				  tvb_bytes_to_str(tvb, offset, count));
-	    } else if (leap_state==4) {
-	      proto_tree_add_text(eap_tree, tvb, offset, count,
-				  "AP Response [24] ChallengeResponse(%s)",
-				  tvb_bytes_to_str(tvb, offset, count));
-	    } else {
-	      proto_tree_add_text(eap_tree, tvb, offset, count,
-				"Data (%d byte%s): \"%s\"",
-				count, plurality(count, "", "s"),
-				tvb_bytes_to_str(tvb, offset, count));
+	    switch (leap_state) {
+            case 1:
+                proto_tree_add_item(eap_tree, hf_eap_leap_peer_challenge, tvb, offset, count, ENC_BIG_ENDIAN);
+                break;
+                
+            case 2:
+                proto_tree_add_item(eap_tree, hf_eap_leap_peer_response, tvb, offset, count, ENC_BIG_ENDIAN);
+                break;
+                
+            case 3:
+                proto_tree_add_item(eap_tree, hf_eap_leap_ap_challenge, tvb, offset, count, ENC_BIG_ENDIAN);
+                break;
+                
+            case 4:
+                proto_tree_add_item(eap_tree, hf_eap_leap_ap_response, tvb, offset, count, ENC_BIG_ENDIAN);
+                break;
+                
+            default:
+                proto_tree_add_text(eap_tree, tvb, offset, count,
+                    "Data (%d byte%s): \"%s\"",
+                    count, plurality(count, "", "s"),
+                    tvb_bytes_to_str(tvb, offset, count));
+                break;
 	    }
-
-	  } /* END: if (tree) */
+	  }
 
 	  offset += count;
 
 	  /* Name    (Length-(8+Count)) */
 	  namesize = eap_len - (8+count);
 	  if (tree) {
-	    proto_tree_add_text(eap_tree, tvb, offset, namesize,
-				"Name (%d byte%s): %s",
-				namesize, plurality(count, "", "s"),
-				tvb_format_text(tvb, offset, namesize));
+	    proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_BIG_ENDIAN);
 	  }
 	}
 
@@ -1199,10 +1199,13 @@ proto_register_eap(void)
           "Notification", "eap.notification", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_md5_value_size, {
-          "Value-Size", "eap.md5.value_size", FT_UINT8, BASE_DEC,
+          "EAP-MD5 Value-Size", "eap.md5.value_size", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_md5_value, {
-          "Value", "eap.md5.value", FT_STRING, BASE_NONE,
+          "EAP-MD5 Value", "eap.md5.value", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_md5_extra_data, {
+          "EAP-MD5 Extra Data", "eap.md5.extra_data", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_tls_flags, {
           "EAP-TLS Flags", "eap.tls.flags", FT_UINT8, BASE_HEX,
@@ -1259,44 +1262,66 @@ proto_register_eap(void)
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"Total length of the reassembled payload", HFILL }},
     { &hf_eap_sim_subtype, {
-          "Subtype", "eap.sim.subtype", FT_UINT8, BASE_DEC,
+          "EAP-SIM Subtype", "eap.sim.subtype", FT_UINT8, BASE_DEC,
           VALS(eap_sim_subtype_vals), 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_attribute, {
-          "Attribute", "eap.sim.subtype.attribute", FT_UINT8, BASE_DEC,
-          VALS(eap_sim_aka_attributes), 0x0, NULL, HFILL }},
+          "EAP-SIM Attribute", "eap.sim.subtype.attribute", FT_UINT8, BASE_DEC,
+          VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_type, {
-          "Type", "eap.sim.subtype.type", FT_UINT8, BASE_DEC,
+          "EAP-SIM Type", "eap.sim.subtype.type", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_length, {
-          "Length", "eap.sim.subtype.length", FT_UINT8, BASE_DEC,
+          "EAP-SIM Length", "eap.sim.subtype.len", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_value, {
-          "Value", "eap.sim.subtype.value", FT_STRING, BASE_NONE,
+          "EAP-SIM Value", "eap.sim.subtype.value", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype, {
-          "Subtype", "eap.aka.subtype", FT_UINT8, BASE_DEC,
+          "EAP-AKA Subtype", "eap.aka.subtype", FT_UINT8, BASE_DEC,
           VALS(eap_aka_subtype_vals), 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_attribute, {
-          "Attribute", "eap.aka.subtype.attribute", FT_UINT8, BASE_DEC,
-          VALS(eap_sim_aka_attributes), 0x0, NULL, HFILL }},
+          "EAP-AKA Attribute", "eap.aka.subtype.attribute", FT_UINT8, BASE_DEC,
+          VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_type, {
-          "Type", "eap.aka.subtype.type", FT_UINT8, BASE_DEC,
+          "EAP-AKA Type", "eap.aka.subtype.type", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_length, {
-          "Length", "eap.aka.subtype.length", FT_UINT8, BASE_DEC,
+          "EAP-AKA Length", "eap.aka.subtype.len", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_value, {
-          "Value", "eap.aka.subtype.value", FT_STRING, BASE_NONE,
+          "EAP-AKA Value", "eap.aka.subtype.value", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      
+    { &hf_eap_leap_version, {
+          "EAP-LEAP Version", "eap.leap.version", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_leap_count, {
+          "EAP-LEAP Count", "eap.leap.count", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_leap_peer_challenge, {
+          "EAP-LEAP Peer-Challenge", "eap.leap.peer_challenge", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_leap_peer_response, {
+          "EAP-LEAP Peer-Response", "eap.leap.peer_response", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_leap_ap_challenge, {
+          "EAP-LEAP AP-Challenge", "eap.leap.ap_challenge", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_leap_ap_response, {
+          "EAP-LEAP AP-Response", "eap.leap.ap_response", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_leap_name, {
+          "EAP-LEAP Name", "eap.leap.name", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
 
 	/* Expanded type fields */
-	{ &hf_eapext_vendorid,
-	  { "Vendor Id", "eap.ext.vendor_id",
-	    FT_UINT16, BASE_HEX, VALS(eapext_vendorid_vals), 0x0,
+	{ &hf_eap_ext_vendor_id,
+	  { "EAP-EXT Vendor Id", "eap.ext.vendor_id",
+	    FT_UINT16, BASE_HEX, VALS(eap_ext_vendor_id_vals), 0x0,
 	    NULL, HFILL }},
-	{ &hf_eapext_vendortype,
-	  { "Vendor Type", "eap.ext.vendor_type",
-	    FT_UINT8, BASE_HEX, VALS(eapext_vendortype_vals), 0x0,
+	{ &hf_eap_ext_vendor_type,
+	  { "EAP-EXT Vendor Type", "eap.ext.vendor_type",
+	    FT_UINT8, BASE_HEX, VALS(eap_ext_vendor_type_vals), 0x0,
 	    NULL, HFILL }}
 
   };
