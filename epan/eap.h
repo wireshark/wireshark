@@ -71,4 +71,12 @@ WS_VAR_IMPORT const value_string eap_sim_subtype_vals[];
 
 WS_VAR_IMPORT const value_string eap_aka_subtype_vals[];
 
+#define MS_CHAP_V2_CHALLENGE 1
+#define MS_CHAP_V2_RESPONSE 2
+#define MS_CHAP_V2_SUCCESS 3
+#define MS_CHAP_V2_FAILURE 4
+#define MS_CHAP_V2_CHANGE_PASSWORD 7
+
+WS_VAR_IMPORT const value_string eap_ms_chap_v2_opcode_vals[];
+
 #endif

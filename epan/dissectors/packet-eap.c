@@ -54,24 +54,40 @@ static int hf_eap_md5_value = -1;
 static int hf_eap_md5_extra_data = -1;
 
 static int hf_eap_sim_subtype = -1;
+static int hf_eap_sim_reserved = -1;
 static int hf_eap_sim_subtype_attribute = -1;
 static int hf_eap_sim_subtype_type = -1;
 static int hf_eap_sim_subtype_length = -1;
 static int hf_eap_sim_subtype_value = -1;
 
 static int hf_eap_aka_subtype = -1;
+static int hf_eap_aka_reserved = -1;
 static int hf_eap_aka_subtype_attribute = -1;
 static int hf_eap_aka_subtype_type = -1;
 static int hf_eap_aka_subtype_length = -1;
 static int hf_eap_aka_subtype_value = -1;
 
 static int hf_eap_leap_version = -1;
+static int hf_eap_leap_reserved = -1;
 static int hf_eap_leap_count = -1;
 static int hf_eap_leap_peer_challenge = -1;
 static int hf_eap_leap_peer_response = -1;
 static int hf_eap_leap_ap_challenge = -1;
 static int hf_eap_leap_ap_response = -1;
 static int hf_eap_leap_name = -1;
+
+static int hf_eap_ms_chap_v2_opcode = -1;
+static int hf_eap_ms_chap_v2_id = -1;
+static int hf_eap_ms_chap_v2_length = -1;
+static int hf_eap_ms_chap_v2_value_size = -1;
+static int hf_eap_ms_chap_v2_challenge = -1;
+static int hf_eap_ms_chap_v2_name = -1;
+static int hf_eap_ms_chap_v2_peer_challenge = -1;
+static int hf_eap_ms_chap_v2_reserved = -1;
+static int hf_eap_ms_chap_v2_nt_response = -1;
+static int hf_eap_ms_chap_v2_flags = -1;
+static int hf_eap_ms_chap_v2_message = -1;
+static int hf_eap_ms_chap_v2_failure_request = -1;
 
 static gint ett_eap = -1;
 
@@ -217,6 +233,15 @@ const value_string eap_sim_aka_attribute_vals[] = {
 	{ 138, "AT_IPMS_RES" },
 	{ 139, "AT_TRUST_IND" },
 	{ 0, NULL }
+};
+
+const value_string eap_ms_chap_v2_opcode_vals[] = {
+    { MS_CHAP_V2_CHALLENGE, "Challenge" },
+    { MS_CHAP_V2_RESPONSE, "Response" },
+    { MS_CHAP_V2_SUCCESS, "Success" },
+    { MS_CHAP_V2_FAILURE, "Failure" },
+    { MS_CHAP_V2_CHANGE_PASSWORD, "Change-Password" },
+    { 0, NULL }
 };
 
 /*
@@ -384,101 +409,79 @@ eap_tls_defragment_init(void)
 }
 
 static void
-dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
+dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
 		     gint size)
 {
+    proto_item *item;
 	gint left = size;
 	gint ms_len;
 	guint8 value_size;
-	enum {
-		MS_CHAPv2_CHALLENGE = 1,
-		MS_CHAPv2_RESPONSE = 2,
-		MS_CHAPv2_SUCCESS = 3,
-		MS_CHAPv2_FAILURE = 4,
-		MS_CHAPv2_CHANGE_PASSWORD = 5
-	} opcode;
-	static const value_string opcodes[] = {
-		{ MS_CHAPv2_CHALLENGE, "Challenge" },
-		{ MS_CHAPv2_RESPONSE, "Response" },
-		{ MS_CHAPv2_SUCCESS, "Success" },
-		{ MS_CHAPv2_FAILURE, "Failure" },
-		{ MS_CHAPv2_CHANGE_PASSWORD, "Change-Password" },
-		{ 0, NULL }
-	};
+	guint8 opcode;
 
 	/* OpCode (1 byte), MS-CHAPv2-ID (1 byte), MS-Length (2 bytes), Data */
 	opcode = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(eap_tree, tvb, offset, 1,
-			    "OpCode: %d (%s)",
-			    opcode, val_to_str(opcode, opcodes, "Unknown"));
+    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	left--;
 	if (left <= 0)
 		return;
 
-	proto_tree_add_text(eap_tree, tvb, offset, 1, "MS-CHAPv2-ID: %d",
-			    tvb_get_guint8(tvb, offset));
+    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	left--;
 	if (left <= 0)
 		return;
 
+    item = proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	ms_len = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_text(eap_tree, tvb, offset, 2, "MS-Length: %d%s",
-			    ms_len,
-			    ms_len != size ? " (invalid len)" : "");
+    if (ms_len != size)
+        expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Invalid Length");
 	offset += 2;
 	left -= 2;
 
 	switch (opcode) {
-	case MS_CHAPv2_CHALLENGE:
+	case MS_CHAP_V2_CHALLENGE:
 		if (left <= 0)
 			break;
 		value_size = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(eap_tree, tvb, offset, 1,
-				    "Value-Size: %d", value_size);
+        proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_value_size,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		left--;
-		proto_tree_add_text(eap_tree, tvb, offset, value_size,
-				    "Challenge: %s",
-				    tvb_bytes_to_str(tvb, offset, value_size));
+        proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_challenge,
+                            tvb, offset, value_size, ENC_BIG_ENDIAN);
 		offset += value_size;
 		left -= value_size;
 		if (left <= 0)
 			break;
-		proto_tree_add_text(eap_tree, tvb, offset, left,
-				    "Name: %s",
-				    tvb_format_text(tvb, offset, left));
+        proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name,
+                            tvb, offset, left, ENC_BIG_ENDIAN);
 		break;
-	case MS_CHAPv2_RESPONSE:
+	case MS_CHAP_V2_RESPONSE:
 		if (left <= 0)
 			break;
 		value_size = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(eap_tree, tvb, offset, 1,
-				    "Value-Size: %d", value_size);
+        proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_value_size,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		left--;
 		if (value_size == 49) {
-			proto_tree_add_text(eap_tree, tvb, offset, 16,
-					    "Peer-Challenge: %s",
-					    tvb_bytes_to_str(tvb, offset, 16));
+            proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_peer_challenge,
+                                tvb, offset, 16, ENC_BIG_ENDIAN);
 			offset += 16;
-			proto_tree_add_text(eap_tree, tvb, offset, 8,
-					    "Reserved, must be zero: %s",
-					    tvb_bytes_to_str(tvb, offset, 8));
+            proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_reserved,
+                                tvb, offset, 8, ENC_BIG_ENDIAN);
 			offset += 8;
-			proto_tree_add_text(eap_tree, tvb, offset, 24,
-					    "NT-Response: %s",
-					    tvb_bytes_to_str(tvb, offset, 24));
+            proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_nt_response,
+                                tvb, offset, 24, ENC_BIG_ENDIAN);
 			offset += 24;
-			proto_tree_add_text(eap_tree, tvb, offset, 1,
-					    "Flags: %d",
-					    tvb_get_guint8(tvb, offset));
+            proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_flags,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			left -= value_size;
 		} else {
 			proto_tree_add_text(eap_tree, tvb, offset, value_size,
-					    "Response (unknown length): %s",
+					    "EAP-MS-CHAP-v2 Response (Unknown Length): %s",
 					    tvb_bytes_to_str(tvb, offset,
 							     value_size));
 			offset += value_size;
@@ -486,27 +489,23 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 		}
 		if (left <= 0)
 			break;
-		proto_tree_add_text(eap_tree, tvb, offset, left,
-				    "Name: %s",
-				    tvb_format_text(tvb, offset, left));
+        proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name, tvb, offset, left, ENC_BIG_ENDIAN);
 		break;
-	case MS_CHAPv2_SUCCESS:
+	case MS_CHAP_V2_SUCCESS:
 		if (left <= 0)
 			break;
-		proto_tree_add_text(eap_tree, tvb, offset, left,
-				    "Message: %s",
-				    tvb_format_text(tvb, offset, left));
+        proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_message,
+                            tvb, offset, left, ENC_BIG_ENDIAN);
 		break;
-	case MS_CHAPv2_FAILURE:
+	case MS_CHAP_V2_FAILURE:
 		if (left <= 0)
 			break;
-		proto_tree_add_text(eap_tree, tvb, offset, left,
-				    "Failure Request: %s",
-				    tvb_format_text(tvb, offset, left));
+        proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_failure_request,
+                            tvb, offset, left, ENC_BIG_ENDIAN);
 		break;
 	default:
 		proto_tree_add_text(eap_tree, tvb, offset, left,
-				    "Data (%d byte%s) Value: %s",
+				    "EAP-MS-CHAP-v2 Data (%d byte%s): \"%s\"",
 				    left, plurality(left, "", "s"),
 				    tvb_bytes_to_str(tvb, offset, left));
 		break;
@@ -524,8 +523,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 	if (left < 2)
 		return;
-	proto_tree_add_text(eap_tree, tvb, offset, 2, "Reserved: %d",
-			    tvb_get_ntohs(tvb, offset));
+    proto_tree_add_item(eap_tree, hf_eap_sim_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	left -= 2;
 
@@ -569,8 +567,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 	if (left < 2)
 		return;
-	proto_tree_add_text(eap_tree, tvb, offset, 2, "Reserved: %d",
-			    tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(eap_tree, hf_eap_aka_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	left -= 2;
 
@@ -700,14 +697,14 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, ENC_NA);
     eap_tree = proto_item_add_subtree(ti, ett_eap);
 
-    proto_tree_add_uint(eap_tree, hf_eap_code, tvb, 0, 1, eap_code);
+    proto_tree_add_item(eap_tree, hf_eap_code, tvb, 0, 1, ENC_BIG_ENDIAN);
   }
 
   if (tree)
     proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, ENC_BIG_ENDIAN);
 
   if (tree)
-    proto_tree_add_uint(eap_tree, hf_eap_len, tvb, 2, 2, eap_len);
+    proto_tree_add_item(eap_tree, hf_eap_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
   switch (eap_code) {
 
@@ -724,7 +721,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      val_to_str(eap_type, eap_type_vals,
 				 "Unknown type (0x%02x)"));
     if (tree)
-      proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
+      proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, ENC_BIG_ENDIAN);
 
     if (len > 5 || (len == 5 && eap_type == EAP_TYPE_ID)) {
       int     offset = 5;
@@ -1014,14 +1011,14 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	}
 	}
-	break; /*  EAP_TYPE_LEAP */
+	break; /*  EAP_TYPE_TLS */
       /*********************************************************************
                                   Cisco's Lightweight EAP (LEAP)
       http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
       **********************************************************************/
       case EAP_TYPE_LEAP:
 	{
-	  guint8  field,count,namesize;
+	  guint8 count, namesize;
 
 	  /* Version (byte) */
 	  if (tree) {
@@ -1031,9 +1028,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  /* Unused  (byte) */
 	  if (tree) {
-	    field = tvb_get_guint8(tvb, offset);
-	    proto_tree_add_text(eap_tree, tvb, offset, 1,
-				"Reserved: %i",field);
+        proto_tree_add_item(eap_tree, hf_eap_leap_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  }
 	  offset++;
 
@@ -1100,7 +1095,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 
             default:
                 proto_tree_add_text(eap_tree, tvb, offset, count,
-                    "Data (%d byte%s): \"%s\"",
+                    "EAP-LEAP Data (%d byte%s): \"%s\"",
                     count, plurality(count, "", "s"),
                     tvb_bytes_to_str(tvb, offset, count));
                 break;
@@ -1122,7 +1117,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       **********************************************************************/
       case EAP_TYPE_MSCHAPV2:
 	if (tree)
-	  dissect_eap_mschapv2(eap_tree, tvb, offset, size);
+	  dissect_eap_mschapv2(eap_tree, tvb, pinfo, offset, size);
 	break; /* EAP_TYPE_MSCHAPV2 */
       /*********************************************************************
               EAP-SIM - draft-haverinen-pppext-eap-sim-13.txt
@@ -1157,7 +1152,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       default:
         if (tree) {
 	  proto_tree_add_text(eap_tree, tvb, offset, size,
-			      "Type-Data (%d byte%s) Value: %s",
+			      "EAP Data (%d byte%s): \"%s\"",
 			      size, plurality(size, "", "s"),
 			      tvb_bytes_to_str(tvb, offset, size));
 	}
@@ -1242,11 +1237,11 @@ proto_register_eap(void)
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"Overlapping fragments contained conflicting data", HFILL }},
 	{ &hf_eap_tls_fragment_multiple_tails,
-	  { "Multiple Tail Fragments Found",	"eap.tls.fragment.multipletails",
+	  { "Multiple Tail Fragments Found",	"eap.tls.fragment.multiple_tails",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"Several tails were found when defragmenting the packet", HFILL }},
 	{ &hf_eap_tls_fragment_too_long_fragment,
-	  { "Fragment Too Long",	"eap.tls.fragment.toolongfragment",
+	  { "Fragment Too Long",	"eap.tls.fragment.fragment_too_long",
 		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		"Fragment contained data past end of packet", HFILL }},
 	{ &hf_eap_tls_fragment_error,
@@ -1258,12 +1253,15 @@ proto_register_eap(void)
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"Total length of the reassembled payload", HFILL }},
 	{ &hf_eap_tls_reassembled_length,
-	  { "Reassembled EAP-TLS Length", "eap.tls.reassembled.length",
+	  { "Reassembled EAP-TLS Length", "eap.tls.reassembled.len",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"Total length of the reassembled payload", HFILL }},
     { &hf_eap_sim_subtype, {
           "EAP-SIM Subtype", "eap.sim.subtype", FT_UINT8, BASE_DEC,
           VALS(eap_sim_subtype_vals), 0x0, NULL, HFILL }},
+    { &hf_eap_sim_reserved, {
+          "EAP-SIM Reserved", "eap.sim.reserved", FT_UINT16, BASE_HEX,
+          NULL, 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_attribute, {
           "EAP-SIM Attribute", "eap.sim.subtype.attribute", FT_UINT8, BASE_DEC,
           VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
@@ -1279,6 +1277,9 @@ proto_register_eap(void)
     { &hf_eap_aka_subtype, {
           "EAP-AKA Subtype", "eap.aka.subtype", FT_UINT8, BASE_DEC,
           VALS(eap_aka_subtype_vals), 0x0, NULL, HFILL }},
+    { &hf_eap_aka_reserved, {
+          "EAP-AKA Reserved", "eap.aka.reserved", FT_UINT16, BASE_HEX,
+          NULL, 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_attribute, {
           "EAP-AKA Attribute", "eap.aka.subtype.attribute", FT_UINT8, BASE_DEC,
           VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
@@ -1291,9 +1292,11 @@ proto_register_eap(void)
     { &hf_eap_aka_subtype_value, {
           "EAP-AKA Value", "eap.aka.subtype.value", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
-      
     { &hf_eap_leap_version, {
           "EAP-LEAP Version", "eap.leap.version", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_leap_reserved, {
+          "EAP-LEAP Reserved", "eap.leap.reserved", FT_UINT8, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_leap_count, {
           "EAP-LEAP Count", "eap.leap.count", FT_UINT8, BASE_DEC,
@@ -1313,7 +1316,43 @@ proto_register_eap(void)
     { &hf_eap_leap_name, {
           "EAP-LEAP Name", "eap.leap.name", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
-
+    { &hf_eap_ms_chap_v2_opcode, {
+          "EAP-MS-CHAP-v2 OpCode", "eap.ms_chap_v2.opcode", FT_UINT8, BASE_DEC,
+          VALS(eap_ms_chap_v2_opcode_vals), 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_id, {
+          "EAP-MS-CHAP-v2 Id", "eap.ms_chap_v2.id", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_length, {
+          "EAP-MS-CHAP-v2 Length", "eap.ms_chap_v2.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_value_size, {
+          "EAP-MS-CHAP-v2 Value-Size", "eap.ms_chap_v2.value_size", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_challenge, {
+          "EAP-MS-CHAP-v2 Challenge", "eap.ms_chap_v2.challenge", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_name, {
+          "EAP-MS-CHAP-v2 Name", "eap.ms_chap_v2.name", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_peer_challenge, {
+          "EAP-MS-CHAP-v2 Peer-Challenge", "eap.ms_chap_v2.peer_challenge", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_eap_ms_chap_v2_reserved, {
+          "EAP-MS-CHAP-v2 Reserved", "eap.ms_chap_v2.reserved", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_nt_response, {
+          "EAP-MS-CHAP-v2 NT-Response", "eap.ms_chap_v2.nt_response", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_flags, {
+          "EAP-MS-CHAP-v2 Flags", "eap.ms_chap_v2.flags", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_message, {
+          "EAP-MS-CHAP-v2 Message", "eap.ms_chap_v2.message", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+    { &hf_eap_ms_chap_v2_failure_request, {
+          "EAP-MS-CHAP-v2 Failure-Request", "eap.ms_chap_v2.failure_request", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      
 	/* Expanded type fields */
 	{ &hf_eap_ext_vendor_id,
 	  { "EAP-EXT Vendor Id", "eap.ext.vendor_id",
