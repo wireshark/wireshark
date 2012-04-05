@@ -339,6 +339,7 @@ static gint ett_eap_tls_fragments = -1;
 static gint ett_eap_sim_attr = -1;
 static gint ett_eap_aka_attr = -1;
 static gint ett_eap_exp_attr = -1;
+static gint ett_eap_tls_flags = -1;
 
 static const fragment_items eap_tls_frag_items = {
 	&ett_eap_tls_fragment,
@@ -611,8 +612,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conv_state_t *conversation_state;
   frame_state_t *packet_state;
   int leap_state;
-  proto_tree *ti;
+  proto_tree *ti = NULL;
   proto_tree *eap_tree = NULL;
+  proto_tree *eap_tls_flags_tree = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -803,14 +805,15 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Flags field, 1 byte */
 	if (tree) {
-        proto_tree_add_item(eap_tree, hf_eap_tls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tree, hf_eap_tls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tree, hf_eap_tls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(eap_tree, hf_eap_tls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        eap_tls_flags_tree = proto_item_add_subtree(ti, ett_eap_tls_flags);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		if (eap_type == EAP_TYPE_PEAP || eap_type == EAP_TYPE_TTLS ||
 			eap_type == EAP_TYPE_FAST) {
-            proto_tree_add_item(eap_tree, hf_eap_tls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 	}
 	size--;
@@ -1337,7 +1340,7 @@ proto_register_eap(void)
     { &hf_eap_ms_chap_v2_peer_challenge, {
           "EAP-MS-CHAP-v2 Peer-Challenge", "eap.ms_chap_v2.peer_challenge", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
-      { &hf_eap_ms_chap_v2_reserved, {
+    { &hf_eap_ms_chap_v2_reserved, {
           "EAP-MS-CHAP-v2 Reserved", "eap.ms_chap_v2.reserved", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
     { &hf_eap_ms_chap_v2_nt_response, {
@@ -1370,7 +1373,8 @@ proto_register_eap(void)
 	&ett_eap_tls_fragments,
 	&ett_eap_sim_attr,
 	&ett_eap_aka_attr,
-	&ett_eap_exp_attr
+	&ett_eap_exp_attr,
+    &ett_eap_tls_flags
   };
 
   proto_eap = proto_register_protocol("Extensible Authentication Protocol",
