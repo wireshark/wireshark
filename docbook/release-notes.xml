@@ -31,33 +31,6 @@ Wireshark Info
 
     <para>
 
-      The following vulnerabilities have been fixed.
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
-          </para>
-          <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.6: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.6.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-      </itemizedlist>
-
-    </para>
-
-    <para>
-
     The following bugs have been fixed:
 
       <itemizedlist>
@@ -71,6 +44,22 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+	  Wireshark could crash while reading SSL decryption keys on 64-bit Windows.
+        </para></listitem>
+
+        <listitem><para>
+          Malformed Packets H263-1996 (RFC2190).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6996">Bug
+          6996</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark error message for failure to open an rpcap: URL for a remote device is malformed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6922">Bug
+          6922</ulink>)
+        </para></listitem>
 
      </itemizedlist>
 
@@ -98,6 +87,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+H.263
 
     </para>
     </section>
@@ -105,7 +95,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-
+There are no updates in this release.
 
     </para>
     </section>
