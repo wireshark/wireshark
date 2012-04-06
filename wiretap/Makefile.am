@@ -29,7 +29,7 @@ include Makefile.common
 
 noinst_LTLIBRARIES = libwiretap_generated.la
 lib_LTLIBRARIES = libwiretap.la
-libwiretap_la_LDFLAGS = -version-info 1:7:0 -export-symbols wtap.sym @LDFLAGS_SHAREDLIB@
+libwiretap_la_LDFLAGS = -version-info 1:8:0 -export-symbols wtap.sym @LDFLAGS_SHAREDLIB@
 
 if HAVE_WARNINGS_AS_ERRORS
 AM_NON_GENERATED_CFLAGS = -Werror

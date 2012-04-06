@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.7">
+<!ENTITY WiresharkCurrentVersion "1.6.8">
 
 ]>
 
@@ -28,6 +28,33 @@ Wireshark Info
 
   <section id="WhatsNew"><title>What's New</title>
     <section id="BugFixes"><title>Bug Fixes</title>
+
+    <para>
+
+      The following vulnerabilities have been fixed.
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
+          </para>
+          <para>
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.6.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
+      </itemizedlist>
+
+    </para>
 
     <para>
 
@@ -47,18 +74,6 @@ Wireshark Info
 
         <listitem><para>
 	  Wireshark could crash while reading SSL decryption keys on 64-bit Windows.
-        </para></listitem>
-
-        <listitem><para>
-          Malformed Packets H263-1996 (RFC2190).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6996">Bug
-          6996</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark could crash while trying to open an rpcap: URL.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6922">Bug
-          6922</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -87,7 +102,6 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-H.263
 
     </para>
     </section>
@@ -95,7 +109,7 @@ H.263
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-There are no updates in this release.
+
 
     </para>
     </section>
@@ -176,11 +190,11 @@ There are no updates in this release.
       development page</ulink>)
     </para>
 
-    <para>
+    <listitem><para>
       &quot;Closing File!&quot; Dialog Hangs.
       (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046">Bug
       3046</ulink>)
-    </para>
+    </para></listitem>
 
     <para>
       Application crash when changing real-time option.
