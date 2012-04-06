@@ -2,6 +2,14 @@
  * Routines for BACnet MS/TP datalink dissection
  * Copyright 2008 Steve Karg <skarg@users.sourceforge.net> Alabama
  *
+ * This is described in Clause 9 of ANSI/ASHRAE Standard 135-2004,
+ * BACnet - A Data Communication Protocol for Building Automation
+ * and Contrl Networks; clause 9 "describes a Master-Slave/Token-Passing
+ * (MS/TP) data link protocol, which provides the same services to the
+ * network layer as ISO 8802-2 Logical Link Control. It uses services
+ * provided by the EIA-485 physical layer."  See section 9.3 for the
+ * frame format.
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -434,6 +442,7 @@ proto_reg_handoff_mstp(void)
 
 	mstp_handle = find_dissector("mstp");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_BACNET_MS_TP, mstp_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR, mstp_handle);
 
 	bacnet_handle = find_dissector("bacnet");
 	data_handle = find_dissector("data");

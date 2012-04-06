@@ -159,7 +159,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		case WTAP_ENCAP_ISDN:
 		case WTAP_ENCAP_V5_EF:
 		case WTAP_ENCAP_DPNSS:
-		case WTAP_ENCAP_BACNET_MS_TP:
+		case WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR:
 			pinfo->p2p_dir = pinfo->pseudo_header->isdn.uton ?
 			    P2P_DIR_SENT : P2P_DIR_RECV;
 			break;

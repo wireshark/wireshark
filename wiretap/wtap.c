@@ -564,7 +564,16 @@ static struct encap_type_info encap_table_base[] = {
 	{ "PPP-over-Ethernet session", "pppoes" },
 
 	/* WTAP_ENCAP_NFC_LLCP */
-	{ "LLCP", "llcp" }
+	{ "NFC LLCP", "nfc-llcp" },
+
+	/* WTAP_ENCAP_NFLOG */
+	{ "NFLOG", "nflog" },
+
+	/* WTAP_ENCAP_V5_EF */
+	{ "V5 Enveope Function", "v5-ef" },
+
+	/* WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR */
+	{ "BACnet MS/TP with Directional Info", "bacnet-ms-tp-with-direction" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
