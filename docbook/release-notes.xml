@@ -56,7 +56,7 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          Wireshark error message for failure to open an rpcap: URL for a remote device is malformed.
+          Wireshark could crash while trying to open an rpcap: URL.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6922">Bug
           6922</ulink>)
         </para></listitem>
@@ -176,11 +176,11 @@ There are no updates in this release.
       development page</ulink>)
     </para>
 
-    <listitem><para>
+    <para>
       &quot;Closing File!&quot; Dialog Hangs.
       (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046">Bug
       3046</ulink>)
-    </para></listitem>
+    </para>
 
     <para>
       Application crash when changing real-time option.

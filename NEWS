@@ -1,4 +1,4 @@
-Wireshark 1.6.6 Release Notes
+Wireshark 1.6.7 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,122 +12,15 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed.
-
-     o wnpa-sec-2012-04
-
-       The ANSI A dissector could dereference a NULL pointer and
-       crash. (Bug 6823)
-
-       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
-
-     o wnpa-sec-2012-05
-
-       The IEEE 802.11 dissector could go into an infinite loop. (Bug
-       6809)
-
-       Versions affected: 1.6.0 to 1.6.5.
-
-     o wnpa-sec-2012-06
-
-       The pcap and pcap-ng file parsers could crash trying to read
-       ERF data. (Bug 6804)
-
-       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
-
-     o wnpa-sec-2012-07
-
-       The MP2T dissector could try to allocate too much memory and
-       crash. (Bug 6804)
-
-       Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.
-
-     o The Windows installers now include GnuTLS 1.12.18, which fixes
-       several vulnerabilities.
-
    The following bugs have been fixed:
 
-     o ISO SSAP: ActivityStart: Invalid decoding the activity
-       parameter as a BER Integer. (Bug 2873)
+     o Wireshark could crash while reading SSL decryption keys on
+       64-bit Windows.
 
-     o Forward slashes in URI need to be converted to backslashes if
-       WIN32. (Bug 5237)
+     o Malformed Packets H263-1996 (RFC2190). (Bug 6996)
 
-     o Character echo pauses in Capture Filter field in Capture
-       Options. (Bug 5356)
-
-     o Some PGM options are not parsed correctly. (Bug 5687)
-
-     o dumpcap crashes when capturing from pipe to a pcap-ng file
-       (e.g., when passing data from CACE Pilot to Wireshark). (Bug
-       5939)
-
-     o Unable to rearrange columns in preferences on Windows. (Bug
-       6077) (Note: this bug still affects the 64-bit package)
-
-     o No error for UDP/IPv6 packet with zero checksum. (Bug 6232)
-
-     o Wireshark installer doesn't add access_bpf in 10.5.8. (Bug
-       6526)
-
-     o Corrupted Diameter dictionary file that crashes Wireshark.
-       (Bug 6664)
-
-     o packetBB dissector bug: More than 1000000 items in the tree --
-       possible infinite loop. (Bug 6687)
-
-     o ZEP dissector: Timestamp not always displayed correctly.
-       Fractional seconds never displayed. (Bug 6703)
-
-     o GOOSE Messages don't use the length field to perform the
-       dissection. (Bug 6734)
-
-     o Ethernet traces in K12 text format sometimes give bogus
-       "malformed frame" errors and other problems. (Bug 6735)
-
-     o max_ul_ext isn't printed/decoded to the packet details log in
-       GTP protocol packet. (Bug 6761)
-
-     o non-IPP packets to or from port 631 are dissected as IPP. (Bug
-       6765)
-
-     o lua proto registration fails for uppercase proto /
-       g_ascii_strdown problem. (Bug 6766)
-
-     o no menu item Fle->Export->SSL Session Keys in GTK. (Bug 6813)
-
-     o IAX2 dissector reads past end of packet for unknown IEs. (Bug
-       6815)
-
-     o TShark 1.6.5 immediately crashes on SSL decryption (every
-       time). (Bug 6817)
-
-     o USB: unknown GET DESCRIPTOR response triggers assert failure.
-       (Bug 6826)
-
-     o IEEE1588 PTPv2 over IPv6. (Bug 6836)
-
-     o Patch to fix DTLS decryption. (Bug 6847)
-
-     o Expression... dialog crash. (Bug 6891)
-
-     o display filter "gtp.msisdn" not working. (Bug 6947)
-
-     o Multiprotocol Label Switching Echo - Return Code: Reserved
-       (5). (Bug 6951)
-
-     o ISAKMP : VendorID CheckPoint : Malformed Packet. (Bug 6972)
-
-     o Adding a Custom HTTP Header Field with a trailing colon causes
-       wireshark to immediately crash (and crash upon restart). (Bug
-       6982)
-
-     o Radiotap dissector lists a bogus "DBM TX Attenuation" bit.
-       (Bug 7000)
-
-     o MySQL dissector assertion. (Ask 8649)
-
-     o Radiotap header format data rate alignment issues. (Ask 8649)
+     o Wireshark could crash while trying to open an rpcap: URL. (Bug
+       6922)
 
   New and Updated Features
 
@@ -139,13 +32,11 @@ What's New
 
   Updated Protocol Support
 
-   ANSI A, BSSGP, DIAMETER, DTLS, GOOSE, GSM Management, GTP, HTTP,
-   IAX2, IEEE 802.11, IPP, ISAKMP, ISO SSAP, MP2T, MPLS, MySQL, NTP,
-   PacketBB, PGM, Radiotap, SSL, TCP, UDP, USB, WSP
+   H.263
 
   New and Updated Capture File Support
 
-   Endace ERF, Pcap-NG, Tektronix K12
+   There are no updates in this release.
 
 Getting Wireshark
 
@@ -184,6 +75,8 @@ Known Problems
 
    The 64-bit Windows installer does not ship with libsmi. (Win64
    development page)
+
+   "Closing File!" Dialog Hangs. (Bug 3046)
 
    Application crash when changing real-time option. (Bug 4035)
 
