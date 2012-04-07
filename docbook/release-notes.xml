@@ -190,11 +190,11 @@ There are no new protocols in this release.
       development page</ulink>)
     </para>
 
-    <listitem><para>
+    <para>
       &quot;Closing File!&quot; Dialog Hangs.
       (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046">Bug
       3046</ulink>)
-    </para></listitem>
+    </para>
 
     <para>
       Application crash when changing real-time option.
