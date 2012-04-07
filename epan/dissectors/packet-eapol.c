@@ -365,13 +365,13 @@ proto_register_eapol(void)
 		NULL, 0x0, "Key Initialization Vector", HFILL }},
     { &hf_eapol_keydes_key_index, {
           "Key Index", "eapol.keydes.key_index", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "Type", HFILL }},
+          NULL, 0x0, "Key Index Value", HFILL }},
 	{ &hf_eapol_keydes_key_index_type, {
 		"Type", "eapol.keydes.key_index.type", FT_BOOLEAN, 8,
-		TFS(&keytype_tfs), KEYDES_KEY_INDEX_TYPE_MASK , "Type", HFILL }},
+		TFS(&keytype_tfs), KEYDES_KEY_INDEX_TYPE_MASK , "Key Index Type", HFILL }},
 	{ &hf_eapol_keydes_key_index_number, {
 		"Number", "eapol.keydes.key_index.number", FT_UINT8, BASE_DEC,
-		NULL, KEYDES_KEY_INDEX_NUMBER_MASK, "Number", HFILL }},
+		NULL, KEYDES_KEY_INDEX_NUMBER_MASK, "Key Index Number", HFILL }},
 	{ &hf_eapol_keydes_key_signature, {
 		"Key Signature", "eapol.keydes.key_signature", FT_BYTES, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},
