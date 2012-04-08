@@ -1068,7 +1068,7 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   if (ttl & 0x8000) {
      Z_tree = proto_item_add_subtree(Z_item, rr_type);
      proto_tree_add_text(Z_tree, tvb, offset, 2, "Bit 0 (DO bit): 1 (Accepts DNSSEC security RRs)");
-     proto_tree_add_text(Z_tree, tvb, offset, 2, "Bits 1-15: 0x%x (reserved)", (ttl >> 17) & 0xff);
+     proto_tree_add_text(Z_tree, tvb, offset, 2, "Bits 1-15: 0x%x (reserved)", ttl & 0x7fff);
   }
   offset += 2;
   proto_tree_add_uint(rr_tree, hf_dns_rr_len, tvb, offset, 2, data_len);
