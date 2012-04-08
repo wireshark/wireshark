@@ -1931,10 +1931,14 @@ msisdn_to_str(tvbuff_t *tvb, gint offset, int len)
             j++;
         if (bits8to5 <= 9)
             str[j++] = BCD2CHAR(bits8to5);
+        else if ((i == (MIN(len, 9) - 1)) && (bits8to5 == 0xF)) {
+            /* filler found (odd number of digits); stop here */
+            break;
+        }
         else
             j++;
     }
-    str[j-1] = '\0';
+    str[j] = '\0';
 
     return str;
 }
