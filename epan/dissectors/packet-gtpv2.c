@@ -813,7 +813,7 @@ dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    imsi_str = tvb_bcd_dig_to_ep_str( tvb, offset, length, NULL, ENC_BIG_ENDIAN);
+    imsi_str = tvb_bcd_dig_to_ep_str( tvb, offset, length, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtpv2_imsi, tvb, offset, length, imsi_str);
     proto_item_append_text(item, "%s", imsi_str);
@@ -1457,7 +1457,7 @@ dissect_gtpv2_mei(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    mei_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, ENC_BIG_ENDIAN);
+    mei_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtpv2_mei, tvb, offset, length, mei_str);
     proto_item_append_text(item, "%s", mei_str);
@@ -1488,7 +1488,7 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the EP
      * allocated string will be returned.
      */
-    digit_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, ENC_BIG_ENDIAN);
+    digit_str = tvb_bcd_dig_to_ep_str( tvb, 0, length, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtpv2_address_digits, tvb, 0, length, digit_str);
     proto_item_append_text(item, "%s", digit_str);
@@ -2925,7 +2925,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     if ( tmp > 0 )
     {
         proto_tree_add_text(tree, tvb, offset, tmp, "Mobile Equipment Identify (MEI): %s",
-            tvb_bcd_dig_to_ep_str( tvb, offset, tmp, NULL, ENC_BIG_ENDIAN));
+            tvb_bcd_dig_to_ep_str( tvb, offset, tmp, NULL, FALSE));
         offset += tmp;
     }
 
@@ -2933,12 +2933,12 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     if (offset < (gint)length+4){
         accrstdata_item = proto_tree_add_text(tree, tvb, offset, tmp, "Access restriction data");
         accrstdata_tree = proto_item_add_subtree(accrstdata_item, ett_gtpv2_access_rest_data);
-        proto_tree_add_item(accrstdata_tree, hf_gtpv2_hnna, tvb, offset, 1, FALSE);
-        proto_tree_add_item(accrstdata_tree, hf_gtpv2_ina, tvb, offset, 1, FALSE);
-        proto_tree_add_item(accrstdata_tree, hf_gtpv2_ena, tvb, offset, 1, FALSE);
-        proto_tree_add_item(accrstdata_tree, hf_gtpv2_gana, tvb, offset, 1, FALSE);
-        proto_tree_add_item(accrstdata_tree, hf_gtpv2_gena, tvb, offset, 1, FALSE);
-        proto_tree_add_item(accrstdata_tree, hf_gtpv2_una, tvb, offset, 1, FALSE);
+        proto_tree_add_item(accrstdata_tree, hf_gtpv2_hnna, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(accrstdata_tree, hf_gtpv2_ina, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(accrstdata_tree, hf_gtpv2_ena, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(accrstdata_tree, hf_gtpv2_gana, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(accrstdata_tree, hf_gtpv2_gena, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(accrstdata_tree, hf_gtpv2_una, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }else{
         return;
