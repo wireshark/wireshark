@@ -138,7 +138,7 @@ static const true_false_string keyinfo_key_type_tfs =
 #define KEYDES_VER_TYPE2	0x02
 #define KEYDES_VER_TYPE3	0x03
 
-static const value_string keydes_ver[] = {
+static const value_string keydes_version_vals[] = {
 	{ KEYDES_VER_TYPE1,	"RC4 Cipher, HMAC-MD5 MIC" },
 	{ KEYDES_VER_TYPE2,	"AES Cipher, HMAC-SHA1 MIC" },
 	{ KEYDES_VER_TYPE3,	"AES Cipher, AES-128-CMAC MIC" },
@@ -352,8 +352,8 @@ proto_register_eapol(void)
 		"Length", "eapol.len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_type, {
-		"Descriptor Type", "eapol.keydes.type", FT_UINT8, BASE_DEC,
-		VALS(eapol_keydes_type_vals), 0x0, "Key Descriptor Type", HFILL }},
+		"Key Descriptor Type", "eapol.keydes.type", FT_UINT8, BASE_DEC,
+		VALS(eapol_keydes_type_vals), 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_key_len, {
 		"Key Length", "eapol.keydes.key_len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
@@ -362,16 +362,16 @@ proto_register_eapol(void)
 		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_key_iv, {
 		"Key IV", "eapol.keydes.key_iv", FT_BYTES, BASE_NONE,
-		NULL, 0x0, "Key Initialization Vector", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
     { &hf_eapol_keydes_key_index, {
-          "Key Index", "eapol.keydes.key_index", FT_UINT8, BASE_HEX,
-          NULL, 0x0, "Key Index Value", HFILL }},
+        "Key Index", "eapol.keydes.key_index", FT_UINT8, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_keydes_key_index_type, {
 		"Type", "eapol.keydes.key_index.type", FT_BOOLEAN, 8,
-		TFS(&keytype_tfs), KEYDES_KEY_INDEX_TYPE_MASK , "Key Index Type", HFILL }},
+		TFS(&keytype_tfs), KEYDES_KEY_INDEX_TYPE_MASK , NULL, HFILL }},
 	{ &hf_eapol_keydes_key_index_number, {
 		"Number", "eapol.keydes.key_index.number", FT_UINT8, BASE_DEC,
-		NULL, KEYDES_KEY_INDEX_NUMBER_MASK, "Key Index Number", HFILL }},
+		NULL, KEYDES_KEY_INDEX_NUMBER_MASK, NULL, HFILL }},
 	{ &hf_eapol_keydes_key_signature, {
 		"Key Signature", "eapol.keydes.key_signature", FT_BYTES, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},
@@ -387,7 +387,7 @@ proto_register_eapol(void)
 	{ &hf_eapol_wpa_keydes_keyinfo_keydes_version, {
 		"Key Descriptor Version",
 		"eapol.keydes.key_info.keydes_version",
-		FT_UINT16, BASE_DEC, VALS(keydes_ver),
+		FT_UINT16, BASE_DEC, VALS(keydes_version_vals),
 		KEY_INFO_KEYDES_VERSION_MASK,
 		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_type, {
@@ -409,7 +409,7 @@ proto_register_eapol(void)
 		KEY_INFO_INSTALL_MASK,
 		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_keyinfo_key_ack, {
-		"Key Ack",
+		"Key ACK",
 		"eapol.keydes.key_info.key_ack",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset),
 		KEY_INFO_KEY_ACK_MASK,
@@ -445,8 +445,8 @@ proto_register_eapol(void)
 		KEY_INFO_ENCRYPTED_KEY_DATA_MASK,
 		NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_nonce, {
-		"Nonce", "eapol.keydes.nonce", FT_BYTES, BASE_NONE,
-		NULL, 0x0, "WPA Key Nonce", HFILL }},
+		"WPA Key Nonce", "eapol.keydes.nonce", FT_BYTES, BASE_NONE,
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_eapol_wpa_keydes_rsc, {
 		"WPA Key RSC", "eapol.keydes.rsc", FT_BYTES, BASE_NONE, NULL,
 		0x0, NULL, HFILL }},
