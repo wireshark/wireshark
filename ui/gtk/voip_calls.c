@@ -3122,7 +3122,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 	unistim_info_t *tmp_unistim_info = NULL;
 	GList *list = NULL;
 	GString *g_tmp = NULL;
-	gchar *frame_label = NULL;
+	const gchar *frame_label = NULL;
 	gchar *comment = NULL;
 
 	/* Fetch specific packet infos */

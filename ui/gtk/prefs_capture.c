@@ -104,7 +104,7 @@ capture_prefs_show(void)
 	GList		*if_list, *combo_list;
 	int		err;
 	int		row = 0;
-	gchar           *tooltips_text;
+	const gchar     *tooltips_text;
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);

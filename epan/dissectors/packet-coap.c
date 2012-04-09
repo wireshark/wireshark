@@ -520,7 +520,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_item *payload_item = NULL;
 		tvbuff_t *payload_tvb;
 		guint payload_length = coap_length - offset;
-		char *ctype_str_default = "";
+		const char *ctype_str_default = "";
 
 		/*
 		 * TODO: should the content type be canonicalized ?

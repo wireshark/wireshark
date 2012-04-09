@@ -1204,7 +1204,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint8 service_action;
     guint32 block_len;
     guint64 len, tot_len;
-    char *un;
+    const char *un;
     static const int *pmi_fields[] = {
         &hf_scsi_sbc_pmi,
 	NULL

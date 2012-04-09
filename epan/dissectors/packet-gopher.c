@@ -137,7 +137,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree *gopher_tree, *dir_tree = NULL;
     gboolean client = is_client(pinfo);
     gint line_len;
-    gchar *request = "[Invalid request]";
+    const gchar *request = "[Invalid request]";
     gboolean is_dir = FALSE;
     gint offset = 0, next_offset;
     gint sel_start, host_start, port_start;

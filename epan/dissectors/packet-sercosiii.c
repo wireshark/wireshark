@@ -1178,8 +1178,8 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item*  ti;
   proto_tree*  siii_tree;
   guint    type;
-  char* tel_ch="?";
-  char* tel_type="?";
+  const char* tel_ch="?";
+  const char* tel_type="?";
   guint tel_no = 0;
 
   /* setup columns */

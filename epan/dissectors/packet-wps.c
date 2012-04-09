@@ -1568,7 +1568,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       guint32 value = -1;
       void* valuep = NULL;
       header_field_info* hf_info = NULL;
-      char* fmt = NULL;
+      const char* fmt = NULL;
 
       proto_item_set_text(tlv_item, "%s",
                           val_to_str(tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));

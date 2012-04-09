@@ -364,8 +364,8 @@ dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 flags, enu
 		g_snprintf(&str_oid[0], 2048, "(null)");
 
 	if(tree) {
-		char *range = "";
-		char *inclusion = (include) ? " (Inclusive)" : " (Exclusive)";
+		const char *range = "";
+		const char *inclusion = (include) ? " (Inclusive)" : " (Exclusive)";
 		switch (oid_usage) {
 			case OID_START_RANGE:	range = "(Range Start) ";	break;
 			case OID_END_RANGE:	range = "  (Range End) ";	break;

@@ -587,7 +587,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	gint namelen;
 	guint8 server_count, reset_cmd;
 	guint8 os_major_ver, os_minor_ver;
-	gchar *windows_version = NULL;
+	const gchar *windows_version = NULL;
 	int i;
 	guint32 uptime;
 
@@ -846,7 +846,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint32 periodicity;
 	const guint8 *host_name;
 	guint8 os_major_ver, os_minor_ver;
-	gchar *windows_version = NULL;
+	const gchar *windows_version = NULL;
 	guint namelen;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");

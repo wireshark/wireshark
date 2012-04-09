@@ -3416,7 +3416,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
   if (message_code != RELOAD_ERROR) {
     proto_item *ti_message_body;
     proto_tree *message_body_tree;
-    gchar *message_type_str = NULL;
+    const gchar *message_type_str = NULL;
 
     /* message_code was already parsed */
     {
