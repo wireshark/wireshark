@@ -816,6 +816,7 @@ DISSECTOR_SRC = \
 	packet-null.c		\
 	packet-nwmtp.c		\
 	packet-oicq.c		\
+	packet-oipf.c		\
 	packet-olsr.c		\
 	packet-omapi.c		\
 	packet-omron-fins.c	\

@@ -396,7 +396,7 @@ typedef struct _apdu_info_t {
     guint16 res_class;
     guint8  res_min_ver;
     void (*dissect_payload)(guint32, gint,
-            tvbuff_t *, gint, packet_info *, proto_tree *);
+            tvbuff_t *, gint, circuit_t *, packet_info *, proto_tree *);
 } apdu_info_t;
 
 
@@ -404,60 +404,60 @@ void proto_reg_handoff_dvbci(void);
 
 static void
 dissect_dvbci_payload_rm(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ca(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo _U_, proto_tree *tree);
 static void
 dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree);
+        tvbuff_t *tvb, gint offset, circuit_t *circuit,
+        packet_info *pinfo, proto_tree *tree);
 
 
 /* apdu defines */
@@ -976,8 +976,8 @@ static int hf_dvbci_sas_app_id = -1;
 static int hf_dvbci_sas_sess_state = -1;
 static int hf_dvbci_sas_msg_nb = -1;
 static int hf_dvbci_sas_msg_len = -1;
-static int hf_dvbci_sas_msg = -1;
 
+static dissector_table_t sas_msg_dissector_table;
 
 static GHashTable *tpdu_fragment_table = NULL;
 static GHashTable *tpdu_reassembled_table = NULL;
@@ -2243,8 +2243,8 @@ dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* dissect the body of a resource manager apdu */
 static void
 dissect_dvbci_payload_rm(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     const gchar *tag_str;
     proto_item  *pi;
@@ -2269,8 +2269,8 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     guint8  menu_str_len;
     guint8 *menu_string;
@@ -2310,8 +2310,8 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_ca(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     const gchar *tag_str;
     proto_item  *pi;
@@ -2421,8 +2421,8 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo _U_, proto_tree *tree)
 {
     gint bytes_len;
 
@@ -2447,8 +2447,8 @@ dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     proto_item *pi;
     guint16     nid, onid, tsid, svcid;
@@ -2539,8 +2539,8 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     nstime_t     resp_intv;
     proto_item  *pi = NULL;
@@ -2608,8 +2608,8 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     gint         offset_start;
     proto_item  *pi;
@@ -2782,7 +2782,8 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
   guint8 *str;
 
@@ -2805,8 +2806,8 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
   guint8      upgrade_type;
   guint16     download_time;
@@ -2865,8 +2866,8 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo,
-        proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     guint8      status;
     guint32     msg_ctr;
@@ -3071,7 +3072,8 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     guint8      app_dom_id_len, init_obj_len;
     guint8     *app_dom_id;
@@ -3226,7 +3228,8 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     gint         offset_start;
     guint8       id, timeout, ret_val, phase_id;
@@ -3371,7 +3374,8 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
 
 static void
 dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
 {
     guint16     nit_loop_len;
     guint8      cap_loop_len;
@@ -3516,19 +3520,22 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+        tvbuff_t *tvb, gint offset, circuit_t *circuit,
+        packet_info *pinfo, proto_tree *tree)
 {
-    guint64 app_id;
+    gchar   app_id_str[2+16+1]; /* "0x", string of 16 hex digits, trailing 0 */
     guint8  sas_status;
+    dissector_handle_t msg_handle;
     guint8  msg_nb;
     guint16 msg_len;
+    tvbuff_t *msg_tvb;
 
     switch(tag) {
         case T_SAS_CONNECT_RQST:
         case T_SAS_CONNECT_CNF:
-            app_id = tvb_get_ntoh64(tvb, offset);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
-                    "App ID 0x%016" G_GINT64_MODIFIER "x", app_id);
+            g_snprintf(app_id_str, sizeof(app_id_str),
+                    "0x%016" G_GINT64_MODIFIER "x", tvb_get_ntoh64(tvb, offset));
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", app_id_str);
             proto_tree_add_item(tree, hf_dvbci_sas_app_id,
                     tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
@@ -3539,6 +3546,16 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
                          "Ok" : "Error"));
                 proto_tree_add_item(tree, hf_dvbci_sas_sess_state,
                         tvb, offset, 1, ENC_BIG_ENDIAN);
+                if (!circuit)
+                    break;
+                if (sas_status == SAS_SESS_STATE_CONNECTED) {
+                    msg_handle = dissector_get_string_handle(
+                            sas_msg_dissector_table, app_id_str);
+                    /* this clears the dissector for msg_handle==NULL */
+                    circuit_set_dissector(circuit, msg_handle);
+                }
+                else
+                    circuit_set_dissector(circuit, NULL);
             }
             break;
         case T_SAS_ASYNC_MSG:
@@ -3552,8 +3569,11 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
             proto_tree_add_item(tree, hf_dvbci_sas_msg_len,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_dvbci_sas_msg,
-                    tvb, offset, msg_len, ENC_NA);
+            msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+            msg_handle = (circuit && circuit->dissector_handle) ?
+                circuit->dissector_handle : find_dissector("data");
+            if (msg_handle)
+                call_dissector(msg_handle, msg_tvb, pinfo, tree);
             break;
         default:
           break;
@@ -3676,7 +3696,8 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
              * data in apdu_info[] */
             return;
         }
-        ai->dissect_payload(tag, len_field, tvb, offset, pinfo, app_tree);
+        ai->dissect_payload(
+                tag, len_field, tvb, offset, circuit, pinfo, app_tree);
     }
 }
 
@@ -5193,10 +5214,6 @@ proto_register_dvbci(void)
         { &hf_dvbci_sas_msg_len,
           { "Message length", "dvb-ci.sas.msg_len",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
-        },
-        { &hf_dvbci_sas_msg,
-          { "Message", "dvb-ci.sas.message",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         }
     };
 
@@ -5227,6 +5244,9 @@ proto_register_dvbci(void)
     prefs_register_string_preference(dvbci_module,
                                      "siv", "SAC Init Vector", "SAC Init Vector (16 hex bytes)",
                                      (const gchar **)&dvbci_siv);
+
+    sas_msg_dissector_table = register_dissector_table("dvb-ci.sas.app_id_str",
+                "SAS application id", FT_STRING, BASE_NONE);
 
     register_init_routine(dvbci_init);
 }

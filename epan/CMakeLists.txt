@@ -897,6 +897,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-null.c
 	dissectors/packet-nwmtp.c
 	dissectors/packet-oicq.c
+	dissectors/packet-oipf.c
 	dissectors/packet-olsr.c
 	dissectors/packet-omapi.c
 	dissectors/packet-omron-fins.c
