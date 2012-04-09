@@ -307,7 +307,6 @@ static dissector_handle_t data_handle;
 #define SEQUENCE_ANALYSIS_PDCP_ONLY 2
 
 /* Preference variables */
-static gboolean global_pdcp_show_feedback_option_tag_length = FALSE;
 static gboolean global_pdcp_dissect_user_plane_as_ip = FALSE;
 static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;
 static gint     global_pdcp_check_sequence_numbers = FALSE;
@@ -3281,6 +3280,9 @@ void proto_register_pdcp(void)
 
     pdcp_lte_module = prefs_register_protocol(proto_pdcp_lte, NULL);
 
+    /* Obsolete preferences */
+    prefs_register_obsolete_preference(pdcp_lte_module, "show_feedback_option_tag_length");
+
     /* Dissect uncompressed user-plane data as IP */
     prefs_register_bool_preference(pdcp_lte_module, "show_user_plane_as_ip",
         "Show uncompressed User-Plane data as IP",
@@ -3304,11 +3306,6 @@ void proto_register_pdcp(void)
         "Attempt to decode ROHC data",
         "Attempt to decode ROHC data",
         &global_pdcp_dissect_rohc);
-
-    prefs_register_bool_preference(pdcp_lte_module, "show_feedback_option_tag_length",
-        "Show ROHC feedback option tag & length",
-        "Show ROHC feedback option tag & length",
-        &global_pdcp_show_feedback_option_tag_length);
 
     prefs_register_bool_preference(pdcp_lte_module, "heuristic_pdcp_lte_over_udp",
         "Try Heuristic LTE-PDCP over UDP framing",
