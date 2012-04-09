@@ -140,6 +140,7 @@ void proto_register_pkix1explicit(void) {
 /*--- proto_reg_handoff_pkix1explicit -------------------------------------------*/
 void proto_reg_handoff_pkix1explicit(void) {
 	oid_add_from_string("id-pkix","1.3.6.1.5.5.7");
+	oid_add_from_string("id-dsa-with-sha1","1.2.840.10040.4.3");
 #include "packet-pkix1explicit-dis-tab.c"
 }
 
