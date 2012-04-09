@@ -183,6 +183,8 @@ static gint ett_ip_dsfield = -1;
 static gint ett_ip_tos = -1;
 static gint ett_ip_off = -1;
 static gint ett_ip_options = -1;
+static gint ett_ip_option_eool = -1;
+static gint ett_ip_option_nop = -1;
 static gint ett_ip_option_sec = -1;
 static gint ett_ip_option_route = -1;
 static gint ett_ip_option_sid = -1;
@@ -190,6 +192,7 @@ static gint ett_ip_option_timestamp = -1;
 static gint ett_ip_option_qs = -1;
 static gint ett_ip_option_ra = -1;
 static gint ett_ip_option_cipso = -1;
+static gint ett_ip_option_other = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
 static gint ett_ip_checksum = -1;
@@ -351,7 +354,7 @@ static dissector_handle_t tapa_handle;
 /* IP option lengths */
 #define IPOLEN_SEC              11
 #define IPOLEN_LSR_MIN          3
-#define IPOLEN_TS_MIN           5
+#define IPOLEN_TS_MIN           4
 #define IPOLEN_RR_MIN           3
 #define IPOLEN_SID              4
 #define IPOLEN_SSR_MIN          3
@@ -648,12 +651,19 @@ dissect_ipopt_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static void
-dissect_ipopt_eool(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
+dissect_ipopt_eool(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                    guint optlen _U_, packet_info *pinfo _U_,
                    proto_tree *opt_tree)
 {
-    dissect_ipopt_type(tvb, offset, opt_tree);
+  proto_tree *field_tree;
+  proto_item *tf;
+
+  tf = proto_tree_add_text(opt_tree, tvb, offset,  1, "%s", optp->name);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipopt_type(tvb, offset, field_tree);
 }
+
+#define dissect_ipopt_nop   dissect_ipopt_eool
 
 static void
 dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
@@ -1303,8 +1313,8 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 }
 
 static const ip_tcp_opt ipopts[] = {
-  {IPOPT_EOOL, "End of Option List (EOL)", NULL, NO_LENGTH, 0, dissect_ipopt_eool},
-  {IPOPT_NOP, "No-Operation (NOP)", NULL, NO_LENGTH, 0, dissect_ipopt_eool},
+  {IPOPT_EOOL, "End of Option List (EOL)", &ett_ip_option_eool, NO_LENGTH, 0, dissect_ipopt_eool},
+  {IPOPT_NOP, "No-Operation (NOP)", &ett_ip_option_nop, NO_LENGTH, 0, dissect_ipopt_nop},
   {IPOPT_SEC, "Security", &ett_ip_option_sec,
     FIXED_LENGTH, IPOLEN_SEC, dissect_ipopt_security},
   {IPOPT_SSR, "Strict source route", &ett_ip_option_route,
@@ -1425,10 +1435,15 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
                                    optp->name);
             (*dissect)(optp, tvb, offset, len, pinfo, opt_tree);
           } else {
+            proto_tree *field_tree;
+            proto_item *tf;
+
             /* Option has no data, hence no dissector. */
             proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s",
                                    name);
-            proto_tree_add_text(opt_tree, tvb, offset,  len, "%s", name);
+            tf = proto_tree_add_text(opt_tree, tvb, offset,  len, "%s", name);
+            field_tree = proto_item_add_subtree(tf, ett_ip_option_other);
+            dissect_ipopt_type(tvb, offset, field_tree);
           }
         }
         len -= 2;   /* subtract size of type and length */
@@ -1441,9 +1456,14 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
                                optp->name);
         (*dissect)(optp, tvb, offset, 1, pinfo, opt_tree);
       } else {
+        proto_tree *field_tree;
+        proto_item *tf;
+
         /* Option has no data, hence no dissector. */
         proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
-        proto_tree_add_text(opt_tree, tvb, offset,  1, "%s", name);
+        tf = proto_tree_add_text(opt_tree, tvb, offset,  1, "%s", name);
+        field_tree = proto_item_add_subtree(tf, ett_ip_option_other);
+        dissect_ipopt_type(tvb, offset, field_tree);
       }
       offset += 1;
 
@@ -2492,6 +2512,8 @@ proto_register_ip(void)
     &ett_ip_tos,
     &ett_ip_off,
     &ett_ip_options,
+    &ett_ip_option_eool,
+    &ett_ip_option_nop,
     &ett_ip_option_sec,
     &ett_ip_option_route,
     &ett_ip_option_sid,
@@ -2499,6 +2521,7 @@ proto_register_ip(void)
     &ett_ip_option_qs,
     &ett_ip_option_ra,
     &ett_ip_option_cipso,
+    &ett_ip_option_other,
     &ett_ip_fragments,
     &ett_ip_fragment,
     &ett_ip_checksum,
