@@ -1962,7 +1962,7 @@ wlanstat_launch (GtkAction *action _U_, gpointer user_data _U_)
 void
 register_tap_listener_wlanstat (void)
 {
-	static const char src[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	static const unsigned char src[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 	SET_ADDRESS(&broadcast, AT_ETHER, 6, src);
 }
