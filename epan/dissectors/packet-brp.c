@@ -130,7 +130,7 @@ static gint ett_brp_fltype = -1;
 /* Preferences */
 static guint global_brp_port = 0;
 
-int
+static int
 dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 

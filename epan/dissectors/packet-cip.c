@@ -2299,7 +2299,7 @@ static const value_string cip_class_names_vals[] = {
 value_string_ext cip_class_names_vals_ext = VALUE_STRING_EXT_INIT(cip_class_names_vals);
 
 
-int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+static int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 2)
@@ -2313,7 +2313,7 @@ int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, 
    return 2;
 }
 
-int dissect_msg_rout_num_classes(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+static int dissect_msg_rout_num_classes(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
                              int offset, int total_len _U_)
 {
    guint16 i, num_classes;

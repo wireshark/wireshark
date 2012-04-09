@@ -1439,7 +1439,7 @@ static const sid_strings well_known_sids[] = {
 	{NULL, NULL}
 };
 
-const char*
+static const char*
 match_wkwn_sids(const char* sid) {
 	int i = 0;
 	while (well_known_sids[i].name) {

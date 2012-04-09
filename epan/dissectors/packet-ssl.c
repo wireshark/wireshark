@@ -1312,7 +1312,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
     }
 }
 
-void
+static void
 dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, SslAssociation* association)
 {
     gboolean save_fragmented;

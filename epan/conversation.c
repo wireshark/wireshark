@@ -411,7 +411,7 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 /*
  * Free the proto_data.  The conversation itself is se_allocated.
  */
-void
+static void
 free_data_list(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
 	conversation_t *conv = value;

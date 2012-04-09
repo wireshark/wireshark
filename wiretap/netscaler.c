@@ -586,7 +586,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 
 
 #define nspm_signature_func(ver) \
-	guint32 nspm_signature_isv##ver(gchar *sigp) {\
+	static guint32 nspm_signature_isv##ver(gchar *sigp) {\
 		return strncmp(sigp,NSPR_SIGSTR_V##ver,(sizeof(NSPR_SIGSTR_V##ver)-1));\
 	}
 

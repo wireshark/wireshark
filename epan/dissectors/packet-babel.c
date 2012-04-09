@@ -115,7 +115,7 @@ format_address(const unsigned char *prefix)
         return ip6_to_str((const struct e_in6_addr*)prefix);
 }
 
-const char *
+static const char *
 format_prefix(const unsigned char *prefix, unsigned char plen)
 {
     return ep_strdup_printf("%s/%u", format_address(prefix), plen);
