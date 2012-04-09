@@ -30,7 +30,7 @@ typedef void (*fctServiceParser)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 /* declare enum parser function prototype */
 typedef void (*fctEnumParser)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset);
 /* declare type parser function prototype */
-typedef void (*fctComplexTypeParser)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName);
+typedef void (*fctComplexTypeParser)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName);
 /* declare type parser function prototype */
 typedef void (*fctSimpleTypeParser)(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex);
 
@@ -44,5 +44,5 @@ typedef struct _ExtensionObjectParserEntry
 {
 	int iRequestId;
 	fctComplexTypeParser pParser;
-	gchar *typeName;
+	const gchar *typeName;
 } ExtensionObjectParserEntry;

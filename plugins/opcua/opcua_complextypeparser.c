@@ -33,7 +33,7 @@
 #include "opcua_hfindeces.h"
 
 gint ett_opcua_Node = -1;
-void parseNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : Node", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_Node);
@@ -48,21 +48,21 @@ void parseNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName
   parseArrayComplex(subtree, tvb, pOffset, "References", parseReferenceNode);
 }
 gint ett_opcua_ObjectNode = -1;
-void parseObjectNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseObjectNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ObjectNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ObjectNode);
   parseByte(subtree, tvb, pOffset, hf_opcua_EventNotifier);
 }
 gint ett_opcua_ObjectTypeNode = -1;
-void parseObjectTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseObjectTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ObjectTypeNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ObjectTypeNode);
   parseBoolean(subtree, tvb, pOffset, hf_opcua_IsAbstract);
 }
 gint ett_opcua_VariableNode = -1;
-void parseVariableNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseVariableNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : VariableNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_VariableNode);
@@ -77,7 +77,7 @@ void parseVariableNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
   parseBoolean(subtree, tvb, pOffset, hf_opcua_Historizing);
 }
 gint ett_opcua_VariableTypeNode = -1;
-void parseVariableTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseVariableTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : VariableTypeNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_VariableTypeNode);
@@ -89,7 +89,7 @@ void parseVariableTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseBoolean(subtree, tvb, pOffset, hf_opcua_IsAbstract);
 }
 gint ett_opcua_ReferenceTypeNode = -1;
-void parseReferenceTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReferenceTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReferenceTypeNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReferenceTypeNode);
@@ -98,7 +98,7 @@ void parseReferenceTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseLocalizedText(subtree, tvb, pOffset, "InverseName");
 }
 gint ett_opcua_MethodNode = -1;
-void parseMethodNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMethodNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MethodNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MethodNode);
@@ -106,7 +106,7 @@ void parseMethodNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFie
   parseBoolean(subtree, tvb, pOffset, hf_opcua_UserExecutable);
 }
 gint ett_opcua_ViewNode = -1;
-void parseViewNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseViewNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ViewNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ViewNode);
@@ -114,14 +114,14 @@ void parseViewNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szField
   parseByte(subtree, tvb, pOffset, hf_opcua_EventNotifier);
 }
 gint ett_opcua_DataTypeNode = -1;
-void parseDataTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDataTypeNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DataTypeNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DataTypeNode);
   parseBoolean(subtree, tvb, pOffset, hf_opcua_IsAbstract);
 }
 gint ett_opcua_ReferenceNode = -1;
-void parseReferenceNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReferenceNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReferenceNode", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReferenceNode);
@@ -130,7 +130,7 @@ void parseReferenceNode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseExpandedNodeId(subtree, tvb, pOffset, "TargetId");
 }
 gint ett_opcua_Argument = -1;
-void parseArgument(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseArgument(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : Argument", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_Argument);
@@ -142,7 +142,7 @@ void parseArgument(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szField
   parseLocalizedText(subtree, tvb, pOffset, "Description");
 }
 gint ett_opcua_TimeZoneDataType = -1;
-void parseTimeZoneDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseTimeZoneDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : TimeZoneDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_TimeZoneDataType);
@@ -150,7 +150,7 @@ void parseTimeZoneDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseBoolean(subtree, tvb, pOffset, hf_opcua_DaylightSavingInOffset);
 }
 gint ett_opcua_EnumValueInfo = -1;
-void parseEnumValueInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEnumValueInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EnumValueInfo", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EnumValueInfo);
@@ -158,7 +158,7 @@ void parseEnumValueInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseInt32(subtree, tvb, pOffset, hf_opcua_Value);
 }
 gint ett_opcua_StatusResult = -1;
-void parseStatusResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseStatusResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : StatusResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_StatusResult);
@@ -166,7 +166,7 @@ void parseStatusResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
   parseDiagnosticInfo(subtree, tvb, pOffset, "DiagnosticInfo");
 }
 gint ett_opcua_UserTokenPolicy = -1;
-void parseUserTokenPolicy(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseUserTokenPolicy(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : UserTokenPolicy", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_UserTokenPolicy);
@@ -177,7 +177,7 @@ void parseUserTokenPolicy(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
   parseString(subtree, tvb, pOffset, hf_opcua_SecurityPolicyUri);
 }
 gint ett_opcua_ApplicationDescription = -1;
-void parseApplicationDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseApplicationDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ApplicationDescription", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ApplicationDescription);
@@ -191,7 +191,7 @@ void parseApplicationDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
   parseArraySimple(subtree, tvb, pOffset, hf_opcua_DiscoveryUrls, parseString);
 }
 gint ett_opcua_EndpointDescription = -1;
-void parseEndpointDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEndpointDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EndpointDescription", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EndpointDescription);
@@ -206,14 +206,14 @@ void parseEndpointDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseByte(subtree, tvb, pOffset, hf_opcua_SecurityLevel);
 }
 gint ett_opcua_UserIdentityToken = -1;
-void parseUserIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseUserIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : UserIdentityToken", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_UserIdentityToken);
   parseString(subtree, tvb, pOffset, hf_opcua_PolicyId);
 }
 gint ett_opcua_UserNameIdentityToken = -1;
-void parseUserNameIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseUserNameIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : UserNameIdentityToken", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_UserNameIdentityToken);
@@ -222,14 +222,14 @@ void parseUserNameIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, 
   parseString(subtree, tvb, pOffset, hf_opcua_EncryptionAlgorithm);
 }
 gint ett_opcua_X509IdentityToken = -1;
-void parseX509IdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseX509IdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : X509IdentityToken", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_X509IdentityToken);
   parseByteString(subtree, tvb, pOffset, hf_opcua_CertificateData);
 }
 gint ett_opcua_IssuedIdentityToken = -1;
-void parseIssuedIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseIssuedIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : IssuedIdentityToken", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_IssuedIdentityToken);
@@ -237,7 +237,7 @@ void parseIssuedIdentityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseString(subtree, tvb, pOffset, hf_opcua_EncryptionAlgorithm);
 }
 gint ett_opcua_EndpointConfiguration = -1;
-void parseEndpointConfiguration(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEndpointConfiguration(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EndpointConfiguration", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EndpointConfiguration);
@@ -252,7 +252,7 @@ void parseEndpointConfiguration(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, 
   parseInt32(subtree, tvb, pOffset, hf_opcua_SecurityTokenLifetime);
 }
 gint ett_opcua_SupportedProfile = -1;
-void parseSupportedProfile(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSupportedProfile(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SupportedProfile", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SupportedProfile);
@@ -265,7 +265,7 @@ void parseSupportedProfile(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseArraySimple(subtree, tvb, pOffset, hf_opcua_UnsupportedUnitIds, parseString);
 }
 gint ett_opcua_BuildInfo = -1;
-void parseBuildInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseBuildInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : BuildInfo", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_BuildInfo);
@@ -277,7 +277,7 @@ void parseBuildInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFiel
   parseDateTime(subtree, tvb, pOffset, hf_opcua_BuildDate);
 }
 gint ett_opcua_SoftwareCertificate = -1;
-void parseSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SoftwareCertificate", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SoftwareCertificate);
@@ -294,7 +294,7 @@ void parseSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseArrayComplex(subtree, tvb, pOffset, "SupportedProfiles", parseSupportedProfile);
 }
 gint ett_opcua_SignedSoftwareCertificate = -1;
-void parseSignedSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSignedSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SignedSoftwareCertificate", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SignedSoftwareCertificate);
@@ -302,7 +302,7 @@ void parseSignedSoftwareCertificate(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseByteString(subtree, tvb, pOffset, hf_opcua_Signature);
 }
 gint ett_opcua_NodeAttributes = -1;
-void parseNodeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseNodeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : NodeAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_NodeAttributes);
@@ -313,14 +313,14 @@ void parseNodeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
   parseUInt32(subtree, tvb, pOffset, hf_opcua_UserWriteMask);
 }
 gint ett_opcua_ObjectAttributes = -1;
-void parseObjectAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseObjectAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ObjectAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ObjectAttributes);
   parseByte(subtree, tvb, pOffset, hf_opcua_EventNotifier);
 }
 gint ett_opcua_VariableAttributes = -1;
-void parseVariableAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseVariableAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : VariableAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_VariableAttributes);
@@ -335,7 +335,7 @@ void parseVariableAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, cha
   parseBoolean(subtree, tvb, pOffset, hf_opcua_Historizing);
 }
 gint ett_opcua_MethodAttributes = -1;
-void parseMethodAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMethodAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MethodAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MethodAttributes);
@@ -343,14 +343,14 @@ void parseMethodAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseBoolean(subtree, tvb, pOffset, hf_opcua_UserExecutable);
 }
 gint ett_opcua_ObjectTypeAttributes = -1;
-void parseObjectTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseObjectTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ObjectTypeAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ObjectTypeAttributes);
   parseBoolean(subtree, tvb, pOffset, hf_opcua_IsAbstract);
 }
 gint ett_opcua_VariableTypeAttributes = -1;
-void parseVariableTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseVariableTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : VariableTypeAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_VariableTypeAttributes);
@@ -362,7 +362,7 @@ void parseVariableTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
   parseBoolean(subtree, tvb, pOffset, hf_opcua_IsAbstract);
 }
 gint ett_opcua_ReferenceTypeAttributes = -1;
-void parseReferenceTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReferenceTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReferenceTypeAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReferenceTypeAttributes);
@@ -371,14 +371,14 @@ void parseReferenceTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset
   parseLocalizedText(subtree, tvb, pOffset, "InverseName");
 }
 gint ett_opcua_DataTypeAttributes = -1;
-void parseDataTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDataTypeAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DataTypeAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DataTypeAttributes);
   parseBoolean(subtree, tvb, pOffset, hf_opcua_IsAbstract);
 }
 gint ett_opcua_ViewAttributes = -1;
-void parseViewAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseViewAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ViewAttributes", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ViewAttributes);
@@ -386,7 +386,7 @@ void parseViewAttributes(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
   parseByte(subtree, tvb, pOffset, hf_opcua_EventNotifier);
 }
 gint ett_opcua_AddNodesItem = -1;
-void parseAddNodesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAddNodesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : AddNodesItem", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_AddNodesItem);
@@ -399,7 +399,7 @@ void parseAddNodesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
   parseExpandedNodeId(subtree, tvb, pOffset, "TypeDefinition");
 }
 gint ett_opcua_AddReferencesItem = -1;
-void parseAddReferencesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAddReferencesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : AddReferencesItem", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_AddReferencesItem);
@@ -411,7 +411,7 @@ void parseAddReferencesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseNodeClass(subtree, tvb, pOffset);
 }
 gint ett_opcua_DeleteNodesItem = -1;
-void parseDeleteNodesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDeleteNodesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DeleteNodesItem", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DeleteNodesItem);
@@ -419,7 +419,7 @@ void parseDeleteNodesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
   parseBoolean(subtree, tvb, pOffset, hf_opcua_DeleteTargetReferences);
 }
 gint ett_opcua_DeleteReferencesItem = -1;
-void parseDeleteReferencesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDeleteReferencesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DeleteReferencesItem", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DeleteReferencesItem);
@@ -430,7 +430,7 @@ void parseDeleteReferencesItem(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseBoolean(subtree, tvb, pOffset, hf_opcua_DeleteBidirectional);
 }
 gint ett_opcua_RequestHeader = -1;
-void parseRequestHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseRequestHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : RequestHeader", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_RequestHeader);
@@ -443,7 +443,7 @@ void parseRequestHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseExtensionObject(subtree, tvb, pOffset, "AdditionalHeader");
 }
 gint ett_opcua_ResponseHeader = -1;
-void parseResponseHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseResponseHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ResponseHeader", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ResponseHeader);
@@ -456,14 +456,14 @@ void parseResponseHeader(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
   parseExtensionObject(subtree, tvb, pOffset, "AdditionalHeader");
 }
 gint ett_opcua_ServiceFault = -1;
-void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseServiceFault(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ServiceFault", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ServiceFault);
   parseResponseHeader(subtree, tvb, pOffset, "ResponseHeader");
 }
 gint ett_opcua_ScalarTestType = -1;
-void parseScalarTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseScalarTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ScalarTestType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ScalarTestType);
@@ -494,7 +494,7 @@ void parseScalarTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
   parseEnumeratedTestType(subtree, tvb, pOffset);
 }
 gint ett_opcua_ArrayTestType = -1;
-void parseArrayTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseArrayTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ArrayTestType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ArrayTestType);
@@ -550,7 +550,7 @@ void parseArrayTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseArrayEnum(subtree, tvb, pOffset, parseEnumeratedTestType);
 }
 gint ett_opcua_CompositeTestType = -1;
-void parseCompositeTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseCompositeTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : CompositeTestType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_CompositeTestType);
@@ -558,7 +558,7 @@ void parseCompositeTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseArrayTestType(subtree, tvb, pOffset, "Field2");
 }
 gint ett_opcua_RegisteredServer = -1;
-void parseRegisteredServer(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseRegisteredServer(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : RegisteredServer", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_RegisteredServer);
@@ -574,7 +574,7 @@ void parseRegisteredServer(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseBoolean(subtree, tvb, pOffset, hf_opcua_IsOnline);
 }
 gint ett_opcua_ChannelSecurityToken = -1;
-void parseChannelSecurityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseChannelSecurityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ChannelSecurityToken", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ChannelSecurityToken);
@@ -584,7 +584,7 @@ void parseChannelSecurityToken(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RevisedLifetime);
 }
 gint ett_opcua_SignatureData = -1;
-void parseSignatureData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSignatureData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SignatureData", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SignatureData);
@@ -592,7 +592,7 @@ void parseSignatureData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseByteString(subtree, tvb, pOffset, hf_opcua_Signature);
 }
 gint ett_opcua_AddNodesResult = -1;
-void parseAddNodesResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAddNodesResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : AddNodesResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_AddNodesResult);
@@ -600,7 +600,7 @@ void parseAddNodesResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
   parseNodeId(subtree, tvb, pOffset, "AddedNodeId");
 }
 gint ett_opcua_ViewDescription = -1;
-void parseViewDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseViewDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ViewDescription", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ViewDescription);
@@ -609,7 +609,7 @@ void parseViewDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
   parseUInt32(subtree, tvb, pOffset, hf_opcua_ViewVersion);
 }
 gint ett_opcua_BrowseDescription = -1;
-void parseBrowseDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseBrowseDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : BrowseDescription", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_BrowseDescription);
@@ -621,7 +621,7 @@ void parseBrowseDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseUInt32(subtree, tvb, pOffset, hf_opcua_ResultMask);
 }
 gint ett_opcua_ReferenceDescription = -1;
-void parseReferenceDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReferenceDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReferenceDescription", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReferenceDescription);
@@ -634,7 +634,7 @@ void parseReferenceDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseExpandedNodeId(subtree, tvb, pOffset, "TypeDefinition");
 }
 gint ett_opcua_BrowseResult = -1;
-void parseBrowseResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseBrowseResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : BrowseResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_BrowseResult);
@@ -644,7 +644,7 @@ void parseBrowseResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
   parseArrayComplex(subtree, tvb, pOffset, "References", parseReferenceDescription);
 }
 gint ett_opcua_RelativePathElement = -1;
-void parseRelativePathElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseRelativePathElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : RelativePathElement", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_RelativePathElement);
@@ -654,7 +654,7 @@ void parseRelativePathElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseQualifiedName(subtree, tvb, pOffset, "TargetName");
 }
 gint ett_opcua_RelativePath = -1;
-void parseRelativePath(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseRelativePath(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : RelativePath", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_RelativePath);
@@ -662,7 +662,7 @@ void parseRelativePath(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
   parseArrayComplex(subtree, tvb, pOffset, "Elements", parseRelativePathElement);
 }
 gint ett_opcua_BrowsePath = -1;
-void parseBrowsePath(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseBrowsePath(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : BrowsePath", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_BrowsePath);
@@ -670,7 +670,7 @@ void parseBrowsePath(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFie
   parseRelativePath(subtree, tvb, pOffset, "RelativePath");
 }
 gint ett_opcua_BrowsePathTarget = -1;
-void parseBrowsePathTarget(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseBrowsePathTarget(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : BrowsePathTarget", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_BrowsePathTarget);
@@ -678,7 +678,7 @@ void parseBrowsePathTarget(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RemainingPathIndex);
 }
 gint ett_opcua_BrowsePathResult = -1;
-void parseBrowsePathResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseBrowsePathResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : BrowsePathResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_BrowsePathResult);
@@ -687,7 +687,7 @@ void parseBrowsePathResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseArrayComplex(subtree, tvb, pOffset, "Targets", parseBrowsePathTarget);
 }
 gint ett_opcua_QueryDataDescription = -1;
-void parseQueryDataDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseQueryDataDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : QueryDataDescription", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_QueryDataDescription);
@@ -696,7 +696,7 @@ void parseQueryDataDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseString(subtree, tvb, pOffset, hf_opcua_IndexRange);
 }
 gint ett_opcua_NodeTypeDescription = -1;
-void parseNodeTypeDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseNodeTypeDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : NodeTypeDescription", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_NodeTypeDescription);
@@ -706,7 +706,7 @@ void parseNodeTypeDescription(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseArrayComplex(subtree, tvb, pOffset, "DataToReturn", parseQueryDataDescription);
 }
 gint ett_opcua_QueryDataSet = -1;
-void parseQueryDataSet(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseQueryDataSet(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : QueryDataSet", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_QueryDataSet);
@@ -716,7 +716,7 @@ void parseQueryDataSet(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
   parseArrayComplex(subtree, tvb, pOffset, "Values", parseVariant);
 }
 gint ett_opcua_NodeReference = -1;
-void parseNodeReference(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseNodeReference(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : NodeReference", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_NodeReference);
@@ -727,7 +727,7 @@ void parseNodeReference(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseArrayComplex(subtree, tvb, pOffset, "ReferencedNodeIds", parseNodeId);
 }
 gint ett_opcua_ContentFilterElement = -1;
-void parseContentFilterElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseContentFilterElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ContentFilterElement", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ContentFilterElement);
@@ -736,7 +736,7 @@ void parseContentFilterElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseArrayComplex(subtree, tvb, pOffset, "FilterOperands", parseExtensionObject);
 }
 gint ett_opcua_ContentFilter = -1;
-void parseContentFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseContentFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ContentFilter", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ContentFilter);
@@ -744,21 +744,21 @@ void parseContentFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseArrayComplex(subtree, tvb, pOffset, "Elements", parseContentFilterElement);
 }
 gint ett_opcua_ElementOperand = -1;
-void parseElementOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseElementOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ElementOperand", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ElementOperand);
   parseUInt32(subtree, tvb, pOffset, hf_opcua_Index);
 }
 gint ett_opcua_LiteralOperand = -1;
-void parseLiteralOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseLiteralOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : LiteralOperand", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_LiteralOperand);
   parseVariant(subtree, tvb, pOffset, "Value");
 }
 gint ett_opcua_AttributeOperand = -1;
-void parseAttributeOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAttributeOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : AttributeOperand", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_AttributeOperand);
@@ -769,7 +769,7 @@ void parseAttributeOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseString(subtree, tvb, pOffset, hf_opcua_IndexRange);
 }
 gint ett_opcua_SimpleAttributeOperand = -1;
-void parseSimpleAttributeOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSimpleAttributeOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SimpleAttributeOperand", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SimpleAttributeOperand);
@@ -780,7 +780,7 @@ void parseSimpleAttributeOperand(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
   parseString(subtree, tvb, pOffset, hf_opcua_IndexRange);
 }
 gint ett_opcua_ContentFilterElementResult = -1;
-void parseContentFilterElementResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseContentFilterElementResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ContentFilterElementResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ContentFilterElementResult);
@@ -791,7 +791,7 @@ void parseContentFilterElementResult(proto_tree *tree, tvbuff_t *tvb, gint *pOff
   parseArrayComplex(subtree, tvb, pOffset, "OperandDiagnosticInfos", parseDiagnosticInfo);
 }
 gint ett_opcua_ContentFilterResult = -1;
-void parseContentFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseContentFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ContentFilterResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ContentFilterResult);
@@ -801,7 +801,7 @@ void parseContentFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseArrayComplex(subtree, tvb, pOffset, "ElementDiagnosticInfos", parseDiagnosticInfo);
 }
 gint ett_opcua_ParsingResult = -1;
-void parseParsingResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseParsingResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ParsingResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ParsingResult);
@@ -812,7 +812,7 @@ void parseParsingResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseArrayComplex(subtree, tvb, pOffset, "DataDiagnosticInfos", parseDiagnosticInfo);
 }
 gint ett_opcua_ReadValueId = -1;
-void parseReadValueId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReadValueId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReadValueId", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReadValueId);
@@ -822,7 +822,7 @@ void parseReadValueId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFi
   parseQualifiedName(subtree, tvb, pOffset, "DataEncoding");
 }
 gint ett_opcua_HistoryReadValueId = -1;
-void parseHistoryReadValueId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryReadValueId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryReadValueId", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryReadValueId);
@@ -832,7 +832,7 @@ void parseHistoryReadValueId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, cha
   parseByteString(subtree, tvb, pOffset, hf_opcua_ContinuationPoint);
 }
 gint ett_opcua_HistoryReadResult = -1;
-void parseHistoryReadResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryReadResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryReadResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryReadResult);
@@ -841,7 +841,7 @@ void parseHistoryReadResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseExtensionObject(subtree, tvb, pOffset, "HistoryData");
 }
 gint ett_opcua_ReadEventDetails = -1;
-void parseReadEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReadEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReadEventDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReadEventDetails);
@@ -851,7 +851,7 @@ void parseReadEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseEventFilter(subtree, tvb, pOffset, "Filter");
 }
 gint ett_opcua_ReadRawModifiedDetails = -1;
-void parseReadRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReadRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReadRawModifiedDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReadRawModifiedDetails);
@@ -862,7 +862,7 @@ void parseReadRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
   parseBoolean(subtree, tvb, pOffset, hf_opcua_ReturnBounds);
 }
 gint ett_opcua_ReadProcessedDetails = -1;
-void parseReadProcessedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReadProcessedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReadProcessedDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReadProcessedDetails);
@@ -874,7 +874,7 @@ void parseReadProcessedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseAggregateConfiguration(subtree, tvb, pOffset, "AggregateConfiguration");
 }
 gint ett_opcua_ReadAtTimeDetails = -1;
-void parseReadAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseReadAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ReadAtTimeDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ReadAtTimeDetails);
@@ -882,7 +882,7 @@ void parseReadAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseArraySimple(subtree, tvb, pOffset, hf_opcua_ReqTimes, parseDateTime);
 }
 gint ett_opcua_HistoryData = -1;
-void parseHistoryData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryData", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryData);
@@ -890,7 +890,7 @@ void parseHistoryData(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFi
   parseArrayComplex(subtree, tvb, pOffset, "DataValues", parseDataValue);
 }
 gint ett_opcua_HistoryEvent = -1;
-void parseHistoryEvent(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryEvent(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryEvent", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryEvent);
@@ -898,7 +898,7 @@ void parseHistoryEvent(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
   parseArrayComplex(subtree, tvb, pOffset, "Events", parseHistoryEventFieldList);
 }
 gint ett_opcua_WriteValue = -1;
-void parseWriteValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseWriteValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : WriteValue", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_WriteValue);
@@ -908,14 +908,14 @@ void parseWriteValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFie
   parseDataValue(subtree, tvb, pOffset, "Value");
 }
 gint ett_opcua_HistoryUpdateDetails = -1;
-void parseHistoryUpdateDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryUpdateDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryUpdateDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryUpdateDetails);
   parseNodeId(subtree, tvb, pOffset, "NodeId");
 }
 gint ett_opcua_UpdateDataDetails = -1;
-void parseUpdateDataDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseUpdateDataDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : UpdateDataDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_UpdateDataDetails);
@@ -923,7 +923,7 @@ void parseUpdateDataDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseHistoryData(subtree, tvb, pOffset, "UpdateValue");
 }
 gint ett_opcua_InsertReplaceEventDetails = -1;
-void parseInsertReplaceEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseInsertReplaceEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : InsertReplaceEventDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_InsertReplaceEventDetails);
@@ -934,7 +934,7 @@ void parseInsertReplaceEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseArrayComplex(subtree, tvb, pOffset, "EventData", parseHistoryEventFieldList);
 }
 gint ett_opcua_UpdateEventDetails = -1;
-void parseUpdateEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseUpdateEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : UpdateEventDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_UpdateEventDetails);
@@ -943,7 +943,7 @@ void parseUpdateEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, cha
   parseHistoryEventFieldList(subtree, tvb, pOffset, "EventData");
 }
 gint ett_opcua_DeleteRawModifiedDetails = -1;
-void parseDeleteRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDeleteRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DeleteRawModifiedDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DeleteRawModifiedDetails);
@@ -952,7 +952,7 @@ void parseDeleteRawModifiedDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffse
   parseDateTime(subtree, tvb, pOffset, hf_opcua_EndTime);
 }
 gint ett_opcua_DeleteAtTimeDetails = -1;
-void parseDeleteAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDeleteAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DeleteAtTimeDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DeleteAtTimeDetails);
@@ -960,14 +960,14 @@ void parseDeleteAtTimeDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseArraySimple(subtree, tvb, pOffset, hf_opcua_ReqTimes, parseDateTime);
 }
 gint ett_opcua_DeleteEventDetails = -1;
-void parseDeleteEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDeleteEventDetails(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DeleteEventDetails", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DeleteEventDetails);
   parseByteString(subtree, tvb, pOffset, hf_opcua_EventIds);
 }
 gint ett_opcua_HistoryUpdateResult = -1;
-void parseHistoryUpdateResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryUpdateResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryUpdateResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryUpdateResult);
@@ -978,7 +978,7 @@ void parseHistoryUpdateResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", parseDiagnosticInfo);
 }
 gint ett_opcua_HistoryUpdateEventResult = -1;
-void parseHistoryUpdateEventResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryUpdateEventResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryUpdateEventResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryUpdateEventResult);
@@ -986,7 +986,7 @@ void parseHistoryUpdateEventResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffse
   parseEventFilterResult(subtree, tvb, pOffset, "EventFilterResult");
 }
 gint ett_opcua_CallMethodRequest = -1;
-void parseCallMethodRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseCallMethodRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : CallMethodRequest", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_CallMethodRequest);
@@ -996,7 +996,7 @@ void parseCallMethodRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseArrayComplex(subtree, tvb, pOffset, "InputArguments", parseVariant);
 }
 gint ett_opcua_CallMethodResult = -1;
-void parseCallMethodResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseCallMethodResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : CallMethodResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_CallMethodResult);
@@ -1009,7 +1009,7 @@ void parseCallMethodResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseArrayComplex(subtree, tvb, pOffset, "OutputArguments", parseVariant);
 }
 gint ett_opcua_DataChangeFilter = -1;
-void parseDataChangeFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDataChangeFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DataChangeFilter", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DataChangeFilter);
@@ -1018,7 +1018,7 @@ void parseDataChangeFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char 
   parseDouble(subtree, tvb, pOffset, hf_opcua_DeadbandValue);
 }
 gint ett_opcua_EventFilter = -1;
-void parseEventFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEventFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EventFilter", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EventFilter);
@@ -1027,7 +1027,7 @@ void parseEventFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFi
   parseContentFilter(subtree, tvb, pOffset, "WhereClause");
 }
 gint ett_opcua_AggregateConfiguration = -1;
-void parseAggregateConfiguration(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAggregateConfiguration(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : AggregateConfiguration", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_AggregateConfiguration);
@@ -1038,7 +1038,7 @@ void parseAggregateConfiguration(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
   parseBoolean(subtree, tvb, pOffset, hf_opcua_SteppedSlopedExtrapolation);
 }
 gint ett_opcua_AggregateFilter = -1;
-void parseAggregateFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAggregateFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : AggregateFilter", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_AggregateFilter);
@@ -1048,7 +1048,7 @@ void parseAggregateFilter(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
   parseAggregateConfiguration(subtree, tvb, pOffset, "AggregateConfiguration");
 }
 gint ett_opcua_EventFilterResult = -1;
-void parseEventFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEventFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EventFilterResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EventFilterResult);
@@ -1059,7 +1059,7 @@ void parseEventFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char
   parseContentFilterResult(subtree, tvb, pOffset, "WhereClauseResult");
 }
 gint ett_opcua_AggregateFilterResult = -1;
-void parseAggregateFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAggregateFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : AggregateFilterResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_AggregateFilterResult);
@@ -1068,7 +1068,7 @@ void parseAggregateFilterResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, 
   parseAggregateConfiguration(subtree, tvb, pOffset, "RevisedAggregateConfiguration");
 }
 gint ett_opcua_MonitoringParameters = -1;
-void parseMonitoringParameters(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoringParameters(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoringParameters", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoringParameters);
@@ -1079,7 +1079,7 @@ void parseMonitoringParameters(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseBoolean(subtree, tvb, pOffset, hf_opcua_DiscardOldest);
 }
 gint ett_opcua_MonitoredItemCreateRequest = -1;
-void parseMonitoredItemCreateRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoredItemCreateRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoredItemCreateRequest", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoredItemCreateRequest);
@@ -1088,7 +1088,7 @@ void parseMonitoredItemCreateRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOff
   parseMonitoringParameters(subtree, tvb, pOffset, "RequestedParameters");
 }
 gint ett_opcua_MonitoredItemCreateResult = -1;
-void parseMonitoredItemCreateResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoredItemCreateResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoredItemCreateResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoredItemCreateResult);
@@ -1099,7 +1099,7 @@ void parseMonitoredItemCreateResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseExtensionObject(subtree, tvb, pOffset, "FilterResult");
 }
 gint ett_opcua_MonitoredItemModifyRequest = -1;
-void parseMonitoredItemModifyRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoredItemModifyRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoredItemModifyRequest", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoredItemModifyRequest);
@@ -1107,7 +1107,7 @@ void parseMonitoredItemModifyRequest(proto_tree *tree, tvbuff_t *tvb, gint *pOff
   parseMonitoringParameters(subtree, tvb, pOffset, "RequestedParameters");
 }
 gint ett_opcua_MonitoredItemModifyResult = -1;
-void parseMonitoredItemModifyResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoredItemModifyResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoredItemModifyResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoredItemModifyResult);
@@ -1117,7 +1117,7 @@ void parseMonitoredItemModifyResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseExtensionObject(subtree, tvb, pOffset, "FilterResult");
 }
 gint ett_opcua_NotificationMessage = -1;
-void parseNotificationMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseNotificationMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : NotificationMessage", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_NotificationMessage);
@@ -1127,7 +1127,7 @@ void parseNotificationMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, ch
   parseArrayComplex(subtree, tvb, pOffset, "NotificationData", parseExtensionObject);
 }
 gint ett_opcua_DataChangeNotification = -1;
-void parseDataChangeNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseDataChangeNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : DataChangeNotification", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_DataChangeNotification);
@@ -1137,7 +1137,7 @@ void parseDataChangeNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
   parseArrayComplex(subtree, tvb, pOffset, "DiagnosticInfos", parseDiagnosticInfo);
 }
 gint ett_opcua_MonitoredItemNotification = -1;
-void parseMonitoredItemNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseMonitoredItemNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : MonitoredItemNotification", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_MonitoredItemNotification);
@@ -1145,7 +1145,7 @@ void parseMonitoredItemNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffs
   parseDataValue(subtree, tvb, pOffset, "Value");
 }
 gint ett_opcua_EventNotificationList = -1;
-void parseEventNotificationList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEventNotificationList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EventNotificationList", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EventNotificationList);
@@ -1153,7 +1153,7 @@ void parseEventNotificationList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, 
   parseArrayComplex(subtree, tvb, pOffset, "Events", parseEventFieldList);
 }
 gint ett_opcua_EventFieldList = -1;
-void parseEventFieldList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEventFieldList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EventFieldList", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EventFieldList);
@@ -1162,7 +1162,7 @@ void parseEventFieldList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
   parseArrayComplex(subtree, tvb, pOffset, "EventFields", parseVariant);
 }
 gint ett_opcua_HistoryEventFieldList = -1;
-void parseHistoryEventFieldList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseHistoryEventFieldList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : HistoryEventFieldList", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_HistoryEventFieldList);
@@ -1170,7 +1170,7 @@ void parseHistoryEventFieldList(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, 
   parseArrayComplex(subtree, tvb, pOffset, "EventFields", parseVariant);
 }
 gint ett_opcua_StatusChangeNotification = -1;
-void parseStatusChangeNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseStatusChangeNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : StatusChangeNotification", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_StatusChangeNotification);
@@ -1178,7 +1178,7 @@ void parseStatusChangeNotification(proto_tree *tree, tvbuff_t *tvb, gint *pOffse
   parseDiagnosticInfo(subtree, tvb, pOffset, "DiagnosticInfo");
 }
 gint ett_opcua_SubscriptionAcknowledgement = -1;
-void parseSubscriptionAcknowledgement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSubscriptionAcknowledgement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SubscriptionAcknowledgement", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SubscriptionAcknowledgement);
@@ -1186,7 +1186,7 @@ void parseSubscriptionAcknowledgement(proto_tree *tree, tvbuff_t *tvb, gint *pOf
   parseUInt32(subtree, tvb, pOffset, hf_opcua_SequenceNumber);
 }
 gint ett_opcua_TransferResult = -1;
-void parseTransferResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseTransferResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : TransferResult", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_TransferResult);
@@ -1195,7 +1195,7 @@ void parseTransferResult(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
   parseArraySimple(subtree, tvb, pOffset, hf_opcua_AvailableSequenceNumbers, parseUInt32);
 }
 gint ett_opcua_RedundantServerDataType = -1;
-void parseRedundantServerDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseRedundantServerDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : RedundantServerDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_RedundantServerDataType);
@@ -1204,7 +1204,7 @@ void parseRedundantServerDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset
   parseServerState(subtree, tvb, pOffset);
 }
 gint ett_opcua_SamplingIntervalDiagnosticsDataType = -1;
-void parseSamplingIntervalDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSamplingIntervalDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SamplingIntervalDiagnosticsDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SamplingIntervalDiagnosticsDataType);
@@ -1214,7 +1214,7 @@ void parseSamplingIntervalDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, g
   parseUInt32(subtree, tvb, pOffset, hf_opcua_DisabledMonitoredItemCount);
 }
 gint ett_opcua_ServerDiagnosticsSummaryDataType = -1;
-void parseServerDiagnosticsSummaryDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseServerDiagnosticsSummaryDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ServerDiagnosticsSummaryDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ServerDiagnosticsSummaryDataType);
@@ -1232,7 +1232,7 @@ void parseServerDiagnosticsSummaryDataType(proto_tree *tree, tvbuff_t *tvb, gint
   parseUInt32(subtree, tvb, pOffset, hf_opcua_RejectedRequestsCount);
 }
 gint ett_opcua_ServerStatusDataType = -1;
-void parseServerStatusDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseServerStatusDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ServerStatusDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ServerStatusDataType);
@@ -1244,7 +1244,7 @@ void parseServerStatusDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, c
   parseLocalizedText(subtree, tvb, pOffset, "ShutdownReason");
 }
 gint ett_opcua_SessionDiagnosticsDataType = -1;
-void parseSessionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSessionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SessionDiagnosticsDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SessionDiagnosticsDataType);
@@ -1294,7 +1294,7 @@ void parseSessionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOff
   parseServiceCounterDataType(subtree, tvb, pOffset, "UnregisterNodesCount");
 }
 gint ett_opcua_SessionSecurityDiagnosticsDataType = -1;
-void parseSessionSecurityDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSessionSecurityDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SessionSecurityDiagnosticsDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SessionSecurityDiagnosticsDataType);
@@ -1310,7 +1310,7 @@ void parseSessionSecurityDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gi
   parseByteString(subtree, tvb, pOffset, hf_opcua_ClientCertificate);
 }
 gint ett_opcua_ServiceCounterDataType = -1;
-void parseServiceCounterDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseServiceCounterDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ServiceCounterDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ServiceCounterDataType);
@@ -1318,7 +1318,7 @@ void parseServiceCounterDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
   parseUInt32(subtree, tvb, pOffset, hf_opcua_ErrorCount);
 }
 gint ett_opcua_SubscriptionDiagnosticsDataType = -1;
-void parseSubscriptionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSubscriptionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SubscriptionDiagnosticsDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SubscriptionDiagnosticsDataType);
@@ -1355,7 +1355,7 @@ void parseSubscriptionDiagnosticsDataType(proto_tree *tree, tvbuff_t *tvb, gint 
   parseUInt32(subtree, tvb, pOffset, hf_opcua_EventQueueOverFlowCount);
 }
 gint ett_opcua_ModelChangeStructureDataType = -1;
-void parseModelChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseModelChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ModelChangeStructureDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ModelChangeStructureDataType);
@@ -1364,7 +1364,7 @@ void parseModelChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, gint *pO
   parseByte(subtree, tvb, pOffset, hf_opcua_Verb);
 }
 gint ett_opcua_SemanticChangeStructureDataType = -1;
-void parseSemanticChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseSemanticChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : SemanticChangeStructureDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_SemanticChangeStructureDataType);
@@ -1372,7 +1372,7 @@ void parseSemanticChangeStructureDataType(proto_tree *tree, tvbuff_t *tvb, gint 
   parseNodeId(subtree, tvb, pOffset, "AffectedType");
 }
 gint ett_opcua_Range = -1;
-void parseRange(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseRange(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : Range", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_Range);
@@ -1380,7 +1380,7 @@ void parseRange(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldNam
   parseDouble(subtree, tvb, pOffset, hf_opcua_High);
 }
 gint ett_opcua_EUInformation = -1;
-void parseEUInformation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseEUInformation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : EUInformation", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_EUInformation);
@@ -1390,7 +1390,7 @@ void parseEUInformation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
   parseLocalizedText(subtree, tvb, pOffset, "Description");
 }
 gint ett_opcua_Annotation = -1;
-void parseAnnotation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseAnnotation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : Annotation", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_Annotation);
@@ -1399,7 +1399,7 @@ void parseAnnotation(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFie
   parseDateTime(subtree, tvb, pOffset, hf_opcua_AnnotationTime);
 }
 gint ett_opcua_ProgramDiagnosticDataType = -1;
-void parseProgramDiagnosticDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldName)
+void parseProgramDiagnosticDataType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szFieldName)
 {
   proto_item *ti = proto_tree_add_text(tree, tvb, 0, -1, "%s : ProgramDiagnosticDataType", szFieldName);
   proto_tree *subtree = proto_item_add_subtree(ti, ett_opcua_ProgramDiagnosticDataType);
