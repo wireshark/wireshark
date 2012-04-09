@@ -209,8 +209,8 @@ int dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_da
  */
 
 typedef struct _sid_strings {
-	char* sid;
-	char* name;
+	const char* sid;
+	const char* name;
 } sid_strings;
 
 /* Dissect a NT SID.  Label it with 'name' and return a string version

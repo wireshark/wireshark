@@ -197,7 +197,7 @@ extern int dissect_fattr(tvbuff_t *tvb, int offset, proto_tree *tree,
     const char* name);
 
 extern proto_tree* display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* tree,
-    guint32 amask, char mtype, int version, GString* optext, char* label);
+    guint32 amask, char mtype, int version, GString* optext, const char* label);
 
 extern int dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree,
     int version, GString *optext);

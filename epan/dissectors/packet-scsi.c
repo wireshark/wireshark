@@ -827,7 +827,7 @@ typedef void (*log_parameter_dissector)(tvbuff_t *tvb, packet_info *pinfo, proto
 
 typedef struct _log_page_parameters_t {
     guint32 number;
-    char *name;
+    const char *name;
     log_parameter_dissector dissector;
 } log_page_parameters_t;
 static const log_page_parameters_t tape_alert_log_parameters[] = {

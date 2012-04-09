@@ -178,7 +178,7 @@ static guint num_wepkeys_uat = 0;
 
 static void* uat_wep_key_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_wep_key_record_t* new_key = (uat_wep_key_record_t *)n;
-    const uat_wep_key_record_t* old_key = (uat_wep_key_record_t *)o;
+    const uat_wep_key_record_t* old_key = (const uat_wep_key_record_t *)o;
 
     if (old_key->string) {
         new_key->string = g_strdup(old_key->string);

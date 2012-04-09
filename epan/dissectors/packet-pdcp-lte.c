@@ -347,8 +347,8 @@ static GHashTable *pdcp_sequence_analysis_channel_hash = NULL;
 /* Equal keys */
 static gint pdcp_channel_equal(gconstpointer v, gconstpointer v2)
 {
-    const pdcp_channel_hash_key* val1 = (pdcp_channel_hash_key *)v;
-    const pdcp_channel_hash_key* val2 = (pdcp_channel_hash_key *)v2;
+    const pdcp_channel_hash_key* val1 = (const pdcp_channel_hash_key *)v;
+    const pdcp_channel_hash_key* val2 = (const pdcp_channel_hash_key *)v2;
 
     /* All fields must match */
     return (memcmp(val1, val2, sizeof(pdcp_channel_hash_key)) == 0);
@@ -357,7 +357,7 @@ static gint pdcp_channel_equal(gconstpointer v, gconstpointer v2)
 /* Compute a hash value for a given key. */
 static guint pdcp_channel_hash_func(gconstpointer v)
 {
-    const pdcp_channel_hash_key* val1 = (pdcp_channel_hash_key *)v;
+    const pdcp_channel_hash_key* val1 = (const pdcp_channel_hash_key *)v;
 
     /* TODO: use multipliers */
     return val1->ueId + val1->plane + val1->channelId + val1->direction;
@@ -376,8 +376,8 @@ typedef struct {
 
 static gint pdcp_result_hash_equal(gconstpointer v, gconstpointer v2)
 {
-    const pdcp_result_hash_key* val1 = (pdcp_result_hash_key *)v;
-    const pdcp_result_hash_key* val2 = (pdcp_result_hash_key *)v2;
+    const pdcp_result_hash_key* val1 = (const pdcp_result_hash_key *)v;
+    const pdcp_result_hash_key* val2 = (const pdcp_result_hash_key *)v2;
 
     /* All fields must match */
     return (memcmp(val1, val2, sizeof(pdcp_result_hash_key)) == 0);
@@ -386,7 +386,7 @@ static gint pdcp_result_hash_equal(gconstpointer v, gconstpointer v2)
 /* Compute a hash value for a given key. */
 static guint pdcp_result_hash_func(gconstpointer v)
 {
-    const pdcp_result_hash_key* val1 = (pdcp_result_hash_key *)v;
+    const pdcp_result_hash_key* val1 = (const pdcp_result_hash_key *)v;
 
     /* TODO: check collision-rate / execution-time of these multipliers?  */
     return val1->frameNumber + (val1->channelId<<13) +

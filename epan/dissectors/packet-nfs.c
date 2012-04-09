@@ -4814,7 +4814,7 @@ static const true_false_string tfs_access_rights = {"allowed", "*Access Denied*"
 
 proto_tree*
 display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* tree,
-		     guint32 amask, char mtype, int version, GString* optext, char* label)
+		     guint32 amask, char mtype, int version, GString* optext, const char* label)
 {
 	gboolean nfsv3 = (version==3 ? TRUE : FALSE);
 	proto_item* access_item = NULL;

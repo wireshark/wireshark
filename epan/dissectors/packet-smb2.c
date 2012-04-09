@@ -501,14 +501,14 @@ static const value_string smb2_find_info_levels[] = {
 static gint
 smb2_saved_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-	smb2_saved_info_t *key1 = (smb2_saved_info_t *)k1;
-	smb2_saved_info_t *key2 = (smb2_saved_info_t *)k2;
+	const smb2_saved_info_t *key1 = (const smb2_saved_info_t *)k1;
+	const smb2_saved_info_t *key2 = (const smb2_saved_info_t *)k2;
 	return key1->seqnum==key2->seqnum;
 }
 static guint
 smb2_saved_info_hash_unmatched(gconstpointer k)
 {
-	smb2_saved_info_t *key = (smb2_saved_info_t *)k;
+	const smb2_saved_info_t *key = (const smb2_saved_info_t *)k;
 	guint32 hash;
 
 	hash=(guint32) (key->seqnum&0xffffffff);
@@ -522,14 +522,14 @@ smb2_saved_info_hash_unmatched(gconstpointer k)
 static gint
 smb2_saved_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
-	smb2_saved_info_t *key1 = (smb2_saved_info_t *)k1;
-	smb2_saved_info_t *key2 = (smb2_saved_info_t *)k2;
+	const smb2_saved_info_t *key1 = (const smb2_saved_info_t *)k1;
+	const smb2_saved_info_t *key2 = (const smb2_saved_info_t *)k2;
 	return key1->seqnum==key2->seqnum;
 }
 static guint
 smb2_saved_info_hash_matched(gconstpointer k)
 {
-	smb2_saved_info_t *key = (smb2_saved_info_t *)k;
+	const smb2_saved_info_t *key = (const smb2_saved_info_t *)k;
 	guint32 hash;
 
 	hash=(guint32) (key->seqnum&0xffffffff);
@@ -546,14 +546,14 @@ smb2_saved_info_hash_matched(gconstpointer k)
 static gint
 smb2_tid_info_equal(gconstpointer k1, gconstpointer k2)
 {
-	smb2_tid_info_t *key1 = (smb2_tid_info_t *)k1;
-	smb2_tid_info_t *key2 = (smb2_tid_info_t *)k2;
+	const smb2_tid_info_t *key1 = (const smb2_tid_info_t *)k1;
+	const smb2_tid_info_t *key2 = (const smb2_tid_info_t *)k2;
 	return key1->tid==key2->tid;
 }
 static guint
 smb2_tid_info_hash(gconstpointer k)
 {
-	smb2_tid_info_t *key = (smb2_tid_info_t *)k;
+	const smb2_tid_info_t *key = (const smb2_tid_info_t *)k;
 	guint32 hash;
 
 	hash=key->tid;
@@ -570,14 +570,14 @@ smb2_tid_info_hash(gconstpointer k)
 static gint
 smb2_sesid_info_equal(gconstpointer k1, gconstpointer k2)
 {
-	smb2_sesid_info_t *key1 = (smb2_sesid_info_t *)k1;
-	smb2_sesid_info_t *key2 = (smb2_sesid_info_t *)k2;
+	const smb2_sesid_info_t *key1 = (const smb2_sesid_info_t *)k1;
+	const smb2_sesid_info_t *key2 = (const smb2_sesid_info_t *)k2;
 	return key1->sesid==key2->sesid;
 }
 static guint
 smb2_sesid_info_hash(gconstpointer k)
 {
-	smb2_sesid_info_t *key = (smb2_sesid_info_t *)k;
+	const smb2_sesid_info_t *key = (const smb2_sesid_info_t *)k;
 	guint32 hash;
 
 	hash=(guint32)( ((key->sesid>>32)&0xffffffff)+((key->sesid)&0xffffffff) );

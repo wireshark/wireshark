@@ -78,10 +78,11 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
   int op_len, cursor_pos;
   gchar *start;
   gchar *pos;
-  static gchar *logic_ops[] = { "!", "not",
-                                "||", "or",
-                                "&&", "and",
-                                "^^", "xor" };
+  static const gchar *logic_ops[] = 
+              { "!", "not",
+                "||", "or",
+                "&&", "and",
+                "^^", "xor" };
 
   /* If the cursor is located at the beginning of the filter editable text,
    * then it's _probably_ a protocol name.

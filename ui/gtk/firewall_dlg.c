@@ -139,8 +139,8 @@ static void sf_pf_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type 
 static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny);
 
 typedef struct _fw_product_t {
-    gchar *name;
-    gchar *comment_pfx;
+    const gchar *name;
+    const gchar *comment_pfx;
     syntax_func mac_func;
     syntax_func ipv4_func;
     syntax_func port_func;
