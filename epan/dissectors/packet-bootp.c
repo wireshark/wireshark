@@ -392,10 +392,10 @@ static int hf_bootp_option125_tr111_gateway_serial_number = -1;         /* 125:T
 static int hf_bootp_option125_tr111_gateway_product_class = -1;         /* 125:TR-111 6 */
 static int hf_bootp_option125_cl_suboption = -1;                        /* 125 suboption */
 static int hf_bootp_option125_cl_option_request = -1;                   /* 125:CL 1 */
-static int hf_bootp_option125_cl_tftp_server_addresses = -1;            /* 125:CL 1 */
-static int hf_bootp_option125_cl_erouter_container_option = -1;         /* 125:CL 1 */
-static int hf_bootp_option125_cl_mib_environment_indicator_option = -1; /* 125:CL 1 */
-static int hf_bootp_option125_cl_modem_capabilities = -1;               /* 125:CL 1 */
+static int hf_bootp_option125_cl_tftp_server_addresses = -1;            /* 125:CL 2 */
+static int hf_bootp_option125_cl_erouter_container_option = -1;         /* 125:CL 3 */
+static int hf_bootp_option125_cl_mib_environment_indicator_option = -1; /* 125:CL 4 */
+static int hf_bootp_option125_cl_modem_capabilities = -1;               /* 125:CL 5 */
 
 static int hf_bootp_option_subnet_selection_option = -1;                /* 118 */
 static int hf_bootp_option_lost_server_domain_name = -1;                /* 137 */
@@ -2332,7 +2332,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 {
 	int suboptoff = optoff;
 	guint8 subopt, vs_opt, vs_len;
-	int subopt_len, datalen;
+	int subopt_len, subopt_end, datalen;
 	guint32 enterprise;
 	proto_item *vti;
 	proto_tree *o82_v_tree, *o82_9_tree;
@@ -2373,7 +2373,8 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_tree_add_item(o82_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
-	if (suboptoff+subopt_len > optend) {
+	subopt_end = suboptoff+subopt_len;
+	if (subopt_end > optend) {
 		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
 			"Suboption %d: no room left in option for suboption value", subopt);
 		return (optend);
@@ -2385,7 +2386,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		switch(subopt)
 		{
 		case 9:
-			while (suboptoff < optend) {
+			while (suboptoff < subopt_end) {
 				enterprise = tvb_get_ntohl(tvb, suboptoff);
 				vti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_vi_enterprise, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
 				suboptoff += 4;
