@@ -96,51 +96,52 @@
 */
 
 /*--- 3270 Command Codes - "Local Attachment" ----- */
-#define CC_W        0x01
-#define CC_EW       0x05
-#define CC_EWA      0x0D
-#define CC_EAU      0x0F
-#define CC_WSF      0x11
+#define CC_LCL_W        0x01
+#define CC_LCL_EW       0x05
+#define CC_LCL_EWA      0x0D
+#define CC_LCL_EAU      0x0F
+#define CC_LCL_WSF      0x11
 
-#define CC_RB       0x02
-#define CC_RM       0x06
-#define CC_RMA      0x0E
+#define CC_LCL_RB       0x02
+#define CC_LCL_RM       0x06
+#define CC_LCL_RMA      0x0E  /* XXX Not valid ?? See 3174 Function Description 2.1.4 */
 
 #if 0  /* ??? */
 #define CC_NOP      0x03
 #endif
 
 
-/*--- 3.3 SNA 3270 Command Codes - "Remote Attachment" ----- */
-#define CC_SNA_W    0xF1
-#define CC_SNA_EW   0xF5
-#define CC_SNA_EWA  0x7E
-#define CC_SNA_EAU  0x6F
-#define CC_SNA_WSF  0xF3
+/*--- 3.3 3270 Command Codes - "Remote Attachment" ----- */
+#define CC_RMT_W    0xF1
+#define CC_RMT_EW   0xF5
+#define CC_RMT_EWA  0x7E
+#define CC_RMT_EAU  0x6F
+#define CC_RMT_WSF  0xF3
 
-#define CC_SNA_RB   0xF2
-#define CC_SNA_RM   0xF6
-#define CC_SNA_RMA  0x6E
+#define CC_RMT_RB   0xF2
+#define CC_RMT_RM   0xF6
+#define CC_RMT_RMA  0x6E
 
 #define CC_SNA_BSC  0xF7   /* local copy in a BSC environment */
 
 static const value_string vals_command_codes[] = {
-  { CC_W,       "Write (Local)" },
-  { CC_EW,      "Erase/Write (Local)" },
-  { CC_EWA,     "Erase/Write Alternate (Local)" },
-  { CC_EAU,     "Erase All Unprotected (Local)" },
-  { CC_WSF,     "Write Structured Field (Local)" },
-  { CC_RB,      "Read Buffer (Local)" },
-  { CC_RM,      "Read Modified (Local)" },
-  { CC_RMA,     "Read Modified All (Local)" },
-  { CC_SNA_W,   "Write" },
-  { CC_SNA_EW,  "Erase/Write" },
-  { CC_SNA_EWA, "Erase/Write Alternate" },
-  { CC_SNA_EAU, "Erase All Unprotected" },
-  { CC_SNA_WSF, "Write Structured Field" },
-  { CC_SNA_RB,  "Read Buffer" },
-  { CC_SNA_RM,  "Read Modified" },
-  { CC_SNA_RMA, "Read Modified All" },
+
+  { CC_LCL_W,   "Write (Local)" },
+  { CC_LCL_EW,  "Erase/Write (Local)" },
+  { CC_LCL_EWA, "Erase/Write Alternate (Local)" },
+  { CC_LCL_EAU, "Erase All Unprotected (Local)" },
+  { CC_LCL_WSF, "Write Structured Field (Local)" },
+  { CC_LCL_RB,  "Read Buffer (Local)" },
+  { CC_LCL_RM,  "Read Modified (Local)" },
+  { CC_LCL_RMA, "Read Modified All (Local)" },
+  { CC_RMT_W,   "Write" },
+  { CC_RMT_EW,  "Erase/Write" },
+  { CC_RMT_EWA, "Erase/Write Alternate" },
+  { CC_RMT_EAU, "Erase All Unprotected" },
+  { CC_RMT_WSF, "Write Structured Field" },
+  { CC_RMT_RB,  "Read Buffer" },
+  { CC_RMT_RM,  "Read Modified" },
+  { CC_RMT_RMA, "Read Modified All" },
   { CC_SNA_BSC, "BSC Copy" },
   { 0x00, NULL }
 };
@@ -2088,14 +2089,15 @@ dissect_outbound_3270ds(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                           ENC_BIG_ENDIAN);
       offset += 2;
       break;
-    case CC_W:
-    case CC_EW:
-    case CC_EWA:
-    case CC_EAU:
-    case CC_SNA_W:
-    case CC_SNA_EW:
-    case CC_SNA_EWA:
-    case CC_SNA_EAU:
+      /* XXX: are "local" commands valid for Outbound 3270DS ? */
+    case CC_LCL_W:
+    case CC_LCL_EW:
+    case CC_LCL_EWA:
+    case CC_LCL_EAU:
+    case CC_RMT_W:
+    case CC_RMT_EW:
+    case CC_RMT_EWA:
+    case CC_RMT_EAU:
       /* WCC */
       if ((offset - start) < sf_body_length)
         offset += dissect_wcc(tn3270_tree, tvb, offset);
@@ -5106,13 +5108,13 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
   /*      "state" needs to be associated in some manner with each      */
   /*      frame of a conversation.                                     */
   switch (command_code) {
-    case CC_EW:
-    case CC_SNA_EW:
+    case CC_LCL_EW:
+    case CC_RMT_EW:
       tn3270_info->rows = 24;
       tn3270_info->cols = 80;
       break;
-    case CC_EWA:
-    case CC_SNA_EWA:
+    case CC_LCL_EWA:
+    case CC_RMT_EWA:
       tn3270_info->rows = tn3270_info->altrows;
       tn3270_info->cols = tn3270_info->altcols;
       break;
@@ -5121,14 +5123,14 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
   }
 
   switch (command_code) {
-    case CC_W:
-    case CC_EW:
-    case CC_EWA:
-    case CC_EAU:
-    case CC_SNA_W:
-    case CC_SNA_EW:
-    case CC_SNA_EWA:
-    case CC_SNA_EAU:
+    case CC_LCL_W:
+    case CC_LCL_EW:
+    case CC_LCL_EWA:
+    case CC_LCL_EAU:
+    case CC_RMT_W:
+    case CC_RMT_EW:
+    case CC_RMT_EWA:
+    case CC_RMT_EAU:
       proto_tree_add_item(tn3270_tree,
                           hf_tn3270_command_code,
                           tvb, offset,
@@ -5139,8 +5141,8 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
       offset += dissect_wcc(tn3270_tree, tvb, offset);
       offset += dissect_orders_and_data(tn3270_tree, tvb, offset, tn3270_info);
       break;
-    case CC_WSF:
-    case CC_SNA_WSF:
+    case CC_LCL_WSF:
+    case CC_RMT_WSF:
       proto_tree_add_item(tn3270_tree,
                           hf_tn3270_command_code,
                           tvb, offset,
@@ -5148,6 +5150,19 @@ dissect_outbound_stream(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset, tn3
                           ENC_BIG_ENDIAN);
       offset += 1;
       offset += dissect_structured_fields(tn3270_tree, tvb, offset, tn3270_info, FALSE);
+      break;
+    case CC_LCL_RB:
+    case CC_LCL_RM:
+    case CC_LCL_RMA:
+    case CC_RMT_RB:
+    case CC_RMT_RM:
+    case CC_RMT_RMA:
+      proto_tree_add_item(tn3270_tree,
+                          hf_tn3270_command_code,
+                          tvb, offset,
+                          1,
+                          ENC_BIG_ENDIAN);
+      offset += 1;
       break;
     default:
       /* XXX: Add expert item ? */
