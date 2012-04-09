@@ -576,6 +576,9 @@ se_verify_pointer(const void *ptr)
 		return FALSE;
 }
 
+#define SCRUB_ALLOC_VALUE 0xBADDCAFE
+#define SCRUB_FREED_VALUE 0xDEADBEEF
+
 static void
 emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 {
@@ -586,9 +589,32 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 		return;
 
 	if (alloc) /* this memory is being allocated */
-		scrubbed_value = 0xBADDCAFE;
+		scrubbed_value = SCRUB_ALLOC_VALUE;
 	else /* this memory is being freed */
-		scrubbed_value = 0xDEADBEEF;
+		scrubbed_value = SCRUB_FREED_VALUE;
+
+	/* check if memory is scrubbed */
+	if (alloc) {
+		for (offset = 0; offset + sizeof(guint) <= size; offset += sizeof(guint)) {
+			if (*(guint*)(void*)(buf+offset) != SCRUB_FREED_VALUE)
+				g_error("Memory corrupted (not scrubbed) %.8x", *(guint*)(void*)(buf+offset));
+		}
+		/* Initialize the last bytes, if any */
+		if (offset < size) {
+			if (*(guint8*)(buf+offset) != (SCRUB_FREED_VALUE & 0xff))
+				g_error("Memory corrupted (not scrubbed) %.2x", *(guint8*)(buf+offset));
+			offset++;
+			if (offset < size) {
+				if (*(guint8*)(buf+offset) != ((SCRUB_FREED_VALUE >> 8) & 0xff))
+					g_error("Memory corrupted (not scrubbed) %.2x", *(guint8*)(buf+offset));
+				offset++;
+				if (offset < size) {
+					if (*(guint8*)(buf+offset) != ((SCRUB_FREED_VALUE >> 16) & 0xff))
+						g_error("Memory corrupted (not scrubbed) %.2x", *(guint8*)(buf+offset));
+				}
+			}
+		}
+	}
 
 	/*  We shouldn't need to check the alignment of the starting address
 	 *  since this is malloc'd memory (or 'pagesize' bytes into malloc'd
@@ -605,13 +631,15 @@ emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 
 	/* Initialize the last bytes, if any */
 	if (offset < size) {
-		*(guint8*)(buf+offset) = scrubbed_value >> 24;
+		*(guint8*)(buf+offset) = scrubbed_value;
 		offset++;
 		if (offset < size) {
-			*(guint8*)(buf+offset) = (scrubbed_value >> 16) & 0xFF;
+			scrubbed_value >>= 8;
+			*(guint8*)(buf+offset) = scrubbed_value;
 			offset++;
 			if (offset < size) {
-				*(guint8*)(buf+offset) = (scrubbed_value >> 8) & 0xFF;
+				scrubbed_value >>= 8;
+				*(guint8*)(buf+offset) = scrubbed_value;
 			}
 		}
 	}
@@ -669,6 +697,8 @@ emem_create_chunk(size_t size)
 
 	npc->amount_free = npc->amount_free_init = (unsigned int) size;
 	npc->free_offset = npc->free_offset_init = 0;
+
+	emem_scrub_memory(npc->buf, size, FALSE);
 	return npc;
 }
 
