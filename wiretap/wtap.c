@@ -381,7 +381,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "GCOM Serial", "gcom-serial" },
 
 	/* WTAP_ENCAP_NETTL_X25 */
-	{ "X25 with nettl headers", "x25-nettl" },
+	{ "X.25 with nettl headers", "x25-nettl" },
 
 	/* WTAP_ENCAP_K12 */
 	{ "K12 protocol analyzer", "k12" },
