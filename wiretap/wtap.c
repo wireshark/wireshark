@@ -408,7 +408,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Juniper GGSN", "juniper-ggsn" },
 
 	/* WTAP_ENCAP_LINUX_LAPD */
-	{ "LAPD", "lapd" },
+	{ "LAPD with Linux pseudo-header", "linux-lapd" },
 
 	/* WTAP_ENCAP_CATAPULT_DCT2000 */
 	{ "Catapult DCT2000", "dct2000" },
@@ -537,7 +537,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Raw IPv6", "rawip6" },
 
 	/* WTAP_ENCAP_LAPD */
-	{ "Lapd header", "lapd" },
+	{ "LAPD", "lapd" },
 
 	/* WTAP_ENCAP_DVBCI */
 	{ "DVB-CI (Common Interface)", "dvbci"},
