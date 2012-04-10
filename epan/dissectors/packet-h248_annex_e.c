@@ -676,7 +676,7 @@ static h248_package_t h248_pkg_cd = {
 	h248_pkg_cg_sig_cd_evt_vals,
 	NULL,
 	NULL,NULL,
-	(h248_pkg_evt_t *)h248_pkg_cg_signals_cd_events,
+	(h248_pkg_evt_t *)(void*)h248_pkg_cg_signals_cd_events,
 	NULL
 };
 
