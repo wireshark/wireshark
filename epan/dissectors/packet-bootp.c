@@ -2081,7 +2081,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 {
 	int suboptoff = optoff;
 	guint8 subopt, vs_opt, vs_len;
-	int subopt_len, datalen;
+	int subopt_len, subopt_end, datalen;
 	guint32 enterprise;
 	proto_item *vti;
 	proto_tree *subtree = 0;
@@ -2099,7 +2099,8 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 	subopt_len = tvb_get_guint8(tvb, suboptoff);
 	suboptoff++;
 
-	if (suboptoff+subopt_len > optend) {
+	subopt_end = suboptoff+subopt_len;
+	if (subopt_end > optend) {
 		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
 			"Suboption %d: no room left in option for suboption value",
 	 		subopt);
@@ -2156,7 +2157,7 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 		break;
 
 	case 9: /* Vendor-Specific Information Suboption    [RFC 4243] */
-		while (suboptoff < optend) {
+		while (suboptoff < subopt_end) {
 			enterprise = tvb_get_ntohl(tvb, suboptoff);
 			datalen = tvb_get_guint8(tvb, suboptoff+4);
 			vti = proto_tree_add_text(v_tree, tvb, suboptoff, 4 + datalen + 1,
