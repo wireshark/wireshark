@@ -1753,7 +1753,7 @@ typedef struct _usb_setup_dissector_table_t {
 } usb_setup_dissector_table_t;
 #define USB_SETUP_GET_STATUS            0
 #define USB_SETUP_CLEAR_FEATURE         1
-#define USB_SETUP_SET_FEATURE           2
+#define USB_SETUP_SET_FEATURE           3
 #define USB_SETUP_SET_ADDRESS           5
 #define USB_SETUP_GET_DESCRIPTOR        6
 #define USB_SETUP_SET_DESCRIPTOR        7
