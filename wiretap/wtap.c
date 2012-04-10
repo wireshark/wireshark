@@ -570,7 +570,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "NFLOG", "nflog" },
 
 	/* WTAP_ENCAP_V5_EF */
-	{ "V5 Enveope Function", "v5-ef" },
+	{ "V5 Envelope Function", "v5-ef" },
 
 	/* WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR */
 	{ "BACnet MS/TP with Directional Info", "bacnet-ms-tp-with-direction" },
