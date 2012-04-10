@@ -850,7 +850,6 @@ static int hf_dvbci_replaced_pid = -1;
 static int hf_dvbci_replacement_pid = -1;
 static int hf_dvbci_pmt_flag = -1;
 static int hf_dvbci_hc_desc_loop_len = -1;
-static int hf_dvbci_hc_pmt = -1;
 static int hf_dvbci_hc_status = -1;
 static int hf_dvbci_resp_intv = -1;
 static int hf_dvbci_utc_time = -1;
@@ -2450,13 +2449,16 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *pi;
-    guint16     nid, onid, tsid, svcid;
-    guint8      ref;
-    guint16     old_pid, new_pid;
-    gboolean    pmt_flag;
-    gint        desc_loop_len;
-    guint8      status;
+    proto_item        *pi;
+    guint16            nid, onid, tsid, svcid;
+    guint8             ref;
+    guint16            old_pid, new_pid;
+    gboolean           pmt_flag;
+    gint               desc_loop_len;
+    dissector_table_t  mpeg_sect_tid_dissector_table = NULL;
+    guint8             table_id;
+    tvbuff_t          *pmt_tvb = NULL;
+    guint8             status;
 
 
     switch (tag) {
@@ -2519,9 +2521,19 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
                 break;
             offset += desc_loop_len;
             if (pmt_flag) {
-                /* no need for len check, missing field is handled internally */
-                proto_tree_add_item(tree, hf_dvbci_hc_pmt, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+                table_id = tvb_get_guint8(tvb, offset);
+                mpeg_sect_tid_dissector_table =
+                    find_dissector_table("mpeg_sect.tid");
+                pmt_tvb = tvb_new_subset(tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset),
+                        tvb_reported_length_remaining(tvb, offset));
+                if (mpeg_sect_tid_dissector_table && pmt_tvb) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                    /* prevent mpeg_pmt dissector from clearing col_info */
+                    col_set_fence(pinfo->cinfo, COL_INFO);
+                    dissector_try_uint(mpeg_sect_tid_dissector_table,
+                            (const guint32)table_id, pmt_tvb, pinfo, tree);
+                }
             }
             break;
         case T_TUNE_REPLY:
@@ -4701,10 +4713,6 @@ proto_register_dvbci(void)
         { &hf_dvbci_hc_desc_loop_len,
           { "Descriptor loop length", "dvb-ci.hc.desc_loop_len",
             FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }
-        },
-        { &hf_dvbci_hc_pmt,
-          { "Program map section", "dvb-ci.hc.pmt",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_hc_status,
           { "Status field", "dvb-ci.hc.status_field",
