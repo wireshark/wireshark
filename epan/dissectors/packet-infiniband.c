@@ -1625,10 +1625,10 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* allocate space for source/destination addresses if not allocated already. we will fill them in later */
     if (!src_addr)
-        src_addr = ep_alloc(ADDR_MAX_LEN);
+        src_addr = se_alloc(ADDR_MAX_LEN);
 
     if (!dst_addr)
-        dst_addr = ep_alloc(ADDR_MAX_LEN);
+        dst_addr = se_alloc(ADDR_MAX_LEN);
 
     pinfo->srcport = pinfo->destport = 0xffffffff;  /* set the src/dest QPN to something impossible instead of the default 0,
                                                        so we don't mistake it for a MAD. (QP is only 24bit, so can't be 0xffffffff)*/
@@ -2056,10 +2056,10 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* allocate space for source/destination addresses if not allocated already. we will fill them in later */
     if (!src_addr)
-        src_addr = ep_alloc(ADDR_MAX_LEN);
+        src_addr = se_alloc(ADDR_MAX_LEN);
 
     if (!dst_addr)
-        dst_addr = ep_alloc(ADDR_MAX_LEN);
+        dst_addr = se_alloc(ADDR_MAX_LEN);
 
     operand =  tvb_get_guint8(tvb, offset);
     operand = (operand & 0xF0) >> 4;
@@ -5191,6 +5191,11 @@ skip_lrh:
     return;
 }
 
+static void proto_init_infiniband(void)
+{
+	src_addr = dst_addr = NULL;
+}
+
 /* Protocol Registration */
 void proto_register_infiniband(void)
 {
@@ -7489,6 +7494,8 @@ void proto_register_infiniband(void)
 
     proto_register_field_array(proto_infiniband_link, hf_link, array_length(hf_link));
     proto_register_subtree_array(ett_link_array, array_length(ett_link_array));
+
+    register_init_routine(proto_init_infiniband);
 
     /* initialize the hash table */
     CM_context_table = g_hash_table_new_full(g_int64_hash, g_int64_equal,
