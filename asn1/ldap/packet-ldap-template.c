@@ -718,7 +718,6 @@ static gint Filter_length;
 static gint Filter_elements;
 
 /* Global variables */
-char *mechanism = NULL;
 static gint MessageID =-1;
 static gint ProtocolOp = -1;
 static gint result = 0;
@@ -983,6 +982,28 @@ ldap_frame_end(void)
 {
    ldap_found_in_frame = FALSE;
    attr_type = NULL;
+   ldapvalue_string = NULL;
+/* ? */
+   attributedesc_string = NULL;
+   Filter_string = NULL;
+   and_filter_string = NULL;
+   object_identifier_id = NULL;
+   or_filter_string = NULL;
+
+   substring_item_any = NULL;
+   substring_item_final = NULL;
+   substring_item_init = NULL;
+   substring_value = NULL;
+
+   ldm_tree = NULL;
+
+   Filter_elements = 0;
+   Filter_length = 0;
+   do_protocolop = FALSE;
+   result = 0;
+
+/* seems to be ok, but reset just in case */
+   matching_rule_string = NULL;
 }
 
 static void
