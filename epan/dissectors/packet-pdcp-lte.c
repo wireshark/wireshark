@@ -2215,8 +2215,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                     /* .. look for error (0) in each bit */
                                     for ( ; bit_offset < 8; bit_offset++) {
                                         if ((tvb_get_guint8(tvb, offset) >> (7-bit_offset) & 0x1) == 0) {
-                                            proto_tree_add_boolean_format_value(bitmap_tree, hf_pdcp_lte_bitmap_not_received, tvb, offset, 1, TRUE,
-                                                                                " (SN=%u)", sn);
+                                            proto_tree_add_boolean_bits_format_value(bitmap_tree, hf_pdcp_lte_bitmap_not_received, tvb, offset*8 + bit_offset,
+                                                                                     1, 0, " (SN=%u)", sn);
                                             not_received++;
                                         }
                                         sn = (sn + 1) % 4096;
@@ -2225,7 +2225,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             }
 
                             if (bitmap_ti != NULL) {
-                                proto_item_append_text(bitmap_ti, " (not-received=%u)", not_received);
+                                proto_item_append_text(bitmap_ti, " (%u SNs not received)", not_received);
                             }
                             write_pdu_label_and_info(root_ti, pinfo, " Status Report (fms=%u) not-received=%u",
                                                     fms, not_received);
