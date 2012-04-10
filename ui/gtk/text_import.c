@@ -88,10 +88,8 @@
 #  define __USE_XOPEN
 #endif
 #ifndef _XOPEN_SOURCE
-#  ifdef __solaris__
-#    define _XOPEN_SOURCE 500	/* 500, for SUSv2; SUSv3 requires c99 */
-#  else
-#    define _XOPEN_SOURCE 600	/* 600, for SUSv3 */
+#  ifndef __sun
+#    define _XOPEN_SOURCE 600
 #  endif
 #endif
 
