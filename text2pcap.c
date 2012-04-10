@@ -90,7 +90,7 @@
 #  define __USE_XOPEN
 #endif
 #ifndef _XOPEN_SOURCE
-#  ifndef __solaris__
+#  ifndef __sun
 #    define _XOPEN_SOURCE 600
 #  endif
 #endif
