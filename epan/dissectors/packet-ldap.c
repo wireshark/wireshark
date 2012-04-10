@@ -5746,7 +5746,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2203 "../../asn1/ldap/packet-ldap-template.c"
+#line 2204 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5821,7 +5821,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2216 "../../asn1/ldap/packet-ldap-template.c"
+#line 2217 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5978,7 +5978,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2356 "../../asn1/ldap/packet-ldap-template.c"
+#line 2357 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }

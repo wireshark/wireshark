@@ -982,6 +982,7 @@ static void
 ldap_frame_end(void)
 {
    ldap_found_in_frame = FALSE;
+   attr_type = NULL;
 }
 
 static void
