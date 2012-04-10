@@ -118,10 +118,10 @@ static dissector_handle_t ua_term_to_sys_handle;
 
 typedef struct
 {
-	char   *name;
-	char   *text;
-	guint   port;
-	guint   last_port;
+	const char *name;
+	const char *text;
+	guint port;
+	guint last_port;
 } prefs_uaudp_t;
 
 #define MAX_TERMINAL_PORTS 4

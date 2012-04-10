@@ -244,7 +244,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	else {
 		const value_string *vals = hfinfo->strings;
 		if (hfinfo->display & BASE_EXT_STRING)
-			vals = VALUE_STRING_EXT_VS_P((value_string_ext *) vals);
+			vals = VALUE_STRING_EXT_VS_P((const value_string_ext *) vals);
 
 		while (vals->strptr != NULL) {
 			if (g_ascii_strcasecmp(s, vals->strptr) == 0) {

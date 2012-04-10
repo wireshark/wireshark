@@ -66,7 +66,7 @@ enum
 	TYPE_I_SUBTYPE_MAX
 } TYPE_I_SUBTYPE;
 
-static char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] =
+static const char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] =
 {
 	"BR INCREMENTAL",            /* 0 */
 	"BR AGGREGATE",              /* 1 */

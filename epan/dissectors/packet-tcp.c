@@ -2920,7 +2920,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             struct capvec
             {
                 guint8 mask;
-                gchar *str;
+                const gchar *str;
             } capvecs[] = {
                 {0x80, "BETS"},
                 {0x40, "SNACK1"},

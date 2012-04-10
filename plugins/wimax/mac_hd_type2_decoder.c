@@ -72,7 +72,7 @@ enum
 	TYPE_II_FB_TYPE_MAX
 } TYPE_II_FB_TYPE;
 
-static char *type2_fb_type_abbrv[TYPE_II_FB_TYPE_MAX] =
+static const char *type2_fb_type_abbrv[TYPE_II_FB_TYPE_MAX] =
 {
 	"CQI and MIMO Feedback",
 	"DL average CINR",

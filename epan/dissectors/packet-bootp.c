@@ -1104,7 +1104,7 @@ static guint num_bootp_records_uat = 0;
 
 static void* uat_bootp_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_bootp_record_t* new_record = (uat_bootp_record_t *)n;
-    const uat_bootp_record_t* old_record = (uat_bootp_record_t *)o;
+    const uat_bootp_record_t* old_record = (const uat_bootp_record_t *)o;
 
     if (old_record->text) {
         new_record->text = g_strdup(old_record->text);

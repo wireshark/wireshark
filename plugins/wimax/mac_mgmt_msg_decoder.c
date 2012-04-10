@@ -111,7 +111,7 @@ static gint proto_mac_mgmt_msg_decoder = -1;
 static gint ett_mac_mgmt_msg_decoder = -1;
 
 /* WIMAX MAC Management message type info */
-char *mgt_msg_abbrv[MAC_MGMT_MSG_TYPE_MAX] =
+static const char *mgt_msg_abbrv[MAC_MGMT_MSG_TYPE_MAX] =
 {
 	"UCD",		/* 0 */
 	"DCD",
