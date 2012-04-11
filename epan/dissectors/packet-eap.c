@@ -105,12 +105,11 @@ const value_string eap_code_vals[] = {
 
 /*
 References:
-  1) http://www.iana.org/assignments/ppp-numbers
-			PPP EAP REQUEST/RESPONSE TYPES
+  1) http://www.iana.org/assignments/ppp-numbers PPP EAP REQUEST/RESPONSE TYPES
   2) http://www.ietf.org/internet-drafts/draft-ietf-pppext-rfc2284bis-02.txt
   3) RFC2284
   4) RFC3748
-  5) http://www.iana.org/assignments/eap-numbers	EAP registry (updated 2009-02-25)
+  5) http://www.iana.org/assignments/eap-numbers EAP registry (updated 2011-02-22)
 */
 
 const value_string eap_type_vals[] = {
@@ -165,7 +164,8 @@ const value_string eap_type_vals[] = {
   { 49,          "EAP-IKEv2 [RFC5106]" },
   { 50,          "EAP-AKA' [RFC5448]" },
   { 51,          "EAP-GPSK [RFC5433]" },
-  { 53,          "EAP-pwd [RFC-harkins-emu-eap-pwd-12.txt]" },
+  { 52,          "EAP-pwd [RFC5931]" },
+  { 53,          "EAP-EKE Version 1 [RFC6124]" },
   { 254,         "Expanded Type [RFC3748]" },
   { 255,         "Experimental [RFC3748]" },
   { 0,          NULL }
