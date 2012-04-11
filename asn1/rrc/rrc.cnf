@@ -543,5 +543,8 @@ tvbuff_t *parameter_tvb=NULL;
     curr_bit_offset++;
 }
 
+#.TYPE_ATTR
+HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
+
 #.END
 
