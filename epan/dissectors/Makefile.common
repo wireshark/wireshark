@@ -285,6 +285,7 @@ DISSECTOR_SRC = \
 	packet-bctp.c		\
 	packet-beep.c		\
 	packet-ber.c		\
+	packet-bfcp.c		\
 	packet-bfd.c		\
 	packet-bgp.c		\
 	packet-bittorrent.c	\

@@ -367,6 +367,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bctp.c
 	dissectors/packet-beep.c
 	dissectors/packet-ber.c
+	dissectors/packet-bfcp.c
 	dissectors/packet-bfd.c
 	dissectors/packet-bgp.c
 	dissectors/packet-bittorrent.c
