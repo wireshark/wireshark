@@ -50,7 +50,7 @@ $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
 # Don't clean these up until/unless we start building them...
-#$(DISSECTOR) \
+#$(DISSECTOR)
 #$(DISSECTOR_HEADER)
 CLEANFILES = \
 	parsetab.py \
