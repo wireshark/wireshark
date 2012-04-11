@@ -1370,16 +1370,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx);
 static int dissect_ansi_map_SystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
-#if 0
-/* Moved to tvbuff.h
- * XXX remove after trial period.
- */
-typedef struct dgt_set_t
-{
-    unsigned char out[15];
-}
-dgt_set_t;
-#endif
 static dgt_set_t Dgt_tbcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
@@ -15485,7 +15475,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3611 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 3601 "../../asn1/ansi_map/packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -19331,7 +19321,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5264 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5254 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     /* List of subtrees */
@@ -19592,7 +19582,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5297 "../../asn1/ansi_map/packet-ansi_map-template.c"
+#line 5287 "../../asn1/ansi_map/packet-ansi_map-template.c"
     };
 
     static enum_val_t ansi_map_response_matching_type_values[] = {
