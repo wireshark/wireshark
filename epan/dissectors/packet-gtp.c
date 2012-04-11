@@ -332,6 +332,7 @@ static gint ett_gtp_fqdn = -1;
 static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_uli_rai = -1;
+static gint ett_gtp_ext_ue_network_cap = -1;
 
 static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
@@ -766,7 +767,7 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
                                               /* 3G   196 TLV CSG ID    7.7.96 */
                                               /* 3G   197 TLV CSG Membership Indication (CMI)   7.7.97 */
                                               /* 3G   198 TLV Aggregate Maximum Bit Rate (AMBR) 7.7.98 */
-                                              /* 3G   199 TLV UE Network Capability     7.7.99 */
+#define GTP_EXT_UE_NETWORK_CAP        0xC7    /* 3G   199 TLV UE Network Capability     7.7.99 */
                                               /* 3G   200 TLV UE-AMBR   7.7.100 */
                                               /* 3G   201 TLV APN-AMBR with NSAPI       7.7.101 */
                                               /* 3G   202 TLV GGSN Back-Off Time 7.7.102 */
@@ -913,7 +914,7 @@ static const value_string gtp_val[] = {
     {196, "CSG ID"},   /* 7.7.96 */
     {197, "CSG Membership Indication (CMI)"},   /* 7.7.97 */
     {198, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
-    {199, "UE Network Capability"},   /* 7.7.99 */
+/* 199 */  {GTP_EXT_UE_NETWORK_CAP, "UE Network Capability"},   /* 7.7.99 */
     {200, "UE-AMBR"},   /* 7.7.100 */
     {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
     {202, "GGSN Back-Off Time"},   /* 7.7.102 */
@@ -1761,6 +1762,7 @@ static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo, 
 static int decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
@@ -1867,6 +1869,7 @@ static const gtp_opt_t gtpopt[] = {
     {GTP_EXT_FQDN, decode_gtp_fqdn}, /* ?.?.?? */
     {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1}, /* 7.7.91 */
     {GTP_EXT_EVO_ALLO_RETE_P2, decode_gtp_evolved_allc_rtn_p2}, /* ?.?.?? */
+	{GTP_EXT_UE_NETWORK_CAP, decode_gtp_ue_network_cap},  /* 7.7.99 */
     {GTP_EXT_REL_PACK, decode_gtp_rel_pack},    /* charging */
     {GTP_EXT_CAN_PACK, decode_gtp_can_pack},    /* charging */
     {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
@@ -6678,7 +6681,30 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * 7.7.96 CSG ID
  * 7.7.97 CSG Membership Indication (CMI)
  * 7.7.98 APN Aggregate Maximum Bit Rate (APN-AMBR)
+ */
+/*
  * 7.7.99 UE Network Capability
+ */
+static int
+decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_UE_NETWORK_CAP, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ue_network_cap);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	de_emm_ue_net_cap(tvb, ext_tree, pinfo, offset, length, NULL, 0);
+
+	return 3 + length;
+}
+/*
  * 7.7.100 UE-AMBR
  * 7.7.101 APN-AMBR with NSAPI
  * 7.7.102 GGSN Back-Off Time
@@ -7879,6 +7905,7 @@ void proto_register_gtp(void)
         &ett_gtp_cdr_dr,
         &ett_gtp_ext_hdr,
         &ett_gtp_uli_rai,
+		&ett_gtp_ext_ue_network_cap,
     };
 
     module_t *gtp_module;
