@@ -1172,9 +1172,9 @@ dissect_re_configuration_response_parameter(tvbuff_t *parameter_tvb, proto_tree 
 static void
 dissect_add_outgoing_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
-  guint length;
+  /* guint length; */
 
-  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  /* length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET); */
 
   proto_tree_add_item(parameter_tree, hf_stream_reset_req_seq_nr,             parameter_tvb, ADD_OUTGOING_STREAM_REQ_SEQ_NR_OFFSET,      ADD_OUTGOING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_add_outgoing_streams_number_streams, parameter_tvb, ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_OFFSET, ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_LENGTH, ENC_BIG_ENDIAN);
@@ -1192,9 +1192,9 @@ dissect_add_outgoing_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 static void
 dissect_add_incoming_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item _U_)
 {
-  guint length;
+  /* guint length; */
 
-  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
+  /* length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET); */
 
   proto_tree_add_item(parameter_tree, hf_stream_reset_req_seq_nr,             parameter_tvb, ADD_INCOMING_STREAM_REQ_SEQ_NR_OFFSET,      ADD_INCOMING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_add_incoming_streams_number_streams, parameter_tvb, ADD_INCOMING_STREAM_REQ_NUM_STREAMS_OFFSET, ADD_INCOMING_STREAM_REQ_NUM_STREAMS_LENGTH, ENC_BIG_ENDIAN);
