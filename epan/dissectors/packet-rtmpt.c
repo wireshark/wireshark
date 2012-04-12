@@ -35,7 +35,18 @@
 *   especially regarding the lengths and the structures.
 *
 *   Documentation:
-*      RTMP protocol description on Wiki of Red5 Open Source Flash Server
+*      RTMP protocol description on Wiki of Red5 Open Source Flash Server at
+*
+*          http://trac.red5.org/wiki/Codecs/RTMPSpecification
+*
+*      and the pages to which it links:
+*
+*          http://osflash.org/documentation/rtmp
+*          http://wiki.gnashdev.org/RTMP
+*          http://wiki.gnashdev.org/RTMP_Messages_Decoded
+*          http://www.acmewebworks.com/Downloads/openCS/TheAMF.pdf
+*          http://www.gnashdev.org/files/rtmp-decoded.pdf
+*      
 *   Default TCP port is 1935
 */
 
