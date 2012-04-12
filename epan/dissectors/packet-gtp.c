@@ -139,7 +139,6 @@ static int hf_gtp_map_cause = -1;
 static int hf_gtp_message_type = -1;
 static int hf_gtp_ms_reason = -1;
 static int hf_gtp_ms_valid = -1;
-static int hf_gtp_msisdn = -1;
 static int hf_gtp_next = -1;
 static int hf_gtp_npdu_number = -1;
 static int hf_gtp_node_ipv4 = -1;
@@ -1916,35 +1915,6 @@ id_to_str(tvbuff_t *tvb, gint offset)
     return str;
 }
 
-static gchar *
-msisdn_to_str(tvbuff_t *tvb, gint offset, int len)
-{
-    static gchar str[18] = "+                ";
-    guint8 bits8to5, bits4to1;
-    int i, j;
-    guint ad;
-
-    for (i = j = 1; i < MIN(len, 9); i++) {
-        ad = tvb_get_guint8(tvb, offset + i);
-        bits8to5 = hi_nibble(ad);
-        bits4to1 = lo_nibble(ad);
-        if (bits4to1 <= 9)
-            str[j++] = BCD2CHAR(bits4to1);
-        else
-            str[j++] = '?';
-        if (bits8to5 <= 9)
-            str[j++] = BCD2CHAR(bits8to5);
-        else if ((i == (MIN(len, 9) - 1)) && (bits8to5 == 0xF)) {
-            /* filler found (odd number of digits); stop here */
-            break;
-        }
-        else
-            str[j++] = '?';
-    }
-    str[j] = '\0';
-
-    return str;
-}
 
 /* Next definitions and function check_field_presence checks if given field
  * in GTP packet is compliant with ETSI
@@ -4814,20 +4784,27 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        29.060 v4.0, chapter 7.7.33
  */
 static int
-decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
-
-    gchar *msisdn_str;
     guint16 length;
+    tvbuff_t *next_tvb;
+    proto_tree *ext_tree_proto;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+
+    te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str_ext_const(GTP_EXT_MSISDN, &gtp_val_ext, "Unknown message"));
+    ext_tree_proto = proto_item_add_subtree(te, ett_gtp_proto);
+
+    proto_tree_add_text(ext_tree_proto, tvb, offset + 1, 2, "Length: %u", length);
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
     if (length < 1)
         return 3;
 
-    msisdn_str = msisdn_to_str(tvb, offset + 3, length);
-
-    proto_tree_add_string(tree, hf_gtp_msisdn, tvb, offset, 3 + length, msisdn_str);
+	next_tvb = tvb_new_subset(tvb, offset+3, length, length);
+	dissect_gsm_map_msisdn(next_tvb, pinfo, ext_tree_proto);
 
     return 3 + length;
 }
@@ -7508,7 +7485,6 @@ void proto_register_gtp(void)
         {&hf_gtp_ms_reason,
          {"MS not reachable reason", "gtp.ms_reason", FT_UINT8, BASE_DEC, VALS(ms_not_reachable_type), 0, NULL, HFILL}},
         {&hf_gtp_ms_valid, {"MS validated", "gtp.ms_valid", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_gtp_msisdn, {"MSISDN", "gtp.msisdn", FT_STRING, BASE_NONE, NULL, 0, "MS international PSTN/ISDN number", HFILL}},
         {&hf_gtp_next,
          {"Next extension header type", "gtp.next", FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0, NULL,
           HFILL}},
