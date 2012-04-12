@@ -319,6 +319,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 		return tvb_new_subset(tvb, byte_offset, datalen, -1);
 	}
 
+	DISSECTOR_ASSERT(datalen>0);
 	buf = ep_alloc0(datalen);
 
 	/* if at least one trailing byte is available, we must use the content
