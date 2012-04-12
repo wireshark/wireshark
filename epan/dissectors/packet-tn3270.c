@@ -2683,6 +2683,7 @@ dissect_exception_or_status_sd_parms(proto_tree *tn3270_tree, tvbuff_t *tvb, gin
     case 0x0C04: /*Format status*/
       offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
                                     sdp4);
+      break;
     case 0x1405: /*Group status*/
       offset += tn3270_add_hf_items(tn3270_tree, tvb, offset,
                                     sdp5);
