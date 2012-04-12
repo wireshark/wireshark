@@ -67,8 +67,106 @@ typedef struct _io_users_item_t {
 	guint32 frames2;
 	guint64 bytes1;
 	guint64 bytes2;
+	nstime_t start_time;
+	nstime_t stop_time;
 } io_users_item_t;
 
+void
+iousers_process_name_packet(io_users_t *iu, char *name1, char *name2, int direction, guint64 pkt_len, nstime_t *ts)
+{
+	io_users_item_t *iui;
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!strcmp(iui->name1, name1))
+		&& (!strcmp(iui->name2, name2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+		iui=g_malloc(sizeof(io_users_item_t));
+		iui->next=iu->items;
+		iu->items=iui;
+/*		iui->addr1=NULL;*/
+		iui->name1=g_strdup(name1);
+/*		iui->addr2=NULL;*/
+		iui->name2=g_strdup(name2);
+		iui->frames1=0;
+		iui->frames2=0;
+		iui->bytes1=0;
+		iui->bytes2=0;
+		memcpy(&iui->start_time, ts, sizeof(iui->start_time));
+		memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
+	}
+	else {
+		if (nstime_cmp(ts, &iui->stop_time) > 0) {
+			memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
+		} else if (nstime_cmp(ts, &iui->start_time) < 0) {
+			memcpy(&iui->start_time, ts, sizeof(iui->start_time));
+		}
+	}
+
+	if(direction){
+		iui->frames1++;
+		iui->bytes1+=pkt_len;
+	} else {
+		iui->frames2++;
+		iui->bytes2+=pkt_len;
+	}
+}
+
+void
+iousers_process_address_packet(io_users_t *iu, const address *src, const address *dst, guint64 pkt_len, nstime_t *ts)
+{
+	const address *addr1, *addr2;
+	io_users_item_t *iui;
+
+	if(CMP_ADDRESS(src, dst)>0){
+		addr1=src;
+		addr2=dst;
+	} else {
+		addr2=src;
+		addr1=dst;
+	}
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+		iui=g_malloc(sizeof(io_users_item_t));
+		iui->next=iu->items;
+		iu->items=iui;
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=g_strdup(ep_address_to_str(addr1));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=g_strdup(ep_address_to_str(addr2));
+		iui->frames1=0;
+		iui->frames2=0;
+		iui->bytes1=0;
+		iui->bytes2=0;
+		memcpy(&iui->start_time, ts, sizeof(iui->start_time));
+		memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
+	}
+	else {
+		if (nstime_cmp(ts, &iui->stop_time) > 0) {
+			memcpy(&iui->stop_time, ts, sizeof(iui->stop_time));
+		} else if (nstime_cmp(ts, &iui->start_time) < 0) {
+			memcpy(&iui->start_time, ts, sizeof(iui->start_time));
+		}
+	}
+
+	if(!CMP_ADDRESS(dst, &iui->addr1)){
+		iui->frames1++;
+		iui->bytes1+=pkt_len;
+	} else {
+		iui->frames2++;
+		iui->bytes2+=pkt_len;
+	}
+}
 
 static int
 iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vudph)
@@ -76,7 +174,6 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	io_users_t *iu=arg;
 	const e_udphdr *udph=vudph;
 	char name1[256],name2[256];
-	io_users_item_t *iui;
 	int direction=0;
 
 	if(udph->uh_sport>udph->uh_dport){
@@ -97,35 +194,8 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
 	}
 
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!strcmp(iui->name1, name1))
-		&& (!strcmp(iui->name2, name2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-/*		iui->addr1=NULL;*/
-		iui->name1=g_strdup(name1);
-/*		iui->addr2=NULL;*/
-		iui->name2=g_strdup(name2);
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(direction){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
-
+	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	
 	return 1;
 }
 
@@ -136,7 +206,6 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	io_users_t *iu=arg;
 	const struct _sctp_info* sctph = vsctp;
 	char name1[256],name2[256], s_sport[10], s_dport[10];
-	io_users_item_t *iui;
 	int direction=0;
 
 	g_snprintf(s_sport, sizeof s_sport, "%d",sctph->sport);
@@ -156,36 +225,9 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&sctph->ip_dst),s_dport);
 	}
 
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!strcmp(iui->name1, name1))
-		 && (!strcmp(iui->name2, name2)) ){
-			break;
-		}
-	}
+	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
-	if(!iui){
-                iui=g_malloc(sizeof(io_users_item_t));
-                iui->next=iu->items;
-                iu->items=iui;
-/*              iui->addr1=NULL;*/
-                iui->name1=g_strdup(name1);
-/*              iui->addr2=NULL;*/
-                iui->name2=g_strdup(name2);
-                iui->frames1=0;
-                iui->frames2=0;
-                iui->bytes1=0;
-                iui->bytes2=0;
-        }
-
-	if(direction){
-                iui->frames1++;
-                iui->bytes1+=pinfo->fd->pkt_len;
-        } else {
-                iui->frames2++;
-                iui->bytes2+=pinfo->fd->pkt_len;
-        }
-
-        return 1;
+	return 1;
 }
 
 
@@ -195,7 +237,6 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	io_users_t *iu=arg;
 	const struct tcpheader *tcph=vtcph;
 	char name1[256],name2[256];
-	io_users_item_t *iui;
 	int direction=0;
 
 	if(tcph->th_sport>tcph->th_dport){
@@ -216,34 +257,7 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	}
 
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!strcmp(iui->name1, name1))
-		&& (!strcmp(iui->name2, name2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-/*		iui->addr1=NULL;*/
-		iui->name1=g_strdup(name1);
-/*		iui->addr2=NULL;*/
-		iui->name2=g_strdup(name2);
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(direction){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -254,45 +268,8 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 {
 	io_users_t *iu=arg;
 	const ws_ip *iph=vip;
-	const address *addr1, *addr2;
-	io_users_item_t *iui;
 
-	if(CMP_ADDRESS(&iph->ip_src, &iph->ip_dst)>0){
-		addr1=&iph->ip_src;
-		addr2=&iph->ip_dst;
-	} else {
-		addr2=&iph->ip_src;
-		addr1=&iph->ip_dst;
-	}
-
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!CMP_ADDRESS(&iui->addr1, addr1))
-		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(ep_address_to_str(addr1));
-		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(ep_address_to_str(addr2));
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(!CMP_ADDRESS(&iph->ip_dst, &iui->addr1)){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_address_packet(iu, &iph->ip_src, &iph->ip_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -303,8 +280,6 @@ iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	io_users_t *iu=arg;
 	const struct ip6_hdr *ip6h=vip;
 	address src, dst;
-	const address *addr1, *addr2;
-	io_users_item_t *iui;
 
 	/* Addresses aren't implemented as 'address' type in struct ip6_hdr */
 	src.type = dst.type = AT_IPv6;
@@ -312,42 +287,7 @@ iousers_ipv6_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	src.data = &ip6h->ip6_src;
 	dst.data = &ip6h->ip6_dst;
 
-	if(CMP_ADDRESS(&src, &dst)>0){
-		addr1=&src;
-		addr2=&dst;
-	} else {
-		addr2=&src;
-		addr1=&dst;
-	}
-
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!CMP_ADDRESS(&iui->addr1, addr1))
-		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(ep_address_to_str(addr1));
-		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(ep_address_to_str(addr2));
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(!CMP_ADDRESS(&dst, &iui->addr1)){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_address_packet(iu, &src, &dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -357,45 +297,8 @@ iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 {
 	io_users_t *iu=arg;
 	const ipxhdr_t *ipxh=vipx;
-	const address *addr1, *addr2;
-	io_users_item_t *iui;
 
-	if(CMP_ADDRESS(&ipxh->ipx_src, &ipxh->ipx_dst)>0){
-		addr1=&ipxh->ipx_src;
-		addr2=&ipxh->ipx_dst;
-	} else {
-		addr2=&ipxh->ipx_src;
-		addr1=&ipxh->ipx_dst;
-	}
-
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!CMP_ADDRESS(&iui->addr1, addr1))
-		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(ep_address_to_str(addr1));
-		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(ep_address_to_str(addr2));
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(!CMP_ADDRESS(&ipxh->ipx_dst, &iui->addr1)){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_address_packet(iu, &ipxh->ipx_src, &ipxh->ipx_dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -405,45 +308,8 @@ iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 {
 	io_users_t *iu=arg;
 	const fc_hdr *fchdr=vfc;
-	const address *addr1, *addr2;
-	io_users_item_t *iui;
 
-	if(CMP_ADDRESS(&fchdr->s_id, &fchdr->d_id)<0){
-		addr1=&fchdr->s_id;
-		addr2=&fchdr->d_id;
-	} else {
-		addr2=&fchdr->s_id;
-		addr1=&fchdr->d_id;
-	}
-
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!CMP_ADDRESS(&iui->addr1, addr1))
-		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(ep_address_to_str(addr1));
-		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(ep_address_to_str(addr2));
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(!CMP_ADDRESS(&fchdr->d_id,&iui->addr1)){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_address_packet(iu, &fchdr->s_id, &fchdr->d_id, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -453,45 +319,8 @@ iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 {
 	io_users_t *iu=arg;
 	const eth_hdr *ehdr=veth;
-	const address *addr1, *addr2;
-	io_users_item_t *iui;
 
-	if(CMP_ADDRESS(&ehdr->src, &ehdr->dst)<0){
-		addr1=&ehdr->src;
-		addr2=&ehdr->dst;
-	} else {
-		addr2=&ehdr->src;
-		addr1=&ehdr->dst;
-	}
-
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!CMP_ADDRESS(&iui->addr1, addr1))
-		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(ep_address_to_str(addr1));
-		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(ep_address_to_str(addr2));
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(!CMP_ADDRESS(&ehdr->dst,&iui->addr1)){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -501,45 +330,8 @@ iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 {
 	io_users_t *iu=arg;
 	const fddi_hdr *ehdr=veth;
-	const address *addr1, *addr2;
-	io_users_item_t *iui;
 
-	if(CMP_ADDRESS(&ehdr->src, &ehdr->dst)<0){
-		addr1=&ehdr->src;
-		addr2=&ehdr->dst;
-	} else {
-		addr2=&ehdr->src;
-		addr1=&ehdr->dst;
-	}
-
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!CMP_ADDRESS(&iui->addr1, addr1))
-		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(ep_address_to_str(addr1));
-		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(ep_address_to_str(addr2));
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(!CMP_ADDRESS(&ehdr->dst,&iui->addr1)){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_address_packet(iu, &ehdr->src, &ehdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -549,45 +341,8 @@ iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 {
 	io_users_t *iu=arg;
 	const tr_hdr *trhdr=vtr;
-	const address *addr1, *addr2;
-	io_users_item_t *iui;
 
-	if(CMP_ADDRESS(&trhdr->src, &trhdr->dst)<0){
-		addr1=&trhdr->src;
-		addr2=&trhdr->dst;
-	} else {
-		addr2=&trhdr->src;
-		addr1=&trhdr->dst;
-	}
-
-	for(iui=iu->items;iui;iui=iui->next){
-		if((!CMP_ADDRESS(&iui->addr1, addr1))
-		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
-			break;
-		}
-	}
-
-	if(!iui){
-		iui=g_malloc(sizeof(io_users_item_t));
-		iui->next=iu->items;
-		iu->items=iui;
-		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=g_strdup(ep_address_to_str(addr1));
-		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=g_strdup(ep_address_to_str(addr2));
-		iui->frames1=0;
-		iui->frames2=0;
-		iui->bytes1=0;
-		iui->bytes2=0;
-	}
-
-	if(!CMP_ADDRESS(&trhdr->dst,&iui->addr1)){
-		iui->frames1++;
-		iui->bytes1+=pinfo->fd->pkt_len;
-	} else {
-		iui->frames2++;
-		iui->bytes2+=pinfo->fd->pkt_len;
-	}
+	iousers_process_address_packet(iu, &trhdr->src, &trhdr->dst, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
@@ -602,8 +357,8 @@ iousers_draw(void *arg)
 	printf("================================================================================\n");
 	printf("%s Conversations\n",iu->type);
 	printf("Filter:%s\n",iu->filter?iu->filter:"<No Filter>");
-	printf("                                               |       <-      | |       ->      | |     Total     |\n");
-	printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |\n");
+	printf("                                               |       <-      | |       ->      | |     Total     |   Rel. Start   |   Duration   |\n");
+	printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |                |              |\n");
 	max_frames=0xffffffff;
 	do {
 		last_frames=0;
@@ -621,12 +376,14 @@ iousers_draw(void *arg)
 			tot_frames=iui->frames1+iui->frames2;
 
 			if(tot_frames==last_frames){
-				printf("%-20s <-> %-20s  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d\n",
+				printf("%-20s <-> %-20s  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %14.9f   %12.4f\n",
 					iui->name1, iui->name2,
 					iui->frames1, iui->bytes1,
 					iui->frames2, iui->bytes2,
 					iui->frames1+iui->frames2,
-					iui->bytes1+iui->bytes2
+					iui->bytes1+iui->bytes2,
+					nstime_to_sec(&iui->start_time),
+					nstime_to_sec(&iui->stop_time) - nstime_to_sec(&iui->start_time)
 				);
 			}
 		}
