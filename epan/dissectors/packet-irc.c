@@ -77,7 +77,7 @@ static const guint8 TAG_DELIMITER[] = {0x01};
 	/* good candidate for dynamic port specification */
 
 static void
-dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, char* command)
+dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, guint8* command)
 {
 	guchar	found_start_needle = 0,
 			found_end_needle = 0;
@@ -117,7 +117,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 		eoc_offset = -1,
 		eocp_offset, 
 		tag_start_offset, tag_end_offset;
-	char* str_command;
+	guint8* str_command;
 	guchar found_needle = 0,
 		  found_tag_needle = 0;
 	gboolean first_command_param = TRUE;
@@ -269,7 +269,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 		eoc_offset = -1,
 		eocp_offset, 
 		tag_start_offset, tag_end_offset;
-	char* str_command;
+	guint8* str_command;
 	guint16 num_command;
 	guchar found_needle = 0,
 		  found_tag_needle = 0;
