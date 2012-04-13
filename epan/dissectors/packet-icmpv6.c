@@ -80,10 +80,12 @@
  * RFC 5269: Distributing a Symmetric Fast Mobile IPv6 (FMIPv6) Handover Key Using SEcure Neighbor Discovery (SEND)
  * RFC 5271: Mobile IPv6 Fast Handovers for 3G CDMA Networks
  * RFC 6275: Mobility Support in IPv6
- * draft-ietf-roll-rpl-19.txt: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
- * draft-ietf-csi-proxy-send-05: Secure Proxy ND Support for SEND
+ * RFC 6495: Subject Key Identifier (SKI) SEND Name Type fields
+ * RFC 6496: Secure Proxy ND Support for SEND
+ * RFC 6550: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
+ * RFC 6554: An IPv6 Routing Header for Source Routes with RPL
  * draft-ietf-6lowpan-nd-18: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
- * http://www.iana.org/assignments/icmpv6-parameters (last updated 2011-04-08)
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-03-28)
  */
 
 static int proto_icmpv6 = -1;
@@ -233,7 +235,6 @@ static int hf_icmpv6_opt_6co_context_prefix  = -1;
 static int hf_icmpv6_opt_abro_version = -1;
 static int hf_icmpv6_opt_abro_6lbr_address = -1;
 
-
 /* RFC 2710: Multicast Listener Discovery for IPv6 */
 static int hf_icmpv6_mld_mrd = -1;
 static int hf_icmpv6_mld_multicast_address = -1;
@@ -347,7 +348,7 @@ static int hf_icmpv6_ni_reply_node_name = -1;
 static int hf_icmpv6_ni_reply_node_address = -1;
 static int hf_icmpv6_ni_reply_ipv4_address = -1;
 
-/* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
+/* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
 static int hf_icmpv6_rpl_dis_flag = -1;
 static int hf_icmpv6_rpl_dio_instance = -1;
 static int hf_icmpv6_rpl_dio_version = -1;
@@ -575,7 +576,7 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },                   /* [RFC4286] */
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
-    { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ietf-roll-rpl-19.txt Pending IANA */
+    { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* [RFC6550] */
     { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
     { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
@@ -602,7 +603,7 @@ static const value_string icmpv6_unreach_code_val[] = {
     { ICMP6_DST_UNREACH_NOPORT,      "Port unreachable" },
     { ICMP6_DST_UNREACH_INGR_EGR,    "Source address failed ingress/egress policy" },
     { ICMP6_DST_UNREACH_REJECT,      "Reject route to destination" },
-    { ICMP6_DST_UNREACH_ERROR,       "Error in Source Routing Header" }, /* [draft-ietf-roll-rpl-19.txt] */
+    { ICMP6_DST_UNREACH_ERROR,       "Error in Source Routing Header" }, /* [RFC6550] [RFC6554] */
     { 0, NULL }
 };
 
@@ -836,7 +837,7 @@ static const value_string option_vals[] = {
 /* 29 */   { ND_OPT_HANDOVER_ASSIST_INFO,      "Handover Assist Information" },            /* [RFC5271] */
 /* 30 */   { ND_OPT_MOBILE_NODE_ID,            "Mobile Node Identifier Option" },          /* [RFC5271] */
 /* 31 */   { ND_OPT_DNS_SEARCH_LIST,           "DNS Search List Option" },                 /* [RFC6106] */
-/* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [draft-ietf-csi-proxy-send-05.txt] */
+/* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [RFC6496] */
 /* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-18.txt] */
 /* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-18.txt] */
 /* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },              /* [draft-ietf-6lowpan-nd-18.txt] */
@@ -954,8 +955,7 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 
 
 
-/* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
-/* Pending IANA Assignment */
+/* RPL : RFC 6550 : Routing over Low-Power and Lossy Networks. */
 /* RPL ICMPv6 Codes */
 #define ICMP6_RPL_DIS       0x00   /* DODAG Information Solicitation */
 #define ICMP6_RPL_DIO       0x01   /* DODAG Information Object */
@@ -1015,10 +1015,10 @@ static const value_string icmpv6_option_cert_type_vals[] = {
 #define RPL_OPT_SOLICITED_FLAG_RSV      0x1F
 
 static const value_string rpl_dio_map_val[] = {
-    { 0, "No downward routes maintained by RPL" },
-    { 1, "Non storing mode" },
-    { 2, "Storing without multicast support" },
-    { 3, "Storing with multicast support" },
+    { 0, "No Downward routes maintained by RPL" },
+    { 1, "Non-Storing Mode of Operation" },
+    { 2, "Storing Mode of Operation with no multicast support" },
+    { 3, "Storing Mode of Operation with multicast support" },
     { 0, NULL }
 };
 static const value_string rpl_code_val[] = {
@@ -1059,8 +1059,8 @@ static const value_string rpl_secure_algorithm_signature_val[] = {
 static const value_string rpl_option_vals[] = {
     { RPL_OPT_PAD1,       "1-byte padding" },
     { RPL_OPT_PADN,       "n-byte padding" },
-    { RPL_OPT_METRIC,     "Metric container" },
-    { RPL_OPT_ROUTING,    "Routing"},
+    { RPL_OPT_METRIC,     "DAG Metric container" },
+    { RPL_OPT_ROUTING,    "Routing Information"},
     { RPL_OPT_CONFIG,     "DODAG configuration" },
     { RPL_OPT_TARGET,     "RPL Target" },
     { RPL_OPT_TRANSIT,    "Transit Information" },
@@ -2138,7 +2138,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 }
 
 
-/* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
+/* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
 static int
 dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -3682,7 +3682,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             case ICMP6_RPL_CONTROL: /* RPL Control (155) */
             {
-                /* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
+                /* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
                 offset = dissect_rpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
                 break;
             }
@@ -4460,7 +4460,7 @@ proto_register_icmpv6(void)
            { "IPv4 Node address", "icmpv6.ni.query.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
              NULL, HFILL }},
 
-        /* RPL: draft-ietf-roll-rpl-19.txt: Routing over Low-Power and Lossy Networks. */
+        /* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
         { &hf_icmpv6_rpl_dis_flag,
            { "Flags", "icmpv6.rpl.dis.flags", FT_UINT8, BASE_DEC, NULL, 0x0,
              "8-bit unused field reserved for flags", HFILL }},
