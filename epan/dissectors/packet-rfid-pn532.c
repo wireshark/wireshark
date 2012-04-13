@@ -58,16 +58,24 @@ static int hf_pn532_14443b_pupi = -1;
 static int hf_pn532_14443b_app_data = -1;
 static int hf_pn532_14443b_proto_info = -1;
 
-/* - Command Set (Misc) - */
-#define DIAGNOSE  		0x00
+/* Diagnose hardware status */
+#define DIAGNOSE_REQ  		0x00
+#define DIAGNOSE_RSP 		0x01
 
 /* Get Firmware Version */
 #define GET_FIRMWARE_VERSION_REQ    0x02
 #define GET_FIRMWARE_VERSION_RSP    0x03
 
 #define GET_GENERAL_STATUS	0x04
-#define READ_REGISTER		0x06
-#define WRITE_REGISTER		0x08
+
+/* Read from a chipset register */
+#define READ_REGISTER_REQ	0x06
+#define READ_REGISTER_RSP	0x07
+
+/* Write Register */
+#define WRITE_REGISTER_REQ	0x08
+#define WRITE_REGISTER_RSP	0x09
+
 #define READ_GPIO		0x0C
 #define WRITE_GPIO		0x0E
 #define SET_SERIAL_BAUD_RATE	0x10
@@ -76,7 +84,9 @@ static int hf_pn532_14443b_proto_info = -1;
 #define POWER_DOWN   		0x16
 
 /* RF Communication Commands */
-#define RF_CONFIGURATION  	0x32
+#define RF_CONFIGURATION_REQ  	0x32
+#define RF_CONFIGURATION_RSP  	0x33
+
 #define RF_REGULATION_TEST  	0x58
 
 /* - Initiator Commands - */
@@ -89,15 +99,24 @@ static int hf_pn532_14443b_proto_info = -1;
 
 #define IN_ATR 			0x50
 #define IN_PSL 			0x4E
-#define IN_DATA_EXCHANGE	0x40
+
+/* Data Exchange */
+#define IN_DATA_EXCHANGE_REQ	0x40
+#define IN_DATA_EXCHANGE_RSP	0x41
 
 /* Communicate through */
 #define IN_COMMUNICATE_THRU_REQ	0x42
 #define IN_COMMUNICATE_THRU_RSP	0x43
 
-#define IN_DESELECT		0x44
+/* Deselect target token */
+#define IN_DESELECT_REQ		0x44
+#define IN_DESELECT_RSP		0x45
+
 #define IN_RELEASE		0x52
-#define IN_SELECT	  	0x54
+
+/* Select target token */
+#define IN_SELECT_REQ	  	0x54
+#define IN_SELECT_RSP	  	0x55
 
 /* Auto/long-time polling*/
 #define IN_AUTO_POLL_REQ	0x60
@@ -125,22 +144,34 @@ static int hf_pn532_14443b_proto_info = -1;
 #define JEWEL_14443A_106	0x04
 
 static const value_string pn532_commands[] = {
-    {DIAGNOSE,			"Diagnose"},
-
+    {DIAGNOSE_REQ,		"Diagnose"},
+    {DIAGNOSE_RSP,		"Diagnose (Response)"},
+    
     /* Discover the device's firmware version */
     {GET_FIRMWARE_VERSION_REQ,	"GetFirmwareVersion"},
     {GET_FIRMWARE_VERSION_RSP,	"GetFirmwareVersion (Response)"},
 
     {GET_GENERAL_STATUS,	"GetGeneralStatus"},
-    {READ_REGISTER,		"ReadRegister"},
-    {WRITE_REGISTER,		"WriteRegister"},
-    {READ_GPIO,			"ReadGPIO"},
+    
+    /* Read from a chipset register */
+    {READ_REGISTER_REQ,	"ReadRegister"},
+    {READ_REGISTER_RSP,	"ReadRegister (Response)"},
+    
+    /* Write to a chipset register */
+    {WRITE_REGISTER_REQ,	"WriteRegister"},
+    {WRITE_REGISTER_RSP,	"WriteRegister (Response)"},    
+    
+    {READ_GPIO,		"ReadGPIO"},
     {WRITE_GPIO,		"WriteGPIO"},
     {SET_SERIAL_BAUD_RATE,	"SetSerialBaudRate"},
     {SET_PARAMETERS,		"SetParameters"},
     {SAM_CONFIGURATION,		"SAMConfiguration"},
     {POWER_DOWN,		"PowerDown"},
-    {RF_CONFIGURATION,		"RFConfiguration"},
+    
+    /* RF Configuration */
+    {RF_CONFIGURATION_REQ,	"RFConfiguration"},
+    {RF_CONFIGURATION_RSP,	"RFConfiguration (Response)"},
+
     {RF_REGULATION_TEST,	"RFRegulationTest"},
     {IN_JUMP_FOR_DEP,		"InJumpForDEP"},
     {IN_JUMP_FOR_PSL,		"InJumpForPSL"},
@@ -151,16 +182,25 @@ static const value_string pn532_commands[] = {
 
     {IN_ATR,			"InATR"},
     {IN_PSL,			"InPSL"},
-    {IN_DATA_EXCHANGE,		"InDataExchange"},
+    
+    /* Data Exchange */
+    {IN_DATA_EXCHANGE_REQ,	"InDataExchange"},
+    {IN_DATA_EXCHANGE_RSP,	"InDataExchange (Response)"},    
 
     /* Communicate through */
     {IN_COMMUNICATE_THRU_REQ,	"InCommunicateThru"},
     {IN_COMMUNICATE_THRU_RSP,	"InCommunicateThru (Response)"},
 
-    {IN_DESELECT,		"InDeselect"},
+    /* Deselect the target token */
+    {IN_DESELECT_REQ,		"InDeselect"},
+    {IN_DESELECT_RSP,		"InDeselect (Response)"},
+    
     {IN_RELEASE,		"InRelease"},
-    {IN_SELECT,			"InSelect"},
-
+   
+    /* Select target token */
+    {IN_SELECT_REQ,		"InSelect"},
+    {IN_SELECT_RSP,		"InSelect (Response)"},
+    
     /* Automatic/long-time polling */
     {IN_AUTO_POLL_REQ,		"InAutoPoll"},
     {IN_AUTO_POLL_RES,		"InAutoPoll (Response)"},
@@ -232,13 +272,19 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 
     switch (cmd) {
 
-    case DIAGNOSE:
+    /* Device Diagnosis Request */
+    case DIAGNOSE_REQ:
 	break;
 
-	/* Device Firmware Version */
+    /* Device Diagnosis Response */
+    case DIAGNOSE_RSP:
+	break;
+	
+    /* Device Firmware Version Request */
     case GET_FIRMWARE_VERSION_REQ:
 	break;
-
+	
+    /* Device Firmware Version Response */
     case GET_FIRMWARE_VERSION_RSP:
 	proto_tree_add_item(pn532_tree, hf_pn532_ic_version, tvb, 2, 1, ENC_NA);
 	proto_tree_add_item(pn532_tree, hf_pn532_fw_version, tvb, 3, 1, ENC_NA);
@@ -249,12 +295,18 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case GET_GENERAL_STATUS:
 	break;
 
-    case READ_REGISTER:
+    case READ_REGISTER_REQ:
 	break;
 
-    case WRITE_REGISTER:
+    case READ_REGISTER_RSP:
 	break;
-
+	
+    case WRITE_REGISTER_REQ:
+	break;
+	
+    case WRITE_REGISTER_RSP:
+	break;
+	
     case READ_GPIO:
 	break;
 
@@ -273,7 +325,10 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case POWER_DOWN:
 	break;
 
-    case RF_CONFIGURATION:
+    case RF_CONFIGURATION_REQ:
+	break;
+
+    case RF_CONFIGURATION_RSP:
 	break;
 
     case RF_REGULATION_TEST:
@@ -370,19 +425,28 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     case IN_PSL:
 	break;
 
-    case IN_DATA_EXCHANGE:
+    case IN_DATA_EXCHANGE_REQ:
+	break;
+	
+    case IN_DATA_EXCHANGE_RSP:
 	break;
 
     case IN_COMMUNICATE_THRU_REQ:
 	break;
 
-    case IN_DESELECT:
+    case IN_DESELECT_REQ:
+	break;
+
+    case IN_DESELECT_RSP:
 	break;
 
     case IN_RELEASE:
 	break;
 
-    case IN_SELECT:
+    case IN_SELECT_REQ:
+	break;
+
+    case IN_SELECT_RSP:
 	break;
 
     case IN_AUTO_POLL_REQ:
