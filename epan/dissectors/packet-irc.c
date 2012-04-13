@@ -69,6 +69,7 @@ static gint ett_irc_request_command = -1;
 static gint ett_irc_response = -1;
 static gint ett_irc_response_command = -1;
 
+/* This must be a null-terminated string */
 static const guint8 TAG_DELIMITER[] = {0x01, 0x00};
 
 
