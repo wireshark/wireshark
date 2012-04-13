@@ -204,6 +204,7 @@ static dissector_table_t gsm_sms_dissector_tbl;
 /* Short Message reassembly */
 static GHashTable *g_sm_fragment_table = NULL;
 static GHashTable *g_sm_reassembled_table = NULL;
+static GHashTable *g_sm_udl_table = NULL;
 static gint ett_gsm_sms_ud_fragment = -1;
 static gint ett_gsm_sms_ud_fragments = -1;
  /*
@@ -247,6 +248,10 @@ gsm_sms_defragment_init (void)
 {
     fragment_table_init (&g_sm_fragment_table);
     reassembled_table_init(&g_sm_reassembled_table);
+    if (g_sm_udl_table) {
+        g_hash_table_destroy(g_sm_udl_table);
+    }
+    g_sm_udl_table = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 /*
@@ -2662,6 +2667,13 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
             col_append_fstr (g_pinfo->cinfo, COL_INFO,
                              " (Short Message fragment %u of %u)", g_frag, g_frags);
         }
+
+        if (seven_bit) {
+            /* Store udl for later decoding of reassembled SMS */
+            g_hash_table_insert(g_sm_udl_table,
+                                GUINT_TO_POINTER(((g_sm_id<<16)|(g_frag-1))),
+                                GUINT_TO_POINTER(udl));
+        }
     } /* Else: not fragmented */
     if (! sm_tvb) /* One single Short Message, or not reassembled */
         sm_tvb = tvb_new_subset_remaining (tvb, offset);
@@ -2678,7 +2690,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	    {
 		/* Show unassembled SMS */
 		out_len =
-		    gsm_sms_char_7bit_unpack(fill_bits, length , SMS_MAX_MESSAGE_SIZE,
+		    gsm_sms_char_7bit_unpack(fill_bits, length ,
+					     (udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : udl),
 					     tvb_get_ptr(tvb , offset , length) , messagebuf);
 		messagebuf[out_len] = '\0';
 		proto_tree_add_string(subtree, hf_gsm_sms_text, tvb, offset,
@@ -2705,8 +2718,12 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		    else
 			len_sms = total_sms_len;
 
+            udl = GPOINTER_TO_UINT(g_hash_table_lookup(g_sm_udl_table,
+                                                       GUINT_TO_POINTER(((g_sm_id<<16)|i))));
+
 		    out_len =
-			gsm_sms_char_7bit_unpack(fill_bits, len_sms, SMS_MAX_MESSAGE_SIZE,
+			gsm_sms_char_7bit_unpack(fill_bits, len_sms,
+						 (udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : udl),
 						 tvb_get_ptr(sm_tvb, i * MAX_SMS_FRAG_LEN, len_sms),
 						 messagebuf);
 
