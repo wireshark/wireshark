@@ -9150,7 +9150,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         oui = tvb_get_ntoh24(tvb, offset);
         tag_tvb = tvb_new_subset(tvb, offset, tag_len, tag_len);
         proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
-        proto_item_append_text(ti, ": %s", tvb_get_manuf_name(tvb, offset));
+        proto_item_append_text(ti, ": %s", uint_get_manuf_name(oui));
 
         if (tag_len > 3) {
           proto_tree_add_item(ti, hf_ieee80211_tag_vendor_oui_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);

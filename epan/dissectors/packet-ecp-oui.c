@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/oui.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-ieee802a.h"
 #include "packet-lldp.h"
@@ -203,7 +204,12 @@ dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 	tempOffset += 2;
 
 	oui = tvb_get_ntoh24(tvb, (tempOffset));
+	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
 	ouiStr = val_to_str(oui, tlv_oui_subtype_vals, "Unknown");
+	if (strcmp(ouiStr, "Unknown")==0) {
+		ouiStr = uint_get_manuf_name_if_known(oui);
+		if(ouiStr==NULL) ouiStr="Unknown";
+	}
 
 	tempOffset += 3;
 

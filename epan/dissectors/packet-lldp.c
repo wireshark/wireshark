@@ -32,14 +32,16 @@
 #endif
 
 #include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include <epan/afn.h>
-
+#include <epan/addr_resolv.h>
 #include "packet-lldp.h"
+
+/* Sub Dissector Tables */
+static dissector_table_t oid_unique_code_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_lldp = -1;
@@ -89,6 +91,7 @@ static int hf_profinet_green_period_begin_valid = -1;
 static int hf_profinet_green_period_begin_offset = -1;
 static int hf_cisco_subtype = -1;
 static int hf_unknown_subtype = -1;
+static int hf_unknown_subtype_content = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_lldp = -1;
@@ -1324,6 +1327,15 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* Dissect IEEE 802.1Qbg TLVs */
 static void
+dissect_oui_default_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint8 subType;
+	subType = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_unknown_subtype, tvb, offset, 1, subType);
+	proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, (offset+1), -1, ENC_NA);
+}
+
+static void
 dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
@@ -1334,7 +1346,6 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	proto_tree *evb_capabilities_subtree = NULL;
 
 	proto_item *tf = NULL;
-
 	subType = tvb_get_guint8(tvb, tempOffset);
 
 	if (tree)
@@ -1439,19 +1450,20 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 /* Dissect IEEE 802.3 TLVs */
 static void
-dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 tlvLen)
+dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
 	guint8 tempByte;
 	guint16 tempShort;
 	guint32 tempLong;
 	guint32 tempOffset = offset;
+	guint16 tlvLen = tvb_length(tvb)-offset;
 
 	proto_tree	*mac_phy_flags = NULL;
 	proto_tree	*autoneg_advertised_subtree = NULL;
 
 	proto_item 	*tf = NULL;
-
+	return;
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
 
@@ -1835,9 +1847,10 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* Dissect Media TLVs */
 static void
-dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 tlvLen)
+dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint32 tempOffset = offset;
+	guint16 tlvLen = tvb_length(tvb)-offset;
 	guint8 subType;
 	guint16 tempShort;
 	guint16 tempVLAN;
@@ -1849,7 +1862,6 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 
 	proto_tree	*media_flags = NULL;
 	proto_item 	*tf = NULL;
-
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
 	if (tree)
@@ -2379,7 +2391,7 @@ dissect_profinet_period(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const g
 
 /* Dissect PROFINET TLVs */
 static void
-dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 tlvLen2)
+dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
 	proto_item 	*tf = NULL;
@@ -2504,7 +2516,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
         break;
     }
 	default:
-		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2-1, ENC_NA);
+		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, -1, ENC_NA);
 	}
 }
 
@@ -2567,25 +2579,32 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
 	guint16 tempLen;
 	guint16 tempShort;
-	guint32 oui;
+	guint32 oui, tLength = tvb_length(tvb);
 	guint8 subType;
 	const char *ouiStr;
 	const char *subTypeStr;
 
 	proto_tree	*org_tlv_tree = NULL;
 	proto_item 	*tf = NULL;
-
 	/* Get tlv type and length */
 	tempShort = tvb_get_ntohs(tvb, offset);
 
 	/* Get tlv length */
 	tempLen = TLV_INFO_LEN(tempShort);
-
 	/* Get OUI value */
 	oui = tvb_get_ntoh24(tvb, (offset+2));
 	subType = tvb_get_guint8(tvb, (offset+5));
 
+	/* check for registered dissectors for the OID  If none found continue, else call dissector */
+	if( dissector_try_uint(oid_unique_code_table, oui, tvb, pinfo, tree) ) {
+		return tLength;
+	}
+	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
 	ouiStr = val_to_str(oui, tlv_oui_subtype_vals, "Unknown");
+	if (strcmp(ouiStr, "Unknown")==0) {
+		ouiStr = uint_get_manuf_name_if_known(oui);
+		if(ouiStr==NULL) ouiStr="Unknown";
+	}
 	switch(oui)
 	{
 	case OUI_IEEE_802_1:
@@ -2607,16 +2626,13 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		subTypeStr = val_to_str(subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
 		break;
 	default:
-		subTypeStr = "Unknown";
+		subTypeStr = ep_strdup_printf("Unknown (%d)",subType);
 		break;
 	}
-
 	if (tree)
 	{
-		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "%s - %s",
-		    ouiStr, subTypeStr);
+		tf = proto_tree_add_text(tree, tvb, offset, tLength, "%s - %s", ouiStr, subTypeStr);
 		org_tlv_tree = proto_item_add_subtree(tf, ett_org_spc_tlv);
-
 		proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 	if (tempLen < 4)
@@ -2624,42 +2640,41 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		if (tree)
 			proto_tree_add_uint_format(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2,
 			    tempShort, "TLV Length: %u (too short, must be >= 4)", tempLen);
-
-		return (tempLen + 2);
+		return tLength;
 	}
 	if (tree)
 	{
 		proto_tree_add_item(org_tlv_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		/* Display organizational unique id */
-		proto_tree_add_uint(org_tlv_tree, hf_org_spc_oui, tvb, (offset+2), 3, oui);
+		proto_tree_add_uint(org_tlv_tree, hf_org_spc_oui, tvb, (offset + 2), 3, oui);
 	}
 
 	switch (oui)
 	{
 	case OUI_IEEE_802_1:
-		dissect_ieee_802_1_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
+		dissect_ieee_802_1_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	case OUI_IEEE_802_3:
-		dissect_ieee_802_3_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
+		dissect_ieee_802_3_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	case OUI_MEDIA_ENDPOINT:
-		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
+		dissect_media_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	case OUI_PROFINET:
-		dissect_profinet_tlv(tvb, pinfo, org_tlv_tree, (offset+5), (guint16) (tempLen-3));
+		dissect_profinet_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	case OUI_CISCO_2:
-		dissect_cisco_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
+		dissect_cisco_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	case OUI_IEEE_802_1QBG:
-		dissect_ieee_802_1qbg_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
+		dissect_ieee_802_1qbg_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
 	default:
-		proto_tree_add_item(org_tlv_tree, hf_unknown_subtype, tvb, (offset+5), (guint16) (tempLen-3), ENC_NA);
+		dissect_oui_default_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 	}
 
-	return (tempLen + 2);
+	return offset + tvb_length(tvb);
 }
 
 /* Dissect Unknown TLV */
@@ -2697,7 +2712,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *lldp_tree = NULL;
-
+	tvbuff_t *new_tvb = NULL;
 	guint32 offset = 0;
 	gint32 rtnValue = 0;
 	guint16 tempShort;
@@ -2753,45 +2768,46 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		tempShort = tvb_get_ntohs(tvb, offset);
 		tempType = TLV_TYPE(tempShort);
-
+		/* pass only TLV to dissectors, Zero offset (point to front of tlv) */
+		new_tvb = tvb_new_subset(tvb, offset, TLV_INFO_LEN(tempShort)+2, TLV_INFO_LEN(tempShort)+2); 
 		switch (tempType)
 		{
 		case CHASSIS_ID_TLV_TYPE:
-			rtnValue = dissect_lldp_chassis_id(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_chassis_id(new_tvb, pinfo, lldp_tree, 0);
 			rtnValue = -1;	/* Duplicate chassis id tlv */
 			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Chassis ID TLV");
 			break;
 		case PORT_ID_TLV_TYPE:
-			rtnValue = dissect_lldp_port_id(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_port_id(new_tvb, pinfo, lldp_tree, 0);
 			rtnValue = -1;	/* Duplicate port id tlv */
 			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Port ID TLV");
 			break;
 		case TIME_TO_LIVE_TLV_TYPE:
-			rtnValue = dissect_lldp_time_to_live(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_time_to_live(new_tvb, pinfo, lldp_tree, 0);
 			rtnValue = -1;	/* Duplicate time-to-live tlv */
 			col_set_str(pinfo->cinfo, COL_INFO, "Duplicate Time-To-Live TLV");
 			break;
 		case END_OF_LLDPDU_TLV_TYPE:
-			rtnValue = dissect_lldp_end_of_lldpdu(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_end_of_lldpdu(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		case PORT_DESCRIPTION_TLV_TYPE:
-			rtnValue = dissect_lldp_port_desc(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_port_desc(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		case SYSTEM_NAME_TLV_TYPE:
 		case SYSTEM_DESCRIPTION_TLV_TYPE:
-			rtnValue = dissect_lldp_system_name(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_system_name(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		case SYSTEM_CAPABILITIES_TLV_TYPE:
-			rtnValue = dissect_lldp_system_capabilities(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_system_capabilities(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		case MANAGEMENT_ADDR_TLV_TYPE:
-			rtnValue = dissect_lldp_management_address(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_management_address(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		case ORGANIZATION_SPECIFIC_TLV_TYPE:
-			rtnValue = dissect_organizational_specific_tlv(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_organizational_specific_tlv(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		default:
-			rtnValue = dissect_lldp_unknown_tlv(tvb, pinfo, lldp_tree, offset);
+			rtnValue = dissect_lldp_unknown_tlv(new_tvb, pinfo, lldp_tree, 0);
 			break;
 		}
 
@@ -2874,12 +2890,12 @@ proto_register_lldp(void)
 			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_mgn_obj_id,
-			{ "Object Identifier", "lldp.mgn.obj.id", FT_BYTES, BASE_NONE,
+			{ "Object Identifier", "lldp.mgn.obj.id", FT_OID, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_org_spc_oui,
 			{ "Organization Unique Code", "lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
-			VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_subtype,
 			{ "IEEE 802.1 Subtype", "lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
@@ -2990,7 +3006,11 @@ proto_register_lldp(void)
 	   		VALS(cisco_subtypes), 0x0, NULL, HFILL }
 		},
 		{ &hf_unknown_subtype,
-			{ "Unknown Subtype Content","lldp.unknown_subtype", FT_BYTES, BASE_NONE,
+			{ "Unknown Subtype","lldp.unknown_subtype", FT_UINT8, BASE_DEC,
+	   		NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_unknown_subtype_content,
+			{ "Unknown Subtype Content","lldp.unknown_subtype.content", FT_BYTES, BASE_NONE,
 	   		NULL, 0x0, NULL, HFILL }
 		},
 	};
@@ -3027,6 +3047,7 @@ proto_register_lldp(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_lldp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	oid_unique_code_table = register_dissector_table("lldp.orgtlv.oui", "LLDP OID", FT_UINT24, BASE_HEX );
 }
 
 void
