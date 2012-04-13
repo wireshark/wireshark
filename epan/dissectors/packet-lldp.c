@@ -41,7 +41,7 @@
 #include "packet-lldp.h"
 
 /* Sub Dissector Tables */
-static dissector_table_t oid_unique_code_table;
+static dissector_table_t oui_unique_code_table;
 
 /* Initialize the protocol and registered fields */
 static int proto_lldp = -1;
@@ -2595,8 +2595,8 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	oui = tvb_get_ntoh24(tvb, (offset+2));
 	subType = tvb_get_guint8(tvb, (offset+5));
 
-	/* check for registered dissectors for the OID  If none found continue, else call dissector */
-	if( dissector_try_uint(oid_unique_code_table, oui, tvb, pinfo, tree) ) {
+	/* check for registered dissectors for the OUI  If none found continue, else call dissector */
+	if( dissector_try_uint(oui_unique_code_table, oui, tvb, pinfo, tree) ) {
 		return tLength;
 	}
 	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
@@ -3047,7 +3047,7 @@ proto_register_lldp(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_lldp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	oid_unique_code_table = register_dissector_table("lldp.orgtlv.oui", "LLDP OID", FT_UINT24, BASE_HEX );
+	oui_unique_code_table = register_dissector_table("lldp.orgtlv.oui", "LLDP OUI", FT_UINT24, BASE_HEX );
 }
 
 void
