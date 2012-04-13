@@ -697,8 +697,8 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 		match = NULL;
 
 	if (match) {
-		if(match->last->setup_frame<=frame_num)
-			return match;
+		if((match->last)&&(match->last->setup_frame<=frame_num))
+			return match->last;
 		for (conversation = match->next; conversation; conversation = conversation->next) {
 			if ((conversation->setup_frame <= frame_num)
 				&& (conversation->setup_frame > match->setup_frame)) {
