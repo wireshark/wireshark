@@ -1249,7 +1249,7 @@ icqv5_srv_meta_user(proto_tree* tree, /* Tree to put the data in */
 	    auth = tvb_get_guint8(tvb, offset);
 	    proto_tree_add_text(sstree, tvb, offset, 1,
 				"authorization: %s", (auth==0x01)?"Necessary":"Who needs it");
-	    offset++;;
+	    offset++;
 	    /* Get x2 */
 	    proto_tree_add_text(sstree, tvb, offset, sizeof(guint16),
 				"x2: 0x%04x", tvb_get_letohs(tvb, offset));

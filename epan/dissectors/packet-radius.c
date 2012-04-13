@@ -1810,7 +1810,7 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 	}
 
 	if (!dictionary_entry) {
-		dictionary_entry = g_malloc(sizeof(radius_attr_info_t));;
+		dictionary_entry = g_malloc(sizeof(radius_attr_info_t));
 
 		dictionary_entry->name = g_strdup_printf("Unknown-Attribute-%u",attribute_id);
 		dictionary_entry->code = attribute_id;

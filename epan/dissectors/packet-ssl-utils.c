@@ -2337,7 +2337,7 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
         digests[decoder->cipher_suite->dig-0x40], md);
 
     if (ssl_hmac_init(&hm,decoder->mac_key.data,decoder->mac_key.data_len,md) != 0)
-        return -1;;
+        return -1;
 
     /* hash sequence number */
     fmt_seq(decoder->seq,buf);

@@ -4044,7 +4044,7 @@ dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* The Source Type is Cell ID for PS handover from GERAN A/Gb mode. In this case the coding of the Source ID field
          * shall be same as the Octets 3 to 10 of the Cell Identifier IEI in 3GPP TS 48.018 [34].
          */
-        de_cell_id(tvb, tree, pinfo, offset, 8, NULL, 0);;
+        de_cell_id(tvb, tree, pinfo, offset, 8, NULL, 0);
         break;
     case 1:
         /* The Source Type is RNC ID for PS handover from GERAN Iu mode or for inter-RAT handover from UTRAN. In this

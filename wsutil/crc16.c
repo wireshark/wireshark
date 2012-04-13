@@ -200,7 +200,7 @@ static guint16 crc16_unreflected(const guint8 *buf, guint len,
     /* we use guints, rather than guint16s, as they are likely to be
        faster. We just ignore the top 16 bits and let them do what they want.
     */
-    guint crc16 = (guint)crc_in;;
+    guint crc16 = (guint)crc_in;
 
     while( len-- != 0 )
         crc16 = table[((crc16 >> 8) ^ *buf++) & 0xff] ^ (crc16 << 8);

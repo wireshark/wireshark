@@ -4612,7 +4612,7 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		tvb_get_ephemeral_stringz(tvb, offset, &len);;
+		tvb_get_ephemeral_stringz(tvb, offset, &len);
 		proto_tree_add_item(tree, hf_afp_spotlight_volpath_server, tvb, offset, len, ENC_UTF_8|ENC_NA);
 		offset += len;
 		break;

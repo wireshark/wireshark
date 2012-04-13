@@ -1041,7 +1041,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 } else if (type == PARAM_REG_FAILED) {
                         /* Failure Type */
                         proto_tree_add_item(t, hf_hip_tlv_reg_failtype, tvb, newoffset, 1, ENC_BIG_ENDIAN);
-                        newoffset++;;
+                        newoffset++;
                         tlv_len--;
                 } else {
                         /* Lifetime */

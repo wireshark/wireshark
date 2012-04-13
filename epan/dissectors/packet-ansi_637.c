@@ -726,7 +726,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
         for (i=0; i < num_fields; i++)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
-            oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
+            oct2 = tvb_get_guint8(tvb, saved_offset + 1);
             ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
             saved_offset++;
         }
@@ -753,7 +753,7 @@ tele_param_user_data(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
         for (i=0; i < num_fields; i++)
         {
             oct = tvb_get_guint8(tvb, saved_offset);
-            oct2 = tvb_get_guint8(tvb, saved_offset + 1);;
+            oct2 = tvb_get_guint8(tvb, saved_offset + 1);
             ansi_637_bigbuf[i] = ((oct & 0x07) << 5) | ((oct2 & 0xf8) >> 3);
             saved_offset++;
         }

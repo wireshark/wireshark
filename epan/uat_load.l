@@ -249,7 +249,7 @@ comment #[^\n]*\n
 		ERROR(("%s",err));
 	}
 
-	colnum = 0;;
+	colnum = 0;
 	ptr = NULL;
 	len = 0;
 	memset(record,0,uat->record_size);

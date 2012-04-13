@@ -235,7 +235,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 	action_msg = "Loading configuration files ...";
 	break;
       default:
-	action_msg = "(Unknown action)";;
+	action_msg = "(Unknown action)";
 	break;
       }
       splash_update_label(win, action_msg);

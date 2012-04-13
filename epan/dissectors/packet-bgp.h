@@ -45,7 +45,6 @@
 #define BGP_CAPABILITY    6
 #define BGP_ROUTE_REFRESH_CISCO 0x80
 
-;
 
 /* BGP ROUTE-REFRESH message */
 struct bgp_route_refresh {

@@ -1671,7 +1671,7 @@ const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
                 return fi->rep->representation;
             } else {
                 /* Just print out the protocol abbreviation */
-                return fi->hfinfo->abbrev;;
+                return fi->hfinfo->abbrev;
             }
         case FT_NONE:
             /* Return "1" so that the presence of a field of type

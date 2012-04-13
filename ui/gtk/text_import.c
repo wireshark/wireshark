@@ -524,7 +524,7 @@ write_current_packet (void)
             pkthdr.ts.secs = (guint32)ts_sec;
             pkthdr.ts.nsecs = ts_usec * 1000;
             if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */
-            pkthdr.caplen = pkthdr.len = prefix_length + curr_offset + eth_trailer_length;;
+            pkthdr.caplen = pkthdr.len = prefix_length + curr_offset + eth_trailer_length;
             pkthdr.pkt_encap = pcap_link_type;
 
             wtap_dump(wdh, &pkthdr, NULL, packet_buf, &err);

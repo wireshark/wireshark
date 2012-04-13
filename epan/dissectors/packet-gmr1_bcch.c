@@ -855,7 +855,7 @@ CSN_DESCR_BEGIN(SI1_Block_Header_t)
   M_UINT       (SI1_Block_Header_t, Block_Type, 1, &hf_si_block_type),
   M_UINT       (SI1_Block_Header_t, Randomization_Period, 2, &hf_si1_randomization_period),
   M_UINT       (SI1_Block_Header_t, Spare, 1, &hf_si_spare),
-CSN_DESCR_END  (SI1_Block_Header_t);
+CSN_DESCR_END  (SI1_Block_Header_t)
 
 static const
 CSN_ChoiceElement_t SI1_SegmentChoice[] =
@@ -899,7 +899,7 @@ CSN_DESCR_BEGIN(SI2_Block_Header_t)
   M_UINT       (SI2_Block_Header_t, Protocol_Version, 4, &hf_si_protocol_version),
   M_UINT       (SI2_Block_Header_t, Block_Type, 1, &hf_si_block_type),
   M_UINT       (SI2_Block_Header_t, Spare, 3, &hf_si_spare),
-CSN_DESCR_END  (SI2_Block_Header_t);
+CSN_DESCR_END  (SI2_Block_Header_t)
 
 static const
 CSN_ChoiceElement_t SI2_SegmentChoice[] =

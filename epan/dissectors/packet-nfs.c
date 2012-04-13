@@ -2306,7 +2306,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		proto_tree_add_uint(obj_tree, hf_nfs_fh_obj_gen,    tvb, offset+36,  4, obj_gen);
 		}
 	}
-};
+}
 
 static void
 dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)

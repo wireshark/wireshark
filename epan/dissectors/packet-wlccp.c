@@ -2615,7 +2615,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_80211_capabilities_tree, hf_80211_cap_ibss,
 					_tvb, _offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(_80211_capabilities_tree, hf_80211_cap_ess,
-					_tvb, _offset, 2, ENC_BIG_ENDIAN);;
+					_tvb, _offset, 2, ENC_BIG_ENDIAN);
 
 			/* proto_tree_add_item(_tree, hf_wlccp_capabilities, _tvb, _offset, 2, ENC_BIG_ENDIAN); */
 			_offset += 2;

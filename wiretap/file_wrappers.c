@@ -401,7 +401,7 @@ static void
 zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gint64 in_pos, gint64 out_pos)
 {
 	/* it's for sure after gzip header, so file->fast_seek->len != 0 */
-	struct fast_seek_point *item = file->fast_seek->pdata[file->fast_seek->len - 1];;
+	struct fast_seek_point *item = file->fast_seek->pdata[file->fast_seek->len - 1];
 
 #ifndef HAVE_INFLATEPRIME
 	if (bits)

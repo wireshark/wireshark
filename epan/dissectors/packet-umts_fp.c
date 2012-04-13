@@ -2846,7 +2846,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
     /* Add data summary to info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%u bytes in %u SDUs in %u MAC-is PDUs in %u subframes)",
-                    total_bytes, macis_sdus_found, macis_pdus, number_of_subframes);;
+                    total_bytes, macis_sdus_found, macis_pdus, number_of_subframes);
 
     /* Spare extension and payload CRC (optional) */
     dissect_spare_extension_and_crc(tvb, pinfo, tree,

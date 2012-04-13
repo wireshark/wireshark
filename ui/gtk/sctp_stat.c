@@ -745,7 +745,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					if (type == IPV4ADDRESS_PARAMETER_ID)
 					{
 						store = g_malloc(sizeof (address));
-						store->type = AT_IPv4;;
+						store->type = AT_IPv4;
 						store->len  = 4;
 						store->data = g_malloc(4);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
@@ -754,7 +754,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					else if (type == IPV6ADDRESS_PARAMETER_ID)
 					{
 						store = g_malloc(sizeof (address));
-						store->type = AT_IPv6;;
+						store->type = AT_IPv6;
 						store->len  = 16;
 						store->data = g_malloc(16);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
@@ -1059,7 +1059,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					if (type == IPV4ADDRESS_PARAMETER_ID)
 					{
 						store = g_malloc(sizeof (address));
-						store->type = AT_IPv4;;
+						store->type = AT_IPv4;
 						store->len  = 4;
 						store->data = g_malloc(4);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
@@ -1068,7 +1068,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					else if (type == IPV6ADDRESS_PARAMETER_ID)
 					{
 						store = g_malloc(sizeof (address));
-						store->type = AT_IPv6;;
+						store->type = AT_IPv6;
 						store->len  = 16;
 						store->data = g_malloc(16);
 						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);

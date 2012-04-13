@@ -1468,7 +1468,7 @@ static guint32
 dissect_Image(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
     guint32      ImageSize = 0;
-    const guint8 type      = dissect_ImageDescriptor(tvb, tree, offset);;
+    const guint8 type      = dissect_ImageDescriptor(tvb, tree, offset);
 
     offset += sizeof_ImageDescriptor;
 

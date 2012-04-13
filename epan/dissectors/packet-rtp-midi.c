@@ -6120,7 +6120,7 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		for ( i = 0; i < log_count; i++ ) {
 
 			note = tvb_get_guint8( tvb, offset ) & 0x7f;
-			velocity = tvb_get_guint8( tvb, offset + 1 ) & 0x7f;;
+			velocity = tvb_get_guint8( tvb, offset + 1 ) & 0x7f;
 
 			note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
 

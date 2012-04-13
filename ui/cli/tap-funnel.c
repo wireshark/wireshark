@@ -140,7 +140,7 @@ void funnel_dump_all_text_windows(void) {
 
 #if 0
 
-GHashTable* menus = NULL;;
+GHashTable* menus = NULL;
 typedef struct _menu_cb_t {
     void (*callback)(gpointer);
     void* callback_data;

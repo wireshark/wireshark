@@ -315,7 +315,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 	if((fInfo->num==tot_packet_amount)&&(cs->stop_packet_nr_first!=G_MAXINT32)){
 		/* calculate missing stop number */
 		swap=cs->stop_packet_nr_first;
-		cs->stop_packet_nr_first=tot_packet_amount-cs->second_file_amount;;
+		cs->stop_packet_nr_first=tot_packet_amount-cs->second_file_amount;
 		cs->stop_packet_nr_second=swap;
 	}
 

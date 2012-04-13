@@ -252,9 +252,9 @@ typedef struct _oid_user_t {
   char *syntax;
 } oid_user_t;
 
-UAT_CSTRING_CB_DEF(oid_users, oid, oid_user_t);
-UAT_CSTRING_CB_DEF(oid_users, name, oid_user_t);
-UAT_VS_CSTRING_DEF(oid_users, syntax, oid_user_t, 0, "");
+UAT_CSTRING_CB_DEF(oid_users, oid, oid_user_t)
+UAT_CSTRING_CB_DEF(oid_users, name, oid_user_t)
+UAT_VS_CSTRING_DEF(oid_users, syntax, oid_user_t, 0, "")
 
 static oid_user_t *oid_users;
 static guint num_oid_users;

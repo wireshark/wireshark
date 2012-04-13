@@ -2534,7 +2534,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          mr_item = proto_tree_add_item(aem_tree, hf_aem_sample_rates, tvb,
                0, 0, ENC_NA);
          mr_counter = tvb_get_ntohs(tvb, AUDIO_UNIT_OFFSET_SAMPLE_RATES_COUNT);
-         mr_subtree = proto_item_add_subtree(mr_item, ett_aem_sample_rates);;
+         mr_subtree = proto_item_add_subtree(mr_item, ett_aem_sample_rates);
          mr_offset = AUDIO_UNIT_OFFSET_SAMPLE_RATES;
          proto_item_set_len(mr_item, 4 * mr_counter);
          /* loop to get the array values */

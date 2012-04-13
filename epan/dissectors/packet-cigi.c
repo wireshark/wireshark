@@ -5411,7 +5411,7 @@ cigi3_add_environmental_conditions_request(tvbuff_t *tvb, proto_tree *tree, gint
     offset++;
 
     proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_id, tvb, offset, 1, cigi_byte_order);
-    offset += 5;;
+    offset += 5;
 
     proto_tree_add_item(tree, hf_cigi3_environmental_conditions_request_lat, tvb, offset, 8, cigi_byte_order);
     offset += 8;
@@ -5591,7 +5591,7 @@ cigi3_3_add_symbol_line_definition(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_stipple_pattern, tvb, offset, 2, cigi_byte_order);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_line_width, tvb, offset, 4, cigi_byte_order);;
+    proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_line_width, tvb, offset, 4, cigi_byte_order);
     offset += 4;
 
     proto_tree_add_item(tree, hf_cigi3_3_symbol_line_definition_stipple_pattern_length, tvb, offset, 4, cigi_byte_order);

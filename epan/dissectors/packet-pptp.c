@@ -294,7 +294,7 @@ dissect_stop_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);;
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
 }
 
 static void
@@ -308,7 +308,7 @@ dissect_stop_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_error, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);;
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
 
 }
 
@@ -316,7 +316,7 @@ static void
 dissect_echo_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		 proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_pptp_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);;
+  proto_tree_add_item(tree, hf_pptp_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
 static void

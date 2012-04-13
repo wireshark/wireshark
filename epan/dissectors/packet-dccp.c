@@ -814,7 +814,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 } else {
                     hidden_item =
                         proto_tree_add_boolean(dccp_tree, hf_dccp_checksum_bad,
-                                               tvb, offset + 6, 2, TRUE);;
+                                               tvb, offset + 6, 2, TRUE);
                     PROTO_ITEM_SET_HIDDEN(hidden_item);
                     proto_tree_add_uint_format_value(
                         dccp_tree, hf_dccp_checksum, tvb, offset + 6, 2,

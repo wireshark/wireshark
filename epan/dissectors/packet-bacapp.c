@@ -8596,7 +8596,7 @@ fVtDataRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 {
     offset= fApplicationTypes (tvb, pinfo, tree,offset,"VT Session ID: ");
     offset = fApplicationTypes (tvb, pinfo, tree, offset, "VT New Data: ");
-    return fApplicationTypes (tvb, pinfo, tree,offset,"VT Data Flag: ");;
+    return fApplicationTypes (tvb, pinfo, tree,offset,"VT Data Flag: ");
 }
 
 static guint

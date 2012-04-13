@@ -341,7 +341,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	 * Let's get some info from it. Note that we get wth->snapshot_length
 	 * from a record later in the file. */
 	wth->file_type = WTAP_FILE_LANALYZER;
-	lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));;
+	lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
 	wth->priv = (void *)lanalyzer;
 	wth->subtype_read = lanalyzer_read;
 	wth->subtype_seek_read = lanalyzer_seek_read;

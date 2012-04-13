@@ -517,7 +517,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 				" / Group %s, unknown record type (?)",
 				ip_to_str((guint8*)&maddr));
-				break;;
+				break;
 		}
 	} else {
 		switch(record_type) {

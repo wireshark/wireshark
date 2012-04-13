@@ -1006,7 +1006,7 @@ gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset
 #define __TNO(enumprefix,structprefix,structname,hdrname,structfieldname) \
 	pseudo_header->nstr.hdrname##_offset = (guint8) enumprefix##_##hdrname##_offset;
 #define __TNL(enumprefix,structprefix,structname,hdrname,structfieldname) \
-	pseudo_header->nstr.hdrname##_len = (guint8) enumprefix##_##hdrname##_len;;
+	pseudo_header->nstr.hdrname##_len = (guint8) enumprefix##_##hdrname##_len;
 
 #define __TNV1O(enumprefix,structprefix,structname,hdrname,structfieldname) \
 	__TNO(enumprefix,structprefix,structname,hdrname,structfieldname)

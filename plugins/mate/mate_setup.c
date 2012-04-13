@@ -207,7 +207,7 @@ extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 				g_string_append_printf(matecfg->fields_filter, "||%s",ranges[i]);
 			} else {
 				g_strfreev(ranges);
-				return g_strdup_printf("no such proto: '%s'",ranges[i]);;
+				return g_strdup_printf("no such proto: '%s'",ranges[i]);
 			}
 		}
 
@@ -584,7 +584,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 
 	matecfg->dbg_facility = NULL;
 
-	matecfg->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);;
+	matecfg->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
 
 	matecfg->pducfgs = g_hash_table_new(g_str_hash,g_str_equal);
 	matecfg->gopcfgs = g_hash_table_new(g_str_hash,g_str_equal);

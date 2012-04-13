@@ -140,23 +140,23 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (rlm_type) {
 		case RLM_START_REQUEST:
 			type_str = "Start request";
-			break;;
+			break;
 
 		case RLM_START_ACK:
 			type_str = "Start acknowledgement";
-			break;;
+			break;
 
 		case RLM_ECHO_REQUEST:
 			type_str = "Echo request";
-			break;;
+			break;
 
 		case RLM_ECHO_REPLY:
 			type_str = "Echo reply";
-			break;;
+			break;
 
 		default:
 			type_str = "Unknown type";
-			break;;
+			break;
 	}
 
 	col_set_str(pinfo->cinfo, COL_INFO, type_str);
