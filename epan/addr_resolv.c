@@ -2632,7 +2632,7 @@ host_name_lookup_cleanup(void) {
 
 #endif /* HAVE_C_ARES */
 
-extern const gchar *
+const gchar *
 get_hostname(const guint addr)
 {
   gboolean found;
@@ -2647,7 +2647,7 @@ get_hostname(const guint addr)
 
 /* -------------------------- */
 
-extern const gchar *
+const gchar *
 get_hostname6(const struct e_in6_addr *addr)
 {
   gboolean found;
@@ -2661,7 +2661,7 @@ get_hostname6(const struct e_in6_addr *addr)
 }
 
 /* -------------------------- */
-extern void
+void
 add_ipv4_name(const guint addr, const gchar *name)
 {
   int hash_idx;
@@ -2719,7 +2719,7 @@ add_ipv4_name(const guint addr, const gchar *name)
 } /* add_ipv4_name */
 
 /* -------------------------- */
-extern void
+void
 add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
 {
   int hash_idx;
@@ -2790,7 +2790,7 @@ ep_utoa(guint port)
 }
 
 
-extern gchar *
+gchar *
 get_udp_port(guint port)
 {
 
@@ -2802,7 +2802,7 @@ get_udp_port(guint port)
 
 } /* get_udp_port */
 
-extern gchar *
+gchar *
 get_dccp_port(guint port)
 {
 
@@ -2815,7 +2815,7 @@ get_dccp_port(guint port)
 } /* get_dccp_port */
 
 
-extern gchar *
+gchar *
 get_tcp_port(guint port)
 {
 
@@ -2827,7 +2827,7 @@ get_tcp_port(guint port)
 
 } /* get_tcp_port */
 
-extern gchar *
+gchar *
 get_sctp_port(guint port)
 {
 
@@ -2939,7 +2939,7 @@ get_ether_name_if_known(const guint8 *addr)
   }
 }
 
-extern guint8 *
+guint8 *
 get_ether_addr(const gchar *name)
 {
 
@@ -2954,7 +2954,7 @@ get_ether_addr(const gchar *name)
 
 } /* get_ether_addr */
 
-extern void
+void
 add_ether_byip(const guint ip, const guint8 *eth)
 {
 
@@ -2975,7 +2975,7 @@ add_ether_byip(const guint ip, const guint8 *eth)
 
 } /* add_ether_byip */
 
-extern const gchar *
+const gchar *
 get_ipxnet_name(const guint32 addr)
 {
 
@@ -2992,7 +2992,7 @@ get_ipxnet_name(const guint32 addr)
 
 } /* get_ipxnet_name */
 
-extern guint32
+guint32
 get_ipxnet_addr(const gchar *name, gboolean *known)
 {
   guint32 addr;
@@ -3012,7 +3012,7 @@ get_ipxnet_addr(const gchar *name, gboolean *known)
 
 } /* get_ipxnet_addr */
 
-extern const gchar *
+const gchar *
 get_manuf_name(const guint8 *addr)
 {
   gchar *cur;
@@ -3032,7 +3032,18 @@ get_manuf_name(const guint8 *addr)
 
 } /* get_manuf_name */
 
-extern const gchar *
+const gchar *
+uint_get_manuf_name(const guint oid)
+{
+  guint8 addr[3];
+
+  addr[0] = (oid >> 16) & 0xFF;
+  addr[1] = (oid >> 8) & 0xFF;
+  addr[2] = (oid >> 0) & 0xFF;
+  return get_manuf_name(addr);
+}
+
+const gchar *
 tvb_get_manuf_name(tvbuff_t *tvb, gint offset)
 {
 	return get_manuf_name(tvb_get_ptr(tvb, offset, 3));
@@ -3056,13 +3067,24 @@ get_manuf_name_if_known(const guint8 *addr)
 
 } /* get_manuf_name_if_known */
 
-extern const gchar *
+const gchar *
+uint_get_manuf_name_if_known(const guint oid)
+{
+  guint8 addr[3];
+
+  addr[0] = (oid >> 16) & 0xFF;
+  addr[1] = (oid >> 8) & 0xFF;
+  addr[2] = (oid >> 0) & 0xFF;
+  return get_manuf_name_if_known(addr);
+}
+
+const gchar *
 tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
 {
 	return get_manuf_name_if_known(tvb_get_ptr(tvb, offset, 3));
 }
 
-extern const gchar *
+const gchar *
 get_eui64_name(const guint64 addr_eui64)
 {
   gchar *cur;

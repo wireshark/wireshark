@@ -153,16 +153,42 @@ extern gchar *get_ether_name(const guint8 *addr);
 /* get_ether_name returns the logical name if found in ethers files else NULL */
 extern gchar *get_ether_name_if_known(const guint8 *addr);
 
-/* get_manuf_name returns the vendor name or "%02x:%02x:%02x" if not known */
+/*
+ * Given a sequence of 3 octets containing an OID, get_manuf_name()
+ * returns the vendor name, or "%02x:%02x:%02x" if not known.
+ */
 extern const gchar *get_manuf_name(const guint8 *addr);
 
-/* get_manuf_name returns the vendor name or NULL if not known */
+/*
+ * Given a sequence of 3 octets containing an OID, get_manuf_name_if_known()
+ * returns the vendor name, or NULL if not known.
+ */
 extern const gchar *get_manuf_name_if_known(const guint8 *addr);
 
-/* get_manuf_name directly from a TVB; returns the vendor name or "%02x:%02x:%02x" if not known */
+/*
+ * Given an integer containing a 24-bit OID, uint_get_manuf_name()
+ * returns the vendor name, or "%02x:%02x:%02x" if not known.
+ */
+extern const gchar *uint_get_manuf_name(const guint oid);
+
+/*
+ * Given an integer containing a 24-bit OID, uint_get_manuf_name_if_known()
+ * returns the vendor name, or NULL if not known.
+ */
+extern const gchar *uint_get_manuf_name_if_known(const guint oid);
+
+/*
+ * Given a tvbuff and an offset in that tvbuff for a 3-octet OID,
+ * tvb_get_manuf_name() returns the vendor name, or "%02x:%02x:%02x"
+ * if not known.
+ */
 extern const gchar *tvb_get_manuf_name(tvbuff_t *tvb, gint offset);
 
-/* get_manuf_name returns the vendor name or NULL if not known */
+/*
+ * Given a tvbuff and an offset in that tvbuff for a 3-octet OID,
+ * tvb_get_manuf_name_if_known() returns the vendor name, or NULL
+ * if not known.
+ */
 extern const gchar *tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset);
 
 /* get_eui64_name returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
