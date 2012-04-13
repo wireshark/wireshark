@@ -69,7 +69,7 @@ static gint ett_irc_request_command = -1;
 static gint ett_irc_response = -1;
 static gint ett_irc_response_command = -1;
 
-static const guint8 TAG_DELIMITER[] = {0x01};
+static const guint8 TAG_DELIMITER[] = {0x01, 0x00};
 
 
 #define TCP_PORT_IRC			6667
