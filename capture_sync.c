@@ -313,6 +313,9 @@ init_pipe_args(int *argc) {
     /* Make that the first argument in the argument list (argv[0]). */
     argv = sync_pipe_add_arg(argv, argc, exename);
 
+    /* sync_pipe_add_arg strdupes exename, so we should free our copy */
+    g_free(exename);
+
     return argv;
 }
 
