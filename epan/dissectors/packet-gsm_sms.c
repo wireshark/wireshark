@@ -2671,7 +2671,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
             /* Store udl for later decoding of reassembled SMS */
             g_hash_table_insert(g_sm_udl_table,
                                 GUINT_TO_POINTER(key),
-                                GUINT_TO_POINTER(udl));
+                                GUINT_TO_POINTER((guint)udl));
         }
     } /* Else: not fragmented */
     if (! sm_tvb) /* One single Short Message, or not reassembled */
