@@ -113,6 +113,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 	proto_tree *request_tree, *command_tree = NULL;
 	proto_item *request_item, *command_item;
 	int start_offset = offset;
+	int end_offset = start_offset+linelen;
 	gint eop_offset = -1,
 		eoc_offset = -1,
 		eocp_offset, 
@@ -145,9 +146,14 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 	}
 
 	/* clear out any whitespace before command */
-	while(tvb_get_guint8(tvb, offset) == ' ')
+	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
 	{
 		offset++;
+	}
+	if (offset == end_offset)
+	{
+		expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Request has no command");
+		return;
 	}
 
 	eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, (const guint8 *)" ", &found_needle);
@@ -184,9 +190,14 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 	offset = eoc_offset+1;
 
 	/* clear out any whitespace before command parameter */
-	while(tvb_get_guint8(tvb, offset) == ' ')
+	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
 	{
 		offset++;
+	}
+	if (offset == end_offset)
+	{
+		/* No command parameters */
+		return;
 	}
 
 	/* Check if message has a trailer */
@@ -197,7 +208,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 		return;
 	}
 
-	while(offset < start_offset+linelen)
+	while(offset < end_offset)
 	{
 		eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, (const guint8 *)" ", &found_needle);
 		tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
@@ -227,9 +238,13 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 			offset = eocp_offset+1;
 
 			/* clear out any whitespace before next command parameter */
-			while(tvb_get_guint8(tvb, offset) == ' ')
+			while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
 			{
 				offset++;
+			}
+			if (offset == end_offset)
+			{
+				break;
 			}
 
 			/* Check if message has a trailer */
@@ -265,6 +280,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 	proto_tree *response_tree, *command_tree = NULL;
 	proto_item *response_item, *command_item, *hidden_item;
 	int start_offset = offset;
+	int end_offset = start_offset+linelen;
 	gint eop_offset = -1,
 		eoc_offset = -1,
 		eocp_offset, 
@@ -298,9 +314,14 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 	}
 
 	/* clear out any whitespace before command */
-	while(tvb_get_guint8(tvb, offset) == ' ')
+	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
 	{
 		offset++;
+	}
+	if (offset == end_offset)
+	{
+		expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Response has no command");
+		return;
 	}
 
 	eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, (const guint8 *)" ", &found_needle);
@@ -341,9 +362,14 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 	offset = eoc_offset+1;
 
 	/* clear out any whitespace before command parameter */
-	while(tvb_get_guint8(tvb, offset) == ' ')
+	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
 	{
 		offset++;
+	}
+	if (offset == end_offset)
+	{
+		/* No command parameters */
+		return;
 	}
 
 	/* Check if message has a trailer */
@@ -354,7 +380,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 		return;
 	}
 
-	while(offset < start_offset+linelen)
+	while(offset < end_offset)
 	{
 		eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, (const guint8 *)" ", &found_needle);
 		tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
@@ -384,9 +410,13 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 			offset = eocp_offset+1;
 
 			/* clear out any whitespace before next command parameter */
-			while(tvb_get_guint8(tvb, offset) == ' ')
+			while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
 			{
 				offset++;
+			}
+			if (offset == end_offset)
+			{
+				break;
 			}
 
 			/* Check if message has a trailer */
