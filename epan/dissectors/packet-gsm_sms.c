@@ -2669,9 +2669,10 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         }
 
         if (seven_bit) {
+            guint32 key = (g_sm_id<<16)|(g_frag-1);
             /* Store udl for later decoding of reassembled SMS */
             g_hash_table_insert(g_sm_udl_table,
-                                GUINT_TO_POINTER(((g_sm_id<<16)|(g_frag-1))),
+                                GUINT_TO_POINTER(key),
                                 GUINT_TO_POINTER(udl));
         }
     } /* Else: not fragmented */
