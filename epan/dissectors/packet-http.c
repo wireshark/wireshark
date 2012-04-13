@@ -959,6 +959,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * processed as HTTP payload is the minimum of the content
 	 * length and the amount of data remaining in the frame.
 	 *
+	 * If a message is received with both a Transfer-Encoding
+	 * header field and a Content-Length header field, the latter
+	 * MUST be ignored.
+	 *
 	 * If no content length was supplied (or if a bad content length
 	 * was supplied), the amount of data to be processed is the amount
 	 * of data remaining in the frame.
@@ -982,7 +986,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * the response in order to handle that.
 	 */
 	datalen = tvb_length_remaining(tvb, offset);
-	if (headers.have_content_length && headers.content_length != -1) {
+	if (headers.have_content_length &&
+	    headers.content_length != -1 &&
+	    headers.transfer_encoding == NULL) {
 		if (datalen > headers.content_length)
 			datalen = (int)headers.content_length;
 
