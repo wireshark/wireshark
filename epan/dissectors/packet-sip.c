@@ -2084,6 +2084,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	char	call_id[MAX_CALL_ID_SIZE] = "";
 	gchar  *media_type_str_lower_case = NULL;
 	char   *content_type_parameter_str = NULL;
+	char   *content_encoding_parameter_str = NULL;
 	guint   resend_for_packet = 0;
 	guint   request_for_response = 0;
 	guint32 response_time = 0;
@@ -2989,6 +2990,20 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							dissect_sip_reason_header(tvb, reason_tree, value_offset, line_end_offset);
 						}
 						break;
+					case POS_CONTENT_ENCODING:
+						/* Content-Encoding  =  ( "Content-Encoding" / "e" ) HCOLON
+						 * content-coding *(COMMA content-coding)
+						 */
+						if(hdr_tree) {
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							                             hf_header_array[hf_index], tvb,
+							                             offset, next_offset - offset,
+							                             value, "%s",
+							                             tvb_format_text(tvb, offset, linelen));
+						}
+						content_encoding_parameter_str = ascii_strdown_inplace(tvb_get_ephemeral_string(tvb, value_offset,
+							                             (line_end_offset-value_offset)));
+						break;
 					default :
 						/* Default case is to assume its an FT_STRING field */
 						if(hdr_tree) {
@@ -3030,11 +3045,23 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		 * Set the length of the header item.
 		 */
 		proto_item_set_end(th, tvb, offset);
-		next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
-		if(sip_tree) {
-			ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
+		if(content_encoding_parameter_str != NULL &&
+			!strncmp(content_encoding_parameter_str, "gzip", 4)){
+			/* The body is gzip:ed */
+			next_tvb = tvb_uncompress(tvb, offset,  datalen);
+			add_new_data_source(pinfo, next_tvb, "gunziped data");
+			if(sip_tree) {
+				ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
 			                         ENC_NA);
-			message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
+				message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
+			}
+		}else{
+			next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
+			if(sip_tree) {
+				ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
+			                         ENC_NA);
+				message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
+			}
 		}
 
 		/* give the content type parameters to sub dissectors */
