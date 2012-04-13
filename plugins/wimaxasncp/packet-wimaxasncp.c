@@ -263,11 +263,6 @@ static const ver_value_string wimaxasncp_data_path_control_msg_vals[] =
     {0, { 14,  "MS_Attachment_Rsp"}},
     {0, { 15,  "MS_Attachment_Ack"}},
     {0, { 16,  "Key_Change_Directive"}},
-    {0, { 0,   NULL}}
-};
-
-static const ver_value_string wimaxasncp_data_path_control_msg_vals_r1v120[] =
-{
     {WIMAXASNCP_NWGVER_R10_V120, { 1,   "Path_Dereg_Req"}},
     {WIMAXASNCP_NWGVER_R10_V120, { 2,   "Path_Dereg_Rsp"}},
     {WIMAXASNCP_NWGVER_R10_V120, { 3,   "Path_Dereg_Ack"}},
