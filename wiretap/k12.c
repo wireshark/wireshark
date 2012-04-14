@@ -742,7 +742,6 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
              */
             if (file_seek(wth->fh, offset, SEEK_SET, err) == -1) {
                 destroy_k12_file_data(file_data);
-                g_free(file_data);
                 return -1;
             }
             K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
@@ -765,7 +764,6 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
                 K12_DBG(5,("k12_open: failed (name_len == 0 || stack_len == 0 "
                         "|| 0x20 + extra_len + name_len + stack_len > rec_len)  extra_len=%i name_len=%i stack_len=%i"));
                 destroy_k12_file_data(file_data);
-                g_free(file_data);
                 return 0;
             }
 
