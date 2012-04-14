@@ -724,14 +724,12 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
         if ( len < 0 ) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
             destroy_k12_file_data(file_data);
-            g_free(file_data);
             return -1;
         }
         if (len == 0) {
             K12_DBG(1,("k12_open: BAD HEADER RECORD",len));
             *err = WTAP_ERR_SHORT_READ;
             destroy_k12_file_data(file_data);
-            g_free(file_data);
             return -1;
         }
 
