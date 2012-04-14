@@ -308,7 +308,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 	GString *label_string, *empty_line,*separator_line, *tmp_str, *tmp_str2;
 	char    *empty_header;
 	char     src_port[8],dst_port[8];
-	gchar	*time_str = g_malloc(COL_MAX_LEN);
+	gchar	*time_str;
 	GList *list;
 
 	FILE  *of;
@@ -319,6 +319,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 		return FALSE;
 	}
 
+	time_str       = g_malloc(COL_MAX_LEN);
 	label_string   = g_string_new("");
 	empty_line     = g_string_new("");
 	separator_line = g_string_new("");
@@ -666,7 +667,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	char label_string[MAX_COMMENT];
 	GList *list;
 	cairo_t *cr;
-	gchar	*time_str = g_malloc(COL_MAX_LEN);
+	gchar	*time_str;
 
 	GdkColor *color_p, *bg_color_p;
 	GdkColor black_color = {0, 0, 0, 0};
@@ -691,7 +692,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	};
 
 	/* XXX can't we just set the background color ? */
-	GdkPixbuf *bg_pixbuf =  gdk_pixbuf_new_from_xpm_data(voip_bg_xpm);
+	GdkPixbuf *bg_pixbuf;
 
 	/* Dashed line pattern */
 	static const double dashed1[] = {5.0, 4.0};
@@ -702,6 +703,9 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if(!user_data->dlg.needs_redraw){
 		return;
 	}
+
+	bg_pixbuf =  gdk_pixbuf_new_from_xpm_data(voip_bg_xpm);
+	time_str = g_malloc(COL_MAX_LEN);
 	user_data->dlg.needs_redraw=FALSE;
 
 	gtk_widget_get_allocation(user_data->dlg.draw_area_time, &draw_area_time_alloc);
