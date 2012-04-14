@@ -742,6 +742,7 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
         pcap_close(pch);
         if (err_str != NULL)
             *err_str = NULL; /* an empty list doesn't mean an error */
+        g_free(caps);
         return NULL;
     }
     caps->data_link_types = NULL;
