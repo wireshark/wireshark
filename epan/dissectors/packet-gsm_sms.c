@@ -204,7 +204,7 @@ static dissector_table_t gsm_sms_dissector_tbl;
 /* Short Message reassembly */
 static GHashTable *g_sm_fragment_table = NULL;
 static GHashTable *g_sm_reassembled_table = NULL;
-static GHashTable *g_sm_udl_table = NULL;
+static GHashTable *g_sm_fragment_params_table = NULL;
 static gint ett_gsm_sms_ud_fragment = -1;
 static gint ett_gsm_sms_ud_fragments = -1;
  /*
@@ -242,16 +242,20 @@ static const fragment_items sm_frag_items = {
     "Short Message fragments"
 };
 
+typedef struct {
+    guint8 udl;
+    guint32 length;
+} sm_fragment_params;
 
 static void
 gsm_sms_defragment_init (void)
 {
     fragment_table_init (&g_sm_fragment_table);
     reassembled_table_init(&g_sm_reassembled_table);
-    if (g_sm_udl_table) {
-        g_hash_table_destroy(g_sm_udl_table);
+    if (g_sm_fragment_params_table) {
+        g_hash_table_destroy(g_sm_fragment_params_table);
     }
-    g_sm_udl_table = g_hash_table_new(g_direct_hash, g_direct_equal);
+    g_sm_fragment_params_table = g_hash_table_new(g_direct_hash, g_direct_equal);
 }
 
 /*
@@ -2572,6 +2576,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     gboolean    save_fragmented = FALSE, try_gsm_sms_ud_reassemble = FALSE;
     guint32     num_labels;
 
+    sm_fragment_params *p_frag_params;
+
     fill_bits = 0;
 
     item =
@@ -2667,11 +2673,13 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         }
 
         if (seven_bit) {
-            guint32 key = (g_sm_id<<16)|(g_frag-1);
-            /* Store udl for later decoding of reassembled SMS */
-            g_hash_table_insert(g_sm_udl_table,
-                                GUINT_TO_POINTER(key),
-                                GUINT_TO_POINTER((guint)udl));
+            /* Store udl and length for later decoding of reassembled SMS */
+            p_frag_params = se_alloc0(sizeof(sm_fragment_params));
+            p_frag_params->udl = udl;
+            p_frag_params->length = length;
+            g_hash_table_insert(g_sm_fragment_params_table,
+                                GUINT_TO_POINTER((guint)((g_sm_id<<16)|(g_frag-1))),
+                                p_frag_params);
         }
     } /* Else: not fragmented */
     if (! sm_tvb) /* One single Short Message, or not reassembled */
@@ -2705,31 +2713,23 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                  */
                 out_len = 0;
 
-                total_sms_len = tvb_length(sm_tvb);
+                total_sms_len = 0;
                 for(i = 0 ; i < g_frags; i++)
                 {
-                    /* maximum len msg in 7 bit with csm8 header*/
-                    if(total_sms_len > MAX_SMS_FRAG_LEN)
-                    {
-                        total_sms_len -= MAX_SMS_FRAG_LEN;
-                        len_sms = MAX_SMS_FRAG_LEN;
-                    }
-                    else
-                        len_sms = total_sms_len;
-
-                    udl = GPOINTER_TO_UINT(g_hash_table_lookup(g_sm_udl_table,
-                                                               GUINT_TO_POINTER(((g_sm_id<<16)|i))));
+                    p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
+                                                            GUINT_TO_POINTER((guint)((g_sm_id<<16)|i)));
 
                     out_len =
-                        gsm_sms_char_7bit_unpack(fill_bits, len_sms,
-                                                 (udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : udl),
-                                                 tvb_get_ptr(sm_tvb, i * MAX_SMS_FRAG_LEN, len_sms),
-                                                 messagebuf);
+                        gsm_sms_char_7bit_unpack(fill_bits, p_frag_params->length,
+                            (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
+                            tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
 
                     messagebuf[out_len] = '\0';
                     proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
-                                          i * MAX_SMS_FRAG_LEN, len_sms,
+                                          total_sms_len, p_frag_params->length,
                                           gsm_sms_chars_to_utf8(messagebuf, out_len));
+
+                    total_sms_len += p_frag_params->length;
                 }
             }
         }
@@ -3469,18 +3469,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * convert the 2 bit value to one based on direction
          */
-        if (pinfo->p2p_dir == P2P_DIR_UNKNOWN)
-        {
-            /* Return Result ... */
-            if (msg_type == 0) /* SMS-DELIVER */
-            {
-                msg_type |= 0x04; /* see the msg_type_strings */
-            }
-        }
-        else
-        {
-            msg_type |= ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x04 : 0x00);
-        }
+        msg_type |= ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x04 : 0x00);
 
         str = match_strval_idx(msg_type, msg_type_strings, &idx);
 
