@@ -2613,6 +2613,7 @@ add_pipe_cb(gpointer w _U_)
   g_save_file = gtk_entry_get_text(GTK_ENTRY(pipe_te));
   name = g_strdup(g_save_file);
   if (strcmp(name, "New pipe") == 0 || strcmp(name, "") == 0) {
+    g_free(name);
     return;
   }
   if (strcmp(pipe_name, "New pipe") != 0) {
@@ -2626,6 +2627,7 @@ add_pipe_cb(gpointer w _U_)
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
       if (strcmp(name, device.name) == 0) {
+        g_free(name);
         return;
       }
     }
@@ -2690,6 +2692,7 @@ add_pipe_cb(gpointer w _U_)
     if (get_welcome_window() != NULL) {
       welcome_if_panel_reload ();
     }
+    g_free(name);
   }
 }
 
