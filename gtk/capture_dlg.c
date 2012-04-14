@@ -398,25 +398,6 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
   if (!prefs.capture_syntax_check_filter)
     return;
-  
-  linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_LT_CBX_KEY);
-  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &dlt_ptr)) {
-    g_assert_not_reached();  /* Programming error: somehow nothing is active */
-  }
-
-  if ((cfc_data.dlt = GPOINTER_TO_INT(dlt_ptr)) == -1) {
-     /*
-      * Perhaps the user is typing something into the dialog box; the
-      * combo box does *NOT* require that you select one of the
-      * dropdowns.  They might even be typing in a named pipe,
-      * in which case we can't determine the link-layer type
-      * until we open the pipe *and* get the pcap file header
-      * from it.
-      *
-      * Just skip the check here.
-      */
-     return;
-  }
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
 #if GTK_CHECK_VERSION(2,6,0)
@@ -426,10 +407,44 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
   if (!filter_te)
     return;
+#else
+#if 0
+  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
+  filter_te = NULL;  /* XXX */
+#else
+  return;
+#endif
+#endif
+  
+  linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_LT_CBX_KEY);
+  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &dlt_ptr)) {
+    g_assert_not_reached();  /* Programming error: somehow nothing is active */
+  }
 
+  if ((cfc_data.dlt = GPOINTER_TO_INT(dlt_ptr)) == -1) {
+    /*
+     * There is no guarantee that the currently selected item in the
+     * link-layer header type combo box is supported; perhaps there
+     * are *no* supported link-layer header types.  If, for example,
+     * we could not open an interface, or if the user specified a
+     * named pipe, we don't *know* the supported link-layer header
+     * types, so we've stuck in a dummy "Unknown" entry that has
+     * -1 as its DLT_ value.  (For a named pipe, we can't determine
+     * the link-layer header type until we open the pipe *and* read
+     * the pcap file header from it, which we will not do until the
+     * user says to do a capture on it.)
+     *
+     * So, in this case, just skip the check, and mark the text entry
+     * the same way we do if it's empty, to indicate that we don't
+     * know whether the capture filter is valid or not.
+     */
+    colorize_filter_te_as_empty(filter_te);
+    return;
+  }
+
+#if GTK_CHECK_VERSION(2,6,0)
   filter_text = gtk_combo_box_get_active_text (GTK_COMBO_BOX(filter_cm));
 #else
-  gtk_combo_box_get_active_iter(GTK_COMBO_BOX(filter_cm), &iter);
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(filter_cm));
   gtk_tree_model_get(model, &iter, 0, &filter_text, -1);
 #endif
@@ -752,7 +767,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
   if (linktype_count == 0) {
     ws_combo_box_append_text_and_pointer_full(GTK_COMBO_BOX(linktype_combo_box),
                                               NULL,
-                                              "not supported",
+                                              "Unknown",
                                               GINT_TO_POINTER(-1),  /* Flag as "not supported" */
                                               FALSE);
   }
