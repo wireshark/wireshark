@@ -41,8 +41,10 @@ static int proto_pn532 = -1;
 static int hf_pn532_command = -1;
 static int hf_pn532_direction = -1;
 static int hf_pn532_MaxTg = -1;
+static int hf_pn532_Tg = -1;
 static int hf_pn532_NbTg = -1;
 static int hf_pn532_BrTy = -1;
+static int hf_pn532_error = -1;
 static int hf_pn532_payload_length = -1;
 static int hf_pn532_ic_version = -1;
 static int hf_pn532_fw_version = -1;
@@ -112,7 +114,9 @@ static int hf_pn532_14443b_proto_info = -1;
 #define IN_DESELECT_REQ		0x44
 #define IN_DESELECT_RSP		0x45
 
-#define IN_RELEASE		0x52
+/* Release target token */
+#define IN_RELEASE_REQ		0x52
+#define IN_RELEASE_RSP		0x53
 
 /* Select target token */
 #define IN_SELECT_REQ	  	0x54
@@ -120,7 +124,7 @@ static int hf_pn532_14443b_proto_info = -1;
 
 /* Auto/long-time polling*/
 #define IN_AUTO_POLL_REQ	0x60
-#define IN_AUTO_POLL_RES	0x61
+#define IN_AUTO_POLL_RSP	0x61
 
 /* Target Commands */
 #define TG_INIT_AS_TARGET	0x8C
@@ -142,6 +146,10 @@ static int hf_pn532_14443b_proto_info = -1;
 #define FELICA_424		0x02
 #define ISO_IEC_14443B_106	0x03
 #define JEWEL_14443A_106	0x04
+
+/* Error codes */
+#define NO_ERROR		0x00
+#define UNACCEPTABLE_CMD	0x27
 
 static const value_string pn532_commands[] = {
     {DIAGNOSE_REQ,		"Diagnose"},
@@ -195,15 +203,17 @@ static const value_string pn532_commands[] = {
     {IN_DESELECT_REQ,		"InDeselect"},
     {IN_DESELECT_RSP,		"InDeselect (Response)"},
     
-    {IN_RELEASE,		"InRelease"},
-   
+    /* Release the target token */
+    {IN_RELEASE_REQ,		"InRelease"},
+    {IN_RELEASE_RSP,		"InRelease (Response)"},
+    
     /* Select target token */
     {IN_SELECT_REQ,		"InSelect"},
     {IN_SELECT_RSP,		"InSelect (Response)"},
     
     /* Automatic/long-time polling */
     {IN_AUTO_POLL_REQ,		"InAutoPoll"},
-    {IN_AUTO_POLL_RES,		"InAutoPoll (Response)"},
+    {IN_AUTO_POLL_RSP,		"InAutoPoll (Response)"},
 
     {TG_INIT_AS_TARGET,		"TgInitAsTarget"},
     {TG_SET_GENERAL_BYTES,	"TgSetGeneralBytes"},
@@ -224,6 +234,15 @@ static const value_string pn532_directions[] = {
     {PN532_TO_HOST,		"PN532 to Host"},
 
     /* End of directions */
+    {0x00, NULL}
+};
+
+/* Error/status codes */
+static const value_string pn532_errors[] = {
+    {NO_ERROR,		"No Error"},
+    {UNACCEPTABLE_CMD,	"Unacceptable Command"},
+
+    /* End of errors */
     {0x00, NULL}
 };
 
@@ -412,7 +431,7 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 	    /* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
 	    proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
 
-	    /* Use the length value (20?) at position 5, and skip the Status Word (9000) at the end */
+	    /* Use the length value (20?) at position 4, and skip the Status Word (9000) at the end */
 	    next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
 	    call_dissector(felica_handle, next_tvb, pinfo, tree);
 	}
@@ -433,26 +452,41 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 
     case IN_COMMUNICATE_THRU_REQ:
 	break;
-
+	
+    /* Deselect a token */
     case IN_DESELECT_REQ:
+	/* Logical target number */
+	proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
 	break;
 
     case IN_DESELECT_RSP:
+	proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
 	break;
 
-    case IN_RELEASE:
+    /* Release a token */
+    case IN_RELEASE_REQ:
+	/* Logical target number */
+	proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
 	break;
 
+    case IN_RELEASE_RSP:
+	proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
+	break;
+
+    /* Select a token */
     case IN_SELECT_REQ:
+	/* Logical target number */
+	proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
 	break;
 
     case IN_SELECT_RSP:
+	proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
 	break;
 
     case IN_AUTO_POLL_REQ:
 	break;
 
-    case IN_AUTO_POLL_RES:
+    case IN_AUTO_POLL_RSP:
 	break;
 
     case TG_INIT_AS_TARGET:
@@ -494,13 +528,19 @@ void proto_register_pn532(void)
 	{&hf_pn532_direction,
 	 {"Direction", "pn532.tfi", FT_UINT8, BASE_HEX,
 	  VALS(pn532_directions), 0x0, NULL, HFILL}},
+	{&hf_pn532_error,
+	 {"Error Code", "pn532.error", FT_UINT8, BASE_HEX,
+	  VALS(pn532_errors), 0x0, NULL, HFILL}},
 	{&hf_pn532_BrTy,
 	 {"Baud Rate and Modulation", "pn532.BrTy", FT_UINT8, BASE_HEX,
 	  VALS(pn532_brtypes), 0x0, NULL, HFILL}},
 	{&hf_pn532_MaxTg,
 	 {"Maximum Number of Targets", "pn532.MaxTg", FT_INT8, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_NbTg,
+	{&hf_pn532_Tg,
+	 {"Logical Target Number", "pn532.Tg", FT_INT8, BASE_DEC,
+	  NULL, 0x0, NULL, HFILL}},
+	  {&hf_pn532_NbTg,
 	 {"Number of Targets", "pn532.NbTg", FT_INT8, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL}},
 	{&hf_pn532_payload_length,
