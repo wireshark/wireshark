@@ -3979,7 +3979,7 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
 {
     GList             *if_entry, *lt_entry, *if_list;
     if_info_t         *if_info, *temp;
-    char              *if_string="";
+    char              *if_string;
     gchar             *descr, *err_str = NULL;
     if_capabilities_t *caps=NULL;
     gint              linktype_count;
@@ -4046,6 +4046,7 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
         } else {
             device.display_name = g_strdup(if_string);
         }
+        g_free(if_string);
         device.selected = FALSE;
         if (prefs_is_capture_device_hidden(if_info->name)) {
             device.hidden = TRUE;
