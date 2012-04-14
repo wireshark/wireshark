@@ -291,6 +291,22 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 	actx->pinfo->p2p_dir = P2P_DIR_SENT;
 %(DEFAULT_BODY)s
 
+#.FN_BODY SM-RP-DAold/imsi
+	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+%(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-DAold/lmsi
+	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+%(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-DA/imsi
+	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+%(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-DA/lmsi
+	actx->pinfo->p2p_dir = P2P_DIR_SENT;
+%(DEFAULT_BODY)s
+
 #.FN_BODY SM-RP-OAold/msisdn
 actx->pinfo->p2p_dir = P2P_DIR_RECV;
  %(DEFAULT_BODY)s
@@ -298,6 +314,14 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 #.FN_BODY SM-RP-OA/msisdn
 actx->pinfo->p2p_dir = P2P_DIR_RECV;
  %(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-DAold/serviceCentreAddressDA
+	actx->pinfo->p2p_dir = P2P_DIR_RECV;
+%(DEFAULT_BODY)s
+
+#.FN_BODY SM-RP-DA/serviceCentreAddressDA
+	actx->pinfo->p2p_dir = P2P_DIR_RECV;
+%(DEFAULT_BODY)s
 
 #.FN_BODY SignalInfo VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
