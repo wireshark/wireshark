@@ -405,7 +405,17 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   }
 
   if ((cfc_data.dlt = GPOINTER_TO_INT(dlt_ptr)) == -1) {
-     g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+     /*
+      * Perhaps the user is typing something into the dialog box; the
+      * combo box does *NOT* require that you select one of the
+      * dropdowns.  They might even be typing in a named pipe,
+      * in which case we can't determine the link-layer type
+      * until we open the pipe *and* get the pcap file header
+      * from it.
+      *
+      * Just skip the check here.
+      */
+     return;
   }
 
   filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
