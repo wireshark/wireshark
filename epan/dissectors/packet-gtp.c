@@ -1778,104 +1778,110 @@ typedef struct _gtp_opt {
 } gtp_opt_t;
 
 static const gtp_opt_t gtpopt[] = {
-    {GTP_EXT_CAUSE, decode_gtp_cause},
-    {GTP_EXT_IMSI, decode_gtp_imsi},
-    {GTP_EXT_RAI, decode_gtp_rai},
-    {GTP_EXT_TLLI, decode_gtp_tlli},
-    {GTP_EXT_PTMSI, decode_gtp_ptmsi},
-    {GTP_EXT_QOS_GPRS, decode_gtp_qos_gprs},
-    {GTP_EXT_REORDER, decode_gtp_reorder},
-    {GTP_EXT_AUTH_TRI, decode_gtp_auth_tri},
-    {GTP_EXT_MAP_CAUSE, decode_gtp_map_cause},
-    {GTP_EXT_PTMSI_SIG, decode_gtp_ptmsi_sig},
-    {GTP_EXT_MS_VALID, decode_gtp_ms_valid},
-    {GTP_EXT_RECOVER, decode_gtp_recovery},
-    {GTP_EXT_SEL_MODE, decode_gtp_sel_mode},
-    {GTP_EXT_16, decode_gtp_16},
-    {GTP_EXT_17, decode_gtp_17},
-    {GTP_EXT_18, decode_gtp_18},
-    {GTP_EXT_19, decode_gtp_19},
-    {GTP_EXT_NSAPI, decode_gtp_nsapi},
-    {GTP_EXT_RANAP_CAUSE, decode_gtp_ranap_cause},
-    {GTP_EXT_RAB_CNTXT, decode_gtp_rab_cntxt},
-    {GTP_EXT_RP_SMS, decode_gtp_rp_sms},
-    {GTP_EXT_RP, decode_gtp_rp},
-    {GTP_EXT_PKT_FLOW_ID, decode_gtp_pkt_flow_id},
-    {GTP_EXT_CHRG_CHAR, decode_gtp_chrg_char},
-    {GTP_EXT_TRACE_REF, decode_gtp_trace_ref},
-    {GTP_EXT_TRACE_TYPE, decode_gtp_trace_type},
-    {GTPv1_EXT_MS_REASON, decode_gtp_ms_reason},
-    {GTP_EXT_TR_COMM, decode_gtp_tr_comm},
-    {GTP_EXT_CHRG_ID, decode_gtp_chrg_id},
-    {GTP_EXT_USER_ADDR, decode_gtp_user_addr},
-    {GTP_EXT_MM_CNTXT, decode_gtp_mm_cntxt},
-    {GTP_EXT_PDP_CNTXT, decode_gtp_pdp_cntxt},
-    {GTP_EXT_APN, decode_gtp_apn},
-    {GTP_EXT_PROTO_CONF, decode_gtp_proto_conf},
-    {GTP_EXT_GSN_ADDR, decode_gtp_gsn_addr},
-    {GTP_EXT_MSISDN, decode_gtp_msisdn},
-    {GTP_EXT_QOS_UMTS, decode_gtp_qos_umts},    /* 3G */
-    {GTP_EXT_AUTH_QUI, decode_gtp_auth_qui},    /* 3G */
-    {GTP_EXT_TFT, decode_gtp_tft},  /* 3G */
-    {GTP_EXT_TARGET_ID, decode_gtp_target_id},  /* 3G */
-    {GTP_EXT_UTRAN_CONT, decode_gtp_utran_cont},    /* 3G */
-    {GTP_EXT_RAB_SETUP, decode_gtp_rab_setup},  /* 3G */
-    {GTP_EXT_HDR_LIST, decode_gtp_hdr_list},    /* 3G */
-    {GTP_EXT_TRIGGER_ID, decode_gtp_trigger_id},    /* 3G */
-    {GTP_EXT_OMC_ID, decode_gtp_omc_id},    /* 3G */
+/* 0x01 */  {GTP_EXT_CAUSE, decode_gtp_cause},
+/* 0x02 */  {GTP_EXT_IMSI, decode_gtp_imsi},
+/* 0x03 */  {GTP_EXT_RAI, decode_gtp_rai},
+/* 0x04 */  {GTP_EXT_TLLI, decode_gtp_tlli},
+/* 0x05 */  {GTP_EXT_PTMSI, decode_gtp_ptmsi},
+/* 0x06 */  {GTP_EXT_QOS_GPRS, decode_gtp_qos_gprs},
+/* 0x07 */
+/* 0x08 */  {GTP_EXT_REORDER, decode_gtp_reorder},
+/* 0x09 */  {GTP_EXT_AUTH_TRI, decode_gtp_auth_tri},
+/* 0x0a */  
+/* 0x0b */  {GTP_EXT_MAP_CAUSE, decode_gtp_map_cause},
+/* 0x0c */  {GTP_EXT_PTMSI_SIG, decode_gtp_ptmsi_sig},
+/* 0x0d */  {GTP_EXT_MS_VALID, decode_gtp_ms_valid},
+/* 0x0e */  {GTP_EXT_RECOVER, decode_gtp_recovery},
+/* 0x0f */  {GTP_EXT_SEL_MODE, decode_gtp_sel_mode},
+/* 0x10 */  {GTP_EXT_16, decode_gtp_16},
+/* 0x11 */  {GTP_EXT_17, decode_gtp_17},
+/* 0x12 */  {GTP_EXT_18, decode_gtp_18},
+/* 0x13 */  {GTP_EXT_19, decode_gtp_19},
+/* 0x14 */  {GTP_EXT_NSAPI, decode_gtp_nsapi},
+/* 0x15 */  {GTP_EXT_RANAP_CAUSE, decode_gtp_ranap_cause},
+/* 0x16 */  {GTP_EXT_RAB_CNTXT, decode_gtp_rab_cntxt},
+/* 0x17 */  {GTP_EXT_RP_SMS, decode_gtp_rp_sms},
+/* 0x18 */  {GTP_EXT_RP, decode_gtp_rp},
+/* 0x19 */  {GTP_EXT_PKT_FLOW_ID, decode_gtp_pkt_flow_id},
+/* 0x1a */  {GTP_EXT_CHRG_CHAR, decode_gtp_chrg_char},
+/* 0x1b */  {GTP_EXT_TRACE_REF, decode_gtp_trace_ref},
+/* 0x1c */  {GTP_EXT_TRACE_TYPE, decode_gtp_trace_type},
+/* 0x1d */  {GTPv1_EXT_MS_REASON, decode_gtp_ms_reason},
+
+/* 0x7e */  {GTP_EXT_TR_COMM, decode_gtp_tr_comm},
+/* 0x7f */  {GTP_EXT_CHRG_ID, decode_gtp_chrg_id},
+/* 0x80 */  {GTP_EXT_USER_ADDR, decode_gtp_user_addr},
+/* 0x81 */  {GTP_EXT_MM_CNTXT, decode_gtp_mm_cntxt},
+/* 0x82 */  {GTP_EXT_PDP_CNTXT, decode_gtp_pdp_cntxt},
+/* 0x83 */  {GTP_EXT_APN, decode_gtp_apn},
+/* 0x84 */  {GTP_EXT_PROTO_CONF, decode_gtp_proto_conf},
+/* 0x85 */  {GTP_EXT_GSN_ADDR, decode_gtp_gsn_addr},
+/* 0x86 */  {GTP_EXT_MSISDN, decode_gtp_msisdn},
+/* 0x87 */  {GTP_EXT_QOS_UMTS, decode_gtp_qos_umts},                            /* 3G */
+/* 0x88 */  {GTP_EXT_AUTH_QUI, decode_gtp_auth_qui},                            /* 3G */
+/* 0x89 */  {GTP_EXT_TFT, decode_gtp_tft},                                      /* 3G */
+/* 0x8a */  {GTP_EXT_TARGET_ID, decode_gtp_target_id},                          /* 3G */
+/* 0x8b */  {GTP_EXT_UTRAN_CONT, decode_gtp_utran_cont},                        /* 3G */
+/* 0x8c */  {GTP_EXT_RAB_SETUP, decode_gtp_rab_setup},                          /* 3G */
+/* 0x8d */  {GTP_EXT_HDR_LIST, decode_gtp_hdr_list},                            /* 3G */
+/* 0x8e */  {GTP_EXT_TRIGGER_ID, decode_gtp_trigger_id},                        /* 3G */
+/* 0x8f */  {GTP_EXT_OMC_ID, decode_gtp_omc_id},                                /* 3G */
     /* TS 29 060 V6.11.0 */
-    {GTP_EXT_RAN_TR_CONT, decode_gtp_ran_tr_cont},  /* 7.7.43 */
-    {GTP_EXT_PDP_CONT_PRIO, decode_gtp_pdp_cont_prio},  /* 7.7.45 */
-    {GTP_EXT_ADD_RAB_SETUP_INF, decode_gtp_add_rab_setup_inf},  /* 7.7.45A */
-    {GTP_EXT_SSGN_NO, decode_gtp_ssgn_no},  /* 7.7.47 */
-    {GTP_EXT_COMMON_FLGS, decode_gtp_common_flgs},  /* 7.7.48 */
-    {GTP_EXT_APN_RES, decode_gtp_apn_res},  /* 3G */
-    {GTP_EXT_RA_PRIO_LCS, decode_gtp_ra_prio_lcs},  /* 7.7.25B */
-    {GTP_EXT_RAT_TYPE, decode_gtp_rat_type},    /* 3G */
-    {GTP_EXT_USR_LOC_INF, decode_gtp_usr_loc_inf},  /* 7.7.51 */
-    {GTP_EXT_MS_TIME_ZONE, decode_gtp_ms_time_zone},    /* 7.7.52 */
-    {GTP_EXT_IMEISV, decode_gtp_imeisv},    /* 3G 7.7.53 */
-    {GTP_EXT_CAMEL_CHG_INF_CON, decode_gtp_camel_chg_inf_con},  /* 7.7.54 */
-    {GTP_EXT_MBMS_UE_CTX, decode_gtp_mbms_ue_ctx},  /* 7.7.55 */
-    {GTP_EXT_TMGI, decode_gtp_tmgi},    /* 7.7.56 */
-    {GTP_EXT_RIM_RA, decode_gtp_rim_ra},    /* 7.7.57 */
-    {GTP_EXT_MBMS_PROT_CONF_OPT, decode_gtp_mbms_prot_conf_opt},    /* 7.7.58 */
-    {GTP_EXT_MBMS_SA, decode_gtp_mbms_sa},  /* 7.7.60 */
-    {GTP_EXT_SRC_RNC_PDP_CTX_INF, decode_gtp_src_rnc_pdp_ctx_inf},  /* 7.7.61 */
-    {GTP_EXT_ADD_TRS_INF, decode_gtp_add_trs_inf},  /* 7.7.62 */
-    {GTP_EXT_HOP_COUNT, decode_gtp_hop_count},  /* 7.7.63 */
-    {GTP_EXT_SEL_PLMN_ID, decode_gtp_sel_plmn_id},  /* 7.7.64 */
-    {GTP_EXT_MBMS_SES_ID, decode_gtp_mbms_ses_id},  /* 7.7.65 */
-    {GTP_EXT_MBMS_2G_3G_IND, decode_gtp_mbms_2g_3g_ind},    /* 7.7.66 */
-    {GTP_EXT_ENH_NSAPI, decode_gtp_enh_nsapi},  /* 7.7.67 */
-    {GTP_EXT_MBMS_SES_DUR, decode_gtp_mbms_ses_dur},    /* 7.7.59 */
-    {GTP_EXT_ADD_MBMS_TRS_INF, decode_gtp_add_mbms_trs_inf},    /* 7.7.68 */
-    {GTP_EXT_MBMS_SES_ID_REP_NO, decode_gtp_mbms_ses_id_rep_no},    /* 7.7.69 */
-    {GTP_EXT_MBMS_TIME_TO_DATA_TR, decode_gtp_mbms_time_to_data_tr},    /* 7.7.70 */
-    {GTP_EXT_PS_HO_REQ_CTX, decode_gtp_ps_ho_req_ctx},  /* 7.7.71 */
-    {GTP_EXT_BSS_CONT, decode_gtp_bss_cont},    /* 7.7.72 */
-    {GTP_EXT_CELL_ID, decode_gtp_cell_id},  /* 7.7.73 */
-    {GTP_EXT_PDU_NO, decode_gtp_pdu_no},    /* 7.7.74 */
-    {GTP_EXT_BSSGP_CAUSE, decode_gtp_bssgp_cause},  /* 7.7.75 */
-    {GTP_EXT_REQ_MBMS_BEARER_CAP, decode_gtp_mbms_bearer_cap},  /* 7.7.76 */
-    {GTP_EXT_RIM_ROUTING_ADDR_DISC, decode_gtp_rim_ra_disc},    /* 7.7.77 */
-    {GTP_EXT_LIST_OF_SETUP_PFCS, decode_gtp_lst_set_up_pfc},    /* 7.7.78 */
-    {GTP_EXT_PS_HANDOVER_XIP_PAR, decode_gtp_ps_handover_xid},  /* 7.7.79 */
-    {GTP_EXT_MS_INF_CHG_REP_ACT, decode_gtp_ms_inf_chg_rep_act},    /* 7.7.80 */
-    {GTP_EXT_DIRECT_TUNNEL_FLGS, decode_gtp_direct_tnl_flg},    /* 7.7.81 */
-    {GTP_EXT_CORRELATION_ID, decode_gtp_corrl_id},  /* 7.7.82 */
-    {GTP_EXT_BEARER_CONTROL_MODE, decode_gtp_bearer_cntrl_mod}, /* 7.7.83 */
-    {GTP_EXT_FQDN, decode_gtp_fqdn}, /* ?.?.?? */
-    {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1}, /* 7.7.91 */
-    {GTP_EXT_EVO_ALLO_RETE_P2, decode_gtp_evolved_allc_rtn_p2}, /* ?.?.?? */
-	{GTP_EXT_UE_NETWORK_CAP, decode_gtp_ue_network_cap},  /* 7.7.99 */
-    {GTP_EXT_REL_PACK, decode_gtp_rel_pack},    /* charging */
-    {GTP_EXT_CAN_PACK, decode_gtp_can_pack},    /* charging */
-    {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
-    {GTP_EXT_DATA_REQ, decode_gtp_data_req},    /* charging */
-    {GTP_EXT_DATA_RESP, decode_gtp_data_resp},  /* charging */
-    {GTP_EXT_NODE_ADDR, decode_gtp_node_addr},
-    {GTP_EXT_PRIV_EXT, decode_gtp_priv_ext},
+/* 0x90 */  {GTP_EXT_RAN_TR_CONT, decode_gtp_ran_tr_cont},                      /* 7.7.43 */
+/* 0x91 */  {GTP_EXT_PDP_CONT_PRIO, decode_gtp_pdp_cont_prio},                  /* 7.7.45 */
+/* 0x92 */  {GTP_EXT_ADD_RAB_SETUP_INF, decode_gtp_add_rab_setup_inf},          /* 7.7.45A */
+/* 0x93 */  {GTP_EXT_SSGN_NO, decode_gtp_ssgn_no},                              /* 7.7.47 */
+/* 0x94 */  {GTP_EXT_COMMON_FLGS, decode_gtp_common_flgs},                      /* 7.7.48 */
+/* 0x95 */  {GTP_EXT_APN_RES, decode_gtp_apn_res},                              /* 3G */
+/* 0x96 */  {GTP_EXT_RA_PRIO_LCS, decode_gtp_ra_prio_lcs},                      /* 7.7.25B */
+/* 0x97 */  {GTP_EXT_RAT_TYPE, decode_gtp_rat_type},                            /* 3G */
+/* 0x98 */  {GTP_EXT_USR_LOC_INF, decode_gtp_usr_loc_inf},                      /* 7.7.51 */
+/* 0x99 */  {GTP_EXT_MS_TIME_ZONE, decode_gtp_ms_time_zone},                    /* 7.7.52 */
+/* 0x9a */  {GTP_EXT_IMEISV, decode_gtp_imeisv},                                /* 3G 7.7.53 */
+/* 0x9b */  {GTP_EXT_CAMEL_CHG_INF_CON, decode_gtp_camel_chg_inf_con},          /* 7.7.54 */
+/* 0x9c */  {GTP_EXT_MBMS_UE_CTX, decode_gtp_mbms_ue_ctx},                      /* 7.7.55 */
+/* 0x9d */  {GTP_EXT_TMGI, decode_gtp_tmgi},                                    /* 7.7.56 */
+/* 0x9e */  {GTP_EXT_RIM_RA, decode_gtp_rim_ra},                                /* 7.7.57 */
+/* 0x9f */  {GTP_EXT_MBMS_PROT_CONF_OPT, decode_gtp_mbms_prot_conf_opt},        /* 7.7.58 */
+/* 0xa0 */  {GTP_EXT_MBMS_SA, decode_gtp_mbms_sa},                              /* 7.7.60 */
+/* 0xa1 */  {GTP_EXT_SRC_RNC_PDP_CTX_INF, decode_gtp_src_rnc_pdp_ctx_inf},      /* 7.7.61 */
+/* 0xa2 */  {GTP_EXT_ADD_TRS_INF, decode_gtp_add_trs_inf},                      /* 7.7.62 */
+/* 0xa3 */  {GTP_EXT_HOP_COUNT, decode_gtp_hop_count},                          /* 7.7.63 */
+/* 0xa4 */  {GTP_EXT_SEL_PLMN_ID, decode_gtp_sel_plmn_id},                      /* 7.7.64 */
+/* 0xa5 */  {GTP_EXT_MBMS_SES_ID, decode_gtp_mbms_ses_id},                      /* 7.7.65 */
+/* 0xa6 */  {GTP_EXT_MBMS_2G_3G_IND, decode_gtp_mbms_2g_3g_ind},                /* 7.7.66 */
+/* 0xa7 */  {GTP_EXT_ENH_NSAPI, decode_gtp_enh_nsapi},                          /* 7.7.67 */
+/* 0xa8 */  {GTP_EXT_MBMS_SES_DUR, decode_gtp_mbms_ses_dur},                    /* 7.7.59 */
+/* 0xa9 */  {GTP_EXT_ADD_MBMS_TRS_INF, decode_gtp_add_mbms_trs_inf},            /* 7.7.68 */
+/* 0xaa */  {GTP_EXT_MBMS_SES_ID_REP_NO, decode_gtp_mbms_ses_id_rep_no},        /* 7.7.69 */
+/* 0xab */  {GTP_EXT_MBMS_TIME_TO_DATA_TR, decode_gtp_mbms_time_to_data_tr},    /* 7.7.70 */
+/* 0xac */  {GTP_EXT_PS_HO_REQ_CTX, decode_gtp_ps_ho_req_ctx},                  /* 7.7.71 */
+/* 0xad */  {GTP_EXT_BSS_CONT, decode_gtp_bss_cont},                            /* 7.7.72 */
+/* 0xae */  {GTP_EXT_CELL_ID, decode_gtp_cell_id},                              /* 7.7.73 */
+/* 0xaf */  {GTP_EXT_PDU_NO, decode_gtp_pdu_no},                                /* 7.7.74 */
+/* 0xb0 */  {GTP_EXT_BSSGP_CAUSE, decode_gtp_bssgp_cause},                      /* 7.7.75 */
+/* 0xb1 */  {GTP_EXT_REQ_MBMS_BEARER_CAP, decode_gtp_mbms_bearer_cap},          /* 7.7.76 */
+/* 0xb2 */  {GTP_EXT_RIM_ROUTING_ADDR_DISC, decode_gtp_rim_ra_disc},            /* 7.7.77 */
+/* 0xb3 */  {GTP_EXT_LIST_OF_SETUP_PFCS, decode_gtp_lst_set_up_pfc},            /* 7.7.78 */
+/* 0xb4 */  {GTP_EXT_PS_HANDOVER_XIP_PAR, decode_gtp_ps_handover_xid},          /* 7.7.79 */
+/* 0xb5 */  {GTP_EXT_MS_INF_CHG_REP_ACT, decode_gtp_ms_inf_chg_rep_act},        /* 7.7.80 */
+/* 0xb6 */  {GTP_EXT_DIRECT_TUNNEL_FLGS, decode_gtp_direct_tnl_flg},            /* 7.7.81 */
+/* 0xb7 */  {GTP_EXT_CORRELATION_ID, decode_gtp_corrl_id},                      /* 7.7.82 */
+/* 0xb8 */  {GTP_EXT_BEARER_CONTROL_MODE, decode_gtp_bearer_cntrl_mod},         /* 7.7.83 */
+
+/* 0xbe */  {GTP_EXT_FQDN, decode_gtp_fqdn},                                    /* ?.?.?? */
+/* 0xbf */  {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1},         /* 7.7.91 */
+/* 0xc0 */  {GTP_EXT_EVO_ALLO_RETE_P2, decode_gtp_evolved_allc_rtn_p2},         /* ?.?.?? */
+/* 0xbc */  {GTP_EXT_UE_NETWORK_CAP, decode_gtp_ue_network_cap},                /* 7.7.99 */
+
+/* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack},                           /* charging */
+/* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                           /* charging */
+/* 0xfb */  {GTP_EXT_CHRG_ADDR, decode_gtp_chrg_addr},
+
+/* 0xfc */  {GTP_EXT_DATA_REQ, decode_gtp_data_req},                           /* charging */
+/* 0xfd */  {GTP_EXT_DATA_RESP, decode_gtp_data_resp},                         /* charging */
+/* 0xfe */  {GTP_EXT_NODE_ADDR, decode_gtp_node_addr},
+/* 0xff */  {GTP_EXT_PRIV_EXT, decode_gtp_priv_ext},
     {0, decode_gtp_unknown}
 };
 
