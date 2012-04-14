@@ -415,21 +415,34 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   gchar *filter_text;
   gpointer dlt_ptr;
 
-  linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
-
-  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &dlt_ptr)) {
-    g_assert_not_reached();  /* Programming error: somehow nothing is active */
-  }
-  if ((cfc_data.dlt = GPOINTER_TO_INT(dlt_ptr)) == -1) {
-    g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
-  }
-
   filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
   if (!filter_cm)
     return;
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
   if (!filter_te)
     return;
+
+  linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
+
+  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &dlt_ptr)) {
+    /*
+     * There is no guarantee that we will even know the list of link-layer
+     * header types; we will not have it if, for example, we have a named
+     * pipe rather than an interface, as a named pipe doesn't *have* a
+     * link-layer header type until the capture is started and the
+     * pcap file header or pcap-ng interface description block is
+     * written, and we can't wait for that.  We won't have it if we can't
+     * open the interface, either.
+     *
+     * Just mark it as empty, as a way of saying "damned if I know whether
+     * this filter is valid".
+     */
+    colorize_filter_te_as_empty(filter_te);
+    return;
+  }
+  if ((cfc_data.dlt = GPOINTER_TO_INT(dlt_ptr)) == -1) {
+    g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+  }
 
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
 
