@@ -3980,7 +3980,7 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
     GList             *if_entry, *lt_entry, *if_list;
     if_info_t         *if_info, *temp;
     char              *if_string="";
-    gchar             *descr, *str, *err_str = NULL;
+    gchar             *descr, *err_str = NULL;
     if_capabilities_t *caps=NULL;
     gint              linktype_count;
     cap_settings_t    cap_settings;
@@ -4094,17 +4094,16 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
 #endif 
             for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
                 data_link_info = lt_entry->data;
-                if (data_link_info->description != NULL) {
-                    str = g_strdup_printf("%s", data_link_info->description);
-                } else {
-                    str = g_strdup_printf("%s (not supported)", data_link_info->name);
-                }
                 if (linktype_count == 0) {
                     device.active_dlt = data_link_info->dlt;
                 }
                 link = (link_row *)g_malloc(sizeof(link_row));
                 link->dlt = data_link_info->dlt;
-                link->name = g_strdup(str);
+                if (data_link_info->description != NULL) {
+                    link->name = g_strdup_printf("%s", data_link_info->description);
+                } else {
+                    link->name = g_strdup_printf("%s (not supported)", data_link_info->name);
+                }
                 device.links = g_list_append(device.links, link);
                 linktype_count++;
             }
