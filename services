@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-03-28
+# 2012-04-13
 # 
 # Note
 # 
@@ -10095,7 +10095,9 @@ netcabinet-com	4409/tcp	# Net-Cabinet comunication     [Ian_Manning_2]          
 # 4409        udp    Reserved
 itwo-server	4410/tcp	# RIB iTWO Application Server  [Kristean_Heisler_2]                      [Kristean_Heisler_2]                                      2009-12-16
 # 4410        udp    Reserved
-# 4411-4424            Unassigned
+found	4411/tcp	# Found Messaging Protocol     [Found_Software]                          [John_Mitchell]                                           2012-04-11                                                                              Defined TXT keys: id, key
+# 4411        udp    Reserved
+# 4412-4424            Unassigned
 netrockey6	4425/tcp	# NetROCKEY6 SMART Plus        [Feitian_Technologies]                    [Feitian_Technologies]                                    2010-09-15
 # Service
 netrockey6	4425/udp	# NetROCKEY6 SMART Plus        [Feitian_Technologies]                    [Feitian_Technologies]                                    2010-09-15
@@ -12590,7 +12592,11 @@ vmsvc-2	7025/udp	# Vormetric Service II         [Tom_Boyle]                     
 # 7026-7029            Unassigned
 op-probe	7030/tcp	# ObjectPlanet probe           [Bjorn_Jarle_Kvande]                      [Bjorn_Jarle_Kvande]                                      2002-04
 op-probe	7030/udp	# ObjectPlanet probe           [Bjorn_Jarle_Kvande]                      [Bjorn_Jarle_Kvande]                                      2002-04
-# 7031-7069            Unassigned
+# 7031-7039            Unassigned
+# 7040        tcp    Reserved
+quest-disc	7040/udp	# Quest application level      [Quest_Software]                          [Henrik_Johnson]                                          2012-04-09
+# network service discovery
+# 7041-7069            Unassigned
 arcp	7070/tcp	# ARCP                         [Jude_George]                             [Jude_George]
 arcp	7070/udp	# ARCP                         [Jude_George]                             [Jude_George]
 iwg1	7071/tcp	# IWGADTS Aircraft             [Don_Sullivan]                            [Don_Sullivan]                                            2010-02-16
@@ -12670,7 +12676,10 @@ citrixupp	7228/tcp	# Citrix Universal Printing    [Gary_Barton]                 
 # 7228        udp    Reserved
 citrixuppg	7229/tcp	# Citrix UPP Gateway           [Gary_Barton]                             [Gary_Barton]                                             2011-02-24
 # 7229        udp    Reserved
-# 7230-7236            Unassigned
+# 7230-7235            Unassigned
+display	7236/tcp	# Wi-Fi Alliance Wi-Fi Display [Wi-Fi_Alliance]                          [Thomas_Sciorilli]                                        2012-04-09                                                                              Defined TXT keys: _display.tcp. Display Protocol
+# Protocol
+# 7236        udp    Reserved
 pads	7237/tcp	# PADS (Public Area Display    [Willie_Jan_Bons]                         [Willie_Jan_Bons]                                         2011-03-10
 # System) Server
 # 7237        udp    Reserved
@@ -12998,7 +13007,10 @@ rbt-smc	7870/tcp	# Riverbed Steelhead Mobile    [Gabriel_Levy]                  
 # 7870        udp    Reserved
 mdm	7871/tcp	# Mobile Device Management     [Dan_Harkins]                             [Dan_Harkins]                                             2011-08-15
 # 7871        udp    Reserved
-# 7872-7879            Unassigned
+# 7872        tcp    Reserved
+mipv6tls	7872/udp	# TLS-based Mobile IPv6        [IESG]                                    [IETF_Chair]                                              2012-04-12                [RFC-mext-mip6-tls]
+# Security
+# 7873-7879            Unassigned
 pss	7880/tcp	# Pearson                      [Pearson]                                 [Pearson]                                                 2008-01-17
 pss	7880/udp	# Pearson                      [Pearson]                                 [Pearson]                                                 2008-01-17
 # 7881-7886            Unassigned
@@ -15061,7 +15073,9 @@ siemensgsm	28240/udp	# Siemens GSM                  [David_Anuszewski]          
 # 29118       tcp    Reserved
 # 29118       udp    Reserved
 sgsap	29118/sctp	# SGsAP in 3GPP                [GPP_Specifications]                      [GPP_Specifications]                                      2009-06-11
-# 28119-29166           Unassigned
+# 28119       tcp    Reserved
+a27-ran-ran	28119/udp	# A27 cdma2000 RAN Management  [ThreeGPP2]                               [Zhiming_Li]                                              2012-04-13
+# 28120-29166           Unassigned
 otmp	29167/tcp	# ObTools Message Protocol     [Paul_Clark]                              [Paul_Clark]                                              2006-02
 otmp	29167/udp	# ObTools Message Protocol     [Paul_Clark]                              [Paul_Clark]                                              2006-02
 # 29168       tcp    Reserved
@@ -15615,6 +15629,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # protocol
 # accountedge                           MYOB AccountEdge                                                                                                                                                                                                         Defined TXT keys: None
 # acrobatsrv                            Adobe Acrobat                                                                                                                                                                                                            Defined TXT keys: type, path, FeedType
+# acs-ctl-ds                     tcp    Access Control Device        [Honwywell_Security_Group]                [John_Dziadosz]                                           2012-04-09                                                                              Defined TXT keys: MAC=, GW-MAC
+# acs-ctl-ds                     udp    Access Control Device        [Honwywell_Security_Group]                [John_Dziadosz]                                           2012-04-09                                                                              Defined TXT keys: MAC=, GW-MAC
+# acs-ctl-gw                     tcp    Access Control Gateway       [Honwywell_Security_Group]                [John_Dziadosz]                                           2012-04-09                                                                              Defined TXT keys: MAC=, GW-MAC
+# acs-ctl-gw                     udp    Access Control Gateway       [Honwywell_Security_Group]                [John_Dziadosz]                                           2012-04-09                                                                              Defined TXT keys: MAC=, GW-MAC
 # actionitems                           ActionItems                  [Sailalong_Software]                      [Sailalong_Software]                                                                                                                              Defined TXT keys: None
 # activeraid                            Active Storage Proprietary   [Skip_Levens]                             [Skip_Levens]                                                                                                                                     Defined TXT keys: None
 # Device Management Protocol
@@ -18057,6 +18075,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Florence_Wyman]                                          Florence Wyman                                  mailto:wyman&peabody.plk.af.mil
 # [Fons_Rademakers]                                         Fons Rademakers                                 mailto:Fons.Rademakers&cern.ch
 # [Forest_Hill]                                             Forest Hill                                     mailto:forest&apple.com
+# [Found_Software]                                                                    Found Software, Inc.  mailto:john&foundapp.com                                      2012-04-11
 # [Francesco_Rosi]                                          Francesco Rosi                                  mailto:frosi&orenburg.com                                     2006-01
 # [Francis_Cianfrocca]                                      Francis Cianfrocca                              mailto:francis&tempest.com
 # [Francis_GASCHET]                                         Francis GASCHET           NUMLOG                mailto:fg&numlog.fr                                           2008-09-08
@@ -18333,6 +18352,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Helmut_Giritzer]                                         Helmut Giritzer                                 mailto:helmut.giritzer&epluse.at                              2005-11
 # [Helmut_Giritzer_2]                                       Helmut Giritzer                                 mailto:helmut.giritzer&o.roteskreuz.at                        2005-08
 # [Helmuth_Breitenfelln]                                    Helmuth Breitenfellner                          mailto:hbreitenf&vnet.imb.com
+# [Honwywell_Security_Group]                                                          Honwywell Security    mailto:john.dziadosz&honeywell.com                            2012-04-09
+# Group
 # [Hennie_van_der_Merwe]                                    Hennie van der Merwe                            mailto:hvandermerwe&tellumat.com                              2002-07
 # [Henning_Meier_Geinit]                                    Henning Meier-Geinitz                           mailto:henning&meier-geinitz.de                               2002-10
 # [Henning_Mersch]                                          Henning Mersch                                  mailto:h.mersch&plt.rwth-aachen.de                            2010-12-07
@@ -18342,6 +18363,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Henric_Bergh]                                            Henric Bergh                                    mailto:henric&bergh.nu                                        2007-01
 # [Henrik_Goldman]                                          Henrik Goldman                                  mailto:hg&x-formation.com                                     2006-10
 # [Henrik_Holst]                                            Henrik Holst                                    mailto:henrik.holst&ecovision.se
+# [Henrik_Johnson]                                          Henrik Johnson            Quest Software        mailto:henrik.johnson&quest.com                               2012-04-09
 # [Henrik_Woffinden]                                        Henrik Woffinden                                mailto:hw&nitramlexa.com                                      2008-09-22
 # [Henry_Haverinen]                                         Henry Haverinen                                 mailto:henry.haverinen&nokia.com
 # [Henry_Houh]                                              Henry Houh                                      mailto:hhouh&nbxcorp.com
@@ -18774,6 +18796,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [John_Coll]                                               John Coll                                       mailto:john&csoft.co.uk
 # [John_Croft]                                              John Croft                                      mailto:john.croft&calista.demon.co.uk
 # [John_Daniel_Bonamico]                                    John Daniel Bonamico                            mailto:jbonamico&symantec.com
+# [John_Dziadosz]                                           John Dziadosz             Honwywell Security    mailto:john.dziadosz&honeywell.com                            2012-04-09
+# Group
 # [John_E_Dickey]                                           John E. Dickey                                  mailto:jdickey&talarinetworks.com                             2007-09-27
 # [John_Fake]                                               John Fake                                       mailto:fake&us.ibm.com
 # [John_Fayos]                                              John Fayos                                      mailto:john.fayos&criticallink.com                            2002-03
@@ -18808,6 +18832,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [John_McKernan]                                           John McKernan                                   mailto:John.McKernan&sun.com
 # [John_Meredith]                                           John Meredith                                   mailto:John.Meredith&etsi.org                                 2009-09-08
 # [John_Mertus]                                             John Mertus                                     mailto:mertus&mathtech.com
+# [John_Mitchell]                                           John Mitchell             Found Software, Inc.  mailto:john&foundapp.com                                      2012-04-11
 # [John_Morton]                                             John Morton                                     mailto:j.morton&hp.com                                        2004-11
 # [John_Murphy]                                             John Murphy                                     mailto:john.m.murphy&mci.com
 # [John_Muth]                                               John Muth                                       mailto:muth&parascale.com                                     2010-01-21
@@ -20082,6 +20107,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Center, Inc.
 # [Quang_Thoi]                                              Quang Thoi                                      mailto:quang_thoi&symantec.com                                2006-11
 # [Quentin_Brown]                                           Quentin Brown                                   mailto:ndldev&ndl.co.uk                                       2002-03
+# [Quest_Software]                                                                    Quest Software        mailto:iana.quest-disc&quest.com                              2012-04-09
 # [Quinton_Tormanen]                                        Quinton Tormanen                                mailto:quinton&deltacompsys.com
 # [R_L_Meyering]                                            R. L. Meyering                                  mailto:RLMEYERING&biivax.dp.beckman.com
 # [R_Thirumurthy]                                           R. Thirumurthy                                  mailto:rtm&banyannetworks.com
@@ -20886,6 +20912,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Thomas_Schleu]                                           Thomas Schleu                                   mailto:tschleu&canto.de
 # [Thomas_Schmidt]                                          Thomas Schmidt                                  mailto:ts&bintec.de
 # [Thomas_Scholl]                                           Thomas Scholl                                   mailto:tscholl&spf.is-is.ca                                   2006-03
+# [Thomas_Sciorilli]                                        Thomas Sciorilli          Wi-Fi Alliance        mailto:tsciorilli&wi-fi.org                                   2012-04-09
 # [Thomas_Soerensen]                                        Thomas Soerensen                                mailto:thomassoerensen&stofanet.dk                            2002-04
 # [Thomas_Soranno]                                          Thomas Soranno                                  mailto:tom_soranno&cipartners.com
 # [Thomas_Weise]                                            Thomas Weise                                    mailto:weise&vs.uni-kassel.de                                 2006-04
@@ -21150,6 +21177,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Westell]                                                                           Westell, Inc.         mailto:jronk&westell.com
 # [Whamb]                                                   Whamb                                           mailto:support&whamb.com
 # [Widgetschmie_de]                                                                   Widgetschmie.de
+# [Wi-Fi_Alliance]                                                                    Wi-Fi Alliance        mailto:certifications&wi-fi.org                               2012-04-09
 # [Wilken_GmbH]                                             Wilken GmbH                                     mailto:fy&wilken.de
 # [Will_Dere]                                               Will Dere                                       mailto:will&wrs.com
 # [Will_Golson]                                             Will Golson                                     mailto:golson&fc.hp.com
