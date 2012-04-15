@@ -1491,7 +1491,7 @@ packet_offset_equal(gconstpointer v, gconstpointer v2)
 static guint
 packet_offset_hash_func(gconstpointer v)
 {
-    /* Use low-order bits of git64 offset value */
+    /* Use low-order bits of gint64 offset value */
     return (guint)(*(const gint64*)v);
 }
 
