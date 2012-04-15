@@ -605,8 +605,6 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 #endif
 	gint32 silence_frames;
 	int seq;
-	double delay;
-	double prev_diff;
 #ifdef DEBUG /* ?? */
 	double mean_delay;
 	double variation;
@@ -692,12 +690,9 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 
 	/* decode the RTP stream */
 	first = TRUE;
-	rtp_time = 0;
 	rtp_time_prev = 0;
-	decoded_bytes = 0;
 	decoded_bytes_prev = 0;
-	silence_frames = 0;
-	arrive_time = start_time = 0;
+	start_time = 0;
 	arrive_time_prev = 0;
 	pack_period = 0;
 #ifdef DEBUG /* ?? */
@@ -705,8 +700,6 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 	total_time_prev = 0;
 #endif
 	seq = 0;
-	delay = 0;
-	prev_diff = 0;
 #ifdef DEBUG /* ?? */
 	mean_delay = 0;
 	variation = 0;
@@ -768,10 +761,6 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		seq = rp->info->info_seq_num;
 
 		diff = arrive_time - rtp_time;
-
-		delay = diff - prev_diff;
-		prev_diff = diff;
-		if (delay<0) delay = -delay;
 
 		if (diff<0) diff = -diff;
 
@@ -2429,7 +2418,7 @@ rtp_player_dlg_create(void)
 	g_signal_connect(rtp_player_dlg_w, "destroy", G_CALLBACK(rtp_player_on_destroy), NULL);
 
 	/* button row */
-	hbuttonbox = gtk_hbutton_box_new ();
+	/* ?? hbuttonbox = gtk_hbutton_box_new ();*/
 
 	/* Filter/status hbox */
 	stat_hbox = gtk_hbox_new(FALSE, 1);

@@ -845,8 +845,7 @@ static void set_filter_expression(guint16  ueid,
 
     /* Close () if open */
     if (showDCTErrors) {
-            offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                 ")");
+        /*offset +=*/ g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
     }
 
     /* Set its value to our new string */

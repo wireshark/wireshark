@@ -271,7 +271,6 @@ rpcprogs_draw(void *dummy _U_)
 	for(rp=prog_list,i=1;rp;rp=rp->next,i++){
 		/* Ignore procedures with no calls */
 		if(rp->num==0){
-			td=0;
 			continue;
 		}
 		/* Scale the average SRT in units of 1us and round to the nearest us.

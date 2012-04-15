@@ -1117,7 +1117,7 @@ static void set_channel_filter_expression(guint16  ueid,
 
     /* Close () if open */
     if (showMACRACH) {
-        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
+        /*offset +=*/ g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
     }
 
 

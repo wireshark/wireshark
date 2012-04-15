@@ -94,7 +94,6 @@ on_destroy(GObject *object _U_, gpointer user_data)
 			child_data = (struct sctp_udata *)list->data;
 			gtk_grab_remove(GTK_WIDGET(child_data->io->window));
 			gtk_widget_destroy(GTK_WIDGET(child_data->io->window));
-			list = g_list_previous(list);
 		}
 		g_list_free(u_data->children);
 		u_data->children = NULL;

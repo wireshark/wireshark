@@ -361,7 +361,6 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	cairo_fill (cr);
 	cairo_destroy (cr);
 
-	distance = 5;
 	/* x_axis */
 #if GTK_CHECK_VERSION(2,22,0)
 	cr = cairo_create (u_data->io->surface);
