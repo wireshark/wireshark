@@ -3590,7 +3590,7 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_nmo_1,
         { "NMO I", "gsm_a.nmo_1",
         FT_BOOLEAN, 8, TFS(&gsm_a_nmo_1_value), 0x02,
-        "Network Mode of Operation I ", HFILL }
+        "Network Mode of Operation I", HFILL }
     },
     { &hf_gsm_a_nmo,
         { "NMO", "gsm_a.nmo",
