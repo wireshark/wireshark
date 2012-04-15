@@ -1,4 +1,4 @@
-/* Routines for LTE PDCP/ROHC
+/* Routines for LTE PDCP
  *
  * Martin Mathieson
  *
@@ -42,16 +42,14 @@
 /* Described in:
  * 3GPP TS 36.323 Evolved Universal Terrestrial Radio Access (E-UTRA)
  *                Packet Data Convergence Protocol (PDCP) specification
- *
- * RFC 3095       RObust Header Compression (ROHC):
- *                Framework and four profiles: RTP, UDP, ESP, and uncompressed
  */
 
 
 /* TODO:
-   - Complete ROHC support for RTP and extend to other profiles (including ROHCv2)
    - Support for deciphering
    - Verify MAC authentication bytes
+   - Delete old ROHC support from here once sure everything useful useful has
+     been merged into packet-rohc.c
 */
 
 
@@ -66,12 +64,14 @@ static int hf_pdcp_lte_direction = -1;
 static int hf_pdcp_lte_ueid = -1;
 static int hf_pdcp_lte_channel_type = -1;
 static int hf_pdcp_lte_channel_id = -1;
-static int hf_pdcp_lte_rohc = -1;
+
+/* static int hf_pdcp_lte_rohc = -1; */
 static int hf_pdcp_lte_rohc_compression = -1;
 static int hf_pdcp_lte_rohc_mode = -1;
 static int hf_pdcp_lte_rohc_rnd = -1;
 static int hf_pdcp_lte_rohc_udp_checksum_present = -1;
 static int hf_pdcp_lte_rohc_profile = -1;
+
 static int hf_pdcp_lte_no_header_pdu = -1;
 static int hf_pdcp_lte_plane = -1;
 static int hf_pdcp_lte_seqnum_length = -1;
@@ -94,6 +94,7 @@ static int hf_pdcp_lte_bitmap = -1;
 static int hf_pdcp_lte_bitmap_not_received = -1;
 
 /* Robust Header Compression Fields */
+#if 0
 static int hf_pdcp_lte_rohc_padding = -1;
 static int hf_pdcp_lte_rohc_r_0_crc = -1;
 static int hf_pdcp_lte_rohc_feedback = -1;
@@ -173,6 +174,7 @@ static int hf_pdcp_lte_rohc_feedback_option_clock = -1;
 static int hf_pdcp_lte_rohc_ip_id = -1;
 static int hf_pdcp_lte_rohc_udp_checksum = -1;
 static int hf_pdcp_lte_rohc_payload = -1;
+#endif
 
 /* Sequence Analysis */
 static int hf_pdcp_lte_sequence_analysis = -1;
@@ -2828,6 +2830,7 @@ void proto_register_pdcp(void)
             }
         },
 
+#if 0
         { &hf_pdcp_lte_rohc,
             { "ROHC Message",
               "pdcp-lte.rohc", FT_NONE, BASE_NONE, NULL, 0,
@@ -3234,6 +3237,7 @@ void proto_register_pdcp(void)
               NULL, HFILL
             }
         },
+#endif  /* rohc fields that aren't used anymore */
 
     };
 
