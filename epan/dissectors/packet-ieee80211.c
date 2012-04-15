@@ -3306,6 +3306,7 @@ get_tagged_parameter_tree (proto_tree * tree, tvbuff_t *tvb, int start, int size
     size,
     "Tagged parameters (%d bytes)",
     size);
+  proto_item_set_len(tagged_fields, size);
 
   return proto_item_add_subtree (tagged_fields, ett_tagged_parameters);
 }
