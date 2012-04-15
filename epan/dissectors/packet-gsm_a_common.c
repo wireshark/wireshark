@@ -58,6 +58,9 @@ const value_string gsm_common_elem_strings[] = {
     { 0x00, "Group Cipher Key Number" },
     { 0x00, "PD and SAPI $(CCBS)$" },
     { 0x00, "Priority Level" },
+    { 0x00, "CN Common GSM-MAP NAS system information" },
+    { 0x00, "CS domain specific system information" },
+    { 0x00, "PS domain specific system information" },
     { 0x00, "PLMN List" },
     { 0x00, "NAS container for PS HO" },
     { 0, NULL }
@@ -549,6 +552,9 @@ int hf_gsm_a_spare_bits = -1;
 int hf_gsm_a_lac = -1;
 static int hf_gsm_a_spare_nibble = -1;
 static int hf_gsm_a_type_of_ciph_alg = -1;
+static int hf_gsm_a_att = -1;
+static int hf_gsm_a_nmo_1 = -1;
+static int hf_gsm_a_nmo = -1;
 static int hf_gsm_a_old_xid = -1;
 static int hf_gsm_a_iov_ui = -1;
 static int hf_gsm_a_b7spare = -1;
@@ -3210,6 +3216,80 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
 }
 
 /*
+ * [3] 10.5.1.12.1 CN Common GSM-MAP NAS system information
+ */
+guint16
+de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_lac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    curr_offset += 2;
+
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [3] 10.5.1.12.2 CS domain specific system information
+ */
+const true_false_string gsm_a_att_value = {
+	"MSs shall apply IMSI attach and detach procedure",
+	"MSs shall not apply IMSI attach and detach procedure"
+};
+
+guint16
+de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_rr_t3212, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+    proto_tree_add_item(tree, hf_gsm_a_att, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [3] 10.5.1.12.3 PS domain specific system information
+ */
+const true_false_string gsm_a_nmo_1_value = {
+	"Network Mode of Operation I is used for MS configured for NMO_I_Behaviour",
+	"Network Mode of Operation indicated in Bit 1 (NMO) is used for MS configured for NMO_I_Behaviour"
+};
+
+const true_false_string gsm_a_nmo_value = {
+	"Network Mode of Operation II",
+	"Network Mode of Operation I"
+};
+
+guint16
+de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    proto_tree_add_item(tree, hf_gsm_a_gm_rac, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+    proto_tree_add_item(tree, hf_gsm_a_nmo_1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_nmo, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
+
+    return(curr_offset - offset);
+}
+
+/*
  * [3] 10.5.1.13 PLMN list
  */
 guint16
@@ -3269,7 +3349,6 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len, "IE not dissected yet");
     /*     8     7     6     5     4     3     2      1
      *     0     0     0   old     0     Type of ciphering
      * spare  spare  spare XID  spare      algorithm
@@ -3292,19 +3371,22 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
     /* Common Information Elements 10.5.1 */
-    de_cell_id,             /* Cell Identity */
-    de_ciph_key_seq_num,    /* Ciphering Key Sequence Number */
-    de_lai,                 /* Location Area Identification */
-    de_mid,                 /* Mobile Identity */
-    de_ms_cm_1,             /* Mobile Station Classmark 1 */
-    de_ms_cm_2,             /* Mobile Station Classmark 2 */
-    de_ms_cm_3,             /* Mobile Station Classmark 3 */
-    de_spare_nibble,        /* Spare Half Octet */
-    de_d_gb_call_ref,       /* Descriptive group or broadcast call reference */
-    NULL                    /* handled inline */,   /* Group Cipher Key Number */
-    de_pd_sapi,             /* PD and SAPI $(CCBS)$ */
+    de_cell_id,                        /* Cell Identity */
+    de_ciph_key_seq_num,               /* Ciphering Key Sequence Number */
+    de_lai,                            /* Location Area Identification */
+    de_mid,                            /* Mobile Identity */
+    de_ms_cm_1,                        /* Mobile Station Classmark 1 */
+    de_ms_cm_2,                        /* Mobile Station Classmark 2 */
+    de_ms_cm_3,                        /* Mobile Station Classmark 3 */
+    de_spare_nibble,                   /* Spare Half Octet */
+    de_d_gb_call_ref,                  /* Descriptive group or broadcast call reference */
+    NULL       /* handled inline */,   /* Group Cipher Key Number */
+    de_pd_sapi,                        /* PD and SAPI $(CCBS)$ */
     /* Pos 10 */
-    de_prio                 /* handled inline */,   /* Priority Level */
+    de_prio    /* handled inline */,   /* Priority Level */
+    de_cn_common_gsm_map_nas_sys_info, /* 10.5.1.12.1 CN Common GSM-MAP NAS system information */
+    de_cs_domain_spec_sys_info,        /* 10.5.1.12.2 CS domain specific system information */
+    de_ps_domain_spec_sys_info,        /* 10.5.1.12.2 PS domain specific system information */
     de_plmn_list,           /* 10.5.1.13 PLMN list */
     de_nas_cont_for_ps_ho,  /* 10.5.1.14 NAS container for PS HO */
     NULL,                   /* NONE */
@@ -3499,6 +3581,21 @@ proto_register_gsm_a_common(void)
         { "Call priority", "gsm_a.call_prio",
         FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_ciph_alg_vals), 0x07,
         NULL, HFILL }
+    },
+    { &hf_gsm_a_att,
+        { "ATT", "gsm_a.att",
+        FT_BOOLEAN, 8, TFS(&gsm_a_att_value), 0x01,
+        "ttach-detach allowed", HFILL }
+    },
+    { &hf_gsm_a_nmo_1,
+        { "NMO I", "gsm_a.nmo_1",
+        FT_BOOLEAN, 8, TFS(&gsm_a_nmo_1_value), 0x02,
+        "Network Mode of Operation I ", HFILL }
+    },
+    { &hf_gsm_a_nmo,
+        { "NMO", "gsm_a.nmo",
+        FT_BOOLEAN, 8, TFS(&gsm_a_nmo_value), 0x01,
+        "Network Mode of Operation", HFILL }
     },
     { &hf_gsm_a_old_xid,
         { "Old XID", "gsm_a.old_xid",

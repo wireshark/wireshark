@@ -24,7 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Ref: 3GPP TS 25.331 V9.7.0 (2011-06)
+ * Ref: 3GPP TS 25.331 V10.7.0 (2012-03)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -60,6 +60,14 @@ static dissector_handle_t rrc_ul_dcch_handle=NULL;
 static dissector_handle_t rrc_dl_dcch_handle=NULL;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle=NULL;
 static dissector_handle_t lte_rrc_dl_dcch_handle=NULL;
+
+enum nas_sys_info_gsm_map {
+  RRC_NAS_SYS_INFO_CS,
+  RRC_NAS_SYS_INFO_PS,
+  RRC_NAS_SYS_INFO_CN_COMMON
+};
+
+static enum nas_sys_info_gsm_map rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
 /* Forward declarations */
 static int dissect_UE_RadioAccessCapabilityInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

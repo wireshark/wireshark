@@ -1,7 +1,7 @@
 -- $Id$
 -- Constant-definitions.asn
 --
--- 3GPP TS 25.331 V9.7.0 (2011-06)
+-- 3GPP TS 25.331 V10.7.0 (2012-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.4	Constant definitions
@@ -48,10 +48,14 @@ maxFACHPCH					INTEGER ::= 8
 maxFreq						INTEGER ::= 8
 maxFreqBandsEUTRA			INTEGER ::= 16
 maxFreqBandsFDD				INTEGER ::= 8
+maxFreqBandsFDD2			INTEGER ::= 22
 maxFreqBandsFDD-ext			INTEGER ::= 15	-- maxFreqBandsFDD-ext ::= 22 - (maxFreqBandsFDD - 1)
+maxFreqBandsFDD-ext2		INTEGER ::= 64	-- maxFreqBandsFDD-ext2 ::= 86 - maxFreqBandsFDD-ext
+maxFreqBandsIndicatorSupport	INTEGER ::= 2
 maxFreqBandsTDD				INTEGER ::= 4
 maxFreqBandsTDD-ext			INTEGER ::= 16
 maxFreqBandsGSM				INTEGER ::= 16
+maxFreqMeasWithoutCM		INTEGER ::= 2
 maxGANSS					INTEGER ::= 8
 maxGANSS-1					INTEGER ::= 7
 maxGANSSSat					INTEGER ::= 64
@@ -69,6 +73,7 @@ maxHSSICH-TDD128			INTEGER ::= 4
 maxHSSICH-TDD128-1			INTEGER ::= 3
 maxInterSysMessages			INTEGER ::= 4
 maxLoCHperRLC				INTEGER ::= 2
+maxLoggedMeasReport			INTEGER	::=	128
 maxMAC-d-PDUsizes			INTEGER ::= 8
 maxMBMS-CommonCCTrCh		INTEGER ::= 32
 maxMBMS-CommonPhyCh			INTEGER ::= 32
@@ -90,6 +95,7 @@ maxMeasIntervals			INTEGER ::= 3
 maxMeasOccasionPattern		INTEGER ::= 5
 maxMeasOccasionPattern-1	INTEGER ::= 4
 maxMeasParEvent				INTEGER ::= 2
+maxNonContiguousMultiCellCombinations	INTEGER ::= 3
 maxNumCDMA2000Freqs			INTEGER ::=  8
 maxNumE-AGCH				INTEGER ::= 4
 maxNumE-HICH				INTEGER ::= 4
@@ -97,6 +103,8 @@ maxNumEUTRAFreqs			INTEGER ::= 8
 maxNumGSMCellGroup			INTEGER ::= 16
 maxNumGSMFreqRanges			INTEGER ::= 32
 maxNumFDDFreqs				INTEGER ::=  8
+maxNumANRLoggedItems		INTEGER ::= 4
+maxnumLoggedMeas			INTEGER ::=  8
 maxNumTDDFreqs				INTEGER ::=  8
 maxNoOfMeas					INTEGER ::= 16
 maxOtherRAT					INTEGER ::= 15
@@ -147,6 +155,7 @@ maxSIrequest				INTEGER ::= 4
 maxSRBsetup					INTEGER ::= 8
 maxSystemCapability			INTEGER ::= 16
 maxTDD128Carrier			INTEGER ::= 6
+maxTDD128Carrier-1			INTEGER ::= 5
 maxTbsForHSDSCH-TDD128		INTEGER ::= 4
 maxTbsForHSDSCH-TDD128-1	INTEGER ::= 3
 maxTF						INTEGER ::= 32

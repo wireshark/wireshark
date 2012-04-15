@@ -1,7 +1,7 @@
 -- $Id$
 -- Class-definitions.asn
 --
--- 3GPP TS 25.331 V9.7.0 (2011-06)
+-- 3GPP TS 25.331 V10.7.0 (2012-03)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.1 General message structure
@@ -32,6 +32,7 @@ IMPORTS
 	HandoverFromUTRANCommand-GSM,
 	HandoverFromUTRANCommand-CDMA2000,
 	HandoverFromUTRANFailure,
+	LoggingMeasurementConfiguration,
 	MBMSAccessInformation,
 	MBMSCommonPTMRBInformation,
 	MBMSCurrentCellPTMRBInformation,
@@ -84,6 +85,8 @@ IMPORTS
 	UECapabilityEnquiry,
 	UECapabilityInformation,
 	UECapabilityInformationConfirm,
+	UEInformationRequest,
+	UEInformationResponse,
 	UplinkDirectTransfer,
 	UplinkPhysicalChannelControl,
 	URAUpdate,
@@ -139,8 +142,8 @@ DL-DCCH-MessageType ::= CHOICE {
 	mbmsModifiedServicesInformation		MBMSModifiedServicesInformation,
 	etwsPrimaryNotificationWithSecurity	ETWSPrimaryNotificationWithSecurity,
 	handoverFromUTRANCommand-EUTRA		HandoverFromUTRANCommand-EUTRA,
-	spare3								NULL,
-	spare2								NULL,
+	ueInformationRequest				UEInformationRequest,
+	loggingMeasurementConfiguration		LoggingMeasurementConfiguration,
 	spare1								NULL
 }
 
@@ -193,7 +196,26 @@ UL-DCCH-MessageType ::= CHOICE {
 	utranMobilityInformationConfirm		UTRANMobilityInformationConfirm,
 	utranMobilityInformationFailure		UTRANMobilityInformationFailure,
 	mbmsModificationRequest				MBMSModificationRequest,
-	spare1								NULL
+	ul-DCCH-MessageType-ext				UL-DCCH-MessageType-ext
+}
+
+UL-DCCH-MessageType-ext ::= CHOICE {
+	ueInformationResponse		UEInformationResponse,
+	spare15						NULL,
+	spare14						NULL,
+	spare13						NULL,
+	spare12						NULL,
+	spare11						NULL,
+	spare10						NULL,
+	spare9						NULL,
+	spare8						NULL,
+	spare7						NULL,
+	spare6						NULL,
+	spare5						NULL,
+	spare4						NULL,
+	spare3						NULL,
+	spare2						NULL,
+	spare1						NULL
 }
 
 --**************************************************************

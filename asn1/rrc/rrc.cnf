@@ -26,7 +26,7 @@ GSMCellGroupingList
 UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
-UE-Positioning-Measurement-v920ext
+RRCConnectionRelease-CCCH-va40ext-IEs
 #.END
 
 #.PDU_NEW
@@ -177,6 +177,14 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverToUTRANComplete");
 %(DEFAULT_BODY)s
 
+#.FN_BODY InitialDirectTransfer
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "InitialDirectTransfer");
+%(DEFAULT_BODY)s
+
+#.FN_BODY HandoverFromUTRANCommand-EUTRA
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-EUTRA");
+%(DEFAULT_BODY)s
+
 #.FN_BODY HandoverFromUTRANCommand-GERANIu
   col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANCommand-GERANIu");
 %(DEFAULT_BODY)s
@@ -193,8 +201,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromUTRANFailure");
 %(DEFAULT_BODY)s
 
-#.FN_BODY InitialDirectTransfer
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "InitialDirectTransfer");
+#.FN_BODY LoggingMeasurementConfiguration
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "LoggingMeasurementConfiguration");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSAccessInformation
@@ -405,6 +413,14 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   col_append_str(actx->pinfo->cinfo, COL_INFO, "UECapabilityInformationConfirm");
 %(DEFAULT_BODY)s
 
+#.FN_BODY UEInformationRequest
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationRequest");
+%(DEFAULT_BODY)s
+
+#.FN_BODY UEInformationResponse
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationResponse");
+%(DEFAULT_BODY)s
+
 #.FN_BODY UplinkDirectTransfer
   col_append_str(actx->pinfo->cinfo, COL_INFO, "UplinkDirectTransfer");
 %(DEFAULT_BODY)s
@@ -545,6 +561,56 @@ tvbuff_t *parameter_tvb=NULL;
 
 #.TYPE_ATTR
 HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
+
+#.FN_BODY CN-DomainIdentity VAL_PTR = &rrc_nas_sys_info_gsm_map_type
+%(DEFAULT_BODY)s
+
+#.FN_BODY CN-InformationInfo/cn-CommonGSM-MAP-NAS-SysInfo
+  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+%(DEFAULT_BODY)s
+
+#.FN_BODY CN-InformationInfo-r6/cn-CommonGSM-MAP-NAS-SysInfo
+  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+%(DEFAULT_BODY)s
+
+#.FN_BODY CN-InformationInfoFull/cn-CommonGSM-MAP-NAS-SysInfo
+  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+%(DEFAULT_BODY)s
+
+#.FN_BODY SysInfoType1/cn-CommonGSM-MAP-NAS-SysInfo
+  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+%(DEFAULT_BODY)s
+
+#.FN_BODY NAS-SystemInformationGSM-MAP VAL_PTR = &nas_sys_info_gsm_map_tvb
+  tvbuff_t *nas_sys_info_gsm_map_tvb = NULL;
+  guint32 length;
+  proto_item *item;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+  length = tvb_length(nas_sys_info_gsm_map_tvb);
+  if (length) {
+    switch (rrc_nas_sys_info_gsm_map_type) {
+      case RRC_NAS_SYS_INFO_CN_COMMON:
+        item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CN Common GSM-MAP NAS system information");
+        subtree = proto_item_add_subtree(item, hf_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+        de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+        break;
+      case RRC_NAS_SYS_INFO_CS:
+        item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CS domain specific system information");
+        subtree = proto_item_add_subtree(item, hf_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+        de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+        break;
+      case RRC_NAS_SYS_INFO_PS:
+        item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "PS domain specific system information");
+        subtree = proto_item_add_subtree(item, hf_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+        de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+        break;
+      default:
+        break;
+    }
+  }
+  rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
 #.END
 

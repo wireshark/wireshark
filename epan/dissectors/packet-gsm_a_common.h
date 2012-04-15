@@ -180,6 +180,8 @@ extern int hf_gsm_a_call_prio;
 extern int hf_gsm_a_b8spare;
 extern int hf_gsm_a_skip_ind;
 extern int hf_gsm_a_rr_chnl_needed_ch1;
+extern int hf_gsm_a_rr_t3212;
+extern int hf_gsm_a_gm_rac;
 extern int hf_gsm_a_spare_bits;
 extern int hf_gsm_a_lac;
 
@@ -673,6 +675,9 @@ guint16 be_emlpp_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 guint16 be_ganss_loc_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_ganss_pos_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 be_ganss_ass_dta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
@@ -754,20 +759,23 @@ extern const value_string gsm_a_gm_type_of_ciph_alg_vals[];
 typedef enum
 {
     /* Common Information Elements [3] 10.5.1 */
-    DE_CELL_ID,             /* Cell Identity */
-    DE_CIPH_KEY_SEQ_NUM,    /* Ciphering Key Sequence Number */
-    DE_LAI,                 /* Location Area Identification */
-    DE_MID,                 /* Mobile Identity */
-    DE_MS_CM_1,             /* Mobile Station Classmark 1 */
-    DE_MS_CM_2,             /* Mobile Station Classmark 2 */
-    DE_MS_CM_3,             /* Mobile Station Classmark 3 */
-    DE_SPARE_NIBBLE,        /* Spare Half Octet */
-    DE_D_GB_CALL_REF,       /* Descriptive group or broadcast call reference */
-    DE_G_CIPH_KEY_NUM,      /* Group Cipher Key Number */
-    DE_PD_SAPI,             /* PD and SAPI $(CCBS)$ */
-    DE_PRIO,                /* Priority Level */
-    DE_PLMN_LIST,           /* PLMN List */
-    DE_NAS_CONT_FOR_PS_HO,  /* 10.5.1.14 NAS container for PS HO */
+    DE_CELL_ID,                        /* Cell Identity */
+    DE_CIPH_KEY_SEQ_NUM,               /* Ciphering Key Sequence Number */
+    DE_LAI,                            /* Location Area Identification */
+    DE_MID,                            /* Mobile Identity */
+    DE_MS_CM_1,                        /* Mobile Station Classmark 1 */
+    DE_MS_CM_2,                        /* Mobile Station Classmark 2 */
+    DE_MS_CM_3,                        /* Mobile Station Classmark 3 */
+    DE_SPARE_NIBBLE,                   /* Spare Half Octet */
+    DE_D_GB_CALL_REF,                  /* Descriptive group or broadcast call reference */
+    DE_G_CIPH_KEY_NUM,                 /* Group Cipher Key Number */
+    DE_PD_SAPI,                        /* PD and SAPI $(CCBS)$ */
+    DE_PRIO,                           /* Priority Level */
+    DE_CN_COMMON_GSM_MAP_NAS_SYS_INFO, /* CN Common GSM-MAP NAS system information */
+    DE_CS_DOMAIN_SPEC_SYS_INFO,        /* CS domain specific system information */
+    DE_PS_DOMAIN_SPEC_SYS_INFO,        /* PS domain specific system information */
+    DE_PLMN_LIST,                      /* PLMN List */
+    DE_NAS_CONT_FOR_PS_HO,             /* 10.5.1.14 NAS container for PS HO */
 
     DE_COMMON_NONE          /* NONE */
 }
