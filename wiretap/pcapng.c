@@ -412,7 +412,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
             return 0;
         }
         block_read = sizeof (*oh);
-        if(pn->byte_swapped) {
+        if (pn->byte_swapped) {
                 oh->option_code      = BSWAP16(oh->option_code);
                 oh->option_length    = BSWAP16(oh->option_length);
         }
@@ -437,7 +437,7 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
         block_read += oh->option_length;
 
         /* jump over potential padding bytes at end of option */
-        if( (oh->option_length % 4) != 0) {
+        if ( (oh->option_length % 4) != 0) {
                 file_offset64 = file_seek(fh, 4 - (oh->option_length % 4), SEEK_CUR, err);
                 if (file_offset64 <= 0) {
                         if (*err != 0)
@@ -505,7 +505,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         block_read = bytes_read;
 
         /* is the magic number one we expect? */
-        switch(shb.magic) {
+        switch (shb.magic) {
             case(0x1A2B3C4D):
                 /* this seems pcapng with correct byte order */
                 pn->byte_swapped                = FALSE;
@@ -577,7 +577,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         opt_cont_buf_len = to_read;
         option_content = g_malloc(opt_cont_buf_len);
         pcapng_debug1("pcapng_read_section_header_block: Options %u bytes", to_read);
-        while(to_read > 0) {
+        while (to_read > 0) {
                 /* read option */
                 pcapng_debug1("pcapng_read_section_header_block: Options %u bytes remaining", to_read);
                 bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
@@ -589,16 +589,16 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 to_read -= bytes_read;
 
                 /* handle option content */
-                switch(oh.option_code) {
+                switch (oh.option_code) {
                     case(0): /* opt_endofopt */
-                        if(to_read != 0) {
+                        if (to_read != 0) {
                                 pcapng_debug1("pcapng_read_section_header_block: %u bytes after opt_endofopt", to_read);
                         }
                         /* padding should be ok here, just get out of this */
                         to_read = 0;
                         break;
                     case(1): /* opt_comment */
-                        if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                        if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.opt_comment = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: opt_comment %s", wblock->data.section.opt_comment);
                         } else {
@@ -606,7 +606,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                         }
                         break;
                     case(2): /* shb_hardware */
-                        if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                        if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.shb_hardware = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: shb_hardware %s", wblock->data.section.shb_hardware);
                         } else {
@@ -614,7 +614,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                         }
                         break;
                     case(3): /* shb_os */
-                        if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                        if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.shb_os = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: shb_os %s", wblock->data.section.shb_os);
                         } else {
@@ -622,7 +622,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                         }
                         break;
                     case(4): /* shb_user_appl */
-                        if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                        if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.section.shb_user_appl = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_section_header_block: shb_user_appl %s", wblock->data.section.shb_user_appl);
                         } else {
@@ -742,9 +742,9 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                 to_read -= bytes_read;
 
                 /* handle option content */
-                switch(oh.option_code) {
+                switch (oh.option_code) {
                     case(0): /* opt_endofopt */
-                        if(to_read != 0) {
+                        if (to_read != 0) {
                                 pcapng_debug1("pcapng_read_if_descr_block: %u bytes after opt_endofopt", to_read);
                         }
                         /* padding should be ok here, just get out of this */
@@ -786,7 +786,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_descr.if_speed, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);
                                 pcapng_debug1("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", wblock->data.if_descr.if_speed);
                         } else {
@@ -833,10 +833,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                                 /* The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string,
                                  * or BPF bytecode.
                                  */
-                                if (option_content[0] == 0){
+                                if (option_content[0] == 0) {
                                         wblock->data.if_descr.if_filter_str = g_strndup(option_content+1, oh.option_length-1);
                                         pcapng_debug2("pcapng_read_if_descr_block: if_filter_str %s oh.option_length %u", wblock->data.if_descr.if_filter_str, oh.option_length);
-                                }else if(option_content[0] == 1) {
+                                } else if (option_content[0] == 1) {
                                         wblock->data.if_descr.bpf_filter_len = oh.option_length-1;
                                         wblock->data.if_descr.if_filter_bpf_bytes = g_malloc(oh.option_length-1);
                                         memcpy(&wblock->data.if_descr.if_filter_bpf_bytes, option_content+1, oh.option_length-1);
@@ -1140,7 +1140,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         opt_cont_buf_len = to_read;
         option_content = g_malloc(opt_cont_buf_len);
 
-        while(to_read > 0) {
+        while (to_read > 0) {
                 /* read option */
                 bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
                 if (bytes_read <= 0) {
@@ -1151,16 +1151,16 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 to_read -= bytes_read;
 
                 /* handle option content */
-                switch(oh.option_code) {
+                switch (oh.option_code) {
                     case(0): /* opt_endofopt */
-                        if(to_read != 0) {
+                        if (to_read != 0) {
                                 pcapng_debug1("pcapng_read_packet_block: %u bytes after opt_endofopt", to_read);
                         }
                         /* padding should be ok here, just get out of this */
                         to_read = 0;
                         break;
                     case(1): /* opt_comment */
-                        if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                        if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->packet_header->presence_flags |= WTAP_HAS_COMMENTS;
                                 wblock->packet_header->opt_comment = g_strndup(option_content, oh.option_length);
                                 pcapng_debug2("pcapng_read_packet_block: length %u opt_comment '%s'", oh.option_length, wblock->packet_header->opt_comment);
@@ -1169,13 +1169,13 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                         }
                         break;
                     case(2): /* pack_flags / epb_flags */
-                        if(oh.option_length == 4) {
+                        if (oh.option_length == 4) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 wblock->packet_header->presence_flags |= WTAP_HAS_PACK_FLAGS;
                                 memcpy(&wblock->packet_header->pack_flags, option_content, sizeof(guint32));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->packet_header->pack_flags = BSWAP32(wblock->packet_header->pack_flags);
                                 if (wblock->packet_header->pack_flags & 0x000001E0) {
                                         /* The FCS length is present */
@@ -1191,13 +1191,13 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                                       oh.option_code, oh.option_length);
                         break;
                     case(4): /* epb_dropcount */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 wblock->packet_header->presence_flags |= WTAP_HAS_DROP_COUNT;
                                 memcpy(&wblock->packet_header->drop_count, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->packet_header->drop_count = BSWAP64(wblock->packet_header->drop_count);
 
                                 pcapng_debug1("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->packet_header->drop_count);
@@ -1474,7 +1474,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
                                       nrb.record_len + PADDING4(nrb.record_len));
                         return -1;
                 }
-                switch(nrb.record_type) {
+                switch (nrb.record_type) {
                         case NRES_ENDOFRECORD:
                                 /* There shouldn't be any more data */
                                 to_read = 0;
@@ -1662,7 +1662,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
         }
         block_read = bytes_read;
 
-        if(pn->byte_swapped) {
+        if (pn->byte_swapped) {
                 wblock->data.if_stats.interface_id = BSWAP32(isb.interface_id);
                 wblock->data.if_stats.ts_high      = BSWAP32(isb.timestamp_high);
                 wblock->data.if_stats.ts_low       = BSWAP32(isb.timestamp_low);
@@ -1690,7 +1690,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
         opt_cont_buf_len = to_read;
         option_content = g_malloc(opt_cont_buf_len);
 
-        while(to_read > 0) {
+        while (to_read > 0) {
                 /* read option */
                 bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
                 if (bytes_read <= 0) {
@@ -1701,16 +1701,16 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 to_read -= bytes_read;
 
                 /* handle option content */
-                switch(oh.option_code) {
+                switch (oh.option_code) {
                     case(0): /* opt_endofopt */
-                        if(to_read != 0) {
+                        if (to_read != 0) {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: %u bytes after opt_endofopt", to_read);
                         }
                         /* padding should be ok here, just get out of this */
                         to_read = 0;
                         break;
                     case(1): /* opt_comment */
-                        if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+                        if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
                                 wblock->data.if_stats.opt_comment = g_strndup(option_content, oh.option_length);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment %s", wblock->data.if_stats.opt_comment);
                         } else {
@@ -1718,12 +1718,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         }
                         break;
                     case(2): /* isb_starttime */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_stats.isb_starttime, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_stats.isb_starttime = BSWAP64(wblock->data.if_stats.isb_starttime);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_starttime %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_starttime);
                         } else {
@@ -1731,12 +1731,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         }
                         break;
                     case(3): /* isb_endtime */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_stats.isb_endtime, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_stats.isb_endtime = BSWAP64(wblock->data.if_stats.isb_endtime);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_endtime %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_endtime);
                         } else {
@@ -1744,12 +1744,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         }
                         break;
                     case(4): /* isb_ifrecv */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_stats.isb_ifrecv, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_stats.isb_ifrecv = BSWAP64(wblock->data.if_stats.isb_ifrecv);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifrecv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifrecv);
                         } else {
@@ -1757,12 +1757,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         }
                         break;
                     case(5): /* isb_ifdrop */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_stats.isb_ifdrop, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_stats.isb_ifdrop = BSWAP64(wblock->data.if_stats.isb_ifdrop);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifdrop);
                         } else {
@@ -1770,12 +1770,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         }
                         break;
                     case(6): /* isb_filteraccept 6 */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_stats.isb_filteraccept, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_stats.isb_ifdrop = BSWAP64(wblock->data.if_stats.isb_filteraccept);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_filteraccept %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_filteraccept);
                         } else {
@@ -1783,12 +1783,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         }
                         break;
                     case(7): /* isb_osdrop 7 */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_stats.isb_osdrop, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_stats.isb_osdrop = BSWAP64(wblock->data.if_stats.isb_osdrop);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_osdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_osdrop);
                         } else {
@@ -1796,12 +1796,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         }
                         break;
                     case(8): /* isb_usrdeliv 8  */
-                        if(oh.option_length == 8) {
+                        if (oh.option_length == 8) {
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
                                 memcpy(&wblock->data.if_stats.isb_usrdeliv, option_content, sizeof(guint64));
-                                if(pn->byte_swapped)
+                                if (pn->byte_swapped)
                                         wblock->data.if_stats.isb_usrdeliv = BSWAP64(wblock->data.if_stats.isb_osdrop);
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_usrdeliv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_usrdeliv);
                         } else {
@@ -1900,7 +1900,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
                         return 0;       /* not a pcap-ng file */
         }
 
-        switch(bh.block_type) {
+        switch (bh.block_type) {
                 case(BLOCK_TYPE_SHB):
                         bytes_read = pcapng_read_section_header_block(fh, first_block, &bh, pn, wblock, err, err_info);
                         break;
@@ -2040,7 +2040,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         wth->number_of_interfaces = 0;
 
         /* Loop over all IDB:s that appear before any packets */
-        while(1){
+        while (1) {
                 bytes_read = pcapng_read_block(wth->fh, FALSE, &pn, &wblock, err, err_info);
                 wth->data_offset += bytes_read;
                 if (bytes_read == 0) {
@@ -2116,7 +2116,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
                 pcapng_debug1("pcapng_open: Check for more IDB:s block_type 0x%x", bh.block_type);
 
-                if (bh.block_type != BLOCK_TYPE_IDB){
+                if (bh.block_type != BLOCK_TYPE_IDB) {
                         break;  /* No more IDB:s */
                 }
         }
@@ -2172,16 +2172,16 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 if (wblock.type == BLOCK_TYPE_PB || wblock.type == BLOCK_TYPE_EPB) {
                         break;
                 }
-                if (wblock.type == BLOCK_TYPE_ISB ){
+                if (wblock.type == BLOCK_TYPE_ISB ) {
                     pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
                     *data_offset += bytes_read;
                     pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
-                    if(wth->number_of_interfaces < wblock.data.if_stats.interface_id){
+                    if (wth->number_of_interfaces < wblock.data.if_stats.interface_id) {
                         pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
-                    }else{
+                    } else {
                         /* Get the interface description */
                         wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, wblock.data.if_stats.interface_id);
-                        if(wtapng_if_descr->num_stat_entries == 0){
+                        if (wtapng_if_descr->num_stat_entries == 0) {
                             /* First ISB found, no previous entry */
                             pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
                             wtapng_if_descr->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtapng_if_stats_t));
@@ -2203,7 +2203,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         g_array_append_val(wtapng_if_descr->interface_statistics, if_stats);
                         wtapng_if_descr->num_stat_entries++;
                     }
-                }else{
+                } else {
                     /* XXX - improve handling of "unknown" blocks */
                     pcapng_debug1("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
                     *data_offset += bytes_read;
@@ -2523,7 +2523,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
         if (int_data->opt_comment) {
                 have_options = TRUE;
                 comment_len = (guint32)strlen(int_data->opt_comment) & 0xffff;
-                if ((comment_len % 4)){
+                if ((comment_len % 4)) {
                         comment_pad_len = 4 - (comment_len % 4);
                 } else {
                         comment_pad_len = 0;
@@ -2534,7 +2534,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
         /*
          * if_name        2  A UTF-8 string containing the name of the device used to capture data.
          */
-        if (int_data->if_name){
+        if (int_data->if_name) {
                 have_options = TRUE;
                 if_name_len = (guint32)strlen(int_data->if_name) & 0xffff;
                 if ((if_name_len % 4)) {
@@ -2863,7 +2863,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
         if (if_stats->opt_comment) {
                 have_options = TRUE;
                 comment_len = (guint32)strlen(if_stats->opt_comment) & 0xffff;
-                if ((comment_len % 4)){
+                if ((comment_len % 4)) {
                         comment_pad_len = 4 - (comment_len % 4);
                 } else {
                         comment_pad_len = 0;
@@ -2953,8 +2953,8 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
         }
         /*guint64               isb_starttime */
         if (if_stats->isb_starttime != 0) {
-                option_hdr.type          = ISB_STARTTIME;
-                option_hdr.value_length  = 8;
+                option_hdr.type = ISB_STARTTIME;
+                option_hdr.value_length = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
@@ -2967,8 +2967,8 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
         }
         /*guint64               isb_endtime */
         if (if_stats->isb_endtime != 0) {
-                option_hdr.type          = ISB_ENDTIME;
-                option_hdr.value_length  = 8;
+                option_hdr.type = ISB_ENDTIME;
+                option_hdr.value_length = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
@@ -3093,18 +3093,18 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
         }
 
         /* Check if we should write comment option */
-        if(phdr->opt_comment){
+        if (phdr->opt_comment) {
                 have_options = TRUE;
                 comment_len = (guint32)strlen(phdr->opt_comment) & 0xffff;
-                if((comment_len % 4)){
+                if ((comment_len % 4)) {
                         comment_pad_len = 4 - (comment_len % 4);
-                }else{
+                } else {
                         comment_pad_len = 0;
                 }
                 options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
         }
 
-        if(have_options){
+        if (have_options) {
                 /* End-of optios tag */
                 options_total_length += 4;
         }
@@ -3178,7 +3178,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
          *                                between this packet and the preceding one.
          * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
          */
-        if(phdr->opt_comment){
+        if (phdr->opt_comment) {
                 options_hdr = comment_len;
                 options_hdr = options_hdr << 16;
                 /* Option 1  */
@@ -3206,7 +3206,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
         }
 
         /* Write end of options if we have otions */
-        if(have_options){
+        if (have_options) {
                 if (!wtap_dump_file_write(wdh, &zero_pad, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
@@ -3388,7 +3388,7 @@ static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
 
                     if_stats = g_array_index(int_data.interface_statistics, wtapng_if_stats_t, j);
                     pcapng_debug1("pcapng_dump_close: write ISB for interface %u",if_stats.interface_id);
-					if (!pcapng_write_interface_statistics_block(wdh, &if_stats, err)){
+					if (!pcapng_write_interface_statistics_block(wdh, &if_stats, err)) {
 						return FALSE;
 					}
                 }
