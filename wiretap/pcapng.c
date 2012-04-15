@@ -1719,12 +1719,20 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         break;
                     case(2): /* isb_starttime */
                         if (oh.option_length == 8) {
+                                guint32 high, low;
+
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
-                                memcpy(&wblock->data.if_stats.isb_starttime, option_content, sizeof(guint64));
-                                if (pn->byte_swapped)
-                                        wblock->data.if_stats.isb_starttime = BSWAP64(wblock->data.if_stats.isb_starttime);
+                                memcpy(&high, option_content, sizeof(guint32));
+                                memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
+                                if (pn->byte_swapped) {
+                                        high = BSWAP32(high);
+                                        low = BSWAP32(low);
+                                }
+                                wblock->data.if_stats.isb_starttime = (guint64)high;
+                                wblock->data.if_stats.isb_starttime <<= 32;
+                                wblock->data.if_stats.isb_starttime += (guint64)low;
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_starttime %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_starttime);
                         } else {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_starttime length %u not 8 as expected", oh.option_length);
@@ -1732,12 +1740,20 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                         break;
                     case(3): /* isb_endtime */
                         if (oh.option_length == 8) {
+                                guint32 high, low;
+
                                 /*  Don't cast a char[] into a guint32--the
                                  *  char[] may not be aligned correctly.
                                  */
-                                memcpy(&wblock->data.if_stats.isb_endtime, option_content, sizeof(guint64));
-                                if (pn->byte_swapped)
-                                        wblock->data.if_stats.isb_endtime = BSWAP64(wblock->data.if_stats.isb_endtime);
+                                memcpy(&high, option_content, sizeof(guint32));
+                                memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
+                                if (pn->byte_swapped) {
+                                        high = BSWAP32(high);
+                                        low = BSWAP32(low);
+                                }
+                                wblock->data.if_stats.isb_endtime = (guint64)high;
+                                wblock->data.if_stats.isb_endtime <<= 32;
+                                wblock->data.if_stats.isb_endtime += (guint64)low;
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_endtime %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_endtime);
                         } else {
                                 pcapng_debug1("pcapng_read_interface_statistics_block: isb_starttime length %u not 8 as expected", oh.option_length);
@@ -2953,31 +2969,45 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
         }
         /*guint64               isb_starttime */
         if (if_stats->isb_starttime != 0) {
+                guint32 high, low;
+
                 option_hdr.type = ISB_STARTTIME;
                 option_hdr.value_length = 8;
+                high = (guint32)((if_stats->isb_starttime>>32) & 0xffffffff);
+                low = (guint32)(if_stats->isb_starttime & 0xffffffff);
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
 
                 /* Write isb_starttime */
                 pcapng_debug1("pcapng_write_interface_statistics_block, isb_starttime: %" G_GINT64_MODIFIER "u" , if_stats->isb_starttime);
-                if (!wtap_dump_file_write(wdh, &if_stats->isb_starttime, 8, err))
+                if (!wtap_dump_file_write(wdh, &high, 4, err))
                         return FALSE;
-                wdh->bytes_dumped += 8;
+                wdh->bytes_dumped += 4;
+                if (!wtap_dump_file_write(wdh, &low, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
         }
         /*guint64               isb_endtime */
         if (if_stats->isb_endtime != 0) {
+                guint32 high, low;
+
                 option_hdr.type = ISB_ENDTIME;
                 option_hdr.value_length = 8;
+                high = (guint32)((if_stats->isb_endtime>>32) & 0xffffffff);
+                low = (guint32)(if_stats->isb_endtime & 0xffffffff);
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
 
                 /* Write isb_endtime */
                 pcapng_debug1("pcapng_write_interface_statistics_block, isb_starttime: %" G_GINT64_MODIFIER "u" , if_stats->isb_endtime);
-                if (!wtap_dump_file_write(wdh, &if_stats->isb_endtime, 8, err))
+                if (!wtap_dump_file_write(wdh, &high, 4, err))
                         return FALSE;
-                wdh->bytes_dumped += 8;
+                wdh->bytes_dumped += 4;
+                if (!wtap_dump_file_write(wdh, &low, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
         }
         /*guint64               isb_ifrecv;*/
         if (if_stats->isb_ifrecv != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {

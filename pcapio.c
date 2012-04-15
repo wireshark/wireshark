@@ -698,16 +698,26 @@ libpcap_write_interface_statistics_block(FILE *fp,
         }
 
         if (isb_starttime !=0) {
+                guint32 high, low;
+
                 option.type = ISB_STARTTIME;
                 option.value_length = sizeof(guint64);
+                high = (guint32)((isb_starttime>>32) & 0xffffffff);
+                low = (guint32)(isb_starttime & 0xffffffff);
                 WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &isb_starttime, sizeof(guint64), *bytes_written, err);
+                WRITE_DATA(fp, &high, sizeof(guint32), *bytes_written, err);
+                WRITE_DATA(fp, &low, sizeof(guint32), *bytes_written, err);
         }
         if (isb_endtime !=0) {
+                guint32 high, low;
+
                 option.type = ISB_ENDTIME;
                 option.value_length = sizeof(guint64);
+                high = (guint32)((isb_endtime>>32) & 0xffffffff);
+                low = (guint32)(isb_endtime & 0xffffffff);
                 WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &isb_endtime, sizeof(guint64), *bytes_written, err);
+                WRITE_DATA(fp, &high, sizeof(guint32), *bytes_written, err);
+                WRITE_DATA(fp, &low, sizeof(guint32), *bytes_written, err);
         }
         if (stats_retrieved) {
                 /* */
