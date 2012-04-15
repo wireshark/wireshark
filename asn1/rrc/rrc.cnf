@@ -562,7 +562,7 @@ tvbuff_t *parameter_tvb=NULL;
 #.TYPE_ATTR
 HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
-#.FN_BODY CN-DomainIdentity VAL_PTR = &rrc_nas_sys_info_gsm_map_type
+#.FN_BODY CN-DomainIdentity VAL_PTR = (guint32*)(&rrc_nas_sys_info_gsm_map_type)
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfo/cn-CommonGSM-MAP-NAS-SysInfo
