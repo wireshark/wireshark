@@ -2037,7 +2037,6 @@ main(int argc, char *argv[])
   char                *gdp_path, *dp_path;
   int                  err;
 #ifdef HAVE_LIBPCAP
-  int                  error;
   gboolean             start_capture = FALSE;
   gboolean             list_link_layer_types = FALSE;
   GList               *if_list;
@@ -2452,7 +2451,7 @@ main(int argc, char *argv[])
 
 /*#ifdef HAVE_LIBPCAP
   if (global_capture_opts.all_ifaces->len == 0) {
-    scan_local_interfaces(&global_capture_opts, &error);
+    scan_local_interfaces(&global_capture_opts);
   }
 #endif*/
   /* Now get our args */
@@ -2698,7 +2697,7 @@ main(int argc, char *argv[])
   
 #ifdef HAVE_LIBPCAP
   if (global_capture_opts.all_ifaces->len == 0) {
-    scan_local_interfaces(&global_capture_opts, &error);
+    scan_local_interfaces(&global_capture_opts);
   }
 #endif
 #ifdef HAVE_LIBPCAP
@@ -3975,12 +3974,12 @@ guint get_interface_type(gchar *name, gchar *description)
  * those interfaces.
  */
 void
-scan_local_interfaces(capture_options* capture_opts, int *error)
+scan_local_interfaces(capture_options* capture_opts)
 {
     GList             *if_entry, *lt_entry, *if_list;
     if_info_t         *if_info, *temp;
     char              *if_string;
-    gchar             *descr, *err_str = NULL;
+    gchar             *descr;
     if_capabilities_t *caps=NULL;
     gint              linktype_count;
     cap_settings_t    cap_settings;
@@ -4005,8 +4004,7 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
         }
     }
     /* Scan through the list and build a list of strings to display. */
-    if_list = capture_interface_list(&err, &err_str);
-    *error = err;
+    if_list = capture_interface_list(&err, NULL);
     count = 0;
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         if_info = if_entry->data;

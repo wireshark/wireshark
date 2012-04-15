@@ -1028,10 +1028,12 @@ static void fill_capture_box(void)
        switch (error) {
 
        case CANT_GET_INTERFACE_LIST:
-            label_text = g_strdup("No interface can be used for capturing in "
-                                  "this system with the current configuration.\n"
-                                  "\n"
-                                  "See Capture Help below for details.");
+            label_text = g_strdup_printf("No interface can be used for capturing in "
+                                         "this system with the current configuration.\n\n"
+                                         "(%s)\n"
+                                         "\n"
+                                         "See Capture Help below for details.",
+                                         err_str);
             break;
 
        case NO_INTERFACES_FOUND:
@@ -1077,6 +1079,8 @@ static void fill_capture_box(void)
             label_text = g_strdup_printf("Error = %d; this \"can't happen\".", error);
             break;
         }
+        if (err_str != NULL)
+          g_free(err_str);
         w = gtk_label_new(label_text);
         gtk_label_set_markup(GTK_LABEL(w), label_text);
         gtk_label_set_line_wrap(GTK_LABEL(w), TRUE);
@@ -1102,7 +1106,6 @@ welcome_if_tree_load(void)
     GtkTreeSelection    *entry;
     interface_t         device;
     gboolean            changed = FALSE;
-    int                 error;
 
     if (if_view && swindow) {
         entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
@@ -1113,7 +1116,7 @@ welcome_if_tree_load(void)
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
         /* LOAD THE INTERFACES */
         if (global_capture_opts.all_ifaces->len == 0) {
-            scan_local_interfaces(&global_capture_opts, &error);
+            scan_local_interfaces(&global_capture_opts);
             if (global_capture_opts.all_ifaces->len == 0) {
                 fill_capture_box();
             }
@@ -1213,9 +1216,6 @@ welcome_new(void)
     GtkWidget *topic_capture_to_fill;
     gchar     *label_text;
     GtkWidget *file_child_box;
-#ifdef HAVE_LIBPCAP
-    int       error;
-#endif
 #ifdef _WIN32
     DWORD chimney_enabled = 0;
     DWORD ce_size = sizeof(chimney_enabled);
@@ -1283,7 +1283,7 @@ welcome_new(void)
 
 #ifdef HAVE_LIBPCAP
     if (global_capture_opts.all_ifaces->len == 0) {
-        scan_local_interfaces(&global_capture_opts, &error);
+        scan_local_interfaces(&global_capture_opts);
     }
 
     fill_capture_box();
