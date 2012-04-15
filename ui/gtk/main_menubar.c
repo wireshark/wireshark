@@ -4919,6 +4919,7 @@ set_menus_for_selected_packet(capture_file *cf)
 
         set_menu_sensitivity(ui_manager_main_menubar, path,
             menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry));
+        g_free(path);
         i++;
         list_entry = g_list_next(list_entry);
     }
