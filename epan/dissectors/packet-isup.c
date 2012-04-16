@@ -61,6 +61,8 @@
 #include <packet-mtp3.h>
 
 static gint isup_standard = ITU_STANDARD;
+/* Preference standard or national ISUP variants */
+static gint g_isup_variant = ISUP_ITU_STANDARD_VARIANT;
 
 #define ISUP_ITU_STANDARD_VARIANT 0
 #define ISUP_FRENCH_VARIANT 1
@@ -7701,7 +7703,8 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *message_tvb;
   guint16 cic;
   guint8 message_type;
-  guint8 itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
+  guint8 itu_isup_variant = g_isup_variant;
+  value_string_ext *used_value_string_ext;
 
 /* Make entries in Protocol column and Info column on summary display */
 /* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs
@@ -7738,18 +7741,27 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  dissect_ansi_isup_message(message_tvb, pinfo, isup_tree);
       break;
     default:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
       isup_standard = ITU_STANDARD;
+	  switch(itu_isup_variant){
+	  case ISUP_FRENCH_VARIANT:
+		  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(French)");
+		  used_value_string_ext = &french_isup_message_type_value_acro_ext;
+		  break;
+	  default:
+		  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
+		  used_value_string_ext = &isup_message_type_value_acro_ext;
+		  break;
+	  }
 	  /* ITU, China, and Japan; yes, J7's CICs are a different size */
       cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
 	  pinfo->circuit_id = cic;
 	  if (isup_show_cic_in_info){
 		  col_add_fstr(pinfo->cinfo, COL_INFO,
 			  "%s (CIC %u) ",
-			  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"),
+			  val_to_str_ext_const(message_type, used_value_string_ext, "reserved"),
 			  cic);
 	  }else{
-		  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_const(message_type, used_value_string_ext, "reserved"));
 	  }
 	  /* In the interest of speed, if "tree" is NULL, don't do any work not
 	   * necessary to generate protocol tree items.
@@ -7853,7 +7865,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  return;
 	  }else if(strstr(content_type_parameter_str,"spirou")){
 		  isup_standard=ITU_STANDARD;
-		  itu_isup_variant = 1; /* ISUP_VARIANT_FRENCH */
+		  itu_isup_variant = ISUP_FRENCH_VARIANT;
 	  }else{
 		  isup_standard=ITU_STANDARD;
 	  }
@@ -8924,6 +8936,12 @@ proto_register_isup(void)
     &ett_isup_apm_msg_fragments,
   };
 
+  static enum_val_t isup_variants[] = {
+    {"ITU Standard",              "ITU Standard",             ISUP_ITU_STANDARD_VARIANT},
+    {"French national Standard",  "French national Standard", ISUP_FRENCH_VARIANT},
+    {NULL, NULL, -1}
+  };
+
 /* Register the protocol name and description */
   proto_isup = proto_register_protocol("ISDN User Part",
                                        "ISUP", "isup");
@@ -8937,6 +8955,11 @@ proto_register_isup(void)
   isup_tap = register_tap("isup");
 
   isup_module = prefs_register_protocol(proto_isup, NULL);
+
+  prefs_register_enum_preference(isup_module, "variant",
+                    "Select Standard or national ISUP variant",
+                    "Note national variants may not be fully supported",
+                    &g_isup_variant, isup_variants, FALSE);
 
 
   prefs_register_bool_preference(isup_module, "show_cic_in_info", "Show CIC in Info column",
