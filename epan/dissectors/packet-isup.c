@@ -60,12 +60,12 @@
 #include <epan/reassemble.h>
 #include <packet-mtp3.h>
 
+#define ISUP_ITU_STANDARD_VARIANT 0
+#define ISUP_FRENCH_VARIANT 1
+
 static gint isup_standard = ITU_STANDARD;
 /* Preference standard or national ISUP variants */
 static gint g_isup_variant = ISUP_ITU_STANDARD_VARIANT;
-
-#define ISUP_ITU_STANDARD_VARIANT 0
-#define ISUP_FRENCH_VARIANT 1
 
 #define ASCII_NUMBER_DELTA              0x30
 #define ASCII_LETTER_DELTA              0x37
