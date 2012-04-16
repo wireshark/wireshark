@@ -36,6 +36,9 @@
  * http://www.itu.int/rec/recommendation.asp?type=products&lang=e&parent=T-REC-Q
  * Q.763-199912, Q.763-200212Amd2
  * ITU-T Q.763/Amd.1 (03/2001)
+ *
+ * National variants
+ * French ISUP Specification: SPIROU 1998 – 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
  */
 
 #ifdef HAVE_CONFIG_H
@@ -58,6 +61,9 @@
 #include <packet-mtp3.h>
 
 static gint isup_standard = ITU_STANDARD;
+
+#define ISUP_ITU_STANDARD_VARIANT 0
+#define ISUP_FRENCH_VARIANT 1
 
 #define ASCII_NUMBER_DELTA              0x30
 #define ASCII_LETTER_DELTA              0x37
@@ -202,6 +208,89 @@ static const value_string isup_message_type_value[] = {
   { 0,                                  NULL}};
 static value_string_ext isup_message_type_value_ext = VALUE_STRING_EXT_INIT(isup_message_type_value);
 
+static const value_string french_isup_message_type_value[] = {
+  { MESSAGE_TYPE_INITIAL_ADDR,                "Initial address"},
+  { MESSAGE_TYPE_SUBSEQ_ADDR,                 "Subsequent address"},
+  { MESSAGE_TYPE_INFO_REQ,                    "Information request (national use)"},
+  { MESSAGE_TYPE_INFO,                        "Information (national use)"},
+  { MESSAGE_TYPE_CONTINUITY,                  "Continuity"},
+  { MESSAGE_TYPE_ADDR_CMPL,                   "Address complete"},
+  { MESSAGE_TYPE_CONNECT,                     "Connect"},
+  { MESSAGE_TYPE_FORW_TRANS,                  "Forward transfer"},
+  { MESSAGE_TYPE_ANSWER,                      "Answer"},
+
+  { 0x0a,                                     "Reserved (used in 1984 version)"},
+  { 0x0b,                                     "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_RELEASE,                     "Release"},
+  { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
+  { MESSAGE_TYPE_RESUME,                      "Resume"},
+  { MESSAGE_TYPE_REL_CMPL,                    "Release complete"},
+  { MESSAGE_TYPE_CONT_CHECK_REQ,              "Continuity check request"},
+  { MESSAGE_TYPE_RESET_CIRCUIT,               "Reset Circuit"},
+  { MESSAGE_TYPE_BLOCKING,                    "Blocking"},
+  { MESSAGE_TYPE_UNBLOCKING,                  "Unblocking"},
+  { MESSAGE_TYPE_BLOCK_ACK,                   "Blocking acknowledgement"},
+  { MESSAGE_TYPE_UNBLOCK_ACK,                 "Unblocking acknowledgment"},
+  { MESSAGE_TYPE_CIRC_GRP_RST,                "Circuit group reset"},
+  { MESSAGE_TYPE_CIRC_GRP_BLCK,               "Circuit group blocking"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL,               "Circuit group unblocking"},
+  { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "Circuit group blocking acknowledgement"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "Circuit group unblocking acknowledgement"},
+
+  { 28,                                      "Reserved (used in 1988 version)"},
+  { 29,                                      "Reserved (used in 1988 version)"},
+  { 30,                                      "Reserved (used in 1988 version)"},
+
+  { MESSAGE_TYPE_FACILITY_REQ,                "Facility request"},
+  { MESSAGE_TYPE_FACILITY_ACC,                "Facility accepted"},
+  { MESSAGE_TYPE_FACILITY_REJ,                "Facility reject"},
+
+  { 34,                                      "Reserved (used in 1984 version)"},
+  { 35,                                      "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_LOOP_BACK_ACK,               "Loop back acknowledgement (national use)"},
+
+  { 37,                                      "Reserved (used in 1984 version)"},
+  { 38,                                      "Reserved (used in 1984 version)"},
+  { 39,                                      "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_PASS_ALONG,                  "Pass-along (national use)"},
+  { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "Circuit group reset acknowledgement"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY,                "Circuit group query (national use)"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY_RSP,            "Circuit group query response (national use)"},
+  { MESSAGE_TYPE_CALL_PROGRSS,                "Call progress"},
+  { MESSAGE_TYPE_USER2USER_INFO,              "User-to-user information"},
+  { MESSAGE_TYPE_UNEQUIPPED_CIC,              "Unequipped CIC (national use)"},
+  { MESSAGE_TYPE_CONFUSION,                   "Confusion"},
+  { MESSAGE_TYPE_OVERLOAD,                    "Overload (national use)"},
+  { MESSAGE_TYPE_CHARGE_INFO,                 "Charge information (national use)"},
+  { MESSAGE_TYPE_NETW_RESRC_MGMT,             "Network resource management"},
+  { MESSAGE_TYPE_FACILITY,                    "Facility"},
+  { MESSAGE_TYPE_USER_PART_TEST,              "User part test"},
+  { MESSAGE_TYPE_USER_PART_AVAIL,             "User part available"},
+  { MESSAGE_TYPE_IDENT_REQ,                   "Identification request"},
+  { MESSAGE_TYPE_IDENT_RSP,                   "Identification response"},
+  { MESSAGE_TYPE_SEGMENTATION,                "Segmentation"},
+
+  { 57,                                       "Reserved (used in B-ISUP)"},
+  { 58,                                       "Reserved (used in B-ISUP)"},
+  { 59,                                       "Reserved (used in B-ISUP)"},
+  { 60,                                       "Reserved (used in B-ISUP)"},
+  { 61,                                       "Reserved (used in B-ISUP)"},
+
+  { 63,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
+  { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,           "Application transport"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,            "Pre-release information"},
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "Subsequent Directory Number (national use)"},
+  { 0xe1,                                     "Charging Pulse"},
+  { 0xe2,                                     "Charging Acknowledge"},
+  { 0,                                  NULL}};
+static value_string_ext french_isup_message_type_value_ext = VALUE_STRING_EXT_INIT(french_isup_message_type_value);
+
 static const value_string ansi_isup_message_type_value[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,                "Initial address"},
   { MESSAGE_TYPE_SUBSEQ_ADDR,                 "Subsequent address"},
@@ -261,6 +350,89 @@ static const value_string ansi_isup_message_type_value[] = {
 static value_string_ext ansi_isup_message_type_value_ext = VALUE_STRING_EXT_INIT(ansi_isup_message_type_value);
 
 /* Same as above but in acronym form (for the Info column) */
+static const value_string french_isup_message_type_value_acro[] = {
+  { MESSAGE_TYPE_INITIAL_ADDR,                "IAM"},
+  { MESSAGE_TYPE_SUBSEQ_ADDR,                 "SAM"},
+  { MESSAGE_TYPE_INFO_REQ,                    "INR"},
+  { MESSAGE_TYPE_INFO,                        "INF"},
+  { MESSAGE_TYPE_CONTINUITY,                  "COT"},
+  { MESSAGE_TYPE_ADDR_CMPL,                   "ACM"},
+  { MESSAGE_TYPE_CONNECT,                     "CON"},
+  { MESSAGE_TYPE_FORW_TRANS,                  "FOT"},
+  { MESSAGE_TYPE_ANSWER,                      "ANM"},
+
+  { 0x0a,                                     "Reserved"},
+  { 0x0b,                                     "Reserved"},
+
+  { MESSAGE_TYPE_RELEASE,                     "REL"},
+  { MESSAGE_TYPE_SUSPEND,                     "SUS"},
+  { MESSAGE_TYPE_RESUME,                      "RES"},
+  { MESSAGE_TYPE_REL_CMPL,                    "RLC"},
+  { MESSAGE_TYPE_CONT_CHECK_REQ,              "CCR"},
+  { MESSAGE_TYPE_RESET_CIRCUIT,               "RSC"},
+  { MESSAGE_TYPE_BLOCKING,                    "BLO"},
+  { MESSAGE_TYPE_UNBLOCKING,                  "UBL"},
+  { MESSAGE_TYPE_BLOCK_ACK,                   "BLA"},
+  { MESSAGE_TYPE_UNBLOCK_ACK,                 "UBLA"},
+  { MESSAGE_TYPE_CIRC_GRP_RST,                "GRS"},
+  { MESSAGE_TYPE_CIRC_GRP_BLCK,               "CGB"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL,               "CGU"},
+  { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "CGBA"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "CGUA"},
+
+  { 28,                                      "Reserved"},
+  { 29,                                      "Reserved"},
+  { 30,                                      "Reserved"},
+
+  { MESSAGE_TYPE_FACILITY_REQ,                "FAR"},
+  { MESSAGE_TYPE_FACILITY_ACC,                "FAA"},
+  { MESSAGE_TYPE_FACILITY_REJ,                "FRJ"},
+
+  { 34,                                      "Reserved"},
+  { 35,                                      "Reserved"},
+
+  { MESSAGE_TYPE_LOOP_BACK_ACK,               "LPA"},
+
+  { 37,                                      "Reserved"},
+  { 38,                                      "Reserved"},
+  { 39,                                      "Reserved"},
+
+  { MESSAGE_TYPE_PASS_ALONG,                  "PAM"},
+  { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "GRA"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY,                "CQM"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY_RSP,            "CQR"},
+  { MESSAGE_TYPE_CALL_PROGRSS,                "CPG"},
+  { MESSAGE_TYPE_USER2USER_INFO,              "UUI"},
+  { MESSAGE_TYPE_UNEQUIPPED_CIC,              "UCIC"},
+  { MESSAGE_TYPE_CONFUSION,                   "CFN"},
+  { MESSAGE_TYPE_OVERLOAD,                    "OLM"},
+  { MESSAGE_TYPE_CHARGE_INFO,                 "CRG"},
+  { MESSAGE_TYPE_NETW_RESRC_MGMT,             "NRM"},
+  { MESSAGE_TYPE_FACILITY,                    "FAC"},
+  { MESSAGE_TYPE_USER_PART_TEST,              "UPT"},
+  { MESSAGE_TYPE_USER_PART_AVAIL,             "UPA"},
+  { MESSAGE_TYPE_IDENT_REQ,                   "IDR"},
+  { MESSAGE_TYPE_IDENT_RSP,                   "IDS"},
+  { MESSAGE_TYPE_SEGMENTATION,                "SGM"},
+
+  { 57,                                       "Reserved"},
+  { 58,                                       "Reserved"},
+  { 59,                                       "Reserved"},
+  { 60,                                       "Reserved"},
+  { 61,                                       "Reserved"},
+
+  { 63,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
+  { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,           "APM"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,            "PRI"},
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "SDN"},
+  { 0xe1,                                     "CHP"},
+  { 0xe2,                                     "CHA"},
+  { 0,                                  NULL}};
+value_string_ext french_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(french_isup_message_type_value_acro);
+
 static const value_string isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,                "IAM"},
   { MESSAGE_TYPE_SUBSEQ_ADDR,                 "SAM"},
@@ -1817,6 +1989,11 @@ static int hf_isup_apm_msg_fragment_error = -1;
 static int hf_isup_apm_msg_fragment_count = -1;
 static int hf_isup_apm_msg_reassembled_in = -1;
 static int hf_isup_apm_msg_reassembled_length = -1;
+
+/* national parameters */
+static int hf_isup_french_coll_field = -1;
+static int hf_isup_french_msg_num = -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_isup                            = -1;
@@ -6946,6 +7123,20 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 
   return offset;
 }
+
+/* Dissect national messages */
+static int
+dissect_french_isup_charging_pulse_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+{
+	gint offset = 0;
+
+	proto_tree_add_item(isup_tree, hf_isup_french_coll_field, message_tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(isup_tree, hf_isup_french_msg_num, message_tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	return offset;
+}
 /* ------------------------------------------------------------------ */
 static void
 dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
@@ -7213,7 +7404,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
-dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
+dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
 {
   isup_tap_rec_t *tap_rec;
 
@@ -7231,10 +7422,20 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   /* Extract message type field */
   message_type = tvb_get_guint8(message_tvb,0);
 
-  proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
-                                 "Message type: %s (%u)",
-                                 val_to_str_ext_const(message_type, &isup_message_type_value_ext, "reserved"),
-                                 message_type);
+  switch(itu_isup_variant){
+  case ISUP_ITU_STANDARD_VARIANT:
+	  proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
+									 "Message type: %s (%u)",
+									 val_to_str_ext_const(message_type, &isup_message_type_value_ext, "reserved"),
+									 message_type);
+	  break;
+  case ISUP_FRENCH_VARIANT:
+	  proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
+									 "Message type: %s (%u)",
+									 val_to_str_ext_const(message_type, &french_isup_message_type_value_ext, "reserved"),
+									 message_type);
+	  break;
+  }
    offset +=  MESSAGE_TYPE_LENGTH;
 
    tap_rec = (isup_tap_rec_t *)ep_alloc(sizeof(isup_tap_rec_t));
@@ -7355,7 +7556,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                                                 val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
                                                 pa_message_type);
         pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
-        dissect_isup_message(parameter_tvb, pinfo, pass_along_tree);
+        dissect_isup_message(parameter_tvb, pinfo, pass_along_tree, itu_isup_variant);
         break;
         }
         case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
@@ -7438,9 +7639,32 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
             proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
         break;
         default:
-        bufferlength = tvb_length_remaining(message_tvb, offset);
-        if (bufferlength != 0)
-            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
+			/* Handle national extensions here */
+			switch(itu_isup_variant){
+				case ISUP_ITU_STANDARD_VARIANT:
+					bufferlength = tvb_length_remaining(message_tvb, offset);
+					if (bufferlength != 0)
+						proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
+					break;
+				case ISUP_FRENCH_VARIANT:
+					 switch (message_type) {
+					 case 0xe1:
+						 /* Charging pulse */
+						 offset += dissect_french_isup_charging_pulse_message(parameter_tvb, isup_tree);
+						 opt_part_possible = TRUE;
+						 break;
+					 case 0xe2:
+						 /* Charging Acknowledgement */
+						 opt_part_possible = TRUE;
+						 break;
+					 default:
+						bufferlength = tvb_length_remaining(message_tvb, offset);
+						if (bufferlength != 0)
+							proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
+							 break;
+						 }
+					break;
+			}
         break;
     }
 
@@ -7477,6 +7701,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *message_tvb;
   guint16 cic;
   guint8 message_type;
+  guint8 itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
 
 /* Make entries in Protocol column and Info column on summary display */
 /* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs
@@ -7535,7 +7760,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
 	  }
 	  message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
-	  dissect_isup_message(message_tvb, pinfo, isup_tree);
+	  dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant);
   }
 }
 
@@ -7590,7 +7815,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   message_tvb = tvb_new_subset_remaining(tvb, BICC_CIC_LENGTH);
-  dissect_isup_message(message_tvb, pinfo, bicc_tree);
+  dissect_isup_message(message_tvb, pinfo, bicc_tree, ISUP_ITU_STANDARD_VARIANT);
   col_set_fence(pinfo->cinfo, COL_INFO);
 }
 
@@ -7603,7 +7828,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *message_tvb;
   guint8 message_type;
   gchar *content_type_parameter_str;
-  guint8 itu_isup_variant = 0; /* Default ITU_STANDARD_VARIANT */
+  guint8 itu_isup_variant = ISUP_ITU_STANDARD_VARIANT; /* Default */
 
   if(pinfo->private_data){
 	  content_type_parameter_str = ascii_strdown_inplace(pinfo->private_data);
@@ -7642,7 +7867,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   message_type = tvb_get_guint8(tvb, 0);
 
   switch(itu_isup_variant){
-  case 0:
+  case ISUP_ITU_STANDARD_VARIANT:
 	  /* Make entries in Protocol column and Info column on summary display */
 	  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ITU)");
 
@@ -7651,14 +7876,14 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						  "ISUP:%s",
 						  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
 	  break;
-  case 1:
+  case ISUP_FRENCH_VARIANT:
 	  /* Make entries in Protocol column and Info column on summary display */
 	  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(French)");
 
 	  /* application/ISUP has no  CIC  */
 	  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
 						  "ISUP:%s",
-						  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
+						  val_to_str_ext_const(message_type, &french_isup_message_type_value_acro_ext, "reserved"));
 	  break;
   }
 
@@ -7670,7 +7895,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   message_tvb = tvb_new_subset_remaining(tvb, 0);
-  dissect_isup_message(message_tvb, pinfo, isup_tree);
+  dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant);
 }
 /* ---------------------------------------------------- stats tree
 */
@@ -8671,7 +8896,16 @@ proto_register_isup(void)
     { &hf_isup_geo_loc_screening_ind,
       { "Calling Geodetic Location screening indicator",  "isup.location_screening_ind",
         FT_UINT8, BASE_DEC, VALS(isup_screening_ind_enhanced_value), BA_8BIT_MASK,        /* using previously defined screening values */
-        NULL, HFILL }}
+        NULL, HFILL }},
+	/* French ISUP parameters */
+    { &hf_isup_french_coll_field,
+      { "Collection field",  "isup.french.coll_field",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isup_french_msg_num,
+      { "Message number",  "isup.french.msg_num",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
   };
 
 /* Setup protocol subtree array */
