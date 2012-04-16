@@ -6947,6 +6947,271 @@ dissect_isup_confusion_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
 }
 /* ------------------------------------------------------------------ */
 static void
+dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
+{
+  isup_tap_rec_t *tap_rec;
+
+  tvbuff_t *parameter_tvb;
+  tvbuff_t *optional_parameter_tvb;
+  proto_item* pass_along_item;
+  proto_tree* pass_along_tree;
+  gint offset, bufferlength;
+  guint8 message_type, opt_parameter_pointer;
+  gint opt_part_possible = FALSE; /* default setting - for message types allowing optional
+                                     params explicitely set to TRUE in case statement */
+  tap_calling_number = NULL;
+  offset = 0;
+
+  /* Extract message type field */
+  message_type = tvb_get_guint8(message_tvb,0);
+
+  proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)",
+                                 val_to_str_ext_const(message_type, &ansi_isup_message_type_value_ext, "reserved"), message_type);
+
+  offset +=  MESSAGE_TYPE_LENGTH;
+
+   tap_rec = (isup_tap_rec_t *)ep_alloc(sizeof(isup_tap_rec_t));
+   tap_rec->message_type = message_type;
+   tap_rec->calling_number = NULL;
+   tap_rec->called_number = NULL;
+
+   parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
+
+   /* distinguish between message types:*/
+    switch (message_type) {
+        case MESSAGE_TYPE_INITIAL_ADDR:
+        offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SUBSEQ_ADDR:
+        offset += dissect_isup_subsequent_address_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_INFO_REQ:
+        offset += dissect_isup_information_request_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_INFO:
+        offset += dissect_isup_information_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_CONTINUITY:
+        offset += dissect_isup_continuity_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_ADDR_CMPL:
+        offset += dissect_isup_address_complete_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_CONNECT:
+        offset += dissect_isup_connect_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FORW_TRANS:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_ANSWER:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_RELEASE:
+        offset += dissect_isup_release_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SUSPEND:
+        offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_RESUME:
+        offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_REL_CMPL:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_CONT_CHECK_REQ:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_RESET_CIRCUIT:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_BLOCKING:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_UNBLOCKING:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_BLOCK_ACK:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_UNBLOCK_ACK:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_RST:
+        offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_BLCK:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_UNBL:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_BL_ACK:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_UNBL_ACK:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_FACILITY_REQ:
+        offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FACILITY_ACC:
+        offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FACILITY_REJ:
+        offset += dissect_isup_facility_reject_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_LOOP_BACK_ACK:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_PASS_ALONG:
+        /* call dissect_isup_message recursively */
+        {
+        guint8 pa_message_type;
+        pa_message_type = tvb_get_guint8(parameter_tvb, 0);
+        pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, -1,
+                                                "Pass-along: %s Message (%u)",
+                                                val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
+                                                pa_message_type);
+        pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
+        dissect_ansi_isup_message(parameter_tvb, pinfo, pass_along_tree);
+        break;
+        }
+        case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
+        offset += dissect_isup_circuit_group_reset_acknowledgement_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_QRY:
+        offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_QRY_RSP:
+        offset += dissect_isup_circuit_group_query_response_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CALL_PROGRSS:
+        offset += dissect_isup_call_progress_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_USER2USER_INFO:
+        offset += dissect_isup_user_to_user_information_message(parameter_tvb, pinfo, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_UNEQUIPPED_CIC:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_CONFUSION:
+        offset += dissect_isup_confusion_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_OVERLOAD:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_CHARGE_INFO:
+        /* do nothing since format is a national matter */
+        bufferlength = tvb_length_remaining(message_tvb, offset);
+        if (bufferlength != 0)
+            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+        break;
+        case MESSAGE_TYPE_NETW_RESRC_MGMT:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FACILITY:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_USER_PART_TEST:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_USER_PART_AVAIL:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_IDENT_REQ:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_IDENT_RSP:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SEGMENTATION:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_LOOP_PREVENTION:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_APPLICATION_TRANS:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_PRE_RELEASE_INFO:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SUBSEQUENT_DIR_NUM:
+        /* do nothing since format is a national matter */
+        bufferlength = tvb_length_remaining(message_tvb, offset);
+        if (bufferlength != 0)
+            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+        break;
+        case ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES_ACK:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES:
+        offset += dissect_ansi_isup_circuit_reservation_message( parameter_tvb, isup_tree );
+        break;
+        case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP:
+        opt_part_possible = TRUE;
+        offset += dissect_ansi_isup_circuit_validation_test_resp_message( parameter_tvb, isup_tree );
+        break;
+        case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        default:
+        bufferlength = tvb_length_remaining(message_tvb, offset);
+        if (bufferlength != 0)
+            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
+        break;
+    }
+
+   /* extract pointer to start of optional part (if any) */
+   if (opt_part_possible == TRUE){
+     opt_parameter_pointer = tvb_get_guint8(message_tvb, offset);
+     if (opt_parameter_pointer > 0){
+       proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
+       offset += opt_parameter_pointer;
+       optional_parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
+       dissect_ansi_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
+     }
+     else
+       proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "No optional parameter present (Pointer: %u)", opt_parameter_pointer);
+   }
+   else if (message_type !=MESSAGE_TYPE_CHARGE_INFO)
+     proto_tree_add_text(isup_tree, message_tvb, 0, 0, "No optional parameters are possible with this message type");
+   /* if there are calling/called number, we'll get them for the tap */
+
+   tap_rec->calling_number=tap_calling_number?tap_calling_number:ep_strdup("");
+   tap_rec->called_number=tap_called_number;
+   tap_rec->cause_value=tap_cause_value;
+   tap_queue_packet(isup_tap, pinfo, tap_rec);
+}
+
+static void
 dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
 {
   isup_tap_rec_t *tap_rec;
@@ -6965,18 +7230,10 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   /* Extract message type field */
   message_type = tvb_get_guint8(message_tvb,0);
 
-  switch (isup_standard){
-    case ITU_STANDARD:
-      proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
+  proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
                                  "Message type: %s (%u)",
                                  val_to_str_ext_const(message_type, &isup_message_type_value_ext, "reserved"),
                                  message_type);
-      break;
-    case ANSI_STANDARD:
-      proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)",
-                                 val_to_str_ext_const(message_type, &ansi_isup_message_type_value_ext, "reserved"), message_type);
-      break;
-  }
    offset +=  MESSAGE_TYPE_LENGTH;
 
    tap_rec = (isup_tap_rec_t *)ep_alloc(sizeof(isup_tap_rec_t));
@@ -6987,422 +7244,204 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
    parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
 
    /* distinguish between message types:*/
-   switch (isup_standard){
-     case ITU_STANDARD:
-       switch (message_type) {
-         case MESSAGE_TYPE_INITIAL_ADDR:
-           offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SUBSEQ_ADDR:
-           offset += dissect_isup_subsequent_address_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_INFO_REQ:
-           offset += dissect_isup_information_request_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_INFO:
-           offset += dissect_isup_information_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_CONTINUITY:
-           offset += dissect_isup_continuity_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_ADDR_CMPL:
-           offset += dissect_isup_address_complete_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_CONNECT:
-           offset += dissect_isup_connect_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FORW_TRANS:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_ANSWER:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_RELEASE:
-           offset += dissect_isup_release_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SUSPEND:
-           offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_RESUME:
-           offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_REL_CMPL:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_CONT_CHECK_REQ:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_RESET_CIRCUIT:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_BLOCKING:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_UNBLOCKING:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_BLOCK_ACK:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_UNBLOCK_ACK:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_RST:
-           offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_BLCK:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_UNBL:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_BL_ACK:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_UNBL_ACK:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_FACILITY_REQ:
-           offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FACILITY_ACC:
-           offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FACILITY_REJ:
-           offset += dissect_isup_facility_reject_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_LOOP_BACK_ACK:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_PASS_ALONG:
-           /* call dissect_isup_message recursively */
-         {
-           guint8 pa_message_type;
-           pa_message_type = tvb_get_guint8(parameter_tvb, 0);
-           pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, -1,
-                                                 "Pass-along: %s Message (%u)",
-                                                 val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
-                                                 pa_message_type);
-           pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
-           dissect_isup_message(parameter_tvb, pinfo, pass_along_tree);
-           break;
-         }
-         case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
-           offset += dissect_isup_circuit_group_reset_acknowledgement_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_QRY:
-           offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_QRY_RSP:
-           offset += dissect_isup_circuit_group_query_response_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CALL_PROGRSS:
-           offset += dissect_isup_call_progress_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_USER2USER_INFO:
-           offset += dissect_isup_user_to_user_information_message(parameter_tvb, pinfo, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_UNEQUIPPED_CIC:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_CONFUSION:
-           offset += dissect_isup_confusion_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_OVERLOAD:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_CHARGE_INFO:
-           /* do nothing since format is a national matter */
-           bufferlength = tvb_length_remaining(message_tvb, offset);
-           if (bufferlength != 0)
-             proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
-           break;
-         case MESSAGE_TYPE_NETW_RESRC_MGMT:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FACILITY:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_USER_PART_TEST:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_USER_PART_AVAIL:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_IDENT_REQ:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_IDENT_RSP:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SEGMENTATION:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_LOOP_PREVENTION:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_APPLICATION_TRANS:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_PRE_RELEASE_INFO:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SUBSEQUENT_DIR_NUM:
-           /* do nothing since format is a national matter */
-           bufferlength = tvb_length_remaining(message_tvb, offset);
-           if (bufferlength != 0)
-             proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
-           break;
-         default:
-           bufferlength = tvb_length_remaining(message_tvb, offset);
-           if (bufferlength != 0)
-             proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
-           break;
-       }
-       break;
-     case ANSI_STANDARD:
-       /* TODO if neccessary make new "dissect_ansi_isup_xxx() routines or add branches in the current ones.
-        */
-       switch (message_type) {
-         case MESSAGE_TYPE_INITIAL_ADDR:
-           offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SUBSEQ_ADDR:
-           offset += dissect_isup_subsequent_address_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_INFO_REQ:
-           offset += dissect_isup_information_request_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_INFO:
-           offset += dissect_isup_information_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_CONTINUITY:
-           offset += dissect_isup_continuity_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_ADDR_CMPL:
-           offset += dissect_isup_address_complete_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_CONNECT:
-           offset += dissect_isup_connect_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FORW_TRANS:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_ANSWER:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_RELEASE:
-           offset += dissect_isup_release_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SUSPEND:
-           offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_RESUME:
-           offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_REL_CMPL:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_CONT_CHECK_REQ:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_RESET_CIRCUIT:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_BLOCKING:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_UNBLOCKING:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_BLOCK_ACK:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_UNBLOCK_ACK:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_RST:
-           offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_BLCK:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_UNBL:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_BL_ACK:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_UNBL_ACK:
-           offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_FACILITY_REQ:
-           offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FACILITY_ACC:
-           offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FACILITY_REJ:
-           offset += dissect_isup_facility_reject_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_LOOP_BACK_ACK:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_PASS_ALONG:
-           /* call dissect_isup_message recursively */
-         {
-           guint8 pa_message_type;
-           pa_message_type = tvb_get_guint8(parameter_tvb, 0);
-           pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, -1,
-                                                 "Pass-along: %s Message (%u)",
-                                                 val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
-                                                 pa_message_type);
-           pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
-           dissect_isup_message(parameter_tvb, pinfo, pass_along_tree);
-           break;
-         }
-         case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
-           offset += dissect_isup_circuit_group_reset_acknowledgement_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_QRY:
-           offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CIRC_GRP_QRY_RSP:
-           offset += dissect_isup_circuit_group_query_response_message(parameter_tvb, isup_tree);
-           break;
-         case MESSAGE_TYPE_CALL_PROGRSS:
-           offset += dissect_isup_call_progress_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_USER2USER_INFO:
-           offset += dissect_isup_user_to_user_information_message(parameter_tvb, pinfo, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_UNEQUIPPED_CIC:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_CONFUSION:
-           offset += dissect_isup_confusion_message(parameter_tvb, isup_tree);
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_OVERLOAD:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case MESSAGE_TYPE_CHARGE_INFO:
-           /* do nothing since format is a national matter */
-           bufferlength = tvb_length_remaining(message_tvb, offset);
-           if (bufferlength != 0)
-             proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
-           break;
-         case MESSAGE_TYPE_NETW_RESRC_MGMT:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_FACILITY:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_USER_PART_TEST:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_USER_PART_AVAIL:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_IDENT_REQ:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_IDENT_RSP:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SEGMENTATION:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_LOOP_PREVENTION:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_APPLICATION_TRANS:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_PRE_RELEASE_INFO:
-           /* no dissector necessary since no mandatory parameters included */
-           opt_part_possible = TRUE;
-           break;
-         case MESSAGE_TYPE_SUBSEQUENT_DIR_NUM:
-           /* do nothing since format is a national matter */
-           bufferlength = tvb_length_remaining(message_tvb, offset);
-           if (bufferlength != 0)
-             proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
-           break;
-         case ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES_ACK:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         case ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES:
-           offset += dissect_ansi_isup_circuit_reservation_message( parameter_tvb, isup_tree );
-           break;
-         case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP:
-           opt_part_possible = TRUE;
-           offset += dissect_ansi_isup_circuit_validation_test_resp_message( parameter_tvb, isup_tree );
-           break;
-         case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST:
-           /* no dissector necessary since no mandatory parameters included */
-           break;
-         default:
-           bufferlength = tvb_length_remaining(message_tvb, offset);
-           if (bufferlength != 0)
-             proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
-           break;
-       }
-       break;
-   }
+    switch (message_type) {
+        case MESSAGE_TYPE_INITIAL_ADDR:
+        offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SUBSEQ_ADDR:
+        offset += dissect_isup_subsequent_address_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_INFO_REQ:
+        offset += dissect_isup_information_request_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_INFO:
+        offset += dissect_isup_information_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_CONTINUITY:
+        offset += dissect_isup_continuity_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_ADDR_CMPL:
+        offset += dissect_isup_address_complete_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_CONNECT:
+        offset += dissect_isup_connect_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FORW_TRANS:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_ANSWER:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_RELEASE:
+        offset += dissect_isup_release_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SUSPEND:
+        offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_RESUME:
+        offset += dissect_isup_suspend_resume_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_REL_CMPL:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_CONT_CHECK_REQ:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_RESET_CIRCUIT:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_BLOCKING:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_UNBLOCKING:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_BLOCK_ACK:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_UNBLOCK_ACK:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_RST:
+        offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_BLCK:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_UNBL:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_BL_ACK:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_UNBL_ACK:
+        offset += dissect_isup_circuit_group_blocking_messages(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_FACILITY_REQ:
+        offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FACILITY_ACC:
+        offset += dissect_isup_facility_request_accepted_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FACILITY_REJ:
+        offset += dissect_isup_facility_reject_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_LOOP_BACK_ACK:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_PASS_ALONG:
+        /* call dissect_isup_message recursively */
+        {
+        guint8 pa_message_type;
+        pa_message_type = tvb_get_guint8(parameter_tvb, 0);
+        pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, -1,
+                                                "Pass-along: %s Message (%u)",
+                                                val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
+                                                pa_message_type);
+        pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
+        dissect_isup_message(parameter_tvb, pinfo, pass_along_tree);
+        break;
+        }
+        case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
+        offset += dissect_isup_circuit_group_reset_acknowledgement_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_QRY:
+        offset += dissect_isup_circuit_group_reset_query_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CIRC_GRP_QRY_RSP:
+        offset += dissect_isup_circuit_group_query_response_message(parameter_tvb, isup_tree);
+        break;
+        case MESSAGE_TYPE_CALL_PROGRSS:
+        offset += dissect_isup_call_progress_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_USER2USER_INFO:
+        offset += dissect_isup_user_to_user_information_message(parameter_tvb, pinfo, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_UNEQUIPPED_CIC:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_CONFUSION:
+        offset += dissect_isup_confusion_message(parameter_tvb, isup_tree);
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_OVERLOAD:
+        /* no dissector necessary since no mandatory parameters included */
+        break;
+        case MESSAGE_TYPE_CHARGE_INFO:
+        /* do nothing since format is a national matter */
+        bufferlength = tvb_length_remaining(message_tvb, offset);
+        if (bufferlength != 0)
+            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+        break;
+        case MESSAGE_TYPE_NETW_RESRC_MGMT:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_FACILITY:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_USER_PART_TEST:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_USER_PART_AVAIL:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_IDENT_REQ:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_IDENT_RSP:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SEGMENTATION:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_LOOP_PREVENTION:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_APPLICATION_TRANS:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_PRE_RELEASE_INFO:
+        /* no dissector necessary since no mandatory parameters included */
+        opt_part_possible = TRUE;
+        break;
+        case MESSAGE_TYPE_SUBSEQUENT_DIR_NUM:
+        /* do nothing since format is a national matter */
+        bufferlength = tvb_length_remaining(message_tvb, offset);
+        if (bufferlength != 0)
+            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+        break;
+        default:
+        bufferlength = tvb_length_remaining(message_tvb, offset);
+        if (bufferlength != 0)
+            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
+        break;
+    }
 
    /* extract pointer to start of optional part (if any) */
    if (opt_part_possible == TRUE){
@@ -7411,14 +7450,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
        offset += opt_parameter_pointer;
        optional_parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
-       switch(isup_standard){
-         case ITU_STANDARD:
-           dissect_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
-           break;
-         case ANSI_STANDARD:
-           dissect_ansi_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
-           break;
-       }
+       dissect_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
      }
      else
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "No optional parameter present (Pointer: %u)", opt_parameter_pointer);
@@ -7445,75 +7477,65 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 cic;
   guint8 message_type;
 
+/* Make entries in Protocol column and Info column on summary display */
+/* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs
+ *    recursive message dissector call
+ */
+/* Extract message type field */
+  message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
+
+  pinfo->ctype = CT_ISUP;
+
   switch(mtp3_standard){
     case ANSI_STANDARD:
       isup_standard = ANSI_STANDARD;
+	  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
+      cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x3FFF; /*since upper 2 bits spare */
+	  pinfo->circuit_id = cic;
+	  if (isup_show_cic_in_info){
+		  col_add_fstr(pinfo->cinfo, COL_INFO,
+			  "%s (CIC %u) ",
+			   val_to_str_ext_const(message_type, &ansi_isup_message_type_value_acro_ext, "reserved"),
+			    cic);
+	  }else{
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_const(message_type, &ansi_isup_message_type_value_acro_ext, "reserved"));
+	  }
+	  /* In the interest of speed, if "tree" is NULL, don't do any work not
+	   * necessary to generate protocol tree items.
+	   */
+	  if (tree) {
+		ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
+		isup_tree = proto_item_add_subtree(ti, ett_isup);
+		proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
+	  }
+	  message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
+	  dissect_ansi_isup_message(message_tvb, pinfo, isup_tree);
       break;
     default:
-      isup_standard = ITU_STANDARD;
-  }
-
-/* Make entries in Protocol column and Info column on summary display */
-  switch (isup_standard){
-    case ITU_STANDARD:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
-      break;
-    case ANSI_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ANSI)");
-      break;
+      isup_standard = ITU_STANDARD;
+	  /* ITU, China, and Japan; yes, J7's CICs are a different size */
+      cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
+	  pinfo->circuit_id = cic;
+	  if (isup_show_cic_in_info){
+		  col_add_fstr(pinfo->cinfo, COL_INFO,
+			  "%s (CIC %u) ",
+			  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"),
+			  cic);
+	  }else{
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
+	  }
+	  /* In the interest of speed, if "tree" is NULL, don't do any work not
+	   * necessary to generate protocol tree items.
+	   */
+	  if (tree) {
+		ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
+		isup_tree = proto_item_add_subtree(ti, ett_isup);
+		proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
+	  }
+	  message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
+	  dissect_isup_message(message_tvb, pinfo, isup_tree);
   }
-
-/* Extract message type field */
-  message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
-  /* dissect CIC in main dissector since pass-along message type carrying complete IUSP message w/o CIC needs
-     recursive message dissector call */
-  if (mtp3_standard == ANSI_STANDARD)
-    cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x3FFF; /*since upper 2 bits spare */
-  else /* ITU, China, and Japan; yes, J7's CICs are a different size */
-    cic = tvb_get_letohs(tvb, CIC_OFFSET) & 0x0FFF; /*since upper 4 bits spare */
-
-  pinfo->ctype = CT_ISUP;
-  pinfo->circuit_id = cic;
-
-  if (isup_show_cic_in_info){
-    switch (isup_standard){
-      case ITU_STANDARD:
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "%s (CIC %u) ",
-                     val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"),
-                     cic);
-        break;
-      case ANSI_STANDARD:
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "%s (CIC %u) ",
-                     val_to_str_ext_const(message_type, &ansi_isup_message_type_value_acro_ext, "reserved"),
-                     cic);
-        break;
-    }
-  }else{
-    switch (isup_standard){
-      case ITU_STANDARD:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
-        break;
-      case ANSI_STANDARD:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext_const(message_type, &ansi_isup_message_type_value_acro_ext, "reserved"));
-        break;
-    }
-  }
-
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-   * necessary to generate protocol tree items.
-   */
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
-    isup_tree = proto_item_add_subtree(ti, ett_isup);
-
-
-    proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
-  }
-
-  message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
-  dissect_isup_message(message_tvb, pinfo, isup_tree);
 }
 
 /* ------------------------------------------------------------------ */
