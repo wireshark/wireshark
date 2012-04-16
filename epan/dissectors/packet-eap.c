@@ -137,13 +137,13 @@ const value_string eap_type_vals[] = {
     { 21,          "Tunneled TLS EAP (EAP-TTLS)" },
     { 22,          "Remote Access Service EAP (EAP-RAS)" },
     { 23,          "UMTS Authentication and Key Agreement EAP (EAP-AKA)" },
-    { 24,          "3Com Wireless EAP (EAP-3COM)" },
+    { 24,          "3Com Wireless EAP (EAP-3COM-WIRELESS)" },
     { 25,          "Protected EAP (EAP-PEAP)" },
     { 26,          "MS-Authentication EAP (EAP-MS-AUTH)" },
     { 27,          "Mutual Authentication w/Key Exchange EAP (EAP-MAKE)" },
     { 28,          "CRYPTOCard EAP (EAP-CRYPTOCARD)" },
     { 29,          "MS-CHAP-v2 EAP (EAP-MS-CHAP-V2)" },
-    { 30,          "DynamID (EAP-DYNAMID)" },
+    { 30,          "DynamID EAP (EAP-DYNAMID)" },
     { 31,          "Rob EAP (EAP-ROB)" },
     { 32,          "Protected One-Time Password EAP (EAP-POTP)" },
     { 33,          "MS-Authentication TLV EAP (EAP-MS-AUTH-TLV)" },
@@ -614,6 +614,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ti = NULL;
   proto_tree *eap_tree = NULL;
   proto_tree *eap_tls_flags_tree = NULL;
+  proto_item *eap_type_item = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -722,7 +723,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         val_to_str(eap_type, eap_type_vals,
                                    "Unknown type (0x%02x)"));
       if (tree)
-        proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, ENC_BIG_ENDIAN);
+        eap_type_item = proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, ENC_BIG_ENDIAN);
 
       if (len > 5 || (len == 5 && eap_type == EAP_TYPE_ID)) {
         int     offset = 5;
@@ -765,6 +766,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       guint8 value_size = tvb_get_guint8(tvb, offset);
       gint extra_len = size - 1 - value_size;
       proto_item *item;
+
+      /* Warn that this is an insecure EAP type. */
+      expert_add_info_format(pinfo, eap_type_item, PI_SECURITY, PI_WARN, "Vulnerable to MITM attacks. If possible, change EAP type.");
+
       item = proto_tree_add_item(eap_tree, hf_eap_md5_value_size, tvb, offset, 1, ENC_BIG_ENDIAN);
       if (value_size > size - 1)
         {
@@ -1024,6 +1029,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case EAP_TYPE_LEAP:
     {
       guint8 count, namesize;
+
+      /* Warn that this is an insecure EAP type. */
+      expert_add_info_format(pinfo, eap_type_item, PI_SECURITY, PI_WARN, "Vulnerable to dictionary attacks. If possible, change EAP type. See http://www.cisco.com/warp/public/cc/pd/witc/ao350ap/prodlit/2331_pp.pdf");
 
       /* Version (byte) */
       if (tree) {
