@@ -38,7 +38,7 @@
  * ITU-T Q.763/Amd.1 (03/2001)
  *
  * National variants
- * French ISUP Specification: SPIROU 1998 – 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
+ * French ISUP Specification: SPIROU 1998 - 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
  */
 
 #ifdef HAVE_CONFIG_H
