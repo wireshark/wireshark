@@ -104,7 +104,8 @@ typedef enum {
 #define PARAM_RELAY_FROM                63998
 #define PARAM_RELAY_TO                  64002
 #define PARAM_RELAY_HMAC                65520
-
+/* HIPv2 */
+#define PARAM_HIP_CIPHER                579
 /* Bit masks */
 #define PARAM_CRITICAL_BIT              0x0001
 /* See RFC 5201 section 5.1 */
@@ -165,6 +166,7 @@ static const value_string hip_param_vals[] = {
         { PARAM_REG_REQUEST, "REG_REQUEST" },
         { PARAM_REG_RESPONSE, "REG_RESPONSE" },
         { PARAM_REG_FROM, "REG_FROM" },
+        { PARAM_HIP_CIPHER, "HIP_CIPHER"},
         { 0, NULL }
 };
 
@@ -272,6 +274,17 @@ static const value_string nat_traversal_mode_vals[] = {
         { 0, NULL }
 };
 
+/* HIPv2 draft Section 5.2.8 */
+static const value_string cipher_vals[] = {
+        { 0x0, "Reserved" },
+        { 0x01, "NULL-ENCRYPT" },
+        { 0x02, "AES-128-CBC" },
+        { 0x03, "3DES-CBC" },
+        { 0x04, "AES-256-CBC" },
+        { 0, NULL }
+};
+
+
 /* functions */
 static int dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len);
 
@@ -311,6 +324,7 @@ static int hf_hip_tlv_dh_pub = -1;
 static int hf_hip_tlv_dh_pv_length = -1;
 static int hf_hip_tlv_trans_id = -1;
 static int hf_hip_tlv_esp_reserved = -1;
+static int hf_hip_tlv_cipher_id = -1;
 static int hf_hip_tlv_host_id_len = -1;
 static int hf_hip_tlv_host_di_type = -1;
 static int hf_hip_tlv_host_di_len = -1;
@@ -858,6 +872,16 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_text(t, tvb, newoffset, tlv_len - 4,
                                     "Encrypted Parameter Data (%u bytes)",  tlv_len - 4);
                 break;
+        case PARAM_HIP_CIPHER:
+                t = proto_item_add_subtree(ti, ett_hip_tlv_data);
+                while (tlv_len > 0) {
+                        /* Suite # 1, 2, ...,  n
+                           two bytes per Cipher Suite id */
+                        proto_tree_add_item(t, hf_hip_tlv_cipher_id, tvb, newoffset, 2, ENC_BIG_ENDIAN);
+                        tlv_len -= 2;
+                        newoffset += 2;
+                }
+                break;
         case PARAM_HOST_ID:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
                 hi_len = tvb_get_ntohs(tvb, newoffset);
@@ -1283,6 +1307,10 @@ proto_register_hip(void)
                 { &hf_hip_tlv_esp_reserved,
                   { "Reserved", "hip.tlv.esp_trans_res",
                     FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_cipher_id,
+                  { "Cipher ID", "hip.tlv.cipher_id",
+                    FT_UINT16, BASE_DEC, VALS(cipher_vals), 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_host_id_len,
                   { "Host Identity Length", "hip.tlv.host_id_length",
