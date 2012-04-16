@@ -2479,11 +2479,8 @@ on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
     GtkListStore *key_list_store=NULL;
 
     GList* wireshark_keys=NULL;
-    guint n_wireshark_keys = 0;
 
     GList* merged_keys=NULL;
-
-    guint n_total_keys=0;
 
     keys_check_w = GTK_WIDGET(user_data);
 
@@ -2491,8 +2488,6 @@ on_keep_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 
     /* Retrieve Wireshark keys */
     wireshark_keys = get_wireshark_keys();
-    n_wireshark_keys = g_list_length(wireshark_keys);
-    n_total_keys += n_wireshark_keys;
 
     merged_keys = merge_key_list(wireshark_keys,NULL);
 

@@ -350,11 +350,6 @@ write_wlan_wep_keys_to_registry(airpcap_if_info_t* info_if, GList* key_list)
     keys_in_list = g_list_length(key_list);
 
     /*
-     * Save the encryption keys, if we have any of them
-     */
-    KeysCollectionSize = 0;
-
-    /*
      * Calculate the size of the keys collection
      */
     KeysCollectionSize = sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey);
@@ -452,11 +447,6 @@ write_wlan_driver_wep_keys_to_registry(GList* key_list)
     for(k = 0; k < n; k++ )
 	if(((decryption_key_t*)g_list_nth_data(key_list,k))->type == AIRPDCAP_KEY_TYPE_WEP)
 	    keys_in_list++;
-
-    /*
-     * Save the encryption keys, if we have any of them
-     */
-    KeysCollectionSize = 0;
 
     /*
      * Calculate the size of the keys collection
@@ -1966,7 +1956,6 @@ merge_key_list(GList* list1, GList* list2)
 
     if(list1 == NULL)
     {
-	n1 = 0;
 	n2 = g_list_length(list2);
 
 	for(i=0;i<n2;i++)
@@ -1987,7 +1976,6 @@ merge_key_list(GList* list1, GList* list2)
     else if(list2 == NULL)
     {
 	n1 = g_list_length(list1);
-	n2 = 0;
 
 	for(i=0;i<n1;i++)
 	{
@@ -2204,7 +2192,6 @@ key_lists_are_equal(GList* list1, GList* list2)
     /* if(n1 != n2) return FALSE; */
     if(wep_n1 != wep_n2) return FALSE;
 
-    n1 = wep_n1;
     n2 = wep_n2;
 
     /*for(i=0;i<n1;i++)
@@ -2326,14 +2313,12 @@ static guint
 set_on_off(pref_t *pref, gpointer ud)
 {
     gboolean *is_on;
-    gboolean number;
 
     /* Retrieve user data info */
     is_on = (gboolean*)ud;
 
     if (g_ascii_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
     {
-	number = *pref->varp.boolp;
 
 	if(*is_on)
 	    *pref->varp.boolp = TRUE;

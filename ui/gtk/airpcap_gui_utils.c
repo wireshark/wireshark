@@ -278,8 +278,6 @@ airpcap_fill_key_list(GtkListStore *key_list_store)
     decryption_key_t* curr_key = NULL;
     GtkTreeIter    iter;
 
-    n = 0;
-
     fake_if_info = airpcap_driver_fake_if_info_new();
 
     /* We can retrieve the driver's key list (i.e. we have the right .dll)*/
@@ -717,11 +715,6 @@ airpcap_add_keys_to_driver_from_list(GtkListStore *key_list_store, airpcap_if_in
     keys_in_list = gtk_tree_model_iter_n_children(model, NULL);
 
     /*
-     * Save the encryption keys, if we have any of them
-     */
-    KeysCollectionSize = 0;
-
-    /*
      * Calculate the size of the keys collection
      */
     KeysCollectionSize = sizeof(AirpcapKeysCollection) + keys_in_list * sizeof(AirpcapKey);
@@ -801,7 +794,6 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
     gboolean items_left;
     gint if_n = 0;
     gint i = 0;
-    gint r = 0;
     airpcap_if_info_t* curr_if = NULL;
     airpcap_if_info_t* fake_info_if = NULL;
     GList* key_list=NULL;
@@ -859,7 +851,7 @@ airpcap_read_and_save_decryption_keys_from_list_store(GtkListStore* key_list_sto
         g_free(tmp_ssid);
     }
 
-    r = save_wlan_wireshark_wep_keys(key_list);
+    save_wlan_wireshark_wep_keys(key_list);
     /* The key_list has been freed!!! */
 
     /*
@@ -910,7 +902,6 @@ airpcap_check_decryption_keys(GList* if_list)
     gint i = 0;
     gint n_adapters_keys = 0;
     gint n_driver_keys = 0;
-    gint n_wireshark_keys = 0;
     airpcap_if_info_t* curr_if = NULL;
 
     GList* wireshark_key_list;
@@ -931,7 +922,6 @@ airpcap_check_decryption_keys(GList* if_list)
 
     /* Get Wireshark preferences keys */
     wireshark_key_list = get_wireshark_keys();
-    n_wireshark_keys = g_list_length(wireshark_key_list);
 
     /* Retrieve AirPcap driver's keys */
     driver_key_list = get_airpcap_driver_keys();
@@ -973,7 +963,6 @@ airpcap_load_decryption_keys(GList* if_list)
 {
     gint if_n = 0;
     gint i = 0;
-    airpcap_if_info_t* curr_if = NULL;
 
     if(if_list == NULL) return;
 
@@ -981,7 +970,6 @@ airpcap_load_decryption_keys(GList* if_list)
 
     for(i = 0; i < if_n; i++)
     {
-        curr_if = (airpcap_if_info_t*)g_list_nth_data(if_list,i);
         load_wlan_driver_wep_keys();
     }
 }
@@ -994,7 +982,6 @@ void
 airpcap_save_decryption_keys(GList* key_list, GList* adapters_list)
 {
     gint if_n = 0;
-    gint key_n = 0;
     gint i = 0;
     airpcap_if_info_t* curr_if = NULL;
     GList* empty_key_list = NULL;
@@ -1002,7 +989,6 @@ airpcap_save_decryption_keys(GList* key_list, GList* adapters_list)
     if( (key_list == NULL) || (adapters_list == NULL)) return;
 
     if_n = g_list_length(adapters_list);
-    key_n = g_list_length(key_list);
 
     /* Set the driver's global list of keys. */
     write_wlan_driver_wep_keys_to_registry(key_list);
