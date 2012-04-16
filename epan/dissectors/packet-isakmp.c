@@ -3435,7 +3435,6 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_key_length, tvb, offset, optlen, ENC_BIG_ENDIAN);
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
 		break;
-		break;
 	default:
 		/* No Default Action */
 		break;

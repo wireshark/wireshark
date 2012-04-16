@@ -2227,7 +2227,6 @@ dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
             offset += 4;
             /* TODO - mode dependent, there may be more data here */
             break;
-            break;
         case SPICE_PLAYBACK_MODE:
             proto_tree_add_item(tree, hf_playback_record_mode_timstamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;

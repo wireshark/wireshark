@@ -1425,7 +1425,6 @@ protocolinfo_init(char *field)
                    ftenum_to_string(hfi),
                    absolute_time_display_e_to_string(hfi->display));
             break;
-            break;
 
         default:
             printf("%u %s %s - ",

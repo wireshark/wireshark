@@ -418,7 +418,6 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 				}
 				else if (force_separators) {
 					return FALSE;
-					break;
 				}
 			}
 			p = punct;
@@ -450,7 +449,6 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
 				}
 				else if (force_separators) {
 					return FALSE;
-					break;
 				}
 			}
 			p = punct;

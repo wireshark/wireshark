@@ -496,7 +496,6 @@ find_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
           dbg(10,"B%d ", p_tcaphash_begincall->context->session_id);
 #endif
           return p_tcaphash_begincall;
-          break;
         }
 #ifdef DEBUG_TCAPSRT
       dbg(60,"[B%d] ", p_tcaphash_begincall->context->session_id);
@@ -538,7 +537,6 @@ find_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
 	  dbg(10,"C%d ", p_tcaphash_contcall->context->session_id);
 #endif
 	  return p_tcaphash_contcall;
-	  break;
 	}
 #ifdef DEBUG_TCAPSRT
 	dbg(60,"[C%d] ", p_tcaphash_contcall->context->session_id);
@@ -585,7 +583,6 @@ find_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
 	  dbg(10,"E%d ", p_tcaphash_endcall->context->session_id);
 #endif
 	  return p_tcaphash_endcall;
-	  break;
 	}
 #ifdef DEBUG_TCAPSRT
 	  dbg(60,"[E%d] ", p_tcaphash_endcall->context->session_id);

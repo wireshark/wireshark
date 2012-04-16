@@ -1408,11 +1408,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       int i;
       emem_strbuf_t *bitnames = ep_strbuf_new_label(NULL);
 
-      if (rr_len < 4) {
-
+      if (rr_len < 4)
 	  goto bad_rr;
-	break;
-      }
       wks_addr = tvb_ip_to_str(tvb, cur_offset);
       if (cinfo != NULL)
 	col_append_fstr(cinfo, COL_INFO, " %s", wks_addr);

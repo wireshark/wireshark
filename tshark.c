@@ -1338,7 +1338,6 @@ main(int argc, char *argv[])
       g_string_free(comp_info_str, TRUE);
       g_string_free(runtime_info_str, TRUE);
       return 0;
-      break;
     }
     case 'O':        /* Only output these protocols */
       output_only = g_strdup(optarg);

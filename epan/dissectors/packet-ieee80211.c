@@ -6301,8 +6301,8 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
           default:
           /* No default Action */
           break;
-        break;
         } /* End switch(subtype) */
+        break;
         default:
         /* No default Action */
         break;

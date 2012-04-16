@@ -4549,7 +4549,7 @@ elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 o
     case 7: str = "International network"; break;
     case 10: str = "Network beyond interworking point"; break;
     default:
-        str = "Reserved"; break;
+        str = "Reserved";
         break;
     }
 
