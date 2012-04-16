@@ -45,6 +45,7 @@
 #include <epan/packet.h>
 #include <epan/stats_tree.h>
 #include <epan/asn1.h>
+#include <wsutil/str_util.h>
 #include <prefs.h>
 #include "packet-q931.h"
 #include "packet-isup.h"
@@ -7601,16 +7602,65 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *isup_tree = NULL;
   tvbuff_t *message_tvb;
   guint8 message_type;
+  gchar *content_type_parameter_str;
+  guint8 itu_isup_variant = 0; /* Default ITU_STANDARD_VARIANT */
 
-/* Make entries in Protocol column and Info column on summary display */
-  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ITU)");
+  if(pinfo->private_data){
+	  content_type_parameter_str = ascii_strdown_inplace(pinfo->private_data);
+	  if(strstr(content_type_parameter_str,"ansi")){
+		  isup_standard=ANSI_STANDARD;
+		  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ANSI)");
+		  message_type = tvb_get_guint8(tvb, 0);
+		  /* application/ISUP has no  CIC  */
+		  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
+			  "ISUP:%s",
+			  val_to_str_ext_const(message_type, &ansi_isup_message_type_value_acro_ext, "reserved"));
+			 /* In the interest of speed, if "tree" is NULL, don't do any work not
+			  * necessary to generate protocol tree items.
+			  */
+			  if (tree) {
+				ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
+				isup_tree = proto_item_add_subtree(ti, ett_isup);
+			  }
+
+			  message_tvb = tvb_new_subset_remaining(tvb, 0);
+			  dissect_ansi_isup_message(message_tvb, pinfo, isup_tree);
+			  return;
+	  }else if(strstr(content_type_parameter_str,"spirou")){
+		  isup_standard=ITU_STANDARD;
+		  itu_isup_variant = 1; /* ISUP_VARIANT_FRENCH */
+	  }else{
+		  isup_standard=ITU_STANDARD;
+	  }
+  }else{
+	  /* default to ITU */
+	  isup_standard=ITU_STANDARD;
+  }
+
 
 /* Extract message type field */
   message_type = tvb_get_guint8(tvb, 0);
-  /* application/ISUP has no  CIC  */
-  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
-                      "ISUP:%s",
-                      val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
+
+  switch(itu_isup_variant){
+  case 0:
+	  /* Make entries in Protocol column and Info column on summary display */
+	  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ITU)");
+
+	  /* application/ISUP has no  CIC  */
+	  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
+						  "ISUP:%s",
+						  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
+	  break;
+  case 1:
+	  /* Make entries in Protocol column and Info column on summary display */
+	  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(French)");
+
+	  /* application/ISUP has no  CIC  */
+	  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
+						  "ISUP:%s",
+						  val_to_str_ext_const(message_type, &isup_message_type_value_acro_ext, "reserved"));
+	  break;
+  }
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
