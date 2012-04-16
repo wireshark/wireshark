@@ -819,7 +819,7 @@ proto_register_amr(void)
 	prefs_register_enum_preference(amr_module, "encoding.version",
 				       "Type of AMR encoding of the payload",
 				       "Type of AMR encoding of the payload",
-				       &amr_encoding_type, encoding_types, ENC_BIG_ENDIAN);
+				       &amr_encoding_type, encoding_types, FALSE);
 
 	prefs_register_enum_preference(amr_module, "mode",
 				       "The AMR mode",
