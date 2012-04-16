@@ -1132,7 +1132,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_relay_from_reserved, tvb, newoffset, 1, ENC_BIG_ENDIAN);
                 newoffset += 1;
                 /* Address */
-                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, ENC_NA);
+                proto_tree_add_item(t, hf_hip_tlv_relay_from_address, tvb, newoffset, 16, ENC_NA);
                 break;
         case PARAM_RELAY_TO:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -1585,3 +1585,15 @@ proto_reg_handoff_hip(void)
         hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
         dissector_add_uint("udp.port", 10500, hip_handle2);
 }
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 expandtab:
+ * :indentSize=8:tabSize=8:noTabs=true:
+ */
