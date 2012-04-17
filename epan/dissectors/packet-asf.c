@@ -235,6 +235,8 @@ dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 			plen, "%s: %u bytes",
 			val_to_str(ptype, asf_payload_type_vals, "Unknown (%u)"), plen);
 		ptree = proto_item_add_subtree(ti, ett_asf_payload);
+		if (0==plen)
+			break;
 		proto_tree_add_item(ptree, hf_asf_payload_type, tvb, offset, 1,ENC_BIG_ENDIAN);
 		proto_tree_add_item(ptree, hf_asf_payload_len, tvb, offset + 2, 2,ENC_BIG_ENDIAN);
 		if ( ptype && (plen > 4) )
