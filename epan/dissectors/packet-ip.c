@@ -452,149 +452,110 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
 
 #ifdef HAVE_GEOIP
 static void
+add_geoip_info_entry(proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, guint32 ip, int isdst)
+{
+  proto_tree *geoip_info_tree;
+
+  guint num_dbs = geoip_db_num_dbs();
+  guint item_cnt = 0;
+  guint dbnum;
+
+  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
+
+  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
+    const char *geoip_str = geoip_db_lookup_ipv4(dbnum, ip, NULL);
+    int db_type = geoip_db_type(dbnum);
+
+    int geoip_hf, geoip_local_hf;
+
+    switch (db_type) {
+      case GEOIP_COUNTRY_EDITION:
+        geoip_hf = hf_geoip_country;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_country : hf_geoip_src_country;
+        break;
+      case GEOIP_CITY_EDITION_REV0:
+        geoip_hf = hf_geoip_city;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_city : hf_geoip_src_city;
+        break;
+      case GEOIP_CITY_EDITION_REV1:
+        geoip_hf = hf_geoip_city;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_city : hf_geoip_src_city;
+        break;
+      case GEOIP_ORG_EDITION:
+        geoip_hf = hf_geoip_org;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_org : hf_geoip_src_org;
+        break;
+      case GEOIP_ISP_EDITION:
+        geoip_hf = hf_geoip_isp;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_isp : hf_geoip_src_isp;
+        break;
+      case GEOIP_ASNUM_EDITION:
+        geoip_hf = hf_geoip_asnum;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_asnum : hf_geoip_src_asnum;
+        break;
+      case WS_LAT_FAKE_EDITION:
+        geoip_hf = hf_geoip_lat;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_lat : hf_geoip_src_lat;
+        break;
+      case WS_LON_FAKE_EDITION:
+        geoip_hf = hf_geoip_lon;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_lon : hf_geoip_src_lon;
+        break;
+      default:
+        continue;
+        break;
+    }
+
+    if (geoip_str) {
+      proto_item *item;
+      if (db_type == WS_LAT_FAKE_EDITION || db_type == WS_LON_FAKE_EDITION) {
+        /* Convert latitude, longitude to double. Fix bug #5077 */
+        item = proto_tree_add_double_format_value(geoip_info_tree, geoip_local_hf,
+          tvb, offset, 4, g_ascii_strtod(geoip_str, NULL), "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_double_format_value(geoip_info_tree, geoip_hf,
+          tvb, offset, 4, g_ascii_strtod(geoip_str, NULL), "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_HIDDEN(item);
+      } else {
+        item = proto_tree_add_string_format_value(geoip_info_tree, geoip_local_hf,
+          tvb, offset, 4, geoip_str, "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf,
+          tvb, offset, 4, geoip_str, "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_HIDDEN(item);
+      }
+
+      item_cnt++;
+      proto_item_append_text(geoip_info_item, "%s%s",
+                             plurality(item_cnt, "", ", "), geoip_str);
+    }
+  }
+
+  if (item_cnt == 0)
+    proto_item_append_text(geoip_info_item, "Unknown");
+}
+
+static void
 add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 src32,
                guint32 dst32)
 {
-  guint dbnum, num_dbs;
-  int geoip_hf, geoip_src_hf, geoip_dst_hf;
-  const char *geoip_src_str, *geoip_dst_str;
+  guint num_dbs;
   proto_item *geoip_info_item;
-  proto_tree *geoip_info_tree;
-  proto_item *item;
-  guint item_cnt;
 
   num_dbs = geoip_db_num_dbs();
   if (num_dbs < 1)
     return;
 
   geoip_info_item = proto_tree_add_text(tree, tvb, offset + IPH_SRC, 4, "Source GeoIP: ");
-  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
   PROTO_ITEM_SET_GENERATED(geoip_info_item);
-  item_cnt = 0;
-
-  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
-    geoip_src_str = geoip_db_lookup_ipv4(dbnum, src32, NULL);
-
-    switch (geoip_db_type(dbnum)) {
-      case GEOIP_COUNTRY_EDITION:
-        geoip_hf = hf_geoip_country;
-        geoip_src_hf = hf_geoip_src_country;
-        break;
-      case GEOIP_CITY_EDITION_REV0:
-        geoip_hf = hf_geoip_city;
-        geoip_src_hf = hf_geoip_src_city;
-        break;
-      case GEOIP_CITY_EDITION_REV1:
-        geoip_hf = hf_geoip_city;
-        geoip_src_hf = hf_geoip_src_city;
-        break;
-      case GEOIP_ORG_EDITION:
-        geoip_hf = hf_geoip_org;
-        geoip_src_hf = hf_geoip_src_org;
-        break;
-      case GEOIP_ISP_EDITION:
-        geoip_hf = hf_geoip_isp;
-        geoip_src_hf = hf_geoip_src_isp;
-        break;
-      case GEOIP_ASNUM_EDITION:
-        geoip_hf = hf_geoip_asnum;
-        geoip_src_hf = hf_geoip_src_asnum;
-        break;
-      case WS_LAT_FAKE_EDITION:
-        geoip_hf = hf_geoip_lat;
-        geoip_src_hf = hf_geoip_src_lat;
-        break;
-      case WS_LON_FAKE_EDITION:
-        geoip_hf = hf_geoip_lon;
-        geoip_src_hf = hf_geoip_src_lon;
-        break;
-      default:
-        continue;
-        break;
-    }
-
-    if (geoip_src_str) {
-      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_src_hf,
-        tvb, offset + IPH_SRC, 4, geoip_src_str, "%s", geoip_src_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf,
-        tvb, offset + IPH_SRC, 4, geoip_src_str, "%s", geoip_src_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
-
-      item_cnt++;
-      proto_item_append_text(geoip_info_item, "%s%s",
-                             plurality(item_cnt, "", ", "), geoip_src_str);
-    }
-  }
-
-  if (item_cnt == 0)
-    proto_item_append_text(geoip_info_item, "Unknown");
+  add_geoip_info_entry(geoip_info_item, tvb, offset + IPH_SRC, src32, 0);
 
   geoip_info_item = proto_tree_add_text(tree, tvb, offset + IPH_DST, 4,
                                         "Destination GeoIP: ");
-  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
   PROTO_ITEM_SET_GENERATED(geoip_info_item);
-  item_cnt = 0;
-
-  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
-    geoip_dst_str = geoip_db_lookup_ipv4(dbnum, dst32, NULL);
-
-    switch (geoip_db_type(dbnum)) {
-      case GEOIP_COUNTRY_EDITION:
-        geoip_hf = hf_geoip_country;
-        geoip_dst_hf = hf_geoip_dst_country;
-        break;
-      case GEOIP_CITY_EDITION_REV0:
-        geoip_hf = hf_geoip_city;
-        geoip_dst_hf = hf_geoip_dst_city;
-        break;
-      case GEOIP_CITY_EDITION_REV1:
-        geoip_hf = hf_geoip_city;
-        geoip_dst_hf = hf_geoip_dst_city;
-        break;
-      case GEOIP_ORG_EDITION:
-        geoip_hf = hf_geoip_org;
-        geoip_dst_hf = hf_geoip_dst_org;
-        break;
-      case GEOIP_ISP_EDITION:
-        geoip_hf = hf_geoip_isp;
-        geoip_dst_hf = hf_geoip_dst_isp;
-        break;
-      case GEOIP_ASNUM_EDITION:
-        geoip_hf = hf_geoip_asnum;
-        geoip_dst_hf = hf_geoip_dst_asnum;
-        break;
-      case WS_LAT_FAKE_EDITION:
-        geoip_hf = hf_geoip_lat;
-        geoip_dst_hf = hf_geoip_dst_lat;
-        break;
-      case WS_LON_FAKE_EDITION:
-        geoip_hf = hf_geoip_lon;
-        geoip_dst_hf = hf_geoip_dst_lon;
-        break;
-      default:
-        continue;
-        break;
-    }
-
-    if (geoip_dst_str) {
-      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_dst_hf,
-        tvb, offset + IPH_DST, 4, geoip_dst_str, "%s", geoip_dst_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf,
-        tvb, offset + IPH_DST, 4, geoip_dst_str, "%s", geoip_dst_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
-
-      item_cnt++;
-      proto_item_append_text(geoip_info_item, "%s%s",
-                             plurality(item_cnt, "", ", "), geoip_dst_str);
-    }
-  }
-
-  if (item_cnt == 0)
-    proto_item_append_text(geoip_info_item, "Unknown");
+  add_geoip_info_entry(geoip_info_item, tvb, offset + IPH_DST, dst32, 1);
 }
 #endif /* HAVE_GEOIP */
 
@@ -2277,10 +2238,10 @@ proto_register_ip(void)
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_lat,
       { "Source or Destination GeoIP Latitude", "ip.geoip.lat",
-        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_lon,
       { "Source or Destination GeoIP Longitude", "ip.geoip.lon",
-        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_country,
       { "Source GeoIP Country", "ip.geoip.src_country",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2298,10 +2259,10 @@ proto_register_ip(void)
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_lat,
       { "Source GeoIP Latitude", "ip.geoip.src_lat",
-        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_lon,
       { "Source GeoIP Longitude", "ip.geoip.src_lon",
-        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_country,
       { "Destination GeoIP Country", "ip.geoip.dst_country",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2319,10 +2280,10 @@ proto_register_ip(void)
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_lat,
       { "Destination GeoIP Latitude", "ip.geoip.dst_lat",
-        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_lon,
       { "Destination GeoIP Longitude", "ip.geoip.dst_lon",
-        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 #endif /* HAVE_GEOIP */
 
     { &hf_ip_flags,
