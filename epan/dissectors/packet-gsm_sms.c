@@ -2672,15 +2672,13 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                              " (Short Message fragment %u of %u)", g_frag, g_frags);
         }
 
-        if (seven_bit) {
-            /* Store udl and length for later decoding of reassembled SMS */
-            p_frag_params = se_alloc0(sizeof(sm_fragment_params));
-            p_frag_params->udl = udl;
-            p_frag_params->length = length;
-            g_hash_table_insert(g_sm_fragment_params_table,
-                                GUINT_TO_POINTER((guint)((g_sm_id<<16)|(g_frag-1))),
-                                p_frag_params);
-        }
+        /* Store udl and length for later decoding of reassembled SMS */
+        p_frag_params = se_alloc0(sizeof(sm_fragment_params));
+        p_frag_params->udl = udl;
+        p_frag_params->length = length;
+        g_hash_table_insert(g_sm_fragment_params_table,
+                            GUINT_TO_POINTER((guint)((g_sm_id<<16)|(g_frag-1))),
+                            p_frag_params);
     } /* Else: not fragmented */
     if (! sm_tvb) /* One single Short Message, or not reassembled */
         sm_tvb = tvb_new_subset_remaining (tvb, offset);
@@ -2719,17 +2717,19 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                     p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
                                                             GUINT_TO_POINTER((guint)((g_sm_id<<16)|i)));
 
-                    out_len =
-                        gsm_sms_char_7bit_unpack(fill_bits, p_frag_params->length,
-                            (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
-                            tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
-
-                    messagebuf[out_len] = '\0';
-                    proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
-                                          total_sms_len, p_frag_params->length,
-                                          gsm_sms_chars_to_utf8(messagebuf, out_len));
-
-                    total_sms_len += p_frag_params->length;
+                    if (p_frag_params) {
+                        out_len =
+                            gsm_sms_char_7bit_unpack(fill_bits, p_frag_params->length,
+                                (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
+                                tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
+    
+                        messagebuf[out_len] = '\0';
+                        proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
+                                              total_sms_len, p_frag_params->length,
+                                              gsm_sms_chars_to_utf8(messagebuf, out_len));
+    
+                        total_sms_len += p_frag_params->length;
+                    }
                 }
             }
         }
