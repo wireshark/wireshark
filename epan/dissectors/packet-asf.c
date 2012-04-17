@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/sminmpec.h>
 
 /*
@@ -136,12 +137,12 @@ static const value_string asf_integrity_type_vals[] = {
 	{ 0x00, NULL }
 };
 
-static void dissect_asf_open_session_request(tvbuff_t *tvb, proto_tree *tree,
-	gint offset, gint len);
-static void dissect_asf_open_session_response(tvbuff_t *tvb, proto_tree *tree,
-	gint offset, gint len);
-static void dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
-	gint offset, gint len);
+static void dissect_asf_open_session_request(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, gint offset, gint len);
+static void dissect_asf_open_session_response(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, gint offset, gint len);
+static void dissect_asf_payloads(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, gint offset, gint len);
 static void dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len);
 static void dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
@@ -178,10 +179,10 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (len) {
 		switch(type) {
 		case ASF_TYPE_OPEN_SESS_RQST:
-			dissect_asf_open_session_request(tvb, asf_tree, 8, len);
+			dissect_asf_open_session_request(tvb, pinfo, asf_tree, 8, len);
 			break;
 		case ASF_TYPE_OPEN_SESS_RESP:
-			dissect_asf_open_session_response(tvb, asf_tree, 8, len);
+			dissect_asf_open_session_response(tvb, pinfo, asf_tree, 8, len);
 			break;
 
 		/* TODO: Add the rest as captures become available to test. */
@@ -196,29 +197,29 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_asf_open_session_request(tvbuff_t *tvb, proto_tree *tree,
-	gint offset, gint len)
+dissect_asf_open_session_request(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, gint offset, gint len)
 {
 	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset, 4,ENC_BIG_ENDIAN);
 	offset += 4;
 	len    -= 4;
-	dissect_asf_payloads(tvb, tree, offset, len);
+	dissect_asf_payloads(tvb, pinfo, tree, offset, len);
 }
 
 static void
-dissect_asf_open_session_response(tvbuff_t *tvb, proto_tree *tree,
-	gint offset, gint len)
+dissect_asf_open_session_response(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, gint offset, gint len)
 {
 	proto_tree_add_item(tree, hf_asf_rssp_status_code, tvb, offset, 1,ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset + 4, 4,ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_asf_client_id, tvb, offset + 8, 4,ENC_BIG_ENDIAN);
 	offset += 12;
 	len    -= 12;
-	dissect_asf_payloads(tvb, tree, offset, len);
+	dissect_asf_payloads(tvb, pinfo, tree, offset, len);
 }
 
 static void
-dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
+dissect_asf_payloads(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gint offset, gint len)
 {
 	guint8      ptype;
@@ -235,10 +236,15 @@ dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 			plen, "%s: %u bytes",
 			val_to_str(ptype, asf_payload_type_vals, "Unknown (%u)"), plen);
 		ptree = proto_item_add_subtree(ti, ett_asf_payload);
-		if (0==plen)
-			break;
 		proto_tree_add_item(ptree, hf_asf_payload_type, tvb, offset, 1,ENC_BIG_ENDIAN);
-		proto_tree_add_item(ptree, hf_asf_payload_len, tvb, offset + 2, 2,ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(ptree, hf_asf_payload_len, tvb, offset + 2, 2,ENC_BIG_ENDIAN);
+		if (plen < 4)
+		{
+			expert_add_info_format(pinfo, ti, PI_MALFORMED,
+			    PI_ERROR,
+			    "Payload length too short to include the type and length");
+			break;
+		}
 		if ( ptype && (plen > 4) )
 		{
 			switch ( ptype )
