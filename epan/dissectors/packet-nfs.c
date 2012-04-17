@@ -8084,7 +8084,6 @@ static value_string_ext names_nfsv4_operation_ext = VALUE_STRING_EXT_INIT(names_
 static gint *nfsv4_operation_ett[] =
 {
 	 &ett_nfs_access4 ,
-	 &ett_nfs_access_supp4,
 	 &ett_nfs_close4 ,
 	 &ett_nfs_commit4 ,
 	 &ett_nfs_create4 ,
