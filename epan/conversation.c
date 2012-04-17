@@ -493,6 +493,110 @@ conversation_init(void)
 }
 
 /*
+ * Does the right thing when inserting into one of the conversation hash tables,
+ * taking into account ordering and hash chains and all that good stuff.
+ *
+ * Mostly adapted from the old conversation_new().
+ */
+void
+conversation_insert_into_hashtable(GHashTable *hashtable, conversation_t *conv)
+{
+	conversation_t *chain_head, *chain_tail, *cur, *prev;
+
+	chain_head = g_hash_table_lookup(hashtable, conv->key_ptr);
+
+	if (NULL==chain_head) {
+		/* New entry */
+		conv->next = NULL;
+		conv->last = conv;
+		g_hash_table_insert(hashtable, conv->key_ptr, conv);
+	}
+	else {
+		/* There's an existing chain for this key */
+
+		chain_tail = chain_head->last;
+
+		if(conv->setup_frame >= chain_tail->setup_frame) {
+			/* This convo belongs at the end of the chain */
+			conv->next = NULL;
+			conv->last = NULL;
+			chain_tail->next = conv;
+			chain_head->last = conv;
+		}
+		else {
+			/* Loop through the chain to find the right spot */
+			cur = chain_head;
+			prev = NULL;
+
+			for (; (conv->setup_frame > cur->setup_frame) && cur->next; prev=cur, cur=cur->next)
+				;
+
+			if (NULL==prev) {
+				/* Changing the head of the chain */
+				conv->next = chain_head;
+				conv->last = chain_tail;
+				chain_head->last = NULL;
+				g_hash_table_insert(hashtable, conv->key_ptr, conv);
+			}
+			else {
+				/* Inserting into the middle of the chain */
+				conv->next = cur;
+				conv->last = NULL;
+				prev->next = conv;
+			}
+		}
+	}
+}
+
+/*
+ * Does the right thing when removing from one of the conversation hash tables,
+ * taking into account ordering and hash chains and all that good stuff.
+ */
+void
+conversation_remove_from_hashtable(GHashTable *hashtable, conversation_t *conv)
+{
+	conversation_t *chain_head, *cur, *prev;
+
+	chain_head = g_hash_table_lookup(hashtable, conv->key_ptr);
+
+	if (conv == chain_head) {
+		/* We are currently the front of the chain */
+		if (NULL == conv->next) {
+			/* We are the only conversation in the chain */
+			g_hash_table_remove(hashtable, conv->key_ptr);
+		}
+		else {
+			/* Update the head of the chain */
+			chain_head = conv->next;
+			chain_head->last = conv->last;
+			g_hash_table_insert(hashtable, chain_head->key_ptr, chain_head);
+		}
+	}
+	else {
+		/* We are not the front of the chain. Loop through to find us.
+		 * Start loop at chain_head->next rather than chain_head because
+		 * we already know we're not at the head. */
+		cur = chain_head->next;
+		prev = chain_head;
+
+		for (; (cur != conv) && cur->next; prev=cur, cur=cur->next)
+			;
+
+		if (cur != conv) {
+			/* XXX: Conversation not found. Wrong hashtable? */
+			return;
+		}
+
+		prev->next = conv->next;
+
+		if (NULL == conv->next) {
+			/* We're at the very end of the list. */
+			chain_head->last = prev;
+		}
+	}
+}
+
+/*
  * Given two address/port pairs for a packet, create a new conversation
  * to contain packets between those address/port pairs.
  *
@@ -509,10 +613,8 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 				"A conversation template may not be constructed without wildcard options");
 */
 	GHashTable* hashtable;
-	conversation_t *conversation=NULL, *prev=NULL;
-	conversation_key existing_key;
+	conversation_t *conversation=NULL;
 	conversation_key *new_key;
-	guint conv_in_ht=0;
 
 	if (options & NO_ADDR2) {
 		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
@@ -528,16 +630,6 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 		}
 	}
 
-	existing_key.addr1 = *addr1;
-	existing_key.addr2 = *addr2;
-	existing_key.ptype = ptype;
-	existing_key.port1 = port1;
-	existing_key.port2 = port2;
-
-	conversation = g_hash_table_lookup(hashtable, &existing_key);
-	if(NULL!=conversation)
-		conv_in_ht=1;
-
 	new_key = se_alloc(sizeof(struct conversation_key));
 	new_key->next = conversation_keys;
 	conversation_keys = new_key;
@@ -547,37 +639,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key->port1 = port1;
 	new_key->port2 = port2;
 
-	if (conversation) {
-		/* the list is ordered on setup_frame */
-		if(setup_frame>=conversation->last->setup_frame) {
-			/* add it to the end */
-			conversation->last->next=se_alloc(sizeof(conversation_t));
-			prev=conversation->last->next;
-			prev->next=NULL;
-			conversation->last=prev;
-			conversation = prev;
-		} else {
-			for (prev=NULL; (setup_frame>conversation->setup_frame) && conversation->next; prev=conversation, conversation = conversation->next)
-				;
-			if(prev) {
-				prev->next = se_alloc(sizeof(conversation_t));
-				prev->next->next = conversation;
-				conversation = prev->next;
-			} else {
-				/* change the head of the list */
-				prev = se_alloc(sizeof(conversation_t));
-				prev->next = conversation;
-				prev->last = conversation->last;
-				conversation->last=NULL;
-				conversation = prev;
-				conv_in_ht=0;
-			}
-		}
-	} else {
-		conversation = se_alloc(sizeof(conversation_t));
-		conversation->next = NULL;
-		conversation->last = conversation;
-	}
+	conversation = se_alloc(sizeof(conversation_t)); 
 
 	conversation->index = new_index;
 	conversation->setup_frame = setup_frame;
@@ -592,10 +654,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 
 	new_index++;
 
-	/* only insert a hash table entry if this
-	 * is the first conversation with this key */
-	if (!conv_in_ht)
-		g_hash_table_insert(hashtable, new_key, conversation);
+	conversation_insert_into_hashtable(hashtable, conversation);
 
 	return conversation;
 }
@@ -617,20 +676,16 @@ conversation_set_port2(conversation_t *conv, const guint32 port)
 		return;
 
 	if (conv->options & NO_ADDR2) {
-		g_hash_table_remove(conversation_hashtable_no_addr2_or_port2,
-		    conv->key_ptr);
+		conversation_remove_from_hashtable(conversation_hashtable_no_addr2_or_port2, conv);
 	} else {
-		g_hash_table_remove(conversation_hashtable_no_port2,
-		    conv->key_ptr);
+		conversation_remove_from_hashtable(conversation_hashtable_no_port2, conv);
 	}
 	conv->options &= ~NO_PORT2;
 	conv->key_ptr->port2  = port;
 	if (conv->options & NO_ADDR2) {
-		g_hash_table_insert(conversation_hashtable_no_addr2,
-		    conv->key_ptr, conv);
+		conversation_insert_into_hashtable(conversation_hashtable_no_addr2, conv);
 	} else {
-		g_hash_table_insert(conversation_hashtable_exact,
-		    conv->key_ptr, conv);
+		conversation_insert_into_hashtable(conversation_hashtable_exact, conv);
 	}
 }
 
@@ -651,20 +706,16 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
 		return;
 
 	if (conv->options & NO_PORT2) {
-		g_hash_table_remove(conversation_hashtable_no_addr2_or_port2,
-		    conv->key_ptr);
+		conversation_remove_from_hashtable(conversation_hashtable_no_addr2_or_port2, conv);
 	} else {
-		g_hash_table_remove(conversation_hashtable_no_addr2,
-		    conv->key_ptr);
+		conversation_remove_from_hashtable(conversation_hashtable_no_port2, conv);
 	}
 	conv->options &= ~NO_ADDR2;
 	SE_COPY_ADDRESS(&conv->key_ptr->addr2, addr);
 	if (conv->options & NO_PORT2) {
-		g_hash_table_insert(conversation_hashtable_no_port2,
-		    conv->key_ptr, conv);
+		conversation_insert_into_hashtable(conversation_hashtable_no_port2, conv);
 	} else {
-		g_hash_table_insert(conversation_hashtable_exact,
-		    conv->key_ptr, conv);
+		conversation_insert_into_hashtable(conversation_hashtable_exact, conv);
 	}
 }
 
