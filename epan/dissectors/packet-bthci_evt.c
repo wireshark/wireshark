@@ -1269,7 +1269,8 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset, packet_info *p
 static int
 dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint8      i, j, length, type;
+    guint8      length, type;
+    guint16     i, j;
     proto_item *ti_eir         = NULL;
     proto_item *ti_eir_subtree = NULL;
 
