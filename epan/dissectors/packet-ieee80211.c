@@ -4422,9 +4422,11 @@ static guint
 add_ff_mesh_control(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   int start = offset;
+  guint8 flags;
 
   proto_tree_add_item(tree, hf_ieee80211_ff_mesh_flags, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
+  flags = tvb_get_guint8(tvb, offset);
   offset++;
   proto_tree_add_item(tree, hf_ieee80211_ff_mesh_ttl, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
@@ -4433,7 +4435,7 @@ add_ff_mesh_control(proto_tree *tree, tvbuff_t *tvb, int offset)
                       ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  switch (tvb_get_guint8(tvb, offset) & 0x03) {
+  switch (flags & 0x03) {
   case 1:
     proto_tree_add_item(tree, hf_ieee80211_ff_mesh_addr4, tvb, offset, 6,
                         ENC_NA);
