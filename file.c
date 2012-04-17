@@ -3705,7 +3705,7 @@ typedef struct {
  * up a message box for the failure.
  */
 static gboolean
-save_packet(capture_file *cf _U_, frame_data *fdata,
+save_packet(capture_file *cf, frame_data *fdata,
             union wtap_pseudo_header *pseudo_header, const guint8 *pd,
             void *argsp)
 {
@@ -3714,6 +3714,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   int           err;
 
   /* init the wtap header for saving */
+  hdr.presence_flags = wtap_phdr(cf->wth)->presence_flags;
   hdr.ts.secs      = fdata->abs_ts.secs;
   hdr.ts.nsecs     = fdata->abs_ts.nsecs;
   hdr.caplen       = fdata->cap_len;
