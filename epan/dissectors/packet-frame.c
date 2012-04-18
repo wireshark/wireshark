@@ -67,6 +67,7 @@ static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
 static int hf_frame_color_filter_text = -1;
 static int hf_frame_interface_id = -1;
+static int hf_frame_wtap_encap = -1;
 static int hf_comments_text = -1;
 
 static int proto_short = -1;
@@ -237,6 +238,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		if (pinfo->fd->flags.has_if_id)
 			proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
+		
+		proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->fd->lnk_t);
 
 		if (pinfo->fd->flags.has_ts) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
@@ -656,6 +659,10 @@ proto_register_frame(void)
 
 		{ &hf_frame_interface_id,
 		{ "Interface id",		"frame.interface_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_frame_wtap_encap,
+		{ "WTAP_ENCAP",		"frame.dlt", FT_INT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
 
 		{ &hf_comments_text,
