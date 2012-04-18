@@ -274,10 +274,13 @@ static const value_string agent_clipboard_type[] = {
 /* record channel server messages */
 #define SPICE_RECORD_START            101
 #define SPICE_RECORD_STOP             102
-
+#define SPICE_RECORD_VOLUME           103
+#define SPICE_RECORD_MUTE             104
 static const value_string record_server_message_types[] = {
-    { SPICE_RECORD_START, "Server RECORD_START" },
-    { SPICE_RECORD_STOP,  "Server RECORD_STOP" },
+    { SPICE_RECORD_START,  "Server RECORD_START" },
+    { SPICE_RECORD_STOP,   "Server RECORD_STOP" },
+    { SPICE_RECORD_VOLUME, "Server RECORD_VOLUME" },
+    { SPICE_RECORD_MUTE,   "Server RECORD_MUTE" },
     { 0, NULL }
 };
 
@@ -295,8 +298,10 @@ static const value_string record_client_message_types[] = {
 
 /* record channel capabilities - same as playback */
 #define SPICE_RECORD_CAP_CELT_0_5_1 0
+#define SPICE_RECORD_CAP_VOLUME 1
 
 #define SPICE_RECORD_CAP_CELT_0_5_1_MASK (1 << SPICE_RECORD_CAP_CELT_0_5_1)
+#define SPICE_RECORD_CAP_VOLUME_MASK (1 << SPICE_RECORD_CAP_VOLUME)
 
 /* display channel */
 /* display channel server messages */
@@ -523,7 +528,7 @@ static const value_string spice_error_codes_vs[] = {
 
 static const value_string inputs_client_message_types[] = {
     { SPICEC_INPUTS_KEY_DOWN,        "Client KEY_DOWN" },
-    { SPICEC_INPUTS_KEY_UP,          "Client INPUTS_KEY_UP" },
+    { SPICEC_INPUTS_KEY_UP,          "Client KEY_UP" },
     { SPICEC_INPUTS_KEY_MODIFIERS,   "Client KEY_MODIFIERS" },
     { SPICEC_INPUTS_MOUSE_MOTION,    "Client MOUSE_MOTION" },
     { SPICEC_INPUTS_MOUSE_POSITION,  "Client MOUSE_POSITION" },
@@ -864,6 +869,7 @@ static gint ett_inputs_client = -1;
 static gint ett_rectlist = -1;
 static gint ett_inputs_server = -1;
 static gint ett_record_client = -1;
+static gint ett_record_server = -1;
 static gint ett_main_client = -1;
 static gint ett_spice_agent = -1;
 static gint ett_auth_tree = -1;
@@ -963,6 +969,7 @@ static int hf_pixmap_address = -1;
 static int hf_pixmap_format = -1;
 static int hf_pixmap_flags = -1;
 static int hf_keyboard_bits = -1;
+static int hf_keyboard_code = -1;
 static int hf_rectlist_size = -1;
 static int hf_session_id = -1;
 static int hf_display_channels_hint = -1;
@@ -994,6 +1001,7 @@ static int hf_tranparent_true_color = -1;
 static int hf_spice_sasl_auth_result = -1;
 static int hf_playback_cap_celt = -1;
 static int hf_playback_cap_volume = -1;
+static int hf_record_cap_volume = -1;
 static int hf_record_cap_celt = -1;
 static int hf_vm_uuid = -1;
 static int hf_vm_name = -1;
@@ -2221,6 +2229,8 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 static guint32
 dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
+    guint8 num_channels, mute;
+
     switch(message_type) {
         case SPICE_PLAYBACK_DATA:
             proto_tree_add_item(tree, hf_playback_record_mode_timstamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2240,6 +2250,19 @@ dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
             break;
         case SPICE_PLAYBACK_STOP:
             proto_tree_add_text(tree, tvb, offset, 0, "PLAYBACK_STOP message");
+            break;
+        case SPICE_PLAYBACK_VOLUME:
+            proto_tree_add_text(tree, tvb, offset, 0, "PLAYBACK_VOLUME message");
+            num_channels = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 1, "Number of channels: %u", num_channels);
+            offset += 1;
+            /* TODO: iterate over all channels and parse volume */
+            break;
+        case SPICE_PLAYBACK_MUTE:
+            proto_tree_add_text(tree, tvb, offset, 1, "PLAYBACK_MUTE message");
+            mute = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 1, "Mute: %u", mute);
+            offset += 1;
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown playback server message - cannot dissect");
@@ -2304,11 +2327,30 @@ dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 }
 
 static guint32
-dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, const guint32 offset)
+dissect_spice_record_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
+    proto_item *ti=NULL;
+    proto_tree *record_tree;
+    guint8 num_channels, mute;
+
     switch(message_type) {
         case SPICE_RECORD_STOP:
             proto_tree_add_text(tree, tvb, offset, 0, "RECORD_STOP message");
+            break;
+        case SPICE_RECORD_VOLUME:
+            ti = proto_tree_add_text(tree, tvb, offset, 0, "RECORD_VOLUME message"); /* TODO: fix length */
+            record_tree = proto_item_add_subtree(ti, ett_record_server);
+            num_channels = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(record_tree, tvb, offset, 1, "Number of channels: %u", num_channels);
+            offset += 1;
+            /* TODO: complete dissection - go over all channels and parse the volume */
+            break;
+        case SPICE_RECORD_MUTE:
+            ti = proto_tree_add_text(tree, tvb, offset, 1, "RECORD_MUTE message");
+            record_tree = proto_item_add_subtree(ti, ett_record_server);
+            mute = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(record_tree, tvb, offset, 1, "mute: %u", mute);
+            offset += 1;
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown record server message - cannot dissect");
@@ -2527,17 +2569,15 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 
     switch(message_type) {
         case SPICEC_INPUTS_KEY_DOWN:
-            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_DOWN message");
-            /* TODO: complete dissection
+            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_DOWN message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
-            */
+            proto_tree_add_item(inputs_tree, hf_keyboard_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
         case SPICEC_INPUTS_KEY_UP:
-            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_UP message");
-            /* TODO: complete dissection
+            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_UP message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
-            */
+            proto_tree_add_item(inputs_tree, hf_keyboard_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
         case SPICEC_INPUTS_KEY_MODIFIERS:
@@ -2852,6 +2892,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
                         ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                         cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
                         proto_tree_add_boolean(cap_tree, hf_record_cap_celt, tvb, offset, 4, val);
+                        proto_tree_add_boolean(cap_tree, hf_record_cap_volume, tvb, offset, 4, val);
                         break;
                     default:
                         break;
@@ -3518,6 +3559,11 @@ proto_register_spice(void)
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_VOLUME_MASK,
             NULL, HFILL }
         },
+        { &hf_record_cap_volume,
+          { "Volume record channel support", "spice.record_cap_volume",
+            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_RECORD_CAP_VOLUME_MASK,
+            NULL, HFILL }
+        },
         { &hf_record_cap_celt,
           { "CELT 0.5.1 record channel support", "spice.record_cap_celt",
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_RECORD_CAP_CELT_0_5_1_MASK,
@@ -3823,6 +3869,11 @@ proto_register_spice(void)
             FT_UINT16, BASE_HEX, VALS(input_modifiers_types), 0x0,
             NULL, HFILL }
         },
+        { &hf_keyboard_code,
+          { "Key scan code", "spice.keyboard_key_code",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_rectlist_size,
           { "RectList size", "spice.rectlist_size",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -4067,6 +4118,7 @@ proto_register_spice(void)
         &ett_rectlist,
         &ett_inputs_server,
         &ett_record_client,
+        &ett_record_server,
         &ett_main_client,
         &ett_spice_agent,
         &ett_auth_tree,
