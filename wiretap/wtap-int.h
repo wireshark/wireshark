@@ -49,7 +49,7 @@ typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseu
  */
 struct wtap {
     FILE_T                      fh;
-    FILE_T                      random_fh;                /**< Secondary FILE_T for random access */
+    FILE_T                      random_fh;              /**< Secondary FILE_T for random access */
     int                         file_type;
     guint                       snapshot_length;
     struct Buffer               *frame_buffer;
@@ -73,8 +73,8 @@ struct wtap {
                                                 * types
                                                 */
     int                         tsprecision;   /* timestamp precision of the lower 32bits
-                                                 * e.g. WTAP_FILE_TSPREC_USEC
-                                                 */
+                                                * e.g. WTAP_FILE_TSPREC_USEC
+                                                */
     wtap_new_ipv4_callback_t    add_new_ipv4;
     wtap_new_ipv6_callback_t    add_new_ipv6;
     GPtrArray                   *fast_seek;
