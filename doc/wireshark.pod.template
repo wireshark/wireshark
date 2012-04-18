@@ -130,7 +130,7 @@ Visual Networks' B<Visual UpTime> traffic capture
 the output from B<CoSine> L2 debug
 
 =item *
-the output from Accellent's B<5Views> LAN agents
+the output from InfoVista's B<5View> LAN agents
 
 =item *
 Endace Measurement Systems' ERF format captures
