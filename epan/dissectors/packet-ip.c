@@ -1178,7 +1178,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
       proto_tree_add_text(field_tree, tvb, offset + optoffset, 8,
                           "Address = %s, time stamp = %u",
                           ((addr == 0) ? "-" :
-                          (const char *)get_hostname(addr)), ts);
+                          get_hostname(addr)), ts);
       optoffset += 8;
     } else {
       if (optlen < 4) {

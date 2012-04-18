@@ -5993,7 +5993,7 @@ CSN_DESCR_END  (PSI13_t)
 
 
 
-typedef char* MT_Strings_t;
+typedef const char* MT_Strings_t;
 
 static const MT_Strings_t szMT_Downlink[] = {
   "Invalid Message Type",                /* 0x00 */
@@ -6078,7 +6078,7 @@ static const MT_Strings_t szMT_Uplink[] = {
   "PACKET_SI_STATUS",                    /* 0x0D */
 };
 
-static char*
+static const char*
 MT_DL_TextGet(guint8 mt)
 {
   if (mt < ElementsOf(szMT_Downlink))
@@ -6091,7 +6091,7 @@ MT_DL_TextGet(guint8 mt)
   }
 }
 
-static char*
+static const char*
 MT_UL_TextGet(guint8 mt)
 {
   if (mt < ElementsOf(szMT_Uplink))

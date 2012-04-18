@@ -4057,13 +4057,13 @@ dissect_dcerpc_cn_rts (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             switch (addrtype) {
             case RTS_IPV4: {
                const guint32 addr4 = tvb_get_ipv4(tvb, offset);
-               proto_tree_add_text(cn_rts_command_tree, tvb, offset, 4, "%s", (const char *)get_hostname(addr4));
+               proto_tree_add_text(cn_rts_command_tree, tvb, offset, 4, "%s", get_hostname(addr4));
                offset += 4;
             } break;
             case RTS_IPV6: {
                struct e_in6_addr addr6;
                tvb_get_ipv6(tvb, offset, &addr6);
-               proto_tree_add_text(cn_rts_command_tree, tvb, offset, 16, "%s", (const char *)get_hostname6(&addr6));
+               proto_tree_add_text(cn_rts_command_tree, tvb, offset, 16, "%s", get_hostname6(&addr6));
                offset += 16;
             } break;
             }

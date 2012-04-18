@@ -97,7 +97,7 @@ add_string_to_table(GtkWidget *list, guint *row, const gchar *title, const gchar
 
 
 static void
-add_string_to_list(GtkWidget *list, gchar *title, gchar *captured, gchar *displayed, gchar *marked)
+add_string_to_list(GtkWidget *list, const gchar *title, gchar *captured, gchar *displayed, gchar *marked)
 {
     simple_list_append(list, 0, title, 1, captured, 2, displayed, 3, marked, -1);
 }

@@ -350,7 +350,7 @@ airpcap_get_validation_type(const gchar* name)
  * Function used to retrieve the string name given an AirpcapValidationType,
  * or NULL in case of error
  */
-gchar*
+const gchar*
 airpcap_get_validation_name(AirpcapValidationType vt)
 {
     if(vt == AIRPCAP_VT_ACCEPT_EVERYTHING)

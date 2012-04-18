@@ -1036,8 +1036,8 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
         /* Add summary to root item */
         proto_item_append_text(root_ti, " (prot=%s: %s -> %s)",
                                val_to_str_const(protocol, ip_protocol_vals, "Unknown"),
-                               (char*)get_hostname(source),
-                               (char*)get_hostname(dest));
+                               get_hostname(source),
+                               get_hostname(dest));
     }
 
     /* UDP static part. TODO: also check protocol from last part!? */

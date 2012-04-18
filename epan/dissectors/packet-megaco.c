@@ -3314,7 +3314,7 @@ static gint megaco_tvb_find_token(tvbuff_t* tvb, gint offset, gint maxlength){
     guchar needle;
 
     do {
-        pos = tvb_pbrk_guint8(tvb, pos + 1, maxlength,(guint8*)"{}", &needle);
+        pos = tvb_pbrk_guint8(tvb, pos + 1, maxlength, "{}", &needle);
         if(pos == -1)
             return -1;
         switch(needle){

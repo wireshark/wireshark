@@ -1035,7 +1035,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
     offset = next_offset + 1;
 
     if (strcmp((char*)field_name, "ipbcp") == 0) {
-        offset = tvb_pbrk_guint8(tvb,offset,-1,(guint8 *)"0123456789", NULL);
+        offset = tvb_pbrk_guint8(tvb,offset,-1,"0123456789", NULL);
 
         if (offset == -1)
             return;
@@ -1049,7 +1049,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
 
         proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_version,tvb,offset,tokenlen,ENC_ASCII|ENC_NA);
 
-        offset = tvb_pbrk_guint8(tvb,offset,-1,(guint8 *)"ABCDEFGHIJKLMNOPQRSTUVWXYZ", NULL);
+        offset = tvb_pbrk_guint8(tvb,offset,-1,"ABCDEFGHIJKLMNOPQRSTUVWXYZ", NULL);
 
         if (offset == -1)
             return;

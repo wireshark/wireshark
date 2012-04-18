@@ -2835,7 +2835,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_pbrk_guint8(tvb, offset, len, (const guint8 *)"\r\n", &found_needle);
+	eol_offset = tvb_pbrk_guint8(tvb, offset, len, "\r\n", &found_needle);
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
@@ -2964,8 +2964,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 			/*
 			 * Look either for a CR, an LF, or a '"'.
 			 */
-			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len,
-				(const guint8 *)"\r\n\"", &c);
+			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len, "\r\n\"", &c);
 		}
 		if (char_offset == -1) {
 			/*

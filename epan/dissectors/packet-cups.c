@@ -336,7 +336,7 @@ get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
 	guint l = 0;
 	gint o;
 
-	o = tvb_pbrk_guint8(tvb, offset, -1, (const guint8*)" \t\r\n", NULL);
+	o = tvb_pbrk_guint8(tvb, offset, -1, " \t\r\n", NULL);
 	if (o != -1) {
 		l = o - offset;
 		s = tvb_get_ptr(tvb, offset, l);

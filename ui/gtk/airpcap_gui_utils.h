@@ -92,7 +92,7 @@ airpcap_get_validation_type(const gchar* name);
 /*
  * Function used to retrieve the string name given an AirpcapValidationType.
  */
-gchar*
+const gchar*
 airpcap_get_validation_name(AirpcapValidationType vt);
 
 /*

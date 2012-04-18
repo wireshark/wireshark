@@ -147,8 +147,8 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
   it = proto_tree_add_text(tree, tvb, *offset, ROOFNET_LINK_LEN,
 			    "link: %u, src: %s, dst: %s",
 			    link,
-			    (char*)get_hostname(addr_src),
-			    (char*)get_hostname(addr_dst));
+			    get_hostname(addr_src),
+			    get_hostname(addr_dst));
   subtree= proto_item_add_subtree(it, ett_roofnet_link);
 
   proto_tree_add_ipv4(subtree, hf_roofnet_link_src, tvb, *offset, 4, addr_src);

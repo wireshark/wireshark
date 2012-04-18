@@ -1151,8 +1151,8 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
                 /* Add summary to root item */
                 proto_item_append_text(ipv4_item, " (prot=%s: %s -> %s)",
                                        val_to_str_ext_const(protocol, &ipproto_val_ext, "Unknown"),
-                                       (char*)get_hostname(source),
-                                       (char*)get_hostname(dest));
+                                       get_hostname(source),
+                                       get_hostname(dest));
             }
             break;
             case 6:
