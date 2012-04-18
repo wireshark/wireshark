@@ -514,7 +514,7 @@ struct p2p_phdr {
 struct ieee_802_11_phdr {
 	gint	fcs_len;	/* Number of bytes of FCS - -1 means "unknown" */
 	guint8	channel;	/* Channel number */
-	guint8	data_rate;	/* in .5 Mb/s units */
+	guint16	data_rate;	/* in .5 Mb/s units */
 	guint8	signal_level;	/* percentage */
 };
 
