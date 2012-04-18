@@ -185,6 +185,7 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     RUN=0
 
     for CF in "$@" ; do
+	if [ $PASS -gt $MAX_PASSES ] ; then break ; fi # We caught a signal
         RUN=$(( $RUN + 1 ))
         if [ $(( $RUN % 50 )) -eq 0 ] ; then
             echo "    [Pass $PASS]"

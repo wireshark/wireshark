@@ -89,6 +89,7 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     echo "Pass $PASS:"
 
     for PKT_TYPE in $PKT_TYPES ; do
+	if [ $PASS -gt $MAX_PASSES ] ; then break ; fi # We caught a signal
 	echo -n "    $PKT_TYPE: "
 
 	DISSECTOR_BUG=0
