@@ -137,7 +137,7 @@ echo "Running $TSHARK with args: $TSHARK_ARGS ($HOWMANY)"
 echo ""
 
 # Clean up on <ctrl>C, etc
-trap "rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE; echo ""; exit 0" HUP INT TERM
+trap "MAX_PASSES=1; echo 'Caught signal'" HUP INT TERM
 
 
 ##############################################################################

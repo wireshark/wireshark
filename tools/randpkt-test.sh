@@ -80,8 +80,7 @@ echo "Running $TSHARK with args: $TSHARK_ARGS ($HOWMANY)"
 echo "Running $RANDPKT with args: $RANDPKT_ARGS"
 echo ""
 
-# Not yet - properly handle empty filenames
-#trap "rm $TMP_DIR/$TMP_FILE $TMP_DIR/$RAND_FILE; exit 1" 1 2 15
+trap "MAX_PASSES=1; echo 'Caught signal'" HUP INT TERM
 
 # Iterate over our capture files.
 PASS=0
