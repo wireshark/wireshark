@@ -1336,6 +1336,9 @@ free_airpcap_if_cb(gpointer data, gpointer user_data _U_)
 {
     airpcap_if_info_t *if_info = data;
 
+    if (NULL == if_info)
+	return;
+
     if (if_info->name != NULL)
 	g_free(if_info->name);
 
@@ -1352,8 +1355,7 @@ free_airpcap_if_cb(gpointer data, gpointer user_data _U_)
     if(if_info->ip_addr != NULL)
 	g_slist_free(if_info->ip_addr);
 
-    if(if_info != NULL)
-	g_free(if_info);
+    g_free(if_info);
 }
 
 /*
@@ -1922,7 +1924,7 @@ get_wireshark_keys(void)
     prefs_pref_foreach(wlan_prefs, get_wep_key, (gpointer)wep_user_data);
 
     /* Copy the list field in the user data structure pointer into the final_list */
-    if(wep_user_data != NULL)  wep_final_list  = wep_user_data->list;
+    wep_final_list = wep_user_data->list;
 
     /* XXX - Merge the three lists!!!!! */
     final_list = wep_final_list;
