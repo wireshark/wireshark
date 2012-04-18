@@ -399,7 +399,8 @@ static const value_string tsigerror_vals[] = {
 #define TDSDIGEST_RESERVED (0)
 #define TDSDIGEST_SHA1     (1)
 #define TDSDIGEST_SHA256   (2)
-
+#define TDSDIGEST_GOST     (3)
+#define TDSDIGEST_SHA384   (4)
 /*
  * SSHFP (RFC 4255) algorithm number and fingerprint types
  */
@@ -1110,7 +1111,7 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
 
 /*
  * SIG, KEY, and CERT RR algorithms.
- * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt
+ * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt (last updated 2012-04-13)
  */
 #define DNS_ALGO_RSAMD5             1	/* RSA/MD5 */
 #define DNS_ALGO_DH                 2	/* Diffie-Hellman */
@@ -1122,6 +1123,8 @@ dissect_type_bitmap(proto_tree *rr_tree, tvbuff_t *tvb, int cur_offset, int rr_l
 #define DNS_ALGO_RSASHA256          8	/* RSA/SHA-256 */
 #define DNS_ALGO_RSASHA512          10	/* RSA/SHA-512 */
 #define DNS_ALGO_ECCGOST            12	/* GOST R 34.10-2001 */
+#define DNS_ALGO_ECDSAP256SHA256    13	/* ECDSA Curve P-256 with SHA-256 */
+#define DNS_ALGO_ECDSAP386SHA386    14	/* ECDSA Curve P-386 with SHA-386 */
 #define DNS_ALGO_HMACMD5            157	/* HMAC/MD5 */
 #define DNS_ALGO_INDIRECT           252	/* Indirect key */
 #define DNS_ALGO_PRIVATEDNS         253	/* Private, domain name  */
@@ -1138,6 +1141,8 @@ static const value_string algo_vals[] = {
 	  { DNS_ALGO_RSASHA256,         "RSA/SHA-256" },
 	  { DNS_ALGO_RSASHA512,         "RSA/SHA-512" },
 	  { DNS_ALGO_ECCGOST,           "GOST R 34.10-2001" },
+	  { DNS_ALGO_ECDSAP256SHA256,   "ECDSA Curve P-256 with SHA-256" },
+	  { DNS_ALGO_ECDSAP386SHA386,   "ECDSA Curve P-386 with SHA-386" },
 	  { DNS_ALGO_HMACMD5,           "HMAC/MD5" },
 	  { DNS_ALGO_INDIRECT,          "Indirect key" },
 	  { DNS_ALGO_PRIVATEDNS,        "Private, domain name" },
@@ -2160,6 +2165,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	{ TDSDIGEST_RESERVED, "Reserved digest" },
 	{ TDSDIGEST_SHA1,     "SHA-1" },
 	{ TDSDIGEST_SHA256,   "SHA-256" },
+	{ TDSDIGEST_GOST,     "GOST R 34.11-94" },
+	{ TDSDIGEST_SHA384,   "SHA-384" },
 	{ 0, NULL }
       };
 
@@ -2199,6 +2206,19 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
 	}
 
+	if (ds_digest == TDSDIGEST_GOST) {
+	  digest_data_size = 64; /* GOST key is always 64 bytes long */
+	  if (rr_len < digest_data_size)
+	    goto bad_rr;
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
+	}
+
+	if (ds_digest == TDSDIGEST_SHA384) {
+	  digest_data_size = 48; /* SHA384 key is always 48 bytes long */
+	  if (rr_len < digest_data_size)
+	    goto bad_rr;
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key");
+	}
     }
     break;
 
