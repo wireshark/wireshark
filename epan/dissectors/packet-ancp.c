@@ -219,7 +219,7 @@ static const value_string techtype_str[] = {
 
 static const value_string dsl_line_attrs[] = {
     { 0x91,  "DSL-Type" },
-    { 0x81,  "Actual-Net-Data-Upstream" },
+    { 0x81,  "Actual-Net-Data-Rate-Upstream" },
     { 0x82,  "Actual-Net-Data-Rate-Downstream" },
     { 0x83,  "Minimum-Net-Data-Rate-Upstream" },
     { 0x84,  "Minimum-Net-Data-Rate-Downstream" },
