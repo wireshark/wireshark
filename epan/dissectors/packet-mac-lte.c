@@ -176,7 +176,6 @@ static int hf_mac_lte_control_ue_contention_resolution_time_since_msg3 = -1;
 static int hf_mac_lte_control_power_headroom = -1;
 static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom_level = -1;
-static int hf_mac_lte_control_padding = -1;
 static int hf_mac_lte_control_mch_scheduling_info = -1;
 static int hf_mac_lte_control_mch_scheduling_info_lcid = -1;
 static int hf_mac_lte_control_mch_scheduling_info_stop_mtch = -1;
@@ -498,6 +497,7 @@ static const value_string buffer_size_vals[] =
     { 63,     "BS > 150000"},
     { 0, NULL }
 };
+static value_string_ext buffer_size_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_vals);
 
 static const value_string power_headroom_size_vals[] =
 {
@@ -567,6 +567,7 @@ static const value_string power_headroom_size_vals[] =
     { 63,     "PH >= 40"},
     { 0, NULL }
 };
+static value_string_ext power_headroom_size_vals_ext = VALUE_STRING_EXT_INIT(power_headroom_size_vals);
 
 static const value_string header_only_vals[] =
 {
@@ -2940,7 +2941,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         /* Show value in root label */
                         proto_item_append_text(phr_ti, " (%s)",
-                                               val_to_str_const(level, power_headroom_size_vals, "Unknown"));
+                                               val_to_str_ext_const(level, &power_headroom_size_vals_ext, "Unknown"));
                         offset++;
                     }
 
@@ -2981,13 +2982,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                    "UE %u - BSR for LCG %u exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
                                                    lcgid,
-                                                   buffer_size, val_to_str_const(buffer_size, buffer_size_vals, "Unknown"));
+                                                   buffer_size, val_to_str_ext_const(buffer_size, &buffer_size_vals_ext, "Unknown"));
                         }
 
 
                         proto_item_append_text(bsr_ti, " (lcgid=%u  %s)",
                                                lcgid,
-                                               val_to_str_const(buffer_size, buffer_size_vals, "Unknown"));
+                                               val_to_str_ext_const(buffer_size, &buffer_size_vals_ext, "Unknown"));
                     }
                     break;
                 case LONG_BSR_LCID:
@@ -3011,7 +3012,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 0 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[0], val_to_str_const(buffer_size[0], buffer_size_vals, "Unknown"));
+                                                   buffer_size[0], val_to_str_ext_const(buffer_size[0], &buffer_size_vals_ext, "Unknown"));
                         }
 
                         /* LCID Group 1 */
@@ -3023,7 +3024,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 1 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[1], val_to_str_const(buffer_size[1], buffer_size_vals, "Unknown"));
+                                                   buffer_size[1], val_to_str_ext_const(buffer_size[1], &buffer_size_vals_ext, "Unknown"));
                         }
 
                         /* LCID Group 2 */
@@ -3036,7 +3037,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 2 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[2], val_to_str_const(buffer_size[2], buffer_size_vals, "Unknown"));
+                                                   buffer_size[2], val_to_str_ext_const(buffer_size[2], &buffer_size_vals_ext, "Unknown"));
                         }
 
                         /* LCID Group 3 */
@@ -3048,15 +3049,15 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 3 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[3], val_to_str_const(buffer_size[3], buffer_size_vals, "Unknown"));
+                                                   buffer_size[3], val_to_str_ext_const(buffer_size[3], &buffer_size_vals_ext, "Unknown"));
                         }
 
                         /* Append summary to parent */
                         proto_item_append_text(bsr_ti, "   0:(%s)  1:(%s)  2:(%s)  3:(%s)",
-                                               val_to_str_const(buffer_size[0], buffer_size_vals, "Unknown"),
-                                               val_to_str_const(buffer_size[1], buffer_size_vals, "Unknown"),
-                                               val_to_str_const(buffer_size[2], buffer_size_vals, "Unknown"),
-                                               val_to_str_const(buffer_size[3], buffer_size_vals, "Unknown"));
+                                               val_to_str_ext_const(buffer_size[0], &buffer_size_vals_ext, "Unknown"),
+                                               val_to_str_ext_const(buffer_size[1], &buffer_size_vals_ext, "Unknown"),
+                                               val_to_str_ext_const(buffer_size[2], &buffer_size_vals_ext, "Unknown"),
+                                               val_to_str_ext_const(buffer_size[3], &buffer_size_vals_ext, "Unknown"));
                     }
                     break;
                 case PADDING_LCID:
@@ -4778,31 +4779,31 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_short_bsr_buffer_size,
             { "Buffer Size",
-              "mac-lte.control.bsr.buffer-size", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
+              "mac-lte.control.bsr.buffer-size", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_vals_ext, 0x3f,
               "Buffer Size available in all channels in group", HFILL
             }
         },
         { &hf_mac_lte_control_long_bsr_buffer_size_0,
             { "Buffer Size 0",
-              "mac-lte.control.bsr.buffer-size-0", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0xfc,
+              "mac-lte.control.bsr.buffer-size-0", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_vals_ext, 0xfc,
               "Buffer Size available in logical channel group 0", HFILL
             }
         },
         { &hf_mac_lte_control_long_bsr_buffer_size_1,
             { "Buffer Size 1",
-              "mac-lte.control.bsr.buffer-size-1", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x03f0,
+              "mac-lte.control.bsr.buffer-size-1", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &buffer_size_vals_ext, 0x03f0,
               "Buffer Size available in logical channel group 1", HFILL
             }
         },
         { &hf_mac_lte_control_long_bsr_buffer_size_2,
             { "Buffer Size 2",
-              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC, VALS(buffer_size_vals), 0x0fc0,
+              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &buffer_size_vals_ext, 0x0fc0,
               "Buffer Size available in logical channel group 2", HFILL
             }
         },
         { &hf_mac_lte_control_long_bsr_buffer_size_3,
             { "Buffer Size 3",
-              "mac-lte.control.bsr.buffer-size-3", FT_UINT8, BASE_DEC, VALS(buffer_size_vals), 0x3f,
+              "mac-lte.control.bsr.buffer-size-3", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &buffer_size_vals_ext, 0x3f,
               "Buffer Size available in logical channel group 3", HFILL
             }
         },
@@ -4869,15 +4870,8 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_control_power_headroom_level,
             { "Power Headroom Level",
-              "mac-lte.control.power-headroom.level", FT_UINT8, BASE_DEC,
-               VALS(power_headroom_size_vals), 0x3f, "Power Headroom Level in dB", HFILL
-            }
-        },
-
-        { &hf_mac_lte_control_padding,
-            { "Padding",
-              "mac-lte.control.padding", FT_NONE, BASE_NONE, 0, 0x0,
-              NULL, HFILL
+              "mac-lte.control.power-headroom.level", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+               &power_headroom_size_vals_ext, 0x3f, "Power Headroom Level in dB", HFILL
             }
         },
 
