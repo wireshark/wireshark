@@ -1739,7 +1739,7 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		rec_hdr.xxx[12] = pseudo_header->ieee_802_11.channel;
-		rec_hdr.xxx[13] = pseudo_header->ieee_802_11.data_rate;
+		rec_hdr.xxx[13] = (guint8)pseudo_header->ieee_802_11.data_rate;
 		rec_hdr.xxx[14] = pseudo_header->ieee_802_11.signal_level;
 		break;
 

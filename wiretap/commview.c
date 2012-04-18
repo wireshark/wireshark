@@ -59,7 +59,7 @@ typedef struct commview_header {
 	guint32		usecs;
 	guint8		flags;		/* Bit-field positions defined below */
 	guint8		signal_level_percent;
-	guint8		rate;
+	guint16		rate;
 	guint8		band;
 	guint8		channel;
 	guint8		direction;	/* Or for WiFi, high order byte of
