@@ -179,9 +179,10 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
        bytes_read = file_read(buffer, MP2T_SIZE+trailer_len, wth->fh);
        if (bytes_read < 0)
           return -1;  /* read error */
-       if (bytes_read < MP2T_SIZE+trailer_len)
+       if (bytes_read < MP2T_SIZE+trailer_len) {
+	  if(sync_steps<2) return 0; /* wrong file type - not an mpeg2 ts file */
           break;  /* end of file, that's ok if we're still in sync */
-
+       }
        if (buffer[0] == MP2T_SYNC_BYTE) {
                sync_steps++;
        }
