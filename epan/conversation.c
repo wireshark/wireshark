@@ -666,7 +666,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 void
 conversation_set_port2(conversation_t *conv, const guint32 port)
 {
-   DISSECTOR_ASSERT(!(conv->options & CONVERSATION_TEMPLATE) &&
+   DISSECTOR_ASSERT_HINT(!(conv->options & CONVERSATION_TEMPLATE),
             "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
 
 	/*
@@ -696,7 +696,7 @@ conversation_set_port2(conversation_t *conv, const guint32 port)
 void
 conversation_set_addr2(conversation_t *conv, const address *addr)
 {
-   DISSECTOR_ASSERT(!(conv->options & CONVERSATION_TEMPLATE) &&
+   DISSECTOR_ASSERT_HINT(!(conv->options & CONVERSATION_TEMPLATE),
             "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
 
 	/*
