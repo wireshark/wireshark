@@ -135,6 +135,18 @@ typedef struct _protocol protocol_t;
    __DISSECTOR_ASSERT (expression, __FILE__, __LINE__))) \
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
 
+/**
+ * Same as DISSECTOR_ASSERT(), but takes an extra 'hint' parameter that
+ * can be used to provide information as to why the assertion might fail.
+ *
+ * @param expression expression to test in the assertion
+ * @param hint message providing extra information
+ */
+#define DISSECTOR_ASSERT_HINT(expression, hint)  \
+  ((void) ((expression) ? (void)0 : \
+   __DISSECTOR_ASSERT_HINT (expression, __FILE__, __LINE__, hint))) \
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(expression)
+
 #if 0
 /* win32: using a debug breakpoint (int 3) can be very handy while debugging,
  * as the assert handling of GTK/GLib is currently not very helpful */
@@ -161,6 +173,11 @@ typedef struct _protocol protocol_t;
   (REPORT_DISSECTOR_BUG( \
     ep_strdup_printf("%s:%u: failed assertion \"%s\"", \
      file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
+
+#define __DISSECTOR_ASSERT_HINT(expression, file, lineno, hint)  \
+  (REPORT_DISSECTOR_BUG( \
+    ep_strdup_printf("%s:%u: failed assertion \"%s\" (%s)", \
+     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression), hint)))
 
 /*
  * The encoding of a field of a particular type may involve more
