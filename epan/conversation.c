@@ -640,6 +640,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key->port2 = port2;
 
 	conversation = se_alloc(sizeof(conversation_t)); 
+	memset(conversation, 0, sizeof(conversation_t));
 
 	conversation->index = new_index;
 	conversation->setup_frame = setup_frame;
@@ -729,6 +730,7 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 {
 	conversation_t* conversation=NULL;
 	conversation_t* match=NULL;
+	conversation_t* chain_head=NULL;
 	conversation_key key;
 	guint found=0;
 
@@ -742,7 +744,7 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 	key.port1 = port1;
 	key.port2 = port2;
 
-	match = g_hash_table_lookup(hashtable, &key);
+	chain_head = (match = g_hash_table_lookup(hashtable, &key));
 		
 	if (match && (match->setup_frame > frame_num))
 		match = NULL;
@@ -750,10 +752,13 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 	if (match) {
 		if((match->last)&&(match->last->setup_frame<=frame_num))
 			return match->last;
+		if((match->latest_found)&&(match->latest_found->setup_frame<=frame_num))
+			return match->latest_found;
 		for (conversation = match->next; conversation; conversation = conversation->next) {
 			if ((conversation->setup_frame <= frame_num)
 				&& (conversation->setup_frame > match->setup_frame)) {
 					match = conversation;
+					chain_head->latest_found = conversation;
 					found=1;
 			} else if(conversation->setup_frame>frame_num)
 				/* we are past the frame_num */
