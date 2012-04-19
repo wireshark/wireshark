@@ -33,7 +33,7 @@
 #include <string.h>
 
 /*
- * This module reads the output from the Cisco Secure Intrustion Detection
+ * This module reads the output from the Cisco Secure Intrusion Detection
  * System iplogging facility. The term iplogging is misleading since this
  * logger will only output TCP. There is no link layer information.
  * Packet format is 4 byte timestamp (seconds since epoch), and a 4 byte size
