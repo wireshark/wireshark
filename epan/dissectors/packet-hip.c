@@ -748,7 +748,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_puzzle_o, tvb, newoffset, 2, ENC_BIG_ENDIAN);
                 /* Puzzle I */
                 newoffset += 2;
-                proto_tree_add_item(t, hf_hip_tlv_puzzle_i, tvb,newoffset, 8, ENC_NA);
+                proto_tree_add_item(t, hf_hip_tlv_puzzle_i, tvb,newoffset, tlv_len - 4, ENC_NA);
                 break;
         case PARAM_SOLUTION:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -762,10 +762,10 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_solution_o, tvb,newoffset, 2, ENC_BIG_ENDIAN);
                 /* Solution I */
                 newoffset += 2;
-                proto_tree_add_item(t, hf_hip_tlv_solution_i, tvb, newoffset, 8, ENC_NA);
+                proto_tree_add_item(t, hf_hip_tlv_solution_i, tvb, newoffset, (tlv_len - 4)/2, ENC_NA);
                 /* Solution J */
-                newoffset += 8;
-                proto_tree_add_item(t, hf_hip_tlv_solution_j, tvb, newoffset, 8, ENC_NA);
+                newoffset += (tlv_len - 4) /2;
+                proto_tree_add_item(t, hf_hip_tlv_solution_j, tvb, newoffset, (tlv_len -4)/2, ENC_NA);
                 break;
         case PARAM_SEQ:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
