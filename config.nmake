@@ -216,16 +216,25 @@ GLIB_VERSION=2.0
 # directory in which the "include" and "lib" directories reside.
 #
 GTK_DIR=$(WIRESHARK_LIB_DIR)\gtk2
+
 # These macros are used by the nsis installer script and by the install target.
-PNG_DLL=libpng14-14.dll
-FREETYPE_DLL=freetype6.dll
+#EXPAT_DLL=libexpat-1.dll
+FFI_DLL=libffi-5.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
-EXPAT_DLL=libexpat-1.dll
-INTL_DLL=intl.dll
+FREETYPE_DLL=libfreetype-6.dll
+INTL_DLL=libintl-8.dll
+JASPER_DLL=libjasper-1.dll
+JPEG_DLL=libjpeg-8.dll
+LZMA_DLL=liblzma-5.dll
+PIXMAN_DLL=libpixman-1-0.dll
+PNG_DLL=libpng15-15.dll
+TIFF_DLL=libtiff-5.dll
+XML_DLL=libxml2-2.dll
+
 # This macro is used by the setup target.
-#GTK_PKG=2.16.6-20100912
 #GTK_PKG=2.22.1-20101227
-GTK_PKG=2.24.10-20120208
+#GTK_PKG=2.24.10-20120208
+GTK_PKG=2.24.10-1.15
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -406,17 +415,22 @@ GLIB_VERSION=2.0
 #
 GTK_DIR=$(WIRESHARK_LIB_DIR)\gtk2
 # These macros are used by the nsis installer script and by the install target.
-PNG_DLL=libpng14-14.dll
-#TIFF_DLL=libtiff-3.dll
-#JPEG_DLL=libjpeg-7.dll
-FREETYPE_DLL=libfreetype-6.dll
+#EXPAT_DLL=libexpat-1.dll
+FFI_DLL=libffi-5.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
-EXPAT_DLL=libexpat-1.dll
+FREETYPE_DLL=libfreetype-6.dll
 INTL_DLL=libintl-8.dll
+JASPER_DLL=libjasper-1.dll
+JPEG_DLL=libjpeg-8.dll
+LZMA_DLL=liblzma-5.dll
+PIXMAN_DLL=libpixman-1-0.dll
+PNG_DLL=libpng15-15.dll
+TIFF_DLL=libtiff-5.dll
+XML_DLL=libxml2-2.dll
 
 # These macros are used by the setup target.
 #GTK_PKG=2.16.6-20100912
-GTK_PKG=2.22.1-20101229
+GTK_PKG=2.24.10-1.18
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -425,7 +439,7 @@ GTK_PKG=2.22.1-20101229
 # These macros are used by the nsis installer script and by the setup target.
 #
 #GTK_INST_VERSION=2.16
-GTK_INST_VERSION=2.22
+GTK_INST_VERSION=2.24
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -993,20 +1007,44 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 !IF "$(GTK_INST_VERSION)" == "2.24" || "$(GTK_INST_VERSION)" == "2.22" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
 GTK_LIB_DIR=2.10.0
 
-!IFDEF PNG_DLL
-NEED_LIBPNG_DLL=USE
+!IFDEF _DLL
+!ENDIF
+
+NEED_CAIRO_DLL=USE
+
+!IFDEF EXPAT_DLL
+NEED_EXPAT_DLL=USE
+!ENDIF
+!IFDEF FFI_DLL
+NEED_FFI_DLL=USE
+!ENDIF
+!IFDEF FONTCONFIG_DLL
+NEED_FONTCONFIG_DLL=USE
+!ENDIF
+!IFDEF FREETYPE_DLL
+NEED_FREETYPE_DLL=USE
+!ENDIF
+!IFDEF JASPER_DLL
+NEED_JASPER_DLL=USE
 !ENDIF
 !IFDEF JPEG_DLL
-NEED_LIBJPEG_DLL=USE
+NEED_JPEG_DLL=USE
+!ENDIF
+!IFDEF LZMA_DLL
+NEED_LZMA_DLL=USE
+!ENDIF
+!IFDEF PIXMAN_DLL
+NEED_PIXMAN_DLL=USE
+!ENDIF
+!IFDEF PNG_DLL
+NEED_PNG_DLL=USE
 !ENDIF
 !IFDEF TIFF_DLL
-NEED_LIBTIFF_DLL=USE
+NEED_TIFF_DLL=USE
 !ENDIF
-NEED_CAIRO_DLL=USE
-# Pango >=1.24.5 Needs these:
-NEED_FREETYPE_DLL=USE
-NEED_FONTCONFIG_DLL=USE
-NEED_EXPAT_DLL=USE
+!IFDEF XML_DLL
+NEED_XML_DLL=USE
+!ENDIF
 
 GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\$(GTK_LIB_DIR)\engines
