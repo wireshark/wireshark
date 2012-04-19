@@ -89,6 +89,7 @@ static int hf_l2tp_l2_spec_g = -1;
 static int hf_l2tp_l2_spec_c = -1;
 static int hf_l2tp_l2_spec_u = -1;
 static int hf_l2tp_cisco_avp_type = -1;
+static int hf_l2tp_avp_message_type = -1;
 static int hf_l2tp_avp_assigned_tunnel_id = -1;
 static int hf_l2tp_avp_assigned_control_conn_id = -1;
 static int hf_l2tp_avp_assigned_session_id = -1;
@@ -188,85 +189,96 @@ static gint l2tpv3_cookie = 4;
 static gint l2tpv3_protocol = L2TPv3_PROTOCOL_CHDLC;
 static gint l2tpv3_l2_specific = L2TPv3_L2_SPECIFIC_DEFAULT;
 
-#define AVP_SCCRQ      1
-#define AVP_SCCRP      2
-#define AVP_SCCCN      3
-#define AVP_StopCCN    4
-#define AVP_Reserved   5
-#define AVP_HELLO      6
-#define AVP_OCRQ       7
-#define AVP_OCRP       8
-#define AVP_ORCRP      9
-#define AVP_ICRQ      10
-#define AVP_ICRP      11
-#define AVP_ICCN      12
-#define AVP_Reserved1 13
-#define AVP_CDN       14
+#define MESSAGE_TYPE_SCCRQ        1
+#define MESSAGE_TYPE_SCCRP        2
+#define MESSAGE_TYPE_SCCCN        3
+#define MESSAGE_TYPE_StopCCN      4
+#define MESSAGE_TYPE_Reserved_5   5
+#define MESSAGE_TYPE_HELLO        6
+#define MESSAGE_TYPE_OCRQ         7
+#define MESSAGE_TYPE_OCRP         8
+#define MESSAGE_TYPE_OCCN         9
+#define MESSAGE_TYPE_ICRQ         10
+#define MESSAGE_TYPE_ICRP         11
+#define MESSAGE_TYPE_ICCN         12
+#define MESSAGE_TYPE_Reserved_13  13
+#define MESSAGE_TYPE_CDN          14
+#define MESSAGE_TYPE_WEN          15
+#define MESSAGE_TYPE_SLI          16
+#define MESSAGE_TYPE_MDMST        17
+#define MESSAGE_TYPE_SRRQ         18
+#define MESSAGE_TYPE_SRRP         19
+#define MESSAGE_TYPE_ACK          20
+#define MESSAGE_TYPE_FSQ          21
+#define MESSAGE_TYPE_FSR          22
+#define MESSAGE_TYPE_MSRQ         23
+#define MESSAGE_TYPE_MSRP         24
+#define MESSAGE_TYPE_MSE          25
+#define MESSAGE_TYPE_MSI          26
+#define MESSAGE_TYPE_MSEN         27
 
-#define NUM_CONTROL_CALL_TYPES  27
-static const char *calltypestr[NUM_CONTROL_CALL_TYPES+1] = {
-  "Unknown Call Type",
-  "Start_Control_Request",
-  "Start_Control_Reply",
-  "Start_Control_Connected",
-  "Stop_Control_Notification",
-  "Reserved",							/* 5*/
-  "Hello",
-  "Outgoing_Call_Request",
-  "Outgoing_Call_Reply",
-  "Outgoing_Call_Connected",
-  "Incoming_Call_Request",				/* 10 */
-  "Incoming_Call_Reply",
-  "Incoming_Call_Connected",
-  "Reserved",							/* 13 */
-  "Call_Disconnect_Notification",
-  "WAN_Error_Notify",					/* 15 */
-  "Set_Link_Info",
-  "Modem_Status",
-  "Service_Relay_Request_Msg",
-  "Service_Relay_Reply_Message",
-  "Explicit_Acknowledgement",			/* 20 */
-  "Failover_Session_Query_Message",		/* 21 [RFC4951] */
-  "Failover_Session_Response_Message",	/* 22 [RFC4951] */
-  /* Multicast Management */
-  "Multicast-Session-Request",			/* 23 [RFC4045]*/
-  "Multicast-Session-Response ",		/* 24 [RFC4045]*/
-  "Multicast-Session-Establishment",	/* 25 [RFC4045]*/
-  "Multicast-Session-Information",		/* 26 [RFC4045]*/
-  "Multicast-Session-End-Notify",		/* 27 [RFC4045]*/
-
+static const value_string message_type_vals[] = {
+  { MESSAGE_TYPE_SCCRQ,       "Start_Control_Request" },
+  { MESSAGE_TYPE_SCCRP,       "Start_Control_Reply" },
+  { MESSAGE_TYPE_SCCCN,       "Start_Control_Connected" },
+  { MESSAGE_TYPE_StopCCN,     "Stop_Control_Notification" },
+  { MESSAGE_TYPE_HELLO,       "Hello" },
+  { MESSAGE_TYPE_OCRQ,        "Outgoing_Call_Request" },
+  { MESSAGE_TYPE_OCRP,        "Outgoing_Call_Reply" },
+  { MESSAGE_TYPE_OCCN,        "Outgoing_Call_Connected" },
+  { MESSAGE_TYPE_ICRQ,        "Incoming_Call_Request" },
+  { MESSAGE_TYPE_ICRP,        "Incoming_Call_Reply" },
+  { MESSAGE_TYPE_ICCN,        "Incoming_Call_Connected" },
+  { MESSAGE_TYPE_CDN,         "Call_Disconnect_Notification" },
+  { MESSAGE_TYPE_WEN,         "WAN_Error_Notify" },
+  { MESSAGE_TYPE_SLI,         "Set_Link_Info" },
+  { MESSAGE_TYPE_MDMST,       "Modem_Status" },
+  { MESSAGE_TYPE_SRRQ,        "Service_Relay_Request_Msg" },
+  { MESSAGE_TYPE_SRRP,        "Service_Relay_Reply_Message" },
+  { MESSAGE_TYPE_ACK,         "Explicit_Acknowledgement" },
+  /* Fail Over Extensions - RFC4951 */
+  { MESSAGE_TYPE_FSQ,         "Failover_Session_Query_Message" },
+  { MESSAGE_TYPE_FSR,         "Failover_Session_Response_Message" },
+  /* Multicast Management - RFC4045 */
+  { MESSAGE_TYPE_MSRQ,        "Multicast-Session-Request" },
+  { MESSAGE_TYPE_MSRP,        "Multicast-Session-Response" },
+  { MESSAGE_TYPE_MSE,         "Multicast-Session-Establishment" },
+  { MESSAGE_TYPE_MSI,         "Multicast-Session-Information" },
+  { MESSAGE_TYPE_MSEN,        "Multicast-Session-End-Notify" },
+  { 0,                        NULL },
 };
 
-static const char *calltype_short_str[NUM_CONTROL_CALL_TYPES+1] = {
-  "Unknown ",
-  "SCCRQ   ",
-  "SCCRP   ",
-  "SCCCN   ",
-  "StopCCN ",
-  "Reserved", /* 5 */
-  "Hello   ",
-  "OCRQ    ",
-  "OCRP    ",
-  "OCCN    ",
-  "ICRQ    ", /* 10 */
-  "ICRP    ",
-  "ICCN    ",
-  "Reserved",
-  "CDN     ",
-  "WEN     ", /* 15 */
-  "SLI     ",
-  "MDMST   ",
-  "SRRQ    ",
-  "SRRP    ",
-  "ACK     ", /* 20 */
-  "FSQ     ",
-  "FSR     ",
-  "MSRQ    ",
-  "MSRP    ",
-  "MSE     ", /* 25 */
-  "MSI     ",
-  "MSEN    ",
-
+static const value_string l2tp_message_type_short_str_vals[] = {
+  { MESSAGE_TYPE_SCCRQ,       "SCCRQ" },
+  { MESSAGE_TYPE_SCCRP,       "SCCRP" },
+  { MESSAGE_TYPE_SCCCN,       "SCCCN" },
+  { MESSAGE_TYPE_StopCCN,     "StopCCN" },
+  { 5,                        "Reserved"},
+  { MESSAGE_TYPE_HELLO,       "Hello" },
+  { MESSAGE_TYPE_OCRQ,        "OCRQ" },
+  { MESSAGE_TYPE_OCRP,        "OCRP" },
+  { MESSAGE_TYPE_OCCN,        "OCCN" },
+  { MESSAGE_TYPE_ICRQ,        "ICRQ" },
+  { MESSAGE_TYPE_ICRP,        "ICRP" },
+  { MESSAGE_TYPE_ICCN,        "ICCN" },
+  { 13,                       "Reserved"},
+  { MESSAGE_TYPE_CDN,         "CDN" },
+  { MESSAGE_TYPE_WEN,         "WEN" },
+  { MESSAGE_TYPE_SLI,         "SLI" },
+  { MESSAGE_TYPE_MDMST,       "MDMST" },
+  { MESSAGE_TYPE_SRRQ,        "SRRQ" },
+  { MESSAGE_TYPE_SRRP,        "SRRP" },
+  { MESSAGE_TYPE_ACK,         "ACK" },
+  /* Fail Over Extensions - RFC4951 */
+  { MESSAGE_TYPE_FSQ,         "FSQ" },
+  { MESSAGE_TYPE_FSR,         "FSR" },
+  /* Multicast Management - RFC4045 */
+  { MESSAGE_TYPE_MSRQ,        "MSRQ" },
+  { MESSAGE_TYPE_MSRP,        "MSRP" },
+  { MESSAGE_TYPE_MSE,         "MSE" },
+  { MESSAGE_TYPE_MSI,         "MSI" },
+  { MESSAGE_TYPE_MSEN,        "MSEN" },
+  { 0,                        NULL },
 };
 
 
@@ -811,12 +823,10 @@ static void process_control_avps(tvbuff_t *tvb,
 
 			case CONTROL_MESSAGE:
 				msg_type = tvb_get_ntohs(tvb, idx);
-				proto_tree_add_text(l2tp_avp_tree,tvb, idx, 2,
-						    "Control Message Type: (%u) %s", msg_type,
-						    ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
-						    calltypestr[msg_type] : "Unknown");
+                                proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_message_type,
+                                                    tvb, idx, 2, FALSE);
 
-				if (msg_type == AVP_StopCCN) {
+				if (msg_type == MESSAGE_TYPE_StopCCN) {
 					isStopCcn = TRUE;
 				}
 				break;
@@ -1629,8 +1639,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 				col_add_fstr(pinfo->cinfo, COL_INFO,
 					     "%s - %s (tunnel id=%u)",
 					     control_msg ,
-					     ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
-					     calltype_short_str[msg_type] : "Unknown",
+					      val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
 					     ccid);
 			}
 			else {
@@ -1807,8 +1816,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					col_add_fstr(pinfo->cinfo, COL_INFO,
 						     "%s - %s (tunnel id=%u, session id=%u)",
 						     control_msg,
-						     ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
-						     calltype_short_str[msg_type] : "Unknown",
+						      val_to_str(msg_type, l2tp_message_type_short_str_vals, "Unknown (%u)"),
 						     tid, cid);
 				}
 				else
@@ -2095,6 +2103,10 @@ proto_register_l2tp(void)
 		{ &hf_l2tp_cisco_avp_type,
 		{ "Type", "l2tp.avp.ciscotype", FT_UINT16, BASE_DEC, VALS(cisco_avp_type_vals), 0,
 			"AVP Type", HFILL }},
+
+		{ &hf_l2tp_avp_message_type,
+		{ "Message Type", "l2tp.avp.message_type", FT_UINT16, BASE_DEC, VALS(message_type_vals), 0,
+			NULL, HFILL }},
 
 		{ &hf_l2tp_avp_assigned_tunnel_id,
 		{ "Assigned Tunnel ID", "l2tp.avp.assigned_tunnel_id", FT_UINT16, BASE_DEC, NULL, 0,
