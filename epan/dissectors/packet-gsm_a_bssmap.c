@@ -54,6 +54,7 @@
 #include "packet-e212.h"
 #include "packet-ranap.h"
 #include "packet-rrc.h"
+#include "packet-rtp.h"
 
 /* PROTOTYPES/FORWARDS */
 
@@ -574,6 +575,7 @@ static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t rrc_handle;
+static dissector_handle_t rtp_handle;
 
 static packet_info *g_pinfo;
 static proto_tree *g_tree;
@@ -3571,6 +3573,11 @@ static guint16
 be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
+	guint8 addr_type = 0;
+	guint32 rtp_ipv4_address;
+	guint16 rtp_port;
+	address	rtp_dst_addr;
+	struct e_in6_addr rtp_addr_ipv6;
 
     curr_offset = offset;
 
@@ -3581,12 +3588,16 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     switch(len){
         case 6:
             /* IPv4 */
+			addr_type = 1;
             proto_tree_add_item(tree, hf_gsm_a_bssmap_aoip_trans_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+			rtp_ipv4_address = tvb_get_ipv4(tvb, curr_offset);
             curr_offset+=4;
             break;
         case 18:
             /* IPv6 */
+			addr_type = 2;
             proto_tree_add_item(tree, hf_gsm_a_bssmap_aoip_trans_ipv6, tvb, curr_offset, 16, ENC_NA);
+			tvb_get_ipv6(tvb, offset + 5, &rtp_addr_ipv6);
             curr_offset+=16;
             break;
         default:
@@ -3595,8 +3606,29 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
             return(len);
     }
     proto_tree_add_item(tree, hf_gsm_a_bssmap_aoip_trans_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+	rtp_port = tvb_get_ntohs(tvb,curr_offset);
     curr_offset+=2;
+	
+	switch(addr_type){
+	case 0:
+		break;
+	case 1:
+		/* IPv4 */
+		rtp_dst_addr.type=AT_IPv4;
+		rtp_dst_addr.len=4;
+		rtp_dst_addr.data=(guint8 *)&rtp_ipv4_address;
+		break;
+	case 2:
+		/* IPv6 */
+		rtp_dst_addr.type=AT_IPv6;
+		rtp_dst_addr.len=16;
+		rtp_dst_addr.data=(guint8 *)&rtp_addr_ipv6;
+		break;
+	}
 
+	if((!pinfo->fd->flags.visited) && rtp_port != 0 && rtp_handle && addr_type != 0){
+		rtp_add_address(pinfo, &rtp_dst_addr, rtp_port, 0, "BSS MAP", pinfo->fd->num, FALSE, 0);
+	}
     return(curr_offset - offset);
 }
 /*
@@ -7129,5 +7161,7 @@ proto_reg_handoff_gsm_a_bssmap(void)
     gsm_bsslap_handle = find_dissector("gsm_bsslap");
     bssgp_handle = find_dissector ("bssgp");
     rrc_handle = find_dissector ("rrc");
+	rtp_handle = find_dissector("rtp");
+
 }
 
