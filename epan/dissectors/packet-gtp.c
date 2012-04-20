@@ -93,6 +93,8 @@ void proto_reg_handoff_gtp(void);
 static int proto_gtp = -1;
 
 /*KTi*/
+static int hf_gtp_ie_id = -1;
+static int hf_gtp_ie_len = -1;
 static int hf_gtp_response_in = -1;
 static int hf_gtp_response_to = -1;
 static int hf_gtp_time = -1;
@@ -765,7 +767,7 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
                                               /* 3G   195 TLV CSG Information Reporting Action  7.7.95 */
                                               /* 3G   196 TLV CSG ID    7.7.96 */
                                               /* 3G   197 TLV CSG Membership Indication (CMI)   7.7.97 */
-                                              /* 3G   198 TLV Aggregate Maximum Bit Rate (AMBR) 7.7.98 */
+#define GTP_EXT_AMBR                  0xC6    /* 3G   198 TLV Aggregate Maximum Bit Rate (AMBR) 7.7.98 */
 #define GTP_EXT_UE_NETWORK_CAP        0xC7    /* 3G   199 TLV UE Network Capability     7.7.99 */
                                               /* 3G   200 TLV UE-AMBR   7.7.100 */
                                               /* 3G   201 TLV APN-AMBR with NSAPI       7.7.101 */
@@ -912,7 +914,7 @@ static const value_string gtp_val[] = {
     {195, "CSG Information Reporting Action"},   /* 7.7.95 */
     {196, "CSG ID"},   /* 7.7.96 */
     {197, "CSG Membership Indication (CMI)"},   /* 7.7.97 */
-    {198, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
+/* 198 */  {GTP_EXT_AMBR, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
 /* 199 */  {GTP_EXT_UE_NETWORK_CAP, "UE Network Capability"},   /* 7.7.99 */
     {200, "UE-AMBR"},   /* 7.7.100 */
     {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
@@ -1762,6 +1764,7 @@ static int decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
 static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
@@ -1872,7 +1875,8 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xbe */  {GTP_EXT_FQDN, decode_gtp_fqdn},                                    /* ?.?.?? */
 /* 0xbf */  {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1},         /* 7.7.91 */
 /* 0xc0 */  {GTP_EXT_EVO_ALLO_RETE_P2, decode_gtp_evolved_allc_rtn_p2},         /* ?.?.?? */
-/* 0xbc */  {GTP_EXT_UE_NETWORK_CAP, decode_gtp_ue_network_cap},                /* 7.7.99 */
+/* 0xc6 */  {GTP_EXT_AMBR, decode_gtp_ambr},
+/* 0xc7 */  {GTP_EXT_UE_NETWORK_CAP, decode_gtp_ue_network_cap},                /* 7.7.99 */
 
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack},                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                           /* charging */
@@ -1884,6 +1888,9 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xff */  {GTP_EXT_PRIV_EXT, decode_gtp_priv_ext},
     {0, decode_gtp_unknown}
 };
+
+#define	NUM_GTP_IES (sizeof(gtpopt)/sizeof(gtp_opt_t))
+static gint ett_gtp_ies[NUM_GTP_IES];
 
 struct _gtp_hdr {
     guint8 flags;
@@ -6663,8 +6670,30 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * 7.7.95 CSG Information Reporting Action
  * 7.7.96 CSG ID
  * 7.7.97 CSG Membership Indication (CMI)
+ */
+/*
  * 7.7.98 APN Aggregate Maximum Bit Rate (APN-AMBR)
  */
+static int
+decode_gtp_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_AMBR, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ue_network_cap);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+
+	return 3 + length;
+}
 /*
  * 7.7.99 UE Network Capability
  */
@@ -7408,8 +7437,22 @@ gtp_reinit(void)
 
 void proto_register_gtp(void)
 {
+    module_t *gtp_module;
+    guint    i;
+    guint    last_offset;
+
     static hf_register_info hf_gtp[] = {
 
+        {&hf_gtp_ie_id,
+         {"IE Id", "gtp.ie_id", 
+		 FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtp_val_ext, 0x0, 
+		 NULL, HFILL}
+		},
+        {&hf_gtp_ie_len,
+         {"Length", "gtp.ie_len", 
+		 FT_UINT16, BASE_DEC, NULL, 0x0, 
+		 NULL, HFILL}
+		},
         {&hf_gtp_response_in,
          {"Response In", "gtp.response_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The response to this GTP request is in this frame", HFILL}},
         {&hf_gtp_response_to,
@@ -7812,6 +7855,95 @@ void proto_register_gtp(void)
         },
     };
 
+	/* Setup protocol subtree array */
+#define GTP_NUM_INDIVIDUAL_ELEMS    75
+    static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
+
+    ett_gtp_array[0] = &ett_gtp;
+    ett_gtp_array[1] = &ett_gtp_flags;
+    ett_gtp_array[2] = &ett_gtp_ext;
+    ett_gtp_array[3] = &ett_gtp_rai;
+    ett_gtp_array[4] = &ett_gtp_qos;
+    ett_gtp_array[5] = &ett_gtp_auth_tri;
+    ett_gtp_array[6] = &ett_gtp_flow_ii;
+    ett_gtp_array[7] = &ett_gtp_rab_cntxt;
+    ett_gtp_array[8] = &ett_gtp_rp;
+    ett_gtp_array[9] = &ett_gtp_pkt_flow_id;
+    ett_gtp_array[10] = &ett_gtp_chrg_char;
+    ett_gtp_array[11] = &ett_gtp_user;
+    ett_gtp_array[12] = &ett_gtp_mm;
+    ett_gtp_array[13] = &ett_gtp_trip;
+    ett_gtp_array[14] = &ett_gtp_quint;
+    ett_gtp_array[15] = &ett_gtp_pdp;
+    ett_gtp_array[16] = &ett_gtp_apn;
+    ett_gtp_array[17] = &ett_gtp_proto;
+    ett_gtp_array[18] = &ett_gtp_gsn_addr;
+    ett_gtp_array[19] = &ett_gtp_tft;
+    ett_gtp_array[20] = &ett_gtp_tft_pf;
+    ett_gtp_array[21] = &ett_gtp_tft_flags;
+    ett_gtp_array[22] = &ett_gtp_rab_setup;
+    ett_gtp_array[23] = &ett_gtp_hdr_list;
+    ett_gtp_array[24] = &ett_gtp_chrg_addr;
+    ett_gtp_array[25] = &ett_gtp_node_addr;
+    ett_gtp_array[26] = &ett_gtp_rel_pack;
+    ett_gtp_array[27] = &ett_gtp_can_pack;
+    ett_gtp_array[28] = &ett_gtp_data_resp;
+    ett_gtp_array[29] = &ett_gtp_priv_ext;
+    ett_gtp_array[30] = &ett_gtp_net_cap;
+    ett_gtp_array[31] = &ett_gtp_ext_tree_apn_res;
+    ett_gtp_array[32] = &ett_gtp_ext_rat_type;
+    ett_gtp_array[33] = &ett_gtp_ext_imeisv;
+    ett_gtp_array[34] = &ett_gtp_ext_ran_tr_cont;
+    ett_gtp_array[35] = &ett_gtp_ext_pdp_cont_prio;
+    ett_gtp_array[36] = &ett_gtp_ext_ssgn_no;
+    ett_gtp_array[37] = &ett_gtp_ext_rab_setup_inf;
+    ett_gtp_array[38] = &ett_gtp_ext_common_flgs;
+    ett_gtp_array[39] = &ett_gtp_ext_usr_loc_inf;
+    ett_gtp_array[40] = &ett_gtp_ext_ms_time_zone;
+    ett_gtp_array[41] = &ett_gtp_ext_camel_chg_inf_con;
+    ett_gtp_array[42] = &ett_GTP_EXT_MBMS_UE_CTX;
+    ett_gtp_array[43] = &ett_gtp_ext_tmgi;
+    ett_gtp_array[44] = &ett_gtp_tmgi;
+    ett_gtp_array[45] = &ett_gtp_ext_rim_ra;
+    ett_gtp_array[46] = &ett_gtp_ext_mbms_prot_conf_opt;
+    ett_gtp_array[47] = &ett_gtp_ext_mbms_sa;
+    ett_gtp_array[48] = &ett_gtp_ext_bms_ses_dur;
+    ett_gtp_array[49] = &ett_gtp_ext_src_rnc_pdp_ctx_inf;
+    ett_gtp_array[50] = &ett_gtp_ext_add_trs_inf;
+    ett_gtp_array[51] = &ett_gtp_ext_hop_count;
+    ett_gtp_array[52] = &ett_gtp_ext_sel_plmn_id;
+    ett_gtp_array[53] = &ett_gtp_ext_mbms_ses_id;
+    ett_gtp_array[54] = &ett_gtp_ext_mbms_2g_3g_ind;
+    ett_gtp_array[55] = &ett_gtp_ext_enh_nsapi;
+    ett_gtp_array[56] = &ett_gtp_ext_ad_mbms_trs_inf;
+    ett_gtp_array[57] = &ett_gtp_ext_mbms_ses_id_rep_no;
+    ett_gtp_array[58] = &ett_gtp_ext_mbms_time_to_data_tr;
+    ett_gtp_array[59] = &ett_gtp_ext_ps_ho_req_ctx;
+    ett_gtp_array[60] = &ett_gtp_ext_bss_cont;
+    ett_gtp_array[61] = &ett_gtp_ext_cell_id;
+    ett_gtp_array[62] = &ett_gtp_ext_pdu_no;
+    ett_gtp_array[63] = &ett_gtp_ext_bssgp_cause;
+    ett_gtp_array[64] = &ett_gtp_ext_ra_prio_lcs;
+    ett_gtp_array[65] = &ett_gtp_ext_ps_handover_xid;
+    ett_gtp_array[66] = &ett_gtp_target_id;
+    ett_gtp_array[67] = &ett_gtp_utran_cont;
+    ett_gtp_array[68] = &ett_gtp_bcm;
+    ett_gtp_array[69] = &ett_gtp_fqdn;
+    ett_gtp_array[70] = &ett_gtp_cdr_ver;
+    ett_gtp_array[71] = &ett_gtp_cdr_dr;
+    ett_gtp_array[72] = &ett_gtp_ext_hdr;
+    ett_gtp_array[73] = &ett_gtp_uli_rai;
+    ett_gtp_array[74] = &ett_gtp_ext_ue_network_cap;
+
+    last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
+
+    for (i=0; i < NUM_GTP_IES; i++, last_offset++)
+    {
+        ett_gtp_ies[i] = -1;
+        ett_gtp_array[last_offset] = &ett_gtp_ies[i];
+    }
+
+#if 0
     static gint *ett_gtp_array[] = {
         &ett_gtp,
         &ett_gtp_flags,
@@ -7889,8 +8021,8 @@ void proto_register_gtp(void)
         &ett_gtp_uli_rai,
 		&ett_gtp_ext_ue_network_cap,
     };
+#endif
 
-    module_t *gtp_module;
 
     proto_gtp = proto_register_protocol("GPRS Tunneling Protocol", "GTP", "gtp");
     proto_register_field_array(proto_gtp, hf_gtp, array_length(hf_gtp));
