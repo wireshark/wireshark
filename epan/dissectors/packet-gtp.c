@@ -257,6 +257,10 @@ static int hf_gtp_ra_prio_lcs = -1;
 static int hf_gtp_bcm = -1;
 static int hf_gtp_fqdn = -1;
 static int hf_gtp_rim_routing_addr = -1;
+static int hf_gtp_mbms_flow_id = -1;
+static int hf_gtp_mbms_dist_indic = -1;
+static int hf_gtp_ext_apn_ambr_ul = -1;
+static int hf_gtp_ext_apn_ambr_dl = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp = -1;
@@ -326,14 +330,9 @@ static gint ett_gtp_ext_pdu_no = -1;
 static gint ett_gtp_ext_bssgp_cause = -1;
 static gint ett_gtp_ext_ra_prio_lcs = -1;
 static gint ett_gtp_ext_ps_handover_xid = -1;
-static gint ett_gtp_target_id = -1;
-static gint ett_gtp_utran_cont = -1;
-static gint ett_gtp_bcm = -1;
-static gint ett_gtp_fqdn = -1;
 static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
 static gint ett_gtp_uli_rai = -1;
-static gint ett_gtp_ext_ue_network_cap = -1;
 
 static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
@@ -744,29 +743,29 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_PS_HO_REQ_CTX         0xAC    /* 3G   172 TLV PS Handover Request Context 7.7.71 */
 #define GTP_EXT_BSS_CONT              0xAD    /* 3G   173 TLV BSS Container 7.7.72 */
 #define GTP_EXT_CELL_ID               0xAE    /* 3G   174 TLV Cell Identification 7.7.73 */
-#define GTP_EXT_PDU_NO                0xAF    /* 3G   175 TLV PDU Numbers 7.7.74 */
-#define GTP_EXT_BSSGP_CAUSE           0xB0    /* 3G   176 TLV BSSGP Cause 7.7.75 */
-#define GTP_EXT_REQ_MBMS_BEARER_CAP   0xB1    /* 3G   177 TLV Required MBMS bearer capabilities       7.7.76 */
-#define GTP_EXT_RIM_ROUTING_ADDR_DISC 0xB2    /* 3G   178 TLV RIM Routing Address Discriminator       7.7.77 */
-#define GTP_EXT_LIST_OF_SETUP_PFCS    0xB3    /* 3G   179 TLV List of set-up PFCs     7.7.78 */
-#define GTP_EXT_PS_HANDOVER_XIP_PAR   0xB4    /* 3G   180 TLV PS Handover XID Parameters      7.7.79 */
-#define GTP_EXT_MS_INF_CHG_REP_ACT    0xB5    /* 3G   181 TLV MS Info Change Reporting Action 7.7.80 */
-#define GTP_EXT_DIRECT_TUNNEL_FLGS    0xB6    /* 3G   182 TLV Direct Tunnel Flags     7.7.81 */
-#define GTP_EXT_CORRELATION_ID        0xB7    /* 3G   183 TLV Correlation-ID  7.7.82 */
-#define GTP_EXT_BEARER_CONTROL_MODE   0xB8    /* 3G   184 TLV Bearer Control Mode     7.7.83 */
-                                              /* 3G   185 TLV MBMS Flow Identifier    7.7.84 */
-                                              /* 3G   186 TLV MBMS IP Multicast Distribution    7.7.85 */
-                                              /* 3G   187 TLV MBMS Distribution Acknowledgement 7.7.86 */
-                                              /* 3G   188 TLV Reliable INTER RAT HANDOVER INFO  7.7.87 */
-                                              /* 3G   189 TLV RFSP Index        7.7.88 */
+#define GTP_EXT_PDU_NO                0xAF    /* 3G   175 TLV PDU Numbers                               7.7.74 */
+#define GTP_EXT_BSSGP_CAUSE           0xB0    /* 3G   176 TLV BSSGP Cause                               7.7.75 */
+#define GTP_EXT_REQ_MBMS_BEARER_CAP   0xB1    /* 3G   177 TLV Required MBMS bearer capabilities         7.7.76 */
+#define GTP_EXT_RIM_ROUTING_ADDR_DISC 0xB2    /* 3G   178 TLV RIM Routing Address Discriminator         7.7.77 */
+#define GTP_EXT_LIST_OF_SETUP_PFCS    0xB3    /* 3G   179 TLV List of set-up PFCs                       7.7.78 */
+#define GTP_EXT_PS_HANDOVER_XIP_PAR   0xB4    /* 3G   180 TLV PS Handover XID Parameters                7.7.79 */
+#define GTP_EXT_MS_INF_CHG_REP_ACT    0xB5    /* 3G   181 TLV MS Info Change Reporting Action           7.7.80 */
+#define GTP_EXT_DIRECT_TUNNEL_FLGS    0xB6    /* 3G   182 TLV Direct Tunnel Flags                       7.7.81 */
+#define GTP_EXT_CORRELATION_ID        0xB7    /* 3G   183 TLV Correlation-ID                            7.7.82 */
+#define GTP_EXT_BEARER_CONTROL_MODE   0xB8    /* 3G   184 TLV Bearer Control Mode                       7.7.83 */
+#define GTP_EXT_MBMS_FLOW_ID          0xB9    /* 3G   185 TLV MBMS Flow Identifier                      7.7.84 */
+#define GTP_EXT_MBMS_IP_MCAST_DIST    0xBA    /* 3G   186 TLV MBMS IP Multicast Distribution            7.7.85 */
+#define GTP_EXT_MBMS_DIST_ACK         0xBB    /* 3G   187 TLV MBMS Distribution Acknowledgement         7.7.86 */
+#define GTP_EXT_RELIABLE_IRAT_HO_INF  0xBC    /* 3G   188 TLV Reliable INTER RAT HANDOVER INFO          7.7.87 */
+#define GTP_EXT_RFSP_INDEX            0xBD    /* 3G   189 TLV RFSP Index                                7.7.88 */
 #define GTP_EXT_FQDN                  0xBE    /* 3G   190 TLV Fully Qualified Domain Name (FQDN)        7.7.90 */
 #define GTP_EXT_EVO_ALLO_RETE_P1      0xBF    /* 3G   191 TLV Evolved Allocation/Retention Priority I   7.7.91 */
 #define GTP_EXT_EVO_ALLO_RETE_P2      0xC0    /* 3G   192 TLV Evolved Allocation/Retention Priority II  7.7.92 */
-                                              /* 3G   193 TLV Extended Common Flags     7.7.93 */
-                                              /* 3G   194 TLV User CSG Information (UCI)        7.7.94 */
-                                              /* 3G   195 TLV CSG Information Reporting Action  7.7.95 */
-                                              /* 3G   196 TLV CSG ID    7.7.96 */
-                                              /* 3G   197 TLV CSG Membership Indication (CMI)   7.7.97 */
+#define GTP_EXT_EXTENDED_COMMON_FLGS  0xC1    /* 3G   193 TLV Extended Common Flags                     7.7.93 */
+#define GTP_EXT_UCI                   0xC2    /* 3G   194 TLV User CSG Information (UCI)                7.7.94 */
+#define GTP_EXT_CSG_INF_REP_ACT       0xC3    /* 3G   195 TLV CSG Information Reporting Action          7.7.95 */
+#define GTP_EXT_CSG_ID                0xC4    /* 3G   196 TLV CSG ID                                    7.7.96 */
+#define GTP_EXT_CMI                   0xC5    /* 3G   197 TLV CSG Membership Indication (CMI)           7.7.97 */
 #define GTP_EXT_AMBR                  0xC6    /* 3G   198 TLV Aggregate Maximum Bit Rate (AMBR) 7.7.98 */
 #define GTP_EXT_UE_NETWORK_CAP        0xC7    /* 3G   199 TLV UE Network Capability     7.7.99 */
                                               /* 3G   200 TLV UE-AMBR   7.7.100 */
@@ -900,34 +899,34 @@ static const value_string gtp_val[] = {
     {GTP_EXT_MS_INF_CHG_REP_ACT, "MS Info Change Reporting Action"},    /* 7.7.80 */
     {GTP_EXT_DIRECT_TUNNEL_FLGS, "Direct Tunnel Flags"},    /* 7.7.81 */
     {GTP_EXT_CORRELATION_ID, "Correlation-ID"}, /* 7.7.82 */
-    {GTP_EXT_BEARER_CONTROL_MODE, "Bearer Control Mode"},   /* 7.7.83 */
-    {185, "MBMS Flow Identifier"},   /* 7.7.84 */
-    {186, "MBMS IP Multicast Distribution"},   /* 7.7.85 */
-    {187, "MBMS Distribution Acknowledgement"},   /* 7.7.86 */
-    {188, "Reliable INTER RAT HANDOVER INFO"},   /* 7.7.87 */
-    {189, "RFSP Index"},   /* 7.7.88 */
-    {GTP_EXT_FQDN, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
-    {GTP_EXT_EVO_ALLO_RETE_P1, "Evolved Allocation/Retention Priority I"},   /* 7.7.91 */
-    {GTP_EXT_EVO_ALLO_RETE_P2, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
-    {193, "Extended Common Flags"},   /* 7.7.93 */
-    {194, "User CSG Information (UCI)"},   /* 7.7.94 */
-    {195, "CSG Information Reporting Action"},   /* 7.7.95 */
-    {196, "CSG ID"},   /* 7.7.96 */
-    {197, "CSG Membership Indication (CMI)"},   /* 7.7.97 */
-/* 198 */  {GTP_EXT_AMBR, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
-/* 199 */  {GTP_EXT_UE_NETWORK_CAP, "UE Network Capability"},   /* 7.7.99 */
-    {200, "UE-AMBR"},   /* 7.7.100 */
-    {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
-    {202, "GGSN Back-Off Time"},   /* 7.7.102 */
-    {203, "Signalling Priority Indication"},   /* 7.7.103 */
-    {204, "Signalling Priority Indication with NSAPI"},   /* 7.7.104 */
-    {205, "Higher bitrates than 16 Mbps flag"},   /* 7.7.105  */
-    {206, "Max MBR/APN-AMBR"},   /* 7.7.106  */
-    {207, "Additional MM context for SRVCC"},   /* 7.7.107  */
-    {208, "Additional flags for SRVCC"},   /* 7.7.108  */
-    {209, "STN-SR"},   /* 7.7.109  */
-    {210, "C-MSISDN"},   /* 7.7.110  */
-    {211, "Extended RANAP Cause"},   /* 7.7.111  */
+/* 184 */  {GTP_EXT_BEARER_CONTROL_MODE,    "Bearer Control Mode"},                        /* 7.7.83 */
+/* 185 */  {GTP_EXT_MBMS_FLOW_ID,           "MBMS Flow Identifier"},                       /* 7.7.84 */
+/* 186 */  {GTP_EXT_MBMS_IP_MCAST_DIST,     "MBMS IP Multicast Distribution"},             /* 7.7.85 */
+/* 187 */  {GTP_EXT_MBMS_DIST_ACK,          "MBMS Distribution Acknowledgement"},          /* 7.7.86 */
+/* 188 */  {GTP_EXT_RELIABLE_IRAT_HO_INF,   "Reliable INTER RAT HANDOVER INFO"},           /* 7.7.87 */
+/* 189 */  {GTP_EXT_RFSP_INDEX,             "RFSP Index"},                                 /* 7.7.88 */
+/* 190 */  {GTP_EXT_FQDN,                   "Fully Qualified Domain Name (FQDN)"},         /* 7.7.90 */
+/* 191 */  {GTP_EXT_EVO_ALLO_RETE_P1,       "Evolved Allocation/Retention Priority I"},    /* 7.7.91 */
+/* 192 */  {GTP_EXT_EVO_ALLO_RETE_P2,       "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
+/* 193 */  {GTP_EXT_EXTENDED_COMMON_FLGS,   "Extended Common Flags"},                      /* 7.7.93 */
+/* 194 */  {GTP_EXT_UCI,                    "User CSG Information (UCI)"},                 /* 7.7.94 */
+/* 195 */  {GTP_EXT_CSG_INF_REP_ACT,        "CSG Information Reporting Action"},           /* 7.7.95 */
+/* 196 */  {GTP_EXT_CSG_ID,                 "CSG ID"},                                     /* 7.7.96 */
+/* 197 */  {GTP_EXT_CMI,                    "CSG Membership Indication (CMI)"},            /* 7.7.97 */
+/* 198 */  {GTP_EXT_AMBR,                   "Aggregate Maximum Bit Rate (AMBR)"},          /* 7.7.98 */
+/* 199 */  {GTP_EXT_UE_NETWORK_CAP,         "UE Network Capability"},                      /* 7.7.99 */
+/* 200 */  {200, "UE-AMBR"},   /* 7.7.100 */
+/* 201 */  {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
+/* 202 */  {202, "GGSN Back-Off Time"},   /* 7.7.102 */
+/* 203 */  {203, "Signalling Priority Indication"},   /* 7.7.103 */
+/* 204 */  {204, "Signalling Priority Indication with NSAPI"},   /* 7.7.104 */
+/* 205 */  {205, "Higher bitrates than 16 Mbps flag"},   /* 7.7.105  */
+/* 206 */  {206, "Max MBR/APN-AMBR"},   /* 7.7.106  */
+/* 207 */  {207, "Additional MM context for SRVCC"},   /* 7.7.107  */
+/* 208 */  {208, "Additional flags for SRVCC"},   /* 7.7.108  */
+/* 209 */  {209, "STN-SR"},   /* 7.7.109  */
+/* 210 */  {210, "C-MSISDN"},   /* 7.7.110  */
+/* 211 */  {211, "Extended RANAP Cause"},   /* 7.7.111  */
 /* 212-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
@@ -1031,43 +1030,43 @@ static const value_string gtpv1_val[] = {
 /* 173 */  {GTP_EXT_BSS_CONT, "BSS Container"},    /* 7.7.72 */
 /* 174 */  {GTP_EXT_CELL_ID, "Cell Identification"},   /* 7.7.73 */
 /* 175 */  {GTP_EXT_PDU_NO, "PDU Numbers"},    /* 7.7.74 */
-/* 176 */  {GTP_EXT_BSSGP_CAUSE, "BSSGP Cause"},   /* 7.7.75 */
+/* 176 */  {GTP_EXT_BSSGP_CAUSE,           "BSSGP Cause"},                                /* 7.7.75 */
 
-/* 177 */  {GTP_EXT_REQ_MBMS_BEARER_CAP, "Required MBMS bearer capabilities"}, /* 7.7.76 */
-/* 178 */  {GTP_EXT_RIM_ROUTING_ADDR_DISC, "RIM Routing Address Discriminator"},   /* 7.7.77 */
-/* 179 */  {GTP_EXT_LIST_OF_SETUP_PFCS, "List of set-up PFCs"},    /* 7.7.78 */
-/* 180 */  {GTP_EXT_PS_HANDOVER_XIP_PAR, "PS Handover XID Parameters"},    /* 7.7.79 */
-/* 181 */  {GTP_EXT_MS_INF_CHG_REP_ACT, "MS Info Change Reporting Action"},    /* 7.7.80 */
-/* 182 */  {GTP_EXT_DIRECT_TUNNEL_FLGS, "Direct Tunnel Flags"},    /* 7.7.81 */
-/* 183 */  {GTP_EXT_CORRELATION_ID, "Correlation-ID"}, /* 7.7.82 */
-/* 184 */  {GTP_EXT_BEARER_CONTROL_MODE, "Bearer Control Mode"},   /* 7.7.83 */
-    {185, "MBMS Flow Identifier"},   /* 7.7.84 */
-    {186, "MBMS IP Multicast Distribution"},   /* 7.7.85 */
-    {187, "MBMS Distribution Acknowledgement"},   /* 7.7.86 */
-    {188, "Reliable INTER RAT HANDOVER INFO"},   /* 7.7.87 */
-    {189, "RFSP Index"},   /* 7.7.88 */
-/* 190 */  {GTP_EXT_FQDN, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
-/* 191 */  {GTP_EXT_EVO_ALLO_RETE_P1, "Evolved Allocation/Retention Priority I"},   /* 7.7.91 */
-/* 192 */  {GTP_EXT_EVO_ALLO_RETE_P2, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
-    {193, "Extended Common Flags"},   /* 7.7.93 */
-    {194, "User CSG Information (UCI)"},   /* 7.7.94 */
-    {195, "CSG Information Reporting Action"},   /* 7.7.95 */
-    {196, "CSG ID"},   /* 7.7.96 */
-    {197, "CSG Membership Indication (CMI)"},   /* 7.7.97 */
-    {198, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
-    {199, "UE Network Capability"},   /* 7.7.99 */
-    {200, "UE-AMBR"},   /* 7.7.100 */
-    {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
-    {202, "GGSN Back-Off Time"},   /* 7.7.102 */
-    {203, "Signalling Priority Indication"},   /* 7.7.103 */
-    {204, "Signalling Priority Indication with NSAPI"},   /* 7.7.104 */
-    {205, "Higher bitrates than 16 Mbps flag"},   /* 7.7.105  */
-    {206, "Max MBR/APN-AMBR"},   /* 7.7.106  */
-    {207, "Additional MM context for SRVCC"},   /* 7.7.107  */
-    {208, "Additional flags for SRVCC"},   /* 7.7.108  */
-    {209, "STN-SR"},   /* 7.7.109  */
-    {210, "C-MSISDN"},   /* 7.7.110  */
-    {211, "Extended RANAP Cause"},   /* 7.7.111  */
+/* 177 */  {GTP_EXT_REQ_MBMS_BEARER_CAP,   "Required MBMS bearer capabilities"},          /* 7.7.76 */
+/* 178 */  {GTP_EXT_RIM_ROUTING_ADDR_DISC, "RIM Routing Address Discriminator"},          /* 7.7.77 */
+/* 179 */  {GTP_EXT_LIST_OF_SETUP_PFCS,    "List of set-up PFCs"},                        /* 7.7.78 */
+/* 180 */  {GTP_EXT_PS_HANDOVER_XIP_PAR,   "PS Handover XID Parameters"},                 /* 7.7.79 */
+/* 181 */  {GTP_EXT_MS_INF_CHG_REP_ACT,    "MS Info Change Reporting Action"},            /* 7.7.80 */
+/* 182 */  {GTP_EXT_DIRECT_TUNNEL_FLGS,    "Direct Tunnel Flags"},                        /* 7.7.81 */
+/* 183 */  {GTP_EXT_CORRELATION_ID,        "Correlation-ID"},                             /* 7.7.82 */
+/* 184 */  {GTP_EXT_BEARER_CONTROL_MODE,   "Bearer Control Mode"},                        /* 7.7.83 */
+/* 185 */  {GTP_EXT_MBMS_FLOW_ID,          "MBMS Flow Identifier"},                       /* 7.7.84 */
+/* 186 */  {GTP_EXT_MBMS_IP_MCAST_DIST,    "MBMS IP Multicast Distribution"},             /* 7.7.85 */
+/* 187 */  {GTP_EXT_MBMS_DIST_ACK,         "MBMS Distribution Acknowledgement"},          /* 7.7.86 */
+/* 188 */  {GTP_EXT_RELIABLE_IRAT_HO_INF,  "Reliable INTER RAT HANDOVER INFO"},           /* 7.7.87 */
+/* 190 */  {GTP_EXT_RFSP_INDEX,            "RFSP Index"},                                 /* 7.7.88 */
+/* 190 */  {GTP_EXT_FQDN,                  "Fully Qualified Domain Name (FQDN)"},         /* 7.7.90 */
+/* 191 */  {GTP_EXT_EVO_ALLO_RETE_P1,      "Evolved Allocation/Retention Priority I"},    /* 7.7.91 */
+/* 192 */  {GTP_EXT_EVO_ALLO_RETE_P2,      "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
+/* 193 */  {GTP_EXT_EXTENDED_COMMON_FLGS,  "Extended Common Flags"},                      /* 7.7.93 */
+/* 194 */  {GTP_EXT_UCI,                   "User CSG Information (UCI)"},                 /* 7.7.94 */
+/* 195 */  {GTP_EXT_CSG_INF_REP_ACT,       "CSG Information Reporting Action"},           /* 7.7.95 */
+/* 196 */  {GTP_EXT_CSG_ID,                "CSG ID"},                                     /* 7.7.96 */
+/* 197 */  {GTP_EXT_CMI,                   "CSG Membership Indication (CMI)"},            /* 7.7.97 */
+/* 198 */  {198, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
+/* 199 */  {199, "UE Network Capability"},   /* 7.7.99 */
+/* 200 */  {200, "UE-AMBR"},   /* 7.7.100 */
+/* 201 */  {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
+/* 202 */  {202, "GGSN Back-Off Time"},   /* 7.7.102 */
+/* 203 */  {203, "Signalling Priority Indication"},   /* 7.7.103 */
+/* 204 */  {204, "Signalling Priority Indication with NSAPI"},   /* 7.7.104 */
+/* 205 */  {205, "Higher bitrates than 16 Mbps flag"},   /* 7.7.105  */
+/* 206 */  {206, "Max MBR/APN-AMBR"},   /* 7.7.106  */
+/* 207 */  {207, "Additional MM context for SRVCC"},   /* 7.7.107  */
+/* 208 */  {208, "Additional flags for SRVCC"},   /* 7.7.108  */
+/* 209 */  {209, "STN-SR"},   /* 7.7.109  */
+/* 210 */  {210, "C-MSISDN"},   /* 7.7.110  */
+/* 211 */  {211, "Extended RANAP Cause"},   /* 7.7.111  */
 /* 212-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
@@ -1763,9 +1762,20 @@ static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo, 
 static int decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_csg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_mbms_dist_ack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+
 static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
 static int decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
@@ -1871,12 +1881,22 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xb6 */  {GTP_EXT_DIRECT_TUNNEL_FLGS, decode_gtp_direct_tnl_flg},            /* 7.7.81 */
 /* 0xb7 */  {GTP_EXT_CORRELATION_ID, decode_gtp_corrl_id},                      /* 7.7.82 */
 /* 0xb8 */  {GTP_EXT_BEARER_CONTROL_MODE, decode_gtp_bearer_cntrl_mod},         /* 7.7.83 */
+/* 0xb9 */  {GTP_EXT_MBMS_FLOW_ID, decode_gtp_mbms_flow_id},                    /* 7.7.84 */
+/* 0xba */  {GTP_EXT_MBMS_IP_MCAST_DIST, decode_gtp_mbms_ip_mcast_dist},        /* 7.7.85 */
+/* 0xba */  {GTP_EXT_MBMS_DIST_ACK, decode_gtp_mbms_dist_ack},                  /* 7.7.86 */
+/* 0xbc */  {GTP_EXT_RELIABLE_IRAT_HO_INF, decode_gtp_reliable_irat_ho_inf},    /* 7.7.87 */
+/* 0xbd */  {GTP_EXT_RFSP_INDEX, decode_gtp_rfsp_index},                        /* 7.7.87 */
 
-/* 0xbe */  {GTP_EXT_FQDN, decode_gtp_fqdn},                                    /* ?.?.?? */
+/* 0xbe */  {GTP_EXT_FQDN, decode_gtp_fqdn},                                    /* 7.7.90 */
 /* 0xbf */  {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1},         /* 7.7.91 */
-/* 0xc0 */  {GTP_EXT_EVO_ALLO_RETE_P2, decode_gtp_evolved_allc_rtn_p2},         /* ?.?.?? */
-/* 0xc6 */  {GTP_EXT_AMBR, decode_gtp_ambr},
-/* 0xc7 */  {GTP_EXT_UE_NETWORK_CAP, decode_gtp_ue_network_cap},                /* 7.7.99 */
+/* 0xc0 */  {GTP_EXT_EVO_ALLO_RETE_P2, decode_gtp_evolved_allc_rtn_p2},         /* 7.7.92 */
+/* 0xc1 */  {GTP_EXT_EXTENDED_COMMON_FLGS, decode_gtp_extended_common_flgs},    /* 7.7.93 */
+/* 0xc2 */  {GTP_EXT_UCI, decode_gtp_uci},                                      /* 7.7.94 */
+/* 0xc3 */  {GTP_EXT_CSG_INF_REP_ACT, decode_gtp_csg_inf_rep_act},              /* 7.7.95 */
+/* 0xc4 */  {GTP_EXT_CSG_ID, decode_gtp_csg_id},                                /* 7.7.96 */
+/* 0xc5 */  {GTP_EXT_CMI, decode_gtp_cmi},                                      /* 7.7.97 */
+/* 0xc6 */  {GTP_EXT_AMBR, decode_gtp_apn_ambr},                                    /* 7.7.98 */
+/* 0xc7 */  {GTP_EXT_UE_NETWORK_CAP, decode_gtp_ue_network_cap},                /* 7.7.99 */ 
 
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack},                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                           /* charging */
@@ -1889,7 +1909,7 @@ static const gtp_opt_t gtpopt[] = {
     {0, decode_gtp_unknown}
 };
 
-#define	NUM_GTP_IES (sizeof(gtpopt)/sizeof(gtp_opt_t))
+#define	NUM_GTP_IES 255
 static gint ett_gtp_ies[NUM_GTP_IES];
 
 struct _gtp_hdr {
@@ -5026,7 +5046,7 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 {
 
     guint16 length;
-    proto_item *target_id_item;
+    proto_item *te;
     proto_tree *ext_tree;
     tvbuff_t *next_tvb;
     asn1_ctx_t asn1_ctx;
@@ -5034,8 +5054,8 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    target_id_item = proto_tree_add_text(tree, tvb, offset, 3 + length, "Target Identification");
-    ext_tree = proto_item_add_subtree(target_id_item, ett_gtp_target_id);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "Target Identification");
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_TARGET_ID]);
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
@@ -5059,14 +5079,14 @@ decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
 {
 
     guint16 length;
-    proto_item *utran_cont_item;
+    proto_item *te;
     proto_tree *ext_tree;
     tvbuff_t *next_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
-    utran_cont_item = proto_tree_add_text(tree, tvb, offset, 3 + length, "UTRAN transparent field");
-    ext_tree = proto_item_add_subtree(utran_cont_item, ett_gtp_utran_cont);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "UTRAN transparent field");
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_UTRAN_CONT]);
     offset = offset + 1;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
@@ -6566,7 +6586,8 @@ decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BEARER_CONTROL_MODE, &gtpv1_val_ext, "Unknown"));
-    ext_tree = proto_item_add_subtree(te, ett_gtp_bcm);
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6580,10 +6601,136 @@ decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
 
 /*
  * 7.7.84 MBMS Flow Identifier
+ */
+static int
+decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_FLOW_ID, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	/* 4-n MBMS Flow Identifier */
+	proto_tree_add_item(ext_tree, hf_gtp_mbms_flow_id, tvb, offset, length, ENC_BIG_ENDIAN);
+
+
+	return 3 + length;
+}
+
+/*
  * 7.7.85 MBMS IP Multicast Distribution
+ */
+
+static int
+decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_IP_MCAST_DIST, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
+
+/*
  * 7.7.86 MBMS Distribution Acknowledgement
+ */
+/* Table 7.7.86.1: Distribution Indication values */
+static const value_string gtp_mbms_dist_indic_vals[] = {
+    {0, "No RNCs have accepted IP multicast distribution"},
+    {1, "All RNCs have accepted IP multicast distribution"},
+    {2, "Some RNCs have accepted IP multicast distribution"},
+    {3, "Spare. For future use."},
+    {0, NULL}
+};
+static int
+decode_gtp_mbms_dist_ack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_DIST_ACK, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_MBMS_DIST_ACK]);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	/* Distribution Indication values */
+	proto_tree_add_item(ext_tree, hf_gtp_mbms_dist_indic, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	return 3 + length;
+}
+
+/*
  * 7.7.87 Reliable INTER RAT HANDOVER INFO
+ */
+static int
+decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_RELIABLE_IRAT_HO_INF, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_RELIABLE_IRAT_HO_INF]);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
+
+/*
  * 7.7.88 RFSP Index
+ */
+static int
+decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_RFSP_INDEX, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
+/*
  * 7.7.89 PDP Type
  */
 /*
@@ -6594,16 +6741,17 @@ decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree 
 {
 
     guint16 length;
-    proto_tree *ext_tree_fqdn;
+    proto_tree *ext_tree;
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
     te = proto_tree_add_text(tree, tvb, offset, length + 3, "%s", val_to_str_ext_const(GTP_EXT_FQDN, &gtp_val_ext, "Unknown field"));
-    ext_tree_fqdn = proto_item_add_subtree(te, ett_gtp_fqdn);
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_text(ext_tree_fqdn, tvb, offset + 1, 2, "FQDN length : %u", length);
-    decode_fqdn(tvb, offset + 3, length, ext_tree_fqdn);
+    proto_tree_add_text(ext_tree, tvb, offset + 1, 2, "FQDN length : %u", length);
+    decode_fqdn(tvb, offset + 3, length, ext_tree);
 
     return 3 + length;
 }
@@ -6622,6 +6770,7 @@ decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P1, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6650,6 +6799,7 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P2, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6666,16 +6816,128 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
 
 /*
  * 7.7.93 Extended Common Flags
+ */
+static int
+decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EXTENDED_COMMON_FLGS, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
+
+/*
  * 7.7.94 User CSG Information (UCI)
+ */
+static int
+decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_UCI, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
+
+/*
  * 7.7.95 CSG Information Reporting Action
+ */
+
+static int
+decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CSG_INF_REP_ACT, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
+/*
  * 7.7.96 CSG ID
+ */
+
+static int
+decode_gtp_csg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CSG_ID, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
+/*
  * 7.7.97 CSG Membership Indication (CMI)
  */
+static int
+decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    guint16 length;
+    proto_tree *ext_tree;
+    proto_item *te;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CMI, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset = offset + 2;
+
+	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+
+	return 3 + length;
+}
 /*
  * 7.7.98 APN Aggregate Maximum Bit Rate (APN-AMBR)
  */
 static int
-decode_gtp_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     guint16 length;
     proto_tree *ext_tree;
@@ -6683,13 +6945,23 @@ decode_gtp_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree 
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_AMBR, &gtpv1_val_ext, "Unknown"));
-    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ue_network_cap);
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_RELIABLE_IRAT_HO_INF]);
+	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-	proto_tree_add_text(tree, tvb, offset, length, "The rest of the data is not dissected yet");
+	/* APN Aggregate Maximum Bit Rate (APN-AMBR) is defined in clause 9.9.4.2 of 3GPP TS 24.301 [42], but shall be
+	 * formatted as shown in Figure 7.7.98-1 as Unsigned32 binary integer values in kbps (1000 bits per second).
+	 */
+	/* 4 to 7 APN-AMBR for Uplink */
+	te = proto_tree_add_item(ext_tree, hf_gtp_ext_apn_ambr_ul, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_item_append_text(te, " kbps");
+	offset+=4;
+	/* 8 to 11 APN-AMBR for Downlink */
+	te = proto_tree_add_item(ext_tree, hf_gtp_ext_apn_ambr_dl, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_item_append_text(te, " kbps");
 
 
 	return 3 + length;
@@ -6706,7 +6978,7 @@ decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_UE_NETWORK_CAP, &gtpv1_val_ext, "Unknown"));
-    ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ue_network_cap);
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_UE_NETWORK_CAP]);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -7328,7 +7600,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         } else
             offset = 20;
 
-        proto_tree_add_text(tree, tvb, offset, gtp_hdr.length, "T-PDU Data %u bytes", gtp_hdr.length);
+        if(gtp_hdr.length > offset){
+            proto_tree_add_text(tree, tvb, offset, gtp_hdr.length, "T-PDU Data %u bytes", gtp_hdr.length);
+		}
         /* Can only handle one extension header type... */
         if (noOfExtHdrs != 0) offset+= 1 + noOfExtHdrs*4;
 
@@ -7376,7 +7650,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 offset = 8;
         } else
             offset = 20;
-        proto_tree_add_text(tree, tvb, offset, gtp_hdr.length, "T-PDU Data %u bytes", gtp_hdr.length);
     }
     pinfo->private_data = pd_save;
 }
@@ -7853,10 +8126,30 @@ void proto_register_gtp(void)
           FT_BYTES, BASE_NONE, NULL, 0,
           NULL, HFILL}
         },
+		{ &hf_gtp_mbms_flow_id,
+         {"MBMS Flow Identifier", "gtp.mbms_flow_id",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL}
+        },
+		{ &hf_gtp_mbms_dist_indic,
+         {"Distribution Indication", "gtp.mbms_dist_indic",
+          FT_UINT8, BASE_DEC, VALS(gtp_mbms_dist_indic_vals), 0x03,
+          NULL, HFILL}
+        },
+		{ &hf_gtp_ext_apn_ambr_ul,
+         {"APN-AMBR for Uplink", "gtp.apn_ambr_ul",
+          FT_INT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+		{ &hf_gtp_ext_apn_ambr_dl,
+         {"APN-AMBR for Downlink", "gtp.apn_ambr_dl",
+          FT_INT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
     };
 
 	/* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    75
+#define GTP_NUM_INDIVIDUAL_ELEMS    70
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -7925,15 +8218,10 @@ void proto_register_gtp(void)
     ett_gtp_array[63] = &ett_gtp_ext_bssgp_cause;
     ett_gtp_array[64] = &ett_gtp_ext_ra_prio_lcs;
     ett_gtp_array[65] = &ett_gtp_ext_ps_handover_xid;
-    ett_gtp_array[66] = &ett_gtp_target_id;
-    ett_gtp_array[67] = &ett_gtp_utran_cont;
-    ett_gtp_array[68] = &ett_gtp_bcm;
-    ett_gtp_array[69] = &ett_gtp_fqdn;
-    ett_gtp_array[70] = &ett_gtp_cdr_ver;
-    ett_gtp_array[71] = &ett_gtp_cdr_dr;
-    ett_gtp_array[72] = &ett_gtp_ext_hdr;
-    ett_gtp_array[73] = &ett_gtp_uli_rai;
-    ett_gtp_array[74] = &ett_gtp_ext_ue_network_cap;
+    ett_gtp_array[66] = &ett_gtp_cdr_dr;
+    ett_gtp_array[67] = &ett_gtp_ext_hdr;
+    ett_gtp_array[68] = &ett_gtp_uli_rai;
+    ett_gtp_array[69] = &ett_gtp_cdr_ver;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
