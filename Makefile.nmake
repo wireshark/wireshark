@@ -849,7 +849,7 @@ process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 !IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		gtk2 gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM)ws.zip
+		gtk2 gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
 !ENDIF
 !IFDEF KFW_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
@@ -1104,43 +1104,28 @@ install-all: install-generated-files
 	if exist $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\modules\libgail.dll $(INSTALL_DIR)\lib\gtk-2.0\modules /d
 	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines\libpixmap.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines /d
+!IFDEF NEED_LIBPNG_DLL
+	xcopy $(GTK_DIR)\bin\$(PNG_DLL) $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_LIBTIFF_DLL
+	xcopy $(GTK_DIR)\bin\$(TIFF_DLL) $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_LIBJPEG_DLL
+	xcopy $(GTK_DIR)\bin\$(JPEG_DLL) $(INSTALL_DIR) /d
+!ENDIF
 !IFDEF NEED_CAIRO_DLL
 	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
 	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_EXPAT_DLL
-	xcopy $(GTK_DIR)\bin\$(EXPAT_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_FFI_DLL
-	xcopy $(GTK_DIR)\bin\$(FFI_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_FONTCONFIG_DLL
-	xcopy $(GTK_DIR)\bin\$(FONTCONFIG_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_FREETYPE_DLL
 	xcopy $(GTK_DIR)\bin\libpangoft2-1.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\$(FREETYPE_DLL) $(INSTALL_DIR) /d
 !ENDIF
-!IFDEF NEED_JASPER_DLL
-	xcopy $(GTK_DIR)\bin\$(JASPER_DLL) $(INSTALL_DIR) /d
+!IFDEF NEED_FONTCONFIG_DLL
+	xcopy $(GTK_DIR)\bin\$(FONTCONFIG_DLL) $(INSTALL_DIR) /d
 !ENDIF
-!IFDEF NEED_JPEG_DLL
-	xcopy $(GTK_DIR)\bin\$(JPEG_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_LZMA_DLL
-	xcopy $(GTK_DIR)\bin\$(LZMA_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_PIXMAN_DLL
-	xcopy $(GTK_DIR)\bin\$(PIXMAN_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_PNG_DLL
-	xcopy $(GTK_DIR)\bin\$(PNG_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_TIFF_DLL
-	xcopy $(GTK_DIR)\bin\$(TIFF_DLL) $(INSTALL_DIR) /d
-!ENDIF
-!IFDEF NEED_XML_DLL
-	xcopy $(GTK_DIR)\bin\$(XML_DLL) $(INSTALL_DIR) /d
+!IFDEF NEED_EXPAT_DLL
+	xcopy $(GTK_DIR)\bin\$(EXPAT_DLL) $(INSTALL_DIR) /d
 !ENDIF
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
 	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
