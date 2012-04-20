@@ -838,20 +838,14 @@ static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
     guint8      header[16];
     int         rec_size = 0;
     guint8      i;
-    guint8      *s_510021_ptr = NULL;
     guint8      *s_510006_ptr = NULL;
     guint8      *s_510024_ptr = NULL; 
     guint8      *s_510012_ptr = NULL;               /* stats pointers */
-    guint8      device_type,header_version;         /* length of radiotap headers */
     gint64      filePos = -1;
     guint32     frame_type = 0;
     int         f_len, v_type;
-    gboolean    found_frame = FALSE;
     guint16     data_length = 0;
     guint16     fpga_version;
-
-    device_type = 0;
-    header_version = 0;
 
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
@@ -883,7 +877,6 @@ static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
             }
             else {
                 rec_size = f_len;
-                found_frame = TRUE;
                 /* got a frame record; read over entire record (frame + trailer) into a local buffer */
                 /* if we don't get it all, then declare an error, we can't process the frame */
                 if (file_read(rec, rec_size, wth->fh) != rec_size) {
@@ -935,15 +928,14 @@ static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
 
                 /* Next the series II WLAN */
                 if ((rec_size > vVW510021_W_STATS_LEN) && (fpga_version == 1000)) {
-                    s_510021_ptr = &(rec[rec_size - vVW510021_W_STATS_LEN]);    /* point to 510021 WLAN */
-                                                                                /* stats block */
-                    
+                    /* stats block */
+
                     data_length = (256 * (rec[vVW510021_W_MSDU_LENGTH_OFF + 1] & 0x1f)) + rec[vVW510021_W_MSDU_LENGTH_OFF];
-                    
+
                     i = 0;
                     while (((data_length + i) % 4) != 0)
                         i = i + 1;
-                    
+
                     /*the 12 is from the 12 bytes of plcp header */
                     if (rec_size == (data_length + vVW510021_W_STATS_LEN +vVW510021_W_AFTERHEADER_LEN+12+i))
                         fpga_version = vVW510021_W_FPGA; 
@@ -996,21 +988,20 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
                                                     /* times, nsec */
     guint32         latency;
     guint64         start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
-    guint64         end_time, e_sec, e_usec = LL_ZERO;   /* end time, sec + usec */
+    guint64         end_time, e_sec;                /* end time, sec */
     guint16         info;                           /* INFO/ERRORS fields in stats blk */
     gint16          rssi;                           /* RSSI, signed 16-bit number */
     int             f_tx;                           /* flag: if set, is a TX frame */
     int             f_flow, f_qos;                  /* flags: flow valid, frame is QoS */
     guint32         frame_type;                     /* frame type field */
     int             rate;                           /* PHY bit rate in 0.5 Mb/s units */
-    guint16         vc_id, flow_id,ip_len, ht_len=0;   /* VC ID, flow ID, total ip length */
+    guint16         vc_id, flow_id, ht_len=0;       /* VC ID, flow ID, total ip length */
     guint32         d_time, errors;                 /* packet duration & errors */
     guint16         r_hdr_len;                      /* length of radiotap headers */
     ext_rtap_fields er_fields;                      /* extended radiotap fields */
     stats_common_fields common_fields;              /* extended radiotap fields */
     int             mac_snap, sig_off, pay_off;     /* MAC+SNAP header len, signature offset */
     guint64         sig_ts;                         /* 32 LSBs of timestamp in signature */
-    gint32          remaining_length = 0;
 
     /* calculate the start of the statistics block in the buffer */
     /* also get a bunch of fields from the stats block */
@@ -1020,7 +1011,6 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     octets = (s_ptr[OCTET_OFF] << 8) + s_ptr[OCTET_OFF + 1];
     vc_id = ((s_ptr[VCID_OFF] << 8) + s_ptr[VCID_OFF + 1]) & (guint8)VCID_MASK;
     flow_seq = s_ptr[FLOWSEQ_OFF];
-    ip_len = (s_ptr[IPLEN_OFF] << 8) | s_ptr[IPLEN_OFF+1];
 
     f_flow = (s_ptr[VALID_OFF] & (guint8)FLOW_VALID) != 0;
     f_qos = (s_ptr[MTYPE_OFF] & (guint8)IS_QOS) != 0;
@@ -1057,8 +1047,6 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
 
     /* sanity check the octets field to determine if it is OK (or segfaults result) */
     /* if it's greater, then truncate to actual record size */
-    remaining_length = rec_size - STATS_LEN;
-    
     if (octets > (rec_size - (int)STATS_LEN))
         octets = (rec_size - (int)STATS_LEN);
     msdu_length = octets;
@@ -1085,7 +1073,6 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     /* also convert the packet end time to seconds and microseconds */
     end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
     e_sec = (end_time / US_IN_SEC);                     /* get the number of seconds */
-    e_usec = end_time - (e_sec * US_IN_SEC);            /* get the number of microseconds */
 
     /* extract the 32 LSBs of the signature timestamp field from the data block*/
     mac_snap = (f_qos ? 34 : 32);                       /* 24 (MAC) + 2 (QoS) + 8 (SNAP) */
@@ -1214,21 +1201,21 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     int PLCP_OFF = 8;
     register int    i;                              /* temps */
     register        guint8  *s_start_ptr,*s_trail_ptr, *m_ptr,*plcp_ptr; /* stats & MPDU ptr */
-    gint16          msdu_length, plcp_offset, actual_octets;        /* octets in frame */
-    guint8          l1p_1,l1p_2,sel_type, flow_seq, plcp_type, mcs_index;   /* mod (CCK-L/CCK-S/OFDM) */
+    gint16          msdu_length, actual_octets;        /* octets in frame */
+    guint8          l1p_1,l1p_2, flow_seq, plcp_type, mcs_index;   /* mod (CCK-L/CCK-S/OFDM) */
     guint64         s_time = LL_ZERO, e_time = LL_ZERO; /* start/end */
                                                     /*  times, nsec */
     guint64 latency = LL_ZERO;
     guint64         start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
-    guint64         end_time, e_sec, e_usec = LL_ZERO;   /* end time, sec + usec */
-    guint16         info, fpga_version, validityBits;    /* INFO/ERRORS fields in stats blk */
+    guint64         end_time, e_sec;                /* end time, sec */
+    guint16         info, validityBits;             /* INFO/ERRORS fields in stats blk */
     guint32         errors = 0;
     gint16          rssi;                           /* RSSI, signed 16-bit number */
     int             f_tx;                           /* flag: if set, is a TX frame */
     int             f_flow, f_qos;                  /* flags: flow valid, frame is QoS */
     guint32         frame_type;                     /* frame type field */
     guint8          rate;                           /* PHY bit rate in 0.5 Mb/s units */
-    guint16         vc_id, ip_len, ht_len=0;        /* VC ID , total ip length*/
+    guint16         vc_id, ht_len=0;                /* VC ID , total ip length*/
     guint32         flow_id, d_time;                /* flow ID, packet duration*/
     guint16         r_hdr_len;                      /* length of radiotap headers */
     ext_rtap_fields     er_fields;                  /* extended radiotap fields */
@@ -1246,7 +1233,6 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     s_trail_ptr = &(rec[rec_size - STATS_LEN]);             /* point to it */
 
     l1p_1 = s_start_ptr[L1P_1_OFF];
-    sel_type = l1p_1 & (guint8)vVW510021_W_SEL_MASK;
     mcs_index = l1p_1 & (guint8)vVW510021_W_MCS_MASK;
     l1p_2 = s_start_ptr[L1P_2_OFF];
     plcp_type = l1p_2 & (guint8)vVW510021_W_PLCPC_MASK;
@@ -1259,7 +1245,6 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     f_tx = IS_TX;
     vc_id = ((s_start_ptr[VCID_OFF] << 8) | (s_start_ptr[VCID_OFF + 1]));
     flow_seq = s_trail_ptr[FLOWSEQ_OFF];
-    fpga_version = (s_trail_ptr[FPGA_VERSION_OFF] << 8) + s_trail_ptr[FPGA_VERSION_OFF + 1];
     validityBits = (s_trail_ptr[VALID_OFF] << 8) + s_trail_ptr[VALID_OFF + 1];
 
     f_flow = (validityBits & FLOW_VALID) != 0;
@@ -1271,7 +1256,6 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     flow_id = 0x00000000; latency = 0x00000000;               /* clear flow ID & latency */
     flow_id = (s_trail_ptr[FLOWID_OFF] << 16) | (s_trail_ptr[FLOWID_OFF + 1] << 8) |
                                 s_trail_ptr[FLOWID_OFF + 2]; /* all 24 bits valid */
-    ip_len = (s_trail_ptr[IPLEN_OFF] << 8) | s_trail_ptr[IPLEN_OFF+1];
     /* for tx latency is duration, for rx latency is timestamp */
     /* get 48-bit latency value */
     tsid = (s_trail_ptr[LATVAL_OFF + 6] << 8) | (s_trail_ptr[LATVAL_OFF + 7]);
@@ -1327,7 +1311,6 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     }
     else {
         rate = 1;
-        plcp_offset = 6;
     }
     
     /* calculate the MPDU size/ptr stuff; MPDU starts at 4 or 6 depending on OFDM/CCK */
@@ -1369,7 +1352,6 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     /* also convert the packet end time to seconds and microseconds */
     end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
     e_sec = (end_time / US_IN_SEC);                     /* get the number of seconds */
-    e_usec = end_time - (e_sec * US_IN_SEC);            /* get the number of microseconds */
 
     /* extract the 32 LSBs of the signature timestamp field */
     mac_snap = (f_qos ? 34 : 32);                       /* 24 (MAC) + 2 (QoS) + 8 (SNAP) */
@@ -1529,10 +1511,10 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
                                                         /* times, nsec */
     guint32         latency = 0;
     guint64         start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
-    guint64         end_time, e_sec, e_usec = LL_ZERO;   /* end time, sec + usec */
-    guint16         l4id, info, fpga_version, validityBits; /* INFO/ERRORS fields in stats */
+    guint64         end_time, e_sec;                     /* end time, secs */
+    guint16         l4id, info, validityBits;           /* INFO/ERRORS fields in stats */
     guint32         errors;
-    guint16         vc_id, ip_len;                  /* VC ID, total (incl of aggregates) ip length */
+    guint16         vc_id;                          /* VC ID, total (incl of aggregates) */
     guint32         flow_id, d_time;                /* packet duration */
     int             f_flow;                         /* flags: flow valid */
     guint32         frame_type;                     /* frame type field */
@@ -1564,7 +1546,6 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
              (s_ptr[FRAME_TYPE_OFF + 2] << 8) | (s_ptr[FRAME_TYPE_OFF + 3]);
 
     if (FPGA_VERSION == vVW510024_E_FPGA) {
-        fpga_version = (s_ptr[FPGA_VERSION_OFF] << 8) + s_ptr[FPGA_VERSION_OFF + 1];
         validityBits = (s_ptr[VALID_OFF] << 8) + s_ptr[VALID_OFF + 1];
         f_flow = validityBits & FLOW_VALID;
 
@@ -1574,8 +1555,6 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
         errors = (s_ptr[ERRORS_OFF] << 8) + s_ptr[ERRORS_OFF + 1];
     }
     else {
-        fpga_version = 0;
-
         validityBits = 0;
         f_flow = s_ptr[VALID_OFF] & FLOW_VALID;
         mac_len = (frame_type & IS_VLAN) ? 16 : 14;             /* MAC hdr length based on VLAN tag */
@@ -1586,7 +1565,6 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     }
 
     info = (s_ptr[INFO_OFF] << 8) + s_ptr[INFO_OFF + 1];
-    ip_len = (s_ptr[IPLEN_OFF] << 8) | s_ptr[IPLEN_OFF+1];
     /*  24 LSBs */
     flow_id = (s_ptr[FLOWID_OFF] << 16) | (s_ptr[FLOWID_OFF + 1] << 8) |
                 s_ptr[FLOWID_OFF + 2];
@@ -1621,7 +1599,6 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     /* also convert the packet end time to seconds and microseconds */
     end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
     e_sec = (end_time / US_IN_SEC);                     /* get the number of seconds */
-    e_usec = end_time - (e_sec * US_IN_SEC);            /* get the number of microseconds */
 
     if (frame_type & IS_TCP)                            /* signature offset for TCP frame */
     {
