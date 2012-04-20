@@ -1647,6 +1647,34 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
         main_do_quit();
     }
 }
+
+static void
+main_capture_cb_capture_failed(capture_options *capture_opts _U_)
+{
+    static GList *icon_list = NULL;
+
+    /* the capture failed before the first packet was captured
+       reset title, menus and icon */
+
+    set_main_window_name("The Wireshark Network Analyzer");
+
+    set_menus_for_capture_in_progress(FALSE);
+    set_capture_if_dialog_for_capture_in_progress(FALSE);
+
+    main_set_for_capture_file(FALSE);
+
+    if(icon_list == NULL) {
+        icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
+    }
+    gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
+
+
+    if(global_capture_opts.quit_after_cap) {
+        /* command line asked us to quit after the capture */
+        /* don't pop up a dialog to ask for unsaved files etc. */
+        main_do_quit();
+    }
+}
 #endif  /* HAVE_LIBPCAP */
 
 static void
@@ -1792,6 +1820,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         break;
     case(capture_cb_capture_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");
+        main_capture_cb_capture_failed(capture_opts);
         break;
     default:
         g_warning("main_capture_callback: event %u unknown", event);
