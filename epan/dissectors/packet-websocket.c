@@ -140,18 +140,26 @@ static int
 dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree, guint8 opcode, guint64 payload_length, guint8 mask, const guint8* masking_key)
 {
   int offset = 0;
+  int payload_length_32bit;
   proto_item *ti_unmask, *ti;
   proto_tree *pl_tree, *mask_tree = NULL;
   tvbuff_t  *tvb_unmask    = NULL;
 
+  /* Wireshark does not handle packets larger than 2^31-1 bytes. */
+  payload_length_32bit = (int)payload_length;
+  if (payload_length != payload_length_32bit) {
+    proto_tree_add_text(ws_tree, tvb, offset, -1, "Payload length %" G_GINT64_MODIFIER "u" is too large to dissect",
+                        payload_length);
+    return tvb_length(tvb);
+  }
 
   /* Payload */
-  ti = proto_tree_add_item(ws_tree, hf_ws_payload, tvb, offset, payload_length, ENC_NA);
+  ti = proto_tree_add_item(ws_tree, hf_ws_payload, tvb, offset, payload_length_32bit, ENC_NA);
   pl_tree = proto_item_add_subtree(ti, ett_ws_pl);
   if(mask){
-    tvb_unmask = tvb_unmasked(tvb, offset, payload_length, masking_key);
+    tvb_unmask = tvb_unmasked(tvb, offset, payload_length_32bit, masking_key);
     add_new_data_source(pinfo, tvb_unmask, "Unmasked Data");
-    ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, tvb_unmask, offset, payload_length, ENC_NA);
+    ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
     mask_tree = proto_item_add_subtree(ti, ett_ws_mask);
   }
 
@@ -162,90 +170,90 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
   switch(opcode){
 
     case WS_CONTINUE: /* Continue */
-      proto_tree_add_item(pl_tree, hf_ws_payload_continue, tvb, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_continue, tvb, offset, payload_length_32bit, ENC_NA);
       /* TODO: Add Fragmentation support... */
     break;
 
     case WS_TEXT: /* Text */ 
     if(mask){
 
-      proto_tree_add_item(pl_tree, hf_ws_payload_text_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text_unmask, tvb_unmask, offset, payload_length,  ENC_UTF_8|ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_text_mask, tvb, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text_unmask, tvb_unmask, offset, payload_length_32bit,  ENC_UTF_8|ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text, tvb_unmask, offset, payload_length,  ENC_UTF_8|ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text, tvb_unmask, offset, payload_length_32bit,  ENC_UTF_8|ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
-      proto_tree_add_item(pl_tree, hf_ws_payload_text, tvb, offset, payload_length, ENC_UTF_8|ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_text, tvb, offset, payload_length_32bit, ENC_UTF_8|ENC_NA);
 
     }
-    offset += payload_length;
+    offset += payload_length_32bit;
     break;
 
     case WS_BINARY: /* Binary */
     if(mask){
-      proto_tree_add_item(pl_tree, hf_ws_payload_binary_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary_unmask, tvb_unmask, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_binary_mask, tvb, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary, tvb_unmask, offset, payload_length, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
-      proto_tree_add_item(pl_tree, hf_ws_payload_binary, tvb, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_binary, tvb, offset, payload_length_32bit, ENC_NA);
     }
-    offset += payload_length;
+    offset += payload_length_32bit;
     break;
 
     case WS_CLOSE: /* Close */
     if(mask){
-      proto_tree_add_item(pl_tree, hf_ws_payload_close_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_unmask, tvb_unmask, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_close_mask, tvb, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close, tvb_unmask, offset, payload_length, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
       ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_status_code, tvb_unmask, offset, 2, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
 
-      if(payload_length > 2){
-        ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_reason, tvb_unmask, offset+2, payload_length-2, ENC_ASCII|ENC_NA);
+      if(payload_length_32bit > 2){
+        ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_reason, tvb_unmask, offset+2, payload_length_32bit-2, ENC_ASCII|ENC_NA);
         PROTO_ITEM_SET_GENERATED(ti_unmask);
       }
     }else{
-      proto_tree_add_item(pl_tree, hf_ws_payload_close, tvb, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_close, tvb, offset, payload_length_32bit, ENC_NA);
       proto_tree_add_item(pl_tree, hf_ws_payload_close_status_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-      if(payload_length > 2){
-        proto_tree_add_item(pl_tree, hf_ws_payload_close_reason, tvb, offset+2, payload_length-2, ENC_ASCII|ENC_NA);
+      if(payload_length_32bit > 2){
+        proto_tree_add_item(pl_tree, hf_ws_payload_close_reason, tvb, offset+2, payload_length_32bit-2, ENC_ASCII|ENC_NA);
       }
     }
-    offset += payload_length;
+    offset += payload_length_32bit;
     break;
 
     case WS_PING: /* Ping */
     if(mask){
-      proto_tree_add_item(pl_tree, hf_ws_payload_ping_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping_unmask, tvb_unmask, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_ping_mask, tvb, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping, tvb_unmask, offset, payload_length, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
-      proto_tree_add_item(pl_tree, hf_ws_payload_ping, tvb, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_ping, tvb, offset, payload_length_32bit, ENC_NA);
     }
-    offset += payload_length;
+    offset += payload_length_32bit;
     break;
 
     case WS_PONG: /* Pong */
     if(mask){
-      proto_tree_add_item(pl_tree, hf_ws_payload_pong_mask, tvb, offset, payload_length, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong_unmask, tvb_unmask, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_pong_mask, tvb, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong, tvb_unmask, offset, payload_length, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong, tvb_unmask, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
-      proto_tree_add_item(pl_tree, hf_ws_payload_pong, tvb, offset, payload_length, ENC_NA);
+      proto_tree_add_item(pl_tree, hf_ws_payload_pong, tvb, offset, payload_length_32bit, ENC_NA);
     }
-    offset += payload_length;
+    offset += payload_length_32bit;
     break;
 
     default: /* Unknown */
-      ti = proto_tree_add_item(pl_tree, hf_ws_payload_unknown, tvb, offset, payload_length, ENC_NA);
+      ti = proto_tree_add_item(pl_tree, hf_ws_payload_unknown, tvb, offset, payload_length_32bit, ENC_NA);
       expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE, "Dissector for Websocket Opcode (%d)"
                                        " code not implemented, Contact Wireshark developers"
                                        " if you want this supported", opcode);
