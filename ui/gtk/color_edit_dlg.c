@@ -146,7 +146,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   g_object_set_data(G_OBJECT(edit_dialog), "edit_dialog", edit_dialog);
   colorf->edit_dialog = edit_dialog;
 
-  dialog_vbox = gtk_vbox_new (FALSE, 0);
+  dialog_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width  (GTK_CONTAINER (dialog_vbox), 5);
   gtk_container_add (GTK_CONTAINER (edit_dialog), dialog_vbox);
 
@@ -154,12 +154,12 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   filter_fr = gtk_frame_new("Filter");
   gtk_box_pack_start (GTK_BOX (dialog_vbox), filter_fr, FALSE, FALSE, 0);
 
-  filter_fr_vbox = gtk_vbox_new (FALSE, 0);
+  filter_fr_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width  (GTK_CONTAINER (filter_fr_vbox), 5);
   gtk_container_add(GTK_CONTAINER(filter_fr), filter_fr_vbox);
 
   /* filter name hbox */
-  filter_name_hbox = gtk_hbox_new (FALSE, 0);
+  filter_name_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start (GTK_BOX (filter_fr_vbox), filter_name_hbox, TRUE, FALSE, 3);
 
   color_filter_name = gtk_label_new (("Name: "));
@@ -184,7 +184,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   gtk_widget_set_tooltip_text(filt_name_entry, "This is the editable name of the filter. (No @ characters allowed.)");
 
   /* filter string hbox */
-  filter_string_hbox = gtk_hbox_new (FALSE, 0);
+  filter_string_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start (GTK_BOX (filter_fr_vbox), filter_string_hbox, TRUE, FALSE, 3);
 
   color_filter_text = gtk_label_new (("String: "));
@@ -211,14 +211,14 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   filter_te_syntax_check_cb(filt_text_entry, NULL);
 
   /* settings-hbox for "choose color frame" and "status frame" */
-  settings_hbox = gtk_hbox_new (FALSE, 0);
+  settings_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start (GTK_BOX (dialog_vbox), settings_hbox, FALSE, FALSE, 0);
 
   /* choose color frame */
   colorize_fr = gtk_frame_new("Display Colors");
   gtk_box_pack_start (GTK_BOX (settings_hbox), colorize_fr, TRUE, TRUE, 0);
 
-  colorize_hbox = gtk_hbox_new (FALSE, 0);
+  colorize_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_container_set_border_width  (GTK_CONTAINER (colorize_hbox), 5);
   gtk_container_add(GTK_CONTAINER(colorize_fr), colorize_hbox);
 
@@ -234,7 +234,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   status_fr = gtk_frame_new("Status");
   gtk_box_pack_start (GTK_BOX (settings_hbox), status_fr, TRUE, TRUE, 0);
 
-  status_vbox = gtk_vbox_new (FALSE, 0);
+  status_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width  (GTK_CONTAINER (status_vbox), 5);
   gtk_container_add(GTK_CONTAINER(status_fr), status_vbox);
 

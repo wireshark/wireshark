@@ -217,14 +217,14 @@ colorize_dialog_new (char *filter)
   color_win = dlg_conf_window_new ("Wireshark: Coloring Rules");
   g_object_set_data(G_OBJECT(color_win), "color_win", color_win);
   gtk_window_set_default_size(GTK_WINDOW(color_win), DEF_WIDTH, DEF_HEIGHT * 2/3);
-  dlg_vbox = gtk_vbox_new (FALSE, 0);
+  dlg_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width  (GTK_CONTAINER (dlg_vbox), 5);
   gtk_container_add (GTK_CONTAINER (color_win), dlg_vbox);
 
-  main_hbox = gtk_hbox_new (FALSE, 0);
+  main_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start (GTK_BOX (dlg_vbox), main_hbox, TRUE, TRUE, 0);
 
-  ctrl_vbox = gtk_vbox_new (FALSE, 0);
+  ctrl_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_box_pack_start (GTK_BOX (main_hbox), ctrl_vbox, FALSE, FALSE, 0);
 
   /* edit buttons frame */
@@ -232,7 +232,7 @@ colorize_dialog_new (char *filter)
   gtk_box_pack_start (GTK_BOX (ctrl_vbox), edit_fr, TRUE, TRUE, 0);
 
   /* edit_vbox is first button column (containing: new, edit and such) */
-  edit_vbox = gtk_vbox_new(TRUE, 0);
+  edit_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, TRUE);
   gtk_container_set_border_width  (GTK_CONTAINER (edit_vbox), 5);
   gtk_container_add(GTK_CONTAINER(edit_fr), edit_vbox);
 
@@ -266,7 +266,7 @@ colorize_dialog_new (char *filter)
   manage_fr = gtk_frame_new("Manage");
   gtk_box_pack_start (GTK_BOX (ctrl_vbox), manage_fr, TRUE, TRUE, 0);
 
-  manage_vbox = gtk_vbox_new (TRUE, 0);
+  manage_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, TRUE);
   gtk_container_set_border_width  (GTK_CONTAINER (manage_vbox), 5);
   gtk_container_add(GTK_CONTAINER(manage_fr), manage_vbox);
 
@@ -284,7 +284,7 @@ colorize_dialog_new (char *filter)
   list_fr = gtk_frame_new("Filter");
   gtk_box_pack_start (GTK_BOX (main_hbox), list_fr, TRUE, TRUE, 0);
 
-  list_vbox = gtk_vbox_new (FALSE, 0);
+  list_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width  (GTK_CONTAINER (list_vbox), 5);
   gtk_container_add(GTK_CONTAINER(list_fr), list_vbox);
 
@@ -339,7 +339,7 @@ colorize_dialog_new (char *filter)
   order_fr = gtk_frame_new("Order");
   gtk_box_pack_start (GTK_BOX (main_hbox), order_fr, FALSE, FALSE, 0);
 
-  order_vbox = gtk_vbox_new (TRUE, 0);
+  order_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, TRUE);
   gtk_container_set_border_width  (GTK_CONTAINER (order_vbox), 5);
   gtk_container_add(GTK_CONTAINER(order_fr), order_vbox);
 

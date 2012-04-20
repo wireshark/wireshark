@@ -129,7 +129,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   gtk_window_set_resizable (GTK_WINDOW (edit_or_add_pkt_comment_dlg), TRUE);
   gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), DLG_OUTER_MARGIN);
 
-  vbox = gtk_vbox_new (FALSE, DLG_UNRELATED_SPACING);
+  vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
   gtk_container_add (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), vbox);
   gtk_widget_show (vbox);
 
@@ -209,7 +209,7 @@ edit_capture_dlg_launch (void)
   g_signal_connect(edit_or_add_capture_comment_dlg, "destroy",
                    G_CALLBACK(edit_capture_comment_destroy_cb), NULL);
 
-  vbox = gtk_vbox_new (FALSE, DLG_UNRELATED_SPACING);
+  vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
   gtk_container_add (GTK_CONTAINER (edit_or_add_capture_comment_dlg), vbox);
   gtk_widget_show (vbox);
 

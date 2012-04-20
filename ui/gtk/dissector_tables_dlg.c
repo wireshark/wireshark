@@ -319,7 +319,7 @@ dissector_tables_dlg_init(void)
     gtk_window_set_destroy_with_parent (GTK_WINDOW(dissector_tables_dlg_w), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(dissector_tables_dlg_w), 700, 300);
 
-    vbox=gtk_vbox_new(FALSE, 3);
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(dissector_tables_dlg_w), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -327,10 +327,10 @@ dissector_tables_dlg_init(void)
     gtk_box_pack_start(GTK_BOX(vbox), main_nb, TRUE, TRUE, 0);
 
     /* String tables */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     tmp = gtk_label_new("String tables");
     gtk_widget_show(tmp);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox =  ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(hbox), tmp);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
@@ -342,10 +342,10 @@ dissector_tables_dlg_init(void)
     gtk_widget_show(scrolled_window);
 
     /* uint tables */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     tmp = gtk_label_new("Integer tables");
     gtk_widget_show(tmp);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(hbox), tmp);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
@@ -357,10 +357,10 @@ dissector_tables_dlg_init(void)
     gtk_widget_show(scrolled_window);
 
     /* heuristic tables */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     tmp = gtk_label_new("Heuristic tables");
     gtk_widget_show(tmp);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(hbox), tmp);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 

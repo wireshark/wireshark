@@ -933,15 +933,15 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);
 
-    main_vb = gtk_vbox_new(FALSE, 5);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(window), main_vb);
 
-    main_hb = gtk_hbox_new(FALSE, 5);
+    main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_hb), 5);
     gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
 
-    field_vb = gtk_vbox_new(FALSE, 5);
+    field_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(field_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_hb), field_vb);
 
@@ -970,7 +970,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     g_signal_connect(selection, "changed", G_CALLBACK(field_select_row_cb), field_tree);
     gtk_container_add(GTK_CONTAINER(tree_scrolled_win), field_tree);
 
-    relation_vb = gtk_vbox_new(FALSE, 5);
+    relation_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(relation_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_hb), relation_vb);
 
@@ -1045,7 +1045,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_matches_rb, FALSE, FALSE, 0);
 */
     /* value column */
-    value_vb = gtk_vbox_new(FALSE, 5);
+    value_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(value_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_hb), value_vb);
 

@@ -736,7 +736,7 @@ decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
     gtk_window_set_default_size(GTK_WINDOW(decode_show_w), -1, E_DECODE_MIN_HEIGHT);
 
     /* Container for each row of widgets */
-    main_vb = gtk_vbox_new(FALSE, 2);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(decode_show_w), main_vb);
 
@@ -1214,7 +1214,7 @@ decode_add_yes_no (void)
     GtkWidget   *format_vb, *radio_button;
     GSList      *format_grp;
 
-    format_vb = gtk_vbox_new(FALSE, 2);
+    format_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
 
     radio_button = gtk_radio_button_new_with_label(NULL, "Decode");
     format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
@@ -1581,7 +1581,7 @@ decode_add_simple_page (const gchar *prompt, const gchar *title, const gchar *ta
 {
     GtkWidget  *page, *label, *scrolled_window;
 
-    page = gtk_hbox_new(FALSE, 5);
+    page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_simple);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
     g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, (gchar *) title);
@@ -1631,7 +1631,7 @@ decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
 {
     GtkWidget  *page, *label, *scrolled_window, *combo_box;
 
-    page = gtk_hbox_new(FALSE, 5);
+    page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
     g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, "Transport");
@@ -1759,7 +1759,7 @@ decode_sctp_add_port_ppid (GtkWidget *page)
     GtkWidget *format_vb, *radio_button;
     GSList *format_grp;
 
-    format_vb = gtk_vbox_new(FALSE, 2);
+    format_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
 
     radio_button = gtk_radio_button_new_with_label(NULL, "PPID");
     format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
@@ -1782,17 +1782,17 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
 {
     GtkWidget  *page, *label, *scrolled_window,  *radio, *vbox, *alignment, *sctpbox, *sctp_combo_box;
 
-    page = gtk_hbox_new(FALSE, 5);
+    page = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
     g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, "Transport");
 
-    vbox = gtk_vbox_new(FALSE, 5);
+    vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     radio = decode_sctp_add_port_ppid(page);
     gtk_box_pack_start(GTK_BOX(vbox), radio, TRUE, TRUE, 0);
 
     /* Always enabled */
-    sctpbox = gtk_hbox_new(FALSE, 5);
+    sctpbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     label = gtk_label_new(prompt);
     gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);
     sctp_combo_box = decode_add_ppid_combo_box(page);
@@ -1956,12 +1956,12 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
     gtk_window_set_default_size(GTK_WINDOW(decode_w), -1, E_DECODE_MIN_HEIGHT);
 
     /* Container for each row of widgets */
-    main_vb = gtk_vbox_new(FALSE, 2);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(decode_w), main_vb);
 
     /* First row - Buttons and Notebook */
-    format_hb = gtk_hbox_new(FALSE, 5);
+    format_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     gtk_box_pack_start(GTK_BOX(main_vb), format_hb, TRUE, TRUE, 10);
 
     button_vb = decode_add_yes_no();
