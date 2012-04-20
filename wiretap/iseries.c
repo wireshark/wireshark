@@ -587,7 +587,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
         {
          iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
         }
-          ascii_strup_inplace(data);
+      ascii_strup_inplace(data);
       num_items_scanned =
         sscanf (data,
                 "%*[ \n\t]%6d%*[ *\n\t]%1s%*[ \n\t]%6d%*[ \n\t]%2d:%2d:%2d.%9d%*[ \n\t]%12s%*[ \n\t]%12s%*[ \n\t]ETHV2%*[ \n\t]TYPE:%*[ \n\t]%4s",
