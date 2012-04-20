@@ -80,7 +80,7 @@ dissect_usb_ms_reset(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, in
         offset += 2;
 
         proto_tree_add_item(tree, hf_usb_ms_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        /*offset += 2;*/
     } else {
         /* no data in reset response */
     }
@@ -97,7 +97,7 @@ dissect_usb_ms_get_max_lun(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
         offset += 2;
 
         proto_tree_add_item(tree, hf_usb_ms_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        /*offset += 2;*/
     } else {
         proto_tree_add_item(tree, hf_usb_ms_maxlun, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -324,7 +324,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         /* dCSWStatus */
         proto_tree_add_item(tree, hf_usb_ms_dCSWStatus, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         status=tvb_get_guint8(tvb, offset);
-        offset+=1;
+        /*offset+=1;*/
 
         itlq=(itlq_nexus_t *)se_tree_lookup32_le(usb_ms_conv_info->itlq, pinfo->fd->num);
         if(!itlq){

@@ -2498,7 +2498,6 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 proto_tree_add_uint(tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
                 offset += 4;
             }
-            tree = urb_tree;
         }
 
         }

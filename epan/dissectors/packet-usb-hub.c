@@ -151,7 +151,7 @@ dissect_usb_hub_clear_hub_feature(packet_info *pinfo _U_, proto_tree *tree, tvbu
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -179,7 +179,7 @@ dissect_usb_hub_clear_port_feature(packet_info *pinfo _U_, proto_tree *tree, tvb
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -207,7 +207,7 @@ dissect_usb_hub_clear_tt_buffer(packet_info *pinfo _U_, proto_tree *tree, tvbuff
 		proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -235,7 +235,7 @@ dissect_usb_hub_get_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvb
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_descriptor_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -260,7 +260,7 @@ dissect_usb_hub_get_hub_status(packet_info *pinfo _U_, proto_tree *tree, tvbuff_
 
 		proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		/* length shall always contain 4 */
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -285,7 +285,7 @@ dissect_usb_hub_get_port_status(packet_info *pinfo _U_, proto_tree *tree, tvbuff
 
 		proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		/* length shall always contain 4 */
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -311,7 +311,7 @@ dissect_usb_hub_get_tt_state(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t 
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_tt_state_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -337,7 +337,7 @@ dissect_usb_hub_reset_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -365,7 +365,7 @@ dissect_usb_hub_set_hub_descriptor(packet_info *pinfo _U_, proto_tree *tree, tvb
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_descriptor_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -391,7 +391,7 @@ dissect_usb_hub_stop_tt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb,
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -417,7 +417,7 @@ dissect_usb_hub_set_hub_feature(packet_info *pinfo _U_, proto_tree *tree, tvbuff
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
@@ -445,7 +445,7 @@ dissect_usb_hub_set_port_feature(packet_info *pinfo _U_, proto_tree *tree, tvbuf
 		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	} else {
 	}
 }
