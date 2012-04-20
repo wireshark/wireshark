@@ -31,7 +31,7 @@ void http_dissector_add(guint32 port, dissector_handle_t handle);
 /* Used for HTTP statistics */
 typedef struct _http_info_value_t {
 	guint32 framenum;
-	gchar	*request_method;	
+	gchar	*request_method;
 	guint	 response_code;
 	gchar   *http_host;
 	gchar   *request_uri;
@@ -53,6 +53,7 @@ typedef struct _http_conv_t {
 	gchar   *http_host;
 	gchar   *request_method;
 	gchar   *request_uri;
+	gchar   *upgrade;
 	guint32	startframe;	/* First frame of proxied connection */
 } http_conv_t;
 

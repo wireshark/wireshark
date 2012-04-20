@@ -1082,6 +1082,7 @@ DISSECTOR_SRC = \
 	packet-wbxml.c		\
 	packet-wccp.c		\
 	packet-wcp.c		\
+	packet-websocket.c	\
 	packet-wfleet-hdlc.c	\
 	packet-who.c		\
 	packet-wifi-p2p.c	\

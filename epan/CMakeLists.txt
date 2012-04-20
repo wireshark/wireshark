@@ -1163,6 +1163,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-wbxml.c
 	dissectors/packet-wccp.c
 	dissectors/packet-wcp.c
+	dissectors/packet-websocket.c
 	dissectors/packet-wfleet-hdlc.c
 	dissectors/packet-who.c
 	dissectors/packet-wifi-p2p.c

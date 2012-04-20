@@ -90,6 +90,7 @@ static int hf_http_content_length_header = -1;
 static int hf_http_content_length = -1;
 static int hf_http_content_encoding = -1;
 static int hf_http_transfer_encoding = -1;
+static int hf_http_upgrade = -1;
 static int hf_http_user_agent = -1;
 static int hf_http_host = -1;
 static int hf_http_connection = -1;
@@ -117,6 +118,7 @@ static gint ett_http_header_item = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
+static dissector_handle_t websocket_handle;
 static dissector_handle_t http_handle;
 
 /* Stuff for generation/handling of fields for custom HTTP headers */
@@ -1076,6 +1078,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    reported_datalen);
 
 		/*
+		 *	Check if Websocket 
+		 */
+		if (conv_data->upgrade != NULL &&
+		    g_ascii_strcasecmp(conv_data->upgrade, "WebSocket") == 0) {
+			call_dissector_only(websocket_handle, next_tvb, pinfo, tree);
+			goto body_dissected;
+		}
+		/*
 		 * Handle *transfer* encodings other than "identity".
 		 */
 		if (headers.transfer_encoding != NULL &&
@@ -2029,7 +2039,8 @@ typedef struct {
 #define HDR_CONTENT_LENGTH	4
 #define HDR_CONTENT_ENCODING	5
 #define HDR_TRANSFER_ENCODING	6
-#define HDR_HOST  7
+#define HDR_HOST		7
+#define HDR_UPGRADE		8
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -2040,6 +2051,7 @@ static const header_info headers[] = {
 	{ "Content-Length", &hf_http_content_length_header, HDR_CONTENT_LENGTH },
 	{ "Content-Encoding", &hf_http_content_encoding, HDR_CONTENT_ENCODING },
 	{ "Transfer-Encoding", &hf_http_transfer_encoding, HDR_TRANSFER_ENCODING },
+	{ "Upgrade", &hf_http_upgrade, HDR_UPGRADE },
 	{ "User-Agent",	&hf_http_user_agent, HDR_NO_SPECIAL },
 	{ "Host", &hf_http_host, HDR_HOST },
 	{ "Connection", &hf_http_connection, HDR_NO_SPECIAL },
@@ -2317,6 +2329,9 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			conv_data->http_host = se_strndup(value, value_len);
 			break;
 
+		case HDR_UPGRADE:
+			conv_data->upgrade = se_strndup(value, value_len);
+			break;
 		}
 	}
 }
@@ -2593,6 +2608,10 @@ proto_register_http(void)
 	      { "Transfer-Encoding",	"http.transfer_encoding",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Transfer-Encoding header", HFILL }},
+	    { &hf_http_upgrade,
+	      { "Upgrade",	"http.upgrade",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"HTTP Upgrade header", HFILL }},
 	    { &hf_http_user_agent,
 	      { "User-Agent",	"http.user_agent",
 		FT_STRING, BASE_NONE, NULL, 0x0,
@@ -2803,7 +2822,7 @@ proto_reg_handoff_http(void)
 
 	data_handle = find_dissector("data");
 	media_handle = find_dissector("media");
-
+	websocket_handle = find_dissector("websocket");
 	/*
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
