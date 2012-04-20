@@ -189,10 +189,10 @@ tvb_free_chain(tvbuff_t* tvb)
 {
 	tvbuff_t *next_tvb;
 	DISSECTOR_ASSERT(tvb);
-	DISSECTOR_ASSERT((tvb->previous==NULL) && "tvb_free_chain(): tvb must be initial tvb in chain");
+	DISSECTOR_ASSERT_HINT(tvb->previous==NULL, "tvb_free_chain(): tvb must be initial tvb in chain");
 	while (tvb) {
 		next_tvb=tvb->next;
-		DISSECTOR_ASSERT(((next_tvb==NULL) || (tvb==next_tvb->previous)) && "tvb_free_chain(): corrupt tvb chain ?");
+		DISSECTOR_ASSERT_HINT((next_tvb==NULL) || (tvb==next_tvb->previous), "tvb_free_chain(): corrupt tvb chain ?");
 		tvb_free_internal(tvb);
 		tvb  = next_tvb;
 	}

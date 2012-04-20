@@ -2977,7 +2977,7 @@ cigi2_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         }
 
         /* Does the packet offset match the supposed length of the packet? */
-        DISSECTOR_ASSERT((offset - init_offset == packet_length) && "Packet offset does not match packet length");
+        DISSECTOR_ASSERT_HINT(offset - init_offset == packet_length, "Packet offset does not match packet length");
     }
 }
 
@@ -3371,7 +3371,7 @@ cigi3_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
         }
 
         /* Does the packet offset match the supposed length of the packet? */
-        DISSECTOR_ASSERT((offset - init_offset == packet_length) && "Packet offset does not match packet length");
+        DISSECTOR_ASSERT_HINT(offset - init_offset == packet_length, "Packet offset does not match packet length");
     }
 }
 

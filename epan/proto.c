@@ -2568,7 +2568,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 		return;
 
 	fi = PITEM_FINFO(pi);
-	DISSECTOR_ASSERT(fi && "proto_tree_set_visible(tree, TRUE) should have been called previously");
+	DISSECTOR_ASSERT_HINT(fi, "proto_tree_set_visible(tree, TRUE) should have been called previously");
 
 	hfinfo = fi->hfinfo;
 	if (hfinfo->type == FT_PROTOCOL) {
