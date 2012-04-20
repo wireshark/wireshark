@@ -136,7 +136,7 @@ tvb_unmasked(tvbuff_t *tvb, const int offset, guint64 payload_length, const guin
   return tvb_unmask;
 }
 
-static int 
+static int
 dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree, guint8 opcode, guint64 payload_length, guint8 mask, const guint8* masking_key)
 {
   int offset = 0;
@@ -147,8 +147,8 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
 
   /* Wireshark does not handle packets larger than 2^31-1 bytes. */
   payload_length_32bit = (int)payload_length;
-  if (payload_length != payload_length_32bit) {
-    proto_tree_add_text(ws_tree, tvb, offset, -1, "Payload length %" G_GINT64_MODIFIER "u" is too large to dissect",
+  if (payload_length != (guint64)payload_length_32bit) {
+    proto_tree_add_text(ws_tree, tvb, offset, -1, "Payload length %" G_GINT64_MODIFIER "u is too large to dissect",
                         payload_length);
     return tvb_length(tvb);
   }
@@ -174,7 +174,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
       /* TODO: Add Fragmentation support... */
     break;
 
-    case WS_TEXT: /* Text */ 
+    case WS_TEXT: /* Text */
     if(mask){
 
       proto_tree_add_item(pl_tree, hf_ws_payload_text_mask, tvb, offset, payload_length_32bit, ENC_NA);
