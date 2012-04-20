@@ -569,6 +569,12 @@ conversation_remove_from_hashtable(GHashTable *hashtable, conversation_t *conv)
 			/* Update the head of the chain */
 			chain_head = conv->next;
 			chain_head->last = conv->last;
+
+			if (conv->latest_found == conv)
+				chain_head->latest_found = NULL;
+			else
+				chain_head->latest_found = conv->latest_found;
+
 			g_hash_table_insert(hashtable, chain_head->key_ptr, chain_head);
 		}
 	}
@@ -593,6 +599,9 @@ conversation_remove_from_hashtable(GHashTable *hashtable, conversation_t *conv)
 			/* We're at the very end of the list. */
 			chain_head->last = prev;
 		}
+
+		if (chain_head->latest_found == conv)
+			chain_head->latest_found = prev;
 	}
 }
 
@@ -728,11 +737,10 @@ static conversation_t *
 conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, const address *addr1, const address *addr2,
     const port_type ptype, const guint32 port1, const guint32 port2)
 {
-	conversation_t* conversation=NULL;
+	conversation_t* convo=NULL;
 	conversation_t* match=NULL;
 	conversation_t* chain_head=NULL;
 	conversation_key key;
-	guint found=0;
 
 	/*
 	 * We don't make a copy of the address data, we just copy the
@@ -744,29 +752,26 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 	key.port1 = port1;
 	key.port2 = port2;
 
-	chain_head = (match = g_hash_table_lookup(hashtable, &key));
-		
-	if (match && (match->setup_frame > frame_num))
-		match = NULL;
+	chain_head = g_hash_table_lookup(hashtable, &key);
 
-	if (match) {
-		if((match->last)&&(match->last->setup_frame<=frame_num))
-			return match->last;
-		if((match->latest_found)&&(match->latest_found->setup_frame<=frame_num))
-			return match->latest_found;
-		for (conversation = match->next; conversation; conversation = conversation->next) {
-			if ((conversation->setup_frame <= frame_num)
-				&& (conversation->setup_frame > match->setup_frame)) {
-					match = conversation;
-					chain_head->latest_found = conversation;
-					found=1;
-			} else if(conversation->setup_frame>frame_num)
-				/* we are past the frame_num */
-				break;
+	if (chain_head && (chain_head->setup_frame <= frame_num)) {
+		match = chain_head;
+
+		if((chain_head->last)&&(chain_head->last->setup_frame<=frame_num))
+			return chain_head->last;
+
+		if((chain_head->latest_found)&&(chain_head->latest_found->setup_frame<=frame_num))
+			match = chain_head->latest_found;
+
+		for (convo = match; convo && convo->setup_frame <= frame_num; convo = convo->next) {
+			if (convo->setup_frame > match->setup_frame) {
+				match = convo;
+			}
 		}
-		if(!found)
-			match=NULL;	
 	}
+
+    if (match)
+    	chain_head->latest_found = match;
 
 	return match;
 }
