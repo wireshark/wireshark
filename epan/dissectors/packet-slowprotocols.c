@@ -2256,7 +2256,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
             proto_tree_add_item(info_tree, hf_oampdu_info_vendor,
                                 tvb, offset, raw_octet-5, ENC_NA);
 
-            offset += raw_octet-2;
+            offset += raw_octet-5;
 
         }
         else if (info_type==OAMPDU_INFO_TYPE_ENDMARKER)
