@@ -939,6 +939,7 @@ clean_setup:
     rm -r -f gnutls-2.8.1-1
     rm -r -f gnutls-2.8.5-*-win??ws
     rm -r -f gnutls-2.10.3-*-win??ws
+    rm -r -f gnutls-2.12.18-*-win??ws
     rm -r -f gtk2
     rm -r -f gtk+
     rm -r -f gtk-wimp
