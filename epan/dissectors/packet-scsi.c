@@ -306,6 +306,18 @@ static int hf_scsi_sbc_lbprz                    = -1;
 static int hf_scsi_sbc_anc_sup                  = -1;
 static int hf_scsi_sbc_dp                       = -1;
 static int hf_scsi_sbc_ptype                    = -1;
+static int hf_scsi_block_limits_wsnz		= -1;
+static int hf_scsi_block_limits_mcawl		= -1;
+static int hf_scsi_block_limits_otlg		= -1;
+static int hf_scsi_block_limits_mtl		= -1;
+static int hf_scsi_block_limits_otl		= -1;
+static int hf_scsi_block_limits_mpl		= -1;
+static int hf_scsi_block_limits_mulc		= -1;
+static int hf_scsi_block_limits_mubdc		= -1;
+static int hf_scsi_block_limits_oug		= -1;
+static int hf_scsi_block_limits_ugavalid	= -1;
+static int hf_scsi_block_limits_uga		= -1;
+static int hf_scsi_block_limits_mwsl		= -1;
 
 static gint ett_scsi = -1;
 static gint ett_scsi_page = -1;
@@ -2101,6 +2113,42 @@ dissect_scsi_evpd (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                      "Product Serial Number: %s",
                                      tvb_format_text (tvb, offset, plen));
             }
+            break;
+	case SCSI_EVPD_BLKLIMITS:
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_wsnz, tvb, offset, 1, ENC_NA);
+	    offset += 1;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_mcawl, tvb, offset, 1, ENC_NA);
+	    offset += 1;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_otlg, tvb, offset, 2, ENC_BIG_ENDIAN);
+	    offset += 2;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_mtl, tvb, offset, 4, ENC_BIG_ENDIAN);
+	    offset += 4;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_otl, tvb, offset, 4, ENC_BIG_ENDIAN);
+	    offset += 4;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_mpl, tvb, offset, 4, ENC_BIG_ENDIAN);
+	    offset += 4;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_mulc, tvb, offset, 4, ENC_BIG_ENDIAN);
+	    offset += 4;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_mubdc, tvb, offset, 4, ENC_BIG_ENDIAN);
+	    offset += 4;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_oug, tvb, offset, 4, ENC_BIG_ENDIAN);
+	    offset += 4;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_ugavalid, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_uga, tvb, offset, 4, ENC_BIG_ENDIAN);
+	    offset += 4;
+
+            proto_tree_add_item (evpd_tree, hf_scsi_block_limits_mwsl, tvb, offset, 8, ENC_BIG_ENDIAN);
+	    offset += 8;
+
             break;
         case SCSI_EVPD_LBP:
             proto_tree_add_item (evpd_tree, hf_scsi_sbc_treshold_exponent, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -5648,6 +5696,42 @@ proto_register_scsi (void)
            NULL, HFILL}},
         { &hf_scsi_sbc_ptype,
           {"Provisioning Type", "scsi.sbc.ptype", FT_UINT8, BASE_DEC, VALS(provisioning_vals), 0x07,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_wsnz,
+          {"WSNZ", "scsi.sbc.bl.wsnz", FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_mcawl,
+          {"Maximum Compare And Write Length", "scsi.sbc.bl.mcawl", FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_otlg,
+          {"Optimal Transfer Length Granularity", "scsi.sbc.bl.otlg", FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_mtl,
+          {"Maximum Transfer Length", "scsi.sbc.bl.mtl", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_otl,
+          {"Optimal Transfer Length", "scsi.sbc.bl.otl", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_mpl,
+          {"Optimal Prefetch/Xdread/Xdwrite Transfer Length", "scsi.sbc.bl.mpl", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_mulc,
+          {"Maximum Unmap LBA Count", "scsi.sbc.bl.mulc", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_mubdc,
+          {"Maximum Unmap Block Descriptor Count", "scsi.sbc.bl.mubdc", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_oug,
+          {"Optimal Unmap Block Granularity", "scsi.sbc.bl.oug", FT_UINT32, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_ugavalid,
+          {"UGAVALID", "scsi.sbc.bl.ugavalid", FT_BOOLEAN, 8, NULL, 0x80,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_uga,
+          {"Unmap Granularity Alignment", "scsi.sbc.bl.uga", FT_UINT32, BASE_DEC, NULL, 0x7fffffff,
+           NULL, HFILL}},
+	{ &hf_scsi_block_limits_mwsl,
+          {"Maximum Write Same Length", "scsi.sbc.bl.mwsl", FT_UINT64, BASE_DEC, NULL, 0,
            NULL, HFILL}},
     };
 
