@@ -693,10 +693,10 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
     /* before writing anything out, make sure the buffer has enough space for everything */
     if ((FPGA_VERSION == vVW510021_W_FPGA) || (FPGA_VERSION == vVW510006_W_FPGA) )
     /* frames are always 802.11 with an extended radiotap header */
-        pkt_len = rec_size + sizeof(stats_common_fields) + sizeof(ext_rtap_fields);
+        pkt_len = (guint16)(rec_size + sizeof(stats_common_fields) + sizeof(ext_rtap_fields));
     else
         /* frames are always ethernet with an extended ethernettap header */
-        pkt_len = rec_size + sizeof(stats_common_fields) + sizeof(stats_ethernettap_fields);
+        pkt_len = (guint16)(rec_size + sizeof(stats_common_fields) + sizeof(stats_ethernettap_fields));
     buffer_assure_space(wth->frame_buffer, pkt_len);
     data_ptr = buffer_start_ptr(wth->frame_buffer);
 
