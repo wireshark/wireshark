@@ -103,6 +103,11 @@ static int hf_http_date = -1;
 static int hf_http_cache_control = -1;
 static int hf_http_server = -1;
 static int hf_http_location = -1;
+static int hf_http_sec_websocket_accept = -1;
+static int hf_http_sec_websocket_extensions = -1;
+static int hf_http_sec_websocket_key = -1;
+static int hf_http_sec_websocket_protocol = -1;
+static int hf_http_sec_websocket_version = -1;
 static int hf_http_set_cookie = -1;
 static int hf_http_last_modified = -1;
 static int hf_http_x_forwarded_for = -1;
@@ -2064,6 +2069,11 @@ static const header_info headers[] = {
 	{ "Cache-Control", &hf_http_cache_control, HDR_NO_SPECIAL },
 	{ "Server", &hf_http_server, HDR_NO_SPECIAL },
 	{ "Location", &hf_http_location, HDR_NO_SPECIAL },
+	{ "Sec-WebSocket-Accept", &hf_http_sec_websocket_accept, HDR_NO_SPECIAL },
+	{ "Sec-WebSocket-Extensions", &hf_http_sec_websocket_extensions, HDR_NO_SPECIAL },
+	{ "Sec-WebSocket-Key", &hf_http_sec_websocket_key, HDR_NO_SPECIAL },
+	{ "Sec-WebSocket-Protocol", &hf_http_sec_websocket_protocol, HDR_NO_SPECIAL },
+	{ "Sec-WebSocket-Version", &hf_http_sec_websocket_version, HDR_NO_SPECIAL },
 	{ "Set-Cookie", &hf_http_set_cookie, HDR_NO_SPECIAL },
 	{ "Last-Modified", &hf_http_last_modified, HDR_NO_SPECIAL },
 	{ "X-Forwarded-For", &hf_http_x_forwarded_for, HDR_NO_SPECIAL },
@@ -2660,6 +2670,26 @@ proto_register_http(void)
 	      { "Location",	"http.location",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Location", HFILL }},
+	    { &hf_http_sec_websocket_accept,
+	      { "Sec-WebSocket-Accept",	"http.sec_websocket_accept",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+	    { &hf_http_sec_websocket_extensions,
+	      { "Sec-WebSocket-Extensions",	"http.sec_websocket_extensions",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+	    { &hf_http_sec_websocket_key,
+	      { "Sec-WebSocket-Key",	"http.sec_websocket_key",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+	    { &hf_http_sec_websocket_protocol,
+	      { "Sec-WebSocket-Protocol",	"http.sec_websocket_protocol",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+	    { &hf_http_sec_websocket_version,
+	      { "Sec-WebSocket-Version",	"http.sec_websocket_version",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
 	    { &hf_http_set_cookie,
 	      { "Set-Cookie",	"http.set_cookie",
 		FT_STRING, BASE_NONE, NULL, 0x0,
