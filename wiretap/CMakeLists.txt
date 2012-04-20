@@ -71,6 +71,7 @@ set(WIRETAP_FILES
 	toshiba.c
 	visual.c
 	vms.c
+	vwr.c
 	wtap.c
 )
 

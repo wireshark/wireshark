@@ -749,6 +749,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-iuup.c
 	dissectors/packet-iwarp-ddp-rdmap.c
 	dissectors/packet-iwarp-mpa.c
+	dissectors/packet-ixveriwave.c
 	dissectors/packet-jmirror.c
 	dissectors/packet-jpeg.c
 	dissectors/packet-json.c
@@ -1158,6 +1159,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-wai.c
 	dissectors/packet-wap.c
 	dissectors/packet-wassp.c
+	dissectors/packet-waveagent.c
 	dissectors/packet-wbxml.c
 	dissectors/packet-wccp.c
 	dissectors/packet-wcp.c

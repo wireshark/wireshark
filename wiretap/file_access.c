@@ -86,6 +86,7 @@
 #include "netscaler.h"
 #include "mime_file.h"
 #include "ipfix.h"
+#include "vwr.h"
 #include "pcap-encap.h"
 
 /* The open_file_* routines should return:
@@ -130,6 +131,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	pcapng_open,
 	aethra_open,
 	btsnoop_open,
+	vwr_open,
 	packetlogger_open, /* This type does not have a magic number, but its
 			    * files are sometimes grabbed by mpeg_open. */
 	mpeg_open,
@@ -655,6 +657,14 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_MPEG_2_TS */
 	{ "MPEG2 transport stream", "mp2t", "mp2t", "ts;mpg", FALSE, FALSE,
+	  NULL, NULL },
+  
+	/* WTAP_FILE_VWR_80211 */
+	{ "Ixia IxVeriWave .vwr Raw 802.11 Capture", "vwr80211", "*.vwr", ".vwr", FALSE, FALSE,
+	  NULL, NULL },
+ 
+	/* WTAP_FILE_VWR_ETH */
+	{ "Ixia IxVeriWave .vwr Raw Ethernet Capture", "vwreth", "*.vwr", ".vwr", FALSE, FALSE,
 	  NULL, NULL }
 
 };

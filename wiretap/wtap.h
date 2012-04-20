@@ -233,6 +233,7 @@ extern "C" {
 #define WTAP_ENCAP_NFLOG                        141
 #define WTAP_ENCAP_V5_EF                        142
 #define WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR       143
+#define WTAP_ENCAP_IXVERIWAVE                   144
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -301,6 +302,8 @@ extern "C" {
 #define WTAP_FILE_MIME                          59
 #define WTAP_FILE_AETHRA                        60
 #define WTAP_FILE_MPEG_2_TS                     61
+#define WTAP_FILE_VWR_80211                     62
+#define WTAP_FILE_VWR_ETH                       63
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 
