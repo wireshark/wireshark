@@ -115,23 +115,25 @@ static const value_string ws_close_status_code_vals[] = {
   { 0, 	NULL}
 };
 
+#define MAX_UNMASKED_LEN (1024 * 64)
 tvbuff_t *
-tvb_unmasked(tvbuff_t *tvb, const int offset, guint64 payload_length, const guint8 *masking_key)
+tvb_unmasked(tvbuff_t *tvb, const int offset, int payload_length, const guint8 *masking_key)
 {
 
   gchar *data_unmask;
   tvbuff_t  *tvb_unmask    = NULL;
-  guint64 i;
+  int i;
   const guint8 *data_mask;
+  int unmasked_length = payload_length > MAX_UNMASKED_LEN ? MAX_UNMASKED_LEN : payload_length;
 
-  data_unmask = ep_alloc(payload_length);
-  data_mask = tvb_get_ptr(tvb, offset, payload_length);
+  data_unmask = ep_alloc(unmasked_length);
+  data_mask = tvb_get_ptr(tvb, offset, unmasked_length);
   /* Unmasked(XOR) Data... */
-  for(i=0; i < payload_length; i++){
+  for(i=0; i < unmasked_length; i++){
     data_unmask[i] = data_mask[i] ^ masking_key[i%4];
   }
 
-  tvb_unmask = tvb_new_real_data(data_unmask, payload_length, payload_length);
+  tvb_unmask = tvb_new_real_data(data_unmask, unmasked_length, unmasked_length);
   tvb_set_free_cb(tvb_unmask, g_free);
   return tvb_unmask;
 }
@@ -143,7 +145,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
   int payload_length_32bit;
   proto_item *ti_unmask, *ti;
   proto_tree *pl_tree, *mask_tree = NULL;
-  tvbuff_t  *tvb_unmask    = NULL;
+  tvbuff_t  *unmask_tvb    = NULL;
 
   /* Wireshark does not handle packets larger than 2^31-1 bytes. */
   payload_length_32bit = (int)payload_length;
@@ -157,9 +159,9 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
   ti = proto_tree_add_item(ws_tree, hf_ws_payload, tvb, offset, payload_length_32bit, ENC_NA);
   pl_tree = proto_item_add_subtree(ti, ett_ws_pl);
   if(mask){
-    tvb_unmask = tvb_unmasked(tvb, offset, payload_length_32bit, masking_key);
-    add_new_data_source(pinfo, tvb_unmask, "Unmasked Data");
-    ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+    unmask_tvb = tvb_unmasked(tvb, offset, payload_length_32bit, masking_key);
+    add_new_data_source(pinfo, unmask_tvb, payload_length_32bit > (int) tvb_length(unmask_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
+    ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, unmask_tvb, offset, payload_length_32bit, ENC_NA);
     mask_tree = proto_item_add_subtree(ti, ett_ws_mask);
   }
 
@@ -178,9 +180,9 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
     if(mask){
 
       proto_tree_add_item(pl_tree, hf_ws_payload_text_mask, tvb, offset, payload_length_32bit, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text_unmask, tvb_unmask, offset, payload_length_32bit,  ENC_UTF_8|ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text_unmask, unmask_tvb, offset, payload_length_32bit,  ENC_UTF_8|ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text, tvb_unmask, offset, payload_length_32bit,  ENC_UTF_8|ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_text, unmask_tvb, offset, payload_length_32bit,  ENC_UTF_8|ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
       proto_tree_add_item(pl_tree, hf_ws_payload_text, tvb, offset, payload_length_32bit, ENC_UTF_8|ENC_NA);
@@ -192,9 +194,9 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
     case WS_BINARY: /* Binary */
     if(mask){
       proto_tree_add_item(pl_tree, hf_ws_payload_binary_mask, tvb, offset, payload_length_32bit, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary_unmask, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_binary, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
       proto_tree_add_item(pl_tree, hf_ws_payload_binary, tvb, offset, payload_length_32bit, ENC_NA);
@@ -205,15 +207,15 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
     case WS_CLOSE: /* Close */
     if(mask){
       proto_tree_add_item(pl_tree, hf_ws_payload_close_mask, tvb, offset, payload_length_32bit, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_unmask, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_status_code, tvb_unmask, offset, 2, ENC_BIG_ENDIAN);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_status_code, unmask_tvb, offset, 2, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
 
       if(payload_length_32bit > 2){
-        ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_reason, tvb_unmask, offset+2, payload_length_32bit-2, ENC_ASCII|ENC_NA);
+        ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_close_reason, unmask_tvb, offset+2, payload_length_32bit-2, ENC_ASCII|ENC_NA);
         PROTO_ITEM_SET_GENERATED(ti_unmask);
       }
     }else{
@@ -229,9 +231,9 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
     case WS_PING: /* Ping */
     if(mask){
       proto_tree_add_item(pl_tree, hf_ws_payload_ping_mask, tvb, offset, payload_length_32bit, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping_unmask, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_ping, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
       proto_tree_add_item(pl_tree, hf_ws_payload_ping, tvb, offset, payload_length_32bit, ENC_NA);
@@ -242,9 +244,9 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
     case WS_PONG: /* Pong */
     if(mask){
       proto_tree_add_item(pl_tree, hf_ws_payload_pong_mask, tvb, offset, payload_length_32bit, ENC_NA);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong_unmask, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong_unmask, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_GENERATED(ti_unmask);
-      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong, tvb_unmask, offset, payload_length_32bit, ENC_NA);
+      ti_unmask = proto_tree_add_item(mask_tree, hf_ws_payload_pong, unmask_tvb, offset, payload_length_32bit, ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti_unmask);
     }else{
       proto_tree_add_item(pl_tree, hf_ws_payload_pong, tvb, offset, payload_length_32bit, ENC_NA);
