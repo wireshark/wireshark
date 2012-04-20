@@ -6675,7 +6675,7 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * 7.7.98 APN Aggregate Maximum Bit Rate (APN-AMBR)
  */
 static int
-decode_gtp_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     guint16 length;
     proto_tree *ext_tree;
