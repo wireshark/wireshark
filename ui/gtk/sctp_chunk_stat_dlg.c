@@ -609,7 +609,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
     g_signal_connect(u_data->io->window, "destroy", G_CALLBACK(chunk_dlg_destroy), u_data);
 
     /* Container for each row of widgets */
-    vbox1 = gtk_vbox_new(FALSE, 2);
+    vbox1 = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(vbox1), 8);
     gtk_container_add(GTK_CONTAINER(u_data->io->window), vbox1);
     gtk_widget_show(vbox1);
@@ -674,7 +674,7 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
     g_signal_connect(u_data->io->window, "destroy", G_CALLBACK(on_destroy), u_data);
 
     /* Container for each row of widgets */
-    main_vb = gtk_vbox_new(FALSE, 12);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
     gtk_container_add(GTK_CONTAINER(u_data->io->window), main_vb);
 

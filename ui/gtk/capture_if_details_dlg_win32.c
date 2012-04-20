@@ -873,7 +873,7 @@ add_meter_to_table(GtkWidget *list, guint *row, gchar *title,
     gtk_table_attach(GTK_TABLE(list), label, 0, 1, *row, *row+1, GTK_EXPAND|GTK_FILL, 0, 0,0);
 
     /* the level meter */
-    main_hb = gtk_hbox_new(FALSE, 6);
+    main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
 
     meter = gtk_vumeter_new ();
 
@@ -2309,7 +2309,7 @@ capture_if_details_page_new(GtkWidget **table)
 {
     GtkWidget *main_vb;
 
-    main_vb = gtk_vbox_new(FALSE, 6);
+    main_vb =  ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
 
     /* table */
@@ -2356,7 +2356,7 @@ capture_if_details_open_win(char *iface)
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(details_open_w), TRUE);
 
     /* Container for the window contents */
-    main_vb = gtk_vbox_new(FALSE, 12);
+    main_vb =  ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
     gtk_container_add(GTK_CONTAINER(details_open_w), main_vb);
 

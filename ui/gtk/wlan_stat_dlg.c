@@ -1758,7 +1758,7 @@ wlanstat_dlg_create (void)
 	wlanstat_dlg_w = window_new_with_geom (GTK_WINDOW_TOPLEVEL, title, "WLAN Statistics");
 	gtk_window_set_default_size (GTK_WINDOW(wlanstat_dlg_w), 750, 400);
 
-	vbox=gtk_vbox_new (FALSE, 3);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(wlanstat_dlg_w), vbox);
 	gtk_container_set_border_width (GTK_CONTAINER(vbox), 6);
 
@@ -1770,7 +1770,7 @@ wlanstat_dlg_create (void)
 	/* init a scrolled window for overview */
 	wlanstat_name_lb = gtk_frame_new("Network Overview");
 	gtk_paned_pack1(GTK_PANED(wlanstat_pane), wlanstat_name_lb, FALSE, TRUE);
-	selected_vb = gtk_vbox_new(FALSE, 0);
+	selected_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(wlanstat_name_lb), selected_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(selected_vb), 5);
 
@@ -1829,7 +1829,7 @@ wlanstat_dlg_create (void)
 	/* init a scrolled window for details */
 	frame = gtk_frame_new("Selected Network");
 	gtk_paned_pack2(GTK_PANED(wlanstat_pane), frame, FALSE, TRUE);
-	selected_vb = gtk_vbox_new(FALSE, 0);
+	selected_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), selected_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(selected_vb), 5);
 
@@ -1898,7 +1898,7 @@ wlanstat_dlg_create (void)
 		return;
 	}
 
-	hbox = gtk_hbox_new(FALSE, 3);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");

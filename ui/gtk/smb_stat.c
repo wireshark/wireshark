@@ -173,7 +173,7 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 600);
 	smbstat_set_title(ss);
 
-	vbox=gtk_vbox_new(FALSE, 3);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(ss->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 

@@ -250,7 +250,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gtk_window_set_title(GTK_WINDOW(st->pr->win), title);
 	g_free(title);
 
-	main_vb = gtk_vbox_new(FALSE, 3);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(st->pr->win), main_vb);
 

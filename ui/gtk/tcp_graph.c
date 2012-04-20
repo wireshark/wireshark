@@ -732,7 +732,7 @@ static void create_drawing_area (struct graph *g)
 #if 0
 	/* Prep. to include the controls in the graph window */
 
-	vbox = gtk_vbox_new (FALSE, 0);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add (GTK_CONTAINER (g->toplevel), vbox);
 	gtk_container_set_border_width (GTK_CONTAINER (g->toplevel), 5);
 	gtk_widget_show (vbox);
@@ -746,7 +746,7 @@ static void create_drawing_area (struct graph *g)
 
 	/*gtk_box_pack_start (GTK_BOX (vbox), g->gui.control_panel, FALSE, FALSE, 0);*/
 
-	hbox=gtk_hbox_new(FALSE, 3);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
@@ -885,7 +885,7 @@ static void control_panel_add_zoom_page (struct graph *g, GtkWidget *n)
 	gtk_container_set_border_width (GTK_CONTAINER (zoom_frame), 5);
 	zoom_lock_frame = control_panel_create_zoomlock_group (g);
 	gtk_container_set_border_width (GTK_CONTAINER (zoom_lock_frame), 5);
-	box = gtk_vbox_new (FALSE, 0);
+	box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (box), zoom_frame, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (box), zoom_lock_frame, TRUE, TRUE, 0);
 	gtk_widget_show (box);
@@ -916,7 +916,7 @@ static void control_panel_add_origin_page (struct graph *g, GtkWidget *n)
 			gtk_radio_button_get_group (GTK_RADIO_BUTTON (time_orig_cap)),
 			"beginning of this TCP connection");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (time_orig_conn), TRUE);
-	time_orig_box = gtk_vbox_new (TRUE, 0);
+	time_orig_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (time_orig_box), time_orig_conn, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (time_orig_box), time_orig_cap, TRUE, TRUE, 0);
 	time_orig_frame = gtk_frame_new ("Time origin");
@@ -929,7 +929,7 @@ static void control_panel_add_origin_page (struct graph *g, GtkWidget *n)
 	seq_orig_zero = gtk_radio_button_new_with_label (gtk_radio_button_get_group (
 			GTK_RADIO_BUTTON (seq_orig_isn)), "0 (=absolute)");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (seq_orig_isn), TRUE);
-	seq_orig_box = gtk_vbox_new (TRUE, 0);
+	seq_orig_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (seq_orig_box), seq_orig_isn, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (seq_orig_box), seq_orig_zero, TRUE, TRUE, 0);
 	seq_orig_frame = gtk_frame_new ("Sequence number origin");
@@ -942,7 +942,7 @@ static void control_panel_add_origin_page (struct graph *g, GtkWidget *n)
 	g_signal_connect(time_orig_conn, "toggled", G_CALLBACK(callback_time_origin), g);
 	g_signal_connect(seq_orig_isn, "toggled", G_CALLBACK(callback_seq_origin), g);
 
-	box = gtk_vbox_new (FALSE, 0);
+	box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (box), 5);
 	gtk_box_pack_start (GTK_BOX (box), time_orig_frame, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (box), seq_orig_frame, TRUE, TRUE, 0);
@@ -998,7 +998,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	toplevel = dlg_window_new ("Help for TCP graphing");
 	gtk_window_set_default_size(GTK_WINDOW(toplevel), 500, 400);
 
-	vbox = gtk_vbox_new (FALSE, 3);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 	gtk_container_add (GTK_CONTAINER (toplevel), vbox);
 
@@ -1051,7 +1051,7 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 	zoom_out = gtk_radio_button_new_with_label (
 					gtk_radio_button_get_group (GTK_RADIO_BUTTON (zoom_in)), "out");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (zoom_in), TRUE);
-	zoom_inout_box = gtk_hbox_new (FALSE, 0);
+	zoom_inout_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (zoom_inout_box), zoom_in, FALSE, FALSE, 10);
 	gtk_box_pack_start (GTK_BOX (zoom_inout_box), zoom_out, FALSE, FALSE, 0);
 
@@ -1117,7 +1117,7 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 	gtk_table_attach (GTK_TABLE (zoom_step_table), zoom_ratio_toggle, 0,2,3,4,
 				GTK_FILL|GTK_EXPAND, GTK_FILL|GTK_EXPAND, 5, 0);
 
-	zoom_box = gtk_vbox_new (FALSE, 0);
+	zoom_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (zoom_box), zoom_inout_box, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (zoom_box), zoom_separator1, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (zoom_box), zoom_table, TRUE, TRUE, 0);
@@ -1291,7 +1291,7 @@ static GtkWidget *control_panel_create_magnify_group (struct graph *g)
 	gtk_container_add (GTK_CONTAINER (mag_zoom_frame), mag_zoom_table);
 	gtk_container_set_border_width (GTK_CONTAINER (mag_zoom_frame), 3);
 
-	mag_box = gtk_vbox_new (FALSE, 0);
+	mag_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (mag_box), mag_wh_table, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (mag_box), mag_zoom_frame, TRUE, TRUE, 0);
 	mag_frame = gtk_frame_new ("Magnify");
@@ -1422,7 +1422,7 @@ static GtkWidget *control_panel_create_zoomlock_group (struct graph *g)
 					gtk_radio_button_get_group (GTK_RADIO_BUTTON (zoom_lock_none)),
 					"vertical");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (zoom_lock_none), TRUE);
-	zoom_lock_box = gtk_hbox_new (FALSE, 0);
+	zoom_lock_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_box_pack_start(GTK_BOX(zoom_lock_box), zoom_lock_none,
                            TRUE, TRUE, 0);
 	gtk_box_pack_start(GTK_BOX(zoom_lock_box), zoom_lock_h, TRUE, TRUE, 0);
@@ -1465,11 +1465,11 @@ static GtkWidget *control_panel_create_cross_group (struct graph *g)
 	on = gtk_radio_button_new_with_label (
 				gtk_radio_button_get_group (GTK_RADIO_BUTTON (off)), "on");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (off), TRUE);
-	box = gtk_hbox_new (FALSE, 0);
+	box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 10);
 	gtk_box_pack_start (GTK_BOX (box), off, FALSE, FALSE, 10);
 	gtk_box_pack_start (GTK_BOX (box), on, FALSE, FALSE, 0);
-	vbox = gtk_vbox_new (FALSE, 0);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (vbox), box, FALSE, FALSE, 15);
 	/* frame = gtk_frame_new ("Cross:"); */
 	frame = gtk_frame_new (NULL);
@@ -1538,7 +1538,7 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	}
 	graph_init = gtk_check_button_new_with_label ("Init on change");
 	graph_sep = gtk_hseparator_new ();
-	graph_box = gtk_vbox_new (FALSE, 0);
+	graph_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_rtt, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tput, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqstevens, TRUE, TRUE, 0);

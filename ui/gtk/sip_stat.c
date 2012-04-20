@@ -605,7 +605,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
 
 
     /* Create container for all widgets */
-    main_vb = gtk_vbox_new(FALSE, 12);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
     gtk_container_add(GTK_CONTAINER(sp->win), main_vb);
 
@@ -673,7 +673,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     gtk_container_add(GTK_CONTAINER(main_vb), request_fr);
     gtk_container_set_border_width(GTK_CONTAINER(request_fr), 0);
 
-    sp->request_box = gtk_vbox_new(FALSE, 10);
+    sp->request_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
     gtk_container_add(GTK_CONTAINER(request_fr), sp->request_box);
 
     sp->average_setup_time = 0;

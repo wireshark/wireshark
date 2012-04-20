@@ -516,7 +516,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	g_signal_connect(window, "destroy", G_CALLBACK(on_destroy), u_data);
 
 	/* Container for each row of widgets */
-	main_vb = gtk_vbox_new(FALSE, 2);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
 	gtk_container_add(GTK_CONTAINER(window), main_vb);
 	gtk_widget_show(main_vb);
@@ -527,7 +527,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	g_object_set_data(G_OBJECT(window), "notebook", notebook);
 	g_signal_connect(notebook, "switch_page", G_CALLBACK(on_notebook_switch_page), NULL);
 
-	page1 = gtk_vbox_new(FALSE, 8);
+	page1 = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL,8, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(page1), 8);
 
 	u_data->analyse_nb->checktype = gtk_label_new("");
@@ -597,7 +597,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 
 
 	/*  page for endpoint 1 */
-	page2 = gtk_vbox_new(FALSE, 8);
+	page2 = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 8, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(page2), 8);
 
 	u_data->analyse_nb->page2 = g_malloc(sizeof(struct page));
@@ -605,7 +605,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	u_data->analyse_nb->page2->addr_frame = gtk_frame_new(NULL);
 	gtk_container_add(GTK_CONTAINER(page2), u_data->analyse_nb->page2->addr_frame);
 
-	addr_hb = gtk_hbox_new(FALSE, 3);
+	addr_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(addr_hb), 5);
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page2->addr_frame), addr_hb);
 
@@ -623,23 +623,23 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	stat_fr = gtk_frame_new(NULL);
 	gtk_container_add(GTK_CONTAINER(page2), stat_fr);
 
-	hbox = gtk_hbox_new(FALSE,3);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
 	gtk_container_add(GTK_CONTAINER(stat_fr), hbox);
 
-	vbox_l = gtk_vbox_new(FALSE, 3);
+	vbox_l = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_l, TRUE, TRUE, 0);
 
 
 
-	hbox_l1 = gtk_hbox_new(FALSE,3);
+	hbox_l1 = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l1, TRUE, TRUE, 0);
 
 	u_data->analyse_nb->page2->port = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(hbox_l1), u_data->analyse_nb->page2->port, TRUE, TRUE, 0);
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page2->port),0,0);
 
-	hbox_l2 = gtk_hbox_new(FALSE,3);
+	hbox_l2 = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l2, TRUE, TRUE, 0);
 
 
@@ -649,7 +649,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page2->veritag),0,0);
 	gtk_widget_show(vbox_l);
 
-	vbox_r = gtk_vbox_new(FALSE, 3);
+	vbox_r = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_r, TRUE, TRUE, 0);
 
 	u_data->analyse_nb->page2->max_in = gtk_label_new("");
@@ -705,14 +705,14 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 
 	/* same page for endpoint 2*/
 
-	page3 = gtk_vbox_new(FALSE, 8);
+	page3 = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 8, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(page3), 8);
 	u_data->analyse_nb->page3 = g_malloc(sizeof(struct page));
 	u_data->analyse_nb->page3->addr_frame = gtk_frame_new(NULL);
 
 	gtk_container_add(GTK_CONTAINER(page3), u_data->analyse_nb->page3->addr_frame);
 
-	addr_hb = gtk_hbox_new(FALSE, 3);
+	addr_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(addr_hb), 5);
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page3->addr_frame), addr_hb);
 
@@ -731,21 +731,21 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	stat_fr = gtk_frame_new(NULL);
 	gtk_container_add(GTK_CONTAINER(page3), stat_fr);
 
-	hbox = gtk_hbox_new(FALSE,3);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
 	gtk_container_add(GTK_CONTAINER(stat_fr), hbox);
 
-	vbox_l = gtk_vbox_new(FALSE, 3);
+	vbox_l = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_l, TRUE, TRUE, 0);
 
-	hbox_l1 = gtk_hbox_new(FALSE,3);
+	hbox_l1 = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l1, TRUE, TRUE, 0);
 
 	u_data->analyse_nb->page3->port = gtk_label_new("");
 	gtk_box_pack_start(GTK_BOX(hbox_l1), u_data->analyse_nb->page3->port, TRUE, TRUE, 0);
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page3->port),0,0);
 
-	hbox_l2 = gtk_hbox_new(FALSE,3);
+	hbox_l2 = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(vbox_l), hbox_l2, TRUE, TRUE, 0);
 
 
@@ -754,7 +754,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->page3->veritag),0,0);
 	gtk_widget_show(vbox_l);
 
-	vbox_r=gtk_vbox_new(FALSE, 3);
+	vbox_r=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox_r, TRUE, TRUE, 0);
 
 	u_data->analyse_nb->page3->max_in = gtk_label_new("");
