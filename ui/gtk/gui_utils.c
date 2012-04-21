@@ -1889,19 +1889,10 @@ gdk_pixbuf_get_from_surface  (cairo_surface_t *surface,
 GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean homogeneous)
 {
 #if !GTK_CHECK_VERSION(3,0,0)
-	if (orientation == GTK_ORIENTATION_HORIZONTAL){
-		if(homogeneous == TRUE){
-			return gtk_hbox_new(TRUE, spacing);
-		}else{
-			return gtk_hbox_new(FALSE, spacing);
-		}
-	}else{
-		if(homogeneous == TRUE){
-			return gtk_vbox_new(TRUE, spacing);
-		}else{
-			return gtk_vbox_new(FALSE, spacing);
-		}
-	}
+	if (orientation == GTK_ORIENTATION_HORIZONTAL)
+		return gtk_hbox_new(homogeneous, spacing);
+	else
+		return gtk_vbox_new(homogeneous, spacing);
 #else
 	GtkWidget *widget;
 
