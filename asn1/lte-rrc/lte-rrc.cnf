@@ -701,6 +701,195 @@ if(ue_eutra_cap_tvb){
 #.TYPE_ATTR
 SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
 
+#.FN_BODY RRCConnectionReject-r8-IEs/waitTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.FN_BODY RRCConnectionReject-v1020-IEs/extendedWaitTime-r10
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.FN_BODY RRCConnectionRelease-v1020-IEs/extendedWaitTime-r10
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_ATTR
+SystemInformationBlockType1/cellSelectionInfo/q-RxLevMinOffset STRINGS=VALS(lte_rrc_q_RxLevMinOffset_vals)
+
+#.FN_BODY CellSelectionInfo-v920/q-QualMinOffset-r9
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY RLF-Report-r9/eag_1/timeConnFailure-r10 VAL_PTR=&timeConnFailure_val
+  guint32 timeConnFailure_val;
+%(DEFAULT_BODY)s
+#.FN_FTR RLF-Report-r9/eag_1/timeConnFailure-r10
+  proto_item_append_text(actx->created_item, " (%dms)", 100*timeConnFailure_val);
+
+#.TYPE_ATTR
+CarrierFreqUTRA-FDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
+
+#.TYPE_ATTR
+CarrierFreqUTRA-TDD/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_q_RxLevMin_vals_ext
+
+#.FN_BODY CarrierFreqUTRA-FDD/p-MaxUTRA
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY CarrierFreqUTRA-TDD/p-MaxUTRA
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY CarrierFreqUTRA-FDD/q-QualMin
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.TYPE_ATTR
+CarrierFreqsInfoGERAN/commonInfo/q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_geran_q_RxLevMin_vals_ext
+
+#.FN_BODY CarrierFreqsInfoGERAN/commonInfo/p-MaxGERAN
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.TYPE_ATTR
+CQI-ReportConfig/nomPDSCH-RS-EPRE-Offset STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
+
+#.TYPE_ATTR
+CQI-ReportConfig-r10/nomPDSCH-RS-EPRE-Offset STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
+
+#.TYPE_ATTR
+CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
+
+#.FN_BODY MAC-MainConfig/eag_1/sr-ProhibitTimer-r9
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " (number of SR periods)");
+
+#.FN_BODY DRX-Config/setup/shortDRX/drxShortCycleTimer
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " (multiples of shortDRX-Cycle)");
+
+#.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY P-Max
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY SPS-ConfigUL/setup/p0-Persistent/p0-NominalPUSCH-Persistent
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY SPS-ConfigUL/setup/p0-Persistent/p0-UE-PUSCH-Persistent
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.TYPE_ATTR
+UplinkPowerControlCommon/deltaPreambleMsg3  STRINGS=VALS(lte_rrc_deltaPreambleMsg3_vals)
+
+#.FN_BODY UplinkPowerControlCommon/p0-NominalPUSCH
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY UplinkPowerControlCommon/p0-NominalPUCCH
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY UplinkPowerControlCommonSCell-r10/p0-NominalPUSCH-r10
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.FN_BODY UplinkPowerControlDedicated/p0-UE-PUSCH
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY UplinkPowerControlDedicated/p0-UE-PUCCH
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY UplinkPowerControlDedicatedSCell-r10/p0-UE-PUSCH-r10
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY Q-QualMin-r9
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.TYPE_ATTR
+Q-RxLevMin DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_q_RxLevMin_vals_ext
+
+#.FN_BODY Q-OffsetRangeInterRAT
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.TYPE_ATTR
+ReselectionThreshold DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_ReselectionThreshold_vals_ext
+
+#.FN_BODY ReselectionThresholdQ-r9
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY T-Reselection
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "s");
+
+#.TYPE_ATTR
+Hysteresis DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_Hysteresis_vals_ext
+
+#.TYPE_RENAME
+MeasConfig/s-Measure S_Measure
+
+#.TYPE_ATTR
+MeasConfig/s-Measure DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_s_Measure_vals_ext
+
+#.TYPE_ATTR
+MeasResultGERAN/measResult/rssi DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&gsm_a_rr_rxlev_vals_ext
+
+#.TYPE_ATTR
+MeasResultUTRA/measResult/utra-EcN0 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_EcN0_vals_ext
+
+#.TYPE_ATTR
+MeasResultUTRA/measResult/utra-RSCP DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_RSCP_vals_ext
+
+#.TYPE_ATTR
+ReportConfigEUTRA/triggerType/event/eventId/eventA3/a3-Offset DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_Offset_vals_ext
+
+#.TYPE_ATTR
+ReportConfigEUTRA/triggerType/event/eventId/eventA6-r10/a6-Offset-r10 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_Offset_vals_ext
+
+#.TYPE_RENAME
+ThresholdEUTRA/threshold-RSRP Threshold_RSRP_Range
+
+#.TYPE_ATTR
+ThresholdEUTRA/threshold-RSRP DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_threshold_RSRP_vals_ext
+
+#.TYPE_RENAME
+ThresholdEUTRA/threshold-RSRQ Threshold_RSRQ_Range
+
+#.TYPE_ATTR
+ThresholdEUTRA/threshold-RSRQ DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_threshold_RSRQ_vals_ext
+
+#.TYPE_ATTR
+ThresholdGERAN DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_thresholdGERAN_vals_ext
+
+#.TYPE_RENAME
+ThresholdUTRA/utra-RSCP Threshold_utra_RSRP
+
+#.TYPE_ATTR
+ThresholdUTRA/utra-RSCP DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_thresholdUTRA_RSCP_vals_ext
+
+#.TYPE_RENAME
+ThresholdUTRA/utra-EcN0 Threshold_utra_EcN0
+
+#.TYPE_ATTR
+ThresholdUTRA/utra-EcN0 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_thresholdUTRA_EcN0_vals_ext
+
+#.TYPE_ATTR
+RSRP-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRP_Range_vals_ext
+
+#.TYPE_ATTR
+RSRQ-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
+
 #.FN_HDR MasterInformationBlock
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock ");
