@@ -988,7 +988,7 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
                                                     /* times, nsec */
     guint32         latency;
     guint64         start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
-    guint64         end_time, e_sec;                /* end time, sec */
+    guint64         end_time;                       /* end time */
     guint16         info;                           /* INFO/ERRORS fields in stats blk */
     gint16          rssi;                           /* RSSI, signed 16-bit number */
     int             f_tx;                           /* flag: if set, is a TX frame */
@@ -1072,7 +1072,6 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
 
     /* also convert the packet end time to seconds and microseconds */
     end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
-    e_sec = (end_time / US_IN_SEC);                     /* get the number of seconds */
 
     /* extract the 32 LSBs of the signature timestamp field from the data block*/
     mac_snap = (f_qos ? 34 : 32);                       /* 24 (MAC) + 2 (QoS) + 8 (SNAP) */
@@ -1207,7 +1206,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
                                                     /*  times, nsec */
     guint64 latency = LL_ZERO;
     guint64         start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
-    guint64         end_time, e_sec;                /* end time, sec */
+    guint64         end_time;                       /* end time */
     guint16         info, validityBits;             /* INFO/ERRORS fields in stats blk */
     guint32         errors = 0;
     gint16          rssi;                           /* RSSI, signed 16-bit number */
@@ -1351,7 +1350,6 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
 
     /* also convert the packet end time to seconds and microseconds */
     end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
-    e_sec = (end_time / US_IN_SEC);                     /* get the number of seconds */
 
     /* extract the 32 LSBs of the signature timestamp field */
     mac_snap = (f_qos ? 34 : 32);                       /* 24 (MAC) + 2 (QoS) + 8 (SNAP) */
@@ -1511,8 +1509,8 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
                                                         /* times, nsec */
     guint32         latency = 0;
     guint64         start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
-    guint64         end_time, e_sec;                     /* end time, secs */
-    guint16         l4id, info, validityBits;           /* INFO/ERRORS fields in stats */
+    guint64         end_time;                            /* end time */
+    guint16         l4id, info, validityBits;            /* INFO/ERRORS fields in stats */
     guint32         errors;
     guint16         vc_id;                          /* VC ID, total (incl of aggregates) */
     guint32         flow_id, d_time;                /* packet duration */
@@ -1598,7 +1596,6 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
 
     /* also convert the packet end time to seconds and microseconds */
     end_time = e_time / NS_IN_US;                       /* convert to microseconds first */
-    e_sec = (end_time / US_IN_SEC);                     /* get the number of seconds */
 
     if (frame_type & IS_TCP)                            /* signature offset for TCP frame */
     {
