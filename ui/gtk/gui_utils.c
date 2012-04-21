@@ -1899,3 +1899,14 @@ GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean ho
     return widget;
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 }
+
+#if !GTK_CHECK_VERSION(3,0,0)
+GtkWidget * gtk_button_box_new(GtkOrientation orientation)
+{
+    if (orientation == GTK_ORIENTATION_HORIZONTAL){
+        return gtk_hbutton_box_new(void);
+	}else{
+        return gtk_vbutton_box_new(void);
+	}
+}
+#endif /* GTK_CHECK_VERSION(3,0,0) */

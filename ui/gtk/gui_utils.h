@@ -517,4 +517,7 @@ GdkPixbuf *gdk_pixbuf_get_from_surface (cairo_surface_t *surface,
  */
 GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean homogeneous);
 
+#if !GTK_CHECK_VERSION(3,0,0)
+GtkWidget * gtk_button_box_new(GtkOrientation orientation);
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 #endif /* __GUI_UTIL__H__ */
