@@ -31,6 +31,7 @@
 
 #include <epan/prefs.h>
 
+#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/prefs_taps.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main.h"

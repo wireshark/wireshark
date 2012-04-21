@@ -34,6 +34,7 @@
 #include "../print.h"
 
 #include "ui/gtk/color_utils.h"
+#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/prefs_stream.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/follow_tcp.h"

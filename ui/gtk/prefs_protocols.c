@@ -30,6 +30,7 @@
 
 #include <epan/prefs.h>
 
+#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/prefs_protocols.h"
 #include "ui/gtk/prefs_dlg.h"
 
