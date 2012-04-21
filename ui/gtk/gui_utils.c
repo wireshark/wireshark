@@ -1211,7 +1211,6 @@ create_user_window_title(const gchar *caption)
     return g_strdup_printf("%s   [%s]", caption, prefs.gui_window_title);
 }
 
-/* XXX move toggle_tree over from proto_draw.c to handle GTK+ 1 */
 /*
  * This callback is invoked when keyboard focus is within either
  * the packetlist view or the detail view.  The keystrokes processed
