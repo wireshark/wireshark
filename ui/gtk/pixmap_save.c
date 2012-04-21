@@ -143,11 +143,11 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(save_as_w), TRUE);
 
 	/* Container for each row of widgets */
-	main_vb = gtk_vbox_new(FALSE, 0);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	file_selection_set_extra_widget(save_as_w, main_vb);
 	gtk_widget_show(main_vb);
 
-	save_as_type_hb = gtk_hbox_new(FALSE, 0);
+	save_as_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), save_as_type_hb, FALSE, FALSE, 0);
 	gtk_widget_show(save_as_type_hb);
 

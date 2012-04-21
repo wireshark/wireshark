@@ -455,7 +455,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_window_set_default_size(GTK_WINDOW(object_list->dlg),
 				    DEF_WIDTH, DEF_HEIGHT);
 
-	vbox = gtk_vbox_new(FALSE, 5);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
 
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
 	gtk_container_add(GTK_CONTAINER(object_list->dlg), vbox);

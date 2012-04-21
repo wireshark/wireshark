@@ -126,7 +126,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   time_shift_frame_w = dlg_window_new("Wireshark: Time Shift");
  
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 3);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(time_shift_frame_w), main_vb);
   gtk_widget_show(main_vb);
@@ -135,7 +135,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   /*
    * Shift All Packets frame
    */
-  main_hb = gtk_hbox_new(FALSE, 3);
+  main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
   gtk_widget_show(main_hb);
 
@@ -143,13 +143,13 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_hb), types_frame, TRUE, TRUE, 0);
   gtk_widget_show(types_frame);
 
-  types_vb = gtk_vbox_new(FALSE, 3);
+  types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(types_vb), 3);
   gtk_container_add(GTK_CONTAINER(types_frame), types_vb);
   gtk_widget_show(types_vb);
 
   /* Radio button row */
-  timeshift_offset_hb = gtk_hbox_new(FALSE, 3);
+  timeshift_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), timeshift_offset_hb, FALSE, FALSE, 0);
   gtk_widget_show(timeshift_offset_hb);
 
@@ -159,7 +159,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(timeshift_rb, "Shift the time on the frames.");
 
   /* Time Shift entry row */
-  timeshift_offset_hb = gtk_hbox_new(FALSE, 3);
+  timeshift_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), timeshift_offset_hb, FALSE, FALSE, 0);
   gtk_widget_show(timeshift_offset_hb);
 
@@ -178,7 +178,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   /*
    * Set Packet Number to Time frame
    */
-  main_hb = gtk_hbox_new(FALSE, 3);
+  main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
   gtk_widget_show(main_hb);
 
@@ -186,13 +186,13 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_hb), types_frame, TRUE, TRUE, 0);
   gtk_widget_show(types_frame);
 
-  types_vb = gtk_vbox_new(FALSE, 3);
+  types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(types_vb), 3);
   gtk_container_add(GTK_CONTAINER(types_frame), types_vb);
   gtk_widget_show(types_vb);
 
   /* time shift type row */
-  settime_time_hb = gtk_hbox_new(FALSE, 3);
+  settime_time_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), settime_time_hb, FALSE,
     FALSE, 0);
   gtk_widget_show(settime_time_hb);
@@ -205,7 +205,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     "Set the time of a certain frame and adjust the rest of the frames "
     "automatically.");
 
-  settime_time_hb = gtk_hbox_new(FALSE, 3);
+  settime_time_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), settime_time_hb, FALSE,
     FALSE, 0);
   gtk_widget_show(settime_time_hb);
@@ -223,7 +223,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     "The frame which will be set to the time.");
 
   /* time shift row */
-  settime_time_hb = gtk_hbox_new(FALSE, 3);
+  settime_time_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), settime_time_hb, FALSE, FALSE,
     0);
   gtk_widget_show(settime_time_hb);
@@ -243,7 +243,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   /*
    * Set two Packet Numbers to Time frame and extrapolate
    */
-  main_hb = gtk_hbox_new(FALSE, 3);
+  main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
   gtk_widget_show(main_hb);
 
@@ -251,13 +251,13 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_hb), types_frame, TRUE, TRUE, 0);
   gtk_widget_show(types_frame);
 
-  types_vb = gtk_vbox_new(FALSE, 3);
+  types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(types_vb), 3);
   gtk_container_add(GTK_CONTAINER(types_frame), types_vb);
   gtk_widget_show(types_vb);
 
   /* packet number row 1 */
-  adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
+  adjtime_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), adjtime_offset_hb, FALSE, FALSE, 0);
   gtk_widget_show(adjtime_offset_hb);
 
@@ -269,7 +269,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     "Set the time of two frames and adjust the rest of the frames "
     "automatically.");
 
-  adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
+  adjtime_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), adjtime_offset_hb, FALSE, FALSE, 0);
   gtk_widget_show(adjtime_offset_hb);
 
@@ -286,7 +286,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     "The frame which will be set to the time.");
 
   /* time shift row */
-  adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
+  adjtime_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), adjtime_offset_hb, FALSE, FALSE,
     0);
   gtk_widget_show(adjtime_offset_hb);
@@ -305,7 +305,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     "hh:mm:ss[.ddddddddd]");
 
   /* packet number row 2 */
-  adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
+  adjtime_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), adjtime_offset_hb, FALSE,
     FALSE, 0);
   gtk_widget_show(adjtime_offset_hb);
@@ -323,7 +323,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     "The frame which will be set to the time.");
 
   /* time shift row */
-  adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
+  adjtime_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), adjtime_offset_hb, FALSE, FALSE,
     0);
   gtk_widget_show(adjtime_offset_hb);
@@ -344,7 +344,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   /*
    * Undo all shifts
    */
-  main_hb = gtk_hbox_new(FALSE, 3);
+  main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
   gtk_widget_show(main_hb);
 
@@ -352,18 +352,18 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_hb), types_frame, TRUE, TRUE, 0);
   gtk_widget_show(types_frame);
 
-  types_vb = gtk_vbox_new(FALSE, 3);
+  types_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(types_vb), 3);
   gtk_container_add(GTK_CONTAINER(types_frame), types_vb);
   gtk_widget_show(types_vb);
 
   /* time shift type row */
-  undo_type_hb = gtk_hbox_new(FALSE, 3);
+  undo_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(types_vb), undo_type_hb);
   gtk_widget_show(undo_type_hb);
 
   /* time shift row */
-  undo_offset_hb = gtk_hbox_new(FALSE, 3);
+  undo_offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(types_vb), undo_offset_hb, FALSE,
     FALSE, 0);
   gtk_widget_show(undo_offset_hb);

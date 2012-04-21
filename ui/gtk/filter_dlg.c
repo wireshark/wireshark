@@ -413,7 +413,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
     g_object_set_data(G_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY, construct_args);
 
-    main_vb = gtk_vbox_new(FALSE, 0);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_w), main_vb);
     gtk_widget_show(main_vb);
@@ -423,13 +423,13 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         filter_te_str = gtk_entry_get_text(GTK_ENTRY(parent_filter_te));
 
     /* Container for each row of widgets */
-    filter_vb = gtk_vbox_new(FALSE, 0);
+    filter_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(filter_vb), 0);
     gtk_container_add(GTK_CONTAINER(main_vb), filter_vb);
     gtk_widget_show(filter_vb);
 
     /* Top row: Buttons and filter list */
-    top_hb = gtk_hbox_new(FALSE, 0);
+    top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(filter_vb), top_hb);
     gtk_widget_show(top_hb);
 
@@ -437,7 +437,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start(GTK_BOX(top_hb), edit_fr, FALSE, FALSE, 0);
     gtk_widget_show(edit_fr);
 
-    list_bb = gtk_vbox_new(TRUE, 0);
+    list_bb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, TRUE);
     gtk_container_set_border_width(GTK_CONTAINER(list_bb), 5);
     gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
     gtk_widget_show(list_bb);
@@ -502,13 +502,13 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_box_pack_start(GTK_BOX(filter_vb), props_fr, FALSE, FALSE, 0);
     gtk_widget_show(props_fr);
 
-    props_vb = gtk_vbox_new(FALSE, 3);
+    props_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(props_vb), 5);
     gtk_container_add(GTK_CONTAINER(props_fr), props_vb);
     gtk_widget_show(props_vb);
 
     /* row: Filter name entry */
-    middle_hb = gtk_hbox_new(FALSE, 3);
+    middle_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
     gtk_widget_show(middle_hb);
 
@@ -523,7 +523,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_widget_show(name_te);
 
     /* row: Filter text entry */
-    bottom_hb = gtk_hbox_new(FALSE, 3);
+    bottom_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(props_vb), bottom_hb);
     gtk_widget_show(bottom_hb);
 

@@ -217,7 +217,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Summary");
 
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 12);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
   gtk_container_add(GTK_CONTAINER(sum_open_w), main_vb);
 
@@ -268,7 +268,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_container_add (GTK_CONTAINER (main_vb), frame);
     gtk_widget_show (frame);
 
-    comment_vbox = gtk_vbox_new (FALSE, 0);
+    comment_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add (GTK_CONTAINER (frame), comment_vbox);
     gtk_widget_show (comment_vbox);
 

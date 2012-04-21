@@ -103,11 +103,11 @@ filter_expressions_prefs_show(void) {
 					  "Filter Expression"};
 
     /* Container for each row of widgets */
-    main_vb = gtk_vbox_new(FALSE, 5);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_widget_show(main_vb);
 
-    list_vb = gtk_vbox_new(FALSE, 0);
+    list_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(list_vb), 5);
     gtk_widget_show(list_vb);
     gtk_box_pack_start(GTK_BOX(main_vb), list_vb, TRUE, TRUE, 0);
@@ -193,12 +193,12 @@ filter_expressions_prefs_show(void) {
     g_object_unref(G_OBJECT(store));
 
     /* Bottom row: Add/remove buttons */
-    bottom_hb = gtk_hbox_new(FALSE, 5);
+    bottom_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     gtk_box_pack_start(GTK_BOX(main_vb), bottom_hb, FALSE, TRUE, 0);
     gtk_widget_show(bottom_hb);
 
     /* Add button */
-    add_remove_hb = gtk_hbox_new(TRUE, 0);
+    add_remove_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, TRUE);
     gtk_container_set_border_width(GTK_CONTAINER(add_remove_hb), 5);
     gtk_box_pack_start(GTK_BOX(bottom_hb), add_remove_hb, FALSE, FALSE, 0);
     gtk_widget_show(add_remove_hb);

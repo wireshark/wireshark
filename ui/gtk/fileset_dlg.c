@@ -295,7 +295,7 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
   fs_w = dlg_window_new("");  /* transient_for top_level */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(fs_w), TRUE);
 
-  main_vb = gtk_vbox_new(FALSE, 5);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(fs_w), main_vb);
 

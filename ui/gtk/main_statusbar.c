@@ -299,7 +299,7 @@ statusbar_new(void)
     GtkWidget *status_hbox;
 
     /* Status hbox */
-    status_hbox = gtk_hbox_new(FALSE, 1);
+    status_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(status_hbox), 0);
 
     /* info (main) statusbar */

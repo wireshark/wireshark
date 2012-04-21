@@ -446,7 +446,7 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win),400, 30*(uat->ncols+2));
 
-	main_vb = gtk_vbox_new(FALSE,5);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
@@ -595,7 +595,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
 
-	main_vb = gtk_vbox_new(FALSE,5);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
@@ -868,7 +868,7 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	gtk_window_set_default_size(GTK_WINDOW(win), 360, 140);
 
 	gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
-	vbox = gtk_vbox_new(FALSE, 12);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
 
@@ -931,15 +931,15 @@ static GtkWidget* uat_window(void* u) {
 
 	gtk_container_set_border_width(GTK_CONTAINER(rep->window), 6);
 
-	rep->vbox = gtk_vbox_new(FALSE, 12);
+	rep->vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(rep->vbox), 6);
 	gtk_container_add(GTK_CONTAINER(rep->window), rep->vbox);
 
-	hbox = gtk_hbox_new(FALSE,12);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
 	gtk_container_add(GTK_CONTAINER(rep->vbox), hbox);
 
-	vbox = gtk_vbox_new(FALSE, 12);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
 

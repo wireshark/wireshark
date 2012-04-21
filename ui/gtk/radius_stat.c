@@ -337,7 +337,7 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(rs->win), TRUE);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 600, 150);
 
-	rs->vbox=gtk_vbox_new(FALSE, 3);
+	rs->vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 
 	init_main_stat_window(rs->win, rs->vbox, "RADIUS Service Response Time (SRT) Statistics", rs->filter);
 

@@ -1388,7 +1388,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 
     gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
 
-    vbox=gtk_vbox_new(FALSE, 3);
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(hosttable->win), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -1507,7 +1507,7 @@ init_hostlist_notebook_page_cb(gboolean hide_ports, const char *table_name, cons
     hosttable->filter=filter;
     hosttable->use_dfilter=FALSE;
 
-    page_vbox=gtk_vbox_new(FALSE, 6);
+    page_vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     hosttable->win = page_vbox;
     gtk_container_set_border_width(GTK_CONTAINER(page_vbox), 6);
 
@@ -1624,7 +1624,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_window_set_title(GTK_WINDOW(win), title);
     gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
 
-    vbox=gtk_vbox_new(FALSE, 6);
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     gtk_container_add(GTK_CONTAINER(win), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -1651,7 +1651,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     pages[0] = GINT_TO_POINTER(page);
 
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");

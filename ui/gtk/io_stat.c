@@ -1913,7 +1913,7 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, GtkWidget * (*
 	GtkWidget *label;
 	GtkWidget *combo_box;
 
-	hbox=gtk_hbox_new(FALSE, 0);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
@@ -1945,7 +1945,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	GtkWidget *vbox;
 	GtkWidget *view_cb;
 
-	frame_vbox=gtk_vbox_new(FALSE, 0);
+	frame_vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start(GTK_BOX(box), frame_vbox, FALSE, FALSE, 0);
 	gtk_widget_show(frame_vbox);
 
@@ -1953,7 +1953,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
@@ -1972,7 +1972,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
@@ -2156,7 +2156,7 @@ create_advanced_menu(io_stat_graph_t *gio, GtkWidget *box, const char *name,  Gt
 	GtkWidget *label;
 	GtkWidget *combo_box;
 
-	hbox=gtk_hbox_new(FALSE, 0);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
@@ -2192,7 +2192,7 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 {
 	GtkWidget *hbox;
 
-	hbox=gtk_hbox_new(FALSE, 0);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gio->advanced_buttons=hbox;
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, TRUE, TRUE, 0, GTK_PACK_START);
@@ -2221,7 +2221,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	char str[256];
 	int i;
 
-	hbox=gtk_hbox_new(FALSE, 3);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
@@ -2315,7 +2315,7 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(box), frame, TRUE, TRUE, 0);
 	gtk_widget_show(frame);
 
-	vbox=gtk_vbox_new(FALSE, 1);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
@@ -2377,13 +2377,13 @@ init_io_stat_window(io_stat_t *io)
 	io->window = dlg_window_new("I/O Graphs");
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(io->window), TRUE);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(io->window), vbox);
 	gtk_widget_show(vbox);
 
 	create_draw_area(io, vbox);
 
-	hbox=gtk_hbox_new(FALSE, 3);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);

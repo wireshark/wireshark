@@ -220,11 +220,11 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_container_set_border_width(GTK_CONTAINER(rule_w), 6);
 
     /* setup the container */
-    vbox = gtk_vbox_new(FALSE, 6);
+    vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     gtk_container_add(GTK_CONTAINER(rule_w), vbox);
 
     /* rule type selectors hbox */
-    hbox = gtk_hbox_new(FALSE, 1);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     /* product selector */

@@ -123,7 +123,7 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   man_addr_resolv_dlg = dlg_window_new ("Manual Address Resolve");
   gtk_window_set_default_size (GTK_WINDOW(man_addr_resolv_dlg), 310, 80);
 
-  vbox = gtk_vbox_new (FALSE, 3);
+  vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(man_addr_resolv_dlg), vbox);
   gtk_container_set_border_width (GTK_CONTAINER(vbox), 6);
 

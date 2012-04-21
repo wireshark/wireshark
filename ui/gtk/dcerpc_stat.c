@@ -276,7 +276,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	dcerpcstat_set_title(rs);
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 
-	vbox = gtk_vbox_new(FALSE, 3);
+	vbox =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -553,13 +553,13 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	dlg = dlg_window_new("Wireshark: Compute DCE-RPC SRT statistics");
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 400, -1);
 
-	dlg_box = gtk_vbox_new(FALSE, 10);
+	dlg_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
 	/* Program box */
-	prog_box = gtk_hbox_new(FALSE, 3);
+	prog_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 
 	/* Program label */
 	gtk_container_set_border_width(GTK_CONTAINER(prog_box), 10);
@@ -663,7 +663,7 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_widget_show(prog_box);
 
 	/* Filter box */
-	filter_box = gtk_hbox_new(FALSE, 3);
+	filter_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 
 	/* Filter label */
 	filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);

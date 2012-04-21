@@ -132,12 +132,12 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_container_set_border_width(GTK_CONTAINER(win), 6);
 
   /* Container for our rows */
-  main_vb = gtk_vbox_new(FALSE, 12);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
   gtk_container_add(GTK_CONTAINER(win), main_vb);
   gtk_widget_show(main_vb);
 
   /* Top row: Icon and message text */
-  top_hb = gtk_hbox_new(FALSE, 12);
+  top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
@@ -147,7 +147,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_widget_show(type_pm);
 
   /* column for message and optional check button */
-  msg_vb = gtk_vbox_new(FALSE, 6);
+  msg_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_box_set_spacing(GTK_BOX(msg_vb), 24);
   gtk_container_add(GTK_CONTAINER(top_hb), msg_vb);
   gtk_widget_show(msg_vb);

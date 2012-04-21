@@ -268,7 +268,7 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 
 	gtk_window_set_default_size(GTK_WINDOW(ms->win), 550, 150);
 
-	ms->vbox=gtk_vbox_new(FALSE, 3);
+	ms->vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 
 	init_main_stat_window(ms->win, ms->vbox, "MGCP Service Response Time (SRT) Statistics", ms->filter);
 

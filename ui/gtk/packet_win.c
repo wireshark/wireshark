@@ -612,7 +612,7 @@ not_supported:
 	DataPtr->repr = native_repr;
 
 	frame = gtk_frame_new("Hex edit");
-	frame_vbox = gtk_vbox_new(TRUE, 1);
+	frame_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, TRUE);
 
 	/* raw hex edit */
 	if (finfo->start >= 0 && finfo->length > 0) {
@@ -920,7 +920,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 	gtk_window_set_default_size(GTK_WINDOW(main_w), DEF_WIDTH, -1);
 
 	/* Container for paned windows  */
-	main_vbox = gtk_vbox_new(FALSE, 1);
+	main_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 1);
 	gtk_container_add(GTK_CONTAINER(main_w), main_vbox);
 	gtk_widget_show(main_vbox);

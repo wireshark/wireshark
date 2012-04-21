@@ -853,7 +853,7 @@ file_import_dlg_new(void)
     main_w = dlg_window_new("Wireshark: Import from Text");
     gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 300);
 
-    main_vb = gtk_vbox_new(FALSE, 0);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 3);
     gtk_container_add(GTK_CONTAINER(main_w), main_vb);
 
@@ -864,7 +864,7 @@ file_import_dlg_new(void)
 
     g_object_set_data(G_OBJECT(main_w), INPUT_FRM_KEY, input_frm);
 
-    input_vb = gtk_vbox_new(FALSE, 0);
+    input_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(input_frm), input_vb);
 
     input_tb = gtk_table_new(2, 3, FALSE);
@@ -874,7 +874,7 @@ file_import_dlg_new(void)
     gtk_table_set_col_spacings(GTK_TABLE(input_tb), 5);
 
     /* Filename */
-    filename_hb = gtk_hbox_new(FALSE, 3);
+    filename_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(filename_hb), 3);
 
     filename_lbl = gtk_label_new("Filename:");
@@ -893,18 +893,18 @@ file_import_dlg_new(void)
     g_signal_connect(browse_bt, "clicked", G_CALLBACK(browse_file_cb), filename_te);
 
     /* Offsets */
-    offset_hb = gtk_hbox_new(FALSE, 3);
+    offset_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(offset_hb), 3);
     gtk_box_pack_start(GTK_BOX(input_vb), offset_hb, FALSE, FALSE, 0);
 
-    offset_lbl_vb = gtk_vbox_new(FALSE, 0);
+    offset_lbl_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(offset_hb), offset_lbl_vb, FALSE, FALSE, 0);
 
     offset_lbl = gtk_label_new("Offsets:");
     gtk_misc_set_alignment(GTK_MISC(offset_lbl), 1.0f, 0.0f);
     gtk_table_attach(GTK_TABLE(input_tb), offset_lbl, 0, 1, 1, 2, 0, 0, 0, 0);
 
-    offset_rb_vb = gtk_vbox_new(FALSE, 0);
+    offset_rb_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_table_attach_defaults(GTK_TABLE(input_tb), offset_rb_vb, 1, 2, 1, 2);
 
     /* First entry in the group */
@@ -927,7 +927,7 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(input_frm), INPUT_OFFSET_DEC_RB_KEY, offset_dec_rb);
 
     /* Time format */
-    timefmt_hb = gtk_hbox_new(FALSE, 3);
+    timefmt_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(timefmt_hb), 3);
     gtk_box_pack_start(GTK_BOX(input_vb), timefmt_hb, FALSE, FALSE, 0);
 
@@ -959,11 +959,11 @@ file_import_dlg_new(void)
 
     g_object_set_data(G_OBJECT(main_w), IMPORT_FRM_KEY, import_frm);
 
-    import_vb = gtk_vbox_new(FALSE, 0);
+    import_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(import_frm), import_vb);
 
     /* Encapsulation */
-    encap_hb = gtk_hbox_new(FALSE, 3);
+    encap_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(encap_hb), 3);
     gtk_box_pack_start(GTK_BOX(import_vb), encap_hb, FALSE, FALSE, 0);
 
@@ -987,15 +987,15 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(import_frm), IMPORT_HEADER_FRM_KEY, header_frm);
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_CB_KEY, header_cb);
 
-    header_hb = gtk_hbox_new(FALSE, 3);
+    header_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(header_hb), 3);
     gtk_container_add(GTK_CONTAINER(header_frm), header_hb);
 
-    header_rblbl_vb = gtk_vbox_new(FALSE, 0);
+    header_rblbl_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(header_hb), header_rblbl_vb, TRUE, TRUE, 0);
 
     /* Line 1 */
-    header_rblbl_1_hb = gtk_hbox_new(FALSE, 0);
+    header_rblbl_1_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_1_hb, FALSE, FALSE, 2);
 
     /* First entry in the group */
@@ -1018,7 +1018,7 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_ETYPE_TE_KEY, etype_te);
 
     /* Line 2 */
-    header_rblbl_2_hb = gtk_hbox_new(FALSE, 0);
+    header_rblbl_2_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_2_hb, FALSE, FALSE, 2);
 
     header_ipv4_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "IPv4");
@@ -1040,7 +1040,7 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_PROT_TE_KEY, protocol_te);
 
     /* Line 3 */
-    header_rblbl_3_hb = gtk_hbox_new(FALSE, 0);
+    header_rblbl_3_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_3_hb, FALSE, FALSE, 2);
 
     header_udp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "UDP");
@@ -1062,7 +1062,7 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_SRC_PORT_TE_KEY, src_port_te);
 
     /* Line 4 */
-    header_rblbl_4_hb = gtk_hbox_new(FALSE, 0);
+    header_rblbl_4_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_4_hb, FALSE, FALSE, 2);
 
     header_tcp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "TCP");
@@ -1084,7 +1084,7 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_DST_PORT_TE_KEY, dst_port_te);
 
     /* Line 5 */
-    header_rblbl_5_hb = gtk_hbox_new(FALSE, 0);
+    header_rblbl_5_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_5_hb, FALSE, FALSE, 2);
 
     header_sctp_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "SCTP");
@@ -1106,7 +1106,7 @@ file_import_dlg_new(void)
     g_object_set_data(G_OBJECT(header_frm), IMPORT_HEADER_TAG_TE_KEY, tag_te);
 
     /* Line 6 */
-    header_rblbl_6_hb = gtk_hbox_new(FALSE, 0);
+    header_rblbl_6_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(header_rblbl_vb), header_rblbl_6_hb, FALSE, FALSE, 2);
 
     header_sctp_data_rb = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(header_eth_rb), "SCTP (DATA)");
@@ -1137,7 +1137,7 @@ file_import_dlg_new(void)
     g_signal_connect(encap_co, "changed", G_CALLBACK(encap_co_changed), header_frm);
 
     /* Frame length */
-    framelen_hb = gtk_hbox_new(FALSE, 3);
+    framelen_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(framelen_hb), 3);
     gtk_box_pack_start(GTK_BOX(import_vb), framelen_hb, FALSE, FALSE, 0);
 

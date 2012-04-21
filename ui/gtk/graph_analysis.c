@@ -1755,7 +1755,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	GtkRequisition scroll_requisition;
 	GtkWidget *frame;
 
-	hbox=gtk_hbox_new(FALSE, 0);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_widget_show(hbox);
 
 	/* create "time" draw area */ 
@@ -1878,7 +1878,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
 
 	/* Create the scroll_vbox to include the vertical scroll and a box at the bottom */
-	scroll_vbox=gtk_vbox_new(FALSE, 0);
+	scroll_vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_widget_show(scroll_vbox);
 
 	/* create the associated v_scrollbar */
@@ -1934,7 +1934,7 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	user_data->dlg.window=dlg_window_new((user_data->dlg.title)?user_data->dlg.title:win_name);
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(user_data->dlg.window), TRUE);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.window), vbox);
 	gtk_widget_show(vbox);
 

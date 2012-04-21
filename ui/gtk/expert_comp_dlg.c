@@ -800,7 +800,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     error_set_title(ss);
 
-    vbox=gtk_vbox_new(FALSE, 3);
+    vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(ss->win), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -811,10 +811,10 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     gtk_widget_show_all(ss->win);
 
     /* Errors */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    temp_page =ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     ss->error_label = gtk_label_new("Errors: 0/y");
     gtk_widget_show(ss->error_label);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_error_pb_data);
         gtk_widget_show(image);
@@ -825,10 +825,10 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     init_error_table(&ss->error_table, 0, temp_page);
 
     /* Warnings */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     ss->warn_label = gtk_label_new("Warnings: 0/y");
     gtk_widget_show(ss->warn_label);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_warn_pb_data);
         gtk_widget_show(image);
@@ -839,10 +839,10 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     init_error_table(&ss->warn_table, 0, temp_page);
 
     /* Notes */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     ss->note_label = gtk_label_new("Notes: 0/y");
     gtk_widget_show(ss->note_label);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_note_pb_data);
         gtk_widget_show(image);
@@ -853,10 +853,10 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     init_error_table(&ss->note_table, 0, temp_page);
 
     /* Chat */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     ss->chat_label = gtk_label_new("Chats: 0/y");
     gtk_widget_show(ss->chat_label);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_chat_pb_data);
         gtk_widget_show(image);
@@ -867,15 +867,15 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     init_error_table(&ss->chat_table, 0, temp_page);
 
     /* Details */
-    details_page = gtk_vbox_new(FALSE, 6);
+    details_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     ss->all_label = gtk_label_new("Details: 0");
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), details_page, ss->all_label);
 
     /* Paket comments */
-    comments_page = gtk_vbox_new(FALSE, 6);
+    comments_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     ss->pkt_comments_label = gtk_label_new("Packet Comments: 0/y");
     gtk_widget_show(ss->pkt_comments_label);
-    hbox = gtk_hbox_new(FALSE, 3);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(hbox), ss->pkt_comments_label);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), comments_page, hbox);
 

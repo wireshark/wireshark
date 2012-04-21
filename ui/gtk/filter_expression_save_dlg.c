@@ -244,14 +244,14 @@ filter_expression_save_dlg(gpointer data)
 	filter_save_frame_w = dlg_window_new("Wireshark: Save Filter");
 
 	/* Container for each row of widgets */
-	main_vb = gtk_vbox_new(FALSE, 3);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(filter_save_frame_w), main_vb);
 	gtk_widget_show(main_vb);
 
 
 	/* */
-	main_filter_save_hb = gtk_hbox_new(FALSE, 3);
+	main_filter_save_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(main_vb), main_filter_save_hb);
 	gtk_widget_show(main_filter_save_hb);
 
@@ -261,20 +261,20 @@ filter_expression_save_dlg(gpointer data)
 	    TRUE, TRUE, 0);
 	gtk_widget_show(filter_save_frame);
 
-	filter_save_type_vb = gtk_vbox_new(FALSE, 3);
+	filter_save_type_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(filter_save_type_vb), 3);
 	gtk_container_add(GTK_CONTAINER(filter_save_frame),
 	    filter_save_type_vb);
 	gtk_widget_show(filter_save_type_vb);
 
 	/* filter_save type row */
-	filter_save_type_hb = gtk_hbox_new(FALSE, 3);
+	filter_save_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(filter_save_type_vb),
 	    filter_save_type_hb);
 	gtk_widget_show(filter_save_type_hb);
 
 	/* filter_save row */
-	entry_hb = gtk_hbox_new(FALSE, 3);
+	entry_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_start(GTK_BOX(filter_save_type_vb), entry_hb, FALSE,
 	    FALSE, 0);
 	gtk_widget_show(entry_hb);

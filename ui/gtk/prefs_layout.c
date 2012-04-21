@@ -79,7 +79,7 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, int i, layout_pa
 
 
     /* radio vbox */
-    radio_vb = gtk_vbox_new(FALSE, 0);
+    radio_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
 
     g_snprintf (buf, sizeof(buf), "Pane %d:", i);
@@ -310,7 +310,7 @@ layout_prefs_show(void)
 
 
     /* main vertical box */
-    main_vb = gtk_vbox_new(FALSE, 7);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
     /* pane frame */
@@ -319,13 +319,13 @@ layout_prefs_show(void)
     gtk_widget_show(pane_fr);
 
     /* pane vertical box */
-    pane_vb = gtk_vbox_new(FALSE, 7);
+    pane_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(pane_vb), 5);
     gtk_container_add(GTK_CONTAINER(pane_fr), pane_vb);
     gtk_widget_show(pane_vb);
 
     /* button hbox */
-    button_hb = gtk_hbox_new(FALSE, 0);
+    button_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(button_hb), 6);
     gtk_box_pack_start (GTK_BOX(pane_vb), button_hb, FALSE, FALSE, 0);
 
@@ -346,7 +346,7 @@ layout_prefs_show(void)
     g_object_set_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY, layout_type_buttons);
 
     /* radio hbox */
-    radio_hb = gtk_hbox_new(FALSE, 0);
+    radio_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(radio_hb), 6);
     gtk_box_pack_start (GTK_BOX(pane_vb), radio_hb, FALSE, FALSE, 0);
 
@@ -365,7 +365,7 @@ layout_prefs_show(void)
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
     g_object_set_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY, radio_vb);
 
-    default_vb = gtk_vbox_new(FALSE, 0);
+    default_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     default_bt = gtk_button_new_with_label("Default panes");
     gtk_widget_set_tooltip_text (default_bt, "Reset the pane layout settings to default values.");
     g_signal_connect(default_bt, "clicked", G_CALLBACK(layout_defaults_cb), main_vb);
@@ -374,7 +374,7 @@ layout_prefs_show(void)
 
     /* Main horizontal box  */
     /* XXX - Is there a better way to center the table? */
-    hbox = gtk_hbox_new(FALSE, 7);
+    hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 7, FALSE);
     gtk_box_pack_start (GTK_BOX(main_vb), hbox, TRUE, FALSE, 0);
 
     /* Main table */

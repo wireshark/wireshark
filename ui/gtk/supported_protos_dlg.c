@@ -96,7 +96,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_set_border_width(GTK_CONTAINER(supported_w), 2);
 
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 1);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 1);
   gtk_container_add(GTK_CONTAINER(supported_w), main_vb);
   gtk_widget_show(main_vb);
@@ -107,7 +107,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
   /* protocol list */
-  proto_vb = gtk_vbox_new(FALSE, 0);
+  proto_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(proto_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
@@ -125,7 +125,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_notebook_append_page(GTK_NOTEBOOK(supported_nb), proto_vb, label);
 
   /* display filter fields */
-  dfilter_vb = gtk_vbox_new(FALSE, 0);
+  dfilter_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(dfilter_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);

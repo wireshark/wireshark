@@ -688,7 +688,7 @@ voip_calls_dlg_create(void)
 
 	gtk_window_set_default_size(GTK_WINDOW(voip_calls_dlg_w), 1000, 350);
 
-	main_vb = gtk_vbox_new(FALSE, 0);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(voip_calls_dlg_w), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER (main_vb), 12);
 

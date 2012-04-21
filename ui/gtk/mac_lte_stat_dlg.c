@@ -1048,7 +1048,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     gtk_window_set_default_size(GTK_WINDOW(hs->mac_lte_stat_dlg_w), 750, 300);
 
     /* Will stack widgets vertically inside dlg */
-    top_level_vbox = gtk_vbox_new(FALSE, 3);       /* FALSE = not homogeneous */
+    top_level_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);       /* FALSE = not homogeneous */
     gtk_container_add(GTK_CONTAINER(hs->mac_lte_stat_dlg_w), top_level_vbox);
 
     gtk_container_set_border_width(GTK_CONTAINER(top_level_vbox), 6);
@@ -1061,7 +1061,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     mac_lte_stat_system_lb = gtk_frame_new("System Data");
 
     /* Add max UEs/TTI counts in one row */
-    system_row_hbox = gtk_hbox_new(FALSE, 0);
+    system_row_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_system_lb), system_row_hbox);
     gtk_container_set_border_width(GTK_CONTAINER(system_row_hbox), 5);
 
@@ -1085,7 +1085,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     mac_lte_stat_common_channel_lb = gtk_frame_new("Common Channel Data");
 
     /* Will add BCH and PCH counters into one row */
-    common_row_hbox = gtk_hbox_new(FALSE, 0);
+    common_row_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_common_channel_lb), common_row_hbox);
     gtk_container_set_border_width(GTK_CONTAINER(common_row_hbox), 5);
 
@@ -1127,7 +1127,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /**********************************************/
 
     hs->mac_lte_stat_ues_lb = gtk_frame_new("UL/DL-SCH Data (0 UEs)");
-    ues_vb = gtk_vbox_new(FALSE, 0);
+    ues_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(hs->mac_lte_stat_ues_lb), ues_vb);
     gtk_container_set_border_width(GTK_CONTAINER(ues_vb), 5);
 
@@ -1192,13 +1192,13 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
 
     mac_lte_stat_selected_ue_lb = gtk_frame_new("Selected UE details");
 
-    selected_ue_hb = gtk_hbox_new(FALSE, 6);
+    selected_ue_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_selected_ue_lb), selected_ue_hb);
     gtk_container_set_border_width(GTK_CONTAINER(selected_ue_hb), 5);
 
     /********************************/
     /* First (row titles) column    */
-    selected_ue_vbox[0] = gtk_vbox_new(FALSE, 0);
+    selected_ue_vbox[0] = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(selected_ue_hb), selected_ue_vbox[0]);
 
     selected_ue_column_titles[0] = gtk_label_new("");
@@ -1216,7 +1216,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /*************************/
     /* Other columns         */
     for (i=CCCH_COLUMN; i < NUM_CHANNEL_COLUMNS; i++) {
-        selected_ue_vbox[i] = gtk_vbox_new(FALSE, 0);
+        selected_ue_vbox[i] = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
         gtk_container_add(GTK_CONTAINER(selected_ue_hb), selected_ue_vbox[i]);
 
         /* Channel title */
@@ -1242,7 +1242,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     mac_lte_stat_filters_lb = gtk_frame_new("Filter on UE");
 
     /* Horizontal row of filter controls */
-    filter_buttons_hb = gtk_hbox_new(FALSE, 6);
+    filter_buttons_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
     gtk_container_add(GTK_CONTAINER(mac_lte_stat_filters_lb), filter_buttons_hb);
     gtk_container_set_border_width(GTK_CONTAINER(filter_buttons_hb), 2);
 

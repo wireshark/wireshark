@@ -1673,7 +1673,7 @@ init_sctp_graph_window(struct sctp_udata *u_data)
 	u_data->io->window= dlg_window_new("WSCTP Graphics");  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(u_data->io->window), TRUE);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(u_data->io->window), vbox);
 	gtk_widget_show(vbox);
 

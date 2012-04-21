@@ -56,13 +56,13 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   goto_frame_w = dlg_window_new("Wireshark: Go To Packet");
 
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 3);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(goto_frame_w), main_vb);
   gtk_widget_show(main_vb);
 
   /* Frame number row */
-  fnumber_hb = gtk_hbox_new(FALSE, 3);
+  fnumber_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), fnumber_hb);
   gtk_widget_show(fnumber_hb);
 

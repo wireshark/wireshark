@@ -107,7 +107,7 @@ capture_prefs_show(void)
 	const gchar     *tooltips_text;
 
 	/* Main vertical box */
-	main_vb = gtk_vbox_new(FALSE, 7);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
 	/* Main table */
@@ -322,7 +322,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	ifopts_edit_dlg = dlg_conf_window_new("Wireshark: Preferences: Interface Options");
 	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), 1000, 440);
 
-	main_vb = gtk_vbox_new(FALSE, 1);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
 	gtk_widget_show(main_vb);
@@ -472,7 +472,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_box_pack_start(GTK_BOX(main_vb), ed_opts_fr, FALSE, FALSE, 0);
 	gtk_widget_show(ed_opts_fr);
 
-	main_hb = gtk_hbox_new(TRUE, 5);
+	main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, TRUE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_hb), 3);
 	gtk_container_add(GTK_CONTAINER(ed_opts_fr), main_hb);
 	gtk_widget_show(main_hb);

@@ -1284,7 +1284,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     gtk_window_set_default_size(GTK_WINDOW(hs->dlg_w), 750, 300);
 
     /* Will stack widgets vertically inside dlg */
-    top_level_vbox = gtk_vbox_new(FALSE, 3);       /* FALSE = not homogeneous */
+    top_level_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);       /* FALSE = not homogeneous */
     gtk_container_add(GTK_CONTAINER(hs->dlg_w), top_level_vbox);
     gtk_container_set_border_width(GTK_CONTAINER(top_level_vbox), 6);
     gtk_widget_show(top_level_vbox);
@@ -1312,7 +1312,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     common_channel_lb = gtk_frame_new("Common Channel Data");
 
     /* Will add BCCH and PCCH counters into one row */
-    common_row_hbox = gtk_hbox_new(FALSE, 0);
+    common_row_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(common_channel_lb), common_row_hbox);
     gtk_container_set_border_width(GTK_CONTAINER(common_row_hbox), 5);
     gtk_box_pack_start(GTK_BOX(top_level_vbox), common_channel_lb, FALSE, FALSE, 0);
@@ -1344,7 +1344,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     /**********************************************/
 
     hs->ues_lb = gtk_frame_new("UE Data (0 UEs)");
-    ues_vb = gtk_vbox_new(FALSE, 0);
+    ues_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(hs->ues_lb), ues_vb);
     gtk_container_set_border_width(GTK_CONTAINER(ues_vb), 5);
 
@@ -1398,7 +1398,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     /**********************************************/
     channels_lb = gtk_frame_new("Channels of selected UE");
 
-    channels_vb = gtk_vbox_new(FALSE, 6);
+    channels_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
     gtk_container_add(GTK_CONTAINER(channels_lb), channels_vb);
     gtk_container_set_border_width(GTK_CONTAINER(channels_vb), 5);
 
@@ -1454,11 +1454,11 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
     filter_buttons_lb = gtk_frame_new("Filter on selected channel");
 
-    filter_vb = gtk_vbox_new(FALSE, 3);
+    filter_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(filter_buttons_lb), filter_vb);
 
     /* Horizontal row of filter buttons */
-    filter_buttons_hb = gtk_hbox_new(FALSE, 6);
+    filter_buttons_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
     gtk_container_add(GTK_CONTAINER(filter_vb), filter_buttons_hb);
     gtk_container_set_border_width(GTK_CONTAINER(filter_buttons_hb), 2);
 
@@ -1490,7 +1490,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
     /* Allow filtering on specific SN number. */
     /* Row with label and text entry control  */
-    sn_filter_hb = gtk_hbox_new(FALSE, 3);
+    sn_filter_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     gtk_container_add(GTK_CONTAINER(filter_vb), sn_filter_hb);
     gtk_widget_show(sn_filter_hb);
 

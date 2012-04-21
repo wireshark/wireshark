@@ -147,14 +147,14 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   find_frame_w = dlg_window_new("Wireshark: Find Packet");
 
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 3);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(find_frame_w), main_vb);
   gtk_widget_show(main_vb);
 
 
   /* */
-  main_find_hb = gtk_hbox_new(FALSE, 3);
+  main_find_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), main_find_hb);
   gtk_widget_show(main_find_hb);
 
@@ -164,13 +164,13 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_find_hb), find_type_frame, TRUE, TRUE, 0);
   gtk_widget_show(find_type_frame);
 
-  find_type_vb = gtk_vbox_new(FALSE, 3);
+  find_type_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(find_type_vb), 3);
   gtk_container_add(GTK_CONTAINER(find_type_frame), find_type_vb);
   gtk_widget_show(find_type_vb);
 
   /* find type row */
-  find_type_hb = gtk_hbox_new(FALSE, 3);
+  find_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(find_type_vb), find_type_hb);
   gtk_widget_show(find_type_hb);
 
@@ -200,7 +200,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(string_rb);
 
   /* Filter row */
-  filter_hb = gtk_hbox_new(FALSE, 3);
+  filter_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(find_type_vb), filter_hb, FALSE, FALSE, 0);
   gtk_widget_show(filter_hb);
 
@@ -225,7 +225,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
   /* */
-  main_options_hb = gtk_hbox_new(FALSE, 3);
+  main_options_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), main_options_hb);
   gtk_widget_show(main_options_hb);
 
@@ -236,7 +236,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(data_frame);
 
   /* search in row */
-  data_vb = gtk_vbox_new(TRUE, 0);
+  data_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(data_vb), 3);
   gtk_container_add(GTK_CONTAINER(data_frame), data_vb);
   gtk_widget_show(data_vb);
@@ -267,7 +267,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_options_hb), string_opt_frame, TRUE, TRUE, 0);
   gtk_widget_show(string_opt_frame);
 
-  string_opt_vb = gtk_vbox_new(FALSE, 0);
+  string_opt_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_add(GTK_CONTAINER(string_opt_frame), string_opt_vb);
   gtk_container_set_border_width(GTK_CONTAINER(string_opt_vb), 3);
   gtk_widget_show(string_opt_vb);
@@ -305,7 +305,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(direction_frame);
 
   /* Direction row: Forward and reverse radio buttons */
-  direction_vb = gtk_vbox_new(FALSE, 0);
+  direction_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(direction_vb), 3);
   gtk_container_add(GTK_CONTAINER(direction_frame), direction_vb);
   gtk_widget_show(direction_vb);

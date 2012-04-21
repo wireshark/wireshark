@@ -760,7 +760,7 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	gtk_window_set_default_size(GTK_WINDOW(cs->win), 550, 400);
 	comparestat_set_title(cs);
 
-	vbox=gtk_vbox_new(FALSE, 3);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(cs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -911,14 +911,14 @@ gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	dlg=dlg_window_new("Wireshark: Compare two capture files");
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
 
-	dlg_box=gtk_vbox_new(FALSE, 10);
+	dlg_box=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
 	/* spin Box */
-	spin_start_box=gtk_hbox_new(FALSE, 10);
-	spin_stop_box=gtk_hbox_new(FALSE, 10);
+	spin_start_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
+	spin_stop_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
 
 	/* spin label */
 	gtk_container_set_border_width(GTK_CONTAINER(spin_start_box), 1);
@@ -949,7 +949,7 @@ gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_widget_show(spin_stop_box);
 
 	/* differ Box */
-	differ_box=gtk_hbox_new(FALSE, 10);
+	differ_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
 
 	/* radio label */
 	gtk_container_set_border_width(GTK_CONTAINER(differ_box), 1);
@@ -969,7 +969,7 @@ gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_widget_show(differ_box);
 
 	/* order Box */
-	order_box=gtk_hbox_new(FALSE, 10);
+	order_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
 
 	/* order label */
 	gtk_container_set_border_width(GTK_CONTAINER(order_box), 1);
@@ -989,7 +989,7 @@ gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_widget_show(order_box);
 
 	/* spin box */
-	spin_var_box=gtk_hbox_new(FALSE, 10);
+	spin_var_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
 
 	/* spin label */
 	gtk_container_set_border_width(GTK_CONTAINER(spin_var_box), 1);
@@ -1012,7 +1012,7 @@ gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gtk_widget_show(spin_var_box);
 
 	/* filter box */
-	filter_box=gtk_hbox_new(FALSE, 3);
+	filter_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 
 	/* filter label */
 	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);

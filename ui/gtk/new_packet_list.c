@@ -335,7 +335,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win), 400, 100);
 
-	main_vb = gtk_vbox_new(FALSE, 6);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 

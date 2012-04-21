@@ -2337,7 +2337,7 @@ rtp_player_dlg_create(void)
 
 	gtk_window_set_default_size(GTK_WINDOW(rtp_player_dlg_w), 400, 50);
 
-	main_vb = gtk_vbox_new (FALSE, 0);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(rtp_player_dlg_w), main_vb);
 	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 2);
 
@@ -2348,11 +2348,11 @@ rtp_player_dlg_create(void)
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(main_vb), main_scrolled_window);
 
-	channels_vb = gtk_vbox_new (FALSE, 0);
+	channels_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (channels_vb), 2);
 	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow *) main_scrolled_window, channels_vb);
 
-	timestamp_hb = gtk_hbox_new(FALSE, 0);
+	timestamp_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), timestamp_hb, FALSE, FALSE, 0);
 	cb_view_as_time_of_day = gtk_check_button_new_with_label("View as time of day");
 	gtk_box_pack_start(GTK_BOX(timestamp_hb), cb_view_as_time_of_day, TRUE, FALSE, 0); /* Centered */
@@ -2360,7 +2360,7 @@ rtp_player_dlg_create(void)
 	gtk_widget_set_tooltip_text(cb_view_as_time_of_day, "View the timestamps as time of day instead of seconds since beginning of capture");
 	g_signal_connect(cb_view_as_time_of_day, "toggled", G_CALLBACK(on_cb_view_as_time_of_day_clicked), NULL);
 
-	h_jitter_buttons_box = gtk_hbox_new (FALSE, 0);
+	h_jitter_buttons_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (h_jitter_buttons_box), 10);
 	gtk_box_pack_start (GTK_BOX(main_vb), h_jitter_buttons_box, FALSE, FALSE, 0);
 	label = gtk_label_new("Jitter buffer [ms] ");
@@ -2421,7 +2421,7 @@ rtp_player_dlg_create(void)
 	/* ?? hbuttonbox = gtk_hbutton_box_new ();*/
 
 	/* Filter/status hbox */
-	stat_hbox = gtk_hbox_new(FALSE, 1);
+	stat_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(stat_hbox), 0);
 
 	/* statusbar */

@@ -975,7 +975,7 @@ rtpstream_dlg_create (void)
     rtpstream_dlg_w = dlg_window_new("Wireshark: RTP Streams");
     gtk_window_set_default_size(GTK_WINDOW(rtpstream_dlg_w), 620, 400);
 
-    main_vb = gtk_vbox_new (FALSE, 0);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_add(GTK_CONTAINER(rtpstream_dlg_w), main_vb);
     gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
 

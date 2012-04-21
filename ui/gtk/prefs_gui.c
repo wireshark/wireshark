@@ -193,7 +193,7 @@ gui_prefs_show(void)
 	cfile.cinfo.columns_changed = FALSE;
 
 	/* Main vertical box */
-	main_vb = gtk_vbox_new(FALSE, 7);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
 	gtk_container_set_border_width( GTK_CONTAINER(main_vb), 5 );
 
 	/* Main table */

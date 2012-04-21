@@ -288,13 +288,13 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 		       NULL);
 
 	/* Main vertical box */
-	main_vb = gtk_vbox_new(FALSE, 3);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(find_dlg_w), main_vb);
 
 	/* Horizontal box for find label, entry field and up/down radio
 	   buttons */
-	find_hb = gtk_hbox_new(FALSE, 3);
+	find_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(main_vb), find_hb);
 	gtk_widget_show(find_hb);
 
@@ -735,7 +735,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_container_set_border_width(GTK_CONTAINER(streamwindow), 6);
 
 	/* setup the container */
-	vbox = gtk_vbox_new(FALSE, 6);
+	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
 	gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
 
 	/* content frame */
@@ -747,7 +747,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_container_add(GTK_CONTAINER(vbox), stream_fr);
 	gtk_widget_show(stream_fr);
 
-	stream_vb = gtk_vbox_new(FALSE, 6);
+	stream_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
 	gtk_container_set_border_width( GTK_CONTAINER(stream_vb) , 6);
 	gtk_container_add(GTK_CONTAINER(stream_fr), stream_vb);
 
@@ -766,7 +766,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	follow_info->text = text;
 
 	/* direction hbox */
-	direction_hbox = gtk_hbox_new(FALSE, 1);
+	direction_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
 	gtk_box_pack_start(GTK_BOX(stream_vb), direction_hbox, FALSE, FALSE, 0);
 
 	stream_cmb = gtk_combo_box_text_new();
@@ -792,7 +792,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_box_pack_start(GTK_BOX(direction_hbox), stream_cmb, TRUE, TRUE, 0);
 
 	/* stream hbox */
-	hbox = gtk_hbox_new(FALSE, 1);
+	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
 	gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
 
 	/* Create Find Button */

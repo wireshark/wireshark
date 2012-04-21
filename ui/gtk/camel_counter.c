@@ -176,7 +176,7 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
 
 	gtk_window_set_default_size(GTK_WINDOW(p_camelcounter->win), 500, 300);
 
-  p_camelcounter->vbox=gtk_vbox_new(FALSE, 3);
+  p_camelcounter->vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(p_camelcounter->vbox), 12);
 
   init_main_stat_window(p_camelcounter->win, p_camelcounter->vbox, "CAMEL Messages Counters", filter);

@@ -534,7 +534,7 @@ gtk_h225counter_init(const char *optarg, void *userdata _U_)
 
 	gtk_window_set_default_size(GTK_WINDOW(hs->win), 400, 200);
 
-	hs->vbox=gtk_vbox_new(FALSE, 3);
+	hs->vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
 
 	init_main_stat_window(hs->win, hs->vbox, "H.225 Message and Message Reason Counter", hs->filter);

@@ -97,7 +97,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_window_set_destroy_with_parent (GTK_WINDOW(sum_open_w), TRUE);
 
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 3);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(sum_open_w), main_vb);
   gtk_widget_show(main_vb);
@@ -107,7 +107,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), file_fr);
   gtk_widget_show(file_fr);
 
-  file_box = gtk_vbox_new(FALSE, 3);
+  file_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(file_fr), file_box);
   gtk_widget_show(file_box);
 
@@ -134,7 +134,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), data_fr);
   gtk_widget_show(data_fr);
 
-  data_box = gtk_vbox_new(FALSE, 3);
+  data_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(data_fr), data_box);
   gtk_widget_show(data_box);
 
@@ -179,7 +179,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), invoke_fr);
   gtk_widget_show(invoke_fr);
 
-  invoke_box = gtk_vbox_new(FALSE, 3);
+  invoke_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(invoke_fr), invoke_box);
   gtk_widget_show(invoke_box);
 
@@ -235,7 +235,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), rr_fr);
   gtk_widget_show(rr_fr);
 
-  rr_box = gtk_vbox_new(FALSE, 3);
+  rr_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(rr_fr), rr_box);
   gtk_widget_show(rr_box);
 
@@ -291,7 +291,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), tot_fr);
   gtk_widget_show(tot_fr);
 
-  tot_box = gtk_vbox_new(FALSE, 3);
+  tot_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(tot_fr), tot_box);
   gtk_widget_show(tot_box);
 

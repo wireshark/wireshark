@@ -1572,7 +1572,7 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
 	GtkWidget *label;
 	char str[256];
 
-	hbox=gtk_hbox_new(FALSE, 3);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
@@ -1615,7 +1615,7 @@ static void create_filter_area(user_data_t* user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(box), frame);
 	gtk_widget_show(frame);
 
-	vbox=gtk_vbox_new(FALSE, 1);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
@@ -1754,7 +1754,7 @@ static void create_ctrl_menu(user_data_t* user_data, GtkWidget *box, const char 
 	GtkWidget *label;
 	GtkWidget *combo_box;
 
-	hbox=gtk_hbox_new(FALSE, 0);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(box), hbox);
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
@@ -1775,7 +1775,7 @@ static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 	GtkWidget *frame;
 	GtkWidget *vbox;
 
-	frame_vbox=gtk_vbox_new(FALSE, 0);
+	frame_vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(box), frame_vbox);
 	gtk_widget_show(frame_vbox);
 
@@ -1783,7 +1783,7 @@ static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
@@ -1796,7 +1796,7 @@ static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
 	gtk_widget_show(frame);
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
@@ -1817,13 +1817,13 @@ static void dialog_graph_init_window(user_data_t* user_data)
 	/* create the main window */
 	user_data->dlg.dialog_graph.window=dlg_window_new("I/O Graphs");   /* transient_for top_level */
 
-	vbox=gtk_vbox_new(FALSE, 0);
+	vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.dialog_graph.window), vbox);
 	gtk_widget_show(vbox);
 
 	create_draw_area(user_data, vbox);
 
-	hbox=gtk_hbox_new(FALSE, 3);
+	hbox=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 	gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
@@ -2196,7 +2196,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, gpointer data)
 
 	/* Build our "extra widget" to be added to the file chooser widget */
 	/* Container for each row of widgets */
-	vertb = gtk_vbox_new(FALSE, 0);
+	vertb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
 	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_csv_as_w), vertb);
 	gtk_widget_show (vertb);
@@ -2836,7 +2836,7 @@ static void save_voice_as_cb(GtkWidget *bt _U_, gpointer data)
 	gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.save_voice_as_w),GTK_WINDOW(user_data->dlg.window));
 
 	/* Container for each row of widgets */
-	vertb = gtk_vbox_new(FALSE, 0);
+	vertb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
 	gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(user_data->dlg.save_voice_as_w), vertb);
 	gtk_widget_show (vertb);
@@ -3255,7 +3255,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 	gtk_window_set_default_size(GTK_WINDOW(window), 700, 400);
 
 	/* Container for each row of widgets */
-	main_vb = gtk_vbox_new(FALSE, 2);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 2, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
 	gtk_container_add(GTK_CONTAINER(window), main_vb);
 	gtk_widget_show(main_vb);
@@ -3285,7 +3285,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 		g_signal_connect(notebook, "switch_page", G_CALLBACK(on_notebook_switch_page), user_data);
 
 	/* page for forward connection */
-	page = gtk_vbox_new(FALSE, 8);
+	page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 8, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(page), 8);
 
 	/* direction label */
@@ -3311,7 +3311,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
 
 	/* same page for reversed connection */
-	page_r = gtk_vbox_new(FALSE, 8);
+	page_r = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 8, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(page_r), 8);
 	label = gtk_label_new(label_reverse);
 	gtk_box_pack_start(GTK_BOX(page_r), label, FALSE, FALSE, 0);
@@ -3331,7 +3331,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 
 #if 0
 	/* page for help&about or future */
-	page_help = gtk_hbox_new(FALSE, 5);
+	page_help = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
 	label = gtk_label_new("     Future    ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page_help, label);
 	frame = gtk_frame_new("");

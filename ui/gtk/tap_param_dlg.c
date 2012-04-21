@@ -197,7 +197,7 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
     gtk_window_set_default_size(GTK_WINDOW(current_dlg->dlg), 300, -1);
     g_free(title);
 
-    dlg_box=gtk_vbox_new(FALSE, 10);
+    dlg_box=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
     gtk_container_add(GTK_CONTAINER(current_dlg->dlg), dlg_box);
     gtk_widget_show(dlg_box);
@@ -205,7 +205,7 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
     /* Parameter items */
     for(i=0;i<current_dlg->cont.nparams;i++) {
         /* Item box */
-        item_box=gtk_hbox_new(FALSE, 3);
+        item_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 
         switch (current_dlg->cont.params[i].type) {
 
