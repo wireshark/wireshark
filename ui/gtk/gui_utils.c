@@ -123,19 +123,17 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
     GdkPixbuf        *icon;
 
 
-	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon16_xpm);
-	ws_icon_list = g_list_append (ws_icon_list, icon);
-	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon32_xpm);
-	ws_icon_list = g_list_append (ws_icon_list, icon);
-	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon48_xpm);
-	ws_icon_list = g_list_append (ws_icon_list, icon);
-	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon64_xpm);
-	ws_icon_list = g_list_append (ws_icon_list, icon);
-	gtk_window_set_icon_list(GTK_WINDOW(win), ws_icon_list);
-	/* set icon by name, this allows us to use even SVG icon if it is present */
-	gtk_window_set_icon_name(GTK_WINDOW(win), "wireshark");
-
-
+    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon16_xpm);
+    ws_icon_list = g_list_append (ws_icon_list, icon);
+    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon32_xpm);
+    ws_icon_list = g_list_append (ws_icon_list, icon);
+    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon48_xpm);
+    ws_icon_list = g_list_append (ws_icon_list, icon);
+    icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon64_xpm);
+    ws_icon_list = g_list_append (ws_icon_list, icon);
+    gtk_window_set_icon_list(GTK_WINDOW(win), ws_icon_list);
+    /* set icon by name, this allows us to use even SVG icon if it is present */
+    gtk_window_set_icon_name(GTK_WINDOW(win), "wireshark");
 #endif
 }
 
@@ -317,7 +315,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
         http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
         http://www.gtk.org/faq/#AEN606
 
-		As gdk_window_get_deskrelative_origin() is deprecated it has been removed 2011-07-24.
+        As gdk_window_get_deskrelative_origin() is deprecated it has been removed 2011-07-24.
      */
 
     memset (geom, 0, sizeof (window_geometry_t));
@@ -325,17 +323,17 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
     widget_window = gtk_widget_get_window(widget);
 
     gdk_window_get_root_origin(widget_window,
-        &geom->x,
-        &geom->y);
+                               &geom->x,
+                               &geom->y);
 
     /* XXX - Is this the "approved" method? */
 #if GTK_CHECK_VERSION(2,24,0)
-	geom->width = gdk_window_get_width(widget_window);
-	geom->height = gdk_window_get_height (widget_window);
+    geom->width = gdk_window_get_width(widget_window);
+    geom->height = gdk_window_get_height (widget_window);
 #else
     gdk_drawable_get_size(widget_window,
-        &geom->width,
-        &geom->height);
+                          &geom->width,
+                          &geom->height);
 #endif
     state = gdk_window_get_state(widget_window);
     geom->maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
@@ -346,33 +344,33 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 void
 window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
-	GdkScreen *default_screen;
-	GdkRectangle viewable_area;
-	gint monitor_num;
+    GdkScreen *default_screen;
+    GdkRectangle viewable_area;
+    gint monitor_num;
 
     /* as we now have the geometry from the recent file, set it */
     /* if the window was minimized, x and y are -32000 (at least on Win32) */
     if (geom->set_pos && geom->x != -32000 && geom->y != -32000) {
-		/* Per Wireshark bug #553, GTK has a problem on MS Windows
-		 * where the upper-left corner of the window may appear off
-		 * screen when when a single desktop spans multiple monitors
-		 * of different resolutions and positions relative to each
-		 * other.
-		 *
-		 * If the requested (x,y) position isn't within the monitor's
-		 * viewable area, change it to the viewable area's (0,0). */
+        /* Per Wireshark bug #553, GTK has a problem on MS Windows
+         * where the upper-left corner of the window may appear off
+         * screen when when a single desktop spans multiple monitors
+         * of different resolutions and positions relative to each
+         * other.
+         *
+         * If the requested (x,y) position isn't within the monitor's
+         * viewable area, change it to the viewable area's (0,0). */
 
-		default_screen = gdk_screen_get_default();
-		monitor_num = gdk_screen_get_monitor_at_point(default_screen,
-							      geom->x, geom->y);
-		gdk_screen_get_monitor_geometry(default_screen, monitor_num,
-						&viewable_area);
+        default_screen = gdk_screen_get_default();
+        monitor_num = gdk_screen_get_monitor_at_point(default_screen,
+                                                      geom->x, geom->y);
+        gdk_screen_get_monitor_geometry(default_screen, monitor_num,
+                                        &viewable_area);
 
-		if(geom->x < viewable_area.x || geom->x > viewable_area.width)
-			geom->x = viewable_area.x;
+        if(geom->x < viewable_area.x || geom->x > viewable_area.width)
+            geom->x = viewable_area.x;
 
-		if(geom->y < viewable_area.y || geom->y > viewable_area.height)
-			geom->y = viewable_area.y;
+        if(geom->y < viewable_area.y || geom->y > viewable_area.height)
+            geom->y = viewable_area.y;
 
         gtk_window_move(GTK_WINDOW(widget),
                         geom->x,
@@ -1888,16 +1886,16 @@ gdk_pixbuf_get_from_surface  (cairo_surface_t *surface,
 GtkWidget * ws_gtk_box_new(GtkOrientation orientation, gint spacing, gboolean homogeneous)
 {
 #if !GTK_CHECK_VERSION(3,0,0)
-	if (orientation == GTK_ORIENTATION_HORIZONTAL)
-		return gtk_hbox_new(homogeneous, spacing);
-	else
-		return gtk_vbox_new(homogeneous, spacing);
+    if (orientation == GTK_ORIENTATION_HORIZONTAL)
+        return gtk_hbox_new(homogeneous, spacing);
+    else
+        return gtk_vbox_new(homogeneous, spacing);
 #else
-	GtkWidget *widget;
+    GtkWidget *widget;
 
-	widget = gtk_box_new(orientation, spacing);
-	gtk_box_set_homogeneous(GTK_BOX(widget), homogeneous);
+    widget = gtk_box_new(orientation, spacing);
+    gtk_box_set_homogeneous(GTK_BOX(widget), homogeneous);
 
-	return widget;
+    return widget;
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 }
