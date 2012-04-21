@@ -108,7 +108,7 @@ build_heur_dissectors_treeview(void)
   GtkTreeViewColumn *proto_col;
 
   /* Protocol list */
-  proto_vb = gtk_vbox_new(FALSE, 0);
+  proto_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_widget_show(proto_vb);
 
   proto_sw = scrolled_window_new(NULL, NULL);
@@ -240,7 +240,7 @@ build_protocols_treeview(void)
   GtkTreeViewColumn *proto_col;
 
   /* Protocol list */
-  proto_vb = gtk_vbox_new(FALSE, 0);
+  proto_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_widget_show(proto_vb);
 
   proto_sw = scrolled_window_new(NULL, NULL);
@@ -377,7 +377,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* Container for each row of widgets */
 
-  main_vb = gtk_vbox_new(FALSE, 6);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(proto_w), main_vb);
   gtk_widget_show(main_vb);

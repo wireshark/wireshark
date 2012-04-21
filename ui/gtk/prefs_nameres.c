@@ -109,7 +109,7 @@ nameres_prefs_show(void)
 	prefs.name_resolve = gbl_resolv_flags;
 
 	/* Main vertical box */
-	main_vb = gtk_vbox_new(FALSE, 7);
+	main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 7, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
 	/* Main table */

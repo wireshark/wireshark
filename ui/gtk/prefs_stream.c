@@ -97,7 +97,7 @@ stream_prefs_show(void)
   curcolor = &tcolors[CFG_IDX];
 
   /* Enclosing containers for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 5);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
   main_tb = gtk_table_new(3, 3, FALSE);

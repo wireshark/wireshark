@@ -526,7 +526,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   main_win = dlg_window_new(title);
 
   /* Vertical enclosing container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 5);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(main_win), main_vb);
   gtk_widget_show(main_vb);
@@ -537,7 +537,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   printer_fr = gtk_frame_new(action == output_action_print ? "Printer" : "Export to file:");
   gtk_box_pack_start(GTK_BOX(main_vb), printer_fr, FALSE, FALSE, 0);
   gtk_widget_show(printer_fr);
-  printer_vb = gtk_vbox_new(FALSE, 5);
+  printer_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(printer_vb), 5);
   gtk_container_add(GTK_CONTAINER(printer_fr), printer_vb);
   gtk_widget_show(printer_vb);
@@ -672,7 +672,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 /*****************************************************/
 
   /*** hor box for range and format frames ***/
-  packet_hb = gtk_hbox_new(FALSE, 5);
+  packet_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), packet_hb);
   gtk_widget_show(packet_hb);
 
@@ -694,7 +694,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
         action == output_action_export_text ||
         action == output_action_export_ps)
     gtk_widget_show(format_fr);
-  format_vb = gtk_vbox_new(FALSE, 5);
+  format_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(format_vb), 5);
   gtk_container_add(GTK_CONTAINER(format_fr), format_vb);
   gtk_widget_show(format_vb);
@@ -717,17 +717,17 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_widget_show(details_cb);
 
   /*** packet details ***/
-  details_hb = gtk_hbox_new(FALSE, 6);
+  details_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_hb), 0);
   gtk_container_add(GTK_CONTAINER(format_vb), details_hb);
   gtk_widget_show(details_hb);
 
-  details_vb = gtk_vbox_new(FALSE, 6);
+  details_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_vb), 0);
   gtk_container_add(GTK_CONTAINER(details_hb), details_vb);
   gtk_widget_show(details_vb);
 
-  details_vb = gtk_vbox_new(FALSE, 6);
+  details_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_vb), 0);
   gtk_container_add(GTK_CONTAINER(details_hb), details_vb);
   gtk_widget_show(details_vb);

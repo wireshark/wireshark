@@ -109,14 +109,14 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     /*
      * Container for dialog widgets.
      */
-    main_vb = gtk_vbox_new(FALSE, 1);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(dlg_w), main_vb);
 
     /*
      * Static labels (left dialog side, labels aligned to the right)
      */
-    static_vb = gtk_vbox_new(FALSE, 1);
+    static_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
     task_title_dup = g_strdup_printf ("%s:", task_title);
     tmp_lb = gtk_label_new(task_title_dup);
     gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0f, 0.0f);
@@ -138,7 +138,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     /*
      * Dynamic labels (right dialog side, labels aligned to the left)
      */
-    dynamic_vb = gtk_vbox_new(FALSE, 1);
+    dynamic_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
 
     /*
      * Put the item_title here as a label indicating what we're
@@ -175,7 +175,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
      * The progress bar (in its own horizontal box, including
      * percentage value)
      */
-    percentage_hb = gtk_hbox_new(FALSE, 1);
+    percentage_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
     gtk_box_pack_start(GTK_BOX(dynamic_vb), percentage_hb, FALSE, TRUE, 3);
 
     prog_bar = gtk_progress_bar_new();
@@ -194,7 +194,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     /*
      * Static and dynamic boxes are now complete
      */
-    main_hb = gtk_hbox_new(FALSE, 1);
+    main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
     gtk_box_pack_start(GTK_BOX(main_hb), static_vb, FALSE, TRUE, 3);
     gtk_box_pack_start(GTK_BOX(main_hb), dynamic_vb, FALSE, TRUE, 3);
     gtk_box_pack_start(GTK_BOX(main_vb), main_hb, FALSE, TRUE, 3);
