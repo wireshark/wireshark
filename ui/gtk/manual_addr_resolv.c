@@ -151,7 +151,7 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   gtk_table_attach_defaults (GTK_TABLE (table), name_te, 1, 2, 1, 2);
   g_object_set_data (G_OBJECT(man_addr_resolv_dlg), "name", name_te);
 
-  sep = gtk_hseparator_new ();
+  sep = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
   gtk_container_add (GTK_CONTAINER(vbox), sep);
 
   resolv_cb = gtk_check_button_new_with_mnemonic ("Enable network name resolution");

@@ -1869,7 +1869,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	/* Allow the hbox with time to expand (TRUE, TRUE) */
 	gtk_box_pack_start(GTK_BOX(hbox), frame_time, FALSE, FALSE, 3);
 
-	user_data->dlg.hpane = gtk_hpaned_new();
+	user_data->dlg.hpane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
 	gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
 	g_signal_connect(user_data->dlg.hpane, "notify::position",  G_CALLBACK(pane_callback), user_data);
@@ -1883,7 +1883,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 
 	/* create the associated v_scrollbar */
 	user_data->dlg.v_scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
-	user_data->dlg.v_scrollbar=gtk_vscrollbar_new(user_data->dlg.v_scrollbar_adjustment);
+	user_data->dlg.v_scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_VERTICAL, user_data->dlg.v_scrollbar_adjustment);
 	gtk_widget_show(user_data->dlg.v_scrollbar);
 	gtk_box_pack_start(GTK_BOX(scroll_vbox), user_data->dlg.v_scrollbar, TRUE, TRUE, 0);
 	g_signal_connect(user_data->dlg.v_scrollbar_adjustment, "value_changed",
@@ -1941,7 +1941,7 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	create_draw_area(user_data, vbox);
 
 	/* button row */
-	hbuttonbox = gtk_hbutton_box_new ();
+	hbuttonbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start (GTK_BOX (vbox), hbuttonbox, FALSE, FALSE, 10);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 30);

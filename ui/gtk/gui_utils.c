@@ -1909,4 +1909,31 @@ GtkWidget * gtk_button_box_new(GtkOrientation orientation)
         return gtk_vbutton_box_new();
     }
 }
+
+GtkWidget * gtk_scrollbar_new(GtkOrientation orientation, GtkAdjustment *adjustment)
+{
+    if (orientation == GTK_ORIENTATION_HORIZONTAL){
+        return gtk_hscrollbar_new(GtkAdjustment *adjustment);
+    }else{
+        return gtk_vscrollbar_new(GtkAdjustment *adjustment);
+    }
+}
+
+GtkWidget * gtk_paned_new(GtkOrientation orientation)
+{
+    if (orientation == GTK_ORIENTATION_HORIZONTAL){
+        return gtk_hpaned_new();
+    }else{
+        return gtk_vpaned_new();
+    }
+}
+
+GtkWidget * gtk_separator_new (GtkOrientation orientation)
+{
+    if (orientation == GTK_ORIENTATION_HORIZONTAL){
+        return gtk_hseparator_new ();
+    }else{
+        return gtk_vseparator_new ();
+    }
+}
 #endif /* GTK_CHECK_VERSION(3,0,0) */

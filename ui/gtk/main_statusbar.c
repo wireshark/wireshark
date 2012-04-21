@@ -318,9 +318,9 @@ statusbar_new(void)
     status_capture_comment_new();
 
     /* Pane for the statusbar */
-    status_pane_left = gtk_hpaned_new();
+    status_pane_left = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_show(status_pane_left);
-    status_pane_right = gtk_hpaned_new();
+    status_pane_right = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_show(status_pane_right);
 
     return status_hbox;

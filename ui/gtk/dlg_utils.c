@@ -225,13 +225,13 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_widget_show(hbox);
 
-    button_hbox = gtk_hbutton_box_new();
+    button_hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_end(GTK_BOX(hbox), button_hbox, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(hbox), BUTTON_HBOX_KEY, button_hbox);
     gtk_widget_show(button_hbox);
     gtk_box_set_spacing(GTK_BOX(button_hbox), DLG_BUTTON_SPACING);
 
-    help_hbox = gtk_hbutton_box_new();
+    help_hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_end(GTK_BOX(hbox), help_hbox, FALSE, FALSE, 0);
     gtk_widget_show(help_hbox);
     gtk_box_set_spacing(GTK_BOX(help_hbox), DLG_BUTTON_SPACING);
