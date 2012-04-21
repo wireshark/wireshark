@@ -191,7 +191,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_widget_show(hbox);
 
-    tw->button_hbox = gtk_hbutton_box_new();
+    tw->button_hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_button_box_set_layout(GTK_BUTTON_BOX(tw->button_hbox), GTK_BUTTONBOX_START);
 
     gtk_box_pack_start(GTK_BOX(hbox), tw->button_hbox, TRUE, TRUE, 0);

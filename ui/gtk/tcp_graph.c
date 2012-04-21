@@ -1055,7 +1055,7 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 	gtk_box_pack_start (GTK_BOX (zoom_inout_box), zoom_in, FALSE, FALSE, 10);
 	gtk_box_pack_start (GTK_BOX (zoom_inout_box), zoom_out, FALSE, FALSE, 0);
 
-	zoom_separator1 = gtk_hseparator_new ();
+	zoom_separator1 = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
 
 	zoom_h_entry = gtk_entry_new ();
 	gtk_entry_set_text (GTK_ENTRY (zoom_h_entry), "1.000");
@@ -1080,7 +1080,7 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 	gtk_table_attach (GTK_TABLE (zoom_table), zoom_v_entry, 1, 2, 1, 2,
 				GTK_FILL|GTK_EXPAND, GTK_FILL|GTK_EXPAND, 5, 0);
 
-	zoom_separator2 = gtk_hseparator_new ();
+	zoom_separator2 = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
 
 	zoom_h_adj = (GtkAdjustment * )gtk_adjustment_new ((gfloat)1.2, 1.0, 5, (gfloat)0.1, 1, 0);
 	zoom_h_step = gtk_spin_button_new (zoom_h_adj, 0, 1);
@@ -1537,7 +1537,7 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 		break;
 	}
 	graph_init = gtk_check_button_new_with_label ("Init on change");
-	graph_sep = gtk_hseparator_new ();
+	graph_sep = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
 	graph_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_rtt, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tput, TRUE, TRUE, 0);

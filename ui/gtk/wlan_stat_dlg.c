@@ -1762,7 +1762,7 @@ wlanstat_dlg_create (void)
 	gtk_container_add(GTK_CONTAINER(wlanstat_dlg_w), vbox);
 	gtk_container_set_border_width (GTK_CONTAINER(vbox), 6);
 
-	wlanstat_pane = gtk_vpaned_new();
+	wlanstat_pane = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 	gtk_box_pack_start (GTK_BOX (vbox), wlanstat_pane, TRUE, TRUE, 0);
 	gtk_paned_set_position(GTK_PANED(wlanstat_pane), recent.gui_geometry_wlan_stats_pane);
 	gtk_widget_show(wlanstat_pane);

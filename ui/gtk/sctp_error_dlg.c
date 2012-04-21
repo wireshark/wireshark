@@ -248,7 +248,7 @@ gtk_sctperror_dlg(void)
 	gtk_widget_show(sctp_error_dlg_w);
 
 
-	hbuttonbox2 = gtk_hbutton_box_new ();
+	hbuttonbox2 = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_widget_show (hbuttonbox2);
 	gtk_box_pack_start (GTK_BOX (vbox1), hbuttonbox2, FALSE, FALSE, 0);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox2), 5);

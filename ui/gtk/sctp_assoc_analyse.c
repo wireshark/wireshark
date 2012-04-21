@@ -569,7 +569,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_box_pack_start(GTK_BOX(page1), u_data->analyse_nb->bytes_ep2, TRUE, TRUE, 0);
 	gtk_misc_set_alignment (GTK_MISC(u_data->analyse_nb->bytes_ep2),0,0);
 
-	hbox = gtk_hbutton_box_new();
+	hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(page1), hbox, FALSE, FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_SPREAD);
@@ -669,7 +669,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 
 	gtk_widget_show(vbox_r);
 
-	h_button_box=gtk_hbutton_box_new();
+	h_button_box=gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(page2), h_button_box, FALSE, FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(h_button_box), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (h_button_box), GTK_BUTTONBOX_SPREAD);
@@ -773,7 +773,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 
 	gtk_widget_show(vbox_r);
 
-	h_button_box=gtk_hbutton_box_new();
+	h_button_box=gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(page3), h_button_box, FALSE, FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(h_button_box), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (h_button_box), GTK_BUTTONBOX_SPREAD);

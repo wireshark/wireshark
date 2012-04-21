@@ -665,7 +665,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
 
 
     /* Separator between requests and responses */
-    separator = gtk_hseparator_new();
+    separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_container_add(GTK_CONTAINER(main_vb), separator);
 
     /* Request table and frame */

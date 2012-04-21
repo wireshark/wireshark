@@ -760,7 +760,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_widget_show(hex_cb);
 
   /* seperator */
-  sep = gtk_hseparator_new();
+  sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
   gtk_container_add(GTK_CONTAINER(format_vb), sep);
   gtk_widget_show(sep);
 

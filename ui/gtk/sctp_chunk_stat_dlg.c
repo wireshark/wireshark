@@ -625,7 +625,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
     gtk_widget_show(u_data->io->window);
 
 
-    hbuttonbox2 = gtk_hbutton_box_new();
+    hbuttonbox2 = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start(GTK_BOX(vbox1), hbuttonbox2, FALSE, FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(hbuttonbox2), 10);
     gtk_button_box_set_layout(GTK_BUTTON_BOX (hbuttonbox2), GTK_BUTTONBOX_SPREAD);
@@ -747,7 +747,7 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
     gtk_misc_set_alignment(GTK_MISC(label), 0.0f, 0.5f);
     gtk_table_attach_defaults(GTK_TABLE(table), label, 3, 4, row, row+1);
 
-    h_button_box=gtk_hbutton_box_new();
+    h_button_box=gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_box_pack_start(GTK_BOX(main_vb), h_button_box, FALSE, FALSE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(h_button_box), 10);
     gtk_button_box_set_layout(GTK_BUTTON_BOX (h_button_box), GTK_BUTTONBOX_SPREAD);

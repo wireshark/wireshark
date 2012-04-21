@@ -1829,7 +1829,7 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	/* Create the Separator if it is not the last one */
 	(*counter)++;
 	if (*counter < g_hash_table_size(rtp_channels_hash)) {
-	    rci->separator = gtk_hseparator_new();
+	    rci->separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
 		gtk_box_pack_start(GTK_BOX (channels_vb), rci->separator, FALSE, FALSE, 5);
 	}
 
@@ -2379,7 +2379,7 @@ rtp_player_dlg_create(void)
 	gtk_widget_set_tooltip_text (cb_use_rtp_timestamp, "Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing");
 
 	/* button row */
-	hbuttonbox = gtk_hbutton_box_new ();
+	hbuttonbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start (GTK_BOX (h_jitter_buttons_box), hbuttonbox, TRUE, TRUE, 0);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 10);
@@ -2418,7 +2418,7 @@ rtp_player_dlg_create(void)
 	g_signal_connect(rtp_player_dlg_w, "destroy", G_CALLBACK(rtp_player_on_destroy), NULL);
 
 	/* button row */
-	/* ?? hbuttonbox = gtk_hbutton_box_new ();*/
+	/* ?? hbuttonbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);*/
 
 	/* Filter/status hbox */
 	stat_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);

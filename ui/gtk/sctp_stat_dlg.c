@@ -583,7 +583,7 @@ gtk_sctpstat_dlg(void)
 
 	gtk_widget_show(sctp_stat_dlg_w);
 
-	hbuttonbox2 = gtk_hbutton_box_new();
+	hbuttonbox2 = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(vbox1), hbuttonbox2, FALSE, FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(hbuttonbox2), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (hbuttonbox2), GTK_BUTTONBOX_SPREAD);

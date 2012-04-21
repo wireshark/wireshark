@@ -1690,7 +1690,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 
 	/* create the associated scrollbar */
 	io->scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
-	io->scrollbar=gtk_hscrollbar_new(io->scrollbar_adjustment);
+	io->scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL, io->scrollbar_adjustment);
 	gtk_widget_show(io->scrollbar);
 	gtk_box_pack_start(GTK_BOX(box), io->scrollbar, FALSE, FALSE, 0);
 	g_signal_connect(io->scrollbar_adjustment, "value-changed", G_CALLBACK(scrollbar_changed), io);

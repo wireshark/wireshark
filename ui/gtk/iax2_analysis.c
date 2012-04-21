@@ -1530,7 +1530,7 @@ static void create_draw_area(user_data_t* user_data, GtkWidget *box)
 
 	/* create the associated scrollbar */
 	user_data->dlg.dialog_graph.scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
-	user_data->dlg.dialog_graph.scrollbar=gtk_hscrollbar_new(user_data->dlg.dialog_graph.scrollbar_adjustment);
+	user_data->dlg.dialog_graph.scrollbar=gtk_scrollbar_new(GTK_ORIENTATION_HORIZONTAL,user_data->dlg.dialog_graph.scrollbar_adjustment);
 	gtk_widget_show(user_data->dlg.dialog_graph.scrollbar);
 	gtk_box_pack_start(GTK_BOX(box), user_data->dlg.dialog_graph.scrollbar, FALSE, FALSE, 0);
 	g_signal_connect(user_data->dlg.dialog_graph.scrollbar_adjustment, "value_changed", G_CALLBACK(scrollbar_changed), user_data);
@@ -3346,7 +3346,7 @@ static void create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_show_all(notebook);
 
 	/* buttons */
-	box4 = gtk_hbutton_box_new();
+	box4 = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	gtk_box_pack_start(GTK_BOX(main_vb), box4, FALSE, FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(box4), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (box4), GTK_BUTTONBOX_EDGE);

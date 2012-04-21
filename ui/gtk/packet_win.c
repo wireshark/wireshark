@@ -926,7 +926,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 	gtk_widget_show(main_vbox);
 
 	/* Panes for the tree and byte view */
-	pane = gtk_vpaned_new();
+	pane = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 	gtk_container_add(GTK_CONTAINER(main_vbox), pane);
 	gtk_widget_show(pane);
 

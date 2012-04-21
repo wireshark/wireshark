@@ -891,7 +891,7 @@ profile_dialog_new(void)
   gtk_widget_show(props_vb);
 
   /* row: Profile name entry */
-  middle_hb = gtk_hbox_new(FALSE, 3);
+  middle_hb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
   gtk_widget_show(middle_hb);
 

@@ -985,13 +985,13 @@ static GtkWidget* uat_window(void* u) {
 		rep->bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 	}	
 
-	move_hbox = gtk_vbutton_box_new();
+	move_hbox = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
 	gtk_box_pack_start(GTK_BOX(vbox), move_hbox, TRUE, FALSE, 0);
 
-	edit_hbox = gtk_vbutton_box_new();
+	edit_hbox = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
 	gtk_box_pack_start(GTK_BOX(vbox), edit_hbox, TRUE, FALSE, 0);
 
-	refresh_hbox = gtk_vbutton_box_new();
+	refresh_hbox = gtk_button_box_new(GTK_ORIENTATION_VERTICAL);
 	gtk_box_pack_end(GTK_BOX(vbox), refresh_hbox, TRUE, FALSE, 0);
 
 
