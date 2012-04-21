@@ -42,7 +42,7 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/sctp_stat.h"
-
+#include "ui/gtk/gui_utils.h"
 #include "ui/gtk/old-gtk-compat.h"
 
 #define DEFAULT_PIXELS_PER_TICK 2
