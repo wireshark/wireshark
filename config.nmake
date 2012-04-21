@@ -215,7 +215,9 @@ GLIB_VERSION=2.0
 # If you want building with GTK+, set GTK_DIR to the pathname of the
 # directory in which the "include" and "lib" directories reside.
 #
-GTK_DIR=$(WIRESHARK_LIB_DIR)\gtk2
+# Set the name to gtk3 if you want to use gtk3 - Not yet working
+GTK_NAME=gtk2
+GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 # These macros are used by the nsis installer script and by the install target.
 PNG_DLL=libpng14-14.dll
 FREETYPE_DLL=freetype6.dll
@@ -223,9 +225,13 @@ FONTCONFIG_DLL=libfontconfig-1.dll
 EXPAT_DLL=libexpat-1.dll
 INTL_DLL=intl.dll
 # This macro is used by the setup target.
+!IF "$(GTK_NAME)" == "gtk2"
 #GTK_PKG=2.16.6-20100912
 #GTK_PKG=2.22.1-20101227
 GTK_PKG=2.24.10-20120208
+!ELSE
+GTK_PKG=3.4.0-3.9
+!ENDIF
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -233,9 +239,13 @@ GTK_PKG=2.24.10-20120208
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
+!IF "$(GTK_NAME)" == "gtk2"
 #GTK_INST_VERSION=2.16
 #GTK_INST_VERSION=2.22
 GTK_INST_VERSION=2.24
+!ELSE
+GTK_INST_VERSION=3.4
+!ENDIF
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -404,7 +414,11 @@ GLIB_VERSION=2.0
 # If you want building with GTK+, set GTK_DIR to the pathname of the
 # directory in which the "include" and "lib" directories reside.
 #
-GTK_DIR=$(WIRESHARK_LIB_DIR)\gtk2
+#
+# Set the name to gtk3 if you want to use gtk3 - Not yet working
+GTK_NAME=gtk2
+GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
+
 # These macros are used by the nsis installer script and by the install target.
 PNG_DLL=libpng14-14.dll
 #TIFF_DLL=libtiff-3.dll
@@ -415,8 +429,13 @@ EXPAT_DLL=libexpat-1.dll
 INTL_DLL=libintl-8.dll
 
 # These macros are used by the setup target.
+!IF "$(GTK_NAME)" == "gtk2"
 #GTK_PKG=2.16.6-20100912
 GTK_PKG=2.22.1-20101229
+!ELSE
+PKG_SUFIX=ws
+GTK_PKG=3.4.0-3.10
+!ENDIF
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -424,8 +443,12 @@ GTK_PKG=2.22.1-20101229
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
+!IF "$(GTK_NAME)" == "gtk2"
 #GTK_INST_VERSION=2.16
 GTK_INST_VERSION=2.22
+!ELSE
+GTK_INST_VERSION=3.4
+!ENDIF
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
@@ -1012,8 +1035,70 @@ GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\$(GTK_LIB_DIR)\engines
 GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
 GTK_WIMP_RCDST_DIR=etc\gtk-2.0
+#
+# Use of GTK3+ is experimental/not working
+#
+!ELSEIF "$(GTK_INST_VERSION)" == "3.4"
+
+# GTK+
+GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-3.0 \
+	/I$(GTK_DIR)\include\gdk-pixbuf-2.0 \
+	/I$(GTK_DIR)\lib\gtk-3.0\include \
+	/I$(GTK_DIR)\include\atk-1.0 \
+	/I$(GTK_DIR)\include\cairo \
+	/I$(GTK_DIR)\include\pango-1.0 \
+	-DGTK_DISABLE_SINGLE_INCLUDES \
+	-DGSEAL_ENABLE
+GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
+	$(GTK_DIR)\lib\gdk-win32-2.0.lib \
+	$(GTK_DIR)\lib\gdk_pixbuf-2.0.lib \
+	$(GTK_DIR)\lib\cairo.lib \
+	$(GTK_DIR)\lib\pango-1.0.lib \
+	$(GTK_DIR)\lib\pangocairo-1.0.lib \
+	$(GLIB_LIBS)
+
+GTK_LIB_DIR=3.4
+
+!IFDEF _DLL
+!ENDIF
+
+NEED_CAIRO_DLL=USE
+
+!IFDEF EXPAT_DLL
+NEED_EXPAT_DLL=USE
+!ENDIF
+!IFDEF FFI_DLL
+NEED_FFI_DLL=USE
+!ENDIF
+!IFDEF FONTCONFIG_DLL
+NEED_FONTCONFIG_DLL=USE
+!ENDIF
+!IFDEF FREETYPE_DLL
+NEED_FREETYPE_DLL=USE
+!ENDIF
+!IFDEF JASPER_DLL
+NEED_JASPER_DLL=USE
+!ENDIF
+!IFDEF JPEG_DLL
+NEED_JPEG_DLL=USE
+!ENDIF
+!IFDEF LZMA_DLL
+NEED_LZMA_DLL=USE
+!ENDIF
+!IFDEF PIXMAN_DLL
+NEED_PIXMAN_DLL=USE
+!ENDIF
+!IFDEF PNG_DLL
+NEED_PNG_DLL=USE
+!ENDIF
+!IFDEF TIFF_DLL
+NEED_TIFF_DLL=USE
+!ENDIF
+!IFDEF XML_DLL
+NEED_XML_DLL=USE
+!ENDIF
 !ELSE
-!ERROR ? Unknown or invalid GTK_INST_VERSION
+!ERROR ? Unknown or invalid GTK_INST_VERSION "$(GTK_INST_VERSION)"
 !ENDIF
 
 

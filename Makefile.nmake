@@ -849,7 +849,7 @@ process_libs:
 	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 !IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		gtk2 gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
+		"$(GTK_NAME)" gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM)$(PKG_SUFIX).zip
 !ENDIF
 !IFDEF KFW_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
@@ -941,6 +941,7 @@ clean_setup:
     rm -r -f gnutls-2.10.3-*-win??ws
     rm -r -f gnutls-2.12.18-*-win??ws
     rm -r -f gtk2
+    rm -r -f gtk3
     rm -r -f gtk+
     rm -r -f gtk-wimp
     rm -r -f kfw-2.5
