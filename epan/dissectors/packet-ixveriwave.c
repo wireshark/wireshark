@@ -272,15 +272,14 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 version, length;
     guint length_remaining;
     guint64 vw_startt=0, vw_endt=0;
-    gint32 vwf_txf, vwf_fcserr;
+    gint32 vwf_txf;
     guint32 true_length;
     guint32 vw_latency, vw_pktdur, vw_flowid;
     guint16 vw_vcid, vw_msdu_length, vw_seqnum;
     tvbuff_t *next_tvb;
     ifg_info *p_ifg_info;
 
-    vwf_fcserr = vwf_txf = 0;
-    align_offset = 0;
+    vwf_txf = 0;
 
     offset = 0;
     version = tvb_get_letohs(tvb, offset);
@@ -501,7 +500,6 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         offset+=4;
-        length_remaining-=4;
     }
 
     if (vw_times_ti) {
@@ -574,8 +572,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     guint32 vw_error;
     gint32 vwf_txf, vwf_fcserr;
 
-    vwf_fcserr = vwf_txf = 0;
-    align_offset = 0;
+    vwf_txf = 0;
 
     offset = 0;
 
@@ -696,8 +693,6 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     /*extract pad, 4bytes*/
     if (length_remaining >= 4) {
         tvb_get_letohl(tvb, offset);   /* throw away pad */
-        offset+=4;
-        length_remaining-=4;
     }
 
     /* Grab the rest of the frame. */
@@ -711,34 +706,25 @@ static void
 wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree)
 {
     proto_tree *ft, *flags_tree = NULL;
-/*  proto_item *ti = NULL; */
     proto_item *hdr_fcs_ti = NULL;
     int align_offset, offset;
     guint32 calc_fcs;
     tvbuff_t *next_tvb;
-    guint length, length_remaining;
+    guint length;
     guint32 rate;
     gint8 dbm;
     guint8 rflags=0;
 
-    /* start veriwave addition 6-2007 */
     proto_tree *vweft, *vw_errorFlags_tree = NULL, *vwift,*vw_infoFlags_tree = NULL;
     guint16 vw_flags, vw_info, vw_ht_length, vw_rflags;
     guint32 vw_errors;
     gint8 tx_power;
-    /* end veriwave additions 6-2007 */
     float ht_rate;
-    /* start veriwave additions 6-14-2007 */
-    tx_power = 0;
-    /* end veriwave additions 6-14-2007 */
 
     offset = 0;
     length = tvb_get_letohs(tvb, offset);
-    length_remaining = length;
 
-    align_offset = ALIGN_OFFSET(offset, 2);
     offset += 2;
-    length_remaining -= 2;
 
     vw_rflags = tvb_get_letohs(tvb, offset);
     if (tree) {
@@ -767,11 +753,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
     }
     offset+=2;
-    length_remaining-=2;
 
     /* Need to add in 2 more bytes to the offset to account for the channel flags */
     offset+=2;
-    length_remaining-=2;
 
     rate = tvb_get_guint8(tvb, offset);
     if (vw_rflags & IEEE80211_RADIOTAP_F_HT) {
@@ -794,12 +778,10 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
     }
     offset++;
-    length_remaining--;
 
     dbm = (gint8) tvb_get_guint8(tvb, offset);
     align_offset = ALIGN_OFFSET(offset, 1);
     offset++;
-    length_remaining--;
 
     tx_power = (gint8)tvb_get_guint8(tvb, offset);
     if (dbm != 100)
@@ -823,7 +805,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         }
     }
     offset+=2;
-    length_remaining-=2;
 
     vw_flags = tvb_get_letohs(tvb, offset);
 
@@ -842,11 +823,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     }
 
     offset+=2;
-    length_remaining-=2;
 
     align_offset = ALIGN_OFFSET(offset, 2);
     offset += align_offset;
-    length_remaining -= align_offset;
 
     vw_ht_length = tvb_get_letohs(tvb, offset);
     if ((tree) && (vw_ht_length != 0)) {
@@ -855,11 +834,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             vw_ht_length);
     }
     offset+=2;
-    length_remaining-=2;
 
     align_offset = ALIGN_OFFSET(offset, 2);
     offset += align_offset;
-    length_remaining -= align_offset;
 
     vw_info = tvb_get_letohs(tvb, offset);
 
@@ -905,11 +882,9 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     }
 
     offset+=2;
-    length_remaining-=2;
 
     align_offset = ALIGN_OFFSET(offset, 4);
     offset += align_offset;
-    length_remaining -= align_offset;
 
     vw_errors = tvb_get_letohl(tvb, offset);
 
@@ -962,9 +937,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 
         }
     }
-
-    offset+=4;
-    length_remaining-=4;
 
     /* This handles the case of an FCS existing at the end of the frame. */
     if (rflags & IEEE80211_RADIOTAP_F_FCS)
