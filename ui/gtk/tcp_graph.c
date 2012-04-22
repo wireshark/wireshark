@@ -593,7 +593,7 @@ static void set_busy_cursor(GdkWindow *w)
 	cursor = gdk_cursor_new(GDK_WATCH);
 	gdk_window_set_cursor(w, cursor);
 	gdk_flush();
-	gdk_cursor_unref(cursor);
+	g_object_unref(cursor);
 }
 
 static void unset_busy_cursor(GdkWindow *w)
