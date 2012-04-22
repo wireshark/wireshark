@@ -146,9 +146,9 @@ void
 gdkRGBAcolor_to_color_t(color_t *target, const GdkRGBA *source)
 {
 	target->pixel = 0;
-	target->red   = source->red*65535;
-	target->green = source->green*65535;
-	target->blue  = source->blue*65535;
+	target->red   = (guint16)(source->red*65535);
+	target->green = (guint16)(source->green*65535);
+	target->blue  = (guint16)(source->blue*65535);
 }
 #endif
 
