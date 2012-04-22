@@ -212,7 +212,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
    * Check if this is a UNICODE formatted file by scanning for the magic string
    */
   offset=0;
-  while (offset < (ISERIES_LINE_LENGTH - (sizeof unicodemagic)))
+  while ((unsigned)offset < (ISERIES_LINE_LENGTH - (sizeof unicodemagic)))
     {
       if (memcmp (magic + offset, unicodemagic, sizeof unicodemagic) == 0) {
         if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
