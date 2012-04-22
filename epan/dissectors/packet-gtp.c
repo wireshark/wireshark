@@ -8443,7 +8443,7 @@ void proto_register_gtp(void)
     };
 
 	/* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    65
+#define GTP_NUM_INDIVIDUAL_ELEMS    64
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
