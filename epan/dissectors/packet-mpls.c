@@ -556,8 +556,11 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         decode_mpls_label(tvb, offset, &label, &exp, &bos, &ttl);
 
-        /* FF: export (last shim in stack) info to subdissectors */
-        mplsinfo.label = label;
+        /*
+         * FF: export (last shim in stack) info to subdissectors and
+         * update pinfo
+         */
+        mplsinfo.label = pinfo->mpls_label = label;
         mplsinfo.exp = exp;
         mplsinfo.bos = bos;
         mplsinfo.ttl = ttl;
