@@ -77,17 +77,9 @@ static const char daintree_magic_text[] =
 #define DAINTREE_MAGIC_TEXT_SIZE (sizeof daintree_magic_text)
 #define DAINTREE_MAX_LINE_SIZE 512
 #define READDATA_BUF_SIZE (DAINTREE_MAX_LINE_SIZE/2)
-#define SEEKDATA_BUF_SIZE (DAINTREE_MAX_LINE_SIZE/2)
 #define READDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
-#define SEEKDATA_MAX_FIELD_SIZE "255"  /* DAINTREE_MAX_LINE_SIZE/2 -1 */
 
 #define COMMENT_LINE daintree_magic_text[0]
-
-static char readLine[DAINTREE_MAX_LINE_SIZE];
-static char seekLine[DAINTREE_MAX_LINE_SIZE];
-
-static char readData[READDATA_BUF_SIZE];
-static char seekData[SEEKDATA_BUF_SIZE];
 
 static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
@@ -102,6 +94,7 @@ static guint daintree_sna_hex_char(guchar *str, int *err);
 /* Open a file and determine if it's a Daintree file */
 int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
 {
+	char readLine[DAINTREE_MAX_LINE_SIZE];
 	guint i; 
 
 	/* get first line of file header */
@@ -138,7 +131,9 @@ int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
 static gboolean
 daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
+	char readLine[DAINTREE_MAX_LINE_SIZE];
 	guint64 seconds;
+	char readData[READDATA_BUF_SIZE];
 
 	*data_offset = wth->data_offset;
 
@@ -204,7 +199,9 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	*pseudo_header _U_, guint8 *pd, int len, int *err,
 	gchar **err_info)
 {
+	char readLine[DAINTREE_MAX_LINE_SIZE];
 	guint pkt_len;
+	char readData[READDATA_BUF_SIZE];
 
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -212,21 +209,21 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	/* It appears only file header lines start with '#', but
 	 * if we find any others, we toss them */
 	do {
-		if (file_gets(seekLine, DAINTREE_MAX_LINE_SIZE, wth->random_fh) == NULL) {
+		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->random_fh) == NULL) {
 			*err = file_error(wth->random_fh, err_info);
 			return FALSE; /* all done */
 		}
-	} while (seekLine[0] == COMMENT_LINE);
+	} while (readLine[0] == COMMENT_LINE);
 
 	/* ignore all but packet data, since the sequential read pass stored everything else */
-	if (sscanf(seekLine, "%*s %*u.%*u %*u %" SEEKDATA_MAX_FIELD_SIZE "s", seekData) != 1) {
+	if (sscanf(readLine, "%*s %*u.%*u %*u %" READDATA_MAX_FIELD_SIZE "s", readData) != 1) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: corrupted seek record");
 		return FALSE;
 	}
 
 	/* convert packet data from ASCII hex string to guchar */
-	if ((pkt_len = daintree_sna_hex_char(seekData, err)) <= FCS_LENGTH) {
+	if ((pkt_len = daintree_sna_hex_char(readData, err)) <= FCS_LENGTH) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: corrupted packet data");
 		return FALSE;
@@ -236,7 +233,7 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 
 	if (pkt_len == (guint) len) {
 		/* move to frame buffer for dissection */
-		memcpy(pd, seekData, pkt_len);
+		memcpy(pd, readData, pkt_len);
 	} else {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree-sna: corrupted frame");
