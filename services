@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-04-13
+# 2012-04-20
 # 
 # Note
 # 
@@ -10471,7 +10471,12 @@ snap	4752/tcp	# Simple Network Audio         [Dameon_Wagner]                    
 # Protocol
 snap	4752/udp	# Simple Network Audio         [Dameon_Wagner]                           [Dameon_Wagner]                                           2002-02
 # Protocol
-# 4753-4783            Unassigned
+simon	4753/tcp	# Simple Invocation of Methods [Alexander_Christian]                     [Alexander_Christian]                                     2012-04-19
+# Over Network (SIMON)
+# Simple Invocation of Methods
+simon-disc	4753/udp	# Over Network (SIMON)         [Alexander_Christian]                     [Alexander_Christian]                                     2012-04-19
+# Discovery
+# 4754-4783            Unassigned
 bfd-multi-ctl	4784/tcp	# BFD Multihop Control         [Dave_Katz][Dave_Ward]                    [Dave_Katz][Dave_Ward]                                    2006-02
 bfd-multi-ctl	4784/udp	# BFD Multihop Control         [Dave_Katz][Dave_Ward]                    [Dave_Katz][Dave_Ward]                                    2006-02
 # 4785        tcp    Reserved
@@ -14210,7 +14215,9 @@ oemcacao-websvc	11175/tcp	# OEM cacao web service access [David_Sechrest]       
 # 11176-11200           Unassigned
 smsqp	11201/tcp	# smsqp                        [Andres_Seco_Hernande]                    [Andres_Seco_Hernande]
 smsqp	11201/udp	# smsqp                        [Andres_Seco_Hernande]                    [Andres_Seco_Hernande]
-# 11202-11207           Unassigned
+dcsl-backup	11202/tcp	# DCSL Network Backup Services [John_Reynolds]                           [John_Reynolds]                                           2012-04-17                                                                              Defined TXT keys: DCSL-Service
+# 11202       udp    Reserved
+# 11203-11207           Unassigned
 wifree	11208/tcp	# WiFree Service               [Jose_Luis_Martin_Pei]                    [Jose_Luis_Martin_Pei]                                    2006-03
 wifree	11208/udp	# WiFree Service               [Jose_Luis_Martin_Pei]                    [Jose_Luis_Martin_Pei]                                    2006-03
 # 11209-11210           Unassigned
@@ -14321,7 +14328,15 @@ hivep	12172/udp	# HiveP                        [Dick_Augustsson]                
 # 12173-12299           Unassigned
 linogridengine	12300/tcp	# LinoGrid Engine              [Frans_Lundberg]                          [Frans_Lundberg]                                          2004-11
 linogridengine	12300/udp	# LinoGrid Engine              [Frans_Lundberg]                          [Frans_Lundberg]                                          2004-11
-# 12301-12320           Unassigned
+# 12301              Unassigned
+# Remote Administration Daemon
+# (RAD) is a system service
+rads	12302/tcp	# that offers secure, remote,  [Oracle]                                  [Devjani_Ray]                                             2012-04-20
+# programmatic access to
+# Solaris system configuration
+# and run-time state
+# 12302       udp    Reserved
+# 12303-12320           Unassigned
 warehouse-sss	12321/tcp	# Warehouse Monitoring Syst    [Craig_Steffen]                           [Craig_Steffen]                                           2005-08
 # SSS
 warehouse-sss	12321/udp	# Warehouse Monitoring Syst    [Craig_Steffen]                           [Craig_Steffen]                                           2005-08
@@ -15649,6 +15664,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # database discovery, and
 # cloudOS SAaS discovery
 # protocol.
+# adobe-shadow                   tcp    Adobe Shadow Server          [Adobe_Systems]                           [Mike_Harris]                                             2012-04-17                                                                              Defined TXT keys: id
 # adobe-vc                              Adobe Version Cue                                                                                                                                                                                                        Defined TXT keys: txtvers=1, name, version, build
 # adisk                                 Automatic Disk Discovery     [Bob_Bradley_2]                           [Bob_Bradley_2]                                                                                                                                   Defined TXT keys: sys, dkX
 # adpro-setup                           ADPRO Security Device Setup  [Patrick_Noffke]                          [Patrick_Noffke]                                                                                                                                  Defined TXT keys: txtvers, type
@@ -16736,6 +16752,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [AddressBookServer]                                                                 AddressBookServer.com mailto:iana&addressbookserver.com                             2011-10-18
 # [Adi_Ruppin]                                              Adi Ruppin                                      mailto:adi.ruppin&data-pod.com                                2005-08
 # [Administrator]                                           Administrator                                   mailto:admin&ipcore.co.za                                     2005-12
+# [Adobe_Systems]                                                                     Adobe Systems Inc.    mailto:mikeharr&adobe.com                                     2012-04-17
 # [Adrian_Hornby]                                           Adrian Hornby                                   mailto:Adrian.Hornby&aran.co.uk
 # [Adrian_Hungate]                                          Adrian Hungate                                  mailto:adrian&haqa.co.uk                                      2009-09-14
 # [Adrian_Mancini]                                          Adrian Mancini                                  mailto:adrian.mancini&entrust.com
@@ -16812,6 +16829,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Alex_White]                                              Alex White                                      mailto:alex&intralan.co.uk                                    2007-09-12
 # [Alexander_Bogdanov]                                      Alexander Bogdanov                              mailto:alexandr_bgd&softhome.net
 # [Alexander_Bogdanov_2]                                    Alexander Bogdanov                              mailto:alexander_bgd&softhome.net
+# [Alexander_Christian]                                     Alexander Christian                             mailto:alexander.christian&root1.de                           2012-04-19
 # [Alexander_Dubrovsky]                                     Alexander Dubrovsky                             mailto:dubrovsky_alex&emc.com
 # [Alexander_Falk]                                          Alexander Falk                                  mailto:falk&icon.at
 # [Alexander_Falk_2]                                        Alexander Falk            Altova, Inc.          mailto:al&altova.com                                          2011-07-07
@@ -17811,6 +17829,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # mbH
 # [Developer_Support]                                       Developer Support                               mailto:devsupport&tivo.com
 # [Developer_Support_2]                                     Developer Support         TiVo Inc.             mailto:devsupport&tivo.com                                    2011-10-18
+# [Devjani_Ray]                                             Devjani Ray               Oracle Corporation    mailto:Devjani.Ray&oracle.com                                 2012-04-20
 # [Devon_Dawson]                                            Devon Dawson                                    mailto:devon.dawson&hp.com                                    2003-11
 # [Devon_Taylor]                                            Devon Taylor                                    mailto:dtaylor&novell.com
 # [DEVONtechnologies_LLC]                                                             DEVONtechnologies,    mailto:info&devontechnologies.com                             2011-10-18
@@ -18844,6 +18863,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [John_R_Deuel]                                            John R. Deuel                                   mailto:kink&netops.com
 # [John_Rainford]                                           John Rainford                                   mailto:jrainford&passgo.com
 # [John_Rainford_2]                                         John Rainford                                   mailto:john.rainford&passgo.com
+# [John_Reynolds]                                           John Reynolds                                   mailto:John.Reynolds&datacoresl.com                           2012-04-17
 # [John_Richardson]                                         John Richardson           Citrix Systems
 # [John_Richmond]                                           John Richmond                                   mailto:developers&securitydesigners.com                       2002-03
 # [John_Richmond_2]                                         John Richmond                                   mailto:john&ndl.co.uk
@@ -19650,6 +19670,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Mike_Goddard]                                            Mike Goddard                                    mailto:mike.goddard&ardent.com.au
 # [Mike_Gossett]                                            Mike Gossett                                    mailto:mike&omnibond.com                                      2002-04
 # [Mike_Gregory]                                            Mike Gregory                                    mailto:Gregory_Mike&msmail.iipo.gtegsc.com
+# [Mike_Harris]                                             Mike Harris               Adobe Systems Inc.    mailto:mikeharr&adobe.com                                     2012-04-17
 # [Mike_Heins]                                              Mike Heins                                      mailto:mike&minivend.com
 # [Mike_Horowitz]                                           Mike Horowitz                                   mailto:mah&shiva.com
 # [Mike_Hudack]                                             Mike Hudack                                     mailto:mike&mhudack.com
@@ -19845,6 +19866,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [OpenMail_Encyclopedi]                                                              OpenMail Encyclopedia mailto:opencyc&hpopd.pwd.hp.com
 # [OPNET_Technologies_Inc]                                                            OPNET Technologies    mailto:tmacomber&opnet.com                                    2011-09-21
 # Inc
+# [Oracle]                                                                            Oracle Corporation    mailto:Devjani.Ray&oracle.com                                 2012-04-20
 # [Oran_Davis]                                              Oran Davis                                      mailto:oran&8x8.com
 # [Orazio_Granato]                                          Orazio Granato                                  mailto:og&wsbgrd01.italy.hp.com
 # [Oren_Hurvitz]                                            Oren Hurvitz                                    mailto:oren&omnisky.com
