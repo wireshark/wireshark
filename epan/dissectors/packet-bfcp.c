@@ -36,7 +36,7 @@
 
 /* Initialize protocol and registered fields */
 static int proto_bfcp = -1;
-static gboolean  bfcp_enable_heuristic_dissection = FALSE; 
+static gboolean  bfcp_enable_heuristic_dissection = FALSE;
 static dissector_handle_t bfcp_handle;
 
 
@@ -72,7 +72,7 @@ static const value_string map_bfcp_primitive[] = {
 	{ 13, "Error"},
 	{ 14, "FloorRequestStatusAck"},
 	{ 15, "ErrorAck"},
-	{ 16, "FloorStatusAck"}, 
+	{ 16, "FloorStatusAck"},
 	{ 17, "Goodbye"},
 	{ 18, "GoodbyeAck"},
 	{ 0,  NULL},
@@ -114,86 +114,86 @@ static const value_string map_bfcp_request_status[] = {
 };
 
 /*Define offset for fields in BFCP packet */
-#define BFCP_OFFSET_TRANSACTION_INITIATOR 0
-#define BFCP_OFFSET_PRIMITIVE 1
-#define BFCP_OFFSET_PAYLOAD_LENGTH 2
-#define BFCP_OFFSET_CONFERENCE_ID 4
-#define BFCP_OFFSET_TRANSACTION_ID 8
-#define BFCP_OFFSET_USER_ID 10
-#define BFCP_OFFSET_PAYLOAD 12
+#define BFCP_OFFSET_TRANSACTION_INITIATOR  0
+#define BFCP_OFFSET_PRIMITIVE              1
+#define BFCP_OFFSET_PAYLOAD_LENGTH         2
+#define BFCP_OFFSET_CONFERENCE_ID          4
+#define BFCP_OFFSET_TRANSACTION_ID         8
+#define BFCP_OFFSET_USER_ID               10
+#define BFCP_OFFSET_PAYLOAD               12
 
 /* Code to actually dissect BFCP packets */
 static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 first_byte = 0;
-	guint8 primitive = 0;
-	const gchar *str = NULL;
-	guint idx = 0;
-	gint bfcp_payload_length;
-	
-	/* Size of smallest BFCP packet 12-octets */
+	guint8       first_byte;
+	guint8       primitive;
+	const gchar *str;
+	gint         bfcp_payload_length;
+
+	/* Size of smallest BFCP packet: 12 octets */
 	if (tvb_length(tvb) < 12)
 		return FALSE;
 
 	/* Check version and reserved bits in first byte */
-	first_byte = tvb_get_guint8 (tvb, 0);
+	first_byte = tvb_get_guint8(tvb, 0);
 
 	/* If first_byte of bfcp_packet is a combination of the
 	 * version and the I bit. The value must be either 0x20 or 0x30
 	 * if the bit is set, otherwise it is not BFCP.
- 	 */
-	if (first_byte != 0x20 && first_byte != 0x30 )
-		return FALSE;
-	
-	primitive = tvb_get_guint8 (tvb, 1);
-
-	if (primitive < 1 || primitive > 18 )
+	 */
+	if ((first_byte != 0x20) && (first_byte != 0x30))
 		return FALSE;
 
-	str = match_strval_idx(primitive, map_bfcp_primitive, &idx);
-	if(NULL == str)
+	primitive = tvb_get_guint8(tvb, 1);
+
+	if ((primitive < 1) || (primitive > 18))
 		return FALSE;
-	
+
+	str = match_strval(primitive, map_bfcp_primitive);
+	if (NULL == str)
+		return FALSE;
+
 	/* Make entries in Protocol column and Info column on summary display*/
-	col_set_str (pinfo->cinfo, COL_PROTOCOL, "BFCP");
-	col_add_str (pinfo->cinfo, COL_INFO, str);
-	
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFCP");
+	col_add_str(pinfo->cinfo, COL_INFO, str);
+
 	if (tree) {
-		gint read_attr = 0;
-		proto_item *ti = NULL;
-		proto_tree *bfcp_tree = NULL;
+		gint        read_attr = 0;
+		proto_item *ti;
+		proto_tree *bfcp_tree;
 
 		ti = proto_tree_add_item(tree, proto_bfcp, tvb, 0, -1, ENC_NA);
 		bfcp_tree = proto_item_add_subtree(ti, ett_bfcp);
-		
+
 		/* Add items to BFCP tree */
 		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_initiator, tvb,
 				BFCP_OFFSET_TRANSACTION_INITIATOR, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb, 
+		proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb,
 			BFCP_OFFSET_PRIMITIVE, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_payload_length, tvb, 
+		proto_tree_add_item(bfcp_tree, hf_bfcp_payload_length, tvb,
 			BFCP_OFFSET_PAYLOAD_LENGTH, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_conference_id, tvb, 
+		proto_tree_add_item(bfcp_tree, hf_bfcp_conference_id, tvb,
 			BFCP_OFFSET_CONFERENCE_ID, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_id, tvb, 
+		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_id, tvb,
 			BFCP_OFFSET_TRANSACTION_ID, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb, 
+		proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb,
 			BFCP_OFFSET_USER_ID, 2, ENC_BIG_ENDIAN);
 
-		bfcp_payload_length = tvb_get_ntohs(tvb, 
+		bfcp_payload_length = tvb_get_ntohs(tvb,
 					BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
 
-		while( tvb_length_remaining(tvb, BFCP_OFFSET_PAYLOAD + read_attr) >= 2 &&
-				(bfcp_payload_length - read_attr) >= 2 )
+		while ((tvb_reported_length_remaining(tvb, BFCP_OFFSET_PAYLOAD + read_attr) >= 2) &&
+		       ((bfcp_payload_length - read_attr) >= 2))
 		{
-			gint read = 0;
-			guint8 first_byte = 0;
-			guint8 attribute_type = 0;
-			guint8 length = 0;
-			first_byte = tvb_get_guint8 (tvb, BFCP_OFFSET_PAYLOAD + read_attr );
+			gint   read = 0;
+			gint   length;
+			guint8 first_byte;
+			guint8 attribute_type;
+
+			first_byte = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD + read_attr);
 
 			/* Padding so continue to next attribute */
-			if( first_byte == 0 )
+			if (first_byte == 0)
 			{
 				read_attr++;
 				continue;
@@ -206,11 +206,11 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 			ti = proto_tree_add_item(bfcp_tree, hf_bfcp_attribute_length, tvb,
 					BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
-			length = tvb_get_guint8 (tvb, BFCP_OFFSET_PAYLOAD  + read_attr + read );
+			length = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD  + read_attr + read);
 			read++;
 
 			/* If RequestStatus then show what type of status it is... */
-			if( attribute_type == 5 )
+			if (attribute_type == 5)
 			{
 				proto_tree_add_item(bfcp_tree, hf_bfcp_request_status, tvb,
 						BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
@@ -230,33 +230,10 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			read_attr = read_attr + length;
 		}
 	}
-	return TRUE;	
+	return TRUE;
 }
 
-void proto_reg_handoff_bfcp(void)
-{
-	static gboolean prefs_initialized = FALSE;
-
-  	/* "Decode As" is always available;
-   	 *  Heuristic dissection in disabled by default since 
-	 *  the heuristic is quite weak.
-         */
-  	if (!prefs_initialized)
-  	{
-		heur_dissector_add ("tcp", dissect_bfcp, proto_bfcp);
-		heur_dissector_add ("udp", dissect_bfcp, proto_bfcp);
-		bfcp_handle = new_create_dissector_handle(dissect_bfcp, proto_bfcp);
-		dissector_add_handle("tcp.port", bfcp_handle);
-		dissector_add_handle("udp.port", bfcp_handle);
-    	prefs_initialized = TRUE;
-	}
-
-	heur_dissector_set_enabled("tcp", dissect_bfcp, proto_bfcp,
-				   bfcp_enable_heuristic_dissection);
-
-	heur_dissector_set_enabled("udp", dissect_bfcp, proto_bfcp,
-				   bfcp_enable_heuristic_dissection);
-}
+void proto_reg_handoff_bfcp(void);
 
 void proto_register_bfcp(void)
 {
@@ -305,10 +282,10 @@ void proto_register_bfcp(void)
 			  NULL, 0x0,
 			  NULL, HFILL }
 		},
-		{	
+		{
 			&hf_bfcp_payload,
-          		{ "Payload", "bfcp.payload", 
-			  FT_BYTES, BASE_NONE, 
+			{ "Payload", "bfcp.payload",
+			  FT_BYTES, BASE_NONE,
 			  NULL, 0x0, NULL,
 			  HFILL }
 		},
@@ -333,25 +310,50 @@ void proto_register_bfcp(void)
 			  VALS(map_bfcp_request_status), 0x0,
 			  NULL, HFILL }
 		}
-	};	
+	};
 
- 	static gint *ett[] = {
+	static gint *ett[] = {
 		&ett_bfcp
-	};	
+	};
 
 	/* Register protocol name and description */
-	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol", 
+	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol",
 				"BFCP", "bfcp");
 
-  	bfcp_module = prefs_register_protocol(proto_bfcp, 
+	bfcp_module = prefs_register_protocol(proto_bfcp,
 				proto_reg_handoff_bfcp);
-	
-  	prefs_register_bool_preference(bfcp_module, "enable", 
+
+	prefs_register_bool_preference(bfcp_module, "enable",
 		      "Enable BFCP heuristic dissection",
-                      "Enable BFCP heuristic dissection (default is disabled)",
-                      &bfcp_enable_heuristic_dissection);
+		      "Enable BFCP heuristic dissection (default is disabled)",
+		      &bfcp_enable_heuristic_dissection);
 
 	/* Register field and subtree array */
 	proto_register_field_array(proto_bfcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
+
+void proto_reg_handoff_bfcp(void)
+{
+	static gboolean prefs_initialized = FALSE;
+
+	/* "Decode As" is always available;
+	 *  Heuristic dissection in disabled by default since
+	 *  the heuristic is quite weak.
+	 */
+	if (!prefs_initialized)
+	{
+		heur_dissector_add("tcp", dissect_bfcp, proto_bfcp);
+		heur_dissector_add("udp", dissect_bfcp, proto_bfcp);
+		bfcp_handle = new_create_dissector_handle(dissect_bfcp, proto_bfcp);
+		dissector_add_handle("tcp.port", bfcp_handle);
+		dissector_add_handle("udp.port", bfcp_handle);
+		prefs_initialized = TRUE;
+	}
+
+	heur_dissector_set_enabled("tcp", dissect_bfcp, proto_bfcp,
+				   bfcp_enable_heuristic_dissection);
+
+	heur_dissector_set_enabled("udp", dissect_bfcp, proto_bfcp,
+				   bfcp_enable_heuristic_dissection);
 }
