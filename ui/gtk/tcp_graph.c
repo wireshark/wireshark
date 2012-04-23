@@ -384,8 +384,10 @@ static int debugging = 0;
 static void create_gui (struct graph * );
 #if USE_CROSSHAIR_CURSOR
 #else
+#if 0
 static void create_text_widget (struct graph * );
 static void display_text (struct graph * );
+#endif
 #endif /* USE_CROSSHAIR_CURSOR */
 static void create_drawing_area (struct graph * );
 static void control_panel_create (struct graph * );
@@ -468,9 +470,9 @@ static void restore_initial_graph_view (struct graph *g);
 static void cross_xor (struct graph * , int , int );
 static void cross_draw (struct graph * , int , int );
 static void cross_erase (struct graph * );
+static void magnify_move (struct graph * , int , int );
 #endif /* USE_CROSSHAIR_CURSOR */
 static void magnify_create (struct graph * , int , int );
-static void magnify_move (struct graph * , int , int );
 static void magnify_destroy (struct graph * );
 static void magnify_draw (struct graph * );
 static void magnify_get_geom (struct graph * , int , int );
@@ -623,7 +625,7 @@ static void unset_busy_cursor(GdkWindow *w, gboolean cross)
 		gdk_window_set_cursor(w, cursor);
 		gdk_flush();
 #if GTK_CHECK_VERSION(3,0,0)
-		g_object_unref(cursor) 
+		g_object_unref(cursor)
 #else
 		gdk_cursor_unref(cursor);
 #endif
@@ -1529,7 +1531,7 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 		gdk_window_set_cursor(gtk_widget_get_window(g->drawing_area), cursor);
 		gdk_flush();
 #if GTK_CHECK_VERSION(3,0,0)
-		g_object_unref(cursor) 
+		g_object_unref(cursor)
 #else
 		gdk_cursor_unref(cursor);
 #endif
@@ -2902,7 +2904,7 @@ static void cross_xor (struct graph *g, int x, int y)
 		cairo_destroy(cr);
 	}
 
-#else 
+#else
 
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
@@ -2927,7 +2929,23 @@ static void cross_erase (struct graph *g)
 	cross_xor (g, g->cross.x, g->cross.y);
 	g->cross.erase_needed = 0;
 }
+
+static void magnify_move (struct graph *g, int x, int y)
+{
+	struct ipoint pos, offsetpos;
+
+	gdk_window_get_position (gtk_widget_get_window(GTK_WIDGET (g->toplevel)), &pos.x, &pos.y);
+	g->magnify.x = pos.x + x - g->magnify.width/2;
+	g->magnify.y = pos.y + y - g->magnify.height/2;
+	offsetpos.x = g->magnify.x + g->magnify.offset.x;
+	offsetpos.x = offsetpos.x >= 0 ? offsetpos.x : 0;
+	offsetpos.y = g->magnify.y + g->magnify.offset.y;
+	offsetpos.y = offsetpos.y >= 0 ? offsetpos.y : 0;
+	magnify_get_geom (g, x, y);
+	magnify_draw (g);
+}
 #endif /* USE_CROSSHAIR_CURSOR */
+
 static void magnify_create (struct graph *g, int x, int y)
 {
 	struct graph *mg;
@@ -3001,21 +3019,6 @@ static void magnify_create (struct graph *g, int x, int y)
 	graph_pixmaps_create (mg);
 	magnify_draw (g);
 	g->magnify.active = 1;
-}
-
-static void magnify_move (struct graph *g, int x, int y)
-{
-	struct ipoint pos, offsetpos;
-
-	gdk_window_get_position (gtk_widget_get_window(GTK_WIDGET (g->toplevel)), &pos.x, &pos.y);
-	g->magnify.x = pos.x + x - g->magnify.width/2;
-	g->magnify.y = pos.y + y - g->magnify.height/2;
-	offsetpos.x = g->magnify.x + g->magnify.offset.x;
-	offsetpos.x = offsetpos.x >= 0 ? offsetpos.x : 0;
-	offsetpos.y = g->magnify.y + g->magnify.offset.y;
-	offsetpos.y = offsetpos.y >= 0 ? offsetpos.y : 0;
-	magnify_get_geom (g, x, y);
-	magnify_draw (g);
 }
 
 static void magnify_destroy (struct graph *g)
@@ -3684,7 +3687,7 @@ static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _
 {
     struct graph *g = user_data;
 
-	 graph_pixmap_display (g); 
+	 graph_pixmap_display (g);
 	if (g->cross.draw) {
 		int x, y;
 		gdk_window_get_pointer (gtk_widget_get_window(widget), &x, &y, 0);
@@ -3701,7 +3704,7 @@ static void toggle_crosshairs (struct graph *g)
 	if (g->cross.draw) {
 		int x, y;
 		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
-		cross_draw (g);
+		cross_draw (g, x, y);
 	} else if (g->cross.erase_needed) {
 		cross_erase (g);
 	}
