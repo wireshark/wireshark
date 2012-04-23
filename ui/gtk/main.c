@@ -4111,7 +4111,20 @@ scan_local_interfaces(capture_options* capture_opts)
             }
         }
 #ifdef HAVE_PCAP_REMOTE
+		device.local = TRUE;
         device.remote_opts.src_type = CAPTURE_IFLOCAL;
+        device.remote_opts.remote_host_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
+        device.remote_opts.remote_host_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
+        device.remote_opts.remote_host_opts.auth_type = capture_opts->default_options.auth_type;
+        device.remote_opts.remote_host_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
+        device.remote_opts.remote_host_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
+        device.remote_opts.remote_host_opts.datatx_udp = capture_opts->default_options.datatx_udp;
+        device.remote_opts.remote_host_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
+        device.remote_opts.remote_host_opts.nocap_local = capture_opts->default_options.nocap_local;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+        device.remote_opts.sampling_method = capture_opts->default_options.sampling_method;
+        device.remote_opts.sampling_param  = capture_opts->default_options.sampling_param;	
 #endif
         linktype_count = 0;
         device.links = NULL;

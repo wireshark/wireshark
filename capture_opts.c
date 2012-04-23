@@ -1010,7 +1010,7 @@ collect_ifaces(capture_options *capture_opts)
 #ifdef HAVE_PCAP_CREATE
       interface_opts.monitor_mode = device.monitor_mode_enabled;
 #endif
-      if (!device.local) {
+     /* if (!device.local) {*/
 #ifdef HAVE_PCAP_REMOTE
         interface_opts.src_type = CAPTURE_IFREMOTE;
         interface_opts.remote_host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
@@ -1026,7 +1026,7 @@ collect_ifaces(capture_options *capture_opts)
         interface_opts.sampling_method = device.remote_opts.sampling_method;
         interface_opts.sampling_param  = device.remote_opts.sampling_param;
 #endif
-      }
+     /* }*/
       g_array_append_val(capture_opts->ifaces, interface_opts);
     } else {
       continue;
