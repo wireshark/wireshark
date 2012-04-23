@@ -42,6 +42,13 @@
 # include <gdk/gdkkeysyms-compat.h>
 #endif
 
+/* The old crosshair functionality does not work (well) with cairo
+ * disable it and use a crosshair cursor instead.
+ * Use a define for now so the functionality can be restored if need be
+ * but redisign is probably needed to get it to work with cairo
+ */
+#define USE_CROSSHAIR_CURSOR 1
+
 #include <epan/packet.h>
 #include <epan/ipproto.h>
 #include <epan/etypes.h>
@@ -375,10 +382,11 @@ static int debugging = 0;
 /*int debugging = DBS_TPUT_ELMTS;*/
 
 static void create_gui (struct graph * );
-#if 0
+#if USE_CROSSHAIR_CURSOR
+#else
 static void create_text_widget (struct graph * );
 static void display_text (struct graph * );
-#endif
+#endif /* USE_CROSSHAIR_CURSOR */
 static void create_drawing_area (struct graph * );
 static void control_panel_create (struct graph * );
 static GtkWidget *control_panel_create_zoom_group (struct graph * );
@@ -455,9 +463,12 @@ static void toggle_crosshairs (struct graph *g);
 static void toggle_time_origin (struct graph * );
 static void toggle_seq_origin (struct graph * );
 static void restore_initial_graph_view (struct graph *g);
+#if USE_CROSSHAIR_CURSOR
+#else
 static void cross_xor (struct graph * , int , int );
 static void cross_draw (struct graph * , int , int );
 static void cross_erase (struct graph * );
+#endif /* USE_CROSSHAIR_CURSOR */
 static void magnify_create (struct graph * , int , int );
 static void magnify_move (struct graph * , int , int );
 static void magnify_destroy (struct graph * );
@@ -471,11 +482,14 @@ static gboolean expose_event (GtkWidget * , GdkEventExpose * , gpointer );
 #endif
 static gboolean button_press_event (GtkWidget * , GdkEventButton * , gpointer );
 static gboolean button_release_event (GtkWidget * , GdkEventButton * , gpointer );
+#if USE_CROSSHAIR_CURSOR
+#else /* USE_CROSSHAIR_CURSOR */
 static gboolean motion_notify_event (GtkWidget * , GdkEventMotion * , gpointer );
-static gboolean key_press_event (GtkWidget * , GdkEventKey * , gpointer );
-static gboolean key_release_event (GtkWidget * , GdkEventKey * , gpointer );
 static gboolean leave_notify_event (GtkWidget * , GdkEventCrossing * , gpointer );
 static gboolean enter_notify_event (GtkWidget * , GdkEventCrossing * , gpointer );
+#endif
+static gboolean key_press_event (GtkWidget * , GdkEventKey * , gpointer );
+static gboolean key_release_event (GtkWidget * , GdkEventKey * , gpointer );
 static void tseq_initialize (struct graph * );
 static void tseq_get_bounds (struct graph * );
 static void tseq_stevens_read_config (struct graph * );
@@ -600,10 +614,23 @@ static void set_busy_cursor(GdkWindow *w)
 #endif
 }
 
-static void unset_busy_cursor(GdkWindow *w)
+static void unset_busy_cursor(GdkWindow *w, gboolean cross)
 {
-	gdk_window_set_cursor(w, NULL);
-	gdk_flush();
+	GdkCursor* cursor;
+
+	if(cross){
+		cursor = gdk_cursor_new(GDK_CROSSHAIR);
+		gdk_window_set_cursor(w, cursor);
+		gdk_flush();
+#if GTK_CHECK_VERSION(3,0,0)
+		g_object_unref(cursor) 
+#else
+		gdk_cursor_unref(cursor);
+#endif
+	}else{
+		gdk_window_set_cursor(w, NULL);
+		gdk_flush();
+	}
 }
 void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 {
@@ -706,16 +733,20 @@ static void create_drawing_area (struct graph *g)
 	g_signal_connect(g->drawing_area,"configure_event", G_CALLBACK(configure_event),
         g);
 	 */
-	g_signal_connect(g->drawing_area, "motion_notify_event",
-                       G_CALLBACK(motion_notify_event), g);
+
 	g_signal_connect(g->drawing_area, "button_press_event",
                        G_CALLBACK(button_press_event), g);
 	g_signal_connect(g->drawing_area, "button_release_event",
                        G_CALLBACK(button_release_event), g);
+#if USE_CROSSHAIR_CURSOR
+#else
+	g_signal_connect(g->drawing_area, "motion_notify_event",
+                       G_CALLBACK(motion_notify_event), g);
 	g_signal_connect(g->drawing_area, "leave_notify_event",
                        G_CALLBACK(leave_notify_event), g);
 	g_signal_connect(g->drawing_area, "enter_notify_event",
                        G_CALLBACK(enter_notify_event), g);
+#endif /* USE_CROSSHAIR_CURSOR */
 	g_signal_connect(g->toplevel, "destroy", G_CALLBACK(callback_toplevel_destroy), g);
 	/* why doesn't drawing area send key_press_signals? */
 	g_signal_connect(g->toplevel, "key_press_event", G_CALLBACK(key_press_event), g);
@@ -1486,7 +1517,28 @@ static GtkWidget *control_panel_create_cross_group (struct graph *g)
 
 	return frame;
 }
+#if USE_CROSSHAIR_CURSOR
+static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
+{
+	GdkCursor* cursor;
+	struct graph *g = (struct graph * )data;
 
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle))) {
+		g->cross.draw = TRUE;
+		cursor = gdk_cursor_new(GDK_CROSSHAIR);
+		gdk_window_set_cursor(gtk_widget_get_window(g->drawing_area), cursor);
+		gdk_flush();
+#if GTK_CHECK_VERSION(3,0,0)
+		g_object_unref(cursor) 
+#else
+		gdk_cursor_unref(cursor);
+#endif
+	}else{
+		gdk_window_set_cursor(gtk_widget_get_window(g->drawing_area), NULL);
+		gdk_flush();
+	}
+}
+#else
 static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
@@ -1501,6 +1553,7 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 		cross_erase (g);
 	}
 }
+#endif /* USE_CROSSHAIR_CURSOR */
 
 static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 {
@@ -2145,7 +2198,7 @@ static void graph_display (struct graph *g)
 {
 	set_busy_cursor (gtk_widget_get_window(g->drawing_area));
 	graph_pixmap_draw (g);
-	unset_busy_cursor (gtk_widget_get_window(g->drawing_area));
+	unset_busy_cursor (gtk_widget_get_window(g->drawing_area), g->cross.draw);
 	graph_pixmaps_switch (g);
 	graph_pixmap_display (g);
 }
@@ -2163,10 +2216,12 @@ static void graph_pixmap_display (struct graph *g)
 	cairo_rectangle (cr, g->wp.x, g->wp.y, g->wp.width, g->wp.height);
 	cairo_fill (cr);
 	cairo_destroy (cr);
-
+#if USE_CROSSHAIR_CURSOR
+#else
     if (g->cross.erase_needed) {
        cross_xor(g, g->cross.x, g->cross.y);
     }
+#endif
 }
 
 static void graph_pixmaps_switch (struct graph *g)
@@ -2776,7 +2831,7 @@ static void graph_select_segment (struct graph *g, int x, int y)
 	if (num) {
 		cf_goto_frame(&cfile, num);
 	}
-	unset_busy_cursor (gtk_widget_get_window(g->drawing_area));
+	unset_busy_cursor (gtk_widget_get_window(g->drawing_area), g->cross.draw);
 }
 
 static int line_detect_collision (struct element *e, int x, int y)
@@ -2822,10 +2877,11 @@ static int ellipse_detect_collision (struct element *e, int x, int y)
 	else
 		return FALSE;
 }
-
+#if USE_CROSSHAIR_CURSOR
+#else
 static void cross_xor (struct graph *g, int x, int y)
 {
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
 	GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
 	cairo_t *cr;
 
@@ -2837,22 +2893,16 @@ static void cross_xor (struct graph *g, int x, int y)
 		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
 		gdk_cairo_set_source_color (cr, &color_gray15);
 		cairo_set_line_width (cr, 1.0);
-		cairo_move_to(cr,  g->wp.x, y);
-		cairo_line_to(cr,  g->wp.x + g->wp.width, y);
-		cairo_stroke(cr);
-		cairo_destroy(cr);
-		/* draw vertical line */
-		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
-		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
-		gdk_cairo_set_source_color (cr, &color_gray15);
-		cairo_set_line_width (cr, 1.0);
-		cairo_move_to(cr,  x, g->wp.y);
-		cairo_line_to(cr,  x, g->wp.y + g->wp.height);
+		cairo_move_to(cr,  g->wp.x+0.5, y+0.5);
+		cairo_line_to(cr,  g->wp.x + g->wp.width+0.5, y+0.5);
+		/* Draw vertical line */
+		cairo_move_to(cr,  x+0.5, g->wp.y+0.5);
+		cairo_line_to(cr,  x+0.5, g->wp.y + g->wp.height+0.5);
 		cairo_stroke(cr);
 		cairo_destroy(cr);
 	}
 
-#else
+#else 
 
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
@@ -2861,7 +2911,7 @@ static void cross_xor (struct graph *g, int x, int y)
 		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
 						g->wp.y, x, g->wp.y + g->wp.height);
 	}
-#endif
+#endif /* GTK_CHECK_VERSION(2,22,0) */
 }
 
 static void cross_draw (struct graph *g, int x, int y)
@@ -2877,7 +2927,7 @@ static void cross_erase (struct graph *g)
 	cross_xor (g, g->cross.x, g->cross.y);
 	g->cross.erase_needed = 0;
 }
-
+#endif /* USE_CROSSHAIR_CURSOR */
 static void magnify_create (struct graph *g, int x, int y)
 {
 	struct graph *mg;
@@ -3235,8 +3285,11 @@ static void do_zoom_mouse (struct graph *g, GdkEventButton *event)
 	axis_display (g->y_axis);
 	axis_display (g->x_axis);
 	update_zoom_spins (g);
+#if USE_CROSSHAIR_CURSOR
+#else
 	if (g->cross.draw)
 		cross_draw (g, (int) event->x, (int) event->y);
+#endif /* USE_CROSSHAIR_CURSOR */
 }
 
 static void do_zoom_keyboard (struct graph *g)
@@ -3302,8 +3355,11 @@ static void do_zoom_keyboard (struct graph *g)
 	axis_display (g->y_axis);
 	axis_display (g->x_axis);
 	update_zoom_spins (g);
+#if USE_CROSSHAIR_CURSOR
+#else
 	if (g->cross.draw)
 		cross_draw (g, pointer_x, pointer_y);
+#endif /* USE_CROSSHAIR_CURSOR */
 }
 
 static void do_zoom_in_keyboard (struct graph *g)
@@ -3375,11 +3431,14 @@ static void do_key_motion (struct graph *g)
 	graph_display (g);
 	axis_display (g->y_axis);
 	axis_display (g->x_axis);
+#if USE_CROSSHAIR_CURSOR
+#else
 	if (g->cross.draw) {
 		int pointer_x, pointer_y;
 		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
 		cross_draw (g, pointer_x, pointer_y);
 	}
+#endif /* USE_CROSSHAIR_CURSOR */
 }
 
 static void do_key_motion_up (struct graph *g, int step)
@@ -3443,6 +3502,8 @@ static gboolean button_press_event (GtkWidget *widget _U_, GdkEventButton *event
 	return TRUE;
 }
 
+#if USE_CROSSHAIR_CURSOR
+#else
 static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
 {
     struct graph *g = user_data;
@@ -3499,7 +3560,7 @@ static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *even
 
 	return TRUE;
 }
-
+#endif /* USE_CROSSHAIR_CURSOR */
 static gboolean button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
     struct graph *g = user_data;
@@ -3607,6 +3668,8 @@ static gboolean key_release_event (GtkWidget *widget _U_, GdkEventKey *event, gp
 	return TRUE;
 }
 
+#if USE_CROSSHAIR_CURSOR
+#else
 static gboolean leave_notify_event (GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpointer user_data)
 {
     struct graph *g = user_data;
@@ -3621,7 +3684,7 @@ static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _
 {
     struct graph *g = user_data;
 
-	/* graph_pixmap_display (g); */
+	 graph_pixmap_display (g); 
 	if (g->cross.draw) {
 		int x, y;
 		gdk_window_get_pointer (gtk_widget_get_window(widget), &x, &y, 0);
@@ -3629,11 +3692,12 @@ static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _
 	}
 	return TRUE;
 }
-
+#endif /* USE_CROSSHAIR_CURSOR */
 static void toggle_crosshairs (struct graph *g)
 {
 	g->cross.draw ^= 1;
-#if 0
+#if USE_CROSSHAIR_CURSOR
+#else
 	if (g->cross.draw) {
 		int x, y;
 		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
@@ -3641,7 +3705,7 @@ static void toggle_crosshairs (struct graph *g)
 	} else if (g->cross.erase_needed) {
 		cross_erase (g);
 	}
-#endif
+#endif /* USE_CROSSHAIR_CURSOR */
 	/* toggle buttons emit their "toggled" signals so don't bother doing
 	 * any real work here, it will be done in signal handlers */
 	if (g->cross.draw)
