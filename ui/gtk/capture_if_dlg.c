@@ -139,6 +139,7 @@ typedef struct if_dlg_data_s {
 #ifdef _WIN32
     GtkWidget   *details_bt;
 #endif
+    gboolean    hidden;
 } if_dlg_data_t;
 
 static gboolean gbl_capture_in_progress = FALSE;
@@ -156,6 +157,7 @@ add_interface(void)
 #ifdef _WIN32
   data.details_bt = NULL;
 #endif
+  data.hidden     = FALSE;
   g_array_append_val(gtk_list, data);
   refresh_if_window();
 }
@@ -222,6 +224,9 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
 
   for (ifs = 0; ifs < gtk_list->len; ifs++) {
     data = g_array_index(gtk_list, if_dlg_data_t, ifs);
+    if (data.hidden) {
+      continue;
+    }
     gtk_widget_set_sensitive(data.choose_bt, FALSE);
     gtk_list = g_array_remove_index(gtk_list, ifs);
     g_array_insert_val(gtk_list, ifs, data);
@@ -570,6 +575,9 @@ capture_if_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 
   for (ifs = 0; ifs < gtk_list->len; ifs++) {
     data = g_array_index(gtk_list, if_dlg_data_t, ifs);
+    if (data.hidden) {
+      continue;
+    }
     gtk_widget_set_sensitive(data.choose_bt, TRUE);
     gtk_list = g_array_remove_index(gtk_list, ifs);
     g_array_insert_val(gtk_list, ifs, data);
@@ -595,6 +603,7 @@ make_gtk_array(void)
 #ifdef _WIN32
      data.details_bt = NULL;
 #endif
+     data.hidden     = FALSE;
      g_array_append_val(gtk_list, data);
   }
 }
@@ -727,6 +736,9 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     g_string_assign(if_tool_str, "");
     /* Continue if capture device is hidden */
     if (device.hidden) {
+      data.hidden = TRUE;
+      gtk_list = g_array_remove_index(gtk_list, ifs);
+      g_array_insert_val(gtk_list, ifs, data);
       continue;
     }
     data.choose_bt = gtk_check_button_new();
