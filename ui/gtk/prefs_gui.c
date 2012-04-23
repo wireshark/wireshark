@@ -380,7 +380,11 @@ GtkWidget *
 gui_font_prefs_show(void)
 {
 	/* Create the font selection widget. */
+#if GTK_CHECK_VERSION(3,2,0)
+	font_browse_w = gtk_font_chooser_widget_new();
+#else
 	font_browse_w = (GtkWidget *) gtk_font_selection_new();
+#endif /* GTK_CHECK_VERSION(3,2,0) */
 	gtk_widget_show(font_browse_w);
 
 	return font_browse_w;
@@ -392,8 +396,14 @@ font_fetch(void)
 {
 	gchar   *font_name;
 
+
+#if GTK_CHECK_VERSION(3,2,0)
+	font_name = g_strdup(gtk_font_chooser_get_font(
+	      GTK_FONT_CHOOSER(font_browse_w)));
+#else
 	font_name = g_strdup(gtk_font_selection_get_font_name(
 	      GTK_FONT_SELECTION(font_browse_w)));
+#endif /* GTK_CHECK_VERSION(3,2,0) */
 	if (font_name == NULL) {
 		/* No font was selected; let the user know, but don't
 		   tear down the font selection dialog, so they can

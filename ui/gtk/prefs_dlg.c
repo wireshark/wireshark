@@ -538,10 +538,12 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 
   /* We set the current font now, because setting it appears not to work
      when run before appending the frame to the notebook. */
-
+#if GTK_CHECK_VERSION(3,2,0)
+  gtk_font_chooser_set_font(GTK_FONT_CHOOSER(gui_font_pg), prefs.gui_font_name);
+#else
   gtk_font_selection_set_font_name(
     GTK_FONT_SELECTION(gui_font_pg), prefs.gui_font_name);
-
+#endif /* GTK_CHECK_VERSION(3,2,0) */
   /* GUI Colors prefs */
   g_strlcpy(label_str, "Colors", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, stream_prefs_show(), E_GUI_COLORS_PAGE_KEY);
