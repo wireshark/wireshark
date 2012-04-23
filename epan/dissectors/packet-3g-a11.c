@@ -2013,7 +2013,7 @@ proto_register_a11(void)
         { &hf_a11_ase_pcf_addr_key,
           { "PCF IP Address",           "a11.ext.ase.pcfip",
             FT_IPv4, BASE_NONE, NULL, 0,
-            "PCF IP Address", HFILL }
+            NULL, HFILL }
         },
         { &hf_a11_fqi_srid,
           { "SRID",   "a11.ext.fqi.srid",
