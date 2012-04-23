@@ -1010,23 +1010,21 @@ collect_ifaces(capture_options *capture_opts)
 #ifdef HAVE_PCAP_CREATE
       interface_opts.monitor_mode = device.monitor_mode_enabled;
 #endif
-     /* if (!device.local) {*/
 #ifdef HAVE_PCAP_REMOTE
-        interface_opts.src_type = CAPTURE_IFREMOTE;
-        interface_opts.remote_host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
-        interface_opts.remote_port = g_strdup(device.remote_opts.remote_host_opts.remote_port);
-        interface_opts.auth_type = device.remote_opts.remote_host_opts.auth_type;
-        interface_opts.auth_username = g_strdup(device.remote_opts.remote_host_opts.auth_username);
-        interface_opts.auth_password = g_strdup(device.remote_opts.remote_host_opts.auth_password);
-        interface_opts.datatx_udp = device.remote_opts.remote_host_opts.datatx_udp;
-        interface_opts.nocap_rpcap = device.remote_opts.remote_host_opts.nocap_rpcap;
-        interface_opts.nocap_local = device.remote_opts.remote_host_opts.nocap_local;
+      interface_opts.src_type = CAPTURE_IFREMOTE;
+      interface_opts.remote_host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
+      interface_opts.remote_port = g_strdup(device.remote_opts.remote_host_opts.remote_port);
+      interface_opts.auth_type = device.remote_opts.remote_host_opts.auth_type;
+      interface_opts.auth_username = g_strdup(device.remote_opts.remote_host_opts.auth_username);
+      interface_opts.auth_password = g_strdup(device.remote_opts.remote_host_opts.auth_password);
+      interface_opts.datatx_udp = device.remote_opts.remote_host_opts.datatx_udp;
+      interface_opts.nocap_rpcap = device.remote_opts.remote_host_opts.nocap_rpcap;
+      interface_opts.nocap_local = device.remote_opts.remote_host_opts.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-        interface_opts.sampling_method = device.remote_opts.sampling_method;
-        interface_opts.sampling_param  = device.remote_opts.sampling_param;
+      interface_opts.sampling_method = device.remote_opts.sampling_method;
+      interface_opts.sampling_param  = device.remote_opts.sampling_param;
 #endif
-     /* }*/
       g_array_append_val(capture_opts->ifaces, interface_opts);
     } else {
       continue;
