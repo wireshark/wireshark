@@ -131,7 +131,7 @@ match_strval(const guint32 val, const value_string *vs) {
 
 /* Create a value_string_ext given a ptr to a value_string array and the total number of entries.           */
 /* Note:  The total number of entries should include the required {0, NULL} terminating entry of the array. */
-/* Return: a pointer to a gmalloc'd and initialized value_string_ext struct.                                */
+/* Return: a pointer to a g_malloc'd and initialized value_string_ext struct.                                */
 value_string_ext *
 value_string_ext_new(value_string *vs, guint vs_tot_num_entries, gchar *vs_name) {
     value_string_ext *vse;
