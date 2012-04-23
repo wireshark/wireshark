@@ -54,7 +54,7 @@ static dissector_handle_t data_handle;
 
 void
 capture_arcnet (const guchar *pd, int len, packet_counts *ld,
-		gboolean has_offset, gboolean has_exception)
+                gboolean has_offset, gboolean has_exception)
 {
   int offset = has_offset ? 4 : 2;
 
@@ -132,7 +132,7 @@ capture_arcnet (const guchar *pd, int len, packet_counts *ld,
 
 static void
 dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-		       gboolean has_offset, gboolean has_exception)
+                       gboolean has_offset, gboolean has_exception)
 {
   int offset = 0;
   guint8 dst, src, protID, split_flag;
@@ -146,10 +146,10 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   src = tvb_get_guint8 (tvb, 0);
   dst = tvb_get_guint8 (tvb, 1);
-  SET_ADDRESS(&pinfo->dl_src,	AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
-  SET_ADDRESS(&pinfo->src,	AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
-  SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
-  SET_ADDRESS(&pinfo->dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
+  SET_ADDRESS(&pinfo->dl_src,   AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
+  SET_ADDRESS(&pinfo->src,      AT_ARCNET, 1, tvb_get_ptr(tvb, 0, 1));
+  SET_ADDRESS(&pinfo->dl_dst,   AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
+  SET_ADDRESS(&pinfo->dst,      AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
 
   ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, ENC_NA);
 
@@ -175,7 +175,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   case ARCNET_PROTO_IP_1051:
   case ARCNET_PROTO_ARP_1051:
   case ARCNET_PROTO_DIAGNOSE:
-  case ARCNET_PROTO_BACNET:	/* XXX - no fragmentation? */
+  case ARCNET_PROTO_BACNET:     /* XXX - no fragmentation? */
     /* No fragmentation stuff in the header */
     break;
 
@@ -211,8 +211,8 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       /* This is an exception packet.  The flag value there is the
          "this is an exception flag" packet; the next two bytes
          after it are padding. */
-	  proto_tree_add_uint (arcnet_tree, hf_arcnet_exception_flag, tvb, offset, 1,
-			     split_flag);
+      proto_tree_add_uint (arcnet_tree, hf_arcnet_exception_flag, tvb, offset, 1,
+                           split_flag);
       offset++;
 
       proto_tree_add_text (arcnet_tree, tvb, offset, 2, "Padding");
@@ -227,7 +227,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
 
     proto_tree_add_uint (arcnet_tree, hf_arcnet_split_flag, tvb, offset, 1,
-			   split_flag);
+                         split_flag);
     offset++;
 
     proto_tree_add_item (arcnet_tree, hf_arcnet_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -242,9 +242,9 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   next_tvb = tvb_new_subset_remaining (tvb, offset);
 
   if (!dissector_try_uint (arcnet_dissector_table, protID,
-			   next_tvb, pinfo, tree))
+                           next_tvb, pinfo, tree))
     {
-	  col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", protID);
+      col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", protID);
       call_dissector (data_handle, next_tvb, pinfo, tree);
     }
 
@@ -341,8 +341,8 @@ proto_register_arcnet (void)
   };
 
   arcnet_dissector_table = register_dissector_table ("arcnet.protocol_id",
-						     "ARCNET Protocol ID",
-						     FT_UINT8, BASE_HEX);
+                                                     "ARCNET Protocol ID",
+                                                     FT_UINT8, BASE_HEX);
 
 /* Register the protocol name and description */
   proto_arcnet = proto_register_protocol ("ARCNET", "ARCNET", "arcnet");
@@ -362,7 +362,7 @@ proto_reg_handoff_arcnet (void)
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
 
   arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux,
-						 proto_arcnet);
+                                                 proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
   data_handle = find_dissector ("data");
 }

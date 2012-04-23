@@ -1647,11 +1647,11 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     case ARTNET_OP_RDM:
       hi = proto_tree_add_item(artnet_tree,
-			         hf_artnet_rdm,
-				 tvb,
-				 offset,
-				 0,
-				 ENC_NA);
+                               hf_artnet_rdm,
+                               tvb,
+                               offset,
+                               0,
+                               ENC_NA);
       si = proto_item_add_subtree(hi,ett_artnet);
 
       size = dissect_artnet_rdm( tvb, offset, si, pinfo );
@@ -2647,12 +2647,12 @@ proto_register_artnet(void) {
   };
 
   proto_artnet = proto_register_protocol("Art-Net",
-				       "ARTNET","artnet");
+                                         "ARTNET","artnet");
   proto_register_field_array(proto_artnet,hf,array_length(hf));
   proto_register_subtree_array(ett,array_length(ett));
 
   artnet_module = prefs_register_protocol(proto_artnet,
-					proto_reg_handoff_artnet);
+                                          proto_reg_handoff_artnet);
   prefs_register_uint_preference(artnet_module, "udp_port",
 				 "UDP Port",
 				 "The UDP port on which "
@@ -2661,8 +2661,8 @@ proto_register_artnet(void) {
 				 10,&global_udp_port_artnet);
 
   prefs_register_enum_preference(artnet_module, "dmx_disp_chan_val_type",
-            "DMX Display channel value type",
-            "The way DMX values are displayed",
+                                 "DMX Display channel value type",
+                                 "The way DMX values are displayed",
 				 &global_disp_chan_val_type,
             			 disp_chan_val_types, ENC_BIG_ENDIAN);
 
