@@ -594,7 +594,7 @@ static void set_busy_cursor(GdkWindow *w)
 	gdk_window_set_cursor(w, cursor);
 	gdk_flush();
 #if GTK_CHECK_VERSION(3,0,0)
-	g_object_unref(cursor) 
+	g_object_unref(cursor);
 #else
 	gdk_cursor_unref(cursor);
 #endif
