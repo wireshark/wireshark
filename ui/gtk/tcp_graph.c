@@ -625,7 +625,7 @@ static void unset_busy_cursor(GdkWindow *w, gboolean cross)
 		gdk_window_set_cursor(w, cursor);
 		gdk_flush();
 #if GTK_CHECK_VERSION(3,0,0)
-		g_object_unref(cursor)
+		g_object_unref(cursor);
 #else
 		gdk_cursor_unref(cursor);
 #endif
@@ -1531,7 +1531,7 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 		gdk_window_set_cursor(gtk_widget_get_window(g->drawing_area), cursor);
 		gdk_flush();
 #if GTK_CHECK_VERSION(3,0,0)
-		g_object_unref(cursor)
+		g_object_unref(cursor);
 #else
 		gdk_cursor_unref(cursor);
 #endif
