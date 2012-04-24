@@ -105,6 +105,8 @@ static const value_string sm_pdu_type_value[] = {
 };
 
 /* TODO: Change to useful name once known */
+#define SM_PROTOCOL_X004 0x0004 /* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7188 */
+/* RUDP/SM stack called BSM V1 (version 1 versus Version 0 used for SS7). */
 #define SM_PROTOCOL_X100 0x0100
 #define SM_PROTOCOL_X101 0x0101
 #define SM_PROTOCOL_X114 0x0114
@@ -131,6 +133,7 @@ static gint ett_sm = -1;
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t mtp3_handle;
+static dissector_handle_t q931_handle;
 static dissector_handle_t data_handle;
 
 /* Code to actually dissect the packets */
@@ -166,6 +169,41 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		protocol = tvb_get_ntohs(tvb,offset);
 		offset = offset + 2;
 		switch(protocol){
+		/* start case RUDP BSM v.1  ---------------------------------------------------------- */
+		case SM_PROTOCOL_X004:
+			if (!tree)
+				return;
+
+			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, FALSE);
+			offset = offset +2;
+			msg_type = tvb_get_ntohs(tvb,offset);
+			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
+				"Message type: %s (0x%0x)", val_to_str(msg_type, sm_pdu_type_value, "reserved"),
+				msg_type);
+			msg_type = tvb_get_ntohs(tvb,offset);
+			offset = offset + 2;
+			proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, FALSE);
+			offset = offset + 2;
+			proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, FALSE);
+			offset = offset +2;
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			length = tvb_get_ntohs(tvb,offset);
+			offset = offset +2;
+			proto_item_set_len(ti, 16);
+
+			if (length > 0) {
+				next_tvb = tvb_new_subset(tvb, offset, length, length);
+
+				if ((msg_type == PDU_MTP3_TO_SLT || msg_type == PDU_MTP3_FROM_SLT)) {
+					call_dissector(q931_handle, next_tvb, pinfo, tree);
+				} else {
+					call_dissector(data_handle, next_tvb, pinfo, tree);
+				}
+			}
+
+			break;
+			/* end case RUDP BSM v.1 ---------------------------------------------------------- */
+
 		case SM_PROTOCOL_X100:
 		case SM_PROTOCOL_X122:
 			if (!tree)
@@ -365,6 +403,7 @@ proto_reg_handoff_sm(void)
 {
 	sdp_handle  = find_dissector("sdp");
 	mtp3_handle = find_dissector("mtp3");
+	q931_handle = find_dissector("q931");
 	data_handle = find_dissector("data");
 }
 
