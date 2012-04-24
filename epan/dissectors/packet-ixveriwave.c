@@ -272,14 +272,11 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 version, length;
     guint length_remaining;
     guint64 vw_startt=0, vw_endt=0;
-    gint32 vwf_txf;
     guint32 true_length;
     guint32 vw_latency, vw_pktdur, vw_flowid;
     guint16 vw_vcid, vw_msdu_length, vw_seqnum;
     tvbuff_t *next_tvb;
     ifg_info *p_ifg_info;
-
-    vwf_txf = 0;
 
     offset = 0;
     version = tvb_get_letohs(tvb, offset);
