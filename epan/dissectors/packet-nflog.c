@@ -34,24 +34,24 @@
 
 /* nfulnl_attr_type enum from <linux/netfilter/nfnetlink_log.h> */
 enum ws_nfulnl_attr_type {
-    WS_NFULA_UNSPEC,
-    WS_NFULA_PACKET_HDR,
-    WS_NFULA_MARK,         /* __u32 nfmark */
-    WS_NFULA_TIMESTAMP,        /* nfulnl_msg_packet_timestamp */
-    WS_NFULA_IFINDEX_INDEV,        /* __u32 ifindex */
-    WS_NFULA_IFINDEX_OUTDEV,       /* __u32 ifindex */
-    WS_NFULA_IFINDEX_PHYSINDEV,    /* __u32 ifindex */
-    WS_NFULA_IFINDEX_PHYSOUTDEV,   /* __u32 ifindex */
-    WS_NFULA_HWADDR,           /* nfulnl_msg_packet_hw */
-    WS_NFULA_PAYLOAD,          /* opaque data payload */
-    WS_NFULA_PREFIX,           /* string prefix */
-    WS_NFULA_UID,          /* user id of socket */
-    WS_NFULA_SEQ,          /* instance-local sequence number */
-    WS_NFULA_SEQ_GLOBAL,       /* global sequence number */
-    WS_NFULA_GID,          /* group id of socket */
-    WS_NFULA_HWTYPE,           /* hardware type */
-    WS_NFULA_HWHEADER,         /* hardware header */
-    WS_NFULA_HWLEN,            /* hardware header length */
+	WS_NFULA_UNSPEC,
+	WS_NFULA_PACKET_HDR,
+	WS_NFULA_MARK,               /* __u32 nfmark */
+	WS_NFULA_TIMESTAMP,          /* nfulnl_msg_packet_timestamp */
+	WS_NFULA_IFINDEX_INDEV,      /* __u32 ifindex */
+	WS_NFULA_IFINDEX_OUTDEV,     /* __u32 ifindex */
+	WS_NFULA_IFINDEX_PHYSINDEV,  /* __u32 ifindex */
+	WS_NFULA_IFINDEX_PHYSOUTDEV, /* __u32 ifindex */
+	WS_NFULA_HWADDR,             /* nfulnl_msg_packet_hw */
+	WS_NFULA_PAYLOAD,            /* opaque data payload */
+	WS_NFULA_PREFIX,             /* string prefix */
+	WS_NFULA_UID,                /* user id of socket */
+	WS_NFULA_SEQ,                /* instance-local sequence number */
+	WS_NFULA_SEQ_GLOBAL,         /* global sequence number */
+	WS_NFULA_GID,                /* group id of socket */
+	WS_NFULA_HWTYPE,             /* hardware type */
+	WS_NFULA_HWHEADER,           /* hardware header */
+	WS_NFULA_HWLEN,              /* hardware header length */
 };
 
 #define BYTE_ORDER_AUTO 0
@@ -60,8 +60,8 @@ enum ws_nfulnl_attr_type {
 
 static enum_val_t byte_order_types[] = {
     { "Auto", "Auto", BYTE_ORDER_AUTO },
-    { "LE", "LE", BYTE_ORDER_BE },
-    { "BE", "BE", BYTE_ORDER_LE },
+    { "LE",   "LE",   BYTE_ORDER_BE },
+    { "BE",   "BE",   BYTE_ORDER_LE },
     { NULL, NULL, 0 }
 };
 
@@ -90,37 +90,37 @@ static dissector_handle_t ip6_handle;
 static dissector_handle_t data_handle;
 
 static const value_string _linux_family_vals[] = {
-    { LINUX_AF_INET, "IP" },
-    { LINUX_AF_INET6, "IPv6" },
-    { 0, NULL }
+	{ LINUX_AF_INET,  "IP" },
+	{ LINUX_AF_INET6, "IPv6" },
+	{ 0, NULL }
 };
 
 static const value_string _encoding_vals[] = {
-	{ ENC_BIG_ENDIAN, "Big Endian" },
+	{ ENC_BIG_ENDIAN,    "Big Endian" },
 	{ ENC_LITTLE_ENDIAN, "Little Endian" },
-	{ ENC_NA, "Unknown" },
+	{ ENC_NA,            "Unknown" },
 	{ 0, NULL }
 };
 
 static const value_string nflog_tlv_vals[] = {
-	{ WS_NFULA_UNSPEC, "NFULA_UNSPEC" },
-	{ WS_NFULA_PACKET_HDR, "NFULA_PACKET_HDR" },
-	{ WS_NFULA_MARK, "NFULA_MARK" },
-	{ WS_NFULA_TIMESTAMP, "NFULA_TIMESTAMP" },
-	{ WS_NFULA_IFINDEX_INDEV, "NFULA_IFINDEX_INDEV" },
-	{ WS_NFULA_IFINDEX_OUTDEV, "NFULA_IFINDEX_OUTDEV" },
-	{ WS_NFULA_IFINDEX_PHYSINDEV, "NFULA_IFINDEX_PHYSINDEV" },
+	{ WS_NFULA_UNSPEC,             "NFULA_UNSPEC" },
+	{ WS_NFULA_PACKET_HDR,         "NFULA_PACKET_HDR" },
+	{ WS_NFULA_MARK,               "NFULA_MARK" },
+	{ WS_NFULA_TIMESTAMP,          "NFULA_TIMESTAMP" },
+	{ WS_NFULA_IFINDEX_INDEV,      "NFULA_IFINDEX_INDEV" },
+	{ WS_NFULA_IFINDEX_OUTDEV,     "NFULA_IFINDEX_OUTDEV" },
+	{ WS_NFULA_IFINDEX_PHYSINDEV,  "NFULA_IFINDEX_PHYSINDEV" },
 	{ WS_NFULA_IFINDEX_PHYSOUTDEV, "NFULA_IFINDEX_PHYSOUTDEV" },
-	{ WS_NFULA_HWADDR, "NFULA_HWADDR" },
-	{ WS_NFULA_PAYLOAD, "NFULA_PAYLOAD" },
-	{ WS_NFULA_PREFIX, "NFULA_PREFIX" },
-	{ WS_NFULA_UID, "NFULA_UID" },
-	{ WS_NFULA_SEQ, "NFULA_SEQ" },
-	{ WS_NFULA_SEQ_GLOBAL, "NFULA_SEQ_GLOBAL" },
-	{ WS_NFULA_GID, "NFULA_GID" },
-	{ WS_NFULA_HWTYPE, "NFULA_HWTYPE" },
-	{ WS_NFULA_HWHEADER, "NFULA_HWHEADER" },
-	{ WS_NFULA_HWLEN, "NFULA_HWLEN" },
+	{ WS_NFULA_HWADDR,             "NFULA_HWADDR" },
+	{ WS_NFULA_PAYLOAD,            "NFULA_PAYLOAD" },
+	{ WS_NFULA_PREFIX,             "NFULA_PREFIX" },
+	{ WS_NFULA_UID,                "NFULA_UID" },
+	{ WS_NFULA_SEQ,                "NFULA_SEQ" },
+	{ WS_NFULA_SEQ_GLOBAL,         "NFULA_SEQ_GLOBAL" },
+	{ WS_NFULA_GID,                "NFULA_GID" },
+	{ WS_NFULA_HWTYPE,             "NFULA_HWTYPE" },
+	{ WS_NFULA_HWHEADER,           "NFULA_HWHEADER" },
+	{ WS_NFULA_HWLEN,              "NFULA_HWLEN" },
 	{ 0, NULL }
 };
 
@@ -214,7 +214,8 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(nflog_tree, hf_nflog_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		ti = proto_tree_add_uint(nflog_tree, hf_nflog_encoding, tvb, offset, tvb_length_remaining(tvb, offset), enc);
+		ti = proto_tree_add_uint(nflog_tree, hf_nflog_encoding,
+					 tvb, offset, tvb_length_remaining(tvb, offset), enc);
 		PROTO_ITEM_SET_GENERATED(ti);
 	}
 
@@ -237,7 +238,11 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (nflog_tree) {
 			gboolean handled = FALSE;
 
-			ti = proto_tree_add_bytes_format(nflog_tree, hf_nflog_tlv, tvb, offset, tlv_len, NULL, "TLV Type: %s (%u), Length: %u", val_to_str_const(tlv_type, nflog_tlv_vals, "Unknown"), tlv_type, tlv_len);
+			ti = proto_tree_add_bytes_format(nflog_tree, hf_nflog_tlv,
+							 tvb, offset, tlv_len, NULL,
+							 "TLV Type: %s (%u), Length: %u",
+							 val_to_str_const(tlv_type, nflog_tlv_vals, "Unknown"),
+							 tlv_type, tlv_len);
 			tlv_tree = proto_item_add_subtree(ti, ett_nflog_tlv);
 
 			proto_tree_add_item(tlv_tree, hf_nflog_tlv_length, tvb, offset + 0, 2, enc);
@@ -247,26 +252,30 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				case WS_NFULA_PREFIX:
 					if (value_len >= 1) {
-						proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix, tvb, offset + 4, value_len, ENC_NA);
+						proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix,
+								    tvb, offset + 4, value_len, ENC_NA);
 						handled = TRUE;
 					}
 					break;
 				case WS_NFULA_UID:
 					if (value_len == 4) {
-						proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid,
+								    tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
 						handled = TRUE;
 					}
 					break;
 				case WS_NFULA_GID:
 					if (value_len == 4) {
-						proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid,
+								    tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
 						handled = TRUE;
 					}
 					break;
 			}
 
 			if (!handled)
-					proto_tree_add_item(tlv_tree, hf_nflog_tlv_unknown, tvb, offset + 4, value_len, ENC_NA);
+					proto_tree_add_item(tlv_tree, hf_nflog_tlv_unknown,
+							    tvb, offset + 4, value_len, ENC_NA);
 		}
 
 		if (tlv_type == WS_NFULA_PAYLOAD)
@@ -344,7 +353,8 @@ proto_register_nflog(void)
 	proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
 
 	pref = prefs_register_protocol(proto_nflog, NULL);
-	prefs_register_enum_preference(pref, "byte_order_type", "Byte Order", "Byte Order", &nflog_byte_order, byte_order_types, FALSE);
+	prefs_register_enum_preference(pref, "byte_order_type", "Byte Order", "Byte Order",
+				       &nflog_byte_order, byte_order_types, FALSE);
 
 	register_dissector("nflog", dissect_nflog, proto_nflog);
 
