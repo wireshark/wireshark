@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
@@ -215,6 +216,7 @@ static int ett_nas_eps_cmn_add_info = -1;
 
 /* Global variables */
 static packet_info *gpinfo;
+static gboolean g_nas_eps_dissect_plain = FALSE;
 
 guint8 eps_nas_gen_msg_cont_type = 0;
 
@@ -4491,6 +4493,56 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     }
 
 }
+
+static void
+dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item  *item;
+    proto_tree  *nas_eps_tree;
+    guint8      pd;
+    int     offset = 0;
+
+    /* Save pinfo */
+    gpinfo = pinfo;
+
+    /* make entry in the Protocol column on summary display */
+    col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
+
+    item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_NA);
+    nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
+
+    pd = tvb_get_guint8(tvb,offset)&0x0f;
+    switch (pd){
+        case 2:
+            /* EPS session management messages.
+             * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
+             */
+            disect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree, offset);
+            break;
+        case 7:
+            /* EPS mobility management messages.
+             * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
+             */
+            dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, TRUE);
+            break;
+        case 15:
+            /* Special conformance testing functions for User Equipment messages.
+             * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
+             */
+            if (gsm_a_dtap_handle){
+                tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector(gsm_a_dtap_handle, new_tvb,pinfo, nas_eps_tree);
+                break;
+            } /* else fall through default */
+        default:
+            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",
+                                pd,
+                                val_to_str_const(pd, protocol_discriminator_vals, "unknown"));
+            break;
+    }
+
+}
+
 /* TS 24.301 8.2.1
  * 9    General message format and information elements coding
  * 9.1  Overview
@@ -4532,9 +4584,21 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32     len;
     guint32     msg_auth_code;
 
+    len = tvb_length(tvb);
+    /* The protected NAS message header is 6 octets long, and the NAS message header is at least 2 octets long. */
+    /* If the length of the tvbuffer is less than 8 octets, we can safely conclude the message is not protected. */
+    if (len < 8) {
+        dissect_nas_eps_plain(tvb, pinfo, tree);
+		return;
+    }
+
+	if (g_nas_eps_dissect_plain) {
+		dissect_nas_eps_plain(tvb, pinfo, tree);
+		return;
+	}
+
     /* Save pinfo */
     gpinfo = pinfo;
-    len = tvb_length(tvb);
 
     /* make entry in the Protocol column on summary display */
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
@@ -4630,59 +4694,18 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-static void
-dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void
+proto_reg_handoff_nas_eps(void)
 {
-    proto_item  *item;
-    proto_tree  *nas_eps_tree;
-    guint8      pd;
-    int     offset = 0;
-
-    /* Save pinfo */
-    gpinfo = pinfo;
-
-    /* make entry in the Protocol column on summary display */
-    col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
-
-    item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_NA);
-    nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
-
-    pd = tvb_get_guint8(tvb,offset)&0x0f;
-    switch (pd){
-        case 2:
-            /* EPS session management messages.
-             * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
-             */
-            disect_nas_eps_esm_msg(tvb, pinfo, nas_eps_tree, offset);
-            break;
-        case 7:
-            /* EPS mobility management messages.
-             * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
-             */
-            dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, TRUE);
-            break;
-        case 15:
-            /* Special conformance testing functions for User Equipment messages.
-             * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
-             */
-            if (gsm_a_dtap_handle){
-                tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, offset);
-                call_dissector(gsm_a_dtap_handle, new_tvb,pinfo, nas_eps_tree);
-                break;
-            } /* else fall through default */
-        default:
-            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",
-                                pd,
-                                val_to_str_const(pd, protocol_discriminator_vals, "unknown"));
-            break;
-    }
-
+    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+    lpp_handle = find_dissector("lpp");
 }
 
 void
 proto_register_nas_eps(void) {
     guint       i;
     guint       last_offset;
+	module_t	*nas_eps_module;
 
     /* List of fields */
 
@@ -5464,11 +5487,9 @@ proto_register_nas_eps(void) {
 
     /* Register dissector */
     register_dissector("nas-eps_plain", dissect_nas_eps_plain, proto_nas_eps);
-}
 
-void
-proto_reg_handoff_nas_eps(void)
-{
-    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-    lpp_handle = find_dissector("lpp");
+    /* Register configuration options to always dissect as plain messages */
+    nas_eps_module = prefs_register_protocol(proto_nas_eps, proto_reg_handoff_nas_eps);
+
+    prefs_register_bool_preference(nas_eps_module, "dissect_plain", "Force dissect as plain NAS EPS", "Always dissect NAS EPS messages as plain", &g_nas_eps_dissect_plain);
 }

@@ -41,6 +41,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
+#include "packet-ntp.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp			= -1;
@@ -105,6 +106,8 @@ static int hf_diameter_3gpp_idr_flags_bit1 = -1;
 static int hf_diameter_3gpp_idr_flags_bit2 = -1;
 static int hf_diameter_3gpp_idr_flags_bit3 = -1;
 static int hf_diameter_3gpp_idr_flags_bit4 = -1;
+static int hf_diameter_3gpp_sgsn_ipv6_addr = -1;
+static int hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer = -1;
 static gint diameter_3gpp_path_ett = -1;
 static gint diameter_3gpp_msisdn_ett = -1;
 static gint diameter_3gpp_feature_list_ett = -1;
@@ -121,7 +124,18 @@ static gint diameter_3gpp_idr_flags_ett = -1;
 /* Dissector handles */
 static dissector_handle_t xml_handle;
 
+/* AVP Code: 15 3GPP-SGSN-IPv6-Address */
+static int
+dissect_diameter_3gpp_sgsn_ipv6_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
 
+	proto_tree_add_item(tree, hf_diameter_3gpp_sgsn_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+
+	offset += 16;
+
+	return offset;
+}
 
 
 /* AVP Code: 600 Visited-Network-Identifier
@@ -365,6 +379,21 @@ dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto
 
 }
 
+/* AVP Code: 929 MBMS-Data-Transfer-Start */
+/* AVP Code: 930 MBMS-Data-Transfer-Stop */
+static int
+dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	const gchar *time_str;
+
+	time_str = tvb_ntp_fmt_ts(tvb, offset);
+	proto_tree_add_string(tree, hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, tvb, offset, 8, time_str);
+	offset+=8;
+
+	return offset;
+}
+
 /* AVP Code: 1405 ULR-Flags */
 static int
 dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
@@ -605,6 +634,9 @@ proto_reg_handoff_diameter_3gpp(void)
 	/* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
 	/* Registered by packet-gtp.c */
 
+	/* AVP Code: 15 3GPP-SGSN-IPv6-Address */
+	dissector_add_uint("diameter.3gpp", 15, new_create_dissector_handle(dissect_diameter_3gpp_sgsn_ipv6_addr, proto_diameter_3gpp));
+
 	/* AVP Code: 22 3GPP-User-Location-Info
 	 * Registered by packet-gtpv2.c
 	 */
@@ -647,6 +679,12 @@ proto_reg_handoff_diameter_3gpp(void)
 
 	/* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
 	dissector_add_uint("diameter.3gpp", 918, new_create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
+
+	/* AVP Code: 929 MBMS-Data-Transfer-Start */
+	dissector_add_uint("diameter.3gpp", 929, new_create_dissector_handle(dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, proto_diameter_3gpp));
+
+	/* AVP Code: 930 MBMS-Data-Transfer-Stop */
+	dissector_add_uint("diameter.3gpp", 930, new_create_dissector_handle(dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, proto_diameter_3gpp));
 
 	/* AVP Code: 1405 ULR-Flags */
 	dissector_add_uint("diameter.3gpp", 1405, new_create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
@@ -979,6 +1017,16 @@ proto_register_diameter_3gpp(void)
 		{ &hf_diameter_3gpp_idr_flags_bit4,
 			{ "Current Location Request", "diameter.3gpp.idr_flags_bit4",
 			FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_sgsn_ipv6_addr,
+			{ "SGSN IPv6 Address", "diameter.3gpp.sgsn_ipv6_addr",
+			FT_IPv6, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer,
+			{ "Absolute Time of MBMS Data Transfer", "diameter.3gpp.mbms_abs_time_ofmbms_data_tfer",
+			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 	};
