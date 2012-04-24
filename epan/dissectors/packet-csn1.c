@@ -405,7 +405,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         {
           if (remaining_bits_len >= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length)
           {
-             proto_tree_add_split_bits_crumb(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset, 
+             proto_tree_add_split_bits_crumb(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset,
                                              pDescr->descr.crumb_spec, pDescr->i);
 
           remaining_bits_len -= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length;
@@ -624,7 +624,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               ti = proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s", pDescr->sz);
               test_tree = proto_item_add_subtree(ti, ett_csn1);
             } else {
-	      test_tree = tree;
+              test_tree = tree;
             }
 
             csnStreamInit(&arT, bit_offset, remaining_bits_len);
@@ -1594,7 +1594,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         no_of_bits = callback(tree, tvb, pvDATA(data, pDescr->i), pvDATA(data, pDescr->offset), bit_offset, ett_csn1);
         bit_offset += no_of_bits;
-        
+
         pDescr++;
         break;
       }

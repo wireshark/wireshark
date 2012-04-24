@@ -40,7 +40,7 @@
 /*
  * See section 4.3.1 of RFC 1547, and
  *
- *	http://www.nethelp.no/net/cisco-hdlc.txt
+ *    http://www.nethelp.no/net/cisco-hdlc.txt
  */
 
 static int proto_chdlc = -1;
@@ -76,31 +76,31 @@ static dissector_handle_t data_handle;
  * wouldn't be in the Ethernet dissector table, and check that
  * table first and the Ethernet dissector table if that fails.
  */
-#define CISCO_SLARP	0x8035	/* Cisco SLARP protocol */
+#define CISCO_SLARP     0x8035  /* Cisco SLARP protocol */
 
 static dissector_table_t subdissector_table;
 
 static const value_string chdlc_address_vals[] = {
-	{CHDLC_ADDR_UNICAST,   "Unicast"},
-	{CHDLC_ADDR_MULTICAST, "Multicast"},
-	{0,                    NULL}
+  {CHDLC_ADDR_UNICAST,   "Unicast"},
+  {CHDLC_ADDR_MULTICAST, "Multicast"},
+  {0,                    NULL}
 };
 
 const value_string chdlc_vals[] = {
-	{0x2000,               "Cisco Discovery Protocol"},
-	{ETHERTYPE_IP,         "IP"},
-	{ETHERTYPE_IPv6,       "IPv6"},
-	{CISCO_SLARP,          "SLARP"},
-	{ETHERTYPE_DEC_LB,     "DEC LanBridge"},
-	{CHDLCTYPE_BPDU,       "Spanning Tree BPDU"},
-	{ETHERTYPE_ATALK,      "Appletalk"},
-	{ETHERTYPE_AARP,       "AARP"},
-	{ETHERTYPE_IPX,        "Netware IPX/SPX"},
-	{ETHERTYPE_ETHBRIDGE,  "Transparent Ethernet bridging" },
-	{CHDLCTYPE_OSI,        "OSI" },
-	{ETHERTYPE_MPLS,       "MPLS unicast"},
-	{ETHERTYPE_MPLS_MULTI, "MPLS multicast"},
-	{0,                     NULL}
+  {0x2000,               "Cisco Discovery Protocol"},
+  {ETHERTYPE_IP,         "IP"},
+  {ETHERTYPE_IPv6,       "IPv6"},
+  {CISCO_SLARP,          "SLARP"},
+  {ETHERTYPE_DEC_LB,     "DEC LanBridge"},
+  {CHDLCTYPE_BPDU,       "Spanning Tree BPDU"},
+  {ETHERTYPE_ATALK,      "Appletalk"},
+  {ETHERTYPE_AARP,       "AARP"},
+  {ETHERTYPE_IPX,        "Netware IPX/SPX"},
+  {ETHERTYPE_ETHBRIDGE,  "Transparent Ethernet bridging" },
+  {CHDLCTYPE_OSI,        "OSI" },
+  {ETHERTYPE_MPLS,       "MPLS unicast"},
+  {ETHERTYPE_MPLS_MULTI, "MPLS multicast"},
+  {0,                     NULL}
 };
 
 void
@@ -121,15 +121,15 @@ capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld ) {
 
 void
 chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
-	  packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
-	  int chdlctype_id)
+          packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
+          int chdlctype_id)
 {
-  tvbuff_t   *next_tvb;
-  int padbyte = 0;
+  tvbuff_t *next_tvb;
+  int       padbyte = 0;
 
   if (tree) {
     proto_tree_add_uint(fh_tree, chdlctype_id, tvb,
-			offset_after_chdlctype - 2, 2, chdlc_type);
+                        offset_after_chdlctype - 2, 2, chdlc_type);
   }
 
   padbyte = tvb_get_guint8(tvb, offset_after_chdlctype);
@@ -147,7 +147,7 @@ chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
 
   /* do lookup with the subdissector table */
   if (!dissector_try_uint(subdissector_table, chdlc_type, next_tvb, pinfo, tree)) {
-	col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlc_type);
+    col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlc_type);
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
@@ -159,8 +159,8 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
-  guint8     addr;
-  guint16    proto;
+  guint8      addr;
+  guint16     proto;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -221,7 +221,7 @@ proto_register_chdlc(void)
 
 /* subdissector code */
   subdissector_table = register_dissector_table("chdlctype",
-	"Cisco HDLC frame type", FT_UINT16, BASE_HEX);
+                                                "Cisco HDLC frame type", FT_UINT16, BASE_HEX);
 
   register_dissector("chdlc", dissect_chdlc, proto_chdlc);
 
@@ -229,11 +229,11 @@ proto_register_chdlc(void)
   chdlc_module = prefs_register_protocol(proto_chdlc, NULL);
 
   prefs_register_enum_preference(chdlc_module,
-	"fcs_type",
-	"CHDLC Frame Checksum Type",
-	"The type of CHDLC frame checksum (none, 16-bit, 32-bit)",
-	&chdlc_fcs_decode,
-	fcs_options, ENC_BIG_ENDIAN);
+        "fcs_type",
+        "CHDLC Frame Checksum Type",
+        "The type of CHDLC frame checksum (none, 16-bit, 32-bit)",
+        &chdlc_fcs_decode,
+        fcs_options, ENC_BIG_ENDIAN);
 
 }
 
@@ -242,21 +242,24 @@ proto_reg_handoff_chdlc(void)
 {
   dissector_handle_t chdlc_handle;
 
-  data_handle = find_dissector("data");
+  data_handle  = find_dissector("data");
   chdlc_handle = find_dissector("chdlc");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC, chdlc_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
 }
 
-#define SLARP_REQUEST	0
-#define SLARP_REPLY	1
-#define SLARP_LINECHECK	2
+
+
+
+#define SLARP_REQUEST   0
+#define SLARP_REPLY     1
+#define SLARP_LINECHECK 2
 
 static const value_string slarp_ptype_vals[] = {
-	{SLARP_REQUEST,   "Request"},
-	{SLARP_REPLY,     "Reply"},
-	{SLARP_LINECHECK, "Line keepalive"},
-	{0,               NULL}
+  {SLARP_REQUEST,   "Request"},
+  {SLARP_REPLY,     "Reply"},
+  {SLARP_LINECHECK, "Line keepalive"},
+  {0,               NULL}
 };
 
 static void
@@ -264,10 +267,10 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *slarp_tree = NULL;
-  guint32 code;
-  guint32 addr;
-  guint32 mysequence;
-  guint32 yoursequence;
+  guint32     code;
+  guint32     addr;
+  guint32     mysequence;
+  guint32     yoursequence;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLARP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -283,31 +286,31 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case SLARP_REQUEST:
   case SLARP_REPLY:
-	addr = tvb_get_ipv4(tvb, 4);
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
-		     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
-		     get_hostname(addr), tvb_ip_to_str(tvb, 8));
+    addr = tvb_get_ipv4(tvb, 4);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
+                     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
+                     get_hostname(addr), tvb_ip_to_str(tvb, 8));
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       proto_tree_add_item(slarp_tree, hf_slarp_address, tvb, 4, 4, ENC_BIG_ENDIAN);
       proto_tree_add_text(slarp_tree, tvb, 8, 4,
-			  "Netmask: %s", tvb_ip_to_str(tvb, 8));
+                          "Netmask: %s", tvb_ip_to_str(tvb, 8));
     }
     break;
 
   case SLARP_LINECHECK:
     mysequence = tvb_get_ntohl(tvb, 4);
     yoursequence = tvb_get_ntohl(tvb, 8);
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-		     "%s, outgoing sequence %u, returned sequence %u",
-		     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
-		     mysequence, yoursequence);
+        col_add_fstr(pinfo->cinfo, COL_INFO,
+                     "%s, outgoing sequence %u, returned sequence %u",
+                     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
+                     mysequence, yoursequence);
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       proto_tree_add_uint(slarp_tree, hf_slarp_mysequence, tvb, 4, 4,
-			  mysequence);
+                          mysequence);
       proto_tree_add_uint(slarp_tree, hf_slarp_mysequence, tvb, 8, 4,
-			  yoursequence);
+                          yoursequence);
     }
     break;
 
@@ -316,7 +319,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       call_dissector(data_handle, tvb_new_subset_remaining(tvb, 4), pinfo,
-		     slarp_tree);
+                     slarp_tree);
     }
     break;
   }

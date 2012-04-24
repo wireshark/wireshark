@@ -134,11 +134,11 @@ static int
 dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-    proto_item *brp_item = NULL;
-    proto_tree *brp_tree = NULL;
-    gint offset = 0;
-    guint8 type = 0;
-    guint8 packet_type = tvb_get_guint8(tvb, 0);
+    proto_item *brp_item    = NULL;
+    proto_tree *brp_tree    = NULL;
+    gint        offset      = 0;
+    guint8      type        = 0;
+    guint8      packet_type = tvb_get_guint8(tvb, 0);
 
     /* If there is a "tree" requested, we handle that request. */
 
@@ -401,9 +401,9 @@ void proto_register_brp (void)
 
     /* Register preferences */
     prefs_register_uint_preference(brp_module, "port",
-				"BRP Port",
-				"Set the UDP port for BRP messages",
-				10, &global_brp_port);
+                                   "BRP Port",
+                                   "Set the UDP port for BRP messages",
+                                   10, &global_brp_port);
 
     new_register_dissector("brp", dissect_brp, proto_brp);
 }
@@ -411,23 +411,23 @@ void proto_register_brp (void)
 /*--- proto_reg_handoff_brp -------------------------------------------*/
 void proto_reg_handoff_brp(void)
 {
-    static gboolean initialized = FALSE;
+    static gboolean           initialized = FALSE;
     static dissector_handle_t brp_handle;
-    static guint saved_brp_port;
+    static guint              saved_brp_port;
 
     if (!initialized) {
-	brp_handle = new_create_dissector_handle(dissect_brp, proto_brp);
-	dissector_add_handle("udp.port", brp_handle);
-	initialized = TRUE;
+        brp_handle = new_create_dissector_handle(dissect_brp, proto_brp);
+        dissector_add_handle("udp.port", brp_handle);
+        initialized = TRUE;
     } else {
-      if (saved_brp_port != 0) {
-	  dissector_delete_uint("udp.port", saved_brp_port, brp_handle);
-      }
+        if (saved_brp_port != 0) {
+            dissector_delete_uint("udp.port", saved_brp_port, brp_handle);
+        }
     }
 
     /* Set the port number */
     if (global_brp_port != 0) {
- 	dissector_add_uint("udp.port", global_brp_port, brp_handle);
+        dissector_add_uint("udp.port", global_brp_port, brp_handle);
     }
     saved_brp_port = global_brp_port;
 }

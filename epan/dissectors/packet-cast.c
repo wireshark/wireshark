@@ -41,8 +41,8 @@
  * infrastructure for now
  *
  * typedef struct {
- *   guint32	id;
- *   char *	name;
+ *   guint32 id;
+ *   char   *name;
  * } message_id_t;
  */
 
@@ -121,7 +121,7 @@ static const value_string  message_id[] = {
   {0x00D0, "CallDiscoveryprotocol"},
   {0x00D1, "CallControlprotocol"},
 
-  {0     , NULL}	/* terminator */
+  {0     , NULL} /* terminator */
 };
 
 static const value_string  audioCodecTypes[] = {
@@ -141,55 +141,55 @@ static const value_string orcStatus[] = {
 };
 
 static const value_string mediaPayloads[] = {
-  {1   , "Non-standard codec"},
-  {2   , "G.711 A-law 64k"},
-  {3   , "G.711 A-law 56k"},
-  {4   , "G.711 u-law 64k"},
-  {5   , "G.711 u-law 56k"},
-  {6   , "G.722 64k"},
-  {7   , "G.722 56k"},
-  {8   , "G.722 48k"},
-  {9   , "G.723.1"},
-  {10  , "G.728"},
-  {11  , "G.729"},
-  {12  , "G.729 Annex A"},
-  {13  , "IS11172 AudioCap"},	/* IS11172 is an ISO MPEG standard */
-  {14  , "IS13818 AudioCap"},	/* IS13818 is an ISO MPEG standard */
-  {15  , "G.729 Annex B"},
-  {16  , "G.729 Annex A+Annex B"},
-  {18  , "GSM Full Rate"},
-  {19  , "GSM Half Rate"},
-  {20  , "GSM Enhanced Full Rate"},
-  {25  , "Wideband 256k"},
-  {32  , "Data 64k"},
-  {33  , "Data 56k"},
-  {80  , "GSM"},
-  {81  , "ActiveVoice"},
-  {82  , "G.726 32K"},
-  {83  , "G.726 24K"},
-  {84  , "G.726 16K"},
-  {85  , "G.729B"},
-  {86  , "G.729B Low Complexity"},
-	{100 , "H261"},
- 	{101 , "H263"},
-	{102 , "Vieo"},
-	{105 , "T120"},
-	{106 , "H224"},
-	{257 , "RFC2833_DynPayload"},
-  {0  , NULL}
+  {  1 , "Non-standard codec"},
+  {  2 , "G.711 A-law 64k"},
+  {  3 , "G.711 A-law 56k"},
+  {  4 , "G.711 u-law 64k"},
+  {  5 , "G.711 u-law 56k"},
+  {  6 , "G.722 64k"},
+  {  7 , "G.722 56k"},
+  {  8 , "G.722 48k"},
+  {  9 , "G.723.1"},
+  { 10 , "G.728"},
+  { 11 , "G.729"},
+  { 12 , "G.729 Annex A"},
+  { 13 , "IS11172 AudioCap"},  /* IS11172 is an ISO MPEG standard */
+  { 14 , "IS13818 AudioCap"},  /* IS13818 is an ISO MPEG standard */
+  { 15 , "G.729 Annex B"},
+  { 16 , "G.729 Annex A+Annex B"},
+  { 18 , "GSM Full Rate"},
+  { 19 , "GSM Half Rate"},
+  { 20 , "GSM Enhanced Full Rate"},
+  { 25 , "Wideband 256k"},
+  { 32 , "Data 64k"},
+  { 33 , "Data 56k"},
+  { 80 , "GSM"},
+  { 81 , "ActiveVoice"},
+  { 82 , "G.726 32K"},
+  { 83 , "G.726 24K"},
+  { 84 , "G.726 16K"},
+  { 85 , "G.729B"},
+  { 86 , "G.729B Low Complexity"},
+  {100 , "H261"},
+  {101 , "H263"},
+  {102 , "Vieo"},
+  {105 , "T120"},
+  {106 , "H224"},
+  {257 , "RFC2833_DynPayload"},
+  {0   , NULL}
 };
 
 static const value_string cast_Layouts[] = {
-  {0  , "NoLayout"},
-  {1  , "OneByOne"},
-  {2  , "OneByTwo"},
-  {3  , "TwoByTwo"},
-  {4  , "TwoByTwo3Alt1"},
-  {5  , "TwoByTwo3Alt2"},
-  {6  , "ThreeByThree"},
-  {7  , "ThreeByThree6Alt1"},
-  {8  , "ThreeByThree6Alt2"},
-  {9  , "ThreeByThree4Alt1"},
+  { 0 , "NoLayout"},
+  { 1 , "OneByOne"},
+  { 2 , "OneByTwo"},
+  { 3 , "TwoByTwo"},
+  { 4 , "TwoByTwo3Alt1"},
+  { 5 , "TwoByTwo3Alt2"},
+  { 6 , "ThreeByThree"},
+  { 7 , "ThreeByThree6Alt1"},
+  { 8 , "ThreeByThree6Alt2"},
+  { 9 , "ThreeByThree4Alt1"},
   {10 , "ThreeByThree4Alt2"},
   {0  , NULL}
 };
@@ -236,16 +236,16 @@ static const value_string cast_miscCommandType[] = {
 };
 
 static const value_string cast_callStateTypes[] = {
-  {0  , "TsIdle"},
-  {1  , "TsOffHook"},
-  {2  , "TsOnHook"},
-  {3  , "TsRingOut"},
-  {4  , "TsRingIn"},
-  {5  , "TsConnected"},
-  {6  , "TsBusy"},
-  {7  , "TsCongestion"},
-  {8  , "TsHold"},
-  {9  , "TsCallWaiting"},
+  { 0 , "TsIdle"},
+  { 1 , "TsOffHook"},
+  { 2 , "TsOnHook"},
+  { 3 , "TsRingOut"},
+  { 4 , "TsRingIn"},
+  { 5 , "TsConnected"},
+  { 6 , "TsBusy"},
+  { 7 , "TsCongestion"},
+  { 8 , "TsHold"},
+  { 9 , "TsCallWaiting"},
   {10 , "TsCallTransfer"},
   {11 , "TsCallPark"},
   {12 , "TsProceed"},
@@ -271,16 +271,16 @@ static const value_string cast_callSecurityStatusTypes[] = {
 };
 
 
-#define MAX_CUSTOM_PICTURES				6
-#define MAX_SERVICE_TYPE				4
-#define MAX_LAYOUT_WITH_SAME_SERVICE	5
-#define MAX_PICTURE_FORMAT			 5
-#define MAX_REFERENCE_PICTURE		 4
-#define MAX_LEVEL_PREFERENCE		 4
-#define StationMaxVideoCapabilities	10
-#define StationMaxDataCapabilities   5
-#define StationMaxNameSize 40           /* max size of calling party's name  */
-#define StationMaxDirnumSize 24         /* max size of calling or called party dirnum  */
+#define MAX_CUSTOM_PICTURES             6
+#define MAX_SERVICE_TYPE                4
+#define MAX_LAYOUT_WITH_SAME_SERVICE    5
+#define MAX_PICTURE_FORMAT              5
+#define MAX_REFERENCE_PICTURE           4
+#define MAX_LEVEL_PREFERENCE            4
+#define StationMaxVideoCapabilities    10
+#define StationMaxDataCapabilities      5
+#define StationMaxNameSize             40  /* max size of calling party's name */
+#define StationMaxDirnumSize           24  /* max size of calling or called party dirnum  */
 
 
 static void dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -392,7 +392,8 @@ static gboolean cast_desegment = TRUE;
 static dissector_handle_t data_handle;
 
 /* Dissect a single CAST PDU */
-static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset = 0;
 
@@ -462,8 +463,8 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       count = offset+28;
       /* total of 120 bytes */
       for ( i = 0; i < MAX_CUSTOM_PICTURES; i++ ) {
-		    ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 20, "customPictureFormat[%d]", i);
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 20, "customPictureFormat[%d]", i);
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
         proto_tree_add_item(cast_sub_tree, hf_cast_pictureWidth, tvb, count, 4, ENC_LITTLE_ENDIAN);
         count+= 4;
         proto_tree_add_item(cast_sub_tree, hf_cast_pictureHeight, tvb, count, 4, ENC_LITTLE_ENDIAN);
@@ -492,8 +493,8 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         count+= 4;
         cast_sub_tree_sav_sav = cast_sub_tree_sav;
         for ( t = 0; t < MAX_LAYOUT_WITH_SAME_SERVICE; t++ ) {
-		      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 20, "layouts[%d]", t);
-		      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+          ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 20, "layouts[%d]", t);
+          cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
           proto_tree_add_item(cast_sub_tree, hf_cast_layout, tvb, count, 4, ENC_LITTLE_ENDIAN);
           count+= 4;
         }
@@ -661,8 +662,8 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       proto_tree_add_item(cast_tree, hf_cast_DSCPValue, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
 
       /* add video part of union */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 30, "videoParameters");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 30, "videoParameters");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_bitRate, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(cast_sub_tree, hf_cast_pictureFormatCount, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
       cast_sub_tree_sav = cast_sub_tree;
@@ -1033,7 +1034,8 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 /* Get the length of a single CAST PDU */
-static guint get_cast_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint
+get_cast_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   guint32 hdr_data_length;
 
@@ -1050,7 +1052,8 @@ static guint get_cast_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 /* Code to actually dissect the packets */
-static void dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* The general structure of a packet: {IP-Header|TCP-Header|n*CAST}
    * CAST-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
@@ -1088,647 +1091,647 @@ proto_register_cast(void)
   static hf_register_info hf[] = {
     { &hf_cast_data_length,
       { "Data Length", "cast.data_length",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Number of bytes in the data portion.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Number of bytes in the data portion.",
+        HFILL }
     },
 
     { &hf_cast_reserved,
       { "Marker", "cast.marker",
-	FT_UINT32, BASE_HEX, NULL, 0x0,
-	"Marker value should ne zero.",
-	HFILL }
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        "Marker value should ne zero.",
+        HFILL }
     },
 
     /* FIXME: Enable use of message name ???  */
     { &hf_cast_messageid,
       { "Message ID", "cast.messageid",
-	FT_UINT32, BASE_HEX, VALS(message_id), 0x0,
-	"The function requested/done with this message.",
-	HFILL }
+        FT_UINT32, BASE_HEX, VALS(message_id), 0x0,
+        "The function requested/done with this message.",
+        HFILL }
     },
 
     { &hf_cast_version,
       { "Version", "cast.version",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The version in the keepalive version messages.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "The version in the keepalive version messages.",
+        HFILL }
     },
 
     { &hf_cast_ORCStatus,
       { "ORCStatus", "cast.ORCStatus",
-	FT_UINT32, BASE_DEC, VALS(orcStatus), 0x0,
-	"The status of the opened receive channel.",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(orcStatus), 0x0,
+        "The status of the opened receive channel.",
+        HFILL }
     },
 
     { &hf_cast_ipAddress,
       { "IP Address", "cast.ipAddress",
-	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"An IP address",
-	HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        "An IP address",
+        HFILL }
     },
 
     { &hf_cast_portNumber,
       { "Port Number", "cast.portNumber",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"A port number",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "A port number",
+        HFILL }
     },
 
     { &hf_cast_passThruPartyID,
       { "PassThruPartyID", "cast.passThruPartyID",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The pass thru party id",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "The pass thru party id",
+        HFILL }
     },
 
     { &hf_cast_callIdentifier,
       { "Call Identifier", "cast.callIdentifier",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Call identifier for this call.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Call identifier for this call.",
+        HFILL }
     },
 
     { &hf_cast_conferenceID,
       { "Conference ID", "cast.conferenceID",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The conference ID",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "The conference ID",
+        HFILL }
     },
 
     { &hf_cast_payloadType,
       { "PayloadType", "cast.payloadType",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"PayloadType.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "PayloadType.",
+        HFILL }
     },
 
     { &hf_cast_lineInstance,
       { "Line Instance", "cast.lineInstance",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The display call plane associated with this call.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "The display call plane associated with this call.",
+        HFILL }
     },
 
     { &hf_cast_payloadCapability,
       { "PayloadCapability", "cast.payloadCapability",
-	FT_UINT32, BASE_DEC, VALS(mediaPayloads), 0x0,
-	"The payload capability for this media capability structure.",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(mediaPayloads), 0x0,
+        "The payload capability for this media capability structure.",
+        HFILL }
     },
 
     { &hf_cast_isConferenceCreator,
       { "IsConferenceCreator", "cast.isConferenceCreator",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"IsConferenceCreator.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "IsConferenceCreator.",
+        HFILL }
     },
 
     { &hf_cast_payload_rfc_number,
       { "Payload_rfc_number", "cast.payload_rfc_number",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Payload_rfc_number.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Payload_rfc_number.",
+        HFILL }
     },
 
     { &hf_cast_videoCapCount,
       { "VideoCapCount", "cast.videoCapCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"VideoCapCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "VideoCapCount.",
+        HFILL }
     },
 
     { &hf_cast_dataCapCount,
       { "DataCapCount", "cast.dataCapCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"DataCapCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "DataCapCount.",
+        HFILL }
     },
 
     { &hf_cast_RTPPayloadFormat,
       { "RTPPayloadFormat", "cast.RTPPayloadFormat",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"RTPPayloadFormat.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "RTPPayloadFormat.",
+        HFILL }
     },
 
     { &hf_cast_customPictureFormatCount,
       { "CustomPictureFormatCount", "cast.customPictureFormatCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"CustomPictureFormatCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "CustomPictureFormatCount.",
+        HFILL }
     },
 
     { &hf_cast_pictureWidth,
       { "PictureWidth", "cast.pictureWidth",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"PictureWidth.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "PictureWidth.",
+        HFILL }
     },
 
     { &hf_cast_pictureHeight,
       { "PictureHeight", "cast.pictureHeight",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"PictureHeight.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "PictureHeight.",
+        HFILL }
     },
 
     { &hf_cast_pixelAspectRatio,
       { "PixelAspectRatio", "cast.pixelAspectRatio",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"PixelAspectRatio.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "PixelAspectRatio.",
+        HFILL }
     },
 
     { &hf_cast_clockConversionCode,
       { "ClockConversionCode", "cast.clockConversionCode",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ClockConversionCode.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ClockConversionCode.",
+        HFILL }
     },
 
     { &hf_cast_clockDivisor,
       { "ClockDivisor", "cast.clockDivisor",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Clock Divisor.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Clock Divisor.",
+        HFILL }
     },
 
     { &hf_cast_activeStreamsOnRegistration,
       { "ActiveStreamsOnRegistration", "cast.activeStreamsOnRegistration",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ActiveStreamsOnRegistration.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ActiveStreamsOnRegistration.",
+        HFILL }
     },
 
     { &hf_cast_maxBW,
       { "MaxBW", "cast.maxBW",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"MaxBW.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "MaxBW.",
+        HFILL }
     },
 
     { &hf_cast_serviceResourceCount,
       { "ServiceResourceCount", "cast.serviceResourceCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ServiceResourceCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ServiceResourceCount.",
+        HFILL }
     },
 
     { &hf_cast_layoutCount,
       { "LayoutCount", "cast.layoutCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"LayoutCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "LayoutCount.",
+        HFILL }
     },
 
     { &hf_cast_layout,
       { "Layout", "cast.layout",
-	FT_UINT32, BASE_DEC, VALS(cast_Layouts), 0x0,
-	NULL,
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_Layouts), 0x0,
+        NULL,
+        HFILL }
     },
 
     { &hf_cast_maxConferences,
       { "MaxConferences", "cast.maxConferences",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"MaxConferences.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "MaxConferences.",
+        HFILL }
     },
 
     { &hf_cast_activeConferenceOnRegistration,
       { "ActiveConferenceOnRegistration", "cast.activeConferenceOnRegistration",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ActiveConferenceOnRegistration.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ActiveConferenceOnRegistration.",
+        HFILL }
     },
 
     { &hf_cast_transmitOrReceive,
       { "TransmitOrReceive", "cast.transmitOrReceive",
-	FT_UINT32, BASE_DEC, VALS(cast_transmitOrReceive), 0x0,
-	NULL,
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_transmitOrReceive), 0x0,
+        NULL,
+        HFILL }
     },
 
     { &hf_cast_levelPreferenceCount,
       { "LevelPreferenceCount", "cast.levelPreferenceCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"LevelPreferenceCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "LevelPreferenceCount.",
+        HFILL }
     },
 
     { &hf_cast_transmitPreference,
       { "TransmitPreference", "cast.transmitPreference",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"TransmitPreference.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "TransmitPreference.",
+        HFILL }
     },
 
     { &hf_cast_format,
       { "Format", "cast.format",
-	FT_UINT32, BASE_DEC, VALS(cast_formatTypes), 0x0,
-	"Format.",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_formatTypes), 0x0,
+        "Format.",
+        HFILL }
     },
 
     { &hf_cast_maxBitRate,
       { "MaxBitRate", "cast.maxBitRate",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"MaxBitRate.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "MaxBitRate.",
+        HFILL }
     },
 
     { &hf_cast_minBitRate,
       { "MinBitRate", "cast.minBitRate",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"MinBitRate.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "MinBitRate.",
+        HFILL }
     },
 
     { &hf_cast_MPI,
       { "MPI", "cast.MPI",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"MPI.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "MPI.",
+        HFILL }
     },
 
     { &hf_cast_serviceNumber,
       { "ServiceNumber", "cast.serviceNumber",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ServiceNumber.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ServiceNumber.",
+        HFILL }
     },
 
     { &hf_cast_temporalSpatialTradeOffCapability,
       { "TemporalSpatialTradeOffCapability", "cast.temporalSpatialTradeOffCapability",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"TemporalSpatialTradeOffCapability.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "TemporalSpatialTradeOffCapability.",
+        HFILL }
     },
 
     { &hf_cast_stillImageTransmission,
       { "StillImageTransmission", "cast.stillImageTransmission",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"StillImageTransmission.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "StillImageTransmission.",
+        HFILL }
     },
 
     { &hf_cast_h263_capability_bitfield,
       { "H263_capability_bitfield", "cast.h263_capability_bitfield",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"H263_capability_bitfield.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "H263_capability_bitfield.",
+        HFILL }
     },
 
     { &hf_cast_annexNandWFutureUse,
       { "AnnexNandWFutureUse", "cast.annexNandWFutureUse",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"AnnexNandWFutureUse.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "AnnexNandWFutureUse.",
+        HFILL }
     },
 
     { &hf_cast_modelNumber,
       { "ModelNumber", "cast.modelNumber",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ModelNumber.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ModelNumber.",
+        HFILL }
     },
 
     { &hf_cast_bandwidth,
       { "Bandwidth", "cast.bandwidth",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Bandwidth.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Bandwidth.",
+        HFILL }
     },
 
     { &hf_cast_protocolDependentData,
       { "ProtocolDependentData", "cast.protocolDependentData",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ProtocolDependentData.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ProtocolDependentData.",
+        HFILL }
     },
 
     { &hf_cast_DSCPValue,
       { "DSCPValue", "cast.DSCPValue",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"DSCPValue.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "DSCPValue.",
+        HFILL }
     },
 
     { &hf_cast_serviceNum,
       { "ServiceNum", "cast.serviceNum",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ServiceNum.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ServiceNum.",
+        HFILL }
     },
 
     { &hf_cast_precedenceValue,
       { "Precedence", "cast.precedenceValue",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Precedence value",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Precedence value",
+        HFILL }
     },
 
     { &hf_cast_maxStreams,
       { "MaxStreams", "cast.maxStreams",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"32 bit unsigned integer indicating the maximum number of simultansous RTP duplex streams that the client can handle.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "32 bit unsigned integer indicating the maximum number of simultansous RTP duplex streams that the client can handle.",
+        HFILL }
     },
 
     { &hf_cast_millisecondPacketSize,
       { "MS/Packet", "cast.millisecondPacketSize",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"The number of milliseconds of conversation in each packet",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "The number of milliseconds of conversation in each packet",
+        HFILL }
     },
 
     { &hf_cast_echoCancelType,
       { "Echo Cancel Type", "cast.echoCancelType",
-	FT_UINT32, BASE_DEC, VALS(cast_echoCancelTypes), 0x0,
-	"Is echo cancelling enabled or not",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_echoCancelTypes), 0x0,
+        "Is echo cancelling enabled or not",
+        HFILL }
     },
 
     { &hf_cast_g723BitRate,
       { "G723 BitRate", "cast.g723BitRate",
-	FT_UINT32, BASE_DEC, VALS(cast_g723BitRates), 0x0,
-	"The G723 bit rate for this stream/JUNK if not g723 stream",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_g723BitRates), 0x0,
+        "The G723 bit rate for this stream/JUNK if not g723 stream",
+        HFILL }
     },
 
     { &hf_cast_pictureFormatCount,
       { "PictureFormatCount", "cast.pictureFormatCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"PictureFormatCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "PictureFormatCount.",
+        HFILL }
     },
 
     { &hf_cast_confServiceNum,
       { "ConfServiceNum", "cast.confServiceNum",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"ConfServiceNum.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ConfServiceNum.",
+        HFILL }
     },
 
     { &hf_cast_miscCommandType,
       { "MiscCommandType", "cast.miscCommandType",
-	FT_UINT32, BASE_DEC, VALS(cast_miscCommandType), 0x0,
-	NULL,
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_miscCommandType), 0x0,
+        NULL,
+        HFILL }
     },
 
     { &hf_cast_temporalSpatialTradeOff,
       { "TemporalSpatialTradeOff", "cast.temporalSpatialTradeOff",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"TemporalSpatialTradeOff.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "TemporalSpatialTradeOff.",
+        HFILL }
     },
 
     { &hf_cast_firstGOB,
       { "FirstGOB", "cast.firstGOB",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"FirstGOB.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "FirstGOB.",
+        HFILL }
     },
 
     { &hf_cast_numberOfGOBs,
       { "NumberOfGOBs", "cast.numberOfGOBs",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"NumberOfGOBs.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "NumberOfGOBs.",
+        HFILL }
     },
 
     { &hf_cast_firstMB,
       { "FirstMB", "cast.firstMB",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"FirstMB.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "FirstMB.",
+        HFILL }
     },
 
     { &hf_cast_numberOfMBs,
       { "NumberOfMBs", "cast.numberOfMBs",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"NumberOfMBs.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "NumberOfMBs.",
+        HFILL }
     },
 
     { &hf_cast_pictureNumber,
       { "PictureNumber", "cast.pictureNumber",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"PictureNumber.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "PictureNumber.",
+        HFILL }
     },
 
     { &hf_cast_longTermPictureIndex,
       { "LongTermPictureIndex", "cast.longTermPictureIndex",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"LongTermPictureIndex.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "LongTermPictureIndex.",
+        HFILL }
     },
 
     { &hf_cast_recoveryReferencePictureCount,
       { "RecoveryReferencePictureCount", "cast.recoveryReferencePictureCount",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"RecoveryReferencePictureCount.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "RecoveryReferencePictureCount.",
+        HFILL }
     },
 
     { &hf_cast_calledParty,
       { "CalledParty", "cast.calledParty",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"The number called.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "The number called.",
+        HFILL }
     },
 
     { &hf_cast_privacy,
       { "Privacy", "cast.privacy",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Privacy.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Privacy.",
+        HFILL }
     },
 
     { &hf_cast_precedenceLv,
       { "PrecedenceLv", "cast.precedenceLv",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Precedence Level.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Precedence Level.",
+        HFILL }
     },
 
     { &hf_cast_precedenceDm,
       { "PrecedenceDm", "cast.precedenceDm",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"Precedence Domain.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Precedence Domain.",
+        HFILL }
     },
 
     { &hf_cast_callState,
       { "CallState", "cast.callState",
-	FT_UINT32, BASE_DEC, VALS(cast_callStateTypes), 0x0,
-	"CallState.",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_callStateTypes), 0x0,
+        "CallState.",
+        HFILL }
     },
 
     { &hf_cast_callingPartyName,
       { "Calling Party Name", "cast.callingPartyName",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"The passed name of the calling party.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "The passed name of the calling party.",
+        HFILL }
     },
 
     { &hf_cast_callingParty,
       { "Calling Party", "cast.callingParty",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"The passed number of the calling party.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "The passed number of the calling party.",
+        HFILL }
     },
 
     { &hf_cast_calledPartyName,
       { "Called Party Name", "cast.calledPartyName",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"The name of the party we are calling.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "The name of the party we are calling.",
+        HFILL }
     },
 
     { &hf_cast_callType,
       { "Call Type", "cast.callType",
-	FT_UINT32, BASE_DEC, VALS(cast_callTypes), 0x0,
-	"What type of call, in/out/etc",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_callTypes), 0x0,
+        "What type of call, in/out/etc",
+        HFILL }
     },
 
     { &hf_cast_originalCalledPartyName,
       { "Original Called Party Name", "cast.originalCalledPartyName",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"name of the original person who placed the call.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "name of the original person who placed the call.",
+        HFILL }
     },
 
     { &hf_cast_originalCalledParty,
       { "Original Called Party", "cast.originalCalledParty",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"The number of the original calling party.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "The number of the original calling party.",
+        HFILL }
     },
 
     { &hf_cast_lastRedirectingPartyName,
       { "LastRedirectingPartyName", "cast.lastRedirectingPartyName",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"LastRedirectingPartyName.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "LastRedirectingPartyName.",
+        HFILL }
     },
 
     { &hf_cast_lastRedirectingParty,
       { "LastRedirectingParty", "cast.lastRedirectingParty",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"LastRedirectingParty.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "LastRedirectingParty.",
+        HFILL }
     },
 
     { &hf_cast_cgpnVoiceMailbox,
       { "CgpnVoiceMailbox", "cast.cgpnVoiceMailbox",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"CgpnVoiceMailbox.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "CgpnVoiceMailbox.",
+        HFILL }
     },
 
     { &hf_cast_cdpnVoiceMailbox,
       { "CdpnVoiceMailbox", "cast.cdpnVoiceMailbox",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"CdpnVoiceMailbox.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "CdpnVoiceMailbox.",
+        HFILL }
     },
 
     { &hf_cast_originalCdpnVoiceMailbox,
       { "OriginalCdpnVoiceMailbox", "cast.originalCdpnVoiceMailbox",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"OriginalCdpnVoiceMailbox.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "OriginalCdpnVoiceMailbox.",
+        HFILL }
     },
 
     { &hf_cast_lastRedirectingVoiceMailbox,
       { "LastRedirectingVoiceMailbox", "cast.lastRedirectingVoiceMailbox",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"LastRedirectingVoiceMailbox.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "LastRedirectingVoiceMailbox.",
+        HFILL }
     },
 
     { &hf_cast_originalCdpnRedirectReason,
       { "OriginalCdpnRedirectReason", "cast.originalCdpnRedirectReason",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"OriginalCdpnRedirectReason.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "OriginalCdpnRedirectReason.",
+        HFILL }
     },
 
     { &hf_cast_lastRedirectingReason,
       { "LastRedirectingReason", "cast.lastRedirectingReason",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"LastRedirectingReason.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "LastRedirectingReason.",
+        HFILL }
     },
 
     { &hf_cast_callInstance,
       { "CallInstance", "cast.callInstance",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"CallInstance.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "CallInstance.",
+        HFILL }
     },
 
     { &hf_cast_callSecurityStatus,
       { "CallSecurityStatus", "cast.callSecurityStatus",
-	FT_UINT32, BASE_DEC, VALS(cast_callSecurityStatusTypes), 0x0,
-	"CallSecurityStatus.",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(cast_callSecurityStatusTypes), 0x0,
+        "CallSecurityStatus.",
+        HFILL }
     },
 
     { &hf_cast_directoryNumber,
       { "Directory Number", "cast.directoryNumber",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"The number we are reporting statistics for.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "The number we are reporting statistics for.",
+        HFILL }
     },
 
     { &hf_cast_requestorIpAddress,
       { "RequestorIpAddress", "cast.requestorIpAddress",
-	FT_IPv4, BASE_NONE, NULL, 0x0,
-	NULL,
-	HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL,
+        HFILL }
     },
 
     { &hf_cast_stationIpAddress,
       { "StationIpAddress", "cast.stationIpAddress",
-	FT_IPv4, BASE_NONE, NULL, 0x0,
-	NULL,
-	HFILL }
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL,
+        HFILL }
     },
 
     { &hf_cast_stationFriendlyName,
       { "StationFriendlyName", "cast.stationFriendlyName",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"StationFriendlyName.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "StationFriendlyName.",
+        HFILL }
     },
 
     { &hf_cast_stationGUID,
       { "stationGUID", "cast.stationGUID",
-	FT_STRING, BASE_NONE, NULL, 0x0,
-	"stationGUID.",
-	HFILL }
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "stationGUID.",
+        HFILL }
     },
 
     { &hf_cast_audio,
       { "AudioCodec", "cast.audio",
-	FT_UINT32, BASE_DEC, VALS(audioCodecTypes), 0x0,
-	"The audio codec that is in use.",
-	HFILL }
+        FT_UINT32, BASE_DEC, VALS(audioCodecTypes), 0x0,
+        "The audio codec that is in use.",
+        HFILL }
     },
 
     { &hf_cast_bitRate,
       { "BitRate", "cast.bitRate",
-	FT_UINT32, BASE_DEC, NULL, 0x0,
-	"BitRate.",
-	HFILL }
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "BitRate.",
+        HFILL }
     },
 
   };
@@ -1743,9 +1746,8 @@ proto_register_cast(void)
 
   /* Register the protocol name and description */
   proto_cast = proto_register_protocol("Cast Client Control Protocol",
-					 "CAST", "cast");
+                                         "CAST", "cast");
 
-  /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_cast, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 

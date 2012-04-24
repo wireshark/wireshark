@@ -73,27 +73,27 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, ENC_NA);
-	bofl_tree = proto_item_add_subtree(ti, ett_bofl);
+        ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, ENC_NA);
+        bofl_tree = proto_item_add_subtree(ti, ett_bofl);
     }
 
     pdu = tvb_get_ntohl(tvb, 0);
-	col_add_fstr(pinfo->cinfo, COL_INFO,
-	    "PDU: 0x%08x", pdu);
+    col_add_fstr(pinfo->cinfo, COL_INFO,
+        "PDU: 0x%08x", pdu);
     if (tree)
-		proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
+        proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
 
     sequence = tvb_get_ntohl(tvb, 4);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO,
-	    " Sequence: %u", sequence);
+    col_append_fstr(pinfo->cinfo, COL_INFO,
+        " Sequence: %u", sequence);
     if (tree) {
-		proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
+        proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
 
-	len = tvb_length_remaining(tvb, 8);
-	if (len > 0)
-	    proto_tree_add_text(bofl_tree, tvb, 8, len,
-		"Padding (%d byte)", len);
+        len = tvb_length_remaining(tvb, 8);
+        if (len > 0)
+            proto_tree_add_text(bofl_tree, tvb, 8, len,
+                                "Padding (%d byte)", len);
     }
 }
 
@@ -102,24 +102,24 @@ void
 proto_register_bofl(void)
 {
     static hf_register_info hf[] = {
-	{ &hf_bofl_pdu,
-	  { "PDU", "bofl.pdu",
-	    FT_UINT32, BASE_HEX, NULL, 0,
-	    "PDU; normally equals 0x01010000 or 0x01011111", HFILL }
-	},
-	{ &hf_bofl_sequence,
-	  { "Sequence", "bofl.sequence",
-	    FT_UINT32, BASE_DEC, NULL, 0,
-	    "incremental counter", HFILL }
-	}
+        { &hf_bofl_pdu,
+          { "PDU", "bofl.pdu",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            "PDU; normally equals 0x01010000 or 0x01011111", HFILL }
+    },
+        { &hf_bofl_sequence,
+          { "Sequence", "bofl.sequence",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "incremental counter", HFILL }
+        }
     };
 
     static gint *ett[] = {
-	&ett_bofl,
+        &ett_bofl,
     };
 
     proto_bofl = proto_register_protocol("Wellfleet Breath of Life",
-	"BOFL", "bofl");
+                                         "BOFL", "bofl");
     proto_register_field_array(proto_bofl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

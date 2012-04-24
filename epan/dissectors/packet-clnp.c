@@ -29,8 +29,8 @@
 #endif
 
 #include <glib.h>
-#include <epan/prefs.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include "packet-frame.h"
 #include "packet-osi.h"
@@ -188,33 +188,34 @@ static gboolean clnp_reassemble = TRUE;
  *  CLNP part / main entry point
 */
 
-static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *clnp_tree = NULL;
-  proto_item *ti;
-  guint8      cnf_proto_id;
-  guint8      cnf_hdr_len;
-  guint8      cnf_vers;
-  guint8      cnf_ttl;
-  guint8      cnf_type;
-  char        flag_string[6+1];
-  const char *pdu_type_string;
-  proto_tree *type_tree;
-  guint16     segment_length;
-  guint16     du_id = 0;
-  guint16     segment_offset = 0;
-  guint16     cnf_cksum;
-  cksum_status_t cksum_status;
-  int         offset;
-  guchar      src_len, dst_len, nsel, opt_len = 0;
-  const guint8     *dst_addr, *src_addr;
-  guint       next_length;
-  proto_tree *discpdu_tree;
-  gboolean    save_in_error_pkt;
-  fragment_data *fd_head;
-  tvbuff_t   *next_tvb;
-  gboolean    update_col_info = TRUE;
-  gboolean    save_fragmented;
+  proto_tree     *clnp_tree = NULL;
+  proto_item     *ti;
+  guint8          cnf_proto_id;
+  guint8          cnf_hdr_len;
+  guint8          cnf_vers;
+  guint8          cnf_ttl;
+  guint8          cnf_type;
+  char            flag_string[6+1];
+  const char     *pdu_type_string;
+  proto_tree     *type_tree;
+  guint16         segment_length;
+  guint16         du_id = 0;
+  guint16         segment_offset = 0;
+  guint16         cnf_cksum;
+  cksum_status_t  cksum_status;
+  int             offset;
+  guchar          src_len, dst_len, nsel, opt_len = 0;
+  const guint8   *dst_addr, *src_addr;
+  guint           next_length;
+  proto_tree     *discpdu_tree;
+  gboolean        save_in_error_pkt;
+  fragment_data  *fd_head;
+  tvbuff_t       *next_tvb;
+  gboolean        update_col_info = TRUE;
+  gboolean        save_fragmented;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -510,7 +511,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          part of the discarded PDU", i.e. it's like an ICMP error;
          dissect it as a CLNP PDU. */
 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
       next_length = tvb_length_remaining(tvb, offset);
       if (next_length != 0) {
           /* We have payload; dissect it. */
@@ -551,7 +552,8 @@ clnp_reassemble_init(void)
   reassembled_table_init(&clnp_reassembled_table);
 }
 
-void proto_register_clnp(void)
+void
+proto_register_clnp(void)
 {
   static hf_register_info hf[] = {
     { &hf_clnp_id,

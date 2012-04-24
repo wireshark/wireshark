@@ -254,13 +254,13 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * Similar to the M_BIT except that not only bit 0 or 1 but also the
  * end of the message may be encountered when looking for the next element in
  * the message.
- * Covers the case {null | 0 | 1} 
+ * Covers the case {null | 0 | 1}
  *****************************************************************************/
 #define M_BIT_OR_NULL(_STRUCT, _MEMBER, _HF_PTR)\
         {CSN_BIT, 0, {0}, offsetof(_STRUCT, _MEMBER), TRUE, #_MEMBER, {(StreamSerializeFcn_t) _HF_PTR}}
 /******************************************************************************
  * M_NEXT_EXIST(Par1, Par2, Par3)
- * Indicates whether the next element or a group of elements defined in the 
+ * Indicates whether the next element or a group of elements defined in the
  * structure is present or not.
  *      Par1: C structure name
  *      Par2: C structure element name
@@ -274,7 +274,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * M_NEXT_EXIST_LH(Par1, Par2, Par3)
  * similar to the M_NEXT_EXIST except that instead of bit 0/1 which is fetched
  * from the message in order to find out whether the next element/elements are
- * present in the message, the logical operation XOR with the background 
+ * present in the message, the logical operation XOR with the background
  * pattern 0x2B is performed on the read bit before the decision is made.
  *****************************************************************************/
 #define M_NEXT_EXIST_LH(_STRUCT, _MEMBER, _NoOfExisting)\
@@ -283,9 +283,9 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 /******************************************************************************
  * M_NEXT_EXIST_OR_NULL(Par1, Par2, Par3)
  * Similar to the M_NEXT_EXIST except that not only bit 0 or 1 but also the end
- * of the message may be encountered when looking for the next element in the 
+ * of the message may be encountered when looking for the next element in the
  * message.
- * Covers the case {null | 0 | 1 < IE >} 
+ * Covers the case {null | 0 | 1 < IE >}
  *****************************************************************************/
 #define M_NEXT_EXIST_OR_NULL(_STRUCT, _MEMBER, _NoOfExisting)\
         {CSN_NEXT_EXIST, _NoOfExisting, {0}, offsetof(_STRUCT, _MEMBER), TRUE, #_MEMBER, {(StreamSerializeFcn_t)0}}
@@ -295,7 +295,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * Similar to the M_NEXT_EXIST_LH except that not only bit 0 or 1 but also the
  * end of the message may be encountered when looking for the next element in
  * the message.
- * Covers the case {null | L | H < IE >} 
+ * Covers the case {null | L | H < IE >}
  *****************************************************************************/
 #define M_NEXT_EXIST_OR_NULL_LH(_STRUCT, _MEMBER, _NoOfExisting)\
         {CSN_NEXT_EXIST_LH, _NoOfExisting, {(void*)1}, offsetof(_STRUCT, _MEMBER), TRUE, #_MEMBER, {(StreamSerializeFcn_t)0}}
@@ -339,7 +339,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * Similar to the M_UINT except that not only the request set of bits but also the
  * end of the message may be encountered when looking for the next element in
  * the message.
- * Covers the case {null | 0 | 1 < IE >} 
+ * Covers the case {null | 0 | 1 < IE >}
  *****************************************************************************/
 #define M_UINT_OR_NULL(_STRUCT, _MEMBER, _BITS, _HF_PTR)\
         {CSN_UINT, _BITS, {0}, offsetof(_STRUCT, _MEMBER), TRUE, #_MEMBER, {(StreamSerializeFcn_t) _HF_PTR}}
@@ -347,8 +347,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 /******************************************************************************
  * M_UINT_LH(Par1, Par2, Par3, Par4)
  * This macro has the same functionality as M_UINT except that  in addition the
- * logical "exclusive or" operation with the background value "0x2B" is 
- * performed before the final value of the integer number is delivered from the 
+ * logical "exclusive or" operation with the background value "0x2B" is
+ * performed before the final value of the integer number is delivered from the
  * received CSN.1 message
  *****************************************************************************/
 #define M_UINT_LH(_STRUCT, _MEMBER, _BITS, _HF_PTR)\
@@ -419,16 +419,16 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
 /******************************************************************************
  * M_REC_ARRAY(Par1, Par2, Par3, Par4)
- * similar to the M_VAR_ARRAY. The difference is that the size of the array is 
+ * similar to the M_VAR_ARRAY. The difference is that the size of the array is
  * not known in advance and it has to be calculated during unpacking. Its value
- * is stored in a variable which belongs to the same structure as the array. 
- * A zero element terminates the array. The CSN.1 syntax describes it 
+ * is stored in a variable which belongs to the same structure as the array.
+ * A zero element terminates the array. The CSN.1 syntax describes it
  * recursively as:
- * <array> ::={1 <element> <array>| 0} 
+ * <array> ::={1 <element> <array>| 0}
  *
  *      Par1: C structure name
  *      Par2: C structure element name
- *      Par3: name of the structure member where the calculated the size of the 
+ *      Par3: name of the structure member where the calculated the size of the
  *            array will be stored
  *      Par4: length of each element in bits
  *****************************************************************************/
@@ -501,8 +501,8 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * M_UNION(Par1, Par2)
  * Informs the CSN.1 library that a union follows and how many possible choices
  * there are in the union. The actual value of the choice, which points out the
- * chosen element of the union is stored in the uint8 variable and is usually 
- * called UnionType. The elements of the union have to be listed directly after 
+ * chosen element of the union is stored in the uint8 variable and is usually
+ * called UnionType. The elements of the union have to be listed directly after
  * the M_UNION statement.
  *      Par1: C structure name
  *      Par2: number of possible choice in the union
@@ -519,12 +519,12 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
 /******************************************************************************
  * M_CHOICE(Par1, Par2, Par3, Par4)
- * Similar to the M_UNION. In the M_UNION the selected element of all possible 
- * choices in the union is referred as a sequential numbers,  i.e., the first 
- * choice is addressed as choice 0 the second as choice 1, the third as choice 
+ * Similar to the M_UNION. In the M_UNION the selected element of all possible
+ * choices in the union is referred as a sequential numbers,  i.e., the first
+ * choice is addressed as choice 0 the second as choice 1, the third as choice
  * 2 and so on, both in the encoded message and in the variable UnionType which
- * is the part of the message.  In the CSN_CHOICE case, this rule does not 
- * apply. There is free but predefined mapping of the element of the union and 
+ * is the part of the message.  In the CSN_CHOICE case, this rule does not
+ * apply. There is free but predefined mapping of the element of the union and
  * the value which addresses this element.
  * The value of the address is called a selector.
  * After unpacking, this value is then converted to the sequential number of the
@@ -532,14 +532,14 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  *      Par1: C structure name
  *      Par2: C structure element name
  *      Par3: address of an array of type CSN_ChoiceElement_t where all possible
- *            values of the selector are provided, together with the selector 
- *            length expressed in bits and the address of  the CSN_DESCR type 
- *            where the element is defined. For every element in the union 
- *            there is one line in the Choice variable. These lines have to 
- *            appear in the _CHOICE in the same order as the elements in the 
- *            union. The element of the union selected in the message through 
- *            the _CHOICE parameter is after unpacking translated to the 
- *            corresponding sequential number of this element and stored in 
+ *            values of the selector are provided, together with the selector
+ *            length expressed in bits and the address of  the CSN_DESCR type
+ *            where the element is defined. For every element in the union
+ *            there is one line in the Choice variable. These lines have to
+ *            appear in the _CHOICE in the same order as the elements in the
+ *            union. The element of the union selected in the message through
+ *            the _CHOICE parameter is after unpacking translated to the
+ *            corresponding sequential number of this element and stored in
  *            the variable pointed out by the _MEMBER
  *      Par4: number of possible choices in the union
  *****************************************************************************/
@@ -552,15 +552,15 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * displayed to show there was a choice
  *****************************************************************************/
 #define M_CHOICE_IL(_STRUCT, _MEMBER, _CHOICE, _ElementCount)\
-	{CSN_CHOICE, _ElementCount, {(void*)_CHOICE}, offsetof(_STRUCT, _MEMBER), FALSE, NULL, {(StreamSerializeFcn_t)0}}
+  {CSN_CHOICE, _ElementCount, {(void*)_CHOICE}, offsetof(_STRUCT, _MEMBER), FALSE, NULL, {(StreamSerializeFcn_t)0}}
 
 /******************************************************************************
  * M_FIXED(Par1, Par2, Par3)
- * Defines a fixed value of type integer which should be fetched from or stored 
+ * Defines a fixed value of type integer which should be fetched from or stored
  * in  the message
  *      Par1: C structure name
  *      Par2: gives the length of the fixed number in bits.
- *      Par3: the value of the number. If the expected value is not present in 
+ *      Par3: the value of the number. If the expected value is not present in
  *            the message the unpacking procedure is aborted
  *****************************************************************************/
 #define M_FIXED(_STRUCT, _BITS, _BITVALUE)\
@@ -571,21 +571,21 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * Same as M_FIXED but allows to define a custom string for the subtree
  *      Par1: C structure name
  *      Par2: gives the length of the fixed number in bits.
- *      Par3: the value of the number. If the expected value is not present in 
+ *      Par3: the value of the number. If the expected value is not present in
  *            the message the unpacking procedure is aborted
  *      Par4: C string for the text
  *****************************************************************************/
 #define M_FIXED_LABEL(_STRUCT, _BITS, _BITVALUE, _LABEL)\
-	{CSN_FIXED, _BITS, {0}, _BITVALUE, FALSE, _LABEL, {(StreamSerializeFcn_t)0}}
+  {CSN_FIXED, _BITS, {0}, _BITVALUE, FALSE, _LABEL, {(StreamSerializeFcn_t)0}}
 
 /******************************************************************************
  * M_SERIALIZE(Par1, Par2, Par3)
- * Allows using a complete free format of data being encoded or decoded. 
- * When the M_SERIALIZE is encounted during encoding or decoding of a message 
- * the CSNstream program passes the control over to the specified function 
- * together with all necessary parameters about the current position within 
- * the message being unpacked or packed.  When transferring of "serialized" 
- * data to or from the message is finished by the function the CSNstream gets 
+ * Allows using a complete free format of data being encoded or decoded.
+ * When the M_SERIALIZE is encounted during encoding or decoding of a message
+ * the CSNstream program passes the control over to the specified function
+ * together with all necessary parameters about the current position within
+ * the message being unpacked or packed.  When transferring of "serialized"
+ * data to or from the message is finished by the function the CSNstream gets
  * back control over the data stream and continues to work with the message.
  *****************************************************************************/
 #define M_SERIALIZE(_STRUCT, _MEMBER, _LENGTH_LEN, _SERIALIZEFCN)\
@@ -596,7 +596,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
 
 /******************************************************************************
  * M_BITMAP(Par1, Par2, Par3)
- * Defines a type which consists of a bitmap. The size of the bitmap in bits 
+ * Defines a type which consists of a bitmap. The size of the bitmap in bits
  * is fixed and provided by the parameter Par3
  *      Par1: C structure name
  *      Par2: C structure element name
