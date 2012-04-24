@@ -48,13 +48,13 @@ static int hf_oipf_ciplus_dat_id = -1;
 static int hf_oipf_ciplus_dat_len = -1;
 static int hf_oipf_ciplus_data = -1;
 
-/* the application id for this protocol in the CI+ SAS resource 
+/* the application id for this protocol in the CI+ SAS resource
    this is actually a 64bit hex number, we can't use a 64bit number as a key
    for the dissector table directly, we have to process it as a string
    (the string must not be a local variable as glib stores a pointer to
    it in the hash table) */
 static gchar *sas_app_id_str_oipf = "0x0108113101190000";
-     
+
 static const value_string oipf_ciplus_cmd_id[] = {
     { 0x01, "send_msg" },
     { 0x02, "reply_msg" },
@@ -80,12 +80,12 @@ static const value_string oipf_ciplus_dat_id[] = {
 static int
 dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint msg_len;
+    gint        msg_len;
     proto_item *ti;
     proto_tree *oipf_ciplus_tree = NULL;
-    guint offset = 0;
-    guint8 i, send_datatype_nbr;
-    guint16 dat_len;
+    guint       offset           = 0;
+    guint8      i, send_datatype_nbr;
+    guint16     dat_len;
 
     /* an OIPF CI+ message minimally contains command_id (1 byte),
        ca sys id (2 bytes), transaction id (4 bytes) and
