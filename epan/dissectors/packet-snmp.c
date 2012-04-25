@@ -861,8 +861,9 @@ indexing_done:
 				unsigned int_val_offset = value_offset;
 				unsigned i;
 
-				max_len = 5; min_len = 1;
-				if (value_len > (guint)max_len && value_len < (guint)min_len) {
+				max_len = 4; min_len = 1;
+				if (value_len > (guint)max_len || value_len < (guint)min_len) {
+					hfid = hf_snmp_integer32_value;
 					format_error = BER_WRONG_LENGTH;
 					break;
 				}
@@ -2758,7 +2759,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1538 "../../asn1/snmp/packet-snmp-template.c"
+#line 1539 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3675,7 +3676,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2190 "../../asn1/snmp/packet-snmp-template.c"
+#line 2191 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3715,7 +3716,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2206 "../../asn1/snmp/packet-snmp-template.c"
+#line 2207 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 

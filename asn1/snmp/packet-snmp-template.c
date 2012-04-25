@@ -759,8 +759,9 @@ indexing_done:
 				unsigned int_val_offset = value_offset;
 				unsigned i;
 
-				max_len = 5; min_len = 1;
-				if (value_len > (guint)max_len && value_len < (guint)min_len) {
+				max_len = 4; min_len = 1;
+				if (value_len > (guint)max_len || value_len < (guint)min_len) {
+					hfid = hf_snmp_integer32_value;
 					format_error = BER_WRONG_LENGTH;
 					break;
 				}
