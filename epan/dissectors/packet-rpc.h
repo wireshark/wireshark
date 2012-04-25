@@ -38,7 +38,7 @@
 #define AUTH_SHORT 2
 #define AUTH_DES 3
 #define AUTH_KRB4 4
-#define AUTH_DH 5
+#define AUTH_RSA 5
 #define RPCSEC_GSS 6
 #define AUTH_GSSAPI 300001
 /* Pseudo-flavors used for security mechanisms while using 
