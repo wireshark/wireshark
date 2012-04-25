@@ -1818,6 +1818,11 @@ static void attach_mac_lte_info(packet_info *pinfo)
         p_mac_lte_info->isPHICHNACK = outhdr_values[i];
     }
 
+    if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+        /* R10 parameter not set yet */
+        p_mac_lte_info->isExtendedBSRSizes = FALSE;
+    }
+
     /* Store info in packet */
     set_mac_lte_proto_data(pinfo, p_mac_lte_info);
 }

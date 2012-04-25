@@ -37,7 +37,7 @@
 
 /* Described in:
  * 3GPP TS 36.321 Evolved Universal Terrestrial Radio Access (E-UTRA)
- *                Medium Access Control (MAC) protocol specification (Release 8)
+ *                Medium Access Control (MAC) protocol specification (Release 10)
  */
 
 
@@ -165,6 +165,11 @@ static int hf_mac_lte_control_long_bsr_buffer_size_0 = -1;
 static int hf_mac_lte_control_long_bsr_buffer_size_1 = -1;
 static int hf_mac_lte_control_long_bsr_buffer_size_2 = -1;
 static int hf_mac_lte_control_long_bsr_buffer_size_3 = -1;
+static int hf_mac_lte_control_short_ext_bsr_buffer_size = -1;
+static int hf_mac_lte_control_long_ext_bsr_buffer_size_0 = -1;
+static int hf_mac_lte_control_long_ext_bsr_buffer_size_1 = -1;
+static int hf_mac_lte_control_long_ext_bsr_buffer_size_2 = -1;
+static int hf_mac_lte_control_long_ext_bsr_buffer_size_3 = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
 static int hf_mac_lte_control_timing_advance_reserved = -1;
@@ -176,6 +181,29 @@ static int hf_mac_lte_control_ue_contention_resolution_time_since_msg3 = -1;
 static int hf_mac_lte_control_power_headroom = -1;
 static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom_level = -1;
+static int hf_mac_lte_control_ext_power_headroom = -1;
+static int hf_mac_lte_control_ext_power_headroom_c7 = -1;
+static int hf_mac_lte_control_ext_power_headroom_c6 = -1;
+static int hf_mac_lte_control_ext_power_headroom_c5 = -1;
+static int hf_mac_lte_control_ext_power_headroom_c4 = -1;
+static int hf_mac_lte_control_ext_power_headroom_c3 = -1;
+static int hf_mac_lte_control_ext_power_headroom_c2 = -1;
+static int hf_mac_lte_control_ext_power_headroom_c1 = -1;
+static int hf_mac_lte_control_ext_power_headroom_reserved = -1;
+static int hf_mac_lte_control_ext_power_headroom_power_backoff = -1;
+static int hf_mac_lte_control_ext_power_headroom_value = -1;
+static int hf_mac_lte_control_ext_power_headroom_level = -1;
+static int hf_mac_lte_control_ext_power_headroom_reserved2 = -1;
+static int hf_mac_lte_control_ext_power_headroom_pcmaxc = -1;
+static int hf_mac_lte_control_activation_deactivation = -1;
+static int hf_mac_lte_control_activation_deactivation_c7 = -1;
+static int hf_mac_lte_control_activation_deactivation_c6 = -1;
+static int hf_mac_lte_control_activation_deactivation_c5 = -1;
+static int hf_mac_lte_control_activation_deactivation_c4 = -1;
+static int hf_mac_lte_control_activation_deactivation_c3 = -1;
+static int hf_mac_lte_control_activation_deactivation_c2 = -1;
+static int hf_mac_lte_control_activation_deactivation_c1 = -1;
+static int hf_mac_lte_control_activation_deactivation_reserved = -1;
 static int hf_mac_lte_control_mch_scheduling_info = -1;
 static int hf_mac_lte_control_mch_scheduling_info_lcid = -1;
 static int hf_mac_lte_control_mch_scheduling_info_stop_mtch = -1;
@@ -216,8 +244,11 @@ static int ett_mac_lte_rar_ul_grant = -1;
 static int ett_mac_lte_bsr = -1;
 static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
+static int ett_mac_lte_activation_deactivation = -1;
 static int ett_mac_lte_contention_resolution = -1;
 static int ett_mac_lte_power_headroom = -1;
+static int ett_mac_lte_extended_power_headroom = -1;
+static int ett_mac_lte_extended_power_headroom_cell = -1;
 static int ett_mac_lte_mch_scheduling_info = -1;
 static int ett_mac_lte_oob = -1;
 
@@ -302,7 +333,27 @@ static const value_string modulation_type_vals[] =
     { 0, NULL }
 };
 
+static const true_false_string mac_lte_scell_ph_vals = {
+    "Reported",
+    "Not reported"
+};
 
+static const true_false_string mac_lte_power_backoff_vals = {
+    "Applied",
+    "Not applied"
+};
+
+static const true_false_string mac_lte_ph_value_vals = {
+    "Based on reference format",
+    "Based on real transmission"
+};
+
+static const true_false_string mac_lte_scell_status_vals = {
+    "Activated",
+    "Deactivated"
+};
+
+#define ACTIVATION_DEACTIVATION_LCID           0x1b
 #define UE_CONTENTION_RESOLUTION_IDENTITY_LCID 0x1c
 #define TIMING_ADVANCE_LCID                    0x1d
 #define DRX_COMMAND_LCID                       0x1e
@@ -321,6 +372,7 @@ static const value_string dlsch_lcid_vals[] =
     { 8,                                        "8"},
     { 9,                                        "9"},
     { 10,                                       "10"},
+    { ACTIVATION_DEACTIVATION_LCID          ,   "Activation/Deactivation"},
     { UE_CONTENTION_RESOLUTION_IDENTITY_LCID,   "UE Contention Resolution Identity"},
     { TIMING_ADVANCE_LCID                   ,   "Timing Advance"},
     { DRX_COMMAND_LCID                      ,   "DRX Command"},
@@ -328,31 +380,33 @@ static const value_string dlsch_lcid_vals[] =
     { 0, NULL }
 };
 
-#define POWER_HEADROOM_REPORT_LCID    0x1a
-#define CRNTI_LCID                    0x1b
-#define TRUNCATED_BSR_LCID            0x1c
-#define SHORT_BSR_LCID                0x1d
-#define LONG_BSR_LCID                 0x1e
+#define EXTENDED_POWER_HEADROOM_REPORT_LCID 0x19
+#define POWER_HEADROOM_REPORT_LCID          0x1a
+#define CRNTI_LCID                          0x1b
+#define TRUNCATED_BSR_LCID                  0x1c
+#define SHORT_BSR_LCID                      0x1d
+#define LONG_BSR_LCID                       0x1e
 
 static const value_string ulsch_lcid_vals[] =
 {
-    { 0,                            "CCCH"},
-    { 1,                            "1"},
-    { 2,                            "2"},
-    { 3,                            "3"},
-    { 4,                            "4"},
-    { 5,                            "5"},
-    { 6,                            "6"},
-    { 7,                            "7"},
-    { 8,                            "8"},
-    { 9,                            "9"},
-    { 10,                           "10"},
-    { POWER_HEADROOM_REPORT_LCID,   "Power Headroom Report"},
-    { CRNTI_LCID,                   "C-RNTI"},
-    { TRUNCATED_BSR_LCID,           "Truncated BSR"},
-    { SHORT_BSR_LCID,               "Short BSR"},
-    { LONG_BSR_LCID,                "Long BSR"},
-    { PADDING_LCID,                 "Padding" },
+    { 0,                                   "CCCH"},
+    { 1,                                   "1"},
+    { 2,                                   "2"},
+    { 3,                                   "3"},
+    { 4,                                   "4"},
+    { 5,                                   "5"},
+    { 6,                                   "6"},
+    { 7,                                   "7"},
+    { 8,                                   "8"},
+    { 9,                                   "9"},
+    { 10,                                  "10"},
+    { EXTENDED_POWER_HEADROOM_REPORT_LCID, "Extended Power Headroom Report"},
+    { POWER_HEADROOM_REPORT_LCID,          "Power Headroom Report"},
+    { CRNTI_LCID,                          "C-RNTI"},
+    { TRUNCATED_BSR_LCID,                  "Truncated BSR"},
+    { SHORT_BSR_LCID,                      "Short BSR"},
+    { LONG_BSR_LCID,                       "Long BSR"},
+    { PADDING_LCID,                        "Padding" },
     { 0, NULL }
 };
 
@@ -432,22 +486,22 @@ static const value_string rar_bi_vals[] =
 static const value_string buffer_size_vals[] =
 {
     { 0,      "BS = 0"},
-    { 1,      "0   < BS <= 10"},
-    { 2,      "10  < BS <= 12"},
-    { 3,      "12  < BS <= 14"},
-    { 4,      "14  < BS <= 17"},
-    { 5,      "17  < BS <= 19"},
-    { 6,      "19  < BS <= 22"},
-    { 7,      "22  < BS <= 26"},
-    { 8,      "26  < BS <= 31"},
-    { 9,      "31  < BS <= 36"},
-    { 10,     "36  < BS <= 42"},
-    { 11,     "42  < BS <= 49"},
-    { 12,     "49  < BS <= 57"},
-    { 13,     "47  < BS <= 67"},
-    { 14,     "67  < BS <= 78"},
-    { 15,     "78  < BS <= 91"},
-    { 16,     "91  < BS <= 107"},
+    { 1,      "0 < BS <= 10"},
+    { 2,      "10 < BS <= 12"},
+    { 3,      "12 < BS <= 14"},
+    { 4,      "14 < BS <= 17"},
+    { 5,      "17 < BS <= 19"},
+    { 6,      "19 < BS <= 22"},
+    { 7,      "22 < BS <= 26"},
+    { 8,      "26 < BS <= 31"},
+    { 9,      "31 < BS <= 36"},
+    { 10,     "36 < BS <= 42"},
+    { 11,     "42 < BS <= 49"},
+    { 12,     "49 < BS <= 57"},
+    { 13,     "47 < BS <= 67"},
+    { 14,     "67 < BS <= 78"},
+    { 15,     "78 < BS <= 91"},
+    { 16,     "91 < BS <= 107"},
     { 17,     "107 < BS <= 125"},
     { 18,     "125 < BS <= 146"},
     { 19,     "146 < BS <= 171"},
@@ -462,7 +516,7 @@ static const value_string buffer_size_vals[] =
     { 28,     "603 < BS <= 706"},
     { 29,     "706 < BS <= 826"},
     { 30,     "826 < BS <= 967"},
-    { 31,     "967  < BS <= 1132"},
+    { 31,     "967 < BS <= 1132"},
     { 32,     "1132 < BS <= 1326"},
     { 33,     "1326 < BS <= 1552"},
     { 34,     "1552 < BS <= 1817"},
@@ -499,7 +553,77 @@ static const value_string buffer_size_vals[] =
 };
 static value_string_ext buffer_size_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_vals);
 
-static const value_string power_headroom_size_vals[] =
+static const value_string ext_buffer_size_vals[] =
+{
+    { 0,      "BS = 0"},
+    { 1,      "0 < BS <= 10"},
+    { 2,      "10 < BS <= 13"},
+    { 3,      "13 < BS <= 16"},
+    { 4,      "16 < BS <= 19"},
+    { 5,      "19 < BS <= 23"},
+    { 6,      "23 < BS <= 29"},
+    { 7,      "29 < BS <= 35"},
+    { 8,      "35 < BS <= 43"},
+    { 9,      "43 < BS <= 53"},
+    { 10,     "53 < BS <= 65"},
+    { 11,     "65 < BS <= 80"},
+    { 12,     "80 < BS <= 98"},
+    { 13,     "98 < BS <= 120"},
+    { 14,     "120 < BS <= 147"},
+    { 15,     "147 < BS <= 181"},
+    { 16,     "181 < BS <= 223"},
+    { 17,     "223 < BS <= 274"},
+    { 18,     "274 < BS <= 337"},
+    { 19,     "337 < BS <= 414"},
+    { 20,     "414 < BS <= 509"},
+    { 21,     "509 < BS <= 625"},
+    { 22,     "625 < BS <= 769"},
+    { 23,     "769 < BS <= 945"},
+    { 24,     "945 < BS <= 1162"},
+    { 25,     "1162 < BS <= 1429"},
+    { 26,     "1429 < BS <= 1757"},
+    { 27,     "1757 < BS <= 2161"},
+    { 28,     "2161 < BS <= 2657"},
+    { 29,     "2657 < BS <= 3267"},
+    { 30,     "3267 < BS <= 4017"},
+    { 31,     "4017 < BS <= 4940"},
+    { 32,     "4940 < BS <= 6074"},
+    { 33,     "6074 < BS <= 7469"},
+    { 34,     "7469 < BS <= 9185"},
+    { 35,     "9185 < BS <= 11294"},
+    { 36,     "11294 < BS <= 13888"},
+    { 37,     "13888 < BS <= 17077"},
+    { 38,     "17077 < BS <= 20999"},
+    { 39,     "20999 < BS <= 25822"},
+    { 40,     "25822 < BS <= 31752"},
+    { 41,     "31752 < BS <= 39045"},
+    { 42,     "39045 < BS <= 48012"},
+    { 43,     "48012 < BS <= 59039"},
+    { 44,     "59039 < BS <= 72598"},
+    { 45,     "72598 < BS <= 89272"},
+    { 46,     "89272 < BS <= 109774"},
+    { 47,     "109774 < BS <= 134986"},
+    { 48,     "134986 < BS <= 165989"},
+    { 49,     "165989 < BS <= 204111"},
+    { 50,     "204111 < BS <= 250990"},
+    { 51,     "250990 < BS <= 308634"},
+    { 52,     "308634 < BS <= 379519"},
+    { 53,     "379519 < BS <= 466683"},
+    { 54,     "466683 < BS <= 573866"},
+    { 55,     "573866 < BS <= 705666"},
+    { 56,     "705666 < BS <= 867737"},
+    { 57,     "867737 < BS <= 1067031"},
+    { 58,     "1067031 < BS <= 1312097"},
+    { 59,     "1312097 < BS <= 1613447"},
+    { 60,     "1613447 < BS <= 1984009"},
+    { 61,     "1984009 < BS <= 2439678"},
+    { 62,     "2439678 < BS <= 3000000"},
+    { 63,     "BS > 3000000"},
+    { 0, NULL }
+};
+static value_string_ext ext_buffer_size_vals_ext = VALUE_STRING_EXT_INIT(ext_buffer_size_vals);
+
+static const value_string power_headroom_vals[] =
 {
     { 0,      "-23 <= PH < -22"},
     { 1,      "-22 <= PH < -21"},
@@ -567,7 +691,77 @@ static const value_string power_headroom_size_vals[] =
     { 63,     "PH >= 40"},
     { 0, NULL }
 };
-static value_string_ext power_headroom_size_vals_ext = VALUE_STRING_EXT_INIT(power_headroom_size_vals);
+static value_string_ext power_headroom_vals_ext = VALUE_STRING_EXT_INIT(power_headroom_vals);
+
+static const value_string pcmaxc_vals[] =
+{
+    { 0,      "Pcmax,c < -29"},
+    { 1,      "-29 <= Pcmax,c < -28"},
+    { 2,      "-28 <= Pcmax,c < -27"},
+    { 3,      "-27 <= Pcmax,c < -26"},
+    { 4,      "-26 <= Pcmax,c < -25"},
+    { 5,      "-25 <= Pcmax,c < -24"},
+    { 6,      "-24 <= Pcmax,c < -23"},
+    { 7,      "-23 <= Pcmax,c < -22"},
+    { 8,      "-22 <= Pcmax,c < -21"},
+    { 9,      "-21 <= Pcmax,c < -20"},
+    { 10,     "-20 <= Pcmax,c < -19"},
+    { 11,     "-19 <= Pcmax,c < -18"},
+    { 12,     "-18 <= Pcmax,c < -17"},
+    { 13,     "-17 <= Pcmax,c < -16"},
+    { 14,     "-16 <= Pcmax,c < -15"},
+    { 15,     "-15 <= Pcmax,c < -14"},
+    { 16,     "-14 <= Pcmax,c < -13"},
+    { 17,     "-13 <= Pcmax,c < -12"},
+    { 18,     "-12 <= Pcmax,c < -11"},
+    { 19,     "-11 <= Pcmax,c < -10"},
+    { 20,     "-10 <= Pcmax,c < -9"},
+    { 21,     "-9 <= Pcmax,c < -8"},
+    { 22,     "-8 <= Pcmax,c < -7"},
+    { 23,     "-7 <= Pcmax,c < -6"},
+    { 24,     "-6 <= Pcmax,c < -5"},
+    { 25,     "-5 <= Pcmax,c < -4"},
+    { 26,     "-4 <= Pcmax,c < -3"},
+    { 27,     "-3 <= Pcmax,c < -2"},
+    { 28,     "-2 <= Pcmax,c < -1"},
+    { 29,     "-1 <= Pcmax,c < 0"},
+    { 30,     "0 <= Pcmax,c < 1"},
+    { 31,     "1 <= Pcmax,c < 2"},
+    { 32,     "2 <= Pcmax,c < 3"},
+    { 33,     "3 <= Pcmax,c < 4"},
+    { 34,     "4 <= Pcmax,c < 5"},
+    { 35,     "5 <= Pcmax,c < 6"},
+    { 36,     "6 <= Pcmax,c < 7"},
+    { 37,     "7 <= Pcmax,c < 8"},
+    { 38,     "8 <= Pcmax,c < 9"},
+    { 39,     "9 <= Pcmax,c < 10"},
+    { 40,     "10 <= Pcmax,c < 11"},
+    { 41,     "11 <= Pcmax,c < 12"},
+    { 42,     "12 <= Pcmax,c < 13"},
+    { 43,     "13 <= Pcmax,c < 14"},
+    { 44,     "14 <= Pcmax,c < 15"},
+    { 45,     "15 <= Pcmax,c < 16"},
+    { 46,     "16 <= Pcmax,c < 17"},
+    { 47,     "17 <= Pcmax,c < 18"},
+    { 48,     "18 <= Pcmax,c < 19"},
+    { 49,     "19 <= Pcmax,c < 20"},
+    { 50,     "20 <= Pcmax,c < 21"},
+    { 51,     "21 <= Pcmax,c < 22"},
+    { 52,     "22 <= Pcmax,c < 23"},
+    { 53,     "23 <= Pcmax,c < 24"},
+    { 54,     "24 <= Pcmax,c < 25"},
+    { 55,     "25 <= Pcmax,c < 26"},
+    { 56,     "26 <= Pcmax,c < 27"},
+    { 57,     "27 <= Pcmax,c < 28"},
+    { 58,     "28 <= Pcmax,c < 29"},
+    { 59,     "29 <= Pcmax,c < 30"},
+    { 60,     "30 <= Pcmax,c < 31"},
+    { 61,     "31 <= Pcmax,c < 32"},
+    { 62,     "32 <= Pcmax,c < 33"},
+    { 63,     "33 <= Pcmax,c"},
+    { 0, NULL }
+};
+static value_string_ext pcmaxc_vals_ext = VALUE_STRING_EXT_INIT(pcmaxc_vals);
 
 static const value_string header_only_vals[] =
 {
@@ -987,7 +1181,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 p_mac_lte_info->subframeNumber = tvb_get_ntohs(tvb, offset);
                 offset += 2;
                 break;
-            case MAC_LTE_PREDFINED_DATA_TAG:
+            case MAC_LTE_PREDEFINED_DATA_TAG:
                 p_mac_lte_info->isPredefinedData = tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
@@ -999,6 +1193,9 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 p_mac_lte_info->crcStatusValid = TRUE;
                 p_mac_lte_info->detailed_phy_info.dl_info.crc_status = tvb_get_guint8(tvb, offset);
                 offset++;
+                break;
+            case MAC_LTE_EXT_BSR_SIZES_TAG:
+                p_mac_lte_info->isExtendedBSRSizes = TRUE;
                 break;
 
             case MAC_LTE_PAYLOAD_TAG:
@@ -1642,6 +1839,7 @@ static int is_fixed_sized_control_element(guint8 lcid, guint8 direction)
     else {
         /* Assume Downlink */
         switch (lcid) {
+            case ACTIVATION_DEACTIVATION_LCID:
             case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
             case TIMING_ADVANCE_LCID:
             case DRX_COMMAND_LCID:
@@ -2761,6 +2959,45 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /****************************/
             /* DL-SCH Control PDUs      */
             switch (lcids[n]) {
+                case ACTIVATION_DEACTIVATION_LCID:
+                    {
+                        proto_item *ad_ti;
+                        proto_tree *ad_tree;
+                        proto_item *ti;
+                        guint8 reserved;
+
+                        /* Create AD root */
+                        ad_ti = proto_tree_add_string_format(tree,
+                                                             hf_mac_lte_control_activation_deactivation,
+                                                             tvb, offset, 1,
+                                                             "",
+                                                             "Activation/Deactivation");
+                        ad_tree = proto_item_add_subtree(ad_ti, ett_mac_lte_activation_deactivation);
+
+                        proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c7,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c6,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c5,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c4,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c3,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c2,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c1,
+                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        ti = proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_reserved,
+                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
+                        reserved = tvb_get_guint8(tvb, offset) & 0x01;
+                        if (reserved != 0) {
+                            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                                   "Activation/Deactivation Reserved bit not zero");
+                        }
+                        offset++;
+                    }
+                    break;
                 case UE_CONTENTION_RESOLUTION_IDENTITY_LCID:
                     {
                         proto_item *cr_ti;
@@ -2909,6 +3146,160 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /**********************************/
             /* UL-SCH Control PDUs            */
             switch (lcids[n]) {
+                case EXTENDED_POWER_HEADROOM_REPORT_LCID:
+                    {
+                        proto_item *ephr_ti;
+                        proto_tree *ephr_tree;
+                        proto_item *ti;
+                        proto_tree *ephr_cell_tree;
+                        proto_item *ephr_cell_ti;
+                        guint8 scell_bitmap;
+                        guint8 scell_count;
+                        guint8 byte;
+                        guint i;
+                        guint32 curr_offset = offset;
+                        guint32 computed_header_offset;
+
+                        if (pdu_lengths[n] == -1) {
+                            /* Control Element size is the remaining PDU */
+                            pdu_lengths[n] = (gint16)tvb_length_remaining(tvb, curr_offset);
+                        }
+
+                        /* Create EPHR root */
+                        ephr_ti = proto_tree_add_string_format(tree,
+                                                               hf_mac_lte_control_ext_power_headroom,
+                                                               tvb, curr_offset, pdu_lengths[n],
+                                                               "",
+                                                               "Extended Power Headroom");
+                        ephr_tree = proto_item_add_subtree(ephr_ti, ett_mac_lte_extended_power_headroom);
+
+                        scell_bitmap = tvb_get_guint8(tvb, curr_offset);
+                        proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_c7,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_c6,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_c5,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_c4,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_c3,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_c2,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_c1,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        /* Check Reserved bit */
+                        ti = proto_tree_add_item(ephr_tree, hf_mac_lte_control_ext_power_headroom_reserved,
+                                                 tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        if (scell_bitmap & 0x01) {
+                            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                                   "Extended Power Headroom Reserved bit not zero");
+                        }
+                        curr_offset++;
+
+                        /* Compute expected header size to deduce if PH Type 2 report is present or not */
+                        /* First count the number of SCells */
+                        for (i = 0, scell_count = 0; i < 7; i++) {
+                            if (scell_bitmap & (0x80>>i)) {
+                                scell_count++;
+                            }
+                        }
+                        /* Now quickly parse the header */
+                        computed_header_offset = curr_offset;
+                        for (i = 0; i < scell_count; i++) {
+                            if (tvb_get_guint8(tvb, computed_header_offset) & 0x80) {
+                                computed_header_offset++;
+                            }
+                            computed_header_offset++;
+                        }
+
+                        if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
+                            /* PH Type 2 is present */
+                            if (tvb_get_guint8(tvb, computed_header_offset) & 0x80) {
+                                computed_header_offset++;
+                            }
+                            computed_header_offset++;
+                            if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
+                                expert_add_info_format(pinfo, ephr_ti, PI_MALFORMED, PI_ERROR,
+                                    "Control Element has an unexpected size (computed=%d, actual=%d)",
+                                    computed_header_offset + 1 - curr_offset, pdu_lengths[n]);
+                                offset += pdu_lengths[n];
+                                break;
+                            }
+                            byte = tvb_get_guint8(tvb, curr_offset);
+                            ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, ((byte&0x80)?2:1), "PCell");
+                            ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
+                            proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_value,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_level,
+                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                            proto_item_append_text(ephr_cell_ti, " (%s)",
+                                                   val_to_str_ext_const((byte&0x3f), &power_headroom_vals_ext, "Unknown"));
+                            curr_offset++;
+                            if (byte & 0x80) {
+                                /* Pcmax,c field is present */
+                                byte = tvb_get_guint8(tvb, curr_offset);
+                                /* Check 2 Reserved bits */
+                                ti = proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_reserved2,
+                                                         tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                                if (byte & 0xc0) {
+                                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                                           "Extended Power Headroom Reserved bits not zero (found 0x%x)",
+                                                           (byte & 0xc0) >> 6);
+                                }
+                                proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_pcmaxc,
+                                                    tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                                proto_item_append_text(ephr_cell_ti, " (%s)",
+                                                       val_to_str_ext_const((byte&0x3f), &pcmaxc_vals_ext, "Unknown"));
+                                curr_offset++;
+                            }
+                        } else {
+                            if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
+                                expert_add_info_format(pinfo, ephr_ti, PI_MALFORMED, PI_ERROR,
+                                    "Control Element has an unexpected size (computed=%d, actual=%d)",
+                                    computed_header_offset + 1 - curr_offset, pdu_lengths[n]);
+                                offset += pdu_lengths[n];
+                                break;
+                            }
+                        }
+                        for (i = 1, scell_bitmap>>=1; i <= 7; i++, scell_bitmap>>=1) {
+                            if (scell_bitmap & 0x01) {
+                                byte = tvb_get_guint8(tvb, curr_offset);
+                                ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, ((byte&0x80)?2:1), "SCell Index %u", i);
+                                ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
+                                proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
+                                                    tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_value,
+                                                    tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_level,
+                                                    tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                                proto_item_append_text(ephr_cell_ti, " (%s)",
+                                                       val_to_str_ext_const((byte&0x3f), &power_headroom_vals_ext, "Unknown"));
+                                curr_offset++;
+                                if (byte & 0x80) {
+                                    /* Pcmax,c field is present */
+                                    byte = tvb_get_guint8(tvb, curr_offset);
+                                    /* Check 2 Reserved bits */
+                                    ti = proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_reserved2,
+                                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                                    if (byte & 0xc0) {
+                                        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                                               "Extended Power Headroom Reserved bits not zero (found 0x%x)",
+                                                               (byte & 0xc0) >> 6);
+                                    }
+                                    proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_pcmaxc,
+                                                        tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                                    proto_item_append_text(ephr_cell_ti, " (%s)",
+                                                           val_to_str_ext_const((byte&0x3f), &pcmaxc_vals_ext, "Unknown"));
+                                    curr_offset++;
+                                }
+                            }
+                        }
+                        offset += pdu_lengths[n];
+                    }
+                    break;
                 case POWER_HEADROOM_REPORT_LCID:
                     {
                         proto_item *phr_ti;
@@ -2941,7 +3332,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         /* Show value in root label */
                         proto_item_append_text(phr_ti, " (%s)",
-                                               val_to_str_ext_const(level, &power_headroom_size_vals_ext, "Unknown"));
+                                               val_to_str_ext_const(level, &power_headroom_vals_ext, "Unknown"));
                         offset++;
                     }
 
@@ -2960,6 +3351,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *buffer_size_ti;
                         guint8 lcgid;
                         guint8 buffer_size;
+                        int hfindex;
+                        value_string_ext *p_vs_ext;
+
+                        if (p_mac_lte_info->isExtendedBSRSizes) {
+                            hfindex = hf_mac_lte_control_short_ext_bsr_buffer_size;
+                            p_vs_ext = &ext_buffer_size_vals_ext;
+                        } else {
+                            hfindex = hf_mac_lte_control_short_bsr_buffer_size;
+                            p_vs_ext = &buffer_size_vals_ext;
+                        }
 
                         bsr_ti = proto_tree_add_string_format(tree,
                                                               hf_mac_lte_control_bsr,
@@ -2974,7 +3375,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                     tvb, offset, 1, ENC_BIG_ENDIAN);
                         /* Buffer Size */
                         buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_short_bsr_buffer_size,
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex,
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         if (buffer_size >= global_mac_lte_bsr_warn_threshold) {
@@ -2982,7 +3383,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                    "UE %u - BSR for LCG %u exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
                                                    lcgid,
-                                                   buffer_size, val_to_str_ext_const(buffer_size, &buffer_size_vals_ext, "Unknown"));
+                                                   buffer_size,
+                                                   val_to_str_ext_const(buffer_size, p_vs_ext, "Unknown"));
                         }
 
 
@@ -2997,6 +3399,23 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *bsr_ti;
                         proto_item *buffer_size_ti;
                         guint8     buffer_size[4];
+                        int hfindex[4];
+                        value_string_ext *p_vs_ext;
+
+                        if (p_mac_lte_info->isExtendedBSRSizes) {
+                            hfindex[0] = hf_mac_lte_control_long_ext_bsr_buffer_size_0;
+                            hfindex[1] = hf_mac_lte_control_long_ext_bsr_buffer_size_1;
+                            hfindex[2] = hf_mac_lte_control_long_ext_bsr_buffer_size_2;
+                            hfindex[3] = hf_mac_lte_control_long_ext_bsr_buffer_size_3;
+                            p_vs_ext = &ext_buffer_size_vals_ext;
+                        } else {
+                            hfindex[0] = hf_mac_lte_control_long_bsr_buffer_size_0;
+                            hfindex[1] = hf_mac_lte_control_long_bsr_buffer_size_1;
+                            hfindex[2] = hf_mac_lte_control_long_bsr_buffer_size_2;
+                            hfindex[3] = hf_mac_lte_control_long_bsr_buffer_size_3;
+                            p_vs_ext = &buffer_size_vals_ext;
+                        }
+
                         bsr_ti = proto_tree_add_string_format(tree,
                                                               hf_mac_lte_control_bsr,
                                                               tvb, offset, 3,
@@ -3005,18 +3424,19 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
 
                         /* LCID Group 0 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_0,
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[0],
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
                         if (buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 0 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[0], val_to_str_ext_const(buffer_size[0], &buffer_size_vals_ext, "Unknown"));
+                                                   buffer_size[0],
+                                                   val_to_str_ext_const(buffer_size[0], p_vs_ext, "Unknown"));
                         }
 
                         /* LCID Group 1 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_1,
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[1],
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
                         buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
                         offset++;
@@ -3024,11 +3444,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 1 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[1], val_to_str_ext_const(buffer_size[1], &buffer_size_vals_ext, "Unknown"));
+                                                   buffer_size[1],
+                                                   val_to_str_ext_const(buffer_size[1], p_vs_ext, "Unknown"));
                         }
 
                         /* LCID Group 2 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_2,
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[2],
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
 
                         buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6);
@@ -3037,11 +3458,12 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 2 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[2], val_to_str_ext_const(buffer_size[2], &buffer_size_vals_ext, "Unknown"));
+                                                   buffer_size[2],
+                                                   val_to_str_ext_const(buffer_size[2], p_vs_ext, "Unknown"));
                         }
 
                         /* LCID Group 3 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hf_mac_lte_control_long_bsr_buffer_size_3,
+                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[3],
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
                         offset++;
@@ -3049,15 +3471,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             expert_add_info_format(pinfo, buffer_size_ti, PI_SEQUENCE, PI_WARN,
                                                    "UE %u - BSR for LCG 3 exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
-                                                   buffer_size[3], val_to_str_ext_const(buffer_size[3], &buffer_size_vals_ext, "Unknown"));
+                                                   buffer_size[3],
+                                                   val_to_str_ext_const(buffer_size[3], p_vs_ext, "Unknown"));
                         }
 
                         /* Append summary to parent */
                         proto_item_append_text(bsr_ti, "   0:(%s)  1:(%s)  2:(%s)  3:(%s)",
-                                               val_to_str_ext_const(buffer_size[0], &buffer_size_vals_ext, "Unknown"),
-                                               val_to_str_ext_const(buffer_size[1], &buffer_size_vals_ext, "Unknown"),
-                                               val_to_str_ext_const(buffer_size[2], &buffer_size_vals_ext, "Unknown"),
-                                               val_to_str_ext_const(buffer_size[3], &buffer_size_vals_ext, "Unknown"));
+                                               val_to_str_ext_const(buffer_size[0], p_vs_ext, "Unknown"),
+                                               val_to_str_ext_const(buffer_size[1], p_vs_ext, "Unknown"),
+                                               val_to_str_ext_const(buffer_size[2], p_vs_ext, "Unknown"),
+                                               val_to_str_ext_const(buffer_size[3], p_vs_ext, "Unknown"));
                     }
                     break;
                 case PADDING_LCID:
@@ -4807,6 +5230,36 @@ void proto_register_mac_lte(void)
               "Buffer Size available in logical channel group 3", HFILL
             }
         },
+        { &hf_mac_lte_control_short_ext_bsr_buffer_size,
+            { "Buffer Size",
+              "mac-lte.control.bsr.buffer-size", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ext_buffer_size_vals_ext, 0x3f,
+              "Buffer Size available in all channels in group", HFILL
+            }
+        },
+        { &hf_mac_lte_control_long_ext_bsr_buffer_size_0,
+            { "Buffer Size 0",
+              "mac-lte.control.bsr.buffer-size-0", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ext_buffer_size_vals_ext, 0xfc,
+              "Buffer Size available in logical channel group 0", HFILL
+            }
+        },
+        { &hf_mac_lte_control_long_ext_bsr_buffer_size_1,
+            { "Buffer Size 1",
+              "mac-lte.control.bsr.buffer-size-1", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ext_buffer_size_vals_ext, 0x03f0,
+              "Buffer Size available in logical channel group 1", HFILL
+            }
+        },
+        { &hf_mac_lte_control_long_ext_bsr_buffer_size_2,
+            { "Buffer Size 2",
+              "mac-lte.control.bsr.buffer-size-2", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ext_buffer_size_vals_ext, 0x0fc0,
+              "Buffer Size available in logical channel group 2", HFILL
+            }
+        },
+        { &hf_mac_lte_control_long_ext_bsr_buffer_size_3,
+            { "Buffer Size 3",
+              "mac-lte.control.bsr.buffer-size-3", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ext_buffer_size_vals_ext, 0x3f,
+              "Buffer Size available in logical channel group 3", HFILL
+            }
+        },
         { &hf_mac_lte_control_crnti,
             { "C-RNTI",
               "mac-lte.control.crnti", FT_UINT16, BASE_DEC, 0, 0x0,
@@ -4871,7 +5324,147 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_control_power_headroom_level,
             { "Power Headroom Level",
               "mac-lte.control.power-headroom.level", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
-               &power_headroom_size_vals_ext, 0x3f, "Power Headroom Level in dB", HFILL
+               &power_headroom_vals_ext, 0x3f, "Power Headroom Level in dB", HFILL
+            }
+        },
+
+        { &hf_mac_lte_control_ext_power_headroom,
+            { "Extended Power Headroom",
+              "mac-lte.control.ext-power-headroom", FT_STRING, BASE_NONE,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_c7,
+            { "SCell Index 7 Power Headroom",
+              "mac-lte.control.ext-power-headroom.c7", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_c6,
+            { "SCell Index 6 Power Headroom",
+              "mac-lte.control.ext-power-headroom.c6", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_c5,
+            { "SCell Index 5 Power Headroom",
+              "mac-lte.control.ext-power-headroom.c5", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_c4,
+            { "SCell Index 4 Power Headroom",
+              "mac-lte.control.ext-power-headroom.c4", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_c3,
+            { "SCell Index 3 Power Headroom",
+              "mac-lte.control.ext-power-headroom.c3", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_c2,
+            { "SCell Index 2 Power Headroom",
+              "mac-lte.control.ext-power-headroom.c2", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_c1,
+            { "SCell Index 1 Power Headroom",
+              "mac-lte.control.ext-power-headroom.c1", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_ph_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_reserved,
+            { "Reserved",
+              "mac-lte.control.ext-power-headroom.reserved", FT_UINT8, BASE_DEC,
+              0, 0x01, "Reserved bit, should be 0", HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_power_backoff,
+            { "Power Backoff",
+              "mac-lte.control.ext-power-headroom.power-backoff", FT_BOOLEAN, 8,
+               TFS(&mac_lte_power_backoff_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_value,
+            { "Power Headroom Value",
+              "mac-lte.control.ext-power-headroom.power-headroom-value", FT_BOOLEAN, 8,
+               TFS(&mac_lte_ph_value_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_level,
+            { "Power Headroom Level",
+              "mac-lte.control.ext-power-headroom.level", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+               &power_headroom_vals_ext, 0x3f, "Power Headroom Level in dB", HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_reserved2,
+            { "Reserved",
+              "mac-lte.control.ext-power-headroom.reserved2", FT_UINT8, BASE_DEC,
+              0, 0xc0, "Reserved bits, should be 0", HFILL
+            }
+        },
+        { &hf_mac_lte_control_ext_power_headroom_pcmaxc,
+            { "Configured UE Transmit Power",
+              "mac-lte.control.ext-power-headroom.pcmaxc", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+               &pcmaxc_vals_ext, 0x3f, "Pcmax,c in dBm", HFILL
+            }
+        },
+
+        { &hf_mac_lte_control_activation_deactivation,
+            { "Activation/Deactivation",
+              "mac-lte.control.activation-deactivation", FT_STRING, BASE_NONE,
+              0, 0x0, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_c7,
+            { "SCell Index 7 Status",
+              "mac-lte.control.activation-deactivation.c7", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_status_vals), 0x80, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_c6,
+            { "SCell Index 6 Status",
+              "mac-lte.control.activation-deactivation.c6", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_status_vals), 0x40, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_c5,
+            { "SCell Index 5 Status",
+              "mac-lte.control.activation-deactivation.c5", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_status_vals), 0x20, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_c4,
+            { "SCell Index 4 Status",
+              "mac-lte.control.activation-deactivation.c4", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_status_vals), 0x10, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_c3,
+            { "SCell Index 3 Status",
+              "mac-lte.control.activation-deactivation.c3", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_status_vals), 0x08, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_c2,
+            { "SCell Index 2 Status",
+              "mac-lte.control.activation-deactivation.c2", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_status_vals), 0x04, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_c1,
+            { "SCell Index 1 Status",
+              "mac-lte.control.activation-deactivation.c1", FT_BOOLEAN, 8,
+              TFS(&mac_lte_scell_status_vals), 0x02, NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_activation_deactivation_reserved,
+            { "Reserved",
+              "mac-lte.control.activation-deactivation.reserved", FT_UINT8, BASE_DEC,
+              0, 0x01, "Reserved bit, should be 0", HFILL
             }
         },
 
@@ -5007,8 +5600,11 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_bch,
         &ett_mac_lte_bsr,
         &ett_mac_lte_pch,
+        &ett_mac_lte_activation_deactivation,
         &ett_mac_lte_contention_resolution,
         &ett_mac_lte_power_headroom,
+        &ett_mac_lte_extended_power_headroom,
+        &ett_mac_lte_extended_power_headroom_cell,
         &ett_mac_lte_mch_scheduling_info,
         &ett_mac_lte_oob
     };

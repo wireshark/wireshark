@@ -117,6 +117,9 @@ typedef struct mac_lte_info
     guint8          reTxCount;
     guint8          isPHICHNACK; /* FALSE=PDCCH retx grant, TRUE=PHICH NACK */
 
+    /* UL only.  Indicates if the R10 extendedBSR-Sizes parameter is set */
+    gboolean        isExtendedBSRSizes;
+    
     /* DL only.  Status of CRC check */
     mac_lte_crc_status   crcStatusValid;
 
@@ -236,7 +239,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 #define MAC_LTE_SUBFRAME_TAG        0x04
 /* 2 bytes, network order */
 
-#define MAC_LTE_PREDFINED_DATA_TAG  0x05
+#define MAC_LTE_PREDEFINED_DATA_TAG 0x05
 /* 1 byte */
 
 #define MAC_LTE_RETX_TAG            0x06
@@ -245,6 +248,8 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 #define MAC_LTE_CRC_STATUS_TAG      0x07
 /* 1 byte */
 
+#define MAC_LTE_EXT_BSR_SIZES_TAG   0x08
+/* 0 byte */
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */
