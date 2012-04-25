@@ -39,6 +39,8 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-e212.h"
+#include "packet-gtpv2.h"
+#include "packet-ntp.h"
 
 #define PNAME  "M3 Application Protocol"
 #define PSNAME "M3AP"
@@ -52,6 +54,9 @@ static dissector_handle_t m3ap_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_m3ap = -1;
+
+static int hf_m3ap_Absolute_Time_ofMBMS_Data_value = -1;
+static int hf_m3ap_IPAddress = -1;
 
 #include "packet-m3ap-hf.c"
 
@@ -137,6 +142,16 @@ void proto_register_m3ap(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_m3ap_Absolute_Time_ofMBMS_Data_value,
+	  { "Absolute-Time-ofMBMS-Data-value", "m3ap.Absolute_Time_ofMBMS_Data_value",
+		FT_STRING, BASE_NONE, NULL, 0,
+		NULL, HFILL }
+	},
+    { &hf_m3ap_IPAddress,
+	  { "IPAddress", "m3ap.IPAddress",
+		FT_IPv6, BASE_NONE, NULL, 0,
+		NULL, HFILL }
+	},
 
 #include "packet-m3ap-hfarr.c"
   };

@@ -43,6 +43,7 @@
 #include "packet-s1ap.h"
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
+#include "packet-ntp.h"
 
 static dissector_handle_t nas_eps_handle;
 static dissector_table_t gtpv2_priv_ext_dissector_table;
@@ -366,6 +367,10 @@ static int hf_gtpv2_mbms_dist_indication = -1;
 static int hf_gtpv2_mbms_service_id = -1;
 static int hf_gtpv2_add_flags_for_srvcc_ics = -1;
 static int hf_gtpv2_vsrvcc_flag = -1;
+static int hf_gtpv2_abs_time_mbms_data = -1;
+static int hf_gtpv2_mbms_session_duration_days = -1;
+static int hf_gtpv2_mbms_session_duration_secs = -1;
+static int hf_gtpv2_time_to_data_xfer = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -660,6 +665,7 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_MMBR                   161
 #define GTPV2_IE_MDT_CONFIG             162
 #define GTPV2_IE_APCO                   163
+#define GTPV2_IE_ABS_MBMS_DATA_TF_TIME  164
 /* 164 to 254 reserved for future use */
 #define GTPV2_IE_PRIVATE_EXT            255
 
@@ -762,7 +768,7 @@ static const value_string gtpv2_element_type_vals[] = {
     {135, "Node Type"},                                                         /* Extendable / 8.65 */
     {136, "Fully Qualified Domain Name (FQDN)"},                                /* Variable Length / 8.66 */
     {137, "Transaction Identifier (TI)"},                                       /* Variable Length / 8.68 */
-    {138, "MBMS Session"},                                                      /* Duration Extendable / 8.69 */
+    {138, "MBMS Session Duration"},                                             /* Duration Extendable / 8.69 */
     {139, "MBMS Service Area"},                                                 /* Extendable / 8.70 */
     {140, "MBMS Session Identifier"},                                           /* Extendable / 8.71 */
     {141, "MBMS Flow Identifier"},                                              /* Extendable / 8.72 */
@@ -788,7 +794,8 @@ static const value_string gtpv2_element_type_vals[] = {
     {161, "Max MBR/APN-AMBR (MMBR)"},                                           /* Extendable / 8.92 */
     {162, "MDT Configuration"},                                                 /* Extendable / 8.93 */
     {163, "Additional Protocol Configuration Options (APCO)"},                  /* Extendable / 8.94 */
-    /* 164 to 254 Spare. For future use.  */                                    /* For future use. FFS */
+    {164, "Absolute Time of MBMS Data Transfer"},                               /* Extendable / 8.95 */
+    /* 165 to 254 Spare. For future use.  */                                    /* For future use. FFS */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -4302,7 +4309,7 @@ dissect_gtpv2_ti(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
 /*
  * 8.69 MBMS Session Duration
  */
-static void
+void
 dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
@@ -4312,13 +4319,7 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     guint32 seconds;
      
     /* From 3GPP TS 29.061 17.7.7 MBMS-Session-Duration AVP */
-    /* Total length is three octets; is it suitable to use tvb_get_bits32() in order to extract 24 bits? */
-    /* Bits: ssss ssss ssss ssss sddd dddd where s bits = seconds, d bits = days
-     * Will tvb_get_bits32() put the bits in the correct positions? For seconds
-     * It should be:     0000 0000 0000 000s ssss ssss ssss ssss (maximum = 131,071, maximum allowed = 86,400)
-     * But I fear it is: ssss ssss ssss ssss s000 0000 0000 0000 (maximum = a very big number!)
-     * For days
-     * It should be:     0000 0000 0000 0000 0000 0000 0ddd dddd */
+    /* Bits: ssss ssss ssss ssss sddd dddd where s bits = seconds, d bits = days */
     seconds = tvb_get_bits32(tvb, bit_offset, 17, ENC_BIG_ENDIAN);
     bit_offset += 17;
 
@@ -4331,13 +4332,17 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     } 
 
     /* The lowest value of this AVP (i.e. all 0:s) is reserved to indicate an indefinite value to denote sessions that are expected to be always-on. */
-    if((seconds&days) == 0xffffffff) {
+    if((seconds == 0) && (days == 0)) {
+        proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_days, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_secs, tvb, offset, 3, ENC_BIG_ENDIAN);
         proto_item_append_text(item, "Indefinite (always-on)");
     } else {
         hours = seconds / 60;
         seconds = seconds % 60;
 
-        proto_item_append_text(item, "%d Day(s) %d Hour(s) %d Second(s)", days, hours, seconds);
+        proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_days, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_secs, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_item_append_text(item, "%d day(s), %d hour(s), %d second(s)", days, hours, seconds);
     }
 
     offset += 3;
@@ -4348,24 +4353,30 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 /*
  * 8.70 MBMS Service Area
  */
-static void
+void
 dissect_gtpv2_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
     proto_item *sai_item;
+    guint8 binary_nr;
+    guint16 real_nr;
+    guint16 sai;
+
+    binary_nr = tvb_get_guint8(tvb, offset);
+    real_nr = (guint16)binary_nr + 1;
 
     /* 3GPP TS 29.061 17.7.6 MBMS-Service-Area AVP */
-    proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_string_format(tree, hf_gtpv2_mbms_service_area_nr, tvb, offset, 1, "", "Number of MBMS Service Area codes: %d", real_nr);
     offset += 1;
 
     /* A consecutive list of MBMS Service Area Identities follow, each with a length of two octets. */
     while(offset<length) {
         /* 3GPP TS 23.003 15.3 Structure of MBMS SAI */
-        guint16 sai = tvb_get_bits16(tvb, 0, 16, ENC_BIG_ENDIAN);
+        sai = tvb_get_ntohs(tvb, offset);
         sai_item = proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         /* The value 0 denotes the whole of PLMN as the MBMS Service Area */
         if(sai == 0) {
-            proto_item_append_text(sai_item, "Entire PLMN");
+            proto_item_append_text(sai_item, " Entire PLMN");
         }
         offset += 2;
     }
@@ -4579,7 +4590,7 @@ dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 /* 8.84
  * MBMS Time to Data Transfer
  */
-static void
+void
 dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
@@ -4588,7 +4599,8 @@ dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
     binary_secs = tvb_get_guint8(tvb, offset);
     real_secs = (guint16)binary_secs + 1;
-    proto_item_append_text(item, "%d second(s)", real_secs);
+
+    proto_tree_add_string_format(tree, hf_gtpv2_time_to_data_xfer, tvb, offset, 1, "", "MBMS Time to Data Transfer: %d second(s)", real_secs);
 
     offset += 1;
     if(length > 1)
@@ -4645,7 +4657,7 @@ dissect_gtpv2_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 {
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_gtpv2_mbms_service_id, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_mbms_service_id, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
@@ -4746,6 +4758,22 @@ dissect_gtpv2_apco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
     expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
     PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.95 Absolute Time of MBMS Data Transfer */
+static void
+dissect_gtpv2_abs_mbms_data_tf_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    int offset = 0;
+    const gchar *time_str;
+
+    time_str = tvb_ntp_fmt_ts(tvb, offset);
+    proto_tree_add_string(tree, hf_gtpv2_abs_time_mbms_data, tvb, offset, 8, time_str);
+    proto_item_append_text(item, "%s", time_str);
+
+    offset += 8;
+    if(length > offset)
+        proto_tree_add_text(tree, tvb, offset, length-offset, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-offset));
 }
 
 
@@ -4866,7 +4894,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_MMBR, dissect_gtpv2_mmbr},                                   /* 161, 8.92 Max MBR/APN-AMBR (MMBR) */
     {GTPV2_IE_MDT_CONFIG, dissect_gtpv2_mdt_config},                       /* 162, 8.93 MDT Configuration */
     {GTPV2_IE_APCO, dissect_gtpv2_apco},                                   /* 163, 8.94 Additional Protocol Configuration Options (APCO) */
-                                                    /* 164-254 Spare. For future use. FFS */
+    {GTPV2_IE_ABS_MBMS_DATA_TF_TIME, dissect_gtpv2_abs_mbms_data_tf_time}, /* 164, 9.95 Absolute Time of MBMS Data Transfer */
+                                                    /* 165-254 Spare. For future use. FFS */
     {GTPV2_IE_PRIVATE_EXT,dissect_gtpv2_private_ext},
 
     {0, dissect_gtpv2_unknown}
@@ -6404,7 +6433,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_mbms_service_area_nr,
           {"Number of MBMS Service Area codes", "gtpv2.mbms_service_area_nr",
-          FT_UINT8, BASE_DEC, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         { &hf_gtpv2_mbms_service_area_id,
@@ -6423,7 +6452,7 @@ void proto_register_gtpv2(void)
           NULL, HFILL}
         },
         { &hf_gtpv2_cteid,
-          {"Common Tunnel Endpoint Identifiere", "gtpv2.cetid",
+          {"Common Tunnel Endpoint Identifier", "gtpv2.cetid",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
@@ -6480,6 +6509,26 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_vsrvcc_flag,
           {"VF (vSRVCC Flag)", "gtpv2.vsrvcc_flag",
           FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_abs_time_mbms_data,
+          {"Absolute Time of MBMS Data Transfer", "gtpv2.abs_time_mbms_data",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_mbms_session_duration_days,
+          {"MBMS Session Duration (days)", "gtpv2.mbms_session_duration_days",
+          FT_UINT24, BASE_DEC, NULL, 0x00007F,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_mbms_session_duration_secs,
+          {"MBMS Session Duration (seconds)", "gtpv2.mbms_session_duration_secs",
+          FT_UINT24, BASE_DEC, NULL, 0xFFFF80,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_time_to_data_xfer,
+          {"MBMS Time to Data Transfer", "gtpv2.time_to_data_xfer",
+          FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL}
         },
     };
