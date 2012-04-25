@@ -39,6 +39,7 @@ wtap_dump_can_write_encap
 wtap_dump_can_compress
 wtap_dump_close
 wtap_dump_fdopen
+wtap_dump_fdopen_ng
 wtap_dump_flush
 wtap_dump_open
 wtap_dump_open_ng
