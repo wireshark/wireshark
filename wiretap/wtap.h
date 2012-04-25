@@ -873,24 +873,26 @@ struct wtap_pkthdr {
  * absent, use the file encapsulation - but it's not clear that's useful;
  * we currently do that in the module for the file format.
  */
-#define WTAP_HAS_TS		0x00000001	/* time stamp */
-#define WTAP_HAS_CAP_LEN	0x00000002	/* captured length separate from on-the-network length */
-#define WTAP_HAS_INTERFACE_ID	0x00000004	/* interface ID */
-#define WTAP_HAS_COMMENTS	0x00000008	/* comments */
-#define WTAP_HAS_DROP_COUNT	0x00000010	/* drop count */
-#define WTAP_HAS_PACK_FLAGS	0x00000020	/* packet flags */
+#define WTAP_HAS_TS				0x00000001	/**< time stamp */
+#define WTAP_HAS_CAP_LEN		0x00000002	/**< captured length separate from on-the-network length */
+#define WTAP_HAS_INTERFACE_ID	0x00000004	/**< interface ID */
+#define WTAP_HAS_COMMENTS		0x00000008	/**< comments */
+#define WTAP_HAS_DROP_COUNT		0x00000010	/**< drop count */
+#define WTAP_HAS_PACK_FLAGS		0x00000020	/**< packet flags */
 
 /**
  * Holds the option strings from pcapng:s Section Header block(SHB).
  */
 typedef struct wtapng_section_s {
 	/* mandatory */
-	guint64				section_length;
+	guint64				section_length; /**< 64-bit value specifying the length in bytes of the following section.
+										 * Section Length equal -1 (0xFFFFFFFFFFFFFFFF) means that the size of the section is not specified
+										 */
 	/* options */
-	gchar				*opt_comment;	/* NULL if not available */
-	gchar				*shb_hardware;	/* NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
-	gchar				*shb_os;		/* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
-	gchar				*shb_user_appl;	/* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
+	gchar				*opt_comment;	/**< NULL if not available */
+	gchar				*shb_hardware;	/**< NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
+	gchar				*shb_os;		/**< NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
+	gchar				*shb_user_appl;	/**< NULL if not available, UTF-8 string containing the name of the application used to create this section. */
 } wtapng_section_t;
 
 
@@ -1033,14 +1035,14 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
 struct wtap* wtap_open_offline(const char *filename, int *err,
     gchar **err_info, gboolean do_random);
 
-/*
+/**
  * If we were compiled with zlib and we're at EOF, unset EOF so that
  * wtap_read/gzread has a chance to succeed. This is necessary if
  * we're tailing a file.
  */
 void wtap_cleareof(wtap *wth);
 
-/*
+/**
  * Set callback functions to add new hostnames. Currently pcapng-only.
  * MUST match add_ipv4_name and add_ipv6_name in addr_resolv.c.
  */
@@ -1050,7 +1052,7 @@ void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
 typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name);
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 
-/* Returns TRUE if read was successful. FALSE if failure. data_offset is
+/** Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set to the offset in the file where the data for the read packet is
  * located. */
 gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
@@ -1098,6 +1100,10 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	gboolean compressed, int *err);
 
+wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
+				gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err);
+
+
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
 	const union wtap_pseudo_header *pseudo_header, const guint8 *, int *err);
 void wtap_dump_flush(wtap_dumper *);
@@ -1107,7 +1113,7 @@ struct addrinfo;
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo_list);
 gboolean wtap_dump_close(wtap_dumper *, int *);
 
-/*
+/**
  * Get a GArray of WTAP_FILE_ values for file types that can be used
  * to save a file of a given type with a given WTAP_ENCAP_ type.
  */
@@ -1139,55 +1145,55 @@ int wtap_register_file_type(const struct file_type_info* fi);
 int wtap_register_encap_type(char* name, char* short_name);
 
 
-/*
+/**
  * Wiretap error codes.
  */
 #define	WTAP_ERR_NOT_REGULAR_FILE		-1
-	/* The file being opened for reading isn't a plain file (or pipe) */
+	/** The file being opened for reading isn't a plain file (or pipe) */
 #define	WTAP_ERR_RANDOM_OPEN_PIPE		-2
-	/* The file is being opened for random access and it's a pipe */
+	/** The file is being opened for random access and it's a pipe */
 #define	WTAP_ERR_FILE_UNKNOWN_FORMAT		-3
-	/* The file being opened is not a capture file in a known format */
+	/** The file being opened is not a capture file in a known format */
 #define	WTAP_ERR_UNSUPPORTED			-4
-	/* Supported file type, but there's something in the file we
+	/** Supported file type, but there's something in the file we
 	   can't support */
 #define	WTAP_ERR_CANT_WRITE_TO_PIPE		-5
-	/* Wiretap can't save to a pipe in the specified format */
+	/** Wiretap can't save to a pipe in the specified format */
 #define	WTAP_ERR_CANT_OPEN			-6
-	/* The file couldn't be opened, reason unknown */
+	/** The file couldn't be opened, reason unknown */
 #define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-7
-	/* Wiretap can't save files in the specified format */
+	/** Wiretap can't save files in the specified format */
 #define	WTAP_ERR_UNSUPPORTED_ENCAP		-8
-	/* Wiretap can't read or save files in the specified format with the
+	/** Wiretap can't read or save files in the specified format with the
 	   specified encapsulation */
 #define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-9
-	/* The specified format doesn't support per-packet encapsulations */
+	/** The specified format doesn't support per-packet encapsulations */
 #define	WTAP_ERR_CANT_CLOSE			-10
-	/* The file couldn't be closed, reason unknown */
+	/** The file couldn't be closed, reason unknown */
 #define	WTAP_ERR_CANT_READ			-11
-	/* An attempt to read failed, reason unknown */
+	/** An attempt to read failed, reason unknown */
 #define	WTAP_ERR_SHORT_READ			-12
-	/* An attempt to read read less data than it should have */
+	/** An attempt to read read less data than it should have */
 #define	WTAP_ERR_BAD_FILE			-13
-	/* The file appears to be damaged or corrupted or otherwise bogus */
+	/** The file appears to be damaged or corrupted or otherwise bogus */
 #define	WTAP_ERR_SHORT_WRITE			-14
-	/* An attempt to write wrote less data than it should have */
+	/** An attempt to write wrote less data than it should have */
 #define	WTAP_ERR_UNC_TRUNCATED			-15
-	/* Sniffer compressed data was oddly truncated */
+	/** Sniffer compressed data was oddly truncated */
 #define	WTAP_ERR_UNC_OVERFLOW			-16
-	/* Uncompressing Sniffer data would overflow buffer */
+	/** Uncompressing Sniffer data would overflow buffer */
 #define	WTAP_ERR_UNC_BAD_OFFSET			-17
-	/* LZ77 compressed data has bad offset to string */
+	/** LZ77 compressed data has bad offset to string */
 #define	WTAP_ERR_RANDOM_OPEN_STDIN		-18
-	/* We're trying to open the standard input for random access */
+	/** We're trying to open the standard input for random access */
 #define WTAP_ERR_COMPRESSION_NOT_SUPPORTED	-19
 	/* The filetype doesn't support output compression */
 #define	WTAP_ERR_CANT_SEEK			-20
-	/* An attempt to seek failed, reason unknown */
+	/** An attempt to seek failed, reason unknown */
 #define WTAP_ERR_DECOMPRESS			-21
-	/* Error decompressing */
+	/** Error decompressing */
 #define WTAP_ERR_INTERNAL			-22
-	/* "Shouldn't happen" internal errors */
+	/** "Shouldn't happen" internal errors */
 
 #ifdef __cplusplus
 }
