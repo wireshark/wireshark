@@ -79,11 +79,12 @@ libpcap_write_interface_description_block(FILE *fp,
 extern gboolean
 libpcap_write_interface_statistics_block(FILE *fp,
                                          guint32 interface_id,
-                                         pcap_t *pd,
                                          long *bytes_written,
                                          const char *comment,   /* OPT_COMMENT           1 */
                                          guint64 isb_starttime, /* ISB_STARTTIME         2 */
                                          guint64 isb_endtime,   /* ISB_ENDTIME           3 */
+                                         guint64 isb_ifrecv,    /* ISB_IFRECV            4 */
+                                         guint64 isb_ifdrop,    /* ISB_IFDROP            5 */
                                          int *err);
 
 extern gboolean

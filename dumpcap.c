@@ -2749,13 +2749,24 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
             for (i = 0; i < global_ld.pcaps->len; i++) {
                 pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
                 if (!pcap_opts->from_cap_pipe) {
+                    guint64 isb_ifrecv, isb_ifdrop;
+                    struct pcap_stat stats;
+
+                    if (pcap_stats(pcap_opts->pcap_h, &stats) >= 0) {
+                        isb_ifrecv = stats.ps_recv;
+                        isb_ifdrop = stats.ps_drop;
+                   } else {
+                        isb_ifrecv = G_MAXUINT64;
+                        isb_ifdrop = G_MAXUINT64;
+                    }
                     libpcap_write_interface_statistics_block(ld->pdh,
                                                              i,
-                                                             pcap_opts->pcap_h,
                                                              &ld->bytes_written,
                                                              "Counters provided by libpcap",
                                                              start_time,
                                                              end_time,
+                                                             isb_ifrecv,
+                                                             isb_ifdrop,
                                                              err_close);
                 }
             }

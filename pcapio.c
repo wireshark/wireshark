@@ -588,11 +588,12 @@ libpcap_write_enhanced_packet_block(FILE *fp,
 gboolean
 libpcap_write_interface_statistics_block(FILE *fp,
                                          guint32 interface_id,
-                                         pcap_t *pd,
                                          long *bytes_written,
                                          const char *comment,   /* OPT_COMMENT           1 */
                                          guint64 isb_starttime, /* ISB_STARTTIME         2 */
                                          guint64 isb_endtime,   /* ISB_ENDTIME           3 */
+                                         guint64 isb_ifrecv,    /* ISB_IFRECV            4 */
+                                         guint64 isb_ifdrop,    /* ISB_IFDROP            5 */
                                          int *err)
 {
         struct isb isb;
@@ -602,11 +603,8 @@ libpcap_write_interface_statistics_block(FILE *fp,
         struct timeval now;
 #endif
         struct option option;
-        struct pcap_stat stats;
         guint32 block_total_length;
         guint64 timestamp;
-        guint64 counter;
-        gboolean stats_retrieved;
         gboolean have_options = FALSE;
         const guint32 padding = 0;
 #ifdef _WIN32
@@ -648,17 +646,14 @@ libpcap_write_interface_statistics_block(FILE *fp,
         timestamp = (guint64)(now.tv_sec) * 1000000 +
                     (guint64)(now.tv_usec);
 #endif
-        if (pcap_stats(pd, &stats) < 0) {
-                stats_retrieved = FALSE;
-                g_warning("pcap_stats() failed.");
-        } else {
-                stats_retrieved = TRUE;
-                have_options = TRUE;
+        block_total_length = sizeof(struct isb) + sizeof(guint32);
+        if (isb_ifrecv != G_MAXUINT64) {
+            block_total_length +=  sizeof(struct option) + sizeof(guint64);
+            have_options = TRUE;
         }
-        block_total_length = sizeof(struct isb) +
-                             sizeof(guint32);
-        if (stats_retrieved) {
-                block_total_length += 2 * sizeof(struct option) + 2 * sizeof(guint64); /* ISB_IFRECV + ISB_IFDROP */
+        if (isb_ifdrop != G_MAXUINT64) {
+            block_total_length +=  sizeof(struct option) + sizeof(guint64);
+            have_options = TRUE;
         }
         /* OPT_COMMENT */
         if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
@@ -719,19 +714,17 @@ libpcap_write_interface_statistics_block(FILE *fp,
                 WRITE_DATA(fp, &high, sizeof(guint32), *bytes_written, err);
                 WRITE_DATA(fp, &low, sizeof(guint32), *bytes_written, err);
         }
-        if (stats_retrieved) {
-                /* */
+        if (isb_ifrecv != G_MAXUINT64) {
                 option.type = ISB_IFRECV;
                 option.value_length = sizeof(guint64);
-                counter = stats.ps_recv;
                 WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &counter, sizeof(guint64), *bytes_written, err);
-                /* */
+                WRITE_DATA(fp, &isb_ifrecv, sizeof(guint64), *bytes_written, err);
+        }
+        if (isb_ifdrop != G_MAXUINT64) {
                 option.type = ISB_IFDROP;
                 option.value_length = sizeof(guint64);
-                counter = stats.ps_drop;
                 WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, &counter, sizeof(guint64), *bytes_written, err);
+                WRITE_DATA(fp, &isb_ifdrop, sizeof(guint64), *bytes_written, err);
         }
         if (have_options) {
                 /* write end of options */
