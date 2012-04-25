@@ -671,7 +671,7 @@ open_capture_device(interface_options *interface_opts,
 
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
                   "buffersize %d.", interface_opts->buffer_size);
-            if (interface_opts->buffer_size > 1) {
+            if (interface_opts->buffer_size != 0) {
                 pcap_set_buffer_size(pcap_h, interface_opts->buffer_size * 1024 * 1024);
             }
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
