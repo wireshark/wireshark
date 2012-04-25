@@ -3780,7 +3780,6 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
                   "Wrote a packet of length %d captured on interface %u.",
                    phdr->caplen, pcap_opts->interface_id);
             global_ld.packet_count++;
-            pcap_opts->received++;
             /* if the user told us to stop after x packets, do we already have enough? */
             if ((global_ld.packet_max > 0) && (global_ld.packet_count >= global_ld.packet_max)) {
                 global_ld.go = FALSE;
@@ -3801,8 +3800,10 @@ capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
        supposed to be saving any more packets. */
-    if (!global_ld.go)
+    if (!global_ld.go) {
+        pcap_opts->dropped++;
         return;
+    }
 
     queue_element = (pcap_queue_element *)g_malloc(sizeof(pcap_queue_element));
     if (queue_element == NULL) {
