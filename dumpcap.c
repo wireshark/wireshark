@@ -3369,6 +3369,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             pcap_queue_element *queue_element;
 #if GLIB_CHECK_VERSION(2,31,18)
 
+            g_async_queue_lock(pcap_queue);
             queue_element = g_async_queue_timeout_pop_unlocked(pcap_queue, WRITER_THREAD_TIMEOUT);
 #else
             GTimeVal write_thread_time;
