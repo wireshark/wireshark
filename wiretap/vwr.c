@@ -615,8 +615,10 @@ int vwr_open(wtap *wth, int *err, gchar **err_info _U_)
     *err = 0;
 
     fpgaVer = vwr_get_fpga_version(wth, err, err_info);
-    if ((*err != 0) || (fpgaVer == UNKNOWN_FPGA))
-        return (-1);
+    if ((*err != 0) || (fpgaVer == UNKNOWN_FPGA)) {
+        return 0; /* not a VWR file */
+    }
+
     FPGA_VERSION = fpgaVer;
         /* set the local module options first (this is a WLAN capture) */
     setup_defaults(fpgaVer);
