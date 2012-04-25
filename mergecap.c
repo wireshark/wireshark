@@ -396,7 +396,7 @@ main(int argc, char *argv[])
     comment_gstr = g_string_new("File created my merging: \n");
 
     for (i = 0; i < in_file_count; i++) {
-        g_string_append_printf(comment_gstr, "File%u: %s \n",i+1,in_files->filename[i]);
+        g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[0].filename);
     }
     shb_hdr->section_length = -1;
     /* options */
@@ -405,7 +405,7 @@ main(int argc, char *argv[])
     shb_hdr->shb_os        =	NULL;		/* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
     shb_hdr->shb_user_appl =	"mergecap";	/* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
 
-    pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen, 
+    pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen,
                               FALSE /* compressed */, shb_hdr, NULL /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
     g_string_free(comment_gstr, TRUE);
   }else{
