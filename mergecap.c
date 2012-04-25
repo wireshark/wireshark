@@ -393,7 +393,7 @@ main(int argc, char *argv[])
     int i;
 
     shb_hdr = g_new(wtapng_section_t,1);
-    comment_gstr = g_string_new("File created my merging: \n");
+    comment_gstr = g_string_new("File created by merging: \n");
 
     for (i = 0; i < in_file_count; i++) {
         g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[i].filename);
