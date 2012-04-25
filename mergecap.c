@@ -396,7 +396,7 @@ main(int argc, char *argv[])
     comment_gstr = g_string_new("File created my merging: \n");
 
     for (i = 0; i < in_file_count; i++) {
-        g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[0].filename);
+        g_string_append_printf(comment_gstr, "File%d: %s \n",i+1,in_files[i].filename);
     }
     shb_hdr->section_length = -1;
     /* options */
