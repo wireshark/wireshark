@@ -387,7 +387,30 @@ main(int argc, char *argv[])
   }
 
   /* prepare the outfile */
-  pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);
+  if(file_type == WTAP_FILE_PCAPNG ){
+    wtapng_section_t	*shb_hdr;
+    GString *comment_gstr;
+    int i;
+
+    shb_hdr = g_new(wtapng_section_t,1);
+    comment_gstr = g_string_new("File created my merging: \n");
+
+    for (i = 0; i < in_file_count; i++) {
+        g_string_append_printf(comment_gstr, "File%u: %s \n",i+1,in_files[i]);
+    }
+    shb_hdr->section_length = -1;
+    /* options */
+    shb_hdr->opt_comment   =	comment_gstr->str;		/* NULL if not available */
+    shb_hdr->shb_hardware  =	NULL;		/* NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
+    shb_hdr->shb_os        =	NULL;		/* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
+    shb_hdr->shb_user_appl =	"mergecap";	/* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
+
+    pdh = wtap_dump_fdopen_ng(out_fd, file_type, frame_type, snaplen, 
+                              FALSE /* compressed */, shb_hdr, NULL /* wtapng_iface_descriptions_t *idb_inf */, &open_err);
+    g_string_free(comment_gstr, TRUE);
+  }else{
+       pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);
+  }
   if (pdh == NULL) {
     merge_close_in_files(in_file_count, in_files);
     g_free(in_files);
