@@ -2753,8 +2753,8 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
                     struct pcap_stat stats;
 
                     if (pcap_stats(pcap_opts->pcap_h, &stats) >= 0) {
-                        isb_ifrecv = stats.ps_recv;
-                        isb_ifdrop = stats.ps_drop;
+                        isb_ifrecv = pcap_opts->received;
+                        isb_ifdrop = stats.ps_drop + pcap_opts->dropped;
                    } else {
                         isb_ifrecv = G_MAXUINT64;
                         isb_ifdrop = G_MAXUINT64;
@@ -2762,7 +2762,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
                     libpcap_write_interface_statistics_block(ld->pdh,
                                                              i,
                                                              &ld->bytes_written,
-                                                             "Counters provided by libpcap",
+                                                             "Counters provided by dumpcap",
                                                              start_time,
                                                              end_time,
                                                              isb_ifrecv,
