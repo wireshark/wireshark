@@ -27,14 +27,10 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
+
 
 #define ETHERNET_INTERFACE      1
 #define WLAN_INTERFACE          2
@@ -1048,7 +1044,7 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /* Grab the control word, parse the WaveAgent payload accordingly */
 
     control_word = tvb_get_ntohl(tvb, 28);
-        paylen = tvb_get_ntohl(tvb, 20);
+    paylen = tvb_get_ntohl(tvb, 20);
         
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%x)", 
         val_to_str_const(control_word, control_words, "Unknown"), control_word);
@@ -1068,21 +1064,21 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Need to check for a relay message.  If so, parse the extra fields and then parse the WA packet */
         if (control_word == 0x3e)
         {
-        proto_tree_add_item(waveagent_tree,
-            hf_waveagent_relaydestid, tvb, wa_payload_offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(waveagent_tree,
-            hf_waveagent_relaysrcid, tvb, wa_payload_offset+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(waveagent_tree,
+                hf_waveagent_relaydestid, tvb, wa_payload_offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(waveagent_tree,
+                hf_waveagent_relaysrcid, tvb, wa_payload_offset+4, 4, ENC_BIG_ENDIAN);
 
-        /* Parse control_word of the relay message */
-        control_word = tvb_get_ntohl(tvb, wa_payload_offset+12+28);
-            rmi = proto_tree_add_none_format(waveagent_tree, hf_waveagent_relaymessagest, tvb, wa_payload_offset+12+28, 0, 
-                                "Relayed WaveAgent Message, %s (0x%x)",
-                                                val_to_str_const(control_word, control_words, "Unknown"), control_word);
+            /* Parse control_word of the relay message */
+            control_word = tvb_get_ntohl(tvb, wa_payload_offset+12+28);
+                rmi = proto_tree_add_none_format(waveagent_tree, hf_waveagent_relaymessagest, tvb, wa_payload_offset+12+28, 0,
+                                    "Relayed WaveAgent Message, %s (0x%x)",
+                                                    val_to_str_const(control_word, control_words, "Unknown"), control_word);
 
-        relay_message_tree = proto_item_add_subtree(rmi, ett_relaymessage);
+            relay_message_tree = proto_item_add_subtree(rmi, ett_relaymessage);
 
-        wa_payload_offset = dissect_wa_header(wa_payload_offset+12, relay_message_tree, tvb, version);
-        payload_tree = relay_message_tree;
+            wa_payload_offset = dissect_wa_header(wa_payload_offset+12, relay_message_tree, tvb, version);
+            payload_tree = relay_message_tree;
         }
 
         dissect_wa_payload(wa_payload_offset, payload_tree, tvb, control_word, version);

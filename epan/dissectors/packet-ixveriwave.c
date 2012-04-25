@@ -29,7 +29,6 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 #include <epan/packet.h>
 #include <epan/crc32-tvb.h>
 
@@ -323,7 +322,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset+=2;
         length_remaining-=2;
     }
-    
+
     /*extract flow id , 4bytes*/
     if (length_remaining >= 4) {
         align_offset = ALIGN_OFFSET(offset, 4);
@@ -378,37 +377,37 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tree) {
             /* start a tree going for the various packet times */
-        if (vw_latency != 0) {
-            vw_times_ti = proto_tree_add_float_format(common_tree,
-                    hf_ixveriwave_vw_mslatency,
-                    tvb, offset, 4, (float)(vw_latency/1000000.0),
-                    "Frame timestamp values: (latency %.3f msec)",
-                    (float)(vw_latency/1000000.0));
-            vw_times_tree = proto_item_add_subtree(vw_times_ti, ett_commontap_times);
+            if (vw_latency != 0) {
+                vw_times_ti = proto_tree_add_float_format(common_tree,
+                        hf_ixveriwave_vw_mslatency,
+                        tvb, offset, 4, (float)(vw_latency/1000000.0),
+                        "Frame timestamp values: (latency %.3f msec)",
+                        (float)(vw_latency/1000000.0));
+                vw_times_tree = proto_item_add_subtree(vw_times_ti, ett_commontap_times);
 
-            proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_latency,
-                tvb, offset, 4, vw_latency,
-                "Frame latency: %u nsec", vw_latency);
-        }
-        else
-        {
-            vw_times_ti = proto_tree_add_float_format(common_tree,
-                    hf_ixveriwave_vw_mslatency,
-                    tvb, offset, 4, (float)(vw_latency/1000000.0),
-                    "Frame timestamp values:");
-            vw_times_tree = proto_item_add_subtree(vw_times_ti, ett_commontap_times);
+                proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_latency,
+                    tvb, offset, 4, vw_latency,
+                    "Frame latency: %u nsec", vw_latency);
+            }
+            else
+            {
+                vw_times_ti = proto_tree_add_float_format(common_tree,
+                        hf_ixveriwave_vw_mslatency,
+                        tvb, offset, 4, (float)(vw_latency/1000000.0),
+                        "Frame timestamp values:");
+                vw_times_tree = proto_item_add_subtree(vw_times_ti, ett_commontap_times);
 
-            proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_latency,
-                tvb, offset, 4, vw_latency,
-                "Frame latency: N/A");
-        }
+                proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_latency,
+                    tvb, offset, 4, vw_latency,
+                    "Frame latency: N/A");
+            }
         }
 
         offset+=4;
         length_remaining-=4;
     }
 
-    
+
 
     /*extract signature timestamp, 4 bytes (32 LSBs only, nsec)*/
     if (length_remaining >= 4) {
@@ -515,13 +514,13 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Doesn't exist, so we need to calculate the value */
         if (previous_frame_data.previous_frame_num !=0 && (pinfo->fd->num - previous_frame_data.previous_frame_num == 1))
         {
-        p_ifg_info->ifg = (guint32)(vw_startt - previous_frame_data.previous_end_time);
-        p_ifg_info->previous_end_time = previous_frame_data.previous_end_time;
+            p_ifg_info->ifg = (guint32)(vw_startt - previous_frame_data.previous_end_time);
+            p_ifg_info->previous_end_time = previous_frame_data.previous_end_time;
         }
         else
         {
-        p_ifg_info->ifg = 0;
-        p_ifg_info->previous_end_time = 0;
+            p_ifg_info->ifg = 0;
+            p_ifg_info->previous_end_time = 0;
         }
 
         /* Store current data into the static structure */
@@ -601,7 +600,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /*extract info flags , 2bytes*/
 
-        if (length_remaining >= 2) {
+    if (length_remaining >= 2) {
         vw_info = tvb_get_letohs(tvb, offset);
 
         if (tap_tree) {
@@ -609,18 +608,18 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
             tvb, offset, 2, vw_info);
             vw_infoFlags_tree = proto_item_add_subtree(vwift, ett_ethernettap_info);
 
-        if (vwf_txf == 0) {
-            /* then it's an rx case */
-            proto_tree_add_item(vw_infoFlags_tree, hf_ixveriwave_vw_info_rx_1_bit8,
-            tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(vw_infoFlags_tree, hf_ixveriwave_vw_info_rx_1_bit9,
-            tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        } else {
-            /* it's a tx case */
-            proto_tree_add_uint_format(vw_infoFlags_tree, hf_ixveriwave_vw_info_retryCount,
-            tvb, offset, 2, vw_info,
-            "Retry count: %u ", vw_info);
-        }
+            if (vwf_txf == 0) {
+                /* then it's an rx case */
+                proto_tree_add_item(vw_infoFlags_tree, hf_ixveriwave_vw_info_rx_1_bit8,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(vw_infoFlags_tree, hf_ixveriwave_vw_info_rx_1_bit9,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            } else {
+                /* it's a tx case */
+                proto_tree_add_uint_format(vw_infoFlags_tree, hf_ixveriwave_vw_info_retryCount,
+                tvb, offset, 2, vw_info,
+                "Retry count: %u ", vw_info);
+            }
         } /*end of if tree */
 
         offset+=2;
@@ -634,7 +633,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         if (tap_tree) {
             vweft = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_error,
                 tvb, offset, 4, vw_error);
-                vw_errorFlags_tree = proto_item_add_subtree(vweft, ett_ethernettap_error);
+            vw_errorFlags_tree = proto_item_add_subtree(vweft, ett_ethernettap_error);
 
             if (vwf_txf == 0) {
                 /* then it's an rx case */
@@ -759,18 +758,18 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         ht_rate = getHTrate( rate, rflags );
         col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f",
             ht_rate);
-                if (tree) {
-                    proto_tree_add_uint_format(tap_tree, hf_radiotap_datarate,
-                        tvb, offset, 1, tvb_get_guint8(tvb, offset),
-                        "Data rate: %.1f (MCS %d)", ht_rate, rate & IEEE80211_PLCP_RATE_MASK);
-                }
+        if (tree) {
+            proto_tree_add_uint_format(tap_tree, hf_radiotap_datarate,
+                tvb, offset, 1, tvb_get_guint8(tvb, offset),
+                "Data rate: %.1f (MCS %d)", ht_rate, rate & IEEE80211_PLCP_RATE_MASK);
+        }
     } else {
         col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%d.%d",
                         (rate & IEEE80211_PLCP_RATE_MASK)/ 2, rate & 1 ? 5 : 0);
         if (tree) {
                 proto_tree_add_uint_format(tap_tree, hf_radiotap_datarate,
                 tvb, offset, 1, tvb_get_guint8(tvb, offset),
-                "Data rate: %d.%d Mb/s", (rate & IEEE80211_PLCP_RATE_MASK)/ 2, 
+                "Data rate: %d.%d Mb/s", (rate & IEEE80211_PLCP_RATE_MASK)/ 2,
                         (rate & IEEE80211_PLCP_RATE_MASK) & 1 ? 5 : 0);
         }
     }

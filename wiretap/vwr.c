@@ -24,9 +24,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <stdlib.h>
+
 #include <errno.h>
 #include <string.h>
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -1457,7 +1458,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
 
     er_fields.vw_errors = (guint32)errors;
     common_fields.vw_vcid = (guint16)vc_id;
-    
+
     common_fields.vw_msdu_length = (guint16)msdu_length;
     er_fields.vw_ht_length = (guint16)ht_len;
 
@@ -1628,17 +1629,15 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     if (!IS_TX) {
         if (sig_ts < s_time) {
             latency = (guint32)(s_time - sig_ts);
-          } else {
+        } else {
             /* Account for the rollover case. Since we cannot use 0x100000000 - l_time + s_time */
             /* we look for a large difference between l_time and s_time. */
             delta_b = sig_ts - s_time;
             if (delta_b >  0x10000000) {
-
-              latency = 0;
-                    
+                latency = 0;
             } else
-              latency = (guint32)delta_b;
-          }
+                latency = (guint32)delta_b;
+        }
     }
     /* fill up the per-packet header (amazingly like a PCAP packet header! ;-) */
     /* frames are always wired ethernet with a wired ethernettap header */
