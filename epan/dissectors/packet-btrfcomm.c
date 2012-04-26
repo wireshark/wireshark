@@ -104,14 +104,6 @@ static emem_tree_t *dlci_table;
 /* Initialize dissector table */
 dissector_table_t rfcomm_service_dissector_table;
 
-typedef struct _dlci_stream_t {
-    int     len;
-    int     current;
-    int     is_escaped;
-    int     mode;
-    guint8 *stream_buf;
-} dlci_stream_t;
-
 typedef struct _dlci_state_t {
     guint32 service;
     char    do_credit_fc;
