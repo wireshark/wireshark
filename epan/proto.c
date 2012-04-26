@@ -4887,7 +4887,6 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 	   There are lots that have the same value *and* string, so for now only
 	   report those that have same value but different string. */
 	if (hfinfo->strings != NULL &&
-	    !(hfinfo->display & BASE_EXT_STRING) &&
 	    !(hfinfo->display & BASE_RANGE_STRING) &&
 	    !(hfinfo->display & BASE_CUSTOM) &&
 	    (
@@ -4902,8 +4901,14 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 		    (hfinfo->type == FT_FRAMENUM) )) {
 
 		int n, m;
-		value_string *start_values = (value_string*)hfinfo->strings;
-		value_string *current = start_values;
+		const value_string *start_values;
+		const value_string *current;
+		
+	    if (hfinfo->display & BASE_EXT_STRING)
+			start_values = VALUE_STRING_EXT_VS_P(((const value_string_ext*)hfinfo->strings));
+		else 
+			start_values = (const value_string*)hfinfo->strings;
+		current = start_values;
 
 		for (n=0; current; n++, current++) {
 			/* Drop out if we reached the end. */
