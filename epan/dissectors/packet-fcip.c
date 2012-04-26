@@ -28,8 +28,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -68,14 +66,14 @@ typedef enum {
 } fcencap_proto_t;
 
 static const value_string fcip_eof_vals[] = {
-    {FCIP_EOFn, "EOFn" },
-    {FCIP_EOFt, "EOFt" },
-    {FCIP_EOFrt, "EOFrt" },
-    {FCIP_EOFdt, "EOFdt" },
-    {FCIP_EOFni, "EOFni" },
+    {FCIP_EOFn,   "EOFn"   },
+    {FCIP_EOFt,   "EOFt"   },
+    {FCIP_EOFrt,  "EOFrt"  },
+    {FCIP_EOFdt,  "EOFdt"  },
+    {FCIP_EOFni,  "EOFni"  },
     {FCIP_EOFdti, "EOFdti" },
     {FCIP_EOFrti, "EOFrti" },
-    {FCIP_EOFa, "EOFa" },
+    {FCIP_EOFa,   "EOFa"   },
     {0, NULL},
 };
 
@@ -92,8 +90,8 @@ static const value_string fcip_sof_vals[] = {
 };
 
 static const value_string fcencap_proto_vals[] = {
-    {FCENCAP_PROTO_FCIP, "FCIP"},
-    {FCENCAP_PROTO_iFCP, "iFCP"},
+    {FCENCAP_PROTO_FCIP, "FCIP" },
+    {FCENCAP_PROTO_iFCP, "iFCP" },
     {0, NULL},
 };
 
@@ -104,32 +102,32 @@ static const guint8 fcip_header_8_bytes[8] = {
 
 static int proto_fcip          = -1;
 
-static int hf_fcip_protocol    = -1;
-static int hf_fcip_protocol_c  = -1;
-static int hf_fcip_version     = -1;
-static int hf_fcip_version_c   = -1;
-static int hf_fcip_encap_word1 = -1;
-static int hf_fcip_flags       = -1;
-static int hf_fcip_flags_c     = -1;
-static int hf_fcip_framelen    = -1;
-static int hf_fcip_framelen_c  = -1;
-static int hf_fcip_tsec        = -1;
-static int hf_fcip_tusec       = -1;
-static int hf_fcip_encap_crc   = -1;
-static int hf_fcip_sof         = -1;
-static int hf_fcip_sof_c       = -1;
-static int hf_fcip_eof         = -1;
-static int hf_fcip_eof_c       = -1;
+static int hf_fcip_protocol       = -1;
+static int hf_fcip_protocol_c     = -1;
+static int hf_fcip_version        = -1;
+static int hf_fcip_version_c      = -1;
+static int hf_fcip_encap_word1    = -1;
+static int hf_fcip_flags          = -1;
+static int hf_fcip_flags_c        = -1;
+static int hf_fcip_framelen       = -1;
+static int hf_fcip_framelen_c     = -1;
+static int hf_fcip_tsec           = -1;
+static int hf_fcip_tusec          = -1;
+static int hf_fcip_encap_crc      = -1;
+static int hf_fcip_sof            = -1;
+static int hf_fcip_sof_c          = -1;
+static int hf_fcip_eof            = -1;
+static int hf_fcip_eof_c          = -1;
 static int hf_fcip_pflags_changed = -1;
 static int hf_fcip_pflags_special = -1;
-static int hf_fcip_pflags_c = -1;
-static int hf_fcip_src_wwn = -1;
-static int hf_fcip_dst_wwn = -1;
-static int hf_fcip_conn_code = -1;
-static int hf_fcip_katov = -1;
-static int hf_fcip_src_entity_id = -1;
-static int hf_fcip_conn_nonce = -1;
-static int hf_fcip_conn_flags = -1;
+static int hf_fcip_pflags_c       = -1;
+static int hf_fcip_src_wwn        = -1;
+static int hf_fcip_dst_wwn        = -1;
+static int hf_fcip_conn_code      = -1;
+static int hf_fcip_katov          = -1;
+static int hf_fcip_src_entity_id  = -1;
+static int hf_fcip_conn_nonce     = -1;
+static int hf_fcip_conn_flags     = -1;
 
 static int ett_fcip            = -1;
 
@@ -145,9 +143,9 @@ static dissector_handle_t fc_handle;
 static guint
 get_next_fcip_header_offset (tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
-    gint bytes_remaining = tvb_length_remaining (tvb, offset);
-    gint frame_len;
-    guint16 flen, flen1;
+    gint       bytes_remaining = tvb_length_remaining (tvb, offset);
+    gint       frame_len;
+    guint16    flen, flen1;
     fcip_eof_t eof, eofc;
 
     /*
@@ -194,8 +192,8 @@ NXT_BYTE: while (bytes_remaining) {
                  * Tell the TCP dissector where the data for this
                  * message starts in the data it handed us, and that we need
                  * "some more data."  Don't tell it exactly how many bytes
-		 * we need because if/when we ask for even more (after the
-		 * header) that will break reassembly.
+                 * we need because if/when we ask for even more (after the
+                 * header) that will break reassembly.
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
@@ -271,9 +269,9 @@ NXT_BYTE: while (bytes_remaining) {
 
 
         /* Test f
-	 * We dont test this since some implementations actually provide
-	 * a CRC here.
-	 */
+         * We dont test this since some implementations actually provide
+         * a CRC here.
+         */
 
         if (bytes_remaining >= (frame_len)) {
             if (tvb_bytes_exist (tvb, offset+frame_len, 8)) {
@@ -539,7 +537,7 @@ proto_register_fcip (void)
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcip_protocol,
-	  { "Protocol", "fcip.proto", FT_UINT8, BASE_DEC,
+          { "Protocol", "fcip.proto", FT_UINT8, BASE_DEC,
             VALS(fcencap_proto_vals), 0, NULL, HFILL }},
         { &hf_fcip_protocol_c,
           {"Protocol (1's Complement)", "fcip.protoc", FT_UINT8, BASE_DEC,
@@ -627,8 +625,6 @@ proto_register_fcip (void)
     /* Register the protocol name and description */
     proto_fcip = proto_register_protocol("FCIP", "Fibre Channel over IP", "fcip");
 
-    /* Required function calls to register the header fields and
-     * subtrees used */
     proto_register_field_array(proto_fcip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -637,7 +633,8 @@ proto_register_fcip (void)
                                    "desegment",
                                    "Reassemble FCIP messages spanning multiple TCP segments",
                                    "Whether the FCIP dissector should reassemble messages spanning multiple TCP segments."
-                                   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                   " To use this option, you must also enable"
+                                   " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &fcip_desegment);
     prefs_register_uint_preference(fcip_module,
                                    "target_port",
@@ -647,16 +644,6 @@ proto_register_fcip (void)
                                    &fcip_port);
 }
 
-
-/*
- * If this dissector uses sub-dissector registration add a
- * registration routine.
- */
-
-/*
- * This format is required because a script is used to find these
- * routines and create the code that calls these routines.
- */
 void
 proto_reg_handoff_fcip (void)
 {
@@ -668,5 +655,5 @@ proto_reg_handoff_fcip (void)
     dissector_add_handle("tcp.port", fcip_handle);
 
     data_handle = find_dissector("data");
-    fc_handle = find_dissector("fc");
+    fc_handle   = find_dissector("fc");
 }

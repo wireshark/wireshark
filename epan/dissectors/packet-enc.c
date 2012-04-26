@@ -1,4 +1,5 @@
-/*
+/* packet-enc.c
+ *
  * Copyright (c) 2003 Markus Friedl.  All rights reserved.
  *
  * $Id$
@@ -23,6 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -97,16 +99,16 @@ capture_enc(const guchar *pd, int len, packet_counts *ld)
 static const value_string af_vals[] = {
   { BSD_ENC_INET,  "IPv4" },
   { BSD_ENC_INET6, "IPv6" },
-  { 0,            NULL }
+  { 0, NULL }
 };
 
 static void
 dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  struct enchdr ench;
-  tvbuff_t *next_tvb;
-  proto_tree *enc_tree;
-  proto_item *ti;
+  struct enchdr  ench;
+  tvbuff_t      *next_tvb;
+  proto_tree    *enc_tree;
+  proto_item    *ti;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENC");
 
@@ -120,16 +122,16 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_enc, tvb, 0,
-             ENC_HDRLEN,
-             "Enc %s, SPI 0x%8.8x, %s%s%s%s",
-             val_to_str(ench.af, af_vals, "unknown (%u)"),
-             ench.spi,
-             ench.flags ? "" : "unprotected",
-             ench.flags & BSD_ENC_M_AUTH ? "authentic" : "",
-             (ench.flags & (BSD_ENC_M_AUTH|BSD_ENC_M_CONF)) ==
-		(BSD_ENC_M_AUTH|BSD_ENC_M_CONF) ? ", " : "",
-             ench.flags & BSD_ENC_M_CONF ? "confidential" : ""
-	     );
+                                        ENC_HDRLEN,
+                                        "Enc %s, SPI 0x%8.8x, %s%s%s%s",
+                                        val_to_str(ench.af, af_vals, "unknown (%u)"),
+                                        ench.spi,
+                                        ench.flags ? "" : "unprotected",
+                                        ench.flags & BSD_ENC_M_AUTH ? "authentic" : "",
+                                        (ench.flags & (BSD_ENC_M_AUTH|BSD_ENC_M_CONF)) ==
+                                        (BSD_ENC_M_AUTH|BSD_ENC_M_CONF) ? ", " : "",
+                                        ench.flags & BSD_ENC_M_CONF ? "confidential" : ""
+      );
     enc_tree = proto_item_add_subtree(ti, ett_enc);
 
     proto_tree_add_uint(enc_tree, hf_enc_af, tvb,
@@ -179,7 +181,7 @@ proto_register_enc(void)
   static gint *ett[] = { &ett_enc };
 
   proto_enc = proto_register_protocol("OpenBSD Encapsulating device",
-				      "ENC", "enc");
+                                      "ENC", "enc");
   proto_register_field_array(proto_enc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
@@ -189,10 +191,10 @@ proto_reg_handoff_enc(void)
 {
   dissector_handle_t enc_handle;
 
-  ip_handle = find_dissector("ip");
+  ip_handle   = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
 
-  enc_handle = create_dissector_handle(dissect_enc, proto_enc);
+  enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
 }

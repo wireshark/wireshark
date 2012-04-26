@@ -54,7 +54,7 @@
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include "packet-arp.h"
-#include "packet-dns.h"				/* for get_dns_name() */
+#include "packet-dns.h"                         /* for get_dns_name() */
 
 static int proto_dhcpv6 = -1;
 static int hf_dhcpv6_msgtype = -1;
@@ -80,86 +80,86 @@ static gint ett_dhcpv6_option_vsoption = -1;
 static gint ett_dhcpv6_vendor_option = -1;
 static gint ett_dhcpv6_pkt_option = -1;
 
-#define UDP_PORT_DHCPV6_DOWNSTREAM	546
-#define UDP_PORT_DHCPV6_UPSTREAM	547
+#define UDP_PORT_DHCPV6_DOWNSTREAM      546
+#define UDP_PORT_DHCPV6_UPSTREAM        547
 
-#define DHCPV6_LEASEDURATION_INFINITY	0xffffffff
+#define DHCPV6_LEASEDURATION_INFINITY   0xffffffff
 
-#define	SOLICIT			 1
-#define	ADVERTISE		 2
-#define	REQUEST			 3
-#define	CONFIRM			 4
-#define	RENEW			 5
-#define	REBIND			 6
-#define	REPLY			 7
-#define	RELEASE			 8
-#define	DECLINE			 9
-#define	RECONFIGURE		10
-#define	INFORMATION_REQUEST	11
-#define	RELAY_FORW		12
-#define	RELAY_REPLY		13
-#define	LEASEQUERY		14
-#define	LEASEQUERY_REPLY	15
+#define SOLICIT                  1
+#define ADVERTISE                2
+#define REQUEST                  3
+#define CONFIRM                  4
+#define RENEW                    5
+#define REBIND                   6
+#define REPLY                    7
+#define RELEASE                  8
+#define DECLINE                  9
+#define RECONFIGURE             10
+#define INFORMATION_REQUEST     11
+#define RELAY_FORW              12
+#define RELAY_REPLY             13
+#define LEASEQUERY              14
+#define LEASEQUERY_REPLY        15
 
-#define	OPTION_CLIENTID		 1
-#define	OPTION_SERVERID		 2
-#define	OPTION_IA_NA		 3
-#define	OPTION_IA_TA		 4
-#define	OPTION_IAADDR		 5
-#define	OPTION_ORO		 6
-#define	OPTION_PREFERENCE	 7
-#define	OPTION_ELAPSED_TIME	 8
-#define	OPTION_RELAY_MSG	 9
-/* #define	OPTION_SERVER_MSG	10 */
-#define	OPTION_AUTH		11
-#define	OPTION_UNICAST		12
-#define	OPTION_STATUS_CODE	13
-#define	OPTION_RAPID_COMMIT	14
-#define	OPTION_USER_CLASS	15
-#define	OPTION_VENDOR_CLASS	16
-#define	OPTION_VENDOR_OPTS	17
-#define	OPTION_INTERFACE_ID	18
-#define	OPTION_RECONF_MSG	19
-#define	OPTION_RECONF_ACCEPT	20
-#define	OPTION_SIP_SERVER_D	21
-#define	OPTION_SIP_SERVER_A	22
-#define	OPTION_DNS_SERVERS	23
-#define	OPTION_DOMAIN_LIST      24
-#define	OPTION_IA_PD		25
-#define	OPTION_IAPREFIX		26
-#define	OPTION_NIS_SERVERS	27
-#define	OPTION_NISP_SERVERS	28
-#define	OPTION_NIS_DOMAIN_NAME  29
-#define	OPTION_NISP_DOMAIN_NAME 30
-#define	OPTION_SNTP_SERVERS	31
-#define	OPTION_LIFETIME         32
-#define	OPTION_BCMCS_SERVER_D	33
-#define	OPTION_BCMCS_SERVER_A	34
-#define	OPTION_GEOCONF_CIVIC	36
-#define	OPTION_REMOTE_ID	37
-#define	OPTION_SUBSCRIBER_ID	38
-#define	OPTION_CLIENT_FQDN      39
-#define	OPTION_PANA_AGENT	40
-#define	OPTION_TIME_ZONE	41
-#define	OPTION_TZDB		42
-#define	OPTION_ERO		43
-#define	OPTION_LQ_QUERY		44
-#define	OPTION_CLIENT_DATA	45
-#define	OPTION_CLT_TIME		46
-#define	OPTION_LQ_RELAY_DATA	47
-#define	OPTION_LQ_CLIENT_LINK	48
-#define	OPTION_CAPWAP_AC_V6	52
-#define	OPTION_AFTR_NAME	64
+#define OPTION_CLIENTID          1
+#define OPTION_SERVERID          2
+#define OPTION_IA_NA             3
+#define OPTION_IA_TA             4
+#define OPTION_IAADDR            5
+#define OPTION_ORO               6
+#define OPTION_PREFERENCE        7
+#define OPTION_ELAPSED_TIME      8
+#define OPTION_RELAY_MSG         9
+/* #define      OPTION_SERVER_MSG       10 */
+#define OPTION_AUTH             11
+#define OPTION_UNICAST          12
+#define OPTION_STATUS_CODE      13
+#define OPTION_RAPID_COMMIT     14
+#define OPTION_USER_CLASS       15
+#define OPTION_VENDOR_CLASS     16
+#define OPTION_VENDOR_OPTS      17
+#define OPTION_INTERFACE_ID     18
+#define OPTION_RECONF_MSG       19
+#define OPTION_RECONF_ACCEPT    20
+#define OPTION_SIP_SERVER_D     21
+#define OPTION_SIP_SERVER_A     22
+#define OPTION_DNS_SERVERS      23
+#define OPTION_DOMAIN_LIST      24
+#define OPTION_IA_PD            25
+#define OPTION_IAPREFIX         26
+#define OPTION_NIS_SERVERS      27
+#define OPTION_NISP_SERVERS     28
+#define OPTION_NIS_DOMAIN_NAME  29
+#define OPTION_NISP_DOMAIN_NAME 30
+#define OPTION_SNTP_SERVERS     31
+#define OPTION_LIFETIME         32
+#define OPTION_BCMCS_SERVER_D   33
+#define OPTION_BCMCS_SERVER_A   34
+#define OPTION_GEOCONF_CIVIC    36
+#define OPTION_REMOTE_ID        37
+#define OPTION_SUBSCRIBER_ID    38
+#define OPTION_CLIENT_FQDN      39
+#define OPTION_PANA_AGENT       40
+#define OPTION_TIME_ZONE        41
+#define OPTION_TZDB             42
+#define OPTION_ERO              43
+#define OPTION_LQ_QUERY         44
+#define OPTION_CLIENT_DATA      45
+#define OPTION_CLT_TIME         46
+#define OPTION_LQ_RELAY_DATA    47
+#define OPTION_LQ_CLIENT_LINK   48
+#define OPTION_CAPWAP_AC_V6     52
+#define OPTION_AFTR_NAME        64
 
 /* temporary value until defined by IETF */
-#define OPTION_MIP6_HA		165
-#define OPTION_MIP6_HOA		166
-#define OPTION_NAI		167
+#define OPTION_MIP6_HA          165
+#define OPTION_MIP6_HOA         166
+#define OPTION_NAI              167
 
-#define	DUID_LLT		1
-#define	DUID_EN			2
-#define	DUID_LL			3
-#define	DUID_LL_OLD		4
+#define DUID_LLT                1
+#define DUID_EN                 2
+#define DUID_LL                 3
+#define DUID_LL_OLD             4
 
 static const value_string msgtype_vals[] = {
     { SOLICIT,                 "Solicit" },
@@ -262,18 +262,18 @@ static const value_string duidtype_vals[] =
 };
 
 static const true_false_string fqdn_n = {
-  "Server should not perform DNS updates",
-  "Server should perform DNS updates"
+    "Server should not perform DNS updates",
+    "Server should perform DNS updates"
 };
 
 static const true_false_string fqdn_o = {
-  "Server has overridden client's S bit preference",
-  "Server has not overridden client's S bit preference"
+    "Server has overridden client's S bit preference",
+    "Server has not overridden client's S bit preference"
 };
 
 static const true_false_string fqdn_s = {
-  "Server should perform forward DNS updates",
-  "Server should not perform forward DNS updates"
+    "Server should perform forward DNS updates",
+    "Server should not perform forward DNS updates"
 };
 
 /* CableLabs Common Vendor Specific Options */
@@ -395,11 +395,11 @@ static const value_string sec_tcm_vals[] = {
 /* May be called recursively */
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	       gboolean downstream, int off, int eoff);
+               gboolean downstream, int off, int eoff);
 
 static int
 dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
-			       int optend)
+                               int optend)
 {
     /** THE ENCODING OF THIS SUBOPTION HAS CHANGED FROM DHCPv4
         the code and length fields have grown from a single octet to
@@ -437,7 +437,7 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
                               val_to_str(subopt, pkt_ccc_opt_vals, "unknown/reserved") );
 
     switch (subopt) {
-    case PKT_CCC_PRI_DHCP:	/* IPv4 address values */
+    case PKT_CCC_PRI_DHCP:      /* IPv4 address values */
     case PKT_CCC_SEC_DHCP:
         if (subopt_len == 4) {
             ipv4_address = tvb_get_ipv4(tvb, suboptoff);
@@ -1035,7 +1035,7 @@ dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int offset, guint16 optlen)
 
         /* read length of the next substring */
         len = tvb_get_guint8(tvb, offset);
-        /* Microsoft dhcpv6 clients aren't currently RFC 4704 conform: They send an
+        /* Microsoft dhcpv6 clients aren't currently RFC 4704 conformant: They send an
          * ASCII string instead of a DNS record encoded domain name. Catch that case
          * to allow us to continue after such a malformed record.
          */
@@ -1083,13 +1083,13 @@ dhcpv6_domain(proto_tree * subtree, tvbuff_t *tvb, int offset, guint16 optlen)
 /* Returns the number of bytes consumed by this option. */
 static int
 dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
-	      gboolean downstream, int off, int eoff, gboolean *at_end)
+              gboolean downstream, int off, int eoff, gboolean *at_end)
 {
     guint8 *buf;
-    guint16	opttype;
-    guint16	optlen;
-    guint16	hwtype;
-    guint16	temp_optlen = 0;
+    guint16     opttype;
+    guint16     optlen;
+    guint16     hwtype;
+    guint16     temp_optlen = 0;
     proto_item *ti;
     proto_tree *subtree;
     proto_tree *subtree_2;
@@ -1858,7 +1858,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	       gboolean downstream, int off, int eoff)
+               gboolean downstream, int off, int eoff)
 {
     proto_tree *bp_tree = NULL;
     proto_item *ti;

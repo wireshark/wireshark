@@ -34,7 +34,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#define ECHO_PORT	7
+#define ECHO_PORT  7
 
 static int proto_echo = -1;
 
@@ -47,10 +47,8 @@ static gint ett_echo = -1;
 static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-  proto_tree   *echo_tree = NULL;
-  proto_item   *ti, *hidden_item;
-  int           offset = 0;
-  gboolean      request = FALSE;
+  int         offset    = 0;
+  gboolean    request   = FALSE;
 
   if (pinfo->destport == ECHO_PORT) {
     request = TRUE;
@@ -60,10 +58,12 @@ static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_set_str(pinfo->cinfo, COL_INFO,
-		 (request) ? "Request" : "Response");
+                (request) ? "Request" : "Response");
   }
 
   if (tree) {
+    proto_tree *echo_tree;
+    proto_item *ti, *hidden_item;
 
     ti = proto_tree_add_item(tree, proto_echo, tvb, offset, -1, ENC_NA);
     echo_tree = proto_item_add_subtree(ti, ett_echo);
@@ -86,17 +86,17 @@ void proto_register_echo(void)
 
   static hf_register_info hf[] = {
     { &hf_echo_data,
-      { "Echo data",	"echo.data",
-	FT_BYTES,	BASE_NONE,	NULL,	0x0,
-      	NULL, HFILL }},
+      { "Echo data",    "echo.data",
+        FT_BYTES,       BASE_NONE,      NULL,   0x0,
+        NULL, HFILL }},
     { &hf_echo_request,
-      { "Echo request",	"echo.request",
-	FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-      	"Echo data", HFILL }},
+      { "Echo request", "echo.request",
+        FT_BOOLEAN,     BASE_NONE,      NULL,   0x0,
+        "Echo data", HFILL }},
     { &hf_echo_response,
       { "Echo response","echo.response",
-	FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
-      	"Echo data", HFILL }}
+        FT_BOOLEAN,     BASE_NONE,      NULL,   0x0,
+        "Echo data", HFILL }}
   };
 
   static gint *ett[] = {

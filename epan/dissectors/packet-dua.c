@@ -96,7 +96,8 @@ static dissector_handle_t dpnss_handle;
 static void
 dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_int_interface_id, parameter_tvb, INT_INTERFACE_ID_OFFSET, INT_INTERFACE_ID_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_int_interface_id,
+                      parameter_tvb, INT_INTERFACE_ID_OFFSET, INT_INTERFACE_ID_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%d)", tvb_get_ntohl(parameter_tvb, INT_INTERFACE_ID_OFFSET));
 }
 
@@ -109,7 +110,8 @@ dissect_text_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree 
 
   interface_id_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
 
-  proto_tree_add_item(parameter_tree, hf_text_interface_id, parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(parameter_tree, hf_text_interface_id,
+                      parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length, ENC_ASCII|ENC_NA);
   proto_item_append_text(parameter_item, " (%.*s)", interface_id_length,
                          tvb_get_ephemeral_string(parameter_tvb, TEXT_INTERFACE_ID_OFFSET, interface_id_length));
 }
@@ -122,7 +124,8 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
   guint16 info_string_length;
 
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(parameter_tree, hf_info_string,
+                      parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII|ENC_NA);
   proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
                          tvb_get_ephemeral_string(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
 }
@@ -176,8 +179,10 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INTERVAL_LENGTH;
   offset = PARAMETER_VALUE_OFFSET;
   for(range_number = 1; range_number <= number_of_ranges; range_number++) {
-    proto_tree_add_item(parameter_tree, hf_interface_range_start, parameter_tvb, offset + START_OFFSET, START_LENGTH, ENC_BIG_ENDIAN);
-    proto_tree_add_item(parameter_tree, hf_interface_range_end,   parameter_tvb, offset + END_OFFSET,   END_LENGTH,   ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_interface_range_start,
+                        parameter_tvb, offset + START_OFFSET, START_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_interface_range_end,
+                        parameter_tvb, offset + END_OFFSET,   END_LENGTH,   ENC_BIG_ENDIAN);
     offset += INTERVAL_LENGTH;
   };
 
@@ -192,7 +197,8 @@ dissect_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   guint16 heartbeat_data_length;
 
   heartbeat_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, ENC_NA);
+  proto_tree_add_item(parameter_tree, hf_heartbeat_data,
+                      parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, ENC_NA);
   proto_item_append_text(parameter_item, " (%u byte%s)", heartbeat_data_length, plurality(heartbeat_data_length, "", "s"));
 }
 
@@ -210,9 +216,11 @@ static const value_string traffic_mode_type_values[] = {
 static void
 dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_traffic_mode_type,
+                      parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
-                         val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "unknown"));
+                         val_to_str_const(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET),
+                                          traffic_mode_type_values, "unknown"));
 }
 
 #define INVALID_VERSION_ERROR                         0x01
@@ -253,9 +261,12 @@ static const value_string error_code_values[] = {
 static void
 dissect_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_error_code, parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_error_code,
+                      parameter_tvb, ERROR_CODE_OFFSET, ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
-                         val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET), error_code_values, "unknown"));
+                         val_to_str_const(tvb_get_ntohl(parameter_tvb, ERROR_CODE_OFFSET),
+                                          error_code_values,
+                                          "unknown"));
 }
 
 #define ASP_STATE_CHANGE_STATUS_TYPE  0x01
@@ -296,13 +307,16 @@ dissect_status_type_identification_parameter(tvbuff_t *parameter_tvb, proto_tree
   status_type = tvb_get_ntohs(parameter_tvb, STATUS_TYPE_OFFSET);
   status_id   = tvb_get_ntohs(parameter_tvb, STATUS_IDENT_OFFSET);
 
-  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_status_type,
+                      parameter_tvb, STATUS_TYPE_OFFSET, STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format(parameter_tree, hf_status_id,  parameter_tvb, STATUS_IDENT_OFFSET, STATUS_IDENT_LENGTH,
                              status_id, "Status identification: %u (%s)", status_id,
-                             val_to_str(status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
+                             val_to_str_const(status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
 
   proto_item_append_text(parameter_item, " (%s)",
-                         val_to_str(status_type * 256 * 256 + status_id, status_type_id_values, "unknown status information"));
+                         val_to_str_const(status_type * 256 * 256 + status_id,
+                                          status_type_id_values,
+                                          "unknown status information"));
 }
 
 #define PROTOCOL_DATA_OFFSET PARAMETER_VALUE_OFFSET
@@ -316,8 +330,8 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   protocol_data_tvb    = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
   if(dpnss_handle){
-	  call_dissector(dpnss_handle, protocol_data_tvb, pinfo, tree);
-	  return;
+    call_dissector(dpnss_handle, protocol_data_tvb, pinfo, tree);
+    return;
   }
 
   call_dissector(data_handle, protocol_data_tvb, pinfo, tree);
@@ -343,9 +357,12 @@ static const value_string release_reason_values[] = {
 static void
 dissect_release_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_release_reason, parameter_tvb, RELEASE_REASON_OFFSET, RELEASE_REASON_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_release_reason,
+                      parameter_tvb, RELEASE_REASON_OFFSET, RELEASE_REASON_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
-                         val_to_str(tvb_get_ntohl(parameter_tvb, RELEASE_REASON_OFFSET), release_reason_values, "unknown"));
+                         val_to_str_const(tvb_get_ntohl(parameter_tvb, RELEASE_REASON_OFFSET),
+                                          release_reason_values,
+                                          "unknown"));
 }
 
 #define TEI_STATUS_ASSIGNED       0
@@ -362,9 +379,12 @@ static const value_string tei_status_values[] = {
 static void
 dissect_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_tei_status, parameter_tvb, TEI_STATUS_OFFSET, TEI_STATUS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_tei_status,
+                      parameter_tvb, TEI_STATUS_OFFSET, TEI_STATUS_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
-                      val_to_str(tvb_get_ntohl(parameter_tvb, TEI_STATUS_OFFSET), tei_status_values, "unknown"));
+                      val_to_str_const(tvb_get_ntohl(parameter_tvb, TEI_STATUS_OFFSET),
+                                       tei_status_values,
+                                       "unknown"));
 }
 
 #define ASP_ID_LENGTH 4
@@ -385,7 +405,8 @@ dissect_dlc_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
   /* FIXME: This can be done better */
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (parameter_value_length > 0)
-    proto_tree_add_item(parameter_tree, hf_states, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_NA);
+    proto_tree_add_item(parameter_tree,
+                        hf_states, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_NA);
 }
 
 static void
@@ -395,9 +416,11 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (parameter_value_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_NA);
+    proto_tree_add_item(parameter_tree, hf_parameter_value,
+                        parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_NA);
   proto_item_append_text(parameter_item, " with tag %u and %u byte%s value",
-                         tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
+                         tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET),
+                         parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
 #define INT_INTERFACE_IDENTIFIER_PARAMETER_TAG           0x01
@@ -447,13 +470,16 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(dua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s",
-                                         val_to_str(tag, parameter_tag_values, "Unknown parameter"));
+  parameter_item   = proto_tree_add_text(dua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET,
+                                         tvb_length(parameter_tvb), "%s",
+                                         val_to_str_const(tag, parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_dua_parameter);
 
   /* add tag and length to the dua tree */
-  proto_tree_add_item(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_tag,
+                      parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_parameter_length,
+                      parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   switch(tag) {
   case INT_INTERFACE_IDENTIFIER_PARAMETER_TAG:
@@ -507,7 +533,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   };
 
   if (padding_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
+    proto_tree_add_item(parameter_tree, hf_parameter_padding,
+                        parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 static void
@@ -657,18 +684,24 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "UNKNOWN"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(message_class * 256 + message_type,
+                                                                 message_class_type_acro_values,
+                                                                 "Unknown"));
 
   if (dua_tree) {
     /* add the components of the common header to the protocol tree */
     proto_tree_add_item(dua_tree, hf_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(dua_tree, hf_reserved, common_header_tvb, RESERVED_OFFSET, RESERVED_LENGTH, ENC_BIG_ENDIAN);
-    proto_tree_add_item(dua_tree, hf_message_class, common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(dua_tree, hf_message_class,
+                        common_header_tvb, MESSAGE_CLASS_OFFSET, MESSAGE_CLASS_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(dua_tree, hf_message_type,
                                common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH,
                                message_type, "Message type: %u (%s)",
-                               message_type, val_to_str(message_class * 256 + message_type, message_class_type_values, "reserved"));
-    proto_tree_add_item(dua_tree, hf_message_length, common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+                               message_type, val_to_str_const(message_class * 256 + message_type,
+                                                              message_class_type_values,
+                                                              "reserved"));
+    proto_tree_add_item(dua_tree, hf_message_length,
+                        common_header_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   }
 }
 
@@ -712,36 +745,156 @@ proto_register_dua(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_int_interface_id,      { "Integer interface identifier", "dua.int_interface_identifier",  FT_UINT32,   BASE_HEX,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_text_interface_id,     { "Text interface identifier",    "dua.text_interface_identifier", FT_STRING,  BASE_NONE, NULL,                           0x0,               NULL, HFILL } },
-    { &hf_info_string,           { "Info string",                  "dua.info_string",               FT_STRING,  BASE_NONE, NULL,                           0x0,               NULL, HFILL } },
-    { &hf_dlci_reserved,         { "Reserved",                     "dua.dlci_reserved",             FT_UINT16,  BASE_DEC,  NULL,                           RESERVED_BIT_MASK, NULL, HFILL } },
-    { &hf_dlci_v_bit,            { "V-bit",                        "dua.dlci_v_bit",                FT_BOOLEAN, 16,        NULL,                           V_BIT_MASK,        NULL, HFILL } },
-    { &hf_dlci_zero_bit,         { "Zero bit",                     "dua.dlci_zero_bit",             FT_BOOLEAN, 16,        NULL,                           ZERO_BIT_MASK,     NULL, HFILL } },
-    { &hf_dlci_channel,          { "Channel",                      "dua.dlci_channel",              FT_UINT16,   BASE_DEC, NULL,                           CHANNEL_BIT_MASK,  NULL, HFILL } },
-    { &hf_dlci_one_bit,          { "One bit",                      "dua.dlci_one_bit",              FT_BOOLEAN, 16,        NULL,                           ONE_BIT_MASK,      NULL, HFILL } },
-    { &hf_dlci_spare,            { "Spare",                        "dua.dlci_spare",                FT_UINT16,  BASE_DEC,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_diag_info,             { "Diagnostic information",       "dua.diagnostic_information",    FT_BYTES,   BASE_NONE, NULL,                           0x0,               NULL, HFILL } },
-    { &hf_interface_range_start, { "Start",                        "dua.interface_range_start",     FT_UINT32,  BASE_DEC,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_interface_range_end,   { "End",                          "dua.interface_range_end",       FT_UINT32,  BASE_DEC,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_heartbeat_data,        { "Heartbeat data",               "dua.heartbeat_data",            FT_BYTES,   BASE_NONE, NULL,                           0x0,               NULL, HFILL } },
-    { &hf_traffic_mode_type,     { "Traffic mode type",            "dua.traffic_mode_type",         FT_UINT32,  BASE_HEX,  VALS(traffic_mode_type_values), 0x0,               NULL, HFILL } },
-    { &hf_error_code,            { "Error code",                   "dua.error_code",                FT_UINT32,  BASE_DEC,  VALS(error_code_values),        0x0,               NULL, HFILL } },
-    { &hf_status_type,           { "Status type",                  "dua.status_type",               FT_UINT16,  BASE_DEC,  VALS(status_type_values),       0x0,               NULL, HFILL } },
-    { &hf_status_id,             { "Status identification",        "dua.status_identification",     FT_UINT16,  BASE_DEC,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_release_reason,        { "Reason",                       "dua.release_reason",            FT_UINT32,  BASE_HEX,  VALS(release_reason_values),    0x0,               NULL, HFILL } },
-    { &hf_tei_status,            { "TEI status",                   "dua.tei_status",                FT_UINT32,  BASE_HEX,  VALS(tei_status_values),        0x0,               NULL, HFILL } },
-    { &hf_asp_id,                { "ASP identifier",               "dua.asp_identifier",            FT_UINT32,  BASE_HEX,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_states,                { "States",                       "dua.states",                    FT_BYTES,   BASE_NONE, NULL,                           0x0,               NULL, HFILL } },
-    { &hf_parameter_tag,         { "Parameter Tag",                "dua.parameter_tag",             FT_UINT16,  BASE_DEC,  VALS(parameter_tag_values),     0x0,               NULL, HFILL } },
-    { &hf_parameter_length,      { "Parameter length",             "dua.parameter_length",          FT_UINT16,  BASE_DEC,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_parameter_value,       { "Parameter value",              "dua.parameter_value",           FT_BYTES,   BASE_NONE, NULL,                           0x0,               NULL, HFILL } },
-    { &hf_parameter_padding,     { "Parameter padding",            "dua.parameter_padding",         FT_BYTES,   BASE_NONE, NULL,                           0x0,               NULL, HFILL } },
-    { &hf_version,               { "Version",                      "dua.version",                   FT_UINT8,   BASE_DEC,  VALS(protocol_version_values),  0x0,               NULL, HFILL } },
-    { &hf_reserved,              { "Reserved",                     "dua.reserved",                  FT_UINT8,   BASE_HEX,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_message_class,         { "Message class",                "dua.message_class",             FT_UINT8,   BASE_DEC,  VALS(message_class_values),     0x0,               NULL, HFILL } },
-    { &hf_message_type,          { "Message Type",                 "dua.message_type",              FT_UINT8,   BASE_DEC,  NULL,                           0x0,               NULL, HFILL } },
-    { &hf_message_length,        { "Message length",               "dua.message_length",            FT_UINT32,  BASE_DEC,  NULL,                           0x0,               NULL, HFILL } },
+    { &hf_int_interface_id,
+      { "Integer interface identifier", "dua.int_interface_identifier",
+        FT_UINT32,   BASE_HEX,  NULL,                          0x0,
+        NULL, HFILL } },
+
+    { &hf_text_interface_id,
+      { "Text interface identifier",    "dua.text_interface_identifier",
+        FT_STRING,  BASE_NONE, NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_info_string,
+      { "Info string",                  "dua.info_string",
+        FT_STRING,  BASE_NONE, NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_dlci_reserved,
+      { "Reserved",                     "dua.dlci_reserved",
+        FT_UINT16,  BASE_DEC,  NULL,                           RESERVED_BIT_MASK,
+        NULL, HFILL } },
+
+    { &hf_dlci_v_bit,
+      { "V-bit",                        "dua.dlci_v_bit",
+        FT_BOOLEAN, 16,        NULL,                           V_BIT_MASK,
+        NULL, HFILL } },
+
+    { &hf_dlci_zero_bit,
+      { "Zero bit",                     "dua.dlci_zero_bit",
+        FT_BOOLEAN, 16,        NULL,                           ZERO_BIT_MASK,
+        NULL, HFILL } },
+
+    { &hf_dlci_channel,
+      { "Channel",                      "dua.dlci_channel",
+        FT_UINT16,   BASE_DEC, NULL,                           CHANNEL_BIT_MASK,
+        NULL, HFILL } },
+
+    { &hf_dlci_one_bit,
+      { "One bit",                      "dua.dlci_one_bit",
+        FT_BOOLEAN, 16,        NULL,                           ONE_BIT_MASK,
+        NULL, HFILL } },
+
+    { &hf_dlci_spare,
+      { "Spare",                        "dua.dlci_spare",
+        FT_UINT16,  BASE_DEC,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_diag_info,
+      { "Diagnostic information",       "dua.diagnostic_information",
+        FT_BYTES,   BASE_NONE, NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_interface_range_start,
+      { "Start",                        "dua.interface_range_start",
+        FT_UINT32,  BASE_DEC,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_interface_range_end,
+      { "End",                          "dua.interface_range_end",
+        FT_UINT32,  BASE_DEC,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_heartbeat_data,
+      { "Heartbeat data",               "dua.heartbeat_data",
+        FT_BYTES,   BASE_NONE, NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_traffic_mode_type,
+      { "Traffic mode type",            "dua.traffic_mode_type",
+        FT_UINT32,  BASE_HEX,  VALS(traffic_mode_type_values), 0x0,
+        NULL, HFILL } },
+
+    { &hf_error_code,
+      { "Error code",                   "dua.error_code",
+        FT_UINT32,  BASE_DEC,  VALS(error_code_values),        0x0,
+        NULL, HFILL } },
+
+    { &hf_status_type,
+      { "Status type",                  "dua.status_type",
+        FT_UINT16,  BASE_DEC,  VALS(status_type_values),       0x0,
+        NULL, HFILL } },
+
+    { &hf_status_id,
+      { "Status identification",        "dua.status_identification",
+        FT_UINT16,  BASE_DEC,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_release_reason,
+      { "Reason",                       "dua.release_reason",
+        FT_UINT32,  BASE_HEX,  VALS(release_reason_values),    0x0,
+        NULL, HFILL } },
+
+    { &hf_tei_status,
+      { "TEI status",                   "dua.tei_status",
+        FT_UINT32,  BASE_HEX,  VALS(tei_status_values),        0x0,
+        NULL, HFILL } },
+
+    { &hf_asp_id,
+      { "ASP identifier",               "dua.asp_identifier",
+        FT_UINT32,  BASE_HEX,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_states,
+      { "States",                       "dua.states",
+        FT_BYTES,   BASE_NONE, NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_parameter_tag,
+      { "Parameter Tag",                "dua.parameter_tag",
+        FT_UINT16,  BASE_DEC,  VALS(parameter_tag_values),     0x0,
+        NULL, HFILL } },
+
+    { &hf_parameter_length,
+      { "Parameter length",             "dua.parameter_length",
+        FT_UINT16,  BASE_DEC,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_parameter_value,
+      { "Parameter value",              "dua.parameter_value",
+        FT_BYTES,   BASE_NONE, NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_parameter_padding,
+      { "Parameter padding",            "dua.parameter_padding",
+        FT_BYTES,   BASE_NONE, NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_version,
+      { "Version",                      "dua.version",
+        FT_UINT8,   BASE_DEC,  VALS(protocol_version_values),  0x0,
+        NULL, HFILL } },
+
+    { &hf_reserved,
+      { "Reserved",                     "dua.reserved",
+        FT_UINT8,   BASE_HEX,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_message_class,
+      { "Message class",                "dua.message_class",
+        FT_UINT8,   BASE_DEC,  VALS(message_class_values),     0x0,
+        NULL, HFILL } },
+
+    { &hf_message_type,
+      { "Message Type",                 "dua.message_type",
+        FT_UINT8,   BASE_DEC,  NULL,                           0x0,
+        NULL, HFILL } },
+
+    { &hf_message_length,
+      { "Message length",               "dua.message_length",
+        FT_UINT32,  BASE_DEC,  NULL,                           0x0,
+        NULL, HFILL } },
+
    };
   /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -765,8 +918,8 @@ proto_reg_handoff_dua(void)
 {
   dissector_handle_t dua_handle;
 
-  dua_handle  = find_dissector("dua");
-  data_handle = find_dissector("data");
+  dua_handle   = find_dissector("dua");
+  data_handle  = find_dissector("data");
   dpnss_handle = find_dissector("dpnss");
   dissector_add_uint("sctp.ppi", DUA_PAYLOAD_PROTOCOL_ID, dua_handle);
 }

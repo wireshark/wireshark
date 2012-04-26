@@ -90,58 +90,58 @@
 
 
 /* Initialize the protocol and registered fields */
-static int proto_enip              = -1;
-static int proto_cipsafety         = -1;
+static int proto_enip = -1;
+static int proto_cipsafety = -1;
 
-static int hf_enip_command         = -1;
-static int hf_enip_length          = -1;
-static int hf_enip_options         = -1;
-static int hf_enip_sendercontex    = -1;
-static int hf_enip_status          = -1;
-static int hf_enip_session         = -1;
-static int hf_enip_encapver        = -1;
-static int hf_enip_sinfamily       = -1;
-static int hf_enip_sinport         = -1;
-static int hf_enip_sinaddr         = -1;
-static int hf_enip_sinzero         = -1;
-static int hf_enip_timeout         = -1;
-static int hf_enip_encap_data      = -1;
+static int hf_enip_command = -1;
+static int hf_enip_length = -1;
+static int hf_enip_options = -1;
+static int hf_enip_sendercontex = -1;
+static int hf_enip_status = -1;
+static int hf_enip_session = -1;
+static int hf_enip_encapver = -1;
+static int hf_enip_sinfamily = -1;
+static int hf_enip_sinport = -1;
+static int hf_enip_sinaddr = -1;
+static int hf_enip_sinzero = -1;
+static int hf_enip_timeout = -1;
+static int hf_enip_encap_data = -1;
 
-static int hf_enip_lir_vendor      = -1;
-static int hf_enip_lir_devtype     = -1;
-static int hf_enip_lir_prodcode    = -1;
-static int hf_enip_lir_revision    = -1;
-static int hf_enip_lir_status      = -1;
-static int hf_enip_lir_serial      = -1;
-static int hf_enip_lir_namelen     = -1;
-static int hf_enip_lir_name        = -1;
-static int hf_enip_lir_state       = -1;
+static int hf_enip_lir_vendor = -1;
+static int hf_enip_lir_devtype = -1;
+static int hf_enip_lir_prodcode = -1;
+static int hf_enip_lir_revision = -1;
+static int hf_enip_lir_status = -1;
+static int hf_enip_lir_serial = -1;
+static int hf_enip_lir_namelen = -1;
+static int hf_enip_lir_name = -1;
+static int hf_enip_lir_state = -1;
 
-static int hf_enip_lsr_capaflags   = -1;
-static int hf_enip_lsr_tcp         = -1;
-static int hf_enip_lsr_udp         = -1;
+static int hf_enip_lsr_capaflags = -1;
+static int hf_enip_lsr_tcp = -1;
+static int hf_enip_lsr_udp = -1;
 static int hf_enip_lsr_servicename = -1;
 
-static int hf_enip_rs_version      = -1;
-static int hf_enip_rs_optionflags  = -1;
+static int hf_enip_rs_version = -1;
+static int hf_enip_rs_optionflags = -1;
 
-static int hf_enip_srrd_ifacehnd   = -1;
+static int hf_enip_srrd_ifacehnd = -1;
 
-static int hf_enip_sud_ifacehnd    = -1;
+static int hf_enip_sud_ifacehnd = -1;
 
-static int hf_enip_cpf_itemcount   = -1;
-static int hf_enip_cpf_typeid      = -1;
-static int hf_enip_cpf_length      = -1;
-static int hf_enip_cpf_cdi_seqcnt  = -1;
+static int hf_enip_cpf_itemcount = -1;
+static int hf_enip_cpf_typeid = -1;
+static int hf_enip_cpf_length = -1;
+static int hf_enip_cpf_cdi_seqcnt = -1;
 static int hf_enip_cpf_cdi_32bitheader = -1;
 static int hf_enip_cpf_cdi_32bitheader_roo = -1;
 static int hf_enip_cpf_cdi_32bitheader_coo = -1;
 static int hf_enip_cpf_cdi_32bitheader_run_idle = -1;
-static int hf_enip_cpf_cai_connid  = -1;
-static int hf_enip_cpf_sai_connid  = -1;
-static int hf_enip_cpf_sai_seqnum  = -1;
+static int hf_enip_cpf_cai_connid = -1;
+static int hf_enip_cpf_sai_connid = -1;
+static int hf_enip_cpf_sai_seqnum = -1;
 
-static int hf_enip_cpf_data        = -1;
+static int hf_enip_cpf_data = -1;
 
 static int hf_enip_response_in = -1;
 static int hf_enip_response_to = -1;
@@ -149,107 +149,107 @@ static int hf_enip_time = -1;
 static int hf_enip_connection_transport_data = -1;
 
 /* Parsed Attributes */
-static int hf_tcpip_status                            = -1;
-static int hf_tcpip_status_interface_config           = -1;
-static int hf_tcpip_status_mcast_pending              = -1;
-static int hf_tcpip_status_interface_config_pending   = -1;
-static int hf_tcpip_status_acd                        = -1;
-static int hf_tcpip_status_reserved                   = -1;
-static int hf_tcpip_config_cap                        = -1;
-static int hf_tcpip_config_cap_bootp                  = -1;
-static int hf_tcpip_config_cap_dns                    = -1;
-static int hf_tcpip_config_cap_dhcp                   = -1;
-static int hf_tcpip_config_cap_dhcp_dns_update        = -1;
-static int hf_tcpip_config_cap_config_settable        = -1;
-static int hf_tcpip_config_cap_hardware_config        = -1;
-static int hf_tcpip_config_cap_interface_reset        = -1;
-static int hf_tcpip_config_cap_acd                    = -1;
-static int hf_tcpip_config_cap_reserved               = -1;
-static int hf_tcpip_config_control                    = -1;
-static int hf_tcpip_config_control_config             = -1;
-static int hf_tcpip_config_control_dns                = -1;
-static int hf_tcpip_config_control_reserved           = -1;
-static int hf_tcpip_physical_link_size                = -1;
-static int hf_tcpip_ic_ip_addr                        = -1;
-static int hf_tcpip_ic_subnet_mask                    = -1;
-static int hf_tcpip_ic_gateway                        = -1;
-static int hf_tcpip_ic_name_server                    = -1;
-static int hf_tcpip_ic_name_server2                   = -1;
-static int hf_tcpip_ic_domain_name                    = -1;
-static int hf_tcpip_hostname                          = -1;
-static int hf_tcpip_ttl_value                         = -1;
-static int hf_tcpip_mcast_alloc                       = -1;
-static int hf_tcpip_mcast_reserved                    = -1;
-static int hf_tcpip_mcast_num_mcast                   = -1;
-static int hf_tcpip_mcast_addr_start                  = -1;
-static int hf_tcpip_lcd_acd_activity                  = -1;
-static int hf_tcpip_lcd_remote_mac                    = -1;
-static int hf_tcpip_lcd_arp_pdu                       = -1;
-static int hf_tcpip_select_acd                        = -1;
-static int hf_tcpip_quick_connect                     = -1;
+static int hf_tcpip_status = -1;
+static int hf_tcpip_status_interface_config = -1;
+static int hf_tcpip_status_mcast_pending = -1;
+static int hf_tcpip_status_interface_config_pending = -1;
+static int hf_tcpip_status_acd = -1;
+static int hf_tcpip_status_reserved = -1;
+static int hf_tcpip_config_cap = -1;
+static int hf_tcpip_config_cap_bootp = -1;
+static int hf_tcpip_config_cap_dns = -1;
+static int hf_tcpip_config_cap_dhcp = -1;
+static int hf_tcpip_config_cap_dhcp_dns_update = -1;
+static int hf_tcpip_config_cap_config_settable = -1;
+static int hf_tcpip_config_cap_hardware_config = -1;
+static int hf_tcpip_config_cap_interface_reset = -1;
+static int hf_tcpip_config_cap_acd = -1;
+static int hf_tcpip_config_cap_reserved = -1;
+static int hf_tcpip_config_control = -1;
+static int hf_tcpip_config_control_config = -1;
+static int hf_tcpip_config_control_dns = -1;
+static int hf_tcpip_config_control_reserved = -1;
+static int hf_tcpip_physical_link_size = -1;
+static int hf_tcpip_ic_ip_addr = -1;
+static int hf_tcpip_ic_subnet_mask = -1;
+static int hf_tcpip_ic_gateway = -1;
+static int hf_tcpip_ic_name_server = -1;
+static int hf_tcpip_ic_name_server2 = -1;
+static int hf_tcpip_ic_domain_name = -1;
+static int hf_tcpip_hostname = -1;
+static int hf_tcpip_ttl_value = -1;
+static int hf_tcpip_mcast_alloc = -1;
+static int hf_tcpip_mcast_reserved = -1;
+static int hf_tcpip_mcast_num_mcast = -1;
+static int hf_tcpip_mcast_addr_start = -1;
+static int hf_tcpip_lcd_acd_activity = -1;
+static int hf_tcpip_lcd_remote_mac = -1;
+static int hf_tcpip_lcd_arp_pdu = -1;
+static int hf_tcpip_select_acd = -1;
+static int hf_tcpip_quick_connect = -1;
 
-static int hf_elink_interface_flags                   = -1;
-static int hf_elink_iflags_link_status                = -1;
-static int hf_elink_iflags_duplex                     = -1;
-static int hf_elink_iflags_neg_status                 = -1;
-static int hf_elink_iflags_manual_reset               = -1;
-static int hf_elink_iflags_local_hw_fault             = -1;
-static int hf_elink_iflags_reserved                   = -1;
-static int hf_elink_interface_speed                   = -1;
-static int hf_elink_physical_address                  = -1;
-static int hf_elink_icount_in_octets                  = -1;
-static int hf_elink_icount_in_ucast                   = -1;
-static int hf_elink_icount_in_nucast                  = -1;
-static int hf_elink_icount_in_discards                = -1;
-static int hf_elink_icount_in_errors                  = -1;
-static int hf_elink_icount_in_unknown_protos          = -1;
-static int hf_elink_icount_out_octets                 = -1;
-static int hf_elink_icount_out_ucast                  = -1;
-static int hf_elink_icount_out_nucast                 = -1;
-static int hf_elink_icount_out_discards               = -1;
-static int hf_elink_icount_out_errors                 = -1;
-static int hf_elink_mcount_alignment_errors           = -1;
-static int hf_elink_mcount_fcs_errors                 = -1;
-static int hf_elink_mcount_single_collisions          = -1;
-static int hf_elink_mcount_multiple_collisions        = -1;
-static int hf_elink_mcount_sqe_test_errors            = -1;
-static int hf_elink_mcount_deferred_transmission      = -1;
-static int hf_elink_mcount_late_collisions            = -1;
-static int hf_elink_mcount_excessive_collisions       = -1;
-static int hf_elink_mcount_mac_transmit_errors        = -1;
-static int hf_elink_mcount_carrier_sense_errors       = -1;
-static int hf_elink_mcount_frame_too_long             = -1;
-static int hf_elink_mcount_mac_receive_errors         = -1;
-static int hf_elink_icontrol_control_bits             = -1;
-static int hf_elink_icontrol_control_bits_auto_neg    = -1;
+static int hf_elink_interface_flags = -1;
+static int hf_elink_iflags_link_status = -1;
+static int hf_elink_iflags_duplex = -1;
+static int hf_elink_iflags_neg_status = -1;
+static int hf_elink_iflags_manual_reset = -1;
+static int hf_elink_iflags_local_hw_fault = -1;
+static int hf_elink_iflags_reserved = -1;
+static int hf_elink_interface_speed = -1;
+static int hf_elink_physical_address = -1;
+static int hf_elink_icount_in_octets = -1;
+static int hf_elink_icount_in_ucast = -1;
+static int hf_elink_icount_in_nucast = -1;
+static int hf_elink_icount_in_discards = -1;
+static int hf_elink_icount_in_errors = -1;
+static int hf_elink_icount_in_unknown_protos = -1;
+static int hf_elink_icount_out_octets = -1;
+static int hf_elink_icount_out_ucast = -1;
+static int hf_elink_icount_out_nucast = -1;
+static int hf_elink_icount_out_discards = -1;
+static int hf_elink_icount_out_errors = -1;
+static int hf_elink_mcount_alignment_errors = -1;
+static int hf_elink_mcount_fcs_errors = -1;
+static int hf_elink_mcount_single_collisions = -1;
+static int hf_elink_mcount_multiple_collisions = -1;
+static int hf_elink_mcount_sqe_test_errors = -1;
+static int hf_elink_mcount_deferred_transmission = -1;
+static int hf_elink_mcount_late_collisions = -1;
+static int hf_elink_mcount_excessive_collisions = -1;
+static int hf_elink_mcount_mac_transmit_errors = -1;
+static int hf_elink_mcount_carrier_sense_errors = -1;
+static int hf_elink_mcount_frame_too_long = -1;
+static int hf_elink_mcount_mac_receive_errors = -1;
+static int hf_elink_icontrol_control_bits = -1;
+static int hf_elink_icontrol_control_bits_auto_neg = -1;
 static int hf_elink_icontrol_control_bits_forced_duplex = -1;
-static int hf_elink_icontrol_control_bits_reserved    = -1;
-static int hf_elink_icontrol_forced_speed             = -1;
-static int hf_elink_interface_type                    = -1;
-static int hf_elink_interface_state                   = -1;
-static int hf_elink_admin_state                       = -1;
-static int hf_elink_interface_label                   = -1;
+static int hf_elink_icontrol_control_bits_reserved = -1;
+static int hf_elink_icontrol_forced_speed = -1;
+static int hf_elink_interface_type = -1;
+static int hf_elink_interface_state = -1;
+static int hf_elink_admin_state = -1;
+static int hf_elink_interface_label = -1;
 
-static int hf_qos_8021q_enable                        = -1;
-static int hf_qos_dscp_ptp_event                      = -1;
-static int hf_qos_dscp_ptp_general                    = -1;
-static int hf_qos_dscp_urgent                         = -1;
-static int hf_qos_dscp_scheduled                      = -1;
-static int hf_qos_dscp_high                           = -1;
-static int hf_qos_dscp_low                            = -1;
-static int hf_qos_dscp_explicit                       = -1;
+static int hf_qos_8021q_enable = -1;
+static int hf_qos_dscp_ptp_event = -1;
+static int hf_qos_dscp_ptp_general = -1;
+static int hf_qos_dscp_urgent = -1;
+static int hf_qos_dscp_scheduled = -1;
+static int hf_qos_dscp_high = -1;
+static int hf_qos_dscp_low = -1;
+static int hf_qos_dscp_explicit = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_enip          = -1;
-static gint ett_count_tree    = -1;
-static gint ett_type_tree     = -1;
-static gint ett_command_tree  = -1;
-static gint ett_sockadd       = -1;
+static gint ett_enip = -1;
+static gint ett_count_tree = -1;
+static gint ett_type_tree = -1;
+static gint ett_command_tree = -1;
+static gint ett_sockadd = -1;
 static gint ett_32bitheader_tree = -1;
-static gint ett_lsrcf         = -1;
-static gint ett_tcpip_status  = -1;
-static gint ett_tcpip_config_cap      = -1;
-static gint ett_tcpip_config_control  = -1;
+static gint ett_lsrcf = -1;
+static gint ett_tcpip_status = -1;
+static gint ett_tcpip_config_cap = -1;
+static gint ett_tcpip_config_control = -1;
 static gint ett_elink_interface_flags = -1;
 static gint ett_elink_icontrol_bits = -1;
 
@@ -260,31 +260,31 @@ static dissector_handle_t  arp_handle;
 static dissector_handle_t  cipsafety_handle;
 static dissector_handle_t  cipmotion_handle;
 
-static gboolean enip_desegment = TRUE;
+static gboolean enip_desegment  = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
 static gboolean enip_TOrun_idle = FALSE;
 
-static int proto_dlr     = -1;
+static int proto_dlr = -1;
 
-static int hf_dlr_ringsubtype      = -1;
+static int hf_dlr_ringsubtype = -1;
 static int hf_dlr_ringprotoversion = -1;
-static int hf_dlr_frametype        = -1;
-static int hf_dlr_sourceport       = -1;
-static int hf_dlr_sourceip         = -1;
-static int hf_dlr_sequenceid       = -1;
+static int hf_dlr_frametype = -1;
+static int hf_dlr_sourceport = -1;
+static int hf_dlr_sourceip = -1;
+static int hf_dlr_sequenceid = -1;
 
-static int hf_dlr_ringstate            = -1;
+static int hf_dlr_ringstate = -1;
 static int hf_dlr_supervisorprecedence = -1;
-static int hf_dlr_beaconinterval       = -1;
-static int hf_dlr_beacontimeout        = -1;
-static int hf_dlr_beaconreserved       = -1;
+static int hf_dlr_beaconinterval = -1;
+static int hf_dlr_beacontimeout = -1;
+static int hf_dlr_beaconreserved = -1;
 
-static int hf_dlr_nreqreserved   = -1;
+static int hf_dlr_nreqreserved = -1;
 
 static int hf_dlr_nressourceport = -1;
-static int hf_dlr_nresreserved   = -1;
+static int hf_dlr_nresreserved = -1;
 
-static int hf_dlr_lnknbrstatus   = -1;
+static int hf_dlr_lnknbrstatus = -1;
 static int hf_dlr_lnknbrreserved = -1;
 
 static int hf_dlr_lfreserved = -1;
@@ -292,8 +292,8 @@ static int hf_dlr_lfreserved = -1;
 static int hf_dlr_anreserved = -1;
 
 static int hf_dlr_sonumnodes = -1;
-static int hf_dlr_somac      = -1;
-static int hf_dlr_soip       = -1;
+static int hf_dlr_somac = -1;
+static int hf_dlr_soip = -1;
 static int hf_dlr_soreserved = -1;
 
 static gint ett_dlr = -1;
@@ -316,12 +316,12 @@ static const value_string encap_cmd_vals[] = {
 
 /* Translate function to string - Encapsulation status */
 static const value_string encap_status_vals[] = {
-   { SUCCESS,              "Success" },
-   { INVALID_CMD,          "Invalid Command" },
-   { NO_RESOURCES,         "No Memory Resources" },
-   { INCORRECT_DATA,       "Incorrect Data" },
-   { INVALID_SESSION,      "Invalid Session Handle" },
-   { INVALID_LENGTH,       "Invalid Length" },
+   { SUCCESS,              "Success"                       },
+   { INVALID_CMD,          "Invalid Command"               },
+   { NO_RESOURCES,         "No Memory Resources"           },
+   { INCORRECT_DATA,       "Incorrect Data"                },
+   { INVALID_SESSION,      "Invalid Session Handle"        },
+   { INVALID_LENGTH,       "Invalid Length"                },
    { UNSUPPORTED_PROT_REV, "Unsupported Protocol Revision" },
 
    { 0,                    NULL }
@@ -329,15 +329,15 @@ static const value_string encap_status_vals[] = {
 
 /* Translate function to Common data format values */
 static const value_string cdf_type_vals[] = {
-   { CDF_NULL,             "Null Address Item" },
-   { LIST_IDENTITY_RESP,   "List Identity Response" },
-   { CONNECTION_BASED,     "Connected Address Item" },
-   { CONNECTION_TRANSPORT, "Connected Data Item" },
-   { UNCONNECTED_MSG,      "Unconnected Data Item" },
-   { LIST_SERVICES_RESP,   "List Services Response" },
+   { CDF_NULL,             "Null Address Item"        },
+   { LIST_IDENTITY_RESP,   "List Identity Response"   },
+   { CONNECTION_BASED,     "Connected Address Item"   },
+   { CONNECTION_TRANSPORT, "Connected Data Item"      },
+   { UNCONNECTED_MSG,      "Unconnected Data Item"    },
+   { LIST_SERVICES_RESP,   "List Services Response"   },
    { SOCK_ADR_INFO_OT,     "Socket Address Info O->T" },
    { SOCK_ADR_INFO_TO,     "Socket Address Info T->O" },
-   { SEQ_ADDRESS,          "Sequenced Address Item" },
+   { SEQ_ADDRESS,          "Sequenced Address Item"   },
 
    { 0,                    NULL }
 };
@@ -453,13 +453,13 @@ static const value_string enip_interface_handle_vals[] = {
 
 /* Translate function to DLR Frame Type values */
 static const value_string dlr_frame_type_vals[] = {
-   { DLR_FT_BEACON,           "Beacon" },
-   { DLR_FT_NEIGHBOR_REQ,     "Neighbor_Check_Request" },
-   { DLR_FT_NEIGHBOR_RES,     "Neighbor_Check_Response" },
+   { DLR_FT_BEACON,           "Beacon"                        },
+   { DLR_FT_NEIGHBOR_REQ,     "Neighbor_Check_Request"        },
+   { DLR_FT_NEIGHBOR_RES,     "Neighbor_Check_Response"       },
    { DLR_FT_LINK_STAT,        "Link_Status / Neighbor_Status" },
-   { DLR_FT_LOCATE_FLT,       "Locate_Fault" },
-   { DLR_FT_ANNOUNCE,         "Announce" },
-   { DLR_FT_SIGN_ON,          "Sign_On" },
+   { DLR_FT_LOCATE_FLT,       "Locate_Fault"                  },
+   { DLR_FT_ANNOUNCE,         "Announce"                      },
+   { DLR_FT_SIGN_ON,          "Sign_On"                       },
 
    { 0,                    NULL }
 };
@@ -498,7 +498,7 @@ enum enip_packet_type {ENIP_REQUEST_PACKET, ENIP_RESPONSE_PACKET, ENIP_CANNOT_CL
 enum enip_packet_data_type { EPDT_UNKNOWN, EPDT_CONNECTED_TRANSPORT, EPDT_UNCONNECTED };
 
 typedef struct enip_request_key {
-   enum enip_packet_type requesttype;
+   enum enip_packet_type      requesttype;
    enum enip_packet_data_type type;
    guint32 session_handle;
    guint64 sender_context;
@@ -571,8 +571,8 @@ enip_request_hash (gconstpointer v)
 static enip_request_info_t *
 enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *prequest_key )
 {
-   enip_request_key_t *new_request_key;
-   enip_request_val_t *request_val;
+   enip_request_key_t  *new_request_key;
+   enip_request_val_t  *request_val;
    enip_request_info_t *request_info = NULL;
 
    request_info = NULL;
@@ -716,11 +716,11 @@ enip_conn_hash (gconstpointer v)
 void
 enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 {
-   enip_conn_key_t *conn_key;
-   enip_conn_val_t *conn_val;
-   conversation_t *conversation, *conversationTO;
+   enip_conn_key_t  *conn_key;
+   enip_conn_val_t  *conn_val;
+   conversation_t   *conversation, *conversationTO;
    enip_conv_info_t *enip_info;
-   address dest_address;
+   address           dest_address;
 
    if (pinfo->fd->flags.visited)
       return;
@@ -772,12 +772,12 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          /* check for O->T conversation */
          /* similar logic to find_or_create_conversation(), but since I/O traffic
          is on UDP, the pinfo parameter doesn't have the correct information */
-	      if((conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &dest_address,
-				           PT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
+         if((conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &dest_address,
+                                              PT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
 
-             conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &dest_address,
-                     PT_UDP, connInfo->O2T.port, 0, NO_PORT2);
-	      }
+            conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &dest_address,
+                                            PT_UDP, connInfo->O2T.port, 0, NO_PORT2);
+         }
 
          enip_info = conversation_get_proto_data(conversation, proto_enip);
          if (enip_info == NULL)
@@ -796,11 +796,11 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
             or ports aren't equal, a separate conversation must be generated */
          dest_address.data = &connInfo->T2O.ipaddress;
          if((conversationTO = find_conversation(pinfo->fd->num, &pinfo->src, &dest_address,
-		                 PT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
+                                                PT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
 
              conversationTO = conversation_new(pinfo->fd->num, &pinfo->src,
-			            &dest_address, PT_UDP,
-			            connInfo->T2O.port, 0, NO_PORT2);
+                                               &dest_address, PT_UDP,
+                                               connInfo->T2O.port, 0, NO_PORT2);
          }
 
          enip_info = conversation_get_proto_data(conversationTO, proto_enip);
@@ -846,7 +846,7 @@ void
 enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
                           guint16 VendorID, guint32 DeviceSerialNumber )
 {
-   enip_conn_key_t conn_key;
+   enip_conn_key_t  conn_key;
    enip_conn_val_t *conn_val;
 
    if (pinfo->fd->flags.visited)
@@ -868,9 +868,9 @@ enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
 static guint32
 enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, guint32 connid)
 {
-   conversation_t *conversation;
+   conversation_t   *conversation;
    enip_conv_info_t *enip_info;
-   enip_conn_val_t *conn_val;
+   enip_conn_val_t  *conn_val;
 
    if (  prequest_key == NULL
       || ( prequest_key->requesttype != ENIP_REQUEST_PACKET && prequest_key->requesttype != ENIP_RESPONSE_PACKET )
@@ -922,9 +922,9 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
 static enip_conn_val_t*
 enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pconnid_type)
 {
-   conversation_t *conversation;
+   conversation_t   *conversation;
    enip_conv_info_t *enip_info;
-   enip_conn_val_t *conn_val = NULL;
+   enip_conn_val_t  *conn_val = NULL;
 
    *pconnid_type = ECIDT_UNKNOWN;
 
@@ -972,8 +972,8 @@ int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item,
                              int offset, int total_len)
 
 {
-   proto_item* status_item;
-   proto_tree* status_tree;
+   proto_item *status_item;
+   proto_tree *status_tree;
 
    if (total_len < 4)
    {
@@ -996,8 +996,8 @@ int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *i
                              int offset, int total_len)
 
 {
-   proto_item* cap_item;
-   proto_tree* cap_tree;
+   proto_item *cap_item;
+   proto_tree *cap_tree;
 
    if (total_len < 4)
    {
@@ -1024,8 +1024,8 @@ int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_ite
                              int offset, int total_len)
 
 {
-   proto_item* control_item;
-   proto_tree* control_tree;
+   proto_item *control_item;
+   proto_tree *control_tree;
 
    if (total_len < 4)
    {
@@ -1046,8 +1046,8 @@ int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item
                              int offset, int total_len)
 
 {
-   guint16 path_size;
-   proto_item* path_item;
+   guint16     path_size;
+   proto_item *path_item;
 
    path_size = tvb_get_letohs( tvb, offset)*2;
    proto_tree_add_uint_format_value(tree, hf_tcpip_physical_link_size, tvb, offset, 2, path_size / 2, "%d (words)", path_size / 2);
@@ -1136,8 +1136,8 @@ int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_it
                              int offset, int total_len)
 
 {
-   proto_item* flag_item;
-   proto_tree* flag_tree;
+   proto_item *flag_item;
+   proto_tree *flag_tree;
 
    if (total_len < 4)
    {
@@ -1210,8 +1210,8 @@ int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_
                              int offset, int total_len)
 
 {
-   proto_item* control_item;
-   proto_tree* control_tree;
+   proto_item *control_item;
+   proto_tree *control_tree;
 
    if (total_len < 4)
    {
@@ -1232,39 +1232,39 @@ int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_
 attribute_info_t enip_attribute_vals[29] = {
 
    /* TCP/IP object */
-   {0xF5, FALSE, 1, "Status", cip_dissector_func, NULL, dissect_tcpip_status},
-   {0xF5, FALSE, 2, "Configuration Capability", cip_dissector_func, NULL, dissect_tcpip_config_cap},
-   {0xF5, FALSE, 3, "Configuration Control", cip_dissector_func, NULL, dissect_tcpip_config_control},
-   {0xF5, FALSE, 4, "Physical Link Object", cip_dissector_func, NULL, dissect_tcpip_physical_link},
-   {0xF5, FALSE, 5, "Interface Configuration", cip_dissector_func, NULL, dissect_tcpip_interface_config},
-   {0xF5, FALSE, 6, "Host Name", cip_string, &hf_tcpip_hostname, NULL},
-   {0xF5, FALSE, 8, "TTL Value", cip_usint, &hf_tcpip_ttl_value, NULL},
-   {0xF5, FALSE, 9, "Multicast Configuration", cip_dissector_func, NULL, dissect_tcpip_mcast_config},
+   {0xF5, FALSE,  1, "Status", cip_dissector_func, NULL, dissect_tcpip_status},
+   {0xF5, FALSE,  2, "Configuration Capability", cip_dissector_func, NULL, dissect_tcpip_config_cap},
+   {0xF5, FALSE,  3, "Configuration Control", cip_dissector_func, NULL, dissect_tcpip_config_control},
+   {0xF5, FALSE,  4, "Physical Link Object", cip_dissector_func, NULL, dissect_tcpip_physical_link},
+   {0xF5, FALSE,  5, "Interface Configuration", cip_dissector_func, NULL, dissect_tcpip_interface_config},
+   {0xF5, FALSE,  6, "Host Name", cip_string, &hf_tcpip_hostname, NULL},
+   {0xF5, FALSE,  8, "TTL Value", cip_usint, &hf_tcpip_ttl_value, NULL},
+   {0xF5, FALSE,  9, "Multicast Configuration", cip_dissector_func, NULL, dissect_tcpip_mcast_config},
    {0xF5, FALSE, 10, "Select ACD", cip_bool, &hf_tcpip_select_acd, NULL},
    {0xF5, FALSE, 11, "Last Conflict Detected", cip_dissector_func, NULL, dissect_tcpip_last_conflict},
    {0xF5, FALSE, 12, "EtherNet/IP Quick Connect", cip_bool, &hf_tcpip_quick_connect, NULL},
 
    /* Ethernet Link object */
-   {0xF6, FALSE, 1, "Interface Speed", cip_dword, &hf_elink_interface_speed, NULL},
-   {0xF6, FALSE, 2, "Interface Flags", cip_dissector_func, NULL, dissect_elink_interface_flags},
-   {0xF6, FALSE, 3, "Physical Address", cip_byte_array, &hf_elink_physical_address, NULL},
-   {0xF6, FALSE, 4, "Interface Counters", cip_dissector_func, NULL, dissect_elink_interface_counters},
-   {0xF6, FALSE, 5, "Media Counters", cip_dissector_func, NULL, dissect_elink_media_counters},
-   {0xF6, FALSE, 6, "Interface Control", cip_dissector_func, NULL, dissect_elink_interface_control},
-   {0xF6, FALSE, 7, "Interface Type", cip_usint, &hf_elink_interface_type, NULL},
-   {0xF6, FALSE, 8, "Interface State", cip_usint, &hf_elink_interface_state, NULL},
-   {0xF6, FALSE, 9, "Admin State", cip_usint, &hf_elink_admin_state, NULL},
+   {0xF6, FALSE,  1, "Interface Speed", cip_dword, &hf_elink_interface_speed, NULL},
+   {0xF6, FALSE,  2, "Interface Flags", cip_dissector_func, NULL, dissect_elink_interface_flags},
+   {0xF6, FALSE,  3, "Physical Address", cip_byte_array, &hf_elink_physical_address, NULL},
+   {0xF6, FALSE,  4, "Interface Counters", cip_dissector_func, NULL, dissect_elink_interface_counters},
+   {0xF6, FALSE,  5, "Media Counters", cip_dissector_func, NULL, dissect_elink_media_counters},
+   {0xF6, FALSE,  6, "Interface Control", cip_dissector_func, NULL, dissect_elink_interface_control},
+   {0xF6, FALSE,  7, "Interface Type", cip_usint, &hf_elink_interface_type, NULL},
+   {0xF6, FALSE,  8, "Interface State", cip_usint, &hf_elink_interface_state, NULL},
+   {0xF6, FALSE,  9, "Admin State", cip_usint, &hf_elink_admin_state, NULL},
    {0xF6, FALSE, 10, "Interface Label", cip_short_string, &hf_elink_interface_label, NULL},
 
    /* QoS object */
-   {0x48, FALSE, 1, "802.1Q Tag Enable", cip_bool, &hf_qos_8021q_enable, NULL},
-   {0x48, FALSE, 2, "DSCP PTP Event", cip_usint, &hf_qos_dscp_ptp_event, NULL},
-   {0x48, FALSE, 3, "DSCP PTP General", cip_usint, &hf_qos_dscp_ptp_general, NULL},
-   {0x48, FALSE, 4, "DSCP Urgent", cip_usint, &hf_qos_dscp_urgent, NULL},
-   {0x48, FALSE, 5, "DSCP Scheduled", cip_usint, &hf_qos_dscp_scheduled, NULL},
-   {0x48, FALSE, 6, "DSCP High", cip_usint, &hf_qos_dscp_high, NULL},
-   {0x48, FALSE, 7, "DSCP Low", cip_usint, &hf_qos_dscp_low, NULL},
-   {0x48, FALSE, 8, "DSCP Explicit", cip_usint, &hf_qos_dscp_explicit, NULL}
+   {0x48, FALSE,  1, "802.1Q Tag Enable", cip_bool, &hf_qos_8021q_enable, NULL},
+   {0x48, FALSE,  2, "DSCP PTP Event", cip_usint, &hf_qos_dscp_ptp_event, NULL},
+   {0x48, FALSE,  3, "DSCP PTP General", cip_usint, &hf_qos_dscp_ptp_general, NULL},
+   {0x48, FALSE,  4, "DSCP Urgent", cip_usint, &hf_qos_dscp_urgent, NULL},
+   {0x48, FALSE,  5, "DSCP Scheduled", cip_usint, &hf_qos_dscp_scheduled, NULL},
+   {0x48, FALSE,  6, "DSCP High", cip_usint, &hf_qos_dscp_high, NULL},
+   {0x48, FALSE,  7, "DSCP Low", cip_usint, &hf_qos_dscp_low, NULL},
+   {0x48, FALSE,  8, "DSCP Explicit", cip_usint, &hf_qos_dscp_explicit, NULL}
 
 };
 
@@ -1291,17 +1291,17 @@ static void
 dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
             packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree, int offset, guint32 ifacehndl)
 {
-   proto_item *temp_item, *count_item, *type_item, *sockaddr_item, *io_item;
-   proto_tree *temp_tree, *count_tree, *item_tree, *sockaddr_tree, *io_tree;
-   int item_count, item_length, item, io_length;
-   unsigned char name_length;
-   tvbuff_t *next_tvb;
-   enip_request_info_t *request_info;
-   enip_conn_val_t* conn_info = NULL;
-   gboolean FwdOpen = FALSE,
-            FwdOpenReply = FALSE;
-   enum enip_connid_type connid_type = ECIDT_UNKNOWN;
-   cip_safety_info_t* cip_safety;
+   proto_item            *temp_item, *count_item, *type_item, *sockaddr_item, *io_item;
+   proto_tree            *temp_tree, *count_tree, *item_tree, *sockaddr_tree, *io_tree;
+   int                    item_count, item_length, item, io_length;
+   unsigned char          name_length;
+   tvbuff_t              *next_tvb;
+   enip_request_info_t   *request_info;
+   enip_conn_val_t*       conn_info    = NULL;
+   gboolean               FwdOpen      = FALSE;
+   gboolean               FwdOpenReply = FALSE;
+   enum enip_connid_type  connid_type  = ECIDT_UNKNOWN;
+   cip_safety_info_t*     cip_safety;
 
    /* Create item count tree */
    item_count = tvb_get_letohs( tvb, offset );
@@ -1698,12 +1698,12 @@ get_enip_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static void
 dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-   int      packet_type;
-   guint16  encap_cmd, encap_data_length;
-   const char *pkt_type_str = "";
-   guint32  ifacehndl;
-   enip_request_key_t request_key;
-   conversation_t *conversation;
+   int                 packet_type;
+   guint16             encap_cmd, encap_data_length;
+   const char         *pkt_type_str = "";
+   guint32             ifacehndl;
+   enip_request_key_t  request_key;
+   conversation_t     *conversation;
 
    /* Set up structures needed to add the protocol subtree and manage it */
    proto_item *ti, *encaph, *csf;
@@ -2064,152 +2064,682 @@ proto_register_enip(void)
 {
    /* Setup list of header fields */
    static hf_register_info hf[] = {
-      { &hf_enip_command, { "Command", "enip.command", FT_UINT16, BASE_HEX, VALS(encap_cmd_vals), 0, "Encapsulation command", HFILL }},
-      { &hf_enip_length, { "Length", "enip.length", FT_UINT16, BASE_DEC, NULL, 0, "Encapsulation length", HFILL }},
-      { &hf_enip_session, { "Session Handle", "enip.session", FT_UINT32, BASE_HEX, NULL, 0, "Session identification", HFILL }},
-      { &hf_enip_status, { "Status", "enip.status", FT_UINT32, BASE_HEX, VALS(encap_status_vals), 0, "Status code", HFILL }},
-      { &hf_enip_sendercontex, { "Sender Context", "enip.context", FT_BYTES, BASE_NONE, NULL, 0, "Information pertient to the sender", HFILL }},
-      { &hf_enip_options, { "Options", "enip.options", FT_UINT32, BASE_HEX, NULL, 0, "Options flags", HFILL }},
-      { &hf_enip_encapver, { "Encapsulation Version", "enip.encapver", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_enip_sinfamily, { "sin_family", "enip.sinfamily", FT_UINT16, BASE_DEC, NULL, 0, "Socket Address.Sin Family", HFILL }},
-      { &hf_enip_sinport, { "sin_port", "enip.sinport", FT_UINT16, BASE_DEC, NULL, 0, "Socket Address.Sin Port", HFILL }},
-      { &hf_enip_sinaddr, { "sin_addr", "enip.sinaddr", FT_IPv4, BASE_NONE, NULL, 0, "Socket Address.Sin Addr", HFILL }},
-      { &hf_enip_sinzero, { "sin_zero", "enip.sinzero", FT_BYTES, BASE_NONE, NULL, 0, "Socket Address.Sin Zero", HFILL }},
-      { &hf_enip_timeout, { "Timeout", "enip.timeout", FT_UINT16, BASE_DEC, NULL, 0, "Encapsulation Timeout", HFILL }},
-      { &hf_enip_encap_data, { "Encap Data", "enip.encap_data", FT_BYTES, BASE_NONE, NULL, 0, "Encapsulation Data", HFILL }},
+      { &hf_enip_command,
+        { "Command", "enip.command",
+          FT_UINT16, BASE_HEX, VALS(encap_cmd_vals), 0,
+          "Encapsulation command", HFILL }},
+
+      { &hf_enip_length,
+        { "Length", "enip.length",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Encapsulation length", HFILL }},
+
+      { &hf_enip_session,
+        { "Session Handle", "enip.session",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Session identification", HFILL }},
+
+      { &hf_enip_status,
+        { "Status", "enip.status",
+          FT_UINT32, BASE_HEX, VALS(encap_status_vals), 0,
+          "Status code", HFILL }},
+
+      { &hf_enip_sendercontex,
+        { "Sender Context", "enip.context",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Information pertient to the sender", HFILL }},
+
+      { &hf_enip_options,
+        { "Options", "enip.options",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Options flags", HFILL }},
+
+      { &hf_enip_encapver,
+        { "Encapsulation Version", "enip.encapver",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_enip_sinfamily,
+        { "sin_family", "enip.sinfamily",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Socket Address.Sin Family", HFILL }},
+
+      { &hf_enip_sinport,
+        { "sin_port", "enip.sinport",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Socket Address.Sin Port", HFILL }},
+
+      { &hf_enip_sinaddr,
+        { "sin_addr", "enip.sinaddr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          "Socket Address.Sin Addr", HFILL }},
+
+      { &hf_enip_sinzero,
+        { "sin_zero", "enip.sinzero",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Socket Address.Sin Zero", HFILL }},
+
+      { &hf_enip_timeout,
+        { "Timeout", "enip.timeout",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Encapsulation Timeout", HFILL }},
+
+      { &hf_enip_encap_data,
+        { "Encap Data", "enip.encap_data",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Encapsulation Data", HFILL }},
+
       /* List Services Reply */
-      { &hf_enip_lsr_capaflags, { "Capability Flags", "enip.lsr.capaflags", FT_UINT16, BASE_HEX, NULL, 0, "ListServices Reply: Capability Flags", HFILL }},
-      { &hf_enip_lsr_tcp, { "Supports CIP Encapsulation via TCP", "enip.lsr.capaflags.tcp", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0020, "ListServices Reply: Supports CIP Encapsulation via TCP", HFILL }},
-      { &hf_enip_lsr_udp, { "Supports CIP Class 0 or 1 via UDP", "enip.lsr.capaflags.udp", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0100, "ListServices Reply: Supports CIP Class 0 or 1 via UDP", HFILL }},
-      { &hf_enip_lsr_servicename, { "Name of Service", "enip.lsr.servicename", FT_STRING, BASE_NONE, NULL, 0, "ListServices Reply: Name of Service", HFILL }},
+      { &hf_enip_lsr_capaflags,
+        { "Capability Flags", "enip.lsr.capaflags",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "ListServices Reply: Capability Flags", HFILL }},
+
+      { &hf_enip_lsr_tcp,
+        { "Supports CIP Encapsulation via TCP", "enip.lsr.capaflags.tcp",
+          FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0020,
+          "ListServices Reply: Supports CIP Encapsulation via TCP", HFILL }},
+
+      { &hf_enip_lsr_udp,
+        { "Supports CIP Class 0 or 1 via UDP", "enip.lsr.capaflags.udp",
+          FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0100,
+          "ListServices Reply: Supports CIP Class 0 or 1 via UDP", HFILL }},
+
+      { &hf_enip_lsr_servicename,
+        { "Name of Service", "enip.lsr.servicename",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "ListServices Reply: Name of Service", HFILL }},
+
       /* Register Session */
-      { &hf_enip_rs_version, { "Protocol Version", "enip.rs.version", FT_UINT16, BASE_DEC, NULL, 0, "Register Session: Protocol Version", HFILL }},
-      { &hf_enip_rs_optionflags, { "Option Flags", "enip.rs.flags", FT_UINT16, BASE_HEX, NULL, 0, "Register Session: Option Flags", HFILL }},
+      { &hf_enip_rs_version,
+        { "Protocol Version", "enip.rs.version",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Register Session: Protocol Version", HFILL }},
+
+      { &hf_enip_rs_optionflags,
+        { "Option Flags", "enip.rs.flags",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "Register Session: Option Flags", HFILL }},
+
       /* Send Request/Reply Data */
-      { &hf_enip_srrd_ifacehnd, { "Interface Handle", "enip.srrd.iface", FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0, "SendRRData: Interface handle", HFILL }},
+      { &hf_enip_srrd_ifacehnd,
+        { "Interface Handle", "enip.srrd.iface",
+          FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0,
+          "SendRRData: Interface handle", HFILL }},
+
       /* Send Unit Data */
-      { &hf_enip_sud_ifacehnd, { "Interface Handle", "enip.sud.iface", FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0, "SendUnitData: Interface handle", HFILL }},
+      { &hf_enip_sud_ifacehnd,
+        { "Interface Handle", "enip.sud.iface",
+          FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0,
+          "SendUnitData: Interface handle", HFILL }},
+
       /* List identity reply */
-      { &hf_enip_lir_vendor, { "Vendor ID", "enip.lir.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, "ListIdentity Reply: Vendor ID", HFILL }},
-      { &hf_enip_lir_devtype, { "Device Type", "enip.lir.devtype", FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cip_devtype_vals_ext, 0, "ListIdentity Reply: Device Type", HFILL }},
-      { &hf_enip_lir_prodcode, { "Product Code", "enip.lir.prodcode", FT_UINT16, BASE_DEC, NULL, 0, "ListIdentity Reply: Product Code", HFILL }},
-      { &hf_enip_lir_revision, { "Revision", "enip.lir.revision", FT_UINT16, BASE_CUSTOM, enip_fmt_lir_revision, 0, "ListIdentity Reply: Revision", HFILL }},
-      { &hf_enip_lir_status, { "Status", "enip.lir.status", FT_UINT16, BASE_HEX, NULL, 0, "ListIdentity Reply: Status", HFILL }},
-      { &hf_enip_lir_serial, { "Serial Number", "enip.lir.serial", FT_UINT32, BASE_HEX, NULL, 0, "ListIdentity Reply: Serial Number", HFILL }},
-      { &hf_enip_lir_namelen, { "Product Name Length", "enip.lir.namelen", FT_UINT8, BASE_DEC, NULL, 0, "ListIdentity Reply: Product Name Length", HFILL }},
-      { &hf_enip_lir_name, { "Product Name", "enip.lir.name", FT_STRING, BASE_NONE, NULL, 0, "ListIdentity Reply: Product Name", HFILL }},
-      { &hf_enip_lir_state, { "State", "enip.lir.state", FT_UINT8, BASE_HEX, NULL, 0, "ListIdentity Reply: State", HFILL }},
+      { &hf_enip_lir_vendor,
+        { "Vendor ID", "enip.lir.vendor",
+          FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0,
+          "ListIdentity Reply: Vendor ID", HFILL }},
+
+      { &hf_enip_lir_devtype,
+        { "Device Type", "enip.lir.devtype",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cip_devtype_vals_ext, 0,
+          "ListIdentity Reply: Device Type", HFILL }},
+
+      { &hf_enip_lir_prodcode,
+        { "Product Code", "enip.lir.prodcode",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "ListIdentity Reply: Product Code", HFILL }},
+
+      { &hf_enip_lir_revision,
+        { "Revision", "enip.lir.revision",
+          FT_UINT16, BASE_CUSTOM, enip_fmt_lir_revision, 0,
+          "ListIdentity Reply: Revision", HFILL }},
+
+      { &hf_enip_lir_status,
+        { "Status", "enip.lir.status",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "ListIdentity Reply: Status", HFILL }},
+
+      { &hf_enip_lir_serial,
+        { "Serial Number", "enip.lir.serial",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "ListIdentity Reply: Serial Number", HFILL }},
+
+      { &hf_enip_lir_namelen,
+        { "Product Name Length", "enip.lir.namelen",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "ListIdentity Reply: Product Name Length", HFILL }},
+
+      { &hf_enip_lir_name,
+        { "Product Name", "enip.lir.name",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "ListIdentity Reply: Product Name", HFILL }},
+
+      { &hf_enip_lir_state,
+        { "State", "enip.lir.state",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          "ListIdentity Reply: State", HFILL }},
+
       /* Common Packet Format */
-      { &hf_enip_cpf_itemcount, { "Item Count", "enip.cpf.itemcount", FT_UINT16, BASE_DEC, NULL, 0, "Common Packet Format: Item Count", HFILL }},
-      { &hf_enip_cpf_typeid, { "Type ID", "enip.cpf.typeid", FT_UINT16, BASE_HEX, VALS(cdf_type_vals), 0, "Common Packet Format: Type of encapsulated item", HFILL }},
-      { &hf_enip_cpf_length, { "Length", "enip.cpf.length", FT_UINT16, BASE_DEC, NULL, 0, "Common Packet Format: Length", HFILL }},
+      { &hf_enip_cpf_itemcount,
+        { "Item Count", "enip.cpf.itemcount",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Common Packet Format: Item Count", HFILL }},
+
+      { &hf_enip_cpf_typeid,
+        { "Type ID", "enip.cpf.typeid",
+          FT_UINT16, BASE_HEX, VALS(cdf_type_vals), 0,
+          "Common Packet Format: Type of encapsulated item", HFILL }},
+
+      { &hf_enip_cpf_length,
+        { "Length", "enip.cpf.length",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Common Packet Format: Length", HFILL }},
+
       /* Connected Data Item */
-      { &hf_enip_cpf_cdi_seqcnt, { "Sequence Count", "enip.cpf.cdi.seqcnt", FT_UINT16, BASE_HEX, NULL, 0, "Common Packet Format: Connected Data Item, Sequence Count", HFILL }},
-      { &hf_enip_cpf_cdi_32bitheader, { "32-bit Header", "enip.cpf.cdi.32bitheader", FT_UINT32, BASE_HEX, NULL, 0, "Common Packet Format: Connected Data Item, 32-bit Header", HFILL }},
-      { &hf_enip_cpf_cdi_32bitheader_roo, { "ROO", "enip.cpf.cdi.roo", FT_UINT32, BASE_HEX, NULL, 0xC, "Common Packet Format: Connected Data Item, Ready for Ownership of Outputs", HFILL }},
-      { &hf_enip_cpf_cdi_32bitheader_coo, { "COO", "enip.cpf.cdi.coo", FT_UINT32, BASE_HEX, NULL, 0x2, "Common Packet Format: Connected Data Item, Claim Output Ownership", HFILL }},
-      { &hf_enip_cpf_cdi_32bitheader_run_idle, { "Run/Idle", "enip.cpf.cdi.run_idle", FT_UINT32, BASE_HEX, VALS(enip_run_idle_vals), 0x1, "Common Packet Format: Connected Data Item, Run/Idle", HFILL }},
+      { &hf_enip_cpf_cdi_seqcnt,
+        { "Sequence Count", "enip.cpf.cdi.seqcnt",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "Common Packet Format: Connected Data Item, Sequence Count", HFILL }},
+
+      { &hf_enip_cpf_cdi_32bitheader,
+        { "32-bit Header", "enip.cpf.cdi.32bitheader",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Common Packet Format: Connected Data Item, 32-bit Header", HFILL }},
+
+      { &hf_enip_cpf_cdi_32bitheader_roo,
+        { "ROO", "enip.cpf.cdi.roo",
+          FT_UINT32, BASE_HEX, NULL, 0xC,
+          "Common Packet Format: Connected Data Item, Ready for Ownership of Outputs", HFILL }},
+
+      { &hf_enip_cpf_cdi_32bitheader_coo,
+        { "COO", "enip.cpf.cdi.coo",
+          FT_UINT32, BASE_HEX, NULL, 0x2,
+          "Common Packet Format: Connected Data Item, Claim Output Ownership", HFILL }},
+
+      { &hf_enip_cpf_cdi_32bitheader_run_idle,
+        { "Run/Idle", "enip.cpf.cdi.run_idle",
+          FT_UINT32, BASE_HEX, VALS(enip_run_idle_vals), 0x1,
+          "Common Packet Format: Connected Data Item, Run/Idle", HFILL }},
+
       /* Connection Address Item */
-      { &hf_enip_cpf_cai_connid, { "Connection ID", "enip.cpf.cai.connid", FT_UINT32, BASE_HEX, NULL, 0, "Common Packet Format: Connection Address Item, Connection Identifier", HFILL }},
+      { &hf_enip_cpf_cai_connid,
+        { "Connection ID", "enip.cpf.cai.connid",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Common Packet Format: Connection Address Item, Connection Identifier", HFILL }},
+
       /* Sequenced Address Type */
-      { &hf_enip_cpf_sai_connid, { "Connection ID", "enip.cpf.sai.connid", FT_UINT32, BASE_HEX, NULL, 0, "Common Packet Format: Sequenced Address Item, Connection Identifier", HFILL }},
-      { &hf_enip_cpf_sai_seqnum, { "Sequence Number", "enip.cpf.sai.seq", FT_UINT32, BASE_DEC, NULL, 0, "Common Packet Format: Sequenced Address Item, Sequence Number", HFILL }},
-      { &hf_enip_cpf_data, { "Data", "enip.cpf.data", FT_BYTES, BASE_NONE, NULL, 0, "Common Packet Format: Unknown Data", HFILL }},
+      { &hf_enip_cpf_sai_connid,
+        { "Connection ID", "enip.cpf.sai.connid",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Common Packet Format: Sequenced Address Item, Connection Identifier", HFILL }},
+
+      { &hf_enip_cpf_sai_seqnum,
+        { "Sequence Number", "enip.cpf.sai.seq",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          "Common Packet Format: Sequenced Address Item, Sequence Number", HFILL }},
+
+      { &hf_enip_cpf_data,
+        { "Data", "enip.cpf.data",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Common Packet Format: Unknown Data", HFILL }},
+
       /* Request/Response Matching */
-      { &hf_enip_response_in, { "Response In", "enip.response_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The response to this ENIP request is in this frame", HFILL }},
-      { &hf_enip_response_to, { "Request In", "enip.response_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "This is a response to the ENIP request in this frame", HFILL }},
-      { &hf_enip_time, { "Time", "enip.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,"The time between the Call and the Reply", HFILL }},
-      { &hf_enip_connection_transport_data, { "Data", "enip.connection_transport_data", FT_BYTES, BASE_NONE, NULL, 0x0, "Connection Transport Data", HFILL }},
+      { &hf_enip_response_in,
+        { "Response In", "enip.response_in",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          "The response to this ENIP request is in this frame", HFILL }},
 
-      { &hf_tcpip_status, { "Status", "cip.tcpip.status", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_status_interface_config, { "Interface Configuration Status", "cip.tcpip.status.interface_config", FT_UINT32, BASE_DEC, enip_tcpip_status_interface_config_vals, 0x0000000F, NULL, HFILL }},
-      { &hf_tcpip_status_mcast_pending, { "MCast Pending", "cip.tcpip.status.mcast_pending", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010, NULL, HFILL }},
-      { &hf_tcpip_status_interface_config_pending, { "Interface Configuration Pending", "cip.tcpip.status.interface_config_pending", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020, NULL, HFILL }},
-      { &hf_tcpip_status_acd, { "ACD Status", "cip.tcpip.status.acd", FT_UINT32, BASE_DEC, enip_tcpip_status_acd_vals, 0x00000040, NULL, HFILL }},
-      { &hf_tcpip_status_reserved, { "Reserved", "cip.tcpip.status.reserved", FT_UINT32, BASE_HEX, NULL, 0xFFFFFF80, NULL, HFILL }},
-      { &hf_tcpip_config_cap, { "Configuration Capability", "cip.tcpip.config_cap", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_config_cap_bootp, { "BOOTP Client", "cip.tcpip.config_cap.bootp", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001, NULL, HFILL }},
-      { &hf_tcpip_config_cap_dns, { "DNS Client", "cip.tcpip.config_cap.dns", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002, NULL, HFILL }},
-      { &hf_tcpip_config_cap_dhcp, { "DHCP Client", "cip.tcpip.config_cap.dhcp", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004, NULL, HFILL }},
-      { &hf_tcpip_config_cap_dhcp_dns_update, { "DHCP-DNS Update", "cip.tcpip.config_cap.dhcp_dns_update", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008, NULL, HFILL }},
-      { &hf_tcpip_config_cap_config_settable, { "Configuration Settable", "cip.tcpip.config_cap.config_settable", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010, NULL, HFILL }},
-      { &hf_tcpip_config_cap_hardware_config, { "Hardware Configurable", "cip.tcpip.config_cap.hardware_config", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020, NULL, HFILL }},
-      { &hf_tcpip_config_cap_interface_reset, { "Interface Configuration Change Requires Reset", "cip.tcpip.config_cap.interface_reset", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040, NULL, HFILL }},
-      { &hf_tcpip_config_cap_acd, { "ACD Capable", "cip.tcpip.config_cap.acd", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080, NULL, HFILL }},
-      { &hf_tcpip_config_cap_reserved, { "Reserved", "cip.tcpip.config_cap.reserved", FT_UINT32, BASE_HEX, NULL, 0xFFFFFF00, NULL, HFILL }},
-      { &hf_tcpip_config_control, { "Configuration Control", "cip.tcpip.config_control", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_config_control_config, { "Configuration Method", "cip.tcpip.config_control.config", FT_UINT32, BASE_DEC, enip_tcpip_config_control_config_vals, 0x0000000F, NULL, HFILL }},
-      { &hf_tcpip_config_control_dns, { "DNS Enable", "cip.tcpip.config_control.dns", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010, NULL, HFILL }},
-      { &hf_tcpip_config_control_reserved, { "Reserved", "cip.tcpip.config_control.reserved", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFE0, NULL, HFILL }},
-      { &hf_tcpip_physical_link_size, { "Size", "cip.tcpip.physical_link_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_ic_ip_addr, { "IP Address", "cip.tcpip.ip_addr", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_ic_subnet_mask, { "Subnet Mask", "cip.tcpip.subnet_mask", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_ic_gateway, { "Gateway", "cip.tcpip.gateway", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_ic_name_server, { "Name Server", "cip.tcpip.name_server", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_ic_name_server2, { "Name Server2", "cip.tcpip.name_server2", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_ic_domain_name, { "Domain Name", "cip.tcpip.domain_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_hostname, { "Hostname", "cip.tcpip.hostname", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_ttl_value, { "TTL Value", "cip.tcpip.ttl_value", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_mcast_alloc, { "Alloc Control", "cip.tcpip.mcast.alloc", FT_UINT8, BASE_DEC, enip_tcpip_mcast_alloc_vals, 0, NULL, HFILL }},
-      { &hf_tcpip_mcast_reserved, { "Reserved", "cip.tcpip.mcast.reserved", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_mcast_num_mcast, { "Num MCast", "cip.tcpip.mcast.num_mcast", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_mcast_addr_start, { "MCast Start Addr", "cip.tcpip.mcast.addr_start", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_select_acd, { "Select ACD", "cip.tcpip.select_acd", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
-      { &hf_tcpip_lcd_acd_activity, { "ACD Activity", "cip.tcpip.last_conflict.acd_activity", FT_UINT8, BASE_DEC, enip_tcpip_acd_activity_vals, 0, NULL, HFILL }},
-      { &hf_tcpip_lcd_remote_mac, { "RemoteMAC", "cip.tcpip.last_conflict.remote_mac", FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_lcd_arp_pdu, { "Arp PDU", "cip.tcpip.last_conflict.arp_pdu", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_quick_connect, { "Ethernet/IP Quick Connection", "cip.tcpip.quick_connect", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x1, NULL, HFILL }},
+      { &hf_enip_response_to,
+        { "Request In", "enip.response_to",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          "This is a response to the ENIP request in this frame", HFILL }},
 
-      { &hf_elink_interface_speed, { "Interface Speed", "cip.elink.interface_speed", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_interface_flags, { "Interface Flags", "cip.elink.iflags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_elink_iflags_link_status, { "Link Status", "cip.elink.iflags.link_status", FT_BOOLEAN, 32, TFS(&tfs_active_inactive), 0x00000001, NULL, HFILL }},
-      { &hf_elink_iflags_duplex, { "Duplex", "cip.elink.iflags.duplex", FT_UINT32, BASE_DEC, enip_elink_duplex_vals, 0x00000002, NULL, HFILL }},
-      { &hf_elink_iflags_neg_status, { "Negotiation Status", "cip.elink.iflags.neg_status", FT_UINT32, BASE_DEC, enip_elink_iflags_neg_status_vals, 0x0000001C, NULL, HFILL }},
-      { &hf_elink_iflags_manual_reset, { "Manual Reset Required", "cip.elink.iflags.manual_reset", FT_UINT32, BASE_DEC, enip_elink_iflags_reset_vals, 0x00000020, NULL, HFILL }},
-      { &hf_elink_iflags_local_hw_fault, { "Local Hardware Fault", "cip.elink.iflags.local_hw_fault", FT_UINT32, BASE_DEC, enip_elink_iflags_hw_fault_vals, 0x00000040, NULL, HFILL }},
-      { &hf_elink_iflags_reserved, { "Reserved", "cip.elink.iflags.reserved", FT_UINT32, BASE_HEX, NULL, 0xFFFFFF80, NULL, HFILL }},
-      { &hf_elink_physical_address, { "Physical Addresss", "cip.elink.physical_address", FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_in_octets, { "In Octets", "cip.elink.icount.in_octets", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_in_ucast, { "In Ucast Packets", "cip.elink.icount.in_ucast", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_in_nucast, { "In NUcast Packets", "cip.elink.icount.in_nucast", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_in_discards, { "In Discards", "cip.elink.icount.in_discards", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_in_errors, { "In Errors", "cip.elink.icount.in_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_in_unknown_protos, { "In Unknown Protos", "cip.elink.icount.in_unknown_protos", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_out_octets, { "Out Octets", "cip.elink.icount.out_octets", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_out_ucast, { "Out Ucast Packets", "cip.elink.icount.out_ucast", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_out_nucast, { "Out NUcast Packets", "cip.elink.icount.out_nucast", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_out_discards, { "Out Discards", "cip.elink.icount.out_discards", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icount_out_errors, { "Out Errors", "cip.elink.icount.out_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_alignment_errors, { "Alignment Errors", "cip.elink.mcount.alignment_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_fcs_errors, { "FCS Errors", "cip.elink.mcount.fcs_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_single_collisions, { "Single Collisions", "cip.elink.mcount.single_collisions", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_multiple_collisions, { "Multiple Collisions", "cip.elink.mcount.multiple_collisions", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_sqe_test_errors, { "SQE Test Errors", "cip.elink.mcount.sqe_test_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_deferred_transmission, { "Deferred Transmission", "cip.elink.mcount.deferred_transmission", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_late_collisions, { "Late Collisions", "cip.elink.mcount.late_collisions", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_excessive_collisions, { "Excessive Collisions", "cip.elink.mcount.excessive_collisions", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_mac_transmit_errors, { "MAC Transmit Errors", "cip.elink.mcount.mac_transmit_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_carrier_sense_errors, { "Carrier Sense Errors", "cip.elink.mcount.carrier_sense_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_frame_too_long, { "Frame Too Long", "cip.elink.mcount.frame_too_long", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_mcount_mac_receive_errors, { "MAC Receive Errors", "cip.elink.mcount.mac_receive_errors", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icontrol_control_bits, { "Control Bits", "cip.elink.icontrol.control_bits", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_elink_icontrol_control_bits_auto_neg, { "Auto-negotiate", "cip.elink.icontrol.control_bits.auto_neg", FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), 0x0001, NULL, HFILL }},
-      { &hf_elink_icontrol_control_bits_forced_duplex, { "Forced Duplex Mode", "cip.elink.icontrol.control_bits.forced_duplex", FT_UINT16, BASE_DEC, enip_elink_duplex_vals, 0x0002, NULL, HFILL }},
-      { &hf_elink_icontrol_control_bits_reserved, { "Reserved", "cip.elink.icontrol.control_bits.reserved", FT_UINT16, BASE_HEX, NULL, 0xFFFC, NULL, HFILL }},
-      { &hf_elink_icontrol_forced_speed, { "Forced Interface Speed", "cip.elink.icontrol.forced_speed", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_elink_interface_type, { "Interface Type", "cip.elink.interface_type", FT_UINT8, BASE_DEC, enip_elink_interface_type_vals, 0, NULL, HFILL }},
-      { &hf_elink_interface_state, { "Interface State", "cip.elink.interface_state", FT_UINT8, BASE_DEC, enip_elink_interface_state_vals, 0, NULL, HFILL }},
-      { &hf_elink_admin_state, { "Admin State", "cip.elink.admin_state", FT_UINT8, BASE_DEC, enip_elink_admin_state_vals, 0, NULL, HFILL }},
-      { &hf_elink_interface_label, { "Interface Label", "cip.elink.interface_label", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_enip_time,
+        { "Time", "enip.time",
+          FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+          "The time between the Call and the Reply", HFILL }},
 
-      { &hf_qos_8021q_enable, { "802.1Q Tag Enable", "cip.qos.8021q_enable", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x1, NULL, HFILL }},
-      { &hf_qos_dscp_ptp_event, { "DSCP PTP Event", "cip.qos.ptp_event", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_qos_dscp_ptp_general, { "DSCP PTP General", "cip.qos.ptp_general", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_qos_dscp_urgent, { "DSCP Urgent", "cip.qos.urgent", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_qos_dscp_scheduled, { "DSCP Scheduled", "cip.qos.scheduled", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_qos_dscp_high, { "DSCP High", "cip.qos.high", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_qos_dscp_low, { "DSCP Low", "cip.qos.low", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_qos_dscp_explicit, { "DSCP Explicit", "cip.qos.explicit", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }}
+      { &hf_enip_connection_transport_data,
+        { "Data", "enip.connection_transport_data",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Connection Transport Data", HFILL }},
+
+      { &hf_tcpip_status,
+        { "Status", "cip.tcpip.status",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_status_interface_config,
+        { "Interface Configuration Status", "cip.tcpip.status.interface_config",
+          FT_UINT32, BASE_DEC, enip_tcpip_status_interface_config_vals, 0x0000000F,
+          NULL, HFILL }},
+
+      { &hf_tcpip_status_mcast_pending,
+        { "MCast Pending", "cip.tcpip.status.mcast_pending",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010,
+          NULL, HFILL }},
+
+      { &hf_tcpip_status_interface_config_pending,
+        { "Interface Configuration Pending", "cip.tcpip.status.interface_config_pending",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
+          NULL, HFILL }},
+
+      { &hf_tcpip_status_acd,
+        { "ACD Status", "cip.tcpip.status.acd",
+          FT_UINT32, BASE_DEC, enip_tcpip_status_acd_vals, 0x00000040,
+          NULL, HFILL }},
+
+      { &hf_tcpip_status_reserved,
+        { "Reserved", "cip.tcpip.status.reserved",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFF80,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap,
+        { "Configuration Capability", "cip.tcpip.config_cap",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_bootp,
+        { "BOOTP Client", "cip.tcpip.config_cap.bootp",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_dns,
+        { "DNS Client", "cip.tcpip.config_cap.dns",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_dhcp,
+        { "DHCP Client", "cip.tcpip.config_cap.dhcp",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_dhcp_dns_update,
+        { "DHCP-DNS Update", "cip.tcpip.config_cap.dhcp_dns_update",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_config_settable,
+        { "Configuration Settable", "cip.tcpip.config_cap.config_settable",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_hardware_config,
+        { "Hardware Configurable", "cip.tcpip.config_cap.hardware_config",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_interface_reset,
+        { "Interface Configuration Change Requires Reset", "cip.tcpip.config_cap.interface_reset",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_acd,
+        { "ACD Capable", "cip.tcpip.config_cap.acd",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_cap_reserved,
+        { "Reserved", "cip.tcpip.config_cap.reserved",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFF00,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_control,
+        { "Configuration Control", "cip.tcpip.config_control",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_control_config,
+        { "Configuration Method", "cip.tcpip.config_control.config",
+          FT_UINT32, BASE_DEC, enip_tcpip_config_control_config_vals, 0x0000000F,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_control_dns,
+        { "DNS Enable", "cip.tcpip.config_control.dns",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000010,
+          NULL, HFILL }},
+
+      { &hf_tcpip_config_control_reserved,
+        { "Reserved", "cip.tcpip.config_control.reserved",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFFE0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_physical_link_size,
+        { "Size", "cip.tcpip.physical_link_size",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_ic_ip_addr,
+        { "IP Address", "cip.tcpip.ip_addr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_ic_subnet_mask,
+        { "Subnet Mask", "cip.tcpip.subnet_mask",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_ic_gateway,
+        { "Gateway", "cip.tcpip.gateway",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_ic_name_server,
+        { "Name Server", "cip.tcpip.name_server",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_ic_name_server2,
+        { "Name Server2", "cip.tcpip.name_server2",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_ic_domain_name,
+        { "Domain Name", "cip.tcpip.domain_name",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_hostname,
+        { "Hostname", "cip.tcpip.hostname",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_ttl_value,
+        { "TTL Value", "cip.tcpip.ttl_value",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_mcast_alloc,
+        { "Alloc Control", "cip.tcpip.mcast.alloc",
+          FT_UINT8, BASE_DEC, enip_tcpip_mcast_alloc_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_mcast_reserved,
+        { "Reserved", "cip.tcpip.mcast.reserved",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_mcast_num_mcast,
+        { "Num MCast", "cip.tcpip.mcast.num_mcast",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_mcast_addr_start,
+        { "MCast Start Addr", "cip.tcpip.mcast.addr_start",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_select_acd,
+        { "Select ACD", "cip.tcpip.select_acd",
+          FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_lcd_acd_activity,
+        { "ACD Activity", "cip.tcpip.last_conflict.acd_activity",
+          FT_UINT8, BASE_DEC, enip_tcpip_acd_activity_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_lcd_remote_mac,
+        { "RemoteMAC", "cip.tcpip.last_conflict.remote_mac",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_lcd_arp_pdu,
+        { "Arp PDU", "cip.tcpip.last_conflict.arp_pdu",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_tcpip_quick_connect,
+        { "Ethernet/IP Quick Connection", "cip.tcpip.quick_connect",
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x1,
+          NULL, HFILL }},
+
+
+      { &hf_elink_interface_speed,
+        { "Interface Speed", "cip.elink.interface_speed",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_interface_flags,
+        { "Interface Flags", "cip.elink.iflags",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_iflags_link_status,
+        { "Link Status", "cip.elink.iflags.link_status",
+          FT_BOOLEAN, 32, TFS(&tfs_active_inactive), 0x00000001,
+          NULL, HFILL }},
+
+      { &hf_elink_iflags_duplex,
+        { "Duplex", "cip.elink.iflags.duplex",
+          FT_UINT32, BASE_DEC, enip_elink_duplex_vals, 0x00000002,
+          NULL, HFILL }},
+
+      { &hf_elink_iflags_neg_status,
+        { "Negotiation Status", "cip.elink.iflags.neg_status",
+          FT_UINT32, BASE_DEC, enip_elink_iflags_neg_status_vals, 0x0000001C,
+          NULL, HFILL }},
+
+      { &hf_elink_iflags_manual_reset,
+        { "Manual Reset Required", "cip.elink.iflags.manual_reset",
+          FT_UINT32, BASE_DEC, enip_elink_iflags_reset_vals, 0x00000020,
+          NULL, HFILL }},
+
+      { &hf_elink_iflags_local_hw_fault,
+        { "Local Hardware Fault", "cip.elink.iflags.local_hw_fault",
+          FT_UINT32, BASE_DEC, enip_elink_iflags_hw_fault_vals, 0x00000040,
+          NULL, HFILL }},
+
+      { &hf_elink_iflags_reserved,
+        { "Reserved", "cip.elink.iflags.reserved",
+          FT_UINT32, BASE_HEX, NULL, 0xFFFFFF80,
+          NULL, HFILL }},
+
+      { &hf_elink_physical_address,
+        { "Physical Addresss", "cip.elink.physical_address",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_in_octets,
+        { "In Octets", "cip.elink.icount.in_octets",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_in_ucast,
+        { "In Ucast Packets", "cip.elink.icount.in_ucast",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_in_nucast,
+        { "In NUcast Packets", "cip.elink.icount.in_nucast",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_in_discards,
+        { "In Discards", "cip.elink.icount.in_discards",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_in_errors,
+        { "In Errors", "cip.elink.icount.in_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_in_unknown_protos,
+        { "In Unknown Protos", "cip.elink.icount.in_unknown_protos",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_out_octets,
+        { "Out Octets", "cip.elink.icount.out_octets",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_out_ucast,
+        { "Out Ucast Packets", "cip.elink.icount.out_ucast",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_out_nucast,
+        { "Out NUcast Packets", "cip.elink.icount.out_nucast",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_out_discards,
+        { "Out Discards", "cip.elink.icount.out_discards",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icount_out_errors,
+        { "Out Errors", "cip.elink.icount.out_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_alignment_errors,
+        { "Alignment Errors", "cip.elink.mcount.alignment_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_fcs_errors,
+        { "FCS Errors", "cip.elink.mcount.fcs_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_single_collisions,
+        { "Single Collisions", "cip.elink.mcount.single_collisions",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_multiple_collisions,
+        { "Multiple Collisions", "cip.elink.mcount.multiple_collisions",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_sqe_test_errors,
+        { "SQE Test Errors", "cip.elink.mcount.sqe_test_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_deferred_transmission,
+        { "Deferred Transmission", "cip.elink.mcount.deferred_transmission",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_late_collisions,
+        { "Late Collisions", "cip.elink.mcount.late_collisions",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_excessive_collisions,
+        { "Excessive Collisions", "cip.elink.mcount.excessive_collisions",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_mac_transmit_errors,
+        { "MAC Transmit Errors", "cip.elink.mcount.mac_transmit_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_carrier_sense_errors,
+        { "Carrier Sense Errors", "cip.elink.mcount.carrier_sense_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_frame_too_long,
+        { "Frame Too Long", "cip.elink.mcount.frame_too_long",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_mcount_mac_receive_errors,
+        { "MAC Receive Errors", "cip.elink.mcount.mac_receive_errors",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icontrol_control_bits,
+        { "Control Bits", "cip.elink.icontrol.control_bits",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icontrol_control_bits_auto_neg,
+        { "Auto-negotiate", "cip.elink.icontrol.control_bits.auto_neg",
+          FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), 0x0001,
+          NULL, HFILL }},
+
+      { &hf_elink_icontrol_control_bits_forced_duplex,
+        { "Forced Duplex Mode", "cip.elink.icontrol.control_bits.forced_duplex",
+          FT_UINT16, BASE_DEC, enip_elink_duplex_vals, 0x0002,
+          NULL, HFILL }},
+
+      { &hf_elink_icontrol_control_bits_reserved,
+        { "Reserved", "cip.elink.icontrol.control_bits.reserved",
+          FT_UINT16, BASE_HEX, NULL, 0xFFFC,
+          NULL, HFILL }},
+
+      { &hf_elink_icontrol_forced_speed,
+        { "Forced Interface Speed", "cip.elink.icontrol.forced_speed",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_interface_type,
+        { "Interface Type", "cip.elink.interface_type",
+          FT_UINT8, BASE_DEC, enip_elink_interface_type_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_interface_state,
+        { "Interface State", "cip.elink.interface_state",
+          FT_UINT8, BASE_DEC, enip_elink_interface_state_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_admin_state,
+        { "Admin State", "cip.elink.admin_state",
+          FT_UINT8, BASE_DEC, enip_elink_admin_state_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_interface_label,
+        { "Interface Label", "cip.elink.interface_label",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+
+      { &hf_qos_8021q_enable,
+        { "802.1Q Tag Enable", "cip.qos.8021q_enable",
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x1,
+          NULL, HFILL }},
+
+      { &hf_qos_dscp_ptp_event,
+        { "DSCP PTP Event", "cip.qos.ptp_event",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_qos_dscp_ptp_general,
+        { "DSCP PTP General", "cip.qos.ptp_general",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_qos_dscp_urgent,
+        { "DSCP Urgent", "cip.qos.urgent",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_qos_dscp_scheduled,
+        { "DSCP Scheduled", "cip.qos.scheduled",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_qos_dscp_high,
+        { "DSCP High", "cip.qos.high",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_qos_dscp_low,
+        { "DSCP Low", "cip.qos.low",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_qos_dscp_explicit,
+        { "DSCP Explicit", "cip.qos.explicit",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }}
 
    };
 
@@ -2414,10 +2944,6 @@ proto_register_enip(void)
 } /* end of proto_register_enip() */
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_enip(void)
 {
