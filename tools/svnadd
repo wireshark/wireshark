@@ -35,6 +35,8 @@ do
 		continue
 	fi
 
+	# TODO: a command-line option to skip this step (to allow this script
+	# to fix svn properties too).
 	svn add $file
 
 	case "$file" in
@@ -51,6 +53,8 @@ do
 			svn ps svn:eol-style native $file
 			;;
 		*.pcapng)
+			# http://seclists.org/tcpdump/2011/q2/4 says that PCAP-NG
+			# files should not use application/vnd.tcpdump.pcap
 			svn ps svn:mime-type application/octet-stream $file
 			;;
 		*.pcap)
