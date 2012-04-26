@@ -2413,9 +2413,58 @@ dis_iei_upi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 }
 
 
-/* */
+/*
+ * 9.2.3.24 TP-User Data (TP-UD)
+ * Information Element Identifier octet
+ */
 
+#if 0
+/* TS 123 040 V9.3.0 (2010-10) */
+static const value_string gsm_sms_tp_ud_ie-_d_vals[] = {
+	{ 0x00,  "Concatenated short messages, 8-bit reference number (SMS Control)" },
+    { 0x01,  "Special SMS Message Indication (SMS Control)" },
+    { 0x02,  "Reserved" },
+    { 0x03,  "Value not used to avoid misinterpretation as <LF> character" },
+    { 0x04,  "Application port addressing scheme, 8 bit address (SMS Control)" },
+    { 0x05,  "Application port addressing scheme, 16 bit address (SMS Control)" },
+    { 0x06,  "SMSC Control Parameters (SMS Control)" },
+    { 0x07,  "UDH Source Indicator (SMS Control)" },
+    { 0x08,  "Concatenated short message, 16-bit reference number (SMS Control)" },
+    { 0x09,  "Wireless Control Message Protocol (SMS Control)" },
+    { 0x0A,  "Text Formatting (EMS Control)" },
+    { 0x0B,  "Predefined Sound (EMS Content)" },
+    { 0x0C,  "User Defined Sound (iMelody max 128 bytes) (EMS Content)" },
+    { 0x0D,  "Predefined Animation (EMS Content)" },
+    { 0x0E,  "Large Animation (16*16 times 4 = 32*4 =128 bytes) (EMS Content)" },
+    { 0x0F,  "Small Animation (8*8 times 4 = 8*4 =32 bytes) (EMS Content)" },
+    { 0x10,  "Large Picture (32*32 = 128 bytes) (EMS Content)" },
+    { 0x11,  "Small Picture (16*16 = 32 bytes) (EMS Content)" },
+    { 0x12,  "Variable Picture (EMS Content)" },
+    { 0x13,  "User prompt indicator (EMS Control)" },
+    { 0x14,  "Extended Object (EMS Content)" },
+    { 0x15,  "Reused Extended Object (EMS Control)" },
+    { 0x16,  "Compression Control (EMS Control)" },
+    { 0x17,  "Object Distribution Indicator (EMS Control)" },
+    { 0x18,  "Standard WVG object (EMS Content)" },
+    { 0x19,  "Character Size WVG object (EMS Content)" },
+    { 0x1A,  "Extended Object Data Request Command (EMS Control)" },
+	/*1B-1F Reserved for future EMS features (see subclause 3.10) */
+    { 0x20,  "RFC 822 E-Mail Header (SMS Control)" },
+    { 0x21,  "Hyperlink format element (SMS Control)" },s
+    { 0x22,  "Reply Address Element (SMS Control)" },
+    { 0x23,  "Enhanced Voice Mail Information (SMS Control)" },
+    { 0x24,  "National Language Single Shift (SMS Control)" },
+    { 0x25,  "National Language Locking Shift (SMS Control)" },
+	/*26 – 6F Reserved for future use */
+	/*70 – 7F (U)SIM Toolkit Security Headers (SMS Control) */
+	/*80 – 9F SME to SME specific use (SMS Control) */
+	/*A0 – BF Reserved for future use */
+	/*C0 – DF SC specific use (SMS Control) */
+	/*E0 – FF Reserved for future use */
+    { 0, NULL },
+};
 
+#endif 
 static void
 dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
