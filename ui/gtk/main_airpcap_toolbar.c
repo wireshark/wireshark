@@ -75,10 +75,10 @@ airpcap_toolbar_fcs_filter_combo_cb(GtkWidget *fcs_filter_cb, gpointer user_data
         if (fcs_filter_str && (g_ascii_strcasecmp("", fcs_filter_str)) && ad) {
             airpcap_if_selected->CrcValidationOn = airpcap_get_validation_type(fcs_filter_str);
             airpcap_if_selected->saved = FALSE;
-	    airpcap_if_set_fcs_validation(ad,airpcap_if_active->CrcValidationOn);
-	    /* Save configuration */
-	    airpcap_if_store_cur_config_as_adapter_default(ad);
-	    airpcap_if_close(ad);
+            airpcap_if_set_fcs_validation(ad,airpcap_if_active->CrcValidationOn);
+            /* Save configuration */
+            airpcap_if_store_cur_config_as_adapter_default(ad);
+            airpcap_if_close(ad);
         }
         g_free(fcs_filter_str);
     }
@@ -104,17 +104,17 @@ airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
         airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_OFF;
         airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
         /* Save configuration */
-        if(!airpcap_if_store_cur_config_as_adapter_default(ad))	{
+        if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
           simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-	}
+        }
         airpcap_if_close(ad);
       } else {
         airpcap_if_active->DecryptionOn = AIRPCAP_DECRYPTION_ON;
         airpcap_if_set_decryption_state(ad,airpcap_if_active->DecryptionOn);
         /* Save configuration */
-        if(!airpcap_if_store_cur_config_as_adapter_default(ad))	{
+        if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
           simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-	}
+        }
         airpcap_if_close(ad);
       }
     }
@@ -132,16 +132,16 @@ airpcap_toolbar_encryption_cb(GtkWidget *entry _U_, gpointer user_data _U_)
       curr_if = (airpcap_if_info_t*)g_list_nth_data(airpcap_if_list,i);
 
       if( (curr_if != NULL) && (curr_if != airpcap_if_selected) ) {
-	ad = airpcap_if_open(curr_if->name, ebuf);
-	if(ad) {
-	  curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
-	  airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
-	  /* Save configuration for the curr_if */
-	  if(!airpcap_if_store_cur_config_as_adapter_default(ad))	{
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
-	  }
-	  airpcap_if_close(ad);
-	}
+        ad = airpcap_if_open(curr_if->name, ebuf);
+        if(ad) {
+          curr_if->DecryptionOn = airpcap_if_selected->DecryptionOn;
+          airpcap_if_set_decryption_state(ad,curr_if->DecryptionOn);
+          /* Save configuration for the curr_if */
+          if(!airpcap_if_store_cur_config_as_adapter_default(ad)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Cannot save configuration!!!\nRemember that in order to store the configuration in the registry you have to:\n\n- Close all the airpcap-based applications.\n- Be sure to have administrative privileges.");
+          }
+          airpcap_if_close(ad);
+        }
       }
     }
   } else {
@@ -182,20 +182,20 @@ toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 
 GtkWidget *airpcap_toolbar_new(void)
 {
-    GtkWidget	  *channel_lb = NULL,
-		  *channel_cb = NULL,
-		  *channel_offset_lb = NULL,
-		  *channel_offset_cb = NULL,
-		  *fcs_filter_lb = NULL,
-		  *fcs_filter_cb = NULL;
+    GtkWidget     *channel_lb = NULL,
+                  *channel_cb = NULL,
+                  *channel_offset_lb = NULL,
+                  *channel_offset_cb = NULL,
+                  *fcs_filter_lb = NULL,
+                  *fcs_filter_cb = NULL;
     GtkWidget     *airpcap_tb;
 
     GtkWidget     *decryption_mode_lb;
     GtkWidget     *decryption_mode_cb;
 
-    GtkToolItem	  *key_management_bt = NULL,
-		  *advanced_bt = NULL,
-		  *tool_item;
+    GtkToolItem   *key_management_bt = NULL,
+                  *advanced_bt = NULL,
+                  *tool_item;
 
     /* airpcap toolbar */
     airpcap_tb = gtk_toolbar_new();
@@ -207,14 +207,12 @@ GtkWidget *airpcap_toolbar_new(void)
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY, channel_lb);
     gtk_widget_show(channel_lb);
 
-    gtk_widget_set_size_request(channel_lb, 85, -1);
-
     tool_item = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (tool_item), channel_lb);
     gtk_widget_show (GTK_WIDGET (tool_item));
     gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb), tool_item, -1);
 
-	gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "Current 802.11 Channel");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "Current 802.11 Channel");
 
     /* Create the channel combo box */
     channel_cb = gtk_combo_box_text_new();
@@ -223,8 +221,6 @@ GtkWidget *airpcap_toolbar_new(void)
     /* Select the current channel */
     airpcap_update_channel_combo(GTK_WIDGET(channel_cb), airpcap_if_selected);
 
-    gtk_widget_set_size_request(channel_cb, 120, -1);
-
     gtk_widget_show(channel_cb);
 
     tool_item = gtk_tool_item_new ();
@@ -232,20 +228,19 @@ GtkWidget *airpcap_toolbar_new(void)
     gtk_widget_show (GTK_WIDGET (tool_item));
     gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb), tool_item, -1);
 
-	gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "802.11 Channel");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "802.11 Channel");
 
     /* Create the "Channel Offset:" label */
     channel_offset_lb = gtk_label_new("Channel Offset: ");
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY, channel_offset_lb);
     gtk_widget_show(channel_offset_lb);
 
-    gtk_widget_set_size_request(channel_offset_lb, 90, -1);
     tool_item = gtk_tool_item_new ();
     gtk_container_add (GTK_CONTAINER (tool_item), channel_offset_lb);
     gtk_widget_show (GTK_WIDGET (tool_item));
     gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb), tool_item, -1);
 
-	gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "Current 802.11 Channel Offset");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "Current 802.11 Channel Offset");
 
     /* Start: Channel offset combo box */
     channel_offset_cb = gtk_combo_box_text_new();
@@ -257,9 +252,7 @@ GtkWidget *airpcap_toolbar_new(void)
         gtk_combo_box_set_active(GTK_COMBO_BOX(channel_offset_cb), -1);
     }
 
-	gtk_widget_set_tooltip_text(channel_offset_cb, "Current 802.11 Channel Offset");
-
-    gtk_widget_set_size_request(channel_offset_cb, 50, -1);
+    gtk_widget_set_tooltip_text(channel_offset_cb, "Current 802.11 Channel Offset");
 
     gtk_widget_show(channel_offset_cb);
 
@@ -287,14 +280,12 @@ GtkWidget *airpcap_toolbar_new(void)
     fcs_filter_cb = gtk_combo_box_text_new();
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_FCS_FILTER_KEY, fcs_filter_cb);
 
-    gtk_widget_set_size_request(fcs_filter_cb, 100, -1);
-
-     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_EVERYTHING));
-     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRECT_FRAMES));
-     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_EVERYTHING));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRECT_FRAMES));
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES));
     gtk_combo_box_set_active(GTK_COMBO_BOX(fcs_filter_cb), 0);
 
-	gtk_widget_set_tooltip_text(fcs_filter_cb, "Select the 802.11 FCS filter that the wireless adapter will apply.");
+    gtk_widget_set_tooltip_text(fcs_filter_cb, "Select the 802.11 FCS filter that the wireless adapter will apply.");
 
     if (airpcap_if_selected != NULL) {
         airpcap_validation_type_combo_set_by_type(fcs_filter_cb, airpcap_if_selected->CrcValidationOn);
@@ -317,7 +308,6 @@ GtkWidget *airpcap_toolbar_new(void)
     decryption_mode_cb = gtk_combo_box_text_new();
     gtk_widget_set_name (decryption_mode_cb, "decryption_mode_cb");
     gtk_widget_show (decryption_mode_cb);
-    gtk_widget_set_size_request(decryption_mode_cb, 83, -1);
     update_decryption_mode_list(decryption_mode_cb);
 
     tool_item = gtk_tool_item_new ();
@@ -325,7 +315,7 @@ GtkWidget *airpcap_toolbar_new(void)
     gtk_widget_show (GTK_WIDGET (tool_item));
     gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb), tool_item, -1);
 
-	gtk_widget_set_tooltip_text(fcs_filter_lb, "Choose a Decryption Mode");
+    gtk_widget_set_tooltip_text(fcs_filter_lb, "Choose a Decryption Mode");
     /* Set current decryption mode!!!! */
     update_decryption_mode(decryption_mode_cb);
     g_signal_connect(decryption_mode_cb, "changed", G_CALLBACK(on_decryption_mode_cb_changed), NULL);
@@ -333,24 +323,24 @@ GtkWidget *airpcap_toolbar_new(void)
 
     /* Advanced button */
     advanced_bt = gtk_tool_button_new(NULL, /* a widget that will be used as icon widget, or NULL */
-	    "Wireless Settings...");
+                                      "Wireless Settings...");
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_ADVANCED_KEY, advanced_bt);
 
     g_signal_connect(advanced_bt, "clicked", G_CALLBACK(toolbar_display_airpcap_advanced_cb), airpcap_tb);
     gtk_widget_show(GTK_WIDGET(advanced_bt));
     gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb), advanced_bt, -1);
 
-	gtk_widget_set_tooltip_text(GTK_WIDGET(advanced_bt), "Set Advanced Wireless Settings");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(advanced_bt), "Set Advanced Wireless Settings");
     /* Key Management button */
     key_management_bt = gtk_tool_button_new(NULL, /* a widget that will be used as icon widget, or NULL */
-	    "Decryption Keys...");
+                                            "Decryption Keys...");
 
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY, key_management_bt);
 
     g_signal_connect(key_management_bt, "clicked", G_CALLBACK(toolbar_display_airpcap_key_management_cb), airpcap_tb);
     gtk_widget_show(GTK_WIDGET(key_management_bt));
     gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb), key_management_bt, -1);
-	gtk_widget_set_tooltip_text(GTK_WIDGET(key_management_bt), "Manage Decryption Keys");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(key_management_bt), "Manage Decryption Keys");
 
     /* If no airpcap interface is present, gray everything */
     if(airpcap_if_active == NULL) {
@@ -405,9 +395,9 @@ void airpcap_toolbar_show(GtkWidget *airpcap_tb _U_)
   case AIRPCAP_DLL_OLD:
     if(recent.airpcap_driver_check_show) {
       driver_warning_dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
-			"WARNING: The version of AirPcap on this system\n"
-			"does not support driver-level decryption.  Please\n"
-			"download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
+                        "WARNING: The version of AirPcap on this system\n"
+                        "does not support driver-level decryption.  Please\n"
+                        "download a more recent version from\n" "http://www.cacetech.com/support/downloads.htm \n");
       simple_dialog_check_set(driver_warning_dialog,"Don't show this message again.");
       simple_dialog_set_cb(driver_warning_dialog, driver_warning_dialog_cb, NULL);
     }
