@@ -56,6 +56,9 @@ do
 		*.pcap)
 			svn ps svn:mime-type application/vnd.tcpdump.pcap $file
 			;;
+		*.gz)
+			svn ps svn:mime-type application/x-gzip $file
+			;;
 		*.pl|*.bat|*.py|*.sh|*.cmd)
 			svn ps svn:keywords Id $file
 			svn ps svn:executable '*' $file
