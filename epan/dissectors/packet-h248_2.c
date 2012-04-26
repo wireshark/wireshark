@@ -58,7 +58,7 @@ static const value_string hf_h248_2_dtone_dtt_obs_evt_val_values[] = {
 	{ 0x0006, "BellHi"},   /* A Bell 103 carrier on the high channel */
 	{ 0x0007, "BellLo"},	/* A Bell 103 low channel */
 	{ 0x0008, "Baudot45"},  /* Baudot45 initial carrier and characters */
-	{ 0x0008, "Baudot50"},  /* A Baudot50 initial carrier and characters */
+	{ 0x0009, "Baudot50"},  /* A Baudot50 initial carrier and characters */
 	{ 0x000a, "Edt"},		/* An EDT initial tone and characters */
 	{ 0x000b, "DTMF"},		/* DTMF signals */
 	{ 0x001c, "CTM"},		/* CTM signals */
