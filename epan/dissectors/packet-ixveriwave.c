@@ -1166,7 +1166,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
         { &hf_radiotap_vw_errors_tx_bit5,
         { "IP checksum error", "ixveriwave.errors.bit5",
-        FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+        FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
 
         /* All other enumerations are reserved.*/
 
