@@ -56,8 +56,8 @@
 
 #define EPL_V1_PREQ_C2_OFFSET                     3
 /* "Powerlink Multimanager Konzept V1.1" protocol extension*/
-#define PMM_KONZEPT_V1_1_PREQ_YA                    3
-#define PMM_KONZEPT_V1_1_PREQ_SC                    3
+#define PMM_KONZEPT_V1_1_PREQ_YA                  3
+#define PMM_KONZEPT_V1_1_PREQ_SC                  3
 /* end "Powerlink Multimanager Konzept V1.1" protocol extension*/
 #define EPL_V1_PREQ_RD_OFFSET                     3
 #define EPL_V1_PREQ_RD_OFFSET                     3
@@ -97,13 +97,13 @@
 #define EPL_V1_ASND   0x06
 
 static const value_string service_vals[] = {
-   {EPL_V1_SOC,  "Start of Cyclic (SoC)"   },
-   {EPL_V1_EOC,  "End of Cyclic (EoC)"     },
-   {EPL_V1_PREQ, "Poll Request (PReq)"     },
-   {EPL_V1_PRES, "Poll Response (PRes)"    },
-   {EPL_V1_AINV, "Acyclic Invite (AInv)"   },
-   {EPL_V1_ASND, "Acyclic Send (ASnd)"     },
-   {0,NULL}
+	{EPL_V1_SOC,  "Start of Cyclic (SoC)"   },
+	{EPL_V1_EOC,  "End of Cyclic (EoC)"     },
+	{EPL_V1_PREQ, "Poll Request (PReq)"     },
+	{EPL_V1_PRES, "Poll Response (PRes)"    },
+	{EPL_V1_AINV, "Acyclic Invite (AInv)"   },
+	{EPL_V1_ASND, "Acyclic Send (ASnd)"     },
+	{0,NULL}
 };
 
 /* Channel values for EPL_V1 message type "AInv" */
@@ -111,9 +111,9 @@ static const value_string service_vals[] = {
 #define EPL_V1_AINV_GENERIC     255
 
 static const value_string ainv_channel_number_vals[] = {
-   {EPL_V1_AINV_IDENT,     "Ident"             },
-   {EPL_V1_AINV_GENERIC,   "Generic Channel"   },
-   {0,NULL}
+	{EPL_V1_AINV_IDENT,     "Ident"             },
+	{EPL_V1_AINV_GENERIC,   "Generic Channel"   },
+	{0,NULL}
 };
 
 /* Channel values for EPL_V1 message type "ASnd" */
@@ -121,9 +121,9 @@ static const value_string ainv_channel_number_vals[] = {
 #define EPL_V1_ASND_GENERIC     255
 
 static const value_string asnd_channel_number_vals[] = {
-   {EPL_V1_ASND_IDENT,     "Ident"             },
-   {EPL_V1_ASND_GENERIC,   "Generic Channel"   },
-   {0,NULL}
+	{EPL_V1_ASND_IDENT,     "Ident"             },
+	{EPL_V1_ASND_GENERIC,   "Generic Channel"   },
+	{0,NULL}
 };
 
 /* Net Command values for EPL_V1 message type "SoC" */
@@ -131,9 +131,9 @@ static const value_string asnd_channel_number_vals[] = {
 #define EPL_V1_SOC_NET_COMMAND_ACTIVE 1
 
 static const value_string soc_net_command_vals[] = {
-   {EPL_V1_SOC_NET_COMMAND_IDLE,   "Net Command Idle"  },
-   {EPL_V1_SOC_NET_COMMAND_ACTIVE, "Net Command Active"},
-   {0,NULL}
+	{EPL_V1_SOC_NET_COMMAND_IDLE,   "Net Command Idle"  },
+	{EPL_V1_SOC_NET_COMMAND_ACTIVE, "Net Command Active"},
+	{0,NULL}
 };
 
 /* Net Command values for EPL_V1 message type "EoC" */
@@ -141,9 +141,9 @@ static const value_string soc_net_command_vals[] = {
 #define EPL_V1_EOC_NET_COMMAND_ACTIVE 1
 
 static const value_string eoc_net_command_vals[] = {
-   {EPL_V1_EOC_NET_COMMAND_IDLE,   "Net Command Idle"  },
-   {EPL_V1_EOC_NET_COMMAND_ACTIVE, "Net Command Active"},
-   {0,NULL}
+	{EPL_V1_EOC_NET_COMMAND_IDLE,   "Net Command Idle"  },
+	{EPL_V1_EOC_NET_COMMAND_ACTIVE, "Net Command Active"},
+	{0,NULL}
 };
 
 
@@ -457,192 +457,192 @@ void
 proto_register_epl_v1(void)
 {
 	static hf_register_info hf[] = {
-        /* Common data fields (same for all message types) */
-        { &hf_epl_v1_service,
-            { "Service",           "epl_v1.service",
-            FT_UINT8, BASE_DEC, VALS(service_vals), 0x7F,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_dest,
-            { "Destination",           "epl_v1.dest",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_src,
-            { "Source",           "epl_v1.src",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        /* SoC data fields*/
-        { &hf_epl_v1_soc_ms,
-            { "MS (Multiplexed Slot)", "epl_v1.soc.ms",
-            FT_UINT8, BASE_DEC, NULL, 0x80,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_soc_ps,
-            { "PS (Prescaled Slot)",           "epl_v1.soc.ps",
-            FT_UINT8, BASE_DEC, NULL, 0x40,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_soc_net_command,
-            { "Net Command",           "epl_v1.soc.netcommand",
-            FT_UINT16, BASE_DEC, VALS(soc_net_command_vals), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_soc_net_time,
-            { "Net Time",           "epl_v1.soc.nettime",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_soc_powerlink_cycle_time,
-            { "Cycle Time",           "epl_v1.soc.cycletime",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_soc_net_command_parameter,
-            { "Net Command Parameter",           "epl_v1.soc.netcommand.parameter",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        /* PReq data fields*/
-        { &hf_epl_v1_preq_ms,
-            { "MS (Multiplexed Slot)", "epl_v1.preq.ms",
-            FT_UINT8, BASE_DEC, NULL, 0x20,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_preq_rd,
-            { "RD (Ready)",           "epl_v1.preq.rd",
-            FT_UINT8, BASE_DEC, NULL, 0x01,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_preq_poll_size_out,
-            { "Poll Size OUT",           "epl_v1.preq.pollsize",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_preq_out_data,
-            { "OUT Data",           "epl_v1.preq.data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        /* PRes data fields*/
-        { &hf_epl_v1_pres_ms,
-            { "MS (Multiplexed)",   "epl_v1.pres.ms",
-            FT_UINT8, BASE_DEC, NULL, 0x20,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_pres_ex,
-            { "EX (Exception)",     "epl_v1.pres.ex",
-            FT_UINT8, BASE_DEC, NULL, 0x10,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_pres_rs,
-            { "RS (Request to Send)",  "epl_v1.pres.rs",
-            FT_UINT8, BASE_DEC, NULL, 0x08,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_pres_wa,
-            { "WA (Warning)",  "epl_v1.pres.wa",
-            FT_UINT8, BASE_DEC, NULL, 0x04,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_pres_er,
-            { "ER (Error)",    "epl_v1.pres.er",
-            FT_UINT8, BASE_DEC, NULL, 0x02,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_pres_rd,
-            { "RD (Ready)",    "epl_v1.pres.rd",
-            FT_UINT8, BASE_DEC, NULL, 0x01,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_pres_poll_size_in,
-            { "Poll Size IN",           "epl_v1.pres.pollsize",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_pres_in_data,
-            { "IN Data",           "epl_v1.pres.data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        /* EoC data fields*/
-        { &hf_epl_v1_eoc_net_command,
-            { "Net Command",           "epl_v1.eoc.netcommand",
-            FT_UINT16, BASE_DEC, VALS(eoc_net_command_vals), 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_eoc_net_command_parameter,
-            { "Net Command Parameter",           "epl_v1.soa.netcommand.parameter",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        /* AInv data fields*/
-        { &hf_epl_v1_ainv_channel,
-            { "Channel",           "epl_v1.ainv.channel",
-            FT_UINT8, BASE_DEC, VALS(ainv_channel_number_vals), 0x00,
-            NULL, HFILL }
-        },
-        /* ASnd data fields*/
-        { &hf_epl_v1_asnd_channel,
-            { "Channel",           "epl_v1.asnd.channel",
-            FT_UINT8, BASE_DEC, VALS(asnd_channel_number_vals), 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_asnd_size,
-            { "Size",           "epl_v1.asnd.size",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_asnd_data,
-            { "Data",           "epl_v1.asnd.data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
+		/* Common data fields (same for all message types) */
+		{ &hf_epl_v1_service,
+		  { "Service", "epl_v1.service",
+		    FT_UINT8, BASE_DEC, VALS(service_vals), 0x7F,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_dest,
+		  { "Destination", "epl_v1.dest",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_src,
+		  { "Source", "epl_v1.src",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		/* SoC data fields*/
+		{ &hf_epl_v1_soc_ms,
+		  { "MS (Multiplexed Slot)", "epl_v1.soc.ms",
+		    FT_UINT8, BASE_DEC, NULL, 0x80,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_soc_ps,
+		  { "PS (Prescaled Slot)", "epl_v1.soc.ps",
+		    FT_UINT8, BASE_DEC, NULL, 0x40,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_soc_net_command,
+		  { "Net Command", "epl_v1.soc.netcommand",
+		    FT_UINT16, BASE_DEC, VALS(soc_net_command_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_soc_net_time,
+		  { "Net Time", "epl_v1.soc.nettime",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_soc_powerlink_cycle_time,
+		  { "Cycle Time", "epl_v1.soc.cycletime",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_soc_net_command_parameter,
+		  { "Net Command Parameter", "epl_v1.soc.netcommand.parameter",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		/* PReq data fields*/
+		{ &hf_epl_v1_preq_ms,
+		  { "MS (Multiplexed Slot)", "epl_v1.preq.ms",
+		    FT_UINT8, BASE_DEC, NULL, 0x20,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_preq_rd,
+		  { "RD (Ready)", "epl_v1.preq.rd",
+		    FT_UINT8, BASE_DEC, NULL, 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_preq_poll_size_out,
+		  { "Poll Size OUT", "epl_v1.preq.pollsize",
+		    FT_UINT16, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_preq_out_data,
+		  { "OUT Data", "epl_v1.preq.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		/* PRes data fields*/
+		{ &hf_epl_v1_pres_ms,
+		  { "MS (Multiplexed)", "epl_v1.pres.ms",
+		    FT_UINT8, BASE_DEC, NULL, 0x20,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_pres_ex,
+		  { "EX (Exception)", "epl_v1.pres.ex",
+		    FT_UINT8, BASE_DEC, NULL, 0x10,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_pres_rs,
+		  { "RS (Request to Send)", "epl_v1.pres.rs",
+		    FT_UINT8, BASE_DEC, NULL, 0x08,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_pres_wa,
+		  { "WA (Warning)", "epl_v1.pres.wa",
+		    FT_UINT8, BASE_DEC, NULL, 0x04,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_pres_er,
+		  { "ER (Error)", "epl_v1.pres.er",
+		    FT_UINT8, BASE_DEC, NULL, 0x02,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_pres_rd,
+		  { "RD (Ready)", "epl_v1.pres.rd",
+		    FT_UINT8, BASE_DEC, NULL, 0x01,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_pres_poll_size_in,
+		  { "Poll Size IN", "epl_v1.pres.pollsize",
+		    FT_UINT16, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_pres_in_data,
+		  { "IN Data", "epl_v1.pres.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		/* EoC data fields*/
+		{ &hf_epl_v1_eoc_net_command,
+		  { "Net Command", "epl_v1.eoc.netcommand",
+		    FT_UINT16, BASE_DEC, VALS(eoc_net_command_vals), 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_eoc_net_command_parameter,
+		  { "Net Command Parameter", "epl_v1.soa.netcommand.parameter",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		/* AInv data fields*/
+		{ &hf_epl_v1_ainv_channel,
+		  { "Channel", "epl_v1.ainv.channel",
+		    FT_UINT8, BASE_DEC, VALS(ainv_channel_number_vals), 0x00,
+		    NULL, HFILL }
+		},
+		/* ASnd data fields*/
+		{ &hf_epl_v1_asnd_channel,
+		  { "Channel", "epl_v1.asnd.channel",
+		    FT_UINT8, BASE_DEC, VALS(asnd_channel_number_vals), 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_asnd_size,
+		  { "Size", "epl_v1.asnd.size",
+		    FT_UINT16, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_asnd_data,
+		  { "Data", "epl_v1.asnd.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x00,
+		    NULL, HFILL }
+		},
 
-        { &hf_epl_v1_asnd_node_id,
-            { "NodeID",           "epl_v1.asnd.node_id",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_asnd_hardware_revision,
-            { "Hardware Revision",           "epl_v1.asnd.hardware.revision",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_asnd_firmware_version,
-            { "Firmware Version",           "epl_v1.asnd.firmware.version",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_asnd_device_variant,
-            { "Device Variant",           "epl_v1.asnd.device.variant",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_asnd_poll_in_size,
-            { "Poll IN Size",           "epl_v1.asnd.poll.in.size",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_epl_v1_asnd_poll_out_size,
-            { "Poll OUT Size",           "epl_v1.asnd.poll.out.size",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-    };
+		{ &hf_epl_v1_asnd_node_id,
+		  { "NodeID", "epl_v1.asnd.node_id",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_asnd_hardware_revision,
+		  { "Hardware Revision", "epl_v1.asnd.hardware.revision",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_asnd_firmware_version,
+		  { "Firmware Version", "epl_v1.asnd.firmware.version",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_asnd_device_variant,
+		  { "Device Variant", "epl_v1.asnd.device.variant",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_asnd_poll_in_size,
+		  { "Poll IN Size", "epl_v1.asnd.poll.in.size",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+		{ &hf_epl_v1_asnd_poll_out_size,
+		  { "Poll OUT Size", "epl_v1.asnd.poll.out.size",
+		    FT_UINT32, BASE_DEC, NULL, 0x00,
+		    NULL, HFILL }
+		},
+	};
 
-    /* Setup protocol subtree array */
-    static gint *ett[] = {
-        &ett_epl_v1,
-    };
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&ett_epl_v1,
+	};
 
-    /* Register the protocol name and description */
-    proto_epl_v1 = proto_register_protocol("ETHERNET Powerlink V1.0", "EPL_V1", "epl_v1");
+	/* Register the protocol name and description */
+	proto_epl_v1 = proto_register_protocol("ETHERNET Powerlink V1.0", "EPL_V1", "epl_v1");
 
-    /* Required function calls to register the header fields and subtrees used */
-    proto_register_field_array(proto_epl_v1, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	/* Required function calls to register the header fields and subtrees used */
+	proto_register_field_array(proto_epl_v1, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 
@@ -650,8 +650,8 @@ proto_register_epl_v1(void)
 void
 proto_reg_handoff_epl_v1(void)
 {
-    dissector_handle_t epl_v1_handle;
+	dissector_handle_t epl_v1_handle;
 
-    epl_v1_handle = new_create_dissector_handle(dissect_epl_v1, proto_epl_v1);
-    dissector_add_uint("ethertype", ETHERTYPE_EPL_V1, epl_v1_handle);
+	epl_v1_handle = new_create_dissector_handle(dissect_epl_v1, proto_epl_v1);
+	dissector_add_uint("ethertype", ETHERTYPE_EPL_V1, epl_v1_handle);
 }

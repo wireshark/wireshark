@@ -347,23 +347,23 @@ dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    guint8 prefix_len, prefix_len_bytes;
+	guint8 prefix_len, prefix_len_bytes;
 
-    proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-    prefix_len = tvb_get_guint8(tvb, 1);
-    prefix_len_bytes = prefix_len / 8;
-    if (prefix_len % 8)
-	    prefix_len_bytes++;
+	prefix_len = tvb_get_guint8(tvb, 1);
+	prefix_len_bytes = prefix_len / 8;
+	if (prefix_len % 8)
+		prefix_len_bytes++;
 
-    proto_tree_add_item(tree, hf_framed_ipv6_prefix_bytes, tvb, 2, prefix_len_bytes, ENC_NA);
+	proto_tree_add_item(tree, hf_framed_ipv6_prefix_bytes, tvb, 2, prefix_len_bytes, ENC_NA);
 
-    /* If we have a fully IPv6 address, display it as such */
-    if (prefix_len_bytes == 16)
-	proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
+	/* If we have a fully IPv6 address, display it as such */
+	if (prefix_len_bytes == 16)
+		proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
 
-    return(prefix_len_bytes+2);
+	return(prefix_len_bytes+2);
 }
 
 /* Dissect an AVP at offset */

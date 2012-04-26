@@ -85,7 +85,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dtp_tree = proto_item_add_subtree(ti, ett_dtp);
 	}
 
-        /* We assume version */
+	/* We assume version */
 	proto_tree_add_item(dtp_tree, hf_dtp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
@@ -101,7 +101,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		ti = proto_tree_add_text(dtp_tree, tvb, offset, length, "%s",
-                    val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
+					 val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
 
 		tlv_tree = proto_item_add_subtree(ti, ett_dtp_tlv);
 		proto_tree_add_uint(tlv_tree, hf_dtp_tlvtype, tvb, offset, 2, type);
@@ -116,12 +116,12 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		offset += valuelength;
-        }
+	}
 }
 
 static void
 dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
-    proto_tree *tree, proto_item *ti, guint8 type)
+		proto_tree *tree, proto_item *ti, guint8 type)
 {
 	switch (type) {
 
@@ -176,7 +176,7 @@ dissect_dtp_tlv(tvbuff_t *tvb, int offset, int length,
 		if (length == 6) {
 			proto_item_set_text(ti, "Neighbor: %s",
 				tvb_ether_to_str(tvb, offset));	/* XXX - resolve? */
-            		proto_tree_add_item(tree, hf_dtp_some_mac, tvb, offset, length, ENC_NA);
+			proto_tree_add_item(tree, hf_dtp_some_mac, tvb, offset, length, ENC_NA);
 		} else {
 			proto_item_set_text(ti,
 			    "Neighbor: Bad length %u",
@@ -213,7 +213,7 @@ proto_register_dtp(void)
 		{ "Neighbor", "dtp.neighbor", FT_ETHER, BASE_NONE,
 		NULL, 0x0, "MAC Address of neighbor", HFILL }},
 
-        };
+	};
 
 	static gint *ett[] = {
 		&ett_dtp,

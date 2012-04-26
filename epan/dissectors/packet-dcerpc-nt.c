@@ -19,7 +19,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -112,7 +112,7 @@ dissect_null_term_string(tvbuff_t *tvb, int offset,
 	int tmp_offset = offset;
 	guint32 len = 0;
 	char *s;
-	 
+
 	data = tvb_get_guint8 (tvb, tmp_offset);
 	for ( ;tvb_length_remaining (tvb, tmp_offset) > 0 && data; tmp_offset++) {
 		data = tvb_get_guint8 (tvb, tmp_offset);
@@ -121,7 +121,7 @@ dissect_null_term_string(tvbuff_t *tvb, int offset,
 	/* Let's try to the terminator on the last char ...*/
 	if (data) {
 		tmp_offset++;
-	 	data = tvb_get_guint8 (tvb, tmp_offset);
+		data = tvb_get_guint8 (tvb, tmp_offset);
 	}
 
 	if (data) {
@@ -147,7 +147,7 @@ dissect_null_term_wstring(tvbuff_t *tvb, int offset,
 	int tmp_offset = offset;
 	guint32 len = 0;
 	char *s;
-	 
+
 	data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
 	for ( ; tvb_length_remaining (tvb, tmp_offset) > 1 && data; tmp_offset +=2) {
 		data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
@@ -188,7 +188,7 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = pinfo->private_data;
 	guint16 len, size;
 
-        /* Structure starts with short, but is aligned for pointer */
+	/* Structure starts with short, but is aligned for pointer */
 
 	ALIGN_TO_5_BYTES;
 
@@ -196,13 +196,13 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 		return offset;
 
 	/*
-           struct {
-               short len;
-               short size;
-               [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
-           } UNICODE_STRING;
+	   struct {
+	       short len;
+	       short size;
+	       [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
+	   } UNICODE_STRING;
 
-         */
+	 */
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 			hf_nt_cs_len, &len);
@@ -295,7 +295,7 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	proto_tree *subtree;
 	guint16 len, size;
 
-        /* Structure starts with short, but is aligned for pointer */
+	/* Structure starts with short, but is aligned for pointer */
 
 	ALIGN_TO_5_BYTES;
 
@@ -308,13 +308,13 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 	subtree = proto_item_add_subtree(item, ett_nt_counted_byte_array);
 
 	/*
-           struct {
-               short len;
-               short size;
-               [size_is(size), length_is(len), ptr] unsigned char *string;
-           } WHATEVER_THIS_IS_CALLED;
+	   struct {
+	       short len;
+	       short size;
+	       [size_is(size), length_is(len), ptr] unsigned char *string;
+	   } WHATEVER_THIS_IS_CALLED;
 
-         */
+	 */
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 			hf_nt_cs_len, &len);
@@ -405,7 +405,7 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 	proto_tree *subtree;
 	guint16 len, size;
 
-        /* Structure starts with short, but is aligned for pointer */
+	/* Structure starts with short, but is aligned for pointer */
 
 	ALIGN_TO_5_BYTES;
 
@@ -418,13 +418,13 @@ dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
 	subtree = proto_item_add_subtree(item, ett_nt_counted_ascii_string);
 
 	/*
-           struct {
-               short len;
-               short size;
-               [size_is(size), length_is(len), ptr] unsigned char *string;
-           } WHATEVER_THIS_IS_CALLED;
+	   struct {
+	       short len;
+	       short size;
+	       [size_is(size), length_is(len), ptr] unsigned char *string;
+	   } WHATEVER_THIS_IS_CALLED;
 
-         */
+	 */
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 			hf_nt_cs_len, &len);
@@ -533,7 +533,7 @@ dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 }
 
 /* Define this symbol to display warnings about request/response and
-   policy handle hash table collisions.  This happens when a packet with
+   policy handle hash table collisions.	 This happens when a packet with
    the same conversation, smb fid and dcerpc call id occurs.  I think this
    is due to a bug in the dcerpc/smb fragment reassembly code. */
 
@@ -571,7 +571,7 @@ typedef struct {
 } pol_hash_key;
 
 typedef struct {
-	pol_value *list;                 /* List of policy handle entries */
+	pol_value *list;		 /* List of policy handle entries */
 } pol_hash_value;
 
 static GHashTable *pol_hash = NULL;
@@ -1186,84 +1186,84 @@ dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
-/* Some helper routines to dissect a range of uint8 characters.  I don't
+/* Some helper routines to dissect a range of uint8 characters.	 I don't
    think these are "official" NDR representations and are probably specific
    to NT so for the moment they're put here instead of in packet-dcerpc.c
    and packet-dcerpc-ndr.c. */
 
 int
 dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, guint8 *drep _U_, int hfindex,
+		      proto_tree *tree, guint8 *drep _U_, int hfindex,
 		      int length, const guint8 **pdata)
 {
-    const guint8 *data;
+	const guint8 *data;
 
-    data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
+	data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
 
-    if (tree) {
-    	/* This should be an FT_BYTES, so the byte order should not matter */
-        proto_tree_add_item (tree, hfindex, tvb, offset, length, ENC_NA);
-    }
+	if (tree) {
+		/* This should be an FT_BYTES, so the byte order should not matter */
+		proto_tree_add_item (tree, hfindex, tvb, offset, length, ENC_NA);
+	}
 
-    if (pdata)
-        *pdata = data;
+	if (pdata)
+		*pdata = data;
 
-    return offset + length;
+	return offset + length;
 }
 
 int
 dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, guint8 *drep,
-                   int hfindex, int length, const guint8 **pdata)
+		   proto_tree *tree, guint8 *drep,
+		   int hfindex, int length, const guint8 **pdata)
 {
-    dcerpc_info *di;
+	dcerpc_info *di;
 
-    di=pinfo->private_data;
-    if(di->conformant_run){
-      /* just a run to handle conformant arrays, no scalars to dissect */
-      return offset;
-    }
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
 
-    /* no alignment needed */
-    return dissect_dcerpc_uint8s(tvb, offset, pinfo,
-                                 tree, drep, hfindex, length, pdata);
+	/* no alignment needed */
+	return dissect_dcerpc_uint8s(tvb, offset, pinfo,
+				     tree, drep, hfindex, length, pdata);
 }
 
 int
 dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, guint8 *drep, int hfindex,
-		      int length)
+		       proto_tree *tree, guint8 *drep, int hfindex,
+		       int length)
 {
-    if (tree) {
-    	/* These are FT_BYTES fields, so the byte order should not matter;
-	   however, perhaps there should be an FT_HEXADECTETS type,
-	   or something such as that, with each pair of octets
-	   displayed as a single unit, in which case the byte order
-	   would matter, so we'll calculate the byte order here.  */
-        proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
-    }
+	if (tree) {
+		/* These are FT_BYTES fields, so the byte order should not matter;
+		   however, perhaps there should be an FT_HEXADECTETS type,
+		   or something such as that, with each pair of octets
+		   displayed as a single unit, in which case the byte order
+		   would matter, so we'll calculate the byte order here.  */
+		proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
+	}
 
-    return offset + length * 2;
+	return offset + length * 2;
 }
 
 int
 dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, guint8 *drep,
-                   int hfindex, int length)
+		    proto_tree *tree, guint8 *drep,
+		    int hfindex, int length)
 {
-    dcerpc_info *di;
+	dcerpc_info *di;
 
-    di=pinfo->private_data;
-    if(di->conformant_run){
-      /* just a run to handle conformant arrays, no scalars to dissect */
-      return offset;
-    }
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
 
-    if (offset % 2)
-        offset++;
+	if (offset % 2)
+		offset++;
 
-    return dissect_dcerpc_uint16s(tvb, offset, pinfo,
-                                 tree, drep, hfindex, length);
+	return dissect_dcerpc_uint16s(tvb, offset, pinfo,
+				      tree, drep, hfindex, length);
 }
 
 /*
@@ -1481,7 +1481,7 @@ dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 			   and putting the sid twice on the summary line
 			   looks even worse.
 			   Real solution would be to block updates to col_info
-			   while we just do a conformance run,   this might
+			   while we just do a conformance run,	 this might
 			   have sideeffects so it needs some more thoughts first.
 			*/
 			if (check_col(pinfo->cinfo, COL_INFO))
@@ -1708,7 +1708,7 @@ dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
 	/* XXX - is this a bitmask like the "logon hours" field in the
 	   Remote API call "NetUserGetInfo()" with an information level
 	   of 11? */
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_LOGON_HOURS_hours, NDR_POINTER_UNIQUE,
 			"LOGON_HOURS", -1);
 
@@ -1718,8 +1718,8 @@ dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ndr_nt_PSID_no_hf(tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *parent_tree,
-                             guint8 *drep)
+			     packet_info *pinfo, proto_tree *parent_tree,
+			     guint8 *drep)
 {
 	offset=dissect_ndr_nt_PSID(tvb, offset, pinfo, parent_tree, drep);
 	return offset;
@@ -1727,8 +1727,8 @@ dissect_ndr_nt_PSID_no_hf(tvbuff_t *tvb, int offset,
 
 static int
 dissect_ndr_nt_PSID_ARRAY_sids (tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             guint8 *drep)
+			     packet_info *pinfo, proto_tree *tree,
+			     guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_no_hf);
@@ -1759,7 +1759,7 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_nt_count, &count);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY_sids, NDR_POINTER_UNIQUE,
 			"PSID_ARRAY", -1);
 
@@ -1791,8 +1791,8 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-                                     hf_nt_attrib, NULL);
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+				     hf_nt_attrib, NULL);
 
 	return offset;
 }
@@ -1952,7 +1952,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 		/* Misc */
 
-                { &hf_nt_attrib,
+		{ &hf_nt_attrib,
 		  { "Attributes", "dcerpc.nt.attr",
 		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
@@ -1975,13 +1975,13 @@ void dcerpc_smb_init(int proto_dcerpc)
 		&ett_nt_counted_string,
 		&ett_nt_counted_byte_array,
 		&ett_nt_policy_hnd,
-                &ett_nt_sid_pointer,
-                &ett_nt_acct_ctrl,
-                &ett_nt_logon_hours,
-                &ett_nt_logon_hours_hours,
-                &ett_nt_sid_array,
-                &ett_nt_sid_and_attributes_array,
-                &ett_nt_sid_and_attributes,
+		&ett_nt_sid_pointer,
+		&ett_nt_acct_ctrl,
+		&ett_nt_logon_hours,
+		&ett_nt_logon_hours_hours,
+		&ett_nt_sid_array,
+		&ett_nt_sid_and_attributes_array,
+		&ett_nt_sid_and_attributes,
 		&ett_nt_counted_ascii_string,
 		&ett_lsa_String,
 	};

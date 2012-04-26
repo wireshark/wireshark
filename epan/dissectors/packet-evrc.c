@@ -336,7 +336,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
             i++;
 
-	    if (i < frame_count)
+            if (i < frame_count)
             {
                 /* even number of frames */
                 proto_tree_add_item(toc_tree, hf_toc_frame_type_low, tvb, offset, 1, ENC_BIG_ENDIAN);
