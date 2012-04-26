@@ -1459,8 +1459,6 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
         sig_ts = 0;
 
     /* Set latency based on rx/tx and signature timestamp */
-
-        /* Set latency based on rx/tx and signature timestamp */
     if (!IS_TX) {
         if (tsid < s_time) {
             latency = s_time - tsid;
