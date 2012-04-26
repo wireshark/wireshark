@@ -2455,12 +2455,12 @@ static const value_string gsm_sms_tp_ud_ie-_d_vals[] = {
     { 0x23,  "Enhanced Voice Mail Information (SMS Control)" },
     { 0x24,  "National Language Single Shift (SMS Control)" },
     { 0x25,  "National Language Locking Shift (SMS Control)" },
-	/*26 – 6F Reserved for future use */
-	/*70 – 7F (U)SIM Toolkit Security Headers (SMS Control) */
-	/*80 – 9F SME to SME specific use (SMS Control) */
-	/*A0 – BF Reserved for future use */
-	/*C0 – DF SC specific use (SMS Control) */
-	/*E0 – FF Reserved for future use */
+	/*26-6F Reserved for future use */
+	/*70-7F (U)SIM Toolkit Security Headers (SMS Control) */
+	/*80-9F SME to SME specific use (SMS Control) */
+	/*A0-BF Reserved for future use */
+	/*C0-DF SC specific use (SMS Control) */
+	/*E0-FF Reserved for future use */
     { 0, NULL },
 };
 
