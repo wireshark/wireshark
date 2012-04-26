@@ -2445,7 +2445,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
             case 0x07: str = "UDH Source Indicator (SMS Control)"; iei_fcn  = dis_iei_udh_si; break;
             case 0x08: str = "Concatenated short message, 16-bit reference number (SMS Control)"; iei_fcn = dis_iei_csm16; break;
             case 0x09: str = "Wireless Control Message Protocol (SMS Control)"; break;
-            case 0x0A: str = "Text Formatting (EMS Control)"; iei_fcn = dis_iei_tf;
+            case 0x0A: str = "Text Formatting (EMS Control)"; iei_fcn = dis_iei_tf;break;
             case 0x0B: str = "Predefined Sound (EMS Content)"; iei_fcn = dis_iei_ps;break;
             case 0x0C: str = "User Defined Sound (iMelody max 128 bytes) (EMS Content)"; iei_fcn = dis_iei_uds;break;
             case 0x0D: str = "Predefined Animation (EMS Content)"; iei_fcn = dis_iei_pa;break;
