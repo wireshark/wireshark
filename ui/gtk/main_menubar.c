@@ -643,7 +643,7 @@ wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 static void
 status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
+    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/StatusBar");
 
     recent.statusbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
     main_widgets_show_or_hide();
@@ -1065,7 +1065,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='MainToolbar' action='/View/MainToolbar'/>\n"
 "      <menuitem name='FilterToolbar' action='/View/FilterToolbar'/>\n"
 "      <menuitem name='WirelessToolbar' action='/View/WirelessToolbar'/>\n"
-"      <menuitem name='Statusbar' action='/View/Statusbar'/>\n"
+"      <menuitem name='StatusBar' action='/View/StatusBar'/>\n"
 "      <separator/>\n"
 "      <menuitem name='PacketList' action='/View/PacketList'/>\n"
 "      <menuitem name='PacketDetails' action='/View/PacketDetails'/>\n"
@@ -1827,9 +1827,9 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 {
     /* name, stock id, label, accel, tooltip, callback, is_active */
     {"/View/MainToolbar",                                           NULL, "_Main Toolbar",                          NULL, NULL, G_CALLBACK(main_toolbar_show_hide_cb), TRUE},
-    {"/View/FilterToolbar",                                         NULL, "_FilterToolbar",                         NULL, NULL, G_CALLBACK(filter_toolbar_show_hide_cb), TRUE},
-    {"/View/WirelessToolbar",                                       NULL, "_WirelessToolbar",                       NULL, NULL, G_CALLBACK(wireless_toolbar_show_hide_cb), FALSE},
-    {"/View/Statusbar",                                             NULL, "_Statusbar",                             NULL, NULL, G_CALLBACK(status_bar_show_hide_cb), TRUE},
+    {"/View/FilterToolbar",                                         NULL, "_Filter Toolbar",                         NULL, NULL, G_CALLBACK(filter_toolbar_show_hide_cb), TRUE},
+    {"/View/WirelessToolbar",                                       NULL, "Wire_less Toolbar",                       NULL, NULL, G_CALLBACK(wireless_toolbar_show_hide_cb), FALSE},
+    {"/View/StatusBar",                                             NULL, "_Status Bar",                             NULL, NULL, G_CALLBACK(status_bar_show_hide_cb), TRUE},
     {"/View/PacketList",                                            NULL, "Packet _List",                           NULL, NULL, G_CALLBACK(packet_list_show_hide_cb), TRUE},
     {"/View/PacketDetails",                                         NULL, "Packet _Details",                        NULL, NULL, G_CALLBACK(packet_details_show_hide_cb), TRUE},
     {"/View/PacketBytes",                                           NULL, "Packet _Bytes",                          NULL, NULL, G_CALLBACK(packet_bytes_show_hide_cb), TRUE},
@@ -3467,7 +3467,7 @@ menus_init(void) {
         gtk_ui_manager_add_ui_from_string (ui_manager_statusbar_profiles_menu,ui_statusbar_profiles_menu_popup, -1, &error);
         if (error != NULL)
         {
-            fprintf (stderr, "Warning: building Statusbar Profiles Pop-Up failed: %s\n",
+            fprintf (stderr, "Warning: building StatusBar Profiles Pop-Up failed: %s\n",
                     error->message);
             g_error_free (error);
             error = NULL;
@@ -4450,9 +4450,9 @@ menu_recent_read_finished(void) {
 #endif /* HAVE_AIRPCAP */
 
     /* Fix me? */
-    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
+    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/StatusBar");
     if(!menu){
-        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/Statusbar");
+        g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/StatusBar");
     }else{
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
     }
