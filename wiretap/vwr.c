@@ -45,6 +45,18 @@ static guint64 get_signature_ts(register guint8*, int);
 #   define US_IN_SEC            G_GINT64_CONSTANT(1000000U)     /* microseconds-to-seconds */
 #   define LL_ZERO              G_GINT64_CONSTANT(0U)           /* zero in unsigned long long */
 
+/*
+ * Fetch a 64-bit value in "Corey-endian" form.
+ */
+#define pcoreytohll(p)  ((guint64)*((const guint8 *)(p)+4)<<56|  \
+                         (guint64)*((const guint8 *)(p)+5)<<48|  \
+                         (guint64)*((const guint8 *)(p)+6)<<40|  \
+                         (guint64)*((const guint8 *)(p)+7)<<32|  \
+                         (guint64)*((const guint8 *)(p)+0)<<24|  \
+                         (guint64)*((const guint8 *)(p)+1)<<16|  \
+                         (guint64)*((const guint8 *)(p)+2)<<8|   \
+                         (guint64)*((const guint8 *)(p)+3)<<0)
+
 /* .vwr log file defines */
 #define B_SIZE      32768                           /* max var len message = 32 kB */
 #define VT_FRAME    0                               /* varlen msg is a frame */
@@ -1082,14 +1094,9 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
 
 
     /* calculate start & end times (in sec/usec), converting 64-bit times to usec */
-    for (i = 0; i < 4; i++)                             /* 64-bit times are "Corey-endian" */
-        s_time = (s_time << 8) | s_ptr[vwr->STARTT_OFF + i + 4];
-    for (i = 0; i < 4; i++)
-        s_time = (s_time << 8) | s_ptr[vwr->STARTT_OFF + i];
-    for (i = 0; i < 4; i++)
-        e_time = (e_time << 8) | s_ptr[vwr->ENDT_OFF + i + 4];
-    for (i = 0; i < 4; i++)
-        e_time = (e_time << 8) | s_ptr[vwr->ENDT_OFF + i];
+    /* 64-bit times are "Corey-endian" */
+    s_time = pcoreytohll(&s_ptr[vwr->STARTT_OFF]);
+    e_time = pcoreytohll(&s_ptr[vwr->ENDT_OFF]);
 
     /* find the packet duration (difference between start and end times) */
     d_time = (guint32)((e_time - s_time) / NS_IN_US);   /* find diff, converting to usec */
@@ -1149,7 +1156,7 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     wth->phdr.ts.nsecs = (long)(s_usec * 1000);
     wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and copy out the radiotap header, set the version number to 1 (extended) */
+    /* generate and copy out the radiotap header, set the port type to 0 (WLAN) */
     common_fields.vw_port_type = 0;
     common_fields.it_len = STATS_COMMON_FIELDS_LEN;
     er_fields.it_len = EXT_RTAP_FIELDS_LEN;
@@ -1406,14 +1413,9 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     }
 
     /* calculate start & end times (in sec/usec), converting 64-bit times to usec */
-    for (i = 0; i < 4; i++)                             /* 64-bit times are "Corey-endian" */
-        s_time = (s_time << 8) | s_trail_ptr[vwr->STARTT_OFF + i + 4];
-    for (i = 0; i < 4; i++)
-        s_time = (s_time << 8) | s_trail_ptr[vwr->STARTT_OFF + i];
-    for (i = 0; i < 4; i++)
-        e_time = (e_time << 8) | s_trail_ptr[vwr->ENDT_OFF + i + 4];
-    for (i = 0; i < 4; i++)
-        e_time = (e_time << 8) | s_trail_ptr[vwr->ENDT_OFF + i];
+    /* 64-bit times are "Corey-endian" */
+    s_time = pcoreytohll(&s_trail_ptr[vwr->STARTT_OFF]);
+    e_time = pcoreytohll(&s_trail_ptr[vwr->ENDT_OFF]);
 
     /* find the packet duration (difference between start and end times) */
     d_time = (guint32)((e_time - s_time) / NS_IN_US);  /* find diff, converting to usec */
@@ -1489,7 +1491,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     wth->phdr.ts.nsecs = (long)(s_usec * 1000);
     wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and copy out the radiotap header, set the version number to 1 (extended) */
+    /* generate and copy out the radiotap header, set the port type to 0 (WLAN) */
     common_fields.vw_port_type = 0;
     common_fields.it_len = STATS_COMMON_FIELDS_LEN;
     er_fields.it_len = EXT_RTAP_FIELDS_LEN;
@@ -1700,14 +1702,9 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     l4id = pntohs(&s_ptr[vwr->L4ID_OFF]);
 
     /* calculate start & end times (in sec/usec), converting 64-bit times to usec */
-    for (i = 0; i < 4; i++)                             /* 64-bit times are "Corey-endian" */
-        s_time = (s_time << 8) | s_ptr[vwr->STARTT_OFF + i + 4];
-    for (i = 0; i < 4; i++)
-        s_time = (s_time << 8) | s_ptr[vwr->STARTT_OFF + i];
-    for (i = 0; i < 4; i++)
-        e_time = (e_time << 8) | s_ptr[vwr->ENDT_OFF + i + 4];
-    for (i = 0; i < 4; i++)
-        e_time = (e_time << 8) | s_ptr[vwr->ENDT_OFF + i];
+    /* 64-bit times are "Corey-endian" */
+    s_time = pcoreytohll(&s_ptr[vwr->STARTT_OFF]);
+    e_time = pcoreytohll(&s_ptr[vwr->ENDT_OFF]);
 
     /* find the packet duration (difference between start and end times) */
     d_time = (guint32)((e_time - s_time));  /* find diff, leaving in nsec for Ethernet */
@@ -1777,7 +1774,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     wth->phdr.ts.nsecs = (long)(s_usec * 1000);
     wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and copy out the ETHERNETTAP header, set the version number to 1 */
+    /* generate and copy out the ETHERNETTAP header, set the port type to 1 (Ethernet) */
     common_hdr.vw_port_type = 1;
     common_hdr.it_len = STATS_COMMON_FIELDS_LEN;
     etap_hdr.it_len = STATS_ETHERNETTAP_FIELDS_LEN;
