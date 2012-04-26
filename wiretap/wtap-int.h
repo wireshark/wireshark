@@ -309,6 +309,16 @@ extern gint wtap_num_file_types;
     }
 #endif
 
+#ifndef phtolel
+#define phtolel(p, v) \
+    {                 \
+        (p)[0] = (guint8)((v) >> 0);     \
+        (p)[1] = (guint8)((v) >> 8);     \
+        (p)[2] = (guint8)((v) >> 16);    \
+        (p)[3] = (guint8)((v) >> 24);    \
+    }
+#endif
+
 #ifndef phtolell
 #define phtolell(p, v) \
     {                 \

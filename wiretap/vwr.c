@@ -70,6 +70,9 @@ typedef struct {
 
 } stats_common_fields;
 
+/* Size of those fields - regardless of how the compiler packs them */
+#define STATS_COMMON_FIELDS_LEN	(2+2+2+2+4+2+2+4+4+8+8+4+4)
+
 /* Veriwave-specific extended radiotap header fields (following vwr_rtap_hdr above) */
 /* structure elements correspond one-to-one with the RADIOTAP_PRESENT bitmask below */
 /* NOTE: must ensure that elements are aligned to their "natural" packing */
@@ -90,6 +93,9 @@ typedef struct {
 
 } ext_rtap_fields;
 
+/* Size of those fields - regardless of how the compiler packs them */
+#define EXT_RTAP_FIELDS_LEN	(2+2+2+1+1+1+1+2+2+2+4)
+
 /* Veriwave-specific Ethernettap header */
 typedef struct {
     guint16 it_len;                                 /* WHOLE radiotap header length (incl. */
@@ -99,6 +105,9 @@ typedef struct {
     guint32 vw_l4id;                                /* layer four id*/
     guint32 it_pad2;                                /* pad out header to 16-byte boundary */
 } stats_ethernettap_fields;
+
+/* Size of those fields - regardless of how the compiler packs them */
+#define STATS_ETHERNETTAP_FIELDS_LEN	(2+2+2+2+4+4+4)
 
 /* the bitmap offsets of the bits in it_present, above */
 /* also lists the expected field sizes in bytes */
@@ -708,10 +717,10 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
     /* before writing anything out, make sure the buffer has enough space for everything */
     if ((vwr->FPGA_VERSION == vVW510021_W_FPGA) || (vwr->FPGA_VERSION == vVW510006_W_FPGA) )
     /* frames are always 802.11 with an extended radiotap header */
-        pkt_len = (guint16)(rec_size + sizeof(stats_common_fields) + sizeof(ext_rtap_fields));
+        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN);
     else
         /* frames are always ethernet with an extended ethernettap header */
-        pkt_len = (guint16)(rec_size + sizeof(stats_common_fields) + sizeof(stats_ethernettap_fields));
+        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + STATS_ETHERNETTAP_FIELDS_LEN);
     buffer_assure_space(wth->frame_buffer, pkt_len);
     data_ptr = buffer_start_ptr(wth->frame_buffer);
 
@@ -1129,7 +1138,7 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     /* block), and should always represent the actual number of bytes in the file */
     /* len is the length of the original packet before truncation;  */
     /* the FCS is NOT included */
-    r_hdr_len = sizeof(stats_common_fields) + sizeof(er_fields);
+    r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
 
     wth->phdr.len = (msdu_length - 4) + r_hdr_len;
     wth->phdr.caplen = (octets - 4) + r_hdr_len;
@@ -1140,13 +1149,12 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     wth->phdr.ts.nsecs = (long)(s_usec * 1000);
     wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and write out the radiotap header, set the version number to 1 (extended) */
+    /* generate and copy out the radiotap header, set the version number to 1 (extended) */
     common_fields.vw_port_type = 0;
-    common_fields.it_len = sizeof(stats_common_fields);
-    er_fields.it_len = sizeof(er_fields);
+    common_fields.it_len = STATS_COMMON_FIELDS_LEN;
+    er_fields.it_len = EXT_RTAP_FIELDS_LEN;
 
     /* create the extended radiotap header fields */
-    er_fields.flags = 0;
     er_fields.flags = (m_type == vwr->MT_CCKS) ? RADIOTAP_F_SHORTPRE : 0;
 
     er_fields.rate = rate;
@@ -1187,13 +1195,62 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     common_fields.vw_startt = start_time;                   /* record start & end times of frame */
     common_fields.vw_endt = end_time;
 
-    memcpy(&data_ptr[bytes_written], &common_fields, sizeof(common_fields));
-    bytes_written += sizeof(common_fields);
+    /* put common_fields into the packet buffer in little-endian byte order */
+    phtoles(&data_ptr[bytes_written], common_fields.vw_port_type);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_fields.it_len);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_fields.vw_msdu_length);
+    bytes_written += 2;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 2);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_flowid);
+    bytes_written += 4;
+    phtoles(&data_ptr[bytes_written], common_fields.vw_vcid);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_fields.vw_seqnum);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_latency);
+    bytes_written += 4;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_sig_ts);
+    bytes_written += 4;
+    phtolell(&data_ptr[bytes_written], common_fields.vw_startt);
+    bytes_written += 8;
+    phtolell(&data_ptr[bytes_written], common_fields.vw_endt);
+    bytes_written += 8;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_pktdur);
+    bytes_written += 4;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 4);
+    bytes_written += 4;
 
-    memcpy(&data_ptr[bytes_written], &er_fields, sizeof(er_fields));
-    bytes_written += sizeof(er_fields);
+    /* put er_fields into the packet buffer in little-endian byte order */
+    phtoles(&data_ptr[bytes_written], er_fields.it_len);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.flags);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.chanflags);
+    bytes_written += 2;
+    data_ptr[bytes_written] = er_fields.rate;
+    bytes_written += 1;
+    data_ptr[bytes_written] = er_fields.signal;
+    bytes_written += 1;
+    data_ptr[bytes_written] = er_fields.tx_power;
+    bytes_written += 1;
+    /* padding */
+    data_ptr[bytes_written] = 0;
+    bytes_written += 1;
+    phtoles(&data_ptr[bytes_written], er_fields.vw_flags);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.vw_ht_length);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.vw_info);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], er_fields.vw_errors);
+    bytes_written += 4;
 
-    /* finally, dump the whole MAC frame to file as-is; exclude FCS */
+    /* finally, copy the whole MAC frame to the packet buffer as-is; exclude FCS */
     if ( rec_size < ((int)msdu_length + (int)vwr->STATS_LEN) ) 
         /*something's been truncated, DUMP AS-IS*/
         memcpy(&data_ptr[bytes_written], m_ptr, octets);
@@ -1422,7 +1479,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     /* block), and should always represent the actual number of bytes in the file */
     /* len is the length of the original packet before truncation */
     /* the FCS is NOT included */
-    r_hdr_len = sizeof(common_fields) + sizeof(er_fields);
+    r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
     wth->phdr.len = (actual_octets - 4) + r_hdr_len;
     wth->phdr.caplen = (msdu_length - 4) + r_hdr_len;
 
@@ -1432,10 +1489,10 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     wth->phdr.ts.nsecs = (long)(s_usec * 1000);
     wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and write out the radiotap header, set the version number to 1 (extended) */
+    /* generate and copy out the radiotap header, set the version number to 1 (extended) */
     common_fields.vw_port_type = 0;
-    common_fields.it_len = sizeof(stats_common_fields);
-    er_fields.it_len = sizeof(er_fields);
+    common_fields.it_len = STATS_COMMON_FIELDS_LEN;
+    er_fields.it_len = EXT_RTAP_FIELDS_LEN;
 
     /* create the extended radiotap header fields */
     er_fields.flags = radioflags;
@@ -1463,9 +1520,9 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     if (errors & vwr->FCS_ERROR)
         er_fields.vw_flags |= RADIOTAP_VWF_FCSERR;
     if (!f_tx && (errors & vwr->CRYPTO_ERR))
-            er_fields.vw_flags |= RADIOTAP_VWF_DCRERR;
+        er_fields.vw_flags |= RADIOTAP_VWF_DCRERR;
     if (!f_tx && (errors & vwr->RETRY_ERR))
-            er_fields.vw_flags |= RADIOTAP_VWF_RETRERR;
+        er_fields.vw_flags |= RADIOTAP_VWF_RETRERR;
     if (info & vwr->WEPTYPE)
         er_fields.vw_flags |= RADIOTAP_VWF_IS_WEP;
     else if (info & vwr->TKIPTYPE)
@@ -1495,13 +1552,62 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     common_fields.vw_endt = end_time;
     common_fields.vw_sig_ts = (guint32)(sig_ts);/* 32 LSBs of signature  */
 
-    memcpy(&data_ptr[bytes_written], &common_fields, sizeof(common_fields));
-    bytes_written += sizeof(common_fields);
+    /* put common_fields into the packet buffer in little-endian byte order */
+    phtoles(&data_ptr[bytes_written], common_fields.vw_port_type);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_fields.it_len);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_fields.vw_msdu_length);
+    bytes_written += 2;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 2);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_flowid);
+    bytes_written += 4;
+    phtoles(&data_ptr[bytes_written], common_fields.vw_vcid);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_fields.vw_seqnum);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_latency);
+    bytes_written += 4;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_sig_ts);
+    bytes_written += 4;
+    phtolell(&data_ptr[bytes_written], common_fields.vw_startt);
+    bytes_written += 8;
+    phtolell(&data_ptr[bytes_written], common_fields.vw_endt);
+    bytes_written += 8;
+    phtolel(&data_ptr[bytes_written], common_fields.vw_pktdur);
+    bytes_written += 4;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 4);
+    bytes_written += 4;
 
-    memcpy(&data_ptr[bytes_written], &er_fields, sizeof(er_fields));
-    bytes_written += sizeof(er_fields);
+    /* put er_fields into the packet buffer in little-endian byte order */
+    phtoles(&data_ptr[bytes_written], er_fields.it_len);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.flags);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.chanflags);
+    bytes_written += 2;
+    data_ptr[bytes_written] = er_fields.rate;
+    bytes_written += 1;
+    data_ptr[bytes_written] = er_fields.signal;
+    bytes_written += 1;
+    data_ptr[bytes_written] = er_fields.tx_power;
+    bytes_written += 1;
+    /* padding */
+    data_ptr[bytes_written] = 0;
+    bytes_written += 1;
+    phtoles(&data_ptr[bytes_written], er_fields.vw_flags);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.vw_ht_length);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], er_fields.vw_info);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], er_fields.vw_errors);
+    bytes_written += 4;
 
-    /* finally, dump the whole MAC frame to file as-is; exclude 4-byte FCS */
+    /* finally, copy the whole MAC frame to the packet buffer as-is; exclude 4-byte FCS */
     if ( rec_size < ((int)actual_octets + (int)vwr->STATS_LEN) ) 
         /*something's been truncated, DUMP AS-IS*/
         memcpy(&data_ptr[bytes_written], m_ptr, msdu_length);
@@ -1661,7 +1767,7 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     /* block), and should always represent the actual number of bytes in the file */
     /* len is the length of the original packet before truncation*/
     /* the FCS is NEVER included */
-    e_hdr_len = sizeof(common_hdr) + sizeof(etap_hdr);
+    e_hdr_len = STATS_COMMON_FIELDS_LEN + STATS_ETHERNETTAP_FIELDS_LEN;
     wth->phdr.len = (actual_octets - 4) + e_hdr_len;
     wth->phdr.caplen = (msdu_length - 4) + e_hdr_len;
 
@@ -1671,10 +1777,10 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     wth->phdr.ts.nsecs = (long)(s_usec * 1000);
     wth->phdr.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and write out the ETHERNETTAP header, set the version number to 1 */
+    /* generate and copy out the ETHERNETTAP header, set the version number to 1 */
     common_hdr.vw_port_type = 1;
-    common_hdr.it_len = sizeof(common_hdr);
-    etap_hdr.it_len = sizeof(etap_hdr);
+    common_hdr.it_len = STATS_COMMON_FIELDS_LEN;
+    etap_hdr.it_len = STATS_ETHERNETTAP_FIELDS_LEN;
 
     etap_hdr.vw_errors = (guint32)errors;
     etap_hdr.vw_info = (guint16)info;
@@ -1702,12 +1808,55 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
 
     etap_hdr.it_pad2 = 0;
 
-    memcpy(&data_ptr[bytes_written], &common_hdr, sizeof(common_hdr));
-    bytes_written += sizeof(common_hdr);
-    memcpy(&data_ptr[bytes_written], &etap_hdr, sizeof(etap_hdr));
-    bytes_written += sizeof(etap_hdr);
+    /* put common_hdr into the packet buffer in little-endian byte order */
+    phtoles(&data_ptr[bytes_written], common_hdr.vw_port_type);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_hdr.it_len);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_hdr.vw_msdu_length);
+    bytes_written += 2;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 2);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], common_hdr.vw_flowid);
+    bytes_written += 4;
+    phtoles(&data_ptr[bytes_written], common_hdr.vw_vcid);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], common_hdr.vw_seqnum);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], common_hdr.vw_latency);
+    bytes_written += 4;
+    phtolel(&data_ptr[bytes_written], common_hdr.vw_sig_ts);
+    bytes_written += 4;
+    phtolell(&data_ptr[bytes_written], common_hdr.vw_startt);
+    bytes_written += 8;
+    phtolell(&data_ptr[bytes_written], common_hdr.vw_endt);
+    bytes_written += 8;
+    phtolel(&data_ptr[bytes_written], common_hdr.vw_pktdur);
+    bytes_written += 4;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 4);
+    bytes_written += 4;
 
-    /* finally, dump the whole MAC frame to file as-is; ALWAYS exclude 4-byte FCS */
+    /* put etap_hdr into the packet buffer in little-endian byte order */
+    phtoles(&data_ptr[bytes_written], etap_hdr.it_len);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], etap_hdr.vw_flags);
+    bytes_written += 2;
+    phtoles(&data_ptr[bytes_written], etap_hdr.vw_info);
+    bytes_written += 2;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 2);
+    bytes_written += 2;
+    phtolel(&data_ptr[bytes_written], etap_hdr.vw_errors);
+    bytes_written += 4;
+    phtolel(&data_ptr[bytes_written], etap_hdr.vw_l4id);
+    bytes_written += 4;
+    /* padding */
+    memset(&data_ptr[bytes_written], 0, 4);
+    bytes_written += 4;
+
+    /* finally, copy the whole MAC frame to the packet bufffer as-is; ALWAYS exclude 4-byte FCS */
     if ( rec_size < ((int)actual_octets + (int)vwr->STATS_LEN) ) 
         /*something's been truncated, DUMP AS-IS*/
         memcpy(&data_ptr[bytes_written], m_ptr, msdu_length);
