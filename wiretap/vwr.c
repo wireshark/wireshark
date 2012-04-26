@@ -595,7 +595,7 @@ static gboolean     vwr_seek_read(wtap *, gint64, union wtap_pseudo_header *, gu
 static int          vwr_read_rec_header(FILE_T, int *, int *, gchar **);
 static void         vwr_read_rec_data(wtap *, guint8 *, guint8 *, int);
 
-static guint16      vwr_get_fpga_version(wtap *, int *, gchar **);
+static int          vwr_get_fpga_version(wtap *, int *, gchar **);
 
 
 static void         vwr_read_rec_data_vVW510021(wtap *, guint8 *, guint8 *, int);
@@ -610,12 +610,15 @@ static guint64      get_signature_ts(register guint8 *, int);
 
 int vwr_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-    guint16 fpgaVer;
+    int fpgaVer;
 
     *err = 0;
 
     fpgaVer = vwr_get_fpga_version(wth, err, err_info);
-    if ((*err != 0) || (fpgaVer == UNKNOWN_FPGA)) {
+    if (fpgaVer == -1) {
+        return -1; /* I/O error */
+    }
+    if (fpgaVer == UNKNOWN_FPGA) {
         return 0; /* not a VWR file */
     }
 
@@ -816,7 +819,8 @@ static int vwr_read_rec_header(FILE_T fh, int *rec_size, int *err, gchar **err_i
         /* if the variable length message is not a frame, simply skip over it */
         if ((f_len = decode_msg(header, &v_type)) != 0) {
             if (f_len > B_SIZE) {
-                *err = WTAP_ERR_CANT_READ;
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("vwr: Invalid message record length %d", f_len);
                 return(-1);
             }
             else if (v_type != VT_FRAME) {
@@ -834,8 +838,10 @@ static int vwr_read_rec_header(FILE_T fh, int *rec_size, int *err, gchar **err_i
 }
 
 /* figure out the FPGA version (and also see whether this is a VWR file type */
+/* return FPGA version if it's a known version, UNKNOWN_FPGA if it's not, */
+/* and -1 on an I/O error. */
 
-static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
+static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
 {
     guint8      rec[B_SIZE];                        /* local buffer (holds input record) */
     guint8      header[16];
@@ -852,8 +858,8 @@ static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
 
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
-        *err = WTAP_ERR_SHORT_READ;
-        return(UNKNOWN_FPGA);
+        *err = file_error(wth->fh, err_info);
+        return(-1);
     }
 
     fpga_version = 1000;
@@ -871,23 +877,23 @@ static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
         /* if the variable length message is not a frame, simply skip over it */
         if ((f_len = decode_msg(header, &v_type)) != 0) {
             if (f_len > B_SIZE) {
-                *err = WTAP_ERR_CANT_READ;
+                /* Treat this here as an indication that the file probably */
+                /* isn't an vwr file. */
                 return(UNKNOWN_FPGA);
             }
             else if (v_type != VT_FRAME) {
                 if (file_seek(wth->fh, f_len, SEEK_CUR, err) < 0)
-                    return(UNKNOWN_FPGA);
+                    return(-1);
             }
             else {
                 rec_size = f_len;
                 /* got a frame record; read over entire record (frame + trailer) into a local buffer */
-                /* if we don't get it all, then declare an error, we can't process the frame */
+                /* if we don't get it all, assume this isn't a vwr file */
                 if (file_read(rec, rec_size, wth->fh) != rec_size) {
                     *err = file_error(wth->fh, err_info);
                     if (*err == 0)
-                        *err = WTAP_ERR_SHORT_READ;
-
-                    return(UNKNOWN_FPGA);
+                        return(UNKNOWN_FPGA); /* short read - not a vwr file */
+                    return(-1);
                 }
 
 
@@ -962,8 +968,7 @@ static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
                 {
                     /* reset the file position offset */
                     if (file_seek (wth->fh, filePos, SEEK_SET, err) == -1) {
-                        *err = WTAP_ERR_SHORT_READ;
-                        return (UNKNOWN_FPGA);
+                        return (-1);
                     }
                     /* We found an FPGA that works */
                     return(fpga_version);
@@ -973,7 +978,9 @@ static guint16 vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
     }
 
     *err = file_error(wth->fh, err_info);
-    return(UNKNOWN_FPGA);
+    if (*err == 0)
+        return(UNKNOWN_FPGA); /* short read - not a vwr file */
+    return(-1);
 }
 
 /* copy the actual packet data from the capture file into the target data block */
