@@ -1058,7 +1058,7 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     rssi = (s_ptr[vwr->RSSI_OFF] & 0x80) ? (-1 * (s_ptr[vwr->RSSI_OFF] & 0x7f)) : s_ptr[vwr->RSSI_OFF];
     /*if ((info && AGGREGATE_MASK) != 0)*/
     /* this length includes the Start_Spacing + Delimiter + MPDU + Padding for each piece of the aggregate*/
-        /*ht_len = (int)rec[PLCP_LENGTH_OFF] + ((int)rec[PLCP_LENGTH_OFF+1] << 8);*/
+        /*ht_len = (int)pletohs(&rec[PLCP_LENGTH_OFF]);*/
 
     /* decode OFDM or CCK PLCP header and determine rate and short preamble flag */
     /* the SIGNAL byte is always the first byte of the PLCP header in the frame */
@@ -1342,7 +1342,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
     info = pntohs(&s_trail_ptr[vwr->INFO_OFF]);
     if ((info && 0xFC00) != 0)
     /* this length includes the Start_Spacing + Delimiter + MPDU + Padding for each piece of the aggregate*/
-        ht_len = s_start_ptr[vwr->PLCP_LENGTH_OFF] + (s_start_ptr[vwr->PLCP_LENGTH_OFF+1] << 8);
+        ht_len = pletohs(&s_start_ptr[vwr->PLCP_LENGTH_OFF]);
 
     rssi = s_start_ptr[vwr->RSSI_OFF];
     if (f_tx) {
@@ -2195,8 +2195,7 @@ int find_signature(guint8 *m_ptr, int pay_off, guint32 flow_id, guint8 flow_seq)
                 if (m_ptr[tgt + 4] != flow_seq)
                     continue;
 
-                fid = m_ptr[tgt + 1] | (m_ptr[tgt + 2] << 8) |
-                      (m_ptr[tgt + 3] << 16);
+                fid = pletoh24(&m_ptr[tgt + 1]);
 
                 if (fid != flow_id)
                     continue;
@@ -2208,8 +2207,7 @@ int find_signature(guint8 *m_ptr, int pay_off, guint32 flow_id, guint8 flow_seq)
                 if (m_ptr[tgt + SIG_FSQ_OFF] != flow_seq)   /* check sequence number */
                     continue;                               /* if failed, keep scanning */
 
-                fid = m_ptr[tgt + SIG_FID_OFF] | (m_ptr[tgt + SIG_FID_OFF + 1] << 8) |
-                      (m_ptr[tgt + SIG_FID_OFF + 2] << 16); /* assemble flow ID from signature */
+                fid = pletoh24(&m_ptr[tgt + SIG_FID_OFF]);  /* assemble flow ID from signature */
                 if (fid != flow_id)                         /* check flow ID against expected */
                     continue;                               /* if failed, keep scanning */
 
@@ -2234,8 +2232,7 @@ guint64 get_signature_ts(guint8 *m_ptr,int sig_off)
     else
         ts_offset = 8;
 
-    sig_ts = (m_ptr[sig_off + ts_offset + 3] << 24) | (m_ptr[sig_off + ts_offset + 2] << 16) |
-                 (m_ptr[sig_off + ts_offset + 1] << 8) | (m_ptr[sig_off + ts_offset + 0]);  
+    sig_ts = pletohl(&m_ptr[sig_off + ts_offset]);
 
     return(sig_ts & 0xffffffff);
 }
