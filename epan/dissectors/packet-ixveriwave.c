@@ -311,7 +311,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += align_offset;
     length_remaining -= align_offset;
 
-        if (length_remaining >= 2) {
+    if (length_remaining >= 2) {
 
         vw_msdu_length = tvb_get_letohs(tvb, offset);
         if (tree) {
