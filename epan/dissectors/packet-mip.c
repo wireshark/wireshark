@@ -263,7 +263,6 @@ static const value_string mip_ext_types[]= {
   {128,                 "Deprecated (2001 Aug 31)"},
   {129,                 "SKIP Firewall Traversal Extension"},                  /*[RFC2356]*/
   {130,                 "Encapsulating Delivery Style Extension"},             /*[RFC3024]*/
-  {131,                 "Mobile Node NAI"},                                    /*[RFC2794]*/
   {MN_NAI_EXT,          "Mobile Node NAI Extension"},
   {MF_CHALLENGE_EXT,    "MN-FA Challenge Extension"},
   {OLD_NVSE_EXT,        "Normal Vendor/Organization Specific Extension"},

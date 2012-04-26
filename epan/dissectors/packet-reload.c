@@ -945,9 +945,9 @@ static const value_string datamodels[] = {
 
 static const value_string messageextensiontypes[] = {
   {MESSAGEEXTENSIONTYPE_RESERVED,               "reserved"},
-  {MESSAGEEXTENSIONTYPE_SELF_TUNING_DATA,       "exp-ext"},
+  {MESSAGEEXTENSIONTYPE_EXP_EXT,                "exp-ext"},
   {MESSAGEEXTENSIONTYPE_SELF_TUNING_DATA,       "sip_tuning_data"},
-  {MESSAGEEXTENSIONTYPE_SELF_TUNING_DATA,       "Diagnostic_Ping"},
+  {MESSAGEEXTENSIONTYPE_DIAGNOSTIC_PING,        "Diagnostic_Ping"},
   {0x00, NULL}
 };
 

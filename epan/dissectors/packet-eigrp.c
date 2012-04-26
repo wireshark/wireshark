@@ -589,7 +589,7 @@ static const value_string eigrp_vrid2string[] = {
     { EIGRP_VRID_AF_BASE,       "(Address-Family)"},
     { EIGRP_VRID_SF_BASE,       "(Service-Family)"},
     { EIGRP_VRID_MCAST_BASE,    "(Multi-Cast)"},
-    { -1, NULL}
+    { 0, NULL}
 };
 
 static const value_string eigrp_afi2string[] = {
@@ -600,7 +600,7 @@ static const value_string eigrp_afi2string[] = {
     { EIGRP_SF_COMMON,          "Service Family"},
     { EIGRP_SF_IPv4,            "IPv4 Service Family"},
     { EIGRP_SF_IPv6,            "IPv6 Service Family"},
-    { -1, NULL}
+    { 0, NULL}
 };
 
 static const value_string eigrp_attr_opcode2string[] = {
