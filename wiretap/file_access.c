@@ -112,6 +112,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	 * are easy to identify.
 	 */
 	libpcap_open,
+	pcapng_open,
 	lanalyzer_open,
 	ngsniffer_open,
 	snoop_open,
@@ -128,9 +129,9 @@ static wtap_open_routine_t open_routines_base[] = {
 	k12_open,
 	catapult_dct2000_open,
 	ber_open,
-	pcapng_open,
 	aethra_open,
 	btsnoop_open,
+	eyesdn_open,
 	vwr_open,
 	packetlogger_open, /* This type does not have a magic number, but its
 			    * files are sometimes grabbed by mpeg_open. */
@@ -158,7 +159,6 @@ static wtap_open_routine_t open_routines_base[] = {
 	pppdump_open,
 	iseries_open,
 	ascend_open,
-	eyesdn_open,
 	toshiba_open,
 	i4btrace_open,
 	csids_open,
