@@ -2447,9 +2447,9 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
 
                 offset += OAMPDU_EVENT_TIMESTAMP_SZ;
 
-                raw_word = tvb_get_ntohl(tvb, offset);
+                dword = tvb_get_ntohl(tvb, offset);
                 proto_tree_add_uint(event_tree, hf_oampdu_event_efpeWindow,
-                        tvb, offset, 4, raw_word);
+                        tvb, offset, 4, dword);
 
                 offset += OAMPDU_EFPE_WINDOW_SZ;
 
