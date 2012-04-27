@@ -1008,7 +1008,7 @@ put_string_list(GList *sl)
   static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
   GList        *clp = g_list_first(sl);
   gchar        *str;
-  size_t        cur_pos = 0, cur_len = 0;
+  size_t        cur_len = 0;
   gchar        *quoted_str;
   size_t        str_len;
   gchar        *strp, *quoted_strp, c;
@@ -1041,12 +1041,10 @@ put_string_list(GList *sl)
       if (item_count % 2) {
         /* Wrap the line.  */
         if (cur_len > 0) cur_len--;
-        cur_pos = 0;
         pref_str[cur_len] = '\n'; cur_len++;
         pref_str[cur_len] = '\t'; cur_len++;
       }
       g_snprintf(&pref_str[cur_len], MAX_FMT_PREF_LEN - (gulong) cur_len, "\"%s\", ", quoted_str);
-      cur_pos += fmt_len;
       cur_len += fmt_len;
     }
     g_free(quoted_str);
