@@ -45,9 +45,15 @@ Wireshark Info
         </para></listitem>
 -->
 
-	<listitem><para>
-	  .
-	</para></listitem>
+        <listitem><para>
+          When saving the displayed packets, packets which are dependencies
+	  (e.g., due to reassembly) of the displayed packets are included in
+	  the list of saved packets
+	  (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3315">Bug
+	  3315</ulink>).
+        </para></listitem>
+
+
 
       </itemizedlist>
 
