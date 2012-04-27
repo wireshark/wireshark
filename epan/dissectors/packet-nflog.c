@@ -57,9 +57,11 @@ enum ws_nfulnl_attr_type {
 #define BYTE_ORDER_AUTO 0
 #define BYTE_ORDER_BE 1
 #define BYTE_ORDER_LE 2
+#define BYTE_ORDER_HOST 3
 
 static enum_val_t byte_order_types[] = {
     { "Auto", "Auto", BYTE_ORDER_AUTO },
+    { "Host", "Host", BYTE_ORDER_HOST },
     { "LE",   "LE",   BYTE_ORDER_BE },
     { "BE",   "BE",   BYTE_ORDER_LE },
     { NULL, NULL, 0 }
@@ -98,7 +100,7 @@ static const value_string _linux_family_vals[] = {
 static const value_string _encoding_vals[] = {
 	{ ENC_BIG_ENDIAN,    "Big Endian" },
 	{ ENC_LITTLE_ENDIAN, "Little Endian" },
-	{ ENC_NA,            "Unknown" },
+/*	{ ENC_NA,            "Unknown" }, */ /* ENC_NA has the same value as ENC_BIG_ENDIAN */
 	{ 0, NULL }
 };
 
@@ -157,6 +159,11 @@ nflog_tvb_byte_order(tvbuff_t *tvb, int tlv_offset)
 
 		case BYTE_ORDER_LE:
 			return ENC_LITTLE_ENDIAN;
+
+		case BYTE_ORDER_HOST:
+			return (G_BYTE_ORDER == G_LITTLE_ENDIAN) ?
+					ENC_LITTLE_ENDIAN :
+					ENC_BIG_ENDIAN;
 	}
 
 	if (nflog_tvb_test_order(tvb, tlv_offset, tvb_get_ntohs))
@@ -165,7 +172,7 @@ nflog_tvb_byte_order(tvbuff_t *tvb, int tlv_offset)
 	if (nflog_tvb_test_order(tvb, tlv_offset, tvb_get_letohs))
 		return ENC_LITTLE_ENDIAN;
 
-	return ENC_NA;
+	return ENC_NA;	/* ENC_NA same as ENC_BIG_ENDIAN */
 }
 
 static void
