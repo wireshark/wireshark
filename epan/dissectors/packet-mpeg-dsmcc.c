@@ -56,7 +56,7 @@
  * Dissected tables:
  * 2-1 2-4 2-6 2-7
  * 6-1
- * 7-6 7-7 
+ * 7-6 7-7
  * 9-2
  *
  * Validated (all parameters are checked) tables:
@@ -477,7 +477,7 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset++;
 		if (0 < module_info_len) {
 			proto_tree_add_item(mod_tree, hf_etv_module_abs_path, tvb, offset, 1,
-				ENC_ASCII|ENC_BIG_ENDIAN);
+				ENC_ASCII|ENC_NA);
 			offset += module_info_len;
 		}
 	}
@@ -488,7 +488,7 @@ dissect_dsmcc_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (0 < private_data_len) {
 		proto_tree_add_item(tree, hf_etv_dii_authority, tvb, offset, 1,
-			ENC_ASCII|ENC_BIG_ENDIAN);
+			ENC_ASCII|ENC_NA);
 		offset += private_data_len;
 	}
 }

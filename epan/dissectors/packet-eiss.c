@@ -205,7 +205,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(sub_tree, hf_eiss_irl_string, tvb, offset, 2,
-					ENC_ASCII|ENC_BIG_ENDIAN);
+					ENC_ASCII|ENC_NA);
 		return (2+total_length);
 	} else if (0xe1 == tag) {
 		pi = proto_tree_add_text(tree, tvb, offset, 6,

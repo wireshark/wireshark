@@ -418,7 +418,7 @@ static gint ett_afs_vldb_flags = -1;
 		i_orxs = tvb_get_ntohl(tvb, offset); \
 		len_orxs = ((i_orxs+4-1)/4)*4 + 4; \
 		proto_tree_add_item(tree, field, tvb, offset-4, len_orxs, \
-		ENC_ASCII|ENC_BIG_ENDIAN); \
+		ENC_ASCII|ENC_NA); \
 		offset += len_orxs; \
 	}
 

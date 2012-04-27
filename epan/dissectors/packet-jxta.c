@@ -1080,7 +1080,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
             /*
              *   Put header name into the protocol tree
              */
-            proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_name, tvb, tree_offset, sizeof(gint8), ENC_ASCII|ENC_BIG_ENDIAN);
+            proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_name, tvb, tree_offset, sizeof(gint8), ENC_ASCII|ENC_NA);
 
             /*
              *   Append header name into the header protocol item. It's a nice hint so you don't have to reveal all headers.
@@ -1389,7 +1389,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
 
             names_table[2 + each_name] = tvb_get_ephemeral_string(tvb, tree_offset + sizeof(name_len), name_len);
-            proto_tree_add_item(jxta_msg_tree, hf_jxta_message_names_name, tvb, tree_offset, sizeof(name_len), ENC_ASCII|ENC_BIG_ENDIAN);
+            proto_tree_add_item(jxta_msg_tree, hf_jxta_message_names_name, tvb, tree_offset, sizeof(name_len), ENC_ASCII|ENC_NA);
             tree_offset += sizeof(name_len) + name_len;
         }
 
@@ -1630,13 +1630,13 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 
         name_len = tvb_get_ntohs(tvb, tree_offset);
         proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + sizeof(guint16), name_len));
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_BIG_ENDIAN);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
         tree_offset += sizeof(guint16) + name_len;
 
         /* process type */
         if ((flags & JXTAMSG1_ELMFLAG_TYPE) != 0) {
             guint16 type_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_BIG_ENDIAN);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_type, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
             tree_offset += sizeof(guint16);
 
             mediatype = tvb_get_ephemeral_string(tvb, tree_offset, type_len);
@@ -1647,7 +1647,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         /* process encoding */
         if ((flags & JXTAMSG1_ELMFLAG_ENCODING) != 0) {
             guint16 encoding_len = tvb_get_ntohs(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_encoding, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_BIG_ENDIAN);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_encoding, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
             tree_offset += sizeof(guint16) + encoding_len;
         }
 
@@ -1905,7 +1905,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
             /* literal name */
             guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
             proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + sizeof(guint16), name_len));
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_BIG_ENDIAN);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, sizeof(guint16), ENC_ASCII|ENC_NA);
             tree_offset += sizeof(guint16) + name_len;
         }
 

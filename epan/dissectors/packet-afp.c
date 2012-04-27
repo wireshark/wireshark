@@ -3415,7 +3415,7 @@ dissect_reply_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		}
 	}
 	if (size) {
-	    proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_BIG_ENDIAN);
+	    proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_NA);
 	}
 	else {
 	    proto_tree_add_item(tree, hf_afp_unknown, tvb, offset, len, ENC_NA);
@@ -3446,7 +3446,7 @@ dissect_query_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		len = tvb_get_guint8(tvb, offset);
 		break;
 	}
-	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, size, ENC_ASCII|ENC_NA);
 	offset += len +size;
 
 	return offset;
