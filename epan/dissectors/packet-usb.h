@@ -155,6 +155,13 @@ typedef struct _usb_tap_data_t {
 #define RQT_SETUP_RECIPIENT_ENDPOINT    2
 #define RQT_SETUP_RECIPIENT_OTHER       3
 
+/* Endpoint descriptor bmAttributes  */
+#define ENDPOINT_TYPE(ep_attrib)        ((ep_attrib) & 0x03)
+#define ENDPOINT_TYPE_CONTROL           0
+#define ENDPOINT_TYPE_ISOCHRONOUS       1
+#define ENDPOINT_TYPE_BULK              2
+#define ENDPOINT_TYPE_INTERRUPT         3
+
 void dissect_usb_descriptor_header(proto_tree *tree, tvbuff_t *tvb, int offset);
 void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);
 
