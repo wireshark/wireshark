@@ -1328,16 +1328,16 @@ static const value_string aem_descriptor_type_vals[] = {
 };
 
 static const value_string aem_status_type_vals[] = {
-   {AEM_STATUS_SUCCESS                , "AEM_SUCCESS"},
-   {AEM_STATUS_NOT_IMPLEMENTED        , "AEM_NOT_IMPLEMENTED"},
-   {AEM_STATUS_NO_SUCH_DESCRIPTOR     , "AEM_NO_SUCH_DESCRIPTOR"},
-   {AEM_STATUS_ENTITY_LOCKED          , "AEM_ENTITY_LOCKED"},
-   {AEM_STATUS_ENTITY_ACQUIRED        , "AEM_ENTITY_ACQUIRED"},
-   {AEM_STATUS_NOT_AUTHORIZED         , "AEM_NOT_AUTHORIZED"},
-   {AEM_STATUS_INSUFFICIENT_PRIVILEGES, "AEM_INSUFFICIENT_PRIVILEGES"},
-   {AEM_STATUS_BAD_ARGUMENTS          , "AEM_BAD_ARGUMENTS"},
-   {AEM_STATUS_NO_RESOURCES           , "AEM_NO_RESOURCES"},
-   {AEM_STATUS_IN_PROGRESS            , "AEM_IN_PROGRESS"},
+   {AEM_STATUS_SUCCESS                , "SUCCESS"},
+   {AEM_STATUS_NOT_IMPLEMENTED        , "NOT_IMPLEMENTED"},
+   {AEM_STATUS_NO_SUCH_DESCRIPTOR     , "NO_SUCH_DESCRIPTOR"},
+   {AEM_STATUS_ENTITY_LOCKED          , "ENTITY_LOCKED"},
+   {AEM_STATUS_ENTITY_ACQUIRED        , "ENTITY_ACQUIRED"},
+   {AEM_STATUS_NOT_AUTHORIZED         , "NOT_AUTHORIZED"},
+   {AEM_STATUS_INSUFFICIENT_PRIVILEGES, "INSUFFICIENT_PRIVILEGES"},
+   {AEM_STATUS_BAD_ARGUMENTS          , "BAD_ARGUMENTS"},
+   {AEM_STATUS_NO_RESOURCES           , "NO_RESOURCES"},
+   {AEM_STATUS_IN_PROGRESS            , "IN_PROGRESS"},
    {0                                 , NULL}
 };
 
@@ -1690,6 +1690,7 @@ static int hf_aecp_values_count = -1;
 /* ***************************************************************** */
 /*                   AVDECC Entity Model (AEM)                       */
 /* ***************************************************************** */
+static int hf_aem_status_code = -1;
 static int hf_aem_am824_label = -1;
 static int hf_aem_aspect_x = -1;
 static int hf_aem_aspect_y = -1;
@@ -3178,7 +3179,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
    proto_tree_add_item(aecp_tree, hf_aecp_message_type, tvb,
          AECP_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
 
-   proto_tree_add_item(aecp_tree, hf_acmp_status_field, tvb,
+   proto_tree_add_item(aecp_tree, hf_aem_status_code, tvb,
          ACMP_STATUS_FIELD_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_cd_length, tvb,
          AECP_CD_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -5088,6 +5089,10 @@ proto_register_17221(void)
       { &hf_aem_vendor_name_string,
          {"Vendor Name String (ptr)", "ieee17221.vendor_name_string",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aem_status_code,
+         {"Status", "ieee1722.status",
+            FT_UINT16, BASE_HEX, VALS(aem_status_type_vals), 0x00, NULL, HFILL }
       },
       { &hf_aem_model_name_string,
          {"Model Name String (ptr)", "ieee17221.model_name_string",
