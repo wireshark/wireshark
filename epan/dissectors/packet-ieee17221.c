@@ -211,6 +211,7 @@
 
 /******************************************************************************/
 /* 1722.1 AECP Offsets */
+#define AECP_STATUS_CODE_OFFSET                   2
 
 #define AECP_VERSION_OFFSET                        1
 #define AECP_TARGET_GUID_OFFSET                    4
@@ -932,6 +933,7 @@
 #define AEM_OFFSET_COLOR_SPACE                     7
 
 /* Bitmasks */
+#define AECP_STATUS_CODE_MASK                   0xf8
 #define AECP_TOKEN_LENGTH_MASK                  0x07ff
 #define AECP_KEY_PART_MASK                      0x78
 #define AECP_CONTINUED_MASK                     0x80
@@ -1686,11 +1688,11 @@ static int hf_aecp_unsupported_formats = -1;
 static int hf_aecp_unsupported_formats_valid = -1;
 static int hf_aecp_values = -1;
 static int hf_aecp_values_count = -1;
+static int hf_aecp_status_code = -1;
 
 /* ***************************************************************** */
 /*                   AVDECC Entity Model (AEM)                       */
 /* ***************************************************************** */
-static int hf_aem_status_code = -1;
 static int hf_aem_am824_label = -1;
 static int hf_aem_aspect_x = -1;
 static int hf_aem_aspect_y = -1;
@@ -3179,8 +3181,8 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
    proto_tree_add_item(aecp_tree, hf_aecp_message_type, tvb,
          AECP_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
 
-   proto_tree_add_item(aecp_tree, hf_aem_status_code, tvb,
-         ACMP_STATUS_FIELD_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(aecp_tree, hf_aecp_status_code, tvb,
+         AECP_STATUS_CODE_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_cd_length, tvb,
          AECP_CD_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
 
@@ -5090,10 +5092,6 @@ proto_register_17221(void)
          {"Vendor Name String (ptr)", "ieee17221.vendor_name_string",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
-      { &hf_aem_status_code,
-         {"Status", "ieee17221.status",
-            FT_UINT8, BASE_HEX, VALS(aem_status_type_vals), 0x00, NULL, HFILL }
-      },
       { &hf_aem_model_name_string,
          {"Model Name String (ptr)", "ieee17221.model_name_string",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
@@ -5934,6 +5932,10 @@ proto_register_17221(void)
       { &hf_aecp_values,
          {"Values", "ieee17221.values",
             FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+      },
+      { &hf_aecp_status_code,
+         {"Status", "ieee17221.status",
+            FT_UINT8, BASE_HEX, VALS(aem_status_type_vals), AECP_STATUS_CODE_MASK, NULL, HFILL }
       }
 
       /* END STREAM FORMAT (SF) FIELDS */
