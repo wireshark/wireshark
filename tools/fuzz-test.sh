@@ -185,7 +185,10 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     RUN=0
 
     for CF in "$@" ; do
-	if [ $PASS -gt $MAX_PASSES ] ; then break ; fi # We caught a signal
+	if [ $PASS -gt $MAX_PASSES -a $MAX_PASSES -gt 1 ]
+	then
+	    break # We caught a signal
+	fi
         RUN=$(( $RUN + 1 ))
         if [ $(( $RUN % 50 )) -eq 0 ] ; then
             echo "    [Pass $PASS]"
@@ -231,8 +234,8 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	# checking.
 	#grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
 	#    > /dev/null 2>&1 && DISSECTOR_BUG=1
-	if [ $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 ] ; then
-		echo ""
+	if [ \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 \) -a $PASS -le $MAX_PASSES ] ; then
+	    echo ""
 	    echo " ERROR"
 	    echo -e "Processing failed.  Capture info follows:\n"
 	    echo "  Output file: $TMP_DIR/$TMP_FILE"
@@ -240,7 +243,8 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
 	    cat $TMP_DIR/$ERR_FILE
 	    exit 1
 	fi
+
 	echo " OK"
-	    rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
+	rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE
     done
 done
