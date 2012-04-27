@@ -361,6 +361,26 @@ static const value_string AdsErrorMode[] =
    {  0,                                 NULL }
 };
 
+
+/* AMS Command Id
+ * http://infosys.beckhoff.com/english.php?content=../content/1033/tcadsamsspec/html/tcadsamsspec_adscmd_readstate.htm&id=10652
+ */
+static const value_string AMS_CommandId_vals[] =
+{
+   { ADSSRVID_INVALID,                   "Invalid", },
+   { ADSSRVID_READDEVICEINFO,            "ADS Read Device Info", },
+   { ADSSRVID_READ,                      "ADS Read", },
+   { ADSSRVID_WRITE,                     "ADS Write", },
+   { ADSSRVID_READSTATE,                 "ADS Read State", },
+   { ADSSRVID_WRITECTRL,                 "ADS Write Control", },
+   { ADSSRVID_ADDDEVICENOTE,             "ADS Add Device Notification", },
+   { ADSSRVID_DELDEVICENOTE,             "ADS Delete Device Notification", },
+   { ADSSRVID_DEVICENOTE,                "ADS Device Notification", },
+   { ADSSRVID_READWRITE,                 "ADS Read Write", },
+   {  0,                                 NULL }
+};
+
+
 static void NetIdFormater(tvbuff_t *tvb, guint offset, char *szText, gint nMax)
 {
    g_snprintf ( szText, nMax, "%d.%d.%d.%d.%d.%d", tvb_get_guint8(tvb, offset),
@@ -383,6 +403,7 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    guint ams_length = tvb_reported_length(tvb);
    guint16 stateflags = 0;
    guint16 cmdId = 0;
+   guint32 cbdata = 0;
 
    char szText[200];
    int nMax = sizeof(szText)-1;
@@ -441,6 +462,7 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      offset+=sizeof(guint16);
 
      proto_tree_add_item(ams_tree, hf_ams_cbdata, tvb, offset, sizeof(guint32), ENC_LITTLE_ENDIAN);
+	 cbdata = tvb_get_letohl(tvb,offset);
      offset+=sizeof(guint32);
 
      proto_tree_add_item(ams_tree, hf_ams_errorcode, tvb, offset, sizeof(guint32),ENC_LITTLE_ENDIAN);
@@ -539,7 +561,7 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            {
               col_append_str(pinfo->cinfo, COL_INFO, "ADS Read State Request");
 
-              if( tree )
+              if( tree && cbdata !=0 )
               {
                  anItem = proto_tree_add_item(ams_tree, hf_ams_adsreadstaterequest, tvb, offset, ams_length-offset, ENC_NA);
                  if( ams_length-offset >= TAdsReadStateReq_Len )
@@ -578,7 +600,7 @@ static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            {
               col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Device Info Request");
 
-              if( tree )
+              if( tree && cbdata !=0 )
               {
                  anItem = proto_tree_add_item(ams_tree, hf_ams_adsreaddinforequest, tvb, offset, ams_length-offset, ENC_NA);
                  if( ams_length-offset >= TAdsReadDeviceInfoReq_Len )
@@ -865,7 +887,7 @@ void proto_register_ams(void)
       },
       { &hf_ams_cmdid,
       { "CmdId", "ams.cmdid",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
+      FT_UINT16, BASE_DEC, VALS(AMS_CommandId_vals), 0x0,
       NULL, HFILL }
       },
       { &hf_ams_stateflags,
