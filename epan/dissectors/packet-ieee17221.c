@@ -5091,8 +5091,8 @@ proto_register_17221(void)
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_status_code,
-         {"Status", "ieee1722.status",
-            FT_UINT16, BASE_HEX, VALS(aem_status_type_vals), 0x00, NULL, HFILL }
+         {"Status", "ieee17221.status",
+            FT_UINT8, BASE_HEX, VALS(aem_status_type_vals), 0x00, NULL, HFILL }
       },
       { &hf_aem_model_name_string,
          {"Model Name String (ptr)", "ieee17221.model_name_string",
