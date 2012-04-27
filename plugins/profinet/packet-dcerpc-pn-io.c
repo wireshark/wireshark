@@ -1053,7 +1053,7 @@ static const value_string pn_io_error_code2_pnio_2[] = {
     { 17, "Error in Parameter IOCRTagHeader" },
     { 18, "Error in Parameter IOCRMulticastMacAddress" },
     { 19, "Error in Parameter NumberOfAPI" },
-    { 10, "Error in Parameter API" },
+    { 20, "Error in Parameter API" },
     { 21, "Error in Parameter NumberOfIODataObjects" },
     { 22, "Error in Parameter SlotNumber" },
     { 23, "Error in Parameter SubslotNumber" },
