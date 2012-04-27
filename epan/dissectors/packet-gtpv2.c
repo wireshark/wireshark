@@ -371,6 +371,9 @@ static int hf_gtpv2_abs_time_mbms_data = -1;
 static int hf_gtpv2_mbms_session_duration_days = -1;
 static int hf_gtpv2_mbms_session_duration_secs = -1;
 static int hf_gtpv2_time_to_data_xfer = -1;
+static int hf_gtpv2_arp_pvi = -1;
+static int hf_gtpv2_arp_pl = -1;
+static int hf_gtpv2_arp_pci = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -4316,6 +4319,7 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     int bit_offset = 0;
     guint32 days;
     guint32 hours;
+    guint32 minutes;
     guint32 seconds;
      
     /* From 3GPP TS 29.061 17.7.7 MBMS-Session-Duration AVP */
@@ -4337,12 +4341,13 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
         proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_secs, tvb, offset, 3, ENC_BIG_ENDIAN);
         proto_item_append_text(item, "Indefinite (always-on)");
     } else {
-        hours = seconds / 60;
-        seconds = seconds % 60;
+        hours = seconds / 3600;
+        minutes = (seconds % 3600) / 60;
+        seconds = (seconds % 3600) % 60;
 
         proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_days, tvb, offset, 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_gtpv2_mbms_session_duration_secs, tvb, offset, 3, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, "%d day(s), %d hour(s), %d second(s)", days, hours, seconds);
+        proto_item_append_text(item, "%d days %02d:%02d:%02d (DD days HH:MM:SS)", days, hours, minutes, seconds);
     }
 
     offset += 3;
@@ -4619,14 +4624,18 @@ dissect_gtpv2_throttling(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 /* 8.86 Allocation/Retention Priority (ARP) */
-static void
+void
 dissect_gtpv2_arp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
+    int offset = 0;
 
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_item(tree, hf_gtpv2_arp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_arp_pl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_arp_pci, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset += 1;
+    if(length > 1)
+        proto_tree_add_text(tree, tvb, offset, length-1, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-1));
 }
 
 /* 8.87 EPC Timer */
@@ -6529,6 +6538,21 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_time_to_data_xfer,
           {"MBMS Time to Data Transfer", "gtpv2.time_to_data_xfer",
           FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_arp_pvi,
+          {"Pre-emption Vulnerability (PVI)", "gtpv2.arp_pvi",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_arp_pl,
+          {"Priority Level", "gtpv2.arp_pl",
+          FT_UINT8, BASE_DEC, NULL, 0x3c,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_arp_pci,
+          {"Pre-emption Capability (PCI)", "gtpv2.arp_pci",
+          FT_BOOLEAN, 8, NULL, 0x40,
           NULL, HFILL}
         },
     };
