@@ -663,7 +663,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 }
 
 static int ProtoField_integer(lua_State* L, enum ftenum type) {
-    ProtoField f = g_malloc(sizeof(wslua_field_t));
+    ProtoField f;
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     base_display_e base = luaL_optint(L, 3, BASE_DEC);
@@ -693,6 +693,8 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
       luaL_argerror(L, 1, "Invalid char in abbrev");
       return 0;
     }
+
+    f = g_new((wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;
@@ -826,7 +828,7 @@ PROTOFIELD_INTEGER(int64,FT_INT64)
 PROTOFIELD_INTEGER(framenum,FT_FRAMENUM)
 
 static int ProtoField_boolean(lua_State* L, enum ftenum type) {
-    ProtoField f = g_malloc(sizeof(wslua_field_t));
+    ProtoField f;
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     base_display_e base = luaL_optint(L, 3, BASE_NONE);
@@ -850,6 +852,8 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
       luaL_argerror(L,1,"Invalid char in abbrev");
       return 0;
     }
+
+    f = g_new((wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;
@@ -884,7 +888,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 PROTOFIELD_BOOL(bool,FT_BOOLEAN)
 
 static int ProtoField_time(lua_State* L,enum ftenum type) {
-    ProtoField f = g_malloc(sizeof(wslua_field_t));
+    ProtoField f;
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     absolute_time_display_e base = luaL_optint(L,3,ABSOLUTE_TIME_LOCAL);
@@ -901,6 +905,8 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
         return 0;
       }
     }
+
+    f = g_new((wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;
@@ -939,7 +945,7 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
 PROTOFIELD_TIME(absolute_time,FT_ABSOLUTE_TIME)
 
 static int ProtoField_other(lua_State* L,enum ftenum type) {
-    ProtoField f = g_malloc(sizeof(wslua_field_t));
+    ProtoField f;
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* blob = luaL_optstring(L,3,NULL);
@@ -948,6 +954,8 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
       luaL_argerror(L,1,"Invalid char in abbrev");
       return 0;
     }
+
+    f = g_new((wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;
