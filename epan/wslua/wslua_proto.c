@@ -694,7 +694,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
       return 0;
     }
 
-    f = g_new((wslua_field_t,1);
+    f = g_new(wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;
@@ -853,7 +853,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
       return 0;
     }
 
-    f = g_new((wslua_field_t,1);
+    f = g_new(wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;
@@ -906,7 +906,7 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
       }
     }
 
-    f = g_new((wslua_field_t,1);
+    f = g_new(wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;
@@ -955,7 +955,7 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
       return 0;
     }
 
-    f = g_new((wslua_field_t,1);
+    f = g_new(wslua_field_t,1);
 
     f->hfid = -2;
     f->ett = -1;

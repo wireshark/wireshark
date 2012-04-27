@@ -1017,10 +1017,10 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
         return 0;
     }
 
-    addr = g_malloc(sizeof(address));
-
     if (tvbr->len != 6)
         WSLUA_ERROR(TvbRange_ether,"The range must be 6 bytes long");
+
+    addr = g_new(address,1);
 
     buff = tvb_memdup(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
@@ -1033,13 +1033,15 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
 WSLUA_METHOD TvbRange_nstime(lua_State* L) {
 	/* Obtain a nstime from a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
-    NSTime nstime = g_malloc (sizeof(nstime_t));
+    NSTime nstime;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
         return 0;
     }
+
+    nstime = g_new(nstime_t,1);
 
     if (tvbr->len == 4) {
       nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
@@ -1048,6 +1050,7 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
       nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
       nstime->nsecs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset + 4);
     } else {
+      g_free(nstime);
       WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
       return 0;
     }
@@ -1060,13 +1063,15 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
 WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
 	/* Obtain a nstime from a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
-    NSTime nstime = g_malloc (sizeof(nstime_t));
+    NSTime nstime;
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
         return 0;
     }
+
+    nstime = g_new(nstime_t,1);
 
     if (tvbr->len == 4) {
       nstime->secs = tvb_get_letohl(tvbr->tvb->ws_tvb, tvbr->offset);
@@ -1075,6 +1080,7 @@ WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
       nstime->secs = tvb_get_letohl(tvbr->tvb->ws_tvb, tvbr->offset);
       nstime->nsecs = tvb_get_letohl(tvbr->tvb->ws_tvb, tvbr->offset + 4);
     } else {
+      g_free(nstime);
       WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
       return 0;
     }
