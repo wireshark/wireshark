@@ -129,7 +129,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
-    gtk_tree_model_get(model, &iter, 1, &hfinfo, -1);
+    gtk_tree_model_get(model, &iter, 0, &hfinfo, -1);
 
     /*
      * What was the item that was last selected?
@@ -899,6 +899,34 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
  */
 #define TAG_STRING_LEN	256
 
+static void
+show_hfinfo_name_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
+			GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
+{
+	char str[TAG_STRING_LEN+1];
+	header_field_info *hfinfo;
+
+	gtk_tree_model_get(model, iter, 0, &hfinfo, -1);
+
+	if (hfinfo->parent == -1) {
+    	protocol_t *protocol = find_protocol_by_id(hfinfo->id);
+
+		g_snprintf(str, TAG_STRING_LEN, "%s - %s",
+		   proto_get_protocol_short_name(protocol),
+		   proto_get_protocol_long_name(protocol));
+
+	} else {
+		if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
+			g_snprintf(str, TAG_STRING_LEN, "%s - %s (%s)", 
+				hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
+		} else {
+			g_snprintf(str, TAG_STRING_LEN, "%s - %s", 
+				hfinfo->abbrev, hfinfo->name);
+		}
+	}
+	g_object_set(renderer, "text", str, NULL);
+}
+
 GtkWidget *
 dfilter_expr_dlg_new(GtkWidget *filter_te)
 {
@@ -956,14 +984,16 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_widget_set_size_request(tree_scrolled_win, 300, -1);
 
 
-    store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
-    field_tree = tree_view_new(GTK_TREE_MODEL(store));
+    field_tree = tree_view_new(GTK_TREE_MODEL(NULL));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(field_tree), FALSE);
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(field_tree));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_BROWSE);
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes("Field name", renderer,
-                                                      "text", 0, NULL);
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_pack_start(column, renderer, TRUE);
+    gtk_tree_view_column_set_title(column, "Field name");
+    gtk_tree_view_column_set_cell_data_func(column, renderer, 
+                                    show_hfinfo_name_func, NULL, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(field_tree), column);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_column_set_sort_column_id(column, 0);
@@ -1098,6 +1128,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * we're ready to cope with the selection signal.
      */
 
+    store = gtk_tree_store_new(1, G_TYPE_POINTER);
 {
     /* GTK2 code using two levels iterator to enumerate all protocol fields */
 
@@ -1106,7 +1137,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     for (i = proto_get_first_protocol(&cookie); i != -1;
 	 i = proto_get_next_protocol(&cookie)) {
-	char *strp, str[TAG_STRING_LEN+1];
 
         protocol = find_protocol_by_id(i);
 
@@ -1114,15 +1144,10 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	    continue;
 	}
 
-	g_snprintf(str, TAG_STRING_LEN, "%s - %s",
-		   proto_get_protocol_short_name(protocol),
-		   proto_get_protocol_long_name(protocol));
-	strp=str;
-
 	hfinfo = proto_registrar_get_nth(i);
 
 	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter, 0, strp, 1, hfinfo, -1);
+	gtk_tree_store_set(store, &iter, 0, hfinfo, -1);
 
 	for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
              hfinfo = proto_get_next_protocol_field(&cookie2)) {
@@ -1130,19 +1155,13 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
             if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
                 continue;
 
-            if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-                g_snprintf(str, TAG_STRING_LEN, "%s - %s (%s)",
-                           hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
-            } else {
-                g_snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
-                           hfinfo->name);
-            }
             gtk_tree_store_append(store, &child_iter, &iter);
-            gtk_tree_store_set(store, &child_iter, 0, strp, 1, hfinfo, -1);
+            gtk_tree_store_set(store, &child_iter, 0, hfinfo, -1);
 	}
     }
-    g_object_unref(G_OBJECT(store));
 }
+    gtk_tree_view_set_model(GTK_TREE_VIEW(field_tree), GTK_TREE_MODEL(store));
+    g_object_unref(G_OBJECT(store));
 
     range_label = gtk_label_new("Range (offset:length)");
     gtk_misc_set_alignment(GTK_MISC(range_label), 0.0f, 0.0f);
