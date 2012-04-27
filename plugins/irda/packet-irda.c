@@ -626,10 +626,10 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
         switch (op)
         {
             case GET_VALUE_BY_CLASS:
-                proto_tree_add_item(tree, hf_iap_class_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_iap_class_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
                 offset += 1 + clen;
 
-                proto_tree_add_item(tree, hf_iap_attr_name, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_iap_attr_name, tvb, offset, 1, ENC_ASCII|ENC_NA);
                 offset += 1 + alen;
                 break;
         }
@@ -838,7 +838,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                 if (!iap_conv || !iap_conv->pattr_dissector ||
                                     !iap_conv->pattr_dissector->value_dissector(tvb, offset, pinfo, entry_tree,
                                                                                 n, type))
-                                    proto_tree_add_item(entry_tree, hf_iap_string, tvb, offset + 1, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+                                    proto_tree_add_item(entry_tree, hf_iap_string, tvb, offset + 1, 1, ENC_ASCII|ENC_NA);
                                 break;
                         }
                         offset += attr_len;
