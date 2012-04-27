@@ -1,7 +1,7 @@
 -- M3AP-PDU-Contents.asn
 --
--- 3GPP TS 36.444 V11.0.0 (2011-12)
--- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip 
+-- 3GPP TS 36.444 V11.1.0 (2012-03)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b10.zip 
 --
 -- 9.3.4	PDU Definitions
 --
@@ -85,7 +85,7 @@ FROM M3AP-Containers
 	id-Time-ofMBMS-DataTransfer,
 	id-Global-MCE-ID,
 	id-MCEname,
-	maxnoofMBMSServiceAreasPerMCE,
+	maxnoofMBMSServiceAreaIdentitiesPerMCE,
 	maxnooferrors,
 	maxNrOfIndividualM3ConnectionsToReset
 
@@ -374,7 +374,7 @@ M3SetupRequestIEs M3AP-PROTOCOL-IES ::= {
 }
 
 
-MBMSServiceAreaListItem ::= SEQUENCE (SIZE(1..maxnoofMBMSServiceAreasPerMCE)) OF MBMSServiceArea1
+MBMSServiceAreaListItem ::= SEQUENCE (SIZE(1..maxnoofMBMSServiceAreaIdentitiesPerMCE)) OF MBMSServiceArea1
 
 
 -- **************************************************************

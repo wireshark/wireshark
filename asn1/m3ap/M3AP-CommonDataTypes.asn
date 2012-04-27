@@ -1,7 +1,7 @@
 -- M3AP-CommonDataTypes.asn
 --
--- 3GPP TS 36.444 V11.0.0 (2011-12)
--- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip
+-- 3GPP TS 36.444 V11.1.0 (2012-03)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b10.zip 
 --
 -- 9.3.6	Common Definitions
 --
@@ -56,3 +56,4 @@ ProtocolIE-ID		::= INTEGER (0..maxProtocolIEs)
 TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessful-outcome}
 
 END
+

@@ -1,7 +1,7 @@
 -- M3AP-Constants.asn
 --
--- 3GPP TS 36.444 V11.0.0 (2011-12)
--- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip
+-- 3GPP TS 36.444 V11.1.0 (2012-03)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b10.zip 
 --
 -- 9.3.7	Constant Definitions
 --
@@ -50,7 +50,7 @@ id-m3Setup														ProcedureCode ::= 7
 --
 -- **************************************************************
 
-maxnoofMBMSServiceAreasPerMCE				INTEGER ::= 65536
+maxnoofMBMSServiceAreaIdentitiesPerMCE		INTEGER ::= 65536
 maxnooferrors								INTEGER ::= 256
 maxNrOfIndividualM3ConnectionsToReset		INTEGER ::= 256
 
@@ -84,3 +84,4 @@ id-MBMSServiceAreaList														ProtocolIE-ID ::= 20
 id-Time-ofMBMS-DataTransfer													ProtocolIE-ID ::= 21
 id-Time-ofMBMS-DataStop														ProtocolIE-ID ::= 22
 END
+

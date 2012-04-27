@@ -1,7 +1,7 @@
 -- M3AP-IEs.asn
 --
--- 3GPP TS 36.444 V11.0.0 (2011-12)
--- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip
+-- 3GPP TS 36.444 V11.1.0 (2012-03)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b10.zip 
 --
 -- 9.3.5	Information Element Definitions
 --
@@ -24,7 +24,6 @@ BEGIN
 
 IMPORTS
 	id-AllocationAndRetentionPriority,
-	maxnoofMBMSServiceAreasPerMCE,
 	maxnooferrors
 
 FROM M3AP-Constants
@@ -153,8 +152,7 @@ ExtendedMCE-ID ::= OCTET STRING (SIZE(1))
 Global-MCE-ID ::= SEQUENCE {
 	pLMN-Identity			PLMN-Identity,
 	mCE-ID					MCE-ID,
--- WS 3GPP Spec error fixed.
-	extendedMCE-ID			ExtendedMCE-ID OPTIONAL,
+	extendedMCE-ID			ExtendedMCE-ID,
 	iE-Extensions			ProtocolExtensionContainer { {GlobalMCE-ID-ExtIEs} } OPTIONAL,
 	...
 }
