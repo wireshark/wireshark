@@ -982,12 +982,13 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
 
 #define PINFO_GET_ADDRESS(name,role) static int name(lua_State *L) { \
     Pinfo pinfo = checkPinfo(L,1); \
-    Address addr = g_malloc(sizeof(address)); \
+    Address addr; \
     if (!pinfo) return 0; \
     if (pinfo->expired) { \
         luaL_error(L,"expired_pinfo"); \
         return 0; \
     } \
+    addr = g_new(address,1); \
     COPY_ADDRESS(addr, &(pinfo->ws_pinfo->role)); \
     pushAddress(L,addr); \
     return 1; \
