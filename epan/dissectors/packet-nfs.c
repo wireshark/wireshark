@@ -9626,6 +9626,12 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
+	for (ops_counter=0; ops_counter<ops; ops_counter++)
+	{
+		g_string_free(op_summary[ops_counter].optext, TRUE);
+	}
+
+	g_free(op_summary);
 
 	return offset;
 }
@@ -10043,6 +10049,12 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
+	for (ops_counter=0; ops_counter<ops; ops_counter++)
+	{
+		g_string_free(op_summary[ops_counter].optext, TRUE);
+	}
+
+	g_free(op_summary);
 
 	return offset;
 }
