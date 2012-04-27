@@ -316,67 +316,67 @@ XML
 
     <para>
       Dumpcap might not quit if Wireshark or TShark crashes.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419">Bug
       1419</ulink>)
     </para>
 
     <para>
       The BER dissector might infinitely loop.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
       1516</ulink>)
     </para>
 
     <para>
       Capture filters aren't applied when capturing from named pipes.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814">Bug
       1814</ulink>)
     </para>
 
     <para>
       Filtering tshark captures with display filters (-R) no longer works.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234">Bug
       2234</ulink>)
     </para>
 
     <para>
       The 64-bit Windows installer does not support Kerberos decryption.
-      (<ulink url="http://wiki.wireshark.org/Development/Win64">Win64
+      (<ulink url="https://wiki.wireshark.org/Development/Win64">Win64
       development page</ulink>)
     </para>
 
     <para>
       Application crash when changing real-time option.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035">Bug
       4035</ulink>)
     </para>
 
     <para>
       Hex pane display issue after startup.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056">Bug
       4056</ulink>)
     </para>
 
     <para>
       Packet list rows are oversized.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357">Bug
       4357</ulink>)
     </para>
 
     <para>
       Summary pane selected frame highlighting not maintained.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445">Bug
       4445</ulink>)
     </para>
 
     <para>
       Wireshark and TShark will display incorrect delta times in some cases.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985">Bug
       4985</ulink>)
     </para>
 
     <para>
       Rearranging columns in preferences doesn't work on 64-bit Windows.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
       6077</ulink>)
     </para>
 
