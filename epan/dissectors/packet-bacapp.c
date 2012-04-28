@@ -6365,7 +6365,7 @@ fAbstractSyntaxNType (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     guint32 lvt;
     guint   lastoffset = 0, depth = 0;
     char    ar[256];
-    guint32 save_object_type = object_type;
+    guint32 save_object_type;
 
     if (propertyIdentifier >= 0) {
         g_snprintf (ar, sizeof(ar), "%s: ",
