@@ -3463,7 +3463,6 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	smb_fid_info_t *suspect_fid_info=NULL;
 	/* We need this to use an array-accessed tree */
 	GSList          *GSL_iterator;
-	int             found=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -3510,7 +3509,6 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 			if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
 				fid_info=suspect_fid_info;
 			GSL_iterator=g_slist_next(GSL_iterator);
-			found+=1;
 		}
 	}
 	if(!fid_info){
@@ -6438,7 +6436,6 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint32 tvblen;
 	tvbuff_t        *data_tvb;
 	GSList          *GSL_iterator;
-	int             found=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -6564,7 +6561,6 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
 					fid_info=suspect_fid_info;
 				GSL_iterator=g_slist_next(GSL_iterator);
-				found+=1;
 			}
 		}
 		tid_info = se_tree_lookup32(si->ct->tid_tree, si->tid);
@@ -6630,7 +6626,6 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint32 tvblen;
 	tvbuff_t        *data_tvb;
 	GSList          *GSL_iterator;
-	int             found=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -6797,7 +6792,6 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 				if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
 					fid_info=suspect_fid_info;
 				GSL_iterator=g_slist_next(GSL_iterator);
-				found+=1;
 			}
 		}
 		tid_info = se_tree_lookup32(si->ct->tid_tree, si->tid);
