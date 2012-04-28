@@ -1637,7 +1637,7 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
 static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboolean is_sent)
 {
     /* Only need to set info once per session. */
-    struct fp_info  *p_fp_info  = p_get_proto_data(pinfo->fd, proto_fp);
+    struct fp_info  *p_fp_info;
     struct rlc_info *p_rlc_info = p_get_proto_data(pinfo->fd, proto_rlc);
 
     if (p_rlc_info != NULL) {
