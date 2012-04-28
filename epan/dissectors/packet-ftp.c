@@ -609,8 +609,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*
              * Find the end of the line.
              */
-            linelen = tvb_find_line_end(tvb, offset, -1,
-                &next_offset, FALSE);
+            tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
             /*
              * Put this line.
