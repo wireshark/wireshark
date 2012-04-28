@@ -909,8 +909,7 @@ static void dissect_server_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                               offset, password_encryption_type_length*2,
                               password_encryption_type);
     }
-    offset += (password_encryption_type_length*2);
-
+/*    offset += (password_encryption_type_length*2); */
 }
 
 /* Player (client) information */
@@ -946,19 +945,8 @@ static void dissect_start_sending_from_info(tvbuff_t *tvb, proto_tree *tree, gui
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 
     /* 40 bytes follow the prefixes... */
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
 }
 
 /* Dissect cancel parameters */
@@ -968,7 +956,6 @@ static void dissect_cancel_info(tvbuff_t *tvb, proto_tree *tree, guint offset)
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 /* Dissect timing test data request */
@@ -978,7 +965,6 @@ static void dissect_timing_test_request(tvbuff_t *tvb, proto_tree *tree, guint o
     proto_tree_add_item(tree, hf_msmms_command_prefix1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 /* Dissect timing test data response */
@@ -999,11 +985,8 @@ static void dissect_timing_test_response(tvbuff_t *tvb, proto_tree *tree, guint 
 
     /* Client ID */
     proto_tree_add_item(tree, hf_msmms_command_client_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
-    offset += 4;
+
+    /* 20 more bytes... */
 }
 
 /* Dissect request for server file */
@@ -1068,7 +1051,6 @@ static void dissect_media_details(tvbuff_t *tvb, proto_tree *tree, guint offset)
 
     /* Packet length in bytes */
     proto_tree_add_item(tree, hf_msmms_command_media_packet_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 /* Dissect header response */
@@ -1079,10 +1061,8 @@ static void dissect_header_response(tvbuff_t *tvb, proto_tree *tree, guint offse
     offset += 4;
     /* Packet ID type */
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 
-    offset += 4;
-    offset += 4;
+    /* 8 more bytes */
 }
 
 /* Dissect network timer test response */
@@ -1092,7 +1072,6 @@ static void dissect_network_timer_test_response(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 /* Dissect transport info response */
@@ -1132,7 +1111,6 @@ static void dissect_media_stream_mbr_selector(tvbuff_t *tvb, proto_tree *tree, g
     proto_tree_add_item(tree, hf_msmms_stream_selection_stream_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_msmms_stream_selection_action, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
 }
 
 /* Dissect header request */
@@ -1154,7 +1132,6 @@ static void dissect_header_request(tvbuff_t *tvb, proto_tree *tree, guint offset
 
     /* Header packet ID type */
     proto_tree_add_item(tree, hf_msmms_command_header_packet_id_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 /* Dissect stop button pressed */
@@ -1164,7 +1141,6 @@ static void dissect_stop_button_pressed(tvbuff_t *tvb, proto_tree *tree, guint o
     proto_tree_add_item(tree, hf_msmms_command_prefix1_command_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_msmms_command_prefix2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 
