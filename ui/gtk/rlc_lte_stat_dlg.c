@@ -888,12 +888,11 @@ static void rlc_lte_select_channel_cb(GtkTreeSelection *sel, gpointer data)
         guint8   rlcMode;
 
         /* Remember selected channel */
-        get_channel_selection(hs, &ueid, &rlcMode,
-                              &(hs->reselect_channel_type), &(hs->reselect_channel_id));
-
-        /* Enable buttons */
-        enable_filter_controls(TRUE, rlcMode, hs);
-
+        if (get_channel_selection(hs, &ueid, &rlcMode,
+                                  &(hs->reselect_channel_type), &(hs->reselect_channel_id))) {
+            /* Enable buttons */
+            enable_filter_controls(TRUE, rlcMode, hs);
+        }
     }
     else {
         /* No channel selected - disable buttons */
