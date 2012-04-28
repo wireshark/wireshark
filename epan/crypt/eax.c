@@ -160,7 +160,9 @@ static void dCMAC(guint8 *pK, guint8 *ws, const guint8 *pN, guint16 SizeN, const
 	return;
     }
     memcpy(work, pN, SizeN);
-    memcpy(&work[SizeN], pC, SizeC);
+    if (pC != NULL) {
+        memcpy(&work[SizeN], pC, SizeC);
+    }
     /* 
      * pad the data if necessary, and XOR Q or D, depending on
      * whether data was padded or not 
