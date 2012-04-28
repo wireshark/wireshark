@@ -18,6 +18,7 @@
  * RFC 2242: NetWare/IP Domain Name and Information
  * RFC 2489: Procedure for Defining New DHCP Options
  * RFC 2610: DHCP Options for Service Location Protocol
+ * RFC 2685: Virtual Private Networks Identifier
  * RFC 3046: DHCP Relay Agent Information Option
  * RFC 3118: Authentication for DHCP Messages
  * RFC 3203: DHCP reconfigure extension
@@ -342,6 +343,13 @@ static int hf_bootp_option82_vi_cl_docsis_version = -1;
                                                                         /* 82:9 suboptions end */
 static int hf_bootp_option82_flags = -1;                                /* 82:10 */
 static int hf_bootp_option82_server_id_override = -1;                   /* 82:11 */
+static int hf_bootp_option82_link_selection_cisco = -1;                 /* 82:150 */
+static int hf_bootp_option82_vrf_name_vpn_id = -1;                      /* 82:151 */
+                                                                        /* 82:151 suboptions */
+static int hf_bootp_option82_vrf_name_vpn_id_oui = -1;
+static int hf_bootp_option82_vrf_name_vpn_id_index = -1;
+                                                                        /* 82:151 suboptions end */
+static int hf_bootp_option82_server_id_override_cisco = -1;             /* 82:152 */
 
 static int hf_bootp_option_novell_dss_string = -1;                      /* 85 */
 static int hf_bootp_option_novell_dss_ip = -1;                          /* 85 */
@@ -2323,6 +2331,9 @@ static const value_string option82_suboption_vals[] = {
 	{ 9, "Vendor-Specific Information" },
 	{ 10, "Flags" },
 	{ 11, "Server ID Override" },
+	{ 150, "Link selection (Cisco proprietary)" },
+	{ 151, "VRF name/VPN ID" },
+	{ 152, "Server ID Override (Cisco proprietary)" },
 	{ 0, NULL }
 };
 
@@ -2331,29 +2342,35 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
     int optend)
 {
 	int suboptoff = optoff;
-	guint8 subopt, vs_opt, vs_len;
+	guint8 subopt, idx, vs_opt, vs_len;
 	int subopt_len, subopt_end, datalen;
 	guint32 enterprise;
 	proto_item *vti;
-	proto_tree *o82_v_tree, *o82_9_tree;
+	proto_tree *o82_v_tree, *o82_sub_tree;
 	guint8 tag, tag_len;
 	struct basic_types_hfs default_hfs = {&hf_bootp_option82_value, &hf_bootp_option82_value_ip_address, &hf_bootp_option82_value_ip_address,
 					      &hf_bootp_option82_value_stringz, NULL, &hf_bootp_option82_value_8,
 					      NULL, NULL, &hf_bootp_option82_value_32, NULL, NULL};
-
-	static struct opt_info o82_opt[]= {
-		/* 0 */ {"nop", bytes, &hf_bootp_option82_padding},	/* dummy */
-		/* 1 */ {"Agent Circuit ID", bytes, &hf_bootp_option82_agent_circuit_id}, /* [RFC3046] */
-		/* 2 */ {"Agent Remote ID", bytes, &hf_bootp_option82_agent_remote_id}, /* [RFC3046] */
-		/* 3 */ {"Reserved", bytes, &hf_bootp_option82_reserved},
-		/* 4 */ {"DOCSIS Device Class", val_u_long, &hf_bootp_option82_docsis_device_class}, /* [RFC3256] */
-		/* 5 */ {"Link selection", ipv4, &hf_bootp_option82_link_selection}, /* [RFC3527] */
-		/* 6 */ {"Subscriber ID", string, &hf_bootp_option82_subscriber_id},  /* [RFC3993] */ /***** CHECK STRING TYPE */
-		/* 7 */ {"RADIUS Attributes", bytes, &hf_bootp_option82_radius_attributes}, /* [RFC4014] */
-		/* 8 */ {"Authentication", bytes, &hf_bootp_option82_authentication}, /* [RFC4030] */
-		/* 9 */ {"Vendor-Specific Information", special, &hf_bootp_option82_vi}, /* [RFC 4243] */
-		/* 10 */ {"Flags", val_u_byte, &hf_bootp_option82_flags}, /* [RFC5010] */
-		/* 11 */ {"Server ID Override", ipv4, &hf_bootp_option82_server_id_override}, /* [RFC 5107] */
+	struct opt82_info {
+		int id;
+		struct opt_info info;
+	};
+	static struct opt82_info o82_opt[]= {
+		{0, {"nop", bytes, &hf_bootp_option82_padding}},	/* dummy */
+		{1, {"Agent Circuit ID", bytes, &hf_bootp_option82_agent_circuit_id}}, /* [RFC3046] */
+		{2, {"Agent Remote ID", bytes, &hf_bootp_option82_agent_remote_id}}, /* [RFC3046] */
+		{3, {"Reserved", bytes, &hf_bootp_option82_reserved}},
+		{4, {"DOCSIS Device Class", val_u_long, &hf_bootp_option82_docsis_device_class}}, /* [RFC3256] */
+		{5, {"Link selection", ipv4, &hf_bootp_option82_link_selection}}, /* [RFC3527] */
+		{6, {"Subscriber ID", string, &hf_bootp_option82_subscriber_id}},  /* [RFC3993] */ /***** CHECK STRING TYPE */
+		{7, {"RADIUS Attributes", bytes, &hf_bootp_option82_radius_attributes}}, /* [RFC4014] */
+		{8, {"Authentication", bytes, &hf_bootp_option82_authentication}}, /* [RFC4030] */
+		{9, {"Vendor-Specific Information", special, &hf_bootp_option82_vi}}, /* [RFC 4243] */
+		{10, {"Flags", val_u_byte, &hf_bootp_option82_flags}}, /* [RFC5010] */
+		{11, {"Server ID Override", ipv4, &hf_bootp_option82_server_id_override}}, /* [RFC 5107] */
+		{150, {"Link selection (Cisco proprietary)", ipv4, &hf_bootp_option82_link_selection_cisco}}, /* [RFC3527] */
+		{151, {"VRF name/VPN ID", special, &hf_bootp_option82_vrf_name_vpn_id}}, /* [RFC2685] */
+		{152, {"Server ID Override (Cisco proprietary)", ipv4, &hf_bootp_option82_server_id_override_cisco}} /* [RFC 5107] */
 	};
 
 	subopt = tvb_get_guint8(tvb, optoff);
@@ -2380,9 +2397,14 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 		return (optend);
 	}
 
-	if ( (subopt < 1 ) || (subopt >= array_length(o82_opt)) ) {
+	for (idx = 0; idx < array_length(o82_opt); idx++) {
+		if (o82_opt[idx].id == subopt) {
+			break;
+		}
+	}
+	if ( (idx < 1 ) || (idx == array_length(o82_opt)) ) {
 		proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
-	} else if (o82_opt[subopt].ftype == special) {
+	} else if (o82_opt[idx].info.ftype == special) {
 		switch(subopt)
 		{
 		case 9:
@@ -2391,18 +2413,18 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				vti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_vi_enterprise, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
 				suboptoff += 4;
 
-				o82_9_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption9);
+				o82_sub_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption9);
 				datalen = tvb_get_guint8(tvb, suboptoff);
-				proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_data_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_data_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 				suboptoff++;
 
 				switch (enterprise) {
 				case 4491: /* CableLab */
 					vs_opt = tvb_get_guint8(tvb, suboptoff);
-					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_option, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_option, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 					suboptoff++;
 					vs_len = tvb_get_guint8(tvb, suboptoff);
-					proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 					suboptoff++;
 
 					switch (vs_opt) {
@@ -2410,12 +2432,12 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 					case 1:
 						if (vs_len == 4) {
 							tag = tvb_get_guint8(tvb, suboptoff);
-							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_tag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 							tag_len = tvb_get_guint8(tvb, suboptoff+1);
-							proto_tree_add_item(o82_9_tree, hf_bootp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, ENC_BIG_ENDIAN);
 							suboptoff+=2;
 							if (tag == 1) {
-								proto_tree_add_uint_format_value(o82_9_tree, hf_bootp_option82_vi_cl_docsis_version,
+								proto_tree_add_uint_format_value(o82_sub_tree, hf_bootp_option82_vi_cl_docsis_version,
 										  tvb, suboptoff, 2, 0, "%d.%d",
 										  tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1));
 								suboptoff+=2;
@@ -2443,17 +2465,26 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				}
 			}
 			break;
+		case 151:
+			if (subopt_len != 7) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
+								"Invalid length (expected 7 bytes, found %d bytes)", subopt_len);
+				break;
+			}
+			proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_oui, tvb, suboptoff, 3, ENC_BIG_ENDIAN);
+			proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_index, tvb, suboptoff+3, 4, ENC_BIG_ENDIAN);
+			break;
 		default:
-			if (o82_opt[subopt].phf != NULL)
-				proto_tree_add_item(o82_v_tree, *o82_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			if (o82_opt[idx].info.phf != NULL)
+				proto_tree_add_item(o82_v_tree, *o82_opt[idx].info.phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			else
 				proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
 			break;
 		}
 	}
 	else {
-		if (bootp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[subopt].ftype,
-					     suboptoff, subopt_len, o82_opt[subopt].phf, &default_hfs) == 0) {
+		if (bootp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[idx].info.ftype,
+					     suboptoff, subopt_len, o82_opt[idx].info.phf, &default_hfs) == 0) {
 			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
 		}
 	}
@@ -5201,6 +5232,11 @@ proto_register_bootp(void)
 			{ &hf_bootp_option82_vi_cl_docsis_version, { "DOCSIS Version Number", "bootp.option.agent_information_option.vi.cl.docsis_version", FT_UINT16, BASE_HEX, NULL, 0x0, "Option 82:9 VI CL DOCSIS Version Number", HFILL }},
 			{ &hf_bootp_option82_flags, { "Flags",	"bootp.option.agent_information_option.flags", FT_UINT8, BASE_HEX, NULL, 0x0, "Option 82:10 Flags", HFILL }},
 			{ &hf_bootp_option82_server_id_override, { "Server ID Override", "bootp.option.agent_information_option.server_id_override", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 82:11 Server ID Override", HFILL }},
+			{ &hf_bootp_option82_link_selection_cisco, { "Link selection (Cisco proprietary)", "bootp.option.agent_information_option.link_selection_cisco", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 82:150 Link selection (Cisco proprietary)", HFILL }},
+			{ &hf_bootp_option82_vrf_name_vpn_id, { "VRF name/VPN ID", "bootp.option.agent_information_option.vrf_name_vpn_id", FT_BYTES, BASE_NONE, NULL, 0x00, "Option 82:151 VRF name/VPN ID", HFILL }},
+			{ &hf_bootp_option82_vrf_name_vpn_id_oui, { "VRF name/VPN ID OUI", "bootp.option.agent_information_option.vrf_name_vpn_id_oui", FT_UINT24, BASE_HEX, NULL, 0x00, "Option 82:151 VRF name/VPN ID OUI", HFILL }},
+			{ &hf_bootp_option82_vrf_name_vpn_id_index, { "VRF name/VPN ID Index", "bootp.option.agent_information_option.vrf_name_vpn_id_index", FT_UINT32, BASE_HEX, NULL, 0x00, "Option 82:151 VRF name/VPN ID Index", HFILL }},
+			{ &hf_bootp_option82_server_id_override_cisco, { "Server ID Override (Cisco proprietary)", "bootp.option.agent_information_option.server_id_override_cisco", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 82:152 Server ID Override (Cisco proprietary)", HFILL }},
 
 		{ &hf_bootp_option_novell_dss_string, { "Novell Directory Services Servers String", "bootp.option.novell_dss.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 85: Novell Directory Services Servers String", HFILL }},
 		{ &hf_bootp_option_novell_dss_ip, { "IP Address", "bootp.option.novell_dss.ip", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 85: Novell Directory Services Servers IP Address", HFILL }},
