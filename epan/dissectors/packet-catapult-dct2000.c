@@ -2010,7 +2010,11 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
                 }
 
                 /* Read this entry */
-                sscanf(current_position, "[UE=%u][RNTI=%u]", &ueids[n], &rntis[n]);
+                if (sscanf(current_position, "[UE=%u][RNTI=%u]", &ueids[n], &rntis[n]) != 2) {
+                    /* Assuming that if we can't read this one there is no point trying others */
+                    number_of_ues = n;
+                    break;
+                }
             }
         }
     }
@@ -2478,7 +2482,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      "User%%=%d Sys%%=%d Load%%=%d",
                                      &user_cpu, &sys_cpu, &load_cpu);
                     if (matched == 3) {
-                        proto_item *ti;
                         ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_user,
                                                  tvb, 0, 0, user_cpu);
                         PROTO_ITEM_SET_GENERATED(ti);
