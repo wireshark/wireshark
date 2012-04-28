@@ -131,7 +131,6 @@ static int hf_bootp_hw_ether_addr = -1;
 static int hf_bootp_server = -1;
 static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
-static int hf_bootp_vendor = -1;
 static int hf_bootp_dhcp = -1;
 static int hf_bootp_fqdn_s = -1;
 static int hf_bootp_fqdn_o = -1;
@@ -206,7 +205,6 @@ static int hf_bootp_option_ntp_server = -1;                             /* 42 */
 
 static int hf_bootp_option43_value = -1;                                /* 43 suboption value */
 static int hf_bootp_option43_value_8 = -1;                              /* 43 suboption value */
-static int hf_bootp_option43_value_16 = -1;                             /* 43 suboption value */
 static int hf_bootp_option43_value_32 = -1;                             /* 43 suboption value */
 static int hf_bootp_option43_value_stringz = -1;                         /* 43 suboption value */
 static int hf_bootp_option43_value_ip_address = -1;                     /* 43 suboption value */
@@ -4957,11 +4955,6 @@ proto_register_bootp(void)
 		    BASE_NONE,			NULL,		 0x0,
 		    NULL, HFILL }},
 
-		{ &hf_bootp_vendor,
-		  { "Bootp Vendor Options",	"bootp.vendor",  FT_BYTES,
-		    BASE_NONE,			NULL,		 0x0,
-		    NULL, HFILL }},
-
 		{ &hf_bootp_fqdn_s,
 		  { "Server",			"bootp.fqdn.s",	 FT_BOOLEAN,
 		    8,				TFS(&tfs_fqdn_s), F_FQDN_S,
@@ -5098,7 +5091,6 @@ proto_register_bootp(void)
 
 			{ &hf_bootp_option43_value, { "Value",	"bootp.option.vendor.value", FT_BYTES, BASE_NONE, NULL, 0x0, "Option 43: Suboption value", HFILL }},
 			{ &hf_bootp_option43_value_8, { "Value",	"bootp.option.vendor.value", FT_UINT8, BASE_DEC, NULL, 0x0, "Option 43: Suboption 8-bit value", HFILL }},
-			{ &hf_bootp_option43_value_16, { "Value",	"bootp.option.vendor.value", FT_UINT16, BASE_DEC, NULL, 0x0, "Option 43: Suboption 16-bit value", HFILL }},
 			{ &hf_bootp_option43_value_32, { "Value",	"bootp.option.vendor.value", FT_UINT32, BASE_DEC, NULL, 0x0, "Option 43: Suboption 32-bit value", HFILL }},
 			{ &hf_bootp_option43_value_stringz, { "Value", "bootp.option.vendor.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Option 43: Suboption Z-String value", HFILL }},
 			{ &hf_bootp_option43_value_ip_address, { "Value", "bootp.option.vendor.value", FT_IPv4, BASE_NONE, NULL, 0x00, "Option 43: Suboption IP address", HFILL }},
