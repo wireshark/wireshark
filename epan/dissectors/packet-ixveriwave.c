@@ -468,7 +468,6 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (length_remaining >= 4) {
         align_offset = ALIGN_OFFSET(offset, 4);
         offset += align_offset;
-        length_remaining -= align_offset;
         vw_pktdur = tvb_get_letohl(tvb, offset);
 
         if (tree) {
@@ -776,7 +775,6 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     offset++;
 
     dbm = (gint8) tvb_get_guint8(tvb, offset);
-    align_offset = ALIGN_OFFSET(offset, 1);
     offset++;
 
     tx_power = (gint8)tvb_get_guint8(tvb, offset);
