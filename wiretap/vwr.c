@@ -1062,7 +1062,6 @@ static void vwr_read_rec_data(wtap *wth, guint8 *data_ptr, guint8 *rec, int rec_
     for (i = 0; i < 4; i++)
         latency = (latency << 8) | s_ptr[vwr->LATVAL_OFF + i];
 
-    flow_id = 0;                                    /* init flow ID to 0 */
     flow_id = pntohs(&s_ptr[vwr->FLOWID_OFF + 1]);   /* only 16 LSBs kept */
     errors = pntohs(&s_ptr[vwr->ERRORS_OFF]);
 
@@ -1336,7 +1335,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
 
     frame_type = pntohl(&s_trail_ptr[vwr->FRAME_TYPE_OFF]);
 
-    flow_id = 0x00000000; latency = 0x00000000;               /* clear flow ID & latency */
+    latency = 0x00000000;                                     /* clear latency */
     flow_id = pntoh24(&s_trail_ptr[vwr->FLOWID_OFF]);         /* all 24 bits valid */
     /* for tx latency is duration, for rx latency is timestamp */
     /* get 48-bit latency value */
@@ -1648,8 +1647,6 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
     guint64         sig_ts, tsid;                   /* 32 LSBs of timestamp in signature */
     guint64         delta_b;    /* Used for calculating latency */
 
-    flow_id = 0x00000000;                           /* initialize flow ID  to 0 */
-
     /* calculate the start of the statistics block in the buffer */
     /* also get a bunch of fields from the stats block */
     m_ptr = &(rec[0]);                              /* point to the data block */
@@ -1677,7 +1674,6 @@ static void vwr_read_rec_data_ethernet(wtap *wth, guint8 *data_ptr, guint8 *rec,
         errors = pntohs(&s_ptr[vwr->ERRORS_OFF]);
     }
     else {
-        validityBits = 0;
         f_flow = s_ptr[vwr->VALID_OFF] & vwr->FLOW_VALID;
         mac_len = (frame_type & vwr->IS_VLAN) ? 16 : 14;             /* MAC hdr length based on VLAN tag */
 
