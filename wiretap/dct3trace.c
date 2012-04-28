@@ -248,32 +248,31 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 		else if( memcmp(dct3trace_magic_record_start, line, strlen(dct3trace_magic_record_start)) == 0 )
 		{
 			/* Parse L1 header <l1 ...>*/
-			int channel, tmp, ret = 0;
+			int channel, tmp;
 			char *ptr;
 
 			pseudo_header->gsm_um.uplink = !strstr(line, "direction=\"down\"");
-			ret |= xml_get_int(&channel, line, "logicalchannel");
+			if (xml_get_int(&channel, line, "logicalchannel") != 0)
+				goto baddata;
 
 			/* Parse downlink only fields */
 			if( !pseudo_header->gsm_um.uplink )
 			{
-				ret |= xml_get_int(&tmp, line, "physicalchannel");
+				if (xml_get_int(&tmp, line, "physicalchannel") != 0)
+					goto baddata;
 				pseudo_header->gsm_um.arfcn = tmp;
-				ret |= xml_get_int(&tmp, line, "sequence");
+				if (xml_get_int(&tmp, line, "sequence") != 0)
+					goto baddata;
 				pseudo_header->gsm_um.tdma_frame = tmp;
-				ret |= xml_get_int(&tmp, line, "bsic");
+				if (xml_get_int(&tmp, line, "bsic") != 0)
+					goto baddata;
 				pseudo_header->gsm_um.bsic = tmp;
-				ret |= xml_get_int(&tmp, line, "error");
+				if (xml_get_int(&tmp, line, "error") != 0)
+					goto baddata;
 				pseudo_header->gsm_um.error = tmp;
-				ret |= xml_get_int(&tmp, line, "timeshift");
+				if (xml_get_int(&tmp, line, "timeshift") != 0)
+					goto baddata;
 				pseudo_header->gsm_um.timeshift = tmp;
-			}
-
-			if( ret != 0 )
-			{
-				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("dct3trace: record missing mandatory attributes");
-				return FALSE;
 			}
 
 			switch( channel )
@@ -334,6 +333,11 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 	{
 		*err = WTAP_ERR_SHORT_READ;
 	}
+	return FALSE;
+
+baddata:
+	*err = WTAP_ERR_BAD_FILE;
+	*err_info = g_strdup_printf("dct3trace: record missing mandatory attributes");
 	return FALSE;
 }
 
