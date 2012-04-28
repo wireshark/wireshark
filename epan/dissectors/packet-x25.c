@@ -2677,7 +2677,7 @@ proto_register_x25(void)
 	    NULL, HFILL }},
 
 	{ &hf_x25_reverse_charging,
-	  { "Fast select", "x25.reverse_charging", FT_BOOLEAN, 8, TFS(&x25_reverse_charging_val), 0x01,
+	  { "Reverse charging", "x25.reverse_charging", FT_BOOLEAN, 8, TFS(&x25_reverse_charging_val), 0x01,
 	    NULL, HFILL }},
     };
     static gint *ett[] = {
