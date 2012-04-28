@@ -1000,7 +1000,7 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	uri_offsets->uri_start = current_offset;
 
 	/* Check if it's realy a sip uri ( it might be a tel uri, parse that?) */
-	queried_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
+	tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ':');
 	if (tvb_strneql(tvb, current_offset, "sip", 3) != 0)
 		return -1;
 
