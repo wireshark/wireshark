@@ -115,6 +115,8 @@ static int hf_scsi_sbc_verify_flags		= -1;
 static int hf_scsi_sbc_wrprotect		= -1;
 static int hf_scsi_sbc_wrverify_flags		= -1;
 static int hf_scsi_sbc_writesame_flags		= -1;
+static int hf_scsi_sbc_anchor			= -1;
+static int hf_scsi_sbc_unmap			= -1;
 static int hf_scsi_sbc_pbdata			= -1;
 static int hf_scsi_sbc_lbdata			= -1;
 static int hf_scsi_sbc_xdread_flags		= -1;
@@ -1031,6 +1033,8 @@ dissect_sbc_writesame10 (tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     static const int *writesame10_fields[] = {
 	&hf_scsi_sbc_wrprotect,
+	&hf_scsi_sbc_anchor,
+	&hf_scsi_sbc_unmap,
 	&hf_scsi_sbc_pbdata,
 	&hf_scsi_sbc_lbdata,
 	NULL
@@ -1058,6 +1062,8 @@ dissect_sbc_writesame16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 {
     static const int *writesame16_fields[] = {
 	&hf_scsi_sbc_wrprotect,
+	&hf_scsi_sbc_anchor,
+	&hf_scsi_sbc_unmap,
 	&hf_scsi_sbc_pbdata,
 	&hf_scsi_sbc_lbdata,
 	NULL
@@ -1839,6 +1845,12 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_writesame_flags,
           {"Flags", "scsi.sbc.writesame_flags", FT_UINT8, BASE_HEX,
            NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_anchor,
+          {"ANCHOR", "scsi.sbc.anchor", FT_BOOLEAN, 8, NULL,
+           0x10, NULL, HFILL}},
+        { &hf_scsi_sbc_unmap,
+          {"UNMAP", "scsi.sbc.unmap", FT_BOOLEAN, 8, NULL,
+           0x08, NULL, HFILL}},
         { &hf_scsi_sbc_pbdata,
           {"PBDATA", "scsi.sbc.pbdata", FT_BOOLEAN, 8, NULL,
            0x04, NULL, HFILL}},
