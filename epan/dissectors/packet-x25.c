@@ -2669,15 +2669,15 @@ proto_register_x25(void)
 	    NULL, HFILL }},
 
 	{ &hf_x25_fast_select,
-	  { "X.25 Fast select", "x25.fast_select", FT_UINT8, BASE_DEC, VALS(x25_fast_select_vals), 0xC0,
+	  { "Fast select", "x25.fast_select", FT_UINT8, BASE_DEC, VALS(x25_fast_select_vals), 0xC0,
 	    NULL, HFILL }},
 
 	{ &hf_x25_icrd,
-	  { "X.25 ICRD", "x25.icrd", FT_UINT8, BASE_DEC, VALS(x25_icrd_vals), 0x30,
+	  { "ICRD", "x25.icrd", FT_UINT8, BASE_DEC, VALS(x25_icrd_vals), 0x30,
 	    NULL, HFILL }},
 
 	{ &hf_x25_reverse_charging,
-	  { "X.25 Fast select", "x25.reverse_charging", FT_BOOLEAN, 8, TFS(&x25_reverse_charging_val), 0x01,
+	  { "Fast select", "x25.reverse_charging", FT_BOOLEAN, 8, TFS(&x25_reverse_charging_val), 0x01,
 	    NULL, HFILL }},
     };
     static gint *ett[] = {
