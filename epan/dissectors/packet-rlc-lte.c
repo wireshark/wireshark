@@ -1382,7 +1382,6 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 if (p_report_in_frame->previousFrameNum != 0) {
                     /* Get report for previous frame */
                     sequence_analysis_report *p_previous_report;
-                    guint16 snLimit;
                     if (p_rlc_lte_info->UMSequenceNumberLength == 5) {
                         snLimit = 32;
                     }
