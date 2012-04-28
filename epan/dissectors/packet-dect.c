@@ -1174,6 +1174,7 @@ calc_xcrc(guint8* data, guint8 length)
 	guint8 next;
 	int y, x;
 
+	memset(bits, 0, sizeof(bits));
 	for(y=0;y<=length-4;y++)
 	{
 		dect_setbit(bits, y, dect_getbit(data, y+48*(1+(int)(y/16))));
