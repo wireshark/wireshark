@@ -8438,7 +8438,7 @@ dissect_IPNIO_Read_resp(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
     guint16 u16Index = 0;
-    guint32 u32RecDataLen;
+    guint32 u32RecDataLen = 0;
     pnio_ar_t *ar = NULL;
 
     offset = dissect_IPNIO_resp_header(tvb, offset, pinfo, tree, drep);
