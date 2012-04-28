@@ -632,7 +632,7 @@ static guint64      get_signature_ts(register guint8 *, int);
 /* this does very little, except setting the wiretap header for a VWR file type */
 /* and the timestamp precision to microseconds */
 
-int vwr_open(wtap *wth, int *err, gchar **err_info _U_)
+int vwr_open(wtap *wth, int *err, gchar **err_info)
 {
     int fpgaVer;
     vwr_t *vwr;
@@ -652,7 +652,7 @@ int vwr_open(wtap *wth, int *err, gchar **err_info _U_)
     wth->priv = (void *)vwr;
 
     vwr->FPGA_VERSION = fpgaVer;
-        /* set the local module options first (this is a WLAN capture) */
+    /* set the local module options first */
     setup_defaults(vwr, fpgaVer);
 
     wth->snapshot_length = 0;
@@ -693,7 +693,7 @@ int vwr_open(wtap *wth, int *err, gchar **err_info _U_)
 /* frame, and a 64-byte statistics block trailer */
 /* the PLCP frame consists of a 4-byte or 6-byte PLCP header, followed by the MAC frame */
 
-static gboolean vwr_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
+static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     vwr_t       *vwr = (vwr_t *)wth->priv;
     int         ret;
@@ -770,7 +770,7 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data
 /* read a random frame in the middle of a file; the start of the PLCP frame is @ seek_off */
 
 static gboolean vwr_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int pkt_size _U_,
-    int *err, gchar **err_info _U_)
+    int *err, gchar **err_info)
 {
     vwr_t       *vwr = (vwr_t *)wth->priv;
     guint8      rec[B_SIZE];                        /* local buffer (holds input record) */
@@ -872,7 +872,7 @@ static int vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX,
 /* return FPGA version if it's a known version, UNKNOWN_FPGA if it's not, */
 /* and -1 on an I/O error. */
 
-static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info _U_)
+static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 {
     guint8      rec[B_SIZE];                        /* local buffer (holds input record) */
     guint8      header[16];
