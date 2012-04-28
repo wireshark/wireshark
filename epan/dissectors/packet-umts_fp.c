@@ -2498,7 +2498,6 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
         }
 
         /* EDCH subframes */
-        bit_offset = 0;
         for (n=0; n < number_of_subframes; n++)
         {
             int i;
