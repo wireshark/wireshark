@@ -178,6 +178,9 @@ static gint hf_x25_segment_too_long_segment = -1;
 static gint hf_x25_segment_error = -1;
 static gint hf_x25_segment_count = -1;
 static gint hf_x25_reassembled_length = -1;
+static gint hf_x25_fast_select = -1;
+static gint hf_x25_icrd = -1;
+static gint hf_x25_reverse_charging = -1;
 
 static const value_string vals_modulo[] = {
 	{ 1, "8" },
@@ -209,6 +212,27 @@ static const value_string vals_x25_type[] = {
 static struct true_false_string m_bit_tfs = {
 	"More data follows",
 	"End of data"
+};
+
+static const value_string x25_fast_select_vals[] = {
+	{ 0, "Not requested" },
+	{ 1, "Not requested" },
+	{ 2, "No restriction on response" },
+	{ 3, "Restriction on response" },
+	{ 0, NULL}
+};
+
+static const value_string x25_icrd_vals[] = {
+	{ 0, "Status not selected" },
+	{ 1, "Prevention requested" },
+	{ 2, "Allowance requested" },
+	{ 3, "Not allowed" },
+	{ 0, NULL}
+};
+
+static struct true_false_string x25_reverse_charging_val = {
+	"Requested",
+	"Not requested"
 };
 
 static const fragment_items x25_frag_items = {
@@ -670,22 +694,11 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
 			    "(Reverse charging / Fast select)", fac);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_reverse);
-		    byte1 = tvb_get_guint8(tvb, *offset + 1);
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-			    "Parameter : %02X", byte1);
-		    if (byte1 & 0xC0)
-			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-				"11.. .... = Fast select with restriction");
-		    else if (byte1 & 0x80)
-			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-				"10.. .... = Fast select - no restriction");
-		    else
-			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
-				"00.. .... = Fast select not requested");
-		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1, "%s",
-			    decode_boolean_bitfield(byte1, 0x01, 1*8,
-				"Reverse charging requested",
-				"Reverse charging not requested"));
+			    "Parameter : %02X", tvb_get_guint8(tvb, *offset + 1));
+			proto_tree_add_item(fac_subtree, hf_x25_fast_select, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(fac_subtree, hf_x25_icrd, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(fac_subtree, hf_x25_reverse_charging, tvb, *offset+1, 1, ENC_BIG_ENDIAN);
 		}
 		break;
 	    case X25_FAC_CHARGING_INFO:
@@ -2653,6 +2666,18 @@ proto_register_x25(void)
 
 	{ &hf_x25_segments,
 	  { "X.25 Fragments", "x25.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+
+	{ &hf_x25_fast_select,
+	  { "X.25 Fast select", "x25.fast_select", FT_UINT8, BASE_DEC, VALS(x25_fast_select_vals), 0xC0,
+	    NULL, HFILL }},
+
+	{ &hf_x25_icrd,
+	  { "X.25 ICRD", "x25.icrd", FT_UINT8, BASE_DEC, VALS(x25_icrd_vals), 0x30,
+	    NULL, HFILL }},
+
+	{ &hf_x25_reverse_charging,
+	  { "X.25 Fast select", "x25.reverse_charging", FT_BOOLEAN, 8, TFS(&x25_reverse_charging_val), 0x01,
 	    NULL, HFILL }},
     };
     static gint *ett[] = {
