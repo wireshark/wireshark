@@ -400,31 +400,31 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap;*.dmp", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_NSEC */
-	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap;*.dmp", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_AIX */
-	{ "AIX tcpdump - libpcap", "aixlibpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	{ "AIX tcpdump - libpcap", "aixlibpcap", "*.pcap;*.cap;*.dmp", ".pcap", TRUE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP_SS991029 */
-	{ "Modified tcpdump - libpcap", "modlibpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	{ "Modified tcpdump - libpcap", "modlibpcap", "*.pcap;*.cap;*.dmp", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_NOKIA */
-	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "*.pcap;*.cap;*.dmp", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990417 */
-	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "*.pcap;*.cap;*.dmp", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990915 */
-	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "*.pcap;*.cap", ".pcap", TRUE,
+	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "*.pcap;*.cap;*.dmp", ".pcap", TRUE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_5VIEWS */
@@ -592,7 +592,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  commview_dump_can_write_encap, commview_dump_open },
 
 	/* WTAP_FILE_PCAPNG */
-	{ "Wireshark - pcapng (experimental)", "pcapng", "*.pcapng", NULL, FALSE,
+	{ "Wireshark - pcapng (experimental)", "pcapng", "*.pcapng;*.ntar", NULL, FALSE,
 	  pcapng_dump_can_write_encap, pcapng_dump_open },
 
 	/* WTAP_FILE_BTSNOOP */
