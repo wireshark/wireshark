@@ -2736,11 +2736,11 @@ Example: (from the SCSI dissector)
 	...
 	/* Qualifier and DeviceType */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral,
-		ett_scsi_inq_peripheral, peripheral_fields, FALSE);
+		ett_scsi_inq_peripheral, peripheral_fields, ENC_BIG_ENDIAN);
 	offset+=1;
 	...
         { &hf_scsi_inq_peripheral,
-          {"Peripheral", "scsi.inquiry.preipheral", FT_UINT8, BASE_HEX,
+          {"Peripheral", "scsi.inquiry.peripheral", FT_UINT8, BASE_HEX,
            NULL, 0, NULL, HFILL}},
         { &hf_scsi_inq_qualifier,
           {"Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
