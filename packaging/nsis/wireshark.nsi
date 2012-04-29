@@ -744,11 +744,15 @@ push $R0
   	Call Associate
   	StrCpy $R0 ".fdc"
   	Call Associate
+  	StrCpy $R0 ".ntar"
+  	Call Associate
   	StrCpy $R0 ".pcap"
   	Call Associate
   	StrCpy $R0 ".pcapng"
   	Call Associate
   	StrCpy $R0 ".pkt"
+  	Call Associate
+  	StrCpy $R0 ".rf5"
   	Call Associate
   	StrCpy $R0 ".snoop"
   	Call Associate
@@ -765,8 +769,6 @@ push $R0
   	StrCpy $R0 ".wpc"
   	Call Associate
   	StrCpy $R0 ".wpz"
-  	Call Associate
-  	StrCpy $R0 ".rf5"
   	Call Associate
 ; if somethings added here, add it also to the uninstall section and the AdditionalTask page
 pop $R0
