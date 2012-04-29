@@ -18,7 +18,7 @@
       <dict>
         <key>CFBundleTypeExtensions</key>
         <array>
-          <string>PCAP</string>
+          <string>pcap</string>
         </array>
         <key>CFBundleTypeIconFile</key>
         <string>Wiresharkdoc.icns</string>
@@ -27,11 +27,24 @@
           <string>application/vnd.tcpdump.pcap</string>
         </array>
         <key>CFBundleTypeName</key>
-        <string>Libpcap Network Capture</string>
+        <string>Pcap Network Capture</string>
         <key>CFBundleTypeOSTypes</key>
         <array>
           <string>PCAP</string>
         </array>
+        <key>CFBundleTypeRole</key>
+        <string>Viewer</string>
+      </dict>
+      <dict>
+        <key>CFBundleTypeExtensions</key>
+        <array>
+          <string>pcapng</string>
+          <string>ntar</string>
+        </array>
+        <key>CFBundleTypeIconFile</key>
+        <string>Wiresharkdoc.icns</string>
+        <key>CFBundleTypeName</key>
+        <string>Pcap-NG Network Capture</string>
         <key>CFBundleTypeRole</key>
         <string>Viewer</string>
       </dict>
