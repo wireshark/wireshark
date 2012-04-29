@@ -412,31 +412,31 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP */
-	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
+	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap;*.dmp", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_NSEC */
-	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
+	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap;*.dmp", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_AIX */
-	{ "AIX tcpdump - libpcap", "aixlibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
+	{ "AIX tcpdump - libpcap", "aixlibpcap", "*.pcap;*.cap;*.dmp", ".pcap", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_PCAP_SS991029 */
-	{ "Modified tcpdump - libpcap", "modlibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
+	{ "Modified tcpdump - libpcap", "modlibpcap", "*.pcap;*.cap;*.dmp", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_NOKIA */
-	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
+	{ "Nokia tcpdump - libpcap ", "nokialibpcap", "*.pcap;*.cap;*.dmp", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990417 */
-	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
+	{ "RedHat 6.1 tcpdump - libpcap", "rh6_1libpcap", "*.pcap;*.cap;*.dmp", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAP_SS990915 */
-	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
+	{ "SuSE 6.3 tcpdump - libpcap", "suse6_3libpcap", "*.pcap;*.cap;*.dmp", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_5VIEWS */
@@ -604,7 +604,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  commview_dump_can_write_encap, commview_dump_open },
 
 	/* WTAP_FILE_PCAPNG */
-	{ "Wireshark - pcapng", "pcapng", "*.pcapng", NULL, FALSE, TRUE,
+	{ "Wireshark - pcapng", "pcapng", "*.pcapng;*.ntar", NULL, FALSE, TRUE,
 	  pcapng_dump_can_write_encap, pcapng_dump_open },
 
 	/* WTAP_FILE_BTSNOOP */
