@@ -661,7 +661,7 @@ frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, in
 int
 frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
 {
-	guint1632 type;
+	guint1632 type = 0;
 	int i = 0;
 	const char *s = NULL;
 	proto_item *item = NULL;
