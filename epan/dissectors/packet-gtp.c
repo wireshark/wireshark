@@ -3011,7 +3011,10 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
         gcr.req_frame=0;
         gcr.rep_frame=pinfo->fd->num;
         break;
-        default:;
+    default:
+        gcr.is_request=FALSE;
+        gcr.req_frame=0;
+        gcr.rep_frame=0;
         break;
     }
 
@@ -3064,8 +3067,8 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
                 }
             }
             break;
-        default:;
-        break;
+        default:
+            break;
         }
     }
 
@@ -7945,7 +7948,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
         col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
-    } else {
+    } /*else {
         if (gtp_prime)
             offset = 6;
         else if (gtp_version == 1) {
@@ -7957,7 +7960,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 offset = 8;
         } else
             offset = 20;
-    }
+    }*/
     pinfo->private_data = pd_save;
 }
 

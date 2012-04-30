@@ -3220,7 +3220,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	/* (r+3) to s Voice Domain Preference and UE's Usage Setting */
 	if(vdp_len){
 		proto_tree_add_text(tree, tvb, offset, vdp_len, "Voice Domain Preference and UE's Usage Setting");
-		offset = offset +  vdp_len;
+		/*offset = offset +  vdp_len;*/
 	}
 	/* (s+1) to (n+4) These octet(s) is/are present only if explicitly specified */
 }
@@ -3238,8 +3238,6 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     guint8       tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, samb_ri, vdp_len;
 
     offset = 0;
-
-    nhi = (tvb_get_guint8(tvb, offset) & 0x10);
 
     flag_item = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
     flag_tree = proto_item_add_subtree(flag_item, ett_gtpv2_mm_context_flag);
@@ -3354,7 +3352,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	/* (r+3) to s Voice Domain Preference and UE's Usage Setting */
 	if(vdp_len){
 		proto_tree_add_text(tree, tvb, offset, vdp_len, "Voice Domain Preference and UE's Usage Setting");
-		offset = offset +  vdp_len;
+		/*offset = offset +  vdp_len;*/
 	}
 
 }
