@@ -336,8 +336,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     if (offset < msgend) {
         i = msgend - offset;
-        proto_tree_add_text(gryphon_tree, tvb, offset, i, "padding");
-        offset += i;
+        proto_tree_add_text(gryphon_tree, tvb, offset, i, "Padding");
     }
 }
 
@@ -1407,7 +1406,8 @@ cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen -= 4;
     save_offset = offset;
     offset = decode_data(tvb, offset, pt);
-    msglen -= offset - save_offset;
+    /* XXX - Added in r8607 but unused. Should msglen be returned instead of offset? */
+    /* msglen -= offset - save_offset; */
     return offset;
 }
 
