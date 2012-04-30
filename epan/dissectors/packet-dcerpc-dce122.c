@@ -1012,9 +1012,9 @@ static const value_string dce_error_vals[] = {
 { 700887083, "req .d: op .d, size .d" },
 { 700887084, "name lookup request (size .d): .s" },
 { 700887085, "get_cred(pag .d, euid .d):" },
-{ 700887086, "      get_cred(): server .s, level .d, protocol .d" },
+{ 700887086, "get_cred(): server .s, level .d, protocol .d" },
 { 700887087, "build_msg(pag .d, euid .d, credpag .d, credeuid .d):" },
-{ 700887088, "	build_msg(): crlvl .d, crprotoc .d, exp .d, server .s" },
+{ 700887088, "build_msg(): crlvl .d, crprotoc .d, exp .d, server .s" },
 { 700887089, "decode_msg()" },
 { 700887090, "UNKNOWN MESSAGE TYPE" },
 { 700887091, "gen_block()" },
@@ -4427,6 +4427,6 @@ static const value_string dce_error_vals[] = {
 { 0, NULL }
 };
 
-#define array_length(x)	(sizeof x / sizeof x[0])
+#define array_length(x) (sizeof x / sizeof x[0])
 
 value_string_ext dce_error_vals_ext = VALUE_STRING_EXT_INIT(dce_error_vals);

@@ -2971,8 +2971,8 @@ dissect_query_afp_move(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 	offset += 4;
 
 	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:	   %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:	   %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:    %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:    %s");
 
 	return offset;
 }
@@ -3014,8 +3014,8 @@ dissect_query_afp_copy_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = decode_vol_did(sub_tree, tvb, offset);
 
 	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:	   %s");
-	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:	   %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest dir:    %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "New name:    %s");
 
 	return offset;
 }

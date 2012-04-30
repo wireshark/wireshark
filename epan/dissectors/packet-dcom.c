@@ -261,7 +261,7 @@ void dcom_interface_dump(void) {
 				interf = interfaces->data;
 				g_warning("  Interface(#%4u): iid:%s",
 					  interf->first_packet, guids_resolve_uuid_to_str(&interf->iid));
-				g_warning("	       ipid:%s", guids_resolve_uuid_to_str(&interf->ipid));
+				g_warning("   ipid:%s", guids_resolve_uuid_to_str(&interf->ipid));
 			}
 		}
 	}

@@ -2031,7 +2031,7 @@ decode_main_voice_mode(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 
 			level = (signed char)(tvb_get_guint8(tvb, offset)) / 2;
 			proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
-				"Sending Level	: %d dB", level);
+				"Sending Level:  %d dB", level);
 			break;
 		}
 	case 0x00: /* Idle */
@@ -2655,9 +2655,9 @@ decode_ringing_cadence(proto_tree *tree _U_, tvbuff_t *tvb,
 
 	while(length > 0) {
 		i++;
-		proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "On / Off	: %s",
+		proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "On / Off  : %s",
 			val_to_str((tvb_get_guint8(tvb, offset) & 0x80), str_on_off, "On"));
-		proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Length %d	: %d ms",
+		proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Length %d : %d ms",
 			i, ((tvb_get_guint8(tvb, offset) & 0x7F) * 10));
 		offset++;
 		length--;
@@ -2836,7 +2836,7 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 			val_to_str(command, str_command, "Unknown"));
 
 	proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb,
-		offset, 1, command, "Command	: %s (%d)",
+		offset, 1, command, "Command: %s (%d)",
 		val_to_str(command, str_command, "Unknown"), command);
 	offset++;
 	length--;
@@ -2850,13 +2850,13 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 				{0, NULL}
 			};
 			proto_tree_add_text(ua3g_body_tree, tvb, offset,
-				1, "Ignored	: %d",
+				1, "Ignored: %d",
 				tvb_get_guint8(tvb, offset));
 			offset++;
 			length--;
 
 			proto_tree_add_text(ua3g_body_tree, tvb, offset,
-				1, "Law	: %s",
+				1, "Law: %s",
 				val_to_str(tvb_get_guint8(tvb, offset), str_law, "Unknown"));
 			break;
 		}
@@ -3177,7 +3177,7 @@ decode_ua_dwl_protocol(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
 			val_to_str(command, str_command, "Unknown"));
 
 	proto_tree_add_uint_format(ua3g_body_tree, hf_ua3g_command, tvb,
-		offset, 1, command, "Command	: %s",
+		offset, 1, command, "Command: %s",
 		val_to_str(command, str_command, "Unknown"));
 	offset++;
 	length--;
