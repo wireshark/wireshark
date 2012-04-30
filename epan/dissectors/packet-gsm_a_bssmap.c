@@ -1032,8 +1032,6 @@ be_l3_header_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_spare_bits, tvb, curr_offset<<3, 4, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -1551,7 +1549,7 @@ be_tot_res_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     curr_offset+=2;
     /* Total number of accessible half rate channels */
     proto_tree_add_item(tree, hf_gsm_a_bssmap_tot_no_of_hr_ch, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-    curr_offset+=2;
+    /*curr_offset+=2;*/
 
 
     return(len);
@@ -1574,7 +1572,7 @@ be_lsa_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
      * 1 it is a universal LSA.
      */
     proto_tree_add_item(tree, hf_gsm_a_bssmap_lsa_id, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
-    curr_offset+=3;
+    /*curr_offset+=3;*/
 
 
     return(len);
@@ -2369,23 +2367,19 @@ be_ciph_resp_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 static guint16
 be_l3_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
     tvbuff_t    *l3_tvb;
 
-    curr_offset = offset;
-
-    proto_tree_add_text(tree, tvb, curr_offset, len,
+    proto_tree_add_text(tree, tvb, offset, len,
         "Layer 3 Message Contents");
 
     /*
      * dissect the embedded DTAP message
      */
-    l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
+    l3_tvb = tvb_new_subset(tvb, offset, len, len);
 
     /* Octet j (j = 3, 4, ..., n) is the unchanged octet j of a radio interface layer 3 message
      * as defined in 3GPP TS 24.008, n is equal to the length of that radio interface layer 3 message. */
     call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
-    curr_offset += len;
 
     return(len);
 }
@@ -2429,7 +2423,7 @@ be_trace_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_trace_msc_record_type, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
     bit_offset += 2;
     proto_tree_add_bits_item(tree, hf_gsm_a_bssmap_trace_invoking_event, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-    bit_offset += 2;
+    /*bit_offset += 2;*/
     curr_offset++;
 
     /* no length check possible */

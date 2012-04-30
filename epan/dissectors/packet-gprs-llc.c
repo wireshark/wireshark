@@ -1030,7 +1030,6 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case U_FORMAT:
 		offset +=1;
-		tmp = 0;
 		tmp =  ctrl_fld_fb & 0xf;
 
 		col_append_str(pinfo->cinfo, COL_INFO, ", U, ");

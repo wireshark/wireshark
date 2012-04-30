@@ -2238,8 +2238,6 @@ dis_iei_uds(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         oct);
     offset++;
 
-    oct = tvb_get_guint8(tvb, offset);
-
     proto_tree_add_text(tree,
                         tvb, offset, length - 1,
                         "User Defined Sound ");
@@ -2285,8 +2283,6 @@ dis_iei_la(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         oct);
     offset++;
 
-    oct = tvb_get_guint8(tvb, offset);
-
     proto_tree_add_text(tree,
                         tvb, offset, length - 1,
                         "Large Animation ");
@@ -2306,8 +2302,6 @@ dis_iei_sa(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         "position: %d",
                         oct);
     offset++;
-
-    oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_text(tree,
                         tvb, offset, length - 1,
@@ -2330,8 +2324,6 @@ dis_iei_lp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         oct);
     offset++;
 
-    oct = tvb_get_guint8(tvb, offset);
-
     proto_tree_add_text(tree,
                         tvb, offset, length - 1,
                         "Large Picture ");
@@ -2351,8 +2343,6 @@ dis_iei_sp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         "position: %d",
                         oct);
     offset++;
-
-    oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_text(tree,
                         tvb, offset, length - 1,
@@ -2389,8 +2379,6 @@ dis_iei_vp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
                         oct);
     offset++;
 
-
-    oct = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(tree,
                         tvb, offset, length - 3,
                         "Variable Picture ");
@@ -2758,8 +2746,6 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                  *  so that the text doesn't get truncated when we add it to
                  *  the tree.
                  */
-                out_len = 0;
-
                 total_sms_len = 0;
                 for(i = 0 ; i < g_frags; i++)
                 {
@@ -2941,7 +2927,6 @@ dis_msg_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     gboolean       compressed;
     gboolean       udhi;
 
-    udl = 0;
     saved_offset = offset;
     length = tvb_length_remaining(tvb, offset);
 
@@ -3138,7 +3123,6 @@ dis_msg_submit(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3314,7 +3298,6 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_down, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3412,9 +3395,6 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     guint8        oct;
     guint8        cdl;
     const gchar   *str = NULL;
-
-
-    cdl = 0;
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, ENC_BIG_ENDIAN);
