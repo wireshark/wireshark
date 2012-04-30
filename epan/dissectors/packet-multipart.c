@@ -796,6 +796,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 		return boundary_start + boundary_line_len;
 	}
 
+	g_free(filename);
+	g_free(typename);
+
 	return -1;
 }
 
