@@ -1922,7 +1922,7 @@ decrypt_sac_msg_body(
         goto end;
 
     clear_len = len;
-    clear_data = g_malloc(clear_len);
+    clear_data = (unsigned char *)g_malloc(clear_len);
 
     err = gcry_cipher_decrypt (cipher, clear_data, clear_len,
                 tvb_get_ephemeral_string(encrypted_tvb, offset, len), len);
@@ -3681,8 +3681,8 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
         return;
     }
     if (circuit) {
-        apdu_res_id =
-            GPOINTER_TO_UINT(circuit_get_proto_data(circuit, proto_dvbci));
+        apdu_res_id = GPOINTER_TO_UINT(
+                (gpointer)circuit_get_proto_data(circuit, proto_dvbci));
 
         ai_res_class_str = val_to_str(ai->res_class, dvbci_res_class, "Unknown");
 
@@ -3859,7 +3859,8 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        used for filtering */
     if (circuit && !res_id_it) {
         /* when a circuit is found, it always contains a valid resource id */
-        res_id = GPOINTER_TO_UINT(circuit_get_proto_data(circuit, proto_dvbci));
+        res_id = GPOINTER_TO_UINT(
+                (gpointer)circuit_get_proto_data(circuit, proto_dvbci));
         res_id_it = dissect_res_id(NULL, 0, pinfo, sess_tree, res_id, TRUE);
         PROTO_ITEM_SET_GENERATED(res_id_it);
     }
@@ -5229,14 +5230,14 @@ proto_register_dvbci(void)
     for(i=0; i<array_length(spdu_info); i++) {
         g_hash_table_insert(spdu_table,
                             GUINT_TO_POINTER((guint)spdu_info[i].tag),
-                            (gpointer)(&spdu_info[i]));
+                            (const gpointer)(&spdu_info[i]));
     }
 
     apdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
     for(i=0; i<array_length(apdu_info); i++) {
         g_hash_table_insert(apdu_table,
                             GUINT_TO_POINTER((guint)apdu_info[i].tag),
-                            (gpointer)(&apdu_info[i]));
+                            (const gpointer)(&apdu_info[i]));
     }
 
     proto_dvbci = proto_register_protocol(
