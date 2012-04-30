@@ -386,6 +386,7 @@ static dissector_handle_t tapa_handle;
 #define IPSEC_RFC791_CONFIDENTIAL 0xF135
 #define IPSEC_RFC791_EFTO         0x789A
 #define IPSEC_RFC791_MMMM         0xBC4D
+#define IPSEC_RFC791_PROG         0x5E26
 #define IPSEC_RFC791_RESTRICTED   0xAF13
 #define IPSEC_RFC791_SECRET       0xD788
 #define IPSEC_RFC791_TOPSECRET    0x6BC5
@@ -659,6 +660,7 @@ dissect_ipopt_eool(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   {IPSEC_RFC791_CONFIDENTIAL, "Confidential"},
   {IPSEC_RFC791_EFTO,         "EFTO"        },
   {IPSEC_RFC791_MMMM,         "MMMM"        },
+  {IPSEC_RFC791_PROG,         "PROG"        },
   {IPSEC_RFC791_RESTRICTED,   "Restricted"  },
   {IPSEC_RFC791_SECRET,       "Secret"      },
   {IPSEC_RFC791_TOPSECRET,    "Top secret"  },
@@ -1404,28 +1406,66 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 }
 
 static const ip_tcp_opt ipopts[] = {
-  {IPOPT_EOOL, "End of Option List (EOL)", &ett_ip_option_eool, NO_LENGTH, 0, dissect_ipopt_eool},
-  {IPOPT_NOP, "No-Operation (NOP)", &ett_ip_option_nop, NO_LENGTH, 0, dissect_ipopt_nop},
+  {IPOPT_EOOL, "End of Options List (EOL)", &ett_ip_option_eool,
+    NO_LENGTH, 0, dissect_ipopt_eool},
+  {IPOPT_NOP, "No Operation (NOP)", &ett_ip_option_nop,
+    NO_LENGTH, 0, dissect_ipopt_nop},
   {IPOPT_SEC, "Security", &ett_ip_option_sec,
     VARIABLE_LENGTH, IPOLEN_SEC_MIN, dissect_ipopt_security},
-  {IPOPT_SSR, "Strict source route", &ett_ip_option_route,
-    VARIABLE_LENGTH, IPOLEN_SSR_MIN, dissect_ipopt_route},
-  {IPOPT_LSR, "Loose source route", &ett_ip_option_route,
+  {IPOPT_LSR, "Loose Source Route", &ett_ip_option_route,
     VARIABLE_LENGTH, IPOLEN_LSR_MIN, dissect_ipopt_route},
-  {IPOPT_CIPSO, "Commercial IP security option", &ett_ip_option_cipso,
-    VARIABLE_LENGTH, IPOLEN_CIPSO_MIN, dissect_ipopt_cipso},
-  {IPOPT_RR, "Record route", &ett_ip_option_route,
-    VARIABLE_LENGTH, IPOLEN_RR_MIN, dissect_ipopt_record_route},
-  {IPOPT_SID, "Stream identifier", &ett_ip_option_sid,
-    FIXED_LENGTH, IPOLEN_SID, dissect_ipopt_sid},
-  {IPOPT_TS, "Time stamp", &ett_ip_option_timestamp,
+  {IPOPT_TS, "Time Stamp", &ett_ip_option_timestamp,
     VARIABLE_LENGTH, IPOLEN_TS_MIN, dissect_ipopt_timestamp},
-  {IPOPT_RTRALT, "Router Alert", &ett_ip_option_ra,
-    FIXED_LENGTH, IPOLEN_RA, dissect_ipopt_ra},
-  {IPOPT_QS, "Quick-Start", &ett_ip_option_qs,
-    FIXED_LENGTH, IPOLEN_QS, dissect_ipopt_qs},
   {IPOPT_ESEC, "Extended Security", &ett_ip_option_ext_security,
     VARIABLE_LENGTH, IPOLEN_ESEC_MIN, dissect_ipopt_ext_security},
+  {IPOPT_CIPSO, "Commercial Security", &ett_ip_option_cipso,
+    VARIABLE_LENGTH, IPOLEN_CIPSO_MIN, dissect_ipopt_cipso},
+  {IPOPT_RR, "Record Route", &ett_ip_option_route,
+    VARIABLE_LENGTH, IPOLEN_RR_MIN, dissect_ipopt_record_route},
+  {IPOPT_SID, "Stream ID", &ett_ip_option_sid,
+    FIXED_LENGTH, IPOLEN_SID, dissect_ipopt_sid},
+  {IPOPT_SSR, "Strict Source Route", &ett_ip_option_route,
+    VARIABLE_LENGTH, IPOLEN_SSR_MIN, dissect_ipopt_route},
+#if 0 /* TODO */
+  {IPOPT_ZSU, "Experimental Measurement", &ett_ip_option_zsu,
+    VARIABLE_LENGTH /* ? */, IPOLEN_ZSU_MIN, dissect_ipopt_zsu},
+  {IPOPT_MTUP, "MTU Probe", &ett_ip_option_mtup,
+    VARIABLE_LENGTH /* ? */, IPOLEN_MTUP_MIN, dissect_ipopt_mtup},
+  {IPOPT_MTUR, "MTU Reply", &ett_ip_option_mtur,
+    VARIABLE_LENGTH /* ? */, IPOLEN_MTUR_MIN, dissect_ipopt_mtur},
+  {IPOPT_FINN, "Experimental Flow Control", &ett_ip_option_finn,
+    VARIABLE_LENGTH /* ? */, IPOLEN_FINN_MIN, dissect_ipopt_finn},
+  {IPOPT_VISA, "Experimental Access Control", &ett_ip_option_visa,
+    VARIABLE_LENGTH /* ? */, IPOLEN_VISA_MIN, dissect_ipopt_visa},
+  {IPOPT_ENCODE, "???", &ett_ip_option_encode,
+    VARIABLE_LENGTH /* ? */, IPOLEN_ENCODE_MIN, dissect_ipopt_encode},
+  {IPOPT_IMITD, "IMI Traffic Descriptor", &ett_ip_option_imitd,
+    VARIABLE_LENGTH /* ? */, IPOLEN_IMITD_MIN, dissect_ipopt_imitd},
+  {IPOPT_EIP, "Extended Internet Protocol", &ett_ip_option_eip,
+    VARIABLE_LENGTH /* ? */, IPOLEN_EIP_MIN, dissect_ipopt_eip},
+  {IPOPT_TR, "Traceroute", &ett_ip_option_tr,
+    VARIABLE_LENGTH /* ? */, IPOLEN_TR_MIN, dissect_ipopt_tr},
+  {IPOPT_ADDEXT, "Address Extension", &ett_ip_option_addext,
+    VARIABLE_LENGTH /* ? */, IPOLEN_ADDEXT_MIN, dissect_ipopt_addext},
+#endif
+  {IPOPT_RTRALT, "Router Alert", &ett_ip_option_ra,
+    FIXED_LENGTH, IPOLEN_RA, dissect_ipopt_ra},
+#if 0 /* TODO */
+  {IPOPT_SDB, "Selective Directed Broadcast", &ett_ip_option_sdb,
+    VARIABLE_LENGTH /* ? */, IPOLEN_SDB_MIN, dissect_ipopt_sdb},
+  {IPOPT_UN, "Unassigned", &ett_ip_option_un,
+    VARIABLE_LENGTH /* ? */, IPOLEN_UN_MIN, dissect_ipopt_un},
+  {IPOPT_DPS, "Dynamic Packet State", &ett_ip_option_dps,
+    VARIABLE_LENGTH /* ? */, IPOLEN_DPS_MIN, dissect_ipopt_dps},
+  {IPOPT_UMP, "Upstream Multicast Pkt.", &ett_ip_option_ump,
+    VARIABLE_LENGTH /* ? */, IPOLEN_UMP_MIN, dissect_ipopt_ump},
+#endif
+  {IPOPT_QS, "Quick-Start", &ett_ip_option_qs,
+    FIXED_LENGTH, IPOLEN_QS, dissect_ipopt_qs}
+#if 0 /* TODO */
+  {IPOPT_EXP, "RFC3692-style Experiment", &ett_ip_option_exp,
+    VARIABLE_LENGTH /* ? */, IPOLEN_EXP_MIN, dissect_ipopt_exp}
+#endif
 };
 
 #define N_IP_OPTS       array_length(ipopts)
