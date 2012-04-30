@@ -132,6 +132,8 @@ static int hf_ip_opt_ohc = -1;
 static int hf_ip_opt_rhc = -1;
 static int hf_ip_opt_originator = -1;
 static int hf_ip_opt_ra = -1;
+static int hf_ip_opt_addr = -1;
+static int hf_ip_opt_padding = -1;
 static int hf_ip_opt_qs_func = -1;
 static int hf_ip_opt_qs_rate = -1;
 static int hf_ip_opt_qs_ttl = -1;
@@ -215,6 +217,7 @@ static gint ett_ip_option_sid = -1;
 static gint ett_ip_option_mtu = -1;
 static gint ett_ip_option_tr = -1;
 static gint ett_ip_option_ra = -1;
+static gint ett_ip_option_sdb = -1;
 static gint ett_ip_option_qs = -1;
 static gint ett_ip_option_other = -1;
 static gint ett_ip_fragments = -1;
@@ -368,7 +371,7 @@ static dissector_handle_t tapa_handle;
 #define IPOPT_TR        (18|IPOPT_MEASUREMENT)              /* RFC 1393 */
 #define IPOPT_ADDEXT    (19|IPOPT_COPY|IPOPT_CONTROL)       /* Ullmann IPv7 */
 #define IPOPT_RTRALT    (20|IPOPT_COPY|IPOPT_CONTROL)       /* RFC 2113 */
-#define IPOPT_SDB       (21|IPOPT_COPY|IPOPT_CONTROL)       /* Graff */
+#define IPOPT_SDB       (21|IPOPT_COPY|IPOPT_CONTROL)       /* RFC 1770 Graff */
 #define IPOPT_UN        (22|IPOPT_COPY|IPOPT_CONTROL)       /* Released 18-Oct-2005 */
 #define IPOPT_DPS       (23|IPOPT_COPY|IPOPT_CONTROL)       /* Malis */
 #define IPOPT_UMP       (24|IPOPT_COPY|IPOPT_CONTROL)       /* Farinacci */
@@ -388,6 +391,7 @@ static dissector_handle_t tapa_handle;
 #define IPOLEN_MTU              4
 #define IPOLEN_TR               12
 #define IPOLEN_RA               4
+#define IPOLEN_SDB_MIN          6
 #define IPOLEN_QS               8
 #define IPOLEN_MAX              40
 
@@ -1407,6 +1411,30 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree_add_item(field_tree, hf_ip_opt_ra, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
+/* RFC 1770: Selective Directed Broadcast */
+static void
+dissect_ipopt_sdb(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                 guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+  int optoffset = 0;
+
+  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
+                           optp->name, optlen);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipopt_type(tvb, offset, field_tree);
+  tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
+  if (optlen > IPOLEN_MAX)
+    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+                           "Invalid length for option");
+  for (offset += 2, optlen -= 2; optlen >= 4; offset += 4, optlen -= 4)
+    proto_tree_add_item(field_tree, hf_ip_opt_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+  if (optlen > 0)
+    proto_tree_add_item(field_tree, hf_ip_opt_padding, tvb, offset, optlen, ENC_NA);
+}
+
 static value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
 static void
 dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
@@ -1505,9 +1533,9 @@ static const ip_tcp_opt ipopts[] = {
 #endif
   {IPOPT_RTRALT, "Router Alert", &ett_ip_option_ra,
     FIXED_LENGTH, IPOLEN_RA, dissect_ipopt_ra},
-#if 0 /* TODO */
   {IPOPT_SDB, "Selective Directed Broadcast", &ett_ip_option_sdb,
-    VARIABLE_LENGTH /* ? */, IPOLEN_SDB_MIN, dissect_ipopt_sdb},
+    VARIABLE_LENGTH, IPOLEN_SDB_MIN, dissect_ipopt_sdb},
+#if 0 /* TODO */
   {IPOPT_UN, "Unassigned", &ett_ip_option_un,
     VARIABLE_LENGTH /* ? */, IPOLEN_UN_MIN, dissect_ipopt_un},
   {IPOPT_DPS, "Dynamic Packet State", &ett_ip_option_dps,
@@ -2610,6 +2638,14 @@ proto_register_ip(void)
       { "Router Alert", "ip.opt.ra", FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
         RVALS(ra_rvals), 0x0, NULL, HFILL }},
 
+    { &hf_ip_opt_addr,
+      { "IP Address", "ip.opt.addr", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_padding,
+      { "Padding", "ip.opt.padding", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
     { &hf_ip_opt_qs_func,
       { "Function", "ip.opt.qs_func", FT_UINT8, BASE_DEC,
         VALS(qs_func_vals), QS_FUNC_MASK, NULL, HFILL }},
@@ -2795,6 +2831,7 @@ proto_register_ip(void)
     &ett_ip_option_mtu,
     &ett_ip_option_tr,
     &ett_ip_option_ra,
+    &ett_ip_option_sdb,
     &ett_ip_option_qs,
     &ett_ip_option_other,
     &ett_ip_fragments,
