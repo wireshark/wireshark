@@ -126,6 +126,11 @@ static int hf_ip_opt_type_number = -1;
 static int hf_ip_opt_len = -1;
 static int hf_ip_opt_ptr = -1;
 static int hf_ip_opt_sid = -1;
+static int hf_ip_opt_mtu = -1;
+static int hf_ip_opt_id_number = -1;
+static int hf_ip_opt_ohc = -1;
+static int hf_ip_opt_rhc = -1;
+static int hf_ip_opt_originator = -1;
 static int hf_ip_opt_ra = -1;
 static int hf_ip_opt_qs_func = -1;
 static int hf_ip_opt_qs_rate = -1;
@@ -203,12 +208,14 @@ static gint ett_ip_option_eool = -1;
 static gint ett_ip_option_nop = -1;
 static gint ett_ip_option_sec = -1;
 static gint ett_ip_option_route = -1;
-static gint ett_ip_option_sid = -1;
 static gint ett_ip_option_timestamp = -1;
-static gint ett_ip_option_qs = -1;
-static gint ett_ip_option_ra = -1;
-static gint ett_ip_option_cipso = -1;
 static gint ett_ip_option_ext_security = -1;
+static gint ett_ip_option_cipso = -1;
+static gint ett_ip_option_sid = -1;
+static gint ett_ip_option_mtu = -1;
+static gint ett_ip_option_tr = -1;
+static gint ett_ip_option_ra = -1;
+static gint ett_ip_option_qs = -1;
 static gint ett_ip_option_other = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
@@ -351,8 +358,8 @@ static dissector_handle_t tapa_handle;
 #define IPOPT_SID       (8 |IPOPT_COPY|IPOPT_CONTROL)
 #define IPOPT_SSR       (9 |IPOPT_COPY|IPOPT_CONTROL)
 #define IPOPT_ZSU       (10|IPOPT_CONTROL)                  /* Zsu */
-#define IPOPT_MTUP      (11|IPOPT_CONTROL)                  /* RFC 1191* */
-#define IPOPT_MTUR      (12|IPOPT_CONTROL)                  /* RFC 1191* */
+#define IPOPT_MTUP      (11|IPOPT_CONTROL)                  /* RFC 1063 */
+#define IPOPT_MTUR      (12|IPOPT_CONTROL)                  /* RFC 1063 */
 #define IPOPT_FINN      (13|IPOPT_COPY|IPOPT_MEASUREMENT)   /* Finn */
 #define IPOPT_VISA      (14|IPOPT_COPY|IPOPT_CONTROL)       /* Estrin */
 #define IPOPT_ENCODE    (15|IPOPT_CONTROL)                  /* VerSteeg */
@@ -373,13 +380,15 @@ static dissector_handle_t tapa_handle;
 #define IPOLEN_SEC_MIN          3
 #define IPOLEN_LSR_MIN          3
 #define IPOLEN_TS_MIN           4
+#define IPOLEN_ESEC_MIN         3
+#define IPOLEN_CIPSO_MIN        10
 #define IPOLEN_RR_MIN           3
 #define IPOLEN_SID              4
 #define IPOLEN_SSR_MIN          3
+#define IPOLEN_MTU              4
+#define IPOLEN_TR               12
 #define IPOLEN_RA               4
 #define IPOLEN_QS               8
-#define IPOLEN_CIPSO_MIN        10
-#define IPOLEN_ESEC_MIN         3
 #define IPOLEN_MAX              40
 
 #define IPSEC_RFC791_UNCLASSIFIED 0x0000
@@ -1250,6 +1259,48 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree_add_item(field_tree, hf_ip_opt_sid, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
+/* RFC 1063: MTU Probe and MTU Reply */
+static void
+dissect_ipopt_mtu(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                  guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+
+  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes): %u",
+                           optp->name, optlen, tvb_get_ntohs(tvb, offset + 2));
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipopt_type(tvb, offset, field_tree);
+  tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
+  if (optlen != (guint)optp->optlen)
+    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+                           "Invalid length for option");
+  proto_tree_add_item(field_tree, hf_ip_opt_mtu, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+}
+
+/* RFC 1393: Traceroute */
+static void
+dissect_ipopt_tr(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                  guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+
+  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
+                           optp->name, optlen);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipopt_type(tvb, offset, field_tree);
+  tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
+  if (optlen != (guint)optp->optlen)
+    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+                           "Invalid length for option");
+
+  proto_tree_add_item(field_tree, hf_ip_opt_id_number, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(field_tree, hf_ip_opt_ohc, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(field_tree, hf_ip_opt_rhc, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(field_tree, hf_ip_opt_originator, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+}
+
 static void
 dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
                         int offset, guint optlen, packet_info *pinfo,
@@ -1429,10 +1480,12 @@ static const ip_tcp_opt ipopts[] = {
 #if 0 /* TODO */
   {IPOPT_ZSU, "Experimental Measurement", &ett_ip_option_zsu,
     VARIABLE_LENGTH /* ? */, IPOLEN_ZSU_MIN, dissect_ipopt_zsu},
-  {IPOPT_MTUP, "MTU Probe", &ett_ip_option_mtup,
-    VARIABLE_LENGTH /* ? */, IPOLEN_MTUP_MIN, dissect_ipopt_mtup},
-  {IPOPT_MTUR, "MTU Reply", &ett_ip_option_mtur,
-    VARIABLE_LENGTH /* ? */, IPOLEN_MTUR_MIN, dissect_ipopt_mtur},
+#endif
+  {IPOPT_MTUP, "MTU Probe", &ett_ip_option_mtu,
+    FIXED_LENGTH, IPOLEN_MTU, dissect_ipopt_mtu},
+  {IPOPT_MTUR, "MTU Reply", &ett_ip_option_mtu,
+    FIXED_LENGTH, IPOLEN_MTU, dissect_ipopt_mtu},
+#if 0 /* TODO */
   {IPOPT_FINN, "Experimental Flow Control", &ett_ip_option_finn,
     VARIABLE_LENGTH /* ? */, IPOLEN_FINN_MIN, dissect_ipopt_finn},
   {IPOPT_VISA, "Experimental Access Control", &ett_ip_option_visa,
@@ -1443,8 +1496,10 @@ static const ip_tcp_opt ipopts[] = {
     VARIABLE_LENGTH /* ? */, IPOLEN_IMITD_MIN, dissect_ipopt_imitd},
   {IPOPT_EIP, "Extended Internet Protocol", &ett_ip_option_eip,
     VARIABLE_LENGTH /* ? */, IPOLEN_EIP_MIN, dissect_ipopt_eip},
+#endif
   {IPOPT_TR, "Traceroute", &ett_ip_option_tr,
-    VARIABLE_LENGTH /* ? */, IPOLEN_TR_MIN, dissect_ipopt_tr},
+    FIXED_LENGTH, IPOLEN_TR, dissect_ipopt_tr},
+#if 0 /* TODO */
   {IPOPT_ADDEXT, "Address Extension", &ett_ip_option_addext,
     VARIABLE_LENGTH /* ? */, IPOLEN_ADDEXT_MIN, dissect_ipopt_addext},
 #endif
@@ -2531,6 +2586,26 @@ proto_register_ip(void)
       { "Stream Identifier", "ip.opt.sid", FT_UINT16, BASE_DEC,
         NULL, 0x0, "SATNET stream identifier", HFILL }},
 
+    { &hf_ip_opt_mtu,
+      { "MTU", "ip.opt.mtu", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_id_number,
+      { "ID Number", "ip.opt.id_number", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_ohc,
+      { "Outbound Hop Count", "ip.opt.ohc", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_rhc,
+      { "Return Hop Count", "ip.opt.rhc", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_originator,
+      { "Originator IP Address", "ip.opt.originator", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
     { &hf_ip_opt_ra,
       { "Router Alert", "ip.opt.ra", FT_UINT16, BASE_DEC | BASE_RANGE_STRING,
         RVALS(ra_rvals), 0x0, NULL, HFILL }},
@@ -2713,12 +2788,14 @@ proto_register_ip(void)
     &ett_ip_option_nop,
     &ett_ip_option_sec,
     &ett_ip_option_route,
-    &ett_ip_option_sid,
     &ett_ip_option_timestamp,
-    &ett_ip_option_qs,
-    &ett_ip_option_ra,
-    &ett_ip_option_cipso,
     &ett_ip_option_ext_security,
+    &ett_ip_option_cipso,
+    &ett_ip_option_sid,
+    &ett_ip_option_mtu,
+    &ett_ip_option_tr,
+    &ett_ip_option_ra,
+    &ett_ip_option_qs,
     &ett_ip_option_other,
     &ett_ip_fragments,
     &ett_ip_fragment,
