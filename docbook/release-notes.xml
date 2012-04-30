@@ -76,7 +76,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            You can now add, edit, and save packet annotations.
+            You can now add, edit, and save packet and capture file annotations.
           </para>
         </listitem>
 
