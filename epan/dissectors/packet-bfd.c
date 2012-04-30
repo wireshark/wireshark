@@ -701,34 +701,34 @@ proto_register_bfd(void)
         },
         { &hf_bfd_flags_p,
           { "Poll", "bfd.flags.p",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x20, // 6 ?
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x20, /* 6? */
             "If set, the transmitting system is expecting a packet with the Final (F) bit in reply",
             HFILL }
         },
         { &hf_bfd_flags_f,
           { "Final", "bfd.flags.f",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x10, // 6 ?
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x10, /* 6? */
             "If set, the transmitting system is replying to a packet with the Poll (P) bit set",
             HFILL }
         },
         { &hf_bfd_flags_c,
           { "Control Plane Independent", "bfd.flags.c",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x08, // 6 ?
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x08, /* 6? */
             "If set, the BFD implementation is implemented in the forwarding plane", HFILL }
         },
         { &hf_bfd_flags_a,
           { "Authentication Present", "bfd.flags.a",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x04, // 6 ??
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x04, /* 6? */
             "The Authentication Section is present", HFILL }
         },
         { &hf_bfd_flags_d,
           { "Demand", "bfd.flags.d",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x02, // 6 ??
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x02, /* 6? */
             "If set, Demand mode is active in the transmitting system", HFILL }
         },
         { &hf_bfd_flags_m,
           { "Multipoint", "bfd.flags.m",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x01, // 6 ??
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x01, /* 6? */
             "Reserved for future point-to-multipoint extensions", HFILL }
         },
         { &hf_bfd_detect_time_multiplier,
