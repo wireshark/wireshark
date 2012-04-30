@@ -1385,12 +1385,9 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int             msglen;
-    int             save_offset;
     unsigned int    x;
     const char      *type;
 
-    msglen = tvb_reported_length_remaining(tvb, offset);
     x = tvb_get_ntohl(tvb, offset);
     if (x & 0x80000000)
         type = "Critical";
@@ -1398,16 +1395,11 @@ cmd_sched_rep(tvbuff_t *tvb, int offset, proto_tree *pt)
         type = "Normal";
     proto_tree_add_text(pt, tvb, offset, 4, "%s schedule ID: %u", type, x);
     offset += 4;
-    msglen -= 4;
     x= tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Message index: %d", x);
     proto_tree_add_text(pt, tvb, offset + 1, 3, "reserved");
     offset += 4;
-    msglen -= 4;
-    save_offset = offset;
     offset = decode_data(tvb, offset, pt);
-    /* XXX - Added in r8607 but unused. Should msglen be returned instead of offset? */
-    /* msglen -= offset - save_offset; */
     return offset;
 }
 
