@@ -4568,7 +4568,7 @@ static int
 dissect_nfs3_remove_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 	char *name=NULL;
 
 	offset = dissect_diropargs3(tvb, offset, pinfo, tree, "object", &hash, &name);
@@ -4601,7 +4601,7 @@ static int
 dissect_nfs3_rmdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 	char *name=NULL;
 
 	offset = dissect_diropargs3(tvb, offset, pinfo, tree, "object", &hash, &name);
@@ -4619,7 +4619,7 @@ static int
 dissect_nfs3_getattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &hash);
 
@@ -4707,7 +4707,7 @@ static int
 dissect_nfs3_setattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3    (tvb, offset, pinfo, tree, "object", &hash);
 	offset = dissect_sattr3     (tvb, offset,        tree, "new_attributes");
@@ -4752,7 +4752,7 @@ static int
 dissect_nfs3_lookup_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 	char *name=NULL;
 
 	offset = dissect_diropargs3 (tvb, offset, pinfo, tree, "what", &hash, &name);
@@ -4771,7 +4771,7 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 status;
 	const char *err;
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
@@ -4991,7 +4991,7 @@ dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* 
 static int
 dissect_nfs3_access_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree)
 {
-	guint32 fhhash, *acc_request, amask;
+	guint32 fhhash = 0, *acc_request, amask;
 	rpc_call_info_value *civ;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &fhhash);
@@ -5041,7 +5041,7 @@ static int
 dissect_nfs3_readlink_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &hash);
 
@@ -5090,7 +5090,7 @@ dissect_nfs3_read_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint64 off;
 	guint32 len;
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "file", &hash);
 
@@ -5179,7 +5179,7 @@ dissect_nfs3_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint64 off;
 	guint32 len;
 	guint32 stable;
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3   (tvb, offset, pinfo, tree, "file", &hash);
 
@@ -5272,7 +5272,7 @@ dissect_nfs3_create_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree* tree)
 {
 	guint32 mode;
-	guint32 hash;
+	guint32 hash = 0;
 	char *name=NULL;
 
 	offset = dissect_diropargs3 (tvb, offset, pinfo, tree, "where", &hash, &name);
@@ -5329,7 +5329,7 @@ static int
 dissect_nfs3_mkdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 	char *name=NULL;
 
 	offset = dissect_diropargs3(tvb, offset, pinfo, tree, "where", &hash, &name);
@@ -5375,7 +5375,7 @@ static int
 dissect_nfs3_symlink_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree* tree)
 {
-	guint32 from_hash;
+	guint32 from_hash = 0;
 	char *from_name=NULL;
 	char *to_name=NULL;
 
@@ -5423,7 +5423,7 @@ dissect_nfs3_mknod_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree* tree)
 {
 	guint32 type;
-	guint32 hash;
+	guint32 hash = 0;
 	char *name=NULL;
 	const char *type_str;
 
@@ -5533,9 +5533,9 @@ static int
 dissect_nfs3_rename_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree* tree)
 {
-	guint32 from_hash;
+	guint32 from_hash = 0;
 	char *from_name=NULL;
-	guint32 to_hash;
+	guint32 to_hash = 0;
 	char *to_name=NULL;
 
 	offset = dissect_diropargs3(tvb, offset, pinfo, tree, "from", &from_hash, &from_name);
@@ -5582,8 +5582,8 @@ static int
 dissect_nfs3_link_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		       proto_tree* tree)
 {
-	guint32 from_hash;
-	guint32 to_hash;
+	guint32 from_hash = 0;
+	guint32 to_hash = 0;
 	char *to_name=NULL;
 
 	offset = dissect_nfs_fh3   (tvb, offset, pinfo, tree, "file", &from_hash);
@@ -5632,7 +5632,7 @@ static int
 dissect_nfs3_readdir_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			  proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3    (tvb, offset, pinfo, tree, "dir", &hash);
 	offset = dissect_rpc_uint64(tvb, tree, hf_nfs_cookie3, offset);
@@ -5848,7 +5848,7 @@ static int
 dissect_nfs3_fsstat_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &hash);
 
@@ -5916,7 +5916,7 @@ static int
 dissect_nfs3_fsinfo_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &hash);
 
@@ -6045,7 +6045,7 @@ static int
 dissect_nfs3_pathconf_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			   proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object", &hash);
 
@@ -6107,7 +6107,7 @@ static int
 dissect_nfs3_commit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree* tree)
 {
-	guint32 hash;
+	guint32 hash = 0;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "file", &hash);
 	offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset3, offset);
