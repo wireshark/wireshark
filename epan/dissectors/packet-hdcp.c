@@ -36,6 +36,7 @@
 #include <epan/prefs.h>
 #include <epan/ptvcursor.h>
 #include <epan/expert.h>
+#include "packet-hdcp.h"
 
 
 static int proto_hdcp  = -1;
@@ -238,7 +239,8 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (PINFO_FD_VISITED(pinfo)) {
                 /* we've already dissected the receiver's response */
-                hdcp_trans = se_tree_lookup32(transactions, PINFO_FD_NUM(pinfo));
+                hdcp_trans = (hdcp_transaction_t *)se_tree_lookup32(
+                        transactions, PINFO_FD_NUM(pinfo));
                 if (hdcp_trans && hdcp_trans->rqst_frame==PINFO_FD_NUM(pinfo) &&
                         hdcp_trans->resp_frame!=0) {
 
@@ -255,7 +257,8 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else {
                 /* we've not yet dissected the response */
                 if (transactions) {
-                    hdcp_trans = se_alloc(sizeof(hdcp_transaction_t));
+                    hdcp_trans = (hdcp_transaction_t *)se_alloc(
+                            sizeof(hdcp_transaction_t));
                     hdcp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
                     hdcp_trans->resp_frame = 0;
                     hdcp_trans->rqst_type = reg;
@@ -291,7 +294,8 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR8_TRX)+1, ADDR8_TRX);
 
        if (transactions) {
-           hdcp_trans = se_tree_lookup32_le(transactions, PINFO_FD_NUM(pinfo));
+           hdcp_trans = (hdcp_transaction_t *)se_tree_lookup32_le(
+                   transactions, PINFO_FD_NUM(pinfo));
            if (hdcp_trans) {
                if (hdcp_trans->resp_frame==0) {
                    /* there's a pending request, this packet is the response */
@@ -588,7 +592,7 @@ proto_register_hdcp(void)
     for(i=0; i<array_length(msg_info); i++) {
         g_hash_table_insert(msg_table,
                 GUINT_TO_POINTER((guint)msg_info[i].id),
-                (gpointer)(&msg_info[i]));
+                (const gpointer)(&msg_info[i]));
     }
 
     proto_hdcp = proto_register_protocol(
