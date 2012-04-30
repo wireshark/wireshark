@@ -15,6 +15,10 @@
 
 # LWP is part of the standard Perl module libwww
 
+# As of April 2012 the IEEE content is mostly UTF-8 encoded although some
+# of the entries feature sequences listed at
+# http://www.i18nqa.com/debug/utf8-debug.html
+
 use Encode;
 use open ':encoding(utf8)';
 
@@ -82,7 +86,7 @@ sub fetch
   if (!$result->is_success) {
     die ("Error fetching $url: " . $result->status_line . "\n");
   }
-  return decode("iso-8859-1", $result->content);
+  return decode("utf-8", $result->content);
 }
 
 # Write out the header and populate the OUI list with our entries.
