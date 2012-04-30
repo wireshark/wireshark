@@ -514,7 +514,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               1, bfd_detect_time_multiplier,
                                               "%u (= %u ms Detection time)",
                                               bfd_detect_time_multiplier,
-                                              bfd_detect_time_multiplier * bfd_desired_min_tx_interval/1000);
+                                              bfd_detect_time_multiplier * (bfd_desired_min_tx_interval/1000));
 
 	proto_tree_add_uint_format_value(bfd_tree, hf_bfd_message_length, tvb, 3, 1, bfd_length,
 		"%u bytes", bfd_length);
