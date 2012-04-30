@@ -134,6 +134,22 @@ static int hf_ip_opt_qs_ttl_diff = -1;
 static int hf_ip_opt_qs_unused = -1;
 static int hf_ip_opt_qs_nonce = -1;
 static int hf_ip_opt_qs_reserved = -1;
+static int hf_ip_opt_sec_rfc791_sec = -1;
+static int hf_ip_opt_sec_rfc791_comp = -1;
+static int hf_ip_opt_sec_rfc791_hr = -1;
+static int hf_ip_opt_sec_rfc791_tcc = -1;
+static int hf_ip_opt_sec_cl = -1;
+static int hf_ip_opt_sec_prot_auth_flags = -1;
+static int hf_ip_opt_sec_prot_auth_genser = -1;
+static int hf_ip_opt_sec_prot_auth_siop_esi = -1;
+static int hf_ip_opt_sec_prot_auth_sci = -1;
+static int hf_ip_opt_sec_prot_auth_nsa = -1;
+static int hf_ip_opt_sec_prot_auth_doe = -1;
+static int hf_ip_opt_sec_prot_auth_unassigned = -1;
+static int hf_ip_opt_sec_prot_auth_unassigned2 = -1;
+static int hf_ip_opt_sec_prot_auth_fti = -1;
+static int hf_ip_opt_ext_sec_add_sec_info_format_code = -1;
+static int hf_ip_opt_ext_sec_add_sec_info = -1;
 static int hf_ip_rec_rt = -1;
 static int hf_ip_rec_rt_host = -1;
 static int hf_ip_cur_rt = -1;
@@ -192,11 +208,13 @@ static gint ett_ip_option_timestamp = -1;
 static gint ett_ip_option_qs = -1;
 static gint ett_ip_option_ra = -1;
 static gint ett_ip_option_cipso = -1;
+static gint ett_ip_option_ext_security = -1;
 static gint ett_ip_option_other = -1;
 static gint ett_ip_fragments = -1;
 static gint ett_ip_fragment  = -1;
 static gint ett_ip_checksum = -1;
 static gint ett_ip_opt_type = -1;
+static gint ett_ip_opt_sec_prot_auth_flags = -1;
 
 #ifdef HAVE_GEOIP
 static gint ett_geoip_info = -1;
@@ -324,7 +342,7 @@ static dissector_handle_t tapa_handle;
 /* TODO: Not all of these are implemented. */
 #define IPOPT_EOOL      (0 |IPOPT_CONTROL)
 #define IPOPT_NOP       (1 |IPOPT_CONTROL)
-#define IPOPT_SEC       (2 |IPOPT_COPY|IPOPT_CONTROL)
+#define IPOPT_SEC       (2 |IPOPT_COPY|IPOPT_CONTROL)       /* RFC 791/1108 */
 #define IPOPT_LSR       (3 |IPOPT_COPY|IPOPT_CONTROL)
 #define IPOPT_TS        (4 |IPOPT_MEASUREMENT)
 #define IPOPT_ESEC      (5 |IPOPT_COPY|IPOPT_CONTROL)       /* RFC 1108 */
@@ -352,7 +370,7 @@ static dissector_handle_t tapa_handle;
 
 
 /* IP option lengths */
-#define IPOLEN_SEC              11
+#define IPOLEN_SEC_MIN          3
 #define IPOLEN_LSR_MIN          3
 #define IPOLEN_TS_MIN           4
 #define IPOLEN_RR_MIN           3
@@ -361,23 +379,33 @@ static dissector_handle_t tapa_handle;
 #define IPOLEN_RA               4
 #define IPOLEN_QS               8
 #define IPOLEN_CIPSO_MIN        10
+#define IPOLEN_ESEC_MIN         3
 #define IPOLEN_MAX              40
 
-#define IPSEC_UNCLASSIFIED      0x0000
-#define IPSEC_CONFIDENTIAL      0xF135
-#define IPSEC_EFTO              0x789A
-#define IPSEC_MMMM              0xBC4D
-#define IPSEC_RESTRICTED        0xAF13
-#define IPSEC_SECRET            0xD788
-#define IPSEC_TOPSECRET         0x6BC5
-#define IPSEC_RESERVED1         0x35E2
-#define IPSEC_RESERVED2         0x9AF1
-#define IPSEC_RESERVED3         0x4D78
-#define IPSEC_RESERVED4         0x24BD
-#define IPSEC_RESERVED5         0x135E
-#define IPSEC_RESERVED6         0x89AF
-#define IPSEC_RESERVED7         0xC4D6
-#define IPSEC_RESERVED8         0xE26B
+#define IPSEC_RFC791_UNCLASSIFIED 0x0000
+#define IPSEC_RFC791_CONFIDENTIAL 0xF135
+#define IPSEC_RFC791_EFTO         0x789A
+#define IPSEC_RFC791_MMMM         0xBC4D
+#define IPSEC_RFC791_RESTRICTED   0xAF13
+#define IPSEC_RFC791_SECRET       0xD788
+#define IPSEC_RFC791_TOPSECRET    0x6BC5
+#define IPSEC_RFC791_RESERVED1    0x35E2
+#define IPSEC_RFC791_RESERVED2    0x9AF1
+#define IPSEC_RFC791_RESERVED3    0x4D78
+#define IPSEC_RFC791_RESERVED4    0x24BD
+#define IPSEC_RFC791_RESERVED5    0x135E
+#define IPSEC_RFC791_RESERVED6    0x89AF
+#define IPSEC_RFC791_RESERVED7    0xC4D6
+#define IPSEC_RFC791_RESERVED8    0xE26B
+
+#define IPSEC_RESERVED4         0x01
+#define IPSEC_TOPSECRET         0x3D
+#define IPSEC_SECRET            0x5A
+#define IPSEC_CONFIDENTIAL      0x96
+#define IPSEC_RESERVED3         0x66
+#define IPSEC_RESERVED2         0xCC
+#define IPSEC_UNCLASSIFIED      0xAB
+#define IPSEC_RESERVED1         0xF1
 
 #define IPOPT_TS_TSONLY         0       /* timestamps only */
 #define IPOPT_TS_TSANDADDR      1       /* timestamps and addresses */
@@ -626,58 +654,160 @@ dissect_ipopt_eool(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 #define dissect_ipopt_nop   dissect_ipopt_eool
 
+  static const value_string secl_rfc791_vals[] = {
+  {IPSEC_RFC791_UNCLASSIFIED, "Unclassified"},
+  {IPSEC_RFC791_CONFIDENTIAL, "Confidential"},
+  {IPSEC_RFC791_EFTO,         "EFTO"        },
+  {IPSEC_RFC791_MMMM,         "MMMM"        },
+  {IPSEC_RFC791_RESTRICTED,   "Restricted"  },
+  {IPSEC_RFC791_SECRET,       "Secret"      },
+  {IPSEC_RFC791_TOPSECRET,    "Top secret"  },
+  {IPSEC_RFC791_RESERVED1,    "Reserved"    },
+  {IPSEC_RFC791_RESERVED2,    "Reserved"    },
+  {IPSEC_RFC791_RESERVED3,    "Reserved"    },
+  {IPSEC_RFC791_RESERVED4,    "Reserved"    },
+  {IPSEC_RFC791_RESERVED5,    "Reserved"    },
+  {IPSEC_RFC791_RESERVED6,    "Reserved"    },
+  {IPSEC_RFC791_RESERVED7,    "Reserved"    },
+  {IPSEC_RFC791_RESERVED8,    "Reserved"    },
+  {0,                  NULL          }
+};
+
+static const value_string sec_cl_vals[] = {
+  {IPSEC_RESERVED4,    "Reserved 4"  },
+  {IPSEC_TOPSECRET,    "Top secret"  },
+  {IPSEC_SECRET,       "Secret"      },
+  {IPSEC_CONFIDENTIAL, "Confidential"},
+  {IPSEC_RESERVED3,    "Reserved 3"  },
+  {IPSEC_RESERVED2,    "Reserved 2"  },
+  {IPSEC_UNCLASSIFIED, "Unclassified"},
+  {IPSEC_RESERVED1,    "Reserved 1"  },
+  {0,                  NULL          }
+};
+
+static const true_false_string ip_opt_sec_prot_auth_flag_tfs = {
+  "Datagram protected in accordance with its rules",
+  "Datagram not protected in accordance with its rules"
+};
+
+static const true_false_string ip_opt_sec_prot_auth_fti_tfs = {
+  "Additional octet present",
+  "Final octet"
+};
+
+static const int *ip_opt_sec_prot_auth_fields_byte_1[] = {
+  &hf_ip_opt_sec_prot_auth_genser,
+  &hf_ip_opt_sec_prot_auth_siop_esi,
+  &hf_ip_opt_sec_prot_auth_sci,
+  &hf_ip_opt_sec_prot_auth_nsa,
+  &hf_ip_opt_sec_prot_auth_doe,
+  &hf_ip_opt_sec_prot_auth_unassigned,
+  &hf_ip_opt_sec_prot_auth_fti,
+  NULL
+};
+
+static const int *ip_opt_sec_prot_auth_fields_byte_n[] = {
+  &hf_ip_opt_sec_prot_auth_unassigned2,
+  &hf_ip_opt_sec_prot_auth_fti,
+  NULL
+};
 static void
 dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                        guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   proto_tree *field_tree;
   proto_item *tf;
+  proto_item *tf_sub;
   guint      val;
-  static const value_string secl_vals[] = {
-    {IPSEC_UNCLASSIFIED, "Unclassified"},
-    {IPSEC_CONFIDENTIAL, "Confidential"},
-    {IPSEC_EFTO,         "EFTO"        },
-    {IPSEC_MMMM,         "MMMM"        },
-    {IPSEC_RESTRICTED,   "Restricted"  },
-    {IPSEC_SECRET,       "Secret"      },
-    {IPSEC_TOPSECRET,    "Top secret"  },
-    {IPSEC_RESERVED1,    "Reserved"    },
-    {IPSEC_RESERVED2,    "Reserved"    },
-    {IPSEC_RESERVED3,    "Reserved"    },
-    {IPSEC_RESERVED4,    "Reserved"    },
-    {IPSEC_RESERVED5,    "Reserved"    },
-    {IPSEC_RESERVED6,    "Reserved"    },
-    {IPSEC_RESERVED7,    "Reserved"    },
-    {IPSEC_RESERVED8,    "Reserved"    },
-    {0,                  NULL          }};
+  guint      curr_offset = offset;
 
-  tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
+  tf = proto_tree_add_text(opt_tree, tvb, curr_offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  dissect_ipopt_type(tvb, offset, field_tree);
-  tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
-  if (optlen != (guint)optp->optlen)
-    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+  dissect_ipopt_type(tvb, curr_offset, field_tree);
+  curr_offset++;
+  tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
+  if (optlen > IPOLEN_MAX)
+    expert_add_info_format(pinfo, tf_sub, PI_PROTOCOL, PI_WARN,
                            "Invalid length for option");
-  offset += 2;
-  val = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_text(field_tree, tvb, offset, 2, "Security: %s",
-                      val_to_str(val, secl_vals, "Unknown (0x%x)"));
-  offset += 2;
-  val = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_text(field_tree, tvb, offset, 2, "Compartments: %u", val);
+  curr_offset++;
 
-  offset += 2;
-  proto_tree_add_text(field_tree, tvb, offset, 2,
-                      "Handling restrictions: %c%c",
-                      tvb_get_guint8(tvb, offset),
-                      tvb_get_guint8(tvb, offset + 1));
-  offset += 2;
-  proto_tree_add_text(field_tree, tvb, offset, 3,
-                      "Transmission control code: %c%c%c",
-                      tvb_get_guint8(tvb, offset),
-                      tvb_get_guint8(tvb, offset + 1),
-                      tvb_get_guint8(tvb, offset + 2));
+  if (optlen == 11) {
+  /* Analyze payload start to decide whether it should be dissected
+     according to RFC 791 or RFC 1108 */
+    val = tvb_get_ntohs(tvb, curr_offset);
+    if (match_strval(val, secl_rfc791_vals)) {
+      /* Dissect as RFC 791 */
+      proto_tree_add_item(field_tree, hf_ip_opt_sec_rfc791_sec,
+                          tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+      curr_offset += 2;
+      proto_tree_add_item(field_tree, hf_ip_opt_sec_rfc791_comp,
+                          tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+      curr_offset += 2;
+      proto_tree_add_item(field_tree, hf_ip_opt_sec_rfc791_hr,
+                          tvb, curr_offset, 2, ENC_ASCII|ENC_NA);
+      curr_offset += 2;
+      proto_tree_add_item(field_tree, hf_ip_opt_sec_rfc791_tcc,
+                          tvb, curr_offset, 3, ENC_ASCII|ENC_NA);
+      return;
+    }
+  }
+
+  /* Dissect as RFC 108 */
+  proto_tree_add_item(field_tree, hf_ip_opt_sec_cl, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+  curr_offset++;
+  if ((curr_offset - offset) >= optlen) {
+    return;
+  }
+  val = tvb_get_guint8(tvb, curr_offset);
+  proto_tree_add_bitmask(field_tree, tvb, curr_offset, hf_ip_opt_sec_prot_auth_flags,
+                         ett_ip_opt_sec_prot_auth_flags, ip_opt_sec_prot_auth_fields_byte_1,
+                         ENC_BIG_ENDIAN);
+  curr_offset++;
+  while (val & 0x01) {
+    if ((val & 0x01) && ((curr_offset - offset) == optlen)) {
+      expert_add_info_format(pinfo, tf_sub, PI_PROTOCOL, PI_WARN,
+                             "Field Termination Indicator set to 1 for last byte of option");
+      break;
+    }
+    val = tvb_get_guint8(tvb, curr_offset);
+    proto_tree_add_bitmask(field_tree, tvb, curr_offset, hf_ip_opt_sec_prot_auth_flags,
+                           ett_ip_opt_sec_prot_auth_flags, ip_opt_sec_prot_auth_fields_byte_n,
+                           ENC_BIG_ENDIAN);
+    curr_offset++;
+  }
+  if ((curr_offset - offset) < optlen) {
+    expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
+                           "Extraneous data in option");
+  }
+}
+
+static void
+dissect_ipopt_ext_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                           guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+  proto_item *tf_sub;
+  guint      curr_offset = offset;
+  gint      remaining;
+
+  tf = proto_tree_add_text(opt_tree, tvb, curr_offset, optlen, "%s (%u bytes)",
+                           optp->name, optlen);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipopt_type(tvb, curr_offset, field_tree);
+  curr_offset++;
+  tf_sub = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, curr_offset, 1, ENC_NA);
+  if (optlen > IPOLEN_MAX)
+    expert_add_info_format(pinfo, tf_sub, PI_PROTOCOL, PI_WARN,
+                           "Invalid length for option");
+  curr_offset++;
+  proto_tree_add_item(field_tree, hf_ip_opt_ext_sec_add_sec_info_format_code, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+  curr_offset++;
+  remaining = optlen - (curr_offset - offset);
+  if (remaining > 0) {
+    proto_tree_add_item(field_tree, hf_ip_opt_ext_sec_add_sec_info, tvb, curr_offset, remaining, ENC_NA);
+  }
 }
 
 /* USHRT_MAX can hold at most 5 (base 10) digits (6 for the NULL byte) */
@@ -1277,7 +1407,7 @@ static const ip_tcp_opt ipopts[] = {
   {IPOPT_EOOL, "End of Option List (EOL)", &ett_ip_option_eool, NO_LENGTH, 0, dissect_ipopt_eool},
   {IPOPT_NOP, "No-Operation (NOP)", &ett_ip_option_nop, NO_LENGTH, 0, dissect_ipopt_nop},
   {IPOPT_SEC, "Security", &ett_ip_option_sec,
-    FIXED_LENGTH, IPOLEN_SEC, dissect_ipopt_security},
+    VARIABLE_LENGTH, IPOLEN_SEC_MIN, dissect_ipopt_security},
   {IPOPT_SSR, "Strict source route", &ett_ip_option_route,
     VARIABLE_LENGTH, IPOLEN_SSR_MIN, dissect_ipopt_route},
   {IPOPT_LSR, "Loose source route", &ett_ip_option_route,
@@ -1293,7 +1423,9 @@ static const ip_tcp_opt ipopts[] = {
   {IPOPT_RTRALT, "Router Alert", &ett_ip_option_ra,
     FIXED_LENGTH, IPOLEN_RA, dissect_ipopt_ra},
   {IPOPT_QS, "Quick-Start", &ett_ip_option_qs,
-    FIXED_LENGTH, IPOLEN_QS, dissect_ipopt_qs}
+    FIXED_LENGTH, IPOLEN_QS, dissect_ipopt_qs},
+  {IPOPT_ESEC, "Extended Security", &ett_ip_option_ext_security,
+    VARIABLE_LENGTH, IPOLEN_ESEC_MIN, dissect_ipopt_ext_security},
 };
 
 #define N_IP_OPTS       array_length(ipopts)
@@ -2391,6 +2523,70 @@ proto_register_ip(void)
       { "Reserved", "ip.opt.qs_reserved", FT_UINT32, BASE_HEX,
         NULL, 0x00000003, NULL, HFILL }},
 
+    { &hf_ip_opt_sec_rfc791_sec,
+      { "Security", "ip.opt.sec_rfc791_sec", FT_UINT8, BASE_HEX,
+        VALS(secl_rfc791_vals), 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_rfc791_comp,
+      { "Compartments", "ip.opt.sec_rfc791_comp", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_rfc791_hr,
+      { "Handling Restrictions", "ip.opt.sec_rfc791_hr", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_rfc791_tcc,
+      { "Transmission Control Code", "ip.opt.sec_rfc791_tcc", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_cl,
+      { "Classification Level", "ip.opt.sec_cl", FT_UINT8, BASE_HEX,
+        VALS(sec_cl_vals), 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_flags,
+      { "Protection Authority Flags", "ip.opt.sec_prot_auth_flags", FT_UINT8, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_genser,
+      { "GENSER", "ip.opt.sec_prot_auth_genser", FT_BOOLEAN, 8,
+        TFS(&ip_opt_sec_prot_auth_flag_tfs), 0x80, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_siop_esi,
+      { "SIOP-ESI", "ip.opt.sec_prot_auth_siop_esi", FT_BOOLEAN, 8,
+        TFS(&ip_opt_sec_prot_auth_flag_tfs), 0x40, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_sci,
+      { "SCI", "ip.opt.sec_prot_auth_sci", FT_BOOLEAN, 8,
+        TFS(&ip_opt_sec_prot_auth_flag_tfs), 0x20, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_nsa,
+      { "NSA", "ip.opt.sec_prot_auth_nsa", FT_BOOLEAN, 8,
+        TFS(&ip_opt_sec_prot_auth_flag_tfs), 0x10, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_doe,
+      { "DOE", "ip.opt.sec_prot_auth_doe", FT_BOOLEAN, 8,
+        TFS(&ip_opt_sec_prot_auth_flag_tfs), 0x08, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_unassigned,
+      { "Unassigned", "ip.opt.sec_prot_auth_unassigned", FT_UINT8, BASE_HEX,
+        NULL, 0x06, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_unassigned2,
+      { "Unassigned", "ip.opt.sec_prot_auth_unassigned", FT_UINT8, BASE_HEX,
+        NULL, 0xFE, NULL, HFILL }},
+
+    { &hf_ip_opt_sec_prot_auth_fti,
+      { "Field Termination Indicator", "ip.opt.sec_prot_auth_fti", FT_BOOLEAN, 8,
+        TFS(&ip_opt_sec_prot_auth_fti_tfs), 0x01, NULL, HFILL }},
+
+    { &hf_ip_opt_ext_sec_add_sec_info_format_code,
+      { "Additional Security Info Format Code", "ip.opt.ext_sec_add_sec_info_format_code", FT_UINT8, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_opt_ext_sec_add_sec_info,
+      { "Additional Security Info", "ip.opt.ext_sec_add_sec_info", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+
     { &hf_ip_rec_rt,
       { "Recorded Route", "ip.rec_rt", FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
@@ -2482,11 +2678,13 @@ proto_register_ip(void)
     &ett_ip_option_qs,
     &ett_ip_option_ra,
     &ett_ip_option_cipso,
+    &ett_ip_option_ext_security,
     &ett_ip_option_other,
     &ett_ip_fragments,
     &ett_ip_fragment,
     &ett_ip_checksum,
     &ett_ip_opt_type,
+    &ett_ip_opt_sec_prot_auth_flags,
 #ifdef HAVE_GEOIP
     &ett_geoip_info
 #endif
