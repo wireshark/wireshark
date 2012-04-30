@@ -1418,7 +1418,6 @@ dissect_ipopt_sdb(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 {
   proto_tree *field_tree;
   proto_item *tf;
-  int optoffset = 0;
 
   tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s (%u bytes)",
                            optp->name, optlen);
