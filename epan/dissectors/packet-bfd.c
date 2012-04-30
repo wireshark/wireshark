@@ -9,7 +9,7 @@
  *                 Krishnamurthy Mayya <krishnamurthy.mayya@ipinfusion.com>
  *                 Nikitha Malgi       <malgi.nikitha@ipinfusion.com>
  *                  - support for MPLS-TP BFD Proactive CV Message Format as per RFC 6428
- *                  - includes decoding support for Section MEP-ID, LSP MEP-ID, PW MEP-ID 
+ *                  - includes decoding support for Section MEP-ID, LSP MEP-ID, PW MEP-ID
  *
  * $Id$
  *
@@ -50,7 +50,7 @@
 
 /* As per RFC 6428 : http://tools.ietf.org/html/rfc6428
    Section: 3.5 */
-#define TLV_TYPE_MPLSTP_SECTION_MEP   0 
+#define TLV_TYPE_MPLSTP_SECTION_MEP   0
 #define TLV_TYPE_MPLSTP_LSP_MEP       1
 #define TLV_TYPE_MPLSTP_PW_MEP        2
 
@@ -124,10 +124,8 @@ static const value_string bfd_control_auth_type_values[] = {
             proto_item_append_text(item, string, sep);    \
         sep = cont_sep;                        \
     }
-static const char initial_sep[] = " (";
-static const char cont_sep[] = ", ";
-
-
+static const char *const initial_sep = " (";
+static const char *const cont_sep = ", ";
 
 static gint proto_bfd = -1;
 
@@ -270,7 +268,8 @@ static gint hf_section_interface_no = -1;
 /* Given the type of authentication being used, return the required length of
  * the authentication header
  */
-static guint8 get_bfd_required_auth_len(guint8 auth_type)
+static guint8
+get_bfd_required_auth_len(guint8 auth_type)
 {
     guint8 auth_len = 0;
 
@@ -292,7 +291,8 @@ static guint8 get_bfd_required_auth_len(guint8 auth_type)
 /* Given the type of authentication being used, return the length of
  * checksum field
  */
-static guint8 get_bfd_checksum_len(guint8 auth_type)
+static guint8
+get_bfd_checksum_len(guint8 auth_type)
 {
     guint8 checksum_len = 0;
     switch (auth_type) {
@@ -310,21 +310,24 @@ static guint8 get_bfd_checksum_len(guint8 auth_type)
     return checksum_len;
 }
 
-static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset = 24;
-    guint8 auth_type;
-    guint8 auth_len;
+    int         offset = 24;
+    guint8      auth_type;
+    guint8      auth_len;
     proto_item *ti;
     proto_item *auth_item;
     proto_tree *auth_tree;
-    guint8 *password;
+    guint8     *password;
 
     auth_type = tvb_get_guint8(tvb, offset);
-    auth_len = tvb_get_guint8(tvb, offset + 1);
+    auth_len  = tvb_get_guint8(tvb, offset + 1);
 
     auth_item = proto_tree_add_text(tree, tvb, offset, auth_len, "Authentication: %s",
-	    val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
+                                    val_to_str(auth_type,
+                                               bfd_control_auth_type_values,
+                                               "Unknown Authentication Type (%d)") );
     auth_tree = proto_item_add_subtree(auth_item, ett_bfd_auth);
 
     proto_tree_add_item(auth_tree, hf_bfd_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -335,116 +338,118 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree_add_item(auth_tree, hf_bfd_auth_key, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
     switch (auth_type) {
-	case BFD_AUTH_SIMPLE:
-	    password = tvb_get_ephemeral_string(tvb, offset+3, auth_len-3);
-	    proto_tree_add_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
-		    auth_len-3, password);
-	    proto_item_append_text(auth_item, ": %s", password);
-	    break;
-	case BFD_AUTH_MD5:
-	case BFD_AUTH_MET_MD5:
-	case BFD_AUTH_SHA1:
-	case BFD_AUTH_MET_SHA1:
-	    if (auth_len != get_bfd_required_auth_len(auth_type)) {
-		ti = proto_tree_add_text(auth_tree, tvb, offset, auth_len,
-			"Length of authentication is invalid (%d)", auth_len);
-		proto_item_append_text(auth_item, ": Invalid Authentication Section");
-		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-			"Length of authentication section is invalid for Authentication Type: %s",
-			val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
-	    }
+        case BFD_AUTH_SIMPLE:
+            password = tvb_get_ephemeral_string(tvb, offset+3, auth_len-3);
+            proto_tree_add_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
+                    auth_len-3, password);
+            proto_item_append_text(auth_item, ": %s", password);
+            break;
+        case BFD_AUTH_MD5:
+        case BFD_AUTH_MET_MD5:
+        case BFD_AUTH_SHA1:
+        case BFD_AUTH_MET_SHA1:
+            if (auth_len != get_bfd_required_auth_len(auth_type)) {
+                ti = proto_tree_add_text(auth_tree, tvb, offset, auth_len,
+                        "Length of authentication is invalid (%d)", auth_len);
+                proto_item_append_text(auth_item, ": Invalid Authentication Section");
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                        "Length of authentication section is invalid for Authentication Type: %s",
+                        val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
+            }
 
-	    proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
-	    proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
-		    tvb_bytes_to_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
-	    break;
-	default:
-	    break;
+            proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
+                    tvb_bytes_to_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
+            break;
+        default:
+            break;
     }
 }
 
 
-void 
+void
 dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint bfd_version = -1;
-    gint bfd_diag = -1;
-    gint bfd_sta = -1;
-    gint bfd_flags = -1;
-    gint bfd_flags_h = -1;
-    gint bfd_flags_p = -1;
-    gint bfd_flags_f = -1;
-    gint bfd_flags_c = -1;
-    gint bfd_flags_a = -1;
-    gint bfd_flags_d = -1;
-    gint bfd_flags_m = -1;
-    gint bfd_flags_d_v0 = -1;
-    gint bfd_flags_p_v0 = -1;
-    gint bfd_flags_f_v0 = -1;
-    gint bfd_detect_time_multiplier = -1;
-    gint bfd_length = -1;
-    gint bfd_my_discriminator = -1;
-    gint bfd_your_discriminator = -1;
-    gint bfd_desired_min_tx_interval = -1;
-    gint bfd_required_min_rx_interval = -1;
-    gint bfd_required_min_echo_interval = -1;
-
-    proto_item *ti;
-    proto_tree *bfd_tree;
-    proto_tree *bfd_flags_tree;
-
-    const char *sep;
+    guint flags;
+    guint bfd_version;
+    guint bfd_diag;
+    guint bfd_sta;
+    guint bfd_flags;
+    guint bfd_flags_h;
+    guint bfd_flags_p;
+    guint bfd_flags_f;
+    guint bfd_flags_c;
+    guint bfd_flags_a;
+    guint bfd_flags_d;
+    guint bfd_flags_m;
+    guint bfd_flags_d_v0;
+    guint bfd_flags_p_v0;
+    guint bfd_flags_f_v0;
+    guint bfd_detect_time_multiplier;
+    guint bfd_length;
+    guint bfd_my_discriminator;
+    guint bfd_your_discriminator;
+    guint bfd_desired_min_tx_interval;
+    guint bfd_required_min_rx_interval;
+    guint bfd_required_min_echo_interval;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFD Control");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    bfd_version = ((tvb_get_guint8(tvb, 0) & 0xe0) >> 5);
-    bfd_diag = (tvb_get_guint8(tvb, 0) & 0x1f);
+    bfd_version = (tvb_get_guint8(tvb, 0) & 0xe0) >> 5;
+    bfd_diag    = (tvb_get_guint8(tvb, 0) & 0x1f);
+    flags       = tvb_get_guint8(tvb, 1);
     switch (bfd_version) {
         case 0:
-            bfd_flags = tvb_get_guint8(tvb, 1 );
-            bfd_flags_h = (tvb_get_guint8(tvb, 1) & 0x80);
-            bfd_flags_d_v0 = (tvb_get_guint8(tvb, 1) & 0x40);
-            bfd_flags_p_v0 = (tvb_get_guint8(tvb, 1) & 0x20);
-            bfd_flags_f_v0 = (tvb_get_guint8(tvb, 1) & 0x10);
+            bfd_flags      = flags;
+            bfd_flags_h    = flags & 0x80;
+            bfd_flags_d_v0 = flags & 0x40;
+            bfd_flags_p_v0 = flags & 0x20;
+            bfd_flags_f_v0 = flags & 0x10;
             break;
         case 1:
         default:
-            bfd_sta = (tvb_get_guint8(tvb, 1) & 0xc0);
-            bfd_flags = (tvb_get_guint8(tvb, 1) & 0x3e);
-            bfd_flags_p = (tvb_get_guint8(tvb, 1) & 0x20);
-            bfd_flags_f = (tvb_get_guint8(tvb, 1) & 0x10);
-            bfd_flags_c = (tvb_get_guint8(tvb, 1) & 0x08);
-            bfd_flags_a = (tvb_get_guint8(tvb, 1) & 0x04);
-            bfd_flags_d = (tvb_get_guint8(tvb, 1) & 0x02);
-            bfd_flags_m = (tvb_get_guint8(tvb, 1) & 0x01);
+            bfd_sta        = flags & 0xc0;
+            bfd_flags      = flags & 0x3e;
+            bfd_flags_p    = flags & 0x20;
+            bfd_flags_f    = flags & 0x10;
+            bfd_flags_c    = flags & 0x08;
+            bfd_flags_a    = flags & 0x04;
+            bfd_flags_d    = flags & 0x02;
+            bfd_flags_m    = flags & 0x01;
             break;
     }
-    bfd_detect_time_multiplier = tvb_get_guint8(tvb, 2);
-    bfd_length = tvb_get_guint8(tvb, 3);
-    bfd_my_discriminator = tvb_get_ntohl(tvb, 4);
-    bfd_your_discriminator = tvb_get_ntohl(tvb, 8);
-    bfd_desired_min_tx_interval = tvb_get_ntohl(tvb, 12);
-    bfd_required_min_rx_interval = tvb_get_ntohl(tvb, 16);
+
+    bfd_detect_time_multiplier     = tvb_get_guint8(tvb, 2);
+    bfd_length                     = tvb_get_guint8(tvb, 3);
+    bfd_my_discriminator           = tvb_get_ntohl(tvb, 4);
+    bfd_your_discriminator         = tvb_get_ntohl(tvb, 8);
+    bfd_desired_min_tx_interval    = tvb_get_ntohl(tvb, 12);
+    bfd_required_min_rx_interval   = tvb_get_ntohl(tvb, 16);
     bfd_required_min_echo_interval = tvb_get_ntohl(tvb, 20);
 
-	switch (bfd_version) {
-            case 0:
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, Flags: 0x%02x",
-                             val_to_str(bfd_diag, bfd_control_v0_diag_values, "UNKNOWN"),
-                             bfd_flags);
-                break;
-            case 1:
-            default:
-                col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, State: %s, Flags: 0x%02x",
-                             val_to_str(bfd_diag, bfd_control_v1_diag_values, "UNKNOWN"),
-                             val_to_str(bfd_sta >> 6 , bfd_control_sta_values, "UNKNOWN"),
-                             bfd_flags);
-                break;
+    switch (bfd_version) {
+        case 0:
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, Flags: 0x%02x",
+                         val_to_str_const(bfd_diag, bfd_control_v0_diag_values, "Unknown"),
+                         bfd_flags);
+            break;
+        case 1:
+        default:
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, State: %s, Flags: 0x%02x",
+                         val_to_str_const(bfd_diag, bfd_control_v1_diag_values, "Unknown"),
+                         val_to_str_const(bfd_sta >> 6 , bfd_control_sta_values, "Unknown"),
+                         bfd_flags);
+            break;
     }
 
     if (tree) {
+        proto_item *ti;
+        proto_tree *bfd_tree;
+        proto_tree *bfd_flags_tree;
+        const char *sep;
+
         ti = proto_tree_add_protocol_format(tree, proto_bfd, tvb, 0, bfd_length,
                                             "BFD Control message");
 
@@ -456,7 +461,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(bfd_tree, hf_bfd_diag, tvb, 0,
                                  1, bfd_diag);
 
-	switch (bfd_version) {
+        switch (bfd_version) {
             case 0:
                 break;
             case 1:
@@ -465,19 +470,19 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     1, bfd_sta);
 
                 break;
-	}
-	switch (bfd_version) {
+        }
+        switch (bfd_version) {
             case 0:
                 ti = proto_tree_add_text ( bfd_tree, tvb, 1, 1, "Message Flags: 0x%02x",
                                            bfd_flags);
                 bfd_flags_tree = proto_item_add_subtree(ti, ett_bfd_flags);
-                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_h, tvb, 1, 1, bfd_flags_h);
+                proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_h,    tvb, 1, 1, bfd_flags_h);
                 proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_d_v0, tvb, 1, 1, bfd_flags_d_v0);
                 proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_p_v0, tvb, 1, 1, bfd_flags_p_v0);
                 proto_tree_add_boolean(bfd_flags_tree, hf_bfd_flags_f_v0, tvb, 1, 1, bfd_flags_f_v0);
 
                 sep = initial_sep;
-                APPEND_BOOLEAN_FLAG(bfd_flags_h, ti, "%sH");
+                APPEND_BOOLEAN_FLAG(bfd_flags_h,    ti, "%sH");
                 APPEND_BOOLEAN_FLAG(bfd_flags_d_v0, ti, "%sD");
                 APPEND_BOOLEAN_FLAG(bfd_flags_p_v0, ti, "%sP");
                 APPEND_BOOLEAN_FLAG(bfd_flags_f_v0, ti, "%sF");
@@ -508,16 +513,16 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item_append_text (ti, ")");
                 }
                 break;
-	}
+        }
 
         proto_tree_add_uint_format_value(bfd_tree, hf_bfd_detect_time_multiplier, tvb, 2,
-                                              1, bfd_detect_time_multiplier,
-                                              "%u (= %u ms Detection time)",
-                                              bfd_detect_time_multiplier,
-                                              bfd_detect_time_multiplier * (bfd_desired_min_tx_interval/1000));
+                                         1, bfd_detect_time_multiplier,
+                                         "%u (= %u ms Detection time)",
+                                         bfd_detect_time_multiplier,
+                                         bfd_detect_time_multiplier * (bfd_desired_min_tx_interval/1000));
 
-	proto_tree_add_uint_format_value(bfd_tree, hf_bfd_message_length, tvb, 3, 1, bfd_length,
-		"%u bytes", bfd_length);
+        proto_tree_add_uint_format_value(bfd_tree, hf_bfd_message_length, tvb, 3, 1, bfd_length,
+                "%u bytes", bfd_length);
 
         proto_tree_add_uint(bfd_tree, hf_bfd_my_discriminator, tvb, 4,
                                  4, bfd_my_discriminator);
@@ -529,150 +534,127 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               4, bfd_desired_min_tx_interval,
                                               "%4u ms (%u us)",
                                               bfd_desired_min_tx_interval/1000,
-					      bfd_desired_min_tx_interval);
+                                              bfd_desired_min_tx_interval);
 
         proto_tree_add_uint_format_value(bfd_tree, hf_bfd_required_min_rx_interval, tvb, 16,
                                               4, bfd_required_min_rx_interval,
                                               "%4u ms (%u us)",
                                               bfd_required_min_rx_interval/1000,
-					      bfd_required_min_rx_interval);
+                                              bfd_required_min_rx_interval);
 
         proto_tree_add_uint_format_value(bfd_tree, hf_bfd_required_min_echo_interval, tvb, 20,
                                               4, bfd_required_min_echo_interval,
                                               "%4u ms (%u us)",
                                               bfd_required_min_echo_interval/1000,
-					      bfd_required_min_echo_interval);
+                                              bfd_required_min_echo_interval);
 
-	/* Dissect the authentication fields if the Authentication flag has
-	 * been set
-	 */
-	if (bfd_version && bfd_flags_a) {
-	    if (bfd_length >= 28) {
-		dissect_bfd_authentication(tvb, pinfo, bfd_tree);
-	    } else {
-		ti = proto_tree_add_text(bfd_tree, tvb, 24, bfd_length,
-			"Authentication: Length of the BFD frame is invalid (%d)", bfd_length);
-		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-			"Authentication flag is set in a BFD packet, but no authentication data is present");
-	    }
-	}
+        /* Dissect the authentication fields if the Authentication flag has
+         * been set
+         */
+        if (bfd_version && bfd_flags_a) {
+            if (bfd_length >= 28) {
+                dissect_bfd_authentication(tvb, pinfo, bfd_tree);
+            } else {
+                ti = proto_tree_add_text(bfd_tree, tvb, 24, bfd_length,
+                        "Authentication: Length of the BFD frame is invalid (%d)", bfd_length);
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+                        "Authentication flag is set in a BFD packet, but no authentication data is present");
+            }
+        }
     }
     return;
 }
-/* BFD CV Source MEP-ID TLV Decoder, 
+/* BFD CV Source MEP-ID TLV Decoder,
    As per RFC 6428 : http://tools.ietf.org/html/rfc6428
    sections - 3.5.1, 3.5.2, 3.5.3 */
-void 
+void
 dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree)
 {
-    gint offset = 0, mep_offset = 0;
-    gint mep_type = -1;
-    gint mep_len = -1;
-    gint mep_global_id = -1;
-    gint mep_node_id = -1;
-    gint mep_tunnel_no = -1;
-    gint mep_lsp_no = -1;
-    gint mep_ac_id = -1;
-    gint mep_agi_type = -1;
-    gint mep_agi_len = -1;
-    gint section_global_id = -1;
-    gint section_node_id = -1;
-    gint section_interface_num = -1;
     proto_item *ti;
     proto_tree *bfd_tree;
-    
-    /* Fetch the BFD control message length and move the offset 
+    gint        offset;
+    gint        mep_type;
+    gint        mep_len;
+    gint        mep_agi_len;
+
+    if (!tree)
+        return;
+
+    /* Fetch the BFD control message length and move the offset
        to point to the data portion after the control message */
-    mep_offset = tvb_get_guint8 ( tvb, (offset + 3));
-    offset = mep_offset;
+    offset   = tvb_get_guint8(tvb, 3);
     mep_type = tvb_get_ntohs (tvb, offset);
-    mep_len = tvb_get_ntohs (tvb, (offset + 2));
-    ti = proto_tree_add_protocol_format (tree, proto_bfd, tvb, offset, (mep_len + 4),
+    mep_len  = tvb_get_ntohs (tvb, (offset + 2));
+    ti       = proto_tree_add_protocol_format (tree, proto_bfd, tvb, offset, (mep_len + 4),
                                          "MPLS-TP SOURCE MEP-ID TLV");
 
     switch (mep_type) {
-	case TLV_TYPE_MPLSTP_SECTION_MEP:
+        case TLV_TYPE_MPLSTP_SECTION_MEP:
 
-            section_global_id = tvb_get_ntohl (tvb, (offset + 4));
-            section_node_id = tvb_get_ipv4 (tvb, (offset + 8));
-            section_interface_num = tvb_get_ntohl (tvb, (offset + 12));
-            if (tree) {
-                bfd_tree = proto_item_add_subtree (ti, ett_bfd);
-		 proto_tree_add_uint (bfd_tree, hf_mep_type , tvb, offset,
-                                     2, mep_type);
-                proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
-                                     2, mep_len);
-                proto_tree_add_uint (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
-                                     4, section_global_id);
-                proto_tree_add_ipv4 (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
-                                     4, section_node_id);
-                proto_tree_add_uint (bfd_tree, hf_section_interface_no, tvb, (offset + 12),
-                                     4, section_interface_num);
-            }
-            
-        break; 
-            
+            bfd_tree = proto_item_add_subtree (ti, ett_bfd);
+            proto_tree_add_uint (bfd_tree, hf_mep_type , tvb, offset,
+                                 2, mep_type);
+            proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
+                                 2, mep_len);
+            proto_tree_add_item (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
+                                 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
+                                 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_section_interface_no, tvb, (offset + 12),
+                                 4, ENC_BIG_ENDIAN);
+
+            break;
+
         case TLV_TYPE_MPLSTP_LSP_MEP:
 
-            mep_global_id = tvb_get_ntohl (tvb, (offset + 4));
-            mep_node_id = tvb_get_ipv4 (tvb, (offset + 8));
-            mep_tunnel_no = tvb_get_ntohs (tvb, (offset + 12));
-            mep_lsp_no = tvb_get_ntohs (tvb, (offset + 14));
-	     if (tree) {
-                bfd_tree = proto_item_add_subtree (ti, ett_bfd);
-                proto_tree_add_uint (bfd_tree, hf_mep_type , tvb, offset,
-                                     2, mep_type);
-                proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
-                                     2, mep_len);
-                proto_tree_add_uint (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
-                                     4, mep_global_id);
-                proto_tree_add_ipv4 (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
-                                     4, mep_node_id);
-                proto_tree_add_uint (bfd_tree, hf_mep_tunnel_no, tvb, (offset + 12),
-                                     2, mep_tunnel_no);
-                proto_tree_add_uint (bfd_tree, hf_mep_lsp_no, tvb, (offset + 14),
-                                     2, mep_lsp_no);
-            }
-	
-        break;
+            bfd_tree = proto_item_add_subtree (ti, ett_bfd);
+            proto_tree_add_uint (bfd_tree, hf_mep_type , tvb, offset,
+                                 2, mep_type);
+            proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
+                                 2, mep_len);
+            proto_tree_add_item (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
+                                 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
+                                 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_mep_tunnel_no, tvb, (offset + 12),
+                                 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_mep_lsp_no, tvb, (offset + 14),
+                                 2, ENC_BIG_ENDIAN);
+
+            break;
 
         case TLV_TYPE_MPLSTP_PW_MEP:
 
-            mep_global_id = tvb_get_ntohl (tvb, (offset + 4));
-            mep_node_id = tvb_get_ipv4 (tvb, (offset + 8));
-            mep_ac_id = tvb_get_ntohl (tvb, (offset + 12));
-            mep_agi_type = tvb_get_guint8 (tvb, (offset + 16));
-            mep_agi_len = tvb_get_guint8 (tvb, (offset + 17));
-            if (tree) {
-	        bfd_tree = proto_item_add_subtree (ti, ett_bfd);
-                proto_tree_add_uint (bfd_tree, hf_mep_type, tvb, offset,
-                                     2, (mep_type));
- 	        proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
-                                     2, mep_len);
-                proto_tree_add_uint (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
-                                     4, mep_global_id);
-                proto_tree_add_ipv4 (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
-                                     4, mep_node_id);
-                proto_tree_add_uint (bfd_tree, hf_mep_ac_id, tvb, (offset + 12),
-                                     4, mep_ac_id);
-                proto_tree_add_uint (bfd_tree, hf_mep_agi_type, tvb, (offset + 16),
-                                     1, mep_agi_type);
-                proto_tree_add_uint (bfd_tree, hf_mep_agi_len, tvb, (offset + 17),
-                                     1, mep_agi_len);
-                proto_tree_add_item (bfd_tree, hf_mep_agi_val, tvb, (offset + 18),
-				      mep_agi_len, ENC_BIG_ENDIAN);
-            }
+            mep_agi_len   = tvb_get_guint8 (tvb, (offset + 17));
+            bfd_tree = proto_item_add_subtree (ti, ett_bfd);
+            proto_tree_add_uint (bfd_tree, hf_mep_type, tvb, offset,
+                                 2, (mep_type));
+            proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
+                                 2, mep_len);
+            proto_tree_add_item (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
+                                 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
+                                 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_mep_ac_id, tvb, (offset + 12),
+                                 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item (bfd_tree, hf_mep_agi_type, tvb, (offset + 16),
+                                 1, ENC_BIG_ENDIAN);
+            proto_tree_add_uint (bfd_tree, hf_mep_agi_len, tvb, (offset + 17),
+                                 1, mep_agi_len);
+            proto_tree_add_item (bfd_tree, hf_mep_agi_val, tvb, (offset + 18),
+                                 mep_agi_len, ENC_BIG_ENDIAN);
 
-        break;
+            break;
 
         default:
-        break;
+            break;
     }
     return;
 }
 
 /* Register the protocol with Wireshark */
-void proto_register_bfd(void)
+void
+proto_register_bfd(void)
 {
 
     /* Setup list of header fields */
@@ -719,34 +701,34 @@ void proto_register_bfd(void)
         },
         { &hf_bfd_flags_p,
           { "Poll", "bfd.flags.p",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x20,
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x20, // 6 ?
             "If set, the transmitting system is expecting a packet with the Final (F) bit in reply",
-	    HFILL }
+            HFILL }
         },
         { &hf_bfd_flags_f,
           { "Final", "bfd.flags.f",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x10,
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x10, // 6 ?
             "If set, the transmitting system is replying to a packet with the Poll (P) bit set",
-	    HFILL }
+            HFILL }
         },
         { &hf_bfd_flags_c,
           { "Control Plane Independent", "bfd.flags.c",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x08,
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x08, // 6 ?
             "If set, the BFD implementation is implemented in the forwarding plane", HFILL }
         },
         { &hf_bfd_flags_a,
           { "Authentication Present", "bfd.flags.a",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x04,
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x04, // 6 ??
             "The Authentication Section is present", HFILL }
         },
         { &hf_bfd_flags_d,
           { "Demand", "bfd.flags.d",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x02,
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x02, // 6 ??
             "If set, Demand mode is active in the transmitting system", HFILL }
         },
         { &hf_bfd_flags_m,
           { "Multipoint", "bfd.flags.m",
-            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x01,
+            FT_BOOLEAN, 6, TFS(&tfs_set_notset), 0x01, // 6 ??
             "Reserved for future point-to-multipoint extensions", HFILL }
         },
         { &hf_bfd_detect_time_multiplier,
@@ -809,7 +791,7 @@ void proto_register_bfd(void)
             FT_UINT32, BASE_HEX, NULL, 0x0,
             "The Sequence Number is periodically incremented to prevent replay attacks", HFILL }
           },
-	 { &hf_mep_type,
+         { &hf_mep_type,
           { "Type", "mep.type",
             FT_UINT16, BASE_DEC, VALS(mplstp_mep_tlv_type_values), 0x0,
             "The type of the MEP Id", HFILL }
@@ -860,9 +842,9 @@ void proto_register_bfd(void)
             NULL, HFILL }
         },
         { &hf_mep_agi_val,
-	   { "AGI value", "mep.agi.val",
-	     FT_STRING, BASE_NONE, NULL , 0x0,
-	     NULL, HFILL }  
+           { "AGI value", "mep.agi.val",
+             FT_STRING, BASE_NONE, NULL , 0x0,
+             NULL, HFILL }
         },
         { &hf_section_interface_no,
           { "Interface Number", "mep.interface.no",
@@ -875,7 +857,7 @@ void proto_register_bfd(void)
     static gint *ett[] = {
         &ett_bfd,
         &ett_bfd_flags,
-	&ett_bfd_auth
+        &ett_bfd_auth
     };
 
     /* Register the protocol name and description */
@@ -894,7 +876,7 @@ proto_reg_handoff_bfd(void)
 {
     dissector_handle_t bfd_control_handle;
 
-    bfd_control_handle = create_dissector_handle(dissect_bfd_control, proto_bfd);
-    dissector_add_uint("udp.port", UDP_PORT_BFD_1HOP_CONTROL, bfd_control_handle);
+    bfd_control_handle = find_dissector("bfd");
+    dissector_add_uint("udp.port", UDP_PORT_BFD_1HOP_CONTROL,     bfd_control_handle);
     dissector_add_uint("udp.port", UDP_PORT_BFD_MULTIHOP_CONTROL, bfd_control_handle);
 }
