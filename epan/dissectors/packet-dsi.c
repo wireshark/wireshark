@@ -497,7 +497,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs += ulen;
 	}
 
-	return offset;
+	return ofs;
 }
 
 static void

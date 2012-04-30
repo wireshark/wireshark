@@ -359,7 +359,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
   case MTYPE_END_RESPONSE:
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_reusep, tvb, pos, 1, ENC_BIG_ENDIAN);
-    pos+=1;
+    /*pos+=1;*/
     break;
 
   case MTYPE_SEND_HEADERS:
@@ -456,7 +456,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     cd->content_length = rlen;
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, ENC_BIG_ENDIAN);
-    pos+=2;
+    /*pos+=2;*/
     break;
   }
 

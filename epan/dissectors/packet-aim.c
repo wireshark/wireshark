@@ -808,7 +808,7 @@ dissect_aim_close_conn(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Close Connection");
 
-	offset = dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, aim_client_tlvs);
+	dissect_aim_tlv_sequence(tvb, pinfo, offset, tree, aim_client_tlvs);
 }
 
 static void

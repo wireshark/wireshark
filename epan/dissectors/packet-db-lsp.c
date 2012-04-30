@@ -134,7 +134,7 @@ dissect_db_lsp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else {
     proto_tree_add_item (db_lsp_tree, hf_value, tvb, offset, length, ENC_NA);
   }
-  offset += length;
+  /*offset += length;*/
 
   proto_item_append_text (db_lsp_item, ", Type: %d, Length: %d", type, length);
   proto_item_set_len (db_lsp_item, length + 5);

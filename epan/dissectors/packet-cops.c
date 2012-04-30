@@ -1402,7 +1402,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
         asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-        offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
+        dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
 
         if (oid_tvb) {
             guint encoid_len = tvb_length_remaining(oid_tvb,0);
@@ -1534,7 +1534,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
         asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
 
-        offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_errprid_oid, NULL);
+        dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_errprid_oid, NULL);
 
         break;
     }
@@ -3166,11 +3166,12 @@ cops_amid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Application Manager Tag */
      info_to_display(tvb,stt,offset,2,"Application Manager ID Application Manager Tag", NULL,FMT_DEC,&hf_cops_pcmm_amid_am_tag);
+
 }
 
 
 /* Cops - Section : Multimedia Gate Specifications */
-static void
+static int
 cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -3223,10 +3224,12 @@ cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      /* Timer T4 Value */
      info_to_display(tvb,stt,offset,2,"Timer T4 Value (sec)",NULL,FMT_DEC,&hf_cops_pcmm_gate_spec_timer_t4);
      offset += 2;
+
+     return offset;
 }
 
 /* Cops - Section : Classifier */
-static void
+static int
 cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean extended) {
 
     proto_tree *stt;
@@ -3310,10 +3313,12 @@ cops_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean
 
     /* 3 octets Not specified */
     offset += 3;
+
+    return offset;
 }
 
 /* Cops - Section : IPv6 Classifier */
-static void
+static int
 cops_ipv6_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
     proto_tree *stt;
@@ -3396,10 +3401,12 @@ cops_ipv6_classifier(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
     /* 3 octets Not specified */
     offset += 3;
+
+    return offset;
 }
 
 /* Cops - Section : Gate Specifications */
-static void
+static int
 cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -3452,7 +3459,7 @@ cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      info_to_display(tvb,object_tree,offset,4,"Slack Term",NULL,FMT_DEC,&hf_cops_pc_slack_term);
      offset += 4;
 
-     if (n < 64) return;
+     if (n < 64) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 28, "Reserved Envelope");
@@ -3486,7 +3493,7 @@ cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      info_to_display(tvb,object_tree,offset,4,"Slack Term",NULL,FMT_DEC,&hf_cops_pc_slack_term);
      offset += 4;
 
-     if (n < 92) return;
+     if (n < 92) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 28, "Committed Envelope");
@@ -3518,10 +3525,13 @@ cops_flow_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      /* Slack Term */
      info_to_display(tvb,object_tree,offset,4,"Slack Term",NULL,FMT_DEC,&hf_cops_pc_slack_term);
+     offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : DOCSIS Service Class Name */
-static void
+static int
 cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset) {
 
     proto_tree *stt;
@@ -3543,6 +3553,8 @@ cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, 
     } else {
         proto_tree_add_text(stt, tvb, offset - 8, 2, "Invalid object length: %u", object_len);
     }
+
+    return offset;
 }
 
 /* New functions were made with the i04 suffix to maintain backward compatibility with I03
@@ -3552,7 +3564,7 @@ cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, 
 */
 
 /* Cops - Section : Best Effort Service */
-static void
+static int
 cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -3617,7 +3629,7 @@ cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32
        offset += 4;
      }
 
-     if (n < 56) return;
+     if (n < 56) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Reserved Envelope");
@@ -3668,7 +3680,7 @@ cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32
          offset += 4;
      }
 
-     if (n < 80) return;
+     if (n < 80) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Committed Envelope");
@@ -3718,10 +3730,12 @@ cops_best_effort_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32
          info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
          offset += 4;
      }
+
+     return offset;
 }
 
 /* Cops - Section : Non-Real-Time Polling Service */
-static void
+static int
 cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -3790,7 +3804,7 @@ cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint 
        offset += 4;
      }
 
-     if (n < 64) return;
+     if (n < 64) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
@@ -3845,7 +3859,7 @@ cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint 
        offset += 4;
      }
 
-     if (n < 92) return;
+     if (n < 92) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
@@ -3899,10 +3913,12 @@ cops_non_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint 
        info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
        offset += 4;
      }
+
+     return offset;
 }
 
 /* Cops - Section : Real-Time Polling Service */
-static void
+static int
 cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -3968,7 +3984,7 @@ cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
        offset += 4;
      }
 
-     if (n < 64) return;
+     if (n < 64) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
@@ -4020,7 +4036,7 @@ cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
        offset += 4;
      }
 
-     if (n < 92) return;
+     if (n < 92) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
@@ -4071,10 +4087,12 @@ cops_real_time_polling_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
        info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
        offset += 4;
      }
+
+     return offset;
 }
 
 /* Cops - Section : Unsolicited Grant Service */
-static void
+static int
 cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -4131,7 +4149,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
        offset += 4;
      }
 
-     if (n < 40) return;
+     if (n < 40) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Reserved Envelope");
@@ -4174,7 +4192,7 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
        offset += 4;
      }
 
-     if (n < 56) return;
+     if (n < 56) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 28 : 24, "Committed Envelope");
@@ -4216,10 +4234,12 @@ cops_unsolicited_grant_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, g
        info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
        offset += 4;
      }
+
+     return offset;
 }
 
 /* Cops - Section : Unsolicited Grant Service with Activity Detection */
-static void
+static int
 cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -4284,7 +4304,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
        offset += 4;
      }
 
-     if (n < 56) return;
+     if (n < 56) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Reserved Envelope");
@@ -4335,7 +4355,7 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
        offset += 4;
      }
 
-     if (n < 80) return;
+     if (n < 80) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, i05 ? 36 : 32, "Committed Envelope");
@@ -4385,10 +4405,12 @@ cops_ugs_with_activity_detection_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n,
        info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
        offset += 4;
      }
+
+     return offset;
 }
 
 /* Cops - Section : Downstream Service */
-static void
+static int
 cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset, gboolean i05) {
     proto_item *ti;
     proto_tree *stt, *object_tree;
@@ -4461,7 +4483,7 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
         offset += 4;
     }
 
-    if (n < 56) return;
+    if (n < 56) return offset;
 
     /* Reserved Envelope */
     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Reserved Envelope");
@@ -4520,7 +4542,7 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
         offset += 4;
     }
 
-    if (n < 80) return;
+    if (n < 80) return offset;
 
     /* Committed Envelope */
     ti = proto_tree_add_text(stt, tvb, offset, i05 ? 40 : 36, "Committed Envelope");
@@ -4578,10 +4600,12 @@ cops_downstream_service_i04_i05(tvbuff_t *tvb, proto_tree *st, guint n, guint32 
         info_to_display(tvb,object_tree,offset,4,"Attribute Aggregation Rule Mask",NULL,FMT_DEC,&hf_cops_pcmm_att_aggr_rule_mask);
         offset += 4;
     }
+
+    return offset;
 }
 
 /* Cops - Section : Upstream Drop */
-static void
+static int
 cops_upstream_drop_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_tree *stt;
 
@@ -4595,12 +4619,14 @@ cops_upstream_drop_i04(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree_add_text(stt, tvb, offset, 3, "Reserved");
      offset += 3;
+
+     return offset;
 }
 
 /* END PCMM I04 */
 
 /* Cops - Section : Best Effort Service */
-static void
+static int
 cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -4651,7 +4677,7 @@ cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset)
      info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
      offset += 2;
 
-     if (n < 56) return;
+     if (n < 56) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
@@ -4688,7 +4714,7 @@ cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset)
      info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
      offset += 2;
 
-     if (n < 80) return;
+     if (n < 80) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
@@ -4724,10 +4750,12 @@ cops_best_effort_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset)
      /* Reserved */
      info_to_display(tvb,object_tree,offset,2,"Reserved",NULL,FMT_HEX,&hf_cops_pc_reserved);
      offset += 2;
+
+     return offset;
 }
 
 /* Cops - Section : Non-Real-Time Polling Service */
-static void
+static int
 cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -4782,7 +4810,7 @@ cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint
      info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
      offset += 4;
 
-     if (n < 64) return;
+     if (n < 64) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
@@ -4823,7 +4851,7 @@ cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint
      info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
      offset += 4;
 
-     if (n < 92) return;
+     if (n < 92) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
@@ -4863,10 +4891,12 @@ cops_non_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint
      /* Nominal Polling Interval */
      info_to_display(tvb,object_tree,offset,4,"Nominal Polling Interval",NULL,FMT_DEC,&hf_cops_pcmm_nominal_polling_interval);
      offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : Real-Time Polling Service */
-static void
+static int
 cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -4918,7 +4948,7 @@ cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
      offset += 4;
 
-     if (n < 64) return;
+     if (n < 64) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
@@ -4956,7 +4986,7 @@ cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
      offset += 4;
 
-     if (n < 92) return;
+     if (n < 92) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
@@ -4993,10 +5023,12 @@ cops_real_time_polling_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      /* Tolerated Poll Jitter */
      info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
      offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : Unsolicited Grant Service */
-static void
+static int
 cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -5039,7 +5071,7 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      info_to_display(tvb,object_tree,offset,4,"Tolerated Grant Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_grant_jitter);
      offset += 4;
 
-     if (n < 40) return;
+     if (n < 40) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 16, "Reserved Envelope");
@@ -5068,7 +5100,7 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      info_to_display(tvb,object_tree,offset,4,"Tolerated Grant Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_grant_jitter);
      offset += 4;
 
-     if (n < 56) return;
+     if (n < 56) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 16, "Committed Envelope");
@@ -5096,10 +5128,12 @@ cops_unsolicited_grant_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 o
      /* Tolerated Grant Jitter */
      info_to_display(tvb,object_tree,offset,4,"Tolerated Grant Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_grant_jitter);
      offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : Unsolicited Grant Service with Activity Detection */
-static void
+static int
 cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -5150,7 +5184,7 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
      offset += 4;
 
-     if (n < 56) return;
+     if (n < 56) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
@@ -5187,7 +5221,7 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
      offset += 4;
 
-     if (n < 80) return;
+     if (n < 80) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
@@ -5223,10 +5257,12 @@ cops_ugs_with_activity_detection(tvbuff_t *tvb, proto_tree *st, guint n, guint32
      /* Tolerated Poll Jitter */
      info_to_display(tvb,object_tree,offset,4,"Tolerated Poll Jitter",NULL,FMT_DEC,&hf_cops_pcmm_tolerated_poll_jitter);
      offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : Downstream Service */
-static void
+static int
 cops_downstream_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      proto_item *ti;
      proto_tree *stt, *object_tree;
@@ -5277,7 +5313,7 @@ cops_downstream_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) 
      info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
      offset += 4;
 
-     if (n < 56) return;
+     if (n < 56) return offset;
 
      /* Reserved Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Reserved Envelope");
@@ -5314,7 +5350,7 @@ cops_downstream_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) 
      info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
      offset += 4;
 
-     if (n < 80) return;
+     if (n < 80) return offset;
 
      /* Committed Envelope */
      ti = proto_tree_add_text(stt, tvb, offset, 24, "Committed Envelope");
@@ -5350,6 +5386,8 @@ cops_downstream_service(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) 
      /* Maximum Downstream Latency */
      info_to_display(tvb,object_tree,offset,4,"Maximum Downstream Latency",NULL,FMT_DEC,&hf_cops_pcmm_max_downstream_latency);
      offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : PacketCable Multimedia Event Gereration-Info */
@@ -5406,7 +5444,7 @@ cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 of
 }
 
 /* Cops - Section : Volume-Based Usage Limit */
-static void
+static int
 cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset) {
 
     proto_tree *stt;
@@ -5418,10 +5456,13 @@ cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint object_len, g
     /* Usage Limit */
     proto_tree_add_item(stt, hf_cops_pcmm_volume_based_usage_limit, tvb, offset, 8,
                         ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
 }
 
 /* Cops - Section : Time-Based Usage Limit */
-static void
+static int
 cops_time_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
@@ -5433,6 +5474,8 @@ cops_time_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offs
      /* Time Limit */
      info_to_display(tvb,stt,offset,4,"Time Limit", NULL,FMT_DEC,&hf_cops_pcmm_time_based_usage_limit);
      offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : Opaque Data */
@@ -5450,7 +5493,7 @@ cops_opaque_data(tvbuff_t *tvb, proto_tree *st, guint object_len, guint32 offset
 }
 
 /* Cops - Section : Gate Time Info */
-static void
+static int
 cops_gate_time_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
@@ -5462,6 +5505,8 @@ cops_gate_time_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      /* Gate Time Info */
      info_to_display(tvb,stt,offset,4,"Time Committed", NULL,FMT_DEC,&hf_cops_pcmm_gate_time_info);
      offset += 4;
+
+     return offset;
 }
 
 /* Cops - Section : Gate Usage Info */
@@ -5479,7 +5524,7 @@ cops_gate_usage_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 }
 
 /* Cops - Section : PacketCable error */
-static void
+static int
 cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
     proto_tree *stt;
@@ -5504,10 +5549,12 @@ cops_packetcable_mm_error(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset
         proto_tree_add_uint_format(stt, hf_cops_pcmm_packetcable_error_subcode,
                                    tvb, offset, 2, code, "Error-Subcode: 0x%04x", subcode);
     offset += 2;
+
+    return offset;
 }
 
 /* Cops - Section : Gate State */
-static void
+static int
 cops_gate_state(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
@@ -5523,10 +5570,12 @@ cops_gate_state(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      /* Reason */
      info_to_display(tvb,stt,offset,2,"Reason",pcmm_gate_state_reason,FMT_DEC,&hf_cops_pcmm_packetcable_gate_state_reason);
      offset += 2;
+
+     return offset;
 }
 
 /* Cops - Section : Version Info */
-static void
+static int
 cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
@@ -5542,6 +5591,8 @@ cops_version_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      /* Reason */
      info_to_display(tvb,stt,offset,2,"Minor Version Number",NULL,FMT_DEC,&hf_cops_pcmm_packetcable_version_info_minor);
      offset += 2;
+
+     return offset;
 }
 
 /* Cops - Section : PSID */
@@ -5559,7 +5610,7 @@ cops_psid(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 }
 
 /* Cops - Section : Synch Options */
-static void
+static int
 cops_synch_options(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
 
      proto_tree *stt;
@@ -5578,6 +5629,8 @@ cops_synch_options(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      /* Sych Type */
      info_to_display(tvb,stt,offset,1,"Synch Type", pcmm_synch_type_vals,FMT_DEC,&hf_cops_pcmm_synch_options_synch_type);
      offset += 1;
+
+     return offset;
 }
 
 /* Cops - Section : Msg Receipt Key */

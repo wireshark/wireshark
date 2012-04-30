@@ -1236,7 +1236,7 @@ dnp3_al_process_iin(tvbuff_t *tvb, int offset, proto_tree *al_tree)
   if (al_iin & AL_IIN_EBO)    comma_needed = add_item_text(tiin, "Event Buffer Overflow", comma_needed);
   if (al_iin & AL_IIN_PIOOR)  comma_needed = add_item_text(tiin, "Parameters Invalid or Out of Range", comma_needed);
   if (al_iin & AL_IIN_OBJU)   comma_needed = add_item_text(tiin, "Requested Objects Unknown", comma_needed);
-  if (al_iin & AL_IIN_FCNI)   comma_needed = add_item_text(tiin, "Function code not implemented", comma_needed);
+  if (al_iin & AL_IIN_FCNI)   /*comma_needed = */add_item_text(tiin, "Function code not implemented", comma_needed);
   proto_item_append_text(tiin, " (0x%04x)", al_iin);
 
   iin_tree = proto_item_add_subtree(tiin, ett_dnp3_al_iin);
@@ -2916,7 +2916,6 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
                             "Application Chunk %u Len: %u Bad CRC got 0x%04x expected 0x%04x",
                             i, chk_size, act_crc, calc_crc);
-        data_len = 0;
         break;
       }
       i++;
