@@ -418,7 +418,7 @@ static const guint8 lowpan_llprefix[8] = {
 #define LOWPAN_CONTEXT_DEFAULT      0
 #define LOWPAN_CONTEXT_LINK_LOCAL   LOWPAN_CONTEXT_COUNT                    /* An internal context used for the link-local prefix. */
 static struct e_in6_addr    lowpan_context_table[LOWPAN_CONTEXT_COUNT+1];   /* The 17-th context stores the link-local prefix. */
-static gchar *              lowpan_context_prefs[LOWPAN_CONTEXT_COUNT];     /* Array of strings set by the preferences. */
+static const gchar *        lowpan_context_prefs[LOWPAN_CONTEXT_COUNT];     /* Array of strings set by the preferences. */
 
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))
@@ -2530,7 +2530,7 @@ proto_register_6lowpan(void)
 
     /* Initialize the context table. */
     memset(lowpan_context_table, 0, sizeof(lowpan_context_table));
-    memset(lowpan_context_prefs, 0, sizeof(lowpan_context_prefs));
+    memset((gchar*)lowpan_context_prefs, 0, sizeof(lowpan_context_prefs));
 
     /* Initialize the link-local prefix. */
     lowpan_context_table[LOWPAN_CONTEXT_LINK_LOCAL].bytes[0] = 0xfe;
@@ -2564,7 +2564,7 @@ proto_register_6lowpan(void)
         g_string_printf(pref_title, "Context %d", i);
         g_string_printf(pref_desc, "IPv6 prefix to use for stateful address decompression.");
         prefs_register_string_preference(prefs_module, pref_name->str, pref_title->str,
-            pref_desc->str, (const char **) &lowpan_context_prefs[i]);
+            pref_desc->str, &lowpan_context_prefs[i]);
         /* Don't free the ->str */
         g_string_free(pref_name, FALSE);
         g_string_free(pref_title, FALSE);

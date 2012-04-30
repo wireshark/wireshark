@@ -3789,7 +3789,7 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
 static FILE* ssl_debug_file=NULL;
 
 void
-ssl_set_debug(char* name)
+ssl_set_debug(const gchar* name)
 {
     static gint debug_file_must_be_closed;
     gint use_stderr;

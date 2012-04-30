@@ -330,15 +330,15 @@ static StringInfo ssl_decrypted_data  = {NULL, 0};
 static gint ssl_decrypted_data_avail  = 0;
 
 static uat_t *ssldecrypt_uat = NULL;
-static gchar* ssl_keys_list = NULL;
-static gchar* ssl_psk = NULL;
-static gchar* ssl_keylog_filename = NULL;
+static const gchar* ssl_keys_list = NULL;
+static const gchar* ssl_psk = NULL;
+static const gchar* ssl_keylog_filename = NULL;
 
 /* List of dissectors to call for SSL data */
 static heur_dissector_list_t ssl_heur_subdissector_list;
 
 #if defined(SSL_DECRYPT_DEBUG) || defined(HAVE_LIBGNUTLS)
-static gchar* ssl_debug_file_name     = NULL;
+static const gchar* ssl_debug_file_name     = NULL;
 #endif
 
 
@@ -5641,12 +5641,12 @@ proto_register_ssl(void)
         prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
             "Redirect SSL debug to file name; leave empty to disable debugging, "
             "or use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
-            (const gchar **)&ssl_debug_file_name);
+            &ssl_debug_file_name);
 
         prefs_register_string_preference(ssl_module, "keys_list", "RSA keys list (deprecated)",
              "Semicolon-separated list of private RSA keys used for SSL decryption. "
              "Used by versions of Wireshark prior to 1.6",
-             (const gchar **)&ssl_keys_list);
+             &ssl_keys_list);
 #endif
 
         prefs_register_bool_preference(ssl_module,
@@ -5668,7 +5668,7 @@ proto_register_ssl(void)
 #ifdef HAVE_LIBGNUTLS
         prefs_register_string_preference(ssl_module, "psk", "Pre-Shared-Key",
              "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
-             (const gchar **)&ssl_psk);
+             &ssl_psk);
 
         prefs_register_string_preference(ssl_module, "keylog_file", "(Pre)-Master-Secret log filename",
              "The filename of a file which contains a list of \n"
@@ -5684,7 +5684,7 @@ proto_register_ssl(void)
              "<MS> = The Master-Secret (MS)\n"
              "\n"
              "(All fields are in hex notation)",
-             (const gchar **)&ssl_keylog_filename);
+             &ssl_keylog_filename);
 #endif
     }
 

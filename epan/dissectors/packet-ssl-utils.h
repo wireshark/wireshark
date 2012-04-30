@@ -550,7 +550,7 @@ ssl_print_string(const gchar* name, const StringInfo* data);
 extern void
 ssl_print_text_data(const gchar* name, const guchar* data, size_t len);
 extern void
-ssl_set_debug(gchar* name);
+ssl_set_debug(const gchar* name);
 extern void
 ssl_debug_flush(void);
 #else

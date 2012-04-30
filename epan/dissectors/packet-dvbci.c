@@ -756,8 +756,8 @@ static const value_string dvbci_apdu_tag[] = {
 
 static int proto_dvbci = -1;
 
-static gchar* dvbci_sek = NULL;
-static gchar* dvbci_siv = NULL;
+static const gchar *dvbci_sek = NULL;
+static const gchar *dvbci_siv = NULL;
 
 static gint ett_dvbci = -1;
 static gint ett_dvbci_hdr = -1;
@@ -5248,11 +5248,11 @@ proto_register_dvbci(void)
     dvbci_module = prefs_register_protocol(
         proto_dvbci, proto_reg_handoff_dvbci);
     prefs_register_string_preference(dvbci_module,
-                                     "sek", "SAC Encryption Key", "SAC Encryption Key (16 hex bytes)",
-                                     (const gchar **)&dvbci_sek);
+            "sek", "SAC Encryption Key", "SAC Encryption Key (16 hex bytes)",
+            &dvbci_sek);
     prefs_register_string_preference(dvbci_module,
-                                     "siv", "SAC Init Vector", "SAC Init Vector (16 hex bytes)",
-                                     (const gchar **)&dvbci_siv);
+            "siv", "SAC Init Vector", "SAC Init Vector (16 hex bytes)",
+            &dvbci_siv);
 
     sas_msg_dissector_table = register_dissector_table("dvb-ci.sas.app_id_str",
                 "SAS application id", FT_STRING, BASE_NONE);

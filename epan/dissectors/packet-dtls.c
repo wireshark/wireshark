@@ -177,9 +177,9 @@ static StringInfo          dtls_decrypted_data       = {NULL, 0};
 static gint                dtls_decrypted_data_avail = 0;
 
 static uat_t *dtlsdecrypt_uat      = NULL;
-static gchar *dtls_keys_list       = NULL;
+static const gchar *dtls_keys_list = NULL;
 #ifdef HAVE_LIBGNUTLS
-static gchar *dtls_debug_file_name = NULL;
+static const gchar *dtls_debug_file_name = NULL;
 #endif
 
 static heur_dissector_list_t heur_subdissector_list;
@@ -2656,12 +2656,12 @@ proto_register_dtls(void)
     prefs_register_string_preference(dtls_module, "debug_file", "DTLS debug file",
                                      "redirect dtls debug to file name; leave empty to disable debug, "
                                      "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
-                                     (const gchar **)&dtls_debug_file_name);
+                                     &dtls_debug_file_name);
 
     prefs_register_string_preference(dtls_module, "keys_list", "RSA keys list (deprecated)",
                                      "Semicolon-separated list of private RSA keys used for DTLS decryption. "
                                      "Used by versions of Wireshark prior to 1.6",
-                                     (const gchar **)&dtls_keys_list);
+                                     &dtls_keys_list);
 
   }
 #endif
