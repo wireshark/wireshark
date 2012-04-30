@@ -3922,9 +3922,9 @@ static const value_string docsis_cm_cap_map_l2vpn_esafe_index_support_vals[] = {
 };
 
 static const value_string docsis_cm_cap_ussymrate_vals[] = {
-	{ 1 << 0, "160	ksps symbol rate supported" },
-	{ 1 << 1, "320	ksps symbol rate supported" },
-	{ 1 << 2, "640	ksps symbol rate supported" },
+	{ 1 << 0, "160  ksps symbol rate supported" },
+	{ 1 << 1, "320  ksps symbol rate supported" },
+	{ 1 << 2, "640  ksps symbol rate supported" },
 	{ 1 << 3, "1280 ksps symbol rate supported" },
 	{ 1 << 4, "2560 ksps symbol rate supported" },
 	{ 1 << 5, "5120 ksps symbol rate supported" },
