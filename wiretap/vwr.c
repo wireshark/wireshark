@@ -986,10 +986,8 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     while (((data_length + i) % 4) != 0)
                         i = i + 1;
 
-                    if (rec_size == (data_length + vVW510024_E_STATS_LEN + i)) {
-                        if (s_510024_ptr != NULL) 
-                            fpga_version = vVW510024_E_FPGA; 
-                    }
+                    if (rec_size == (data_length + vVW510024_E_STATS_LEN + i))
+                        fpga_version = vVW510024_E_FPGA; 
                 }
                 if (fpga_version != 1000)
                 {
