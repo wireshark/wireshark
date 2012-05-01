@@ -35,9 +35,6 @@
 
 
 /* platform-specific definitions for portability */
-static int find_signature(register guint8*, int, register guint32,
-                            register guint8);
-static guint64 get_signature_ts(register guint8*, int);
 
 /* unsigned long long constants */
 #   define NS_IN_US             G_GINT64_CONSTANT(1000U)        /* nanoseconds-to-microseconds */
@@ -1346,7 +1343,7 @@ static void vwr_read_rec_data_vVW510021(wtap *wth, guint8 *data_ptr, guint8 *rec
 
     errors = pntohl(&s_trail_ptr[vwr->ERRORS_OFF]);
     info = pntohs(&s_trail_ptr[vwr->INFO_OFF]);
-    if ((info && 0xFC00) != 0)
+    if ((info & 0xFC00) != 0)
     /* this length includes the Start_Spacing + Delimiter + MPDU + Padding for each piece of the aggregate*/
         ht_len = pletohs(&s_start_ptr[vwr->PLCP_LENGTH_OFF]);
 
