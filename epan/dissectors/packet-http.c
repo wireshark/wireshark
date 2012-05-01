@@ -291,10 +291,12 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
 
+/* --- HTTP Status Codes */
+/* Note: The reference for uncommented entries is RFC 2616 */
 static const value_string vals_status_code[] = {
 	{ 100, "Continue" },
 	{ 101, "Switching Protocols" },
-	{ 102, "Processing" },
+	{ 102, "Processing" },                     /* RFC 2518 */
 	{ 199, "Informational - Others" },
 
 	{ 200, "OK"},
@@ -304,7 +306,8 @@ static const value_string vals_status_code[] = {
 	{ 204, "No Content"},
 	{ 205, "Reset Content"},
 	{ 206, "Partial Content"},
-	{ 207, "Multi-Status"},
+	{ 207, "Multi-Status"},                    /* RFC 4918 */
+        { 226, "IM Used"},                         /* RFC 3229 */
 	{ 299, "Success - Others"},
 
 	{ 300, "Multiple Choices"},
@@ -334,10 +337,14 @@ static const value_string vals_status_code[] = {
 	{ 415, "Unsupported Media Type"},
 	{ 416, "Requested Range Not Satisfiable"},
 	{ 417, "Expectation Failed"},
-	{ 418, "I'm a teapot"},		/* RFC 2324 */
-	{ 422, "Unprocessable Entity"},
-	{ 423, "Locked"},
-	{ 424, "Failed Dependency"},
+	{ 418, "I'm a teapot"},                    /* RFC 2324 */
+	{ 422, "Unprocessable Entity"},            /* RFC 4918 */
+	{ 423, "Locked"},                          /* RFC 4918 */
+	{ 424, "Failed Dependency"},               /* RFC 4918 */
+        { 426, "Upgrade Required"},                /* RFC 2817 */
+        { 428, "Precondition Required"},           /* RFC 6585 */
+        { 429, "Too Many Requests"},               /* RFC 6585 */
+        { 431, "Request Header Fields Too Large"}, /* RFC 6585 */
 	{ 499, "Client Error - Others"},
 
 	{ 500, "Internal Server Error"},
@@ -346,7 +353,8 @@ static const value_string vals_status_code[] = {
 	{ 503, "Service Unavailable"},
 	{ 504, "Gateway Time-out"},
 	{ 505, "HTTP Version not supported"},
-	{ 507, "Insufficient Storage"},
+	{ 507, "Insufficient Storage"},            /* RFC 4918 */
+        { 511, "Network Authentication Required"}, /* RFC 6585 */
 	{ 599, "Server Error - Others"},
 
 	{ 0, 	NULL}
