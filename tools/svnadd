@@ -6,7 +6,7 @@
 #
 # A little shell script to make it easy to set the appropriate SVN properties.
 #
-# $Id: fix-encoding-args.pl 39567 2011-10-25 17:04:48Z wmeier $
+# $Id$
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
