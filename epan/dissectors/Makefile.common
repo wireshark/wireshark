@@ -706,6 +706,7 @@ DISSECTOR_SRC = \
 	packet-lisp.c		\
 	packet-llc.c		\
 	packet-lldp.c		\
+	packet-llrp.c		\
 	packet-llt.c		\
 	packet-lmi.c		\
 	packet-lmp.c		\
