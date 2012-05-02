@@ -324,7 +324,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-aim-stats.c
 	dissectors/packet-aim-translate.c
 	dissectors/packet-aim-userlookup.c
-	dissectors/packet-airopeek.c
 	dissectors/packet-ajp13.c
 	dissectors/packet-alcap.c
 	dissectors/packet-amqp.c
@@ -922,6 +921,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pcnfsd.c
 	dissectors/packet-pcp.c
 	dissectors/packet-pdcp-lte.c
+	dissectors/packet-peekremote.c
 	dissectors/packet-per.c
 	dissectors/packet-pflog.c
 	dissectors/packet-pgm.c
