@@ -476,8 +476,14 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
 				proto_item_append_text(ti, ", ");
 			}
 			proto_item_append_text(ti, "%s (0x%02x)",
-				val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
-				"Unknown"), tvb_get_guint8(tvb, offset));
+					       /* NLPID_IEEE_8021AQ conflicts with NLPID_SNDCF.
+						* In this context, we want the former.
+						*/
+					       (tvb_get_guint8(tvb, offset) == NLPID_IEEE_8021AQ
+						? "IEEE 802.1aq (SPB)"
+						: val_to_str(tvb_get_guint8(tvb, offset), nlpid_vals,
+							     "Unknown")),
+					       tvb_get_guint8(tvb, offset));
 			offset++;
 			first = FALSE;
 		}

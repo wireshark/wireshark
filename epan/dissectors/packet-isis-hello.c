@@ -79,6 +79,11 @@ static gint ett_isis_hello_clv_ptp_adj = -1;
 static gint ett_isis_hello_clv_mt = -1;
 static gint ett_isis_hello_clv_restart = -1;
 static gint ett_isis_hello_clv_restart_flags = -1;
+static gint ett_isis_hello_clv_mt_port_cap = -1;
+static gint ett_isis_hello_clv_mt_port_cap_spb_mcid = -1;
+static gint ett_isis_hello_clv_mt_port_cap_spb_aux_mcid = -1;
+static gint ett_isis_hello_clv_mt_port_cap_spb_digest = -1;
+static gint ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples = -1;
 static gint ett_isis_hello_clv_checksum = -1;
 
 static const value_string isis_hello_circuit_type_vals[] = {
@@ -114,6 +119,8 @@ static void dissect_hello_mt_clv(tvbuff_t *tvb,
 static void dissect_hello_nlpid_clv(tvbuff_t *tvb,
 		proto_tree *tree, int offset, int id_length, int length);
 static void dissect_hello_restart_clv(tvbuff_t *tvb,
+		proto_tree *tree, int offset, int id_length, int length);
+static void dissect_hello_mt_port_cap_clv(tvbuff_t *tvb,
 		proto_tree *tree, int offset, int id_length, int length);
 
 
@@ -311,6 +318,12 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 		dissect_hello_ip_authentication_clv
 	},
 	{
+		ISIS_CLV_MT_PORT_CAP,
+		"MT Port Capability",
+		&ett_isis_hello_clv_mt_port_cap,
+		dissect_hello_mt_port_cap_clv
+	},
+	{
 		ISIS_CLV_RESTART,
 		"Restart Option",
 		&ett_isis_hello_clv_restart,
@@ -342,6 +355,174 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 	}
 };
 
+static void
+dissect_hello_mt_port_cap_spb_mcid_clv(tvbuff_t   *tvb,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    const int MCID_LEN = 51;
+    const int SUBLEN   = 2 * MCID_LEN;
+
+    if (sublen != SUBLEN) {
+        isis_dissect_unknown( tvb, tree, offset,
+                              "Short SPB MCID TLV (%d vs %d)", sublen, SUBLEN);
+        return;
+    }
+    else {
+        proto_tree *subtree, *ti;
+        const guint8 *mcid     = tvb_get_ptr(tvb, offset,            MCID_LEN);
+        const guint8 *aux_mcid = tvb_get_ptr(tvb, offset + MCID_LEN, MCID_LEN);
+        int i;
+
+        ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+                                  "SPB MCID: Type: 0x%02x, Length: %d", subtype, sublen);
+        subtree = proto_item_add_subtree(ti, ett_isis_hello_clv_mt_port_cap_spb_mcid);
+
+        /* MCID: */
+        proto_tree_add_text( subtree, tvb, offset, MCID_LEN, "MCID:");
+        for (i = 0 ; i < 48 ; i+= 8, offset += 8) {
+            proto_tree_add_text( subtree, tvb, offset, 8,
+                                 "  %02x %02x %02x %02x %02x %02x %02x %02x",
+                                 mcid[i+0], mcid[i+1], mcid[i+2], mcid[i+3],
+                                 mcid[i+4], mcid[i+5], mcid[i+6], mcid[i+7]);
+        }
+        proto_tree_add_text( subtree, tvb, offset, 3,
+                             "  %02x %02x %02x",
+                             mcid[i+0], mcid[i+1], mcid[i+2]);
+        offset += 3;
+
+        /* Aux MCID: */
+        ti = proto_tree_add_text( subtree, tvb, offset, MCID_LEN, "Aux MCID:");
+        for (i = 0 ; i < 48 ; i+= 8, offset += 8) {
+            proto_tree_add_text( subtree, tvb, offset, 8,
+                                 "  %02x %02x %02x %02x %02x %02x %02x %02x",
+                                 aux_mcid[i+0], aux_mcid[i+1], aux_mcid[i+2], aux_mcid[i+3],
+                                 aux_mcid[i+4], aux_mcid[i+5], aux_mcid[i+6], aux_mcid[i+7]);
+        }
+        proto_tree_add_text( subtree, tvb, offset, 3,
+                             "  %02x %02x %02x",
+                             aux_mcid[i+0], aux_mcid[i+1], aux_mcid[i+2]);
+        offset += 3;
+    }
+}
+
+static void
+dissect_hello_mt_port_cap_spb_digest_clv(tvbuff_t   *tvb,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    const int DIGEST_LEN = 32;
+    const int SUBLEN     = 1 + DIGEST_LEN;
+    if (sublen != SUBLEN) {
+        isis_dissect_unknown( tvb, tree, offset,
+                              "Short SPB Digest TLV (%d vs %d)", sublen, SUBLEN);
+        return;
+    }
+    else {
+        proto_tree *subtree, *ti;
+        const guint8 vad     = tvb_get_guint8(tvb, offset);
+        const guint8 *digest = tvb_get_ptr(tvb, offset + 1, DIGEST_LEN);
+        int i;
+
+        ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+                                  "SPB Digest: Type: 0x%02x, Length: %d", subtype, sublen);
+        subtree = proto_item_add_subtree(ti, ett_isis_hello_clv_mt_port_cap_spb_digest);
+
+        proto_tree_add_text( subtree, tvb, offset, 1,
+                             "V: %d, A: %d, D: %d",
+                             (vad >> 4) & 0x1,
+                             (vad >> 2) & 0x3,
+                             (vad >> 0) & 0x3);
+        ++offset;
+
+        /* Digest: */
+        proto_tree_add_text( tree, tvb, offset, DIGEST_LEN, "Digest:");
+        for (i = 0 ; i < DIGEST_LEN ; i+= 8, offset += 8) {
+            proto_tree_add_text( subtree, tvb, offset, 8,
+                                 "  %02x %02x %02x %02x %02x %02x %02x %02x",
+                                 digest[i+0], digest[i+1], digest[i+2], digest[i+3],
+                                 digest[i+4], digest[i+5], digest[i+6], digest[i+7]);
+        }
+    }
+}
+
+static void
+dissect_hello_mt_port_cap_spb_bvid_tuples_clv(tvbuff_t   *tvb,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    proto_tree *subtree, *ti;
+    int subofs = offset;
+
+    ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+                              "SPB Base Vlan Identifiers: Type: 0x%02x, Length: %d", subtype, sublen);
+    subtree = proto_item_add_subtree(ti, ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples);
+
+    while (sublen > 0) {
+        if (sublen < 6) {
+            isis_dissect_unknown( tvb, subtree, offset,
+                                  "Short SPB BVID header entry (%d vs %d)", sublen, 6);
+            return;
+        }
+        else {
+            const guint8 *ect_tlv = tvb_get_ptr(tvb, subofs, 6);
+            guint16 word = (ect_tlv[4] << 8) | ect_tlv[5];
+            guint16 bvid = (word >> 4) & 0xfff;
+            int u_bit = (ect_tlv[5] & 8) ? 1 : 0;
+            int m_bit = (ect_tlv[5] & 4) ? 1 : 0;
+            proto_tree_add_text( subtree, tvb, subofs, 6,
+                                 "ECT: %02x-%02x-%02x-%02x, BVID: 0x%03x (%d),%s U: %d, M: %d",
+                                 ect_tlv[0], ect_tlv[1], ect_tlv[2], ect_tlv[3],
+                                 bvid, bvid,
+                                 (  bvid < 10   ? "   "
+                                  : bvid < 100  ? "  "
+                                  : bvid < 1000 ? " "
+                                  : ""),
+                                 u_bit,
+                                 m_bit);
+        }
+        sublen -= 6;
+        subofs += 6;
+    }
+}
+
+static void
+dissect_hello_mt_port_cap_clv(tvbuff_t   *tvb,
+        proto_tree *tree, int offset, int id_length _U_, int length)
+{
+    if (length >= 2) {
+        /* mtid */
+        guint16 mtid = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_text( tree, tvb, offset, 2,
+                             "MTID: 0x%03x",
+                             (mtid & 0xfff));
+        length -= 2;
+        offset += 2;
+        while (length >= 2) {
+            guint8 subtype   = tvb_get_guint8(tvb, offset);
+            guint8 subtlvlen = tvb_get_guint8(tvb, offset+1);
+            length -= 2;
+            offset += 2;
+            if (subtlvlen > length) {
+                isis_dissect_unknown( tvb, tree, offset,
+                                      "Short type 0x%02x TLV (%d vs %d)", subtype, subtlvlen, length);
+                return;
+            }
+            if (subtype == 0x04) { /* SPB MCID */
+                dissect_hello_mt_port_cap_spb_mcid_clv(tvb, tree, offset, subtype, subtlvlen);
+            }
+            else if (subtype == 0x05) { /* SPB Digest */
+                dissect_hello_mt_port_cap_spb_digest_clv(tvb, tree, offset, subtype, subtlvlen);
+            }
+            else if (subtype == 0x06) { /* SPB BVID Tuples */
+                dissect_hello_mt_port_cap_spb_bvid_tuples_clv(tvb, tree, offset, subtype, subtlvlen);
+            }
+            else {
+                isis_dissect_unknown( tvb, tree, offset,
+                                      "Unknown SubTlv: Type: 0x%02x, Length: %d", subtype, subtlvlen);
+            }
+            length -= subtlvlen;
+            offset += subtlvlen;
+        }
+    }
+}
 
 /*
  * The Restart CLV is documented in RFC 3847 (Restart Signaling for
@@ -1034,6 +1215,11 @@ isis_register_hello(int proto_isis) {
 		&ett_isis_hello_clv_mt,
 		&ett_isis_hello_clv_restart,
 		&ett_isis_hello_clv_restart_flags,
+		&ett_isis_hello_clv_mt_port_cap,
+		&ett_isis_hello_clv_mt_port_cap_spb_mcid,
+		&ett_isis_hello_clv_mt_port_cap_spb_aux_mcid,
+		&ett_isis_hello_clv_mt_port_cap_spb_digest,
+		&ett_isis_hello_clv_mt_port_cap_spb_bvid_tuples,
 		&ett_isis_hello_clv_checksum
 	};
 
