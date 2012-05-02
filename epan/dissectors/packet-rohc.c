@@ -1116,9 +1116,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
         sub_tree = proto_item_add_subtree(item, ett_rohc_rtp_static);
         version = tvb_get_guint8(tvb,offset)>>4;
         proto_tree_add_item(sub_tree, hf_rohc_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        if (rohc_cid_context) {
-            rohc_cid_context->rohc_ip_version = version;
-        }
+        rohc_cid_context->rohc_ip_version = version;
 
         switch(version) {
             case 4:
@@ -1178,7 +1176,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
                 offset+=3;
 
                 /* Next Header */
-                protocol = tvb_get_guint8(tvb, offset);
+                /* protocol = tvb_get_guint8(tvb, offset); */
                 proto_tree_add_item(sub_tree, hf_rohc_ipv6_nxt_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
@@ -1751,7 +1749,7 @@ start_over:
         col_append_str(pinfo->cinfo, COL_INFO, "IR-DYN packet");
         offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
         if(offset == -1){
-            /* Could not pare header */
+            /* Could not parse header */
             return;
         }
         /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
@@ -1778,15 +1776,16 @@ start_over:
             rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = -1;
-            p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
             /*g_warning("Store dummy data %u",cid);*/
         }
         p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
+    } else {
+        rohc_cid_context = (rohc_cid_context_t*)p_get_proto_data(pinfo->fd, proto_rohc);
     }
 
     /* Call IP for uncompressed*/
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    if      (((oct&0xf0)==0x40) && (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED)) {
+    if (((oct&0xf0)==0x40) && (rohc_cid_context->profile==ROHC_PROFILE_UNCOMPRESSED)) {
        call_dissector(ip_handle, next_tvb, pinfo, tree);
     }
     else if (((oct&0xf0)==0x60) && (rohc_cid_context->profile==0)) {
@@ -1795,7 +1794,7 @@ start_over:
     else if((oct&0x80)==0x00){
         /* XXX Only for RTP profile? */
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
-        offset = dissect_rohc_pkt_type_0(tvb, pinfo, rohc_tree, offset, oct, rohc_cid_context);
+        dissect_rohc_pkt_type_0(tvb, pinfo, rohc_tree, offset, oct, rohc_cid_context);
     }else if ((oct&0xc0)==0x80){
         col_set_str(pinfo->cinfo, COL_INFO, "Packet type 1");
     }else if ((oct&0xe0)==0xc0){
