@@ -1042,6 +1042,19 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 	return file->pos + offset;
 }
 
+/*
+ * Skip forward the specified number of bytes in the file.
+ * Currently implemented as a wrapper around file_seek(),
+ * but if, for example, we ever add support for reading
+ * sequentially from a pipe, this could instead just skip
+ * forward by reading the bytes in question.
+ */
+gint64
+file_skip(FILE_T file, gint64 delta, int *err)
+{
+	return file_seek(file, delta, SEEK_CUR, err);
+}
+
 gint64
 file_tell(FILE_T stream)
 {
