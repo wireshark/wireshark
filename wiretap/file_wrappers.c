@@ -541,15 +541,6 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 	if (ret == Z_STREAM_END) {
 		if (gz_next4(state, &crc) != -1 &&
 		    gz_next4(state, &len) != -1) {
-			/*
-			 * XXX - compressed Windows Sniffer don't
-			 * all have the same CRC value; is it just
-			 * random crap, or are they running the
-			 * CRC on a different set of data than
-			 * you're supposed to (e.g., not CRCing
-			 * some of the data), or something such
-			 * as that?
-			 */
 			if (crc != strm->adler && !state->dont_check_crc) {
 				state->err = WTAP_ERR_DECOMPRESS;
 				state->err_info = "bad CRC";
@@ -869,8 +860,16 @@ file_open(const char *path)
 #ifdef HAVE_LIBZ
 	/*
 	 * If this file's name ends in ".caz", it's probably a compressed
-	 * Windows Sniffer file.  The compression is gzip, but they don't
-	 * bother filling in the CRC; we set a flag to ignore CRC errors.
+	 * Windows Sniffer file.  The compression is gzip, but if we
+	 * process the CRC as specified by RFC 1952, the computed CRC
+	 * doesn't match the stored CRC.
+	 *
+	 * Compressed Windows Sniffer files don't all have the same CRC
+	 * value; is it just random crap, or are they running the CRC on
+	 * a different set of data than you're supposed to (e.g., not
+	 * CRCing some of the data), or something such as that?
+	 *
+	 * For now, we just set a flag to ignore CRC errors.
 	 */
 	suffixp = strrchr(path, '.');
 	if (suffixp != NULL) {
