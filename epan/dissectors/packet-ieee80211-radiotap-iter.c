@@ -26,7 +26,7 @@
 #define get_unaligned_le16	pletohs
 #define get_unaligned_le32	pletohl
 
-#include "packet-radiotap-iter.h"
+#include "packet-ieee80211-radiotap-iter.h"
 
 /* function prototypes and related defs are in radiotap_iter.h */
 

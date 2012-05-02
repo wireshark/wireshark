@@ -1,5 +1,5 @@
 /*
- *  packet-radiotap.c
+ *  packet-ieee80211-radiotap.c
  *	Decode packets with a Radiotap header
  *
  * $Id$
@@ -39,9 +39,9 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include "packet-ieee80211.h"
-#include "packet-radiotap.h"
-#include "packet-radiotap-iter.h"
-#include "packet-radiotap-defs.h"
+#include "packet-ieee80211-radiotap.h"
+#include "packet-ieee80211-radiotap-iter.h"
+#include "packet-ieee80211-radiotap-defs.h"
 
 /* not officially defined (yet) */
 #define IEEE80211_RADIOTAP_F_SHORTGI	0x80

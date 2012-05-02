@@ -695,8 +695,11 @@ set(DISSECTOR_SRC
 	dissectors/packet-ieee17221.c
 	dissectors/packet-ieee80211.c
 	dissectors/packet-ieee80211-airopeek.c
+	dissectors/packet-ieee80211-netmon.c
 	dissectors/packet-ieee80211-prism.c
 	dissectors/packet-ieee80211-radio.c
+	dissectors/packet-ieee80211-radiotap.c
+	dissectors/packet-ieee80211-radiotap-iter.c
 	dissectors/packet-ieee80211-wlancap.c
 	dissectors/packet-ieee802154.c
 	dissectors/packet-ieee8021ah.c
@@ -877,7 +880,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-netbios.c
 	dissectors/packet-netdump.c
 	dissectors/packet-netflow.c
-	dissectors/packet-netmon-802_11.c
 	dissectors/packet-netperfmeter.c
 	dissectors/packet-netsync.c
 	dissectors/packet-nettl.c
@@ -963,8 +965,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-quake2.c
 	dissectors/packet-quake3.c
 	dissectors/packet-quakeworld.c
-	dissectors/packet-radiotap.c
-	dissectors/packet-radiotap-iter.c
 	dissectors/packet-radius.c
 	dissectors/packet-radius_packetcable.c
 	dissectors/packet-raw.c

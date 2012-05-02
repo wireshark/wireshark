@@ -1,6 +1,6 @@
 /*
- * packet-radiotap.h
- *	Declarations for packet-radiotap.c
+ * packet-ieee80211-radiotap.h
+ *	Declarations for packet-ieee80211-radiotap.c
  *
  * $Id$
  *

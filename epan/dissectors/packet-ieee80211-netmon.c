@@ -1,5 +1,5 @@
 /*
- *  packet-netmon-802_11.c
+ *  packet-ieee80211-netmon.c
  *       Decode packets with a Network Monitor 802.11 radio header
  *
  * $Id$

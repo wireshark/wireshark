@@ -52,7 +52,7 @@
 #include <epan/dissectors/packet-sll.h>
 #include <epan/dissectors/packet-tr.h>
 #include <epan/dissectors/packet-ieee80211.h>
-#include <epan/dissectors/packet-radiotap.h>
+#include <epan/dissectors/packet-ieee80211-radiotap.h>
 #include <epan/dissectors/packet-chdlc.h>
 #include <epan/dissectors/packet-ipfc.h>
 #include <epan/dissectors/packet-arcnet.h>
