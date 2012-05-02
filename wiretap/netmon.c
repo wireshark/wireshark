@@ -155,7 +155,7 @@ static const int netmon_encap[] = {
 	WTAP_ENCAP_FDDI_BITSWAPPED,
 	WTAP_ENCAP_ATM_PDUS,	/* NDIS WAN - this is what's used for ATM */
 	WTAP_ENCAP_UNKNOWN,	/* NDIS LocalTalk, but format 2.x uses it for IP-over-IEEE 1394 */
-	WTAP_ENCAP_IEEE802_11_NETMON_RADIO,
+	WTAP_ENCAP_IEEE_802_11_NETMON,
 				/* NDIS "DIX", but format 2.x uses it for 802.11 */
 	WTAP_ENCAP_RAW_IP,	/* NDIS ARCNET raw, but format 2.x uses it for "Tunneling interfaces" */
 	WTAP_ENCAP_RAW_IP,	/* NDIS ARCNET 878.2, but format 2.x uses it for "Wireless WAN" */
@@ -457,7 +457,7 @@ netmon_set_pseudo_header_info(int pkt_encap,
 		pseudo_header->eth.fcs_len = 0;
 		break;
 
-	case WTAP_ENCAP_IEEE802_11_NETMON_RADIO:
+	case WTAP_ENCAP_IEEE_802_11_NETMON:
 		/*
 		 * It appears to be the case that management
 		 * frames have an FCS and data frames don't;

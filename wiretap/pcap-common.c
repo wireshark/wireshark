@@ -225,11 +225,11 @@ static const struct {
 	{ 117,		WTAP_ENCAP_PFLOG },
 
 	{ 118,		WTAP_ENCAP_CISCO_IOS },
-	{ 119,		WTAP_ENCAP_PRISM_HEADER }, /* Prism monitor mode hdr */
+	{ 119,		WTAP_ENCAP_IEEE_802_11_PRISM }, /* 802.11 plus Prism monitor mode radio header */
 	{ 121,		WTAP_ENCAP_HHDLC },	/* HiPath HDLC */
 	{ 122,		WTAP_ENCAP_IP_OVER_FC },   /* RFC 2625 IP-over-FC */
 	{ 123,		WTAP_ENCAP_ATM_PDUS },  /* SunATM */
-	{ 127,		WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP },  /* 802.11 plus radiotap WLAN header */
+	{ 127,		WTAP_ENCAP_IEEE_802_11_RADIOTAP },  /* 802.11 plus radiotap radio header */
 	{ 128,		WTAP_ENCAP_TZSP },	/* Tazmen Sniffer Protocol */
 	{ 129,		WTAP_ENCAP_ARCNET_LINUX },
 	{ 130,		WTAP_ENCAP_JUNIPER_MLPPP }, /* Juniper MLPPP on ML-, LS-, AS- PICs */
@@ -270,7 +270,7 @@ static const struct {
 	{ 161,		WTAP_ENCAP_USER14 },
 	{ 162,		WTAP_ENCAP_USER15 },
 
-	{ 163,		WTAP_ENCAP_IEEE_802_11_WLAN_AVS },  /* 802.11 plus AVS WLAN header */
+	{ 163,		WTAP_ENCAP_IEEE_802_11_AVS },  /* 802.11 plus AVS radio header */
 
 	/*
 	 * 164 is reserved for Juniper-private chassis-internal
@@ -1477,9 +1477,9 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11:
-	case WTAP_ENCAP_PRISM_HEADER:
-	case WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP:
-	case WTAP_ENCAP_IEEE_802_11_WLAN_AVS:
+	case WTAP_ENCAP_IEEE_802_11_PRISM:
+	case WTAP_ENCAP_IEEE_802_11_RADIOTAP:
+	case WTAP_ENCAP_IEEE_802_11_AVS:
 		/*
 		 * We don't know whether there's an FCS in this frame or not.
 		 * XXX - are there any OSes where the capture mechanism

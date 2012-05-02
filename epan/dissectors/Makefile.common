@@ -613,6 +613,7 @@ DISSECTOR_SRC = \
 	packet-ieee1722.c	\
 	packet-ieee17221.c	\
 	packet-ieee80211.c	\
+	packet-ieee80211-airopeek.c \
 	packet-ieee80211-prism.c \
 	packet-ieee80211-radio.c \
 	packet-ieee80211-wlancap.c \

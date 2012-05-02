@@ -206,17 +206,17 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_IEEE_802_11 */
 	{ "IEEE 802.11 Wireless LAN", "ieee-802-11" },
 
-	/* WTAP_ENCAP_PRISM_HEADER */
-	{ "IEEE 802.11 plus Prism II monitor mode header", "prism" },
+	/* WTAP_ENCAP_IEEE_802_11_PRISM */
+	{ "IEEE 802.11 plus Prism II monitor mode radio header", "ieee-802-11-prism" },
 
 	/* WTAP_ENCAP_IEEE_802_11_WITH_RADIO */
 	{ "IEEE 802.11 Wireless LAN with radio information", "ieee-802-11-radio" },
 
-	/* WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP */
-	{ "IEEE 802.11 plus radiotap WLAN header", "ieee-802-11-radiotap" },
+	/* WTAP_ENCAP_IEEE_802_11_RADIOTAP */
+	{ "IEEE 802.11 plus radiotap radio header", "ieee-802-11-radiotap" },
 
-	/* WTAP_ENCAP_IEEE_802_11_WLAN_AVS */
-	{ "IEEE 802.11 plus AVS WLAN header", "ieee-802-11-avs" },
+	/* WTAP_ENCAP_IEEE_802_11_AVS */
+	{ "IEEE 802.11 plus AVS radio header", "ieee-802-11-avs" },
 
 	/* WTAP_ENCAP_SLL */
 	{ "Linux cooked-mode capture", "linux-sll" },
@@ -521,7 +521,7 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_SOCKETCAN */
 	{ "SocketCAN", "socketcan" },
 
-	/* WTAP_ENCAP_IEEE802_11_NETMON_RADIO */
+	/* WTAP_ENCAP_IEEE_802_11_NETMON */
 	{ "IEEE 802.11 plus Network Monitor radio header", "ieee-802-11-netmon" },
 
 	/* WTAP_ENCAP_IEEE802_15_4_NOFCS */
@@ -576,7 +576,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "BACnet MS/TP with Directional Info", "bacnet-ms-tp-with-direction" },
  
  	/* WTAP_ENCAP_IXVERIWAVE */
- 	{ "IxVeriWave header and stats block", "ixveriwave" }
+ 	{ "IxVeriWave header and stats block", "ixveriwave" },
+
+	/* WTAP_ENCAP_IEEE_802_11_AIROPEEK */
+	{ "IEEE 802.11 plus AiroPeek radio header", "ieee-802-11-airopeek" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

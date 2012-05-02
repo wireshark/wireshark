@@ -120,16 +120,6 @@ typedef struct etherpeek_utime {
 #define ETHERPEEK_V7_TIMESTAMP_OFFSET		8
 #define ETHERPEEK_V7_PKT_SIZE			16
 
-/*
- * AiroPeek radio information, at the beginning of every packet.
- */
-typedef struct {
-	guint8	data_rate;
-	guint8	channel;
-	guint8	signal_level;
-	guint8	unused;
-} airopeek_radio_hdr_t;
-
 typedef struct etherpeek_encap_lookup {
 	guint16 protoNum;
 	int     encap;
@@ -151,8 +141,6 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 static gboolean etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
-static void etherpeek_fill_pseudo_header_v7(
-    union wtap_pseudo_header *pseudo_header, airopeek_radio_hdr_t *radio_hdr);
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
@@ -260,13 +248,8 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 				 * 802.11, with a private header giving
 				 * some radio information.  Presumably
 				 * this is from AiroPeek.
-				 *
-				 * We supply the private header as
-				 * the WTAP_ENCAP_IEEE_802_11_WITH_RADIO
-				 * pseudo-header, rather than as frame
-				 * data.
 				 */
-				file_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
+				file_encap = WTAP_ENCAP_IEEE_802_11_AIROPEEK;
 				break;
 
 			default:
@@ -377,7 +360,6 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	guint64 timestamp;
 	time_t tsecs;
 	guint32 tusecs;
-	airopeek_radio_hdr_t radio_hdr;
 
 	*data_offset = wth->data_offset;
 
@@ -414,32 +396,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 
 	switch (wth->file_encap) {
 
-	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-		/*
-		 * The first 4 bytes of the packet data are radio
-		 * information (including a reserved byte).
-		 */
-		if (sliceLength < 4) {
-			/*
-			 * We don't *have* 4 bytes of packet data.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup("etherpeek: packet not long enough for 802.11 radio header");
-			return FALSE;
-		}
-		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->fh, err,
-		    err_info);
-
-		/*
-		 * We don't treat the radio information as packet data.
-		 */
-		sliceLength -= 4;
-		wth->phdr.len -= 4;
-		wth->phdr.caplen -= 4;
-		wth->data_offset += 4;
-
-		etherpeek_fill_pseudo_header_v7(&wth->pseudo_header,
-		    &radio_hdr);
+	case WTAP_ENCAP_IEEE_802_11_AIROPEEK:
+		wth->pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -462,7 +420,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.ts.secs  = tsecs - mac2unix;
 	wth->phdr.ts.nsecs = tusecs * 1000;
 
-	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_AIROPEEK) {
 		/*
 		 * The last 4 bytes appear to be random data - the length
 		 * might include the FCS - so we reduce the length by 4.
@@ -485,7 +443,6 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 {
 	guint8 ep_pkt[ETHERPEEK_V7_PKT_SIZE];
 	guint8  status;
-	airopeek_radio_hdr_t radio_hdr;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -497,24 +454,8 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 
 	switch (wth->file_encap) {
 
-	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-		/*
-		 * The first 4 bytes of the packet data are radio
-		 * information (including a reserved byte).
-		 */
-		if (length < 4) {
-			/*
-			 * We don't *have* 4 bytes of packet data.
-			 */
-			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup("etherpeek: packet not long enough for 802.11 radio header");
-			return FALSE;
-		}
-		wtap_file_read_expected_bytes(&radio_hdr, 4, wth->random_fh,
-		    err, err_info);
-
-		etherpeek_fill_pseudo_header_v7(pseudo_header,
-		    &radio_hdr);
+	case WTAP_ENCAP_IEEE_802_11_AIROPEEK:
+		pseudo_header->ieee_802_11.fcs_len = 0;		/* no FCS */
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -532,16 +473,6 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err,
 	    err_info);
 	return TRUE;
-}
-
-static void
-etherpeek_fill_pseudo_header_v7(union wtap_pseudo_header *pseudo_header,
-    airopeek_radio_hdr_t *radio_hdr)
-{
-	pseudo_header->ieee_802_11.fcs_len = 0;		/* no FCS */
-	pseudo_header->ieee_802_11.channel = radio_hdr->channel;
-	pseudo_header->ieee_802_11.data_rate = radio_hdr->data_rate;
-	pseudo_header->ieee_802_11.signal_level = radio_hdr->signal_level;
 }
 
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,

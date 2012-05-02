@@ -110,10 +110,10 @@ extern "C" {
 #define WTAP_ENCAP_IP_OVER_FC                   18
 #define WTAP_ENCAP_PPP_WITH_PHDR                19
 #define WTAP_ENCAP_IEEE_802_11                  20
-#define WTAP_ENCAP_PRISM_HEADER                 21
+#define WTAP_ENCAP_IEEE_802_11_PRISM            21
 #define WTAP_ENCAP_IEEE_802_11_WITH_RADIO       22
-#define WTAP_ENCAP_IEEE_802_11_WLAN_RADIOTAP    23
-#define WTAP_ENCAP_IEEE_802_11_WLAN_AVS         24
+#define WTAP_ENCAP_IEEE_802_11_RADIOTAP         23
+#define WTAP_ENCAP_IEEE_802_11_AVS              24
 #define WTAP_ENCAP_SLL                          25
 #define WTAP_ENCAP_FRELAY                       26
 #define WTAP_ENCAP_FRELAY_WITH_PHDR             27
@@ -215,7 +215,7 @@ extern "C" {
 #define WTAP_ENCAP_JPEG_JFIF                    123	/* obsoleted by WTAP_ENCAP_MIME*/
 #define WTAP_ENCAP_IPNET                        124
 #define WTAP_ENCAP_SOCKETCAN                    125
-#define WTAP_ENCAP_IEEE802_11_NETMON_RADIO      126
+#define WTAP_ENCAP_IEEE_802_11_NETMON           126
 #define WTAP_ENCAP_IEEE802_15_4_NOFCS           127
 #define WTAP_ENCAP_RAW_IPFIX                    128
 #define WTAP_ENCAP_RAW_IP4                      129
@@ -234,6 +234,7 @@ extern "C" {
 #define WTAP_ENCAP_V5_EF                        142
 #define WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR       143
 #define WTAP_ENCAP_IXVERIWAVE                   144
+#define WTAP_ENCAP_IEEE_802_11_AIROPEEK         145
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

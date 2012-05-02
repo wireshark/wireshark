@@ -87,8 +87,8 @@ static int hf_sensormac = -1;
 
 #define TZSP_ENCAP_ETHERNET			1
 #define TZSP_ENCAP_IEEE_802_11			18
-#define TZSP_ENCAP_PRISM_HEADER			119
-#define TZSP_ENCAP_WLAN_AVS			127
+#define TZSP_ENCAP_IEEE_802_11_PRISM		119
+#define TZSP_ENCAP_IEEE_802_11_AVS		127
 
 /* ************************************************************************* */
 /*                          Generic header options                           */
@@ -254,8 +254,8 @@ struct encap_map {
 
 static const struct encap_map map_table[] = {
 	{ TZSP_ENCAP_ETHERNET,		WTAP_ENCAP_ETHERNET },
-	{ TZSP_ENCAP_PRISM_HEADER,	WTAP_ENCAP_PRISM_HEADER },
-	{ TZSP_ENCAP_WLAN_AVS,		WTAP_ENCAP_IEEE_802_11_WLAN_AVS },
+	{ TZSP_ENCAP_IEEE_802_11_PRISM,	WTAP_ENCAP_IEEE_802_11_PRISM },
+	{ TZSP_ENCAP_IEEE_802_11_AVS,	WTAP_ENCAP_IEEE_802_11_AVS },
 	{ TZSP_ENCAP_IEEE_802_11,	WTAP_ENCAP_IEEE_802_11 },
 	{ 0,				-1 }
 };

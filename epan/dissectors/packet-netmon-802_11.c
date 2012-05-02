@@ -239,5 +239,5 @@ proto_reg_handoff_netmon_802_11(void)
   ieee80211_handle = find_dissector("wlan");
   netmon_802_11_handle = new_create_dissector_handle(dissect_netmon_802_11,
                                                  proto_netmon_802_11);
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_11_NETMON_RADIO, netmon_802_11_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_NETMON, netmon_802_11_handle);
 }
