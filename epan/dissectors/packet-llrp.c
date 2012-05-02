@@ -880,23 +880,23 @@ proto_register_llrp(void)
     static hf_register_info hf[] = {
         { &hf_llrp_version,
         { "Version", "llrp.version", FT_UINT8, BASE_DEC, VALS(llrp_versions), 0x1C,
-          "The protocol version number.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_type,
         { "Type", "llrp.type", FT_UINT16, BASE_DEC, VALS(message_types), 0x03FF,
-          "The type of message being carried.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_length,
         { "Length", "llrp.length", FT_UINT32, BASE_DEC, NULL, 0,
-          "The message length.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_id,
         { "ID", "llrp.id", FT_UINT32, BASE_DEC, NULL, 0,
-          "The message sequence number.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_cur_ver,
         { "Current Version", "llrp.cur_ver", FT_UINT8, BASE_DEC, VALS(llrp_versions), 0,
-          "The current protocol version.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_sup_ver,
         { "Supported Version", "llrp.sup_ver", FT_UINT8, BASE_DEC, VALS(llrp_versions), 0,
@@ -904,39 +904,39 @@ proto_register_llrp(void)
 
         { &hf_llrp_req_cap,
         { "Requested Capabilities", "llrp.req_cap", FT_UINT8, BASE_DEC, VALS(capabilities_request), 0,
-          "Which capabilities data was requested.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_req_conf,
         { "Requested Configuration", "llrp.req_conf", FT_UINT8, BASE_DEC, VALS(config_request), 0,
-          "Which configuration data was requested.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_rospec,
         { "ROSpec ID", "llrp.rospec", FT_UINT32, BASE_DEC, NULL, 0,
-          "The ID of the ROSpec.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_antenna_id,
-        { "Antenna ID", "llrp.annena_id", FT_UINT16, BASE_DEC, NULL, 0,
-          "The ID of the antenna.", HFILL }},
+        { "Antenna ID", "llrp.antenna_id", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
 
         { &hf_llrp_gpi_port,
         { "GPI Port Number", "llrp.gpi_port", FT_UINT16, BASE_DEC, NULL, 0,
-          "The GPI port number.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_gpo_port,
-        { "GOP Port Number", "llrp.gpo_port", FT_UINT16, BASE_DEC, NULL, 0,
-          "The GPO port number.", HFILL }},
+        { "GPO Port Number", "llrp.gpo_port", FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
 
         { &hf_llrp_rest_fact,
         { "Restore Factory Settings", "llrp.rest_fact", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
-          "Whether or not the receiver should restore factory settings.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_accessspec,
         { "Access Spec ID", "llrp.accessspec", FT_UINT32, BASE_DEC, NULL, 0,
-          "The access spec ID.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_vendor,
         { "Vendor ID", "llrp.vendor", FT_UINT32, BASE_DEC, NULL, 0,
-          "The access spec ID.", HFILL }},
+          NULL, HFILL }},
 
         { &hf_llrp_tlv_type,
         { "Type", "llrp.tlv_type", FT_UINT16, BASE_DEC, VALS(tlv_type), 0x03FF,
@@ -952,7 +952,7 @@ proto_register_llrp(void)
 
         { &hf_llrp_param,
         { "Parameter", "llrp.param", FT_NONE, BASE_NONE, NULL, 0,
-          "A TLV or TV parameter.", HFILL }}
+          NULL, HFILL }}
     };
 
     /* Setup protocol subtree array */
