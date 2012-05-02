@@ -3891,7 +3891,7 @@ static int dissect_ber_old_sq_of(gboolean implicit_tag, gint32 type, asn1_ctx_t 
     proto_item *causex;
     int cnt, hoffsetx, end_offset;
     header_field_info *hfi;
-    gint length_remaining;
+    /*gint length_remaining;*/
 
 #ifdef DEBUG_BER_SQ_OF
 {
@@ -4060,9 +4060,9 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
             hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
         }
 
-        length_remaining=tvb_length_remaining(tvb, hoffset);
+        /*length_remaining=tvb_length_remaining(tvb, hoffset);
         if (length_remaining>eoffset-hoffset)
-            length_remaining=eoffset-hoffset;
+            length_remaining=eoffset-hoffset;*/
 
 
         /* call the dissector for this field */
@@ -4586,7 +4586,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
  */
 
 static int
-dissect_ber_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ber_INTEGER(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &actx->external.indirect_reference);
   actx->external.indirect_ref_present = TRUE;
@@ -4609,7 +4609,7 @@ dissect_ber_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
     return offset;
 }
 static int
-dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
+dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index)
 {
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
     actx->external.direct_ref_present = TRUE;
@@ -4668,7 +4668,7 @@ static const ber_choice_t T_encoding_choice[] = {
 
 
 static int
-dissect_ber_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ber_T_encoding(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                 T_encoding_choice, hf_index, ett_ber_T_encoding,
                                 &actx->external.encoding);

@@ -944,7 +944,7 @@ dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *act
 
 /* this function reads a single bit */
 guint32
-dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, gboolean *bool_val)
+dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool_val)
 {
 	guint8 ch, mask;
 	gboolean value;
@@ -1163,7 +1163,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		}
 	}
 
-	num_bits=0;
 	val=0;
 	timeval.secs=val; timeval.nsecs=0;
 	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
@@ -1241,7 +1240,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfield length %u, %s",range, num_bits, str);
 	} else if(range==256){
 		/* 10.5.7.2 */
-		num_bits=8;
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1252,7 +1250,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		val+=min;
 	} else if(range<=65536){
 		/* 10.5.7.3 */
-		num_bits=16;
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1359,7 +1356,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		}
 	}
 
-	num_bits=0;
 	val=0;
 	timeval.secs=0; timeval.nsecs=0;
 	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
@@ -1437,7 +1433,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = (%" G_GINT64_MODIFIER "u) Bitfield length %u, %s",range, num_bits, str);
 	} else if(range==256){
 		/* 10.5.7.2 */
-		num_bits=8;
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1448,7 +1443,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		val+=min;
 	} else if(range<=65536){
 		/* 10.5.7.3 */
-		num_bits=16;
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -2175,7 +2169,7 @@ guint32
 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
 	gint val_start = 0, val_length;
-	guint32 length;
+	guint32 length = 0;
 	header_field_info *hfi;
 	tvbuff_t *out_tvb = NULL;
 
@@ -2354,7 +2348,7 @@ gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int
 /* NOTE: This sequence type differs from that in ITU-T Rec. X.680 | ISO/IEC 8824-1 for historical reasons. */
 
 static int
-dissect_per_T_direct_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_per_T_direct_reference(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &actx->external.direct_reference);
 
   actx->external.direct_ref_present = TRUE;
@@ -2374,7 +2368,7 @@ dissect_per_T_indirect_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static int
-dissect_per_T_data_value_descriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_per_T_data_value_descriptor(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_per_object_descriptor(tvb, offset, actx, tree, hf_index, &actx->external.data_value_descriptor);
 
   actx->external.data_value_descr_present = TRUE;
@@ -2393,7 +2387,7 @@ dissect_per_T_single_ASN1_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static int
-dissect_per_T_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_per_T_octet_aligned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &actx->external.octet_aligned);
 
@@ -2408,7 +2402,7 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
-dissect_per_T_arbitrary(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_per_T_arbitrary(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      NO_BOUND, NO_BOUND, FALSE, &actx->external.arbitrary);
 
@@ -2436,7 +2430,7 @@ static const per_choice_t External_encoding_choice[] = {
 };
 
 static int
-dissect_per_External_encoding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_per_External_encoding(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_per_External_encoding, External_encoding_choice,
                                  &actx->external.encoding);
