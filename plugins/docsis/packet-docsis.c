@@ -491,6 +491,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   switch (fctype)
     {
     case FCTYPE_PACKET:
+    case FCTYPE_RESRVD:
       if (pdulen >= 0)
         {
           if (pdulen > 0)
