@@ -47,7 +47,7 @@
 
 void proto_reg_handoff_bundle(void);
 static int dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *tvb);
-static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset);
+static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int payload_length);
 static int dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int bundle_offset, gboolean *lastheader);
 static int display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int bundle_offset, gboolean *lastheader);
 static int dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
@@ -191,6 +191,9 @@ static int hf_bundle_admin_delete_time = -1;
 static int hf_bundle_admin_ack_time = -1;
 static int hf_bundle_admin_timestamp_copy = -1;
 static int hf_bundle_admin_signal_time = -1;
+static int hf_bundle_status_report_reason_code = -1;
+static int hf_bundle_custody_trf_succ_flg = -1;
+static int hf_bundle_custody_signal_reason = -1;
 
 /* Tree Node Variables */
 static gint ett_bundle = -1;
@@ -219,6 +222,7 @@ static guint bundle_tcp_port = 4556;
 static guint bundle_udp_port = 4556;
 
 static const value_string custody_signal_reason_codes[] = {
+	{0x0, "No Additional Information"},
     {0x3, "Redundant Reception"},
     {0x4, "Depleted Storage"},
     {0x5, "Destination Endpoint ID Unintelligible"},
@@ -229,6 +233,7 @@ static const value_string custody_signal_reason_codes[] = {
 };
 
 static const value_string status_report_reason_codes[] = {
+	{0x0, "No Additional Information"},
     {0x1, "Lifetime Expired"},
     {0x2, "Forwarded over Unidirectional Link"},
     {0x3, "Transmission Cancelled"},
@@ -1594,7 +1599,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
          * XXXX - Have not allowed for admin record spanning multiple segments!
          */
 
-        admin_size = dissect_admin_record(payload_tree, tvb, offset);
+        admin_size = dissect_admin_record(payload_tree, tvb, offset, payload_length);
         if(admin_size == 0) {
             return 0;
         }
@@ -1607,14 +1612,13 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
  */
 
 static int
-dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
+dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int payload_length)
 {
     proto_item *admin_record_item;
     proto_tree *admin_record_tree;
     proto_item *timestamp_sequence_item;
     guint8 record_type;
     guint8 status;
-    guint8 reason;
     int start_offset = offset;
     int sdnv_length;
     int timestamp_sequence;
@@ -1626,21 +1630,9 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
     admin_record_tree = proto_item_add_subtree(admin_record_item, ett_admin_record);
     record_type = tvb_get_guint8(tvb, offset);
 
-    if(record_type == (0x05 << 4)) {
-        proto_tree_add_text(admin_record_tree, tvb, offset, 1, "Announce Record (Contact)");
-        return 1;       /*Special case for poxy TCP Convergence Layer Announce Bundle*/
-    }
-    if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
-        proto_tree_add_text(admin_record_tree, tvb, offset, 1, "Record is for a Fragment");
-    }
-    else {
-        proto_tree_add_text(admin_record_tree,
-                                tvb, offset, 1, "Record is not for a Fragment");
-    }
 
     switch((record_type >> 4) & 0xf)
     {
-
     case ADMIN_REC_TYPE_STATUS_REPORT:
     {
         proto_item *status_flag_item;
@@ -1648,6 +1640,13 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 
         proto_tree_add_text(admin_record_tree, tvb, offset, 1,
                                 "Administrative Record Type: Bundle Status Report");
+        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+            proto_tree_add_text(admin_record_tree, tvb, offset, 1, "Record is for a Fragment");
+        }
+        else {
+            proto_tree_add_text(admin_record_tree,
+                                    tvb, offset, 1, "Record is not for a Fragment");
+        }
         ++offset;
 
         /* Decode Bundle Status Report Flags */
@@ -1670,19 +1669,10 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
                                                 tvb, offset, 1, status);
         ++offset;
 
-        reason = tvb_get_guint8(tvb, offset);
-        if(reason == 0) {
-            proto_tree_add_text(admin_record_tree, tvb, offset, 1,
-                                "Reason Code: 0 (No Additional Information)");
-        }
-        else {
-            proto_tree_add_text(admin_record_tree, tvb, offset, 1,
-                                        "Reason Code: 0x%x (%s)", reason,
-                                        val_to_str(reason, status_report_reason_codes,
-                                                        "Invalid"));
-        }
+		proto_tree_add_item(admin_record_tree, hf_bundle_status_report_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
-        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+
+		if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Offset");
             if(sdnv_length <= 0) {
@@ -1791,28 +1781,25 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         offset += endpoint_length;
 
         return offset - start_offset;
-    }
+    } /* case ADMIN_REC_TYPE_STATUS_REPORT */
     case ADMIN_REC_TYPE_CUSTODY_SIGNAL:
+    {
         proto_tree_add_text(admin_record_tree, tvb, offset, 1,
                                 "Administrative Record Type: Custody Signal");
-        ++offset;
-
-        status = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(admin_record_tree, tvb, offset, 1,
-                        "Custody Transfer Succeeded Flag: %d", (status >> 7) & 0x01);
-        if((status & ADMIN_REC_CUSTODY_REASON_MASK) == 0) {
-            proto_tree_add_text(admin_record_tree, tvb, offset, 1,
-                                        "Reason Code: 0 (No Additional Information)");
+        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+            proto_tree_add_text(admin_record_tree, tvb, offset, 1, "Record is for a Fragment");
         }
         else {
-            proto_tree_add_text(admin_record_tree, tvb, offset, 1,
-                                "Reason Code: 0x%x (%s)",
-                                status & ADMIN_REC_CUSTODY_REASON_MASK,
-                                val_to_str(status & ADMIN_REC_CUSTODY_REASON_MASK,
-                                                custody_signal_reason_codes, "Invalid"));
+            proto_tree_add_text(admin_record_tree,
+                                    tvb, offset, 1, "Record is not for a Fragment");
         }
         ++offset;
-        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+
+		proto_tree_add_item(admin_record_tree, hf_bundle_custody_trf_succ_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ++offset;
+
+		if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Offset");
             if(sdnv_length <= 0) {
@@ -1876,7 +1863,106 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
                                                 "Bundle Endpoint ID: %s", string_ptr);
         offset += endpoint_length;
         return offset - start_offset;
+    } /* case ADMIN_REC_TYPE_CUSTODY_SIGNAL */
+    case ADMIN_REC_TYPE_AGGREGATE_CUSTODY_SIGNAL:
+    {
+        int payload_bytes_processed = 0;
+        int right_edge = -1;
+        int fill_start = -1;
+        int fill_gap = -1;
+        int fill_length = -1;
+        int sdnv_length_start = -1;
+        int sdnv_length_gap = -1;
+        int sdnv_length_length = -1;
 
+        proto_tree_add_text(admin_record_tree, tvb, offset, 1,
+                                "Administrative Record Type: Aggregate Custody Signal");
+        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+            proto_tree_add_text(admin_record_tree, tvb, offset, 1, "Record is for a Fragment");
+        }
+        else {
+            proto_tree_add_text(admin_record_tree,
+                                    tvb, offset, 1, "Record is not for a Fragment");
+        }
+        ++offset;
+        ++payload_bytes_processed;
+
+		proto_tree_add_item(admin_record_tree, hf_bundle_custody_trf_succ_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ++offset;
+        ++payload_bytes_processed;
+
+        /* process the first fill */
+        fill_start = evaluate_sdnv(tvb, offset, &sdnv_length_start);
+        if (fill_start < 0 || sdnv_length_start < 0) {
+            proto_tree_add_text(admin_record_tree, tvb, offset, 0,
+                                        "ACS: Unable to process fill start SDNV");
+            return 0;
+        }
+        fill_length = evaluate_sdnv(tvb, offset + sdnv_length_start, &sdnv_length_length);
+        if (fill_length < 0 || sdnv_length_length < 0) {
+            proto_tree_add_text(admin_record_tree, tvb, offset, 0,
+                                        "ACS: Unable to process fill length SDNV");
+            return 0;
+        }
+        if (fill_length == 1) {
+            proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_start + sdnv_length_length,
+                                "Fill: %d", fill_start);
+        }
+        else {
+            proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_start + sdnv_length_length,
+                                "Fill: %d-%d", fill_start, fill_start + fill_length - 1);
+        }
+        right_edge = fill_start + fill_length;
+        offset += sdnv_length_start + sdnv_length_length;
+        payload_bytes_processed += sdnv_length_start + sdnv_length_length;
+
+        /* now attempt to consume all the rest of the data in the
+         * payload as additional fills */
+        while (payload_bytes_processed < payload_length) {
+            fill_gap = evaluate_sdnv(tvb, offset, &sdnv_length_gap);
+            if (fill_gap < 0 || sdnv_length_gap < 0) {
+                proto_tree_add_text(admin_record_tree, tvb, offset, 0,
+                                            "ACS: Unable to process fill gap SDNV");
+                return 0;
+            }
+            fill_length = evaluate_sdnv(tvb, offset + sdnv_length_gap, &sdnv_length_length);
+            if (fill_length < 0 || sdnv_length_length < 0) {
+                proto_tree_add_text(admin_record_tree, tvb, offset, 0,
+                                            "ACS: Unable to process fill length SDNV");
+                return 0;
+            }
+            if (fill_length == 1) {
+                proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_gap + sdnv_length_length,
+                                    "Fill: %d", right_edge + fill_gap);
+            }
+            else {
+                proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_gap + sdnv_length_length,
+                                    "Fill: %d-%d", right_edge + fill_gap, right_edge + fill_gap + fill_length - 1);
+            }
+            right_edge += fill_gap + fill_length;
+            offset += sdnv_length_gap + sdnv_length_length;
+            payload_bytes_processed += sdnv_length_gap + sdnv_length_length;
+        }
+
+        if (payload_bytes_processed > payload_length) {
+            proto_tree_add_text(admin_record_tree, tvb, offset, 0,
+                                        "ACS: Fill data extends past payload length");
+            return 0;
+        }
+
+        return offset - start_offset;
+
+    } /* case ADMIN_REC_TYPE_AGGREGATE_CUSTODY_SIGNAL */
+    case ADMIN_REC_TYPE_ANNOUNCE_BUNDLE:
+    {
+        proto_tree_add_text(admin_record_tree, tvb, offset, 1, "Announce Record (Contact)");
+        return 1;       /*Special case for poxy TCP Convergence Layer Announce Bundle*/
+    }
+    default:
+    {
+        /* do nothing, fall through and fail */
+    }
     }   /* End Switch */
 
     proto_tree_add_text(admin_record_tree, tvb, offset, 1,
@@ -2542,7 +2628,19 @@ proto_register_bundle(void)
         {&hf_block_control_eid_reference,
          {"Block Contains an EID-reference Field", "bundle.block.control.eid",
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_EID_REFERENCE, NULL, HFILL}
-        }
+        },
+		{&hf_bundle_status_report_reason_code,
+         {"Reason Code", "bundle.status_report_reason_code",
+          FT_UINT8, BASE_DEC, VALS(status_report_reason_codes), 0x0, NULL, HFILL}
+        },
+		{&hf_bundle_custody_trf_succ_flg,
+         {"Custody Transfer Succeeded Flag", "bundle.custody_trf_succ_flg",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+		{&hf_bundle_custody_signal_reason,
+         {"Reason Code", "bundle.status_report_reason_code",
+          FT_UINT8, BASE_DEC, VALS(custody_signal_reason_codes), ADMIN_REC_CUSTODY_REASON_MASK, NULL, HFILL}
+        },
     };
 
     static gint *ett[] = {
