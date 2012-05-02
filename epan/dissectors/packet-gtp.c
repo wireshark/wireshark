@@ -269,6 +269,9 @@ static int hf_gtp_ext_auth_apn_ambr_ul = -1;
 static int hf_gtp_ext_auth_apn_ambr_dl = -1;
 static int hf_gtp_ext_ggsn_back_off_time_units = -1;
 static int hf_gtp_ext_ggsn_back_off_timer = -1;
+static int hf_gtp_higher_br_16mb_flg = -1;
+static int hf_gtp_max_mbr_apn_ambr_ul = -1;
+static int hf_gtp_max_mbr_apn_ambr_dl = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp = -1;
@@ -737,7 +740,7 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_GGSN_BACK_OFF_TIME    0xCA    /* 3G   202 TLV GGSN Back-Off Time                        7.7.102 */
 #define GTP_EXT_SIG_PRI_IND           0xCB    /* 3G   203 TLV Signalling Priority Indication            7.7.103 */
 #define GTP_EXT_SIG_PRI_IND_W_NSAPI   0xCC    /* 3G   204 TLV Signalling Priority Indication with NSAPI 7.7.104 */
-#define GTP_EXT_HIGER_BR_16MB_FLG     0xCD    /* 3G   205 TLV Higher bitrates than 16 Mbps flag         7.7.105 */
+#define GTP_EXT_HIGHER_BR_16MB_FLG    0xCD    /* 3G   205 TLV Higher bitrates than 16 Mbps flag         7.7.105 */
 #define GTP_EXT_MAX_MBR_APN_AMBR      0xCE    /* 3G   206 TLV Max MBR/APN-AMBR                          7.7.106 */
 #define GTP_EXT_ADD_MM_CTX_SRVCC      0xCF    /* 3G   207 TLV Additional MM context for SRVCC           7.7.107 */
 #define GTP_EXT_ADD_FLGS_SRVCC        0xD0    /* 3G   208 TLV Additional flags for SRVCC                7.7.108  */
@@ -884,7 +887,7 @@ static const value_string gtp_val[] = {
 /* 202 */  {GTP_EXT_GGSN_BACK_OFF_TIME,     "GGSN Back-Off Time"},                         /* 7.7.102 */
 /* 203 */  {GTP_EXT_SIG_PRI_IND,            "Signalling Priority Indication"},             /* 7.7.103 */
 /* 204 */  {GTP_EXT_SIG_PRI_IND_W_NSAPI,    "Signalling Priority Indication with NSAPI"},  /* 7.7.104 */
-/* 205 */  {GTP_EXT_HIGER_BR_16MB_FLG,      "Higher bitrates than 16 Mbps flag"},          /* 7.7.105  */
+/* 205 */  {GTP_EXT_HIGHER_BR_16MB_FLG,     "Higher bitrates than 16 Mbps flag"},          /* 7.7.105  */
 /* 206 */  {GTP_EXT_MAX_MBR_APN_AMBR,       "Max MBR/APN-AMBR"},                           /* 7.7.106  */
 /* 207 */  {GTP_EXT_ADD_MM_CTX_SRVCC,       "Additional MM context for SRVCC"},            /* 7.7.107  */
 /* 208 */  {GTP_EXT_ADD_FLGS_SRVCC,         "Additional flags for SRVCC"},                 /* 7.7.108  */
@@ -1738,7 +1741,7 @@ static int decode_gtp_apn_ambr_with_nsapi(tvbuff_t * tvb, int offset, packet_inf
 static int decode_gtp_ggsn_back_off_time(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_sig_pri_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_sig_pri_ind_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_higer_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+static int decode_gtp_higher_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
 static int decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
@@ -1878,7 +1881,7 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xCA */  {GTP_EXT_GGSN_BACK_OFF_TIME, decode_gtp_ggsn_back_off_time},        /* 7.7.102 */
 /* 0xCB */  {GTP_EXT_SIG_PRI_IND, decode_gtp_sig_pri_ind},                      /* 7.7.103 */
 /* 0xCC */  {GTP_EXT_SIG_PRI_IND_W_NSAPI, decode_gtp_sig_pri_ind_w_nsapi},      /* 7.7.104 */
-/* 0xCD */  {GTP_EXT_HIGER_BR_16MB_FLG, decode_gtp_higer_br_16mb_flg},          /* 7.7.105 */
+/* 0xCD */  {GTP_EXT_HIGHER_BR_16MB_FLG, decode_gtp_higher_br_16mb_flg},         /* 7.7.105 */
 /* 0xCE */  {GTP_EXT_MAX_MBR_APN_AMBR, decode_gtp_max_mbr_apn_ambr},            /* 7.7.106 */
 /* 0xCF */  {GTP_EXT_ADD_MM_CTX_SRVCC, decode_gtp_add_mm_ctx_srvcc},            /* 7.7.107 */
 /* 0xD0 */  {GTP_EXT_ADD_FLGS_SRVCC, decode_gtp_add_flgs_srvcc},                /* 7.7.108 */
@@ -7146,24 +7149,30 @@ decode_gtp_sig_pri_ind_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _
 /*
  * 7.7.105 Higher bitrates than 16 Mbps flag
  */
+static const value_string gtp_higher_br_16mb_flg_vals[] = {
+    {0, "Not allowed"},
+    {1, "Allowed"},
+    {0, NULL}
+};
 
 static int
-decode_gtp_higer_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_higher_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     guint16 length;
     proto_tree *ext_tree;
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_HIGER_BR_16MB_FLG, &gtpv1_val_ext, "Unknown"));
-    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_HIGER_BR_16MB_FLG]);
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_HIGHER_BR_16MB_FLG, &gtpv1_val_ext, "Unknown"));
+    ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_HIGHER_BR_16MB_FLG]);
 	proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+	/* Higher bitrates than 16 Mbps flag */
+	proto_tree_add_item(ext_tree, hf_gtp_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	return 3 + length;
 }
@@ -7177,6 +7186,8 @@ decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     guint16 length;
     proto_tree *ext_tree;
     proto_item *te;
+    guint32 max_ul;
+    guint32 max_dl;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MAX_MBR_APN_AMBR, &gtpv1_val_ext, "Unknown"));
@@ -7187,7 +7198,19 @@ decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-	proto_tree_add_text(ext_tree, tvb, offset, length, "The rest of the data is not dissected yet");
+        /* Max MBR/APN-AMBR for uplink */
+        max_ul = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint_format(ext_tree, hf_gtp_max_mbr_apn_ambr_ul, tvb, offset, 4, max_ul, "Max MBR/APN-AMBR for uplink : %u %s",
+                                    (max_ul) > 1000 ? max_ul/1000 : max_ul,
+                                    (max_ul) > 1000 ? "Mbps" : "kbps");
+
+        offset += 4;
+
+        /* Max MBR/APN-AMBR for downlink */
+        max_dl = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint_format(ext_tree, hf_gtp_max_mbr_apn_ambr_dl, tvb, offset, 4, max_dl, "Max MBR/APN-AMBR for downlink : %u %s",
+                                    (max_dl) > 1000 ? max_dl/1000 : max_dl,
+                                    (max_dl) > 1000 ? "Mbps" : "kbps");
 
 	return 3 + length;
 }
@@ -7449,7 +7472,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
             proto_tree_add_text(cdr_dr_tree, tvb, offset, cdr_length, "Content");
             next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-            /* XXX this is for release 6, may not work for higer releases */
+            /* XXX this is for release 6, may not work for higher releases */
             if(format==1) {
                 dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
             } else {
@@ -8498,6 +8521,21 @@ void proto_register_gtp(void)
 		{ &hf_gtp_ext_ggsn_back_off_timer,
          {"Timer value", "gtp.ggsn_back_off_timer",
           FT_UINT8, BASE_DEC, NULL, 0x1f,
+          NULL, HFILL}
+        },
+		{ &hf_gtp_higher_br_16mb_flg,
+         {"Higher bitrates than 16 Mbps flag", "gtp.higher_br_16mb_flg",
+          FT_UINT8, BASE_DEC, VALS(gtp_higher_br_16mb_flg_vals), 0x0,
+          NULL, HFILL}
+        },
+		{ &hf_gtp_max_mbr_apn_ambr_ul,
+         {"Max MBR/APN-AMBR for uplink", "gtp.max_mbr_apn_ambr_ul",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+		{ &hf_gtp_max_mbr_apn_ambr_dl,
+         {"Max MBR/APN-AMBR for downlink", "gtp.max_mbr_apn_ambr_dl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
     };

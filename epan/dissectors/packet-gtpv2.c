@@ -124,7 +124,8 @@ static int hf_gtpv2_pdn_ipv6 = -1;
 static int hf_gtpv2_pdn_numbers_nsapi = -1;
 static int hf_gtpv2_p_tmsi = -1;
 static int hf_gtpv2_p_tmsi_sig = -1;
-
+static int hf_gtpv2_mmbr_ul = -1;
+static int hf_gtpv2_mmbr_dl = -1;
 
 static int hf_gtpv2_rat_type = -1;
 static int hf_gtpv2_uli_ecgi_flg = -1;
@@ -305,6 +306,9 @@ static int hf_gtpv2_mm_context_ue_net_cap_len = -1;
 static int hf_gtpv2_mm_context_ms_net_cap_len = -1;
 static int hf_gtpv2_mm_context_mei_len = -1;
 static int hf_gtpv2_mm_context_vdp_len = -1;
+static int hf_gtpv2_mm_context_higher_br_16mb_flg_len = -1;
+static int hf_gtpv2_mm_context_higher_br_16mb_flg = -1;
+
 static int hf_gtpv2_una = -1;
 static int hf_gtpv2_gena = -1;
 static int hf_gtpv2_gana = -1;
@@ -2785,6 +2789,12 @@ dissect_gtpv2_authentication_quadruplets(tvbuff_t *tvb, proto_tree *tree, int of
     return offset;
 }
 
+static const value_string gtpv2_mm_context_higher_br_16mb_flg_vals[] = {
+    {0, "Not allowed"},
+    {1, "Allowed"},
+    {0, NULL}
+};
+
 static int
 dissect_gtpv2_mm_context_common_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 samb_ri, guint8 uamb_ri)
 {
@@ -3039,7 +3049,11 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		offset = offset +  vdp_len;
 	}
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
     /* s+2 Higher bitrates than 16 Mbps flag */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
     proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
 }
 
@@ -3127,7 +3141,11 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		offset = offset +  vdp_len;
 	}
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
     /* s+2 Higher bitrates than 16 Mbps flag */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
     proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
 
@@ -3222,7 +3240,16 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		proto_tree_add_text(tree, tvb, offset, vdp_len, "Voice Domain Preference and UE's Usage Setting");
 		/*offset = offset +  vdp_len;*/
 	}
-	/* (s+1) to (n+4) These octet(s) is/are present only if explicitly specified */
+    /* s+1 Length of Higher bitrates than 16 Mbps flag */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* s+2 Higher bitrates than 16 Mbps flag */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* (s+3) to (n+4) These octet(s) is/are present only if explicitly specified */
+    proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+
 }
 
 /* 8.38 MM Context
@@ -4738,11 +4765,21 @@ dissect_gtpv2_add_flags_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void
 dissect_gtpv2_mmbr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
+    int offset = 0;
+    guint32 max_ul;
+    guint32 max_dl;
 
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    max_ul = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint_format(tree, hf_gtpv2_mmbr_ul, tvb, offset, 4, max_ul, "Max MBR/APN-AMBR for uplink : %u %s",
+                                (max_ul) > 1000 ? max_ul/1000 : max_ul,
+                                (max_ul) > 1000 ? "Mbps" : "kbps");
+
+    offset += 4;
+
+    max_dl = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint_format(tree, hf_gtpv2_mmbr_dl, tvb, offset, 4, max_dl, "Max MBR/APN-AMBR for downlink : %u %s",
+                                (max_dl) > 1000 ? max_dl/1000 : max_dl,
+                                (max_dl) > 1000 ? "Mbps" : "kbps");
 }
 
 /* 8.93 MDT Configuration */
@@ -6551,6 +6588,26 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_arp_pci,
           {"Pre-emption Capability (PCI)", "gtpv2.arp_pci",
           FT_BOOLEAN, 8, NULL, 0x40,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_mm_context_higher_br_16mb_flg_len,
+          {"Length of Higher bitrates than 16 Mbps flag", "gtpv2.mm_context_higher_br_16mb_flg_len",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_mm_context_higher_br_16mb_flg,
+          {"Higher bitrates than 16 Mbps flag", "gtpv2.mm_context_higher_br_16mb_flg_len",
+          FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_higher_br_16mb_flg_vals), 0x0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_mmbr_ul,
+         {"Max MBR/APN-AMBR for uplink", "gtpv2.mmbr_ul",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_mmbr_dl,
+         {"Max MBR/APN-AMBR for downlink", "gtpv2.mmbr_dl",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },
     };
