@@ -781,6 +781,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (flags2 & EXTENSION_FLAG2) {
 			proto_tree_add_item(tree, hf_mpeg_pes_extension2, tvb,
 					offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
 		}
 	}
 	return offset;
