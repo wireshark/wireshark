@@ -3881,7 +3881,7 @@ void proto_register_fp(void)
             }
         },
         { &hf_fp_drt,
-            { "DRT",
+            { "DelayRefTime",
               "fp.drt", FT_UINT16, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
