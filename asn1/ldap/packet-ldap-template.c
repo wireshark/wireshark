@@ -1446,6 +1446,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   switch(itype){
 
 		case LOGON_SAM_LOGON_RESPONSE:
+			bc = tvb_length_remaining(tvb, offset);
 			/* logon server name */
 			fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
 			proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
