@@ -83,9 +83,9 @@ static dissector_handle_t data_handle;
 static dissector_handle_t docsis_handle;
 
 /* Preferences */
-static gboolean show_file_off = FALSE;
-static gboolean force_docsis_encap = FALSE;
-static gboolean generate_md5_hash = FALSE;
+static gboolean show_file_off       = FALSE;
+static gboolean force_docsis_encap  = FALSE;
+static gboolean generate_md5_hash   = FALSE;
 static gboolean generate_epoch_time = TRUE;
 static gboolean generate_bits_field = TRUE;
 
@@ -123,11 +123,11 @@ call_frame_end_routine(gpointer routine, gpointer dummy _U_)
 static void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	proto_item	*volatile ti = NULL, *comment_item;
-	guint		cap_len = 0, frame_len = 0;
-	proto_tree	*volatile tree;
+	proto_item  *volatile ti = NULL, *comment_item;
+	guint	     cap_len = 0, frame_len = 0;
+	proto_tree  *volatile tree;
 	proto_tree  *comments_tree;
-    proto_item  *item;
+	proto_item  *item;
 	const gchar *cap_plurality, *frame_plurality;
 
 	tree=parent_tree;
@@ -238,17 +238,20 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		if (pinfo->fd->flags.has_if_id)
 			proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
-		
+
 		proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->fd->lnk_t);
 
 		if (pinfo->fd->flags.has_ts) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 					    0, 0, &(pinfo->fd->abs_ts));
 			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
-				item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb,
-								  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) pinfo->fd->abs_ts.nsecs);
+				item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb, 0, 0,
+								  "Arrival Time: Fractional second %09ld is invalid,"
+								  " the valid range is 0-1000000000",
+								  (long) pinfo->fd->abs_ts.nsecs);
 				PROTO_ITEM_SET_GENERATED(item);
-				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
+						       "Arrival Time: Fractional second out of range (0-1000000000)");
 			}
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
@@ -290,9 +293,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		if (generate_md5_hash) {
 			const guint8 *cp;
-			md5_state_t md_ctx;
-			md5_byte_t digest[16];
-			gchar *digest_string;
+			md5_state_t   md_ctx;
+			md5_byte_t    digest[16];
+			gchar        *digest_string;
 
 			cp = tvb_get_ptr(tvb, 0, cap_len);
 
@@ -369,8 +372,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* Portable Exception Handling to trap Wireshark specific exceptions like BoundsError exceptions */
 	TRY {
 #ifdef _MSC_VER
-		/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
-		/* (a running debugger will be called before the except part below) */
+		/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions
+		   like memory access violations.
+		   (a running debugger will be called before the except part below) */
 		__try {
 #endif
 			if ((force_docsis_encap) && (docsis_handle)) {
@@ -399,7 +403,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			case(STATUS_STACK_OVERFLOW):
 				show_exception(tvb, pinfo, parent_tree, DissectorError,
 					       "STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
-				/* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
+				/* XXX - this will have probably corrupted the stack,
+				   which makes problems later in the exception code */
 				break;
 				/* XXX - add other hardware exception codes as required */
 			default:
@@ -429,7 +434,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (have_postdissector()) {
 		TRY {
 #ifdef _MSC_VER
-			/* Win32: Visual-C Structured Exception Handling (SEH) to trap hardware exceptions like memory access violations */
+			/* Win32: Visual-C Structured Exception Handling (SEH)
+			   to trap hardware exceptions like memory access violations */
 			/* (a running debugger will be called before the except part below) */
 			__try {
 #endif
@@ -448,7 +454,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				case(STATUS_STACK_OVERFLOW):
 					show_exception(tvb, pinfo, parent_tree, DissectorError,
 						       "STATUS_STACK_OVERFLOW: dissector overflowed the stack (e.g. endless loop)");
-					/* XXX - this will have probably corrupted the stack, which makes problems later in the exception code */
+					/* XXX - this will have probably corrupted the stack,
+					   which makes problems later in the exception code */
 					break;
 					/* XXX - add other hardware exception codes as required */
 				default:
@@ -575,99 +582,119 @@ proto_register_frame(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_frame_arrival_time,
-		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-			"Absolute time when this frame was captured", HFILL }},
+		  { "Arrival Time", "frame.time",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		    "Absolute time when this frame was captured", HFILL }},
 
 		{ &hf_frame_shift_offset,
-		{ "Time shift for this packet","frame.offset_shift", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-			"Time shift applied to this packet", HFILL }},
+		  { "Time shift for this packet", "frame.offset_shift",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "Time shift applied to this packet", HFILL }},
 
 		{ &hf_frame_arrival_time_epoch,
-		{ "Epoch Time",			"frame.time_epoch", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-			"Epoch time when this frame was captured", HFILL }},
+		  { "Epoch Time", "frame.time_epoch",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "Epoch time when this frame was captured", HFILL }},
 
 		{ &hf_frame_time_invalid,
-		{ "Arrival Timestamp invalid",		"frame.time_invalid", FT_NONE, BASE_NONE, NULL, 0x0,
-			"The timestamp from the capture is out of the valid range", HFILL }},
+		  { "Arrival Timestamp invalid", "frame.time_invalid",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    "The timestamp from the capture is out of the valid range", HFILL }},
 
 		{ &hf_frame_time_delta,
-		{ "Time delta from previous captured frame",	"frame.time_delta", FT_RELATIVE_TIME, BASE_NONE, NULL,
-			0x0,
-			NULL, HFILL }},
+		  { "Time delta from previous captured frame", "frame.time_delta",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_time_delta_displayed,
-		{ "Time delta from previous displayed frame",	"frame.time_delta_displayed", FT_RELATIVE_TIME, BASE_NONE, NULL,
-			0x0,
-			NULL, HFILL }},
+		  { "Time delta from previous displayed frame", "frame.time_delta_displayed",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_time_relative,
-		{ "Time since reference or first frame",	"frame.time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL,
-			0x0,
-			"Time relative to time reference or first frame", HFILL }},
+		  { "Time since reference or first frame", "frame.time_relative",
+		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+		    "Time relative to time reference or first frame", HFILL }},
 
 		{ &hf_frame_time_reference,
-		{ "This is a Time Reference frame",	"frame.ref_time", FT_NONE, BASE_NONE, NULL, 0x0,
-			"This frame is a Time Reference frame", HFILL }},
+		  { "This is a Time Reference frame", "frame.ref_time",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    "This frame is a Time Reference frame", HFILL }},
 
 		{ &hf_frame_number,
-		{ "Frame Number",		"frame.number", FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Frame Number", "frame.number",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_len,
-		{ "Frame length on the wire",		"frame.len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Frame length on the wire", "frame.len",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_capture_len,
-		{ "Frame length stored into the capture file",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Frame length stored into the capture file", "frame.cap_len",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_md5_hash,
-		{ "Frame MD5 Hash",	"frame.md5_hash", FT_STRING, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Frame MD5 Hash", "frame.md5_hash",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_p2p_dir,
-		{ "Point-to-Point Direction",	"frame.p2p_dir", FT_INT8, BASE_DEC, VALS(p2p_dirs), 0x0,
-			NULL, HFILL }},
+		  { "Point-to-Point Direction", "frame.p2p_dir",
+		    FT_INT8, BASE_DEC, VALS(p2p_dirs), 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_link_number,
-		{ "Link Number",		"frame.link_nr", FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Link Number", "frame.link_nr",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_file_off,
-		{ "File Offset",	"frame.file_off", FT_INT64, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "File Offset", "frame.file_off",
+		    FT_INT64, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_marked,
-		{ "Frame is marked",	"frame.marked", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Frame is marked in the GUI", HFILL }},
+		  { "Frame is marked", "frame.marked",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Frame is marked in the GUI", HFILL }},
 
 		{ &hf_frame_ignored,
-		{ "Frame is ignored",	"frame.ignored", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Frame is ignored by the dissectors", HFILL }},
+		  { "Frame is ignored", "frame.ignored",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "Frame is ignored by the dissectors", HFILL }},
 
 		{ &hf_frame_protocols,
-		{ "Protocols in frame",	"frame.protocols", FT_STRING, BASE_NONE, NULL, 0x0,
-			"Protocols carried by this frame", HFILL }},
+		  { "Protocols in frame", "frame.protocols",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Protocols carried by this frame", HFILL }},
 
 		{ &hf_frame_color_filter_name,
-		{ "Coloring Rule Name",	"frame.coloring_rule.name", FT_STRING, BASE_NONE, NULL, 0x0,
-			"The frame matched the coloring rule with this name", HFILL }},
+		  { "Coloring Rule Name", "frame.coloring_rule.name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "The frame matched the coloring rule with this name", HFILL }},
 
 		{ &hf_frame_color_filter_text,
-		{ "Coloring Rule String", "frame.coloring_rule.string", FT_STRING, BASE_NONE, NULL, 0x0,
-			"The frame matched this coloring rule string", HFILL }},
+		  { "Coloring Rule String", "frame.coloring_rule.string",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "The frame matched this coloring rule string", HFILL }},
 
 		{ &hf_frame_interface_id,
-		{ "Interface id",		"frame.interface_id", FT_UINT32, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Interface id", "frame.interface_id",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_frame_wtap_encap,
-		{ "WTAP_ENCAP",		"frame.dlt", FT_INT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }},
+		  { "WTAP_ENCAP", "frame.dlt",
+		    FT_INT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_comments_text,
-		{ "Comment", "comment", FT_STRING, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }},
+		  { "Comment", "comment",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_frame,

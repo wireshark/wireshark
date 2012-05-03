@@ -9,12 +9,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -34,8 +28,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -54,33 +46,33 @@
 #include "packet-fcsb3.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_fc_sbccs             = -1;
-static int hf_sbccs_chid              = -1;
-static int hf_sbccs_cuid              = -1;
-static int hf_sbccs_devaddr           = -1;
-static int hf_sbccs_ccw               = -1;
-static int hf_sbccs_token             = -1;
-static int hf_sbccs_dib_iucnt         = -1;
-static int hf_sbccs_dib_datacnt       = -1;
-static int hf_sbccs_dib_ccw_cmd       = -1;
-static int hf_sbccs_dib_ccw_cnt       = -1;
-static int hf_sbccs_dib_residualcnt   = -1;
-static int hf_sbccs_dib_qtuf          = -1;
-static int hf_sbccs_dib_qtu           = -1;
-static int hf_sbccs_dib_dtuf          = -1;
-static int hf_sbccs_dib_dtu           = -1;
-static int hf_sbccs_dib_ctlfn         = -1;
-static int hf_sbccs_lrc               = -1;
-static int hf_sbccs_dib_iupacing      = -1;
-static int hf_sbccs_dev_xcp_code      = -1;
-static int hf_sbccs_prg_pth_errcode   = -1;
-static int hf_sbccs_prg_rsp_errcode   = -1;
-static int hf_sbccs_dib_ctccntr       = -1;
-static int hf_sbccs_dib_lprcode       = -1;
+static int proto_fc_sbccs = -1;
+static int hf_sbccs_chid = -1;
+static int hf_sbccs_cuid = -1;
+static int hf_sbccs_devaddr = -1;
+static int hf_sbccs_ccw = -1;
+static int hf_sbccs_token = -1;
+static int hf_sbccs_dib_iucnt = -1;
+static int hf_sbccs_dib_datacnt = -1;
+static int hf_sbccs_dib_ccw_cmd = -1;
+static int hf_sbccs_dib_ccw_cnt = -1;
+static int hf_sbccs_dib_residualcnt = -1;
+static int hf_sbccs_dib_qtuf = -1;
+static int hf_sbccs_dib_qtu = -1;
+static int hf_sbccs_dib_dtuf = -1;
+static int hf_sbccs_dib_dtu = -1;
+static int hf_sbccs_dib_ctlfn = -1;
+static int hf_sbccs_lrc = -1;
+static int hf_sbccs_dib_iupacing = -1;
+static int hf_sbccs_dev_xcp_code = -1;
+static int hf_sbccs_prg_pth_errcode = -1;
+static int hf_sbccs_prg_rsp_errcode = -1;
+static int hf_sbccs_dib_ctccntr = -1;
+static int hf_sbccs_dib_lprcode = -1;
 static int hf_sbccs_dib_tin_imgid_cnt = -1;
-static int hf_sbccs_dib_lrjcode       = -1;
-static int hf_sbccs_dib_ioprio        = -1;
-static int hf_sbccs_dib_linkctlfn     = -1;
+static int hf_sbccs_dib_lrjcode = -1;
+static int hf_sbccs_dib_ioprio = -1;
+static int hf_sbccs_dib_linkctlfn = -1;
 static int hf_sbccs_iui = -1;
 static int hf_sbccs_iui_as = -1;
 static int hf_sbccs_iui_es = -1;
@@ -155,16 +147,16 @@ static const value_string fc_sbccs_iu_val[] = {
 };
 
 static const value_string fc_sbccs_dib_cmd_val[] = {
-    {0,  "Reserved"},
-    {1,  "Write"},
-    {2,  "Read"},
-    {3,  "Control"},
-    {4,  "Sense"},
-    {5,  "Write (Modifier)"},
-    {6,  "Read (Modifier)"},
-    {7,  "Control (Modifier)"},
-    {8,  "Reserved"},
-    {9,  "Write (Modifier)"},
+    { 0, "Reserved"},
+    { 1, "Write"},
+    { 2, "Read"},
+    { 3, "Control"},
+    { 4, "Sense"},
+    { 5, "Write (Modifier)"},
+    { 6, "Read (Modifier)"},
+    { 7, "Control (Modifier)"},
+    { 8, "Reserved"},
+    { 9, "Write (Modifier)"},
     {10, "Read (Modifier)"},
     {11, "Control (Modifier)"},
     {12, "Read Backward"},
@@ -196,16 +188,16 @@ static const value_string fc_sbccs_dib_dev_xcpcode_val[] = {
 };
 
 static const value_string fc_sbccs_dib_purge_path_err_val[] = {
-    {0, "Error Code Xfer Not Supported"},
-    {1, "SB-3 Protocol Timeout"},
-    {2, "SB-3 Link Failure"},
-    {3, "Reserved"},
-    {4, "SB-3 Offline Condition"},
-    {5, "FC-PH Link Failure"},
-    {6, "SB-3 Length Error"},
-    {7, "LRC Error"},
-    {8, "SB-3 CRC Error"},
-    {9, "IU Count Error"},
+    { 0, "Error Code Xfer Not Supported"},
+    { 1, "SB-3 Protocol Timeout"},
+    { 2, "SB-3 Link Failure"},
+    { 3, "Reserved"},
+    { 4, "SB-3 Offline Condition"},
+    { 5, "FC-PH Link Failure"},
+    { 6, "SB-3 Length Error"},
+    { 7, "LRC Error"},
+    { 8, "SB-3 CRC Error"},
+    { 9, "IU Count Error"},
     {10, "SB-3 Link Level Protocol Error"},
     {11, "SB-3 Device Level Protocol Error"},
     {12, "Receive ABTS"},
@@ -216,16 +208,16 @@ static const value_string fc_sbccs_dib_purge_path_err_val[] = {
 };
 
 static const value_string fc_sbccs_dib_purge_path_rsp_err_val[] = {
-    {0, "No Errors"},
-    {1, "SB-3 Protocol Timeout"},
-    {2, "SB-3 Link Failure"},
-    {3, "Logical Path Timeout Error"},
-    {4, "SB-3 Offline Condition"},
-    {5, "FC-PH Link Failure"},
-    {6, "SB-3 Length Error"},
-    {7, "LRC Error"},
-    {8, "SB-3 CRC Error"},
-    {9, "IU Count Error"},
+    { 0, "No Errors"},
+    { 1, "SB-3 Protocol Timeout"},
+    { 2, "SB-3 Link Failure"},
+    { 3, "Logical Path Timeout Error"},
+    { 4, "SB-3 Offline Condition"},
+    { 5, "FC-PH Link Failure"},
+    { 6, "SB-3 Length Error"},
+    { 7, "LRC Error"},
+    { 8, "SB-3 CRC Error"},
+    { 9, "IU Count Error"},
     {10, "SB-3 Link Level Protocol Error"},
     {11, "SB-3 Device Level Protocol Error"},
     {12, "Receive ABTS"},
@@ -237,14 +229,14 @@ static const value_string fc_sbccs_dib_purge_path_rsp_err_val[] = {
 };
 
 static const value_string fc_sbccs_dib_link_ctl_fn_val[] = {
-    {FC_SBCCS_LINK_CTL_FN_ELP, "ELP"},
-    {FC_SBCCS_LINK_CTL_FN_RLP, "RLP"},
-    {FC_SBCCS_LINK_CTL_FN_TIN, "TIN"},
-    {FC_SBCCS_LINK_CTL_FN_LPE, "LPE"},
-    {FC_SBCCS_LINK_CTL_FN_LPR, "LPR"},
-    {FC_SBCCS_LINK_CTL_FN_TIR, "TIR"},
-    {FC_SBCCS_LINK_CTL_FN_LRJ, "LRJ"},
-    {FC_SBCCS_LINK_CTL_FN_LBY, "LBY"},
+    {FC_SBCCS_LINK_CTL_FN_ELP,  "ELP"},
+    {FC_SBCCS_LINK_CTL_FN_RLP,  "RLP"},
+    {FC_SBCCS_LINK_CTL_FN_TIN,  "TIN"},
+    {FC_SBCCS_LINK_CTL_FN_LPE,  "LPE"},
+    {FC_SBCCS_LINK_CTL_FN_LPR,  "LPR"},
+    {FC_SBCCS_LINK_CTL_FN_TIR,  "TIR"},
+    {FC_SBCCS_LINK_CTL_FN_LRJ,  "LRJ"},
+    {FC_SBCCS_LINK_CTL_FN_LBY,  "LBY"},
     {FC_SBCCS_LINK_CTL_FN_LACK, "LACK"},
     {0, NULL},
 };
@@ -265,475 +257,475 @@ static const value_string fc_sbccs_dib_lrj_errcode_val[] = {
 };
 
 static const true_false_string tfs_sbccs_iui_as = {
-	"AS is set",
-	"as is NOT set"
+    "AS is set",
+    "as is NOT set"
 };
 static const true_false_string tfs_sbccs_iui_es = {
-	"ES is set",
-	"es is NOT set"
+    "ES is set",
+    "es is NOT set"
 };
 
 static void
 dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_iui,
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_iui);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_iui,
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_iui);
+    }
 
-	proto_tree_add_boolean(tree, hf_sbccs_iui_as, tvb, offset, 1, flags);
-	if (flags&0x10){
-		proto_item_append_text(item, "  AS");
-	}
-	flags&=(~( 0x10 ));
+    proto_tree_add_boolean(tree, hf_sbccs_iui_as, tvb, offset, 1, flags);
+    if (flags & 0x10) {
+        proto_item_append_text(item, "  AS");
+    }
+    flags &= (~( 0x10 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_iui_es, tvb, offset, 1, flags);
-	if (flags&0x08){
-		proto_item_append_text(item, "  ES");
-	}
-	flags&=(~( 0x08 ));
+    proto_tree_add_boolean(tree, hf_sbccs_iui_es, tvb, offset, 1, flags);
+    if (flags & 0x08) {
+        proto_item_append_text(item, "  ES");
+    }
+    flags &= (~( 0x08 ));
 
-        proto_tree_add_item (tree, hf_sbccs_iui_val, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_item_append_text(item, "%s", val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
-	flags&=(~( 0x07 ));
+    proto_tree_add_item (tree, hf_sbccs_iui_val, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(item, "%s", val_to_str (flags & 0x7, fc_sbccs_iu_val, "0x%x"));
+    flags &= (~( 0x07 ));
 }
 
 static const true_false_string tfs_sbccs_linkctlinfo_ctcconn = {
-	"CTC Conn supported",
-	"Ctc conn NOT supported"
+    "CTC Conn supported",
+    "Ctc conn NOT supported"
 };
 static const true_false_string tfs_sbccs_linkctlinfo_ecrcg = {
-	"Enhanced CRC Generation supported",
-	"Enhanced crc generation NOT supported"
+    "Enhanced CRC Generation supported",
+    "Enhanced crc generation NOT supported"
 };
 
 static void
 dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_linkctlinfo,
-				tvb, offset, 2, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_dib_linkctlinfo);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_linkctlinfo,
+                                 tvb, offset, 2, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_dib_linkctlinfo);
+    }
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ctcconn, tvb, offset, 2, flags);
-	if (flags&0x80){
-		proto_item_append_text(item, "  CTC Conn");
-	}
-	flags&=(~( 0x80 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ctcconn, tvb, offset, 2, flags);
+    if (flags & 0x80) {
+        proto_item_append_text(item, "  CTC Conn");
+    }
+    flags &= (~( 0x80 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ecrcg, tvb, offset, 2, flags);
-	if (flags&0x01){
-		proto_item_append_text(item, "  Enhanced CRC Gen");
-	}
-	flags&=(~( 0x01 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_linkctlinfo_ecrcg, tvb, offset, 2, flags);
+    if (flags & 0x01) {
+        proto_item_append_text(item, "  Enhanced CRC Gen");
+    }
+    flags &= (~( 0x01 ));
 }
 
 
 static const true_false_string tfs_sbccs_dhflags_end = {
-	"END bit is set",
-	"end bit is NOT set"
+    "END bit is set",
+    "end bit is NOT set"
 };
 static const true_false_string tfs_sbccs_dhflags_chaining = {
-	"CHAINING bit is set",
-	"chaining bit is NOT set"
+    "CHAINING bit is set",
+    "chaining bit is NOT set"
 };
 static const true_false_string tfs_sbccs_dhflags_earlyend = {
-	"EARLYEND bit is set",
-	"earlyend bit is NOT set"
+    "EARLYEND bit is set",
+    "earlyend bit is NOT set"
 };
 static const true_false_string tfs_sbccs_dhflags_nocrc = {
-	"NOCRC bit is set",
-	"nocrc bit is NOT set"
+    "NOCRC bit is set",
+    "nocrc bit is NOT set"
 };
 
 static void
 dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dhflags,
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_dhflags);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_dhflags,
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_dhflags);
+    }
 
-	proto_tree_add_boolean(tree, hf_sbccs_dhflags_end, tvb, offset, 1, flags);
-	if (flags&0x80){
-		proto_item_append_text(item, "  End");
-	}
-	flags&=(~( 0x80 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dhflags_end, tvb, offset, 1, flags);
+    if (flags & 0x80) {
+        proto_item_append_text(item, "  End");
+    }
+    flags &= (~( 0x80 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dhflags_chaining, tvb, offset, 1, flags);
-	if (flags&0x10){
-		proto_item_append_text(item, "  Chaining");
-	}
-	flags&=(~( 0x10 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dhflags_chaining, tvb, offset, 1, flags);
+    if (flags & 0x10) {
+        proto_item_append_text(item, "  Chaining");
+    }
+    flags &= (~( 0x10 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dhflags_earlyend, tvb, offset, 1, flags);
-	if (flags&0x08){
-		proto_item_append_text(item, "  Early End");
-	}
-	flags&=(~( 0x08 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dhflags_earlyend, tvb, offset, 1, flags);
+    if (flags & 0x08) {
+        proto_item_append_text(item, "  Early End");
+    }
+    flags &= (~( 0x08 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dhflags_nocrc, tvb, offset, 1, flags);
-	if (flags&0x04){
-		proto_item_append_text(item, "  No CRC");
-	}
-	flags&=(~( 0x04 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dhflags_nocrc, tvb, offset, 1, flags);
+    if (flags & 0x04) {
+        proto_item_append_text(item, "  No CRC");
+    }
+    flags &= (~( 0x04 ));
 }
 
 static const true_false_string tfs_sbccs_ccwflags_cd = {
-	"CD is set",
-	"cd is NOT set"
+    "CD is set",
+    "cd is NOT set"
 };
 static const true_false_string tfs_sbccs_ccwflags_cc = {
-	"CC is set",
-	"cc is NOT set"
+    "CC is set",
+    "cc is NOT set"
 };
 static const true_false_string tfs_sbccs_ccwflags_sli = {
-	"SLI is set",
-	"sli is NOT set"
+    "SLI is set",
+    "sli is NOT set"
 };
 static const true_false_string tfs_sbccs_ccwflags_crr = {
-	"CRR is set",
-	"crr is NOT set"
+    "CRR is set",
+    "crr is NOT set"
 };
 
 static void
 dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ccw_flags,
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_dib_ccw_flags);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ccw_flags,
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_dib_ccw_flags);
+    }
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cd, tvb, offset, 1, flags);
-	if (flags&0x80){
-		proto_item_append_text(item, "  CD");
-	}
-	flags&=(~( 0x80 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cd, tvb, offset, 1, flags);
+    if (flags & 0x80) {
+        proto_item_append_text(item, "  CD");
+    }
+    flags &= (~( 0x80 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cc, tvb, offset, 1, flags);
-	if (flags&0x40){
-		proto_item_append_text(item, "  CC");
-	}
-	flags&=(~( 0x40 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_cc, tvb, offset, 1, flags);
+    if (flags & 0x40) {
+        proto_item_append_text(item, "  CC");
+    }
+    flags &= (~( 0x40 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_sli, tvb, offset, 1, flags);
-	if (flags&0x20){
-		proto_item_append_text(item, "  SLI");
-	}
-	flags&=(~( 0x20 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_sli, tvb, offset, 1, flags);
+    if (flags & 0x20) {
+        proto_item_append_text(item, "  SLI");
+    }
+    flags &= (~( 0x20 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_crr, tvb, offset, 1, flags);
-	if (flags&0x08){
-		proto_item_append_text(item, "  CRR");
-	}
-	flags&=(~( 0x08 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_ccw_flags_crr, tvb, offset, 1, flags);
+    if (flags & 0x08) {
+        proto_item_append_text(item, "  CRR");
+    }
+    flags &= (~( 0x08 ));
 }
 
 static const true_false_string tfs_sbccs_cmdflags_du = {
-	"DU is set",
-	"du is NOT set"
+    "DU is set",
+    "du is NOT set"
 };
 static const true_false_string tfs_sbccs_cmdflags_coc = {
-	"COC is set",
-	"coc is NOT set"
+    "COC is set",
+    "coc is NOT set"
 };
 static const true_false_string tfs_sbccs_cmdflags_syr = {
-	"SYR is set",
-	"syr is NOT set"
+    "SYR is set",
+    "syr is NOT set"
 };
 static const true_false_string tfs_sbccs_cmdflags_rex = {
-	"REX is set",
-	"rex is NOT set"
+    "REX is set",
+    "rex is NOT set"
 };
 static const true_false_string tfs_sbccs_cmdflags_sss = {
-	"SSS is set",
-	"sss is NOT set"
+    "SSS is set",
+    "sss is NOT set"
 };
 
 static void
 dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_cmdflags,
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_dib_cmdflags);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_cmdflags,
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_dib_cmdflags);
+    }
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_du, tvb, offset, 1, flags);
-	if (flags&0x10){
-		proto_item_append_text(item, "  DU");
-	}
-	flags&=(~( 0x10 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_du, tvb, offset, 1, flags);
+    if (flags & 0x10) {
+        proto_item_append_text(item, "  DU");
+    }
+    flags &= (~( 0x10 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_coc, tvb, offset, 1, flags);
-	if (flags&0x08){
-		proto_item_append_text(item, "  COC");
-	}
-	flags&=(~( 0x08 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_coc, tvb, offset, 1, flags);
+    if (flags & 0x08) {
+        proto_item_append_text(item, "  COC");
+    }
+    flags &= (~( 0x08 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_syr, tvb, offset, 1, flags);
-	if (flags&0x04){
-		proto_item_append_text(item, "  SYR");
-	}
-	flags&=(~( 0x04 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_syr, tvb, offset, 1, flags);
+    if (flags & 0x04) {
+        proto_item_append_text(item, "  SYR");
+    }
+    flags &= (~( 0x04 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_rex, tvb, offset, 1, flags);
-	if (flags&0x02){
-		proto_item_append_text(item, "  REX");
-	}
-	flags&=(~( 0x02 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_rex, tvb, offset, 1, flags);
+    if (flags & 0x02) {
+        proto_item_append_text(item, "  REX");
+    }
+    flags &= (~( 0x02 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_sss, tvb, offset, 1, flags);
-	if (flags&0x01){
-		proto_item_append_text(item, "  SSS");
-	}
-	flags&=(~( 0x01 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_cmdflags_sss, tvb, offset, 1, flags);
+    if (flags & 0x01) {
+        proto_item_append_text(item, "  SSS");
+    }
+    flags &= (~( 0x01 ));
 }
 
 static const value_string status_ffc_val[] = {
-	{ 0, "" },
-	{ 1, "FFC:Queuing Information Valid" },
-	{ 2, "FFC:Resetting Event" },
-	{ 0, NULL }
+    { 0, "" },
+    { 1, "FFC:Queuing Information Valid" },
+    { 2, "FFC:Resetting Event" },
+    { 0, NULL }
 };
 
 static const true_false_string tfs_sbccs_statusflags_ci = {
-	"CI is set",
-	"ci is NOT set"
+    "CI is set",
+    "ci is NOT set"
 };
 static const true_false_string tfs_sbccs_statusflags_cr = {
-	"CR is set",
-	"cr is NOT set"
+    "CR is set",
+    "cr is NOT set"
 };
 static const true_false_string tfs_sbccs_statusflags_lri = {
-	"LRI is set",
-	"lri is NOT set"
+    "LRI is set",
+    "lri is NOT set"
 };
 static const true_false_string tfs_sbccs_statusflags_rv = {
-	"RV is set",
-	"rv is NOT set"
+    "RV is set",
+    "rv is NOT set"
 };
 
 static void
 dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_statusflags,
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_dib_statusflags);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_statusflags,
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_dib_statusflags);
+    }
 
 
-        proto_tree_add_item (tree, hf_sbccs_dib_statusflags_ffc, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_item_append_text(item, "%s", val_to_str ((flags>>5)&0x07, status_ffc_val, "Reserved:0x%x"));
-	flags&=(~( 0xE0 ));
+    proto_tree_add_item (tree, hf_sbccs_dib_statusflags_ffc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(item, "%s", val_to_str ((flags>>5) & 0x07, status_ffc_val, "Reserved:0x%x"));
+    flags &= (~( 0xE0 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_ci, tvb, offset, 1, flags);
-	if (flags&0x10){
-		proto_item_append_text(item, "  CI");
-	}
-	flags&=(~( 0x10 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_ci, tvb, offset, 1, flags);
+    if (flags & 0x10) {
+        proto_item_append_text(item, "  CI");
+    }
+    flags &= (~( 0x10 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_cr, tvb, offset, 1, flags);
-	if (flags&0x04){
-		proto_item_append_text(item, "  CR");
-	}
-	flags&=(~( 0x04 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_cr, tvb, offset, 1, flags);
+    if (flags & 0x04) {
+        proto_item_append_text(item, "  CR");
+    }
+    flags &= (~( 0x04 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_lri, tvb, offset, 1, flags);
-	if (flags&0x02){
-		proto_item_append_text(item, "  LRI");
-	}
-	flags&=(~( 0x02 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_lri, tvb, offset, 1, flags);
+    if (flags & 0x02) {
+        proto_item_append_text(item, "  LRI");
+    }
+    flags &= (~( 0x02 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_rv, tvb, offset, 1, flags);
-	if (flags&0x01){
-		proto_item_append_text(item, "  RV");
-	}
-	flags&=(~( 0x01 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_statusflags_rv, tvb, offset, 1, flags);
+    if (flags & 0x01) {
+        proto_item_append_text(item, "  RV");
+    }
+    flags &= (~( 0x01 ));
 
 }
 
 static const true_false_string tfs_sbccs_status_attention = {
-	"ATTENTION is set",
-	"attention is NOT set"
+    "ATTENTION is set",
+    "attention is NOT set"
 };
 static const true_false_string tfs_sbccs_status_modifier = {
-	"STATUS MODIFIER is set",
-	"status modifier is NOT set"
+    "STATUS MODIFIER is set",
+    "status modifier is NOT set"
 };
 static const true_false_string tfs_sbccs_status_cue = {
-	"CONTROL-UNIT END is set",
-	"control-unit end is NOT set"
+    "CONTROL-UNIT END is set",
+    "control-unit end is NOT set"
 };
 static const true_false_string tfs_sbccs_status_busy = {
-	"BUSY is set",
-	"busy is NOT set"
+    "BUSY is set",
+    "busy is NOT set"
 };
 static const true_false_string tfs_sbccs_status_channelend = {
-	"CHANNEL-END is set",
-	"channel-end is NOT set"
+    "CHANNEL-END is set",
+    "channel-end is NOT set"
 };
 static const true_false_string tfs_sbccs_status_deviceend = {
-	"DEVICE-END is set",
-	"device-end is NOT set"
+    "DEVICE-END is set",
+    "device-end is NOT set"
 };
 static const true_false_string tfs_sbccs_status_unitcheck = {
-	"UNIT CHECK is set",
-	"unit check is NOT set"
+    "UNIT CHECK is set",
+    "unit check is NOT set"
 };
 static const true_false_string tfs_sbccs_status_unitexception = {
-	"UNIT EXCEPTION is set",
-	"unit exception is NOT set"
+    "UNIT EXCEPTION is set",
+    "unit exception is NOT set"
 };
 
 static void
 dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_status,
-				tvb, offset, 1, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_dib_status);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_status,
+                                 tvb, offset, 1, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_dib_status);
+    }
 
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_attention, tvb, offset, 1, flags);
-	if (flags&0x80){
-		proto_item_append_text(item, "  Attention");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Attention");
-	}
-	flags&=(~( 0x80 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_attention, tvb, offset, 1, flags);
+    if (flags & 0x80) {
+        proto_item_append_text(item, "  Attention");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Attention");
+    }
+    flags &= (~( 0x80 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_modifier, tvb, offset, 1, flags);
-	if (flags&0x40){
-		proto_item_append_text(item, "  Status Modifier");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Status Modifier");
-	}
-	flags&=(~( 0x40 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_modifier, tvb, offset, 1, flags);
+    if (flags & 0x40) {
+        proto_item_append_text(item, "  Status Modifier");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Status Modifier");
+    }
+    flags &= (~( 0x40 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_cue, tvb, offset, 1, flags);
-	if (flags&0x20){
-		proto_item_append_text(item, "  Control-Unit End");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Control-Unit End");
-	}
-	flags&=(~( 0x20 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_cue, tvb, offset, 1, flags);
+    if (flags & 0x20) {
+        proto_item_append_text(item, "  Control-Unit End");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Control-Unit End");
+    }
+    flags &= (~( 0x20 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_busy, tvb, offset, 1, flags);
-	if (flags&0x10){
-		proto_item_append_text(item, "  Busy");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Busy");
-	}
-	flags&=(~( 0x10 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_busy, tvb, offset, 1, flags);
+    if (flags & 0x10) {
+        proto_item_append_text(item, "  Busy");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Busy");
+    }
+    flags &= (~( 0x10 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_channelend, tvb, offset, 1, flags);
-	if (flags&0x08){
-		proto_item_append_text(item, "  Channel End");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Channel End");
-	}
-	flags&=(~( 0x08 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_channelend, tvb, offset, 1, flags);
+    if (flags & 0x08) {
+        proto_item_append_text(item, "  Channel End");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Channel End");
+    }
+    flags &= (~( 0x08 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_deviceend, tvb, offset, 1, flags);
-	if (flags&0x04){
-		proto_item_append_text(item, "  Device End");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Device End");
-	}
-	flags&=(~( 0x04 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_deviceend, tvb, offset, 1, flags);
+    if (flags & 0x04) {
+        proto_item_append_text(item, "  Device End");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Device End");
+    }
+    flags &= (~( 0x04 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_check, tvb, offset, 1, flags);
-	if (flags&0x02){
-		proto_item_append_text(item, "  Unit Check");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Unit Check");
-	}
-	flags&=(~( 0x02 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_check, tvb, offset, 1, flags);
+    if (flags & 0x02) {
+        proto_item_append_text(item, "  Unit Check");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Unit Check");
+    }
+    flags &= (~( 0x02 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_exception, tvb, offset, 1, flags);
-	if (flags&0x01){
-		proto_item_append_text(item, "  Unit Exception");
-		col_append_str(pinfo->cinfo, COL_INFO, "  Unit Exception");
-	}
-	flags&=(~( 0x01 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_status_unit_exception, tvb, offset, 1, flags);
+    if (flags & 0x01) {
+        proto_item_append_text(item, "  Unit Exception");
+        col_append_str(pinfo->cinfo, COL_INFO, "  Unit Exception");
+    }
+    flags &= (~( 0x01 ));
 
 }
 
 static const true_false_string tfs_sbccs_ctlparam_rc = {
-	"RC is SET",
-	"rc is NOT set"
+    "RC is SET",
+    "rc is NOT set"
 };
 static const true_false_string tfs_sbccs_ctlparam_ru = {
-	"RU is SET",
-	"ru is NOT set"
+    "RU is SET",
+    "ru is NOT set"
 };
 static const true_false_string tfs_sbccs_ctlparam_ro = {
-	"RO is SET",
-	"ro is NOT set"
+    "RO is SET",
+    "ro is NOT set"
 };
 
 static void
 dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint32 flags)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
 
-	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ctlparam,
-				tvb, offset, 3, flags);
-		tree=proto_item_add_subtree(item, ett_sbccs_dib_ctlparam);
-	}
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ctlparam,
+                                 tvb, offset, 3, flags);
+        tree=proto_item_add_subtree(item, ett_sbccs_dib_ctlparam);
+    }
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_rc, tvb, offset, 3, flags);
-	if (flags&0x80){
-		proto_item_append_text(item, "  RC");
-	}
-	flags&=(~( 0x80 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_rc, tvb, offset, 3, flags);
+    if (flags & 0x80) {
+        proto_item_append_text(item, "  RC");
+    }
+    flags &= (~( 0x80 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ru, tvb, offset, 3, flags);
-	if (flags&0x10){
-		proto_item_append_text(item, "  RU");
-	}
-	flags&=(~( 0x10 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ru, tvb, offset, 3, flags);
+    if (flags & 0x10) {
+        proto_item_append_text(item, "  RU");
+    }
+    flags &= (~( 0x10 ));
 
-	proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ro, tvb, offset, 3, flags);
-	if (flags&0x08){
-		proto_item_append_text(item, "  RO");
-	}
-	flags&=(~( 0x08 ));
+    proto_tree_add_boolean(tree, hf_sbccs_dib_ctlparam_ro, tvb, offset, 3, flags);
+    if (flags & 0x08) {
+        proto_item_append_text(item, "  RO");
+    }
+    flags &= (~( 0x08 ));
 }
 
 static void get_fc_sbccs_conv_data (tvbuff_t *tvb, guint offset,
                                     guint16 *ch_cu_id, guint16 *dev_addr,
                                     guint16 *ccw)
 {
-    *ch_cu_id = *dev_addr = *ccw = 0;
+    *ch_cu_id  = *dev_addr = *ccw = 0;
 
-    *ch_cu_id = (tvb_get_guint8 (tvb, offset+1)) << 8;
+    *ch_cu_id  = (tvb_get_guint8 (tvb, offset+1)) << 8;
     *ch_cu_id |= tvb_get_guint8 (tvb, offset+3);
-    *dev_addr = tvb_get_ntohs (tvb, offset+4);
-    *ccw = tvb_get_ntohs (tvb, offset+10);
+    *dev_addr  = tvb_get_ntohs (tvb, offset+4);
+    *ccw       = tvb_get_ntohs (tvb, offset+10);
 }
 
 /* Decode both the SB-3 and basic IU header */
@@ -744,8 +736,8 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item *subti;
     proto_tree *sb3hdr_tree;
     proto_tree *iuhdr_tree;
-    guint8 iui, dhflags;
-    guint type;
+    guint8      iui, dhflags;
+    guint       type;
 
     /* Decode the basic SB3 and IU header and determine type of frame */
     type = get_fc_sbccs_iu_type (tvb, offset);
@@ -772,10 +764,10 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += FC_SBCCS_SB3_HDR_SIZE;
 
         iui = tvb_get_guint8 (tvb, offset);
-	dissect_iui_flags(iuhdr_tree, tvb, offset, iui);
+        dissect_iui_flags(iuhdr_tree, tvb, offset, iui);
 
         dhflags = tvb_get_guint8 (tvb, offset+1);
-	dissect_dh_flags(iuhdr_tree, tvb, offset+1, dhflags);
+        dissect_dh_flags(iuhdr_tree, tvb, offset+1, dhflags);
 
         proto_tree_add_item (iuhdr_tree, hf_sbccs_ccw, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (iuhdr_tree, hf_sbccs_token, tvb, offset+5, 3, ENC_BIG_ENDIAN);
@@ -809,13 +801,13 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         flags = tvb_get_guint8 (tvb, offset+1);
-	dissect_ccw_flags(tree, tvb, offset+1, flags);
+        dissect_ccw_flags(tree, tvb, offset+1, flags);
 
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cnt, tvb, offset+2, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_sbccs_dib_ioprio, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 
         flags = tvb_get_guint8 (tvb, offset+7);
-	dissect_cmd_flags(tree, tvb, offset+7, flags);
+        dissect_cmd_flags(tree, tvb, offset+7, flags);
 
         proto_tree_add_item (tree, hf_sbccs_dib_iucnt, tvb, offset+9, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_sbccs_dib_datacnt, tvb, offset+10, 2, ENC_BIG_ENDIAN);
@@ -827,19 +819,19 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                              proto_tree *tree, guint offset)
 {
-    guint8 flags;
-    gboolean rv_valid, qparam_valid;
+    guint8    flags;
+    gboolean  rv_valid, qparam_valid;
     tvbuff_t *next_tvb;
-    guint16 supp_status_cnt = 0;
+    guint16   supp_status_cnt = 0;
 
     if (tree) {
         flags = tvb_get_guint8 (tvb, offset);
         rv_valid = flags & 0x1; /* if residual count is valid */
         qparam_valid = (((flags & 0xE0) >> 5) == 0x1); /* From the FFC field */
-	dissect_status_flags(tree, tvb, offset, flags);
+        dissect_status_flags(tree, tvb, offset, flags);
 
         flags = tvb_get_guint8 (tvb, offset+1);
-	dissect_status(pinfo, tree, tvb, offset+1, flags);
+        dissect_status(pinfo, tree, tvb, offset+1, flags);
 
         if (rv_valid) {
             proto_tree_add_item (tree, hf_sbccs_dib_residualcnt, tvb, offset+2,
@@ -920,9 +912,9 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                            proto_tree *tree, guint offset)
 {
-    guint8 link_ctl;
+    guint8  link_ctl;
     guint16 ctl_info;
-    guint link_payload_len, i;
+    guint   link_payload_len, i;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO,
@@ -988,16 +980,16 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
                               proto_tree *tree)
 {
-    guint8 type;
-    guint16 ch_cu_id, dev_addr, ccw;
-    guint offset = 0;
-    proto_item *ti;
-    proto_tree *sb3_tree = NULL,
-               *dib_tree = NULL;
-    tvbuff_t *next_tvb;
+    guint8          type;
+    guint16         ch_cu_id, dev_addr, ccw;
+    guint           offset   = 0;
+    proto_item     *ti;
+    proto_tree     *sb3_tree = NULL;
+    proto_tree     *dib_tree = NULL;
+    tvbuff_t       *next_tvb;
     conversation_t *conversation;
-    sb3_task_id_t task_key;
-    void* pd_save;
+    sb3_task_id_t   task_key;
+    void           *pd_save;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-SB3");
@@ -1093,209 +1085,344 @@ proto_register_fcsbccs (void)
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_sbccs_chid,
-          {"Channel Image ID", "sbccs.chid", FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}},
+          { "Channel Image ID", "sbccs.chid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_cuid,
-          {"Control Unit Image ID", "sbccs.cuid", FT_UINT8, BASE_DEC, NULL,
-           0x0, NULL, HFILL}},
+          { "Control Unit Image ID", "sbccs.cuid",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_devaddr,
-          {"Device Address", "sbccs.devaddr", FT_UINT16, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}},
+          { "Device Address", "sbccs.devaddr",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_iui,
-          {"Information Unit Identifier", "sbccs.iui", FT_UINT8, BASE_HEX,
-           NULL, 0x0, NULL, HFILL}},
+          { "Information Unit Identifier", "sbccs.iui",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dhflags,
-          {"DH Flags", "sbccs.dhflags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
-           HFILL}},
+          { "DH Flags", "sbccs.dhflags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_ccw,
-          {"CCW Number", "sbccs.ccw", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
-           HFILL}},
+          { "CCW Number", "sbccs.ccw",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_token,
-          {"Token", "sbccs.token", FT_UINT24, BASE_DEC, NULL, 0x0, NULL,
-           HFILL}},
+          { "Token", "sbccs.token",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_iucnt,
-          {"DIB IU Count", "sbccs.iucnt", FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}},
+          { "DIB IU Count", "sbccs.iucnt",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_datacnt,
-          {"DIB Data Byte Count", "sbccs.databytecnt", FT_UINT16, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          { "DIB Data Byte Count", "sbccs.databytecnt",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ccw_cmd,
-          {"CCW Command", "sbccs.ccwcmd", FT_UINT8, BASE_HEX,
-           VALS (fc_sbccs_dib_cmd_val), 0x0, NULL, HFILL}},
+          { "CCW Command", "sbccs.ccwcmd",
+            FT_UINT8, BASE_HEX, VALS (fc_sbccs_dib_cmd_val), 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ccw_cnt,
-          {"CCW Count", "sbccs.ccwcnt", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
-           HFILL}},
+          { "CCW Count", "sbccs.ccwcnt",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ioprio,
-          {"I/O Priority", "sbccs.ioprio", FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}},
+          { "I/O Priority", "sbccs.ioprio",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status,
-          {"Status", "sbccs.status", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
-           HFILL}},
+          { "Status", "sbccs.status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_residualcnt,
-          {"Residual Count", "sbccs.residualcnt", FT_UINT8, BASE_DEC,
-           NULL, 0x0, NULL, HFILL}},
+          { "Residual Count", "sbccs.residualcnt",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_iupacing,
-          {"IU Pacing", "sbccs.iupacing", FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}},
+          { "IU Pacing", "sbccs.iupacing",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_qtuf,
-          {"Queue-Time Unit Factor", "sbccs.qtuf", FT_UINT8, BASE_DEC,
-           NULL, 0xF0, NULL, HFILL}},
+          { "Queue-Time Unit Factor", "sbccs.qtuf",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_qtu,
-          {"Queue-Time Unit", "sbccs.qtu", FT_UINT16, BASE_DEC, NULL, 0xFFF,
-           NULL, HFILL}},
+          { "Queue-Time Unit", "sbccs.qtu",
+            FT_UINT16, BASE_DEC, NULL, 0xFFF,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_dtuf,
-          {"Defer-Time Unit Function", "sbccs.dtuf", FT_UINT8, BASE_DEC,
-           NULL, 0xF0, NULL, HFILL}},
+          { "Defer-Time Unit Function", "sbccs.dtuf",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_dtu,
-          {"Defer-Time Unit", "sbccs.dtu", FT_UINT16, BASE_DEC, NULL, 0xFFF,
-           NULL, HFILL}},
+          { "Defer-Time Unit", "sbccs.dtu",
+            FT_UINT16, BASE_DEC, NULL, 0xFFF,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ctlfn,
-          {"Control Function", "sbccs.ctlfn", FT_UINT8, BASE_HEX,
-           VALS (fc_sbccs_dib_ctl_fn_val), 0x0, NULL, HFILL}},
+          { "Control Function", "sbccs.ctlfn",
+            FT_UINT8, BASE_HEX, VALS (fc_sbccs_dib_ctl_fn_val), 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_linkctlfn,
-          {"Link Control Function", "sbccs.linkctlfn", FT_UINT8, BASE_HEX,
-           VALS (fc_sbccs_dib_link_ctl_fn_val), 0x0, NULL, HFILL}},
+          { "Link Control Function", "sbccs.linkctlfn",
+            FT_UINT8, BASE_HEX, VALS (fc_sbccs_dib_link_ctl_fn_val), 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ctccntr,
-          {"CTC Counter", "sbccs.ctccntr", FT_UINT16, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}},
+          { "CTC Counter", "sbccs.ctccntr",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_lrc,
-          {"LRC", "sbccs.lrc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+          { "LRC", "sbccs.lrc",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dev_xcp_code,
-          {"Device Level Exception Code", "sbccs.dip.xcpcode", FT_UINT8,
-           BASE_DEC, VALS (fc_sbccs_dib_dev_xcpcode_val), 0x0, NULL, HFILL}},
+          { "Device Level Exception Code", "sbccs.dip.xcpcode",
+            FT_UINT8, BASE_DEC, VALS (fc_sbccs_dib_dev_xcpcode_val), 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_prg_pth_errcode,
-          {"Purge Path Error Code", "sbccs.purgepathcode", FT_UINT8,
-           BASE_DEC, VALS (fc_sbccs_dib_purge_path_err_val), 0x0, NULL, HFILL}},
+          { "Purge Path Error Code", "sbccs.purgepathcode",
+            FT_UINT8, BASE_DEC, VALS (fc_sbccs_dib_purge_path_err_val), 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_prg_rsp_errcode,
-          {"Purge Path Response Error Code", "sbccs.purgepathrspcode",
-           FT_UINT8, BASE_DEC, VALS (fc_sbccs_dib_purge_path_rsp_err_val),
-           0x0, NULL, HFILL}},
+          { "Purge Path Response Error Code", "sbccs.purgepathrspcode",
+            FT_UINT8, BASE_DEC, VALS (fc_sbccs_dib_purge_path_rsp_err_val), 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_lprcode,
-          {"LPR Reason Code", "sbccs.lprcode", FT_UINT8, BASE_DEC,
-           VALS (fc_sbccs_dib_lpr_errcode_val), 0xF, NULL, HFILL}},
+          { "LPR Reason Code", "sbccs.lprcode",
+            FT_UINT8, BASE_DEC, VALS (fc_sbccs_dib_lpr_errcode_val), 0xF,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_tin_imgid_cnt,
-          {"TIN Image ID", "sbccs.tinimageidcnt", FT_UINT8, BASE_DEC, NULL,
-           0x0, NULL, HFILL}},
+          { "TIN Image ID", "sbccs.tinimageidcnt",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_lrjcode,
-          {"LRJ Reaspn Code", "sbccs.lrjcode", FT_UINT8, BASE_HEX,
-           VALS (fc_sbccs_dib_lrj_errcode_val), 0x7F, NULL, HFILL}},
+          { "LRJ Reaspn Code", "sbccs.lrjcode",
+            FT_UINT8, BASE_HEX, VALS (fc_sbccs_dib_lrj_errcode_val), 0x7F,
+            NULL, HFILL}},
+
         { &hf_sbccs_iui_as,
-          {"AS", "sbccs.iui.as", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_iui_as), 0x10, NULL, HFILL}},
+          { "AS", "sbccs.iui.as",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_iui_as), 0x10,
+            NULL, HFILL}},
+
         { &hf_sbccs_iui_es,
-          {"ES", "sbccs.iui.es", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_iui_es), 0x08, NULL, HFILL}},
+          { "ES", "sbccs.iui.es",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_iui_es), 0x08,
+            NULL, HFILL}},
+
         { &hf_sbccs_iui_val,
-          {"Val", "sbccs.iui.val", FT_UINT8, BASE_HEX,
-           VALS(fc_sbccs_iu_val), 0x07, NULL, HFILL}},
+          { "Val", "sbccs.iui.val",
+            FT_UINT8, BASE_HEX, VALS(fc_sbccs_iu_val), 0x07,
+            NULL, HFILL}},
+
         { &hf_sbccs_dhflags_end,
-          {"End", "sbccs.dhflags.end", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_dhflags_end), 0x80, NULL, HFILL}},
+          { "End", "sbccs.dhflags.end",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_end), 0x80,
+            NULL, HFILL}},
+
         { &hf_sbccs_dhflags_chaining,
-          {"Chaining", "sbccs.dhflags.chaining", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_dhflags_chaining), 0x10, NULL, HFILL}},
+          { "Chaining", "sbccs.dhflags.chaining",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_chaining), 0x10,
+            NULL, HFILL}},
+
         { &hf_sbccs_dhflags_earlyend,
-          {"Early End", "sbccs.dhflags.earlyend", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_dhflags_earlyend), 0x08, NULL, HFILL}},
+          { "Early End", "sbccs.dhflags.earlyend",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_earlyend), 0x08,
+            NULL, HFILL}},
+
         { &hf_sbccs_dhflags_nocrc,
-          {"No CRC", "sbccs.dhflags.nocrc", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_dhflags_nocrc), 0x04, NULL, HFILL}},
+          { "No CRC", "sbccs.dhflags.nocrc",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_dhflags_nocrc), 0x04,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ccw_flags,
-          {"CCW Control Flags", "sbccs.ccwflags", FT_UINT8, BASE_HEX, NULL,
-           0x0, NULL, HFILL}},
+          { "CCW Control Flags", "sbccs.ccwflags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ccw_flags_cd,
-          {"CD", "sbccs.ccwflags.cd", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_ccwflags_cd), 0x80, NULL, HFILL}},
+          { "CD", "sbccs.ccwflags.cd",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_cd), 0x80,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ccw_flags_cc,
-          {"CC", "sbccs.ccwflags.cc", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_ccwflags_cc), 0x40, NULL, HFILL}},
+          { "CC", "sbccs.ccwflags.cc",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_cc), 0x40,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ccw_flags_sli,
-          {"SLI", "sbccs.ccwflags.sli", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_ccwflags_sli), 0x20, NULL, HFILL}},
+          { "SLI", "sbccs.ccwflags.sli",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_sli), 0x20,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ccw_flags_crr,
-          {"CRR", "sbccs.ccwflags.crr", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_ccwflags_crr), 0x08, NULL, HFILL}},
+          { "CRR", "sbccs.ccwflags.crr",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_ccwflags_crr), 0x08,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_cmdflags,
-          {"Command Flags", "sbccs.cmdflags", FT_UINT8, BASE_HEX, NULL, 0x0,
-           NULL, HFILL}},
+          { "Command Flags", "sbccs.cmdflags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_cmdflags_du,
-          {"DU", "sbccs.cmdflags.du", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_cmdflags_du), 0x10, NULL, HFILL}},
+          { "DU", "sbccs.cmdflags.du",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_du), 0x10,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_cmdflags_coc,
-          {"COC", "sbccs.cmdflags.coc", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_cmdflags_coc), 0x08, NULL, HFILL}},
+          { "COC", "sbccs.cmdflags.coc",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_coc), 0x08,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_cmdflags_syr,
-          {"SYR", "sbccs.cmdflags.syr", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_cmdflags_syr), 0x04, NULL, HFILL}},
+          { "SYR", "sbccs.cmdflags.syr",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_syr), 0x04,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_cmdflags_rex,
-          {"REX", "sbccs.cmdflags.rex", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_cmdflags_rex), 0x02, NULL, HFILL}},
+          { "REX", "sbccs.cmdflags.rex",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_rex), 0x02,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_cmdflags_sss,
-          {"SSS", "sbccs.cmdflags.sss", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_cmdflags_sss), 0x01, NULL, HFILL}},
+          { "SSS", "sbccs.cmdflags.sss",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_cmdflags_sss), 0x01,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_statusflags,
-          {"Status Flags", "sbccs.statusflags", FT_UINT8, BASE_HEX,
-           NULL, 0, NULL, HFILL}},
+          { "Status Flags", "sbccs.statusflags",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_statusflags_ffc,
-          {"FFC", "sbccs.statusflags.ffc", FT_UINT8, BASE_HEX,
-           VALS(status_ffc_val), 0xE0, NULL, HFILL}},
+          { "FFC", "sbccs.statusflags.ffc",
+            FT_UINT8, BASE_HEX, VALS(status_ffc_val), 0xE0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_statusflags_ci,
-          {"CI", "sbccs.statusflags.ci", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_statusflags_ci), 0x10, NULL, HFILL}},
+          { "CI", "sbccs.statusflags.ci",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_ci), 0x10,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_statusflags_cr,
-          {"CR", "sbccs.statusflags.cr", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_statusflags_cr), 0x04, NULL, HFILL}},
+          { "CR", "sbccs.statusflags.cr",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_cr), 0x04,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_statusflags_lri,
-          {"LRI", "sbccs.statusflags.lri", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_statusflags_lri), 0x02, NULL, HFILL}},
+          { "LRI", "sbccs.statusflags.lri",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_lri), 0x02,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_statusflags_rv,
-          {"RV", "sbccs.statusflags.rv", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_statusflags_rv), 0x01, NULL, HFILL}},
+          { "RV", "sbccs.statusflags.rv",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_statusflags_rv), 0x01,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_attention,
-          {"Attention", "sbccs.status.attention", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_attention), 0x80, NULL, HFILL}},
+          { "Attention", "sbccs.status.attention",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_attention), 0x80,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_modifier,
-          {"Status Modifier", "sbccs.status.modifier", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_modifier), 0x40, NULL, HFILL}},
+          { "Status Modifier", "sbccs.status.modifier",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_modifier), 0x40,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_cue,
-          {"Control-Unit End", "sbccs.status.cue", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_cue), 0x20, NULL, HFILL}},
+          { "Control-Unit End", "sbccs.status.cue",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_cue), 0x20,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_busy,
-          {"Busy", "sbccs.status.busy", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_busy), 0x10, NULL, HFILL}},
+          { "Busy", "sbccs.status.busy",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_busy), 0x10,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_channelend,
-          {"Channel End", "sbccs.status.channel_end", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_channelend), 0x08, NULL, HFILL}},
+          { "Channel End", "sbccs.status.channel_end",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_channelend), 0x08,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_deviceend,
-          {"Device End", "sbccs.status.device_end", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_deviceend), 0x04, NULL, HFILL}},
+          { "Device End", "sbccs.status.device_end",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_deviceend), 0x04,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_unit_check,
-          {"Unit Check", "sbccs.status.unit_check", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_unitcheck), 0x02, NULL, HFILL}},
+          { "Unit Check", "sbccs.status.unit_check",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_unitcheck), 0x02,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_status_unit_exception,
-          {"Unit Exception", "sbccs.status.unitexception", FT_BOOLEAN, 8,
-           TFS(&tfs_sbccs_status_unitexception), 0x01, NULL, HFILL}},
+          { "Unit Exception", "sbccs.status.unitexception",
+            FT_BOOLEAN, 8, TFS(&tfs_sbccs_status_unitexception), 0x01,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ctlparam,
-          {"Control Parameters", "sbccs.ctlparam", FT_UINT24, BASE_HEX,
-           NULL, 0x0, NULL, HFILL}},
+          { "Control Parameters", "sbccs.ctlparam",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ctlparam_rc,
-          {"RC", "sbccs.ctlparam.rc", FT_BOOLEAN, 24,
-           TFS(&tfs_sbccs_ctlparam_rc), 0x80, NULL, HFILL}},
+          { "RC", "sbccs.ctlparam.rc",
+            FT_BOOLEAN, 24, TFS(&tfs_sbccs_ctlparam_rc), 0x80,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ctlparam_ru,
-          {"RU", "sbccs.ctlparam.ru", FT_BOOLEAN, 24,
-           TFS(&tfs_sbccs_ctlparam_ru), 0x10, NULL, HFILL}},
+          { "RU", "sbccs.ctlparam.ru",
+            FT_BOOLEAN, 24, TFS(&tfs_sbccs_ctlparam_ru), 0x10,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_ctlparam_ro,
-          {"RO", "sbccs.ctlparam.ro", FT_BOOLEAN, 24,
-           TFS(&tfs_sbccs_ctlparam_ro), 0x08, NULL, HFILL}},
+          { "RO", "sbccs.ctlparam.ro",
+            FT_BOOLEAN, 24, TFS(&tfs_sbccs_ctlparam_ro), 0x08,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_linkctlinfo,
-          {"Link Control Information", "sbccs.linkctlinfo", FT_UINT16,
-           BASE_HEX, NULL, 0x0, NULL, HFILL}},
+          { "Link Control Information", "sbccs.linkctlinfo",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_linkctlinfo_ctcconn,
-          {"CTC Conn", "sbccs.linkctlinfo.ctc_conn", FT_BOOLEAN, 16,
-           TFS(&tfs_sbccs_linkctlinfo_ctcconn), 0x80, NULL, HFILL}},
+          { "CTC Conn", "sbccs.linkctlinfo.ctc_conn",
+            FT_BOOLEAN, 16, TFS(&tfs_sbccs_linkctlinfo_ctcconn), 0x80,
+            NULL, HFILL}},
+
         { &hf_sbccs_dib_linkctlinfo_ecrcg,
-          {"Enhanced CRC Generation", "sbccs.linkctlinfo.ecrcg", FT_BOOLEAN, 16,
-           TFS(&tfs_sbccs_linkctlinfo_ecrcg), 0x01, NULL, HFILL}},
+          { "Enhanced CRC Generation", "sbccs.linkctlinfo.ecrcg",
+            FT_BOOLEAN, 16, TFS(&tfs_sbccs_linkctlinfo_ecrcg), 0x01,
+            NULL, HFILL}},
     };
 
 
@@ -1316,15 +1443,10 @@ proto_register_fcsbccs (void)
     proto_fc_sbccs = proto_register_protocol ("Fibre Channel Single Byte Command",
                                               "FC-SB3", "sb3");
 
-    /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fc_sbccs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_fcsbccs (void)
 {

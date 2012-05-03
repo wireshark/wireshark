@@ -94,12 +94,12 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *fefd_tree = NULL;
-    int offset = 0;
-    guint16 type;
-    guint16 length;
+    int         offset    = 0;
+    guint16     type;
+    guint16     length;
     proto_item *tlvi;
     proto_tree *tlv_tree;
-    int real_length;
+    int         real_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FEFD");
     col_clear(pinfo->cinfo, COL_INFO);

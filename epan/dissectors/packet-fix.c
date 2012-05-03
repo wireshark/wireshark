@@ -76,9 +76,10 @@ static range_t *fix_tcp_range = NULL;
 /* 8=FIX */
 #define MARKER_TAG "8=FIX"
 #define MARKER_LEN 5
+
 static int fix_marker(tvbuff_t *tvb, int offset)
 {
-  return tvb_strneql(tvb, offset, MARKER_TAG, MARKER_LEN);
+    return tvb_strneql(tvb, offset, MARKER_TAG, MARKER_LEN);
 }
 
 /*
@@ -114,9 +115,9 @@ tag_search(int key)
 static int fix_next_header(tvbuff_t *tvb, int offset)
 {
     /* try to resync to the next start */
-    guint min_len = tvb_length_remaining(tvb, offset);
-    const guint8 *data = tvb_get_ephemeral_string(tvb, offset, min_len);
-    const guint8 *start = data;
+    guint         min_len = tvb_length_remaining(tvb, offset);
+    const guint8 *data    = tvb_get_ephemeral_string(tvb, offset, min_len);
+    const guint8 *start   = data;
 
     while ((start = strstr(start, "\0018"))) {
         min_len = (guint) (start +1 -data);
@@ -138,7 +139,7 @@ static int fix_next_header(tvbuff_t *tvb, int offset)
 static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
 {
     static fix_parameter ret;
-    int equals;
+    int                  equals;
 
     ret.ctrla_offset = tvb_find_guint8(tvb, offset, -1, 0x01);
     if (ret.ctrla_offset == -1) {
@@ -152,17 +153,17 @@ static fix_parameter *fix_param(tvbuff_t *tvb, int offset)
     }
 
     ret.value_offset = equals + 1;
-    ret.tag_len = ret.value_offset - offset - 1;
-    ret.value_len = ret.ctrla_offset - ret.value_offset;
+    ret.tag_len      = ret.value_offset - offset - 1;
+    ret.value_len    = ret.ctrla_offset - ret.value_offset;
     return &ret;
 }
 
 /* ---------------------------------------------- */
 static int fix_header_len(tvbuff_t *tvb, int offset)
 {
-    int base_offset, ctrla_offset;
-    char *value;
-    int size;
+    int            base_offset, ctrla_offset;
+    char          *value;
+    int            size;
     fix_parameter *tag;
 
     base_offset = offset;
@@ -219,14 +220,14 @@ static void
 dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
-    proto_tree *fix_tree;
-    int pdu_len;
-    int offset = 0;
-    int field_offset, ctrla_offset;
-    int tag_value;
-    char *value;
-    char *tag_str;
+    proto_item    *ti;
+    proto_tree    *fix_tree;
+    int            pdu_len;
+    int            offset = 0;
+    int            field_offset, ctrla_offset;
+    int            tag_value;
+    char          *value;
+    char          *tag_str;
     fix_parameter *tag;
 
     /* Make entries in Protocol column and Info column on summary display */
@@ -466,7 +467,6 @@ static void fix_prefs(void)
 void
 proto_register_fix(void)
 {
-/* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fix_data,
           { "Continuation Data", "fix.data", FT_BYTES, BASE_NONE, NULL, 0x00,
@@ -507,7 +507,6 @@ proto_register_fix(void)
     proto_fix = proto_register_protocol("Financial Information eXchange Protocol",
                                         "FIX", "fix");
 
-    /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fix, hf, array_length(hf));
     proto_register_field_array(proto_fix, hf_FIX, array_length(hf_FIX));
     proto_register_subtree_array(ett, array_length(ett));
@@ -516,7 +515,8 @@ proto_register_fix(void)
     prefs_register_bool_preference(fix_module, "desegment",
                                    "Reassemble FIX messages spanning multiple TCP segments",
                                    "Whether the FIX dissector should reassemble messages spanning multiple TCP segments."
-                                   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                   " To use this option, you must also enable"
+                                   " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                                    &fix_desegment);
 
     prefs_register_range_preference(fix_module, "tcp.port", "TCP Ports", "TCP Ports range", &global_fix_tcp_range, 65535);
