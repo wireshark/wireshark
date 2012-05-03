@@ -3944,7 +3944,7 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		data_len -= 2; */
 		consumed += 2;
 
-	};
+	}
 
 	return consumed;
 }
@@ -3971,7 +3971,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	/* This is the only sub-command that we know that we can decode,
 	 * the Identity Request has already been decoded up to this point. */
-	if ( sub_id != RTP_MIDI_SYSEX_COMMON_NRT_GI_IDENTITY_REQUEST ) {
+	if ( sub_id == RTP_MIDI_SYSEX_COMMON_NRT_GI_IDENTITY_REQUEST ) {
 
 		/* nothing more to do... */
 
@@ -4026,7 +4026,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		offset +=4 ;
 		data_len -= 4;*/
 		consumed += 4;
-	};
+	}
 
 	return consumed;
 }
