@@ -1148,7 +1148,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_trans->rqst_frame = PINFO_FD_NUM(pinfo);
         icmpv6_trans->resp_frame = 0;
         icmpv6_trans->rqst_time = pinfo->fd->abs_ts;
-        icmpv6_trans->resp_time = 0.0;
+        nstime_set_zero(&icmpv6_trans->resp_time);
         se_tree_insert32_array(icmpv6_info->pdus, icmpv6_key, (void *)icmpv6_trans);
     }
     else /* Already visited this frame */
@@ -1179,6 +1179,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     emem_tree_key_t     icmpv6_key[2];
     proto_item         *it;
     nstime_t            ns;
+    double resp_time;
 
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, 0, 0, 0);
@@ -1212,11 +1213,12 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         }
 
         nstime_delta(&ns, &pinfo->fd->abs_ts, &icmpv6_trans->rqst_time);
-        icmpv6_trans->resp_time = nstime_to_msec(&ns);
+        icmpv6_trans->resp_time = ns;
         if ( tree )
         {
+            resp_time = nstime_to_msec(&ns);
             it = proto_tree_add_double_format_value(tree, hf_icmpv6_resptime, NULL,
-                0, 0, icmpv6_trans->resp_time, "%.3f ms", icmpv6_trans->resp_time);
+                0, 0, resp_time, "%.3f ms", resp_time);
             PROTO_ITEM_SET_GENERATED(it);
         }
     }
