@@ -1463,7 +1463,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	proto_tree	*autoneg_advertised_subtree = NULL;
 
 	proto_item 	*tf = NULL;
-	return;
+
 	/* Get subtype */
 	subType = tvb_get_guint8(tvb, tempOffset);
 
