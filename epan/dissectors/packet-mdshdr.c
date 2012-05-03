@@ -8,12 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -33,44 +27,36 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <glib.h>
 
 #include <epan/packet.h>
 #include <etypes.h>
 #include <epan/prefs.h>
 
-#define MDSHDR_VERSION_OFFSET 		0
+#define MDSHDR_VERSION_OFFSET             0
 
 /* Mdshdr Control bits */
-#define MDSHDR_CTL_IDXDIRECT             1
-#define MDSHDR_CTL_IGNACLO               2
-#define MDSHDR_CTL_DRP                   4
+#define MDSHDR_CTL_IDXDIRECT              1
+#define MDSHDR_CTL_IGNACLO                2
+#define MDSHDR_CTL_DRP                    4
 
 /* OFFSETS OF FIELDS */
-#define MDSHDR_VER_OFFSET                0
-#define MDSHDR_SOF_OFFSET                1
-#define MDSHDR_PKTLEN_OFFSET             2
-#define MDSHDR_DIDX_OFFSET               5
-#define MDSHDR_SIDX_OFFSET               6
+#define MDSHDR_VER_OFFSET                 0
+#define MDSHDR_SOF_OFFSET                 1
+#define MDSHDR_PKTLEN_OFFSET              2
+#define MDSHDR_DIDX_OFFSET                5
+#define MDSHDR_SIDX_OFFSET                6
 #define MDSHDR_VSAN_OFFSET               13
 
 /* Two size definitions are sufficient */
-#define MDSHDR_SIZE_BYTE                 sizeof (gchar)
-#define MDSHDR_SIZE_INT16                sizeof (guint16)
-#define MDSHDR_SIZE_INT32                sizeof (guint32)
+#define MDSHDR_SIZE_BYTE                 sizeof(gchar)
+#define MDSHDR_SIZE_INT16                sizeof(guint16)
+#define MDSHDR_SIZE_INT32                sizeof(guint32)
 
 /* Other miscellaneous defines; can't rely on sizeof structs */
-#define MDSHDR_MAX_VERSION               0
+#define MDSHDR_MAX_VERSION                0
 #define MDSHDR_HEADER_SIZE               16
-#define MDSHDR_TRAILER_SIZE              6
+#define MDSHDR_TRAILER_SIZE               6
 
 /* SOF Encodings */
 #define MDSHDR_SOFc1                     0x1
@@ -146,7 +132,6 @@ static const value_string eof_vals[] = {
 
 void proto_reg_handoff_mdshdr(void);
 
-/* Code to actually dissect the packets */
 static void
 dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -155,40 +140,39 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti_main, *ti_hdr, *ti_trlr;
     proto_item *hidden_item;
     proto_tree *mdshdr_tree_main, *mdshdr_tree_hdr, *mdshdr_tree_trlr;
-    int offset = 0;
-    guint    pktlen;
-    tvbuff_t *next_tvb;
-    guint8 sof, eof;
-    guint16 vsan;
-    guint8 span_id;
-    int trailer_start = 0; /*0 means "no trailer found"*/
+    int         offset        = 0;
+    guint       pktlen;
+    tvbuff_t   *next_tvb;
+    guint8      sof, eof;
+    guint16     vsan;
+    guint8      span_id;
+    int         trailer_start = 0; /*0 means "no trailer found"*/
 
-    /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDS Header");
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    sof = tvb_get_guint8 (tvb, offset+MDSHDR_SOF_OFFSET) & 0x0F;
-    pktlen = tvb_get_ntohs (tvb, offset+MDSHDR_PKTLEN_OFFSET) & 0x1FFF;
-    vsan = tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0x0FFF;
-    span_id = (tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0xF000) >> 12;
+    sof     = tvb_get_guint8(tvb, offset+MDSHDR_SOF_OFFSET) & 0x0F;
+    pktlen  = tvb_get_ntohs(tvb, offset+MDSHDR_PKTLEN_OFFSET) & 0x1FFF;
+    vsan    = tvb_get_ntohs(tvb, offset+MDSHDR_VSAN_OFFSET) & 0x0FFF;
+    span_id = (tvb_get_ntohs(tvb, offset+MDSHDR_VSAN_OFFSET) & 0xF000) >> 12;
 
     /* The Mdshdr trailer is at the end of the frame */
-    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
-     /* Avoid header/trailer overlap if something wrong */
-     && pktlen >= MDSHDR_TRAILER_SIZE ) {
+    if ((tvb_length(tvb) >= (MDSHDR_HEADER_SIZE + pktlen))
+        /* Avoid header/trailer overlap if something wrong */
+        && (pktlen >= MDSHDR_TRAILER_SIZE))  {
         trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE;
 
-        eof = tvb_get_guint8 (tvb, trailer_start);
-        tvb_set_reported_length (tvb, MDSHDR_HEADER_SIZE+pktlen);
+        eof = tvb_get_guint8(tvb, trailer_start);
+        tvb_set_reported_length(tvb, MDSHDR_HEADER_SIZE+pktlen);
     }
     else {
         eof = MDSHDR_EOF_UNKNOWN;
     }
 
-    pinfo->src_idx = (tvb_get_ntohs (tvb, MDSHDR_SIDX_OFFSET) & 0x3FF);
-    pinfo->dst_idx = (tvb_get_ntohs (tvb, MDSHDR_DIDX_OFFSET) & 0xFFC) >> 2;
-    pinfo->vsan = vsan;
+    pinfo->src_idx = (tvb_get_ntohs(tvb, MDSHDR_SIDX_OFFSET) & 0x3FF);
+    pinfo->dst_idx = (tvb_get_ntohs(tvb, MDSHDR_DIDX_OFFSET) & 0xFFC) >> 2;
+    pinfo->vsan    = vsan;
     pinfo->sof_eof = 0;
 
     if ((sof == MDSHDR_SOFi3) || (sof == MDSHDR_SOFi2) || (sof == MDSHDR_SOFi1)
@@ -206,103 +190,99 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->sof_eof |= PINFO_EOF_INVALID;
     }
 
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-       necessary to generate protocol tree items. */
     if (tree) {
+        ti_main = proto_tree_add_protocol_format(tree, proto_mdshdr, tvb, 0,
+                                                 MDSHDR_HEADER_SIZE+pktlen,
+                                                 "MDS Header(%s/%s)",
+                                                 val_to_str(sof, sof_vals, "Unknown(%u)"),
+                                                 val_to_str(eof, eof_vals, "Unknown(%u)"));
 
-        /* create display subtree for the protocol */
-        ti_main = proto_tree_add_protocol_format (tree, proto_mdshdr, tvb, 0,
-                                                  MDSHDR_HEADER_SIZE+pktlen,
-                                                  "MDS Header(%s/%s)",
-						  val_to_str(sof, sof_vals, "Unknown(%u)"),
-                                                  val_to_str(eof, eof_vals, "Unknown(%u)"));
-
-        mdshdr_tree_main = proto_item_add_subtree (ti_main, ett_mdshdr);
+        mdshdr_tree_main = proto_item_add_subtree(ti_main, ett_mdshdr);
 
         /* Add Header part as subtree first */
-        ti_hdr = proto_tree_add_text (mdshdr_tree_main, tvb, MDSHDR_VER_OFFSET,
-                                      MDSHDR_HEADER_SIZE, "MDS Header");
+        ti_hdr = proto_tree_add_text(mdshdr_tree_main, tvb, MDSHDR_VER_OFFSET,
+                                     MDSHDR_HEADER_SIZE, "MDS Header");
 
-        mdshdr_tree_hdr = proto_item_add_subtree (ti_hdr, ett_mdshdr_hdr);
-        hidden_item = proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_sof, tvb, MDSHDR_SOF_OFFSET,
-                                    MDSHDR_SIZE_BYTE, ENC_BIG_ENDIAN);
+        mdshdr_tree_hdr = proto_item_add_subtree(ti_hdr, ett_mdshdr_hdr);
+        hidden_item = proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_sof, tvb, MDSHDR_SOF_OFFSET,
+                                          MDSHDR_SIZE_BYTE, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_pkt_len, tvb, MDSHDR_PKTLEN_OFFSET,
-                             MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
-        proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_dstidx, tvb, MDSHDR_DIDX_OFFSET,
-                             MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
-        proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_srcidx, tvb, MDSHDR_SIDX_OFFSET,
-                             MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
-        proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_vsan, tvb, MDSHDR_VSAN_OFFSET,
-                             MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_pkt_len, tvb, MDSHDR_PKTLEN_OFFSET,
+                            MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_dstidx, tvb, MDSHDR_DIDX_OFFSET,
+                            MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_srcidx, tvb, MDSHDR_SIDX_OFFSET,
+                            MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_vsan, tvb, MDSHDR_VSAN_OFFSET,
+                            MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_uint(mdshdr_tree_hdr, hf_mdshdr_span,
-                                   tvb, MDSHDR_VSAN_OFFSET,
-                                   MDSHDR_SIZE_BYTE, span_id);
+                                          tvb, MDSHDR_VSAN_OFFSET,
+                                          MDSHDR_SIZE_BYTE, span_id);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* Add Mdshdr Trailer part */
-        if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
-         && 0 != trailer_start) {
-            ti_trlr = proto_tree_add_text (mdshdr_tree_main, tvb, trailer_start,
-                                           MDSHDR_TRAILER_SIZE,
-                                           "MDS Trailer");
-            mdshdr_tree_trlr = proto_item_add_subtree (ti_trlr, ett_mdshdr_trlr);
+        if (tvb_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
+            && 0 != trailer_start) {
+            ti_trlr = proto_tree_add_text(mdshdr_tree_main, tvb, trailer_start,
+                                          MDSHDR_TRAILER_SIZE,
+                                          "MDS Trailer");
+            mdshdr_tree_trlr = proto_item_add_subtree(ti_trlr, ett_mdshdr_trlr);
 
-            proto_tree_add_item (mdshdr_tree_trlr, hf_mdshdr_eof, tvb,
-                                 trailer_start, MDSHDR_SIZE_BYTE, ENC_BIG_ENDIAN);
-            proto_tree_add_item (mdshdr_tree_trlr, hf_mdshdr_fccrc, tvb,
-                                 trailer_start+2, MDSHDR_SIZE_INT32, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mdshdr_tree_trlr, hf_mdshdr_eof, tvb,
+                                trailer_start, MDSHDR_SIZE_BYTE, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mdshdr_tree_trlr, hf_mdshdr_fccrc, tvb,
+                                trailer_start+2, MDSHDR_SIZE_INT32, ENC_BIG_ENDIAN);
         }
         else {
-            proto_tree_add_text (mdshdr_tree_main, tvb, 0, 0, "MDS Trailer: Not Found");
+            proto_tree_add_text(mdshdr_tree_main, tvb, 0, 0, "MDS Trailer: Not Found");
         }
     }
 
-    /* If this protocol has a sub-dissector call it here, see section 1.8 */
-    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
-     && 0 != pktlen /*if something wrong*/) {
-        next_tvb = tvb_new_subset (tvb, MDSHDR_HEADER_SIZE, pktlen, pktlen);
+    if (tvb_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen
+        && 0 != pktlen /*if something wrong*/) {
+        next_tvb = tvb_new_subset(tvb, MDSHDR_HEADER_SIZE, pktlen, pktlen);
         /* XXX what to do with the rest of this frame? --ArtemTamazov */
     }
     else {
-        next_tvb = tvb_new_subset_remaining (tvb, MDSHDR_HEADER_SIZE);
+        next_tvb = tvb_new_subset_remaining(tvb, MDSHDR_HEADER_SIZE);
     }
 
     /* Call the Fibre Channel dissector */
     if (fc_dissector_handle) {
-        call_dissector (fc_dissector_handle, next_tvb, pinfo, tree);
+        call_dissector(fc_dissector_handle, next_tvb, pinfo, tree);
     }
     else {
-        call_dissector (data_handle, next_tvb, pinfo, tree);
+        call_dissector(data_handle, next_tvb, pinfo, tree);
     }
 }
 
-
-/* Register the protocol with Wireshark. This format is require because a script
- * is used to build the C function that calls all the protocol registration.
- */
 
 void
 proto_register_mdshdr(void)
 {
 
-/* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_mdshdr_sof,
           {"SOF", "mdshdr.sof", FT_UINT8, BASE_DEC, VALS(sof_vals), 0x0, NULL, HFILL}},
+
         { &hf_mdshdr_pkt_len,
           {"Packet Len", "mdshdr.plen", FT_UINT16, BASE_DEC, NULL, 0x1FFF, NULL, HFILL}},
+
         { &hf_mdshdr_dstidx,
           {"Dst Index", "mdshdr.dstidx", FT_UINT16, BASE_HEX, NULL, 0xFFC, NULL, HFILL}},
+
         { &hf_mdshdr_srcidx,
           {"Src Index", "mdshdr.srcidx", FT_UINT16, BASE_HEX, NULL, 0x3FF, NULL, HFILL}},
+
         { &hf_mdshdr_vsan,
           {"VSAN", "mdshdr.vsan", FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL}},
+
         { &hf_mdshdr_eof,
           {"EOF", "mdshdr.eof", FT_UINT8, BASE_DEC, VALS(eof_vals), 0x0, NULL, HFILL}},
+
         { &hf_mdshdr_span,
-          {"SPAN Frame", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}},
+          {"SPAN Frame", "mdshdr.span", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
         { &hf_mdshdr_fccrc,
           {"CRC", "mdshdr.crc", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     };
@@ -318,31 +298,25 @@ proto_register_mdshdr(void)
 /* Register the protocol name and description */
     proto_mdshdr = proto_register_protocol("MDS Header", "MDS Header", "mdshdr");
 
-/* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mdshdr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    mdshdr_module = prefs_register_protocol (proto_mdshdr, proto_reg_handoff_mdshdr);
-    prefs_register_bool_preference (mdshdr_module, "decode_if_etype_zero",
-                                    "Decode as MDS Header if Ethertype == 0",
-                                    "A frame is considered for decoding as MDSHDR if either "
-                                    "ethertype is 0xFCFC or zero. Turn this flag off if you "
-                                    "you don't want ethertype zero to be decoded as MDSHDR. "
-                                    "This might be useful to avoid problems with test frames.",
-                                    &decode_if_zero_etype);
+    mdshdr_module = prefs_register_protocol(proto_mdshdr, proto_reg_handoff_mdshdr);
+    prefs_register_bool_preference(mdshdr_module, "decode_if_etype_zero",
+                                   "Decode as MDS Header if Ethertype == 0",
+                                   "A frame is considered for decoding as MDSHDR if either "
+                                   "ethertype is 0xFCFC or zero. Turn this flag off if you "
+                                   "you don't want ethertype zero to be decoded as MDSHDR. "
+                                   "This might be useful to avoid problems with test frames.",
+                                   &decode_if_zero_etype);
 }
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_mdshdr(void)
 {
     static dissector_handle_t mdshdr_handle;
-    static gboolean registered_for_zero_etype = FALSE;
-    static gboolean mdshdr_prefs_initialized = FALSE;
+    static gboolean           registered_for_zero_etype = FALSE;
+    static gboolean           mdshdr_prefs_initialized  = FALSE;
 
     if (!mdshdr_prefs_initialized) {
         /*
@@ -352,10 +326,10 @@ proto_reg_handoff_mdshdr(void)
          * ethertype ETHERTYPE_FCFT, and fetch the data and Fibre
          * Channel handles.
          */
-        mdshdr_handle = create_dissector_handle (dissect_mdshdr, proto_mdshdr);
-        dissector_add_uint ("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
-        data_handle = find_dissector ("data");
-        fc_dissector_handle = find_dissector ("fc");
+        mdshdr_handle = create_dissector_handle(dissect_mdshdr, proto_mdshdr);
+        dissector_add_uint("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
+        data_handle   = find_dissector("data");
+        fc_dissector_handle = find_dissector("fc");
         mdshdr_prefs_initialized = TRUE;
     }
 
@@ -370,7 +344,7 @@ proto_reg_handoff_mdshdr(void)
          * do so.
          */
         if (!registered_for_zero_etype) {
-            dissector_add_uint ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
+            dissector_add_uint("ethertype", ETHERTYPE_UNK, mdshdr_handle);
             registered_for_zero_etype = TRUE;
         }
     } else {
@@ -380,7 +354,7 @@ proto_reg_handoff_mdshdr(void)
          * undo that registration.
          */
         if (registered_for_zero_etype) {
-            dissector_delete_uint ("ethertype", ETHERTYPE_UNK, mdshdr_handle);
+            dissector_delete_uint("ethertype", ETHERTYPE_UNK, mdshdr_handle);
             registered_for_zero_etype = FALSE;
         }
     }

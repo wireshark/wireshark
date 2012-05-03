@@ -8,12 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -33,14 +27,11 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-/* Forward declaration we need below */
 void proto_reg_handoff_newmail(void);
 
 /* Variables for preferences */
@@ -97,25 +88,23 @@ proto_register_newmail(void)
 
 	module_t *newmail_module;
 
-	/* Register the protocol name and description */
 	proto_newmail = proto_register_protocol("Microsoft Exchange New Mail Notification",
 						"NEWMAIL", "newmail");
 
-	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_newmail, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	/* Register the dissector without a port yet */
 	register_dissector("newmail", dissect_newmail, proto_newmail);
 
-	/* Register preferences module */
 	newmail_module = prefs_register_protocol(proto_newmail,
 						 proto_reg_handoff_newmail);
 
 	prefs_register_uint_preference(newmail_module,
 				       "default_port",
 				       "Default UDP port (optional)",
-				       "Always dissect this port's traffic as newmail notifications.  Additional ports will be dynamically registered as they are seen in MAPI register push notification packets.",
+				       "Always dissect this port's traffic as newmail notifications."
+				       " Additional ports will be dynamically registered as they"
+				       " are seen in MAPI register push notification packets.",
 				       10, &preference_default_port);
 
 }
@@ -125,20 +114,20 @@ proto_reg_handoff_newmail(void)
 {
 	static gboolean inited = FALSE;
 	static dissector_handle_t newmail_handle;
-        static guint preference_default_port_last;
+	static guint preference_default_port_last;
 
 	if(!inited) {
 		newmail_handle = find_dissector("newmail");
 		dissector_add_handle("udp.port", newmail_handle); /* for 'decode-as' */
 		inited = TRUE;
 	} else {
-                if (preference_default_port_last != 0) {
-                        dissector_delete_uint("udp.port", preference_default_port_last, newmail_handle);
-                }
-        }
+		if (preference_default_port_last != 0) {
+			dissector_delete_uint("udp.port", preference_default_port_last, newmail_handle);
+		}
+	}
 
 	if(preference_default_port != 0) {
 		dissector_add_uint("udp.port", preference_default_port, newmail_handle);
 	}
-        preference_default_port_last = preference_default_port;
+	preference_default_port_last = preference_default_port;
 }

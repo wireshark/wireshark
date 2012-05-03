@@ -8,12 +8,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -66,19 +60,19 @@ enum {
 	TID_TS_DESC,
 	TID_SCENE_DESC,
 	TID_OBJECT_DESC,
-	TID_FORBIDEN = 0xFF
+	TID_FORBIDEN    = 0xFF
 };
 
 /* From ETSI EN 300 468 */
 enum {
-	TID_NIT = 0x40,
+	TID_NIT       = 0x40,
 	TID_NIT_OTHER,
 	TID_SDT,
 	TID_SDT_OTHER = 0x46,
-	TID_BAT = 0x4A,
-	TID_EIT = 0x4E,
+	TID_BAT       = 0x4A,
+	TID_EIT       = 0x4E,
 	TID_EIT_OTHER,
-	TID_TDT = 0x70,
+	TID_TDT       = 0x70,
 	TID_RST,
 	TID_ST,
 	TID_TOT
@@ -106,64 +100,64 @@ enum {
 /* From OC-SP-ETV-AM 1.0-IO5 */
 enum {
 	TID_ETV_EISS = 0xE0,
-	TID_ETV_DII = 0xE3,
-	TID_ETV_DDB = 0xE4
+	TID_ETV_DII  = 0xE3,
+	TID_ETV_DDB  = 0xE4
 };
 
 static const value_string mpeg_sect_table_id_vals[] = {
 
-	{ TID_PAT, "Program Association Table (PAT)" },
-	{ TID_CA, "Conditional Access (CA)" },
-	{ TID_PMT, "Program Map Table (PMT)" },
-	{ TID_TS_DESC, "Transport Stream Description" },
-	{ TID_SCENE_DESC, "ISO/IEC 14496 Scene Description" },
+	{ TID_PAT,         "Program Association Table (PAT)" },
+	{ TID_CA,          "Conditional Access (CA)" },
+	{ TID_PMT,         "Program Map Table (PMT)" },
+	{ TID_TS_DESC,     "Transport Stream Description" },
+	{ TID_SCENE_DESC,  "ISO/IEC 14496 Scene Description" },
 	{ TID_OBJECT_DESC, "ISO/IEC 14496 Object Description" },
-	{ TID_NIT, "Network Information Table (NIT), current network" },
-	{ TID_NIT_OTHER, "Network Information Table (NIT), other network" },
-	{ TID_SDT, "Service Description Table (SDT), current network" },
-	{ TID_SDT_OTHER, "Service Description (SDT), other network" },
-	{ TID_BAT, "Bouquet Associatoin Table (BAT)" },
-	{ TID_EIT, "Event Information Table (EIT), actual TS" },
-	{ TID_EIT_OTHER, "Event Information Table (EIT), other TS" },
-	{ TID_TDT, "Time and Date Table (TDT)" },
-	{ TID_RST, "Running Status Table (RST)" },
-	{ TID_ST, "Stuffing Table (ST)" },
-	{ TID_TOT, "Time Offset Table (TOT)" },
-	{ TID_SCT, "Superframe Composition Table (SCT)" },
-	{ TID_FCT, "Frame Composition Table (FCT)" },
-	{ TID_TCT, "Time-Slot Composition Table (TCT)" },
-	{ TID_SPT, "Satellite Position Table (SPT)" },
-	{ TID_CMT, "Correction Message Table (CMT)" },
-	{ TID_TBTP, "Terminal Burst Time Plan (TBTP)" },
-	{ TID_TIM, "Terminal Information Message (TIM)" },
-	{ TID_DVB_MPE, "DVB MultiProtocol Encapsulation (MPE)" },
-	{ TID_ETV_EISS, "ETV Integrated Signaling Stream (EISS)" },
-	{ TID_ETV_DII, "ETV Download Info Indication" },
-	{ TID_ETV_DDB, "ETV Download Data Block" },
-	{ TID_FORBIDEN, "Forbidden" },
+	{ TID_NIT,         "Network Information Table (NIT), current network" },
+	{ TID_NIT_OTHER,   "Network Information Table (NIT), other network" },
+	{ TID_SDT,         "Service Description Table (SDT), current network" },
+	{ TID_SDT_OTHER,   "Service Description (SDT), other network" },
+	{ TID_BAT,         "Bouquet Associatoin Table (BAT)" },
+	{ TID_EIT,         "Event Information Table (EIT), actual TS" },
+	{ TID_EIT_OTHER,   "Event Information Table (EIT), other TS" },
+	{ TID_TDT,         "Time and Date Table (TDT)" },
+	{ TID_RST,         "Running Status Table (RST)" },
+	{ TID_ST,          "Stuffing Table (ST)" },
+	{ TID_TOT,         "Time Offset Table (TOT)" },
+	{ TID_SCT,         "Superframe Composition Table (SCT)" },
+	{ TID_FCT,         "Frame Composition Table (FCT)" },
+	{ TID_TCT,         "Time-Slot Composition Table (TCT)" },
+	{ TID_SPT,         "Satellite Position Table (SPT)" },
+	{ TID_CMT,         "Correction Message Table (CMT)" },
+	{ TID_TBTP,        "Terminal Burst Time Plan (TBTP)" },
+	{ TID_TIM,         "Terminal Information Message (TIM)" },
+	{ TID_DVB_MPE,     "DVB MultiProtocol Encapsulation (MPE)" },
+	{ TID_ETV_EISS,    "ETV Integrated Signaling Stream (EISS)" },
+	{ TID_ETV_DII,     "ETV Download Info Indication" },
+	{ TID_ETV_DDB,     "ETV Download Data Block" },
+	{ TID_FORBIDEN,    "Forbidden" },
 	{ 0, NULL }
 };
 
-/* From packet-dvbci.c 
+/* From packet-dvbci.c
    read a utc_time field in an apdu and write it to utc_time
    the encoding of the field is according to DVB-SI specification, section 5.2.5
    16bit modified julian day (MJD), 24bit 6*4bit BCD digits hhmmss
-   return the length in bytes or -1 for error */ 
+   return the length in bytes or -1 for error */
 gint
 packet_mpeg_sect_mjd_to_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time)
-{ 
-    gint bcd_time_offset; /* start offset of the bcd time in the tvbuff */
+{
+    gint   bcd_time_offset;     /* start offset of the bcd time in the tvbuff */
     guint8 hour, min, sec;
 
     if (!utc_time)
         return -1;
 
     nstime_set_zero(utc_time);
-    utc_time->secs = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
+    utc_time->secs  = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
     bcd_time_offset = offset+2;
-    hour = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
-    min = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
-    sec = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
+    hour            = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
+    min             = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
+    sec             = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
     if (hour>23 || min>59 || sec>59)
         return -1;
 
@@ -184,10 +178,10 @@ packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
 				guint *sect_len, guint *reserved, gboolean *ssi,
 				proto_item **items)
 {
-	guint tmp;
-	guint len = 0;
+	guint       tmp;
+	guint       len = 0;
 	proto_item *pi[PACKET_MPEG_SECT_PI__SIZE];
-	gint i;
+	gint        i;
 
 	for (i = 0; i < PACKET_MPEG_SECT_PI__SIZE; i++) {
 		pi[i] = NULL;
@@ -242,7 +236,7 @@ void
 packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 		     proto_tree *tree, guint start, guint end)
 {
-	guint32 crc, calculated_crc;
+	guint32     crc, calculated_crc;
 	const char *label;
 
 	crc = tvb_get_ntohl(tvb, end);
@@ -274,10 +268,10 @@ packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint offset = 0;
-	guint8 table_id = 0;
-	guint section_length = 0;
-	gboolean syntax_indicator = 0;
+	gint     offset           = 0;
+	guint8   table_id         = 0;
+	guint    section_length   = 0;
+	gboolean syntax_indicator = FALSE;
 
 	proto_item *ti = NULL;
 	proto_tree *mpeg_sect_tree = NULL;
@@ -352,11 +346,14 @@ proto_register_mpeg_sect(void)
 
 	mpeg_sect_module = prefs_register_protocol(proto_mpeg_sect, NULL);
 
-	prefs_register_bool_preference(mpeg_sect_module, "verify_crc",
+	prefs_register_bool_preference(mpeg_sect_module,
+                "verify_crc",
 		"Verify the section CRC",
 		"Whether the section dissector should verify the CRC",
 		&mpeg_sect_check_crc);
 
-	mpeg_sect_tid_dissector_table = register_dissector_table("mpeg_sect.tid", "MPEG SECT Table ID", FT_UINT8, BASE_HEX);
+	mpeg_sect_tid_dissector_table = register_dissector_table("mpeg_sect.tid",
+								 "MPEG SECT Table ID",
+								 FT_UINT8, BASE_HEX);
 
 }
