@@ -39,32 +39,32 @@
 #include "packet-fcfzs.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_fcfzs              = -1;
-static int hf_fcfzs_opcode          = -1;
-static int hf_fcfzs_gzc_vendor      = -1;
-static int hf_fcfzs_gest_vendor     = -1;
-static int hf_fcfzs_numzoneattrs    = -1;
-static int hf_fcfzs_zonesetnmlen    = -1;
-static int hf_fcfzs_zonesetname     = -1;
-static int hf_fcfzs_numzones        = -1;
-static int hf_fcfzs_numzonesetattrs = -1;
-static int hf_fcfzs_zonenmlen       = -1;
-static int hf_fcfzs_zonename        = -1;
-static int hf_fcfzs_nummbrs         = -1;
-static int hf_fcfzs_nummbrentries   = -1;
-static int hf_fcfzs_mbrid           = -1;
-static int hf_fcfzs_mbridlen        = -1;
-static int hf_fcfzs_mbrtype         = -1;
-static int hf_fcfzs_reason          = -1;
-static int hf_fcfzs_rjtdetail       = -1;
-static int hf_fcfzs_rjtvendor       = -1;
-static int hf_fcfzs_maxres_size     = -1;
-static int hf_fcfzs_mbrid_lun       = -1;
-static int hf_fcfzs_gzc_flags = -1;
-static int hf_fcfzs_gzc_flags_hard_zones = -1;
-static int hf_fcfzs_gzc_flags_soft_zones = -1;
-static int hf_fcfzs_gzc_flags_zoneset_db = -1;
-static int hf_fcfzs_zone_state = -1;
+static int proto_fcfzs                     = -1;
+static int hf_fcfzs_opcode                 = -1;
+static int hf_fcfzs_gzc_vendor             = -1;
+static int hf_fcfzs_gest_vendor            = -1;
+static int hf_fcfzs_numzoneattrs           = -1;
+static int hf_fcfzs_zonesetnmlen           = -1;
+static int hf_fcfzs_zonesetname            = -1;
+static int hf_fcfzs_numzones               = -1;
+static int hf_fcfzs_numzonesetattrs        = -1;
+static int hf_fcfzs_zonenmlen              = -1;
+static int hf_fcfzs_zonename               = -1;
+static int hf_fcfzs_nummbrs                = -1;
+static int hf_fcfzs_nummbrentries          = -1;
+static int hf_fcfzs_mbrid                  = -1;
+static int hf_fcfzs_mbridlen               = -1;
+static int hf_fcfzs_mbrtype                = -1;
+static int hf_fcfzs_reason                 = -1;
+static int hf_fcfzs_rjtdetail              = -1;
+static int hf_fcfzs_rjtvendor              = -1;
+static int hf_fcfzs_maxres_size            = -1;
+static int hf_fcfzs_mbrid_lun              = -1;
+static int hf_fcfzs_gzc_flags              = -1;
+static int hf_fcfzs_gzc_flags_hard_zones   = -1;
+static int hf_fcfzs_gzc_flags_soft_zones   = -1;
+static int hf_fcfzs_gzc_flags_zoneset_db   = -1;
+static int hf_fcfzs_zone_state             = -1;
 static int hf_fcfzs_soft_zone_set_enforced = -1;
 static int hf_fcfzs_hard_zone_set_enforced = -1;
 
@@ -139,9 +139,9 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, proto_tree *tree, int offset)
         /* Zoneset Name */
         len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                1, ENC_BIG_ENDIAN);
+                            1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                len, ENC_ASCII|ENC_NA);
+                            len, ENC_ASCII|ENC_NA);
         offset += 4 + len + (4-(len % 4));
 
 
@@ -154,14 +154,14 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, proto_tree *tree, int offset)
         for (i = 0; i < numzones; i++) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+                                1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+4,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
             offset += 4 + len + (4-(len % 4));
 
             nummbrs = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_nummbrentries, tvb, offset,
-                                 4, ENC_BIG_ENDIAN);
+                                4, ENC_BIG_ENDIAN);
 
             offset += 4;
             for (j = 0; j < nummbrs; j++) {
@@ -171,50 +171,50 @@ dissect_fcfzs_zoneset(tvbuff_t *tvb, proto_tree *tree, int offset)
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 8,
-                                           tvb_fcwwn_to_str(tvb, offset+4));
+                                          offset+4, 8,
+                                          tvb_fcwwn_to_str(tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_DP:
                     proto_tree_add_string_format(tree,
-                                                  hf_fcfzs_mbrid,
-                                                  tvb, offset+4, 3, " ",
-                                                  "0x%x",
-                                                  tvb_get_ntoh24(tvb,
-                                                                  offset+4));
+                                                 hf_fcfzs_mbrid,
+                                                 tvb, offset+4, 3, " ",
+                                                 "0x%x",
+                                                 tvb_get_ntoh24(tvb,
+                                                                offset+4));
                     break;
                 case FC_FZS_ZONEMBR_FCID:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 4,
-                                           tvb_fc_to_str(tvb, offset+4));
+                                          offset+4, 4,
+                                          tvb_fc_to_str(tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_PWWN_LUN:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 8,
-                                           tvb_fcwwn_to_str(tvb, offset+4));
+                                          offset+4, 8,
+                                          tvb_fcwwn_to_str(tvb, offset+4));
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_lun, tvb,
-                                         offset+8, 8, ENC_NA);
+                                        offset+8, 8, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_DP_LUN:
                     proto_tree_add_string_format(tree,
-                                                  hf_fcfzs_mbrid,
-                                                  tvb, offset+4, 3, " ",
-                                                  "0x%x",
-                                                  tvb_get_ntoh24(tvb,
-                                                                  offset+4));
+                                                 hf_fcfzs_mbrid,
+                                                 tvb, offset+4, 3, " ",
+                                                 "0x%x",
+                                                 tvb_get_ntoh24(tvb,
+                                                                offset+4));
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_lun, tvb,
-                                         offset+4, 8, ENC_NA);
+                                        offset+4, 8, ENC_NA);
                     break;
                 case FC_FZS_ZONEMBR_FCID_LUN:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 4,
-                                           tvb_fc_to_str(tvb, offset+4));
+                                          offset+4, 4,
+                                          tvb_fc_to_str(tvb, offset+4));
                     proto_tree_add_item(tree, hf_fcfzs_mbrid_lun, tvb,
-                                         offset+4, 8, ENC_NA);
+                                        offset+4, 8, ENC_NA);
                     break;
                 default:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 8,
-                                           "Unknown member type format");
+                                          offset+4, 8,
+                                          "Unknown member type format");
                 }
                 offset += 12;
             }
@@ -324,18 +324,18 @@ dissect_fcfzs_gzsn(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             numrec = tvb_get_ntohl(tvb, offset);
 
             proto_tree_add_item(tree, hf_fcfzs_numzonesetattrs, tvb, offset,
-                                 4, ENC_BIG_ENDIAN);
+                                4, ENC_BIG_ENDIAN);
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
                 len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                     1, ENC_BIG_ENDIAN);
+                                    1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+1,
-                                     len, ENC_ASCII|ENC_NA);
+                                    len, ENC_ASCII|ENC_NA);
                 offset += len + 1 + (len % 4);
                 proto_tree_add_item(tree, hf_fcfzs_numzones, tvb, offset,
-                                     4, ENC_BIG_ENDIAN);
+                                    4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
         }
@@ -352,26 +352,26 @@ dissect_fcfzs_gzd(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+                                1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+1,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
         }
         else {
             numrec = tvb_get_ntohl(tvb, offset);
 
             proto_tree_add_item(tree, hf_fcfzs_numzoneattrs, tvb, offset,
-                                 4, ENC_BIG_ENDIAN);
+                                4, ENC_BIG_ENDIAN);
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
                 len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
-                                     1, ENC_BIG_ENDIAN);
+                                    1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+1,
-                                     len, ENC_ASCII|ENC_NA);
+                                    len, ENC_ASCII|ENC_NA);
                 offset += len + 1 + (len % 4);
                 proto_tree_add_item(tree, hf_fcfzs_nummbrs, tvb, offset,
-                                     4, ENC_BIG_ENDIAN);
+                                    4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
         }
@@ -388,15 +388,15 @@ dissect_fcfzs_gzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+                                1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+1,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
         }
         else {
             numrec = tvb_get_ntohl(tvb, offset);
 
             proto_tree_add_item(tree, hf_fcfzs_nummbrentries, tvb, offset,
-                                 4, ENC_BIG_ENDIAN);
+                                4, ENC_BIG_ENDIAN);
             offset += 4;
             for (i = 0; i < numrec; i++) {
                 proto_tree_add_item(tree, hf_fcfzs_mbrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -404,26 +404,26 @@ dissect_fcfzs_gzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 8,
-                                           tvb_fcwwn_to_str(tvb, offset+4));
+                                          offset+4, 8,
+                                          tvb_fcwwn_to_str(tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_DP:
                     proto_tree_add_string_format(tree,
-                                                  hf_fcfzs_mbrid,
-                                                  tvb, offset+4, 3, " ",
-                                                  "0x%x",
-                                                  tvb_get_ntoh24(tvb,
-                                                                  offset+4));
+                                                 hf_fcfzs_mbrid,
+                                                 tvb, offset+4, 3, " ",
+                                                 "0x%x",
+                                                 tvb_get_ntoh24(tvb,
+                                                                offset+4));
                     break;
                 case FC_FZS_ZONEMBR_FCID:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 4,
-                                           tvb_fc_to_str(tvb, offset+4));
+                                          offset+4, 4,
+                                          tvb_fc_to_str(tvb, offset+4));
                     break;
                 default:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 8,
-                                           "Unknown member type format");
+                                          offset+4, 8,
+                                          "Unknown member type format");
                 }
                 offset += 12;
             }
@@ -453,9 +453,9 @@ dissect_fcfzs_gzs(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+                                1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
         }
         else {
             dissect_fcfzs_zoneset(tvb, tree, offset);
@@ -497,9 +497,9 @@ dissect_fcfzs_arzs(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+                                1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
         }
     }
 }
@@ -521,9 +521,9 @@ dissect_fcfzs_arzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+                                1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+1,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
 
             len += (len % 4);
             plen = tvb_length(tvb) - offset - len;
@@ -537,26 +537,26 @@ dissect_fcfzs_arzm(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                 case FC_FZS_ZONEMBR_PWWN:
                 case FC_FZS_ZONEMBR_NWWN:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 8,
-                                           tvb_fcwwn_to_str(tvb, offset+4));
+                                          offset+4, 8,
+                                          tvb_fcwwn_to_str(tvb, offset+4));
                     break;
                 case FC_FZS_ZONEMBR_DP:
                     proto_tree_add_string_format(tree,
-                                                  hf_fcfzs_mbrid,
-                                                  tvb, offset+4, 3, " ",
-                                                  "0x%x",
-                                                  tvb_get_ntoh24(tvb,
-                                                                  offset+4));
+                                                 hf_fcfzs_mbrid,
+                                                 tvb, offset+4, 3, " ",
+                                                 "0x%x",
+                                                 tvb_get_ntoh24(tvb,
+                                                                offset+4));
                     break;
                 case FC_FZS_ZONEMBR_FCID:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 4,
-                                           tvb_fc_to_str(tvb, offset+4));
+                                          offset+4, 4,
+                                          tvb_fc_to_str(tvb, offset+4));
                     break;
                 default:
                     proto_tree_add_string(tree, hf_fcfzs_mbrid, tvb,
-                                           offset+4, 8,
-                                           "Unknown member type format");
+                                          offset+4, 8,
+                                          "Unknown member type format");
                 }
                 offset += 12;
             }
@@ -574,16 +574,16 @@ dissect_fcfzs_arzd(tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         if (isreq) {
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonesetnmlen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+                                1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonesetname, tvb, offset+4,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
             len += (len % 4);
             offset += len;
 
             len = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_fcfzs_zonenmlen, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_fcfzs_zonename, tvb, offset+4,
-                                 len, ENC_ASCII|ENC_NA);
+                                len, ENC_ASCII|ENC_NA);
         }
     }
 }
@@ -629,28 +629,28 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         ti = proto_tree_add_protocol_format(tree, proto_fcfzs, tvb, 0,
-                                             tvb_length(tvb),
-                                             "Zone Server");
+                                            tvb_length(tvb),
+                                            "Zone Server");
         fcfzs_tree = proto_item_add_subtree(ti, ett_fcfzs);
         proto_tree_add_item(fcfzs_tree, hf_fcfzs_opcode, tvb, offset+8, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(fcfzs_tree, hf_fcfzs_maxres_size, tvb, offset+10,
-                             2, ENC_BIG_ENDIAN);
+                            2, ENC_BIG_ENDIAN);
     }
 
     if ((opcode != FCCT_MSG_ACC) && (opcode != FCCT_MSG_RJT)) {
         conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, NO_PORT2);
+                                         pinfo->ptype, pinfo->oxid,
+                                         pinfo->rxid, NO_PORT2);
         if (!conversation) {
             conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                             pinfo->ptype, pinfo->oxid,
-                                             pinfo->rxid, NO_PORT2);
+                                            pinfo->ptype, pinfo->oxid,
+                                            pinfo->rxid, NO_PORT2);
         }
 
         ckey.conv_idx = conversation->index;
 
         cdata = (fcfzs_conv_data_t *)g_hash_table_lookup(fcfzs_req_hash,
-                                                            &ckey);
+                                                         &ckey);
         if (cdata) {
             /* Since we never free the memory used by an exchange, this maybe a
              * case of another request using the same exchange as a previous
@@ -669,25 +669,25 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
             col_add_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, fc_fzs_opcode_val,
-                                                          "0x%x"));
+                                                           "0x%x"));
         }
     }
     else {
         /* Opcode is ACC or RJT */
         conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                          pinfo->ptype, pinfo->oxid,
-                                          pinfo->rxid, NO_PORT2);
+                                         pinfo->ptype, pinfo->oxid,
+                                         pinfo->rxid, NO_PORT2);
         isreq = FALSE;
         if (!conversation) {
             if (tree && (opcode == FCCT_MSG_ACC)) {
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                     col_add_str(pinfo->cinfo, COL_INFO,
-                                 val_to_str(opcode, fc_fzs_opcode_val,
-                                             "0x%x"));
+                                val_to_str(opcode, fc_fzs_opcode_val,
+                                           "0x%x"));
                 }
                 /* No record of what this accept is for. Can't decode */
                 proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
-                                     "No record of Exchg. Unable to decode MSG_ACC");
+                                    "No record of Exchg. Unable to decode MSG_ACC");
                 return;
             }
         }
@@ -706,13 +706,13 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (check_col(pinfo->cinfo, COL_INFO)) {
                 if (opcode != FCCT_MSG_RJT) {
                     col_add_fstr(pinfo->cinfo, COL_INFO, "MSG_ACC (%s)",
-                                  val_to_str(opcode,
-                                              fc_fzs_opcode_val, "0x%x"));
+                                 val_to_str(opcode,
+                                            fc_fzs_opcode_val, "0x%x"));
                 }
                 else {
                     col_add_fstr(pinfo->cinfo, COL_INFO, "MSG_RJT (%s)",
-                                  val_to_str(failed_opcode,
-                                              fc_fzs_opcode_val, "0x%x"));
+                                 val_to_str(failed_opcode,
+                                            fc_fzs_opcode_val, "0x%x"));
                 }
             }
 
@@ -720,7 +720,7 @@ dissect_fcfzs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                     /* No record of what this accept is for. Can't decode */
                     proto_tree_add_text(fcfzs_tree, tvb, 0, tvb_length(tvb),
-                                         "No record of Exchg. Unable to decode MSG_ACC/RJT");
+                                        "No record of Exchg. Unable to decode MSG_ACC/RJT");
                     return;
                 }
             }
