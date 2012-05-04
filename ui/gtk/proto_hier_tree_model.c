@@ -70,33 +70,30 @@ proto_hier_tree_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter, GtkT
 {
 	ProtoHierTreeModel *model;
 
-	void *cookie;
 	gint proto_id;
+	void *cookie;
 
 	g_return_val_if_fail(PROTOHIER_IS_TREE(tree_model), FALSE);
 	model = (ProtoHierTreeModel *) tree_model;
 
-	n = n+1;
-
 	if (parent) {
 		header_field_info *hfinfo;
-		int p_id;
 
 		g_return_val_if_fail(parent->stamp == model->stamp, FALSE);
-
-		p_id = proto_get_data_protocol(parent->user_data);
 
 		/* no child of field */
 		if (parent->user_data2 != NULL)
 			return FALSE;
 
+		proto_id = proto_get_data_protocol(parent->user_data);
+
 		/* get n-th field of protocol */
-		hfinfo = proto_get_first_protocol_field(p_id, &cookie);
+		hfinfo = proto_get_first_protocol_field(proto_id, &cookie);
 		while (hfinfo) {
 			if (hfinfo->same_name_prev == NULL) {
-				n--;
 				if (!n)
 					break;
+				n--;
 			}
 			hfinfo = proto_get_next_protocol_field(&cookie);
 		}
@@ -114,13 +111,13 @@ proto_hier_tree_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter, GtkT
 
 	/* get n-th enabled protocol */
 	proto_id = proto_get_first_protocol(&cookie);
-	while (proto_id != -1 && n) {
+	while (proto_id != -1) {
 		protocol_t *p = find_protocol_by_id(proto_id);
 
 		if (proto_is_protocol_enabled(p)) {
-			n--;
 			if (!n)
 				break;
+			n--;
 		}
 		proto_id = proto_get_next_protocol(&cookie);
 	}
@@ -162,10 +159,14 @@ proto_hier_tree_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreePat
 static void
 proto_hier_tree_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column, GValue *value)
 {
+	ProtoHierTreeModel *model;
 	header_field_info *hfinfo;
 
 	g_return_if_fail(PROTOHIER_IS_TREE(tree_model));
+	model = (ProtoHierTreeModel *) tree_model;
+
 	g_return_if_fail(iter != NULL);
+	g_return_if_fail(iter->stamp == model->stamp);
 	g_return_if_fail(column == 0);
 
 	hfinfo = iter->user_data3;
@@ -242,6 +243,9 @@ proto_hier_tree_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	ProtoHierTreeModel *model;
 	gint count = 0;
 
+	int p_id;
+	void *cookie;
+
 	g_return_val_if_fail(PROTOHIER_IS_TREE(tree_model), 0);
 	model = (ProtoHierTreeModel *) tree_model;
 
@@ -249,8 +253,6 @@ proto_hier_tree_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 	if (iter) {
 		header_field_info *hfinfo;
-		void *cookie;
-		int p_id;
 
 		g_return_val_if_fail(iter->stamp == model->stamp, 0);
 
@@ -268,9 +270,6 @@ proto_hier_tree_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 		}
 
 	} else {
-		void *cookie;
-		int p_id;
-
 		/* count enabled protocols */
 		for (p_id = proto_get_first_protocol(&cookie); p_id != -1; p_id = proto_get_next_protocol(&cookie)) {
 			protocol_t *p = find_protocol_by_id(p_id);
@@ -306,7 +305,6 @@ proto_hier_tree_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 	/* protocol */
 	{
-		void *cookie;
 		int id;
 
 		/* XXX, assuming that protocols can't be disabled! */
@@ -345,7 +343,7 @@ proto_hier_tree_iter_has_child(GtkTreeModel *tree_model, GtkTreeIter *iter)
 }
 
 static gboolean
-proto_hier_tree_iter_parent(GtkTreeModel *tree_model _U_, GtkTreeIter *iter _U_, GtkTreeIter *child _U_)
+proto_hier_tree_iter_parent(GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreeIter *child)
 {
 	ProtoHierTreeModel *model;
 
@@ -358,12 +356,12 @@ proto_hier_tree_iter_parent(GtkTreeModel *tree_model _U_, GtkTreeIter *iter _U_,
 	/* from field to protocol */
 	if (child->user_data2 != NULL) {
 		int p_id = proto_get_data_protocol(child->user_data);
-		protocol_t *p = find_protocol_by_id(p_id);
 
 		iter->stamp = model->stamp;
 		iter->user_data = child->user_data;
 		iter->user_data2 = NULL;
-		iter->user_data3 = proto_registrar_get_nth(proto_get_id(p));
+		iter->user_data3 = proto_registrar_get_nth(p_id);
+
 		return TRUE;
 	}
 	/* protocol has no parent */
