@@ -1282,7 +1282,7 @@ static const value_string cip_vendor_vals[] = {
    {  331,   "Interface Corporation" },
    {  332,   "Grape Systems Inc." },
    {  333,   "Reserved" },
-   {  344,   "Reserved" },
+   {  334,   "Reserved" },
    {  335,   "Toshiba IT & Control Systems Corporation" },
    {  336,   "Sanyo Machine Works, Ltd." },
    {  337,   "Vansco Electronics Ltd." },
