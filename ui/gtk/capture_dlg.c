@@ -434,6 +434,9 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
      * written, and we can't wait for that.  We won't have it if we can't
      * open the interface, either.
      *
+     * We also won't have an active pointer, even if we have the list of
+     * link-layer header types, if none of the types are supported.
+     *
      * Just mark it as empty, as a way of saying "damned if I know whether
      * this filter is valid".
      */
@@ -921,17 +924,18 @@ insert_new_rows(GList *list)
 #endif
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
         data_link_info = (data_link_info_t *)lt_entry->data;
+        link = (link_row *)g_malloc(sizeof(link_row));
         if (data_link_info->description != NULL) {
           str = g_strdup_printf("%s", data_link_info->description);
+          link->dlt = data_link_info->dlt;
         } else {
           str = g_strdup_printf("%s (not supported)", data_link_info->name);
+          link->dlt = -1;
         }
         if (linktype_count == 0) {
           link_type_name = g_strdup(str);
           device.active_dlt = data_link_info->dlt;
         }
-        link = (link_row *)g_malloc(sizeof(link_row));
-        link->dlt = data_link_info->dlt;
         link->name = g_strdup(str);
         device.links = g_list_append(device.links, link);
         linktype_count++;
@@ -1642,7 +1646,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   pd = pcap_open_dead(dlt, DUMMY_SNAPLENGTH);
   filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
-    g_mutex_lock(pcap_compile_mtx);
+  g_mutex_lock(pcap_compile_mtx);
   /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
 #ifdef PCAP_NETMASK_UNKNOWN
   if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
@@ -1658,6 +1662,8 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
     gchar *bpf_code_str;
     gchar *bpf_code_markup;
+
+    g_mutex_unlock(pcap_compile_mtx);
 
     for (i = 0; i < n; ++insn, ++i) {
         g_string_append(bpf_code_dump, bpf_image(insn, i));
@@ -1801,10 +1807,15 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
 
   if (device.links != NULL) {
-     if (!ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr))
-        g_assert_not_reached();  /* Programming error: somehow nothing is active */
-     if (ptr != NULL && (dlt = GPOINTER_TO_INT(ptr)) == -1) 
-        g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+     if (ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
+       /* Even though device.links != NULL, we might not have an active pointer
+        * if all of the available links are unsupported, so the failure of
+        * ws_combo_box_get_active_pointer() is not cause for
+        * g_assert_not_reached().
+        */
+       if (ptr != NULL && (dlt = GPOINTER_TO_INT(ptr)) == -1) 
+         g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+     }
   }
   device.active_dlt = dlt;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
@@ -1894,7 +1905,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   GtkTreeIter   iter;
   link_row      *temp;
   gboolean      found = FALSE;
-  gint          num_supported_link_types;
+  gint          num_link_types, num_supported_link_types, first_supported_index;
   guint         i;
   gchar         *tok, *name;
   GtkCellRenderer *renderer;
@@ -2064,24 +2075,46 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_widget_set_tooltip_text(linktype_combo_box, "The selected interface supports multiple link-layer types; select the desired one.");
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_combo_box, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY, linktype_combo_box);
+  num_link_types = 0;
   num_supported_link_types = 0;
+  first_supported_index = -1;
   for (list=device.links; list!=NULL; list=g_list_next(list))
   {
     temp = (link_row*)(list->data);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
-                                                  temp->name,
-                                                  GINT_TO_POINTER(temp->dlt)  /* Flag as "not supported" */
-                                                  );
-    num_supported_link_types++;
-    if (temp->dlt == device.active_dlt) {
-      ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box), num_supported_link_types - 1);
-      found = TRUE;
+    if (temp->dlt == -1)
+    {
+      ws_combo_box_append_text_and_pointer_full(GTK_COMBO_BOX(linktype_combo_box),
+                                                NULL,
+                                                temp->name,
+                                                GINT_TO_POINTER(-1),  /* Flag as "not supported" */
+                                                FALSE);
     }
+    else
+    {
+      ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
+                                           temp->name,
+                                           GINT_TO_POINTER(temp->dlt));
+      /* Record the index of the first supported link type (and thus the first
+       * one in the list to be active) for use determining the default selected
+       * element. */
+      if (first_supported_index == -1)
+      {
+        first_supported_index = num_link_types;
+      }
+      if (temp->dlt == device.active_dlt)
+      {
+        ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box), num_link_types);
+        found = TRUE;
+      }
+      num_supported_link_types++;
+    }
+    num_link_types++;
   }
-  gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
-  gtk_widget_set_sensitive(linktype_combo_box, num_supported_link_types >= 2);
-  if (!found) {
-    ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),0);
+  gtk_widget_set_sensitive(linktype_lb, num_link_types >= 2);
+  gtk_widget_set_sensitive(linktype_combo_box, num_link_types >= 2);
+  if (!found && first_supported_index >= 0)
+  {
+    ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),first_supported_index);
   }
   g_signal_connect(linktype_combo_box, "changed", G_CALLBACK(select_link_type_cb), NULL);
 
@@ -2199,6 +2232,8 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   g_signal_connect(compile_bt, "clicked", G_CALLBACK(capture_filter_compile_cb), NULL);
   gtk_widget_set_tooltip_text(compile_bt,
    "Compile the capture filter expression and show the BPF (Berkeley Packet Filter) code.");
+  /* We can't compile without any supported link-types, so disable the button in that case */
+  gtk_widget_set_sensitive(compile_bt, (num_supported_link_types >= 1));
   gtk_box_pack_start(GTK_BOX(filter_hb), compile_bt, FALSE, FALSE, 3);
 #endif
 

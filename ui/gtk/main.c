@@ -4139,10 +4139,11 @@ scan_local_interfaces(capture_options* capture_opts)
                     device.active_dlt = data_link_info->dlt;
                 }
                 link = (link_row *)g_malloc(sizeof(link_row));
-                link->dlt = data_link_info->dlt;
                 if (data_link_info->description != NULL) {
+                    link->dlt = data_link_info->dlt;
                     link->name = g_strdup_printf("%s", data_link_info->description);
                 } else {
+                    link->dlt = -1;
                     link->name = g_strdup_printf("%s (not supported)", data_link_info->name);
                 }
                 device.links = g_list_append(device.links, link);
