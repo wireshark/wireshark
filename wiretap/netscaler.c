@@ -443,24 +443,24 @@ typedef struct {
 	guint64 file_size;
 } nstrace_t;
 
-guint32 nspm_signature_version(wtap*, gchar*, gint32);
-gboolean nstrace_read(wtap *wth, int *err, gchar **err_info,
+static guint32 nspm_signature_version(wtap*, gchar*, gint32);
+static gboolean nstrace_read(wtap *wth, int *err, gchar **err_info,
 		 gint64 *data_offset);
-gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info,
+static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info,
 		 gint64 *data_offset);
-gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
+static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
 		 gint64 *data_offset);
-gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
+static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 		      union wtap_pseudo_header *pseudo_header,
 		      guint8 *pd, int length,
 		      int *err, gchar **err_info);
-void nstrace_close(wtap *wth);
-void nstrace_sequential_close(wtap *wth);
+static void nstrace_close(wtap *wth);
+static void nstrace_sequential_close(wtap *wth);
 
-gboolean nstrace_set_start_time_v10(wtap *wth);
-gboolean nstrace_set_start_time_v20(wtap *wth);
-gboolean nstrace_set_start_time(wtap *wth);
-guint64	ns_hrtime2nsec(guint32 tm);
+static gboolean nstrace_set_start_time_v10(wtap *wth);
+static gboolean nstrace_set_start_time_v20(wtap *wth);
+static gboolean nstrace_set_start_time(wtap *wth);
+static guint64 ns_hrtime2nsec(guint32 tm);
 
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
@@ -469,7 +469,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 #define GET_READ_PAGE_SIZE(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
 
 
-guint64	ns_hrtime2nsec(guint32 tm)
+static guint64 ns_hrtime2nsec(guint32 tm)
 {
 	guint32	val = tm & NSPR_HRTIME_MASKTM;
 	switch(tm & NSPR_HRTIME_MASKFMT)
@@ -599,7 +599,7 @@ nspm_signature_func(20)
 ** we might not be at the first page. So after a call to this function, there
 ** has to be a file seek to return to the start of the first page.
 */
-guint32
+static guint32
 nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 {
 	gchar *dp = nstrace_buf;
@@ -688,7 +688,7 @@ nstrace_set_start_time_ver(20)
 ** the next record after the ABSTIME record. Inorder to report correct time values, all trace
 ** records before the ABSTIME record are ignored.
 */
-gboolean nstrace_set_start_time(wtap *wth)
+static gboolean nstrace_set_start_time(wtap *wth)
 {
 	if (wth->file_type == WTAP_FILE_NETSCALER_1_0)
 		return nstrace_set_start_time_v10(wth);
@@ -715,7 +715,7 @@ gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
-gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	nstrace_t *nstrace = (nstrace_t *)wth->priv;
 	guint64 nsg_creltime = nstrace->nsg_creltime;
@@ -881,7 +881,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 		return TRUE;\
 	}while(0)
 
-gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	nstrace_t *nstrace = (nstrace_t *)wth->priv;
 	guint64 nsg_creltime = nstrace->nsg_creltime;
@@ -991,7 +991,7 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 
 
-gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 
 	if (wth->file_type == WTAP_FILE_NETSCALER_1_0)
@@ -1014,7 +1014,7 @@ gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset
 	__TNL(enumprefix,structprefix,structname,hdrname,structfieldname)
 
 
-gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
+static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
@@ -1107,7 +1107,7 @@ gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 /*
 ** Netscaler trace format close routines.
 */
-void nstrace_close(wtap *wth)
+static void nstrace_close(wtap *wth)
 {
 	nstrace_t *nstrace = (nstrace_t *)wth->priv;
 
