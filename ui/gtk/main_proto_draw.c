@@ -1564,6 +1564,7 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 {
     GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
     GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
+    GtkTextBuffer *buf_tmp;
     GtkTextMark   *mark;
     int ndigits;
 
@@ -1591,7 +1592,9 @@ packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
      *       to display the real buffer until it has been
      *       completely generated).
      */
-    gtk_text_view_set_buffer(bv_text_view, gtk_text_buffer_new(NULL));
+    buf_tmp = gtk_text_buffer_new(NULL);
+    gtk_text_view_set_buffer(bv_text_view, buf_tmp);
+    g_object_unref(buf_tmp);
 
     packet_hex_print_common(buf, bv, pd, len, encoding);
 
