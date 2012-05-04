@@ -962,9 +962,9 @@ static const value_string rsl_ch_rate_and_type_vals[] = {
     {  0x08,    "Full rate TCH channel Bm" },
     {  0x09,    "Half rate TCH channel Lm" },
     {  0x0a,    "Full rate TCH channel bi-directional Bm, Multislot configuration" },
-    {  0x1a,    "Full rate TCH channel uni-directional downlink Bm, Multislot configuration" },
     {  0x18,    "Full rate TCH channel Bm Group call channel" },
     {  0x19,    "Half rate TCH channel Lm Group call channel" },
+    {  0x1a,    "Full rate TCH channel uni-directional downlink Bm, Multislot configuration" },
     {  0x28,    "Full rate TCH channel Bm Broadcast call channel" },
     {  0x29,    "PHalf rate TCH channel Lm Broadcast call channel" },
     { 0,            NULL }
@@ -2025,14 +2025,14 @@ static const value_string rsl_sys_info_type_vals[] = {
     {  0x0d,    "SYSTEM INFORMATION 5bis" },
     {  0x0e,    "SYSTEM INFORMATION 5ter" },
     {  0x0f,    "SYSTEM INFORMATION 10" },
-    {  0x47,    "EXTENDED MEASUREMENT ORDER" },
-    {  0x48,    "MEASUREMENT INFORMATION" },
     {  0x28,    "SYSTEM INFORMATION 13" },
     {  0x29,    "SYSTEM INFORMATION 2quater" },
     {  0x2a,    "SYSTEM INFORMATION 9" },
     {  0x2b,    "SYSTEM INFORMATION 18" },
     {  0x2c,    "SYSTEM INFORMATION 19" },
     {  0x2d,    "SYSTEM INFORMATION 20" },
+    {  0x47,    "EXTENDED MEASUREMENT ORDER" },
+    {  0x48,    "MEASUREMENT INFORMATION" },
     { 0,            NULL }
 };
 static value_string_ext rsl_sys_info_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_sys_info_type_vals);
