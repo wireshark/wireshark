@@ -437,8 +437,8 @@ typedef struct {
 	gint32 nstrace_buflen;
 	/* Performance Monitor Time variables */
 	guint32	nspm_curtime;		/* current time since 1970 */
-	guint64	nspm_curtimemsec;	/* current time in mili second */
-	guint64	nspm_curtimelastmsec;	/* nspm_curtime last update time in milisec */
+	guint64	nspm_curtimemsec;	/* current time in milliseconds */
+	guint64	nspm_curtimelastmsec;	/* nspm_curtime last update time in milliseconds */
 	guint64 nsg_creltime;
 	guint64 file_size;
 } nstrace_t;
