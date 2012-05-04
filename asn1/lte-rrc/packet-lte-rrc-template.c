@@ -1665,6 +1665,11 @@ static const value_string lte_rrc_RSRQ_Range_vals[] = {
 };
 static value_string_ext lte_rrc_RSRQ_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRQ_Range_vals);
 
+static const true_false_string lte_rrc_duration_val = {
+  "indefinite",
+  "single"
+};
+
 #include "packet-lte-rrc-fn.c"
 
 static void
