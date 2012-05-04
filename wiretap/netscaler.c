@@ -974,11 +974,11 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 					break;
 				}
 			}
-    	}
+		}
 
 		nstrace_buf_offset = 0;
-	    wth->data_offset += nstrace_buflen;
-    	nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
+		wth->data_offset += nstrace_buflen;
+		nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
 	}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
 
 	return FALSE;
