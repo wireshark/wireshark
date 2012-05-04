@@ -55,6 +55,7 @@
 #include "ui/gtk/proto_dlg.h"
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/dfilter_expr_dlg.h"
+#include "ui/gtk/proto_hier_tree_model.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -945,10 +946,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkWidget *range_label, *range_entry;
 
     GtkWidget *list_bb, *ok_bt, *cancel_bt;
-    header_field_info       *hfinfo;
-    int i;
-    protocol_t *protocol;
-    GtkTreeStore *store;
+    ProtoHierTreeModel *store;
     GtkTreeSelection *selection;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
@@ -1128,38 +1126,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * we're ready to cope with the selection signal.
      */
 
-    store = gtk_tree_store_new(1, G_TYPE_POINTER);
-{
-    /* GTK2 code using two levels iterator to enumerate all protocol fields */
-
-    GtkTreeIter iter, child_iter;
-    void *cookie, *cookie2;
-
-    for (i = proto_get_first_protocol(&cookie); i != -1;
-	 i = proto_get_next_protocol(&cookie)) {
-
-        protocol = find_protocol_by_id(i);
-
-	if (!proto_is_protocol_enabled(protocol)) {
-	    continue;
-	}
-
-	hfinfo = proto_registrar_get_nth(i);
-
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter, 0, hfinfo, -1);
-
-	for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-             hfinfo = proto_get_next_protocol_field(&cookie2)) {
-
-            if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
-                continue;
-
-            gtk_tree_store_append(store, &child_iter, &iter);
-            gtk_tree_store_set(store, &child_iter, 0, hfinfo, -1);
-	}
-    }
-}
+    store = proto_hier_tree_model_new();
     gtk_tree_view_set_model(GTK_TREE_VIEW(field_tree), GTK_TREE_MODEL(store));
     g_object_unref(G_OBJECT(store));
 

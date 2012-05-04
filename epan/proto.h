@@ -1707,6 +1707,7 @@ extern gint proto_registrar_get_length(const int n);
  * they return the item number of the protocol in question or the
  * appropriate hfinfo pointer, and keep state in "*cookie". */
 extern int proto_get_first_protocol(void **cookie);
+extern int proto_get_data_protocol(void *cookie);
 extern int proto_get_next_protocol(void **cookie);
 extern header_field_info *proto_get_first_protocol_field(const int proto_id, void **cookle);
 extern header_field_info *proto_get_next_protocol_field(void **cookle);

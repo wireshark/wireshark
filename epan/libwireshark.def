@@ -760,6 +760,7 @@ proto_field_is_referenced
 proto_find_field_from_offset
 proto_find_finfo
 proto_frame                     DATA
+proto_get_data_protocol
 proto_get_finfo_ptr_array
 proto_get_first_protocol_field
 proto_get_first_protocol

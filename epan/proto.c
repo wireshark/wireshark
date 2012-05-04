@@ -4524,6 +4524,15 @@ proto_get_first_protocol(void **cookie)
 }
 
 int
+proto_get_data_protocol(void *cookie)
+{
+	GList *list_item = cookie;
+
+	protocol_t *protocol = list_item->data;
+	return protocol->proto_id;
+}
+
+int
 proto_get_next_protocol(void **cookie)
 {
 	GList      *list_item = *cookie;
