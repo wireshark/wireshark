@@ -482,17 +482,16 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     switch(src_desc->input_type) {
         case K12_PORT_ATMPVC:
-        if ((long)(K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID) < len) {
-            wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
-            wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
-            wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
-            break;
-        }
-        /* Fall through */
+            if ((long)(K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID) < len) {
+                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VP));
+                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + (K12_PACKET_FRAME + wth->phdr.caplen + K12_PACKET_OFFSET_VC));
+                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + wth->phdr.len + K12_PACKET_OFFSET_CID));
+                break;
+            }
+            /* Fall through */
         default:
-        memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
-        break;
-
+            memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+            break;
     }
 
     wth->pseudo_header.k12.stuff = k12;
@@ -562,17 +561,17 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
             pseudo_header->k12.input_type = src_desc->input_type;
 
             switch(src_desc->input_type) {
-            case K12_PORT_ATMPVC:
-                if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
-                pseudo_header->k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
-                pseudo_header->k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
-                pseudo_header->k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
-                break;
-                }
-                /* Fall through */
-            default:
-                memcpy(&(pseudo_header->k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
-                break;
+                case K12_PORT_ATMPVC:
+                    if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
+                        pseudo_header->k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
+                        pseudo_header->k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
+                        pseudo_header->k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+                        break;
+                    }
+                    /* Fall through */
+                default:
+                    memcpy(&(pseudo_header->k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+                    break;
             }
         }
 
@@ -582,16 +581,16 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 
         switch(src_desc->input_type) {
             case K12_PORT_ATMPVC:
-            if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
-                wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
-                wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
-                wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
-            }
-            break;
-            /* Fall through */
+                if ((long)(K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID) < len) {
+                    wth->pseudo_header.k12.input_info.atm.vp =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VP);
+                    wth->pseudo_header.k12.input_info.atm.vc =  pntohs(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_VC);
+                    wth->pseudo_header.k12.input_info.atm.cid =  *((unsigned char*)(buffer + K12_PACKET_FRAME + length + K12_PACKET_OFFSET_CID));
+                }
+                break;
+                /* Fall through */
             default:
-            memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
-            break;
+                memcpy(&(wth->pseudo_header.k12.input_info),&(src_desc->input_info),sizeof(src_desc->input_info));
+                break;
         }
 
     } else {
@@ -952,7 +951,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
                 obj.record.extra.desc.ds0mask.mask[i] =
                 (src_desc->input_info.ds0mask & (1 << i)) ? 0xff : 0x00;
             }
-                offset = 0x3c;
+            offset = 0x3c;
             break;
         default:
             obj.record.extra_len = g_htons(0x08);
