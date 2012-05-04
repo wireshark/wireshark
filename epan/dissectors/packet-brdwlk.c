@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -28,14 +28,6 @@
 #endif
 
 #include <stdlib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -153,70 +145,70 @@ static const true_false_string tfs_error_ctrl = {
 static void
 dissect_brdwlk_err(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
+    proto_item *item = NULL;
+    proto_tree *tree = NULL;
     guint8 flags;
 
-    flags = tvb_get_guint8 (tvb, offset);
-    if(parent_tree){
-        item=proto_tree_add_uint(parent_tree, hf_brdwlk_error, 
+    flags = tvb_get_guint8(tvb, offset);
+    if (parent_tree) {
+        item=proto_tree_add_uint(parent_tree, hf_brdwlk_error,
                                  tvb, offset, 1, flags);
         tree=proto_item_add_subtree(item, ett_brdwlk_error);
     }
 
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_plp, tvb, offset, 1, flags);
-    if (flags&0x01){
+    if (flags & 0x01) {
         proto_item_append_text(item, "  Packet Length Present");
     }
-    flags&=(~( 0x01 ));
+    flags &= (~( 0x01 ));
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_ef, tvb, offset, 1, flags);
-    if (flags&0x02){
+    if (flags & 0x02) {
         proto_item_append_text(item, "  Empty Frame");
     }
-    flags&=(~( 0x02 ));
+    flags &= (~( 0x02 ));
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_nd, tvb, offset, 1, flags);
-    if (flags&0x04){
+    if (flags & 0x04) {
         proto_item_append_text(item, "  No Data");
     }
-    flags&=(~( 0x04 ));
+    flags &= (~( 0x04 ));
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_tr, tvb, offset, 1, flags);
-    if (flags&0x08){
+    if (flags & 0x08) {
         proto_item_append_text(item, "  Truncated");
     }
-    flags&=(~( 0x08 ));
+    flags &= (~( 0x08 ));
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_badcrc, tvb, offset, 1, flags);
-    if (flags&0x10){
+    if (flags & 0x10) {
         proto_item_append_text(item, "  Bad FC CRC");
     }
-    flags&=(~( 0x10 ));
+    flags &= (~( 0x10 ));
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_ff, tvb, offset, 1, flags);
-    if (flags&0x20){
+    if (flags & 0x20) {
         proto_item_append_text(item, "  Fifo Full");
     }
-    flags&=(~( 0x20 ));
+    flags &= (~( 0x20 ));
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_jumbo, tvb, offset, 1, flags);
-    if (flags&0x40){
+    if (flags & 0x40) {
         proto_item_append_text(item, "  Jumbo FC Frame");
     }
-    flags&=(~( 0x40 ));
+    flags &= (~( 0x40 ));
 
     proto_tree_add_boolean(tree, hf_brdwlk_error_ctrl, tvb, offset, 1, flags);
-    if (flags&0x80){
+    if (flags & 0x80) {
         proto_item_append_text(item, "  Ctrl Char Inside Frame");
     }
-    flags&=(~( 0x80 ));
+    flags &= (~( 0x80 ));
 }
 
 /* Code to actually dissect the packets */
 static void
-dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -232,11 +224,11 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Boardwalk");
-    
+
     col_clear(pinfo->cinfo, COL_INFO);
 
-    pinfo->vsan = (tvb_get_ntohs (tvb, offset) & 0xFFF);
-    sof = (tvb_get_guint8 (tvb, offset) & 0xF0) >> 4;
+    pinfo->vsan = (tvb_get_ntohs(tvb, offset) & 0xFFF);
+    sof = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
 
     if ((sof == FCM_DELIM_SOFI3) || (sof == FCM_DELIM_SOFI2) || (sof == FCM_DELIM_SOFI1)
         || (sof == FCM_DELIM_SOFI4)) {
@@ -247,13 +239,13 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
-        ti = proto_tree_add_protocol_format (tree, proto_brdwlk, tvb, 0,
-                                             hdrlen, "Boardwalk");
+        ti = proto_tree_add_protocol_format(tree, proto_brdwlk, tvb, 0,
+                                            hdrlen, "Boardwalk");
 
-        brdwlk_tree = proto_item_add_subtree (ti, ett_brdwlk);
+        brdwlk_tree = proto_item_add_subtree(ti, ett_brdwlk);
 
-        proto_tree_add_item (brdwlk_tree, hf_brdwlk_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item (brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(brdwlk_tree, hf_brdwlk_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     }
 
@@ -290,10 +282,10 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         len -= 4;
         reported_len -= 4;
         offset = tvb_reported_length(tvb) - 4;
-        pkt_cnt = tvb_get_ntohs (tvb, offset);
+        pkt_cnt = tvb_get_ntohs(tvb, offset);
         if (tree) {
-            proto_tree_add_uint (brdwlk_tree, hf_brdwlk_pktcnt, tvb, offset,
-                                 2, pkt_cnt);
+            proto_tree_add_uint(brdwlk_tree, hf_brdwlk_pktcnt, tvb, offset,
+                                2, pkt_cnt);
         }
         dropped_packets = FALSE;
         if (pinfo->fd->flags.visited) {
@@ -330,27 +322,27 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             if (tree) {
-                hidden_item = proto_tree_add_boolean (brdwlk_tree, hf_brdwlk_drop,
-                                               tvb, offset, 0, dropped_packets);
+                hidden_item = proto_tree_add_boolean(brdwlk_tree, hf_brdwlk_drop,
+                                                     tvb, offset, 0, dropped_packets);
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
         }
         packet_count = pkt_cnt;
 
-        error=tvb_get_guint8(tvb, offset+2);           
+        error=tvb_get_guint8(tvb, offset+2);
         dissect_brdwlk_err(brdwlk_tree, tvb, offset+2);
 
-        eof = tvb_get_guint8 (tvb, offset+3);
+        eof = tvb_get_guint8(tvb, offset+3);
         if (eof != FCM_DELIM_EOFN) {
             pinfo->sof_eof |= PINFO_EOF_LAST_FRAME;
         }
         else if (eof != FCM_DELIM_EOFT) {
             pinfo->sof_eof |= PINFO_EOF_INVALID;
         }
-        
+
         if (tree) {
-            proto_tree_add_item (brdwlk_tree, hf_brdwlk_eof, tvb, offset+3,
-                                 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(brdwlk_tree, hf_brdwlk_eof, tvb, offset+3,
+                                1, ENC_BIG_ENDIAN);
         }
 
         if ((error & BRDWLK_HAS_PLEN) && tree) {
@@ -358,25 +350,25 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * is also provided. This length is the size between SOF & EOF
              * including FC CRC.
              */
-            plen = tvb_get_ntohl (tvb, offset-4);
+            plen = tvb_get_ntohl(tvb, offset-4);
             plen *= 4;
-            proto_tree_add_uint (brdwlk_tree, hf_brdwlk_plen, tvb, offset-4,
-                                 4, plen);
-            
+            proto_tree_add_uint(brdwlk_tree, hf_brdwlk_plen, tvb, offset-4,
+                                4, plen);
+
 #if 0
             /* XXX - this would throw an exception if it would increase
              * the reported length.
              */
             if (error & BRDWLK_TRUNCATED_BIT) {
-                tvb_set_reported_length (tvb, plen);
+                tvb_set_reported_length(tvb, plen);
             }
 #endif
         }
     }
-    
-    next_tvb = tvb_new_subset (tvb, 2, len, reported_len);
+
+    next_tvb = tvb_new_subset(tvb, 2, len, reported_len);
     if (fc_dissector_handle) {
-        call_dissector (fc_dissector_handle, next_tvb, pinfo, tree);
+        call_dissector(fc_dissector_handle, next_tvb, pinfo, tree);
     }
 }
 
@@ -394,16 +386,16 @@ brdwlk_init(void)
 */
 
 void
-proto_register_brdwlk (void)
-{                 
+proto_register_brdwlk(void)
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_brdwlk_sof,
-          {"SOF", "brdwlk.sof", FT_UINT8, BASE_HEX, VALS (brdwlk_sof_vals),
+          {"SOF", "brdwlk.sof", FT_UINT8, BASE_HEX, VALS(brdwlk_sof_vals),
            0xF0, NULL, HFILL}},
         { &hf_brdwlk_eof,
-          {"EOF", "brdwlk.eof", FT_UINT8, BASE_HEX, VALS (brdwlk_eof_vals),
+          {"EOF", "brdwlk.eof", FT_UINT8, BASE_HEX, VALS(brdwlk_eof_vals),
            0x0F, NULL, HFILL}},
         { &hf_brdwlk_error,
           {"Error", "brdwlk.error", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
@@ -464,18 +456,14 @@ proto_register_brdwlk (void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 void
 proto_reg_handoff_brdwlk(void)
 {
     dissector_handle_t brdwlk_handle;
 
-    brdwlk_handle = create_dissector_handle (dissect_brdwlk, proto_brdwlk);
+    brdwlk_handle = create_dissector_handle(dissect_brdwlk, proto_brdwlk);
     dissector_add_uint("ethertype", ETHERTYPE_BRDWALK, brdwlk_handle);
     dissector_add_uint("ethertype", 0xABCD, brdwlk_handle);
     data_handle = find_dissector("data");
-    fc_dissector_handle = find_dissector ("fc");
+    fc_dissector_handle = find_dissector("fc");
 }
