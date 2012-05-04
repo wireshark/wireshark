@@ -455,7 +455,6 @@ static gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 		      guint8 *pd, int length,
 		      int *err, gchar **err_info);
 static void nstrace_close(wtap *wth);
-static void nstrace_sequential_close(wtap *wth);
 
 static gboolean nstrace_set_start_time_v10(wtap *wth);
 static gboolean nstrace_set_start_time_v20(wtap *wth);
