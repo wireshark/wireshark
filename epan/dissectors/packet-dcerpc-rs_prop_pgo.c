@@ -1,12 +1,12 @@
 /* packet-dcerpc-rs_prop_pgo.c
- * 
+ *
  * Routines for rs_prop_pgo dissection
  * Copyright 2004, Jaime Fournier <jaime.fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_prop_pgo.idl
  *
  * $Id$
- *      
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -30,10 +30,6 @@
 #include "config.h"
 #endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>

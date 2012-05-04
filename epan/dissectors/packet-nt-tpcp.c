@@ -30,10 +30,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_SYS_TYPES_H
-#  include <sys/types.h>
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h> /* this is for get_hostname and get_udp_port */

@@ -1,42 +1,38 @@
 /* packet-ndp.c
-* Routines for the disassembly of the Nortel Discovery Protocol, formerly
-* the SynOptics Network Management Protocol (SONMP).
-* (c) Copyright Giles Scott <giles.scott1 [AT] arubanetworks.com>
-*
-* $Id$
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*
-* This protocol has gone by many names over the years:
-*
-* Bay Discovery Protocol (BDP), Bay Topology Protocol, Bay Network Management
-* Protocol (BNMP), Nortel Management MIB (NMM), Nortel Topology Discovery
-* Protocol (NTDP), SynOptics Network Management Protocol (SONMP).
-*   (source: Wikipedia article on "Nortel Discovery Protocol")
-*
-*/
+ * Routines for the disassembly of the Nortel Discovery Protocol, formerly
+ * the SynOptics Network Management Protocol (SONMP).
+ * (c) Copyright Giles Scott <giles.scott1 [AT] arubanetworks.com>
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * This protocol has gone by many names over the years:
+ *
+ * Bay Discovery Protocol (BDP), Bay Topology Protocol, Bay Network Management
+ * Protocol (BNMP), Nortel Management MIB (NMM), Nortel Topology Discovery
+ * Protocol (NTDP), SynOptics Network Management Protocol (SONMP).
+ *   (source: Wikipedia article on "Nortel Discovery Protocol")
+ *
+ */
 
 #include "config.h"
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <stdlib.h>
 
@@ -45,14 +41,14 @@
 #include <epan/nlpid.h>
 
 /* Although this protocol is proprietary it is documented in the SynOptics MIB's
-* So I'm not giving anything away :-)
-* The only thing I have not done is decode the segment identifier;
-* This changes so much depending on whether the chassis supports
-* multi-segment autotopology. As the 5000 is now EOL don't see much point.
-*
-* MIB's s5emt104.mib, s5tcs112.mib, synro199.mib these should be available via
-* http://www.nortelnetworks.com
-*/
+ * So I'm not giving anything away :-)
+ * The only thing I have not done is decode the segment identifier;
+ * This changes so much depending on whether the chassis supports
+ * multi-segment autotopology. As the 5000 is now EOL don't see much point.
+ *
+ * MIB's s5emt104.mib, s5tcs112.mib, synro199.mib these should be available via
+ * http://www.nortelnetworks.com
+ */
 
 
 /* chassis types */
@@ -337,43 +333,43 @@ dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_ndp(void)
 {
-    static hf_register_info hf[] = {
+	static hf_register_info hf[] = {
 		{ &hf_ndp_ip_address,
-		{ "IP address",		"ndp.ipaddress",  FT_IPv4, BASE_NONE, NULL, 0x0,
-		"IP address of the Network Management Module (NMM))", HFILL }},
+		  { "IP address",		"ndp.ipaddress",  FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "IP address of the Network Management Module (NMM))", HFILL }},
 
 		{ &hf_ndp_segment_identifier,
-		{ "Segment Identifier",		"ndp.segmentident", FT_UINT24, BASE_HEX, NULL, 0x0,
-		"Segment id of the segment from which the agent is sending the topology message", HFILL }},
+		  { "Segment Identifier",		"ndp.segmentident", FT_UINT24, BASE_HEX, NULL, 0x0,
+		    "Segment id of the segment from which the agent is sending the topology message", HFILL }},
 
 		{ &hf_ndp_chassis_type,
-		{ "Chassis type",		"ndp.chassis", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
-		&ndp_chassis_val_ext, 0x0,
-		"Chassis type of the agent sending the topology message", HFILL }},
+		  { "Chassis type",		"ndp.chassis", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+		    &ndp_chassis_val_ext, 0x0,
+		    "Chassis type of the agent sending the topology message", HFILL }},
 
 		{ &hf_ndp_backplane_type,
-		{ "Backplane type",		"ndp.backplane", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
-		 &ndp_backplane_val_ext, 0x0,
-		"Backplane type of the agent sending the topology message", HFILL }},
+		  { "Backplane type",		"ndp.backplane", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
+		    &ndp_backplane_val_ext, 0x0,
+		    "Backplane type of the agent sending the topology message", HFILL }},
 
 		{ &hf_ndp_state,
-		{ "State",		"ndp.state", FT_UINT8, BASE_DEC,
-		 VALS(ndp_state_val), 0x0,
-		"Current state of this Network Management Module (NMM)", HFILL }},
+		  { "State",		"ndp.state", FT_UINT8, BASE_DEC,
+		    VALS(ndp_state_val), 0x0,
+		    "Current state of this Network Management Module (NMM)", HFILL }},
 
 		{ &hf_ndp_number_of_links,
-		{ "Number of links",		"ndp.numberoflinks", FT_UINT8, BASE_DEC, NULL, 0x0,
-		"Number of interconnect ports", HFILL }},
-    };
+		  { "Number of links",		"ndp.numberoflinks", FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "Number of interconnect ports", HFILL }},
+	};
 
-    static gint *ett[] = {
+	static gint *ett[] = {
 		&ett_ndp,
-    };
-    proto_ndp = proto_register_protocol("Nortel Discovery Protocol", "NDP", "ndp");
-    proto_register_field_array(proto_ndp, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	};
+	proto_ndp = proto_register_protocol("Nortel Discovery Protocol", "NDP", "ndp");
+	proto_register_field_array(proto_ndp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("ndp", dissect_ndp, proto_ndp);
+	register_dissector("ndp", dissect_ndp, proto_ndp);
 }
 
 void
@@ -384,8 +380,8 @@ proto_reg_handoff_ndp(void)
 	ndp_handle = find_dissector("ndp");
 
 	dissector_add_uint("llc.nortel_pid", 0x01a1, ndp_handle); /* flatnet hello */
-	dissector_add_uint("llc.nortel_pid", 0x01a2, ndp_handle); /* Segment hello */ 
-	/* not got round to adding this but its really old, so I'm not sure people will see it */
+	dissector_add_uint("llc.nortel_pid", 0x01a2, ndp_handle); /* Segment hello */
+	/* not got round to adding this but it's really old, so I'm not sure people will see it */
 	/* it uses a different packet format */
 	/*      dissector_add_uint("llc.nortel_pid", 0x01a3, ndp_handle); */ /* Bridge hello */
 }

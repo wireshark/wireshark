@@ -4,7 +4,7 @@
  * Copyright 2003, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_bind.idl
- *     
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -31,10 +31,6 @@
 #endif
 
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
@@ -50,7 +46,7 @@ static gint ett_rs_bind = -1;
 static e_uuid_t uuid_rs_bind =
   { 0xd46113d0, 0xa848, 0x11cb, {0xb8, 0x63, 0x08, 0x00, 0x1e, 0x04, 0x6a,
 				 0xa5}
- 
+
 };
 static guint16 ver_rs_bind = 2;
 

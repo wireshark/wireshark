@@ -5,7 +5,7 @@
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/directory.tar.gz directory/cds/stubs/cds_clerkserver.idl
- *      
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -31,10 +31,6 @@
 #include "config.h"
 #endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>

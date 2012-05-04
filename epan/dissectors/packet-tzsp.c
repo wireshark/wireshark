@@ -30,10 +30,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -117,11 +113,11 @@ static int hf_sensormac = -1;
 /*                Add option information to the display                      */
 /* ************************************************************************* */
 
-static int 
+static int
 add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
 {
 	guint8 tag, length, fcs_err = 0, encr = 0, seen_fcs_err = 0;
-	
+
 	/*
 	 * Read all option tags in an endless loop. If the packet is malformed this
 	 * loop might be a problem.

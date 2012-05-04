@@ -1,5 +1,5 @@
 /* packet-fclctl.c
- * Routines for FC Link Control Frames 
+ * Routines for FC Link Control Frames
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
  * $Id$
@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -28,14 +28,6 @@
 #endif
 
 #include <stdlib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -132,7 +124,7 @@ fclctl_get_typestr (guint8 linkctl_type, guint8 type)
 {
     if ((linkctl_type == FC_LCTL_FBSYB) ||
         (linkctl_type == FC_LCTL_FBSYL)) {
-        return (val_to_str ((type & 0xF0), fc_lctl_fbsy_val, "0x%x")); 
+        return (val_to_str ((type & 0xF0), fc_lctl_fbsy_val, "0x%x"));
     }
     return "";
 }
@@ -141,13 +133,13 @@ const gchar *
 fclctl_get_paramstr (guint32 linkctl_type, guint32 param)
 {
     if (linkctl_type == FC_LCTL_PBSY) {
-      return g_strdup_printf("%s, %s", 
+      return g_strdup_printf("%s, %s",
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_pbsy_acode_val, "0x%x"),
 		 val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_pbsy_rjt_val, "0x%x"));
     }
     if ((linkctl_type == FC_LCTL_FRJT) ||
              (linkctl_type == FC_LCTL_PRJT)) {
-      return g_strdup_printf("%s, %s", 
+      return g_strdup_printf("%s, %s",
                  val_to_str (((param & 0xFF000000) >> 24), fc_lctl_rjt_acode_val, "0x%x"),
                  val_to_str (((param & 0x00FF0000) >> 16), fc_lctl_rjt_val, "%x"));
     }

@@ -4,7 +4,7 @@
  * Copyright 2002, Jaime Fournier <Jaime.Fournier@hush.com>
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rsecidmap.idl
- *      
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -31,10 +31,6 @@
 #endif
 
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
@@ -56,7 +52,7 @@ static dcerpc_sub_dissector secidmap_dissectors[] = {
         { 2, "avoid_cn_bug", NULL, NULL},
         { 3, "parse_name_cache", NULL, NULL},
         { 4, "gen_name_cache", NULL, NULL},
- 
+
         { 0, NULL, NULL, NULL },
 };
 
@@ -83,4 +79,3 @@ proto_reg_handoff_secidmap (void)
         /* Register the protocol as dcerpc */
         dcerpc_init_uuid (proto_secidmap, ett_secidmap, &uuid_secidmap, ver_secidmap, secidmap_dissectors, hf_secidmap_opnum);
 }
-			   

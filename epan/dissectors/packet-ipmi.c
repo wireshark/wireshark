@@ -27,16 +27,13 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 #include <string.h>
 #include <time.h>
 #include <math.h>
 
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
-#include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>

@@ -41,14 +41,6 @@
 
 #include <glib.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <string.h>
 
 #include <epan/packet.h>
@@ -2409,7 +2401,7 @@ dis_iei_upi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 #if 0
 /* TS 123 040 V9.3.0 (2010-10) */
 static const value_string gsm_sms_tp_ud_ie-_d_vals[] = {
-	{ 0x00,  "Concatenated short messages, 8-bit reference number (SMS Control)" },
+    { 0x00,  "Concatenated short messages, 8-bit reference number (SMS Control)" },
     { 0x01,  "Special SMS Message Indication (SMS Control)" },
     { 0x02,  "Reserved" },
     { 0x03,  "Value not used to avoid misinterpretation as <LF> character" },
@@ -2436,23 +2428,23 @@ static const value_string gsm_sms_tp_ud_ie-_d_vals[] = {
     { 0x18,  "Standard WVG object (EMS Content)" },
     { 0x19,  "Character Size WVG object (EMS Content)" },
     { 0x1A,  "Extended Object Data Request Command (EMS Control)" },
-	/*1B-1F Reserved for future EMS features (see subclause 3.10) */
+    /*1B-1F Reserved for future EMS features (see subclause 3.10) */
     { 0x20,  "RFC 822 E-Mail Header (SMS Control)" },
     { 0x21,  "Hyperlink format element (SMS Control)" },s
     { 0x22,  "Reply Address Element (SMS Control)" },
     { 0x23,  "Enhanced Voice Mail Information (SMS Control)" },
     { 0x24,  "National Language Single Shift (SMS Control)" },
     { 0x25,  "National Language Locking Shift (SMS Control)" },
-	/*26-6F Reserved for future use */
-	/*70-7F (U)SIM Toolkit Security Headers (SMS Control) */
-	/*80-9F SME to SME specific use (SMS Control) */
-	/*A0-BF Reserved for future use */
-	/*C0-DF SC specific use (SMS Control) */
-	/*E0-FF Reserved for future use */
+    /*26-6F Reserved for future use */
+    /*70-7F (U)SIM Toolkit Security Headers (SMS Control) */
+    /*80-9F SME to SME specific use (SMS Control) */
+    /*A0-BF Reserved for future use */
+    /*C0-DF SC specific use (SMS Control) */
+    /*E0-FF Reserved for future use */
     { 0, NULL },
 };
 
-#endif 
+#endif
 static void
 dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 {
@@ -2757,12 +2749,12 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                             gsm_sms_char_7bit_unpack(fill_bits, p_frag_params->length,
                                 (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
                                 tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
-    
+
                         messagebuf[out_len] = '\0';
                         proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
                                               total_sms_len, p_frag_params->length,
                                               gsm_sms_chars_to_utf8(messagebuf, out_len));
-    
+
                         total_sms_len += p_frag_params->length;
                     }
                 }

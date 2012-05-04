@@ -46,16 +46,10 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <string.h>
+
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/prefs.h>

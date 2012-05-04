@@ -5,7 +5,7 @@
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz icl_rpc.idl
  *
  * $Id$
- *      
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -29,10 +29,6 @@
 #include "config.h"
 #endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>
