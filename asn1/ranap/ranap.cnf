@@ -301,7 +301,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
-  proto_tree *item;
+  proto_item *item;
   proto_tree *subtree, *nsap_tree;
   gint tvb_len;
   

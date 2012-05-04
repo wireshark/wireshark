@@ -7869,7 +7869,7 @@ static int
 dissect_ranap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 303 "../../asn1/ranap/ranap.cnf"
   tvbuff_t *parameter_tvb=NULL;
-  proto_tree *item;
+  proto_item *item;
   proto_tree *subtree, *nsap_tree;
   gint tvb_len;
   

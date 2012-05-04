@@ -44,6 +44,7 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-isup.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -1512,12 +1513,13 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 50 "../../asn1/nbap/packet-nbap-template.c"
+#line 51 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
 static int hf_nbap_transportLayerAddress_ipv4 = -1;
 static int hf_nbap_transportLayerAddress_ipv6 = -1;
+static int hf_nbap_transportLayerAddress_nsap = -1;
 
 
 /*--- Included file: packet-nbap-hf.c ---*/
@@ -4807,11 +4809,12 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 57 "../../asn1/nbap/packet-nbap-template.c"
+#line 59 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
 static int ett_nbap_TransportLayerAddress = -1;
+static int ett_nbap_TransportLayerAddress_nsap = -1;
 
 
 /*--- Included file: packet-nbap-ett.c ---*/
@@ -6444,7 +6447,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 63 "../../asn1/nbap/packet-nbap-template.c"
+#line 66 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -8465,7 +8468,8 @@ static int
 dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 116 "../../asn1/nbap/nbap.cnf"
   tvbuff_t *parameter_tvb=NULL;
-  proto_tree *subtree;
+  proto_item *item;
+  proto_tree *subtree, *nsap_tree;
   gint tvb_len;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -8483,6 +8487,11 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	if (tvb_len==16){
 		/* IPv6 */
 		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, FALSE);
+	}
+	if (tvb_len==20){
+		item = proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
+		nsap_tree = proto_item_add_subtree(item, ett_nbap_TransportLayerAddress_nsap);
+		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
 	}
 
 
@@ -52855,7 +52864,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 84 "../../asn1/nbap/packet-nbap-template.c"
+#line 87 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -52915,7 +52924,10 @@ void proto_register_nbap(void) {
       { "transportLayerAddress IPv6", "nbap.transportLayerAddress_ipv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
+    { &hf_nbap_transportLayerAddress_nsap,
+      { "transportLayerAddress NSAP", "nbap.transportLayerAddress_NSAP",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
 /*--- Included file: packet-nbap-hfarr.c ---*/
 #line 1 "../../asn1/nbap/packet-nbap-hfarr.c"
@@ -66049,13 +66061,14 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 145 "../../asn1/nbap/packet-nbap-template.c"
+#line 151 "../../asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_nbap,
 		  &ett_nbap_TransportLayerAddress,
+		  &ett_nbap_TransportLayerAddress_nsap,
 
 /*--- Included file: packet-nbap-ettarr.c ---*/
 #line 1 "../../asn1/nbap/packet-nbap-ettarr.c"
@@ -67687,7 +67700,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 152 "../../asn1/nbap/packet-nbap-template.c"
+#line 159 "../../asn1/nbap/packet-nbap-template.c"
   };
 
 
@@ -68817,7 +68830,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 185 "../../asn1/nbap/packet-nbap-template.c"
+#line 192 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 

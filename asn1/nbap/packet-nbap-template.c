@@ -36,6 +36,7 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-isup.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -52,12 +53,14 @@
 static int proto_nbap = -1;
 static int hf_nbap_transportLayerAddress_ipv4 = -1;
 static int hf_nbap_transportLayerAddress_ipv6 = -1;
+static int hf_nbap_transportLayerAddress_nsap = -1;
 
 #include "packet-nbap-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
 static int ett_nbap_TransportLayerAddress = -1;
+static int ett_nbap_TransportLayerAddress_nsap = -1;
 
 #include "packet-nbap-ett.c"
 
@@ -140,7 +143,10 @@ void proto_register_nbap(void) {
       { "transportLayerAddress IPv6", "nbap.transportLayerAddress_ipv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-
+    { &hf_nbap_transportLayerAddress_nsap,
+      { "transportLayerAddress NSAP", "nbap.transportLayerAddress_NSAP",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 #include "packet-nbap-hfarr.c"
   };
 
@@ -148,6 +154,7 @@ void proto_register_nbap(void) {
   static gint *ett[] = {
 		  &ett_nbap,
 		  &ett_nbap_TransportLayerAddress,
+		  &ett_nbap_TransportLayerAddress_nsap,
 #include "packet-nbap-ettarr.c"
   };
 

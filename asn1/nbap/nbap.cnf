@@ -114,7 +114,8 @@ ProtocolIE-ContainerPairList
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
-  proto_tree *subtree;
+  proto_item *item;
+  proto_tree *subtree, *nsap_tree;
   gint tvb_len;
 
 %(DEFAULT_BODY)s
@@ -132,6 +133,11 @@ ProtocolIE-ContainerPairList
 	if (tvb_len==16){
 		/* IPv6 */
 		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, FALSE);
+	}
+	if (tvb_len==20){
+		item = proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
+		nsap_tree = proto_item_add_subtree(item, ett_nbap_TransportLayerAddress_nsap);
+		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
 	}
 
 #.REGISTER_NEW
