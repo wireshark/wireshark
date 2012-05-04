@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
+#include <epan/conversation.h>
 
 #include "packet-per.h"
 #include "packet-isup.h"
@@ -46,6 +47,12 @@
 #define PNAME  "UTRAN Iub interface NBAP signalling"
 #define PSNAME "NBAP"
 #define PFNAME "nbap"
+
+
+/* Global variables */
+dissector_handle_t fp_handle;
+static guint32	transportLayerAddress_ipv4;
+static guint16	BindingID_port;
 
 #include "packet-nbap-val.h"
 
@@ -185,6 +192,7 @@ proto_reg_handoff_nbap(void)
 	dissector_handle_t nbap_handle;
 
 	nbap_handle = find_dissector("nbap");
+	fp_handle = find_dissector("fp");
 	dissector_add_uint("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 	dissector_add_handle("sctp.port", nbap_handle);  /* for "decode-as" */
 

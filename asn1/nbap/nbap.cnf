@@ -129,6 +129,7 @@ ProtocolIE-ContainerPairList
 	if (tvb_len==4){
 		/* IPv4 */
 		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, FALSE);
+		 transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 0);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
@@ -137,8 +138,55 @@ ProtocolIE-ContainerPairList
 	if (tvb_len==20){
 		item = proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
 		nsap_tree = proto_item_add_subtree(item, ett_nbap_TransportLayerAddress_nsap);
+		if(tvb_get_ntoh24(parameter_tvb,0) == 0x350001){
+			/* IPv4 */
+			transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 3);
+		}
 		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
 	}
+
+#.FN_BODY BindingID VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+# BindingID ::= OCTET STRING (SIZE (1..4, ...))
+# -- If the Binding ID includes a UDP port, the UDP port is included in octet 1 and 2.The first octet of
+# -- the UDP port field is included in the first octet of the Binding ID.
+ BindingID_port = tvb_get_ntohs(parameter_tvb,0);
+
+#.FN_BODY RL-Specific-DCH-Info
+address 	dst_addr, null_addr;
+conversation_t *conversation;
+
+transportLayerAddress_ipv4 = 0;
+BindingID_port = 0;
+
+%(DEFAULT_BODY)s
+
+		if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+		{
+			return offset;
+		}
+		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+		dst_addr.type=AT_IPv4;
+		dst_addr.len=4;
+		dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+		conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
+			&null_addr, PT_UDP, BindingID_port,
+			0, NO_ADDR_B|NO_PORT_B);
+
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new one. */
+			conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
+			    &null_addr, PT_UDP,BindingID_port ,
+			    0, NO_ADDR2|NO_PORT2);
+
+		/* Set dissector */
+		conversation_set_dissector(conversation, fp_handle);
+		}
 
 #.REGISTER_NEW
 

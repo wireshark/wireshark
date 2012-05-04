@@ -42,6 +42,7 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
+#include <epan/conversation.h>
 
 #include "packet-per.h"
 #include "packet-isup.h"
@@ -54,6 +55,12 @@
 #define PNAME  "UTRAN Iub interface NBAP signalling"
 #define PSNAME "NBAP"
 #define PFNAME "nbap"
+
+
+/* Global variables */
+dissector_handle_t fp_handle;
+static guint32	transportLayerAddress_ipv4;
+static guint16	BindingID_port;
 
 
 /*--- Included file: packet-nbap-val.h ---*/
@@ -1513,7 +1520,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 51 "../../asn1/nbap/packet-nbap-template.c"
+#line 58 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -4809,7 +4816,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 59 "../../asn1/nbap/packet-nbap-template.c"
+#line 66 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -6447,7 +6454,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 66 "../../asn1/nbap/packet-nbap-template.c"
+#line 73 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -8456,8 +8463,16 @@ dissect_nbap_E_DCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 149 "../../asn1/nbap/nbap.cnf"
+  tvbuff_t *parameter_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 4, TRUE, NULL);
+                                       1, 4, TRUE, &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+ BindingID_port = tvb_get_ntohs(parameter_tvb,0);
+
+
 
   return offset;
 }
@@ -8483,6 +8498,7 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	if (tvb_len==4){
 		/* IPv4 */
 		 proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, FALSE);
+		 transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 0);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
@@ -8491,6 +8507,10 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	if (tvb_len==20){
 		item = proto_tree_add_item(subtree, hf_nbap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
 		nsap_tree = proto_item_add_subtree(item, ett_nbap_TransportLayerAddress_nsap);
+		if(tvb_get_ntoh24(parameter_tvb,0) == 0x350001){
+			/* IPv4 */
+			transportLayerAddress_ipv4 = tvb_get_ipv4(parameter_tvb, 3);
+		}
 		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
 	}
 
@@ -27266,9 +27286,43 @@ static const per_sequence_t RL_Specific_DCH_Info_sequence_of[1] = {
 
 static int
 dissect_nbap_RL_Specific_DCH_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 159 "../../asn1/nbap/nbap.cnf"
+address 	dst_addr, null_addr;
+conversation_t *conversation;
+
+transportLayerAddress_ipv4 = 0;
+BindingID_port = 0;
+
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nbap_RL_Specific_DCH_Info, RL_Specific_DCH_Info_sequence_of,
                                                   1, maxNrOfDCHs, FALSE);
+
+
+		if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+		{
+			return offset;
+		}
+		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+		dst_addr.type=AT_IPv4;
+		dst_addr.len=4;
+		dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+		conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
+			&null_addr, PT_UDP, BindingID_port,
+			0, NO_ADDR_B|NO_PORT_B);
+
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new one. */
+			conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
+			    &null_addr, PT_UDP,BindingID_port ,
+			    0, NO_ADDR2|NO_PORT2);
+
+		/* Set dissector */
+		conversation_set_dissector(conversation, fp_handle);
+		}
+
+
 
   return offset;
 }
@@ -52864,7 +52918,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 87 "../../asn1/nbap/packet-nbap-template.c"
+#line 94 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -66061,7 +66115,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 151 "../../asn1/nbap/packet-nbap-template.c"
+#line 158 "../../asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -67700,7 +67754,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 159 "../../asn1/nbap/packet-nbap-template.c"
+#line 166 "../../asn1/nbap/packet-nbap-template.c"
   };
 
 
@@ -67730,6 +67784,7 @@ proto_reg_handoff_nbap(void)
 	dissector_handle_t nbap_handle;
 
 	nbap_handle = find_dissector("nbap");
+	fp_handle = find_dissector("fp");
 	dissector_add_uint("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
 	dissector_add_handle("sctp.port", nbap_handle);  /* for "decode-as" */
 
@@ -68830,7 +68885,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 192 "../../asn1/nbap/packet-nbap-template.c"
+#line 200 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 
