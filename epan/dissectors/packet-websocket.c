@@ -126,7 +126,7 @@ tvb_unmasked(tvbuff_t *tvb, const int offset, int payload_length, const guint8 *
   const guint8 *data_mask;
   int unmasked_length = payload_length > MAX_UNMASKED_LEN ? MAX_UNMASKED_LEN : payload_length;
 
-  data_unmask = ep_alloc(unmasked_length);
+  data_unmask = g_malloc(unmasked_length);
   data_mask = tvb_get_ptr(tvb, offset, unmasked_length);
   /* Unmasked(XOR) Data... */
   for(i=0; i < unmasked_length; i++){
@@ -160,6 +160,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ws_tree
   pl_tree = proto_item_add_subtree(ti, ett_ws_pl);
   if(mask){
     unmask_tvb = tvb_unmasked(tvb, offset, payload_length_32bit, masking_key);
+    tvb_set_child_real_data_tvbuff(tvb, unmask_tvb);
     add_new_data_source(pinfo, unmask_tvb, payload_length_32bit > (int) tvb_length(unmask_tvb) ? "Unmasked Data (truncated)" : "Unmasked Data");
     ti = proto_tree_add_item(ws_tree, hf_ws_payload_unmask, unmask_tvb, offset, payload_length_32bit, ENC_NA);
     mask_tree = proto_item_add_subtree(ti, ett_ws_mask);
