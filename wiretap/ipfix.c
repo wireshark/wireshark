@@ -262,8 +262,8 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     ipfix_message_header_t msg_hdr;
 
-    ipfix_debug1("ipfix_read: wth->data_offset is initially %" G_GINT64_MODIFIER "u", wth->data_offset);
-    *data_offset = wth->data_offset;
+    *data_offset = file_tell(wth->fh);
+    ipfix_debug1("ipfix_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
 
     if (!ipfix_read_message_header(&msg_hdr, wth->fh, err, err_info)) {
         ipfix_debug2("ipfix_read: couldn't read message header with code: %d\n, and error '%s'",
@@ -282,8 +282,7 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     wth->phdr.ts.nsecs = 0;
 
     /*ipfix_debug2("Read length: %u Packet length: %u", msg_hdr.message_length, wth->phdr.caplen);*/
-    wth->data_offset += msg_hdr.message_length;
-    ipfix_debug1("ipfix_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
+    ipfix_debug1("ipfix_read: data_offset is finally %" G_GINT64_MODIFIER "d", file_tell(wth->fh));
 
     return TRUE;
 }

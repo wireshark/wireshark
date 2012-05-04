@@ -265,7 +265,6 @@ int vms_open(wtap *wth, int *err, gchar **err_info)
             return -1;
     }
 
-    wth->data_offset = 0;
     wth->file_encap = WTAP_ENCAP_RAW_IP;
     wth->file_type = WTAP_FILE_VMS;
     wth->snapshot_length = 0; /* not known */
@@ -308,7 +307,6 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     if (!parse_vms_hex_dump(wth->fh, pkt_len, buf, err, err_info))
         return FALSE;
 
-    wth->data_offset = offset;
     *data_offset = offset;
     return TRUE;
 }

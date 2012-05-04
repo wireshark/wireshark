@@ -101,7 +101,6 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
-	wth->data_offset = 0;
 
 	/* Get capture start time */
 
@@ -130,13 +129,12 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	void *bufp;
 
 	/* Read record header. */
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 	ret = i4b_read_rec_header(wth->fh, &hdr, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
 	}
-	wth->data_offset += sizeof hdr;
 	i4b_byte_swap_header(wth, &hdr);
 	if (hdr.length < sizeof(hdr)) {
 		*err = WTAP_ERR_BAD_FILE;	/* record length < header! */
@@ -171,7 +169,6 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	bufp = buffer_start_ptr(wth->frame_buffer);
 	if (!i4b_read_rec_data(wth->fh, bufp, length, err, err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += length;
 
 	switch (hdr.type) {
 

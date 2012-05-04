@@ -1985,7 +1985,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         wtapng_if_descr_t int_data;
         interface_data_t interface_data;
         pcapng_block_header_t bh;
-
+        gint64 saved_offset;
 
         pn.shb_read = FALSE;
         pn.read_idbs = TRUE;            /* IDB expected after SHB */
@@ -2014,7 +2014,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                         return -1;
                 return 0;
         }
-        wth->data_offset += bytes_read;
 
         /* first block must be a "Section Header Block" */
         if (wblock.type != BLOCK_TYPE_SHB) {
@@ -2058,7 +2057,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         /* Loop over all IDB:s that appear before any packets */
         while (1) {
                 bytes_read = pcapng_read_block(wth->fh, FALSE, &pn, &wblock, err, err_info);
-                wth->data_offset += bytes_read;
                 if (bytes_read == 0) {
                         pcapng_debug0("No more IDBs available...");
                         break;
@@ -2109,6 +2107,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
                 /* peek at next block */
                 /* Try to read the (next) block header */
+                saved_offset = file_tell(wth->fh);
                 errno = WTAP_ERR_CANT_READ;
                 bytes_read = file_read(&bh, sizeof bh, wth->fh);
                 if (bytes_read == 0) {
@@ -2124,7 +2123,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 }
 
                 /* go back to where we were */
-                file_seek(wth->fh, wth->data_offset, SEEK_SET, err);
+                file_seek(wth->fh, saved_offset, SEEK_SET, err);
 
                 if (pn.byte_swapped) {
                         bh.block_type         = BSWAP32(bh.block_type);
@@ -2153,9 +2152,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         wtapng_if_descr_t *wtapng_if_descr;
         wtapng_if_stats_t if_stats;
 
-        pcapng_debug1("pcapng_read: wth->data_offset is initially %" G_GINT64_MODIFIER "u", wth->data_offset);
-        *data_offset = wth->data_offset;
-        pcapng_debug1("pcapng_read: *data_offset is initially set to %" G_GINT64_MODIFIER "u", *data_offset);
+        *data_offset = file_tell(wth->fh);
+        pcapng_debug1("pcapng_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
 
         /* XXX - This should be done in the packet block reading function and
          * should make use of the caplen of the packet.
@@ -2178,8 +2176,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         while (1) {
                 bytes_read = pcapng_read_block(wth->fh, FALSE, pcapng, &wblock, err, err_info);
                 if (bytes_read <= 0) {
-                        wth->data_offset = *data_offset;
-                        pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
+                        pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
                         pcapng_debug0("pcapng_read: couldn't read packet block");
                         return FALSE;
                 }
@@ -2191,7 +2188,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 if (wblock.type == BLOCK_TYPE_ISB ) {
                     pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
                     *data_offset += bytes_read;
-                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
+                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
                     if (wth->number_of_interfaces < wblock.data.if_stats.interface_id) {
                         pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
                     } else {
@@ -2223,7 +2220,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                     /* XXX - improve handling of "unknown" blocks */
                     pcapng_debug1("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
                     *data_offset += bytes_read;
-                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
+                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "d", *data_offset);
                 }
         }
 
@@ -2233,14 +2230,12 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
                     wblock.data.packet.interface_id, pcapng->number_of_interfaces);
-                wth->data_offset = *data_offset + bytes_read;
-                pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
+                pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
                 return FALSE;
         }
 
         /*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
-        wth->data_offset = *data_offset + bytes_read;
-        pcapng_debug1("pcapng_read: wth->data_offset is finally %" G_GINT64_MODIFIER "u", wth->data_offset);
+        pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
 
         return TRUE;
 }

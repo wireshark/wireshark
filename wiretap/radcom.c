@@ -130,7 +130,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Look for the "Active Time" string. The "frame_date" structure should
 	 * be located 32 bytes before the beginning of this string */
-	wth->data_offset = 8;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(t_magic, 11, wth->fh);
 	if (bytes_read != 11) {
@@ -143,7 +142,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	{
 		if (file_seek(wth->fh, -10, SEEK_CUR, err) == -1)
 			return -1;
-		wth->data_offset += 1;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(t_magic, 11, wth->fh);
 		if (bytes_read != 11) {
@@ -154,7 +152,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 	if (file_seek(wth->fh, -43, SEEK_CUR, err) == -1) return -1;
-	wth->data_offset -= 32;
 
 	/* Get capture start time */
 	errno = WTAP_ERR_CANT_READ;
@@ -166,7 +163,6 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof(struct frame_date);
 
 	/* This is a radcom file */
 	wth->file_type = WTAP_FILE_RADCOM;
@@ -187,34 +183,28 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 #endif
 	if (file_seek(wth->fh, sizeof(struct frame_date), SEEK_CUR, err) == -1)
 		return -1;
-	wth->data_offset += sizeof(struct frame_date);
 
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(search_encap, 4, wth->fh);
 	if (bytes_read != 4) {
 		goto read_error;
 	}
-	wth->data_offset += 4;
 	while (memcmp(encap_magic, search_encap, 4)) {
 		if (file_seek(wth->fh, -3, SEEK_CUR, err) == -1)
 			return -1;
-		wth->data_offset -= 3;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(search_encap, 4, wth->fh);
 		if (bytes_read != 4) {
 			goto read_error;
 		}
-		wth->data_offset += 4;
 	}
 	if (file_seek(wth->fh, 12, SEEK_CUR, err) == -1)
 		return -1;
-	wth->data_offset += 12;
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(search_encap, 4, wth->fh);
 	if (bytes_read != 4) {
 		goto read_error;
 	}
-	wth->data_offset += 4;
 	if (memcmp(search_encap, "LAPB", 4) == 0)
 		wth->file_encap = WTAP_ENCAP_LAPB;
 	else if (memcmp(search_encap, "Ethe", 4) == 0)
@@ -249,15 +239,12 @@ int radcom_open(wtap *wth, int *err, gchar **err_info)
 	if (wth->file_encap == WTAP_ENCAP_ETHERNET) {
 		if (file_seek(wth->fh, 294, SEEK_CUR, err) == -1)
 			return -1;
-		wth->data_offset += 294;
 	} else if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		if (file_seek(wth->fh, 297, SEEK_CUR, err) == -1)
 			return -1;
-		wth->data_offset += 297;
 	} else if (wth->file_encap == WTAP_ENCAP_ATM_RFC1483) {
 		if (file_seek(wth->fh, 504, SEEK_CUR, err) == -1)
 			return -1;
-		wth->data_offset += 504;
 	}
 
 	return 1;
@@ -283,13 +270,12 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	char	fcs[2];
 
 	/* Read record header. */
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 	ret = radcom_read_rec_header(wth->fh, &hdr, err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
 	}
-	wth->data_offset += sizeof hdr;
 	data_length = pletohs(&hdr.data_length);
 	if (data_length == 0) {
 		/*
@@ -344,7 +330,6 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 		if (!radcom_read_rec_data(wth->fh, phdr, sizeof phdr, err,
 		    err_info))
 			return FALSE;	/* Read error */
-		wth->data_offset += 8;
 		length -= 8;
 		wth->phdr.len -= 8;
 		wth->phdr.caplen -= 8;
@@ -358,7 +343,6 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	if (!radcom_read_rec_data(wth->fh,
 	    buffer_start_ptr(wth->frame_buffer), length, err, err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += length;
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB) {
 		/* Read the FCS.
@@ -373,7 +357,6 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 				*err = WTAP_ERR_SHORT_READ;
 			return FALSE;
 		}
-		wth->data_offset += sizeof fcs;
 	}
 
 	return TRUE;

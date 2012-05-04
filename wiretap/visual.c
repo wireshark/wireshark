@@ -266,10 +266,6 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
     wth->file_encap = encap;
     wth->snapshot_length = pletohs(&vfile_hdr.max_length);
 
-    /* Save the pointer to the beginning of the packet data so
-       that the later seek_reads work correctly. */
-    wth->data_offset = CAPTUREFILE_HEADER_SIZE;
-
     /* Set up the pointers to the handlers for this file type */
     wth->subtype_read = visual_read;
     wth->subtype_seek_read = visual_seek_read;
@@ -326,7 +322,6 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
         }
         return FALSE;
     }
-    wth->data_offset += phdr_size;
 
     /* Get the included length of data. This includes extra headers + payload */
     packet_size = pletohs(&vpkt_hdr.incl_len);
@@ -346,7 +341,6 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
            }
            return FALSE;
        }
-       wth->data_offset += ahdr_size;
        
        /* Remove ATM header from length of included bytes in capture, as 
           this header was appended by the processor doing the packet reassembly,
@@ -365,7 +359,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
         return FALSE;
     }
     buffer_assure_space(wth->frame_buffer, packet_size);
-    *data_offset = wth->data_offset;
+    *data_offset = file_tell(wth->fh);
     errno = WTAP_ERR_CANT_READ;
     bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
             packet_size, wth->fh);
@@ -377,7 +371,6 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
     }
-    wth->data_offset += packet_size;
 
     wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 

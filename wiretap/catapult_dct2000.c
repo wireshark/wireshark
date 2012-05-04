@@ -281,7 +281,7 @@ static gboolean
 catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                                gint64 *data_offset)
 {
-    gint64 offset = wth->data_offset;
+    gint64 offset = file_tell(wth->fh);
     long dollar_offset, before_time_offset, after_time_offset;
     packet_direction_t direction;
     int encap;
@@ -309,7 +309,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         gchar outhdr_name[MAX_OUTHDR_NAME+1];
 
         /* Are looking for first packet after 2nd line */
-        if (wth->data_offset == 0) {
+        if (file_tell(wth->fh) == 0) {
             this_offset += (file_externals->firstline_length+1+
                             file_externals->secondline_length+1);
         }
@@ -350,9 +350,6 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                This will be the seek_off parameter when this frame is re-read.
             */
             *data_offset = this_offset;
-
-            /* This is the position in the file where the next _read() will be called from */
-            wth->data_offset = this_offset + line_length + 1;
 
             /* Fill in timestamp (capture base + packet offset) */
             wth->phdr.ts.secs = file_externals->start_secs + seconds;
@@ -458,7 +455,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                            union wtap_pseudo_header *pseudo_header, guint8 *pd,
                            int length, int *err, gchar **err_info)
 {
-    gint64 offset = wth->data_offset;
+    gint64 offset;
     long dollar_offset, before_time_offset, after_time_offset;
     static gchar linebuff[MAX_LINE_LENGTH+1];
     gchar aal_header_chars[AAL_HEADER_CHARS];

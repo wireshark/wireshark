@@ -202,7 +202,6 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
     return 0;
   }
 
-  wth->data_offset = offset;
   wth->file_type = WTAP_FILE_ASCEND;
 
   switch(wth->pseudo_header.ascend.type) {
@@ -322,7 +321,6 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   wth->phdr.ts.nsecs = header.usecs * 1000;
   wth->phdr.caplen = header.caplen;
   wth->phdr.len = header.len;
-  wth->data_offset = offset;
 
   *data_offset = offset;
   return TRUE;

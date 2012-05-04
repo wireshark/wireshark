@@ -533,9 +533,9 @@ static gint64 ng_file_read(void *buffer, unsigned int nbytes, wtap *wth,
     gboolean is_random, int *err, gchar **err_info);
 static int read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream,
     int *err, gchar **err_info);
-static gint64 ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err,
+static gboolean ng_file_skip_seq(wtap *wth, gint64 delta, int *err,
     gchar **err_info);
-static gint64 ng_file_seek_rand(wtap *wth, gint64 offset, int whence, int *err,
+static gboolean ng_file_seek_rand(wtap *wth, gint64 offset, int *err,
     gchar **err_info);
 
 int
@@ -568,6 +568,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	};
 	#define NUM_NGSNIFF_ENCAPS (sizeof sniffer_encap / sizeof sniffer_encap[0])
 	struct tm tm;
+	gint64 current_offset;
 	ngsniffer_t *ngsniffer;
 
 	/* Read in the string that should be at the start of a Sniffer file */
@@ -579,7 +580,6 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof magic;
 
 	if (memcmp(magic, ngsniffer_magic, sizeof ngsniffer_magic)) {
 		return 0;
@@ -597,7 +597,6 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 2;
 	bytes_read = file_read(record_length, 4, wth->fh);
 	if (bytes_read != 4) {
 		*err = file_error(wth->fh, err_info);
@@ -605,7 +604,6 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 4;
 
 	type = pletohs(record_type);
 
@@ -623,7 +621,6 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof version;
 
 	/* Check the data link type. */
 	if (version.network >= NUM_NGSNIFF_ENCAPS
@@ -707,6 +704,8 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 
+	current_offset = file_tell(wth->fh);
+
 	/*
 	 * Now, if we have a random stream open, position it to the same
 	 * location, which should be the beginning of the real data, and
@@ -717,7 +716,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	 * "ngsniffer_read()".
 	 */
 	if (wth->random_fh != NULL) {
-		if (file_seek(wth->random_fh, wth->data_offset, SEEK_SET, err) == -1)
+		if (file_seek(wth->random_fh, current_offset, SEEK_SET, err) == -1)
 			return -1;
 	}
 
@@ -733,10 +732,10 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Set the current file offset; the offset in the compressed file
 	   and in the uncompressed data stream currently the same. */
-	ngsniffer->seq.uncomp_offset = wth->data_offset;
-	ngsniffer->seq.comp_offset = wth->data_offset;
-	ngsniffer->rand.uncomp_offset = wth->data_offset;
-	ngsniffer->rand.comp_offset = wth->data_offset;
+	ngsniffer->seq.uncomp_offset = current_offset;
+	ngsniffer->seq.comp_offset = current_offset;
+	ngsniffer->rand.uncomp_offset = current_offset;
+	ngsniffer->rand.comp_offset = current_offset;
 
 	/* We don't yet have any list of compressed blobs. */
 	ngsniffer->first_blob = NULL;
@@ -841,7 +840,6 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 				*err = WTAP_ERR_SHORT_READ;
 			return -1;
 		}
-		wth->data_offset += 6;
 
 		length = pletohs(record_length);
 
@@ -902,7 +900,6 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			if (file_seek(wth->fh, length, SEEK_CUR, err) == -1)
 				return -1;
 		}
-		wth->data_offset += length;
 	}
 }
 
@@ -1067,16 +1064,20 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	ngsniffer = (ngsniffer_t *)wth->priv;
 	for (;;) {
 		/*
+		 * We use the uncompressed offset, as that's what
+		 * we need to use for compressed files.
+		 */
+		*data_offset = ngsniffer->seq.uncomp_offset;
+
+		/*
 		 * Read the record header.
 		 */
-		*data_offset = wth->data_offset;
 		ret = ngsniffer_read_rec_header(wth, FALSE, &type, &length,
 		    err, err_info);
 		if (ret <= 0) {
 			/* Read error or EOF */
 			return FALSE;
 		}
-		wth->data_offset += 6;
 
 		switch (type) {
 
@@ -1097,7 +1098,6 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				/* Read error */
 				return FALSE;
 			}
-			wth->data_offset += sizeof frame2;
 			time_low = pletohs(&frame2.time_low);
 			time_med = pletohs(&frame2.time_med);
 			time_high = frame2.time_high;
@@ -1128,7 +1128,6 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				/* Read error */
 				return FALSE;
 			}
-			wth->data_offset += sizeof frame4;
 			time_low = pletohs(&frame4.time_low);
 			time_med = pletohs(&frame4.time_med);
 			time_high = frame4.time_high;
@@ -1160,7 +1159,6 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				/* Read error */
 				return FALSE;
 			}
-			wth->data_offset += sizeof frame6;
 			time_low = pletohs(&frame6.time_low);
 			time_med = pletohs(&frame6.time_med);
 			time_high = frame6.time_high;
@@ -1190,10 +1188,8 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * it is but can't handle it.  Skip past the data
 		 * portion, and keep looping.
 		 */
-		if (ng_file_seek_seq(wth, length, SEEK_CUR, err, err_info)
-		    == -1)
+		if (!ng_file_skip_seq(wth, length, err, err_info))
 			return FALSE;
-		wth->data_offset += length;
 	}
 
 found:
@@ -1221,7 +1217,6 @@ found:
 	pd = buffer_start_ptr(wth->frame_buffer);
 	if (!ngsniffer_read_rec_data(wth, FALSE, pd, length, err, err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += length;
 
 	wth->phdr.pkt_encap = fix_pseudo_header(wth->file_encap, pd, length,
 	    &wth->pseudo_header);
@@ -1270,7 +1265,7 @@ ngsniffer_seek_read(wtap *wth, gint64 seek_off,
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
 
-	if (ng_file_seek_rand(wth, seek_off, SEEK_SET, err, err_info) == -1)
+	if (!ng_file_seek_rand(wth, seek_off, err, err_info))
 		return FALSE;
 
 	ret = ngsniffer_read_rec_header(wth, TRUE, &type, &length, err,
@@ -2480,6 +2475,10 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 		copied_bytes = file_read(buffer, copybytes, infile);
 		if ((unsigned int) copied_bytes != copybytes)
 			*err = file_error(infile, err_info);
+		if (copied_bytes != -1) {
+			comp_stream->uncomp_offset += copied_bytes;
+			comp_stream->comp_offset += copied_bytes;
+		}
 		return copied_bytes;
 	}
 
@@ -2630,36 +2629,23 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 	return 0;
 }
 
-/* Seek in the sequential data stream; we can only seek forward, and we
-   do it on compressed files by skipping forward. */
-static gint64
-ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err,
-		 gchar **err_info)
+/* Skip some number of bytes forward in the sequential stream. */
+static gboolean
+ng_file_skip_seq(wtap *wth, gint64 delta, int *err, gchar **err_info)
 {
-	gint64 delta;
+	ngsniffer_t *ngsniffer;
 	char *buf;
 	unsigned int amount_to_read;
-	ngsniffer_t *ngsniffer;
-
-	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
-		return file_seek(wth->fh, offset, whence, err);
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
-	switch (whence) {
 
-	case SEEK_SET:
-		break;		/* "offset" is the target offset */
-
-	case SEEK_CUR:
-		offset += ngsniffer->seq.uncomp_offset;
-		break;		/* "offset" is relative to the current offset */
-
-	case SEEK_END:
-		g_assert_not_reached();	/* "offset" is relative to the end of the file... */
-		break;		/* ...but we don't know where that is. */
+	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+		ngsniffer->seq.uncomp_offset += delta;
+		if (file_skip(wth->fh, delta, err) == -1)
+			return FALSE;
+		return TRUE;
 	}
 
-	delta = offset - ngsniffer->seq.uncomp_offset;
 	g_assert(delta >= 0);
 
 	/* Ok, now read and discard "delta" bytes. */
@@ -2672,17 +2658,17 @@ ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err,
 
 		if (ng_file_read(buf, amount_to_read, wth, FALSE, err, err_info) < 0) {
 			g_free(buf);
-			return -1;	/* error */
+			return FALSE;	/* error */
 		}
 
 		delta -= amount_to_read;
 	}
 
 	g_free(buf);
-	return offset;
+	return TRUE;
 }
 
-/* Seek in the random data stream.
+/* Seek to a given offset in the random data stream.
 
    On compressed files, we see whether we're seeking to a position within
    the blob we currently have in memory and, if not, we find in the list
@@ -2690,32 +2676,20 @@ ng_file_seek_seq(wtap *wth, gint64 offset, int whence, int *err,
    we're seeking, and read that blob in.  We can then move to the appropriate
    position within the blob we have in memory (whether it's the blob we
    already had in memory or, if necessary, the one we read in). */
-static gint64
-ng_file_seek_rand(wtap *wth, gint64 offset, int whence, int *err,
-		  gchar **err_info)
+static gboolean
+ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 {
 	ngsniffer_t *ngsniffer;
 	gint64 delta;
 	GList *new, *next;
 	blob_info_t *next_blob, *new_blob;
 
-	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED)
-		return file_seek(wth->random_fh, offset, whence, err);
-
 	ngsniffer = (ngsniffer_t *)wth->priv;
 
-	switch (whence) {
-
-	case SEEK_SET:
-		break;		/* "offset" is the target offset */
-
-	case SEEK_CUR:
-		offset += ngsniffer->rand.uncomp_offset;
-		break;		/* "offset" is relative to the current offset */
-
-	case SEEK_END:
-		g_assert_not_reached();	/* "offset" is relative to the end of the file... */
-		break;		/* ...but we don't know where that is. */
+	if (wth->file_type == WTAP_FILE_NGSNIFFER_UNCOMPRESSED) {
+		if (file_seek(wth->random_fh, offset, SEEK_SET, err) == -1)
+			return FALSE;
+		return TRUE;
 	}
 
 	delta = offset - ngsniffer->rand.uncomp_offset;

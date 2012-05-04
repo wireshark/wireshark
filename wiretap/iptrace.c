@@ -65,7 +65,6 @@ int iptrace_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += 11;
 	name[11] = 0;
 
 	if (strcmp(name, "iptrace 1.0") == 0) {
@@ -134,14 +133,13 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	guint8			fddi_padding[3];
 
 	/* Read the descriptor data */
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 	ret = iptrace_read_rec_header(wth->fh, header, IPTRACE_1_0_PHDR_SIZE,
 	    err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
 	}
-	wth->data_offset += IPTRACE_1_0_PHDR_SIZE;
 
 	/*
 	 * Byte 28 of the frame header appears to be a BSD-style IFT_xxx
@@ -185,7 +183,6 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 			return FALSE;
 		}
 		packet_size -= 3;
-		wth->data_offset += 3;
 
 		/*
 		 * Read the padding.
@@ -210,7 +207,6 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err,
 	    err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += packet_size;
 
 	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.len = packet_size;
@@ -349,14 +345,13 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	guint8			fddi_padding[3];
 
 	/* Read the descriptor data */
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 	ret = iptrace_read_rec_header(wth->fh, header, IPTRACE_2_0_PHDR_SIZE,
 	    err, err_info);
 	if (ret <= 0) {
 		/* Read error or EOF */
 		return FALSE;
 	}
-	wth->data_offset += IPTRACE_2_0_PHDR_SIZE;
 
 	/*
 	 * Byte 28 of the frame header appears to be a BSD-style IFT_xxx
@@ -400,7 +395,6 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 			return FALSE;
 		}
 		packet_size -= 3;
-		wth->data_offset += 3;
 
 		/*
 		 * Read the padding.
@@ -425,7 +419,6 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err,
 	    err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += packet_size;
 
 	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.len = packet_size;

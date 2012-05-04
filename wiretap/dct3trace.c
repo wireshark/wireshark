@@ -203,7 +203,6 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 	}
 
-	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_GSM_UM;
 	wth->file_type = WTAP_FILE_DCT3TRACE;
 	wth->snapshot_length = 0; /* not known */
@@ -366,7 +365,7 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, buf_len);
 	memcpy( buffer_start_ptr(wth->frame_buffer), buf, buf_len );
 
-	wth->data_offset = *data_offset = offset;
+	*data_offset = offset;
 
 	return TRUE;
 }

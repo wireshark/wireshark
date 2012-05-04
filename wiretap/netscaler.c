@@ -433,6 +433,7 @@ typedef struct  nspr_pktracepart_v24
 
 typedef struct {
 	gchar *pnstrace_buf;
+	gint64 xxx_offset;
 	gint32 nstrace_buf_offset;
 	gint32 nstrace_buflen;
 	/* Performance Monitor Time variables */
@@ -540,6 +541,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 	nstrace = (nstrace_t *)g_malloc(sizeof(nstrace_t));
 	wth->priv = (void *)nstrace;
 	nstrace->pnstrace_buf = nstrace_buf;
+	nstrace->xxx_offset = 0;
 	nstrace->nstrace_buflen = page_size;
 	nstrace->nstrace_buf_offset = 0;
 	nstrace->nspm_curtime = 0;
@@ -668,8 +670,8 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 				}\
 			}\
 			nstrace_buf_offset = 0;\
-			wth->data_offset += nstrace_buflen;\
-			nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));\
+			nstrace->xxx_offset += nstrace_buflen;\
+			nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));\
 		}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && bytes_read == nstrace_buflen); \
 		return FALSE;\
 	}
@@ -756,7 +758,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 				buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 				memcpy(buffer_start_ptr(wth->frame_buffer), fp, wth->phdr.caplen);
-				*data_offset = wth->data_offset + nstrace_buf_offset;
+				*data_offset = nstrace->xxx_offset + nstrace_buf_offset;
 
 				nstrace->nstrace_buf_offset = nstrace_buf_offset + wth->phdr.len;
 				nstrace->nstrace_buflen = nstrace_buflen;
@@ -781,7 +783,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 
 				buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 				memcpy(buffer_start_ptr(wth->frame_buffer), pp, wth->phdr.caplen);
-				*data_offset = wth->data_offset + nstrace_buf_offset;
+				*data_offset = nstrace->xxx_offset + nstrace_buf_offset;
 
 				nstrace->nstrace_buf_offset = nstrace_buf_offset + wth->phdr.caplen;
 				nstrace->nsg_creltime = nsg_creltime;
@@ -814,8 +816,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 		}
 
 		nstrace_buf_offset = 0;
-		wth->data_offset += nstrace_buflen;
-		nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
+		nstrace->xxx_offset += nstrace_buflen;
+		nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
 	}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
 
 	return FALSE;
@@ -872,7 +874,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 		TRACE_V##ver##_REC_LEN_OFF(enumprefix,type,structname);\
 		buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);\
 		memcpy(buffer_start_ptr(wth->frame_buffer), fp, wth->phdr.caplen);\
-		*data_offset = wth->data_offset + nstrace_buf_offset;\
+		*data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
 		nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
 		nstrace->nstrace_buflen = nstrace_buflen;\
 		nstrace->nsg_creltime = nsg_creltime;\
@@ -976,8 +978,8 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 		}
 
 		nstrace_buf_offset = 0;
-		wth->data_offset += nstrace_buflen;
-		nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - wth->data_offset));
+		nstrace->xxx_offset += nstrace_buflen;
+		nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
 	}while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
 
 	return FALSE;

@@ -295,7 +295,6 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
         g_free(nettl);
 	return -1;
     }
-    wth->data_offset = FILE_HDR_SIZE;
     wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     return 1;
@@ -309,14 +308,13 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
     gboolean fddihack=FALSE;
 
     /* Read record header. */
-    *data_offset = wth->data_offset;
+    *data_offset = file_tell(wth->fh);
     ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr, &wth->pseudo_header,
         err, err_info, &fddihack);
     if (ret <= 0) {
 	/* Read error or EOF */
 	return FALSE;
     }
-    wth->data_offset += ret;
 
     if (wth->phdr.caplen > WTAP_MAX_PACKET_SIZE) {
 	/*
@@ -351,7 +349,6 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
     if (!nettl_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 		wth->phdr.caplen, err, err_info, fddihack))
 	return FALSE;	/* Read error */
-    wth->data_offset += wth->phdr.caplen;
     return TRUE;
 }
 

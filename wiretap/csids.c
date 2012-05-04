@@ -136,7 +136,6 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
-  wth->data_offset = 0;
   csids = (csids_t *)g_malloc(sizeof(csids_t));
   wth->priv = (void *)csids;
   csids->byteswapped = byteswap;
@@ -159,7 +158,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
   int bytesRead = 0;
   struct csids_header hdr;
 
-  *data_offset = wth->data_offset;
+  *data_offset = file_tell(wth->fh);
 
   bytesRead = file_read( &hdr, sizeof( struct csids_header) , wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
@@ -170,8 +169,6 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
   }
   hdr.seconds = pntohl(&hdr.seconds);
   hdr.caplen = pntohs(&hdr.caplen);
-
-  wth->data_offset += sizeof( struct csids_header );
 
   /* Make sure we have enough room for the packet */
   buffer_assure_space(wth->frame_buffer, hdr.caplen);
@@ -184,8 +181,6 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;
   }
-
-  wth->data_offset += hdr.caplen;
 
   wth->phdr.presence_flags = WTAP_HAS_TS;
   wth->phdr.len = hdr.caplen;

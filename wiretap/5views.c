@@ -134,8 +134,6 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 
-	wth->data_offset+=bytes_read;
-
 	/*	Check whether that's 5Views format or not */
 	if(Capture_Header.Info_Header.Signature != CST_5VW_INFO_HEADER_KEY)
 	{
@@ -189,7 +187,6 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset+=bytes_read;
 
 	/* This is a 5views capture file */
 	wth->file_type = WTAP_FILE_5VIEWS;
@@ -220,7 +217,6 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			 */
 			return FALSE;
 		}
-		wth->data_offset += bytes_read;
 
 		TimeStamped_Header.Key = pletohl(&TimeStamped_Header.Key);
 		if(TimeStamped_Header.Key != CST_5VW_RECORDS_HEADER_KEY) {
@@ -237,7 +233,6 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		if(TimeStamped_Header.RecSubType != CST_5VW_FRAME_RECORD) {
 			if (file_seek(wth->fh, TimeStamped_Header.RecSize, SEEK_CUR, err) == -1)
 				return FALSE;
-			wth->data_offset += TimeStamped_Header.RecSize;
 		} else
 			break;
 	} while (1);
@@ -255,14 +250,13 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!_5views_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 	    packet_size, err, err_info))
 		return FALSE;	/* Read error */
 
-	wth->data_offset += packet_size;
 	TimeStamped_Header.Utc = pletohl(&TimeStamped_Header.Utc);
 	TimeStamped_Header.NanoSecondes =
 	    pletohl(&TimeStamped_Header.NanoSecondes);

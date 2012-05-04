@@ -45,7 +45,7 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 	guint8 *buf;
 	int bytes_read, packet_size;
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	bytes_read = file_read(&dh, DUMP_HDR_SIZE, wth->fh);
 	if (bytes_read != DUMP_HDR_SIZE) {
@@ -54,7 +54,6 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	wth->data_offset += DUMP_HDR_SIZE;
 
 	packet_size = GUINT16_FROM_LE(dh.len);
 	if (packet_size > WTAP_MAX_PACKET_SIZE) {
@@ -78,7 +77,6 @@ static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	wth->data_offset += packet_size;
 
 	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.ts.secs = GUINT32_FROM_LE(dh.ts_sec);

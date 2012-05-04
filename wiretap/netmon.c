@@ -512,9 +512,8 @@ again:
 	   file, but set the frame table up so it's the last
 	   record in sequence. */
 	rec_offset = netmon->frame_table[netmon->current_frame];
-	if (wth->data_offset != rec_offset) {
-		wth->data_offset = rec_offset;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1)
+	if (file_tell(wth->fh) != rec_offset) {
+		if (file_seek(wth->fh, rec_offset, SEEK_SET, err) == -1)
 			return FALSE;
 	}
 	netmon->current_frame++;
@@ -540,7 +539,6 @@ again:
 		}
 		return FALSE;
 	}
-	wth->data_offset += hdr_size;
 
 	switch (netmon->version_major) {
 
@@ -565,7 +563,7 @@ again:
 		return FALSE;
 	}
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	/*
 	 * If this is an ATM packet, the first
@@ -596,7 +594,6 @@ again:
 		 */
 		orig_size -= (guint)sizeof (struct netmon_atm_hdr);
 		packet_size -= (guint)sizeof (struct netmon_atm_hdr);
-		wth->data_offset += sizeof (struct netmon_atm_hdr);
 		break;
 
 	default:
@@ -608,7 +605,6 @@ again:
 	if (!netmon_read_rec_data(wth->fh, data_ptr, packet_size, err,
 	    err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += packet_size;
 
 	switch (netmon->version_major) {
 
@@ -696,7 +692,6 @@ again:
 		    trlr_size, err, err_info);
 		if (wth->phdr.pkt_encap == -1)
 			return FALSE;	/* error */
-		wth->data_offset += trlr_size;
 		if (wth->phdr.pkt_encap == 0)
 			goto again;
 		netmon_set_pseudo_header_info(wth->phdr.pkt_encap,

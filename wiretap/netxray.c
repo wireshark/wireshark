@@ -387,7 +387,6 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof magic;
 
 	if (memcmp(magic, netxray_magic, sizeof magic) == 0) {
 		is_old = FALSE;
@@ -406,7 +405,6 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof hdr;
 
 	if (is_old) {
 		version_major = 0;
@@ -901,11 +899,10 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 	netxray->end_offset   = pletohl(&hdr.end_offset);
 
 	/* Seek to the beginning of the data records. */
-	if (file_seek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET, err) == -1) {
+	if (file_seek(wth->fh, netxray->start_offset, SEEK_SET, err) == -1) {
 		g_free(netxray);
 		return -1;
 	}
-	wth->data_offset = pletohl(&hdr.start_offset);
 
 	return 1;
 }
@@ -923,12 +920,19 @@ static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
 	guint	padding;
 
 reread:
+	/*
+	 * Return the offset of the record header, so we can reread it
+	 * if we go back to this frame.
+	 */
+	*data_offset = file_tell(wth->fh);
+
 	/* Have we reached the end of the packet data? */
-	if (wth->data_offset == netxray->end_offset) {
+	if (*data_offset == netxray->end_offset) {
 		/* Yes. */
 		*err = 0;	/* it's just an EOF, not an error */
 		return FALSE;
 	}
+
 	/* Read record header. */
 	hdr_size = netxray_read_rec_header(wth, wth->fh, &hdr, err, err_info);
 	if (hdr_size == 0) {
@@ -973,20 +977,12 @@ reread:
 			if (file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE,
 			    SEEK_SET, err) == -1)
 				return FALSE;
-			wth->data_offset = CAPTUREFILE_HEADER_SIZE;
 			goto reread;
 		}
 
 		/* We've already wrapped - don't wrap again. */
 		return FALSE;
 	}
-
-	/*
-	 * Return the offset of the record header, so we can reread it
-	 * if we go back to this frame.
-	 */
-	*data_offset = wth->data_offset;
-	wth->data_offset += hdr_size;
 
 	/*
 	 * Read the packet data.
@@ -999,7 +995,6 @@ reread:
 	pd = buffer_start_ptr(wth->frame_buffer);
 	if (!netxray_read_rec_data(wth->fh, pd, packet_size, err, err_info))
 		return FALSE;
-	wth->data_offset += packet_size;
 
 	/*
 	 * Set the pseudo-header.

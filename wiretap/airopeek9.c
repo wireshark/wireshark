@@ -301,8 +301,6 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     /*
      * This is an EtherPeek or AiroPeek V9 file.
      */
-    wth->data_offset = file_tell (wth->fh);
-
     file_encap = airopeek9_encap[mediaSubType];
 
     wth->file_type = WTAP_FILE_AIROPEEK_V9;
@@ -492,13 +490,12 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     int hdrlen;
     double  t;
 
-    *data_offset = wth->data_offset;
+    *data_offset = file_tell(wth->fh);
 
     /* Process the packet header. */
     hdrlen = airopeekv9_process_header(wth->fh, &hdr_info, err, err_info);
     if (hdrlen == 0)
 	return FALSE;
-    wth->data_offset += hdrlen;
 
     /*
      * If sliceLength is 0, force it to be the actual length of the packet.
@@ -529,7 +526,6 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
 				  hdr_info.sliceLength, wth->fh, err,
 				  err_info);
-    wth->data_offset += hdr_info.sliceLength;
 
     /* recalculate and fill in packet time stamp */
     t =  (double) hdr_info.timestamp.lower +

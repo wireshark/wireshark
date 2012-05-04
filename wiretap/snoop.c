@@ -259,6 +259,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	};
 	#define NUM_SHOMITI_ENCAPS (sizeof shomiti_encap / sizeof shomiti_encap[0])
 	int file_encap;
+	gint64 saved_offset;
 
 	/* Read in the string that should be at the start of a "snoop" file */
 	errno = WTAP_ERR_CANT_READ;
@@ -269,7 +270,6 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof magic;
 
 	if (memcmp(magic, snoop_magic, sizeof snoop_magic) != 0) {
 		return 0;
@@ -284,7 +284,6 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof hdr;
 
 	/*
 	 * Make sure it's a version we support.
@@ -337,6 +336,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	is_shomiti = FALSE;
 
 	/* Read first record header. */
+	saved_offset = file_tell(wth->fh);
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&rec_hdr, sizeof rec_hdr, wth->fh);
 	if (bytes_read != sizeof rec_hdr) {
@@ -389,7 +389,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 	/*
 	 * Seek back to the beginning of the first record.
 	 */
-	if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1)
+	if (file_seek(wth->fh, saved_offset, SEEK_SET, err) == -1)
 		return -1;
 
 	hdr.network = g_ntohl(hdr.network);
@@ -479,7 +479,6 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	wth->data_offset += sizeof hdr;
 
 	rec_size = g_ntohl(hdr.rec_len);
 	orig_size = g_ntohl(hdr.orig_len);
@@ -514,7 +513,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	/*
 	 * If this is an ATM packet, the first four bytes are the
@@ -545,7 +544,6 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		rec_size -= (guint32)sizeof (struct snoop_atm_hdr);
 		orig_size -= (guint32)sizeof (struct snoop_atm_hdr);
 		packet_size -= (guint32)sizeof (struct snoop_atm_hdr);
-		wth->data_offset += sizeof (struct snoop_atm_hdr);
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -581,7 +579,6 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		rec_size -= header_size;
 		orig_size -= header_size;
 		packet_size -= header_size;
-		wth->data_offset += header_size;
 		break;
 	}
 
@@ -589,7 +586,6 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	if (!snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 	    packet_size, err, err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += packet_size;
 
 	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	wth->phdr.ts.secs = g_ntohl(hdr.ts_sec);
@@ -636,7 +632,6 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 				*err = WTAP_ERR_SHORT_READ;
 			return FALSE;
 		}
-		wth->data_offset += bytes_read;
 		padbytes -= bytes_read;
 	}
 

@@ -410,7 +410,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     guint64 ts;
     guint32 extra_len;
 
-    offset = wth->data_offset;
+    offset = file_tell(wth->fh);
 
     /* ignore the record if it isn't a packet */
     do {
@@ -447,8 +447,6 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
         offset += len;
 
     } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET) || !src_id || !src_desc );
-
-    wth->data_offset = offset;
 
     wth->phdr.presence_flags = WTAP_HAS_TS;
 
@@ -815,7 +813,6 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
         }
     } while(1);
 
-    wth->data_offset = offset;
     wth->file_type = WTAP_FILE_K12;
     wth->file_encap = WTAP_ENCAP_K12;
     wth->snapshot_length = 0;

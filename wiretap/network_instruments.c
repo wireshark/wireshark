@@ -253,10 +253,8 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
     wth->file_type = WTAP_FILE_NETWORK_INSTRUMENTS;
 
     /* reset the pointer to the first packet */
-    if (file_seek(wth->fh, header_offset, SEEK_SET,
-        err) == -1)
+    if (file_seek(wth->fh, header_offset, SEEK_SET, err) == -1)
         return -1;
-    wth->data_offset = header_offset;
 
     init_gmt_to_localtime_offset();
 
@@ -267,29 +265,26 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-    int bytes_consumed;
-    int offset_from_packet_header = 0;
+    int header_bytes_consumed;
+    int data_bytes_consumed;
     packet_entry_header packet_header;
 
     /* skip records other than data records */
     for (;;) {
-        *data_offset = wth->data_offset;
+        *data_offset = file_tell(wth->fh);
 
         /* process the packet header, including TLVs */
-        bytes_consumed = read_packet_header(wth->fh, &wth->pseudo_header, &packet_header, err,
+        header_bytes_consumed = read_packet_header(wth->fh, &wth->pseudo_header, &packet_header, err,
             err_info);
-        if (bytes_consumed <= 0)
+        if (header_bytes_consumed <= 0)
             return FALSE;    /* EOF or error */
-
-        wth->data_offset += bytes_consumed;
 
         if (packet_header.packet_type == PACKET_TYPE_DATA_PACKET)
             break;
 
         /* skip to next packet */
-        offset_from_packet_header = (int) (wth->data_offset - *data_offset);
         if (!skip_to_next_packet(wth, packet_header.offset_to_next_packet,
-                offset_from_packet_header, err, err_info)) {
+                header_bytes_consumed, err, err_info)) {
             return FALSE;    /* EOF or error */
         }
     }
@@ -354,19 +349,16 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     buffer_assure_space(wth->frame_buffer, packet_header.captured_size);
 
     /* read the frame data */
-    offset_from_packet_header = (int) (wth->data_offset - *data_offset);
-    bytes_consumed = read_packet_data(wth->fh, packet_header.offset_to_frame,
-            offset_from_packet_header, buffer_start_ptr(wth->frame_buffer),
+    data_bytes_consumed = read_packet_data(wth->fh, packet_header.offset_to_frame,
+            header_bytes_consumed, buffer_start_ptr(wth->frame_buffer),
             packet_header.captured_size, err, err_info);
-    if (bytes_consumed < 0) {
+    if (data_bytes_consumed < 0) {
         return FALSE;
     }
-    wth->data_offset += bytes_consumed;
 
     /* skip over any extra bytes following the frame data */
-    offset_from_packet_header = (int) (wth->data_offset - *data_offset);
     if (!skip_to_next_packet(wth, packet_header.offset_to_next_packet,
-            offset_from_packet_header, err, err_info)) {
+            header_bytes_consumed + data_bytes_consumed, err, err_info)) {
         return FALSE;
     }
 
@@ -560,7 +552,6 @@ skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_fro
     if (seek_increment > 0) {
         if (file_seek(wth->fh, seek_increment, SEEK_CUR, err) == -1)
             return FALSE;
-        wth->data_offset += seek_increment;
     }
 
     return TRUE;

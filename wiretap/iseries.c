@@ -231,7 +231,6 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
               return -1;
           }
 
-        wth->data_offset       = 0;
         wth->file_encap        = WTAP_ENCAP_ETHERNET;
         wth->file_type         = WTAP_FILE_ISERIES;
         wth->snapshot_length   = 0;
@@ -272,7 +271,6 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
                   return -1;
               }
 
-            wth->data_offset       = 0;
             wth->file_encap        = WTAP_ENCAP_ETHERNET;
             wth->file_type         = WTAP_FILE_ISERIES;
             wth->snapshot_length   = 0;
@@ -429,7 +427,6 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
   if (pkt_len == -1)
     return FALSE;
 
-  wth->data_offset = offset;
   *data_offset     = offset;
   return TRUE;
 }

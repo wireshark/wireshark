@@ -343,7 +343,6 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 
 	/* initialization */
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
-	wth->data_offset = 0;
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
@@ -374,7 +373,6 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			g_free(wth);
 			return NULL;
 		}
-		wth->data_offset = 0;
 
 		switch ((*open_routines[i])(wth, err, err_info)) {
 

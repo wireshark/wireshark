@@ -37,17 +37,20 @@
 
 static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
+  gint64 offset;
   guint8 *buf;
   gint64 file_size;
   int packet_size;
 
   *err = 0;
 
+  offset = file_tell(wth->fh);
+
   /* there is only ever one packet */
-  if(wth->data_offset)
+  if (offset)
     return FALSE;
 
-  *data_offset = wth->data_offset;
+  *data_offset = offset;
 
   if ((file_size = wtap_file_size(wth, err)) == -1)
     return FALSE;
@@ -68,8 +71,6 @@ static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_of
   buf = buffer_start_ptr(wth->frame_buffer);
 
   wtap_file_read_expected_bytes(buf, packet_size, wth->fh, err, err_info);
-
-  wth->data_offset += packet_size;
 
   wth->phdr.presence_flags = 0; /* no time stamp, no "real length" */
 

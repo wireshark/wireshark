@@ -59,8 +59,6 @@ struct wtap {
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     union wtap_pseudo_header    pseudo_header;
 
-    gint64                      data_offset;
-
     void                        *priv;
 
     subtype_read_func           subtype_read;

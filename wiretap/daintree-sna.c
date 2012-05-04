@@ -99,7 +99,6 @@ int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
 
 	/* get first line of file header */
 	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) return 0;
-	wth->data_offset += strlen(readLine);
 
 	/* check magic text */
 	i = 0;
@@ -110,7 +109,6 @@ int daintree_sna_open(wtap *wth, int *err _U_, gchar **err_info _U_)
 
 	/* read second header line */
 	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) return 0;
-	wth->data_offset += strlen(readLine); 
 	if (readLine[0] != COMMENT_LINE) return 0; /* daintree files have a two line header */
 
 	/* set up the pointers to the handlers for this file type */
@@ -135,7 +133,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	guint64 seconds;
 	char readData[READDATA_BUF_SIZE];
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	/* we've only seen file header lines starting with '#', but
 	 * if others appear in the file, they are tossed */
@@ -144,7 +142,6 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			*err = file_error(wth->fh, err_info);
 			return FALSE; /* all done */
 		}
-		wth->data_offset += strlen(readLine);
 	} while (readLine[0] == COMMENT_LINE);
 
 	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;

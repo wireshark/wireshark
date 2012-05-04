@@ -296,7 +296,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += LA_RecordHeaderSize;
 	record_type = pletohs(rec_header.record_type);
 	record_length = pletohs(rec_header.record_length); /* make sure to do this for while() loop */
 
@@ -319,7 +318,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
-	wth->data_offset += sizeof header_fixed;
 	record_length -= sizeof header_fixed;
 
 	if (record_length != 0) {
@@ -333,7 +331,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		}
 		comment[record_length] = '\0';
-		wth->data_offset += record_length;
 		wth->shb_hdr.opt_comment = comment;
 	}
 
@@ -361,7 +358,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			g_free(wth->priv);
 			return 0;
 		}
-		wth->data_offset += LA_RecordHeaderSize;
 
 		record_type = pletohs(rec_header.record_type);
 		record_length = pletohs(rec_header.record_length);
@@ -382,7 +378,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 					g_free(wth->priv);
 					return 0;
 				}
-				wth->data_offset += sizeof summary;
 
 				/* Assume that the date of the creation of the trace file
 				 * is the same date of the trace. Lanalyzer doesn't
@@ -437,7 +432,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 					g_free(wth->priv);
 					return -1;
 				}
-				wth->data_offset -= LA_RecordHeaderSize;
 				return 1;
 
 			default:
@@ -445,7 +439,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 					g_free(wth->priv);
 					return -1;
 				}
-				wth->data_offset += record_length;
 				break;
 		}
 	}
@@ -478,7 +471,6 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		}
 		return FALSE;
 	}
-	wth->data_offset += 2;
 	bytes_read = file_read(LE_record_length, 2, wth->fh);
 	if (bytes_read != 2) {
 		*err = file_error(wth->fh, err_info);
@@ -486,7 +478,6 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	wth->data_offset += 2;
 
 	record_type = pletohs(LE_record_type);
 	record_length = pletohs(LE_record_length);
@@ -523,11 +514,10 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	wth->data_offset += DESCRIPTOR_LEN;
 
 	/* Read the packet data */
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
 		packet_size, wth->fh);
@@ -538,7 +528,6 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	wth->data_offset += packet_size;
 
 	true_size = pletohs(&descriptor[4]);
 	packet_size = pletohs(&descriptor[6]);

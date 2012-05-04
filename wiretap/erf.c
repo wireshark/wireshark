@@ -262,8 +262,6 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
     return -1;
   }
 
-  wth->data_offset = 0;
-
   /* This is an ERF file */
   wth->file_type = WTAP_FILE_ERF;
   wth->snapshot_length = 0;     /* not available in header, only in frame */
@@ -287,7 +285,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
   erf_header_t erf_header;
   guint32      packet_size, bytes_read;
 
-  *data_offset = wth->data_offset;
+  *data_offset = file_tell(wth->fh);
 
   do {
     if (!erf_read_header(wth->fh,
@@ -295,13 +293,11 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
                          err, err_info, &bytes_read, &packet_size)) {
       return FALSE;
     }
-    wth->data_offset += bytes_read;
 
     buffer_assure_space(wth->frame_buffer, packet_size);
 
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
                                   (gint32)(packet_size), wth->fh, err, err_info);
-    wth->data_offset += packet_size;
 
   } while ( erf_header.type == ERF_TYPE_PAD );
 

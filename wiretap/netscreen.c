@@ -204,7 +204,6 @@ int netscreen_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */
 		return -1;
 
-	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->file_type = WTAP_FILE_NETSCREEN;
 	wth->snapshot_length = 0; /* not known */
@@ -292,7 +291,6 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	wth->data_offset = offset;
 	wth->phdr.caplen = caplen;
 	*data_offset = offset;
 	return TRUE;

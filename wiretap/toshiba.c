@@ -221,7 +221,6 @@ int toshiba_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 	}
 
-	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->file_type = WTAP_FILE_TOSHIBA;
 	wth->snapshot_length = 0; /* not known */
@@ -259,7 +258,6 @@ static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	if (!parse_toshiba_hex_dump(wth->fh, pkt_len, buf, err, err_info))
 		return FALSE;
 
-	wth->data_offset = offset;
 	*data_offset = offset;
 	return TRUE;
 }

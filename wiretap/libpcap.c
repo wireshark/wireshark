@@ -88,6 +88,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	gboolean modified;
 	gboolean aix;
 	int file_encap;
+	gint64 first_packet_offset;
 	libpcap_t *libpcap;
 
 	/* Read in the number that should be at the start of a "libpcap" file */
@@ -99,7 +100,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof magic;
 
 	switch (magic) {
 
@@ -170,7 +170,6 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof hdr;
 
 	if (byte_swapped) {
 		/* Byte-swap the header fields about which we care. */
@@ -357,6 +356,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * Try ss991029, the last of his patches, first.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS991029;
+		first_packet_offset = file_tell(wth->fh);
 		switch (libpcap_try(wth, err)) {
 
 		case BAD_READ:
@@ -372,7 +372,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, it looks as if it might be 991029.
 			 * Put the seek pointer back, and return success.
 			 */
-			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 				g_free(wth->priv);
 				return -1;
 			}
@@ -393,7 +393,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * it as 990915.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990915;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 			g_free(wth->priv);
 			return -1;
 		}
@@ -408,6 +408,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		} else {
 			wth->file_type = WTAP_FILE_PCAP;
 		}
+		first_packet_offset = file_tell(wth->fh);
 		switch (libpcap_try(wth, err)) {
 
 		case BAD_READ:
@@ -424,7 +425,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * libpcap file.
 			 * Put the seek pointer back, and return success.
 			 */
-			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 				g_free(wth->priv);
 				return -1;
 			}
@@ -443,7 +444,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * ss990417.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_SS990417;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 			g_free(wth->priv);
 			return -1;
 		}
@@ -462,7 +463,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			 * Well, it looks as if it might be ss990417.
 			 * Put the seek pointer back, and return success.
 			 */
-			if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 				g_free(wth->priv);
 				return -1;
 			}
@@ -483,7 +484,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		 * and treat it as a Nokia file.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_NOKIA;
-		if (file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+		if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 			g_free(wth->priv);
 			return -1;
 		}
@@ -612,7 +613,6 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
-	wth->data_offset += bytes_read;
 	packet_size = hdr.hdr.incl_len;
 	orig_size = hdr.hdr.orig_len;
 
@@ -629,7 +629,6 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		 */
 		packet_size -= 3;
 		orig_size -= 3;
-		wth->data_offset += 3;
 
 		/*
 		 * Read the padding.
@@ -639,7 +638,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 			return FALSE;	/* Read error */
 	}
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	libpcap = (libpcap_t *)wth->priv;
 	phdr_len = pcap_process_pseudo_header(wth->fh, wth->file_type,
@@ -653,13 +652,11 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	 */
 	orig_size -= phdr_len;
 	packet_size -= phdr_len;
-	wth->data_offset += phdr_len;
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!libpcap_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 	    packet_size, err, err_info))
 		return FALSE;	/* Read error */
-	wth->data_offset += packet_size;
 
 	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 

@@ -124,7 +124,6 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = commview_read;
 	wth->subtype_seek_read = commview_seek_read;
 
-	wth->data_offset = 0;
 	wth->file_type = WTAP_FILE_COMMVIEW;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
@@ -162,12 +161,10 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	struct tm tm;
 	int bytes_read;
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	if(!commview_read_header(&cv_hdr, wth->fh, err, err_info))
 		return FALSE;
-
-	wth->data_offset += COMMVIEW_HEADER_SIZE;
 
 	switch(cv_hdr.flags & FLAGS_MEDIUM) {
 
@@ -209,8 +206,6 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	tm.tm_min = cv_hdr.minutes;
 	tm.tm_sec = cv_hdr.seconds;
 	tm.tm_isdst = -1;
-
-	wth->data_offset += cv_hdr.data_len;
 
 	wth->phdr.presence_flags = WTAP_HAS_TS;
 

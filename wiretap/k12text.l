@@ -113,6 +113,21 @@ static FILE_T yy_fh;
 
 #define MAX_JUNK 400000
 #define ECHO
+
+/*
+ * Private per-file data.
+ */
+typedef struct {
+	/*
+	 * The file position after the end of the previous frame processed by
+	 * k12text_read.
+	 *
+	 * We need to keep this around, and seek to it at the beginning of
+	 * each call to k12text_read(), since the lexer undoubtedly did some
+	 * amount of look-ahead when processing the previous frame.
+	 */
+	gint64	next_frame_offset;
+} k12text_t;
 %}
 start_timestamp \053[\055]{9}\053[\055]{15,100}\053[\055]{10,100}\053
 oneormoredigits [0-9]+:
@@ -222,13 +237,18 @@ k12text_reset(FILE_T fh)
 static gboolean
 k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 {
+	k12text_t *k12text = (k12text_t *)wth->priv;
 
-	/* We seek to the file position after the end of the previous frame processed by		*/
-	/* k12text_read (kept in wth->data_offset). We do this each time since the lexer		*/
-	/* undoubtedly did some amount of look-ahead when processing the previous frame.		*/
-	/* We also clear out any lexer state (eg: look-ahead buffer) and init vars set by lexer.	*/
+	/*
+	 * We seek to the file position after the end of the previous frame
+	 * processed by k12text_read(), since the lexer undoubtedly did some
+	 * amount of look-ahead when processing the previous frame.
+	 *
+	 * We also clear out any lexer state (eg: look-ahead buffer) and
+	 * init vars set by lexer.
+	 */
 
-	if ( file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
+	if ( file_seek(wth->fh, k12text->next_frame_offset, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
 	k12text_reset(wth->fh);		/* init lexer buffer and vars set by lexer */
@@ -247,8 +267,8 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	*data_offset = wth->data_offset;       /* file position for beginning of this frame   */
-	wth->data_offset += file_bytes_read;   /* file position after end of this frame       */
+	*data_offset = k12text->next_frame_offset;       /* file position for beginning of this frame   */
+	k12text->next_frame_offset += file_bytes_read;   /* file position after end of this frame       */
 
 	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
@@ -307,6 +327,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_h
 int
 k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 {
+	k12text_t *k12text;
 
 	k12text_reset(wth->fh);       /* init lexer buffer and vars set by lexer */
 
@@ -319,7 +340,9 @@ k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 		return -1;
 	}
 
-	wth->data_offset = 0;
+	k12text = (k12text_t *)g_malloc(sizeof(k12text_t));
+	wth->priv = (void *)k12text;
+	k12text->next_frame_offset = 0;
 	wth->file_type = WTAP_FILE_K12TEXT;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length = 0;

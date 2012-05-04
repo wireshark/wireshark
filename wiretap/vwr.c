@@ -700,15 +700,12 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     guint16     pkt_len;                            /* length of radiotap headers */
 
     /* read the next frame record header in the capture file; if no more frames, return */
-    /* if we found a frame record, set the data_offset value to the start of the frame */
-    /* record (i.e., the record header for the frame) */
     if ((ret = vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, err, err_info)) <= 0) {
         *err_info = g_strdup_printf("Record not readable or EOF encountered");
         return(FALSE);                                  /* Read error or EOF */
-    } else
-        wth->data_offset += ret;                        /* bump offset past header */
+    }
 
-    *data_offset = (wth->data_offset - 16);             /* set offset for random seek @PLCP */
+    *data_offset = (file_tell(wth->fh) - 16);           /* set offset for random seek @PLCP */
 
     /* got a frame record; read over entire record (frame + trailer) into a local buffer */
     /* if we don't get it all, then declare an error, we can't process the frame */
@@ -718,8 +715,6 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
             *err = WTAP_ERR_SHORT_READ;
         return(FALSE);
     }
-    else
-        wth->data_offset += rec_size;                   /* got it OK, bump to next rec */
 
     
 

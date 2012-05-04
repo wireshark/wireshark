@@ -82,7 +82,6 @@ int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = packetlogger_read;
 	wth->subtype_seek_read = packetlogger_seek_read;
 
-	wth->data_offset = 0;
 	wth->file_type = WTAP_FILE_PACKETLOGGER;
 	wth->file_encap = WTAP_ENCAP_PACKETLOGGER;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
@@ -96,7 +95,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	packetlogger_header_t pl_hdr;
 	guint bytes_read;
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info))
 		return FALSE;
@@ -128,8 +127,6 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 		return FALSE;
 	}
-
-	wth->data_offset += (pl_hdr.len + 4);
 
 	wth->phdr.presence_flags = WTAP_HAS_TS;
 

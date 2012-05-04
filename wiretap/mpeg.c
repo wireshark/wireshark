@@ -225,13 +225,12 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				return FALSE;
 		}
 	}
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!mpeg_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 				packet_size, err, err_info))
 		return FALSE;
-	wth->data_offset += packet_size;
 	/* XXX - relative, not absolute, time stamps */
 	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.ts = ts;

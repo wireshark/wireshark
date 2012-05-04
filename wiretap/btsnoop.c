@@ -98,7 +98,6 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof magic;
 
 	if (memcmp(magic, btsnoop_magic, sizeof btsnoop_magic) != 0) {
 		return 0;
@@ -113,7 +112,6 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof hdr;
 
 	/*
 	 * Make sure it's a version we support.
@@ -169,7 +167,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 	/* As the send/receive flag is stored in the middle of the capture header 
 	but needs to go in the pseudo header for wiretap, the header needs to be reread
 	in the seek_read function*/
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
@@ -180,7 +178,6 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 			*err = WTAP_ERR_SHORT_READ;
 		return FALSE;
 	}
-	wth->data_offset += sizeof hdr;
 
 	packet_size = g_ntohl(hdr.incl_len);
 	orig_size = g_ntohl(hdr.orig_len);
@@ -201,7 +198,6 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 		packet_size, err, err_info)) {
 		return FALSE;	/* Read error */
 	}
-	wth->data_offset += packet_size;
 
 	ts = GINT64_FROM_BE(hdr.ts_usec);
 	ts -= KUnixTimeBase;

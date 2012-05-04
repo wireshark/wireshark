@@ -142,7 +142,6 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof hdr.magic;
 
 	if (memcmp(hdr.magic, aethra_magic, sizeof aethra_magic) != 0)
 		return 0;
@@ -157,7 +156,6 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof hdr - sizeof hdr.magic;
 	wth->file_type = WTAP_FILE_AETHRA;
 	aethra = (aethra_t *)g_malloc(sizeof(aethra_t));
 	wth->priv = (void *)aethra;
@@ -205,7 +203,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 	 * of AETHRA_ISDN_LINK_LAPD record or get an end-of-file.
 	 */
 	for (;;) {
-		*data_offset = wth->data_offset;
+		*data_offset = file_tell(wth->fh);
 
 		/* Read record header. */
 		if (!aethra_read_rec_header(wth->fh, &hdr, &wth->pseudo_header,
@@ -220,7 +218,6 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 			    rec_size, (unsigned int)(sizeof hdr - sizeof hdr.rec_size));
 			return FALSE;
 		}
-		wth->data_offset += sizeof hdr;
 
 		/*
 		 * XXX - if this is big, we might waste memory by
@@ -232,7 +229,6 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 			if (!aethra_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 			    packet_size, err, err_info))
 				return FALSE;	/* Read error */
-			wth->data_offset += packet_size;
 		}
 #if 0
 packet++;

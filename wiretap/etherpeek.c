@@ -165,7 +165,6 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 	g_assert(sizeof(ep_hdr.master) == ETHERPEEK_MASTER_HDR_SIZE);
 	wtap_file_read_unknown_bytes(
 		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err, err_info);
-	wth->data_offset += sizeof(ep_hdr.master);
 
 	/*
 	 * It appears that EtherHelp (a free application from WildPackets
@@ -193,7 +192,6 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 		wtap_file_read_unknown_bytes(
 			&ep_hdr.secondary.v567,
 			sizeof(ep_hdr.secondary.v567), wth->fh, err, err_info);
-		wth->data_offset += sizeof(ep_hdr.secondary.v567);
 
 		if ((0 != ep_hdr.secondary.v567.reserved[0]) ||
 		    (0 != ep_hdr.secondary.v567.reserved[1]) ||
@@ -361,11 +359,10 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	time_t tsecs;
 	guint32 tusecs;
 
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err,
 	    err_info);
-	wth->data_offset += sizeof(ep_pkt);
 
 	/* Extract the fields from the packet */
 #if 0
@@ -412,7 +409,6 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, sliceLength);
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
 	                              sliceLength, wth->fh, err, err_info);
-	wth->data_offset += sliceLength;
 
 	/* fill in packet header values */
 	tsecs = (time_t) (timestamp/1000000);
@@ -505,11 +501,10 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
 	 * the packet header, we can remember the offset of the data,
 	 * and not have the seek_read routine read the header.
 	 */
-	*data_offset = wth->data_offset;
+	*data_offset = file_tell(wth->fh);
 
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err,
 	    err_info);
-	wth->data_offset += sizeof(ep_pkt);
 
 	/* Extract the fields from the packet */
 	length = pntohs(&ep_pkt[ETHERPEEK_V56_LENGTH_OFFSET]);
@@ -541,7 +536,6 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
 	buffer_assure_space(wth->frame_buffer, sliceLength);
 	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
 	                              sliceLength, wth->fh, err, err_info);
-	wth->data_offset += sliceLength;
 
 	/* fill in packet header values */
 	wth->phdr.len        = length;

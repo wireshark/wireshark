@@ -150,7 +150,6 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info)
 	if (memcmp(magic, eyesdn_hdr_magic, EYESDN_HDR_MAGIC_SIZE) != 0)
 		return 0;
 
-	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->file_type = WTAP_FILE_EYESDN;
 	wth->snapshot_length = 0; /* not known */
@@ -188,7 +187,6 @@ static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	if (!parse_eyesdn_packet_data(wth->fh, pkt_len, buf, err, err_info))
 		return FALSE;
 
-	wth->data_offset = offset;
 	*data_offset = offset;
 	return TRUE;
 }
