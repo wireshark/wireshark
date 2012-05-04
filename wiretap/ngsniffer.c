@@ -2750,7 +2750,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 		/* Seek in the compressed file to the offset in the compressed file
 		   of the beginning of that blob. */
 		if (file_seek(wth->random_fh, new_blob->blob_comp_offset, SEEK_SET, err) == -1)
-			return -1;
+			return FALSE;
 
 		/* Make the blob we found the current one. */
 		ngsniffer->current_blob = new;
@@ -2762,7 +2762,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 
 		/* Now fill the buffer. */
 		if (read_blob(wth->random_fh, &ngsniffer->rand, err, err_info) < 0)
-			return -1;
+			return FALSE;
 
 		/* Set "delta" to the amount to move within this blob; it had
 		   better be >= 0, and < the amount of uncompressed data in
@@ -2779,5 +2779,5 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 	ngsniffer->rand.nextout += (int) delta;
 	ngsniffer->rand.uncomp_offset += delta;
 
-	return offset;
+	return TRUE;
 }
