@@ -207,7 +207,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 					actx->created_item = proto_tree_add_int(tree, hf_index, val_tvb, 0, type_length, type_length);
 				proto_item_append_text(actx->created_item, plurality(type_length, " octet", " octets"));
 			} else {
-				actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, type_length, FALSE);
+				actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, type_length, ENC_BIG_ENDIAN);
 			}
 			subtree = proto_item_add_subtree(actx->created_item, ett_per_open_type);
 		}
@@ -447,7 +447,7 @@ dissect_per_GeneralString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto
 
 	offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_GeneralString_length, &length);
 
-	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, FALSE);
+	proto_tree_add_item(tree, hf_index, tvb, offset>>3, length, ENC_BIG_ENDIAN);
 
 	offset+=length*8;
 
@@ -459,7 +459,7 @@ guint32
 dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
   proto_item *ti_tmp;
 
-  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>3, 1, FALSE);
+  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>3, 1, ENC_BIG_ENDIAN);
   proto_item_append_text(ti_tmp, ": NULL");
 
   return offset;
@@ -507,7 +507,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 		item = proto_tree_add_uint(parent_tree, hf_index, tvb, old_offset>>3, 0, length);
 		proto_item_append_text(item, (length==1)?" item":" items");
 	} else {
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, old_offset>>3, 0, FALSE);
+		item=proto_tree_add_item(parent_tree, hf_index, tvb, old_offset>>3, 0, ENC_BIG_ENDIAN);
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 
@@ -842,7 +842,7 @@ call_sohelper:
 		item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset>>3, 0, length);
 		proto_item_append_text(item, (length==1)?" item":" items");
 	} else {
-		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
+		item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, ENC_BIG_ENDIAN);
 	}
 	tree=proto_item_add_subtree(item, ett_index);
 	per_check_items(length, min_len, max_len, actx, item);
@@ -906,7 +906,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
-    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, FALSE);
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, ENC_BIG_ENDIAN);
   } else if (IS_FT_STRING(hfi->type)) {
     str = oid_encoded2string(tvb_get_ptr(val_tvb, 0, length), length);
     actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
@@ -1742,7 +1742,7 @@ dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
 
 DEBUG_ENTRY("dissect_per_sequence");
 
-	item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, FALSE);
+	item=proto_tree_add_item(parent_tree, hf_index, tvb, offset>>3, 0, ENC_BIG_ENDIAN);
 	tree=proto_item_add_subtree(item, ett_index);
 
 
@@ -1978,7 +1978,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	add_new_data_source(actx->pinfo, out_tvb, "Bitstring tvb");
 
 	if (hfi) {
-		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
+		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, ENC_BIG_ENDIAN);
 		proto_item_append_text(actx->created_item, " [bit length %u", length);
 		if (length%8) {
 			pad_length = 8-(length%8);
@@ -2247,10 +2247,10 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			proto_item_append_text(actx->created_item, plurality(val_length, " octet", " octets"));
 		} else {
 			if(out_tvb){
-				actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, val_length, FALSE);
+				actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, val_length, ENC_BIG_ENDIAN);
 			}else{
 				/* Length = 0 */
-				actx->created_item = proto_tree_add_item(tree, hf_index, tvb, val_start, val_length, FALSE);
+				actx->created_item = proto_tree_add_item(tree, hf_index, tvb, val_start, val_length, ENC_BIG_ENDIAN);
 			}
 		}
 	}
