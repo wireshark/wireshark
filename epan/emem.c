@@ -753,11 +753,12 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 
 	/* Allocate room for at least 8 bytes of canary plus some padding
 	 * so the canary ends on an 8-byte boundary.
-	 * Then add the room needed for the pointer to the next canary.
+	 * But first add the room needed for the pointer to the next canary
+	 * (so the entire allocation will end on an 8-byte boundary).
 	 */
 	 if (use_canary) {
-		pad = emem_canary_pad(asize);
 		asize += sizeof(void *);
+		pad = emem_canary_pad(asize);
 	} else
 		pad = (G_MEM_ALIGN - (asize & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
 
