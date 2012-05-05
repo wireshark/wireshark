@@ -597,7 +597,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     return ret;
   }
 
-  /* retrive decoder for this packet direction */
+  /* retrieve decoder for this packet direction */
   if (ssl_packet_from_server(ssl, dtls_associations, pinfo) != 0) {
     ssl_debug_printf("decrypt_dtls_record: using server decoder\n");
     decoder = ssl->server;
@@ -607,7 +607,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     decoder = ssl->client;
   }
 
-  if (!decoder) {
+  if (!decoder && ssl->cipher != 0x0001 && ssl->cipher != 0x0002) {
     ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
     return ret;
   }
