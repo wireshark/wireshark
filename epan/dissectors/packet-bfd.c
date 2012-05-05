@@ -644,7 +644,7 @@ dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree)
             proto_tree_add_uint (bfd_tree, hf_mep_agi_len, tvb, (offset + 17),
                                  1, mep_agi_len);
             proto_tree_add_item (bfd_tree, hf_mep_agi_val, tvb, (offset + 18),
-                                 mep_agi_len, ENC_BIG_ENDIAN);
+                                 mep_agi_len, ENC_ASCII|ENC_NA);
 
             break;
 

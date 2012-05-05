@@ -215,7 +215,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
             {
                 proto_tree_add_item(subtree, hf_a_data, tvb, 1, 3, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_length, tvb, 4, 1, ENC_NA);
-                proto_tree_add_item(subtree, hf_a_text, tvb, 5, -1, ENC_ASCII);
+                proto_tree_add_item(subtree, hf_a_text, tvb, 5, -1, ENC_ASCII|ENC_NA);
 
                 pstr = tvb_get_string(tvb, 5, tvb_get_guint8(tvb, 4));
                 if(pstr)
@@ -283,7 +283,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         len = tvb_get_guint8(tvb, i+1);
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
-                        proto_tree_add_item(infotree, hf_a_weekday, tvb, i+2, len, ENC_ASCII);
+                        proto_tree_add_item(infotree, hf_a_weekday, tvb, i+2, len, ENC_ASCII|ENC_NA);
                         pstr = tvb_get_string(tvb, i+2, len);
                         if(pstr)
                         {
@@ -298,7 +298,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         len = tvb_get_guint8(tvb, i+1);
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
-                        proto_tree_add_item(infotree, hf_a_month_name, tvb, i+2, len, ENC_ASCII);
+                        proto_tree_add_item(infotree, hf_a_month_name, tvb, i+2, len, ENC_ASCII|ENC_NA);
                         pstr = tvb_get_string(tvb, i+2, len);
                         if(pstr)
                         {
@@ -313,7 +313,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
                         len = tvb_get_guint8(tvb, i+1);
                         ti = proto_tree_add_item(subtree, hf_a_item, tvb, i, len+2, ENC_NA);
                         infotree = proto_item_add_subtree(ti, ett_a_item);
-                        proto_tree_add_item(infotree, hf_a_weekofyear_prefix, tvb, i+2, len, ENC_ASCII);
+                        proto_tree_add_item(infotree, hf_a_weekofyear_prefix, tvb, i+2, len, ENC_ASCII|ENC_NA);
                         pstr = tvb_get_string(tvb, i+2, len);
                         if(pstr)
                         {
@@ -362,7 +362,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
             {
                 proto_tree_add_item(subtree, hf_a_line, tvb, 1, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_a_length, tvb, 2, 1, ENC_NA);
-                proto_tree_add_item(subtree, hf_a_cdpn, tvb, 3, -1, ENC_ASCII);
+                proto_tree_add_item(subtree, hf_a_cdpn, tvb, 3, -1, ENC_ASCII|ENC_NA);
 
                 pstr = tvb_get_string(tvb, 3, tvb_get_guint8(tvb, 2));
                 if(pstr)
@@ -453,7 +453,7 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else
         {
-            proto_tree_add_item(aasp_tree, hf_a_text, tvb, 0, -1, ENC_ASCII);
+            proto_tree_add_item(aasp_tree, hf_a_text, tvb, 0, -1, ENC_ASCII|ENC_NA);
         }
     }
 

@@ -222,7 +222,7 @@ dissect_bzr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (bzr_tree)
     {
         proto_tree_add_item(bzr_tree, hf_bzr_packet_protocol_version, tvb, 0,
-                            protocol_version_len+1, ENC_NA);
+                            protocol_version_len+1, ENC_ASCII|ENC_NA);
     }
 
     offset += dissect_prefixed_bencode(tvb, offset, pinfo, bzr_tree);
