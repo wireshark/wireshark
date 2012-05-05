@@ -814,8 +814,8 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const char *szF
         parseGuid(subtree, tvb, &iOffset, hf_opcua_Guid);
         break;
     case 0x05: /* byte string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, ENC_LITTLE_ENDIAN);
-        iOffset+=4;
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
+        iOffset+=2;
         parseByteString(subtree, tvb, &iOffset, hf_opcua_ByteString);
         break;
     };
