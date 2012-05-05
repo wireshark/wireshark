@@ -64,7 +64,7 @@ WIRESHARK_LIBGTKUI_OBJECTS = \
 	$(WIRESHARK_LIBGTKUI_SRC:.c=.obj) \
 	$(PORT_AUDIO_SRC:.c=.obj)
 
-libgtkui.lib	: ..\..\config.h $(WIRESHARK_LIBGTKUI_OBJECTS)
+libgtkui.lib: ..\..\config.h $(WIRESHARK_LIBGTKUI_OBJECTS)
 	link /lib /out:libgtkui.lib $(WIRESHARK_LIBGTKUI_OBJECTS) winmm.lib
 
 # The shell script runs slowly, as multiple greps and seds are run
