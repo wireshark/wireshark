@@ -58,8 +58,7 @@
 
 
 typedef struct {
-    guint32 offset;
-    struct wtap_nstime now;
+    int start_offset;
     /* length of trailing data (e.g. FEC) that's appended after each packet */
     guint8  trailer_len;
 } mp2t_filetype_t;
@@ -90,7 +89,8 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     mp2t = (mp2t_filetype_t*) wth->priv;
 
-    *data_offset = mp2t->offset;
+    *data_offset = file_tell(wth->fh);
+
     /* read only the actual mpeg2 ts packet, not including a trailer */
     buffer_assure_space(wth->frame_buffer, MP2T_SIZE);
     if (FALSE == mp2t_read_data(buffer_start_ptr(wth->frame_buffer),
@@ -105,23 +105,23 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         return FALSE;
     }
 
-    mp2t->offset += MP2T_SIZE + mp2t->trailer_len;
-
     /* XXX - relative, not absolute, time stamps */
     wth->phdr.presence_flags = WTAP_HAS_TS;
 
-    /* It would be really cool to be able to configure the bitrate... */
-    tmp = (MP2T_SIZE+mp2t->trailer_len) * 8;
-    tmp *= 1000000000;
-    tmp /= MP2T_QAM256_BITRATE;
+    /*
+     * Every packet in an MPEG2-TS stream is has a fixed size of
+     * MP2T_SIZE plus the number of trailer bytes.
+     *
+     * The bitrate is constant, so the time offset, from the beginning
+     * of the stream, of a given packet is the packet offset, in bits,
+     * divided by the bitrate.
+     *
+     * It would be really cool to be able to configure the bitrate...
+     */
+    tmp = ((guint64)(*data_offset - mp2t->start_offset) * 8);	/* offset, in bits */
+    wth->phdr.ts.secs = tmp / MP2T_QAM256_BITRATE;
+    wth->phdr.ts.nsecs = (tmp % MP2T_QAM256_BITRATE) * 1000000000 / MP2T_QAM256_BITRATE;
 
-    wth->phdr.ts.secs = mp2t->now.secs;
-    wth->phdr.ts.nsecs = mp2t->now.nsecs;
-    mp2t->now.nsecs += (guint32)tmp;
-    if (1000000000 <= mp2t->now.nsecs) {
-        mp2t->now.nsecs -= 1000000000;
-        mp2t->now.secs++;
-    }
     wth->phdr.caplen = MP2T_SIZE;
     wth->phdr.len = MP2T_SIZE;
 
@@ -229,9 +229,7 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
     }
 
     wth->priv = mp2t;
-    mp2t->offset = (guint32) first;
-    mp2t->now.secs = 0;
-    mp2t->now.nsecs = 0;
+    mp2t->start_offset = first;
     mp2t->trailer_len = trailer_len;
 
     return 1;
