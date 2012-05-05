@@ -116,7 +116,11 @@ static int hf_radius_code = -1;
 static int hf_radius_length = -1;
 static int hf_radius_authenticator = -1;
 
+static int hf_radius_chap_password = -1;
+static int hf_radius_chap_ident = -1;
+static int hf_radius_chap_string = -1;
 static int hf_radius_framed_ip_address = -1;
+
 static int hf_radius_login_ip_host = -1;
 static int hf_radius_framed_ipx_network = -1;
 
@@ -128,7 +132,7 @@ static int hf_radius_ascend_data_filter = -1;
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 static gint ett_eap = -1;
-
+static gint ett_chap = -1;
 /*
  * Define the tap for radius
  */
@@ -303,6 +307,22 @@ static guint radius_call_hash(gconstpointer k)
 	return key->ident + /*key->code + */ key->conversation->index;
 }
 
+
+static const gchar *dissect_chap_password(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
+	int len;
+	proto_item *ti;
+	proto_tree *chap_tree;
+
+	len = tvb_length(tvb);
+	if (len != 17)
+		return "[wrong length for CHAP-Password]";
+
+	ti = proto_tree_add_item(tree, hf_radius_chap_password, tvb, 0, len, ENC_NA);
+		chap_tree = proto_item_add_subtree(ti, ett_chap);
+		proto_tree_add_item(chap_tree, hf_radius_chap_ident, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(chap_tree, hf_radius_chap_string, tvb, 1, 16, ENC_NA);
+	return (tvb_bytes_to_str(tvb, 0, len));
+}
 
 static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	int len;
@@ -1885,6 +1905,15 @@ static void register_radius_fields(const char* unused _U_) {
 		 { &(no_dictionary_entry.hf_len),
 		 { "Unknown-Attribute Length","radius.Unknown_Attribute.length", FT_UINT8, BASE_DEC, NULL, 0x0,
 			 NULL, HFILL }},
+		 { &hf_radius_chap_password,
+		 { "CHAP-Password","radius.CHAP_Password", FT_BYTES, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_chap_ident,
+		 { "CHAP Ident","radius.CHAP_Ident", FT_UINT8, BASE_HEX, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_chap_string,
+		 { "CHAP String","radius.CHAP_String", FT_BYTES, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
 		 { &hf_radius_framed_ip_address,
 		 { "Framed-IP-Address","radius.Framed-IP-Address", FT_IPv4, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
@@ -1918,6 +1947,7 @@ static void register_radius_fields(const char* unused _U_) {
 		 &ett_radius,
 		 &ett_radius_avp,
 		 &ett_eap,
+		 &ett_chap,
 		 &(no_dictionary_entry.ett),
 		 &(no_vendor.ett),
 	 };
@@ -1973,6 +2003,7 @@ static void register_radius_fields(const char* unused _U_) {
 	/*
 	 * Handle attributes that have a special format.
 	 */
+	radius_register_avp_dissector(0,3,dissect_chap_password);
 	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
 	radius_register_avp_dissector(0,14,dissect_login_ip_host);
 	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
