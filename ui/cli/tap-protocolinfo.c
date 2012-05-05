@@ -30,10 +30,6 @@
 
 #include <stdio.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <string.h>
 #include "epan/epan_dissect.h"
 #include "epan/column-utils.h"

@@ -36,11 +36,6 @@
 #include <fcntl.h>
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include <epan/tap.h>
