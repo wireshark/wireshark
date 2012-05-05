@@ -2671,7 +2671,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
    if ( !generate )
    {
       hidden_item = proto_tree_add_item(path_tree, hf_cip_epath,
-                                        tvb, offset, path_length, ENC_LITTLE_ENDIAN );
+                                        tvb, offset, path_length, ENC_NA );
       PROTO_ITEM_SET_HIDDEN(hidden_item);
    }
 
@@ -3159,7 +3159,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                   }
                   else
                   {
-                     proto_tree_add_item(net_tree, hf_cip_seg_safety_data, tvb, offset+pathpos+3, seg_size-1, ENC_LITTLE_ENDIAN );
+                     proto_tree_add_item(net_tree, hf_cip_seg_safety_data, tvb, offset+pathpos+3, seg_size-1, ENC_NA );
                   }
 
                   if (safety != NULL)
@@ -4527,7 +4527,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             break;
             default:
                /* Add data */
-               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
                break;
             }
          }
@@ -4921,7 +4921,7 @@ dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if( tree )
    {
       /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_mb, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_cip_class_mb, tvb, 0, -1, ENC_NA);
       class_tree = proto_item_add_subtree( ti, ett_cip_class_mb );
 
       dissect_cip_mb_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );

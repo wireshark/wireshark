@@ -2435,11 +2435,11 @@ dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
 
     if (tag==T_AUTH_REQ) {
         proto_tree_add_item(tree, hf_dvbci_auth_req_bytes,
-            tvb, offset, bytes_len, ENC_BIG_ENDIAN);
+            tvb, offset, bytes_len, ENC_NA);
     }
     else if (tag==T_AUTH_RESP) {
         proto_tree_add_item(tree, hf_dvbci_auth_resp_bytes,
-            tvb, offset, bytes_len, ENC_BIG_ENDIAN);
+            tvb, offset, bytes_len, ENC_NA);
     }
 }
 
@@ -2989,7 +2989,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             proto_tree_add_item(tree, hf_dvbci_sac_signature,
                 clear_sac_body_tvb, sac_payload_len,
                 tvb_reported_length_remaining(clear_sac_body_tvb,
-                    sac_payload_len), ENC_BIG_ENDIAN);
+                    sac_payload_len), ENC_NA);
             break;
         case T_CC_PIN_CAPABILITIES_REPLY:
             proto_tree_add_item(tree, hf_dvbci_capability_field,
@@ -3407,7 +3407,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   tvb, offset, 2, ENC_BIG_ENDIAN);
           offset += 2;
           proto_tree_add_item(tree, hf_dvbci_nit,
-                  tvb, offset, nit_loop_len, ENC_BIG_ENDIAN);
+                  tvb, offset, nit_loop_len, ENC_NA);
           break;
         case T_OPERATOR_INFO:
           info_valid = ((tvb_get_guint8(tvb, offset) & 0x08) == 0x08);

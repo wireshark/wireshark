@@ -450,13 +450,13 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
     offset++;
     left--;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_challenge,
-                        tvb, offset, value_size, ENC_BIG_ENDIAN);
+                        tvb, offset, value_size, ENC_NA);
     offset += value_size;
     left -= value_size;
     if (left <= 0)
       break;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name,
-                        tvb, offset, left, ENC_BIG_ENDIAN);
+                        tvb, offset, left, ENC_ASCII|ENC_NA);
     break;
   case MS_CHAP_V2_RESPONSE:
     if (left <= 0)
@@ -468,13 +468,13 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
     left--;
     if (value_size == 49) {
       proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_peer_challenge,
-                          tvb, offset, 16, ENC_BIG_ENDIAN);
+                          tvb, offset, 16, ENC_NA);
       offset += 16;
       proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_reserved,
-                          tvb, offset, 8, ENC_BIG_ENDIAN);
+                          tvb, offset, 8, ENC_NA);
       offset += 8;
       proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_nt_response,
-                         tvb, offset, 24, ENC_BIG_ENDIAN);
+                         tvb, offset, 24, ENC_NA);
       offset += 24;
       proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_flags,
                           tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -489,19 +489,19 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
     }
     if (left <= 0)
       break;
-    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name, tvb, offset, left, ENC_BIG_ENDIAN);
+    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name, tvb, offset, left, ENC_ASCII|ENC_NA);
     break;
   case MS_CHAP_V2_SUCCESS:
     if (left <= 0)
       break;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_message,
-                            tvb, offset, left, ENC_BIG_ENDIAN);
+                            tvb, offset, left, ENC_ASCII|ENC_NA);
     break;
   case MS_CHAP_V2_FAILURE:
     if (left <= 0)
       break;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_failure_request,
-                            tvb, offset, left, ENC_BIG_ENDIAN);
+                            tvb, offset, left, ENC_ASCII|ENC_NA);
     break;
   default:
     proto_tree_add_text(eap_tree, tvb, offset, left,
@@ -549,7 +549,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
     proto_tree_add_item(attr_tree, hf_eap_sim_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
     aoffset++;
     aleft--;
-    proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
+    proto_tree_add_item(attr_tree, hf_eap_sim_subtype_value, tvb, aoffset, aleft, ENC_NA);
 
     offset += 4 * length;
     left -= 4 * length;
@@ -593,7 +593,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
     proto_tree_add_item(attr_tree, hf_eap_aka_subtype_length, tvb, aoffset, 1, ENC_BIG_ENDIAN);
     aoffset++;
     aleft--;
-    proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
+    proto_tree_add_item(attr_tree, hf_eap_aka_subtype_value, tvb, aoffset, aleft, ENC_NA);
 
     offset += 4 * length;
     left -= 4 * length;
@@ -734,7 +734,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         **********************************************************************/
         case EAP_TYPE_ID:
           if (tree) {
-            proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_BIG_ENDIAN);
+            proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
       }
     if(!pinfo->fd->flags.visited) {
       conversation_state->leap_state = 0;
@@ -747,7 +747,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case EAP_TYPE_NOTIFY:
     if (tree) {
       proto_tree_add_item(eap_tree, hf_eap_notification, tvb,
-                          offset, size, ENC_BIG_ENDIAN);
+                          offset, size, ENC_ASCII|ENC_NA);
     }
     break;
 
@@ -778,10 +778,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
       offset++;
-      proto_tree_add_item(eap_tree, hf_eap_md5_value, tvb, offset, value_size, ENC_BIG_ENDIAN);
+      proto_tree_add_item(eap_tree, hf_eap_md5_value, tvb, offset, value_size, ENC_NA);
       offset += value_size;
       if (extra_len > 0) {
-          proto_tree_add_item(eap_tree, hf_eap_md5_extra_data, tvb, offset, extra_len, ENC_BIG_ENDIAN);
+          proto_tree_add_item(eap_tree, hf_eap_md5_extra_data, tvb, offset, extra_len, ENC_NA);
       }
     }
     break;
@@ -1091,19 +1091,19 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (tree) {
         switch (leap_state) {
         case 1:
-            proto_tree_add_item(eap_tree, hf_eap_leap_peer_challenge, tvb, offset, count, ENC_BIG_ENDIAN);
+            proto_tree_add_item(eap_tree, hf_eap_leap_peer_challenge, tvb, offset, count, ENC_NA);
             break;
 
         case 2:
-            proto_tree_add_item(eap_tree, hf_eap_leap_peer_response, tvb, offset, count, ENC_BIG_ENDIAN);
+            proto_tree_add_item(eap_tree, hf_eap_leap_peer_response, tvb, offset, count, ENC_NA);
             break;
 
         case 3:
-            proto_tree_add_item(eap_tree, hf_eap_leap_ap_challenge, tvb, offset, count, ENC_BIG_ENDIAN);
+            proto_tree_add_item(eap_tree, hf_eap_leap_ap_challenge, tvb, offset, count, ENC_NA);
             break;
 
         case 4:
-            proto_tree_add_item(eap_tree, hf_eap_leap_ap_response, tvb, offset, count, ENC_BIG_ENDIAN);
+            proto_tree_add_item(eap_tree, hf_eap_leap_ap_response, tvb, offset, count, ENC_NA);
             break;
 
         default:
@@ -1120,7 +1120,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Name    (Length-(8+Count)) */
       namesize = eap_len - (8+count);
       if (tree) {
-        proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_ASCII|ENC_NA);
       }
     }
 
@@ -1365,7 +1365,7 @@ proto_register_eap(void)
     { &hf_eap_ext_vendor_id, {
       "EAP-EXT Vendor Id", "eap.ext.vendor_id", FT_UINT16, BASE_HEX,
       VALS(eap_ext_vendor_id_vals), 0x0, NULL, HFILL }},
-    { &hf_eap_ext_vendor_type, { 
+    { &hf_eap_ext_vendor_type, {
       "EAP-EXT Vendor Type", "eap.ext.vendor_type", FT_UINT8, BASE_HEX,
       VALS(eap_ext_vendor_type_vals), 0x0, NULL, HFILL }}
   };
