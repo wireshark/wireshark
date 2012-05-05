@@ -300,7 +300,7 @@ dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
         *index = i;
         return FALSE;
     }
-    do{
+    do {
         i++;
         gtk_tree_model_get_value (model, &iter, 0, &value);
         filter_str = g_value_get_string (&value);
@@ -345,14 +345,14 @@ dfilter_recent_combo_write_all(FILE *rf) {
 
     if (!gtk_tree_model_get_iter_first (model, &iter))
         return;
-    do{
+    do {
         gtk_tree_model_get_value (model, &iter, 0, &value);
         filter_str = g_value_get_string (&value);
         if(filter_str)
             fprintf (rf, RECENT_KEY_DISPLAY_FILTER ": %s\n", filter_str);
         g_value_unset (&value);
 
-    }while (gtk_tree_model_iter_next (model, &iter)&& (max_count++ < prefs.gui_recent_df_entries_max));
+    } while (gtk_tree_model_iter_next (model, &iter)&& (max_count++ < prefs.gui_recent_df_entries_max));
 
 }
 
@@ -397,10 +397,20 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     if (cf_status == CF_OK && strlen(s) > 0) {
         int index;
 
-        if(!dfilter_entry_match(filter_cm,s, &index)) {
+        if(!dfilter_entry_match(filter_cm,s, &index) || index != 0) {
+
+            /* If the filter is already there but not the first entry, remove it */
+            if (index > 0) {
+                gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(filter_cm), index);
+                index--;
+            }
+
+            /* Add the filter (at the head of the list) */
             gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), s);
             index++;
         }
+
+        /* If we have too many entries, remove some */
         while ((guint)index >= prefs.gui_recent_df_entries_max) {
             gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(filter_cm), index);
             index--;
