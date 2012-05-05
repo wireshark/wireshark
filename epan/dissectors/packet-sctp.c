@@ -1176,7 +1176,7 @@ dissect_add_outgoing_streams_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 
   /* length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET); */
 
-  proto_tree_add_item(parameter_tree, hf_stream_reset_req_seq_nr,             parameter_tvb, ADD_OUTGOING_STREAM_REQ_SEQ_NR_OFFSET,      ADD_OUTGOING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_stream_reset_req_seq_nr,             parameter_tvb, ADD_OUTGOING_STREAM_REQ_SEQ_NR_OFFSET,      ADD_OUTGOING_STREAM_REQ_SEQ_NR_LENGTH,      ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_add_outgoing_streams_number_streams, parameter_tvb, ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_OFFSET, ADD_OUTGOING_STREAM_REQ_NUM_STREAMS_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_add_outgoing_streams_reserved,       parameter_tvb, ADD_OUTGOING_STREAM_REQ_RESERVED_OFFSET,    ADD_OUTGOING_STREAM_REQ_RESERVED_LENGTH,    ENC_BIG_ENDIAN);
 }
