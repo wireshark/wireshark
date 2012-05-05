@@ -54,24 +54,24 @@
 #include "main_filter_toolbar.h"
 #include "filter_expression_save_dlg.h"
 
-#define MENU_BAR_PATH_FILE_OPEN				"/Menubar/FileMenu/Open"
-#define MENU_BAR_PATH_EDIT_COPY_AS_FLT				"/Menubar/EditMenu/Copy/AsFilter"
-#define MENU_BAR_PATH_ANALYZE_DISPLAY_FLT			"/Menubar/AnalyzeMenu/DisplayFilters"
-#define MENU_BAR_PATH_ANALYZE_FOLLOW_TCP_STREAM		"/Menubar/AnalyzeMenu/FollowTCPStream"
-#define MENU_BAR_PATH_ANALYZE_FOLLOW_UDP_STREAM		"/Menubar/AnalyzeMenu/FollowUDPStream"
-#define MENU_BAR_PATH_ANALYZE_FOLLOW_SSL_STREAM		"/Menubar/AnalyzeMenu/FollowSSLStream"
-#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_SEL			"/Menubar/AnalyzeMenu/ApplyAsFilter/Selected"
-#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/NotSelected"
-#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/AndSelected"
-#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/OrSelected"
-#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/AndNotSelected"
-#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/OrNotSelected"
-#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_SEL			"/Menubar/AnalyzeMenu/PrepareaFilter/Selected"
-#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/NotSelected"
-#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/AndSelected"
-#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/OrSelected"
-#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/AndNotSelected"
-#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/OrNotSelected"
+#define MENU_BAR_PATH_FILE_OPEN                         "/Menubar/FileMenu/Open"
+#define MENU_BAR_PATH_EDIT_COPY_AS_FLT                  "/Menubar/EditMenu/Copy/AsFilter"
+#define MENU_BAR_PATH_ANALYZE_DISPLAY_FLT               "/Menubar/AnalyzeMenu/DisplayFilters"
+#define MENU_BAR_PATH_ANALYZE_FOLLOW_TCP_STREAM         "/Menubar/AnalyzeMenu/FollowTCPStream"
+#define MENU_BAR_PATH_ANALYZE_FOLLOW_UDP_STREAM         "/Menubar/AnalyzeMenu/FollowUDPStream"
+#define MENU_BAR_PATH_ANALYZE_FOLLOW_SSL_STREAM         "/Menubar/AnalyzeMenu/FollowSSLStream"
+#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_SEL            "/Menubar/AnalyzeMenu/ApplyAsFilter/Selected"
+#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_NOT_SEL        "/Menubar/AnalyzeMenu/ApplyAsFilter/NotSelected"
+#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_SEL        "/Menubar/AnalyzeMenu/ApplyAsFilter/AndSelected"
+#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_SEL         "/Menubar/AnalyzeMenu/ApplyAsFilter/OrSelected"
+#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_NOT_SEL    "/Menubar/AnalyzeMenu/ApplyAsFilter/AndNotSelected"
+#define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_NOT_SEL     "/Menubar/AnalyzeMenu/ApplyAsFilter/OrNotSelected"
+#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_SEL            "/Menubar/AnalyzeMenu/PrepareaFilter/Selected"
+#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_NOT_SEL        "/Menubar/AnalyzeMenu/PrepareaFilter/NotSelected"
+#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_SEL        "/Menubar/AnalyzeMenu/PrepareaFilter/AndSelected"
+#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_SEL         "/Menubar/AnalyzeMenu/PrepareaFilter/OrSelected"
+#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_NOT_SEL    "/Menubar/AnalyzeMenu/PrepareaFilter/AndNotSelected"
+#define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL     "/Menubar/AnalyzeMenu/PrepareaFilter/OrNotSelected"
 
 GtkWidget   *main_display_filter_widget=NULL;
 
@@ -114,12 +114,13 @@ filter_save_cb(GtkWidget *w _U_, GtkWindow *parent_w)
 }
 
 
-GtkWidget *filter_toolbar_new(void)
+GtkWidget *
+filter_toolbar_new(void)
 {
     GtkWidget     *filter_cm;
     GtkWidget     *filter_te;
     GtkWidget     *filter_tb;
-    GtkToolItem	  *filter_bt, *filter_add_expr_bt, *filter_reset;
+    GtkToolItem   *filter_bt, *filter_add_expr_bt, *filter_reset;
     GtkToolItem   *filter_apply, *filter_save, *item;
 
 
@@ -136,7 +137,7 @@ GtkWidget *filter_toolbar_new(void)
     /* filter toolbar */
     filter_tb = gtk_toolbar_new();
     gtk_orientable_set_orientation(GTK_ORIENTABLE(filter_tb),
-                                GTK_ORIENTATION_HORIZONTAL);
+                                   GTK_ORIENTATION_HORIZONTAL);
 
     g_object_set_data(G_OBJECT(top_level), E_TB_FILTER_KEY, filter_tb);
     gtk_widget_show(filter_tb);
@@ -150,7 +151,7 @@ GtkWidget *filter_toolbar_new(void)
     gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
                        filter_bt,
                        -1);
-	gtk_widget_set_tooltip_text( GTK_WIDGET(filter_bt), "Open the \"Display Filter\" dialog, to edit/apply filters");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(filter_bt), "Open the \"Display Filter\" dialog, to edit/apply filters");
 
     /* Create the filter combobox */
     filter_cm = gtk_combo_box_text_new_with_entry ();
@@ -173,12 +174,10 @@ GtkWidget *filter_toolbar_new(void)
     gtk_container_add (GTK_CONTAINER (item), filter_cm);
     gtk_widget_show (GTK_WIDGET (item));
 
-    gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
-                       item,
-                       -1);
+    gtk_toolbar_insert(GTK_TOOLBAR(filter_tb), item, -1);
 
     /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
-	gtk_widget_set_tooltip_text(filter_cm,
+    gtk_widget_set_tooltip_text(filter_cm,
         "Enter a display filter, or choose one of your recently used filters. "
         "The background color of this field is changed by a continuous syntax check "
         "(green is valid, red is invalid, yellow may have unexpected results).");
@@ -297,7 +296,7 @@ dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
     int i;
 
     i = -1;
-    if (!gtk_tree_model_get_iter_first (model, &iter)){
+    if (!gtk_tree_model_get_iter_first (model, &iter)) {
         *index = i;
         return FALSE;
     }
@@ -305,15 +304,15 @@ dfilter_entry_match(GtkWidget *filter_cm, char *s, int *index)
         i++;
         gtk_tree_model_get_value (model, &iter, 0, &value);
         filter_str = g_value_get_string (&value);
-        if(filter_str){
-            if(strcmp(s, filter_str) == 0){
+        if(filter_str) {
+            if(strcmp(s, filter_str) == 0) {
                 g_value_unset (&value);
                 *index = i;
                 return TRUE;
             }
         }
-	g_value_unset (&value);
-    }while (gtk_tree_model_iter_next (model, &iter));
+        g_value_unset (&value);
+    } while (gtk_tree_model_iter_next (model, &iter));
 
     *index = i;
     return FALSE;
@@ -383,10 +382,10 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 
     if (cf_status == CF_OK) {
         gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_APPLY_KEY), FALSE);
-	if (!s || strlen (s) == 0) {
-	    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY), FALSE);
-	    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_SAVE_KEY), FALSE);
-	}
+        if (!s || strlen (s) == 0) {
+            gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY), FALSE);
+            gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_SAVE_KEY), FALSE);
+        }
     }
 
     if (!s)
@@ -398,11 +397,11 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
     if (cf_status == CF_OK && strlen(s) > 0) {
         int index;
 
-        if(!dfilter_entry_match(filter_cm,s, &index)){
+        if(!dfilter_entry_match(filter_cm,s, &index)) {
             gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), s);
             index++;
         }
-        while ((guint)index >= prefs.gui_recent_df_entries_max){
+        while ((guint)index >= prefs.gui_recent_df_entries_max) {
             gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(filter_cm), index);
             index--;
         }
