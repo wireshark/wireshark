@@ -38,8 +38,6 @@
 
 #include "packet-gsm_a_common.h"
 
-#include <sys/types.h>
-
 /* From openbsc/include/openbsc/abis_nm.h */
 
 #define ABIS_OM_MDISC_FOM		0x80

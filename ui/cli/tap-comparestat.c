@@ -39,10 +39,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <string.h>
 #include "epan/packet_info.h"
 #include <epan/in_cksum.h>
