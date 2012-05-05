@@ -1869,9 +1869,6 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_reg_handoff_abis_oml(void);
-
-void
 proto_register_abis_oml(void)
 {
 	static hf_register_info hf[] = {
@@ -2366,7 +2363,7 @@ proto_register_abis_oml(void)
 
 	new_register_dissector("gsm_abis_oml", dissect_abis_oml, proto_abis_oml);
 
-	oml_module = prefs_register_protocol(proto_abis_oml, proto_reg_handoff_abis_oml);
+	oml_module = prefs_register_protocol(proto_abis_oml, NULL);
 	prefs_register_enum_preference(oml_module, "oml_dialect",
 		    "A-bis OML dialect to be used",
 		    "Use ipaccess nanoBTS specific definitions for OML",
@@ -2378,19 +2375,12 @@ proto_register_abis_oml(void)
 void
 proto_reg_handoff_abis_oml(void)
 {
-	static gboolean initialized = FALSE;
+	dissector_handle_t abis_oml_handle;
 
-	if (!initialized) {
-		dissector_handle_t abis_oml_handle;
-
-		abis_oml_handle = new_create_dissector_handle(dissect_abis_oml,
-							  proto_abis_oml);
-		dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_OM_PROC,
-				   abis_oml_handle);
-
-	} else {
-		/* preferences have been changed */
-	}
+	abis_oml_handle = new_create_dissector_handle(dissect_abis_oml,
+						      proto_abis_oml);
+	dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_OM_PROC,
+			   abis_oml_handle);
 
 	sub_om2000 = find_dissector("gsm_abis_om2000");
 }
