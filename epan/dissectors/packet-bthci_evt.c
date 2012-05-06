@@ -1208,7 +1208,8 @@ dissect_bthci_evt_inq_result_with_rssi(tvbuff_t *tvb, int offset, packet_info *p
 static int
 dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint8 i, j, length, type;
+	guint8 length, type;
+	guint i, j;
 	proto_item *ti_eir=NULL;
 	proto_item *ti_eir_subtree=NULL;
 
@@ -1239,7 +1240,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 				case 0x02: /* 16-bit Service Class UUIDs, incomplete list */
 				case 0x03: /* 16-bit Service Class UUIDs, complete list */
 					j=0;
-					while(j<(length-1))
+					while(j<(guint)(length-1))
 					{
 						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid16, tvb, offset+i+j+2, 2, TRUE);
 						j+=2;
@@ -1248,7 +1249,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 				case 0x04: /* 32-bit Service Class UUIDs, incomplete list */
 				case 0x05: /* 32-bit Service Class UUIDs, complete list */
 					j=0;
-					while(j<(length-1))
+					while(j<(guint)(length-1))
 					{
 						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid32, tvb, offset+i+j+2, 4, TRUE);
 						j+=4;
@@ -1257,7 +1258,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 				case 0x06: /* 128-bit Service Class UUIDs, incomplete list */
 				case 0x07: /* 128-bit Service Class UUIDs, complete list */
 					j=0;
-					while(j<(length-1))
+					while(j<(guint)(length-1))
 					{
 						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_sc_uuid128, tvb, offset+i+j+2, 16, TRUE);
 						j+=16;
