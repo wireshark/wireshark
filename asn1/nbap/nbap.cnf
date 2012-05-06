@@ -112,6 +112,84 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
+#------ Pretify info column -----
+#.FN_HDR CommonMeasurementReport
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementReport ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+
+#.FN_HDR DedicatedMeasurementInitiationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
+#.FN_HDR DedicatedMeasurementInitiationResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_HDR DedicatedMeasurementInitiationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_HDR DedicatedMeasurementReport
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementReport ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_HDR RadioLinkDeletionRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
+#.FN_HDR RadioLinkDeletionResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_HDR RadioLinkParameterUpdateIndicationFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkParameterUpdateIndication(FDD) ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+
+#.FN_HDR RadioLinkReconfigurationPrepareFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationPrepare(FDD) ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
+#.FN_HDR RadioLinkReconfigurationReady
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationReady ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_HDR RadioLinkReconfigurationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_HDR RadioLinkRestoreIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkRestoreIndication ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
+#.FN_HDR RadioLinkSetupRequestFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupRequest(FDD) ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
+#.FN_HDR RadioLinkSetupResponseFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupResponse(FDD) ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+#.FN_HDR RadioLinkSetupFailureFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupFailure(FDD) ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   proto_item *item;
@@ -155,7 +233,7 @@ ProtocolIE-ContainerPairList
 # -- the UDP port field is included in the first octet of the Binding ID.
  BindingID_port = tvb_get_ntohs(parameter_tvb,0);
 
-#.FN_BODY RL-Specific-DCH-Info
+#.FN_BODY RL-Specific-DCH-Info-Item
 address 	dst_addr, null_addr;
 conversation_t *conversation;
 
@@ -1163,74 +1241,74 @@ PhysicalChannelID-for-CommonERNTI-RequestedIndicator				N nbap.extension id-Phys
 PrecodingWeightSetRestriction										N nbap.extension id-PrecodingWeightSetRestriction
 
 #NBAP-ELEMENTARY-PROCEDURE
-CellSetupRequestFDD                    S nbap.proc.imsg "id-cellSetup/fdd"
-CellSetupResponse                      S nbap.proc.sout "id-cellSetup/fdd"
-CellSetupFailure                       S nbap.proc.uout "id-cellSetup/fdd"
-CellSetupRequestTDD                    S nbap.proc.imsg "id-cellSetup/tdd"
-CellSetupResponse                      S nbap.proc.sout "id-cellSetup/tdd"
-CellSetupFailure                       S nbap.proc.uout "id-cellSetup/tdd"
-CellReconfigurationRequestFDD          S nbap.proc.imsg "id-cellReconfiguration/fdd"
-CellReconfigurationResponse            S nbap.proc.sout "id-cellReconfiguration/fdd"
-CellReconfigurationFailure             S nbap.proc.uout "id-cellReconfiguration/fdd"
-CellReconfigurationRequestTDD          S nbap.proc.imsg "id-cellReconfiguration/tdd"
-CellReconfigurationResponse            S nbap.proc.sout "id-cellReconfiguration/tdd"
-CellReconfigurationFailure             S nbap.proc.uout "id-cellReconfiguration/tdd"
-CellDeletionRequest                    S nbap.proc.imsg "id-cellDeletion/common"
-CellDeletionResponse                   S nbap.proc.sout "id-cellDeletion/common"
-CommonTransportChannelSetupRequestFDD  S nbap.proc.imsg "id-commonTransportChannelSetup/fdd"
-CommonTransportChannelSetupResponse    S nbap.proc.sout "id-commonTransportChannelSetup/fdd"
-CommonTransportChannelSetupFailure     S nbap.proc.uout "id-commonTransportChannelSetup/fdd"
-CommonTransportChannelSetupRequestTDD  S nbap.proc.imsg "id-commonTransportChannelSetup/tdd"
-CommonTransportChannelSetupResponse    S nbap.proc.sout "id-commonTransportChannelSetup/tdd"
-CommonTransportChannelSetupFailure     S nbap.proc.uout "id-commonTransportChannelSetup/tdd"
-CommonTransportChannelReconfigurationRequestFDD S nbap.proc.imsg "id-commonTransportChannelReconfigure/fdd"
-CommonTransportChannelReconfigurationResponse S nbap.proc.sout "id-commonTransportChannelReconfigure/fdd"
-CommonTransportChannelReconfigurationFailure S nbap.proc.uout "id-commonTransportChannelReconfigure/fdd"
-CommonTransportChannelReconfigurationRequestTDD S nbap.proc.imsg "id-commonTransportChannelReconfigure/tdd"
-CommonTransportChannelReconfigurationResponse S nbap.proc.sout "id-commonTransportChannelReconfigure/tdd"
-CommonTransportChannelReconfigurationFailure S nbap.proc.uout "id-commonTransportChannelReconfigure/tdd"
-CommonTransportChannelDeletionRequest  S nbap.proc.imsg "id-commonTransportChannelDelete/common"
-CommonTransportChannelDeletionResponse S nbap.proc.sout "id-commonTransportChannelDelete/common"
-AuditRequest                           S nbap.proc.imsg "id-audit/common"
-AuditResponse                          S nbap.proc.sout "id-audit/common"
-AuditFailure                           S nbap.proc.uout "id-audit/common"
-BlockResourceRequest                   S nbap.proc.imsg "id-blockResource/common"
-BlockResourceResponse                  S nbap.proc.sout "id-blockResource/common"
-BlockResourceFailure                   S nbap.proc.uout "id-blockResource/common"
-RadioLinkSetupRequestFDD               S nbap.proc.imsg "id-radioLinkSetup/fdd"
-RadioLinkSetupResponseFDD              S nbap.proc.sout "id-radioLinkSetup/fdd"
-RadioLinkSetupFailureFDD               S nbap.proc.uout "id-radioLinkSetup/fdd"
-RadioLinkSetupRequestTDD               S nbap.proc.imsg "id-radioLinkSetup/tdd"
-RadioLinkSetupResponseTDD              S nbap.proc.sout "id-radioLinkSetup/tdd"
-RadioLinkSetupFailureTDD               S nbap.proc.uout "id-radioLinkSetup/tdd"
-SystemInformationUpdateRequest         S nbap.proc.imsg "id-systemInformationUpdate/common"
-SystemInformationUpdateResponse        S nbap.proc.sout "id-systemInformationUpdate/common"
-SystemInformationUpdateFailure         S nbap.proc.uout "id-systemInformationUpdate/common"
-ResetRequest                           S nbap.proc.imsg "id-reset/common"
-ResetResponse                          S nbap.proc.sout "id-reset/common"
-CommonMeasurementInitiationRequest     S nbap.proc.imsg "id-commonMeasurementInitiation/common"
-CommonMeasurementInitiationResponse    S nbap.proc.sout "id-commonMeasurementInitiation/common"
-CommonMeasurementInitiationFailure     S nbap.proc.uout "id-commonMeasurementInitiation/common"
-RadioLinkAdditionRequestFDD            S nbap.proc.imsg "id-radioLinkAddition/fdd"
-RadioLinkAdditionResponseFDD           S nbap.proc.sout "id-radioLinkAddition/fdd"
-RadioLinkAdditionFailureFDD            S nbap.proc.uout "id-radioLinkAddition/fdd"
-RadioLinkAdditionRequestTDD            S nbap.proc.imsg "id-radioLinkAddition/tdd"
-RadioLinkAdditionResponseTDD           S nbap.proc.sout "id-radioLinkAddition/tdd"
-RadioLinkAdditionFailureTDD            S nbap.proc.uout "id-radioLinkAddition/tdd"
-RadioLinkDeletionRequest               S nbap.proc.imsg "id-radioLinkDeletion/common"
-RadioLinkDeletionResponse              S nbap.proc.sout "id-radioLinkDeletion/common"
-RadioLinkReconfigurationPrepareFDD     S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
-RadioLinkReconfigurationReady          S nbap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
-RadioLinkReconfigurationFailure        S nbap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
-RadioLinkReconfigurationPrepareTDD     S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
-RadioLinkReconfigurationReady          S nbap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
-RadioLinkReconfigurationFailure        S nbap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
-RadioLinkReconfigurationRequestFDD     S nbap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/fdd"
-RadioLinkReconfigurationResponse       S nbap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/fdd"
-RadioLinkReconfigurationFailure        S nbap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/fdd"
-RadioLinkReconfigurationRequestTDD     S nbap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/tdd"
-RadioLinkReconfigurationResponse       S nbap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/tdd"
-RadioLinkReconfigurationFailure        S nbap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/tdd"
+CellSetupRequestFDD									S nbap.proc.imsg "id-cellSetup/fdd"
+CellSetupResponse									S nbap.proc.sout "id-cellSetup/fdd"
+CellSetupFailure									S nbap.proc.uout "id-cellSetup/fdd"
+CellSetupRequestTDD									S nbap.proc.imsg "id-cellSetup/tdd"
+CellSetupResponse									S nbap.proc.sout "id-cellSetup/tdd"
+CellSetupFailure									S nbap.proc.uout "id-cellSetup/tdd"
+CellReconfigurationRequestFDD						S nbap.proc.imsg "id-cellReconfiguration/fdd"
+CellReconfigurationResponse							S nbap.proc.sout "id-cellReconfiguration/fdd"
+CellReconfigurationFailure							S nbap.proc.uout "id-cellReconfiguration/fdd"
+CellReconfigurationRequestTDD						S nbap.proc.imsg "id-cellReconfiguration/tdd"
+CellReconfigurationResponse							S nbap.proc.sout "id-cellReconfiguration/tdd"
+CellReconfigurationFailure							S nbap.proc.uout "id-cellReconfiguration/tdd"
+CellDeletionRequest									S nbap.proc.imsg "id-cellDeletion/common"
+CellDeletionResponse								S nbap.proc.sout "id-cellDeletion/common"
+CommonTransportChannelSetupRequestFDD				S nbap.proc.imsg "id-commonTransportChannelSetup/fdd"
+CommonTransportChannelSetupResponse					S nbap.proc.sout "id-commonTransportChannelSetup/fdd"
+CommonTransportChannelSetupFailure					S nbap.proc.uout "id-commonTransportChannelSetup/fdd"
+CommonTransportChannelSetupRequestTDD				S nbap.proc.imsg "id-commonTransportChannelSetup/tdd"
+CommonTransportChannelSetupResponse					S nbap.proc.sout "id-commonTransportChannelSetup/tdd"
+CommonTransportChannelSetupFailure					S nbap.proc.uout "id-commonTransportChannelSetup/tdd"
+CommonTransportChannelReconfigurationRequestFDD		S nbap.proc.imsg "id-commonTransportChannelReconfigure/fdd"
+CommonTransportChannelReconfigurationResponse		S nbap.proc.sout "id-commonTransportChannelReconfigure/fdd"
+CommonTransportChannelReconfigurationFailure		S nbap.proc.uout "id-commonTransportChannelReconfigure/fdd"
+CommonTransportChannelReconfigurationRequestTDD		S nbap.proc.imsg "id-commonTransportChannelReconfigure/tdd"
+CommonTransportChannelReconfigurationResponse		S nbap.proc.sout "id-commonTransportChannelReconfigure/tdd"
+CommonTransportChannelReconfigurationFailure		S nbap.proc.uout "id-commonTransportChannelReconfigure/tdd"
+CommonTransportChannelDeletionRequest				S nbap.proc.imsg "id-commonTransportChannelDelete/common"
+CommonTransportChannelDeletionResponse				S nbap.proc.sout "id-commonTransportChannelDelete/common"
+AuditRequest										S nbap.proc.imsg "id-audit/common"
+AuditResponse										S nbap.proc.sout "id-audit/common"
+AuditFailure										S nbap.proc.uout "id-audit/common"
+BlockResourceRequest								S nbap.proc.imsg "id-blockResource/common"
+BlockResourceResponse								S nbap.proc.sout "id-blockResource/common"
+BlockResourceFailure								S nbap.proc.uout "id-blockResource/common"
+RadioLinkSetupRequestFDD							S nbap.proc.imsg "id-radioLinkSetup/fdd"
+RadioLinkSetupResponseFDD							S nbap.proc.sout "id-radioLinkSetup/fdd"
+RadioLinkSetupFailureFDD							S nbap.proc.uout "id-radioLinkSetup/fdd"
+RadioLinkSetupRequestTDD							S nbap.proc.imsg "id-radioLinkSetup/tdd"
+RadioLinkSetupResponseTDD							S nbap.proc.sout "id-radioLinkSetup/tdd"
+RadioLinkSetupFailureTDD							S nbap.proc.uout "id-radioLinkSetup/tdd"
+SystemInformationUpdateRequest						S nbap.proc.imsg "id-systemInformationUpdate/common"
+SystemInformationUpdateResponse						S nbap.proc.sout "id-systemInformationUpdate/common"
+SystemInformationUpdateFailure						S nbap.proc.uout "id-systemInformationUpdate/common"
+ResetRequest										S nbap.proc.imsg "id-reset/common"
+ResetResponse										S nbap.proc.sout "id-reset/common"
+CommonMeasurementInitiationRequest					S nbap.proc.imsg "id-commonMeasurementInitiation/common"
+CommonMeasurementInitiationResponse					S nbap.proc.sout "id-commonMeasurementInitiation/common"
+CommonMeasurementInitiationFailure					S nbap.proc.uout "id-commonMeasurementInitiation/common"
+RadioLinkAdditionRequestFDD							S nbap.proc.imsg "id-radioLinkAddition/fdd"
+RadioLinkAdditionResponseFDD						S nbap.proc.sout "id-radioLinkAddition/fdd"
+RadioLinkAdditionFailureFDD							S nbap.proc.uout "id-radioLinkAddition/fdd"
+RadioLinkAdditionRequestTDD							S nbap.proc.imsg "id-radioLinkAddition/tdd"
+RadioLinkAdditionResponseTDD						S nbap.proc.sout "id-radioLinkAddition/tdd"
+RadioLinkAdditionFailureTDD							S nbap.proc.uout "id-radioLinkAddition/tdd"
+RadioLinkDeletionRequest							S nbap.proc.imsg "id-radioLinkDeletion/common"
+RadioLinkDeletionResponse							S nbap.proc.sout "id-radioLinkDeletion/common"
+RadioLinkReconfigurationPrepareFDD					S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationReady						S nbap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationFailure						S nbap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/fdd"
+RadioLinkReconfigurationPrepareTDD					S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationReady						S nbap.proc.sout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationFailure						S nbap.proc.uout "id-synchronisedRadioLinkReconfigurationPreparation/tdd"
+RadioLinkReconfigurationRequestFDD					S nbap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationResponse					S nbap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationFailure						S nbap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/fdd"
+RadioLinkReconfigurationRequestTDD					S nbap.proc.imsg "id-unSynchronisedRadioLinkReconfiguration/tdd"
+RadioLinkReconfigurationResponse					S nbap.proc.sout "id-unSynchronisedRadioLinkReconfiguration/tdd"
+RadioLinkReconfigurationFailure						S nbap.proc.uout "id-unSynchronisedRadioLinkReconfiguration/tdd"
 DedicatedMeasurementInitiationRequest				S nbap.proc.imsg "id-dedicatedMeasurementInitiation/common"
 DedicatedMeasurementInitiationResponse				S nbap.proc.sout "id-dedicatedMeasurementInitiation/common"
 DedicatedMeasurementInitiationFailure				S nbap.proc.uout "id-dedicatedMeasurementInitiation/common"
@@ -1254,38 +1332,38 @@ CellSynchronisationAdjustmentResponseTDD			S nbap.proc.sout "id-cellSynchronisat
 CellSynchronisationAdjustmentFailureTDD				S nbap.proc.uout "id-cellSynchronisationAdjustment/tdd"
 ResourceStatusIndication							S nbap.proc.imsg "id-resourceStatusIndication/common"
 AuditRequiredIndication								S nbap.proc.imsg "id-auditRequired/common"
-CommonMeasurementReport                S nbap.proc.imsg "id-commonMeasurementReport/common"
-CommonMeasurementTerminationRequest    S nbap.proc.imsg "id-commonMeasurementTermination/common"
-CommonMeasurementFailureIndication     S nbap.proc.imsg "id-commonMeasurementFailure/common"
-RadioLinkReconfigurationCommit         S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationCommit/common"
-RadioLinkReconfigurationCancel         S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationCancellation/common"
-RadioLinkFailureIndication             S nbap.proc.imsg "id-radioLinkFailure/common"
-RadioLinkPreemptionRequiredIndication  S nbap.proc.imsg "id-radioLinkPreemption/common"
-RadioLinkRestoreIndication             S nbap.proc.imsg "id-radioLinkRestoration/common"
-DedicatedMeasurementReport             S nbap.proc.imsg "id-dedicatedMeasurementReport/common"
-DedicatedMeasurementTerminationRequest S nbap.proc.imsg "id-dedicatedMeasurementTermination/common"
-DedicatedMeasurementFailureIndication  S nbap.proc.imsg "id-dedicatedMeasurementFailure/common"
-DL-PowerControlRequest                 S nbap.proc.imsg "id-downlinkPowerControl/fdd"
-DL-PowerTimeslotControlRequest         S nbap.proc.imsg "id-downlinkPowerTimeslotControl/tdd"
-CompressedModeCommand                  S nbap.proc.imsg "id-compressedModeCommand/fdd"
-UnblockResourceIndication              S nbap.proc.imsg "id-unblockResource/common"
-ErrorIndication                        S nbap.proc.imsg "id-errorIndicationForDedicated/common"
-ErrorIndication                        S nbap.proc.imsg "id-errorIndicationForCommon/common"
-CellSynchronisationReportTDD           S nbap.proc.imsg "id-cellSynchronisationReporting/tdd"
-CellSynchronisationTerminationRequestTDD S nbap.proc.imsg "id-cellSynchronisationTermination/tdd"
-CellSynchronisationFailureIndicationTDD S nbap.proc.imsg "id-cellSynchronisationFailure/tdd"
-PrivateMessage                         S nbap.proc.imsg "id-privateMessageForDedicated/common"
-PrivateMessage                         S nbap.proc.imsg "id-privateMessageForCommon/common"
-InformationReport                      S nbap.proc.imsg "id-informationReporting/common"
-InformationExchangeTerminationRequest  S nbap.proc.imsg "id-informationExchangeTermination/common"
-InformationExchangeFailureIndication   S nbap.proc.imsg "id-informationExchangeFailure/common"
-BearerRearrangementIndication          S nbap.proc.imsg "id-BearerRearrangement/common"
-RadioLinkActivationCommandFDD          S nbap.proc.imsg "id-radioLinkActivation/fdd"
-RadioLinkActivationCommandTDD          S nbap.proc.imsg "id-radioLinkActivation/tdd"
-RadioLinkParameterUpdateIndicationFDD  S nbap.proc.imsg "id-radioLinkParameterUpdate/fdd"
-RadioLinkParameterUpdateIndicationTDD  S nbap.proc.imsg "id-radioLinkParameterUpdate/tdd"
-MBMSNotificationUpdateCommand          S nbap.proc.imsg "id-mBMSNotificationUpdate/common"
-UEStatusUpdateCommand					S nbap.proc.imsg "id-uEStatusUpdate/common"
-SecondaryULFrequencyReport				S nbap.proc.imsg "id-secondaryULFrequencyReporting/fdd"
-SecondaryULFrequencyUpdateIndication	S nbap.proc.imsg "id-secondaryULFrequencyUpdate/fdd"
+CommonMeasurementReport								S nbap.proc.imsg "id-commonMeasurementReport/common"
+CommonMeasurementTerminationRequest					S nbap.proc.imsg "id-commonMeasurementTermination/common"
+CommonMeasurementFailureIndication					S nbap.proc.imsg "id-commonMeasurementFailure/common"
+RadioLinkReconfigurationCommit						S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationCommit/common"
+RadioLinkReconfigurationCancel						S nbap.proc.imsg "id-synchronisedRadioLinkReconfigurationCancellation/common"
+RadioLinkFailureIndication							S nbap.proc.imsg "id-radioLinkFailure/common"
+RadioLinkPreemptionRequiredIndication				S nbap.proc.imsg "id-radioLinkPreemption/common"
+RadioLinkRestoreIndication							S nbap.proc.imsg "id-radioLinkRestoration/common"
+DedicatedMeasurementReport							S nbap.proc.imsg "id-dedicatedMeasurementReport/common"
+DedicatedMeasurementTerminationRequest				S nbap.proc.imsg "id-dedicatedMeasurementTermination/common"
+DedicatedMeasurementFailureIndication				S nbap.proc.imsg "id-dedicatedMeasurementFailure/common"
+DL-PowerControlRequest								S nbap.proc.imsg "id-downlinkPowerControl/fdd"
+DL-PowerTimeslotControlRequest						S nbap.proc.imsg "id-downlinkPowerTimeslotControl/tdd"
+CompressedModeCommand								S nbap.proc.imsg "id-compressedModeCommand/fdd"
+UnblockResourceIndication							S nbap.proc.imsg "id-unblockResource/common"
+ErrorIndication										S nbap.proc.imsg "id-errorIndicationForDedicated/common"
+ErrorIndication										S nbap.proc.imsg "id-errorIndicationForCommon/common"
+CellSynchronisationReportTDD						S nbap.proc.imsg "id-cellSynchronisationReporting/tdd"
+CellSynchronisationTerminationRequestTDD			S nbap.proc.imsg "id-cellSynchronisationTermination/tdd"
+CellSynchronisationFailureIndicationTDD				S nbap.proc.imsg "id-cellSynchronisationFailure/tdd"
+PrivateMessage										S nbap.proc.imsg "id-privateMessageForDedicated/common"
+PrivateMessage										S nbap.proc.imsg "id-privateMessageForCommon/common"
+InformationReport									S nbap.proc.imsg "id-informationReporting/common"
+InformationExchangeTerminationRequest				S nbap.proc.imsg "id-informationExchangeTermination/common"
+InformationExchangeFailureIndication				S nbap.proc.imsg "id-informationExchangeFailure/common"
+BearerRearrangementIndication						S nbap.proc.imsg "id-BearerRearrangement/common"
+RadioLinkActivationCommandFDD						S nbap.proc.imsg "id-radioLinkActivation/fdd"
+RadioLinkActivationCommandTDD						S nbap.proc.imsg "id-radioLinkActivation/tdd"
+RadioLinkParameterUpdateIndicationFDD				S nbap.proc.imsg "id-radioLinkParameterUpdate/fdd"
+RadioLinkParameterUpdateIndicationTDD				S nbap.proc.imsg "id-radioLinkParameterUpdate/tdd"
+MBMSNotificationUpdateCommand						S nbap.proc.imsg "id-mBMSNotificationUpdate/common"
+UEStatusUpdateCommand								S nbap.proc.imsg "id-uEStatusUpdate/common"
+SecondaryULFrequencyReport							S nbap.proc.imsg "id-secondaryULFrequencyReporting/fdd"
+SecondaryULFrequencyUpdateIndication				S nbap.proc.imsg "id-secondaryULFrequencyUpdate/fdd"
 #.END
