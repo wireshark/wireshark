@@ -266,9 +266,10 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_MSG_PAGING_CMD              21  /* 0x15 */
 #define RSL_MSG_IMM_ASS_CMD             22  /* 0x16 */
 #define RSL_MSG_SMS_BC_REQ              23  /* 0x17 8.5.7 */
+
+/* TRX Management messages */
 #define RSL_MSG_RF_RES_IND              25  /* 8.6.1 */
 #define RSL_MSG_SACCH_FILL              26  /* 8.6.2 */
-
 #define RSL_MSG_OVERLOAD                27  /* 8.6.3 */
 #define RSL_MSG_ERROR_REPORT            28  /* 8.6.4 */
 #define RSL_MSG_SMS_BC_CMD              29  /* 8.5.8 */
@@ -347,7 +348,7 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_IE_IPAC_LOCAL_IP		0xf5
 #define RSL_IE_IPAC_CONN_STAT		0xf6
 #define RSL_IE_IPAC_HO_C_PARMS		0xf7
-#define RSL_IE_IPAC_CONN_ID		0xf8
+#define RSL_IE_IPAC_CONN_ID		    0xf8
 #define RSL_IE_IPAC_RTP_CSD_FMT		0xf9
 #define RSL_IE_IPAC_RTP_JIT_BUF		0xfa
 #define RSL_IE_IPAC_RTP_COMPR		0xfb
@@ -357,65 +358,67 @@ static const value_string rsl_msg_disc_vals[] = {
 
 static const value_string rsl_msg_type_vals[] = {
       /*    0 0 0 0 - - - - Radio Link Layer Management messages: */
-    {  0x01,    "DATA REQuest" },                               /* 8.3.1 */
-    {  0x02,    "DATA INDication" },                            /* 8.3.2 */
-    {  0x03,    "ERROR INDication" },                           /* 8.3.3 */
-    {  0x04,    "ESTablish REQuest" },                          /* 8.3.4 */
-    {  0x05,    "ESTablish CONFirm" },                          /* 8.3.5 */
-    {  0x06,    "ESTablish INDication" },                       /* 8.3.6 */
-    {  0x07,    "RELease REQuest" },                            /* 8.3.7 */
-    {  0x08,    "RELease CONFirm" },                            /* 8.3.8 */
-    {  0x09,    "RELease INDication" },                         /* 8.3.9 */
-    {  0x0a,    "UNIT DATA REQuest" },                          /* 8.3.10 */
+/* 0x01 */ { RSL_MSG_TYPE_DATA_REQ,      "DATA REQuest" },                               /* 8.3.1 */
+/* 0x02 */ {  RSL_MSG_TYPE_DATA_IND,     "DATA INDication" },                            /* 8.3.2 */
+/* 0x03 */ {  RSL_MSG_TYPE_ERROR_IND,    "ERROR INDication" },                           /* 8.3.3 */
+/* 0x04 */ {  RSL_MSG_TYPE_EST_REQ,      "ESTablish REQuest" },                          /* 8.3.4 */
+/* 0x05 */ {  RSL_MSG_TYPE_EST_CONF,     "ESTablish CONFirm" },                          /* 8.3.5 */
+/* 0x06 */ {  RSL_MSG_EST_IND,           "ESTablish INDication" },                       /* 8.3.6 */
+/* 0x07 */ {  RSL_MSG_REL_REQ,           "RELease REQuest" },                            /* 8.3.7 */
+/* 0x08 */ {  RSL_MSG_REL_CONF,          "RELease CONFirm" },                            /* 8.3.8 */
+/* 0x09 */ {  RSL_MSG_REL_IND,           "RELease INDication" },                         /* 8.3.9 */
+/* 0x0a */ {  RSL_MSG_UNIT_DATA_REQ,     "UNIT DATA REQuest" },                          /* 8.3.10 */
     /* 0 0 0 1 - - - - Common Channel Management/TRX Management messages: */
-    {  0x11,    "BCCH INFOrmation" },                           /* 8.5.1 */
-    {  0x12,    "CCCH LOAD INDication" },                       /* 8.5.2 */
-    {  0x13,    "CHANnel ReQuireD" },                           /* 8.5.3 */
-    {  0x14,    "DELETE INDication" },                          /* 8.5.4 */
-    {  0x15,    "PAGING CoMmanD" },                             /* 8.5.5 */
-    {  0x16,    "IMMEDIATE ASSIGN COMMAND" },                   /* 8.5.6 */
-    {  0x17,    "SMS BroadCast REQuest" },                      /* 8.5.7 */
-    {  0x19,    "RF RESource INDication" },                     /* 8.6.1 */
-    {  0x1a,    "SACCH FILLing" },                              /* 8.6.2 */
-    {  0x1b,    "OVERLOAD" },                                   /* 8.6.3 */
-    {  0x1c,    "ERROR REPORT" },                               /* 8.6.4 */
-    {  0x1d,    "SMS BroadCast CoMmanD" },                      /* 8.5.8 */
-    {  0x1e,    "CBCH LOAD INDication" },                       /* 8.5.9 */
-    {  0x1f,    "NOTification CoMmanD" },                       /* 8.5.10 */
-    /* 0 0 1 - - - - - Dedicated Channel Management messages: */
-    {  0x21,    "CHANnel ACTIVation" },                         /* 8.4.1 */
-    {  0x22,    "CHANnel ACTIVation ACKnowledge" },             /* 8.4.2 */
-    {  0x23,    "CHANnel ACTIVation Negative ACK" },            /* 8.4.3 */
-    {  0x24,    "CONNection FAILure" },                         /* 8.4.4 */
-    {  0x25,    "DEACTIVATE SACCH" },                           /* 8.4.5 */
-    {  0x26,    "ENCRyption CoMmanD" },                         /* 8.4.6 */
-    {  0x27,    "HANDOver DETection" },                         /* 8.4.7 */
-    {  0x28,    "MEASurement RESult" },                         /* 8.4.8 */
-    {  0x29,    "MODE MODIFY REQuest" },                        /* 8.4.9 */
-    {  0x2a,    "MODE MODIFY ACKnowledge" },                    /* 8.4.10 */
-    {  0x2b,    "MODE MODIFY Negative ACKnowledge" },           /* 8.4.11 */
-    {  0x2c,    "PHYsical CONTEXT REQuest" },                   /* 8.4.12 */
-    {  0x2d,    "PHYsical CONTEXT CONFirm" },                   /* 8.4.13 */
-    {  0x2e,    "RF CHANnel RELease" },                         /* 8.4.14 */
-    {  0x2f,    "MS POWER CONTROL" },                           /* 8.4.15 */
-    {  0x30,    "BS POWER CONTROL" },                           /* 8.4.16 */
-    {  0x31,    "PREPROCess CONFIGure" },                       /* 8.4.17 */
-    {  0x32,    "PREPROCessed MEASurement RESult" },            /* 8.4.18 */
-    {  0x33,    "RF CHANnel RELease ACKnowledge" },             /* 8.4.19 */
-    {  0x34,    "SACCH INFO MODIFY" },                          /* 8.4.20 */
-    {  0x35,    "TALKER DETection" },                           /* 8.4.21 */
-    {  0x36,    "LISTENER DETection" },                         /* 8.4.22 */
-    {  0x37,    "REMOTE CODEC CONFiguration REPort" },          /* 8.4.23 */
-    {  0x38,    "Round Trip Delay REPort" },                    /* 8.4.24 */
-    {  0x39,    "PRE-HANDOver NOTIFication" },                  /* 8.4.25 */
-    {  0x3a,    "MultiRate CODEC MODification REQest" },        /* 8.4.26 */
-    {  0x3b,    "MultiRate CODEC MOD ACKnowledge" },            /* 8.4.27 */
-    {  0x3c,    "MultiRate CODEC MOD Negative ACKnowledge" },   /* 8.4.28 */
-    {  0x3d,    "MultiRate CODEC MOD PERformed" },              /* 8.4.29 */
-    {  0x3e,    "TFO REPort" },                                 /* 8.4.30 */
-    {  0x3f,    "TFO MODification REQuest" },                   /* 8.4.31 */
+/* 0x11 */ {  RSL_MSG_BCCH_INFO,         "BCCH INFOrmation" },                           /* 8.5.1 */
+/* 0x12 */ {  RSL_MSG_CCCH_LOAD_IND,     "CCCH LOAD INDication" },                       /* 8.5.2 */
+/* 0x13 */ {  RSL_MSG_CHANRQD,           "CHANnel ReQuireD" },                           /* 8.5.3 */
+/* 0x14 */ {  RSL_MSG_DELETE_IND,        "DELETE INDication" },                          /* 8.5.4 */
+/* 0x15 */ {  RSL_MSG_PAGING_CMD,        "PAGING CoMmanD" },                             /* 8.5.5 */
+/* 0x16 */ {  RSL_MSG_IMM_ASS_CMD,       "IMMEDIATE ASSIGN COMMAND" },                   /* 8.5.6 */
+/* 0x17 */ {  RSL_MSG_SMS_BC_REQ,        "SMS BroadCast REQuest" },                      /* 8.5.7 */
+
+/* 0x19 */ {  RSL_MSG_RF_RES_IND,        "RF RESource INDication" },                     /* 8.6.1 */
+/* 0x1a */ {  RSL_MSG_SACCH_FILL,        "SACCH FILLing" },                              /* 8.6.2 */
+/* 0x1b */ {  RSL_MSG_OVERLOAD,          "OVERLOAD" },                                   /* 8.6.3 */
+/* 0x1c */ {  RSL_MSG_ERROR_REPORT,      "ERROR REPORT" },                               /* 8.6.4 */
+/* 0x1d */ {  RSL_MSG_SMS_BC_CMD,        "SMS BroadCast CoMmanD" },                      /* 8.5.8 */
+/* 0x1e */ {  RSL_MSG_CBCH_LOAD_IND,     "CBCH LOAD INDication" },                       /* 8.5.9 */
+/* 0x1f */ {  RSL_MSG_NOT_CMD,           "NOTification CoMmanD" },                       /* 8.5.10 */
+
+/* 0 0 1 - - - - - Dedicated Channel Management messages: */
+/* 0x21 */ {  RSL_MSG_CHAN_ACTIV,        "CHANnel ACTIVation" },                         /* 8.4.1 */
+/* 0x22 */ {  RSL_MSG_CHAN_ACTIV_ACK,    "CHANnel ACTIVation ACKnowledge" },             /* 8.4.2 */
+/* 0x23 */ {  RSL_MSG_CHAN_ACTIV_N_ACK,  "CHANnel ACTIVation Negative ACK" },            /* 8.4.3 */
+/* 0x24 */ {  RSL_MSG_CONN_FAIL,         "CONNection FAILure" },                         /* 8.4.4 */
+/* 0x25 */ {  RSL_MSG_DEACTIVATE_SACCH,  "DEACTIVATE SACCH" },                           /* 8.4.5 */
+/* 0x26 */ {  RSL_MSG_ENCR_CMD,          "ENCRyption CoMmanD" },                         /* 8.4.6 */
+/* 0x27 */ {  RSL_MSG_HANDODET,          "HANDOver DETection" },                         /* 8.4.7 */
+/* 0x28 */ {  RSL_MSG_MEAS_RES,          "MEASurement RESult" },                         /* 8.4.8 */
+/* 0x29 */ {  RSL_MSG_MODE_MODIFY_REQ,   "MODE MODIFY REQuest" },                        /* 8.4.9 */
+/* 0x2a */ {  RSL_MSG_MODE_MODIFY_ACK,   "MODE MODIFY ACKnowledge" },                    /* 8.4.10 */
+/* 0x2v */ {  RSL_MSG_MODE_MODIFY_NACK,  "MODE MODIFY Negative ACKnowledge" },           /* 8.4.11 */
+/* 0x2b */ {  RSL_MSG_PHY_CONTEXT_REQ,   "PHYsical CONTEXT REQuest" },                   /* 8.4.12 */
+/* 0x2d */ {  RSL_MSG_PHY_CONTEXT_CONF,  "PHYsical CONTEXT CONFirm" },                   /* 8.4.13 */
+/* 0x2e */ {  RSL_MSG_RF_CHAN_REL,       "RF CHANnel RELease" },                         /* 8.4.14 */
+/* 0x2f */ {  RSL_MSG_MS_POWER_CONTROL,  "MS POWER CONTROL" },                           /* 8.4.15 */
+/* 0x30 */ {  RSL_MSG_BS_POWER_CONTROL,  "BS POWER CONTROL" },                           /* 8.4.16 */
+/* 0x31 */ {  RSL_MSG_PREPROC_CONFIG,    "PREPROCess CONFIGure" },                       /* 8.4.17 */
+/* 0x32 */ {  RSL_MSG_PREPROC_MEAS_RES,  "PREPROCessed MEASurement RESult" },            /* 8.4.18 */
+/* 0x33 */ {  RSL_MSG_RF_CHAN_REL_ACK,   "RF CHANnel RELease ACKnowledge" },             /* 8.4.19 */
+/* 0x34 */ {  RSL_MSG_SACCH_INFO_MODIFY, "SACCH INFO MODIFY" },                          /* 8.4.20 */
+/* 0x35 */ {  RSL_MSG_TALKER_DET,        "TALKER DETection" },                           /* 8.4.21 */
+/* 0x36 */ {  RSL_MSG_LISTENER_DET,      "LISTENER DETection" },                         /* 8.4.22 */
+/* 0x37 */ {  RSL_MSG_REMOTE_CODEC_CONF_REP, "REMOTE CODEC CONFiguration REPort" },      /* 8.4.23 */
+/* 0x38 */ {  RSL_MSG_R_T_D_REP,         "Round Trip Delay REPort" },                    /* 8.4.24 */
+/* 0x39 */ {  RSL_MSG_PRE_HANDO_NOTIF,   "PRE-HANDOver NOTIFication" },                  /* 8.4.25 */
+/* 0x3a */ {  RSL_MSG_MR_CODEC_MOD_REQ,  "MultiRate CODEC MODification REQest" },        /* 8.4.26 */
+/* 0x3b */ {  RSL_MSG_MR_CODEC_MOD_ACK,  "MultiRate CODEC MOD ACKnowledge" },            /* 8.4.27 */
+/* 0x3c */ {  RSL_MSG_MR_CODEC_MOD_NACK, "MultiRate CODEC MOD Negative ACKnowledge" },   /* 8.4.28 */
+/* 0x3d */ {  RSL_MSG_MR_CODEC_MOD_PER,  "MultiRate CODEC MOD PERformed" },              /* 8.4.29 */
+/* 0x3e */ {  RSL_MSG_TFO_REP,           "TFO REPort" },                                 /* 8.4.30 */
+/* 0x3f */ {  RSL_MSG_TFO_MOD_REQ,       "TFO MODification REQuest" },                   /* 8.4.31 */
     /*  0 1 - - - - - - Location Services messages: */
-    {  0x41,    "Location Information" },                       /* 8.7.1 */
+/* 0x41 */ {  0x41,    "Location Information" },                       /* 8.7.1 */
     /* ip.access */
     {  0x48,	"ip.access PDCH ACTIVATION" },
     {  0x49,	"ip.access PDCH ACTIVATION ACK" },
@@ -445,42 +448,48 @@ static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_ty
 #define RSL_IE_ACT_TYPE                  3
 #define RSL_IE_BS_POW                    4
 #define RSL_IE_CH_ID                     5
+
 #define RSL_IE_CH_MODE                   6
 #define RSL_IE_ENC_INF                   7
 #define RSL_IE_FRAME_NO                  8
 #define RSL_IE_HO_REF                    9
 #define RSL_IE_L1_INF                   10
+
 #define RSL_IE_L3_INF                   11
 #define RSL_IE_MS_ID                    12
 #define RSL_IE_MS_POW                   13
 #define RSL_IE_PAGING_GRP               14
 #define RSL_IE_PAGING_LOAD              15
+
 #define RSL_IE_PHY_CTX                  16
 #define RSL_IE_ACCESS_DELAY             17
 #define RSL_IE_RACH_LOAD                18
 #define RSL_IE_REQ_REF                  19
 #define RSL_IE_REL_MODE                 20
+
 #define RSL_IE_RESOURCE_INF             21
 #define RSL_IE_RLM_CAUSE                22
 #define RSL_IE_STARTING_TIME            23
 #define RSL_IE_TIMING_ADV               24
 #define RSL_IE_UPLINK_MEAS              25
+
 #define RSL_IE_CAUSE                    26
 #define RSL_IE_MEAS_RES_NO              27
 #define RSL_IE_MESSAGE_ID               28
 
 #define RSL_IE_SYS_INFO_TYPE            30
-
-#define RSL_IE_MS_POWER_PARAM		31
-#define RSL_IE_BS_POWER_PARAM		32
-#define RSL_IE_PREPROC_PARAM		33
-#define RSL_IE_PREPROC_MEAS		34
+#define RSL_IE_MS_POWER_PARAM	        31
+#define RSL_IE_BS_POWER_PARAM           32
+#define RSL_IE_PREPROC_PARAM            33
+#define RSL_IE_PREPROC_MEAS	            34
 #define RSL_IE_FULL_IMM_ASS_INF         35
+
 #define RSL_IE_SMSCB_INF                36
 #define RSL_IE_FULL_MS_TIMING_OFFSET    37
 #define RSL_IE_ERR_MSG                  38
 #define RSL_IE_FULL_BCCH_INF            39
 #define RSL_IE_CH_NEEDED                40
+
 #define RSL_IE_CB_CMD_TYPE              41
 #define RSL_IE_SMSCB_MESS               42
 #define RSL_IE_CBCH_LOAD_INF            43
@@ -491,16 +500,19 @@ static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_ty
 #define RSL_IE_CH_DESC                  48
 #define RSL_IE_NCH_DRX_INF              49
 #define RSL_IE_CMD_IND                  50
+
 #define RSL_IE_EMLPP_PRIO               51
 #define RSL_IE_UIC                      52
 #define RSL_IE_MAIN_CH_REF              53
 #define RSL_IE_MULTIRATE_CONF           54
 #define RSL_IE_MULTIRATE_CNTRL          55
+
 #define RSL_IE_SUP_CODEC_TYPES          56
 #define RSL_IE_CODEC_CONF               57
 #define RSL_IE_RTD                      58
 #define RSL_IE_TFO_STATUS               59
 #define RSL_IE_LLP_APDU                 60
+
 #define RSL_IE_TFO_TRANSP_CONT          61
 
 static const value_string rsl_ie_type_vals[] = {
