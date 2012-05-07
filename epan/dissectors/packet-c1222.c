@@ -1402,7 +1402,7 @@ dissect_c1222_User_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
     offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
     offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
     if (tag == 0x1) { /* implicit octet string */
-      tf = proto_tree_add_item(tree, hf_c1222_user_information, tvb, offset, len, FALSE);
+      tf = proto_tree_add_item(tree, hf_c1222_user_information, tvb, offset, len, ENC_NA);
       epsem_tree = proto_item_add_subtree(tf, ett_c1222_epsem);
       dissect_epsem(tvb, offset, len, actx->pinfo, epsem_tree);
       offset += len;
