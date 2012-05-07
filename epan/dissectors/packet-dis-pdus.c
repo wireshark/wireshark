@@ -747,66 +747,66 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                 parserNodes[fieldIndex]);
             break;
         case DIS_FIELDTYPE_EXERCISE_ID:
-            proto_tree_add_item(tree, hf_dis_exercise_id, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_exercise_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_NUM_ARTICULATION_PARAMS:
             uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_num_art_params, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_num_art_params, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             break;
         case DIS_FIELDTYPE_PDU_LENGTH:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_pdu_length, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_pdu_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_SITE:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_entity_id_site, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_entity_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_APPLICATION:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_entity_id_application, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_entity_id_application, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_ENTITY:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_entity_id_entity, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_entity_id_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_RADIO_ID:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_ENCODING_SCHEME:
             uintVal = tvb_get_ntohs(tvb, offset);
-            pi = proto_tree_add_item(tree, hf_dis_ens, tvb, offset, 2, FALSE);
+            pi = proto_tree_add_item(tree, hf_dis_ens, tvb, offset, 2, ENC_BIG_ENDIAN);
             sub_tree = proto_item_add_subtree(pi, ett_dis_ens);
-            proto_tree_add_item(sub_tree, hf_dis_ens_class, tvb, offset, 2, FALSE);
-            proto_tree_add_item(sub_tree, hf_dis_ens_type, tvb, offset, 2, FALSE);
+            proto_tree_add_item(sub_tree, hf_dis_ens_class, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_dis_ens_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_item_set_end(pi, tvb, offset);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_TDL_TYPE:
-            proto_tree_add_item(tree, hf_dis_tdl_type, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_tdl_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_SAMPLE_RATE:
-            proto_tree_add_item(tree, hf_dis_sample_rate, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_dis_sample_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
         case DIS_FIELDTYPE_DATA_LENGTH:
-            proto_tree_add_item(tree, hf_dis_data_length, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_NUMBER_OF_SAMPLES:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_num_of_samples, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_num_of_samples, tvb, offset, 2, ENC_BIG_ENDIAN);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
@@ -816,43 +816,43 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                                     tvb_length_remaining(tvb, offset),
                                     tvb_reported_length_remaining(tvb, offset)
                 );
-            proto_tree_add_item(tree, hf_dis_signal_data, newtvb, 0, -1, FALSE );
+            proto_tree_add_item(tree, hf_dis_signal_data, newtvb, 0, -1, ENC_NA );
             /* ****ck******* need to look for padding bytes */
             break;
         case DIS_FIELDTYPE_RADIO_CATEGORY:
-            proto_tree_add_item(tree, hf_dis_radio_category, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_radio_category, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_NOMENCLATURE_VERSION:
-            proto_tree_add_item(tree, hf_dis_nomenclature_version, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_nomenclature_version, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_NOMENCLATURE:
-            proto_tree_add_item(tree, hf_dis_nomenclature, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_nomenclature, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_RADIO_TRANSMIT_STATE:
             uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_radio_transmit_state, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_radio_transmit_state, tvb, offset, 1, ENC_BIG_ENDIAN);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 1;
             break;
         case DIS_FIELDTYPE_RADIO_INPUT_SOURCE:
-            proto_tree_add_item(tree, hf_dis_radio_input_source, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_radio_input_source, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case  DIS_FIELDTYPE_ANTENNA_PATTERN_TYPE:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_antenna_pattern_type, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_antenna_pattern_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_ANTENNA_PATTERN_LENGTH:
-            proto_tree_add_item(tree, hf_dis_antenna_pattern_length, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_antenna_pattern_length, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
          case DIS_FIELDTYPE_TRANSMIT_FREQUENCY:
-            proto_tree_add_item(tree, hf_dis_transmit_frequency, tvb, offset, 8, FALSE);
+            proto_tree_add_item(tree, hf_dis_transmit_frequency, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
             break;
         case  DIS_FIELDTYPE_SPREAD_SPECTRUM:
@@ -865,84 +865,84 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             break;
         case DIS_FIELDTYPE_MODULATION_MAJOR:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_modulation_major, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_modulation_major, tvb, offset, 2, ENC_BIG_ENDIAN);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_MODULATION_SYSTEM:
             uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_modulation_system, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_modulation_system, tvb, offset, 2, ENC_BIG_ENDIAN);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_CRYPTO_SYSTEM:
-            proto_tree_add_item(tree, hf_dis_crypto_system, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_crypto_system, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_CRYPTO_KEY_ID:
-            pi = proto_tree_add_item(tree, hf_dis_crypto_key, tvb, offset, 2, FALSE);
+            pi = proto_tree_add_item(tree, hf_dis_crypto_key, tvb, offset, 2, ENC_BIG_ENDIAN);
             sub_tree = proto_item_add_subtree(pi, ett_dis_crypto_key);
-            proto_tree_add_item(sub_tree, hf_dis_encryption_mode, tvb, offset, 2, FALSE);
-            proto_tree_add_item(sub_tree, hf_dis_key_identifier, tvb, offset, 2, FALSE);
+            proto_tree_add_item(sub_tree, hf_dis_encryption_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_dis_key_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_item_set_end(pi, tvb, offset);
             offset += 2;
             break;
         case DIS_FIELDTYPE_MODULATION_PARAMETER_LENGTH:
             uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_modulation_parameter_length, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_modulation_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 1;
             break;
         case DIS_FIELDTYPE_FH_NETWORK_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_net_id, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_net_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_FH_SET_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_set_id, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_LO_SET_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_lo_set_id, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_lo_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_FH_MSG_START:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_msg_start, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_msg_start, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_RESERVED:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_reserved, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_FH_SYNC_TIME_OFFSET:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_sync_time_offset, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_sync_time_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
         case DIS_FIELDTYPE_FH_SECURITY_KEY:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_security_key, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_security_key, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             break;
         case DIS_FIELDTYPE_FH_CLEAR_CHANNEL:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_clear_channel, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_fh_clear_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_TS_ALLOCATION_MODE:
-            proto_tree_add_item(tree, hf_dis_mod_param_ts_allocation_mode, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_ts_allocation_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_TRANSMITTER_PRIMARY_MODE:
-            proto_tree_add_item(tree, hf_dis_mod_param_transmitter_prim_mode, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_transmitter_prim_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE:
-            proto_tree_add_item(tree, hf_dis_mod_param_transmitter_second_mode, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_transmitter_second_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_JTIDS_SYNC_STATE:
-            proto_tree_add_item(tree, hf_dis_mod_param_sync_state, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_sync_state, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             break;
         case DIS_FIELDTYPE_NETWORK_SYNC_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_network_sync_id, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_dis_mod_param_network_sync_id, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
         case DIS_FIELDTYPE_MODULATION_PARAMETERS:
@@ -968,7 +968,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                 }
                 else {  /* just dump what is available */
                     newtvb = tvb_new_subset(tvb, offset,modulationParamLength, modulationParamLength);
-                    proto_tree_add_item(tree, hf_dis_mod_param_dump, newtvb, 0, -1, FALSE );
+                    proto_tree_add_item(tree, hf_dis_mod_param_dump, newtvb, 0, -1, ENC_NA );
                     offset += modulationParamLength;
                     break;
                 }
@@ -980,7 +980,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                                     tvb_length_remaining(tvb, offset),
                                     tvb_reported_length_remaining(tvb, offset)
                 );
-            proto_tree_add_item(tree, hf_dis_antenna_pattern_parameter_dump, newtvb, 0, -1, FALSE );
+            proto_tree_add_item(tree, hf_dis_antenna_pattern_parameter_dump, newtvb, 0, -1, ENC_NA );
             break;
 
 
@@ -1390,7 +1390,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             break;
         case DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS:
             uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_num_electromagnetic_emission_systems, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dis_num_electromagnetic_emission_systems, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             break;
