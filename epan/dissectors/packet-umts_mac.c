@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
