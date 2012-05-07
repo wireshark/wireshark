@@ -58,29 +58,29 @@ NonStandardParameter/data  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 
 #.FN_HDR SIGNED
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 #.END
 #.FN_HDR ENCRYPTED
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 #.END
 #.FN_HDR HASHED
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 #.END
 
 #.FN_HDR ClearToken
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 #.END
 
 #.FN_HDR CryptoToken
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 #.END
 

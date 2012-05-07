@@ -559,7 +559,7 @@ int
 dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 65 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -591,7 +591,7 @@ int
 dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 60 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -756,7 +756,7 @@ int
 dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 76 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -777,7 +777,7 @@ int
 dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 70 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -853,7 +853,7 @@ int
 dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 82 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
-  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
