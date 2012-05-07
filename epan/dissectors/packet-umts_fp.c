@@ -30,6 +30,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/conversation.h>
 
 #include "packet-umts_fp.h"
 
@@ -181,6 +182,7 @@ static int hf_fp_e_rucch_present = -1;
 static int hf_fp_extended_bits_present = -1;
 static int hf_fp_extended_bits = -1;
 static int hf_fp_spare_extension = -1;
+static int hf_fp_dl_setup_frame = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -526,7 +528,33 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void proto_register_fp(void);
 void proto_reg_handoff_fp(void);
 
+void 
+set_umts_fp_dl_conv_data(conversation_t *conversation, guint32 dl_frame_number)
+{
+	struct _umts_fp_conversation_info *p_conv_data = NULL;
 
+	if(conversation==NULL)
+		return;
+
+	p_conv_data = conversation_get_proto_data(conversation, proto_fp);
+
+	/*
+	 * If not, add a new data item.
+	 */
+	if ( ! p_conv_data ) {
+		/* Create conversation data */
+		p_conv_data = se_alloc(sizeof(struct _umts_fp_conversation_info));
+		p_conv_data->dl_frame_number = dl_frame_number;
+		p_conv_data->ul_frame_number = 0;
+
+		conversation_add_proto_data(conversation, proto_fp, p_conv_data);
+	}
+
+	/*
+	 * Update the conversation data.
+	 */
+
+}
 static int get_tb_count(struct fp_info *p_fp_info)
 {
     int chan, tb_count = 0;
@@ -3220,6 +3248,8 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item       *ti;
     gint             offset = 0;
     struct fp_info   *p_fp_info;
+	conversation_t *p_conv = NULL;
+	struct _umts_fp_conversation_info *p_conv_data = NULL;
 
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP");
@@ -3229,6 +3259,20 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fp_tree = proto_item_add_subtree(ti, ett_fp);
 
     top_level_tree = tree;
+
+	/* Check if we have converstaion info */
+	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+		                           pinfo->ptype,
+		                           pinfo->destport, pinfo->srcport, NO_ADDR_B);
+	if (p_conv)	{
+		p_conv_data = conversation_get_proto_data(p_conv, proto_fp);
+		if (p_conv_data) {
+			proto_item* item = proto_tree_add_uint(fp_tree, hf_fp_dl_setup_frame,
+				tvb, 0, 0, p_conv_data->dl_frame_number);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+
+	}
 
     /* Look for packet info! */
     p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
@@ -4329,6 +4373,12 @@ void proto_register_fp(void)
         { &hf_fp_spare_extension,
             { "Spare Extension",
               "fp.spare-extension", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+		{ &hf_fp_dl_setup_frame,
+            { "DL setup frame",
+              "fp.dl.setup_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },

@@ -38,6 +38,7 @@
 
 #include "packet-per.h"
 #include "packet-isup.h"
+#include "packet-umts_fp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

@@ -46,6 +46,7 @@
 
 #include "packet-per.h"
 #include "packet-isup.h"
+#include "packet-umts_fp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -1520,7 +1521,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 58 "../../asn1/nbap/packet-nbap-template.c"
+#line 59 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -4816,7 +4817,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 66 "../../asn1/nbap/packet-nbap-template.c"
+#line 67 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -6454,7 +6455,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 73 "../../asn1/nbap/packet-nbap-template.c"
+#line 74 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -8463,7 +8464,7 @@ dissect_nbap_E_DCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 227 "../../asn1/nbap/nbap.cnf"
+#line 359 "../../asn1/nbap/nbap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 4, TRUE, &parameter_tvb);
@@ -8481,7 +8482,7 @@ dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 194 "../../asn1/nbap/nbap.cnf"
+#line 326 "../../asn1/nbap/nbap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_item *item;
   proto_tree *subtree, *nsap_tree;
@@ -27273,7 +27274,7 @@ static const per_sequence_t RL_Specific_DCH_Info_Item_sequence[] = {
 
 static int
 dissect_nbap_RL_Specific_DCH_Info_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 237 "../../asn1/nbap/nbap.cnf"
+#line 369 "../../asn1/nbap/nbap.cnf"
 address 	dst_addr, null_addr;
 conversation_t *conversation;
 
@@ -27306,6 +27307,9 @@ BindingID_port = 0;
 
 		/* Set dissector */
 		conversation_set_dissector(conversation, fp_handle);
+		}
+		if(actx->pinfo->link_dir==P2P_DIR_DL){
+			set_umts_fp_dl_conv_data(conversation, actx->pinfo->fd->num);
 		}
 
 
@@ -33207,7 +33211,7 @@ static const per_sequence_t CommonMeasurementReport_sequence[] = {
 
 static int
 dissect_nbap_CommonMeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 117 "../../asn1/nbap/nbap.cnf"
+#line 269 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementReport ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
@@ -35338,7 +35342,7 @@ static const per_sequence_t RadioLinkSetupRequestFDD_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkSetupRequestFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 179 "../../asn1/nbap/nbap.cnf"
+#line 153 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupRequest(FDD) ");
 /* CRNC -> Node B */
 actx->pinfo->link_dir=P2P_DIR_DL;
@@ -35814,7 +35818,7 @@ static const per_sequence_t RadioLinkSetupResponseFDD_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkSetupResponseFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "../../asn1/nbap/nbap.cnf"
+#line 159 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupResponse(FDD) ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
@@ -36033,10 +36037,11 @@ static const per_sequence_t RadioLinkSetupFailureFDD_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkSetupFailureFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 189 "../../asn1/nbap/nbap.cnf"
+#line 165 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupFailure(FDD) ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
+
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -37228,10 +37233,11 @@ static const per_sequence_t RadioLinkReconfigurationPrepareFDD_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkReconfigurationPrepareFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 159 "../../asn1/nbap/nbap.cnf"
+#line 201 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationPrepare(FDD) ");
 /* CRNC -> Node B */
 actx->pinfo->link_dir=P2P_DIR_DL;
+
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -38846,10 +38852,11 @@ static const per_sequence_t RadioLinkReconfigurationReady_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkReconfigurationReady(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "../../asn1/nbap/nbap.cnf"
+#line 211 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationReady ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
+
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -38927,7 +38934,7 @@ static const per_sequence_t RadioLinkReconfigurationFailure_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkReconfigurationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "../../asn1/nbap/nbap.cnf"
+#line 224 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationFailure ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
@@ -39565,7 +39572,11 @@ static const per_sequence_t RadioLinkDeletionRequest_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkDeletionRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "../../asn1/nbap/nbap.cnf"
+#line 189 "../../asn1/nbap/nbap.cnf"
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionRequest ");
 /* CRNC -> Node B */
 actx->pinfo->link_dir=P2P_DIR_DL;
@@ -39615,12 +39626,6 @@ static const per_sequence_t RadioLinkDeletionResponse_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkDeletionResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 148 "../../asn1/nbap/nbap.cnf"
-col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionResponse ");
-/* Node B -> CRNC */
-actx->pinfo->link_dir=P2P_DIR_UL;
-
-
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_RadioLinkDeletionResponse, RadioLinkDeletionResponse_sequence);
 
@@ -39696,7 +39701,7 @@ static const per_sequence_t DedicatedMeasurementInitiationRequest_sequence[] = {
 
 static int
 dissect_nbap_DedicatedMeasurementInitiationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "../../asn1/nbap/nbap.cnf"
+#line 230 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationRequest ");
 /* CRNC -> Node B */
 actx->pinfo->link_dir=P2P_DIR_DL;
@@ -39892,7 +39897,7 @@ static const per_sequence_t DedicatedMeasurementInitiationResponse_sequence[] = 
 
 static int
 dissect_nbap_DedicatedMeasurementInitiationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 128 "../../asn1/nbap/nbap.cnf"
+#line 236 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationResponse ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
@@ -40196,10 +40201,11 @@ static const per_sequence_t DedicatedMeasurementInitiationFailure_sequence[] = {
 
 static int
 dissect_nbap_DedicatedMeasurementInitiationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "../../asn1/nbap/nbap.cnf"
+#line 242 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationFailure ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
+
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -40217,10 +40223,11 @@ static const per_sequence_t DedicatedMeasurementReport_sequence[] = {
 
 static int
 dissect_nbap_DedicatedMeasurementReport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 138 "../../asn1/nbap/nbap.cnf"
+#line 288 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementReport ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
+
 
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -40648,7 +40655,7 @@ static const per_sequence_t RadioLinkRestoreIndication_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkRestoreIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 174 "../../asn1/nbap/nbap.cnf"
+#line 282 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkRestoreIndication ");
 /* CRNC -> Node B */
 actx->pinfo->link_dir=P2P_DIR_DL;
@@ -45119,10 +45126,11 @@ static const per_sequence_t RadioLinkParameterUpdateIndicationFDD_sequence[] = {
 
 static int
 dissect_nbap_RadioLinkParameterUpdateIndicationFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 153 "../../asn1/nbap/nbap.cnf"
+#line 314 "../../asn1/nbap/nbap.cnf"
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkParameterUpdateIndication(FDD) ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
+
 
 
 
@@ -53010,7 +53018,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 94 "../../asn1/nbap/packet-nbap-template.c"
+#line 95 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -66207,7 +66215,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 158 "../../asn1/nbap/packet-nbap-template.c"
+#line 159 "../../asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -67846,7 +67854,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 166 "../../asn1/nbap/packet-nbap-template.c"
+#line 167 "../../asn1/nbap/packet-nbap-template.c"
   };
 
 
@@ -68977,7 +68985,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 200 "../../asn1/nbap/packet-nbap-template.c"
+#line 201 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 

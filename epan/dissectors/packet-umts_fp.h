@@ -105,3 +105,11 @@ typedef struct fp_info
     enum   fp_link_type link_type;
 } fp_info;
 
+struct _umts_fp_conversation_info
+{
+	guint32 dl_frame_number;		/* the frame where this conversation is started from CRNC */
+	guint32 ul_frame_number;		/* the frame where this conversation is started from Node B */
+
+};
+
+void set_umts_fp_dl_conv_data(conversation_t *conversation, guint32 dl_frame_number);
