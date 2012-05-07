@@ -4690,6 +4690,11 @@ static void
 dissect_gtpv2_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
+    guint64 tmgi;
+
+    tmgi = tvb_get_ntoh48(tvb, offset);
+
+    proto_item_append_text(item, "%012" G_GINT64_MODIFIER "x", tmgi);
 
     proto_tree_add_item(tree, hf_gtpv2_mbms_service_id, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
@@ -5844,7 +5849,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_bearer_qos_pvi,
          {"PVI (Pre-emption Vulnerability)", "gtpv2.bearer_qos_pvi",
-          FT_BOOLEAN, 8, NULL, 0x01,
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_pl,
@@ -5854,7 +5859,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_bearer_qos_pci,
          {"PCI (Pre-emption Capability)", "gtpv2.bearer_qos_pci",
-          FT_BOOLEAN, 8, NULL, 0x40,
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_label_qci,
@@ -6577,7 +6582,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_arp_pvi,
           {"Pre-emption Vulnerability (PVI)", "gtpv2.arp_pvi",
-          FT_BOOLEAN, 8, NULL, 0x01,
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
           NULL, HFILL}
         },
         { &hf_gtpv2_arp_pl,
@@ -6587,7 +6592,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_arp_pci,
           {"Pre-emption Capability (PCI)", "gtpv2.arp_pci",
-          FT_BOOLEAN, 8, NULL, 0x40,
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
           NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_higher_br_16mb_flg_len,
