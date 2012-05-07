@@ -514,7 +514,7 @@ folder last used.
 
 Read packet data from I<infile>, can be any supported capture file format
 (including gzipped files).  It's not possible to use named pipes or stdin
-here!
+here! To capture from a pipe or from stdin use B<-i ->
 
 =item -R  E<lt>read (display) filterE<gt>
 

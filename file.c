@@ -3978,7 +3978,8 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
     case WTAP_ERR_RANDOM_OPEN_PIPE:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "The file \"%s\" is a pipe or FIFO; Wireshark can't read pipe or FIFO files.",
+            "The file \"%s\" is a pipe or FIFO; Wireshark can't read pipe or FIFO files.\n"
+            "To capture from a pipe or FIFO use wireshark -i -",
             filename);
       break;
 
