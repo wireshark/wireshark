@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
