@@ -1595,12 +1595,14 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
             offset, tokenlen, ENC_ASCII|ENC_NA);
 
-        key=g_malloc( sizeof(gint) );
-        *key=atol((char*)payload_type);
         pt = atoi((char*)payload_type);
         if (pt >= SDP_NO_OF_PT) {
             return;   /* Invalid */
         }
+
+        key  = g_malloc( sizeof(gint) );
+        *key = atol((char*)payload_type);
+
         transport_info->encoding_name[pt] = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
         next_offset =  next_offset + 1;
