@@ -1273,9 +1273,9 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 		}
 
 		if (hf != NULL)
-			proto_tree_add_item(tree, *hf, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, *hf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		else if (hf_default->val_u_short != NULL)
-			proto_tree_add_item(tree, *hf_default->val_u_short, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, *hf_default->val_u_short, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		consumed = 2;
 		break;
 
