@@ -717,28 +717,11 @@ get_capture_device_open_failure_messages(const char *open_err_str,
                                          char *secondary_errmsg,
                                          size_t secondary_errmsg_len)
 {
+#ifndef _WIN32
     const char *libpcap_warn;
     static const char ppamsg[] = "can't find PPA for ";
+#endif
 
-    /* If we got a "can't find PPA for X" message, warn the user (who
-       is running dumpcap on HP-UX) that they don't have a version of
-       libpcap that properly handles HP-UX (libpcap 0.6.x and later
-       versions, which properly handle HP-UX, say "can't find /dev/dlpi
-       PPA for X" rather than "can't find PPA for X"). */
-    if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
-        libpcap_warn =
-            "\n\n"
-            "You are running (T)Wireshark with a version of the libpcap library\n"
-            "that doesn't handle HP-UX network devices well; this means that\n"
-            "(T)Wireshark may not be able to capture packets.\n"
-            "\n"
-            "To fix this, you should install libpcap 0.6.2, or a later version\n"
-            "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
-            "packaged binary form from the Software Porting And Archive Centre\n"
-            "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
-            "at the URL lists a number of mirror sites.";
-    else
-        libpcap_warn = "";
     g_snprintf(errmsg, (gulong) errmsg_len,
                "The capture session could not be initiated (%s).", open_err_str);
 #ifdef _WIN32
@@ -772,6 +755,26 @@ get_capture_device_open_failure_messages(const char *open_err_str,
                  iface);
     }
 #else
+    /* If we got a "can't find PPA for X" message, warn the user (who
+       is running dumpcap on HP-UX) that they don't have a version of
+       libpcap that properly handles HP-UX (libpcap 0.6.x and later
+       versions, which properly handle HP-UX, say "can't find /dev/dlpi
+       PPA for X" rather than "can't find PPA for X"). */
+    if (strncmp(open_err_str, ppamsg, sizeof ppamsg - 1) == 0)
+        libpcap_warn =
+            "\n\n"
+            "You are running (T)Wireshark with a version of the libpcap library\n"
+            "that doesn't handle HP-UX network devices well; this means that\n"
+            "(T)Wireshark may not be able to capture packets.\n"
+            "\n"
+            "To fix this, you should install libpcap 0.6.2, or a later version\n"
+            "of libpcap, rather than libpcap 0.4 or 0.5.x.  It is available in\n"
+            "packaged binary form from the Software Porting And Archive Centre\n"
+            "for HP-UX; the Centre is at http://hpux.connect.org.uk/ - the page\n"
+            "at the URL lists a number of mirror sites.";
+    else
+        libpcap_warn = "";
+
     g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
                "Please check to make sure you have sufficient permissions, and that you have "
                "the proper interface or pipe specified.%s", libpcap_warn);
