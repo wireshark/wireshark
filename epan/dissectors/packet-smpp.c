@@ -15,7 +15,7 @@
  * introduced by Abhik Sarkar
  *
  * Support for Huawei SMPP+ extensions
- * introduced by Xu Bo and enhance by Abhik Sarkar
+ * introduced by Xu Bo and enhanced by Abhik Sarkar
  *
  * Enhanced error code handling
  * provided by Stipe Tolj from Kannel.
@@ -42,6 +42,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
  * ----------
  *
  * Dissector of an SMPP (Short Message Peer to Peer) PDU, as defined by the
@@ -53,8 +54,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -95,182 +94,182 @@ static void dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  *
  * Fixed header section
  */
-static int proto_smpp                           = -1;
+static int proto_smpp                                 = -1;
 
-static int st_smpp_ops                          = -1;
-static int st_smpp_req                          = -1;
-static int st_smpp_res                          = -1;
-static int st_smpp_res_status                   = -1;
+static int st_smpp_ops                                = -1;
+static int st_smpp_req                                = -1;
+static int st_smpp_res                                = -1;
+static int st_smpp_res_status                         = -1;
 
-static int hf_smpp_command_id                   = -1;
-static int hf_smpp_command_length               = -1;
-static int hf_smpp_command_status               = -1;
-static int hf_smpp_sequence_number              = -1;
+static int hf_smpp_command_id                         = -1;
+static int hf_smpp_command_length                     = -1;
+static int hf_smpp_command_status                     = -1;
+static int hf_smpp_sequence_number                    = -1;
 
 /*
  * Fixed body section
  */
-static int hf_smpp_system_id                    = -1;
-static int hf_smpp_password                     = -1;
-static int hf_smpp_system_type                  = -1;
-static int hf_smpp_interface_version            = -1;
-static int hf_smpp_addr_ton                     = -1;
-static int hf_smpp_addr_npi                     = -1;
-static int hf_smpp_address_range                = -1;
-static int hf_smpp_service_type                 = -1;
-static int hf_smpp_source_addr_ton              = -1;
-static int hf_smpp_source_addr_npi              = -1;
-static int hf_smpp_source_addr                  = -1;
-static int hf_smpp_dest_addr_ton                = -1;
-static int hf_smpp_dest_addr_npi                = -1;
-static int hf_smpp_destination_addr             = -1;
-static int hf_smpp_esm_submit_msg_mode          = -1;
-static int hf_smpp_esm_submit_msg_type          = -1;
-static int hf_smpp_esm_submit_features          = -1;
-static int hf_smpp_protocol_id                  = -1;
-static int hf_smpp_priority_flag                = -1;
-static int hf_smpp_schedule_delivery_time       = -1;
-static int hf_smpp_schedule_delivery_time_r     = -1;
-static int hf_smpp_validity_period              = -1;
-static int hf_smpp_validity_period_r            = -1;
-static int hf_smpp_regdel_receipt               = -1;
-static int hf_smpp_regdel_acks                  = -1;
-static int hf_smpp_regdel_notif                 = -1;
-static int hf_smpp_replace_if_present_flag      = -1;
-static int hf_smpp_data_coding                  = -1;
-static int hf_smpp_sm_default_msg_id            = -1;
-static int hf_smpp_sm_length                    = -1;
-static int hf_smpp_short_message                = -1;
-static int hf_smpp_message_id                   = -1;
-static int hf_smpp_dlist                        = -1;
-static int hf_smpp_dlist_resp                   = -1;
-static int hf_smpp_dl_name                      = -1;
-static int hf_smpp_final_date                   = -1;
-static int hf_smpp_final_date_r                 = -1;
-static int hf_smpp_message_state                = -1;
-static int hf_smpp_error_code                   = -1;
-static int hf_smpp_error_status_code            = -1;
-static int hf_smpp_esme_addr_ton                = -1;
-static int hf_smpp_esme_addr_npi                = -1;
-static int hf_smpp_esme_addr                    = -1;
+static int hf_smpp_system_id                          = -1;
+static int hf_smpp_password                           = -1;
+static int hf_smpp_system_type                        = -1;
+static int hf_smpp_interface_version                  = -1;
+static int hf_smpp_addr_ton                           = -1;
+static int hf_smpp_addr_npi                           = -1;
+static int hf_smpp_address_range                      = -1;
+static int hf_smpp_service_type                       = -1;
+static int hf_smpp_source_addr_ton                    = -1;
+static int hf_smpp_source_addr_npi                    = -1;
+static int hf_smpp_source_addr                        = -1;
+static int hf_smpp_dest_addr_ton                      = -1;
+static int hf_smpp_dest_addr_npi                      = -1;
+static int hf_smpp_destination_addr                   = -1;
+static int hf_smpp_esm_submit_msg_mode                = -1;
+static int hf_smpp_esm_submit_msg_type                = -1;
+static int hf_smpp_esm_submit_features                = -1;
+static int hf_smpp_protocol_id                        = -1;
+static int hf_smpp_priority_flag                      = -1;
+static int hf_smpp_schedule_delivery_time             = -1;
+static int hf_smpp_schedule_delivery_time_r           = -1;
+static int hf_smpp_validity_period                    = -1;
+static int hf_smpp_validity_period_r                  = -1;
+static int hf_smpp_regdel_receipt                     = -1;
+static int hf_smpp_regdel_acks                        = -1;
+static int hf_smpp_regdel_notif                       = -1;
+static int hf_smpp_replace_if_present_flag            = -1;
+static int hf_smpp_data_coding                        = -1;
+static int hf_smpp_sm_default_msg_id                  = -1;
+static int hf_smpp_sm_length                          = -1;
+static int hf_smpp_short_message                      = -1;
+static int hf_smpp_message_id                         = -1;
+static int hf_smpp_dlist                              = -1;
+static int hf_smpp_dlist_resp                         = -1;
+static int hf_smpp_dl_name                            = -1;
+static int hf_smpp_final_date                         = -1;
+static int hf_smpp_final_date_r                       = -1;
+static int hf_smpp_message_state                      = -1;
+static int hf_smpp_error_code                         = -1;
+static int hf_smpp_error_status_code                  = -1;
+static int hf_smpp_esme_addr_ton                      = -1;
+static int hf_smpp_esme_addr_npi                      = -1;
+static int hf_smpp_esme_addr                          = -1;
 
 /*
  * Optional parameter section
  */
-static int hf_smpp_opt_params                   = -1;
-static int hf_smpp_opt_param                    = -1;
-static int hf_smpp_opt_param_tag                = -1;
-static int hf_smpp_opt_param_len                = -1;
-static int hf_smpp_vendor_op                    = -1;
-static int hf_smpp_reserved_op                  = -1;
+static int hf_smpp_opt_params                         = -1;
+static int hf_smpp_opt_param                          = -1;
+static int hf_smpp_opt_param_tag                      = -1;
+static int hf_smpp_opt_param_len                      = -1;
+static int hf_smpp_vendor_op                          = -1;
+static int hf_smpp_reserved_op                        = -1;
 
-static int hf_smpp_dest_addr_subunit            = -1;
-static int hf_smpp_dest_network_type            = -1;
-static int hf_smpp_dest_bearer_type             = -1;
-static int hf_smpp_dest_telematics_id           = -1;
-static int hf_smpp_source_addr_subunit          = -1;
-static int hf_smpp_source_network_type          = -1;
-static int hf_smpp_source_bearer_type           = -1;
-static int hf_smpp_source_telematics_id         = -1;
-static int hf_smpp_qos_time_to_live             = -1;
-static int hf_smpp_payload_type                 = -1;
-static int hf_smpp_additional_status_info_text  = -1;
-static int hf_smpp_receipted_message_id         = -1;
-static int hf_smpp_msg_wait_ind                 = -1;
-static int hf_smpp_msg_wait_type                = -1;
-static int hf_smpp_privacy_indicator            = -1;
-static int hf_smpp_source_subaddress            = -1;
-static int hf_smpp_dest_subaddress              = -1;
-static int hf_smpp_user_message_reference       = -1;
-static int hf_smpp_user_response_code           = -1;
-static int hf_smpp_source_port                  = -1;
-static int hf_smpp_destination_port             = -1;
-static int hf_smpp_sar_msg_ref_num              = -1;
-static int hf_smpp_language_indicator           = -1;
-static int hf_smpp_sar_total_segments           = -1;
-static int hf_smpp_sar_segment_seqnum           = -1;
-static int hf_smpp_SC_interface_version         = -1;
-static int hf_smpp_callback_num_pres            = -1;
-static int hf_smpp_callback_num_scrn            = -1;
-static int hf_smpp_callback_num_atag            = -1;
-static int hf_smpp_number_of_messages           = -1;
-static int hf_smpp_callback_num                 = -1;
-static int hf_smpp_dpf_result                   = -1;
-static int hf_smpp_set_dpf                      = -1;
-static int hf_smpp_ms_availability_status       = -1;
-static int hf_smpp_network_error_type           = -1;
-static int hf_smpp_network_error_code           = -1;
-static int hf_smpp_message_payload              = -1;
-static int hf_smpp_delivery_failure_reason      = -1;
-static int hf_smpp_more_messages_to_send        = -1;
-static int hf_smpp_ussd_service_op              = -1;
-static int hf_smpp_display_time                 = -1;
-static int hf_smpp_sms_signal                   = -1;
-static int hf_smpp_ms_validity                  = -1;
-static int hf_smpp_alert_on_message_delivery_null       = -1;
-static int hf_smpp_alert_on_message_delivery    = -1;
-static int hf_smpp_its_reply_type               = -1;
-static int hf_smpp_its_session_number           = -1;
-static int hf_smpp_its_session_sequence         = -1;
-static int hf_smpp_its_session_ind              = -1;
+static int hf_smpp_dest_addr_subunit                  = -1;
+static int hf_smpp_dest_network_type                  = -1;
+static int hf_smpp_dest_bearer_type                   = -1;
+static int hf_smpp_dest_telematics_id                 = -1;
+static int hf_smpp_source_addr_subunit                = -1;
+static int hf_smpp_source_network_type                = -1;
+static int hf_smpp_source_bearer_type                 = -1;
+static int hf_smpp_source_telematics_id               = -1;
+static int hf_smpp_qos_time_to_live                   = -1;
+static int hf_smpp_payload_type                       = -1;
+static int hf_smpp_additional_status_info_text        = -1;
+static int hf_smpp_receipted_message_id               = -1;
+static int hf_smpp_msg_wait_ind                       = -1;
+static int hf_smpp_msg_wait_type                      = -1;
+static int hf_smpp_privacy_indicator                  = -1;
+static int hf_smpp_source_subaddress                  = -1;
+static int hf_smpp_dest_subaddress                    = -1;
+static int hf_smpp_user_message_reference             = -1;
+static int hf_smpp_user_response_code                 = -1;
+static int hf_smpp_source_port                        = -1;
+static int hf_smpp_destination_port                   = -1;
+static int hf_smpp_sar_msg_ref_num                    = -1;
+static int hf_smpp_language_indicator                 = -1;
+static int hf_smpp_sar_total_segments                 = -1;
+static int hf_smpp_sar_segment_seqnum                 = -1;
+static int hf_smpp_SC_interface_version               = -1;
+static int hf_smpp_callback_num_pres                  = -1;
+static int hf_smpp_callback_num_scrn                  = -1;
+static int hf_smpp_callback_num_atag                  = -1;
+static int hf_smpp_number_of_messages                 = -1;
+static int hf_smpp_callback_num                       = -1;
+static int hf_smpp_dpf_result                         = -1;
+static int hf_smpp_set_dpf                            = -1;
+static int hf_smpp_ms_availability_status             = -1;
+static int hf_smpp_network_error_type                 = -1;
+static int hf_smpp_network_error_code                 = -1;
+static int hf_smpp_message_payload                    = -1;
+static int hf_smpp_delivery_failure_reason            = -1;
+static int hf_smpp_more_messages_to_send              = -1;
+static int hf_smpp_ussd_service_op                    = -1;
+static int hf_smpp_display_time                       = -1;
+static int hf_smpp_sms_signal                         = -1;
+static int hf_smpp_ms_validity                        = -1;
+static int hf_smpp_alert_on_message_delivery_null     = -1;
+static int hf_smpp_alert_on_message_delivery          = -1;
+static int hf_smpp_its_reply_type                     = -1;
+static int hf_smpp_its_session_number                 = -1;
+static int hf_smpp_its_session_sequence               = -1;
+static int hf_smpp_its_session_ind                    = -1;
 
 /* Optional Parameters introduced in SMPP 5.0   */
-static int hf_smpp_congestion_state             = -1;
-static int hf_smpp_billing_identification       = -1;
-static int hf_smpp_dest_addr_np_country         = -1;
-static int hf_smpp_dest_addr_np_information     = -1;
-static int hf_smpp_dest_addr_np_resolution      = -1;
-static int hf_smpp_source_network_id            = -1;
-static int hf_smpp_source_node_id               = -1;
-static int hf_smpp_dest_network_id              = -1;
-static int hf_smpp_dest_node_id                 = -1;
+static int hf_smpp_congestion_state                   = -1;
+static int hf_smpp_billing_identification             = -1;
+static int hf_smpp_dest_addr_np_country               = -1;
+static int hf_smpp_dest_addr_np_information           = -1;
+static int hf_smpp_dest_addr_np_resolution            = -1;
+static int hf_smpp_source_network_id                  = -1;
+static int hf_smpp_source_node_id                     = -1;
+static int hf_smpp_dest_network_id                    = -1;
+static int hf_smpp_dest_node_id                       = -1;
 /* Optional Parameters for Cell Broadcast Operations */
-static int hf_smpp_broadcast_channel_indicator  = -1;
-static int hf_smpp_broadcast_content_type_nw    = -1;
-static int hf_smpp_broadcast_content_type_type  = -1;
-static int hf_smpp_broadcast_content_type_info  = -1;
-static int hf_smpp_broadcast_message_class      = -1;
-static int hf_smpp_broadcast_rep_num            = -1;
-static int hf_smpp_broadcast_frequency_interval_unit    = -1;
-static int hf_smpp_broadcast_frequency_interval_value   = -1;
-static int hf_smpp_broadcast_area_identifier    = -1;
-static int hf_smpp_broadcast_area_identifier_format     = -1;
-static int hf_smpp_broadcast_error_status       = -1;
-static int hf_smpp_broadcast_area_success       = -1;
-static int hf_smpp_broadcast_end_time           = -1;
-static int hf_smpp_broadcast_end_time_r         = -1;
-static int hf_smpp_broadcast_service_group      = -1;
+static int hf_smpp_broadcast_channel_indicator        = -1;
+static int hf_smpp_broadcast_content_type_nw          = -1;
+static int hf_smpp_broadcast_content_type_type        = -1;
+static int hf_smpp_broadcast_content_type_info        = -1;
+static int hf_smpp_broadcast_message_class            = -1;
+static int hf_smpp_broadcast_rep_num                  = -1;
+static int hf_smpp_broadcast_frequency_interval_unit  = -1;
+static int hf_smpp_broadcast_frequency_interval_value = -1;
+static int hf_smpp_broadcast_area_identifier          = -1;
+static int hf_smpp_broadcast_area_identifier_format   = -1;
+static int hf_smpp_broadcast_error_status             = -1;
+static int hf_smpp_broadcast_area_success             = -1;
+static int hf_smpp_broadcast_end_time                 = -1;
+static int hf_smpp_broadcast_end_time_r               = -1;
+static int hf_smpp_broadcast_service_group            = -1;
 
 /*
  * Data Coding Scheme section
  */
-static int hf_smpp_dcs = -1;
-static int hf_smpp_dcs_sms_coding_group = -1;
-static int hf_smpp_dcs_text_compression = -1;
-static int hf_smpp_dcs_class_present = -1;
-static int hf_smpp_dcs_charset = -1;
-static int hf_smpp_dcs_class = -1;
-static int hf_smpp_dcs_cbs_coding_group = -1;
-static int hf_smpp_dcs_cbs_language = -1;
-static int hf_smpp_dcs_wap_charset = -1;
-static int hf_smpp_dcs_wap_class = -1;
-static int hf_smpp_dcs_cbs_class = -1;
+static int hf_smpp_dcs                                = -1;
+static int hf_smpp_dcs_sms_coding_group               = -1;
+static int hf_smpp_dcs_text_compression               = -1;
+static int hf_smpp_dcs_class_present                  = -1;
+static int hf_smpp_dcs_charset                        = -1;
+static int hf_smpp_dcs_class                          = -1;
+static int hf_smpp_dcs_cbs_coding_group               = -1;
+static int hf_smpp_dcs_cbs_language                   = -1;
+static int hf_smpp_dcs_wap_charset                    = -1;
+static int hf_smpp_dcs_wap_class                      = -1;
+static int hf_smpp_dcs_cbs_class                      = -1;
 
 /*
  * Huawei SMPP+ extensions
  */
-static int hf_huawei_smpp_version                        = -1;
-static int hf_huawei_smpp_smsc_addr                        = -1;
-static int hf_huawei_smpp_msc_addr_noa                        = -1;
-static int hf_huawei_smpp_msc_addr_npi                        = -1;
-static int hf_huawei_smpp_msc_addr                        = -1;
-static int hf_huawei_smpp_mo_mt_flag                        = -1;
-static int hf_huawei_smpp_length_auth                        = -1;
-static int hf_huawei_smpp_sm_id                                = -1;
-static int hf_huawei_smpp_service_id                        = -1;
-static int hf_huawei_smpp_operation_result                = -1;
-static int hf_huawei_smpp_notify_mode                        = -1;
-static int hf_huawei_smpp_delivery_result                = -1;
+static int hf_huawei_smpp_version                     = -1;
+static int hf_huawei_smpp_smsc_addr                   = -1;
+static int hf_huawei_smpp_msc_addr_noa                = -1;
+static int hf_huawei_smpp_msc_addr_npi                = -1;
+static int hf_huawei_smpp_msc_addr                    = -1;
+static int hf_huawei_smpp_mo_mt_flag                  = -1;
+static int hf_huawei_smpp_length_auth                 = -1;
+static int hf_huawei_smpp_sm_id                       = -1;
+static int hf_huawei_smpp_service_id                  = -1;
+static int hf_huawei_smpp_operation_result            = -1;
+static int hf_huawei_smpp_notify_mode                 = -1;
+static int hf_huawei_smpp_delivery_result             = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_smpp            = -1;
@@ -584,16 +583,16 @@ static const value_string vals_replace_if_present_flag[] = {
 };
 
 static const value_string vals_data_coding[] = {
-    {  0, "SMSC default alphabet" },
-    {  1, "IA5 (CCITT T.50/ASCII (ANSI X3.4)" },
-    {  2, "Octet unspecified (8-bit binary)" },
-    {  3, "Latin 1 (ISO-8859-1)" },
-    {  4, "Octet unspecified (8-bit binary)" },
-    {  5, "JIS (X 0208-1990)" },
-    {  6, "Cyrillic (ISO-8859-5)" },
-    {  7, "Latin/Hebrew (ISO-8859-8)" },
-    {  8, "UCS2 (ISO/IEC-10646)" },
-    {  9, "Pictogram encoding" },
+    {   0, "SMSC default alphabet" },
+    {   1, "IA5 (CCITT T.50/ASCII (ANSI X3.4)" },
+    {   2, "Octet unspecified (8-bit binary)" },
+    {   3, "Latin 1 (ISO-8859-1)" },
+    {   4, "Octet unspecified (8-bit binary)" },
+    {   5, "JIS (X 0208-1990)" },
+    {   6, "Cyrillic (ISO-8859-5)" },
+    {   7, "Latin/Hebrew (ISO-8859-8)" },
+    {   8, "UCS2 (ISO/IEC-10646)" },
+    {   9, "Pictogram encoding" },
     {  10, "ISO-2022-JP (Music codes)" },
     {  11, "reserved" },
     {  12, "reserved" },
@@ -1030,9 +1029,9 @@ static const value_string vals_dest_addr_np_resolution[] = {
 };
 
 static const range_string vals_broadcast_area_identifier_format[] = {
-    {0, 0, "Alias / Name"},
-    {1, 1, "Ellipsoid Arc"},
-    {2, 2, "Polygon"},
+    {0,   0, "Alias / Name"},
+    {1,   1, "Ellipsoid Arc"},
+    {2,   2, "Polygon"},
     {3, 255, "[Reserved]"},
     {0, 0,  NULL }
 };
@@ -1179,35 +1178,35 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
     r_time.tm_isdst = -1;
 
     if (relative == FALSE) {
-	struct tm *gm, *local_time;
-	int gm_hour, gm_min;
-	time_t current_time;
+        struct tm *gm, *local_time;
+        int gm_hour, gm_min;
+        time_t current_time;
 
         *secs = mktime(&r_time);
 
-	/* Subtract out the timezone information since we will adjust for
-	 * the presented time's timezone below and then display in UTC.
-	 *
-	 * To do that, first determine the current timezone's offset to UTC.
-	 */
-	current_time = time(NULL);
-	gm = gmtime(&current_time);
-	gm_hour = gm->tm_hour;
-	gm_min = gm->tm_min;
-	local_time = localtime(&current_time);
-	/* Then subtract out that difference (whether the difference is
-	 * measured in hours, minutes, or both).
-	 */
-	*secs -= 3600*(gm_hour - local_time->tm_hour);
-	*secs -= 60*(gm_min - local_time->tm_min);
+        /* Subtract out the timezone information since we will adjust for
+         * the presented time's timezone below and then display in UTC.
+         *
+         * To do that, first determine the current timezone's offset to UTC.
+         */
+        current_time = time(NULL);
+        gm = gmtime(&current_time);
+        gm_hour = gm->tm_hour;
+        gm_min = gm->tm_min;
+        local_time = localtime(&current_time);
+        /* Then subtract out that difference (whether the difference is
+         * measured in hours, minutes, or both).
+         */
+        *secs -= 3600*(gm_hour - local_time->tm_hour);
+        *secs -= 60*(gm_min - local_time->tm_min);
 
         *nsecs = (datestr[12] - '0') * 100000000;
         t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
         if (datestr[15] == '-')
-	    /* Represented time is behind UTC, shift it forward to UTC */
+            /* Represented time is behind UTC, shift it forward to UTC */
             *secs += t_diff;
         else if (datestr[15] == '+')
-	    /* Represented time is ahead of UTC, shift it backward to UTC */
+            /* Represented time is ahead of UTC, shift it backward to UTC */
             *secs -= t_diff;
     } else {
         *secs = r_time.tm_sec + 60 *
@@ -1309,9 +1308,9 @@ static void
 smpp_handle_time(proto_tree *tree, tvbuff_t *tvb,
                  int field, int field_R, int *offset)
 {
-    char         *strval;
-    gint         len;
-    nstime_t     tmptime;
+    char     *strval;
+    gint      len;
+    nstime_t  tmptime;
 
     strval = (char *) tvb_get_ephemeral_stringz(tvb, *offset, &len);
     if (*strval)
@@ -1794,8 +1793,8 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 void
 smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
 {
-    guint8       val;
-    int off = *offset;
+    guint8      val;
+    int         off     = *offset;
     proto_tree *subtree = NULL;
     proto_item *pi;
 
@@ -1881,7 +1880,7 @@ bind_receiver(proto_tree *tree, tvbuff_t *tvb)
     int          offset = 0;
     guint8       field;
     guint8       major, minor;
-    char         *strval;
+    char        *strval;
 
     smpp_handle_string(tree, tvb, hf_smpp_system_id, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_password, &offset);
@@ -1925,13 +1924,13 @@ static void
 submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *top_tree)
 {
-    tvbuff_t    *tvb_msg;
-    int          offset = 0;
-    guint8       flag, udhi;
-    guint8       length;
-    char *src_str = NULL;
-    char *dst_str = NULL;
-    address save_src, save_dst;
+    tvbuff_t *tvb_msg;
+    int       offset  = 0;
+    guint8    flag, udhi;
+    guint8    length;
+    char     *src_str = NULL;
+    char     *dst_str = NULL;
+    address   save_src, save_dst;
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     smpp_handle_int1(tree, tvb, hf_smpp_source_addr_ton, &offset);
@@ -2289,7 +2288,7 @@ query_broadcast_sm_resp(proto_tree *tree, tvbuff_t *tvb)
 static void
 huawei_auth_acc(proto_tree *tree, tvbuff_t *tvb)
 {
-    int offset = 0;
+    int    offset  = 0;
     guint8 version = 0;
 
     smpp_handle_int1(tree, tvb, hf_huawei_smpp_version, &offset);
@@ -2320,7 +2319,7 @@ huawei_auth_acc_resp(proto_tree *tree, tvbuff_t *tvb)
 static void
 huawei_sm_result_notify(proto_tree *tree, tvbuff_t *tvb)
 {
-    int offset = 0;
+    int    offset  = 0;
     guint8 version = 0;
 
     smpp_handle_int1(tree, tvb, hf_huawei_smpp_version, &offset);
@@ -2377,7 +2376,7 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return FALSE;
     command_status = tvb_get_ntohl(tvb, 8);     /* ..with known status  */
     if (match_strval(command_status, vals_command_status) == NULL &&
-    		match_strrval(command_status, reserved_command_status) == NULL)
+                match_strrval(command_status, reserved_command_status) == NULL)
         return FALSE;
     dissect_smpp(tvb, pinfo, tree);
     return TRUE;
@@ -2436,17 +2435,17 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int          offset = 0;            /* Offset within tvbuff */
-    guint        command_length;        /* length of PDU        */
-    guint        command_id;            /* SMPP command         */
-    guint        command_status;        /* Status code          */
-    guint        sequence_number;       /* ...of command        */
-    smpp_tap_rec_t* tap_rec;            /* Tap record           */
-    const gchar *command_str;
-    const gchar *command_status_str = NULL;
+    int             offset      = 0; /* Offset within tvbuff */
+    guint           command_length;  /* length of PDU        */
+    guint           command_id;      /* SMPP command         */
+    guint           command_status;  /* Status code          */
+    guint           sequence_number; /* ...of command        */
+    smpp_tap_rec_t *tap_rec;         /* Tap record           */
+    const gchar    *command_str;
+    const gchar    *command_status_str = NULL;
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item  *ti = NULL;
-    proto_tree  *smpp_tree = NULL;
+    proto_item     *ti                 = NULL;
+    proto_tree     *smpp_tree          = NULL;
 
     /*
      * Safety: don't even try to dissect the PDU
@@ -2463,13 +2462,13 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     command_status = tvb_get_ntohl(tvb, offset);
     if (command_id & 0x80000000) {
         /* PDU is a response. */
-    	command_status_str = match_strval(command_status, vals_command_status);
-    	if (command_status_str == NULL) {
-    		/* Check if the reserved value is in the vendor-specific range. */
-    		command_status_str = (command_status >= 0x400 && command_status <= 0x4FF ?
-    				ep_strdup_printf("Vendor-specific Error (0x%08X)", command_status) :
-    				ep_strdup_printf("(Reserved Error 0x%08X)", command_status));
-    	}
+        command_status_str = match_strval(command_status, vals_command_status);
+        if (command_status_str == NULL) {
+                /* Check if the reserved value is in the vendor-specific range. */
+                command_status_str = (command_status >= 0x400 && command_status <= 0x4FF ?
+                                ep_strdup_printf("Vendor-specific Error (0x%08X)", command_status) :
+                                ep_strdup_printf("(Reserved Error 0x%08X)", command_status));
+        }
     }
     offset += 4;
     sequence_number = tvb_get_ntohl(tvb, offset);
@@ -3788,11 +3787,6 @@ proto_register_smpp(void)
             &reassemble_over_tcp);
 }
 
-/*
- * If dissector uses sub-dissector registration add a registration routine.
- * This format is required because a script is used to find these routines and
- * create the code that calls these routines.
- */
 void
 proto_reg_handoff_smpp(void)
 {
