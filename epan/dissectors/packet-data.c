@@ -59,7 +59,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	if (tree) {
 		bytes = tvb_length_remaining(tvb, 0);
 		if (bytes > 0) {
-			tvbuff_t *data_tvb;
+			tvbuff_t   *data_tvb;
 			proto_item *ti;
 			proto_tree *data_tree;
 			if (new_pane) {
@@ -84,9 +84,9 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 
 			if(generate_md5_hash) {
 				const guint8 *cp;
-				md5_state_t md_ctx;
-				md5_byte_t digest[16];
-				gchar *digest_string;
+				md5_state_t   md_ctx;
+				md5_byte_t    digest[16];
+				gchar        *digest_string;
 
 				cp = tvb_get_ptr(tvb, 0, bytes);
 
@@ -122,9 +122,9 @@ proto_register_data(void)
 	static gint *ett[] = {
 		&ett_data
 	};
-	
+
 	module_t *module_data;
-	
+
 	proto_data = proto_register_protocol (
 		"Data",		/* name */
 		"Data",		/* short name */
@@ -135,8 +135,8 @@ proto_register_data(void)
 
 	proto_register_field_array(proto_data, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	
-	module_data = prefs_register_protocol( proto_data, proto_reg_handoff_data);
+
+	module_data = prefs_register_protocol( proto_data, NULL);
 	prefs_register_bool_preference(module_data,
 		"datapref.newpane",
 		"Show not dissected data on new Packet Bytes pane",
@@ -158,9 +158,4 @@ proto_register_data(void)
 	 * is disabled, so it cannot itself be disabled.
 	 */
 	proto_set_cant_toggle(proto_data);
-}
-
-void
-proto_reg_handoff_data(void)
-{
 }

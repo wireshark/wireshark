@@ -24,8 +24,8 @@
 #ifndef __PACKET_DATA_H__
 #define __PACKET_DATA_H__
 
-/* "proto_data" is exported from libwireshark.dll. 
- * Thus we need a special declaration. 
+/* "proto_data" is exported from libwireshark.dll.
+ * Thus we need a special declaration.
  */
 WS_VAR_IMPORT int proto_data;
 
