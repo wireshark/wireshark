@@ -3322,10 +3322,10 @@ dissect_camel_T_pDPTypeNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
  switch (PDPTypeOrganization){
  case 0: /* ETSI */
-	proto_tree_add_item(subtree, hf_camel_PDPTypeNumber_etsi, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(subtree, hf_camel_PDPTypeNumber_etsi, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 	break;
  case 1: /* IETF */
-	proto_tree_add_item(subtree, hf_camel_PDPTypeNumber_ietf, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(subtree, hf_camel_PDPTypeNumber_ietf, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
 	break;
  default:
 	break;
@@ -3355,10 +3355,10 @@ dissect_camel_T_pDPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
  case 1: /* IETF */
 	switch(PDPTypeNumber){
 	case 0x21: /* IPv4 */
-		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_length(parameter_tvb), ENC_BIG_ENDIAN);
 		break;
 	case 0x57: /* IPv6 */
-		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_length(parameter_tvb), ENC_NA);
 		break;
 	default:
 		break;
