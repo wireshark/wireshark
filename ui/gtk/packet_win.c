@@ -892,25 +892,8 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 
 	DataPtr->frame = cfile.current_frame;
 	memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
-	if (DataPtr->frame->cap_len != 0) {
-		DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
-		memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
-	} else {
-		/* g_malloc(0) returns NULL and we should NOT pass NULL pd to epan_dissect_run.
-		 * (in such case TVBUFF_REAL_DATA is created with NULL real_data)
-		 *
-		 * Call to tvb_get_ptr(tvb_with_null_real_data, 0, -1) generates assertion:
-		 *   Unhandled exception ("tvbuff.c:925: failed assertion "DISSECTOR_ASSERT_NOT_REACHED"", group=1, code=4)
-		 *
-		 * Backtrace:
-		 *  #4  0x00007fecbd71bd07 in except_throw () from /tmp/wireshark/epan/.libs/libwireshark.so.0
-		 *  #5  0x00007fecbd74741b in ensure_contiguous_no_exception () from /tmp/wireshark/epan/.libs/libwireshark.so.0
-		 *  #6  0x00007fecbd747438 in ensure_contiguous () from /tmp/wireshark/epan/.libs/libwireshark.so.0
-		 *  #7  0x0000000000460741 in get_byte_view_data_and_length ()
-		 *  #8  0x0000000000461134 in byte_view_realize_cb ()
-		 */
-		DataPtr->pd = g_strdup("");
-	}
+	DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
+	memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
 
 	epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
 	epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd,
