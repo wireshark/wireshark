@@ -3284,10 +3284,10 @@ if (!actx->value_ptr)
 		 */
 		 /* Get tag */
 		 octet = tvb_get_guint8(actx->value_ptr,0);
-		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,FALSE);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
 		 length = tvb_get_guint8(actx->value_ptr,1);
-		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
@@ -3304,15 +3304,15 @@ if (!actx->value_ptr)
  		/* gsm-0806 */
 		octet = tvb_get_guint8(actx->value_ptr,0);
 		/* Discrimination parameter */
-		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,FALSE);
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
-			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
@@ -3414,15 +3414,15 @@ dissect_gsm_map_LongSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 	case 1:
 		octet = tvb_get_guint8(parameter_tvb,0);
 		/* Discrimination parameter */
-		proto_tree_add_item(subtree, hf_gsm_map_disc_par, parameter_tvb, 0,1,FALSE);
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 1,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 1,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
-			proto_tree_add_item(subtree, hf_gsm_map_dlci, parameter_tvb, 1,1,FALSE);
-			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, parameter_tvb, 1,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
@@ -3487,10 +3487,10 @@ dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 	octet = tvb_get_guint8(parameter_tvb,0);
 	switch(octet){
 	case 0x04: /* IPv4 */
-		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
 		break;
 	case 0x50: /* IPv4 */
-		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), FALSE);
+		proto_tree_add_item(subtree, hf_gsm_map_GSNAddress_IPv4, parameter_tvb, 1, tvb_length_remaining(parameter_tvb, 1), ENC_BIG_ENDIAN);
 		break;
 	default:
 		break;
@@ -4226,10 +4226,10 @@ dissect_gsm_map_ss_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 #line 516 "../../asn1/gsm_map/gsm_map.cnf"
 
-	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
-	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
-	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
-	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,ENC_BIG_ENDIAN);
 
   return offset;
 }
@@ -9383,10 +9383,10 @@ dissect_gsm_map_ms_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 #line 522 "../../asn1/gsm_map/gsm_map.cnf"
 
-	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
-	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
-	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,FALSE);
-	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_map_notification_to_calling_party, tvb, 0,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_map_forwarding_reason, tvb, 0,1,ENC_BIG_ENDIAN);
 
 
 
@@ -10555,14 +10555,14 @@ dissect_gsm_map_ms_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
  if (!parameter_tvb)
 	return offset;
-	proto_tree_add_item(tree, hf_gsm_map_pdp_type_org, parameter_tvb, 0,1,FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_pdp_type_org, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
 	pdp_type_org = tvb_get_guint8(parameter_tvb,1);
 	switch (pdp_type_org){
 		case 0: /* ETSI */
-			proto_tree_add_item(tree, hf_gsm_map_etsi_pdp_type_number, parameter_tvb, 0,1,FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_etsi_pdp_type_number, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
 			break;
 		case 1: /* IETF */
-			proto_tree_add_item(tree, hf_gsm_map_ietf_pdp_type_number, parameter_tvb, 0,1,FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_ietf_pdp_type_number, parameter_tvb, 0,1,ENC_BIG_ENDIAN);
 			break;
 		default:
 		break;
@@ -16321,10 +16321,10 @@ if (!actx->value_ptr)
 		 */
 		 /* Get tag */
 		 octet = tvb_get_guint8(actx->value_ptr,0);
-		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,FALSE);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
 		 length = tvb_get_guint8(actx->value_ptr,1);
-		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
@@ -16341,15 +16341,15 @@ if (!actx->value_ptr)
  		/* gsm-0806 */
 		octet = tvb_get_guint8(actx->value_ptr,0);
 		/* Discrimination parameter */
-		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,FALSE);
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
-			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,FALSE);
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,FALSE);
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
@@ -19295,7 +19295,7 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     /* create display subtree for the protocol */
     if(parent_tree){
-        item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, FALSE);
+        item = proto_tree_add_item(parent_tree, proto_gsm_map, tvb, 0, -1, ENC_NA);
         tree = proto_item_add_subtree(item, ett_gsm_map);
     }
 
