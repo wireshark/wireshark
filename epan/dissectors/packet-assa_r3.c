@@ -3274,7 +3274,7 @@ static void dissect_serialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 l
 
   tvb_ensure_bytes_exist (tvb, start_offset, 16);
 
-  sn_item = proto_tree_add_item (tree, hf_index, tvb, start_offset, 16, TRUE);
+  sn_item = proto_tree_add_item (tree, hf_index, tvb, start_offset, 16, ENC_ASCII|ENC_NA);
   sn_tree = proto_item_add_subtree (sn_item, ett_r3serialnumber);
 
   s = tvb_get_ephemeral_string (tvb, start_offset +  0, 2);
@@ -3338,14 +3338,11 @@ static void dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset _U_, 
     switch (fieldType)
     {
       /*
-       *  Strings, booleans, 8 & 16 bit values
+       *  Booleans, 8 & 16 bit values
        */
       case UPSTREAMFIELD_NOTUSED :
-      case UPSTREAMFIELD_PIN :
-      case UPSTREAMFIELD_VERSION :
       case UPSTREAMFIELD_PRIMARYPIN :
       case UPSTREAMFIELD_AUXPIN :
-      case UPSTREAMFIELD_AUXCTLRVERSION :
       case UPSTREAMFIELD_ACCESSALWAYS :
       case UPSTREAMFIELD_CACHED :
       case UPSTREAMFIELD_ENTRYDEVICE :
@@ -3363,7 +3360,16 @@ static void dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset _U_, 
       case UPSTREAMFIELD_EVENTLOGRECORDCOUNT :
       case UPSTREAMFIELD_DECLINEDRECORDCOUNT :
       case UPSTREAMFIELD_ALARMRECORDCOUNT :
-        proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldarray [fieldType], tvb, offset, dataLength, TRUE);
+        proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldarray [fieldType], tvb, offset, dataLength, ENC_LITTLE_ENDIAN);
+        break;
+
+      /*
+       *  Strings
+       */
+      case UPSTREAMFIELD_PIN :
+      case UPSTREAMFIELD_VERSION :
+      case UPSTREAMFIELD_AUXCTLRVERSION :
+        proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldarray [fieldType], tvb, offset, dataLength, ENC_ASCII|ENC_NA);
         break;
 
       /*
@@ -3492,7 +3498,7 @@ static void dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset _U_, 
           else
           {
             tz = tvb_get_letohl (tvb, offset);
-            timezone_item = proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldarray [fieldType], tvb, offset, 4, TRUE);
+            timezone_item = proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldarray [fieldType], tvb, offset, 4, ENC_LITTLE_ENDIAN);
             timezone_tree = proto_item_add_subtree (timezone_item, ett_r3timezone);
 
             for (i = 0; i < 32; i++)
@@ -3680,9 +3686,9 @@ static void dissect_r3_upstreamcommand_rmteventlogrecord (tvbuff_t *tvb, guint32
 static void dissect_r3_upstreamcommand_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
   /* XXX: hf[] entries for the following hf indexes do not exist ?? */
-  proto_tree_add_item (tree, hf_r3_dpacreply_stuff, tvb, start_offset + 2, 1, TRUE);
-  proto_tree_add_item (tree, hf_r3_dpacreply_length, tvb, start_offset + 3, 1, TRUE);
-  proto_tree_add_item (tree, hf_r3_dpacreply_reply, tvb, start_offset + 4, -1, TRUE);
+  proto_tree_add_item (tree, hf_r3_dpacreply_stuff, tvb, start_offset + 2, 1, ENC_NA);
+  proto_tree_add_item (tree, hf_r3_dpacreply_length, tvb, start_offset + 3, 1, ENC_NA);
+  proto_tree_add_item (tree, hf_r3_dpacreply_reply, tvb, start_offset + 4, -1, ENC_NA);
 }
 
 static void dissect_r3_upstreamcommand_notify (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
@@ -4693,19 +4699,19 @@ static void dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guin
         if (dataLength != 1)
           expert_add_info_format (pinfo, mu_tree, PI_UNDECODED, PI_WARN, "Malformed field -- expected 1 octet");
         else
-          proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, TRUE);
+          proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, ENC_LITTLE_ENDIAN);
         break;
 
       case ADDUSERPARAMTYPE_USERNO :
         if (dataLength != 2)
           expert_add_info_format (pinfo, mu_tree, PI_UNDECODED, PI_WARN, "Malformed field -- expected 2 octets");
         else
-          proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, TRUE);
+          proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, ENC_LITTLE_ENDIAN);
         break;
 
       case ADDUSERPARAMTYPE_PRIMARYFIELD :
       case ADDUSERPARAMTYPE_AUXFIELD :
-        proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, TRUE);
+        proto_tree_add_item (mu_tree, hf_r3_adduserparamtypearray [paramType], payload_tvb, offset, dataLength, ENC_NA);
         break;
 
       case ADDUSERPARAMTYPE_EXPIREON :
@@ -4740,7 +4746,7 @@ static void dissect_r3_cmd_manageuser (tvbuff_t *tvb, guint32 start_offset, guin
           else
           {
             tz = tvb_get_letohl (payload_tvb, offset);
-            timezone_item = proto_tree_add_item (mu_tree, hf_r3_upstreamfieldarray [paramType], payload_tvb, offset, 4, TRUE);
+            timezone_item = proto_tree_add_item (mu_tree, hf_r3_upstreamfieldarray [paramType], payload_tvb, offset, 4, ENC_LITTLE_ENDIAN);
             timezone_tree = proto_item_add_subtree (timezone_item, ett_r3timezone);
 
             for (i = 0; i < 32; i++)
@@ -5159,9 +5165,9 @@ static void dissect_r3_cmd_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 le
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command, tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
   /* XXX: hf[] entries for the following hf indexes do not exist ?? */
-  proto_tree_add_item (tree, hf_r3_dpac_action, payload_tvb, 0, 1, TRUE);
-  proto_tree_add_item (tree, hf_r3_dpac_waittime, payload_tvb, 1, 2, TRUE);
-  proto_tree_add_item (tree, hf_r3_dpac_command, payload_tvb, 3, -1, TRUE);
+  proto_tree_add_item (tree, hf_r3_dpac_action, payload_tvb, 0, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item (tree, hf_r3_dpac_waittime, payload_tvb, 1, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item (tree, hf_r3_dpac_command, payload_tvb, 3, -1, ENC_NA);
 }
 
 static void dissect_r3_cmd_selftest (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
