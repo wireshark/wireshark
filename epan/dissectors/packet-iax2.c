@@ -6,11 +6,8 @@
  * Copyright 2003 Alastair Maw
  *
  * IAX2 is a VoIP protocol for the open source PBX Asterisk. Please see
- * http://www.asterisk.org for more information; see
- *
- *   http://www.ietf.org/internet-drafts/draft-guy-iax-04.txt
- *
- * for the current Internet-Draft for IAX2.
+ * http://www.asterisk.org for more information; see RFC 5456 for the
+ * protocol.
  *
  * $Id$
  *
@@ -1248,7 +1245,8 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
       /* hf_iax2_ies[] is an array, indexed by IE number, of header-fields, one
          per IE. Apart from a couple of special cases which require more
          complex decoding, we can just look up an entry from the array, and add
-         the relevant item.
+         the relevant item, although the encoding value used depends on the
+         type of the item.
       */
 
       switch (ies_type) {
@@ -1265,7 +1263,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
 
           ie_item =
             proto_tree_add_item (ies_tree, ie_hf,
-                                 tvb, offset + 2, ies_len, FALSE);
+                                 tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
           codec_tree =
             proto_item_add_subtree (ie_item, ett_iax2_codecs);
 
@@ -1330,10 +1328,40 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
         default:
           if( ie_hf != -1 ) {
             /* throw an error if the IE isn't the expected length */
-            gint explen = ftype_length(proto_registrar_get_nth(ie_hf)->type);
+            enum ftenum type = proto_registrar_get_nth(ie_hf)->type;
+            gint explen = ftype_length(type);
             if(explen != 0 && ies_len != explen)
               THROW(ReportedBoundsError);
-            ie_item = proto_tree_add_item(ies_tree, ie_hf, tvb, offset + 2, ies_len, FALSE);
+            switch (type) {
+            case FT_UINT8:
+            case FT_UINT16:
+            case FT_UINT24:
+            case FT_UINT32:
+            case FT_UINT64:
+            case FT_INT8:
+            case FT_INT16:
+            case FT_INT24:
+            case FT_INT32:
+            case FT_INT64:
+            case FT_BOOLEAN:
+            case FT_IPv4:
+                ie_item = proto_tree_add_item(ies_tree, ie_hf, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN);
+                break;
+
+            case FT_BYTES:
+            case FT_NONE:
+                ie_item = proto_tree_add_item(ies_tree, ie_hf, tvb, offset + 2, ies_len, ENC_NA);
+                break;
+
+            case FT_STRING:
+            case FT_STRINGZ:
+                ie_item = proto_tree_add_item(ies_tree, ie_hf, tvb, offset + 2, ies_len, ENC_UTF_8|ENC_NA);
+                break;
+
+            default:
+                DISSECTOR_ASSERT_NOT_REACHED();
+                break;
+            }
           } else {
             /* we don't understand this ie: add a generic one */
             guint32 value;
