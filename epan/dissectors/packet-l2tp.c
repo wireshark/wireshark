@@ -824,7 +824,7 @@ static void process_control_avps(tvbuff_t *tvb,
 			case CONTROL_MESSAGE:
 				msg_type = tvb_get_ntohs(tvb, idx);
                                 proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_message_type,
-                                                    tvb, idx, 2, FALSE);
+                                                    tvb, idx, 2, ENC_BIG_ENDIAN);
 
 				if (msg_type == MESSAGE_TYPE_StopCCN) {
 					isStopCcn = TRUE;
