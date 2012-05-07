@@ -690,12 +690,9 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 	guint16 tlv_length;
 	guint16 tlv_type;
 	int i, j;
-	int m = 0;
 	int padding = 0;
 
 	for (j = 0; j < length; j += 4 + tlv_length + padding){
-		m = m+1;
-
 		tlv_type = tvb_get_ntohs(tvb, offset+j);
 		tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
 		ti = proto_tree_add_text(pcep_obj, tvb, offset + j, tlv_length+4, "%s", val_to_str(tlv_type, pcep_tlvs_vals, "Unknown TLV (%u). "));

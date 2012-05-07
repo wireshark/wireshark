@@ -851,7 +851,6 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 {
     tvbuff_t *encr_tvb;
     guint8 *decrypted_data = NULL, *plaintext = NULL;
-    int res;
     guint8 cls;
     gboolean pc;
     guint32 tag, item_len, data_len;
@@ -893,7 +892,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 
         md5_init(&md5s);
         memset(initial_vector, 0, DES_BLOCK_SIZE);
-        res = des3_set_key(&ctx, key);
+        des3_set_key(&ctx, key);
         cbc_decrypt(&ctx, des3_decrypt, DES_BLOCK_SIZE, initial_vector,
                     length, decrypted_data, cryptotext);
         encr_tvb = tvb_new_real_data(decrypted_data, length, length);
