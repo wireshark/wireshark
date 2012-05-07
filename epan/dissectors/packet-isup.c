@@ -7406,6 +7406,22 @@ dissect_israeli_backward_charging_message(tvbuff_t *message_tvb, proto_tree *isu
     return offset;
 }
 
+static int
+dissect_israeli_traffic_change_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+{
+    gint offset = 0;
+
+    proto_tree_add_item(isup_tree, hf_isup_israeli_charging_message_indicators_current, message_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(isup_tree, hf_isup_israeli_charging_message_indicators_next, message_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(isup_tree, hf_isup_israeli_time_indicator, message_tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(isup_tree, hf_isup_israeli_next_rate, message_tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
 /* ------------------------------------------------------------------ */
 static void
 dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
@@ -7944,9 +7960,10 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                     offset += dissect_israeli_backward_charging_message(parameter_tvb, isup_tree);
                     break;
                 case ISRAELI_TRAFFIC_CHANGE:
+                    offset += dissect_israeli_traffic_change_message(parameter_tvb, isup_tree);
+                    break;
                 case ISRAELI_CHARGE_ACK:
-                    bufferlength = tvb_length_remaining(message_tvb, offset);
-                    proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Not decoded yet");
+                    /* No parameters */
                     break;
                 default:
                     bufferlength = tvb_length_remaining(message_tvb, offset);
