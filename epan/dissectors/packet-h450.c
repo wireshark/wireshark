@@ -972,7 +972,7 @@ dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 #line 55 "../../asn1/h450/h450.cnf"
   proto_item *hidden_item;
 
-  hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, FALSE);
+  hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
