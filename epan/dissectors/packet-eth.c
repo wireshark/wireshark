@@ -534,7 +534,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
         if (padding_length > 0) {
             tvb_ensure_bytes_exist(tvb, 0, padding_length);
             proto_tree_add_item(fh_tree, hf_eth_padding, trailer_tvb, 0,
-                padding_length, FALSE);
+                padding_length, ENC_NA);
             trailer_length -= padding_length;
             trailer_reported_length -= padding_length;
         }
@@ -601,7 +601,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
         if (trailer_length != 0) {
           tvb_ensure_bytes_exist(tvb, 0, trailer_length);
           proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
-            trailer_length, FALSE);
+            trailer_length, ENC_NA);
         }
       }
     }
