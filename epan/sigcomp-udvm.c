@@ -2251,7 +2251,6 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       partial_identifier_start %u",
 				operand_address, p_id_start);
 		}
-		operand_address = next_operand_address;
 
 		/*
 		 * %partial_identifier_length
@@ -2360,7 +2359,6 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       state_instruction %u",
 				operand_address, state_instruction);
 		}
-		operand_address = next_operand_address;
 		/*
 		 * %minimum_access_length
 		 */
@@ -2370,7 +2368,6 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       minimum_access_length %u",
 				operand_address, minimum_access_length);
 		}
-		operand_address = next_operand_address;
 		/*
 		 * %state_retention_priority
 		 */
@@ -2470,7 +2467,6 @@ execute_next_instruction:
 		/*
 		 * %partial_identifier_length
 		 */
-		operand_address = next_operand_address;
 		next_operand_address = decode_udvm_multitype_operand(buff, operand_address, &p_id_length);
 		if (show_instr_detail_level == 2 ){
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u       partial_identifier_length %u",
@@ -2594,7 +2590,6 @@ execute_next_instruction:
 			proto_tree_add_text(udvm_tree, bytecode_tvb, 0, -1,"Addr: %u      returned_parameters_location %u",
 				operand_address, returned_parameters_location);
 		}
-		operand_address = next_operand_address;
 		/*
 		 * %state_length
 		 */
