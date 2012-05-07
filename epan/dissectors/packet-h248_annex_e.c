@@ -280,7 +280,7 @@ static const value_string h248_pkg_tonedet_tl_params_vals[] = {
 };
 
 static const h248_pkg_param_t h248_pkg_tonedet_event_params[] = {
-	{ 0x0001, &hf_h248_pkg_tonedet_evt_tl_param, h248_param_item, &implicit },
+	{ 0x0001, &hf_h248_pkg_tonedet_evt_tl_param, h248_param_uint_item, &implicit },
 	{ 0x0002, &hf_h248_pkg_tonedet_evt_dur_param, h248_param_ber_integer, &implicit },
 	{ 0x0003, &hf_h248_pkg_tonedet_evt_tid_param, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL }
@@ -534,7 +534,7 @@ static h248_pkg_param_t h248_pkg_dd_ds_events[] = {
 };
 
 static const h248_pkg_param_t h248_pkg_dd_event_params[] = {
-	{ 0x0001, &hf_h248_pkg_dd_evt_tl_param, h248_param_item, &implicit },
+	{ 0x0001, &hf_h248_pkg_dd_evt_tl_param, h248_param_uint_item, &implicit },
 	{ 0x0002, &hf_h248_pkg_dd_evt_dur_param, h248_param_ber_integer, &implicit },
 	{ 0x0003, &hf_h248_pkg_dd_evt_tid_param, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL }

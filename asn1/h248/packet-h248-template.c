@@ -717,14 +717,24 @@ extern void h248_param_ber_boolean(proto_tree* tree, tvbuff_t* tvb, packet_info*
     dissect_ber_boolean(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
 }
 
-extern void h248_param_item(proto_tree* tree,
+extern void h248_param_bytes_item(proto_tree* tree,
                              tvbuff_t* tvb,
                              packet_info* pinfo _U_,
                              int hfid,
                              h248_curr_info_t* h248_info _U_,
                              void* lenp ) {
     int len = lenp ? *((int*)lenp) : -1;
-    proto_tree_add_item(tree,hfid,tvb,0,len,FALSE);
+    proto_tree_add_item(tree,hfid,tvb,0,len,ENC_NA);
+}
+
+extern void h248_param_uint_item(proto_tree* tree,
+                                 tvbuff_t* tvb,
+                                 packet_info* pinfo _U_,
+                                 int hfid,
+                                 h248_curr_info_t* h248_info _U_,
+                                 void* lenp ) {
+    int len = lenp ? *((int*)lenp) : -1;
+    proto_tree_add_item(tree,hfid,tvb,0,len,ENC_BIG_ENDIAN);
 }
 
 extern void h248_param_external_dissector(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u _U_, void* dissector_hdl) {
@@ -734,7 +744,7 @@ extern void h248_param_external_dissector(proto_tree* tree, tvbuff_t* tvb, packe
 
 static const h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &ett_h248_no_pkg, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 static const h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, NULL, NULL };
-static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_item,  NULL };
+static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_uint_item,  NULL };
 static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
 static GPtrArray* packages = NULL;

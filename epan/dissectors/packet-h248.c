@@ -1194,14 +1194,24 @@ extern void h248_param_ber_boolean(proto_tree* tree, tvbuff_t* tvb, packet_info*
     dissect_ber_boolean(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
 }
 
-extern void h248_param_item(proto_tree* tree,
+extern void h248_param_bytes_item(proto_tree* tree,
                              tvbuff_t* tvb,
                              packet_info* pinfo _U_,
                              int hfid,
                              h248_curr_info_t* h248_info _U_,
                              void* lenp ) {
     int len = lenp ? *((int*)lenp) : -1;
-    proto_tree_add_item(tree,hfid,tvb,0,len,FALSE);
+    proto_tree_add_item(tree,hfid,tvb,0,len,ENC_NA);
+}
+
+extern void h248_param_uint_item(proto_tree* tree,
+                                 tvbuff_t* tvb,
+                                 packet_info* pinfo _U_,
+                                 int hfid,
+                                 h248_curr_info_t* h248_info _U_,
+                                 void* lenp ) {
+    int len = lenp ? *((int*)lenp) : -1;
+    proto_tree_add_item(tree,hfid,tvb,0,len,ENC_BIG_ENDIAN);
 }
 
 extern void h248_param_external_dissector(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u _U_, void* dissector_hdl) {
@@ -1211,7 +1221,7 @@ extern void h248_param_external_dissector(proto_tree* tree, tvbuff_t* tvb, packe
 
 static const h248_package_t no_package = { 0xffff, &hf_h248_no_pkg, &ett_h248_no_pkg, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 static const h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, NULL, NULL };
-static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_item,  NULL };
+static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_uint_item,  NULL };
 static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
 static GPtrArray* packages = NULL;
@@ -2135,9 +2145,9 @@ dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     tvbuff_t* new_tvb;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
     tree = proto_item_add_subtree(actx->created_item,ett_wildcard);
-    proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,FALSE);
-    proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,FALSE);
-    proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,FALSE);
+    proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,ENC_BIG_ENDIAN);
 
     wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
     /* limitation: assume only one wildcard is used */
@@ -5378,7 +5388,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1354 "../../asn1/h248/packet-h248-template.c"
+#line 1364 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6771,7 +6781,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1494 "../../asn1/h248/packet-h248-template.c"
+#line 1504 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6940,7 +6950,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1512 "../../asn1/h248/packet-h248-template.c"
+#line 1522 "../../asn1/h248/packet-h248-template.c"
     };
 
     module_t *h248_module;
