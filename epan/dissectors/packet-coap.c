@@ -1,4 +1,3 @@
-#include <stdio.h>
 /* packet-coap.c
  * Routines for COAP packet disassembly
  * draft-ietf-core-coap-07.txt
@@ -208,7 +207,7 @@ dissect_coap_opt_string(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *subtr
 {
 	guint8 *hoststr = NULL;
 
-	proto_tree_add_item(subtree, hfindex, tvb, offset, opt_length, FALSE);
+	proto_tree_add_item(subtree, hfindex, tvb, offset, opt_length, ENC_UTF_8|ENC_NA);
 
 	/* forming a uri-string */
 	switch (opt_code) {
