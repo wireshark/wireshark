@@ -986,7 +986,7 @@ decode_bitfield_value(char *buf, const guint32 val, const guint32 mask, const in
 }
 
 /* Generate a string describing a Boolean bitfield (a one-bit field that
-   says something is either true of false). */
+   says something is either true or false). */
 const char *
 decode_boolean_bitfield(const guint32 val, const guint32 mask, const int width,
     const char *truedesc, const char *falsedesc)
