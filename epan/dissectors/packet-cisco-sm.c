@@ -174,7 +174,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (!tree)
 				return;
 
-			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset +2;
 			msg_type = tvb_get_ntohs(tvb,offset);
 			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
@@ -182,11 +182,11 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				msg_type);
 			msg_type = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
-			proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset + 2;
-			proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset +2;
-			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = tvb_get_ntohs(tvb,offset);
 			offset = offset +2;
 			proto_item_set_len(ti, 16);
