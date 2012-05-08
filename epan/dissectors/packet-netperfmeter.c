@@ -233,16 +233,17 @@ static hf_register_info hf[] = {
 };
 
 
-#define ADD_FIELD(tree, field) proto_tree_add_item(tree, hf_##field, message_tvb, offset_##field, length_##field, FALSE)
+#define ADD_FIELD_UINT(tree, field) proto_tree_add_item(tree, hf_##field, message_tvb, offset_##field, length_##field, ENC_BIG_ENDIAN)
+#define ADD_FIELD_STRING(tree, field) proto_tree_add_item(tree, hf_##field, message_tvb, offset_##field, length_##field, ENC_ASCII|ENC_NA)
 
 
 static void
 dissect_npmp_acknowledge_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  ADD_FIELD(message_tree, acknowledge_flowid);
-  ADD_FIELD(message_tree, acknowledge_measurementid);
-  ADD_FIELD(message_tree, acknowledge_streamid);
-  ADD_FIELD(message_tree, acknowledge_status);
+  ADD_FIELD_UINT(message_tree, acknowledge_flowid);
+  ADD_FIELD_UINT(message_tree, acknowledge_measurementid);
+  ADD_FIELD_UINT(message_tree, acknowledge_streamid);
+  ADD_FIELD_UINT(message_tree, acknowledge_status);
 }
 
 
@@ -256,12 +257,12 @@ dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
   guint32      onoffvalue;
   unsigned int i;
 
-  ADD_FIELD(message_tree, addflow_flowid);
-  ADD_FIELD(message_tree, addflow_measurementid);
-  ADD_FIELD(message_tree, addflow_streamid);
-  ADD_FIELD(message_tree, addflow_protocol);
-  ADD_FIELD(message_tree, addflow_flags);
-  ADD_FIELD(message_tree, addflow_description);
+  ADD_FIELD_UINT(message_tree, addflow_flowid);
+  ADD_FIELD_UINT(message_tree, addflow_measurementid);
+  ADD_FIELD_UINT(message_tree, addflow_streamid);
+  ADD_FIELD_UINT(message_tree, addflow_protocol);
+  ADD_FIELD_UINT(message_tree, addflow_flags);
+  ADD_FIELD_STRING(message_tree, addflow_description);
 
   proto_tree_add_double_format_value(message_tree, hf_addflow_ordered, message_tvb, offset_addflow_ordered, length_addflow_ordered,
                                      100.0 * tvb_get_ntohl(message_tvb, offset_addflow_ordered) / (double)0xffffffff, "%1.3f%%",
@@ -275,23 +276,23 @@ dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
                                    retranstrials, (retranstrials & (1 << 31)) ? "%u ms" : "%u trials",
                                    retranstrials &~ (1 << 31));
 
-  ADD_FIELD(message_tree, addflow_frameraterng);
-  ADD_FIELD(message_tree, addflow_framerate1);
-  ADD_FIELD(message_tree, addflow_framerate2);
-  ADD_FIELD(message_tree, addflow_framerate3);
-  ADD_FIELD(message_tree, addflow_framerate4);
-  ADD_FIELD(message_tree, addflow_framesizerng);
-  ADD_FIELD(message_tree, addflow_framesize1);
-  ADD_FIELD(message_tree, addflow_framesize2);
-  ADD_FIELD(message_tree, addflow_framesize3);
-  ADD_FIELD(message_tree, addflow_framesize4);
-  ADD_FIELD(message_tree, addflow_rcvbuffersize);
-  ADD_FIELD(message_tree, addflow_sndbuffersize);
-  ADD_FIELD(message_tree, addflow_maxmsgsize);
-  ADD_FIELD(message_tree, addflow_cmt);
-  ADD_FIELD(message_tree, addflow_ccid);
+  ADD_FIELD_UINT(message_tree, addflow_frameraterng);
+  ADD_FIELD_UINT(message_tree, addflow_framerate1);
+  ADD_FIELD_UINT(message_tree, addflow_framerate2);
+  ADD_FIELD_UINT(message_tree, addflow_framerate3);
+  ADD_FIELD_UINT(message_tree, addflow_framerate4);
+  ADD_FIELD_UINT(message_tree, addflow_framesizerng);
+  ADD_FIELD_UINT(message_tree, addflow_framesize1);
+  ADD_FIELD_UINT(message_tree, addflow_framesize2);
+  ADD_FIELD_UINT(message_tree, addflow_framesize3);
+  ADD_FIELD_UINT(message_tree, addflow_framesize4);
+  ADD_FIELD_UINT(message_tree, addflow_rcvbuffersize);
+  ADD_FIELD_UINT(message_tree, addflow_sndbuffersize);
+  ADD_FIELD_UINT(message_tree, addflow_maxmsgsize);
+  ADD_FIELD_UINT(message_tree, addflow_cmt);
+  ADD_FIELD_UINT(message_tree, addflow_ccid);
 
-  onoffitem = ADD_FIELD(message_tree, addflow_onoffevents);
+  onoffitem = ADD_FIELD_UINT(message_tree, addflow_onoffevents);
 
   onoffevents = tvb_get_ntohs(message_tvb, offset_addflow_onoffevents);
   if (onoffevents > 0) {
@@ -309,19 +310,19 @@ dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 static void
 dissect_npmp_remove_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  ADD_FIELD(message_tree, removeflow_flowid);
-  ADD_FIELD(message_tree, removeflow_measurementid);
-  ADD_FIELD(message_tree, removeflow_streamid);
+  ADD_FIELD_UINT(message_tree, removeflow_flowid);
+  ADD_FIELD_UINT(message_tree, removeflow_measurementid);
+  ADD_FIELD_UINT(message_tree, removeflow_streamid);
 }
 
 
 static void
 dissect_npmp_identify_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  ADD_FIELD(message_tree, identifyflow_magicnumber);
-  ADD_FIELD(message_tree, identifyflow_flowid);
-  ADD_FIELD(message_tree, identifyflow_measurementid);
-  ADD_FIELD(message_tree, identifyflow_streamid);
+  ADD_FIELD_UINT(message_tree, identifyflow_magicnumber);
+  ADD_FIELD_UINT(message_tree, identifyflow_flowid);
+  ADD_FIELD_UINT(message_tree, identifyflow_measurementid);
+  ADD_FIELD_UINT(message_tree, identifyflow_streamid);
 }
 
 
@@ -330,14 +331,14 @@ dissect_npmp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   const guint16 message_length = tvb_get_ntohs(message_tvb, offset_message_length);
 
-  ADD_FIELD(message_tree, data_flowid);
-  ADD_FIELD(message_tree, data_measurementid);
-  ADD_FIELD(message_tree, data_streamid);
-  ADD_FIELD(message_tree, data_padding);
-  ADD_FIELD(message_tree, data_frameid);
-  ADD_FIELD(message_tree, data_packetseqnumber);
-  ADD_FIELD(message_tree, data_byteseqnumber);
-  ADD_FIELD(message_tree, data_timestamp);
+  ADD_FIELD_UINT(message_tree, data_flowid);
+  ADD_FIELD_UINT(message_tree, data_measurementid);
+  ADD_FIELD_UINT(message_tree, data_streamid);
+  ADD_FIELD_UINT(message_tree, data_padding);
+  ADD_FIELD_UINT(message_tree, data_frameid);
+  ADD_FIELD_UINT(message_tree, data_packetseqnumber);
+  ADD_FIELD_UINT(message_tree, data_byteseqnumber);
+  ADD_FIELD_UINT(message_tree, data_timestamp);
   if (message_length > offset_data_payload) {
     proto_tree_add_item(message_tree, hf_data_payload, message_tvb, offset_data_payload, message_length - offset_data_payload, ENC_NA);
   }
@@ -347,14 +348,14 @@ dissect_npmp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 static void
 dissect_npmp_start_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  ADD_FIELD(message_tree, start_measurementid);
+  ADD_FIELD_UINT(message_tree, start_measurementid);
 }
 
 
 static void
 dissect_npmp_stop_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  ADD_FIELD(message_tree, stop_measurementid);
+  ADD_FIELD_UINT(message_tree, stop_measurementid);
 }
 
 
@@ -378,9 +379,9 @@ dissect_npmp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npmp
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown NetPerfMeterProtocol type"));
   }
 
-  ADD_FIELD(npmp_tree, message_type);
-  ADD_FIELD(npmp_tree, message_flags);
-  ADD_FIELD(npmp_tree, message_length);
+  ADD_FIELD_UINT(npmp_tree, message_type);
+  ADD_FIELD_UINT(npmp_tree, message_flags);
+  ADD_FIELD_UINT(npmp_tree, message_length);
 
   switch (type) {
     case NETPERFMETER_ACKNOWLEDGE:
