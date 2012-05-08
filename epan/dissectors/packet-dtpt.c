@@ -275,7 +275,7 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 		const gchar	*guid_name = NULL;
 
 		if (guid_length) {
-			tvb_get_guid(tvb, offset+4, &guid, 1);
+			tvb_get_guid(tvb, offset+4, &guid, ENC_LITTLE_ENDIAN);
 		}
 		else {
 			memset(&guid, 0, sizeof(guid));

@@ -607,7 +607,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     {
       e_guid_t guid;
       char buf[GUID_STR_LEN];
-      tvb_get_guid(tvb, (offset+4), &guid, FALSE);
+      tvb_get_guid(tvb, (offset+4), &guid, ENC_BIG_ENDIAN);
       guid_to_str_buf(&guid, buf, sizeof(buf));
       proto_item_append_text(attr_tree, ": %u:%u:%s",
                              tvb_get_ntohs(tvb, offset),
