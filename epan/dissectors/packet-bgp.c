@@ -32,15 +32,18 @@
  * RFC2858 Multiprotocol Extensions for BGP-4
  * RFC2918 Route Refresh Capability for BGP-4
  * RFC3107 Carrying Label Information in BGP-4
+ * RFC4486 Subcodes for BGP Cease Notification Message
  * RFC5512 BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute
  * RFC5640 Load-Balancing for Mesh Softwires
+ * RFC6608 Subcodes for BGP Finite State Machine Error
  * draft-ietf-idr-as4bytes-06
  * draft-ietf-idr-dynamic-cap-03
  * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
  * draft-nalawade-kapoor-tunnel-safi-05
  * draft-ietf-idr-add-paths-04 Additional-Path for BGP-4
- *
+ * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
+
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
  * RFC1863 A BGP/IDRP Route Server alternative to a full mesh routing
@@ -107,7 +110,7 @@ static const value_string bgpnotify_minor_open_msg[] = {
     { 2, "Bad Peer AS" },
     { 3, "Bad BGP Identifier" },
     { 4, "Unsupported Optional Parameter" },
-    { 5, "Authentication Failure" },
+    { 5, "Authentication Failure [Deprecated]" },
     { 6, "Unacceptable Hold Time" },
     { 7, "Unsupported Capability" },
     { 0, NULL }
@@ -120,23 +123,31 @@ static const value_string bgpnotify_minor_update_msg[] = {
     { 4, "Attribute Flags Error" },
     { 5, "Attribute Length Error" },
     { 6, "Invalid ORIGIN Attribute" },
-    { 7, "AS Routing Loop" },
+    { 7, "AS Routing Loop [Deprecated]" },
     { 8, "Invalid NEXT_HOP Attribute" },
     { 9, "Optional Attribute Error" },
     { 10, "Invalid Network Field" },
     { 11, "Malformed AS_PATH" },
     { 0, NULL }
 };
+/* RFC6608 Subcodes for BGP Finite State Machine Error */
+static const value_string bgpnotify_minor_state_machine[] = {
+    { 1, "Receive Unexpected Message in OpenSent State" },
+    { 2, "Receive Unexpected Message in OpenConfirm State" },
+    { 3, "Receive Unexpected Message in Established State" },
+    { 0, NULL }
+};
 
-/* draft-ietf-idr-cease-subcode-02 */
+/* RFC4486 Subcodes for BGP Cease Notification Message */
 static const value_string bgpnotify_minor_cease[] = {
     { 1, "Maximum Number of Prefixes Reached"},
     { 2, "Administratively Shutdown"},
-    { 3, "Peer Unconfigured"},
+    { 3, "Peer De-configured"},
     { 4, "Administratively Reset"},
     { 5, "Connection Rejected"},
     { 6, "Other Configuration Change"},
     { 7, "Connection Collision Resolution"},
+    { 8, "Out of Resources"},
     { 0, NULL }
 };
 
@@ -3791,7 +3802,7 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_notify_minor_state_machine,
         { "Minor error Code (State Machine)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
-          NULL, 0x0, NULL, HFILL }},
+          VALS(bgpnotify_minor_state_machine), 0x0, NULL, HFILL }},
       { &hf_bgp_notify_minor_cease,
         { "Minor error Code (Cease)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
           VALS(bgpnotify_minor_cease), 0x0, NULL, HFILL }},
