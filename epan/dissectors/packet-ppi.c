@@ -727,7 +727,7 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 #define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
 #define ADD_BASIC_TAG(hf_tag) \
     if (tree)   \
-        proto_tree_add_item(ppi_tree, hf_tag, tvb, offset, data_len, FALSE)
+        proto_tree_add_item(ppi_tree, hf_tag, tvb, offset, data_len, ENC_NA)
 
 static void
 dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
