@@ -556,7 +556,7 @@ void dissect_cie_list(tvbuff_t *tvb,
 
 		if (cli_prot_len) {
 			if (cli_prot_len == 4)
-				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_prot_addr, tvb, offset, 4, FALSE);
+				proto_tree_add_item(cie_tree, hf_nhrp_client_prot_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 			else {
 				proto_tree_add_text(cie_tree, tvb, offset, cli_prot_len,
 									"Client Protocol Address: %s",
