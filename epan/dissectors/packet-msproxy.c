@@ -868,8 +868,8 @@ static void dissect_tcp_bind_ack( tvbuff_t *tvb, int offset, proto_tree *tree) {
 			ENC_BIG_ENDIAN);
 		offset += 16;
 
- 		proto_tree_add_uint( tree, hf_msproxy_server_int_port, tvb,
- 			offset, 2, FALSE);
+ 		proto_tree_add_item( tree, hf_msproxy_server_int_port, tvb,
+ 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 6;
 
  		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
