@@ -78,21 +78,6 @@ struct	ip6_ext {
 	guchar	ip6e_len;
 };
 
-/* Hop-by-Hop options header */
-/* XXX should we pad it to force alignment on an 8-byte boundary? */
-struct ip6_hbh {
-	guint8 ip6h_nxt;	/* next header */
-	guint8 ip6h_len;	/* length in units of 8 octets */
-	/* followed by options */
-};
-
-/* Destination options header */
-/* XXX should we pad it to force alignment on an 8-byte boundary? */
-struct ip6_dest {
-	guint8 ip6d_nxt;	/* next header */
-	guint8 ip6d_len;	/* length in units of 8 octets */
-	/* followed by options */
-};
 
 /* Option types and related macros */
 #define IP6OPT_PAD1			0x00	/* 00 0 00000 */
@@ -114,9 +99,9 @@ struct ip6_dest {
 #define IP6OPT_EXP_DE			0xDE	/* 11 0 11110 */
 #define IP6OPT_EXP_FE			0xFE	/* 11 1 11110 */
 
-#define IP6OPT_RTALERT_MLD		0	/* Datagram contains MLD message */
-#define IP6OPT_RTALERT_RSVP		1	/* Datagram contains RSVP message */
-#define IP6OPT_RTALERT_ACTNET		2	/* contains an Active Networks msg */
+#define IP6OPT_RTALERT_MLD		0	/* Datagram contains MLD msg */
+#define IP6OPT_RTALERT_RSVP		1	/* Datagram contains RSVP msg */
+#define IP6OPT_RTALERT_ACTNET		2	/* Datagram contains ACTNET msg */
 
 
 /* Routing header */

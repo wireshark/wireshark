@@ -803,13 +803,11 @@ static const value_string rtalertvals[] = {
 static int
 dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    struct ip6_ext ext;
     int len;
     proto_tree *unkopt_tree;
-    proto_item *ti;
+    proto_item *ti, *ti_len;
 
-    tvb_memcpy(tvb, (guint8 *)&ext, offset, sizeof(ext));
-    len = (ext.ip6e_len + 1) << 3;
+    len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
 
     if (tree) {
         /* !!! specify length */
@@ -817,13 +815,12 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 
         unkopt_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_text(unkopt_tree, tvb,
-            offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
-            "Next header: %s (%u)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
+        proto_tree_add_item(unkopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_NA);
+        offset += 1;
 
-        proto_tree_add_text(unkopt_tree, tvb,
-            offset + offsetof(struct ip6_ext, ip6e_len), 1,
-            "Length: %u (%d bytes)", ext.ip6e_len, len);
+        ti_len = proto_tree_add_item(unkopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_NA);
+        proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
+        /* offset += 1; */
     }
     return len;
 }
