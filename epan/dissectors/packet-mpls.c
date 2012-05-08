@@ -87,16 +87,6 @@ const value_string special_labels[] = {
     {0, NULL }
 };
 
-/* MPLS filter values */
-enum mpls_filter_keys {
-    /* MPLS encap properties */
-    MPLSF_LABEL,
-    MPLSF_EXP,
-    MPLSF_BOTTOM_OF_STACK,
-    MPLSF_TTL,
-    MPLSF_MAX
-};
-
 static dissector_handle_t dissector_data;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
@@ -221,7 +211,11 @@ static enum_val_t mpls_default_payload_defs[] = {
     }
 };
 
-static int mpls_filter[MPLSF_MAX];
+static int hf_mpls_label;
+static int hf_mpls_label_special;
+static int hf_mpls_exp;
+static int hf_mpls_bos;
+static int hf_mpls_ttl;
 
 static gint mpls_default_payload = 0;
 
@@ -573,27 +567,25 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             proto_item_append_text(ti, ", Label: %u", label);
             if (label <= LABEL_MAX_RESERVED){
-                proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
-                                    offset, 3, label, "MPLS Label: %u (%s)",
-                                    label, val_to_str(label, special_labels,
-                                                      "Reserved - Unknown"));
-                proto_item_append_text(ti, " (%s)", val_to_str(label, special_labels,
-                                        "Reserved - Unknown"));
+                proto_tree_add_item(mpls_tree, hf_mpls_label_special, tvb,
+                                    offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(ti, " (%s)", val_to_str(label, 
+                                    special_labels, "Reserved - Unknown"));
             } else {
-                proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
-                                    offset, 3, label, "MPLS Label: %u", label);
+                proto_tree_add_item(mpls_tree, hf_mpls_label, tvb, offset, 4,
+                                    ENC_BIG_ENDIAN);
             }
 
-            proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_EXP], tvb,
-                                offset+2,1, exp);
+            proto_tree_add_item(mpls_tree, hf_mpls_exp, tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
             proto_item_append_text(ti, ", Exp: %u", exp);
 
-            proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], tvb,
-                                offset+2,1, bos);
+            proto_tree_add_item(mpls_tree, hf_mpls_bos , tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
             proto_item_append_text(ti, ", S: %u", bos);
 
-            proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_TTL], tvb,
-                                offset+3,1, ttl);
+            proto_tree_add_item(mpls_tree, hf_mpls_ttl, tvb, offset, 4,
+                                ENC_BIG_ENDIAN);
             proto_item_append_text(ti, ", TTL: %u", ttl);
         }
 
@@ -699,20 +691,24 @@ proto_register_mpls(void)
     static hf_register_info mplsf_info[] = {
 
         /* MPLS header fields */
-        {&mpls_filter[MPLSF_LABEL],
-         {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0x0,
+        {&hf_mpls_label,
+         {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
           NULL, HFILL }},
 
-        {&mpls_filter[MPLSF_EXP],
-         {"MPLS Experimental Bits", "mpls.exp", FT_UINT8, BASE_DEC, NULL, 0x0,
+        {&hf_mpls_label_special,
+         {"MPLS Label", "mpls.label", FT_UINT32, BASE_DEC, VALS(special_labels), 0xFFFFF000,
           NULL, HFILL }},
 
-        {&mpls_filter[MPLSF_BOTTOM_OF_STACK],
-         {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT8, BASE_DEC, NULL, 0x0,
+        {&hf_mpls_exp,
+         {"MPLS Experimental Bits", "mpls.exp", FT_UINT32, BASE_DEC, NULL, 0x00000E00,
           NULL, HFILL }},
 
-        {&mpls_filter[MPLSF_TTL],
-         {"MPLS TTL", "mpls.ttl", FT_UINT8, BASE_DEC, NULL, 0x0,
+        {&hf_mpls_bos,
+         {"MPLS Bottom Of Label Stack", "mpls.bottom", FT_UINT32, BASE_DEC, NULL, 0x00000100,
+          NULL, HFILL }},
+
+        {&hf_mpls_ttl,
+         {"MPLS TTL", "mpls.ttl", FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
           NULL, HFILL }},
 
         /* PW Associated Channel Header fields */
