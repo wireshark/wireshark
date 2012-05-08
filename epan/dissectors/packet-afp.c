@@ -254,8 +254,6 @@ static int hf_afp_create_flag		    = -1;
 static int hf_afp_struct_size		    = -1;
 static int hf_afp_struct_size16		    = -1;
 
-static int hf_afp_request_bitmap	    = -1;
-
 static int hf_afp_cat_count		    = -1;
 static int hf_afp_cat_req_matches	    = -1;
 static int hf_afp_cat_position		    = -1;
@@ -287,7 +285,6 @@ static int hf_afp_rw_count		    = -1;
 static int hf_afp_newline_mask		    = -1;
 static int hf_afp_newline_char		    = -1;
 static int hf_afp_last_written		    = -1;
-static int hf_afp_actual_count		    = -1;
 
 static int hf_afp_fork_type		    = -1;
 static int hf_afp_access_mode		    = -1;
@@ -625,7 +622,6 @@ static int hf_afp_dir_attribute_InExpFolder   = -1;
 static int hf_afp_dir_attribute_BackUpNeeded  = -1;
 static int hf_afp_dir_attribute_RenameInhibit = -1;
 static int hf_afp_dir_attribute_DeleteInhibit = -1;
-static int hf_afp_dir_attribute_SetClear      = -1;
 
 static int hf_afp_file_bitmap_Attributes       = -1;
 static int hf_afp_file_bitmap_ParentDirID      = -1;
@@ -692,7 +688,6 @@ static int hf_afp_spotlight_volpath_client = -1;
 static int hf_afp_spotlight_returncode = -1;
 static int hf_afp_spotlight_volflags = -1;
 static int hf_afp_spotlight_reqlen = -1;
-static int hf_afp_spotlight_toc_query_end = -1;
 static int hf_afp_spotlight_uuid = -1;
 
 static const value_string flag_vals[] = {
@@ -940,9 +935,7 @@ static int hf_afp_access_bitmap			= -1;
 static int hf_afp_acl_entrycount	 = -1;
 static int hf_afp_acl_flags		 = -1;
 
-static int hf_afp_ace_applicable	 = -1;
 static int hf_afp_ace_flags		 = -1;
-static int hf_afp_ace_rights		 = -1;
 
 static int ett_afp_ace_flags		 = -1;
 static int hf_afp_ace_flags_allow	 = -1;
@@ -4536,7 +4529,7 @@ decode_kauth_acl(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	/* FIXME: preliminary decoding... */
 	entries = tvb_get_ntohl(tvb, offset);
 
-	item = proto_tree_add_text(tree, tvb, offset, 4, "ACEs : %d", entries);
+	item = proto_tree_add_item(tree, hf_afp_acl_entrycount, tvb, offset, 4, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(item, ett_afp_ace_entries);
 	offset += 4;
 
@@ -4565,7 +4558,7 @@ decode_uuid_acl(tvbuff_t *tvb, proto_tree *tree, gint offset, guint16 bitmap)
 	}
 
 	if ((bitmap & kFileSec_GRPUUID)) {
-		proto_tree_add_item(tree, hf_afp_UUID, tvb, offset, 16, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_afp_GRPUUID, tvb, offset, 16, ENC_BIG_ENDIAN);
 		offset += 16;
 	}
 
@@ -5430,11 +5423,6 @@ proto_register_afp(void)
 		    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
 		    NULL, HFILL }},
 
-		{ &hf_afp_dir_attribute_SetClear,
-		  { "Set",         "afp.dir_attribute.set_clear",
-		    FT_BOOLEAN, 16, NULL,  kFPSetClearBit,
-		    "Clear/set attribute", HFILL }},
-
 		{ &hf_afp_file_bitmap_Attributes,
 		  { "Attributes",         "afp.file_bitmap.attributes",
 		    FT_BOOLEAN, 16, NULL,  kFPAttributeBit,
@@ -5857,11 +5845,6 @@ proto_register_afp(void)
 		    FT_BOOLEAN, 32, NULL,  0x80000000,
 		    NULL, HFILL }},
 
-		{ &hf_afp_request_bitmap,
-		  { "Request bitmap",         "afp.request_bitmap",
-		    FT_UINT32, BASE_HEX, NULL, 0x0,
-		    NULL, HFILL }},
-
 		{ &hf_afp_struct_size,
 		  { "Struct size",         "afp.struct_size",
 		    FT_UINT8, BASE_DEC, NULL,0,
@@ -5911,11 +5894,6 @@ proto_register_afp(void)
 		  { "Last written",  "afp.last_written",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Offset of the last byte written", HFILL }},
-
-		{ &hf_afp_actual_count,
-		  { "Count",         "afp.actual_count",
-		    FT_INT32, BASE_DEC, NULL, 0x0,
-		    "Number of bytes returned by read/write", HFILL }},
 
 		{ &hf_afp_ofork_len,
 		  { "New length",         "afp.ofork_len",
@@ -6415,7 +6393,7 @@ proto_register_afp(void)
 		    "Inherit ACL", HFILL }},
 
 		{ &hf_afp_acl_entrycount,
-		  { "Count",         "afp.acl_entrycount",
+		  { "ACEs count",         "afp.acl_entrycount",
 		    FT_UINT32, BASE_HEX, NULL, 0,
 		    "Number of ACL entries", HFILL }},
 
@@ -6423,16 +6401,6 @@ proto_register_afp(void)
 		  { "ACL flags",         "afp.acl_flags",
 		    FT_UINT32, BASE_HEX, NULL, 0,
 		    NULL, HFILL }},
-
-		{ &hf_afp_ace_applicable,
-		  { "ACE",         "afp.ace_applicable",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    "ACE applicable", HFILL }},
-
-		{ &hf_afp_ace_rights,
-		  { "Rights",         "afp.ace_rights",
-		    FT_UINT32, BASE_HEX, NULL, 0,
-		    "ACE flags", HFILL }},
 
 		{ &hf_afp_acl_access_bitmap,
 		  { "Bitmap",         "afp.acl_access_bitmap",
@@ -6607,11 +6575,6 @@ proto_register_afp(void)
 		{ &hf_afp_spotlight_reqlen,
 		  { "Length",               "afp.spotlight.reqlen",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_afp_spotlight_toc_query_end,
-		  { "End marker",               "afp.spotlight.query_end",
-		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_spotlight_uuid,
