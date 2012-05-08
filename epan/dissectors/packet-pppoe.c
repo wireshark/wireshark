@@ -305,13 +305,23 @@ const value_string datarate_scale_vals[] = {
 };
 
 
-#define CASE_VSPEC_DSLF_TAG(tag_name, relation, length, hf_var) case tag_name: \
+#define CASE_VSPEC_DSLF_TAG_UINT(tag_name, relation, length, hf_var) case tag_name: \
 		if (!(poe_tag_length relation length)) { \
 			expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %s %d)", \
 					val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
 		} else { \
 			proto_tree_add_item(pppoe_tree, hf_var, tvb, \
-				tagstart+2, poe_tag_length, FALSE); \
+				tagstart+2, poe_tag_length, ENC_BIG_ENDIAN); \
+		} \
+	break;
+
+#define CASE_VSPEC_DSLF_TAG_STRING(tag_name, relation, length, hf_var) case tag_name: \
+		if (!(poe_tag_length relation length)) { \
+			expert_add_info_format(pinfo, pppoe_tree, PI_MALFORMED, PI_WARN, "%s: Wrong length: %u (expected %s %d)", \
+					val_to_str(poe_tag, vspec_tag_vals, "Unknown"), poe_tag_length, #relation, length); \
+		} else { \
+			proto_tree_add_item(pppoe_tree, hf_var, tvb, \
+				tagstart+2, poe_tag_length, ENC_ASCII|ENC_NA); \
 		} \
 	break;
 
@@ -351,37 +361,37 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 			/* Show tag data */
 			switch (poe_tag)
 			{
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID, <=, 63,
+				CASE_VSPEC_DSLF_TAG_STRING(PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID, <=, 63,
 						hf_pppoed_tag_vspec_circuit_id)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_REMOTE_ID, <=, 63,
+				CASE_VSPEC_DSLF_TAG_STRING(PPPOE_TAG_VSPEC_DSLF_REMOTE_ID, <=, 63,
 						hf_pppoed_tag_vspec_remote_id)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_act_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_act_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_attainable_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_attainable_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_max_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_max_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_up_lp)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_down_lp)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP, ==, 4,
 						hf_pppoed_tag_vspec_max_int_delay_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP, ==, 4,
 						hf_pppoed_tag_vspec_act_int_delay_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_max_int_delay_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN, ==, 4,
+				CASE_VSPEC_DSLF_TAG_UINT(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_act_int_delay_down)
 				case PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION:
 					ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_access_loop_encapsulation, tvb,
