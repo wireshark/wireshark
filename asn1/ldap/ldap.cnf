@@ -202,9 +202,7 @@ char *mechanism = NULL;
          * Otherwise, if the saved mechanism is an empty string (null),
          * save this mechanism.
          */
-        if (mechanism == NULL) {
-            mechanism = ldap_info->auth_mech;
-        } else {
+        if (mechanism != NULL) {
           g_free(ldap_info->auth_mech);
           ldap_info->auth_mech = mechanism;
         }
