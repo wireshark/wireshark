@@ -473,7 +473,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else if (stream == STREAM_SYSTEM || stream == STREAM_PRIVATE2) {
 		unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
 		proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
-				offset / 8, 2, FALSE);
+				offset / 8, 2, ENC_BIG_ENDIAN);
 		offset += 2 * 8;
 
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
@@ -481,7 +481,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else if (stream == STREAM_PADDING) {
 		unsigned padding_length = tvb_get_ntohs(tvb, offset / 8);
 		proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
-				offset / 8, 2, FALSE);
+				offset / 8, 2, ENC_BIG_ENDIAN);
 		offset += 2 * 8;
 
 		proto_tree_add_item(tree, hf_mpeg_pes_padding, tvb,
@@ -536,7 +536,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		} else {
 			unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
 			proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
-					offset / 8, 2, FALSE);
+					offset / 8, 2, ENC_BIG_ENDIAN);
 			offset += 2 * 8;
 
 			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
