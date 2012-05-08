@@ -422,13 +422,13 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       proto_tree_add_item(tree, hf_erldp_challenge, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       proto_tree_add_item(tree, hf_erldp_digest, tvb, offset, 16, ENC_NA);
-      offset += 16;
+      /*offset += 16;*/
       col_add_str(pinfo->cinfo, COL_INFO, "SEND_CHALLENGE_REPLY");
       break;
 
     case 'a' :
       proto_tree_add_item(tree, hf_erldp_digest, tvb, offset, 16, ENC_NA);
-      offset += 16;
+      /*offset += 16;*/
       col_add_str(pinfo->cinfo, COL_INFO, "SEND_CHALLENGE_ACK");
       break;
 
@@ -487,7 +487,7 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       }
       offset = dissect_etf_type("ControlMessage", pinfo, tvb, offset, erldp_tree);
       if (tvb_length_remaining(tvb, offset) > 0)
-        offset = dissect_etf_type("Message", pinfo, tvb, offset, erldp_tree);
+        dissect_etf_type("Message", pinfo, tvb, offset, erldp_tree);
       break;
 
     default:

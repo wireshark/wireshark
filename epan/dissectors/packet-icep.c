@@ -331,7 +331,7 @@ static void dissect_ice_facet(proto_tree *tree, int hf_icep,
 			return;
 		}
 
-		offset += consumed_facet;
+		/*offset += consumed_facet;*/
 		(*consumed) += consumed_facet;
 		return;
 	}

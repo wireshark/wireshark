@@ -276,7 +276,6 @@ dissect_ifcpflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	if(flags&IFCP_FLAGS_SPC){
 		proto_item_append_text(item, "  SPC");
 	}
-	flags&=(~IFCP_FLAGS_SPC);
 
 
 	offset++;
@@ -310,7 +309,6 @@ dissect_commonflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	if(flags&IFCP_COMMON_FLAGS_CRCV){
 		proto_item_append_text(item, "  CRCV");
 	}
-	flags&=(~IFCP_COMMON_FLAGS_CRCV);
 }
 
 static void

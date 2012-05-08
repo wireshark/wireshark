@@ -141,7 +141,7 @@ dissect_nv_pairs(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
    }
 }
 
-static void
+static int
 dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_item *br;
@@ -159,7 +159,7 @@ dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
 
    offset += 5;
 
-   return;
+   return offset;
 }
 
 static void
@@ -170,7 +170,7 @@ dissect_abort_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
    return;
 }
 
-static void
+static int
 dissect_end_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 len)
 {
    proto_item *er;
@@ -187,7 +187,7 @@ dissect_end_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 l
 
    offset += 3;
 
-   return;
+   return offset;
 }
 
 static void
@@ -318,7 +318,7 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (plen > 0) {
          proto_tree_add_item(fcgi_tree, hf_fcgi_padding_data, tvb, offset, plen, ENC_NA);
-         offset += plen;
+         /*offset += plen;*/
       }
    }
 }

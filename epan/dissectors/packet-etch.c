@@ -397,7 +397,7 @@ read_array_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 
   read_type(offset, tvb, etch_tree);
   if (type_code == ETCH_TC_CUSTOM) {
-    type_code = read_type(offset, tvb, etch_tree);
+    read_type(offset, tvb, etch_tree);
     proto_tree_add_item(etch_tree, hf_etch_value, tvb, *offset, 4,
                         ENC_BIG_ENDIAN);
     (*offset) += 4;

@@ -232,7 +232,7 @@ dissect_data (tvbuff_t *tvb, proto_tree *hdfs_tree, guint offset) {
 response to a get protocol version message
 contains a type length, type name and the value
 */
-static void
+static int
 dissect_resp_long (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     /* get length that we just dissected */
     int length = tvb_get_ntohs(tvb, offset);
@@ -247,13 +247,15 @@ dissect_resp_long (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
 
     /* the value */
     proto_tree_add_item(hdfs_tree, hf_hdfs_prover, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
+    offset += 8;
+
+    return offset;
 }
 
 /*
 Response to a file status message
 */
-static void
+static int
 dissect_resp_filestatus (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
 
     int length;
@@ -324,6 +326,8 @@ dissect_resp_filestatus (tvbuff_t *tvb, proto_tree *hdfs_tree, int offset) {
     /* group name */
     proto_tree_add_item(hdfs_tree, hf_hdfs_groupname, tvb, offset, length, ENC_ASCII|ENC_NA);
     offset += length;
+
+    return offset;
 }
 
 
@@ -598,7 +602,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* the value of the parameter */
                     proto_tree_add_item(hdfs_tree, hf_hdfs_paramval, tvb, offset, length, ENC_ASCII|ENC_NA);
-                    offset += length;
+                    /*offset += length;*/
                 }
             }
 
@@ -618,7 +622,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 1;
 
                 proto_tree_add_item(hdfs_tree, hf_hdfs_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+                /*offset += 1;*/
 
             } else {
                 /* second authentication packet */
