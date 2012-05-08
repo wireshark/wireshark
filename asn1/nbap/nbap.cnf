@@ -114,11 +114,25 @@ ProtocolIE-ContainerPairList
 
 #------ Pretify info column -----
 # CellSetupRequestFDD
+#.FN_HDR CellSetupRequestFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CellSetupRequest(FDD) ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # CellSetupResponse
+#.FN_HDR CellSetupResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CellSetupResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # CellSetupFailure
+#.FN_HDR CellSetupFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CellSetupFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # CellSetupRequestTDD
-# CellSetupResponse
-# CellSetupFailure
+
 # CellReconfigurationRequestFDD
 # CellReconfigurationResponse
 # CellReconfigurationFailure
@@ -128,8 +142,23 @@ ProtocolIE-ContainerPairList
 # CellDeletionRequest
 # CellDeletionResponse
 # CommonTransportChannelSetupRequestFDD
+#.FN_HDR CommonTransportChannelSetupRequestFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonTransportChannelSetupRequest(FDD) ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # CommonTransportChannelSetupResponse
+#.FN_HDR CommonTransportChannelSetupResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonTransportChannelSetupResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # CommonTransportChannelSetupFailure
+#.FN_HDR CommonTransportChannelSetupFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonTransportChannelSetupFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # CommonTransportChannelSetupRequestTDD
 # CommonTransportChannelSetupResponse
 # CommonTransportChannelSetupFailure
@@ -141,9 +170,25 @@ ProtocolIE-ContainerPairList
 # CommonTransportChannelReconfigurationFailure
 # CommonTransportChannelDeletionRequest
 # CommonTransportChannelDeletionResponse
+
 # AuditRequest
+#.FN_HDR AuditRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"AuditRequest ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # AuditResponse
+#.FN_HDR AuditResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"AuditResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # AuditFailure
+#.FN_HDR AuditFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"AuditFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # BlockResourceRequest
 # BlockResourceResponse
 # BlockResourceFailure
@@ -169,14 +214,46 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 # RadioLinkSetupRequestTDD
 # RadioLinkSetupResponseTDD
 # RadioLinkSetupFailureTDD
+
 # SystemInformationUpdateRequest
+#.FN_HDR SystemInformationUpdateRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SystemInformationUpdateRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # SystemInformationUpdateResponse
+#.FN_HDR SystemInformationUpdateResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SystemInformationUpdateResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # SystemInformationUpdateFailure
+#.FN_HDR SystemInformationUpdateFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"SystemInformationUpdateFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # ResetRequest
 # ResetResponse
+
 # CommonMeasurementInitiationRequest
+#.FN_HDR CommonMeasurementInitiationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementInitiationRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # CommonMeasurementInitiationResponse
+#.FN_HDR CommonMeasurementInitiationResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementInitiationResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # CommonMeasurementInitiationFailure
+#.FN_HDR CommonMeasurementInitiationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementInitiationFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # RadioLinkAdditionRequestFDD
 # RadioLinkAdditionResponseFDD
 # RadioLinkAdditionFailureFDD
@@ -191,10 +268,10 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionRequest ");
 actx->pinfo->link_dir=P2P_DIR_DL;
 
 # RadioLinkDeletionResponse
-#.FN_HDR RadioLinkDeletionRequest
-col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionRequest ");
-/* CRNC -> Node B */
-actx->pinfo->link_dir=P2P_DIR_DL;
+#.FN_HDR RadioLinkDeletionResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkDeletionResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
 
 # RadioLinkReconfigurationPrepareFDD
 #.FN_HDR RadioLinkReconfigurationPrepareFDD
@@ -203,17 +280,27 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationPrepare(FDD) "
 actx->pinfo->link_dir=P2P_DIR_DL;
 
 # RadioLinkReconfigurationReady
-# RadioLinkReconfigurationFailure
-# RadioLinkReconfigurationPrepareTDD
-
-# RadioLinkReconfigurationReady
 #.FN_HDR RadioLinkReconfigurationReady
 col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationReady ");
 /* Node B -> CRNC */
 actx->pinfo->link_dir=P2P_DIR_UL;
 
 # RadioLinkReconfigurationFailure
+#.FN_HDR RadioLinkReconfigurationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
+# RadioLinkReconfigurationPrepareTDD
+# RadioLinkReconfigurationReady
+# RadioLinkReconfigurationFailure
+
 # RadioLinkReconfigurationRequestFDD
+#.FN_HDR RadioLinkReconfigurationRequestFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationRequestFDD(FDD) ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # RadioLinkReconfigurationResponse
 # RadioLinkReconfigurationFailure
 # RadioLinkReconfigurationRequestTDD
@@ -244,8 +331,23 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementInitiationFailure 
 actx->pinfo->link_dir=P2P_DIR_UL;
 
 # PhysicalSharedChannelReconfigurationRequestFDD
+#.FN_HDR PhysicalSharedChannelReconfigurationRequestFDD
+col_set_str(actx->pinfo->cinfo, COL_INFO,"PhysicalSharedChannelReconfigurationRequest(FDD) ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # PhysicalSharedChannelReconfigurationResponse
+#.FN_HDR PhysicalSharedChannelReconfigurationResponse
+col_set_str(actx->pinfo->cinfo, COL_INFO,"PhysicalSharedChannelReconfigurationResponse ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # PhysicalSharedChannelReconfigurationFailure
+#.FN_HDR PhysicalSharedChannelReconfigurationFailure
+col_set_str(actx->pinfo->cinfo, COL_INFO,"PhysicalSharedChannelReconfigurationFailure ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # PhysicalSharedChannelReconfigurationRequestTDD
 # PhysicalSharedChannelReconfigurationResponse
 # PhysicalSharedChannelReconfigurationFailure
@@ -261,8 +363,18 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 # CellSynchronisationAdjustmentRequestTDD
 # CellSynchronisationAdjustmentResponseTDD
 # CellSynchronisationAdjustmentFailureTDD
+
 # ResourceStatusIndication
+#.FN_HDR ResourceStatusIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"ResourceStatusIndication ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # AuditRequiredIndication
+#.FN_HDR AuditRequiredIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"AuditRequiredIndication ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
 
 # CommonMeasurementReport
 #.FN_HDR CommonMeasurementReport
