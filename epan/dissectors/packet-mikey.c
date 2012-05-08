@@ -982,7 +982,14 @@ dissect_payload_sp_param(enum sp_prot_t proto, tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	if (tree) {
-		param_ti = proto_tree_add_item(tree, hfindex, tvb, 2, length, FALSE);
+		/*
+		 * All the parameters in question are either FT_BYTES,
+		 * in which case the byte order is inapplicable, or
+		 * FT_UINT8, in which case it could be given as
+		 * FT_BIG_ENDIAN as per bigger FT_UINT values, but
+		 * ENC_NA also works, as there's only one byte.
+		 */
+		param_ti = proto_tree_add_item(tree, hfindex, tvb, 2, length, ENC_NA);
 		param_tree = proto_item_add_subtree(param_ti, ett_mikey_sp_param);
 
 		proto_tree_add_item(param_tree, hf_mikey[POS_SP_PARAM_F_TYPE], tvb, 0, 1, ENC_BIG_ENDIAN);
