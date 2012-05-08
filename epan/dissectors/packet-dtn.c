@@ -71,6 +71,9 @@ static int proto_bundle = -1;
 static int proto_tcp_conv = -1;
 static int hf_bundle_pdu_version = -1;
 
+/* Custodian from Primary Block, used to validate CTEB */
+static gchar *bundle_custodian = NULL;
+
 /* TCP Convergence Header Variables */
 static int hf_contact_hdr_version = -1;
 static int hf_contact_hdr_flags = -1;
@@ -175,6 +178,9 @@ static int hf_block_control_discard_block = -1;
 static int hf_block_control_not_processed = -1;
 static int hf_block_control_eid_reference = -1;
 
+/* Non-Primary Block Type Code Variable */
+static int hf_bundle_block_type_code = -1;
+
 /* Administrative Record Variables */
 static int hf_bundle_admin_statflags = -1;
 static int hf_bundle_admin_rcvd = -1;
@@ -222,7 +228,7 @@ static guint bundle_tcp_port = 4556;
 static guint bundle_udp_port = 4556;
 
 static const value_string custody_signal_reason_codes[] = {
-	{0x0, "No Additional Information"},
+    {0x0, "No Additional Information"},
     {0x3, "Redundant Reception"},
     {0x4, "Depleted Storage"},
     {0x5, "Destination Endpoint ID Unintelligible"},
@@ -233,7 +239,7 @@ static const value_string custody_signal_reason_codes[] = {
 };
 
 static const value_string status_report_reason_codes[] = {
-	{0x0, "No Additional Information"},
+    {0x0, "No Additional Information"},
     {0x1, "Lifetime Expired"},
     {0x2, "Forwarded over Unidirectional Link"},
     {0x3, "Transmission Cancelled"},
@@ -242,6 +248,19 @@ static const value_string status_report_reason_codes[] = {
     {0x6, "No Known Route to Destination"},
     {0x7, "No Timely Contact with Next Node on Route"},
     {0x8, "Header Unintelligible"},
+    {0, NULL}
+};
+
+static const value_string bundle_block_type_codes[] = {
+    {0x01, "Bundle Payload Block"},
+    {0x02, "Bundle Authentication Block"},
+    {0x03, "Payload Integrity Block"},
+    {0x04, "Payload Confidentiality Block"},
+    {0x05, "Previous-Hop Insertion Block"},
+    {0x08, "Metadata Extension Block"},
+    {0x09, "Extension Security Block"},
+    {0x0a, "Custody Transfer Enhancement Block"},
+    {0x13, "Extended Class of Service Block"},
     {0, NULL}
 };
 
@@ -546,7 +565,7 @@ dissect_udp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gint payload_size;
 
         next_header_type = tvb_get_guint8(tvb, hdr_offset);
-        if(next_header_type == PAYLOAD_HEADER_TYPE) {
+        if(next_header_type == BUNDLE_BLOCK_TYPE_PAYLOAD) {
             payload_size =
                 dissect_payload_header(bundle_tree, tvb, hdr_offset, &lasthdrflag);
         }
@@ -633,7 +652,7 @@ dissect_complete_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         int payload_size;
 
         next_header_type = tvb_get_guint8(tvb, offset);
-        if(next_header_type == PAYLOAD_HEADER_TYPE) {
+        if(next_header_type == BUNDLE_BLOCK_TYPE_PAYLOAD) {
 
             /*
              * Returns payload size or 0 if can't parse payload
@@ -855,7 +874,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
 
     /*
-     * If the dictionary length is 0, then the CBHE block compression method is applied.
+     * If the dictionary length is 0, then the CBHE block compression method is applied. (RFC6260)
      * So the scheme offset is the node number and the ssp offset is the service number.
      * If destination scheme offset is 2 and destination ssp offset is 1, then the EID is
      * ipn:2.1
@@ -948,6 +967,8 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
         }
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node,dst_node);
+        /* remember custodian, for use in checking cteb validity */
+        bundle_custodian = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, cust_scheme_offset, cust_ssp_offset);
     }
 
     /*
@@ -994,9 +1015,11 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
                      dict_ptr + source_scheme_offset, dict_ptr + source_ssp_offset,
                      dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
-
+        /* remember custodian, for use in checking cteb validity */
+        bundle_custodian = ep_strdup_printf("%s:%s", dict_ptr + cust_scheme_offset, dict_ptr + cust_ssp_offset);
     }
     offset += bundle_header_dict_length;        /*Skip over dictionary*/
+
     /*
      * Do this only if Fragment Flag is set
      */
@@ -1333,6 +1356,12 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
                                     "Dictionary");
     dict_tree = proto_item_add_subtree(dict_item, ett_dictionary);
 
+    /*
+     * If the dictionary length is 0, then the CBHE block compression method is applied. (RFC6260)
+     * So the scheme offset is the node number and the ssp offset is the service number.
+     * If destination scheme offset is 2 and destination ssp offset is 1, then the EID is
+     * ipn:2.1
+     */
     if(bundle_header_dict_length == 0)
     {
         /*
@@ -1428,6 +1457,8 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
         }
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s", src_node, dst_node);
+        /* remember custodian, for use in checking cteb validity */
+        bundle_custodian = ep_strdup_printf("%s:%d.%d", IPN_SCHEME_STR, cust_scheme_offset, cust_ssp_offset);
     }
     else
     {
@@ -1473,6 +1504,8 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
                      dict_ptr + source_scheme_offset, dict_ptr + source_ssp_offset,
                      dict_ptr + dest_scheme_offset, dict_ptr + dest_ssp_offset);
+        /* remember custodian, for use in checking cteb validity */
+        bundle_custodian = ep_strdup_printf("%s:%s", dict_ptr + cust_scheme_offset, dict_ptr + cust_ssp_offset);
     }
     offset += bundle_header_dict_length;        /*Skip over dictionary*/
 
@@ -1669,10 +1702,10 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int pa
                                                 tvb, offset, 1, status);
         ++offset;
 
-		proto_tree_add_item(admin_record_tree, hf_bundle_status_report_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(admin_record_tree, hf_bundle_status_report_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
-		if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Offset");
             if(sdnv_length <= 0) {
@@ -1795,11 +1828,11 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int pa
         }
         ++offset;
 
-		proto_tree_add_item(admin_record_tree, hf_bundle_custody_trf_succ_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(admin_record_tree, hf_bundle_custody_trf_succ_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
-		if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+        if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Offset");
             if(sdnv_length <= 0) {
@@ -1887,8 +1920,8 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int pa
         ++offset;
         ++payload_bytes_processed;
 
-		proto_tree_add_item(admin_record_tree, hf_bundle_custody_trf_succ_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(admin_record_tree, hf_bundle_custody_trf_succ_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
         ++payload_bytes_processed;
 
@@ -1952,7 +1985,6 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int pa
         }
 
         return offset - start_offset;
-
     } /* case ADMIN_REC_TYPE_AGGREGATE_CUSTODY_SIGNAL */
     case ADMIN_REC_TYPE_ANNOUNCE_BUNDLE:
     {
@@ -2038,6 +2070,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     guint8 type;
     int control_flags;
     proto_tree *block_flag_tree = NULL;
+    proto_item *block_flag_item = NULL;
     int num_eid_ref = 0;
     int i = 0;
 
@@ -2047,7 +2080,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     block_item = proto_tree_add_text(tree, tvb, header_start + offset, -1, "Metadata Block");
     block_tree = proto_item_add_subtree(block_item, ett_metadata_hdr);
 
-    proto_tree_add_text(block_tree, tvb, header_start + offset, 1, "Block Type: %d", type);
+    proto_tree_add_item(block_tree, hf_bundle_block_type_code, tvb, header_start + offset, 1, ENC_BIG_ENDIAN);
     ++offset;
 
     control_flags = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
@@ -2056,26 +2089,28 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     } else {
         *lastheader = FALSE;
     }
-    proto_tree_add_text(block_tree, tvb, header_start + offset, 1, "Block Flags: 0x%x", control_flags);
+    block_flag_item = proto_tree_add_item(block_tree, hf_block_control_flags, tvb,
+                                            header_start + offset, sdnv_length, ENC_BIG_ENDIAN);
+    block_flag_tree = proto_item_add_subtree(block_flag_item, ett_block_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_replicate,
+                           tvb, header_start + offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_transmit_status,
+                           tvb, header_start + offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_delete_bundle,
+                           tvb, header_start + offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_last_block,
+                           tvb, header_start + offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_discard_block,
+                           tvb, header_start + offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_not_processed,
+                           tvb, header_start + offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
+                           tvb, header_start + offset, sdnv_length, control_flags);
     offset += sdnv_length;
 
-    block_flag_tree = proto_item_add_subtree(block_item, ett_block_flags);
-
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_replicate,
-                           tvb, offset, sdnv_length, control_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_transmit_status,
-                           tvb, offset, sdnv_length, control_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_delete_bundle,
-                           tvb, offset, sdnv_length, control_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_last_block,
-                           tvb, offset, sdnv_length, control_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_discard_block,
-                           tvb, offset, sdnv_length, control_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_not_processed,
-                           tvb, offset, sdnv_length, control_flags);
-    proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
-                           tvb, offset, sdnv_length, control_flags);
-
+    /* TODO: if this block has EID references, add them to display tree */
+    /* TODO: for some blocks, their definition requires that no EID
+     * references exist, this should be checked */
     if (control_flags & BLOCK_CONTROL_EID_REFERENCE) {
         num_eid_ref = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
         offset += sdnv_length;
@@ -2091,13 +2126,84 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     }
 
     block_length = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
-    proto_item_set_len(block_item, offset + sdnv_length + block_length);
     if(block_length < 0) {
         proto_tree_add_text(block_tree, tvb, header_start + offset, sdnv_length, "Metadata Block Length: Error");
         return 0;
     }
     proto_tree_add_text(block_tree, tvb, header_start + offset, sdnv_length, "Block Length: %d", block_length);
-    offset += (sdnv_length + block_length);
+    offset += sdnv_length;
+    /* now we have enough info to know total length of metadata block */
+    proto_item_set_len(block_item, offset + block_length);
+
+    switch (type)
+    {
+    case BUNDLE_BLOCK_TYPE_AUTHENTICATION:
+    case BUNDLE_BLOCK_TYPE_INTEGRITY:
+    case BUNDLE_BLOCK_TYPE_CONFIDENTIALITY:
+    case BUNDLE_BLOCK_TYPE_PREVIOUS_HOP_INSERT:
+    case BUNDLE_BLOCK_TYPE_METADATA_EXTENSION:
+    case BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY:
+    case BUNDLE_BLOCK_TYPE_EXTENDED_CLASS:
+    {
+        /* not yet dissected, skip past data */
+        offset += block_length;
+        break;
+    }
+    case BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER:
+    {
+        int custody_id = -1;
+        const char *cteb_creator_custodian_eid = NULL;
+        int cteb_creator_custodian_eid_length = -1;
+
+        /* there are two elements in a CTEB, first is the custody ID */
+        custody_id = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+        proto_tree_add_text(block_tree, tvb, header_start + offset, sdnv_length, "Custody ID: %d", custody_id);
+        offset += sdnv_length;
+
+        /* and second is the creator custodian EID */
+        cteb_creator_custodian_eid_length = block_length - sdnv_length;
+        cteb_creator_custodian_eid = (char *) tvb_get_ephemeral_string(tvb, header_start + offset, cteb_creator_custodian_eid_length);
+        proto_tree_add_text(block_tree, tvb, header_start + offset, cteb_creator_custodian_eid_length,
+                                "CTEB Creator Custodian EID: %s", cteb_creator_custodian_eid);
+        /* also check if CTEB is valid, i.e. custodians match */
+        if (cteb_creator_custodian_eid == NULL) {
+            proto_tree_add_text(block_tree, tvb, header_start + offset,
+                                cteb_creator_custodian_eid_length,
+                                "CTEB Is NOT Valid (CTEB Custodian NULL)");
+        }
+        else if (bundle_custodian == NULL) {
+            proto_tree_add_text(block_tree, tvb, header_start + offset,
+                                cteb_creator_custodian_eid_length,
+                                "CTEB Is NOT Valid (Bundle Custodian NULL)");
+        }
+        else if (strlen(cteb_creator_custodian_eid) != strlen(bundle_custodian)) {
+            proto_tree_add_text(block_tree, tvb, header_start + offset,
+                                cteb_creator_custodian_eid_length,
+                                "CTEB Is NOT Valid (Bundle Custodian [%s] != CTEB Custodian [%s])",
+                                bundle_custodian, cteb_creator_custodian_eid);
+        }
+        else if (memcmp(cteb_creator_custodian_eid, bundle_custodian, strlen(bundle_custodian)) != 0) {
+            proto_tree_add_text(block_tree, tvb, header_start + offset,
+                                cteb_creator_custodian_eid_length,
+                                "CTEB Is NOT Valid (Bundle Custodian [%s] != CTEB Custodian [%s])",
+                                bundle_custodian, cteb_creator_custodian_eid);
+        }
+        else {
+            proto_tree_add_text(block_tree, tvb, header_start + offset,
+                                cteb_creator_custodian_eid_length,
+                                "CTEB Is Valid");
+        }
+        offset += cteb_creator_custodian_eid_length;
+
+        break;
+    }
+    default:
+    {
+        /* unknown bundle type, skip past data */
+        offset += block_length;
+        break;
+    }
+    }
 
     return offset;
 }
@@ -2629,17 +2735,21 @@ proto_register_bundle(void)
          {"Block Contains an EID-reference Field", "bundle.block.control.eid",
           FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_EID_REFERENCE, NULL, HFILL}
         },
-		{&hf_bundle_status_report_reason_code,
-         {"Reason Code", "bundle.status_report_reason_code",
+        {&hf_bundle_status_report_reason_code,
+         {"Status Report Reason Code", "bundle.status_report_reason_code",
           FT_UINT8, BASE_DEC, VALS(status_report_reason_codes), 0x0, NULL, HFILL}
         },
-		{&hf_bundle_custody_trf_succ_flg,
+        {&hf_bundle_custody_trf_succ_flg,
          {"Custody Transfer Succeeded Flag", "bundle.custody_trf_succ_flg",
           FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
         },
-		{&hf_bundle_custody_signal_reason,
-         {"Reason Code", "bundle.status_report_reason_code",
+        {&hf_bundle_custody_signal_reason,
+         {"Custody Signal Reason Code", "bundle.custody_signal_reason_code",
           FT_UINT8, BASE_DEC, VALS(custody_signal_reason_codes), ADMIN_REC_CUSTODY_REASON_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_block_type_code,
+         {"Non-Primary Bundle Block Type Code", "bundle.block_type_code",
+          FT_UINT8, BASE_DEC, VALS(bundle_block_type_codes), 0x0, NULL, HFILL}
         },
     };
 

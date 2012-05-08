@@ -94,7 +94,15 @@
 #define HEADER_PROCFLAGS_LAST_HEADER    0x08
 
 /* Header Types (excluding Primary Header) */
-#define PAYLOAD_HEADER_TYPE             0x01
+#define BUNDLE_BLOCK_TYPE_PAYLOAD               0x01 /* RFC5050 */
+#define BUNDLE_BLOCK_TYPE_AUTHENTICATION        0x02 /* RFC6257 */
+#define BUNDLE_BLOCK_TYPE_INTEGRITY             0x03 /* RFC6257 */
+#define BUNDLE_BLOCK_TYPE_CONFIDENTIALITY       0x04 /* RFC6257 */
+#define BUNDLE_BLOCK_TYPE_PREVIOUS_HOP_INSERT   0x05 /* RFC6259 */
+#define BUNDLE_BLOCK_TYPE_METADATA_EXTENSION    0x08 /* RFC6258 */
+#define BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY    0x09 /* RFC6257 */
+#define BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER      0x0a /* http://bioserve.colorado.edu/bp-acs/ */
+#define BUNDLE_BLOCK_TYPE_EXTENDED_CLASS        0x13 /* http://tools.ietf.org/html/draft-irtf-dtnrg-ecos-02 */
 
 /* Payload Header Processing Flags */
 #define PAYLOAD_PROCFLAGS_REPLICATE_MASK        0x01
