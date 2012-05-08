@@ -4194,14 +4194,14 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 		case SQ_TYPE_INT64:
 			item_query = proto_tree_add_text(tree, tvb, offset, 8, "int64");
 			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-			j = spotlight_int64(tvb, sub_tree, offset, encoding) - 1;
+			j = spotlight_int64(tvb, sub_tree, offset, encoding);
 			count -= j;
 			offset += query_length;
 			break;
 		case SQ_TYPE_FLOAT:
 			item_query = proto_tree_add_text(tree, tvb, offset, 8, "float");
 			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-			j = spotlight_float(tvb, sub_tree, offset, encoding) - 1;
+			j = spotlight_float(tvb, sub_tree, offset, encoding);
 			count -= j;
 			offset += query_length;
 			break;
@@ -4331,7 +4331,6 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	offset = spotlight_dissect_query_loop(tvb, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, offset + (gint)toc_offset + 8, encoding);
 
 	/* ToC */
-	offset += (gint)toc_offset;
 	if (toc_entries < 1) {
 		proto_tree_add_text(tree,
 				    tvb,
