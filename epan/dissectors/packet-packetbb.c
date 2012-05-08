@@ -80,7 +80,10 @@ static int hf_packetbb_msgheader_flags_mhashopcount = -1;
 static int hf_packetbb_msgheader_flags_mhasseqnr = -1;
 static int hf_packetbb_msgheader_addresssize = -1;
 static int hf_packetbb_msgheader_size = -1;
-static int hf_packetbb_msgheader_origaddr[4] = { -1, -1, -1, -1 };
+static int hf_packetbb_msgheader_origaddripv4 = -1;
+static int hf_packetbb_msgheader_origaddripv6 = -1;
+static int hf_packetbb_msgheader_origaddrmac = -1;
+static int hf_packetbb_msgheader_origaddrcustom = -1;
 static int hf_packetbb_msgheader_hoplimit = -1;
 static int hf_packetbb_msgheader_hopcount = -1;
 static int hf_packetbb_msgheader_seqnr = -1;
@@ -597,8 +600,28 @@ static int dissect_pbb_message(tvbuff_t *tvb, proto_tree *tree, guint offset) {
 
   /* originator address */
   if ((messageFlags & MSG_HEADER_HASORIG) != 0) {
-    proto_tree_add_item(header_tree, hf_packetbb_msgheader_origaddr[addressType],
-        tvb, offset, addressSize, FALSE);
+    switch (addressSize) {
+    case 4:
+      /* IPv4 */
+      proto_tree_add_item(header_tree, hf_packetbb_msgheader_origaddripv4,
+          tvb, offset, addressSize, ENC_BIG_ENDIAN);
+      break;
+    case 16:
+      /* IPv6 */
+      proto_tree_add_item(header_tree, hf_packetbb_msgheader_origaddripv6,
+          tvb, offset, addressSize, ENC_NA);
+      break;
+    case 6:
+      /* MAC */
+      proto_tree_add_item(header_tree, hf_packetbb_msgheader_origaddrmac,
+          tvb, offset, addressSize, ENC_NA);
+      break;
+    default:
+      /* Unknown */
+      proto_tree_add_item(header_tree, hf_packetbb_msgheader_origaddrcustom,
+          tvb, offset, addressSize, ENC_NA);
+      break;
+    }
     offset += addressSize;
   }
 
@@ -816,24 +839,24 @@ void proto_register_packetbb(void) {
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
-    { &hf_packetbb_msgheader_origaddr[0],
+    { &hf_packetbb_msgheader_origaddripv4,
       { "Originator address", "packetbb.msg.origaddr4",
         FT_IPv4, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
-    { &hf_packetbb_msgheader_origaddr[1],
+    { &hf_packetbb_msgheader_origaddripv6,
       { "Originator address", "packetbb.msg.origaddr6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
-    { &hf_packetbb_msgheader_origaddr[2],
+    { &hf_packetbb_msgheader_origaddrmac,
       { "Originator address", "packetbb.msg.origaddrmac",
         FT_ETHER, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
-    { &hf_packetbb_msgheader_origaddr[3],
+    { &hf_packetbb_msgheader_origaddrcustom,
       { "Originator address", "packetbb.msg.origaddrcustom",
-        FT_UINT_BYTES, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     },
     { &hf_packetbb_msgheader_hoplimit,
