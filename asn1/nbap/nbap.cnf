@@ -497,6 +497,12 @@ guint32 payload_crc_value;
 #.FN_BODY CommonPhysicalChannelID VAL_PTR = &commonphysicalchannelid
 %(DEFAULT_BODY)s
 
+#.FN_BODY E-DCH-MACdFlow-ID VAL_PTR = &e_dch_macdflow_id
+%(DEFAULT_BODY)s
+
+#.FN_BODY HSDSCH-MACdFlow-ID VAL_PTR = &hsdsch_macdflow_id
+%(DEFAULT_BODY)s
+
 #.FN_BODY BindingID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
 
@@ -630,6 +636,109 @@ dch_id = 0xFFFFFFFF;
 		if(actx->pinfo->link_dir==P2P_DIR_DL){
 			/* For now have on fp_info_ul and on fp_info_dl, may not be needed */
 			set_umts_fp_ul_conv_data(conversation, actx->pinfo->fd->num, &dst_addr, BindingID_port, dch_id, nbap_fp_info_ul, nbap_fp_info_dl);
+		}
+
+
+#.FN_BODY RL-Specific-E-DCH-Information-Item
+address 	dst_addr, null_addr;
+conversation_t *conversation;
+fp_info *nbap_fp_info_ul = NULL, *nbap_fp_info_dl = NULL;
+
+transportLayerAddress_ipv4 = 0;
+BindingID_port = 0;
+
+%(DEFAULT_BODY)s
+
+		if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+		{
+			return offset;
+		}
+		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+		dst_addr.type=AT_IPv4;
+		dst_addr.len=4;
+		dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+		conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
+			&null_addr, PT_UDP, BindingID_port,
+			0, NO_ADDR_B|NO_PORT_B);
+
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new one. */
+			conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
+			    &null_addr, PT_UDP,BindingID_port ,
+			    0, NO_ADDR2|NO_PORT2);
+
+		/* Set dissector */
+		conversation_set_dissector(conversation, fp_handle);
+		}
+		nbap_fp_info_ul = se_new0(fp_info);
+		nbap_fp_info_ul->iface_type = IuB_Interface;
+		nbap_fp_info_ul->division = Division_FDD;
+		nbap_fp_info_ul->release = 7;               /* Set values greater then the checks performed */
+		nbap_fp_info_ul->release_year = 2006;
+		nbap_fp_info_ul->release_month = 12;
+		nbap_fp_info_ul->is_uplink = g_nbap_msg_info_for_fp.is_uplink;
+		nbap_fp_info_ul->channel = CHANNEL_EDCH;
+		nbap_fp_info_ul->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+		nbap_fp_info_ul->edch_type = 0;
+
+
+		if(actx->pinfo->link_dir==P2P_DIR_DL){
+			/* For now have on fp_info_ul and on fp_info_dl, may not be needed */
+			set_umts_fp_ul_conv_data(conversation, actx->pinfo->fd->num, &dst_addr, BindingID_port, e_dch_macdflow_id, nbap_fp_info_ul, nbap_fp_info_dl);
+		}
+
+
+#.FN_BODY HSDSCH-MACdFlow-Specific-InfoItem
+
+address 	dst_addr, null_addr;
+conversation_t *conversation;
+fp_info *nbap_fp_info_ul = NULL, *nbap_fp_info_dl = NULL;
+
+transportLayerAddress_ipv4 = 0;
+BindingID_port = 0;
+
+%(DEFAULT_BODY)s
+
+		if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+		{
+			return offset;
+		}
+		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+		dst_addr.type=AT_IPv4;
+		dst_addr.len=4;
+		dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+		conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
+			&null_addr, PT_UDP, BindingID_port,
+			0, NO_ADDR_B|NO_PORT_B);
+
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new one. */
+			conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
+			    &null_addr, PT_UDP,BindingID_port ,
+			    0, NO_ADDR2|NO_PORT2);
+
+		/* Set dissector */
+		conversation_set_dissector(conversation, fp_handle);
+		}
+		nbap_fp_info_ul = se_new0(fp_info);
+		nbap_fp_info_ul->iface_type = IuB_Interface;
+		nbap_fp_info_ul->division = Division_FDD;
+		nbap_fp_info_ul->release = 7;               /* Set values greater then the checks performed */
+		nbap_fp_info_ul->release_year = 2006;
+		nbap_fp_info_ul->release_month = 12;
+		nbap_fp_info_ul->is_uplink = g_nbap_msg_info_for_fp.is_uplink;
+		nbap_fp_info_ul->channel = CHANNEL_HSDSCH;
+		nbap_fp_info_ul->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+		nbap_fp_info_ul->hsdsch_entity = hs;
+
+
+		if(actx->pinfo->link_dir==P2P_DIR_DL){
+			/* For now have on fp_info_ul and on fp_info_dl, may not be needed */
+			set_umts_fp_ul_conv_data(conversation, actx->pinfo->fd->num, &dst_addr, BindingID_port, hsdsch_macdflow_id, nbap_fp_info_ul, nbap_fp_info_dl);
 		}
 
 #.REGISTER_NEW
