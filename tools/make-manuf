@@ -27,8 +27,13 @@ if( $@ ) {
   die "LWP isn't installed. It is part of the standard Perl\n" .
 	" module libwww.  Bailing.\n";
 }
+
+$revision = '$Revision$';
+if ($revision !~ /[0-9]/ ) { $revision = "unknown"; }
+
 $agent    = LWP::UserAgent->new;
 $agent->env_proxy;
+$agent->agent("Wireshark make-manuf/$revision");
 
 $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";

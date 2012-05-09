@@ -29,12 +29,16 @@ $in = "http://www.iana.org/assignments/enterprise-numbers" unless(defined $in);
 
 my @in_lines;
 
+my $revision = '$Revision$';
+if ($revision !~ /[0-9]/ ) { $revision = "unknown"; }
+
 if($in =~ m/^http:/i) {
 	eval "require LWP::UserAgent;";
 	die "LWP isn't installed. It is part of the standard Perl module libwww." if $@;
 
 	my $agent    = LWP::UserAgent->new;
 	$agent->env_proxy;
+	$agent->agent("Wireshark make-sminmpec.pl/$revision");
 
 	warn "starting to fetch $in ...\n";
 
