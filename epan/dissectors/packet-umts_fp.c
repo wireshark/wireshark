@@ -3339,8 +3339,9 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 val_to_str_const(p_fp_info->channel,
                                  channel_type_vals,
                                  "Unknown channel type"));
-	if ((p_conv)&&(p_conv_data->dch_id != 0xffffffff));
+    if ((p_conv)&&(p_conv_data->dch_id != 0xffffffff)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, "(%u) ",p_conv_data->dch_id);
+    }
     proto_item_append_text(ti, " (%s)",
                            val_to_str_const(p_fp_info->channel,
                                             channel_type_vals,
