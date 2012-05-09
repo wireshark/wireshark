@@ -6476,7 +6476,7 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
-static guint32 dch_id;
+static guint32 dch_id, commonphysicalchannelid;
 
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;
@@ -8479,7 +8479,7 @@ dissect_nbap_E_DCH_MACdFlow_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_nbap_BindingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 499 "../../asn1/nbap/nbap.cnf"
+#line 501 "../../asn1/nbap/nbap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -11076,8 +11076,12 @@ dissect_nbap_Common_E_DCH_HSDPCCH_InfoItem(tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_nbap_CommonPhysicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 498 "../../asn1/nbap/nbap.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 255U, NULL, FALSE);
+                                                            0U, 255U, &commonphysicalchannelid, FALSE);
+
+
+
 
   return offset;
 }
@@ -14406,7 +14410,6 @@ dissect_nbap_DATA_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_nbap_DCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 495 "../../asn1/nbap/nbap.cnf"
-
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &dch_id, FALSE);
 
@@ -27312,7 +27315,7 @@ static const per_sequence_t RL_Specific_DCH_Info_Item_sequence[] = {
 
 static int
 dissect_nbap_RL_Specific_DCH_Info_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 514 "../../asn1/nbap/nbap.cnf"
+#line 577 "../../asn1/nbap/nbap.cnf"
 address 	dst_addr, null_addr;
 conversation_t *conversation;
 fp_info *nbap_fp_info_ul = NULL, *nbap_fp_info_dl = NULL;
@@ -30941,8 +30944,70 @@ static const per_sequence_t RACH_ParametersItem_CTCH_SetupRqstFDD_sequence[] = {
 
 static int
 dissect_nbap_RACH_ParametersItem_CTCH_SetupRqstFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 516 "../../asn1/nbap/nbap.cnf"
+address 	dst_addr, null_addr;
+conversation_t *conversation;
+fp_info *nbap_fp_info_ul = NULL, *nbap_fp_info_dl = NULL; 
+
+transportLayerAddress_ipv4 = 0;
+BindingID_port = 0;
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_RACH_ParametersItem_CTCH_SetupRqstFDD, RACH_ParametersItem_CTCH_SetupRqstFDD_sequence);
+
+
+		if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+		{
+			return offset;
+		}
+		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+
+		dst_addr.type=AT_IPv4;
+		dst_addr.len=4;
+		dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+		conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
+			&null_addr, PT_UDP, BindingID_port,
+			0, NO_ADDR_B|NO_PORT_B);
+
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new one. */
+			conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
+			    &null_addr, PT_UDP,BindingID_port ,
+			    0, NO_ADDR2|NO_PORT2);
+
+		/* Set dissector */
+		conversation_set_dissector(conversation, fp_handle);
+		}
+
+		nbap_fp_info_ul = se_new0(fp_info);
+		nbap_fp_info_ul->iface_type = IuB_Interface;
+		nbap_fp_info_ul->division = Division_FDD;
+		nbap_fp_info_ul->release = 7;               /* Set values greater then the checks performed */
+		nbap_fp_info_ul->release_year = 2006;
+		nbap_fp_info_ul->release_month = 12;
+		nbap_fp_info_ul->is_uplink = TRUE;
+		nbap_fp_info_ul->channel = CHANNEL_CPCH;
+		nbap_fp_info_ul->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+
+		nbap_fp_info_dl = se_new0(fp_info);
+		nbap_fp_info_dl->iface_type = IuB_Interface;
+		nbap_fp_info_dl->division = Division_FDD;
+		nbap_fp_info_dl->release = 7;               /* Set values greater then the checks performed */
+		nbap_fp_info_dl->release_year = 2006;
+		nbap_fp_info_dl->release_month = 12;
+		nbap_fp_info_dl->is_uplink = FALSE;
+		nbap_fp_info_dl->channel = CHANNEL_CPCH;
+		nbap_fp_info_dl->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+
+		if(actx->pinfo->link_dir==P2P_DIR_DL){
+			/* For now have on fp_info_ul and on fp_info_dl, may not be needed */
+			set_umts_fp_ul_conv_data(conversation, actx->pinfo->fd->num, &dst_addr, BindingID_port, commonphysicalchannelid, nbap_fp_info_ul, nbap_fp_info_dl);
+		}
+
+
+
+
 
   return offset;
 }

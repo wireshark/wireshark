@@ -91,7 +91,7 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
-static guint32 dch_id;
+static guint32 dch_id, commonphysicalchannelid;
 
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;
