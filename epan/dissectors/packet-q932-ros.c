@@ -248,7 +248,7 @@ dissect_q932_ros_InvokeArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   len = tvb_length_remaining(tvb, offset);
   if (len)
-    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   arg_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);
@@ -326,7 +326,7 @@ dissect_q932_ros_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   len = tvb_length_remaining(tvb, offset);
   if (len)
-    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   res_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);
@@ -422,7 +422,7 @@ dissect_q932_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   len = tvb_length_remaining(tvb, offset);
   if (len)
-    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   err_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);

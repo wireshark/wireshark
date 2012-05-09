@@ -70,7 +70,7 @@ Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
   len = tvb_length_remaining(tvb, offset);
   if (len)
-    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   arg_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);
@@ -88,7 +88,7 @@ ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
   len = tvb_length_remaining(tvb, offset);
   if (len)
-    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   res_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);
@@ -108,7 +108,7 @@ ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
   len = tvb_length_remaining(tvb, offset);
   if (len)
-    proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+    proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
   err_next_tvb = tvb_new_subset(tvb, offset, len, len);
 
   offset += tvb_length_remaining(tvb, offset);
