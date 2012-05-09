@@ -1969,7 +1969,8 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
 
     if (!title)  /* we always have a title for our strings */
         return;
-    if (str_len==0)
+    /* str_len==-1 is not supported, we need an actual length */
+    if (str_len<=0)
         return;
 
     byte0 = tvb_get_guint8(tvb, offset);
