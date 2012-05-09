@@ -5788,7 +5788,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
         { 0, NULL }
     };
 
-    item = proto_tree_add_item (tree, hf, tvb, offset, 4, FALSE);
+    item = proto_tree_add_item (tree, hf, tvb, offset, 4, ENC_BIG_ENDIAN);
     drtp_tree = proto_item_add_subtree(item, ett_docsis_request_transmission_policy);
     for (i = 0 ; i <= 8; i++) {
         if (policy & drtp_vals[i].value) {
