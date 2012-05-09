@@ -182,7 +182,7 @@ static int hf_fp_e_rucch_present = -1;
 static int hf_fp_extended_bits_present = -1;
 static int hf_fp_extended_bits = -1;
 static int hf_fp_spare_extension = -1;
-static int hf_fp_dl_setup_frame = -1;
+static int hf_fp_ul_setup_frame = -1;
 
 /* Subtrees. */
 static int ett_fp = -1;
@@ -528,8 +528,11 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void proto_register_fp(void);
 void proto_reg_handoff_fp(void);
 
+/*
+ * CRNC sends data downlink on uplink parameters.
+ */
 void 
-set_umts_fp_dl_conv_data(conversation_t *conversation, guint32 dl_frame_number)
+set_umts_fp_ul_conv_data(conversation_t *conversation, guint32 ul_frame_number, address *crnc_address, guint16 crnc_port, guint32 ch_id, fp_info *fp_info_ul, fp_info *fp_info_dl)
 {
 	struct _umts_fp_conversation_info *p_conv_data = NULL;
 
@@ -544,8 +547,13 @@ set_umts_fp_dl_conv_data(conversation_t *conversation, guint32 dl_frame_number)
 	if ( ! p_conv_data ) {
 		/* Create conversation data */
 		p_conv_data = se_alloc(sizeof(struct _umts_fp_conversation_info));
-		p_conv_data->dl_frame_number = dl_frame_number;
-		p_conv_data->ul_frame_number = 0;
+		p_conv_data->dl_frame_number = 0;
+		p_conv_data->ul_frame_number = ul_frame_number;
+		SE_COPY_ADDRESS(&(p_conv_data->crnc_address), crnc_address);
+		p_conv_data->crnc_port = crnc_port;
+		p_conv_data->dch_id = ch_id;
+		p_conv_data->fp_info_ul = fp_info_ul;
+		p_conv_data->fp_info_dl = fp_info_dl;
 
 		conversation_add_proto_data(conversation, proto_fp, p_conv_data);
 	}
@@ -555,6 +563,8 @@ set_umts_fp_dl_conv_data(conversation_t *conversation, guint32 dl_frame_number)
 	 */
 
 }
+
+
 static int get_tb_count(struct fp_info *p_fp_info)
 {
     int chan, tb_count = 0;
@@ -3260,6 +3270,9 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     top_level_tree = tree;
 
+    /* Look for packet info! */
+    p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+
 	/* Check if we have converstaion info */
 	p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
 		                           pinfo->ptype,
@@ -3267,15 +3280,28 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (p_conv)	{
 		p_conv_data = conversation_get_proto_data(p_conv, proto_fp);
 		if (p_conv_data) {
-			proto_item* item = proto_tree_add_uint(fp_tree, hf_fp_dl_setup_frame,
-				tvb, 0, 0, p_conv_data->dl_frame_number);
-			PROTO_ITEM_SET_GENERATED(item);
+			if (ADDRESSES_EQUAL(&(pinfo->net_dst), (&p_conv_data->crnc_address))){
+				proto_item* item = proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
+					tvb, 0, 0, p_conv_data->ul_frame_number);
+				PROTO_ITEM_SET_GENERATED(item);
+				/* CRNC -> Node B */
+				pinfo->link_dir=P2P_DIR_UL;
+				if (p_fp_info == NULL){
+					p_fp_info = p_conv_data->fp_info_ul;
+				}
+			}else{
+				proto_item* item = proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
+					tvb, 0, 0, p_conv_data->ul_frame_number);
+				PROTO_ITEM_SET_GENERATED(item);
+				pinfo->link_dir=P2P_DIR_DL;
+				if (p_fp_info == NULL){
+					p_fp_info = p_conv_data->fp_info_dl;
+				}
+			}
 		}
 
 	}
 
-    /* Look for packet info! */
-    p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
 
     /* Can't dissect anything without it... */
     if (p_fp_info == NULL)
@@ -3313,6 +3339,8 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 val_to_str_const(p_fp_info->channel,
                                  channel_type_vals,
                                  "Unknown channel type"));
+	if ((p_conv)&&(p_conv_data->dch_id != 0xffffffff));
+		col_append_fstr(pinfo->cinfo, COL_INFO, "(%u) ",p_conv_data->dch_id);
     proto_item_append_text(ti, " (%s)",
                            val_to_str_const(p_fp_info->channel,
                                             channel_type_vals,
@@ -4376,9 +4404,9 @@ void proto_register_fp(void)
               NULL, HFILL
             }
         },
-		{ &hf_fp_dl_setup_frame,
-            { "DL setup frame",
-              "fp.dl.setup_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		{ &hf_fp_ul_setup_frame,
+            { "UL setup frame",
+              "fp.ul.setup_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },

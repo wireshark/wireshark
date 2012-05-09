@@ -103,13 +103,17 @@ typedef struct fp_info
 
     enum   fp_hsdsch_entity hsdsch_entity;
     enum   fp_link_type link_type;
-} fp_info;
+}fp_info;
 
 struct _umts_fp_conversation_info
 {
 	guint32 dl_frame_number;		/* the frame where this conversation is started from CRNC */
 	guint32 ul_frame_number;		/* the frame where this conversation is started from Node B */
-
+	address crnc_address;
+	guint16 crnc_port;
+	guint32 dch_id;
+	fp_info* fp_info_dl; 
+	fp_info* fp_info_ul; 
 };
 
-void set_umts_fp_dl_conv_data(conversation_t *conversation, guint32 dl_frame_number);
+void set_umts_fp_ul_conv_data(conversation_t *conversation, guint32 ul_frame_number, address *crnc_address, guint16 crnc_port,guint32 ch_id, fp_info *fp_info_ul,  fp_info *fp_info_dl);

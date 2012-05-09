@@ -72,11 +72,26 @@ static int ett_nbap_TransportLayerAddress_nsap = -1;
 
 #include "packet-nbap-ett.c"
 
+/*
+ * Structure to build information needed to dissect the FP flow beeing set up.
+ */
+struct _nbap_msg_info_for_fp
+{
+	guint32 ProcedureCode;
+	guint32 ddMode;
+	gboolean is_uplink;
+    gint channel;                       /* see definitions in packet-umts_fp.h Channel types */
+	guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
+};
+
+struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
+
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
+static guint32 dch_id;
 
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;

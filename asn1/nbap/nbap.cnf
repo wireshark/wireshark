@@ -195,15 +195,27 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 
 # RadioLinkSetupRequestFDD
 #.FN_HDR RadioLinkSetupRequestFDD
-col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupRequest(FDD) ");
-/* CRNC -> Node B */
-actx->pinfo->link_dir=P2P_DIR_DL;
+
+	g_nbap_msg_info_for_fp.ProcedureCode = ProcedureCode;
+	g_nbap_msg_info_for_fp.ddMode = ddMode;
+	g_nbap_msg_info_for_fp.is_uplink = TRUE;
+	g_nbap_msg_info_for_fp.dch_crc_present = 2; /* unknown */
+
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupRequest(FDD) ");
+	/* CRNC -> Node B */
+	actx->pinfo->link_dir=P2P_DIR_DL;
 
 # RadioLinkSetupResponseFDD
 #.FN_HDR RadioLinkSetupResponseFDD
-col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupResponse(FDD) ");
-/* Node B -> CRNC */
-actx->pinfo->link_dir=P2P_DIR_UL;
+	
+	g_nbap_msg_info_for_fp.ProcedureCode = ProcedureCode;
+	g_nbap_msg_info_for_fp.ddMode = ddMode;
+	g_nbap_msg_info_for_fp.is_uplink = FALSE;
+	g_nbap_msg_info_for_fp.dch_crc_present = 2; /* unknown */
+	
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupResponse(FDD) ");
+	/* Node B -> CRNC */
+	actx->pinfo->link_dir=P2P_DIR_UL;
 
 # RadioLinkSetupFailureFDD
 #.FN_HDR RadioLinkSetupFailureFDD
@@ -467,22 +479,45 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
 	}
 
+
+#.FN_BODY PayloadCRC-PresenceIndicator VAL_PTR = &payload_crc_value
+guint32 payload_crc_value;
+
+%(DEFAULT_BODY)s
+
+	if(payload_crc_value == 0){
+		g_nbap_msg_info_for_fp.dch_crc_present = TRUE;
+	}else{
+		g_nbap_msg_info_for_fp.dch_crc_present = FALSE;
+	}
+
+#.FN_BODY DCH-ID VAL_PTR = &dch_id
+
+%(DEFAULT_BODY)s
+
 #.FN_BODY BindingID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
+
 %(DEFAULT_BODY)s
+
   if (!parameter_tvb)
     return offset;
 # BindingID ::= OCTET STRING (SIZE (1..4, ...))
 # -- If the Binding ID includes a UDP port, the UDP port is included in octet 1 and 2.The first octet of
 # -- the UDP port field is included in the first octet of the Binding ID.
  BindingID_port = tvb_get_ntohs(parameter_tvb,0);
+ if(tvb_length(parameter_tvb)==2){
+	proto_item_append_text(actx->created_item, " (%%u)",BindingID_port);
+ }
 
 #.FN_BODY RL-Specific-DCH-Info-Item
 address 	dst_addr, null_addr;
 conversation_t *conversation;
+fp_info *nbap_fp_info_ul = NULL, *nbap_fp_info_dl = NULL;
 
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
+dch_id = 0xFFFFFFFF;
 
 %(DEFAULT_BODY)s
 
@@ -509,8 +544,29 @@ BindingID_port = 0;
 		/* Set dissector */
 		conversation_set_dissector(conversation, fp_handle);
 		}
+		nbap_fp_info_ul = se_new0(fp_info);
+		nbap_fp_info_ul->iface_type = IuB_Interface;
+		nbap_fp_info_ul->division = Division_FDD;
+		nbap_fp_info_ul->release = 7;               /* Set values greater then the checks performed */
+		nbap_fp_info_ul->release_year = 2006;
+		nbap_fp_info_ul->release_month = 12;
+		nbap_fp_info_ul->is_uplink = g_nbap_msg_info_for_fp.is_uplink;
+		nbap_fp_info_ul->channel = CHANNEL_DCH;
+		nbap_fp_info_ul->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+
+		nbap_fp_info_dl = se_new0(fp_info);
+		nbap_fp_info_dl->iface_type = IuB_Interface;
+		nbap_fp_info_dl->division = Division_FDD;
+		nbap_fp_info_dl->release = 7;               /* Set values greater then the checks performed */
+		nbap_fp_info_dl->release_year = 2006;
+		nbap_fp_info_dl->release_month = 12;
+		nbap_fp_info_dl->is_uplink = FALSE;
+		nbap_fp_info_dl->channel = CHANNEL_DCH;
+		nbap_fp_info_dl->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+
 		if(actx->pinfo->link_dir==P2P_DIR_DL){
-			set_umts_fp_dl_conv_data(conversation, actx->pinfo->fd->num);
+			/* For now have on fp_info_ul and on fp_info_dl, may not be needed */
+			set_umts_fp_ul_conv_data(conversation, actx->pinfo->fd->num, &dst_addr, BindingID_port, dch_id, nbap_fp_info_ul, nbap_fp_info_dl);
 		}
 
 #.REGISTER_NEW
