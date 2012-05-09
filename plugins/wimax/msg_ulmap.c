@@ -1934,7 +1934,7 @@ void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, p
     ti = proto_tree_add_text(ulmap_tree, tvb, offset, length, "UL-MAP IEs (%u bytes)", length);
     ie_tree = proto_item_add_subtree(ti, ett_ulmap_ie);
 
-    length = BYTE_TO_NIB(length); /* convert length to nibbles */
+    /* length = BYTE_TO_NIB(length); */ /* convert length to nibbles */
     nib = BYTE_TO_NIB(offset);
     while (nib < ((tvb_len*2)-1)) {
         nib += dissect_ulmap_ie(ie_tree, bufptr, nib, tvb_len*2, tvb);

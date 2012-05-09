@@ -86,7 +86,9 @@ guint cid_broadcast        = 0xFFFF;
 
 /* forward reference */
 static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+#ifdef DEBUG /* for debug only */
 static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item);
+#endif
 
 /* Static variables */
 static GHashTable *payload_frag_table = NULL;
@@ -631,7 +633,7 @@ void wimax_defragment_init(void)
 	init_wimax_globals();
 }
 
-static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint payload_length, guint payload_offset, proto_item *parent_item)
+static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint payload_length _U_, guint payload_offset, proto_item *parent_item)
 {
 	proto_item *generic_item = NULL;
 	proto_tree *generic_tree = NULL;
@@ -658,7 +660,6 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_bsn, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 		/* update the length and offset */
-		payload_length -= 3;
 		payload_offset += 3;
 		frag_len -= 3;
 	}
@@ -673,7 +674,6 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 			/* update the length and offset */
-			payload_length -= 3;
 			payload_offset += 3;
 			frag_len -= 3;
 		}
@@ -686,7 +686,6 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
 			/* update the length and offset */
-			payload_length -= 2;
 			payload_offset += 2;
 			frag_len -= 2;
 		}
@@ -1133,8 +1132,8 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 					if (first_arq_fb_payload && arq_fb_payload)
 					{	/* decode and display the ARQ feedback payload */
 						first_arq_fb_payload = FALSE;
-						ret_length = arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
 #ifdef DEBUG /* for debug only */
+						ret_length = arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
 						if (ret_length != new_payload_len)
 						{	/* error */
 							/* update the info column */
@@ -1209,7 +1208,6 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 						}
 					}
 					payload_length -= new_payload_len;
-					payload_offset += new_payload_len;
 				}	/* end of while loop */
 			}	/* end of payload processing */
 			length -= frag_len;
@@ -1377,6 +1375,7 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	return ext_length;
 }
 
+#ifdef DEBUG /* for debug only */
 static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item)
 {
 	gint length, i;
@@ -1479,6 +1478,7 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* return the offset */
 	return offset;
 }
+#endif /* DEBUG */
 
 /* Register Wimax Generic Mac Header Protocol and Dissector */
 void proto_register_mac_header_generic(void)

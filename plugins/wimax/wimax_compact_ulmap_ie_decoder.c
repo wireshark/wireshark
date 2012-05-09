@@ -584,7 +584,6 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			}
 			else
 			{
-				nband = 0;
 				band_count = 1;
 				/* display the Nb-BITMAP */
 				if(nibble_offset & 1)

@@ -430,7 +430,6 @@ gint Dedicated_MIMO_DL_Control_IE(proto_tree *diuc_tree, const guint8 *bufptr, g
 
     /* CQICH Control Info */
     if (cqi == 1) {
-        CQICH_num = 0;
         XBIT(data, 3, "Period");
         XBIT(data, 3, "Frame Offset");
         XBIT(data, 4, "Duration");
@@ -1194,7 +1193,7 @@ gint HARQ_DL_MAP_IE(proto_tree *diuc_tree, const guint8 *bufptr, gint offset, gi
         proto_tree_add_text(tree, tvb, BITHI(bit,pad), "Padding: %d bits",pad);
         bit += pad;
     }
-    
+
     return BIT_TO_NIB(bit);
 }
 
@@ -1994,7 +1993,6 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
     {
         /* Downlink IE */
         alt_format = 0;
-        data = 0;
         /*papr = 0; XX: not used ? */
         ie_len = 9;
 
@@ -2106,7 +2104,7 @@ void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, p
     ti = proto_tree_add_text(dlmap_tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
     ie_tree = proto_item_add_subtree(ti, ett_dlmap_ie);
 
-    length = BYTE_TO_NIB(length); /* convert length to nibbles */
+    /* length = BYTE_TO_NIB(length); */ /* convert length to nibbles */
 
     nib = BYTE_TO_NIB(offset);
     while (nib < ((tvb_len*2)-1)) {
@@ -2184,7 +2182,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
         ti_dlmap_ies = proto_tree_add_text(tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
         ie_tree = proto_item_add_subtree(ti_dlmap_ies, ett_dlmap_ie);
 
-        length = BYTE_TO_NIB(mac_len - sizeof(mac_crc) - 1); /* convert length to nibbles */
+        /* length = BYTE_TO_NIB(mac_len - sizeof(mac_crc) - 1); */ /* convert length to nibbles */
 
         while (dl_ie_count--) {
             nib += dissect_dlmap_ie(ie_tree, bufptr, nib, tvb_len * 2, tvb);
@@ -2209,7 +2207,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed UL-MAP");
 
         /* subtract 8 from lennib (CRC) */
-        nib += wimax_decode_ulmapc(base_tree, bufptr, nib, lennib - 8, tvb);
+        /* nib += wimax_decode_ulmapc(base_tree, bufptr, nib, lennib - 8, tvb); */
     }
 
     /* CRC is always appended */
@@ -2321,8 +2319,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     {
         proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
     }
-    nib += 4;
-
+    /* nib += 4; */
 
     sub_dl_ul_map = 0; /* clear flag */
     /* return length */
