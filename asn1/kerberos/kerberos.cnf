@@ -136,7 +136,7 @@ proto_tree *sub_tree=tree;
 	address_str[255]=0;
 	switch(addr_type){
 	case KRB5_ADDR_IPv4:
-		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, FALSE);
+		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		g_snprintf(address_str,256,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
 		break;
 	case KRB5_ADDR_NETBIOS:
@@ -151,7 +151,7 @@ proto_tree *sub_tree=tree;
 		}
 		break;
 	case KRB5_ADDR_IPv6:
-		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, FALSE);
+		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
 		g_snprintf(address_str, 256, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
 		break;
 	default:
