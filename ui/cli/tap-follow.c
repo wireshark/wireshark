@@ -434,7 +434,6 @@ followDraw(
   {
     follow_stats_t      stats;
     address_type        type;
-    int                 len;
 
     follow_stats(&stats);
 
