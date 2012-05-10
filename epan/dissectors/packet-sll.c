@@ -205,8 +205,8 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		SET_ADDRESS(&pinfo->dl_src, AT_IPv4, 4, src);
 		SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src);
 		if (tree) {
-			proto_tree_add_ipv4(fh_tree, hf_sll_src_ipv4, tvb,
-			    6, 4, FALSE);
+			proto_tree_add_item(fh_tree, hf_sll_src_ipv4, tvb,
+			    6, 4, ENC_BIG_ENDIAN);
 		}
 		break;
 	case 6:
