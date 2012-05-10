@@ -1744,13 +1744,19 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.type = FT_STRING;
 		hfri[0].hfinfo.display = BASE_NONE;
 
-		hfri[2].p_id = &(a->hf_alt);
-		hfri[2].hfinfo.name = g_strdup_printf("%s (encrypted)", a->name);
-		hfri[2].hfinfo.abbrev = g_strdup_printf("%s_encrypted", abbrev);
-		hfri[2].hfinfo.type = FT_BYTES;
-		hfri[2].hfinfo.display = BASE_NONE;
+		if (a->encrypt != 0) {
+			/*
+			 * This attribute is encrypted, so create an
+			 * alternative field for the encrypted value.
+			 */
+			hfri[2].p_id = &(a->hf_alt);
+			hfri[2].hfinfo.name = g_strdup_printf("%s (encrypted)", a->name);
+			hfri[2].hfinfo.abbrev = g_strdup_printf("%s_encrypted", abbrev);
+			hfri[2].hfinfo.type = FT_BYTES;
+			hfri[2].hfinfo.display = BASE_NONE;
 
-		len_hf++;
+			len_hf++;
+		}
 	} else if (a->type == radius_octets) {
 		hfri[0].hfinfo.type = FT_BYTES;
 		hfri[0].hfinfo.display = BASE_NONE;
