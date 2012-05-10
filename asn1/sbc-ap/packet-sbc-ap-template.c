@@ -141,7 +141,7 @@ dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* create the sbc_ap protocol tree */
     if (tree) {
-        sbc_ap_item = proto_tree_add_item(tree, proto_sbc_ap, tvb, 0, -1, FALSE);
+        sbc_ap_item = proto_tree_add_item(tree, proto_sbc_ap, tvb, 0, -1, ENC_NA);
         sbc_ap_tree = proto_item_add_subtree(sbc_ap_item, ett_sbc_ap);
 
         dissect_SBC_AP_PDU_PDU(tvb, pinfo, sbc_ap_tree);
