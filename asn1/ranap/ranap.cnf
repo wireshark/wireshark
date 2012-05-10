@@ -315,7 +315,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	subtree = proto_item_add_subtree(actx->created_item, ett_ranap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, ENC_NA);
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
@@ -337,7 +337,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   if (!parameter_tvb)
     return offset;
-  proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, FALSE);  
+  proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);  
 
 #.FN_HDR SourceRNC-ToTargetRNC-TransparentContainer
 /* If SourceRNC-ToTargetRNC-TransparentContainer is called trough 
