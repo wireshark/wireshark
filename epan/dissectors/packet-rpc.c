@@ -802,7 +802,7 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return offset;
 	}
 
-	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1, FALSE);
+	lock_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1, ENC_NA);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_rpc_array);
 
