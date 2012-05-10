@@ -806,6 +806,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                 guint       iValueExtra     = 0;
                 gchar      *sValue          = "";
                 int         hfvalue         = -1;
+                guint       encoding        = ENC_NA;
                 guint       iPush           = 0;
                 proto_tree *rtmpt_tree_prop = NULL;
                 proto_item *ti              = NULL;
@@ -836,11 +837,13 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                 case RTMPT_AMF_NUMBER:
                         iValueLength = 8;
                         hfvalue = hf_rtmpt_amf_number;
+                        encoding = ENC_BIG_ENDIAN;
                         sValue = ep_strdup_printf(" %." STRINGIFY(DBL_DIG) "g", tvb_get_ntohieee_double(tvb, iValueOffset));
                         break;
                 case RTMPT_AMF_BOOLEAN:
                         iValueLength = 1;
                         hfvalue = hf_rtmpt_amf_boolean;
+                        encoding = ENC_BIG_ENDIAN;
                         sValue = tvb_get_guint8(tvb, iValueOffset) ? " true" : " false";
                         break;
                 case RTMPT_AMF_STRING:
@@ -848,12 +851,14 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         iValueOffset += 2;
                         iValueExtra = 3;
                         hfvalue = hf_rtmpt_amf_string;
+                        encoding = ENC_ASCII|ENC_NA;
                         sValue = ep_strdup_printf(" '%s'", tvb_get_ephemeral_string(tvb, iValueOffset, CLAMP(iValueLength, 0, ITEM_LABEL_LENGTH+1)));
                         break;
                 case RTMPT_AMF_OBJECT:
                         /* Uncounted list type, with end marker */
                         iValueLength = 0;
                         hfvalue = hf_rtmpt_amf_object;
+                        encoding = ENC_NA;
                         iPush = 1;
                         break;
                 case RTMPT_AMF_NULL:
@@ -863,6 +868,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                 case RTMPT_AMF_REFERENCE:
                         iValueLength = 2;
                         hfvalue = hf_rtmpt_amf_reference;
+                        encoding = ENC_BIG_ENDIAN;
                         sValue = ep_strdup_printf(" %d", tvb_get_ntohs(tvb, iValueOffset));
                         break;
                 case RTMPT_AMF_ECMA_ARRAY:
@@ -877,6 +883,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         iValueOffset += 4;
                         iValueExtra = 5;
                         hfvalue = hf_rtmpt_amf_ecmaarray;
+                        encoding = ENC_NA;
                         iPush = 1;
                         break;
                 case RTMPT_AMF_STRICT_ARRAY:
@@ -886,11 +893,13 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                          * properties */
                         iValueLength = 4;
                         hfvalue = hf_rtmpt_amf_strictarray;
+                        encoding = ENC_NA;
                         iPush = 1;
                         break;
                 case RTMPT_AMF_DATE:
                         iValueLength = 10;
                         hfvalue = hf_rtmpt_amf_date;
+                        encoding = ENC_NA;
                         break;
                 case RTMPT_AMF_LONG_STRING:
                 case RTMPT_AMF_XML: /* same representation */
@@ -898,6 +907,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         iValueOffset += 4;
                         iValueExtra = 5;
                         hfvalue = (iObjType==RTMPT_AMF_XML) ? hf_rtmpt_amf_xml : hf_rtmpt_amf_longstring;
+                        encoding = ENC_ASCII|ENC_NA; /* XXX - code page? */
                         sValue = ep_strdup_printf(" '%s'", tvb_get_ephemeral_string(tvb, iValueOffset, CLAMP(iValueLength, 0, ITEM_LABEL_LENGTH+1)));
                         break;
                 case RTMPT_AMF_UNSUPPORTED:
@@ -906,6 +916,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                 case RTMPT_AMF_INT64:
                         iValueLength = 8;
                         hfvalue = hf_rtmpt_amf_int64;
+                        encoding = ENC_BIG_ENDIAN;
                         sValue = ep_strdup_printf(" %" G_GINT64_MODIFIER "d", tvb_get_ntoh64(tvb, iValueOffset));
                         break;
                 default:
@@ -955,7 +966,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                                 proto_tree_add_item(val_tree, hf_rtmpt_amf_longstringlength, tvb, iValueOffset-iValueExtra+1, 4, ENC_BIG_ENDIAN);
                         }
                         if (iValueLength>0 && hfvalue != -1) {
-                                proto_tree_add_item(val_tree, hfvalue, tvb, iValueOffset, iValueLength, FALSE);
+                                proto_tree_add_item(val_tree, hfvalue, tvb, iValueOffset, iValueLength, encoding);
                         }
                 }
 
@@ -968,7 +979,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         ep_stack_push(amfpcs, GINT_TO_POINTER(pc));
                         pc = 0;
                         ep_stack_push(amftis, ti_object);
-                        ti_object = proto_tree_add_item(rtmpt_tree_prop, hfvalue, tvb, iValueOffset+iValueLength, 1, FALSE);
+                        ti_object = proto_tree_add_item(rtmpt_tree_prop, hfvalue, tvb, iValueOffset+iValueLength, 1, encoding);
                         ep_stack_push(amftrs, rtmpt_tree);
                         rtmpt_tree = proto_item_add_subtree(ti_object, ett_rtmpt_array);
 
