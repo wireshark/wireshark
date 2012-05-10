@@ -56,6 +56,10 @@ static int hf_ppp_direction = -1;
 static int hf_ppp_address = -1;
 static int hf_ppp_control = -1;
 static int hf_ppp_protocol = -1;
+static int hf_ppp_code = -1;
+static int hf_ppp_identifier = -1;
+static int hf_ppp_length = -1;
+static int hf_ppp_magic_number = -1;
 
 static gint ett_ppp = -1;
 
@@ -2048,7 +2052,8 @@ dissect_lcp_magicnumber_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_lcp_linkqualmon_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                            guint length, packet_info *pinfo, proto_tree *tree)
+                            guint length, packet_info *pinfo _U_,
+                            proto_tree *tree)
 {
   proto_tree *field_tree;
   proto_item *tf;
@@ -3595,12 +3600,10 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
   proto_tree *field_tree;
 
   guint8  code;
-  guint8  id;
   int     length, offset;
   guint16 protocol;
 
   code   = tvb_get_guint8(tvb, 0);
-  id     = tvb_get_guint8(tvb, 1);
   length = tvb_get_ntohs(tvb, 2);
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -3614,12 +3617,13 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
   if(tree) {
     ti = proto_tree_add_item(tree, proto_id, tvb, 0, length, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, proto_subtree_index);
-    proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
-                        val_to_str_const(code, proto_vals, "Unknown"), code);
-    proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
-                        id);
-    proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
-                        length);
+    proto_tree_add_uint_format_value(fh_tree, hf_ppp_code, tvb, 0, 1, code,
+                                     "%s (%u)",
+                                     val_to_str_const(code, proto_vals,
+                                                      "Unknown"),
+                                     code);
+    proto_tree_add_item(fh_tree, hf_ppp_identifier, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(fh_tree, hf_ppp_length, tvb, 2, 2, ENC_BIG_ENDIAN);
   }
   offset = 4;
   length -= 4;
@@ -3644,8 +3648,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
   case ECHOREP:
   case DISCREQ:
     if(tree) {
-      proto_tree_add_text(fh_tree, tvb, offset, 4, "Magic number: 0x%08x",
-                          tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(fh_tree, hf_ppp_magic_number, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       length -= 4;
       if (length > 0)
@@ -3656,8 +3659,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
   case IDENT:
     if(tree) {
-      proto_tree_add_text(fh_tree, tvb, offset, 4, "Magic number: 0x%08x",
-                          tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(fh_tree, hf_ppp_magic_number, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       length -= 4;
       if (length > 0)
@@ -3668,8 +3670,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
   case TIMEREMAIN:
     if(tree) {
-      proto_tree_add_text(fh_tree, tvb, offset, 4, "Magic number: 0x%08x",
-                          tvb_get_ntohl(tvb, offset));
+      proto_tree_add_item(fh_tree, hf_ppp_magic_number, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       length -= 4;
       proto_tree_add_text(fh_tree, tvb, offset, 4, "Seconds remaining: %u",
@@ -3683,7 +3684,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
     break;
 
   case PROTREJ:
-    if(tree) {
+    {
       gboolean save_in_error_pkt;
       tvbuff_t *next_tvb;
 
@@ -4196,84 +4197,82 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   length_remaining = tvb_reported_length(tvb);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_pppmux, tvb, 0, -1, ENC_NA);
-    mux_tree = proto_item_add_subtree(ti,ett_pppmux);
+  ti = proto_tree_add_item(tree, proto_pppmux, tvb, 0, -1, ENC_NA);
+  mux_tree = proto_item_add_subtree(ti,ett_pppmux);
 
-    while (length_remaining > 0) {
+  while (length_remaining > 0) {
 
-      flags = tvb_get_guint8(tvb,offset) & PPPMUX_FLAGS_MASK;
+    flags = tvb_get_guint8(tvb,offset) & PPPMUX_FLAGS_MASK;
 
-      if (flags & PPPMUX_LXT_BIT_SET ) {
-        length = tvb_get_ntohs(tvb,offset) & 0x3fff;
-        length_field = 2;
-      } else {
-        length = tvb_get_guint8(tvb,offset) & 0x3f;
-        length_field = 1;
+    if (flags & PPPMUX_LXT_BIT_SET ) {
+      length = tvb_get_ntohs(tvb,offset) & 0x3fff;
+      length_field = 2;
+    } else {
+      length = tvb_get_guint8(tvb,offset) & 0x3f;
+      length_field = 1;
+    }
+
+    if (flags & PPPMUX_PFF_BIT_SET) {
+      byte = tvb_get_guint8(tvb,offset + length_field);
+      if (byte & PFC_BIT) {             /* Compressed PID field*/
+        pid = byte;
+        pid_field = 1;
+      } else {                  /*PID field is 2 bytes*/
+        pid = tvb_get_ntohs(tvb,offset + length_field);
+        pid_field = 2;
       }
-
-      if (flags & PPPMUX_PFF_BIT_SET) {
-        byte = tvb_get_guint8(tvb,offset + length_field);
-        if (byte & PFC_BIT) {             /* Compressed PID field*/
-          pid = byte;
-          pid_field = 1;
-        } else {                  /*PID field is 2 bytes*/
-          pid = tvb_get_ntohs(tvb,offset + length_field);
-          pid_field = 2;
-        }
-      } else {
-        pid_field = 0;   /*PID field is 0 bytes*/
-        if (!pid){       /*No Last PID, hence use the default */
-          if (pppmux_def_prot_id)
-            pid = pppmux_def_prot_id;
-        }
+    } else {
+      pid_field = 0;   /*PID field is 0 bytes*/
+      if (!pid){       /*No Last PID, hence use the default */
+        if (pppmux_def_prot_id)
+          pid = pppmux_def_prot_id;
       }
+    }
 
-      hdr_length = length_field + pid_field;
+    hdr_length = length_field + pid_field;
 
-      ti = proto_tree_add_text(mux_tree, tvb, offset, length + length_field,
-                               "PPPMux Sub-frame");
-      sub_tree = proto_item_add_subtree(ti,ett_pppmux_subframe);
-      sub_ti = proto_tree_add_text(sub_tree, tvb, offset,
-                                   hdr_length,"Header field");
+    ti = proto_tree_add_text(mux_tree, tvb, offset, length + length_field,
+                             "PPPMux Sub-frame");
+    sub_tree = proto_item_add_subtree(ti,ett_pppmux_subframe);
+    sub_ti = proto_tree_add_text(sub_tree, tvb, offset,
+                                 hdr_length,"Header field");
 
-      hdr_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_hdr);
-      ti = proto_tree_add_text(hdr_tree, tvb, offset, length_field, "PFF/LXT: 0x%02X",
-                               flags);
+    hdr_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_hdr);
+    ti = proto_tree_add_text(hdr_tree, tvb, offset, length_field, "PFF/LXT: 0x%02X",
+                             flags);
 
-      flag_tree = proto_item_add_subtree(ti,ett_pppmux_subframe_flags);
-      proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
-                          decode_boolean_bitfield(flags,0x80,8,"PID Present","PID not present"));
-      proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
-                          decode_boolean_bitfield(flags,0x40,8,"2 bytes length field ","1 byte length field"));
+    flag_tree = proto_item_add_subtree(ti,ett_pppmux_subframe_flags);
+    proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
+                        decode_boolean_bitfield(flags,0x80,8,"PID Present","PID not present"));
+    proto_tree_add_text(flag_tree,tvb,offset,length_field,"%s",
+                        decode_boolean_bitfield(flags,0x40,8,"2 bytes length field ","1 byte length field"));
 
-      proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
+    proto_tree_add_text(hdr_tree,tvb,offset,length_field,"Sub-frame Length = %u",length);
 
-      ti = proto_tree_add_uint(hdr_tree,hf_pppmux_protocol,tvb,offset + length_field,pid_field, pid);
+    ti = proto_tree_add_uint(hdr_tree,hf_pppmux_protocol,tvb,offset + length_field,pid_field, pid);
 
-      /* if protocol is not present in the sub-frame */
-      if (!(flags & PPPMUX_PFF_BIT_SET))
-        /* mark this item as generated */
-        PROTO_ITEM_SET_GENERATED(ti);
+    /* if protocol is not present in the sub-frame */
+    if (!(flags & PPPMUX_PFF_BIT_SET))
+      /* mark this item as generated */
+      PROTO_ITEM_SET_GENERATED(ti);
 
-      offset += hdr_length;
-      length_remaining -= hdr_length;
-      length -= pid_field;
+    offset += hdr_length;
+    length_remaining -= hdr_length;
+    length -= pid_field;
 
-      tvb_ensure_bytes_exist (tvb,offset,length);
-      sub_ti = proto_tree_add_text(sub_tree,tvb,offset,length,"Information Field");
-      info_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_info);
+    tvb_ensure_bytes_exist (tvb,offset,length);
+    sub_ti = proto_tree_add_text(sub_tree,tvb,offset,length,"Information Field");
+    info_tree = proto_item_add_subtree(sub_ti,ett_pppmux_subframe_info);
 
-      next_tvb = tvb_new_subset(tvb,offset,length,length);
+    next_tvb = tvb_new_subset(tvb,offset,length,length);
 
-      if (!dissector_try_uint(ppp_subdissector_table, pid, next_tvb, pinfo, info_tree)) {
-        call_dissector(data_handle, next_tvb, pinfo, info_tree);
-      }
-      offset += length;
-      length_remaining -= length;
-    }  /* While length_remaining */
-    pid = 0;
-  } /* if tree */
+    if (!dissector_try_uint(ppp_subdissector_table, pid, next_tvb, pinfo, info_tree)) {
+      call_dissector(data_handle, next_tvb, pinfo, info_tree);
+    }
+    offset += length;
+    length_remaining -= length;
+  }  /* While length_remaining */
+  pid = 0;
 }
 
 /*
@@ -5240,6 +5239,22 @@ proto_register_ppp(void)
     { &hf_ppp_protocol,
       { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
         &ppp_vals_ext, 0x0, NULL, HFILL }},
+
+    { &hf_ppp_code,
+      { "Code", "ppp.code", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ppp_identifier,
+      { "Identifier", "ppp.identifier", FT_UINT8, BASE_DEC_HEX,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ppp_length,
+      { "Length", "ppp.length", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ppp_magic_number,
+      { "Magic Number", "ppp.magic_number", FT_UINT32, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_ppp
@@ -5483,7 +5498,7 @@ proto_register_lcp(void)
       { "Quality Protocol", "lcp.opt.quality_protocol", FT_UINT16,
         BASE_HEX | BASE_EXT_STRING, &ppp_vals_ext, 0x0, NULL, HFILL }},
     { &hf_lcp_opt_magic_number,
-      { "Magic number", "lcp.opt.magic_number", FT_UINT32, BASE_HEX,
+      { "Magic Number", "lcp.opt.magic_number", FT_UINT32, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
     { &hf_lcp_opt_reportingperiod,
       { "Reporting Period", "lcp.opt.reporting_period", FT_UINT32, BASE_DEC,
