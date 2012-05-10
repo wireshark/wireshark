@@ -511,9 +511,10 @@ static rdp_conv_info_t *rdp_conv_info_items;
 
 #define RDP_FI_NONE          0x00
 #define RDP_FI_OPTIONAL      0x01
-#define RDP_FI_UNICODE       0x02
-#define RDP_FI_NOINCOFFSET   0x04 /* do not increase the offset */
-#define RDP_FI_SUBTREE       0x08
+#define RDP_FI_STRING        0x02
+#define RDP_FI_UNICODE       0x04
+#define RDP_FI_NOINCOFFSET   0x08 /* do not increase the offset */
+#define RDP_FI_SUBTREE       0x10
 
 typedef struct rdp_field_info_t {
   int     field;
@@ -525,6 +526,7 @@ typedef struct rdp_field_info_t {
 } rdp_field_info_t;
 
 #define FI_FIXEDLEN(_hf_, _len_) { _hf_, _len_, NULL, 0, 0, NULL }
+#define FI_FIXEDLEN_STRING(_hf_, _len_) { _hf_, _len_, NULL, 0, RDP_FI_STRING, NULL }
 #define FI_VALUE(_hf_, _len_, _value_) { _hf_, _len_, &_value_, 0, 0, NULL }
 #define FI_VARLEN(_hf, _length_) { _hf_, 0, &_length_, 0, 0, NULL }
 #define FI_SUBTREE(_hf_, _len_, _ett_, _sf_) { _hf_, _len_, NULL, _ett_, RDP_FI_SUBTREE, _sf_ }
@@ -826,8 +828,12 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     }
 
     if(len) {
-      if(c->field != -1)
-	pi = proto_tree_add_item(tree, c->field, tvb, offset, len, TRUE);
+      if(c->field != -1) {
+        if(c->flags & RDP_FI_STRING)
+          pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_ASCII|ENC_NA);
+        else
+          pi = proto_tree_add_item(tree, c->field, tvb, offset, len, ENC_LITTLE_ENDIAN);
+      }
       else
 	REPORT_DISSECTOR_BUG("Error!!!!!\n");
 
@@ -920,7 +926,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     FI_TERMINATOR,
   };
   rdp_field_info_t channel_fields[] = {
-    FI_FIXEDLEN(hf_rdp_name, 8),
+    FI_FIXEDLEN_STRING(hf_rdp_name, 8),
     FI_SUBTREE(hf_rdp_options, 4, ett_rdp_options, option_fields),
     FI_TERMINATOR
   };
@@ -1240,7 +1246,7 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
     {hf_rdp_shareId,                    4, NULL, 0, 0, NULL },
     {hf_rdp_lengthSourceDescriptor,     2, &lengthSourceDescriptor, 0, 0, NULL },
     {hf_rdp_lengthCombinedCapabilities, 2, NULL, 0, 0, NULL },
-    {hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, 0, NULL },
+    {hf_rdp_sourceDescriptor,           0, &lengthSourceDescriptor, 0, RDP_FI_STRING, NULL },
     {hf_rdp_numberCapabilities,         2, &numberCapabilities, 0, 0, NULL },
     {hf_rdp_pad2Octets,                 2, NULL, 0, 0, NULL },
     FI_TERMINATOR
