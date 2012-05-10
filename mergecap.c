@@ -390,7 +390,6 @@ main(int argc, char *argv[])
   if(file_type == WTAP_FILE_PCAPNG ){
     wtapng_section_t	*shb_hdr;
     GString *comment_gstr;
-    int i;
 
     shb_hdr = g_new(wtapng_section_t,1);
     comment_gstr = g_string_new("File created by merging: \n");
