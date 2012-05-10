@@ -248,9 +248,10 @@ add_word_param(tvbuff_t *tvb, int offset, int count _U_,
 {
 	guint16 WParam;
 
-	if (hf_index != -1)
-		proto_tree_add_item(tree, hf_index, tvb, offset, 2, TRUE);
-	else {
+	if (hf_index != -1) {
+		proto_tree_add_item(tree, hf_index, tvb, offset, 2,
+		    ENC_LITTLE_ENDIAN);
+	} else {
 		WParam = tvb_get_letohs(tvb, offset);
 		proto_tree_add_text(tree, tvb, offset, 2,
 		    "Word Param: %u (0x%04X)", WParam, WParam);
@@ -265,9 +266,10 @@ add_dword_param(tvbuff_t *tvb, int offset, int count _U_,
 {
 	guint32 LParam;
 
-	if (hf_index != -1)
-		proto_tree_add_item(tree, hf_index, tvb, offset, 4, TRUE);
-	else {
+	if (hf_index != -1) {
+		proto_tree_add_item(tree, hf_index, tvb, offset, 4,
+		    ENC_LITTLE_ENDIAN);
+	} else {
 		LParam = tvb_get_letohl(tvb, offset);
 		proto_tree_add_text(tree, tvb, offset, 4,
 		    "Doubleword Param: %u (0x%08X)", LParam, LParam);
@@ -290,7 +292,24 @@ add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 				&& count != 1) {
 			THROW(ReportedBoundsError);
 		}
-		proto_tree_add_item(tree, hf_index, tvb, offset, count, TRUE);
+		switch (hfinfo->type) {
+
+		case FT_INT8:
+		case FT_UINT8:
+			proto_tree_add_item(tree, hf_index, tvb, offset, count,
+			    ENC_LITTLE_ENDIAN);
+			break;
+
+		case FT_STRING:
+			proto_tree_add_item(tree, hf_index, tvb, offset, count,
+			    ENC_ASCII|ENC_NA);	/* XXX - code page? */
+			break;
+
+		default:
+			proto_tree_add_item(tree, hf_index, tvb, offset, count,
+			    ENC_NA);
+			break;
+		}
 	} else {
 		if (count == 1) {
 			BParam = tvb_get_guint8(tvb, offset);
@@ -342,7 +361,7 @@ add_string_param(tvbuff_t *tvb, int offset, int count _U_,
 	string_len = tvb_strsize(tvb, offset);
 	if (hf_index != -1) {
 		proto_tree_add_item(tree, hf_index, tvb, offset, string_len,
-		    TRUE);
+		    ENC_ASCII|ENC_NA);	/* XXX - code page? */
 	} else {
 		proto_tree_add_text(tree, tvb, offset, string_len,
 		    "String Param: %s",
@@ -389,7 +408,7 @@ add_stringz_pointer_param(tvbuff_t *tvb, int offset, int count _U_,
 	if (string != NULL) {
 		if (hf_index != -1) {
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
-			    string_len, TRUE);
+			    string_len, ENC_ASCII|ENC_NA);	/* XXX - code page? */
 		} else {
 			proto_tree_add_text(tree, tvb, cptr, string_len,
 			    "String Param: %s", string);
@@ -422,7 +441,7 @@ add_bytes_pointer_param(tvbuff_t *tvb, int offset, int count,
 	if (tvb_bytes_exist(tvb, cptr, count)) {
 		if (hf_index != -1) {
 			proto_tree_add_item(tree, hf_index, tvb, cptr,
-			    count, TRUE);
+			    count, ENC_NA);
 		} else {
 			proto_tree_add_text(tree, tvb, cptr, count,
 			    "Byte Param: %s",
@@ -624,7 +643,7 @@ add_logon_hours(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 			 * we need the units per week to do that, though.
 			 */
 			proto_tree_add_item(tree, hf_index, tvb, cptr, count,
-			    TRUE);
+			    ENC_NA);
 		} else {
 			proto_tree_add_bytes_format(tree, hf_index, tvb,
 			    cptr, count, NULL,
