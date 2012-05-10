@@ -2027,7 +2027,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
             proto_tree_add_item(tree, hf_bthci_evt_afh_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            proto_tree_add_item(tree, hf_bthci_evt_afh_channel_map, tvb, offset, 10, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_bthci_evt_afh_channel_map, tvb, offset, 10, ENC_NA);
             offset+=10;
 
             break;
@@ -3489,7 +3489,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_afh_channel_map,
           {"AFH Channel Map", "bthci_evt.afh_channel_map",
-           FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+           FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_bthci_evt_simple_pairing_mode,
