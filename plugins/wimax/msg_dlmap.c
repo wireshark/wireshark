@@ -2207,7 +2207,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed UL-MAP");
 
         /* subtract 8 from lennib (CRC) */
-        /* nib += wimax_decode_ulmapc(base_tree, bufptr, nib, lennib - 8, tvb); */
+        wimax_decode_ulmapc(base_tree, bufptr, nib, lennib - 8, tvb);
     }
 
     /* CRC is always appended */

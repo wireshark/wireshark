@@ -86,9 +86,7 @@ guint cid_broadcast        = 0xFFFF;
 
 /* forward reference */
 static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-#ifdef DEBUG /* for debug only */
 static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item);
-#endif
 
 /* Static variables */
 static GHashTable *payload_frag_table = NULL;
@@ -1132,7 +1130,9 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 					if (first_arq_fb_payload && arq_fb_payload)
 					{	/* decode and display the ARQ feedback payload */
 						first_arq_fb_payload = FALSE;
-#ifdef DEBUG /* for debug only */
+#ifndef DEBUG
+						arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
+#else
 						ret_length = arq_feedback_payload_decoder(tvb_new_subset(payload_tvb, payload_offset, new_payload_len, new_payload_len), pinfo, generic_tree, parent_item);
 						if (ret_length != new_payload_len)
 						{	/* error */
@@ -1375,7 +1375,6 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	return ext_length;
 }
 
-#ifdef DEBUG /* for debug only */
 static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *parent_item)
 {
 	gint length, i;
@@ -1478,7 +1477,6 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* return the offset */
 	return offset;
 }
-#endif /* DEBUG */
 
 /* Register Wimax Generic Mac Header Protocol and Dissector */
 void proto_register_mac_header_generic(void)
