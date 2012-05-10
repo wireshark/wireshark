@@ -93,14 +93,14 @@ typedef const gchar* (radius_avp_dissector_t)(proto_tree*,tvbuff_t*, packet_info
 struct _radius_attr_info_t {
 	const gchar *name;
 	guint code;
-	gboolean encrypt;  /* True if attribute has "encrypt=1" option */
+	guint encrypt;  /* 0 or value for "encrypt=" option */
 	gboolean tagged;
 	radius_attr_dissector_t* type;
 	radius_avp_dissector_t* dissector;
 	const value_string *vs;
 	gint ett;
 	int hf;
-	int hf64;
+	int hf_alt;     /* 64-bit version for integers, encrypted version for strings, IPv6 for radius_combo_ip */
 	int hf_tag;
 	int hf_len;
 	GHashTable* tlvs_by_id;

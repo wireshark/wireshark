@@ -39,6 +39,12 @@
  * See also
  *
  *	http://www.iana.org/assignments/radius-types
+ *
+ * and see
+ *
+ *	http://freeradius.org/radiusd/man/dictionary.html
+ *
+ * for the dictionary file syntax.
  */
 
 
@@ -563,7 +569,7 @@ void radius_integer(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo 
 			break;
 		case 8: {
 			guint64 uint64 = tvb_get_ntoh64(tvb,offset);
-			proto_tree_add_uint64(tree,a->hf64,tvb,offset,len,uint64);
+			proto_tree_add_uint64(tree,a->hf_alt,tvb,offset,len,uint64);
 			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uint64);
 			return;
 		}
@@ -571,7 +577,7 @@ void radius_integer(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo 
 			proto_item_append_text(avp_item, "[unhandled integer length(%u)]", len);
 			return;
 	}
-	proto_tree_add_item(tree,a->hf,tvb, offset, len, FALSE);
+	proto_tree_add_item(tree,a->hf,tvb, offset, len, ENC_BIG_ENDIAN);
 
 	if (a->vs) {
 		proto_item_append_text(avp_item, "%s(%u)", val_to_str(uint, a->vs, "Unknown"),uint);
@@ -598,7 +604,7 @@ void radius_signed(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 			break;
 		case 8: {
 			guint64 uint64 = tvb_get_ntoh64(tvb,offset);
-			proto_tree_add_int64(tree,a->hf64,tvb,offset,len,uint64);
+			proto_tree_add_int64(tree,a->hf_alt,tvb,offset,len,uint64);
 			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uint64);
 			return;
 		}
@@ -617,10 +623,17 @@ void radius_signed(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 }
 
 void radius_string(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	if (a->encrypt) {
+	switch (a->encrypt) {
+
+	case 0: /* not encrypted */
+		proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_UTF_8|ENC_NA);
+		proto_item_append_text(avp_item, "%s", tvb_format_text(tvb, offset, len));
+		break;
+
+	case 1: /* encrypted like User-Password as defined in RFC 2865 */
 		if (*shared_secret == '\0') {
 			proto_item_append_text(avp_item, "Encrypted");
-			proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+			proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
 		} else {
 			gchar *buffer;
 			buffer=ep_alloc(1024); /* an AVP value can be at most 253 bytes */
@@ -628,14 +641,22 @@ void radius_string(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 			proto_item_append_text(avp_item, "Decrypted: %s", buffer);
 			proto_tree_add_string(tree, a->hf, tvb, offset, len, buffer);
 		}
-	} else {
-		proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
-		proto_item_append_text(avp_item, "%s", tvb_format_text(tvb, offset, len));
+		break;
+
+	case 2: /* encrypted like Tunnel-Password as defined in RFC 2868 */
+		proto_item_append_text(avp_item, "Encrypted");
+		proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
+		break;
+
+	case 3: /* encrypted like Ascend-Send-Secret as defined by Ascend^WLucent^WAlcatel-Lucent */
+		proto_item_append_text(avp_item, "Encrypted");
+		proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
+		break;
 	}
 }
 
 void radius_octets(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(tvb, offset, len));
 }
 
@@ -650,7 +671,7 @@ void radius_ipaddr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 
 	ip=tvb_get_ipv4(tvb,offset);
 
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_BIG_ENDIAN);
 
 	ip_to_str_buf((guint8 *)&ip, buf, MAX_IP_STR_LEN);
 	proto_item_append_text(avp_item, "%s", buf);
@@ -665,7 +686,7 @@ void radius_ipv6addr(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo
 		return;
 	}
 
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 
 	tvb_get_ipv6(tvb, offset, &ipv6_buff);
 	ip6_to_str_buf(&ipv6_buff, txtbuf);
@@ -695,7 +716,7 @@ void radius_ipv6prefix(radius_attr_info_t* a, proto_tree* tree, packet_info *pin
 		return;
 	}
 
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 
 	/* cannot use tvb_get_ipv6() here, since the prefix most likely is truncated */
 	memset(&ipv6_buff, 0, sizeof ipv6_buff);
@@ -713,12 +734,12 @@ void radius_combo_ip(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo
 	if (len == 4){
 		ip=tvb_get_ipv4(tvb,offset);
 
-		proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+		proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_BIG_ENDIAN);
 
 		ip_to_str_buf((guint8 *)&ip, buf, MAX_IP_STR_LEN);
 		proto_item_append_text(avp_item, "%s", buf);
 	} else if (len == 16) {
-		proto_tree_add_item(tree, a->hf64, tvb, offset, len, FALSE);
+		proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
 
 		tvb_get_ipv6(tvb, offset, &ipv6_buff);
 		ip6_to_str_buf(&ipv6_buff, buf);
@@ -739,7 +760,7 @@ void radius_ipxnet(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 
 	net=tvb_get_ntohl(tvb,offset);
 
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 
 	proto_item_append_text(avp_item, "0x%08X", net);
 }
@@ -762,7 +783,7 @@ void radius_date(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_
  * "abinary" is Ascend's binary format for filters.  See dissect_ascend_data_filter().
  */
 void radius_abinary(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(tvb, offset, len));
 }
 
@@ -772,12 +793,12 @@ void radius_ether(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U
 		return;
 	}
 
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 	proto_item_append_text(avp_item, "%s", tvb_ether_to_str(tvb, offset));
 }
 
 void radius_ifid(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_, tvbuff_t* tvb, int offset, int len, proto_item* avp_item) {
-	proto_tree_add_item(tree, a->hf, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 	proto_item_append_text(avp_item, "%s", tvb_bytes_to_str(tvb, offset, len));
 }
 
@@ -1693,7 +1714,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.type = FT_UINT32;
 		hfri[0].hfinfo.display = BASE_DEC;
 
-		hfri[2].p_id = &(a->hf64);
+		hfri[2].p_id = &(a->hf_alt);
 		hfri[2].hfinfo.name = g_strdup(a->name);
 		hfri[2].hfinfo.abbrev = abbrev;
 		hfri[2].hfinfo.type = FT_UINT64;
@@ -1708,7 +1729,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.type = FT_INT32;
 		hfri[0].hfinfo.display = BASE_DEC;
 
-		hfri[2].p_id = &(a->hf64);
+		hfri[2].p_id = &(a->hf_alt);
 		hfri[2].hfinfo.name = g_strdup(a->name);
 		hfri[2].hfinfo.abbrev = abbrev;
 		hfri[2].hfinfo.type = FT_INT64;
@@ -1722,6 +1743,14 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	} else if (a->type == radius_string) {
 		hfri[0].hfinfo.type = FT_STRING;
 		hfri[0].hfinfo.display = BASE_NONE;
+
+		hfri[2].p_id = &(a->hf_alt);
+		hfri[2].hfinfo.name = g_strdup_printf("%s (encrypted)", a->name);
+		hfri[2].hfinfo.abbrev = g_strdup_printf("%s_encrypted", abbrev);
+		hfri[2].hfinfo.type = FT_BYTES;
+		hfri[2].hfinfo.display = BASE_NONE;
+
+		len_hf++;
 	} else if (a->type == radius_octets) {
 		hfri[0].hfinfo.type = FT_BYTES;
 		hfri[0].hfinfo.display = BASE_NONE;
@@ -1750,7 +1779,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 		hfri[0].hfinfo.type = FT_IPv4;
 		hfri[0].hfinfo.display = BASE_NONE;
 
-		hfri[2].p_id = &(a->hf64);
+		hfri[2].p_id = &(a->hf_alt);
 		hfri[2].hfinfo.name = g_strdup(a->name);
 		hfri[2].hfinfo.abbrev = g_strdup(abbrev);
 		hfri[2].hfinfo.type = FT_IPv6;
@@ -1840,7 +1869,7 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 
 		dictionary_entry->name = g_strdup_printf("Unknown-Attribute-%u",attribute_id);
 		dictionary_entry->code = attribute_id;
-		dictionary_entry->encrypt = FALSE;
+		dictionary_entry->encrypt = 0;
 		dictionary_entry->type = NULL;
 		dictionary_entry->vs = NULL;
 		dictionary_entry->hf = no_dictionary_entry.hf;
