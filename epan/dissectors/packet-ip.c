@@ -1552,7 +1552,8 @@ static const ip_tcp_opt ipopts[] = {
 
 #define N_IP_OPTS       array_length(ipopts)
 
-/* Dissect the IP or TCP options in a packet. */
+/* Dissect the IP, TCP or various PPP protocols (IPCP, CP, LCP, VSNCP, BAP)
+ * options in a packet. */
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
                        const ip_tcp_opt *opttab, int nopts, int eol,
