@@ -27,7 +27,6 @@
 #endif
 
 #include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -35,6 +34,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
@@ -1482,7 +1482,6 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_bits_ret_val(tree, hf_rlc_rsn, tvb, 4, 1, &rsn, ENC_BIG_ENDIAN);
 			proto_tree_add_bits_ret_val(tree, hf_rlc_r1, tvb, 5, 3, &r1, ENC_BIG_ENDIAN);
 			if (r1) {
-				proto_item *malformed;
 				malformed = proto_tree_add_protocol_format(tree,
 				proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 				expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
