@@ -6382,7 +6382,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	rsvp_class = tvb_get_guint8(tvb, offset+2);
 	type = tvb_get_guint8(tvb, offset+3);
 	ti = proto_tree_add_item(rsvp_tree, hf_rsvp_filter[rsvp_class_to_filter_num(rsvp_class)],
-				 tvb, offset, obj_length, FALSE);
+				 tvb, offset, obj_length, ENC_BIG_ENDIAN);
 	rsvp_object_tree = proto_item_add_subtree(ti, TREE(rsvp_class_to_tree_type(rsvp_class)));
 	if (obj_length < 4) {
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
