@@ -1225,7 +1225,7 @@ ppp_heuristic_guess(guint16 proto) {
   case PPP_MPLS_UNI :
   case PPP_MPLS_MULTI :
   case PPP_IPCP :
-  case PPP_OSICP :
+  case PPP_OSINLCP :
   case PPP_MPLSCP :
   case PPP_LCP :
   case PPP_PAP :
