@@ -319,7 +319,7 @@ static const value_string iuup_fqcs[] = {
 static proto_item*
 iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, int bit_offset, guint bits, guint8** buf) {
     static const guint8 masks[] = {0x00,0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe};
-    int len = (bits + bit_offset)/8 + ((bits + bit_offset)%8 ? 0 : 1);
+    int len = (bits + bit_offset)/8 + (((bits + bit_offset)%8) ? 0 : 1);
     guint8* shifted_buffer;
     proto_item* pi;
     int i;
@@ -339,7 +339,7 @@ iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, in
     if (buf)
         *buf = shifted_buffer;
 
-    pi = proto_tree_add_bytes(tree, hf, tvb, offset, len + ((bits + bit_offset) % 8 ? 1 : 0) , shifted_buffer);
+    pi = proto_tree_add_bytes(tree, hf, tvb, offset, len + (((bits + bit_offset)%8) ? 1 : 0) , shifted_buffer);
     proto_item_append_text(pi, " (%i Bits)", bits);
 
     return pi;
@@ -398,7 +398,7 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
             bit_offset += rfci->subflow[i].len;
         }
 
-        offset += (bit_offset / 8) + (bit_offset % 8 ? 1 : 0);
+        offset += (bit_offset / 8) + ((bit_offset % 8) ? 1 : 0);
 
     } while (offset <= last_offset);
 }
