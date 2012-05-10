@@ -8207,6 +8207,10 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           "ISUP:%s",
                           val_to_str_ext_const(message_type, &french_isup_message_type_value_acro_ext, "reserved"));
       break;
+#if 0
+  /* This case can't happen unless/until we can parse the Israeli variant
+   * out of the content type
+   */
   case ISUP_ISRAELI_VARIANT:
       /* Make entries in Protocol column and Info column on summary display */
       col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(Israeli)");
@@ -8215,6 +8219,11 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
                           "ISUP:%s",
                           val_to_str_ext_const(message_type, &israeli_isup_message_type_value_acro_ext, "reserved"));
+      break;
+#endif
+  default:
+      col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
+                          "ISUP: Unknown variant %d", itu_isup_variant);
       break;
   }
 
