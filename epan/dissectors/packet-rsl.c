@@ -471,8 +471,8 @@ static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_ty
 #define RSL_IE_RLM_CAUSE                22
 #define RSL_IE_STARTING_TIME            23
 #define RSL_IE_TIMING_ADV               24
-#define RSL_IE_UPLINK_MEAS              25
 
+#define RSL_IE_UPLINK_MEAS              25
 #define RSL_IE_CAUSE                    26
 #define RSL_IE_MEAS_RES_NO              27
 #define RSL_IE_MESSAGE_ID               28
@@ -482,14 +482,14 @@ static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_ty
 #define RSL_IE_BS_POWER_PARAM           32
 #define RSL_IE_PREPROC_PARAM            33
 #define RSL_IE_PREPROC_MEAS             34
-#define RSL_IE_FULL_IMM_ASS_INF         35
 
+#define RSL_IE_FULL_IMM_ASS_INF         35
 #define RSL_IE_SMSCB_INF                36
 #define RSL_IE_FULL_MS_TIMING_OFFSET    37
 #define RSL_IE_ERR_MSG                  38
 #define RSL_IE_FULL_BCCH_INF            39
-#define RSL_IE_CH_NEEDED                40
 
+#define RSL_IE_CH_NEEDED                40
 #define RSL_IE_CB_CMD_TYPE              41
 #define RSL_IE_SMSCB_MESS               42
 #define RSL_IE_CBCH_LOAD_INF            43
@@ -499,84 +499,84 @@ static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_ty
 #define RSL_IE_GRP_CALL_REF             47
 #define RSL_IE_CH_DESC                  48
 #define RSL_IE_NCH_DRX_INF              49
-#define RSL_IE_CMD_IND                  50
 
+#define RSL_IE_CMD_IND                  50
 #define RSL_IE_EMLPP_PRIO               51
 #define RSL_IE_UIC                      52
 #define RSL_IE_MAIN_CH_REF              53
 #define RSL_IE_MULTIRATE_CONF           54
-#define RSL_IE_MULTIRATE_CNTRL          55
 
+#define RSL_IE_MULTIRATE_CNTRL          55
 #define RSL_IE_SUP_CODEC_TYPES          56
 #define RSL_IE_CODEC_CONF               57
 #define RSL_IE_RTD                      58
 #define RSL_IE_TFO_STATUS               59
-#define RSL_IE_LLP_APDU                 60
 
+#define RSL_IE_LLP_APDU                 60
 #define RSL_IE_TFO_TRANSP_CONT          61
 
 static const value_string rsl_ie_type_vals[] = {
-    {  0x01,    "Channel Number" },             /*  9.3.1 */
-    {  0x02,    "Link Identifier" },            /*  9.3.2 */
-    {  0x03,    "Activation Type" },            /*  9.3.3 */
-    {  0x04,    "BS Power" },                   /*  9.3.4 */
-    {  0x05,    "Channel Identification" },     /*  9.3.5 */
-    {  0x06,    "Channel Mode" },               /*  9.3.6 */
-    {  0x07,    "Encryption Information" },     /*  9.3.7 */
-    {  0x08,    "Frame Number" },               /*  9.3.8 */
-    {  0x09,    "Handover Reference" },         /*  9.3.9 */
-    {  0x0a,    "L1 Information" },             /*  9.3.10 */
-    {  0x0b,    "L3 Information" },             /*  9.3.11 */
-    {  0x0c,    "MS Identity" },                /*  9.3.12 */
-    {  0x0d,    "MS Power" },                   /*  9.3.13 */
-    {  0x0e,    "Paging Group" },               /*  9.3.14 */
-    {  0x0f,    "Paging Load" },                /*  9.3.15 */
-    {  0x10,    "Physical Context" },           /*  9.3.16 */
-    {  0x11,    "Access Delay" },               /*  9.3.17 */
-    {  0x12,    "RACH Load" },                  /*  9.3.18 */
-    {  0x13,    "Request Reference" },          /*  9.3.19 */
-    {  0x14,    "Release Mode" },               /*  9.3.20 */
-    {  0x15,    "Resource Information" },       /*  9.3.21 */
-    {  0x16,    "RLM Cause" },                  /*  9.3.22 */
-    {  0x17,    "Starting Time" },              /*  9.3.23 */
-    {  0x18,    "Timing Advance" },             /*  9.3.24 */
-    {  0x19,    "Uplink Measurements" },        /*  9.3.25 */
-    {  0x1a,    "Cause" },                      /*  9.3.26 */
-    {  0x1b,    "Measurement Result Number" },  /*  9.3.27 */
-    {  0x1c,    "Message Identifier" },         /*  9.3.28 */
-    {  0x1d,    "reserved" },                   /*  */
-    {  0x1e,    "System Info Type" },           /*  9.3.30 */
-    {  0x1f,    "MS Power Parameters" },        /*  9.3.31 */
-    {  0x20,    "BS Power Parameters" },        /*  9.3.32 */
-    {  0x21,    "Pre-processing Parameters" },  /*  9.3.33 */
-    {  0x22,    "Pre-processed Measurements" }, /*  9.3.34 */
-    {  0x23,    "reserved" },                   /*  */
-    {  0x24,    "SMSCB Information" },          /*  9.3.36 */
-    {  0x25,    "MS Timing Offset" },           /*  9.3.37 */
-    {  0x26,    "Erroneous Message" },          /*  9.3.38 */
-    {  0x27,    "Full BCCH Information" },      /*  9.3.39 */
-    {  0x28,    "Channel Needed" },             /*  9.3.40 */
-    {  0x29,    "CB Command type" },            /*  9.3.41 */
-    {  0x2a,    "SMSCB Message" },              /*  9.3.42 */
-    {  0x2b,    "Full Immediate Assign Info" }, /*  9.3.35 */
-    {  0x2c,    "SACCH Information" },          /*  9.3.29 */
-    {  0x2d,    "CBCH Load Information" },      /*  9.3.43 */
-    {  0x2e,    "SMSCB Channel Indicator" },    /*  9.3.44 */
-    {  0x2f,    "Group Call Reference" },       /*  9.3.45 */
-    {  0x30,    "Channel Description" },        /*  9.3.46 */
-    {  0x31,    "NCH DRX Information" },        /*  9.3.47 */
-    {  0x32,    "Command Indicator" },          /*  9.3.48 */
-    {  0x33,    "eMLPP Priority" },             /*  9.3.49 */
-    {  0x34,    "UIC" },                        /*  9.3.50 */
-    {  0x35,    "Main Channel Reference" },     /*  9.3.51 */
-    {  0x36,    "MultiRate Configuration" },    /*  9.3.52 */
-    {  0x37,    "MultiRate Control" },          /*  9.3.53 */
-    {  0x38,    "Supported Codec Types" },      /*  9.3.54 */
-    {  0x39,    "Codec Configuration" },        /*  9.3.55 */
-    {  0x3a,    "Round Trip Delay" },           /*  9.3.56 */
-    {  0x3b,    "TFO Status" },                 /*  9.3.57 */
-    {  0x3c,    "LLP APDU" },                   /*  9.3.58 */
-    {  0x3d,    "TFO Transparent Container" },  /*  9.3.59 */
+/* 0x01 */    { RSL_IE_CH_NO,           "Channel Number" },             /*  9.3.1 */
+/* 0x02 */    { RSL_IE_LINK_ID,         "Link Identifier" },            /*  9.3.2 */
+/* 0x03 */    { RSL_IE_ACT_TYPE,        "Activation Type" },            /*  9.3.3 */
+/* 0x04 */    { RSL_IE_BS_POW,          "BS Power" },                   /*  9.3.4 */
+/* 0x05 */    { RSL_IE_CH_ID,           "Channel Identification" },     /*  9.3.5 */
+/* 0x06 */    { RSL_IE_ENC_INF,         "Channel Mode" },               /*  9.3.6 */
+/* 0x07 */    { RSL_IE_ENC_INF,         "Encryption Information" },     /*  9.3.7 */
+/* 0x08 */    { RSL_IE_FRAME_NO,        "Frame Number" },               /*  9.3.8 */
+/* 0x09 */    { RSL_IE_HO_REF,          "Handover Reference" },         /*  9.3.9 */
+/* 0x0a */    { RSL_IE_L1_INF,          "L1 Information" },             /*  9.3.10 */
+/* 0x0b */    { RSL_IE_L3_INF,          "L3 Information" },             /*  9.3.11 */
+/* 0x0c */    { RSL_IE_MS_ID,           "MS Identity" },                /*  9.3.12 */
+/* 0x0d */    { RSL_IE_MS_POW,          "MS Power" },                   /*  9.3.13 */
+/* 0x0e */    { RSL_IE_PAGING_GRP,      "Paging Group" },               /*  9.3.14 */
+/* 0x0f */    { RSL_IE_PAGING_LOAD,     "Paging Load" },                /*  9.3.15 */
+/* 0x10 */    { RSL_IE_PHY_CTX,         "Physical Context" },           /*  9.3.16 */
+/* 0x11 */    { RSL_IE_ACCESS_DELAY,    "Access Delay" },               /*  9.3.17 */
+/* 0x12 */    { RSL_IE_RACH_LOAD,       "RACH Load" },                  /*  9.3.18 */
+/* 0x12 */    { RSL_IE_REQ_REF,         "Request Reference" },          /*  9.3.19 */
+/* 0x14 */    { RSL_IE_REL_MODE,        "Release Mode" },               /*  9.3.20 */
+/* 0x15 */    { RSL_IE_RESOURCE_INF,    "Resource Information" },       /*  9.3.21 */
+/* 0x16 */    { RSL_IE_RLM_CAUSE,       "RLM Cause" },                  /*  9.3.22 */
+/* 0x17 */    { RSL_IE_STARTING_TIME,   "Starting Time" },              /*  9.3.23 */
+/* 0x18 */    { RSL_IE_TIMING_ADV,      "Timing Advance" },             /*  9.3.24 */
+/* 0x19 */    { RSL_IE_UPLINK_MEAS,     "Uplink Measurements" },        /*  9.3.25 */
+/* 0x1a */    { RSL_IE_CAUSE,           "Cause" },                      /*  9.3.26 */
+/* 0x1b */    { RSL_IE_MEAS_RES_NO,     "Measurement Result Number" },  /*  9.3.27 */
+/* 0x1c */    { RSL_IE_MESSAGE_ID,      "Message Identifier" },         /*  9.3.28 */
+/* 0x1d */    {  0x1d,                  "reserved" },                   /*  */
+/* 0x1e */    { RSL_IE_SYS_INFO_TYPE,   "System Info Type" },           /*  9.3.30 */
+/* 0x1f */    { RSL_IE_MS_POWER_PARAM,  "MS Power Parameters" },        /*  9.3.31 */
+/* 0x20 */    { RSL_IE_BS_POWER_PARAM,  "BS Power Parameters" },        /*  9.3.32 */
+/* 0x21 */    { RSL_IE_PREPROC_PARAM,   "Pre-processing Parameters" },  /*  9.3.33 */
+/* 0x22 */    { RSL_IE_PREPROC_MEAS,    "Pre-processed Measurements" }, /*  9.3.34 */
+/* 0x23 */    {  0x23,                  "reserved" },                   /*  */
+/* 0x24 */    { RSL_IE_SMSCB_INF,       "SMSCB Information" },          /*  9.3.36 */
+/* 0x25 */    { RSL_IE_FULL_MS_TIMING_OFFSET,  "MS Timing Offset" },           /*  9.3.37 */
+/* 0x26 */    { RSL_IE_ERR_MSG,         "Erroneous Message" },          /*  9.3.38 */
+/* 0x27 */    { RSL_IE_FULL_BCCH_INF,   "Full BCCH Information" },      /*  9.3.39 */
+/* 0x28 */    { RSL_IE_CH_NEEDED,       "Channel Needed" },             /*  9.3.40 */
+/* 0x29 */    { RSL_IE_CB_CMD_TYPE,     "CB Command type" },            /*  9.3.41 */
+/* 0x2a */    { RSL_IE_SMSCB_MESS,      "SMSCB Message" },              /*  9.3.42 */
+/* 0x2b */    { RSL_IE_CBCH_LOAD_INF,   "Full Immediate Assign Info" }, /*  9.3.35 */
+/* 0x2c */    {  0x2c,                  "SACCH Information" },          /*  9.3.29 */
+/* 0x2d */    {  0x2d,                  "CBCH Load Information" },      /*  9.3.43 */
+/* 0x2e */    { RSL_IE_SMSCB_CH_IND,    "SMSCB Channel Indicator" },    /*  9.3.44 */
+/* 0x2f */    { RSL_IE_GRP_CALL_REF,    "Group Call Reference" },       /*  9.3.45 */
+/* 0x30 */    { RSL_IE_CH_DESC,         "Channel Description" },        /*  9.3.46 */
+/* 0x31 */    { RSL_IE_NCH_DRX_INF,     "NCH DRX Information" },        /*  9.3.47 */
+/* 0x32 */    { RSL_IE_CMD_IND,         "Command Indicator" },          /*  9.3.48 */
+/* 0x33 */    { RSL_IE_EMLPP_PRIO,      "eMLPP Priority" },             /*  9.3.49 */
+/* 0x34 */    { RSL_IE_UIC,             "UIC" },                        /*  9.3.50 */
+/* 0x35 */    { RSL_IE_MAIN_CH_REF,     "Main Channel Reference" },     /*  9.3.51 */
+/* 0x36 */    { RSL_IE_MULTIRATE_CONF,  "MultiRate Configuration" },    /*  9.3.52 */
+/* 0x37 */    { RSL_IE_MULTIRATE_CNTRL, "MultiRate Control" },          /*  9.3.53 */
+/* 0x38 */    { RSL_IE_SUP_CODEC_TYPES, "Supported Codec Types" },      /*  9.3.54 */
+/* 0x39 */    { RSL_IE_CODEC_CONF,      "Codec Configuration" },        /*  9.3.55 */
+/* 0x3a */    { RSL_IE_RTD,             "Round Trip Delay" },           /*  9.3.56 */
+/* 0x3b */    { RSL_IE_TFO_STATUS,      "TFO Status" },                 /*  9.3.57 */
+/* 0x3c */    { RSL_IE_LLP_APDU,        "LLP APDU" },                   /*  9.3.58 */
+/* 0x3d */    { RSL_IE_TFO_TRANSP_CONT, "TFO Transparent Container" },  /*  9.3.59 */
     /*
             0 0 1 1 1 1 1 0
             to
@@ -589,24 +589,24 @@ static const value_string rsl_ie_type_vals[] = {
             Not used
 
     */
-    { 0xe0,     "SRTP Configuration" },
-    { 0xe1,     "BSC Proxy UDP Port" },
-    { 0xe2,     "BSC Multiplex Timeout" },
-    { 0xf0,     "Remote IP Address" },
-    { 0xf1,     "Remote RTP Port" },
-    { 0xf2,     "RTP Payload Type" },
-    { 0xf3,     "Local RTP Port" },
-    { 0xf4,     "Speech Mode" },
-    { 0xf5,     "Local IP Address" },
-    { 0xf6,     "Connection Statistics" },
-    { 0xf7,     "Handover C Parameters" },
-    { 0xf8,     "Connection Identifier" },
-    { 0xf9,     "RTP CSD Format" },
-    { 0xfa,     "RTP Jitter Buffer" },
-    { 0xfb,     "RTP Compression" },
-    { 0xfc,     "RTP Payload Type 2" },
-    { 0xfd,     "RTP Multiplex" },
-    { 0xfe,     "RTP Multiplex Identifier" },
+/* 0xe0 */    { 0xe0,     "SRTP Configuration" },
+/* 0xe1 */    { 0xe1,     "BSC Proxy UDP Port" },
+/* 0xe2 */    { 0xe2,     "BSC Multiplex Timeout" },
+/* 0xf0 */    { 0xf0,     "Remote IP Address" },
+/* 0xf1 */    { 0xf1,     "Remote RTP Port" },
+/* 0xf2 */    { 0xf2,     "RTP Payload Type" },
+/* 0xf3 */    { 0xf3,     "Local RTP Port" },
+/* 0xf4 */    { 0xf4,     "Speech Mode" },
+/* 0xf5 */    { 0xf5,     "Local IP Address" },
+/* 0xf6 */    { 0xf6,     "Connection Statistics" },
+/* 0xf7 */    { 0xf7,     "Handover C Parameters" },
+/* 0xf8 */    { 0xf8,     "Connection Identifier" },
+/* 0xf9 */    { 0xf9,     "RTP CSD Format" },
+/* 0xfa */    { 0xfa,     "RTP Jitter Buffer" },
+/* 0xfb */    { 0xfb,     "RTP Compression" },
+/* 0xfc */    { 0xfc,     "RTP Payload Type 2" },
+/* 0xfd */    { 0xfd,     "RTP Multiplex" },
+/* 0xfe */    { 0xfe,     "RTP Multiplex Identifier" },
     { 0, NULL }
 };
 static value_string_ext rsl_ie_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_ie_type_vals);
