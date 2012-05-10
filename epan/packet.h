@@ -355,7 +355,7 @@ extern dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
     const int proto);
 
 /* Call a dissector through a handle and if no dissector was found
- * pass if over to the "data" dissector instead.
+ * pass it over to the "data" dissector instead.
  *
  *   @param handle The dissector to call.
  *   @param  tvb The buffer to dissect.
