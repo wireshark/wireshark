@@ -24,7 +24,7 @@ SLR-Arg-PCS-Extensions
 
 #.FN_HDR PDU
 	
-	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, FALSE);
+	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, ENC_NA);
 
 	col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/RRLP");
 #.END
