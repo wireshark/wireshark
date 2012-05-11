@@ -193,7 +193,7 @@ void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset,
         }
         else if (iLen >= 0)
         {
-            proto_tree_add_item(tree, hf_opcua_ByteString, tvb, iOffset, iLen, TRUE);
+            proto_tree_add_item(tree, hf_opcua_ByteString, tvb, iOffset, iLen, ENC_NA);
             iOffset += iLen; /* eat the whole bytestring */
         }
         else

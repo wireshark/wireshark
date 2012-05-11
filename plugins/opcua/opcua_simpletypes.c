@@ -295,47 +295,47 @@ void registerSimpleTypes(int proto)
 
 void parseBoolean(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, TRUE); *pOffset+=1;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, ENC_LITTLE_ENDIAN); *pOffset+=1;
 }
 
 void parseByte(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, TRUE); *pOffset+=1;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, ENC_LITTLE_ENDIAN); *pOffset+=1;
 }
 
 void parseSByte(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, TRUE); *pOffset+=1;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 1, ENC_LITTLE_ENDIAN); *pOffset+=1;
 }
 
 void parseUInt16(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 2, TRUE); *pOffset+=2;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 2, ENC_LITTLE_ENDIAN); *pOffset+=2;
 }
 
 void parseInt16(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 2, TRUE); *pOffset+=2;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 2, ENC_LITTLE_ENDIAN); *pOffset+=2;
 }
 
 void parseUInt32(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 
 void parseInt32(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 
 void parseUInt64(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 8, TRUE); *pOffset+=8;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 8, ENC_LITTLE_ENDIAN); *pOffset+=8;
 }
 
 void parseInt64(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 8, TRUE); *pOffset+=8;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 8, ENC_LITTLE_ENDIAN); *pOffset+=8;
 }
 
 void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
@@ -347,22 +347,22 @@ void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
     if (iLen == -1)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_ASCII|ENC_NA);
         proto_item_append_text(item, "[OpcUa Null String]");
     }
     else if (iLen == 0)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_ASCII|ENC_NA);
         proto_item_append_text(item, "[OpcUa Empty String]");
     }
     else if (iLen > 0)
     {
-        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, TRUE);
+        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, ENC_ASCII|ENC_NA);
         iOffset += iLen; /* eat the whole string */
     }
     else
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_ASCII|ENC_NA);
         szValue = ep_strdup_printf("[Invalid String] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
     }
@@ -372,7 +372,7 @@ void parseString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 
 void parseStatusCode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, TRUE);
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
     *pOffset += 4;
 }
 
@@ -410,7 +410,7 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, const ch
 
 void parseGuid(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, GUID_LEN, TRUE); *pOffset+=GUID_LEN;
+    proto_tree_add_item(tree, hfIndex, tvb, *pOffset, GUID_LEN, ENC_NA); *pOffset+=GUID_LEN;
 }
 
 void parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
@@ -422,22 +422,22 @@ void parseByteString(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex
 
     if (iLen == -1)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_NA);
         proto_item_append_text(item, "[OpcUa Null ByteString]");
     }
     else if (iLen == 0)
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_NA);
         proto_item_append_text(item, "[OpcUa Empty ByteString]");
     }
     else if (iLen > 0)
     {
-        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, TRUE);
+        proto_tree_add_item(tree, hfIndex, tvb, iOffset, iLen, ENC_NA);
         iOffset += iLen; /* eat the whole bytestring */
     }
     else
     {
-        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, TRUE);
+        proto_item *item = proto_tree_add_item(tree, hfIndex, tvb, iOffset, 0, ENC_NA);
         szValue = ep_strdup_printf("[Invalid ByteString] Invalid length: %d", iLen);
         proto_item_append_text(item, "%s", szValue);
     }
@@ -452,13 +452,13 @@ void parseXmlElement(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex
 
 void parseFloat(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-	 proto_tree_add_item(tree, hfIndex, tvb, *pOffset, sizeof(gfloat), TRUE);
+     proto_tree_add_item(tree, hfIndex, tvb, *pOffset, sizeof(gfloat), ENC_LITTLE_ENDIAN);
      *pOffset += sizeof(gfloat);
 }
 
 void parseDouble(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfIndex)
 {
-	 proto_tree_add_item(tree, hfIndex, tvb, *pOffset, sizeof(gdouble), TRUE);
+	 proto_tree_add_item(tree, hfIndex, tvb, *pOffset, sizeof(gdouble), ENC_LITTLE_ENDIAN);
      *pOffset += sizeof(gdouble);
 }
 
