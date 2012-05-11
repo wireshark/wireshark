@@ -279,7 +279,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(smex_tree, hf_smex_gsc, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
-		/* proto_tree_add_uint(smex_tree, hf_smex_unused, tvb, offset, 2, FALSE); */
+		/* proto_tree_add_item(smex_tree, hf_smex_unused, tvb, offset, 2, ENC_BIG_ENDIAN); */
 		offset += 2;
 
 		first_word=tvb_get_ntohs(tvb, offset);
