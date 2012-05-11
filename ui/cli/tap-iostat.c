@@ -47,47 +47,46 @@
 #define CALC_TYPE_LOAD	 8
 
 typedef struct {
-	const char *func_name;
-	int calc_type;
+    const char *func_name;
+    int calc_type;
 } calc_type_ent_t;
 
 static calc_type_ent_t calc_type_table[] = {
-	{ "FRAMES", CALC_TYPE_FRAMES },
-	{ "BYTES", CALC_TYPE_BYTES },
-	{ "FRAMES BYTES", CALC_TYPE_FRAMES_AND_BYTES },
-	{ "COUNT", CALC_TYPE_COUNT },
-	{ "SUM", CALC_TYPE_SUM },
-	{ "MIN", CALC_TYPE_MIN },
-	{ "MAX", CALC_TYPE_MAX },
-	{ "AVG", CALC_TYPE_AVG },
-	{ "LOAD", CALC_TYPE_LOAD },
-	{ NULL, 0 }
+    { "FRAMES", CALC_TYPE_FRAMES },
+    { "BYTES", CALC_TYPE_BYTES },
+    { "FRAMES BYTES", CALC_TYPE_FRAMES_AND_BYTES },
+    { "COUNT", CALC_TYPE_COUNT },
+    { "SUM", CALC_TYPE_SUM },
+    { "MIN", CALC_TYPE_MIN },
+    { "MAX", CALC_TYPE_MAX },
+    { "AVG", CALC_TYPE_AVG },
+    { "LOAD", CALC_TYPE_LOAD },
+    { NULL, 0 }
 };
 
 typedef struct _io_stat_t {
-	guint64 interval;	  /* The user-specified time interval (us) */
+    guint64 interval;     /* The user-specified time interval (us) */
     guint invl_prec;      /* Decimal precision of the time interval (1=10s, 2=100s etc) */
-	guint32 num_cols;     /* The number of columns of statistics in the table */
-	struct _io_stat_item_t 
-        *items;           /* Each item is a single cell in the table */   
-	const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
+    guint32 num_cols;     /* The number of columns of statistics in the table */
+    struct _io_stat_item_t *items;  /* Each item is a single cell in the table */
+    const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
     guint64 *max_vals;    /* The max value sans the decimal or nsecs portion in each stat column */
     guint32 *max_frame;   /* The max frame number displayed in each stat column */
 } io_stat_t;
 
 typedef struct _io_stat_item_t {
-	io_stat_t *parent;
+    io_stat_t *parent;
     struct _io_stat_item_t *next;
-	struct _io_stat_item_t *prev;
-	guint64 time;		  /* Time since start of capture (us)*/
-	int calc_type;        /* The statistic type */
+    struct _io_stat_item_t *prev;
+    guint64 time;         /* Time since start of capture (us)*/
+    int calc_type;        /* The statistic type */
     int colnum;           /* Column number of this stat (0 to n) */
-	int hf_index;
-	guint32 frames;
-	guint32 num;          /* The sample size of a given statistic (only needed for AVG) */
-	guint64 counter;      /* The accumulated data for the calculation of that statistic */
-	gfloat float_counter;
-	gdouble double_counter;
+    int hf_index;
+    guint32 frames;
+    guint32 num;          /* The sample size of a given statistic (only needed for AVG) */
+    guint64 counter;      /* The accumulated data for the calculation of that statistic */
+    gfloat float_counter;
+    gdouble double_counter;
 } io_stat_item_t;
 
 #define NANOSECS_PER_SEC 1000000000
@@ -95,394 +94,394 @@ typedef struct _io_stat_item_t {
 static int
 iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
 {
-	io_stat_t *parent;
+    io_stat_t *parent;
     io_stat_item_t *mit;
-	io_stat_item_t *it;
-	guint64 relative_time, rt;
+    io_stat_item_t *it;
+    guint64 relative_time, rt;
     nstime_t *new_time;
     GPtrArray *gp;
-	guint i;
+    guint i;
     int ftype;
     
     mit = (io_stat_item_t *) arg;
     parent = mit->parent;
-	relative_time = (guint64)((pinfo->fd->rel_ts.secs*1000000) + ((pinfo->fd->rel_ts.nsecs+500)/1000));
+    relative_time = (guint64)((pinfo->fd->rel_ts.secs*1000000) + ((pinfo->fd->rel_ts.nsecs+500)/1000));
 
-	/* The prev item before the main one is always the last interval we saw packets for */
-	it = mit->prev;
+    /* The prev item before the main one is always the last interval we saw packets for */
+    it = mit->prev;
 
-	/* XXX for the time being, just ignore all frames that are in the past.
-	   should be fixed in the future but hopefully it is uncommon */
-	if(relative_time < it->time){
-		return FALSE;
-	}
+    /* XXX for the time being, just ignore all frames that are in the past.
+       should be fixed in the future but hopefully it is uncommon */
+    if(relative_time < it->time){
+        return FALSE;
+    }
 
-	/* If we have moved into a new interval (row), create a new io_stat_item_t struct for every interval
+    /* If we have moved into a new interval (row), create a new io_stat_item_t struct for every interval
     *  between the last struct and this one. If an item was not found in a previous interval, an empty 
     *  struct will be created for it. */
-	rt = relative_time;
-	while (rt >= it->time + parent->interval) {
-		it->next = (io_stat_item_t *)g_malloc(sizeof(io_stat_item_t));
-		it->next->prev = it;
-		it->next->next = NULL;
-		it = it->next;
-		mit->prev = it;
+    rt = relative_time;
+    while (rt >= it->time + parent->interval) {
+        it->next = (io_stat_item_t *)g_malloc(sizeof(io_stat_item_t));
+        it->next->prev = it;
+        it->next->next = NULL;
+        it = it->next;
+        mit->prev = it;
 
-		it->time = it->prev->time + parent->interval;
-		it->frames = 0;
-		it->counter = 0;
-		it->float_counter = 0;
-		it->double_counter = 0;
-		it->num = 0;
-		it->calc_type = it->prev->calc_type;
-		it->hf_index = it->prev->hf_index;
+        it->time = it->prev->time + parent->interval;
+        it->frames = 0;
+        it->counter = 0;
+        it->float_counter = 0;
+        it->double_counter = 0;
+        it->num = 0;
+        it->calc_type = it->prev->calc_type;
+        it->hf_index = it->prev->hf_index;
         it->colnum = it->prev->colnum;
-	}
+    }
 
-	/* Store info in the current structure */
-	it->frames++;
+    /* Store info in the current structure */
+    it->frames++;
 
     switch(it->calc_type) {
-	case CALC_TYPE_FRAMES:
-	case CALC_TYPE_BYTES:
-	case CALC_TYPE_FRAMES_AND_BYTES:
-		it->counter += pinfo->fd->pkt_len;
-		break;
-	case CALC_TYPE_COUNT:
-		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
-		if(gp){
-			it->counter += gp->len;
-		}
-		break;
-	case CALC_TYPE_SUM:
-		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
-		if(gp){
-			guint64 val;
+    case CALC_TYPE_FRAMES:
+    case CALC_TYPE_BYTES:
+    case CALC_TYPE_FRAMES_AND_BYTES:
+        it->counter += pinfo->fd->pkt_len;
+        break;
+    case CALC_TYPE_COUNT:
+        gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        if(gp){
+            it->counter += gp->len;
+        }
+        break;
+    case CALC_TYPE_SUM:
+        gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        if(gp){
+            guint64 val;
 
-			for(i=0;i<gp->len;i++){
-				switch(proto_registrar_get_ftype(it->hf_index)){
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-					it->counter += fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_UINT64:
-					it->counter += fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-					it->counter += fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_INT64:
-					it->counter += (gint64)fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_FLOAT:
-					it->float_counter += 
-                        (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_DOUBLE:
-					it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_RELATIVE_TIME:
-					new_time = fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
-					it->counter  +=  val;
-					break;
-				default:
-					/*
-					 * "Can't happen"; see the checks
-					 * in register_io_tap().
-					 */
-					g_assert_not_reached();
-					break;
-				}
-			}
-		}
-		break;
-	case CALC_TYPE_MIN:
-		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
-		if(gp){
-			guint64 val;
-			gfloat float_val;
-			gdouble double_val;
-
-			ftype=proto_registrar_get_ftype(it->hf_index);
-			for(i=0;i<gp->len;i++){
-				switch(ftype){
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-					val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
-					if ((it->frames==1 && i==0) || (val < it->counter)) {
-						it->counter=val;
-					}
-					break;
-				case FT_UINT64:
-					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1 && i==0) || (val < it->counter)){
-						it->counter=val;
-					}
-					break;
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-					val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1 && i==0) || ((gint32)val < (gint32)it->counter)) {
-						it->counter=val;
-					}
-					break;
-				case FT_INT64:
-					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1 && i==0) || ((gint64)val < (gint64)it->counter)) {
-						it->counter=val;
-					} 
-					break;
-				case FT_FLOAT:
-					float_val=(gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1 && i==0) || (float_val < it->float_counter)) {
-						it->float_counter=float_val;
-					}
-					break;
-				case FT_DOUBLE:
-					double_val=fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1 && i==0) || (double_val < it->double_counter)) {
-						it->double_counter=double_val;
-					} 
-					break;
-				case FT_RELATIVE_TIME:
-					new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val = (guint64)new_time->secs * NANOSECS_PER_SEC + new_time->nsecs;
-					if((it->frames==1 && i==0) || (val < it->counter)) {
-						it->counter=val;
-					}
-					break;
-				default:
-					/*
-					 * "Can't happen"; see the checks
-					 * in register_io_tap().
-					 */
-					g_assert_not_reached();
-					break;
-				}
-			}
-		}
-		break;
-	case CALC_TYPE_MAX:
-		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
-		if(gp){
-			guint64 val;
-			gfloat float_val;
-			gdouble double_val;
-
-			ftype=proto_registrar_get_ftype(it->hf_index);
-			for(i=0;i<gp->len;i++){
-				switch(ftype){
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-					val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
-					if(val > it->counter)
-						it->counter=val;
-					break;
-				case FT_UINT64:
-					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if(val > it->counter) 
-						it->counter=val;
-					break;
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-					val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-					if((gint32)val > (gint32)it->counter) 
-						it->counter=val;
-					break;
-				case FT_INT64:
-					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if ((gint64)val > (gint64)it->counter) 
-						it->counter=val;
-					break;
-				case FT_FLOAT:
-					float_val = (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					if(float_val > it->float_counter)
-                        it->float_counter=float_val;
-					break;
-				case FT_DOUBLE:
-					double_val = fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					if(double_val > it->double_counter)
-                        it->double_counter=double_val;
-					break;
-				case FT_RELATIVE_TIME:
-					new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
-					if (val>it->counter)
-						it->counter=val;
+            for(i=0;i<gp->len;i++){
+                switch(proto_registrar_get_ftype(it->hf_index)){
+                case FT_UINT8:
+                case FT_UINT16:
+                case FT_UINT24:
+                case FT_UINT32:
+                    it->counter += fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
                     break;
-				default:
-					/*
-					 * "Can't happen"; see the checks
-					 * in register_io_tap().
-					 */
-					g_assert_not_reached();
-					break;
-				}
-			}
-		}
-		break;
-	case CALC_TYPE_AVG:
-		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
-		if(gp){
-			guint64 val;
-		
-			ftype=proto_registrar_get_ftype(it->hf_index);
-			for(i=0;i<gp->len;i++){
-				it->num++;
-				switch(ftype) {
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-					val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
-					it->counter += val;
-					break;
-				case FT_UINT64:
-				case FT_INT64:
-					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					it->counter += val;
-					break;
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-					val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-					it->counter += val;
-					break;
-				case FT_FLOAT:
-					it->float_counter += (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_DOUBLE:
-					it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					break;
-				case FT_RELATIVE_TIME:
-					new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
-					val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
-					it->counter += val;
-					break;
-				default:
-					/*
-					 * "Can't happen"; see the checks
-					 * in register_io_tap().
-					 */
-					g_assert_not_reached();
-					break;
-				}
-			}
-		}
-		break;
-	case CALC_TYPE_LOAD:
-		gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
-		if (gp) {
-			ftype = proto_registrar_get_ftype(it->hf_index);
-			if (ftype != FT_RELATIVE_TIME) {
-				fprintf(stderr,
-					"\ntshark: LOAD() is only supported for relative-time fields such as smb.time\n");
-				exit(10);
-			}
-			for(i=0;i<gp->len;i++){
-				guint64 val;
-				int tival;
-				io_stat_item_t *pit;
+                case FT_UINT64:
+                    it->counter += fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    break;
+                case FT_INT8:
+                case FT_INT16:
+                case FT_INT24:
+                case FT_INT32:
+                    it->counter += fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    break;
+                case FT_INT64:
+                    it->counter += (gint64)fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    break;
+                case FT_FLOAT:
+                    it->float_counter += 
+                        (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    break;
+                case FT_DOUBLE:
+                    it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    break;
+                case FT_RELATIVE_TIME:
+                    new_time = fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
+                    it->counter  +=  val;
+                    break;
+                default:
+                    /*
+                     * "Can't happen"; see the checks
+                     * in register_io_tap().
+                     */
+                    g_assert_not_reached();
+                    break;
+                }
+            }
+        }
+        break;
+    case CALC_TYPE_MIN:
+        gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        if(gp){
+            guint64 val;
+            gfloat float_val;
+            gdouble double_val;
 
-				new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
-				val = (guint64)((new_time->secs*1000000) + (new_time->nsecs/1000));
-				tival = (int)(val % parent->interval);
-				it->counter += tival;
-				val -= tival;
-				pit = it->prev;
-				while (val > 0) {
-					if (val < (guint64)parent->interval) {
-						pit->counter += val;
-						break;
-					}
-					pit->counter += parent->interval;
-					val -= parent->interval;
-					pit = pit->prev;
-				}
-			}
-		}
-		break;
-	}
-  	/* Store the highest value for this item in order to determine the width of each stat column. 
+            ftype=proto_registrar_get_ftype(it->hf_index);
+            for(i=0;i<gp->len;i++){
+                switch(ftype){
+                case FT_UINT8:
+                case FT_UINT16:
+                case FT_UINT24:
+                case FT_UINT32:
+                    val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                    if ((it->frames==1 && i==0) || (val < it->counter)) {
+                        it->counter=val;
+                    }
+                    break;
+                case FT_UINT64:
+                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    if((it->frames==1 && i==0) || (val < it->counter)){
+                        it->counter=val;
+                    }
+                    break;
+                case FT_INT8:
+                case FT_INT16:
+                case FT_INT24:
+                case FT_INT32:
+                    val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    if((it->frames==1 && i==0) || ((gint32)val < (gint32)it->counter)) {
+                        it->counter=val;
+                    }
+                    break;
+                case FT_INT64:
+                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    if((it->frames==1 && i==0) || ((gint64)val < (gint64)it->counter)) {
+                        it->counter=val;
+                    } 
+                    break;
+                case FT_FLOAT:
+                    float_val=(gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    if((it->frames==1 && i==0) || (float_val < it->float_counter)) {
+                        it->float_counter=float_val;
+                    }
+                    break;
+                case FT_DOUBLE:
+                    double_val=fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    if((it->frames==1 && i==0) || (double_val < it->double_counter)) {
+                        it->double_counter=double_val;
+                    } 
+                    break;
+                case FT_RELATIVE_TIME:
+                    new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    val = (guint64)new_time->secs * NANOSECS_PER_SEC + new_time->nsecs;
+                    if((it->frames==1 && i==0) || (val < it->counter)) {
+                        it->counter=val;
+                    }
+                    break;
+                default:
+                    /*
+                     * "Can't happen"; see the checks
+                     * in register_io_tap().
+                     */
+                    g_assert_not_reached();
+                    break;
+                }
+            }
+        }
+        break;
+    case CALC_TYPE_MAX:
+        gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        if(gp){
+            guint64 val;
+            gfloat float_val;
+            gdouble double_val;
+
+            ftype=proto_registrar_get_ftype(it->hf_index);
+            for(i=0;i<gp->len;i++){
+                switch(ftype){
+                case FT_UINT8:
+                case FT_UINT16:
+                case FT_UINT24:
+                case FT_UINT32:
+                    val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                    if(val > it->counter)
+                        it->counter=val;
+                    break;
+                case FT_UINT64:
+                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    if(val > it->counter) 
+                        it->counter=val;
+                    break;
+                case FT_INT8:
+                case FT_INT16:
+                case FT_INT24:
+                case FT_INT32:
+                    val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    if((gint32)val > (gint32)it->counter) 
+                        it->counter=val;
+                    break;
+                case FT_INT64:
+                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    if ((gint64)val > (gint64)it->counter) 
+                        it->counter=val;
+                    break;
+                case FT_FLOAT:
+                    float_val = (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    if(float_val > it->float_counter)
+                        it->float_counter=float_val;
+                    break;
+                case FT_DOUBLE:
+                    double_val = fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    if(double_val > it->double_counter)
+                        it->double_counter=double_val;
+                    break;
+                case FT_RELATIVE_TIME:
+                    new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
+                    if (val>it->counter)
+                        it->counter=val;
+                    break;
+                default:
+                    /*
+                     * "Can't happen"; see the checks
+                     * in register_io_tap().
+                     */
+                    g_assert_not_reached();
+                    break;
+                }
+            }
+        }
+        break;
+    case CALC_TYPE_AVG:
+        gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        if(gp){
+            guint64 val;
+        
+            ftype=proto_registrar_get_ftype(it->hf_index);
+            for(i=0;i<gp->len;i++){
+                it->num++;
+                switch(ftype) {
+                case FT_UINT8:
+                case FT_UINT16:
+                case FT_UINT24:
+                case FT_UINT32:
+                    val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
+                    it->counter += val;
+                    break;
+                case FT_UINT64:
+                case FT_INT64:
+                    val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+                    it->counter += val;
+                    break;
+                case FT_INT8:
+                case FT_INT16:
+                case FT_INT24:
+                case FT_INT32:
+                    val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
+                    it->counter += val;
+                    break;
+                case FT_FLOAT:
+                    it->float_counter += (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    break;
+                case FT_DOUBLE:
+                    it->double_counter += fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
+                    break;
+                case FT_RELATIVE_TIME:
+                    new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                    val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
+                    it->counter += val;
+                    break;
+                default:
+                    /*
+                     * "Can't happen"; see the checks
+                     * in register_io_tap().
+                     */
+                    g_assert_not_reached();
+                    break;
+                }
+            }
+        }
+        break;
+    case CALC_TYPE_LOAD:
+        gp = proto_get_finfo_ptr_array(edt->tree, it->hf_index);
+        if (gp) {
+            ftype = proto_registrar_get_ftype(it->hf_index);
+            if (ftype != FT_RELATIVE_TIME) {
+                fprintf(stderr,
+                    "\ntshark: LOAD() is only supported for relative-time fields such as smb.time\n");
+                exit(10);
+            }
+            for(i=0;i<gp->len;i++){
+                guint64 val;
+                int tival;
+                io_stat_item_t *pit;
+
+                new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
+                val = (guint64)((new_time->secs*1000000) + (new_time->nsecs/1000));
+                tival = (int)(val % parent->interval);
+                it->counter += tival;
+                val -= tival;
+                pit = it->prev;
+                while (val > 0) {
+                    if (val < (guint64)parent->interval) {
+                        pit->counter += val;
+                        break;
+                    }
+                    pit->counter += parent->interval;
+                    val -= parent->interval;
+                    pit = pit->prev;
+                }
+            }
+        }
+        break;
+    }
+    /* Store the highest value for this item in order to determine the width of each stat column. 
     *  For real numbers we only need to know its magnitude (the value to the left of the decimal point
     *  so round it up before storing it as an integer in max_vals. For AVG of RELATIVE_TIME fields,
     *  calc the average, round it to the next second and store the seconds. For all other calc types
     *  of RELATIVE_TIME fields, store the counters without modification. 
     *  fields. */
     switch(it->calc_type) {
-	    case CALC_TYPE_FRAMES:
-	    case CALC_TYPE_FRAMES_AND_BYTES:
+        case CALC_TYPE_FRAMES:
+        case CALC_TYPE_FRAMES_AND_BYTES:
             parent->max_frame[it->colnum] = 
                 MAX(parent->max_frame[it->colnum], it->frames);
             if (it->calc_type==CALC_TYPE_FRAMES_AND_BYTES)
                 parent->max_vals[it->colnum] = 
                     MAX(parent->max_vals[it->colnum], it->counter);
-	    
+        
         case CALC_TYPE_BYTES:
-	    case CALC_TYPE_COUNT:
-	    case CALC_TYPE_LOAD:
+        case CALC_TYPE_COUNT:
+        case CALC_TYPE_LOAD:
             parent->max_vals[it->colnum] = MAX(parent->max_vals[it->colnum], it->counter);
             break;
-	    case CALC_TYPE_SUM:
-	    case CALC_TYPE_MIN:
-	    case CALC_TYPE_MAX:
+        case CALC_TYPE_SUM:
+        case CALC_TYPE_MIN:
+        case CALC_TYPE_MAX:
             ftype=proto_registrar_get_ftype(it->hf_index);
             switch(ftype) {
-			    case FT_FLOAT:
-				    parent->max_vals[it->colnum] = 
+                case FT_FLOAT:
+                    parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum], (guint64)(it->float_counter+0.5));
-				    break;
-			    case FT_DOUBLE:
-				    parent->max_vals[it->colnum] = 
+                    break;
+                case FT_DOUBLE:
+                    parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum],(guint64)(it->double_counter+0.5));
-				    break;
-			    case FT_RELATIVE_TIME:
+                    break;
+                case FT_RELATIVE_TIME:
                     parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum], it->counter); 
-				    break;			    
+                    break;                
                 default:
                     /* UINT16-64 and INT8-64 */
                     parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum], it->counter);
                     break;
-	        }
+            }
             break;
-	    case CALC_TYPE_AVG:
+        case CALC_TYPE_AVG:
             ftype=proto_registrar_get_ftype(it->hf_index);
             switch(ftype) {
-			    case FT_FLOAT:
-				    parent->max_vals[it->colnum] = 
+                case FT_FLOAT:
+                    parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum], (guint64)it->float_counter/it->num);
-				    break;
-			    case FT_DOUBLE:
-				    parent->max_vals[it->colnum] = 
+                    break;
+                case FT_DOUBLE:
+                    parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum],(guint64)it->double_counter/it->num);
-				    break;
-			    case FT_RELATIVE_TIME:
+                    break;
+                case FT_RELATIVE_TIME:
                     parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum], ((it->counter/it->num) + 500000000) / NANOSECS_PER_SEC); 
-				    break;
+                    break;
                 default:
                     /* UINT16-64 and INT8-64 */
                     parent->max_vals[it->colnum] = 
                         MAX(parent->max_vals[it->colnum], it->counter/it->num);
                     break;
-	        }
+            }
     }
     return TRUE;
 }
@@ -530,18 +529,18 @@ typedef struct {
 static void
 iostat_draw(void *arg)
 {
-	guint32 num;
+    guint32 num;
     guint64 interval, duration, t, invl_end;
-	int i, j, k, num_cols, num_rows, dv, dur_secs, dur_mag, invl_mag, invl_prec, tabrow_w,
-	    borderlen, invl_col_w, numpad=1, namelen, len_filt, type, maxfltr_w, ftype;
+    int i, j, k, num_cols, num_rows, dv, dur_secs, dur_mag, invl_mag, invl_prec, tabrow_w,
+        borderlen, invl_col_w, numpad=1, namelen, len_filt, type, maxfltr_w, ftype;
     int fr_mag;    /* The magnitude of the max frame number in this column */
     int val_mag;   /* The magnitude of the max value in this column */
     gboolean last_row=FALSE;
     char *spaces, *spaces_s, *filler_s=NULL, **fmts, *fmt=NULL;
     const char *filter;
     static gchar dur_mag_s[3], invl_mag_s[3], invl_prec_s[3], fr_mag_s[3], val_mag_s[3], *invl_fmt, *full_fmt;
-	io_stat_item_t *mit, **stat_cols, *item;
-	io_stat_t *iot;
+    io_stat_item_t *mit, **stat_cols, *item;
+    io_stat_t *iot;
     column_width *col_w; 
 
     mit = (io_stat_item_t *)arg;
@@ -624,7 +623,7 @@ iostat_draw(void *arg)
             namelen = (int) strlen(calc_type_table[type].func_name);
         }
         if(type==CALC_TYPE_FRAMES
-	    || type==CALC_TYPE_FRAMES_AND_BYTES) {
+        || type==CALC_TYPE_FRAMES_AND_BYTES) {
 
             fr_mag = magnitude(iot->max_frame[j], 15);
             fr_mag = MAX(6, fr_mag);
@@ -681,7 +680,7 @@ iostat_draw(void *arg)
                     g_snprintf(val_mag_s, 3, "%u", val_mag);
                     fmt = g_strconcat(" %", val_mag_s, "u.%06u |", NULL);
                     col_w[j].val = val_mag + 7;
-                   break;	
+                   break;    
                 
                 default:
                     val_mag = magnitude(iot->max_vals[j], 15);
@@ -692,16 +691,16 @@ iostat_draw(void *arg)
                     switch (ftype) {
                     case FT_UINT8:
                     case FT_UINT16:
-		            case FT_UINT24:
-		            case FT_UINT32:
-		            case FT_UINT64:
+                    case FT_UINT24:
+                    case FT_UINT32:
+                    case FT_UINT64:
                         fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "u |", NULL);
                         break;            
                     case FT_INT8:
-		            case FT_INT16:
-		            case FT_INT24:
-		            case FT_INT32:
-		            case FT_INT64:
+                    case FT_INT16:
+                    case FT_INT24:
+                    case FT_INT32:
+                    case FT_INT64:
                         fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "d |", NULL);
                         break;
                     }
@@ -740,7 +739,7 @@ iostat_draw(void *arg)
     /* Display the top border */
     printf("\n");
     for (i=0; i<borderlen; i++)
-	    printf("=");
+        printf("=");
     
     spaces = (char*) g_malloc(borderlen+1);
     for (i=0; i<borderlen; i++) 
@@ -837,22 +836,22 @@ iostat_draw(void *arg)
                 } while (1); 
             }
         }
-	}
+    }
 
     printf("|-");
-	for(i=0;i<borderlen-3;i++){
-		printf("-");
-	}
-	printf("|\n");
+    for(i=0;i<borderlen-3;i++){
+        printf("-");
+    }
+    printf("|\n");
 
     /* Display spaces above "Interval (s)" label */
     spaces_s = &spaces[borderlen-(invl_col_w-2)];
     printf("|%s|", spaces_s);
 
     /* Display column number headers */
-	for(j=0; j<num_cols; j++) {
+    for(j=0; j<num_cols; j++) {
         item = stat_cols[j];
-		if(item->calc_type==CALC_TYPE_FRAMES_AND_BYTES)
+        if(item->calc_type==CALC_TYPE_FRAMES_AND_BYTES)
             spaces_s = &spaces[borderlen - (col_w[j].fr + col_w[j].val)] - 3; 
         else if (item->calc_type==CALC_TYPE_FRAMES)
             spaces_s = &spaces[borderlen - col_w[j].fr]; 
@@ -860,13 +859,13 @@ iostat_draw(void *arg)
             spaces_s = &spaces[borderlen - col_w[j].val]; 
 
         printf("%-2u%s|", j+1, spaces_s);
-	}
+    }
     if (tabrow_w < borderlen) {
         filler_s = &spaces[tabrow_w+1];
         printf("%s|", filler_s);
     }
     
-	printf("\n| Interval");
+    printf("\n| Interval");
     spaces_s = &spaces[borderlen-(invl_col_w-11)];
     printf("%s|", spaces_s);
 
@@ -880,21 +879,21 @@ iostat_draw(void *arg)
             printcenter ("Bytes", col_w[j].val, numpad);
         } else {
             printcenter (calc_type_table[type].func_name, col_w[j].val, numpad);
-	    }
-	}
+        }
+    }
     if (filler_s)
         printf("%s|", filler_s);
     printf("\n|-");
 
-	for(i=0; i<tabrow_w-3; i++)
-		printf("-");
+    for(i=0; i<tabrow_w-3; i++)
+        printf("-");
     printf("|");
 
     if (tabrow_w < borderlen)
         printf("%s|", &spaces[tabrow_w+1]);
 
-	printf("\n");
-	t=0;
+    printf("\n");
+    t=0;
     full_fmt = g_strconcat("| ", invl_fmt, " <> ", invl_fmt, " |", NULL);
     num_rows = (int)(duration/interval) + (((duration%interval+500000)/1000000) > 0 ? 1 : 0);
 
@@ -941,7 +940,7 @@ iostat_draw(void *arg)
                         printf(fmt, item->frames);
                         break;
                     case CALC_TYPE_BYTES:
-			        case CALC_TYPE_COUNT:
+                    case CALC_TYPE_COUNT:
                         printf(fmt, item->counter);
                         break;
                     case CALC_TYPE_FRAMES_AND_BYTES:
@@ -949,53 +948,53 @@ iostat_draw(void *arg)
                         break;
 
                     case CALC_TYPE_SUM:
-			        case CALC_TYPE_MIN:
-			        case CALC_TYPE_MAX:
+                    case CALC_TYPE_MIN:
+                    case CALC_TYPE_MAX:
                         ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
-				        switch(ftype){
-				        case FT_FLOAT:
-					        printf(fmt, item->float_counter);
-					        break;
-				        case FT_DOUBLE:
-					        printf(fmt, item->double_counter);
-					        break;
-				        case FT_RELATIVE_TIME:
-					        item->counter = (item->counter + 500) / 1000;
-					        printf(fmt, (int)(item->counter/1000000), (int)(item->counter%1000000));
-					        break;
+                        switch(ftype){
+                        case FT_FLOAT:
+                            printf(fmt, item->float_counter);
+                            break;
+                        case FT_DOUBLE:
+                            printf(fmt, item->double_counter);
+                            break;
+                        case FT_RELATIVE_TIME:
+                            item->counter = (item->counter + 500) / 1000;
+                            printf(fmt, (int)(item->counter/1000000), (int)(item->counter%1000000));
+                            break;
                         default:
                             printf(fmt, item->counter);
-					        break;
-				        }
-				        break;
+                            break;
+                        }
+                        break;
 
-			        case CALC_TYPE_AVG:
+                    case CALC_TYPE_AVG:
                         num = item->num;
-				        if(num==0)
-					        num=1;
+                        if(num==0)
+                            num=1;
                         ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
-				        switch(ftype){
-				        case FT_FLOAT:
-					        printf(fmt, item->float_counter/num);
-					        break;
-				        case FT_DOUBLE:
-					        printf(fmt, item->double_counter/num);
-					        break;
-				        case FT_RELATIVE_TIME:
-					        item->counter = ((item->counter/num) + 500) / 1000;
-					        printf(fmt,
-						        (int)(item->counter/1000000), (int)(item->counter%1000000));
-					        break;
+                        switch(ftype){
+                        case FT_FLOAT:
+                            printf(fmt, item->float_counter/num);
+                            break;
+                        case FT_DOUBLE:
+                            printf(fmt, item->double_counter/num);
+                            break;
+                        case FT_RELATIVE_TIME:
+                            item->counter = ((item->counter/num) + 500) / 1000;
+                            printf(fmt,
+                                (int)(item->counter/1000000), (int)(item->counter%1000000));
+                            break;
                         default:
                             printf(fmt, item->counter/num);
-					        break;
-				        }
-				        break;
+                            break;
+                        }
+                        break;
 
-			        case CALC_TYPE_LOAD:
+                    case CALC_TYPE_LOAD:
                         ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
-				        switch(ftype){
-				        case FT_RELATIVE_TIME:
+                        switch(ftype){
+                        case FT_RELATIVE_TIME:
                             if (!last_row) {
                                 printf(fmt,
                                     (int) (item->counter/interval), 
@@ -1005,15 +1004,15 @@ iostat_draw(void *arg)
                                     (int) (item->counter/(invl_end-t)),
                                     (int)((item->counter%(invl_end-t))*1000000 / (invl_end-t)));
                             }
-					        break;
-				        }
-				        break;
-			    }
+                            break;
+                        }
+                        break;
+                }
                 if (last_row)
                     if (fmt)
                         g_free(fmt);
 
-		    } else {
+            } else {
                 printf(fmt, (guint64)0);
             }
         }
@@ -1023,9 +1022,9 @@ iostat_draw(void *arg)
         t += interval;
        
     }
-	for(i=0;i<borderlen;i++){
-		printf("=");
-	}
+    for(i=0;i<borderlen;i++){
+        printf("=");
+    }
     printf("\n");
     g_free(invl_fmt);
     g_free(col_w);
@@ -1037,187 +1036,187 @@ iostat_draw(void *arg)
 static void
 register_io_tap(io_stat_t *io, int i, const char *filter)
 {
-	GString *error_string;
-	const char *flt;
-	int j;
-	size_t namelen;
-	const char *p, *parenp;
-	char *field;
-	header_field_info *hfi;
+    GString *error_string;
+    const char *flt;
+    int j;
+    size_t namelen;
+    const char *p, *parenp;
+    char *field;
+    header_field_info *hfi;
 
-	io->items[i].prev=&io->items[i];
-	io->items[i].next=NULL;
-	io->items[i].parent=io;
-	io->items[i].time=0;
-	io->items[i].calc_type=CALC_TYPE_FRAMES_AND_BYTES;
-	io->items[i].frames=0;
-	io->items[i].counter=0;
-	io->items[i].num=0;
+    io->items[i].prev=&io->items[i];
+    io->items[i].next=NULL;
+    io->items[i].parent=io;
+    io->items[i].time=0;
+    io->items[i].calc_type=CALC_TYPE_FRAMES_AND_BYTES;
+    io->items[i].frames=0;
+    io->items[i].counter=0;
+    io->items[i].num=0;
 
-	io->filters[i]=filter;
-	flt=filter;
+    io->filters[i]=filter;
+    flt=filter;
 
-	field=NULL;
-	hfi=NULL;
-	for(j=0; calc_type_table[j].func_name; j++){
-		namelen=strlen(calc_type_table[j].func_name);
-		if(filter && strncmp(filter, calc_type_table[j].func_name, namelen) == 0) {
-			io->items[i].calc_type=calc_type_table[j].calc_type;
+    field=NULL;
+    hfi=NULL;
+    for(j=0; calc_type_table[j].func_name; j++){
+        namelen=strlen(calc_type_table[j].func_name);
+        if(filter && strncmp(filter, calc_type_table[j].func_name, namelen) == 0) {
+            io->items[i].calc_type=calc_type_table[j].calc_type;
             io->items[i].colnum = i;
-			if(*(filter+namelen)=='(') {
-				p=filter+namelen+1;
-				parenp=strchr(p, ')');
-				if(!parenp){
-					fprintf(stderr, 
+            if(*(filter+namelen)=='(') {
+                p=filter+namelen+1;
+                parenp=strchr(p, ')');
+                if(!parenp){
+                    fprintf(stderr, 
                         "\ntshark: Closing parenthesis missing from calculated expression.\n");
-					exit(10);
-				}
+                    exit(10);
+                }
 
-				if(io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES){
-					if(parenp!=p) {
-						fprintf(stderr, 
+                if(io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES){
+                    if(parenp!=p) {
+                        fprintf(stderr, 
                             "\ntshark: %s does not require or allow a field name within the parens.\n",
-							calc_type_table[j].func_name);
-						exit(10);
-					}
-				} else {
-					if(parenp==p) {
-							/* bail out if a field name was not specified */
-							fprintf(stderr, "\ntshark: You didn't specify a field name for %s(*).\n",
-								calc_type_table[j].func_name);
-							exit(10);
-					}
-				}
+                            calc_type_table[j].func_name);
+                        exit(10);
+                    }
+                } else {
+                    if(parenp==p) {
+                            /* bail out if a field name was not specified */
+                            fprintf(stderr, "\ntshark: You didn't specify a field name for %s(*).\n",
+                                calc_type_table[j].func_name);
+                            exit(10);
+                    }
+                }
 
-				field = (char *) g_malloc(parenp-p+1);
-				memcpy(field, p, parenp-p);
-				field[parenp-p] = '\0';
-				flt=parenp + 1;
-				if (io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES)
-					break;
-				hfi=proto_registrar_get_byname(field);
-				if(!hfi){
-					fprintf(stderr, "\ntshark: There is no field named '%s'.\n",
-						field);
-					g_free(field);
-					exit(10);
-				}
+                field = (char *) g_malloc(parenp-p+1);
+                memcpy(field, p, parenp-p);
+                field[parenp-p] = '\0';
+                flt=parenp + 1;
+                if (io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES)
+                    break;
+                hfi=proto_registrar_get_byname(field);
+                if(!hfi){
+                    fprintf(stderr, "\ntshark: There is no field named '%s'.\n",
+                        field);
+                    g_free(field);
+                    exit(10);
+                }
 
-				io->items[i].hf_index=hfi->id;
-				break;
-			}
-		} else {
-			if (io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES)
-				flt="";
+                io->items[i].hf_index=hfi->id;
+                break;
+            }
+        } else {
+            if (io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES)
+                flt="";
             io->items[i].colnum = i;
-		}
-	}
-	if(hfi && !(io->items[i].calc_type==CALC_TYPE_BYTES ||
-			    io->items[i].calc_type==CALC_TYPE_FRAMES ||
-			    io->items[i].calc_type==CALC_TYPE_FRAMES_AND_BYTES)){
-		/* check that the type is compatible */
-		switch(hfi->type){
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_UINT64:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-		case FT_INT64:
-			/* these types support all calculations */
-			break;
-		case FT_FLOAT:
-		case FT_DOUBLE:
-			/* these types only support SUM, COUNT, MAX, MIN, AVG */
-			switch(io->items[i].calc_type){
-			case CALC_TYPE_SUM:
-			case CALC_TYPE_COUNT:
-			case CALC_TYPE_MAX:
-			case CALC_TYPE_MIN:
-			case CALC_TYPE_AVG:
-				break;
-			default:
-				fprintf(stderr,
-					"\ntshark: %s is a float field, so %s(*) calculations are not supported on it.",
-					field,
-					calc_type_table[j].func_name);
-				exit(10);
-			}
-			break;
-		case FT_RELATIVE_TIME:
-			/* this type only supports SUM, COUNT, MAX, MIN, AVG, LOAD */
-			switch(io->items[i].calc_type){
-			case CALC_TYPE_SUM:
-			case CALC_TYPE_COUNT:
-			case CALC_TYPE_MAX:
-			case CALC_TYPE_MIN:
-			case CALC_TYPE_AVG:
-			case CALC_TYPE_LOAD:
-				break;
-			default:
-				fprintf(stderr,
-					"\ntshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
-				    field,
-				    calc_type_table[j].func_name);
-				exit(10);
-			}
-			break;
-		default:
-			/*
-			 * XXX - support all operations on floating-point
-			 * numbers?
-			 */
-			if(io->items[i].calc_type!=CALC_TYPE_COUNT){
-				fprintf(stderr,
-					"\ntshark: %s doesn't have integral values, so %s(*) "
+        }
+    }
+    if(hfi && !(io->items[i].calc_type==CALC_TYPE_BYTES ||
+                io->items[i].calc_type==CALC_TYPE_FRAMES ||
+                io->items[i].calc_type==CALC_TYPE_FRAMES_AND_BYTES)){
+        /* check that the type is compatible */
+        switch(hfi->type){
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT24:
+        case FT_UINT32:
+        case FT_UINT64:
+        case FT_INT8:
+        case FT_INT16:
+        case FT_INT24:
+        case FT_INT32:
+        case FT_INT64:
+            /* these types support all calculations */
+            break;
+        case FT_FLOAT:
+        case FT_DOUBLE:
+            /* these types only support SUM, COUNT, MAX, MIN, AVG */
+            switch(io->items[i].calc_type){
+            case CALC_TYPE_SUM:
+            case CALC_TYPE_COUNT:
+            case CALC_TYPE_MAX:
+            case CALC_TYPE_MIN:
+            case CALC_TYPE_AVG:
+                break;
+            default:
+                fprintf(stderr,
+                    "\ntshark: %s is a float field, so %s(*) calculations are not supported on it.",
+                    field,
+                    calc_type_table[j].func_name);
+                exit(10);
+            }
+            break;
+        case FT_RELATIVE_TIME:
+            /* this type only supports SUM, COUNT, MAX, MIN, AVG, LOAD */
+            switch(io->items[i].calc_type){
+            case CALC_TYPE_SUM:
+            case CALC_TYPE_COUNT:
+            case CALC_TYPE_MAX:
+            case CALC_TYPE_MIN:
+            case CALC_TYPE_AVG:
+            case CALC_TYPE_LOAD:
+                break;
+            default:
+                fprintf(stderr,
+                    "\ntshark: %s is a relative-time field, so %s(*) calculations are not supported on it.",
+                    field,
+                    calc_type_table[j].func_name);
+                exit(10);
+            }
+            break;
+        default:
+            /*
+             * XXX - support all operations on floating-point
+             * numbers?
+             */
+            if(io->items[i].calc_type!=CALC_TYPE_COUNT){
+                fprintf(stderr,
+                    "\ntshark: %s doesn't have integral values, so %s(*) "
                     "calculations are not supported on it.\n",
-				    field,
-				    calc_type_table[j].func_name);
-				exit(10);
-			}
-			break;
-		}
-		g_free(field);
-	}
+                    field,
+                    calc_type_table[j].func_name);
+                exit(10);
+            }
+            break;
+        }
+        g_free(field);
+    }
 
-	error_string=register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL,
+    error_string=register_tap_listener("frame", &io->items[i], flt, TL_REQUIRES_PROTO_TREE, NULL,
                                        iostat_packet, i?NULL:iostat_draw);
-	if(error_string){
-		g_free(io->items);
-		g_free(io);
-		fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
-		    error_string->str);
-		g_string_free(error_string, TRUE);
-		exit(1);
-	}
+    if(error_string){
+        g_free(io->items);
+        g_free(io);
+        fprintf(stderr, "\ntshark: Couldn't register io,stat tap: %s\n",
+            error_string->str);
+        g_string_free(error_string, TRUE);
+        exit(1);
+    }
 }
 
 static void
 iostat_init(const char *optarg, void* userdata _U_)
 {
-	gdouble interval_float;
-	guint32 idx=0, i;
-	io_stat_t *io;
+    gdouble interval_float;
+    guint32 idx=0, i;
+    io_stat_t *io;
     const gchar *filters=NULL, *str, *pos;
 
-	if (sscanf(optarg, "io,stat,%lf,%n", &interval_float, (int *)&idx)==0) {
-		fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
-		exit(1);
-	}
-	
+    if (sscanf(optarg, "io,stat,%lf,%n", &interval_float, (int *)&idx)==0) {
+        fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
+        exit(1);
+    }
+    
     io = (io_stat_t *) g_malloc(sizeof(io_stat_t));
 
-	/* If interval is 0, calculate statistics over the whole file by setting the interval to
+    /* If interval is 0, calculate statistics over the whole file by setting the interval to
     *  G_MAXINT32 */
-	if (interval_float==0) {
-		io->interval = G_MAXINT32;
+    if (interval_float==0) {
+        io->interval = G_MAXINT32;
         io->invl_prec = 0;
-	} else {
-		/* Set interval to the number of us rounded to the nearest integer */
-		io->interval = (gint64)(interval_float*1000000.0+0.5);
+    } else {
+        /* Set interval to the number of us rounded to the nearest integer */
+        io->interval = (gint64)(interval_float*1000000.0+0.5);
         /*
         * Determine what interval precision the user has specified */
         io->invl_prec = 6;
@@ -1226,12 +1225,12 @@ iostat_init(const char *optarg, void* userdata _U_)
                 break;
             io->invl_prec--;
         }
-	}
+    }
     if (io->interval < 1){
-		fprintf(stderr,
-			"\ntshark: \"-z\" interval must be >=0.000001 seconds or \"0\" for the entire capture duration.\n");
-		exit(10);
-	}
+        fprintf(stderr,
+            "\ntshark: \"-z\" interval must be >=0.000001 seconds or \"0\" for the entire capture duration.\n");
+        exit(10);
+    }
 
     /* Find how many ',' separated filters we have */
     io->num_cols = 1;
@@ -1240,17 +1239,17 @@ iostat_init(const char *optarg, void* userdata _U_)
         filters = optarg + idx;
         if (strlen(filters) > 0 ) {
             str = filters;
-	        while((str = strchr(str, ','))) {
-		        io->num_cols++;
-		        str++;
+            while((str = strchr(str, ','))) {
+                io->num_cols++;
+                str++;
             }
         }
-	} else {
-		filters=NULL;
-	}
+    } else {
+        filters=NULL;
+    }
 
-	io->items = (io_stat_item_t *) g_malloc(sizeof(io_stat_item_t) * io->num_cols);
-	io->filters = g_malloc(sizeof(char *) * io->num_cols);
+    io->items = (io_stat_item_t *) g_malloc(sizeof(io_stat_item_t) * io->num_cols);
+    io->filters = g_malloc(sizeof(char *) * io->num_cols);
     io->max_vals = (guint64 *) g_malloc(sizeof(guint64) * io->num_cols);
     io->max_frame = (guint32 *) g_malloc(sizeof(guint32) * io->num_cols);
 
@@ -1264,33 +1263,33 @@ iostat_init(const char *optarg, void* userdata _U_)
         register_io_tap(io, 0, NULL);
     } else {
         gchar *filter;
-		i = 0;
-		str = filters;
-		do {
-			pos = (gchar*) strchr(str, ',');
-			if(pos==str){
-				register_io_tap(io, i, NULL);
-			} else if (pos==NULL) {
-				str = (char*) g_strstrip((gchar*)str);
+        i = 0;
+        str = filters;
+        do {
+            pos = (gchar*) strchr(str, ',');
+            if(pos==str){
+                register_io_tap(io, i, NULL);
+            } else if (pos==NULL) {
+                str = (char*) g_strstrip((gchar*)str);
                 filter = g_strdup((gchar*) str);
                 if (*filter)
-				    register_io_tap(io, i, filter);
+                    register_io_tap(io, i, filter);
                 else
                     register_io_tap(io, i, NULL);
-			} else {
-				filter = g_malloc((pos-str)+1);
-				g_strlcpy( filter, str, (gsize) ((pos-str)+1));
+            } else {
+                filter = g_malloc((pos-str)+1);
+                g_strlcpy( filter, str, (gsize) ((pos-str)+1));
                 filter = g_strstrip(filter);
                 register_io_tap(io, i, (char *) filter);
-			}
-			str = pos+1;
-			i++;
-		} while(pos);
-	}
+            }
+            str = pos+1;
+            i++;
+        } while(pos);
+    }
 }
 
 void
 register_tap_listener_iostat(void)
 {
-	register_stat_cmd_arg("io,stat,", iostat_init, NULL);
+    register_stat_cmd_arg("io,stat,", iostat_init, NULL);
 }
