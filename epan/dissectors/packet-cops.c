@@ -1497,6 +1497,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
             gint32 ber_tag;
             guint32 ber_length;
             gboolean ber_ind;
+            int hfid;
 
             offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);
             offset = get_ber_length(tvb, offset, &ber_length, &ber_ind);
@@ -1513,13 +1514,36 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
                  * does not work here.
                  * -- a lazy lego
                  */
-
-                proto_tree_add_item(asn_tree,oid_info->value_hfid,tvb,offset,ber_length,FALSE);
-
+                hfid = oid_info->value_hfid;
                 oid_info = emem_tree_lookup32((*oid_info_p)->children,oid_info->subid+1);
-            } else {
-                int hfid = cops_tag_cls2syntax( ber_tag, ber_class );
-                proto_tree_add_item(asn_tree,hfid,tvb,offset,ber_length,FALSE);
+            } else
+                hfid = cops_tag_cls2syntax( ber_tag, ber_class );
+            switch (proto_registrar_get_ftype(hfid)) {
+
+            case FT_INT8:
+            case FT_INT16:
+            case FT_INT24:
+            case FT_INT32:
+            case FT_INT64:
+            case FT_UINT8:
+            case FT_UINT16:
+            case FT_UINT24:
+            case FT_UINT32:
+            case FT_UINT64:
+            case FT_BOOLEAN:
+            case FT_FLOAT:
+            case FT_DOUBLE:
+            case FT_IPv4:
+                proto_tree_add_item(asn_tree,hfid,tvb,offset,ber_length,ENC_BIG_ENDIAN);
+                break;
+
+            case FT_STRING:
+                 proto_tree_add_item(asn_tree,hfid,tvb,offset,ber_length,ENC_ASCII|ENC_NA);
+                 break;
+
+            default:
+                proto_tree_add_item(asn_tree,hfid,tvb,offset,ber_length,ENC_NA);
+                break;
             }
 
             offset += ber_length;
