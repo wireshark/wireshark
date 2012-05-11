@@ -118,6 +118,7 @@ const value_string rpc_auth_flavor[] = {
 	{ RPCSEC_GSS_SPKM3, "RPCSEC_GSS_SPKM3" },
 	{ RPCSEC_GSS_SPKM3I, "RPCSEC_GSS_SPKM3I" },
 	{ RPCSEC_GSS_SPKM3P, "RPCSEC_GSS_SPKM3P" },
+	{ AUTH_GLUSTERFS, "AUTH_GLUSTERFS" },
 	{ 0, NULL }
 };
 
@@ -1088,6 +1089,18 @@ dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 }
 
 static int
+dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+{
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
+	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
+	offset = dissect_rpc_data(tvb, tree, hf_rpc_auth_lk_owner, offset);
+
+	return offset;
+}
+
+static int
 dissect_rpc_authgssapi_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
 	guint agc_v;
@@ -1154,6 +1167,10 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 
 		case RPCSEC_GSS:
 			dissect_rpc_authgss_cred(tvb, ctree, offset+8, pinfo, rpc_conv_info);
+			break;
+
+		case AUTH_GLUSTERFS:
+			dissect_rpc_authglusterfs_v2_cred(tvb, ctree, offset+8);
 			break;
 
 		case AUTH_GSSAPI:
