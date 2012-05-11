@@ -60,6 +60,9 @@ static int hf_ppp_code = -1;
 static int hf_ppp_identifier = -1;
 static int hf_ppp_length = -1;
 static int hf_ppp_magic_number = -1;
+static int hf_ppp_oui = -1;
+static int hf_ppp_kind = -1;
+static int hf_ppp_data = -1;
 
 static gint ett_ppp = -1;
 
@@ -435,9 +438,10 @@ static const value_string ppp_vals[] = {
 };
 value_string_ext ppp_vals_ext = VALUE_STRING_EXT_INIT(ppp_vals);
 
-/* CP (LCP, IPCP, etc.) codes.
+/* CP (LCP, CCP, IPCP, etc.) codes.
  * from pppd fsm.h
  */
+#define VNDRSPCFC  0  /* Vendor Specific: RFC 2153 */
 #define CONFREQ    1  /* Configuration Request */
 #define CONFACK    2  /* Configuration Ack */
 #define CONFNAK    3  /* Configuration Nak */
@@ -447,6 +451,7 @@ value_string_ext ppp_vals_ext = VALUE_STRING_EXT_INIT(ppp_vals);
 #define CODEREJ    7  /* Code Reject */
 
 static const value_string cp_vals[] = {
+  {VNDRSPCFC,  "Vendor Specific" },
   {CONFREQ,    "Configuration Request" },
   {CONFACK,    "Configuration Ack" },
   {CONFNAK,    "Configuration Nak" },
@@ -494,6 +499,7 @@ static const value_string cp_vals[] = {
 #define BAP_CSRES  8  /* Call Status Response */
 
 static const value_string lcp_vals[] = {
+  {VNDRSPCFC,  "Vendor Specific" },
   {CONFREQ,    "Configuration Request" },
   {CONFACK,    "Configuration Ack" },
   {CONFNAK,    "Configuration Nak" },
@@ -511,6 +517,7 @@ static const value_string lcp_vals[] = {
 };
 
 static const value_string ccp_vals[] = {
+  {VNDRSPCFC,  "Vendor Specific" },
   {CONFREQ,    "Configuration Request" },
   {CONFACK,    "Configuration Ack" },
   {CONFNAK,    "Configuration Nak" },
@@ -769,6 +776,11 @@ static const value_string lzsdcp_processmode_vals[] = {
                                        why do they bother specifically
                                        mentioning this one, I wonder? */
 
+static int hf_lcp_magic_number = -1;
+static int hf_lcp_data = -1;
+static int hf_lcp_message = -1;
+static int hf_lcp_secs_remaining = -1;
+static int hf_lcp_rej_proto = -1;
 static int hf_lcp_opt_type = -1;
 static int hf_lcp_opt_length = -1;
 static int hf_lcp_opt_oui = -1;
@@ -2074,8 +2086,12 @@ dissect_lcp_linkqualmon_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 }
 
 /* Used for:
- * Protocol Field Compression
- * Address and Control Field Compression
+ *  Protocol Field Compression
+ *  Address and Control Field Compression
+ *  Compound Frames (Deprecated)
+ *  Nominal Data Encapsulation (Deprecated)
+ *  Multilink Short Sequence Number Header
+ *  Simple Data Link on SONET/SDH
  */
 static void
 dissect_lcp_simple_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
@@ -3589,19 +3605,15 @@ dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 }
 
 static void
-dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
-            const value_string *proto_vals, int options_subtree_index,
-            const ip_tcp_opt *opts, int nopts, packet_info *pinfo,
-            proto_tree *tree )
+dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
+           const value_string *proto_vals, int options_subtree_index,
+           const ip_tcp_opt *opts, int nopts, packet_info *pinfo,
+           proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
-  proto_item *tf;
-  proto_tree *field_tree;
-
-  guint8  code;
-  int     length, offset;
-  guint16 protocol;
+  guint8 code;
+  int length, offset;
 
   code   = tvb_get_guint8(tvb, 0);
   length = tvb_get_ntohs(tvb, 2);
@@ -3609,7 +3621,6 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
                 proto_get_protocol_short_name(find_protocol_by_id(proto_id)));
-
   if(check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(code, proto_vals, "Unknown"));
@@ -3629,115 +3640,155 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
   length -= 4;
 
   switch (code) {
+  case VNDRSPCFC:
+    if(tree) {
+      guint32 oui;
+      const gchar *manuf;
+
+      proto_tree_add_item(fh_tree, hf_ppp_magic_number, tvb, offset, 4,
+                          ENC_BIG_ENDIAN);
+      oui = tvb_get_ntoh24(tvb, offset + 4);
+      ti = proto_tree_add_uint_format_value(fh_tree, hf_ppp_oui, tvb,
+                                            offset + 4, 3, oui,
+                                            "%02x:%02x:%02x",
+                                            (oui >> 16) & 0xff,
+                                            (oui >> 8) & 0xff, oui & 0xff);
+      manuf = uint_get_manuf_name_if_known(oui);
+      if (manuf)
+        proto_item_append_text(ti, "(%s)", manuf);
+      proto_tree_add_item(fh_tree, hf_ppp_kind, tvb, offset + 7, 1, ENC_NA);
+      if (length > 8)
+        proto_tree_add_item(fh_tree, hf_ppp_data, tvb, offset + 8, length - 8,
+                            ENC_NA);
+    }
+    break;
+
   case CONFREQ:
   case CONFACK:
   case CONFNAK:
   case CONFREJ:
-    if(tree) {
-      if (length > 0) {
-        tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-                                 "Options: (%d byte%s)", length, plurality(length, "", "s"));
-        field_tree = proto_item_add_subtree(tf, options_subtree_index);
-        dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1,
-                               pinfo, field_tree, NULL);
-      }
+    if(tree && (length > 0)) {
+      proto_item *tf;
+      proto_tree *field_tree;
+
+      tf = proto_tree_add_text(fh_tree, tvb, offset, length,
+                               "Options: (%d byte%s)", length,
+                               plurality(length, "", "s"));
+      field_tree = proto_item_add_subtree(tf, options_subtree_index);
+      dissect_ip_tcp_options(tvb, offset, length, opts, nopts, -1, pinfo,
+                             field_tree, NULL);
     }
     break;
 
-  case ECHOREQ:
+  case ECHOREQ: /* All 3 are LCP only: RFC 1661 */
   case ECHOREP:
   case DISCREQ:
     if(tree) {
-      proto_tree_add_item(fh_tree, hf_ppp_magic_number, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset += 4;
-      length -= 4;
-      if (length > 0)
-        proto_tree_add_text(fh_tree, tvb, offset, length, "Message (%d byte%s)",
-                            length, plurality(length, "", "s"));
+      proto_tree_add_item(fh_tree, hf_lcp_magic_number, tvb, offset, 4,
+                          ENC_BIG_ENDIAN);
+      if (length > 4)
+        proto_tree_add_item(fh_tree, hf_lcp_data, tvb, offset + 4, length - 4,
+                            ENC_NA);
     }
     break;
 
-  case IDENT:
+  case IDENT:   /* LCP only: RFC 1570 */
     if(tree) {
-      proto_tree_add_item(fh_tree, hf_ppp_magic_number, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset += 4;
-      length -= 4;
-      if (length > 0)
-        proto_tree_add_text(fh_tree, tvb, offset, length, "Message: %s",
-                            tvb_format_text(tvb, offset, length));
+      proto_tree_add_item(fh_tree, hf_lcp_magic_number, tvb, offset, 4,
+                          ENC_BIG_ENDIAN);
+      if (length > 4)
+        proto_tree_add_item(fh_tree, hf_lcp_message, tvb, offset + 4,
+                            length - 4, ENC_NA);
     }
     break;
 
-  case TIMEREMAIN:
+  case TIMEREMAIN:  /* LCP only: RFC 1570 */
     if(tree) {
-      proto_tree_add_item(fh_tree, hf_ppp_magic_number, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset += 4;
-      length -= 4;
-      proto_tree_add_text(fh_tree, tvb, offset, 4, "Seconds remaining: %u",
-                          tvb_get_ntohl(tvb, offset));
-      offset += 4;
-      length -= 4;
-      if (length > 0)
-        proto_tree_add_text(fh_tree, tvb, offset, length, "Message (%d byte%s)",
-                            length, plurality(length, "", "s"));
+      guint32 secs_remaining;
+
+      proto_tree_add_item(fh_tree, hf_lcp_magic_number, tvb, offset, 4,
+                          ENC_BIG_ENDIAN);
+      secs_remaining = tvb_get_ntohl(tvb, offset + 4);
+      proto_tree_add_uint_format_value(fh_tree, hf_lcp_secs_remaining, tvb,
+                                       offset + 4, 4, secs_remaining,
+                                       "%u %s", secs_remaining,
+                                       (secs_remaining == 0xffffffff) ?
+                                       "(forever)" : "seconds");
+      if (length > 8)
+        proto_tree_add_item(fh_tree, hf_lcp_message, tvb, offset + 8,
+                            length - 8, ENC_NA);
     }
     break;
 
-  case PROTREJ:
-    {
+  case PROTREJ: /* LCP only: RFC 1661 */
+    if (tree) {
+      proto_tree_add_item(fh_tree, hf_lcp_rej_proto, tvb, offset, 2,
+                          ENC_BIG_ENDIAN);
+    }
+    if (length > 2) {
       gboolean save_in_error_pkt;
       tvbuff_t *next_tvb;
+      guint16 protocol;
 
       protocol = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text(fh_tree, tvb, offset, 2,
-                          "Rejected protocol: %s (0x%04x)",
-                          val_to_str_ext_const(protocol, &ppp_vals_ext, "Unknown"),
-                          protocol);
       offset += 2;
       length -= 2;
-      if (length > 0) {
-        proto_tree_add_text(fh_tree, tvb, offset, length,
-                            "Rejected packet (%d byte%s)",
-                            length, plurality(length, "", "s"));
 
-        /* Save the current value of the "we're inside an error packet"
-           flag, and set that flag; subdissectors may treat packets
-           that are the payload of error packets differently from
-           "real" packets. */
-        save_in_error_pkt = pinfo->flags.in_error_pkt;
-        pinfo->flags.in_error_pkt = TRUE;
+      /* Save the current value of the "we're inside an error packet" flag, and
+       * set that flag; subdissectors may treat packets that are the payload of
+       * error packets differently from "real" packets. */
+      save_in_error_pkt = pinfo->flags.in_error_pkt;
+      pinfo->flags.in_error_pkt = TRUE;
 
-        /* Decode the rejected packet. */
-        next_tvb = tvb_new_subset(tvb, offset, length, length);
-        if (!dissector_try_uint(ppp_subdissector_table, protocol,
-                                next_tvb, pinfo, fh_tree)) {
-          call_dissector(data_handle, next_tvb, pinfo, fh_tree);
-        }
-
-        /* Restore the "we're inside an error packet" flag. */
-        pinfo->flags.in_error_pkt = save_in_error_pkt;
+      /* Decode the rejected packet. */
+      next_tvb = tvb_new_subset(tvb, offset, length, length);
+      if (!dissector_try_uint(ppp_subdissector_table, protocol, next_tvb,
+                              pinfo, fh_tree)) {
+        call_dissector(data_handle, next_tvb, pinfo, fh_tree);
       }
+
+      /* Restore the "we're inside an error packet" flag. */
+      pinfo->flags.in_error_pkt = save_in_error_pkt;
     }
     break;
 
   case CODEREJ:
-    /* decode the rejected LCP packet here. */
-    if (length > 0)
-      proto_tree_add_text(fh_tree, tvb, offset, length, "Rejected packet (%d byte%s)",
-                          length, plurality(length, "", "s"));
+    if (tree && (length > 0)) {
+      gint remlen;
+
+      /* TODO: I'm not sure if this "remlen" stuff should be here or not.
+       * Without it, the pppoe.dump.gz menagerie file indicates that the 2 LCP
+       * "Code Reject" packets in frames 15 & 16 are malformed ... but I
+       * think they actually are malformed.  Since I'm not positive, until I
+       * find other capture files to confirm/deny the format, this little hack
+       * allows whatever data is present to be displayed.  Ultimately, I think
+       * it should all go away, especially since the protocol reject packets
+       * decode properly, as can be seen in packets 25 and 47 from the pri3.cap
+       * menagerie file, and the description about the decoding in the RFC is
+       * the same as this one, namely, "It begins with the Information field,
+       * and does not include any Data Link Layer headers nor an FCS.".
+       */
+      remlen = tvb_length_remaining(tvb, offset);
+      if (remlen < 0)
+        break;
+      if (remlen < length)
+        length = remlen;
+
+      /* TODO: Decode the rejected packet here ... but how, since the rejected
+       * packet data apparently doesn't include the Code, Identifier or Length
+       * fields ... unless the pppoe.dump.gz packets are truly malformed? */
+      proto_tree_add_bytes_format(fh_tree, hf_ppp_data, tvb, offset, length,
+                                  NULL, "Rejected Packet (%d byte%s): %s",
+                                  length, plurality(length, "", "s"),
+                                  tvb_bytes_to_str(tvb, offset, length));
+    }
     break;
 
   case TERMREQ:
   case TERMACK:
-    if (length > 0)
-      proto_tree_add_text(fh_tree, tvb, offset, length, "Data (%d byte%s)",
-                          length, plurality(length, "", "s"));
-    break;
-
   default:
-    if (length > 0)
-      proto_tree_add_text(fh_tree, tvb, offset, length, "Stuff (%d byte%s)",
-                          length, plurality(length, "", "s"));
+    if (tree && (length > 0))
+      proto_tree_add_item(fh_tree, hf_ppp_data, tvb, offset, length, ENC_NA);
     break;
   }
 }
@@ -4306,7 +4357,7 @@ static const value_string iphc_crtp_cs_flags[] = {
 static void
 dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *fh_tree, *info_tree;
+  proto_tree *fh_tree, *info_tree = NULL;
   proto_item *ti = NULL;
 
   guint     ip_hdr_len, flags;
@@ -4346,8 +4397,12 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* generation field */
     proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-    /* calculate length of IP header, assume IPv4 */
-    ip_hdr_len = (tvb_get_guint8(tvb, 0) & 0x0f) * 4;
+  } /* if tree */
+
+  /* calculate length of IP header, assume IPv4 */
+  ip_hdr_len = (tvb_get_guint8(tvb, 0) & 0x0f) * 4;
+
+  if (tree) {
 
     /* calculate total hdr length, assume UDP */
     hdr_len = ip_hdr_len + 8;
@@ -4389,24 +4444,25 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_text(fh_tree, tvb, 0,length,"Information Field");
     info_tree = proto_item_add_subtree(ti,ett_iphc_crtp_info);
 
-    /* allocate a copy of the IP packet */
-    ip_packet = tvb_memdup(tvb, 0, length);
-
-    /* restore the proper values to the IP and UDP length fields */
-    ip_packet[2] = length >> 8;
-    ip_packet[3] = length;
-
-    ip_packet[ip_hdr_len + 4] = (length - ip_hdr_len) >> 8;
-    ip_packet[ip_hdr_len + 5] = (length - ip_hdr_len);
-
-    next_tvb = tvb_new_child_real_data(tvb, ip_packet, length, length);
-    add_new_data_source(pinfo, next_tvb, "Decompressed Data");
-    tvb_set_free_cb(next_tvb, g_free);
-
-    if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, info_tree)) {
-      call_dissector_only(data_handle, next_tvb, pinfo, info_tree);
-    }
   } /* if tree */
+
+  /* allocate a copy of the IP packet */
+  ip_packet = tvb_memdup(tvb, 0, length);
+
+  /* restore the proper values to the IP and UDP length fields */
+  ip_packet[2] = length >> 8;
+  ip_packet[3] = length;
+
+  ip_packet[ip_hdr_len + 4] = (length - ip_hdr_len) >> 8;
+  ip_packet[ip_hdr_len + 5] = (length - ip_hdr_len);
+
+  next_tvb = tvb_new_child_real_data(tvb, ip_packet, length, length);
+  add_new_data_source(pinfo, next_tvb, "Decompressed Data");
+  tvb_set_free_cb(next_tvb, g_free);
+
+  if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, info_tree)) {
+    call_dissector_only(data_handle, next_tvb, pinfo, info_tree);
+  }
 }
 
 /*
@@ -5227,33 +5283,35 @@ proto_register_ppp(void)
     { &hf_ppp_direction,
       { "Direction", "ppp.direction", FT_UINT8, BASE_DEC,
         VALS(ppp_direction_vals), 0x0, "PPP direction", HFILL }},
-
     { &hf_ppp_address,
       { "Address", "ppp.address", FT_UINT8, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
-
     { &hf_ppp_control,
       { "Control", "ppp.control", FT_UINT8, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
-
     { &hf_ppp_protocol,
       { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
         &ppp_vals_ext, 0x0, NULL, HFILL }},
-
     { &hf_ppp_code,
       { "Code", "ppp.code", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
-
     { &hf_ppp_identifier,
       { "Identifier", "ppp.identifier", FT_UINT8, BASE_DEC_HEX,
         NULL, 0x0, NULL, HFILL }},
-
     { &hf_ppp_length,
       { "Length", "ppp.length", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
-
     { &hf_ppp_magic_number,
       { "Magic Number", "ppp.magic_number", FT_UINT32, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ppp_oui,
+      { "OUI", "ppp.oui", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ppp_kind,
+      { "Kind", "ppp.kind", FT_UINT8, BASE_DEC_HEX,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ppp_data,
+      { "Data", "ppp.data", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
@@ -5371,6 +5429,21 @@ void
 proto_register_lcp(void)
 {
   static hf_register_info hf[] = {
+    { &hf_lcp_magic_number,
+      { "Magic Number", "lcp.magic_number", FT_UINT32, BASE_HEX,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_lcp_data,
+      { "Data", "lcp.data", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_lcp_message,
+      { "Message", "lcp.message", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_lcp_secs_remaining,
+      { "Seconds Remaining", "lcp.secs_remaining", FT_UINT32, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_lcp_rej_proto,
+      { "Rejected Protocol", "lcp.rej_proto", FT_UINT16,
+        BASE_HEX | BASE_EXT_STRING, &ppp_vals_ext, 0x0, NULL, HFILL }},
     { &hf_lcp_opt_type,
       { "Type", "lcp.opt.type", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
