@@ -693,7 +693,7 @@ void proto_register_m2m(void)
 			&hf_m2m_value_fch_burst_uint24,
 			{
 				"Value", "m2m.fch_burst_tlv_value",
-				FT_UINT24, BASE_NONE, NULL, 0x0,
+				FT_UINT24, BASE_DEC, NULL, 0x0,
 				NULL, HFILL
 			}
 		},
