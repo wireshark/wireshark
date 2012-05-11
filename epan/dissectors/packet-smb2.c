@@ -769,7 +769,7 @@ dissect_smb2_olb_buffer(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *t
 		sub_tree=parent_tree;
 	} else {
 		if(parent_tree){
-			sub_item = proto_tree_add_item(parent_tree, olb->hfindex, tvb, offset, len, TRUE);
+			sub_item = proto_tree_add_item(parent_tree, olb->hfindex, tvb, offset, len, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_smb2_olb);
 		}
 	}
