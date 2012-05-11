@@ -420,7 +420,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 165 "../../asn1/x509ce/x509ce.cnf"
-	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 

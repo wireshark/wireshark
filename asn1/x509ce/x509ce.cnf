@@ -162,7 +162,7 @@ EnhancedCertificateAssertion/pathToName			enhancedPathToName
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 #.FN_BODY GeneralName/iPAddress
-	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 #.FN_PARS OtherNameType
