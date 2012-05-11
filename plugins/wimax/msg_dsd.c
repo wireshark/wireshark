@@ -117,7 +117,7 @@ void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DSD-REQ TLV error");
-				proto_tree_add_item(dsd_tree, hf_dsd_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(dsd_tree, hf_dsd_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the TLV value offset */
@@ -143,7 +143,7 @@ void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				default:
 					/* display the unknown tlv in hex */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "Unknown TLV (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dsd_unknown_type, tvb, (offset - tlv_value_offset), (tlv_len + tlv_value_offset), FALSE);
+					proto_tree_add_item(tlv_tree, hf_dsd_unknown_type, tvb, (offset - tlv_value_offset), (tlv_len + tlv_value_offset), ENC_NA);
 					break;
 			}
 			offset += tlv_len;
@@ -203,7 +203,7 @@ void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DSD RSP TLV error");
-				proto_tree_add_item(dsd_tree, hf_dsd_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(dsd_tree, hf_dsd_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the TLV value offset */
@@ -229,7 +229,7 @@ void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				default:
 					/* display the unknown tlv in hex */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dsd_req_decoder, dsd_tree, proto_mac_mgmt_msg_dsd_decoder, tvb, offset, tlv_len, "Unknown TLV (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dsd_unknown_type, tvb, (offset - tlv_value_offset), (tlv_len + tlv_value_offset), FALSE);
+					proto_tree_add_item(tlv_tree, hf_dsd_unknown_type, tvb, (offset - tlv_value_offset), (tlv_len + tlv_value_offset), ENC_NA);
 					break;
 			}
 			offset += tlv_len;
@@ -276,6 +276,20 @@ void proto_register_mac_mgmt_msg_dsd(void)
 			{
 				"Transaction ID", "wmx.dsd.transaction_id", 
 				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dsd_invalid_tlv,
+			{
+				"Invalid TLV", "wmx.dsd.invalid_tlv", 
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
+			}
+		},
+		{
+			&hf_dsd_unknown_type,
+			{
+				"Unknown type", "wmx.dsd.unknown_type", 
+				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		}
 	};
