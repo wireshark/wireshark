@@ -5,17 +5,17 @@
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -49,17 +49,17 @@ ETHER3ND RECV: (task "_sarTask" at 0x802c6eb0, time: 259848.03) 775 octets @ 0xa
   [0060]: 31 33 35 2e                                         135.
 
     Example 'wandsess' output data:
-   
+
 RECV-iguana:241:(task: B02614C0, time: 1975432.85) 49 octets @ 8003BD94
-  [0000]: FF 03 00 3D C0 06 CA 22 2F 45 00 00 28 6A 3B 40 
-  [0010]: 00 3F 03 D7 37 CE 41 62 12 CF 00 FB 08 20 27 00 
-  [0020]: 50 E4 08 DD D7 7C 4C 71 92 50 10 7D 78 67 C8 00 
-  [0030]: 00 
+  [0000]: FF 03 00 3D C0 06 CA 22 2F 45 00 00 28 6A 3B 40
+  [0010]: 00 3F 03 D7 37 CE 41 62 12 CF 00 FB 08 20 27 00
+  [0020]: 50 E4 08 DD D7 7C 4C 71 92 50 10 7D 78 67 C8 00
+  [0030]: 00
 XMIT-iguana:241:(task: B04E12C0, time: 1975432.85) 53 octets @ 8009EB16
-  [0000]: FF 03 00 3D C0 09 1E 31 21 45 00 00 2C 2D BD 40 
-  [0010]: 00 7A 06 D8 B1 CF 00 FB 08 CE 41 62 12 00 50 20 
-  [0020]: 29 7C 4C 71 9C 9A 6A 93 A4 60 12 22 38 3F 10 00 
-  [0030]: 00 02 04 05 B4 
+  [0000]: FF 03 00 3D C0 09 1E 31 21 45 00 00 2C 2D BD 40
+  [0010]: 00 7A 06 D8 B1 CF 00 FB 08 CE 41 62 12 00 50 20
+  [0020]: 29 7C 4C 71 9C 9A 6A 93 A4 60 12 22 38 3F 10 00
+  [0030]: 00 02 04 05 B4
 
     Example 'wdd' output data:
 
@@ -91,7 +91,7 @@ RECV-187:(task: B0292CA0, time: 18042251.92) 16 octets @ 800018E8
 
   In TAOS 8.0, Lucent slightly changed the format as follows:
 
-    Example 'wandisp' output data (TAOS 8.0.3): (same format is used 
+    Example 'wandisp' output data (TAOS 8.0.3): (same format is used
     for 'wanopen' and 'wannext' command)
 
 RECV-14: (task "idle task" at 0xb05e6e00, time: 1279.01) 29 octets @ 0x8000e0fc
@@ -105,7 +105,7 @@ XMIT-14: (task "idle task" at 0xb05e6e00, time: 1279.02) 29 octets @ 0x8007fa36
   [0000]: ff 03 c0 21 02 01 00 19  01 04 05 f4 11 04 05 f4    ...!.... ........
   [0010]: 13 09 03 00 c0 7b 9a 9f  2d 17 04 10 00             .....{.. -....
 
-    Example 'wandsess' output data (TAOS 8.0.3): 
+    Example 'wandsess' output data (TAOS 8.0.3):
 
 RECV-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.50) 20 octets @ 0x8000d198
   [0000]: ff 03 00 3d c0 00 00 04  80 fd 02 01 00 0a 11 06    ...=.... ........
@@ -144,8 +144,8 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
 
 #define NO_USER "<none>"
 
-int yyparse(void);
-void yyerror(const char *);
+int yyparse(FILE_T fh);
+void yyerror(FILE_T fh _U_, const char *);
 
 const gchar *ascend_parse_error;
 
@@ -155,10 +155,9 @@ static ascend_pkthdr *header;
 struct ascend_phdr *pseudo_header;
 static guint8 *pkt_data;
 static gint64 first_hexbyte;
-static FILE_T *fh_ptr;
 
 %}
- 
+
 %union {
 gchar  *s;
 guint32 d;
@@ -166,12 +165,14 @@ guint8  b;
 }
 
 %token <s> STRING KEYWORD WDD_DATE WDD_CHUNK COUNTER SLASH_SUFFIX
-%token <d> WDS_PREFIX ISDN_PREFIX ETHER_PREFIX DECNUM HEXNUM 
+%token <d> WDS_PREFIX ISDN_PREFIX ETHER_PREFIX DECNUM HEXNUM
 %token <b> HEXBYTE
 
-%type <s> string dataln datagroup 
+%type <s> string dataln datagroup
 %type <d> wds_prefix isdn_prefix ether_prefix decnum hexnum
 %type <b> byte bytegroup
+
+%parse-param { FILE_T fh }
 
 %%
 
@@ -229,7 +230,7 @@ deferred_isdn_hdr: isdn_prefix decnum SLASH_SUFFIX KEYWORD string KEYWORD hexnum
 ;
 
 /*
-PRI-XMIT-19:  (task "l1Task" at 0x10216840, time: 274758.67) 4 octets @ 0x1027c1c0 
+PRI-XMIT-19:  (task "l1Task" at 0x10216840, time: 274758.67) 4 octets @ 0x1027c1c0
  ... or ...
 PRI-RCV-27:  (task "idle task" at 0x10123570, time: 560194.01) 4 octets @ 0x1027fb00
 */
@@ -359,7 +360,7 @@ wdd_date: WDD_DATE decnum decnum decnum KEYWORD decnum decnum decnum KEYWORD str
   wddt.tm_mon  = $2 - 1;
   wddt.tm_year = ($4 > 1970) ? $4 - 1900 : 70;
   wddt.tm_isdst = -1;
-  
+
   start_time = (guint32) mktime(&wddt);
 }
 ;
@@ -384,12 +385,12 @@ wdd_hdr: WDD_CHUNK hexnum KEYWORD KEYWORD hexnum KEYWORD decnum decnum decnum KE
   }
 }
 ;
- 
+
 byte: HEXBYTE {
   /* remember the position of the data group in the trace, to tip
      off ascend_seek() as to where to look for the next header. */
   if (first_hexbyte == 0)
-    first_hexbyte = file_tell(*fh_ptr);
+    first_hexbyte = file_tell(fh);
 
   if (bcur < caplen) {
     pkt_data[bcur] = $1;
@@ -399,7 +400,7 @@ byte: HEXBYTE {
   /* arbitrary safety maximum... */
   if (bcur >= ASCEND_MAX_PKT_LEN)
     YYACCEPT;
-} 
+}
 ;
 
 /* XXX  There must be a better way to do this... */
@@ -457,7 +458,6 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
   pkt_data = pd;
   pseudo_header = phdr;
   header = hdr;
-  fh_ptr = &fh;
 
   bcur = 0;
   first_hexbyte = 0;
@@ -477,7 +477,7 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
    */
   pseudo_header->call_num[0] = '\0';
 
-  retval = yyparse();
+  retval = yyparse(fh);
 
   caplen = bcur;
 
@@ -489,11 +489,11 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
     *start_of_data = first_hexbyte;
   } else {
     /* Sometimes, a header will be printed but the data will be omitted, or
-       worse -- two headers will be printed, followed by the data for each. 
+       worse -- two headers will be printed, followed by the data for each.
        Because of this, we need to be fairly tolerant of what we accept
        here.  If we didn't find any hex bytes, skip over what we've read so
        far so we can try reading a new packet. */
-    *start_of_data = file_tell(*fh_ptr);
+    *start_of_data = file_tell(fh);
     retval = 0;
   }
 
@@ -516,12 +516,12 @@ parse_ascend(FILE_T fh, guint8 *pd, struct ascend_phdr *phdr,
   /* Didn't see any data. Still, perhaps the parser was happy.  */
   if (retval)
     return PARSE_FAILED;
-  else 
+  else
     return PARSED_NONRECORD;
 }
 
 void
-yyerror (const char *s)
+yyerror (FILE_T fh _U_, const char *s)
 {
   ascend_parse_error = s;
 }
