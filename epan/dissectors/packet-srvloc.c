@@ -422,7 +422,8 @@ add_v1_string(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 break;
 
         default:
-                proto_tree_add_item(tree, hf, tvb, offset, length, TRUE);
+                /* XXX - need to support all the CHARSET_ values */
+                proto_tree_add_item(tree, hf, tvb, offset, length, ENC_ASCII|ENC_NA);
                 break;
         }
 }
@@ -699,7 +700,8 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
 
 
     default:
-            proto_tree_add_item(tree, hf, tvb, offset, length, TRUE);
+            /* XXX - need to handle specific encodings */
+            proto_tree_add_item(tree, hf, tvb, offset, length, ENC_ASCII|ENC_NA);
             break;
     }
 }
@@ -719,7 +721,8 @@ attr_list2(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, guin
      */
 
     /* create a sub tree for attributes */
-    ti = proto_tree_add_item(tree, hf, tvb, offset, length, TRUE);
+    /* XXX - is this always ASCII, or what? */
+    ti = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_ASCII|ENC_NA);
     attr_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
 
     /* this will ensure there is a terminating null */
