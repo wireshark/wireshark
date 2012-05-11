@@ -274,7 +274,7 @@ static const value_string h264_profile_idc_values[] = {
 	{ 0,	NULL }
 };
 
-/* Table A-1 – Level limits */
+/* Table A-1 - Level limits */
 static const value_string h264_level_bitrate_values[] = {
 	{ 10,	"64 kb/s" },
 	{ 11,	"192 kb/s" },
