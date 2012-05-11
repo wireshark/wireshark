@@ -1095,7 +1095,7 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
   else {
     bit_offset = curr_offset*8 + 7;
     arfcn_orig = (gint) tvb_get_bits(tvb, bit_offset, 10, FALSE);
-    proto_tree_add_bits_item(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, FALSE);
+    proto_tree_add_bits_item(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
     bit_offset+=10;
 
     list[arfcn_orig] = 1;
@@ -3880,13 +3880,13 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 1", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 1");
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 2", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 2");
     }
@@ -3957,13 +3957,13 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 2", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 2");
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 3", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 3");
     }
@@ -4014,25 +4014,25 @@ de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 1", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 1");
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 2", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 2");
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 3", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 3");
     }
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Priority 4", "Present", "Not present"))
     {
-        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_item_append_text(item2, " for Mobile Identity 4");
     }
@@ -6723,7 +6723,7 @@ de_rr_rest_oct_gprs_indicator(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_INDICATOR].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_INDICATOR]);
-    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gprs_ra_colour, tvb, curr_bit_offset, 3, FALSE);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gprs_ra_colour, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
     curr_bit_offset += 3;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si13_position, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset += 1;
