@@ -823,8 +823,27 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	tree2 = proto_item_add_subtree(ti, ett_asn1);
 
-	hidden_item = proto_tree_add_item(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
-				   def? (int) (offset - boffset + len) :  -1, TRUE);
+	switch (((PDUinfo *)PDUtree->data)->type) {
+
+	case TBL_BOOLEAN:
+	case TBL_INTEGER:
+	case TBL_BITSTRING:
+	case TBL_REAL:
+	case TBL_ENUMERATED:
+	    hidden_item = proto_tree_add_item(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
+				   def? (int) (offset - boffset + len) :  -1, ENC_LITTLE_ENDIAN);
+	    break;
+
+	case TBL_OCTETSTRING:
+	    hidden_item = proto_tree_add_item(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
+				   def? (int) (offset - boffset + len) :  -1, ENC_ASCII|ENC_NA);
+	    break;
+
+	default:
+	    hidden_item = proto_tree_add_item(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
+				   def? (int) (offset - boffset + len) :  -1, ENC_NA);
+	    break;
+	}
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	offset = boffset; /* the first packet */
@@ -869,12 +888,40 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 						      "%s: (%s)%s %d-%d %s ~", current_pduname,
 						      tname, name, pcount, i+1, headstr);
 
-				if (props.type_id != -1){
-			         hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
-			     			      def? (int) (offset - boffset + len) :  -1, TRUE);
-					 PROTO_ITEM_SET_HIDDEN(hidden_item);
-				}
+			    if (props.type_id != -1){
+				switch (proto_registrar_get_ftype(props.type_id)) {
 
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+				case FT_INT64:
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+				case FT_UINT64:
+				case FT_BOOLEAN:
+				case FT_FLOAT:
+				case FT_DOUBLE:
+				case FT_IPv4:
+				    hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
+			     			      def? (int) (offset - boffset + len) :  -1, ENC_LITTLE_ENDIAN);
+				    break;
+
+				case FT_STRING:
+				case FT_STRINGZ:
+				    hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
+			     			      def? (int) (offset - boffset + len) :  -1, ENC_ASCII|ENC_NA);
+				    break;
+
+				default:
+				    hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
+			     			      def? (int) (offset - boffset + len) :  -1, ENC_NA);
+				    break;
+			     	}
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
+			    }
 	 	    }
 	    } else {
 		    if (props.flags & OUT_FLAG_noname) {
@@ -889,11 +936,40 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			    ti2 = proto_tree_add_none_format(tree2, props.value_id, tvb, boffset,
 						      def? (int) (offset - boffset + len) :  -1,
 						      "%s: (%s)%s ~", current_pduname, tname, name);
-				if (props.type_id != -1){
-			  	hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
-			   			      def? (int) (offset - boffset + len) :  -1, TRUE);
+			    if (props.type_id != -1){
+				switch (proto_registrar_get_ftype(props.type_id)) {
+
+				case FT_INT8:
+				case FT_INT16:
+				case FT_INT24:
+				case FT_INT32:
+				case FT_INT64:
+				case FT_UINT8:
+				case FT_UINT16:
+				case FT_UINT24:
+				case FT_UINT32:
+				case FT_UINT64:
+				case FT_BOOLEAN:
+				case FT_FLOAT:
+				case FT_DOUBLE:
+				case FT_IPv4:
+				    hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
+			   			      def? (int) (offset - boffset + len) :  -1, ENC_LITTLE_ENDIAN);
+				    break;
+
+				case FT_STRING:
+				case FT_STRINGZ:
+				    hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
+			   			      def? (int) (offset - boffset + len) :  -1, ENC_ASCII|ENC_NA);
+				    break;
+
+				default:
+				    hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
+			   			      def? (int) (offset - boffset + len) :  -1, ENC_NA);
+				    break;
+			   	}
 				PROTO_ITEM_SET_HIDDEN(hidden_item);
-				}
+			    }
 		    }
 	    }
 	    asn1_tree = proto_item_add_subtree(ti2, ett_pdu[i]);
@@ -1281,16 +1357,64 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							     textfmt_c, boffset, clsstr, constr, tagstr,
 							     tname, name, ename, empty);
 			      else {
-				      ti = proto_tree_add_item(pt, props.value_id, tvb,
-							      boffset, 1, TRUE);
+				      switch (props.type) {
+
+				      case TBL_BOOLEAN:
+				      case TBL_INTEGER:
+				      case TBL_BITSTRING:
+				      case TBL_REAL:
+				      case TBL_ENUMERATED:
+					ti = proto_tree_add_item(pt, props.value_id, tvb,
+								 boffset, 1, ENC_LITTLE_ENDIAN);
+					break;
+
+				      case TBL_OCTETSTRING:
+					ti = proto_tree_add_item(pt, props.value_id, tvb,
+								 boffset, 1, ENC_ASCII|ENC_NA);
+					break;
+
+				      default:
+					ti = proto_tree_add_item(pt, props.value_id, tvb,
+								 boffset, 1, ENC_NA);
+					break;
+				      }
 				      /* change te text to to what I really want */
 				      proto_item_set_text(ti, textfmt_c, boffset, clsstr, constr,
 							     tagstr, tname, name, ename, matchind);
-					  if (props.type_id != -1){
-					      hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
-							      boffset, 1, TRUE);
-						  PROTO_ITEM_SET_HIDDEN(hidden_item);
-					  }
+				      if (props.type_id != -1){
+					      switch (proto_registrar_get_ftype(props.type_id)) {
+
+					      case FT_INT8:
+					      case FT_INT16:
+					      case FT_INT24:
+					      case FT_INT32:
+					      case FT_INT64:
+					      case FT_UINT8:
+					      case FT_UINT16:
+					      case FT_UINT24:
+					      case FT_UINT32:
+					      case FT_UINT64:
+					      case FT_BOOLEAN:
+					      case FT_FLOAT:
+					      case FT_DOUBLE:
+					      case FT_IPv4:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+								boffset, 1, ENC_LITTLE_ENDIAN);
+						break;
+
+					      case FT_STRING:
+					      case FT_STRINGZ:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+								boffset, 1, ENC_ASCII|ENC_NA);
+						break;
+
+					      default:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+								boffset, 1, ENC_NA);
+						break;
+					      }
+					      PROTO_ITEM_SET_HIDDEN(hidden_item);
+				      }
 			      }
 		      } else {
 			      if (props.value_id == -1) {
@@ -1305,15 +1429,63 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 								       "(%s)%s ~", tname, name);
 				      else {
 					      /* don't care about the text */
-					      ti = hidden_item = proto_tree_add_item(pt, props.value_id, tvb,
-						    	  boffset, 1, TRUE);
-						  PROTO_ITEM_SET_HIDDEN(hidden_item);
+					      switch (props.type) {
+
+					      case TBL_BOOLEAN:
+					      case TBL_INTEGER:
+					      case TBL_BITSTRING:
+					      case TBL_REAL:
+					      case TBL_ENUMERATED:
+						ti = hidden_item = proto_tree_add_item(pt, props.value_id, tvb,
+						    	  boffset, 1, ENC_LITTLE_ENDIAN);
+						break;
+
+					      case TBL_OCTETSTRING:
+						ti = hidden_item = proto_tree_add_item(pt, props.value_id, tvb,
+						    	  boffset, 1, ENC_ASCII|ENC_NA);
+						break;
+
+					      default:
+						ti = hidden_item = proto_tree_add_item(pt, props.value_id, tvb,
+						    	  boffset, 1, ENC_NA);
+						break;
+					      }
+					      PROTO_ITEM_SET_HIDDEN(hidden_item);
 				      }
-					  if (props.type_id != -1){
-					      hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
-						    	  boffset, 1, TRUE);
-						  PROTO_ITEM_SET_HIDDEN(hidden_item);
-					  }
+				      if (props.type_id != -1){
+					      switch (proto_registrar_get_ftype(props.type_id)) {
+
+					      case FT_INT8:
+					      case FT_INT16:
+					      case FT_INT24:
+					      case FT_INT32:
+					      case FT_INT64:
+					      case FT_UINT8:
+					      case FT_UINT16:
+					      case FT_UINT24:
+					      case FT_UINT32:
+					      case FT_UINT64:
+					      case FT_BOOLEAN:
+					      case FT_FLOAT:
+					      case FT_DOUBLE:
+					      case FT_IPv4:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+						    	  boffset, 1, ENC_LITTLE_ENDIAN);
+						break;
+
+					      case FT_STRING:
+					      case FT_STRINGZ:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+						    	  boffset, 1, ENC_ASCII|ENC_NA);
+						break;
+
+					      default:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+						    	  boffset, 1, ENC_NA);
+						break;
+					      }
+					      PROTO_ITEM_SET_HIDDEN(hidden_item);
+				      }
 			      }
 		      }
 		      if (len == 0) return offset; /* don't recurse if offset isn't going to change */
@@ -1687,16 +1859,64 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 								 textfmt_c, boffset, clsstr, constr,
 								 tagstr, tname, name, ename, empty);
 				else {
-				      ti = proto_tree_add_item(pt, props.value_id, tvb,
-							      boffset, 1, TRUE);
+				      switch (props.type) {
+
+				      case TBL_BOOLEAN:
+				      case TBL_INTEGER:
+				      case TBL_BITSTRING:
+				      case TBL_REAL:
+				      case TBL_ENUMERATED:
+					ti = proto_tree_add_item(pt, props.value_id, tvb,
+								 boffset, 1, ENC_LITTLE_ENDIAN);
+					break;
+
+				      case TBL_OCTETSTRING:
+					ti = proto_tree_add_item(pt, props.value_id, tvb,
+								 boffset, 1, ENC_ASCII|ENC_NA);
+					break;
+
+				      default:
+					ti = proto_tree_add_item(pt, props.value_id, tvb,
+								 boffset, 1, ENC_NA);
+					break;
+				      }
 				      /* change te text to to what I really want */
 				      if (ti) {
 					proto_item_set_text(ti, textfmt_c, boffset, clsstr, constr,
 							     tagstr, tname, name, ename, matchind);
 					if (props.type_id != -1){
-					      hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
-							      boffset, 1, TRUE);
-						  PROTO_ITEM_SET_HIDDEN(hidden_item);
+					      switch (proto_registrar_get_ftype(props.type_id)) {
+
+					      case FT_INT8:
+					      case FT_INT16:
+					      case FT_INT24:
+					      case FT_INT32:
+					      case FT_INT64:
+					      case FT_UINT8:
+					      case FT_UINT16:
+					      case FT_UINT24:
+					      case FT_UINT32:
+					      case FT_UINT64:
+					      case FT_BOOLEAN:
+					      case FT_FLOAT:
+					      case FT_DOUBLE:
+					      case FT_IPv4:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+							      boffset, 1, ENC_LITTLE_ENDIAN);
+						break;
+
+					      case FT_STRING:
+					      case FT_STRINGZ:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+							      boffset, 1, ENC_ASCII|ENC_NA);
+						break;
+
+					      default:
+						hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
+							      boffset, 1, ENC_NA);
+						break;
+					      }
+					      PROTO_ITEM_SET_HIDDEN(hidden_item);
 					}
 				      } else {
 					ti = proto_tree_add_text(pt, tvb, boffset,
@@ -1717,13 +1937,61 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 						       		"(%s)%s ~", tname, name);
 					else {
 						/* don't care about the text */
-						ti = proto_tree_add_item(pt, props.value_id,
-						             tvb,  boffset, 1, TRUE);
+						switch (props.type) {
+
+						case TBL_BOOLEAN:
+						case TBL_INTEGER:
+						case TBL_BITSTRING:
+						case TBL_REAL:
+						case TBL_ENUMERATED:
+						  ti = proto_tree_add_item(pt, props.value_id,
+						             tvb,  boffset, 1, ENC_LITTLE_ENDIAN);
+						  break;
+
+						case TBL_OCTETSTRING:
+						  ti = proto_tree_add_item(pt, props.value_id,
+						             tvb,  boffset, 1, ENC_ASCII|ENC_NA);
+						  break;
+
+						default:
+						  ti = proto_tree_add_item(pt, props.value_id,
+						             tvb,  boffset, 1, ENC_NA);
+						  break;
+						}
 						PROTO_ITEM_SET_HIDDEN(ti);
 					}
 					if (props.type_id != -1){
-						hidden_item = proto_tree_add_item(pt, props.type_id,
-						             tvb,  boffset, 1, TRUE);
+						switch (proto_registrar_get_ftype(props.type_id)) {
+
+						case FT_INT8:
+						case FT_INT16:
+						case FT_INT24:
+						case FT_INT32:
+						case FT_INT64:
+						case FT_UINT8:
+						case FT_UINT16:
+						case FT_UINT24:
+						case FT_UINT32:
+						case FT_UINT64:
+						case FT_BOOLEAN:
+						case FT_FLOAT:
+						case FT_DOUBLE:
+						case FT_IPv4:
+						  hidden_item = proto_tree_add_item(pt, props.type_id,
+						             tvb,  boffset, 1, ENC_LITTLE_ENDIAN);
+						  break;
+
+						case FT_STRING:
+						case FT_STRINGZ:
+						  hidden_item = proto_tree_add_item(pt, props.type_id,
+						             tvb,  boffset, 1, ENC_ASCII|ENC_NA);
+						  break;
+
+						default:
+						  hidden_item = proto_tree_add_item(pt, props.type_id,
+						             tvb,  boffset, 1, ENC_NA);
+						  break;
+						}
 						PROTO_ITEM_SET_HIDDEN(hidden_item);
 					}
 				}
