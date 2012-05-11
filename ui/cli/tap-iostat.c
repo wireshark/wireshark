@@ -191,6 +191,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
 					it->counter  +=  val;
 					break;
+				default:
+					/*
+					 * "Can't happen"; see the checks
+					 * in register_io_tap().
+					 */
+					g_assert_not_reached();
+					break;
 				}
 			}
 		}
@@ -254,6 +261,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 						it->counter=val;
 					}
 					break;
+				default:
+					/*
+					 * "Can't happen"; see the checks
+					 * in register_io_tap().
+					 */
+					g_assert_not_reached();
+					break;
 				}
 			}
 		}
@@ -310,6 +324,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					if (val>it->counter)
 						it->counter=val;
                     break;
+				default:
+					/*
+					 * "Can't happen"; see the checks
+					 * in register_io_tap().
+					 */
+					g_assert_not_reached();
+					break;
 				}
 			}
 		}
@@ -352,6 +373,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
 					val = (guint64)((new_time->secs * NANOSECS_PER_SEC) + new_time->nsecs);
 					it->counter += val;
+					break;
+				default:
+					/*
+					 * "Can't happen"; see the checks
+					 * in register_io_tap().
+					 */
+					g_assert_not_reached();
 					break;
 				}
 			}

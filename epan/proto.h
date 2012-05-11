@@ -1685,7 +1685,7 @@ extern header_field_info* proto_registrar_get_byname(const char *field_name);
 /** Get enum ftenum FT_ of registered header_field number n.
  @param n item # n (0-indexed)
  @return the registered item */
-extern int proto_registrar_get_ftype(const int n);
+extern enum ftenum proto_registrar_get_ftype(const int n);
 
 /** Get parent protocol of registered header_field number n.
  @param n item # n (0-indexed)

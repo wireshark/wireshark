@@ -6119,7 +6119,7 @@ proto_registrar_get_abbrev(const int n)
 	return hfinfo->abbrev;
 }
 
-int
+enum ftenum
 proto_registrar_get_ftype(const int n)
 {
 	header_field_info *hfinfo;

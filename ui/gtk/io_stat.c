@@ -437,6 +437,15 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					nstime_add(&it->time_tot, new_time);
 					it->fields++;
 				}
+				break;
+			default:
+				/*
+				 * "Can't happen"; see the "check that the
+				 * type is compatible" check in
+				 * filter_callback().
+				 */
+				g_assert_not_reached();
+				break;
 			}
 		}
 	}
