@@ -198,7 +198,9 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-t124.c \
 	packet-t125.c \
 	packet-tcap.c \
-	packet-tetra.c
+	packet-tetra.c \
+	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
+
 
 #
 # Dissectors without warnings.
