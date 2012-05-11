@@ -818,16 +818,58 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+dissect_rpc_authunix_groups(tvbuff_t* tvb, proto_tree* tree, int offset)
+{
+	guint gids_count;
+	guint gids_i;
+	guint gids_entry;
+	proto_item *gitem = NULL;
+	proto_tree *gtree = NULL;
+
+	gids_count = tvb_get_ntohl(tvb,offset);
+	if (tree) {
+		gitem = proto_tree_add_text(tree, tvb, offset,
+			4+gids_count*4, "Auxiliary GIDs (%d)", gids_count);
+		gtree = proto_item_add_subtree(gitem, ett_rpc_gids);
+	}
+	offset += 4;
+
+	/* first, open with [ */
+	if (tree && gids_count > 0)
+		proto_item_append_text(gitem, " [");
+
+	for (gids_i = 0 ; gids_i < gids_count; gids_i++) {
+		gids_entry = tvb_get_ntohl(tvb,offset);
+		if (gtree) {
+			proto_tree_add_uint(gtree, hf_rpc_auth_gid, tvb,
+				offset, 4, gids_entry);
+		}
+
+		/* add at most 16 GIDs to the text */
+		if (tree && gids_i < 16) {
+			if (gids_i > 0)
+				proto_item_append_text(gitem, ", ");
+
+			proto_item_append_text(gitem, "%d", gids_entry);
+		} else if (tree && gids_i == 16) {
+			proto_item_append_text(gitem, "...");
+		}
+		offset += 4;
+	}
+
+	/* finally, close with ] */
+	if (tree && gids_count > 0)
+		proto_item_append_text(gitem, "]");
+
+	return offset;
+}
+
+static int
 dissect_rpc_authunix_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
 	guint stamp;
 	guint uid;
 	guint gid;
-	guint gids_count;
-	guint gids_i;
-	guint gids_entry;
-	proto_item *gitem;
-	proto_tree *gtree = NULL;
 
 	stamp = tvb_get_ntohl(tvb,offset+0);
 	if (tree)
@@ -850,23 +892,7 @@ dissect_rpc_authunix_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 			offset+0, 4, gid);
 	offset += 4;
 
-	gids_count = tvb_get_ntohl(tvb,offset+0);
-	if (tree) {
-		gitem = proto_tree_add_text(tree, tvb,
-			offset, 4+gids_count*4, "Auxiliary GIDs");
-		gtree = proto_item_add_subtree(gitem, ett_rpc_gids);
-	}
-	offset += 4;
-
-	for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
-		gids_entry = tvb_get_ntohl(tvb,offset+0);
-		if (gtree)
-		proto_tree_add_uint(gtree, hf_rpc_auth_gid, tvb,
-			offset, 4, gids_entry);
-		offset+=4;
-	}
-	/* how can I NOW change the gitem to print a list with
-		the first 16 gids? */
+	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
 
 	return offset;
 }
@@ -1052,55 +1078,14 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 static int
 dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
-	guint gids_count;
-	guint gids_i;
-	guint gids_entry;
-	proto_item *gitem = NULL;
-	proto_tree *gtree = NULL;
-
-	offset = dissect_rpc_uint64(tvb, tree, hf_rpc_auth_lk_owner, offset);
+	offset = dissect_rpc_bytes(tvb, tree, hf_rpc_auth_lk_owner, offset, 8, FALSE, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
-
-	gids_count = tvb_get_ntohl(tvb,offset);
-	if (tree) {
-		gitem = proto_tree_add_text(tree, tvb, offset,
-			4+gids_count*4, "Auxiliary GIDs (%d)", gids_count);
-		gtree = proto_item_add_subtree(gitem, ett_rpc_gids);
-	}
-	offset += 4;
-
-	/* first, open with [ */
-	if (tree && gids_count > 0)
-		proto_item_append_text(gitem, " [");
-
-	for (gids_i = 0 ; gids_i < gids_count; gids_i++) {
-		gids_entry = tvb_get_ntohl(tvb,offset);
-		if (gtree) {
-			proto_tree_add_uint(gtree, hf_rpc_auth_gid, tvb,
-				offset, 4, gids_entry);
-		}
-
-		/* add at most 16 GIDs to the text */
-		if (tree && gids_i < 16) {
-			if (gids_i > 0)
-				proto_item_append_text(gitem, ", ");
-
-			proto_item_append_text(gitem, "%d", gids_entry);
-		} else if (tree && gids_i == 16) {
-			proto_item_append_text(gitem, "...");
-		}
-		offset += 4;
-	}
-
-	/* finally, close with ] */
-	if (tree && gids_count > 0)
-		proto_item_append_text(gitem, "]");
+	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
 
 	return offset;
 }
-
 
 static int
 dissect_rpc_authgssapi_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
@@ -3841,7 +3826,7 @@ proto_register_rpc(void)
 			"Stamp", "rpc.auth.stamp", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_lk_owner, {
-			"Lock Owner", "rpc.auth.lk_owner", FT_UINT64, BASE_DEC,
+			"Lock Owner", "rpc.auth.lk_owner", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_rpc_auth_pid, {
 			"PID", "rpc.auth.pid", FT_UINT32, BASE_DEC,
