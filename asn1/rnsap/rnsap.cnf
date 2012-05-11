@@ -72,6 +72,8 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
+#.FN_PARS PrivateIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_PrivateIEFieldValue
+
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
@@ -122,6 +124,9 @@ ProtocolIE-ContainerPairList
       call_dissector(parameter_handle, parameter_tvb, %(ACTX)s->pinfo, tree);
 
 #.END
+
+#.FN_PARS PrivateIE-ID/global FN_VARIANT = _str  VAL_PTR = &obj_id
+
 
 #.TYPE_ATTR
 BLER TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = NULL

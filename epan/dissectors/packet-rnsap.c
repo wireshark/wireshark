@@ -46,6 +46,7 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-ber.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -1133,7 +1134,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-rnsap-val.h ---*/
-#line 54 "../../asn1/rnsap/packet-rnsap-template.c"
+#line 55 "../../asn1/rnsap/packet-rnsap-template.c"
 
 static dissector_handle_t rrc_dl_dcch_handle = NULL;
 
@@ -1873,7 +1874,7 @@ static int hf_rnsap_PrivateMessage_PDU = -1;      /* PrivateMessage */
 static int hf_rnsap_RNSAP_PDU_PDU = -1;           /* RNSAP_PDU */
 static int hf_rnsap_NULL_PDU = -1;                /* NULL */
 static int hf_rnsap_local = -1;                   /* INTEGER_0_maxPrivateIEs */
-static int hf_rnsap_global = -1;                  /* OBJECT_IDENTIFIER */
+static int hf_rnsap_global = -1;                  /* T_global */
 static int hf_rnsap_procedureCode = -1;           /* ProcedureCode */
 static int hf_rnsap_ddMode = -1;                  /* DdMode */
 static int hf_rnsap_shortTransActionId = -1;      /* INTEGER_0_127 */
@@ -3870,7 +3871,7 @@ static int hf_rnsap_value_04 = -1;                /* UnsuccessfulOutcome_value *
 static int hf_rnsap_value_05 = -1;                /* Outcome_value */
 
 /*--- End of included file: packet-rnsap-hf.c ---*/
-#line 61 "../../asn1/rnsap/packet-rnsap-template.c"
+#line 62 "../../asn1/rnsap/packet-rnsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_rnsap = -1;
@@ -5157,13 +5158,15 @@ static gint ett_rnsap_UnsuccessfulOutcome = -1;
 static gint ett_rnsap_Outcome = -1;
 
 /*--- End of included file: packet-rnsap-ett.c ---*/
-#line 66 "../../asn1/rnsap/packet-rnsap-template.c"
+#line 67 "../../asn1/rnsap/packet-rnsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
+static const char *obj_id = NULL;
+
 
 /* Dissector tables */
 static dissector_table_t rnsap_ies_dissector_table;
@@ -5174,6 +5177,7 @@ static dissector_table_t rnsap_proc_uout_dissector_table;
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -5211,8 +5215,8 @@ dissect_rnsap_INTEGER_0_maxPrivateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static int
-dissect_rnsap_OBJECT_IDENTIFIER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_object_identifier(tvb, offset, actx, tree, hf_index, NULL);
+dissect_rnsap_T_global(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &obj_id);
 
   return offset;
 }
@@ -5226,7 +5230,7 @@ static const value_string rnsap_PrivateIE_ID_vals[] = {
 
 static const per_choice_t PrivateIE_ID_choice[] = {
   {   0, &hf_rnsap_local         , ASN1_NO_EXTENSIONS     , dissect_rnsap_INTEGER_0_maxPrivateIEs },
-  {   1, &hf_rnsap_global        , ASN1_NO_EXTENSIONS     , dissect_rnsap_OBJECT_IDENTIFIER },
+  {   1, &hf_rnsap_global        , ASN1_NO_EXTENSIONS     , dissect_rnsap_T_global },
   { 0, NULL, 0, NULL }
 };
 
@@ -5308,7 +5312,7 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 77 "../../asn1/rnsap/rnsap.cnf"
+#line 79 "../../asn1/rnsap/rnsap.cnf"
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                 val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
                            "unknown message"));
@@ -5342,7 +5346,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "../../asn1/rnsap/rnsap.cnf"
+#line 86 "../../asn1/rnsap/rnsap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5350,7 +5354,7 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 90 "../../asn1/rnsap/rnsap.cnf"
+#line 92 "../../asn1/rnsap/rnsap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s",
                                  val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
                                  val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
@@ -6402,7 +6406,7 @@ dissect_rnsap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_rnsap_PrivateIE_Field_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_PrivateIEFieldValue);
 
   return offset;
 }
@@ -22929,7 +22933,7 @@ dissect_rnsap_List_Of_PLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "../../asn1/rnsap/rnsap.cnf"
+#line 105 "../../asn1/rnsap/rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
 
@@ -43143,7 +43147,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-rnsap-fn.c ---*/
-#line 87 "../../asn1/rnsap/packet-rnsap-template.c"
+#line 91 "../../asn1/rnsap/packet-rnsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -43153,6 +43157,11 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_uint(rnsap_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
+}
+
+static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  return (call_ber_oid_callback(obj_id, tvb, 0, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -46121,7 +46130,7 @@ void proto_register_rnsap(void) {
     { &hf_rnsap_global,
       { "global", "rnsap.global",
         FT_OID, BASE_NONE, NULL, 0,
-        "OBJECT_IDENTIFIER", HFILL }},
+        NULL, HFILL }},
     { &hf_rnsap_procedureCode,
       { "procedureCode", "rnsap.procedureCode",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &rnsap_ProcedureCode_vals_ext, 0,
@@ -54100,7 +54109,7 @@ void proto_register_rnsap(void) {
         "Outcome_value", HFILL }},
 
 /*--- End of included file: packet-rnsap-hfarr.c ---*/
-#line 139 "../../asn1/rnsap/packet-rnsap-template.c"
+#line 148 "../../asn1/rnsap/packet-rnsap-template.c"
   };
 
   /* List of subtrees */
@@ -55388,7 +55397,7 @@ void proto_register_rnsap(void) {
     &ett_rnsap_Outcome,
 
 /*--- End of included file: packet-rnsap-ettarr.c ---*/
-#line 145 "../../asn1/rnsap/packet-rnsap-template.c"
+#line 154 "../../asn1/rnsap/packet-rnsap-template.c"
   };
 
 
@@ -56224,7 +56233,7 @@ proto_reg_handoff_rnsap(void)
 
 
 /*--- End of included file: packet-rnsap-dis-tab.c ---*/
-#line 184 "../../asn1/rnsap/packet-rnsap-template.c"
+#line 193 "../../asn1/rnsap/packet-rnsap-template.c"
 }
 
 
