@@ -1484,20 +1484,16 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * NOTE: to support code written when
 			 * proto_tree_add_item() took a gboolean as its
 			 * last argument, with FALSE meaning "big-endian"
-			 * and TRUE meaning "little-endian", we any
-			 * non-zero value of "encoding", except for
-			 * ENC_EBCDIC|ENC_BIG_ENDIAN and
-			 * ENC_EBCDIC|ENC_LITTLE_ENDIAN  as meaning
-			 * "little-endian UTF-8".
+			 * and TRUE meaning "little-endian", if the
+			 * encoding value is TRUE, treat that as
+			 * ASCII with a little-endian length.
 			 *
-			 * At some point in the future, we might
-			 * support more character encodings in the
-			 * encoding value as well.
+			 * This won't work for code that passes
+			 * arbitrary non-zero values; that code
+			 * will need to be fixed.
 			 */
-			if (encoding != 0 &&
-			    encoding != (ENC_EBCDIC|ENC_BIG_ENDIAN) &&
-			    encoding != (ENC_EBCDIC|ENC_LITTLE_ENDIAN))
-				encoding = ENC_UTF_8|ENC_LITTLE_ENDIAN;
+			if (encoding == TRUE)
+				encoding = ENC_ASCII|ENC_LITTLE_ENDIAN;
 			n = get_uint_value(tvb, start, length, encoding);
 			proto_tree_set_string_tvb(new_fi, tvb, start + length, n,
 			    encoding);

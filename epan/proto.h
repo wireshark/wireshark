@@ -245,41 +245,43 @@ typedef struct _protocol protocol_t;
  * was with FT_UINT_STRINGs, where we had FALSE for the string length
  * being big-endian and TRUE for it being little-endian.
  *
- * This is a quick and dirty hack for bug 6084, which doesn't require
- * support for multiple character encodings in FT_UINT_STRING.  We
- * introduce ENC_UTF_8 and ENC_EBCDIC, with ENC_UTF_8 being 0 and
- * ENC_EBCDIC being the unlikely value 0x0EBCD000, and treat all values
- * other than ENC_EBCDIC as UTF-8.  That way, no matter how a dissector
- * not converted to use ENC_ values calculates the last argument to
- * proto_tree_add_item(), it's unlikely to get EBCDIC.
+ * We now have encoding values for the character encoding.  The encoding
+ * values are encoded in all but the top bit (which is the byte-order
+ * bit, required for FT_UINT_STRING and for UCS-2 and UTF-16 strings)
+ * and the bottom bit (which we ignore for now so that programs that
+ * pass TRUE for the encoding just do ASCII).
  *
- * The value for ENC_EBCDIC is subject to change in a future release (or
- * to replacement with multiple values for different flavors of EBCDIC).
+ * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
+ * ASCII, all bytes with the 8th bit set should be mapped to some "this
+ * is not a valid character" code point, as ENC_ASCII should mean "this
+ * is ASCII, not some extended variant thereof".  We should also map
+ * 0x00 to that as well - null-terminated and null-padded strings
+ * never have NULs in them, but counted strings might.  (Either that,
+ * or the values for strings should be counted, not null-terminated.)
+ * For UTF-8, invalid UTF-8 sequences should be mapped to the same
+ * code point.
  *
- * We currently add some additional encodings, for various ASCII-based
- * encodings, but use the same value as ENC_UTF_8, for now, so that we
- * can mark the appropriate encoding.  Ultimately, we should handle
- * those encodings by mapping them to UTF-8 for display; for ASCII,
- * all bytes with the 8th bit set should be mapped to some "this is
- * not a valid character" glyph, as ENC_ASCII should mean "this is
- * ASCII, not some extended variant thereof".  Perhaps we should also
- * map control characters to the Unicode glyphs showing the name of
- * the control character in small caps, diagonally.  (Unfortunately,
- * those only exist for C0, not C1.)
+ * We also don't process UTF-16 or UCS-2 differently - we don't
+ * handle surrogate pairs, and don't handle 2-byte values that
+ * aren't valid in UTF-16 or UCS-2 strings.
+ *
+ * For display, perhaps we should also map control characters to the
+ * Unicode glyphs showing the name of the control character in small
+ * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
  */
 #define ENC_CHARENCODING_MASK	0x7FFFFFFE	/* mask out byte-order bits */
-#define ENC_UTF_8		0x00000000
-#define ENC_ASCII		0x00000000
-#define ENC_EBCDIC		0x0EBCD1C0
+#define ENC_ASCII		(0 << 1)	/* shift up to avoid low-order bit */
+#define ENC_UTF_8		(1 << 1)
+#define ENC_UTF_16		(2 << 1)
+#define ENC_UCS_2		(3 << 1)
+#define ENC_EBCDIC		(4 << 1)
 
 /*
  * TODO:
  *
  * These could probably be used by existing code:
  *
- *	ENC_UTF_16 - UTF-16
  *	ENC_UCS_4 - UCS-4
- *	ENC_UCS_2 - UCS-2 (not the same as UTF-16!)
  *	ENC_ISO_8859_1 - ISO 8859/1
  *	ENC_ISO_8859_8 - ISO 8859/8
  *	 - "IBM MS DBCS"

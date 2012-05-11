@@ -2329,6 +2329,7 @@ tvb_get_string(tvbuff_t *tvb, const gint offset, const gint length)
 
 /*
  * Unicode (UTF-16) version of tvb_get_string()
+ * XXX - this is UCS-2, not UTF-16, as it doesn't handle surrogate pairs
  *
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
@@ -2400,12 +2401,74 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 	tvb_ensure_bytes_exist(tvb, offset, length);
 
 	ptr    = ensure_contiguous(tvb, offset, length);
-	strbuf = ep_alloc(length + 1);
-	if (length != 0) {
-		memcpy(strbuf, ptr, length);
-	}
-	if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
+	switch (encoding & ENC_CHARENCODING_MASK) {
+
+	case ENC_ASCII:
+	default:
+		/*
+		 * For now, we treat bogus values as meaning
+		 * "ASCII" rather than reporting an error,
+		 * for the benefit of old dissectors written
+		 * when the last argument to proto_tree_add_item()
+		 * was a gboolean for the byte order, not an
+		 * encoding value, and passed non-zero values
+		 * other than TRUE to mean "little-endian".
+		 *
+		 * XXX - should map all octets with the 8th bit
+		 * not set to a "substitute" UTF-8 character.
+		 */
+		strbuf = ep_alloc(length + 1);
+		if (length != 0) {
+			memcpy(strbuf, ptr, length);
+		}
+		break;
+
+	case ENC_UTF_8:
+		/*
+		 * XXX - should map all invalid UTF-8 sequences
+		 * to a "substitute" UTF-8 character.
+		 */
+		strbuf = ep_alloc(length + 1);
+		if (length != 0) {
+			memcpy(strbuf, ptr, length);
+		}
+		break;
+
+	case ENC_UTF_16:
+		/*
+		 * XXX - needs to handle surrogate pairs and to map
+		 * invalid characters and sequences to a "substitute"
+		 * UTF-8 character.
+		 */
+		strbuf = tvb_get_ephemeral_unicode_string(tvb, offset, length,
+		    encoding & ENC_LITTLE_ENDIAN);
+		break;
+
+	case ENC_UCS_2:
+		/*
+		 * XXX - needs to map values that are not valid UCS-2
+		 * characters (such as, I think, values used as the
+		 * components of a UTF-16 surrogate pair) to a
+		 * "substitute" UTF-8 character.
+		 */
+		strbuf = tvb_get_ephemeral_unicode_string(tvb, offset, length,
+		    encoding & ENC_LITTLE_ENDIAN);
+		break;
+
+	case ENC_EBCDIC:
+		/*
+		 * XXX - do the copy and conversion in one pass.
+		 *
+		 * XXX - multiple "dialects" of EBCDIC?
+		 */
+		strbuf = ep_alloc(length + 1);
+		if (length != 0) {
+			memcpy(strbuf, ptr, length);
+		}
 		EBCDIC_to_ASCII(strbuf, length);
+		break;
+	}
+
 	strbuf[length] = '\0';
 	return strbuf;
 }
@@ -2418,6 +2481,7 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 
 /*
  * Unicode (UTF-16) version of tvb_get_ephemeral_string()
+ * XXX - this is UCS-2, not UTF-16, as it doesn't handle surrogate pairs
  *
  * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
