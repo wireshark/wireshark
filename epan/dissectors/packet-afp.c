@@ -4233,17 +4233,25 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 						    tvb_get_ephemeral_string(tvb, offset + 8, query_length - 8));
 				break;
 			case SQ_CPX_TYPE_FILEMETA:
-				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
-				sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-				(void)dissect_spotlight(tvb, sub_tree, offset + 8);
+				if (query_length <= 8) {
+					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta (empty)");
+				} else {
+					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
+					sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+					(void)dissect_spotlight(tvb, sub_tree, offset + 8);
+				}
 				break;
 			}
 			offset += query_length;
 			break;
 		case SQ_TYPE_CNIDS:
-			item_query = proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array");
-			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-			spotlight_CNID_array(tvb, sub_tree, offset + 8, encoding);
+			if (query_length <= 8) {
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array (empty)");
+			} else {
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array");
+				sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+				spotlight_CNID_array(tvb, sub_tree, offset + 8, encoding);
+			}
 			offset += query_length;
 			break;
 		default:
