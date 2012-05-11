@@ -53,6 +53,11 @@
 #define RPCSEC_GSS_SPKM3 390009
 #define RPCSEC_GSS_SPKM3I 390010
 #define RPCSEC_GSS_SPKM3P 390011
+/* GlusterFS requested an RPC-AUTH number from IANA,
+ * until a number has been granted 390039 is used.
+ * See also: http://review.gluster.com/3230
+ */
+#define AUTH_GLUSTERFS 390039
 
 #define MSG_ACCEPTED 0
 #define MSG_DENIED 1
