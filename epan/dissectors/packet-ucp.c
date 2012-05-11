@@ -926,7 +926,20 @@ ucp_handle_data(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         ;
     if ((tmpoff - *offset) > 1)
         proto_tree_add_item(tree, field, tvb, *offset,
-                            tmpoff - *offset - 1, FALSE);
+                            tmpoff - *offset - 1, ENC_NA);
+    *offset = tmpoff;
+}
+
+static void
+ucp_handle_data_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
+{
+    int          tmpoff = *offset;
+
+    while (tvb_get_guint8(tvb, tmpoff++) != '/')
+        ;
+    if ((tmpoff - *offset) > 1)
+        proto_tree_add_item(tree, field, tvb, *offset,
+                            tmpoff - *offset - 1, ENC_ASCII|ENC_NA);
     *offset = tmpoff;
 }
 
@@ -1024,6 +1037,9 @@ ucp_handle_XSer(proto_tree *tree, tvbuff_t *tvb)
 #define UcpHandleTime(field)    ucp_handle_time(tree, tvb, (field), &offset)
 
 #define UcpHandleData(field)    ucp_handle_data(tree, tvb, (field), &offset)
+
+#define UcpHandleDataString(field)\
+                        ucp_handle_data_string(tree, tvb, (field), &offset)
 
 /*!
  * The next set of routines handle the different operation types,
@@ -1656,8 +1672,8 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
         ucp_handle_XSer(subtree, tmptvb);
     }
     offset = tmpoff;
-    UcpHandleData(hf_ucp_parm_RES4);
-    UcpHandleData(hf_ucp_parm_RES5);
+    UcpHandleDataString(hf_ucp_parm_RES4);
+    UcpHandleDataString(hf_ucp_parm_RES5);
 }
 
 #define add_5xR(a, b,c ) add_30R(a, b, c)
@@ -1684,9 +1700,9 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
     if (OT == 60) {
         UcpHandleInt(hf_ucp_parm_OPID);
     }
-    UcpHandleData(hf_ucp_parm_RES1);
+    UcpHandleDataString(hf_ucp_parm_RES1);
     if (OT == 61) {
-        UcpHandleData(hf_ucp_parm_RES2);
+        UcpHandleDataString(hf_ucp_parm_RES2);
     }
 }
 
