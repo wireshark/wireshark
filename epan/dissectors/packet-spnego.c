@@ -531,7 +531,7 @@ dissect_spnego_InnerContextToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    * Now dissect the GSS_Wrap token; it's assumed to be in the
    * rest of the tvbuff.
    */
-  item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, -1, FALSE);
+  item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, -1, ENC_NA);
 
   subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
 
