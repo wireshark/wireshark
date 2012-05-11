@@ -120,11 +120,11 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_Prot
 	subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
-		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, ENC_NA);
 	}
 
 #.FN_BODY RRC-Context VAL_PTR = &parameter_tvb

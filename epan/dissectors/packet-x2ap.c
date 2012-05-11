@@ -2417,11 +2417,11 @@ dissect_x2ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv4, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
-		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, ENC_NA);
 	}
 
 
@@ -5482,7 +5482,7 @@ void proto_register_x2ap(void) {
         NULL, HFILL }},
     { &hf_x2ap_transportLayerAddressIPv6,
       { "transportLayerAddress(IPv6)", "x2ap.transportLayerAddressIPv6",
-        FT_IPv4, BASE_NONE, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
 
