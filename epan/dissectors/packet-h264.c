@@ -262,7 +262,7 @@ static const value_string h264_type_values[] = {
 	{ 0,	NULL }
 };
 
-
+/* A.2 Profiles */
 static const value_string h264_profile_idc_values[] = {
 	{ 66,	"Baseline profile" },
 	{ 77,	"Main profile" },
@@ -274,11 +274,12 @@ static const value_string h264_profile_idc_values[] = {
 	{ 0,	NULL }
 };
 
+/* Table A-1 – Level limits */
 static const value_string h264_level_bitrate_values[] = {
-	{ 10,	"64kb/s" },
-	{ 11,	"192kb/s" },
-	{ 12,	"384kb/s" },
-	{ 13,	"2 Mb/s" },
+	{ 10,	"64 kb/s" },
+	{ 11,	"192 kb/s" },
+	{ 12,	"384 kb/s" },
+	{ 13,	"768 kb/s" },
 	{ 20,	"2 Mb/s" },
 	{ 21,	"4 Mb/s" },
 	{ 22,	"4 Mb/s" },
