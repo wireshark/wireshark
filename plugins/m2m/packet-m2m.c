@@ -47,7 +47,7 @@ static void fast_feedback_burst_decoder(proto_tree *tree, tvbuff_t *tvb, gint of
 static void harq_ack_bursts_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void physical_attributes_decoder(proto_tree *tree, tvbuff_t *tvb, gint offset, gint length, packet_info *pinfo);
 static void extended_tlv_decoder(packet_info *pinfo);
-void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf);
+void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf, guint encoding);
 
 /* Global variables */
 static dissector_handle_t wimax_cdma_code_burst_handle;
@@ -179,6 +179,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint tlv_frag_number = 0;
 	tlv_info_t m2m_tlv_info;
 	gint hf;
+	guint encoding;
 	guint frame_number;
 	int expected_len;
 
@@ -233,6 +234,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* decode TLV content (TLV value) */
 			expected_len = 0;
 			hf = 0;
+			encoding = ENC_NA;
 			switch (tlv_type)
 			{
 				case TLV_PROTO_VER:
@@ -241,6 +243,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					proto_item_append_text(ti, ": %d", tlv_value);
 					hf = hf_m2m_value_protocol_vers_uint8;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
 				break;
 
@@ -250,6 +253,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					proto_item_append_text(ti, ": %d", burst_number);
 					hf = hf_m2m_value_burst_num_uint8;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
 				break;
 
@@ -258,6 +262,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_frag_type = tvb_get_guint8( tvb, offset );
 					proto_item_append_text(ti, ": %s", val_to_str(tlv_frag_type, tlv_frag_type_name, "Unknown"));
 					hf = hf_m2m_value_frag_type_uint8;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
 				break;
 
@@ -267,6 +272,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* add the description */
 					proto_item_append_text(ti, ": %d", tlv_frag_number);
 					hf = hf_m2m_value_frag_num_uint8;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
 				break;
 
@@ -276,6 +282,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* decode and display the PDU Burst */
 					pdu_burst_decoder(tree, tvb, offset, tlv_len, pinfo, burst_number, tlv_frag_type, tlv_frag_number);
 					hf = hf_m2m_value_pdu_burst;
+					encoding = ENC_NA;
 				break;
 
 				case TLV_FAST_FB:
@@ -284,6 +291,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* decode and display the Fast Feedback Burst */
 					fast_feedback_burst_decoder(tree, tvb, offset, tlv_len, pinfo);
 					hf = hf_m2m_value_fast_fb;
+					encoding = ENC_NA;
 				break;
 
 				case TLV_FRAME_NUM:
@@ -301,6 +309,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* decode and display the TLV FCH burst */
 					fch_burst_decoder(tree, tvb, offset, tlv_len, pinfo);
 					hf = hf_m2m_value_fch_burst_uint24;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 3;
 				break;
 
@@ -311,6 +320,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* decode and display the CDMA Code */
 					cdma_code_decoder(tree, tvb, offset, tlv_len, pinfo);
 					hf = hf_m2m_value_cdma_code_uint24;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 3;
 				break;
 
@@ -319,6 +329,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_guint8( tvb, offset );
 					proto_item_append_text(ti, ": %s", val_to_str(tlv_value, tlv_crc16_status, "Unknown"));
 					hf = hf_m2m_value_crc16_status_uint8;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 1;
 				break;
 
@@ -327,6 +338,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_ntohs( tvb, offset );
 					proto_item_append_text(ti, ": %d", tlv_value);
 					hf = hf_m2m_value_burst_power_uint16;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 2;
 				break;
 
@@ -335,6 +347,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_ntohs( tvb, offset );
 					proto_item_append_text(ti, ": 0x%X", tlv_value);
 					hf = hf_m2m_value_burst_cinr_uint16;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 2;
 				break;
 
@@ -343,6 +356,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tlv_value = tvb_get_ntohs( tvb, offset );
 					proto_item_append_text(ti, ": 0x%X", tlv_value);
 					hf = hf_m2m_value_preamble_uint16;
+					encoding = ENC_BIG_ENDIAN;
 					expected_len = 2;
 				break;
 
@@ -352,6 +366,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* decode and display the HARQ ACK Bursts */
 					harq_ack_bursts_decoder(tree, tvb, offset, tlv_len, pinfo);
 					hf = hf_m2m_value_harq_ack_burst_bytes;
+					encoding = ENC_NA;
 				break;
 
 				case TLV_PHY_ATTRIBUTES:
@@ -360,6 +375,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* decode and display the PDU Burst Physical Attributes */
 					physical_attributes_decoder(tree, tvb, offset, tlv_len, pinfo);
 					hf = hf_m2m_phy_attributes;
+					encoding = ENC_NA;
 				break;
 
 				case TLV_EXTENDED_TLV:
@@ -377,7 +393,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* expand the TLV detail */
 			if (hf) {
 				if (offset - tlv_offset == expected_len) {
-					proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf);
+					proto_tree_add_tlv(&m2m_tlv_info, tvb, offset - tlv_offset, pinfo, tlv_tree, hf, encoding);
 				} else {
 					expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Expected length %d, got %d.", expected_len, offset - tlv_offset);
 				}
@@ -516,7 +532,7 @@ static void extended_tlv_decoder(packet_info *pinfo)
 }
 
 /* Display the raw WiMax TLV */
-void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf)
+void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, gint hf, guint encoding)
 {
 	guint tlv_offset;
 	gint tlv_type, tlv_len;
@@ -555,7 +571,7 @@ void proto_tree_add_tlv(tlv_info_t *this, tvbuff_t *tvb, guint offset, packet_in
 
 	/* get the TLV length */
 	tlv_len = get_tlv_length(this);
-	proto_tree_add_item(tree, hf, tvb, (offset + this->value_offset), tlv_len, FALSE);
+	proto_tree_add_item(tree, hf, tvb, (offset + this->value_offset), tlv_len, encoding);
 }
 
 /* Register Wimax Mac to Mac Protocol */
@@ -677,7 +693,7 @@ void proto_register_m2m(void)
 			&hf_m2m_value_fch_burst_uint24,
 			{
 				"Value", "m2m.fch_burst_tlv_value",
-				FT_BYTES, BASE_NONE, NULL, 0x0,
+				FT_UINT24, BASE_NONE, NULL, 0x0,
 				NULL, HFILL
 			}
 		},
