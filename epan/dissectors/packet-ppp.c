@@ -4357,7 +4357,7 @@ static const value_string iphc_crtp_cs_flags[] = {
 static void
 dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *fh_tree, *info_tree = NULL;
+  proto_tree *fh_tree = NULL, *info_tree = NULL;
   proto_item *ti = NULL;
 
   guint     ip_hdr_len, flags;
@@ -4381,6 +4381,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* only dissect IPv4 and UDP */
   ip_version = tvb_get_guint8(tvb, 0) >> 4;
+  flags = (tvb_get_guint8(tvb, 2) & IPHC_CRTP_FH_FLAG_MASK) >> IPHC_CRTP_FH_FLAG_POS;
   next_protocol = tvb_get_guint8(tvb, 9);
 
   if (tree) {
@@ -4388,8 +4389,6 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
                                         "%s", val_to_str_ext_const(PPP_RTP_FH, &ppp_vals_ext, "Unknown"));
     fh_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
-
-    flags = (tvb_get_guint8(tvb, 2) & IPHC_CRTP_FH_FLAG_MASK) >> IPHC_CRTP_FH_FLAG_POS;
 
     /* flags field */
     proto_tree_add_item(fh_tree, hf_iphc_crtp_fh_flags, tvb, 2, 1, ENC_BIG_ENDIAN);
