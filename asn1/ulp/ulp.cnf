@@ -26,7 +26,7 @@ SETId/min  minsi
 #.END
 
 #.FN_HDR ULP-PDU
-	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
+	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, ENC_NA);
 
 	col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	col_clear(actx->pinfo->cinfo, COL_INFO);

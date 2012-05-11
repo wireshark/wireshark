@@ -6250,7 +6250,7 @@ static const per_sequence_t ULP_PDU_sequence[] = {
 static int
 dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 29 "../../asn1/ulp/ulp.cnf"
-	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, FALSE);
+	proto_tree_add_item(tree, proto_ulp, tvb, 0, -1, ENC_NA);
 
 	col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	col_clear(actx->pinfo->cinfo, COL_INFO);
