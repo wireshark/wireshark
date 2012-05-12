@@ -4869,7 +4869,7 @@ static void register_bigreq(void)
     set_handler("BIG-REQUESTS", dispatch_bigreq, bigreq_errors, bigreq_events, bigreq_replies);
 }
 
-static void struct_POINT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_POINT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -4889,7 +4889,7 @@ static void struct_POINT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint by
     }
 }
 
-static void struct_RECTANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_RECTANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -4926,7 +4926,7 @@ static int struct_size_STR(tvbuff_t *tvb, int *offsetp, guint byte_order _U_)
     return size + 1;
 }
 
-static void struct_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -4943,7 +4943,7 @@ static void struct_STR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte
     }
 }
 
-static void struct_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -4987,7 +4987,7 @@ static void struct_DIRECTFORMAT(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5015,7 +5015,7 @@ static void struct_PICTFORMINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_PICTVISUAL(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_PICTVISUAL(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5044,7 +5044,7 @@ static int struct_size_PICTDEPTH(tvbuff_t *tvb, int *offsetp, guint byte_order _
     return size + 8;
 }
 
-static void struct_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_PICTDEPTH(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5080,7 +5080,7 @@ static int struct_size_PICTSCREEN(tvbuff_t *tvb, int *offsetp, guint byte_order 
     return size + 8;
 }
 
-static void struct_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5101,7 +5101,7 @@ static void struct_PICTSCREEN(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5133,7 +5133,7 @@ static void struct_INDEXVALUE(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5161,7 +5161,7 @@ static void struct_COLOR(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint by
     }
 }
 
-static void struct_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5181,7 +5181,7 @@ static void struct_POINTFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     }
 }
 
-static void struct_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5195,7 +5195,7 @@ static void struct_LINEFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint 
     }
 }
 
-static void struct_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5210,7 +5210,7 @@ static void struct_TRIANGLE(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     }
 }
 
-static void struct_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5232,7 +5232,7 @@ static void struct_TRAPEZOID(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5268,7 +5268,7 @@ static void struct_GLYPHINFO(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5316,7 +5316,7 @@ static void struct_TRANSFORM(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5336,7 +5336,7 @@ static void struct_ANIMCURSORELT(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5360,7 +5360,7 @@ static void struct_SPANFIX(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint 
     }
 }
 
-static void struct_TRAP(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_TRAP(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5962,7 +5962,7 @@ static void register_dpms(void)
     set_handler("DPMS", dispatch_dpms, dpms_errors, dpms_events, dpms_replies);
 }
 
-static void struct_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -5992,7 +5992,7 @@ static void struct_DRI2Buffer(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_AttachFormat(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_AttachFormat(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10517,7 +10517,7 @@ static void register_glx(void)
     set_handler("GLX", dispatch_glx, glx_errors, glx_events, glx_replies);
 }
 
-static void struct_ScreenSize(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ScreenSize(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10554,7 +10554,7 @@ static int struct_size_RefreshRates(tvbuff_t *tvb, int *offsetp, guint byte_orde
     return size + 2;
 }
 
-static void struct_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_RefreshRates(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -10847,7 +10847,7 @@ static void randrSetScreenSize(tvbuff_t *tvb, packet_info *pinfo _U_, int *offse
     *offsetp += 4;
 }
 
-static void struct_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ModeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -11939,7 +11939,7 @@ static void randrScreenChangeNotify(tvbuff_t *tvb, int *offsetp, proto_tree *t, 
     *offsetp += 2;
 }
 
-static void struct_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -11997,7 +11997,7 @@ static void struct_CrtcChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12050,7 +12050,7 @@ static void struct_OutputChange(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_OutputProperty(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12280,7 +12280,7 @@ static void register_randr(void)
     set_handler("RANDR", dispatch_randr, randr_errors, randr_events, randr_replies);
 }
 
-static void struct_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12300,7 +12300,7 @@ static void struct_Range8(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint b
     }
 }
 
-static void struct_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12320,7 +12320,7 @@ static void struct_Range16(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint 
     }
 }
 
-static void struct_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12334,7 +12334,7 @@ static void struct_ExtRange(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     }
 }
 
-static void struct_Range(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Range(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -12370,7 +12370,7 @@ static int struct_size_ClientInfo(tvbuff_t *tvb, int *offsetp, guint byte_order 
     return size + 8;
 }
 
-static void struct_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ClientInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13491,7 +13491,7 @@ static void register_render(void)
     set_handler("RENDER", dispatch_render, render_errors, render_events, render_replies);
 }
 
-static void struct_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -13511,7 +13511,7 @@ static void struct_Client(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint b
     }
 }
 
-static void struct_Type(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Type(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -14650,7 +14650,7 @@ static void register_shm(void)
     set_handler("MIT-SHM", dispatch_shm, shm_errors, shm_events, shm_replies);
 }
 
-static void struct_INT64(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_INT64(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -14679,7 +14679,7 @@ static int struct_size_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, guint byte_ord
     return size + 14;
 }
 
-static void struct_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -14701,7 +14701,7 @@ static void struct_SYSTEMCOUNTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -14722,7 +14722,7 @@ static void struct_TRIGGER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint 
     }
 }
 
-static void struct_WAITCONDITION(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_WAITCONDITION(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -15439,7 +15439,7 @@ static void xevieEnd_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, prot
     UNUSED(24);
 }
 
-static void struct_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Event(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -15560,7 +15560,7 @@ static void register_xevie(void)
     set_handler("XEVIE", dispatch_xevie, xevie_errors, xevie_events, xevie_replies);
 }
 
-static void struct_DrmClipRect(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_DrmClipRect(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -17967,7 +17967,7 @@ static void register_xfixes(void)
     set_handler("XFIXES", dispatch_xfixes, xfixes_errors, xfixes_events, xfixes_replies);
 }
 
-static void struct_ScreenInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ScreenInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18293,7 +18293,7 @@ static void xinputGetExtensionVersion_Reply(tvbuff_t *tvb, packet_info *pinfo, i
     UNUSED(19);
 }
 
-static void struct_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_DeviceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -18347,7 +18347,7 @@ static void xinputListInputDevices_Reply(tvbuff_t *tvb, packet_info *pinfo, int 
     struct_DeviceInfo(tvb, offsetp, t, byte_order, f_devices_len);
 }
 
-static void struct_InputClassInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_InputClassInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19734,7 +19734,7 @@ static void struct_AXOption(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     *offsetp = base;
 }
 
-static void struct_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19811,7 +19811,7 @@ static void struct_IndicatorMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19878,7 +19878,7 @@ static void struct_ModDef(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint b
     }
 }
 
-static void struct_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19891,7 +19891,7 @@ static void struct_KeyName(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint 
     }
 }
 
-static void struct_KeyAlias(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KeyAlias(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19914,7 +19914,7 @@ static int struct_size_CountedString16(tvbuff_t *tvb, int *offsetp, guint byte_o
     return size + 3;
 }
 
-static void struct_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -19932,7 +19932,7 @@ static void struct_CountedString16(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KTMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20020,7 +20020,7 @@ static int struct_size_KeyType(tvbuff_t *tvb, int *offsetp, guint byte_order _U_
     return size + 8;
 }
 
-static void struct_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20111,7 +20111,7 @@ static int struct_size_KeySymMap(tvbuff_t *tvb, int *offsetp, guint byte_order _
     return size + 8;
 }
 
-static void struct_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20137,7 +20137,7 @@ static void struct_KeySymMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20157,7 +20157,7 @@ static void struct_CommonBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20174,7 +20174,7 @@ static void struct_DefaultBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20194,7 +20194,7 @@ static void struct_RadioGroupBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *r
     }
 }
 
-static void struct_Overlay1Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Overlay1Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20214,7 +20214,7 @@ static void struct_Overlay1Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *roo
     }
 }
 
-static void struct_Overlay2Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Overlay2Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20274,7 +20274,7 @@ static void struct_Behavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     *offsetp = base;
 }
 
-static void struct_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20292,7 +20292,7 @@ static void struct_SetBehavior(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void struct_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20323,7 +20323,7 @@ static void struct_SetExplicit(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void struct_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20355,7 +20355,7 @@ static void struct_KeyModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20395,7 +20395,7 @@ static void struct_KeyVModMap(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_KTSetMapEntry(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20462,7 +20462,7 @@ static int struct_size_SetKeyType(tvbuff_t *tvb, int *offsetp, guint byte_order 
     return size + 8;
 }
 
-static void struct_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SetKeyType(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20556,7 +20556,7 @@ static int struct_size_Property(tvbuff_t *tvb, int *offsetp, guint byte_order _U
     return size + 4;
 }
 
-static void struct_Property(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Property(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20587,7 +20587,7 @@ static int struct_size_Outline(tvbuff_t *tvb, int *offsetp, guint byte_order _U_
     return size + 4;
 }
 
-static void struct_Outline(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Outline(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20622,7 +20622,7 @@ static int struct_size_Shape(tvbuff_t *tvb, int *offsetp, guint byte_order _U_)
     return size + 8;
 }
 
-static void struct_Shape(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Shape(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20652,7 +20652,7 @@ static void struct_Shape(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint by
     }
 }
 
-static void struct_Key(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Key(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20677,7 +20677,7 @@ static void struct_Key(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte
     }
 }
 
-static void struct_OverlayKey(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_OverlayKey(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20700,7 +20700,7 @@ static int struct_size_OverlayRow(tvbuff_t *tvb, int *offsetp, guint byte_order 
     return size + 4;
 }
 
-static void struct_OverlayRow(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_OverlayRow(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20735,7 +20735,7 @@ static int struct_size_Overlay(tvbuff_t *tvb, int *offsetp, guint byte_order _U_
     return size + 8;
 }
 
-static void struct_Overlay(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Overlay(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20766,7 +20766,7 @@ static int struct_size_Row(tvbuff_t *tvb, int *offsetp, guint byte_order _U_)
     return size + 8;
 }
 
-static void struct_Row(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Row(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20796,7 +20796,7 @@ static void struct_Row(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte
     }
 }
 
-static void struct_CommonDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_CommonDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20830,7 +20830,7 @@ static void struct_CommonDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_ShapeDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ShapeDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20873,7 +20873,7 @@ static void struct_ShapeDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void struct_TextDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_TextDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20922,7 +20922,7 @@ static void struct_TextDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_IndicatorDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_IndicatorDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -20969,7 +20969,7 @@ static void struct_IndicatorDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_LogoDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_LogoDoodad(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21060,7 +21060,7 @@ static int struct_size_Section(tvbuff_t *tvb, int *offsetp, guint byte_order _U_
     return size + 20;
 }
 
-static void struct_Section(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Section(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21125,7 +21125,7 @@ static int struct_size_Listing(tvbuff_t *tvb, int *offsetp, guint byte_order _U_
     return size + 4;
 }
 
-static void struct_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Listing(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21158,7 +21158,7 @@ static int struct_size_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, guint byte_ord
     return size + 20;
 }
 
-static void struct_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21192,7 +21192,7 @@ static void struct_DeviceLedInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21207,7 +21207,7 @@ static void struct_SANoAction(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21294,7 +21294,7 @@ static void struct_SASetMods(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21323,7 +21323,7 @@ static void struct_SASetGroup(tvbuff_t *tvb, int *offsetp, proto_tree *root, gui
     }
 }
 
-static void struct_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21364,7 +21364,7 @@ static void struct_SAMovePtr(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21391,7 +21391,7 @@ static void struct_SAPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     }
 }
 
-static void struct_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21415,7 +21415,7 @@ static void struct_SALockPtrBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21452,7 +21452,7 @@ static void struct_SASetPtrDflt(tvbuff_t *tvb, int *offsetp, proto_tree *root, g
     }
 }
 
-static void struct_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21554,7 +21554,7 @@ static void struct_SAIsoLock(tvbuff_t *tvb, int *offsetp, proto_tree *root, guin
     }
 }
 
-static void struct_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21569,7 +21569,7 @@ static void struct_SATerminate(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void struct_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21592,7 +21592,7 @@ static void struct_SASwitchScreen(tvbuff_t *tvb, int *offsetp, proto_tree *root,
     }
 }
 
-static void struct_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21635,7 +21635,7 @@ static void struct_SASetControls(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21660,7 +21660,7 @@ static void struct_SAActionMessage(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21770,7 +21770,7 @@ static void struct_SARedirectKey(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21801,7 +21801,7 @@ static void struct_SADeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, gu
     }
 }
 
-static void struct_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -21833,7 +21833,7 @@ static void struct_SALockDeviceBtn(tvbuff_t *tvb, int *offsetp, proto_tree *root
     }
 }
 
-static void struct_SADeviceValuator(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SADeviceValuator(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -27089,7 +27089,7 @@ static int struct_size_PRINTER(tvbuff_t *tvb, int *offsetp, guint byte_order _U_
     return size + 8;
 }
 
-static void struct_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_PRINTER(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28034,7 +28034,7 @@ static int struct_size_ListItem(tvbuff_t *tvb, int *offsetp, guint byte_order _U
     return size + 12;
 }
 
-static void struct_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ListItem(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28726,7 +28726,7 @@ static void register_xtest(void)
     set_handler("XTEST", dispatch_xtest, xtest_errors, xtest_events, xtest_replies);
 }
 
-static void struct_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28746,7 +28746,7 @@ static void struct_Rational(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint
     }
 }
 
-static void struct_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_Format(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28779,7 +28779,7 @@ static int struct_size_AdaptorInfo(tvbuff_t *tvb, int *offsetp, guint byte_order
     return size + 12;
 }
 
-static void struct_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_AdaptorInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28831,7 +28831,7 @@ static int struct_size_EncodingInfo(tvbuff_t *tvb, int *offsetp, guint byte_orde
     return size + 20;
 }
 
-static void struct_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_EncodingInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28871,7 +28871,7 @@ static int struct_size_AttributeInfo(tvbuff_t *tvb, int *offsetp, guint byte_ord
     return size + 16;
 }
 
-static void struct_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -28905,7 +28905,7 @@ static void struct_AttributeInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, 
     }
 }
 
-static void struct_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_ImageFormatInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -29875,7 +29875,7 @@ static void register_xv(void)
     set_handler("XVideo", dispatch_xv, xv_errors, xv_events, xv_replies);
 }
 
-static void struct_SurfaceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order, int count)
+static void struct_SurfaceInfo(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
 {
     int i;
     for (i = 0; i < count; i++) {
