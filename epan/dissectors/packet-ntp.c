@@ -1317,88 +1317,88 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntpctrl_flags2, {
-			"Flags 2", "ntpctrl.flags2", FT_UINT8, BASE_HEX,
+			"Flags 2", "ntp.ctrl.flags2", FT_UINT8, BASE_HEX,
 			NULL, 0, "Flags (Response/Error/More/Opcode)", HFILL }},
 		{ &hf_ntpctrl_flags2_r, {
-			"Response bit", "ntpctrl.flags2.r", FT_UINT8, BASE_DEC,
+			"Response bit", "ntp.ctrl.flags2.r", FT_UINT8, BASE_DEC,
 			VALS(ctrl_r_types), NTPCTRL_R_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_flags2_error, {
-			"Error bit", "ntpctrl.flags2.error", FT_UINT8, BASE_DEC,
+			"Error bit", "ntp.ctrl.flags2.error", FT_UINT8, BASE_DEC,
 			NULL, NTPCTRL_ERROR_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_flags2_more, {
-			"More bit", "ntpctrl.flags2.more", FT_UINT8, BASE_DEC,
+			"More bit", "ntp.ctrl.flags2.more", FT_UINT8, BASE_DEC,
 			NULL, NTPCTRL_MORE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_flags2_opcode, {
-			"Opcode", "ntpctrl.flags2.opcode", FT_UINT8, BASE_DEC,
+			"Opcode", "ntp.ctrl.flags2.opcode", FT_UINT8, BASE_DEC,
 			VALS(ctrl_op_types), NTPCTRL_OP_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sequence, {
-			"Sequence", "ntpctrl.sequence", FT_UINT16, BASE_DEC,
+			"Sequence", "ntp.ctrl.sequence", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_status, {
-			"Status", "ntpctrl.status", FT_UINT16, BASE_DEC,
+			"Status", "ntp.ctrl.status", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_error_status_word, {
-			"Error Status Word", "ntpctrl.err_status", FT_UINT16, BASE_DEC,
+			"Error Status Word", "ntp.ctrl.err_status", FT_UINT16, BASE_DEC,
 			VALS(ctrl_err_status_types), NTP_CTRL_ERRSTATUS_CODE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_li, {
-			"Leap Indicator", "ntpctrl.sys_status.li", FT_UINT16, BASE_DEC,
+			"Leap Indicator", "ntp.ctrl.sys_status.li", FT_UINT16, BASE_DEC,
 			VALS(li_types), NTPCTRL_SYSSTATUS_LI_MASK, "Warning of an impending leap second to be inserted or deleted in the last minute of the current month", HFILL }},
 		{ &hf_ntpctrl_sys_status_clksrc, {
-			"Clock Source", "ntpctrl.sys_status.clksrc", FT_UINT16, BASE_DEC,
+			"Clock Source", "ntp.ctrl.sys_status.clksrc", FT_UINT16, BASE_DEC,
 			VALS(ctrl_sys_status_clksource_types), NTPCTRL_SYSSTATUS_CLK_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_count, {
-			"System Event Counter", "ntpctrl.sys_status.count", FT_UINT16, BASE_DEC,
+			"System Event Counter", "ntp.ctrl.sys_status.count", FT_UINT16, BASE_DEC,
 			NULL, NTPCTRL_SYSSTATUS_COUNT_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_sys_status_code, {
-			"System Event Code", "ntpctrl.sys_status.code", FT_UINT16, BASE_DEC,
+			"System Event Code", "ntp.ctrl.sys_status.code", FT_UINT16, BASE_DEC,
 			VALS(ctrl_sys_status_event_types), NTPCTRL_SYSSTATUS_CODE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b0, {
-			"Peer Status", "ntpctrl.peer_status.config", FT_UINT16, BASE_DEC,
+			"Peer Status", "ntp.ctrl.peer_status.config", FT_UINT16, BASE_DEC,
 			VALS(ctrl_peer_status_config_types), NTPCTRL_PEERSTATUS_CONFIG_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b1, {
-			"Peer Status", "ntpctrl.peer_status.authenable", FT_UINT16, BASE_DEC,
+			"Peer Status", "ntp.ctrl.peer_status.authenable", FT_UINT16, BASE_DEC,
 			VALS(ctrl_peer_status_authenable_types), NTPCTRL_PEERSTATUS_AUTHENABLE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b2, {
-			"Peer Status", "ntpctrl.peer_status.authentic", FT_UINT16, BASE_DEC,
+			"Peer Status", "ntp.ctrl.peer_status.authentic", FT_UINT16, BASE_DEC,
 			VALS(ctrl_peer_status_authentic_types), NTPCTRL_PEERSTATUS_AUTHENTIC_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b3, {
-			"Peer Status", "ntpctrl.peer_status.reach", FT_UINT16, BASE_DEC,
+			"Peer Status", "ntp.ctrl.peer_status.reach", FT_UINT16, BASE_DEC,
 			VALS(ctrl_peer_status_reach_types), NTPCTRL_PEERSTATUS_REACH_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_b4, {
-			"Peer Status: reserved", "ntpctrl.peer_status.reserved", FT_UINT16, BASE_DEC,
+			"Peer Status: reserved", "ntp.ctrl.peer_status.reserved", FT_UINT16, BASE_DEC,
 			NULL, NTPCTRL_PEERSTATUS_RESERVED_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_selection, {
-			"Peer Selection", "ntpctrl.peer_status.selection", FT_UINT16, BASE_DEC,
+			"Peer Selection", "ntp.ctrl.peer_status.selection", FT_UINT16, BASE_DEC,
 			VALS(ctrl_peer_status_selection_types), NTPCTRL_PEERSTATUS_SEL_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_count, {
-			"Peer Event Counter", "ntpctrl.peer_status.count", FT_UINT16, BASE_DEC,
+			"Peer Event Counter", "ntp.ctrl.peer_status.count", FT_UINT16, BASE_DEC,
 			NULL, NTPCTRL_PEERSTATUS_COUNT_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_peer_status_code, {
-			"Peer Event Code", "ntpctrl.peer_status.code", FT_UINT16, BASE_DEC,
+			"Peer Event Code", "ntp.ctrl.peer_status.code", FT_UINT16, BASE_DEC,
 			VALS(ctrl_peer_status_event_types), NTPCTRL_PEERSTATUS_CODE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_clk_status, {
-			"Clock Status", "ntpctrl.clock_status.status", FT_UINT16, BASE_DEC,
+			"Clock Status", "ntp.ctrl.clock_status.status", FT_UINT16, BASE_DEC,
 			VALS(ctrl_clk_status_types), NTPCTRL_CLKSTATUS_STATUS_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_clk_status_code, {
-			"Clock Event Code", "ntpctrl.clock_status.code", FT_UINT16, BASE_DEC,
+			"Clock Event Code", "ntp.ctrl.clock_status.code", FT_UINT16, BASE_DEC,
 			NULL, NTPCTRL_CLKSTATUS_CODE_MASK, NULL, HFILL }},
 		{ &hf_ntpctrl_data, {
-			"Data", "ntpctrl.data", FT_NONE, BASE_NONE,
+			"Data", "ntp.ctrl.data", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_item, {
-			"Item", "ntpctrl.item", FT_NONE, BASE_NONE,
+			"Item", "ntp.ctrl.item", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_associd, {
-			"AssociationID", "ntpctrl.associd", FT_UINT16, BASE_DEC,
+			"AssociationID", "ntp.ctrl.associd", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_offset, {
-			"Offset", "ntpctrl.offset", FT_UINT16, BASE_DEC,
+			"Offset", "ntp.ctrl.offset", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_count, {
-			"Count", "ntpctrl.count", FT_UINT16, BASE_DEC,
+			"Count", "ntp.ctrl.count", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntpctrl_trapmsg, {
-			"Trap message", "ntpctrl.trapmsg", FT_STRING, BASE_NONE,
+			"Trap message", "ntp.ctrl.trapmsg", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntppriv_flags_r, {
