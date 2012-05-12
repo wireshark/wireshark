@@ -242,7 +242,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   if (tree)
     {
       guint8 flags;
-      gboolean little_endian;
+      guint byte_order;
       emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("none");
 
       ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, ENC_NA);
@@ -256,7 +256,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       offset++;
 
       flags = tvb_get_guint8(tvb, offset);
-      little_endian = flags & 0x01;
+      byte_order = (flags & 0x01) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
       if (flags & 0x01) {
         ep_strbuf_printf(flags_strbuf, "little-endian");
@@ -268,11 +268,11 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
-      proto_tree_add_item(ziop_tree, hf_ziop_message_size, tvb, offset, 4, little_endian);
+      proto_tree_add_item(ziop_tree, hf_ziop_message_size, tvb, offset, 4, byte_order);
       offset += 4;
-      proto_tree_add_item(ziop_tree, hf_ziop_compressor_id, tvb, offset, 2, little_endian);
+      proto_tree_add_item(ziop_tree, hf_ziop_compressor_id, tvb, offset, 2, byte_order);
       offset += 4;
-      proto_tree_add_item(ziop_tree, hf_ziop_original_length, tvb, offset, 4, little_endian);
+      proto_tree_add_item(ziop_tree, hf_ziop_original_length, tvb, offset, 4, byte_order);
     }
 }
 
