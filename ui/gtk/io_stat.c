@@ -1145,7 +1145,9 @@ io_stat_draw(io_stat_t *io)
 						mavg_right--;
 					}
 				}
-				val = mavg_cumulated / mavg_in_average_count;
+				if (mavg_in_average_count > 0) {
+					val = mavg_cumulated / mavg_in_average_count;
+				}
 			}
 
 			if (val>max_y) {
