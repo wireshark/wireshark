@@ -216,6 +216,13 @@ static gboolean x11_desegment = TRUE;
  */
 #define ROUND_LENGTH(n) ((((n) + 3)/4) * 4)
 
+/*
+ * Translate a big-endian vs. little-endian flag into an encoding
+ * value for an integral data type.
+ */
+#define INT_ENCODING(little_endian) \
+	((little_endian) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)
+
 /************************************************************************
  ***                                                                  ***
  ***         E N U M   T A B L E S   D E F I N I T I O N S            ***
@@ -1079,12 +1086,12 @@ static const value_string zero_is_none_vals[] = {
       int unused;                                                 \
       int save = *offsetp;                                              \
       proto_tree_add_item(bitmask_tree, hf_x11_##position##_##name, tvb, bitmask_offset, \
-                          bitmask_size, little_endian);                 \
+                          bitmask_size, INT_ENCODING(little_endian));                 \
       if (bitmask_value & proto_registrar_get_nth(hf_x11_##position##_##name) -> bitmask) { \
             TYPE(name);                                                 \
             unused = save + 4 - *offsetp;                               \
             if (unused)                                                 \
-                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, unused, little_endian); \
+                  proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, unused, ENC_NA); \
             *offsetp = save + 4;                                        \
       }                                                                 \
 }
@@ -1202,9 +1209,9 @@ static const value_string zero_is_none_vals[] = {
 #define STRING8(name, length)  { string8(tvb, offsetp, t, hf_x11_##name, length); }
 #define STRING16(name, length)  { string16(tvb, offsetp, t, hf_x11_##name, hf_x11_##name##_bytes, length, little_endian); }
 #define TIMESTAMP(name){ timestamp(tvb, offsetp, t, hf_x11_##name, little_endian); }
-#define UNDECODED(x)   { proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp,  x, little_endian); *offsetp += x; }
-#define UNUSED(x)      { proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp,  x, little_endian); *offsetp += x; }
-#define PAD()          { if (next_offset - *offsetp > 0) proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, little_endian); *offsetp = next_offset; }
+#define UNDECODED(x)   { proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp,  x, ENC_NA); *offsetp += x; }
+#define UNUSED(x)      { proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp,  x, ENC_NA); *offsetp += x; }
+#define PAD()          { if (next_offset - *offsetp > 0) proto_tree_add_item(t, hf_x11_unused, tvb, *offsetp, next_offset - *offsetp, ENC_NA); *offsetp = next_offset; }
 #define WINDOW(name)   { FIELD32(name); }
 #define WINGRAVITY(name) { gravity(tvb, offsetp, t, hf_x11_##name, "Unmap"); }
 
@@ -1241,12 +1248,12 @@ static const value_string zero_is_none_vals[] = {
 #define REPLYCONTENTS_COMMON() do {                                   \
       REPLY(reply);                                                   \
       proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp,         \
-      1, little_endian);                                              \
+             1, ENC_NA);                                              \
       ++(*offsetp);                                                   \
       SEQUENCENUMBER_REPLY(sequencenumber);                           \
       REPLYLENGTH(replylength);                                       \
       proto_tree_add_item(t, hf_x11_undecoded, tvb, *offsetp,         \
-      tvb_reported_length_remaining(tvb, *offsetp), little_endian);   \
+             tvb_reported_length_remaining(tvb, *offsetp), ENC_NA);   \
       *offsetp += tvb_reported_length_remaining(tvb, *offsetp);       \
 } while (0)
 
@@ -1422,7 +1429,7 @@ static void gravity(tvbuff_t *tvb, int *offsetp, proto_tree *t,
 static void listOfArc(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                       int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_arc);
       while(length--) {
             gint16 x = VALUE16(tvb, *offsetp);
@@ -1455,7 +1462,7 @@ static void listOfArc(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfAtom(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                        int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_atom);
       while(length--)
             atom(tvb, offsetp, tt, hf_x11_properties_item, little_endian);
@@ -1465,14 +1472,14 @@ static void listOfByte(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                        int length, gboolean little_endian)
 {
       if (length <= 0) length = 1;
-      proto_tree_add_item(t, hf, tvb, *offsetp, length, little_endian);
+      proto_tree_add_item(t, hf, tvb, *offsetp, length, INT_ENCODING(little_endian));
       *offsetp += length;
 }
 
 static void listOfCard16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
       while(length--) {
             proto_tree_add_uint(tt, hf_item, tvb, *offsetp, 2, VALUE16(tvb, *offsetp));
@@ -1483,7 +1490,7 @@ static void listOfCard16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfInt16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 2, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
       while(length--) {
             proto_tree_add_int(tt, hf_item, tvb, *offsetp, 2, VALUE16(tvb, *offsetp));
@@ -1494,7 +1501,7 @@ static void listOfInt16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfCard32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
       while(length--) {
             proto_tree_add_uint(tt, hf_item, tvb, *offsetp, 4, VALUE32(tvb, *offsetp));
@@ -1505,7 +1512,7 @@ static void listOfCard32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfInt32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_card32);
       while(length--) {
             proto_tree_add_int(tt, hf_item, tvb, *offsetp, 4, VALUE32(tvb, *offsetp));
@@ -1516,7 +1523,7 @@ static void listOfInt32(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfFloat(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_float);
       while(length--) {
             proto_tree_add_float(tt, hf_item, tvb, *offsetp, 4, FLOAT(tvb, *offsetp));
@@ -1527,7 +1534,7 @@ static void listOfFloat(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfDouble(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                          int hf_item, int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_double);
       while(length--) {
             proto_tree_add_double(tt, hf_item, tvb, *offsetp, 8, DOUBLE(tvb, *offsetp));
@@ -1538,7 +1545,7 @@ static void listOfDouble(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                             int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_color_item);
       while(length--) {
             proto_item *tti;
@@ -1568,13 +1575,13 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 
             tti = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, *offsetp, 12, "%s", buffer->str);
             ttt = proto_item_add_subtree(tti, ett_x11_color_item);
-            proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, *offsetp, 4, little_endian);
+            proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, *offsetp, 4, INT_ENCODING(little_endian));
             *offsetp += 4;
-            proto_tree_add_item(ttt, hf_x11_coloritem_red, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(ttt, hf_x11_coloritem_red, tvb, *offsetp, 2, INT_ENCODING(little_endian));
             *offsetp += 2;
-            proto_tree_add_item(ttt, hf_x11_coloritem_green, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(ttt, hf_x11_coloritem_green, tvb, *offsetp, 2, INT_ENCODING(little_endian));
             *offsetp += 2;
-            proto_tree_add_item(ttt, hf_x11_coloritem_blue, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(ttt, hf_x11_coloritem_blue, tvb, *offsetp, 2, INT_ENCODING(little_endian));
             *offsetp += 2;
             colorFlags(tvb, offsetp, ttt);
             proto_tree_add_item(ttt, hf_x11_coloritem_unused, tvb, *offsetp, 1, little_endian);
@@ -1891,7 +1898,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                           gboolean little_endian)
 {
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp,
-        array_length(modifiers) * keycodes_per_modifier, little_endian);
+        array_length(modifiers) * keycodes_per_modifier, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
       size_t m;
 
@@ -1923,7 +1930,7 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                           int keycode_first, int keycode_count,
                           int keysyms_per_keycode, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, keycode_count * keysyms_per_keycode * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, keycode_count * keysyms_per_keycode * 4, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keysyms);
       proto_item *tti;
       proto_tree *ttt;
@@ -1996,7 +2003,7 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfPoint(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                         int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 4, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_point);
       while(length--) {
             gint16 x, y;
@@ -2018,7 +2025,7 @@ static void listOfPoint(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfRectangle(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                             int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_rectangle);
       while(length--) {
             gint16 x, y;
@@ -2048,7 +2055,7 @@ static void listOfRectangle(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                           int length, gboolean little_endian)
 {
-      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, little_endian);
+      proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp, length * 8, INT_ENCODING(little_endian));
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_segment);
       while(length--) {
             gint16 x1, y1, x2, y2;
@@ -2063,13 +2070,13 @@ static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             tti = proto_tree_add_none_format(tt, hf_x11_segment, tvb, *offsetp, 8,
                                                  "segment: (%d,%d)-(%d,%d)", x1, y1, x2, y2);
             ttt = proto_item_add_subtree(tti, ett_x11_segment);
-            proto_tree_add_item(ttt, hf_x11_segment_x1, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(ttt, hf_x11_segment_x1, tvb, *offsetp, 2, INT_ENCODING(little_endian));
             *offsetp += 2;
-            proto_tree_add_item(ttt, hf_x11_segment_y1, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(ttt, hf_x11_segment_y1, tvb, *offsetp, 2, INT_ENCODING(little_endian));
             *offsetp += 2;
-            proto_tree_add_item(ttt, hf_x11_segment_x2, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(ttt, hf_x11_segment_x2, tvb, *offsetp, 2, INT_ENCODING(little_endian));
             *offsetp += 2;
-            proto_tree_add_item(ttt, hf_x11_segment_y2, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(ttt, hf_x11_segment_y2, tvb, *offsetp, 2, INT_ENCODING(little_endian));
             *offsetp += 2;
       }
 }
@@ -2105,7 +2112,7 @@ static void listOfString8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             scanning_offset += 1 + l;
       }
 
-      ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
+      ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, INT_ENCODING(little_endian));
       tt = proto_item_add_subtree(ti, ett_x11_list_of_string8);
 
       while(length--) {
@@ -2173,7 +2180,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
             proto_tree_add_string_format(t, hf, tvb, offset, length, (gchar *)tvb_get_ptr(tvb, offset, length), "%s: %s",
                                         proto_registrar_get_nth(hf) -> name, *s);
       } else
-            proto_tree_add_item(t, hf_bytes, tvb, offset, length, little_endian);
+            proto_tree_add_item(t, hf_bytes, tvb, offset, length, INT_ENCODING(little_endian));
 
 }
 
@@ -2200,7 +2207,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             scanning_offset += l == 255 ? 4 : l + (sizeIs16 ? l : 0) + 1;
       }
 
-      ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, little_endian);
+      ti = proto_tree_add_item(t, hf, tvb, *offsetp, scanning_offset - *offsetp, INT_ENCODING(little_endian));
       tt = proto_item_add_subtree(ti, ett_x11_list_of_text_item);
 
       while(n--) {
@@ -2223,13 +2230,13 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                                                        "textitem (string): delta = %d, \"%s\"",
                                                        delta, s);
                   ttt = proto_item_add_subtree(tti, ett_x11_text_item);
-                  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, little_endian);
+                  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, *offsetp + 1, 1, INT_ENCODING(little_endian));
                   if (sizeIs16)
                         string16_with_buffer_preallocated(tvb, ttt, hf_x11_textitem_string_string16,
                                                           hf_x11_textitem_string_string16_bytes,
                                                           *offsetp + 2, l,
                                                           &s, &allocated,
-                                                          little_endian);
+                                                          INT_ENCODING(little_endian));
                   else
                         proto_tree_add_string_format(ttt, hf_x11_textitem_string_string8, tvb,
                                                      *offsetp + 2, l, s, "\"%s\"", s);
@@ -2252,7 +2259,7 @@ static guint32 field8(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
             hfi -> name, v, enumValue);
       else
-            proto_tree_add_item(t, hf, tvb, *offsetp, 1, little_endian);
+            proto_tree_add_item(t, hf, tvb, *offsetp, 1, INT_ENCODING(little_endian));
       *offsetp += 1;
       return v;
 }
@@ -2271,7 +2278,7 @@ static guint32 field16(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
             hfi -> display == BASE_DEC ? "%s: %u (%s)" : "%s: 0x%02x (%s)",
             hfi -> name, v, enumValue);
       else
-            proto_tree_add_item(t, hf, tvb, *offsetp, 2, little_endian);
+            proto_tree_add_item(t, hf, tvb, *offsetp, 2, INT_ENCODING(little_endian));
       *offsetp += 2;
       return v;
 }
@@ -2954,7 +2961,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
 
       if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
             proto_tree_add_item(t, hf_x11_undecoded, tvb, offset, left,
-                                little_endian);
+                                ENC_NA);
 
       /*
        * This is the initial connection request...
@@ -4385,7 +4392,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                   ENC_NA);
                   t = proto_item_add_subtree(ti, ett_x11);
                   proto_tree_add_text(t, tvb, offset, -1,
-                  "Bogus request length (0)");
+                      "Bogus request length (0)");
                   return;
             }
 
