@@ -1392,7 +1392,6 @@ DISSECTOR_INCLUDES =	\
 	packet-radius.h	\
 	packet-ranap.h	\
 	packet-raw.h	\
-	packet-rdp.h	\
 	packet-rdt.h	\
 	packet-reload.h	\
 	packet-rgmp.h	\
