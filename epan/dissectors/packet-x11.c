@@ -3028,15 +3028,15 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 typedef struct x11_reply_info {
       const guint8 minor;
-      void (*dissect)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int byte_order);
+      void (*dissect)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order);
 } x11_reply_info;
 
 typedef struct event_info {
       const gchar *name;
-      void (*dissect)(tvbuff_t *tvb, int *offsetp, proto_tree *t, int byte_order);
+      void (*dissect)(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order);
 } x11_event_info;
 
-static void set_handler(const char *name, void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int byte_order),
+static void set_handler(const char *name, void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order),
                         const char **errors,
                         const x11_event_info *event_info,
                         const x11_reply_info *reply_info)
@@ -3069,7 +3069,7 @@ static void tryExtension(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *off
                          x11_conv_data_t *state, guint byte_order)
 {
       const gchar *extension;
-      void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int byte_order);
+      void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order);
 
       extension = match_strval(opcode, state->opcode_vals);
       if (!extension)
@@ -3083,7 +3083,7 @@ static void tryExtension(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *off
 static void tryExtensionReply(int opcode, tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t,
                               x11_conv_data_t *state, guint byte_order)
 {
-      void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int byte_order);
+      void (*func)(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, guint byte_order);
 
       func = g_hash_table_lookup(state->reply_funcs, GINT_TO_POINTER(opcode));
       if (func)
@@ -3095,7 +3095,7 @@ static void tryExtensionReply(int opcode, tvbuff_t *tvb, packet_info *pinfo, int
 static void tryExtensionEvent(int event, tvbuff_t *tvb, int *offsetp, proto_tree *t,
                               x11_conv_data_t *state, guint byte_order)
 {
-      void (*func)(tvbuff_t *tvb, int *offsetp, proto_tree *t, int byte_order);
+      void (*func)(tvbuff_t *tvb, int *offsetp, proto_tree *t, guint byte_order);
 
       func = g_hash_table_lookup(state->eventcode_funcs, GINT_TO_POINTER(event));
       if (func)
