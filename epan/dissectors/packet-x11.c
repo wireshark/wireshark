@@ -1895,10 +1895,10 @@ static const char *keysymString(guint32 v)
 
 static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                           int *modifiermap[], int keycodes_per_modifier,
-                          gboolean little_endian)
+                          gboolean little_endian _U_)
 {
       proto_item *ti = proto_tree_add_item(t, hf, tvb, *offsetp,
-        array_length(modifiers) * keycodes_per_modifier, INT_ENCODING(little_endian));
+        array_length(modifiers) * keycodes_per_modifier, ENC_NA);
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keycode);
       size_t m;
 
