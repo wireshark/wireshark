@@ -2236,7 +2236,7 @@ static void listOfTextItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
                                                           hf_x11_textitem_string_string16_bytes,
                                                           *offsetp + 2, l,
                                                           &s, &allocated,
-                                                          INT_ENCODING(little_endian));
+                                                          little_endian);
                   else
                         proto_tree_add_string_format(ttt, hf_x11_textitem_string_string8, tvb,
                                                      *offsetp + 2, l, s, "\"%s\"", s);
