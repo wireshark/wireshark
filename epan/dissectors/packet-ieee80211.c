@@ -10203,6 +10203,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       set_dst_addr_cols(pinfo, dst, addr1_str);
       if (tree) {
         proto_tree_add_item(hdr_tree, addr1_hf, tvb, 4, 6, ENC_BIG_ENDIAN);
+        hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
       }
 
       /*
