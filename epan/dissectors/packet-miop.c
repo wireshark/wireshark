@@ -133,7 +133,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   guint16 packet_length;
   guint packet_number;
   guint number_of_packets;
-  gboolean little_endian;
+  guint byte_order;
 
   guint32 unique_id_len;
 
@@ -167,19 +167,19 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     }
 
   flags = tvb_get_guint8(tvb, 5);
-  little_endian = flags & 0x01;
+  byte_order = (flags & 0x01) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
 
-  if (little_endian) {
-    packet_length = tvb_get_letohs(tvb, 6);
-    packet_number = tvb_get_letohl(tvb, 8);
-    number_of_packets = tvb_get_letohl(tvb, 12);
-    unique_id_len = tvb_get_letohl(tvb, 16);
-  }
-  else {
+  if (byte_order == ENC_BIG_ENDIAN) {
     packet_length = tvb_get_ntohs(tvb, 6);
     packet_number = tvb_get_ntohl(tvb, 8);
     number_of_packets = tvb_get_ntohl(tvb, 12);
     unique_id_len = tvb_get_ntohl(tvb, 16);
+  }
+  else {
+    packet_length = tvb_get_letohs(tvb, 6);
+    packet_number = tvb_get_letohl(tvb, 8);
+    number_of_packets = tvb_get_letohl(tvb, 12);
+    unique_id_len = tvb_get_letohl(tvb, 16);
   }
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "MIOP %u.%u Packet s=%d (%u of %u)",
@@ -209,14 +209,14 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
       proto_tree_add_uint_format_value(miop_tree, hf_miop_flags, tvb, offset, 1,
                                        flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
-      proto_tree_add_item(miop_tree, hf_miop_packet_length, tvb, offset, 2, little_endian);
+      proto_tree_add_item(miop_tree, hf_miop_packet_length, tvb, offset, 2, byte_order);
       offset += 2;
-      proto_tree_add_item(miop_tree, hf_miop_packet_number, tvb, offset, 4, little_endian);
+      proto_tree_add_item(miop_tree, hf_miop_packet_number, tvb, offset, 4, byte_order);
       offset += 4;
-      proto_tree_add_item(miop_tree, hf_miop_number_of_packets, tvb, offset, 4, little_endian);
+      proto_tree_add_item(miop_tree, hf_miop_number_of_packets, tvb, offset, 4, byte_order);
 
       offset += 4;
-      ti = proto_tree_add_item(miop_tree, hf_miop_unique_id_len, tvb, offset, 4, little_endian);
+      ti = proto_tree_add_item(miop_tree, hf_miop_unique_id_len, tvb, offset, 4, byte_order);
 
       if (unique_id_len >= MIOP_MAX_UNIQUE_ID_LENGTH) {
         expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
@@ -227,7 +227,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 
       offset += 4;
       proto_tree_add_item(miop_tree, hf_miop_unique_id, tvb, offset, unique_id_len,
-                          little_endian);
+                          byte_order);
 
       if (packet_number == 0) {
         /*  It is the first packet of the collection
