@@ -2901,7 +2901,7 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
       	  if (le >= be)
       	      decision = ENC_LITTLE_ENDIAN;
       	  else
-      	      decision = BIG_ENDIAN;
+      	      decision = ENC_BIG_ENDIAN;
       }
 
       if ((le < 0 && be > 0) || (le > 0 && be < 0)) {
