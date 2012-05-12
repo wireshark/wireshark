@@ -1680,10 +1680,10 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
         }
     }
 
-    if (bstart >= 0 && blen > 0) {
+    if (bstart >= 0 && blen > 0 && (guint)bstart < len) {
         bend = bstart + blen;
     }
-    if (astart >= 0 && alen > 0) {
+    if (astart >= 0 && alen > 0 && (guint)astart < len) {
         aend = astart + alen;
     }
 
