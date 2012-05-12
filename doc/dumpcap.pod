@@ -32,10 +32,9 @@ S<[ B<-y> E<lt>capture link typeE<gt> ]>
 
 B<Dumpcap> is a network traffic dump tool.  It lets you capture packet
 data from a live network and write the packets to a file.  B<Dumpcap>'s
-native capture file format is B<libpcap> format, which is also the format
-used by B<Wireshark>, B<tcpdump> and various other tools.
-When the B<-n> option is specified, the output file is written in the
-new B<pcapng> format.
+default capture file format is B<pcap-ng> format.
+When the B<-P> option is specified, the output file is written in the
+B<libpcap> format.
 
 Without any options set it will
 use the pcap library to capture traffic from the first available network
