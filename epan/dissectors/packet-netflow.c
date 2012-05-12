@@ -1343,10 +1343,10 @@ static int      hf_cflow_transport_rtp_payload_type_string   = -1;      /* ID: 3
 static int      hf_cflow_transport_bytes_out_of_order        = -1;      /* ID: 37071 */
 static int      hf_cflow_transport_packets_out_of_order      = -1;      /* ID: 37074 */
 static int      hf_cflow_transport_packets_out_of_order_string      = -1;      /* ID: 37074 */
-static int      hf_cflow_transport_tcp_window_size_min       = -1;      /* ID: 37083 */ 
+static int      hf_cflow_transport_tcp_window_size_min       = -1;      /* ID: 37083 */
 static int      hf_cflow_transport_tcp_window_size_min_string = -1;      /* ID: 37083 */
 static int      hf_cflow_transport_tcp_window_size_max       = -1;      /* ID: 37084  */
-static int      hf_cflow_transport_tcp_window_size_max_string = -1;      /* ID: 37084 */ 
+static int      hf_cflow_transport_tcp_window_size_max_string = -1;      /* ID: 37084 */
 static int      hf_cflow_transport_tcp_window_size_mean      = -1;     /* ID: 37085  */
 static int      hf_cflow_transport_tcp_window_size_mean_string = -1;     /* ID: 37085  */
 static int      hf_cflow_transport_tcp_maximum_segment_size  = -1;     /* ID: 37086  */
@@ -5883,12 +5883,12 @@ proto_register_netflow(void)
         },
         {&hf_cflow_inputint,
          {"InputInt", "cflow.inputint",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           "Flow Input Interface", HFILL}
         },
         {&hf_cflow_outputint,
          {"OutputInt", "cflow.outputint",
-          FT_UINT16, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           "Flow Output Interface", HFILL}
         },
         {&hf_cflow_flows,
