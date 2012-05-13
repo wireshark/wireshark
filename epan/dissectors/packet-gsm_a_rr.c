@@ -1638,17 +1638,13 @@ static const crumb_spec_t gsm_a_rr_dtx_sacch_crumbs[] = {
 static guint16
 de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint8       oct;
-    guint8       dtx;
     guint32      curr_offset;
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
-    dtx = ((oct&0x80)>>5)|((oct&0x30)>>4); /* DTX is a split filed in bits 8, 6 and 5 */
 
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pwrc, tvb, (curr_offset<<3)+1, 1, ENC_BIG_ENDIAN);
-
+    /* DTX is a split filed in bits 8, 6 and 5 */
 	proto_tree_add_split_bits_item_ret_val(subtree, hf_gsm_a_rr_dtx_sacch, tvb, (curr_offset<<3), gsm_a_rr_dtx_sacch_crumbs, NULL);
     proto_tree_add_item(subtree, hf_gsm_a_rr_radio_link_timeout, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
