@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2012-05-06)
+(last updated 2012-05-12)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -12000,7 +12000,7 @@ Decimal
 2998
   Anderson Consulting
     Thomas Anderson
-      1-2-3&comcast.net
+      iana-pen&wire-tap.net
 2999
   American Family Insurance
     Dan Tadysak
@@ -44338,9 +44338,9 @@ Decimal
     Thomas Lambert
       tlambert&loeacom.com
 11096
-  BlueArc Corporation
+  BlueArc, part of Hitachi Data Systems
     Carlo Garbagnati
-      mib-support&bluearc.com
+      hnas-mib-support&hds.com
 11097
   HEXAL AG
     Michael Anderson
@@ -72115,9 +72115,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     SCHEER Jean-Marie
       jean-marie_scheer&ept.lu
 18141
-  RRZN, University of Hannover
-    Reinhard Obendorf
-      obendorf&RRZN.uni-hannover.de
+  RRZN, Leibniz Universitaet Hannover
+    Torsten Glaeser
+      hostmaster&rrzn.uni-hannover.de
 18142
   Gruender-AV
     Thomas Gruender
@@ -78398,8 +78398,8 @@ Servicos
       noc&bitbuzz.com
 19711
   scaryclowns.org
-    Josh Stone
-      jstone&scaryclowns.org
+    Jim Starwood
+      jim&scaryclowns.org
 19712
   WebSolve, Inc.
     Chris Carlson
@@ -90678,8 +90678,8 @@ Informatica Ltda
       ldapadmin&reclusivehermit.com
 22779
   Carefirst BlueCross BlueShield
-    Vladimir Mikhaylenko
-      Vladimir.Mikhaylenko&carefirst.com
+    Grant Kissel
+      grant.kissel&carefirst.com
 22780
   Powerline Technologies Ltd
     David J Brain
@@ -147811,7 +147811,7 @@ Decentralization / Helenic Public Administra
     Ohtsuka, Mitsuo
       ohtsukamo&atmj.co.jp
 37057
-  MPS Quickpay
+  Quickpay Ltd. (previous was 'MPS Quickpay')
     Andrew Kochetkov
       a.kochetkov&quickpay.ru
 37058
@@ -158835,7 +158835,7 @@ Decentralization / Helenic Public Administra
     Denis Khleborodov
       denis.khleborodov&rusal.com
 39813
-  Public Soint-Stock Compani "National Depository of Ukraine"
+  Public Joint-Stock Company "National Depository of Ukraine"
     Taras Kraychuk
       t_kraychuk&csd.ua
 39814
@@ -159022,6 +159022,214 @@ Decentralization / Helenic Public Administra
   Clemax,Inc
     Nizeyimana, Rosine
       ghighi-du63000&hotmail.fr
+39860
+  OGS IT-Solutions
+    Mr. Osman Gümüs
+      guemues&ogs.at
+39861
+  Orbitz Worldwide, LLC.
+    James Regovich
+      james.regovich&orbitz.com
+39862
+  ComSonics,Inc.
+    Shirley J. Custer
+      shirleyc&comsonics.com
+39863
+  World Vision US
+    Adam Patterson
+      apatters&worldvision.org
+39864
+  WEBeDoctor, Inc.
+    Jim Starwood
+      jstarwood&webedoctor.com
+39865
+  Slabinfo E.U.
+    John Edisson Ortiz
+      jortiz&slabinfo.com.co
+39866
+  Advanced Network Devices
+    Dan Mahn
+      dan&digidescorp.com
+39867
+  Linedata
+    Rick Morris
+      it&na.linedata.com
+39868
+  Miami International Holdings
+    Manjul Rai
+      mrai&miami-holdings.com
+39869
+  Illumina, Inc
+    Ryan Niemes
+      rniemes&illumina.com
+39870
+  Telesis A.S.
+    Mumin Guler
+      contact&telesis.com.tr
+39871
+  Trans Industrias Electronicas
+    Sergio Jardon
+      sjardon&trans.com.ar
+39872
+  CIPFP Ausias March
+    Luis Garcia
+      lgarcia&ausiasmarch.net
+39873
+  Ember Corporation
+    Robert Power
+      robert.power&ember.com
+39874
+  Asmlab Limited
+    Semen Makhorkin
+      iana&asmlab.ru
+39875
+  Beijing GuangXinYingKe Technology Co.,Ltd
+    Ming Xue
+      xueming&gxtech.com.cn
+39876
+  7-Technologies A/S
+    Lars Mortensen
+      lmo&7t.dk
+39877
+  VCE Vienna Consulting Engineers
+    Georg Fritsch
+      gf&vce.at
+39878
+  Le Aquile Unita' Cinofile da Soccorso Ravennate
+    Balestri Paride
+      segreteria&leaquile.it
+39879
+  Amplitude Systemes
+    Julien CARLIER
+      jcarlier&amplitude-systemes.com
+39880
+  Thomas Wiedstruck - Informationstechnik
+    Thomas Wiedstruck
+      thomas&wiedstruck.de
+39881
+  EyesOfNetwork
+    LEVY Jean-Philippe
+      eyesofnetwork&eyesofnetwork.com
+39882
+  Greater Pittsburgh Glass & Door
+    Steven L Buzonas Jr
+      steve&slbmeh.com
+39883
+  Sysacom
+    Steve Légaré
+      slegare&sysacom.com
+39884
+  T-Platforms
+    Alexander Amelkin
+      noc&t-platforms.com
+39885
+  StorONE
+    Sam Genzel
+      shmulikg&storone.com
+39886
+  Kurt Kincaid Consulting
+    Kurt Kincaid
+      kurt&kurtkincaid.com
+39887
+  localroot.de
+    Sascha Bendix
+      hostmaster&localroot.de
+39888
+  Ness Computing, Inc.
+    Henning Schmiedehausen
+      henning&likeness.com
+39889
+  icecreek Software und Services
+    Christian Ey
+      info&icecreek.de
+39890
+  Beijing Forsun Technology Co.,Ltd
+    David Leng
+      275582448&qq.com
+39891
+  MNUCIB VNII PVTI
+    Dmitry Ponomarev
+      dmitry.ponomarev&mnucib.ru
+39892
+  v-ic
+    Victor Ashirov
+      v.a.ashirov&r35.v-ic.ru
+39893
+  Energierversorgung Mittelrhein GmbH
+    Bjoern Hermes
+      bjoern.hermes&evm.de
+39894
+  Haley Technologies Inc. dba PC PitStop
+    Paul Haley
+      mark&pc-pitstop.com
+39895
+  OpenX
+    Seth Daniel
+      systems&openx.org
+39896
+  The Cleveland Clinic Foundation
+    Dave Blankenship
+      blanked&ccf.org
+39897
+  Ryder System, Inc. 
+    Sumanth Gangaraboina
+      enterpriseitsecurity&ryder.com
+39898
+  AtrilA GmbH
+    Andre Keller
+      keller&atrila.com
+39899
+  Virginia Hospital Center
+    Michelle Lardner
+      mlardner&virginiahospitalcenter.com
+39900
+  INITE SC
+    Diego García Bustos
+      diego.garcia&inite.edu.mx
+39901
+  Crypto4A
+    Bruno Couillard
+      bruno&crypto4a.com
+39902
+  inqa.be
+    Joachim Van den Bogaert
+      joachim&inqa.be
+39903
+  Pivotal Technologies Pty Ltd
+    Steve Kelly
+      admin&pivotaltechnologies.com.au
+39904
+  Sascha Wolf
+    Sascha Wolf
+      adnae&anxia.org
+39905
+  eA-light Arbeitsgemeinschaft der ÄKNO und ÄKWL
+    Viktor Krön
+      kroen&aekno.de
+39906
+  Zwissler Technologies, LLC
+    Rob Zwissler
+      rob&zwisslertech.com
+39907
+  LinkSquare
+    Zhang Haibin
+      zhanghaibin&linksquare.cn
+39908
+  china beijing koal Company
+    haitao wang
+      wanghaitao03&126.com
+39909
+  OJSC GUTA-BANK
+    Vladislaw Polukeev
+      polukeev.vo&gutabank.ru
+39910
+  Fusionex
+    Andy Pang
+      andy.pang&adv-fusionex.com
+39911
+  ltd Arhangelskoe predprijatie protivopozharnoj avtomatiki
+    Chulkin Alexander
+      spisprut&gmail.com
 
 
 End of Document
