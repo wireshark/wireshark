@@ -915,7 +915,7 @@ static gboolean gsm_rr_csn_HL_flag(tvbuff_t *tvb, proto_tree *tree, guint trunca
        }
        else
        {
-          /* implict L bit */
+          /* implicit L bit */
           proto_tree_add_text(tree, tvb, truncation_length>>3, 1, "(implicit L bit): %s: %s", description, false_string);
           return FALSE;
        }
@@ -1628,11 +1628,11 @@ static const value_string gsm_a_rr_dtx_sacch_vals[] = {
     { 0x06, "The MS shall not use uplink discontinuous transmission on a TCH-F. The MS shall use uplink discontinuous transmission on TCH-H" },
     { 0x07, "The MS may use uplink discontinuous transmission on a TCH-F. The MS shall use uplink discontinuous transmission on TCH-H" },
     {    0, NULL } };
-	 
+
 static const crumb_spec_t gsm_a_rr_dtx_sacch_crumbs[] = {
-	{ 0, 1}, /* B8 */
-	{ 2, 2}, /* B6 - B5 */
-	{ 0, 0}
+    { 0, 1}, /* B8 */
+    { 2, 2}, /* B6 - B5 */
+    { 0, 0}
 };
 
 static guint16
@@ -5796,7 +5796,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
     }
     else
     {
-        if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-EUTRAN FDD Reporing Threshold", "Present", "Not Present"))
+        if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-EUTRAN FDD Reporting Threshold", "Present", "Not Present"))
         {
             item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_measurement_report_offset, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
             if (rep_quant == 0)
@@ -5822,7 +5822,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
                 }
                 curr_bit_offset += 6;
             }
-            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN FDD Reporing Offset", "Present", "Not Present"))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN FDD Reporting Offset", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
                 curr_bit_offset += 3;
@@ -5923,7 +5923,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
             }
             curr_bit_offset += 3;
 
-            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN FDD Reporitng Threshold 2", "Present", "Not Present"))
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN FDD Reporting Threshold 2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -5955,7 +5955,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
             }
             curr_bit_offset += 3;
 
-            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN TDD Reporitng Threshold 2", "Present", "Not Present"))
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN TDD Reporting Threshold 2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -8666,7 +8666,7 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     curr_offset = offset;
     curr_len = len;
 
-    /* Mandatory Elemets
+    /* Mandatory Elements
      * Cell description 10.5.2.2
      */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CELL_DSC, NULL);
@@ -10169,7 +10169,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ((((oct_1 & DTAP_TI_MASK) >> 4) & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK){
         /*
-         * eventhough we don't know if a TI should be in the message yet
+         * even though we don't know if a TI should be in the message yet
          * we rely on the TI/SKIP indicator to be 0 to avoid taking this
          * octet
          */
