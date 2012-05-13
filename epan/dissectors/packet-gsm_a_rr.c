@@ -1628,6 +1628,12 @@ static const value_string gsm_a_rr_dtx_sacch_vals[] = {
     { 0x06, "The MS shall not use uplink discontinuous transmission on a TCH-F. The MS shall use uplink discontinuous transmission on TCH-H" },
     { 0x07, "The MS may use uplink discontinuous transmission on a TCH-F. The MS shall use uplink discontinuous transmission on TCH-H" },
     {    0, NULL } };
+	 
+static const crumb_spec_t gsm_a_rr_dtx_sacch_crumbs[] = {
+	{ 0, 1}, /* B8 */
+	{ 2, 2}, /* B6 - B5 */
+	{ 0, 0}
+};
 
 static guint16
 de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -1642,7 +1648,8 @@ de_rr_cell_opt_sacch(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_,
     dtx = ((oct&0x80)>>5)|((oct&0x30)>>4); /* DTX is a split filed in bits 8, 6 and 5 */
 
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pwrc, tvb, (curr_offset<<3)+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_uint(subtree, hf_gsm_a_rr_dtx_sacch, tvb, curr_offset, 1, dtx);
+
+	proto_tree_add_split_bits_item_ret_val(subtree, hf_gsm_a_rr_dtx_sacch, tvb, (curr_offset<<3), gsm_a_rr_dtx_sacch_crumbs, NULL);
     proto_tree_add_item(subtree, hf_gsm_a_rr_radio_link_timeout, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset = curr_offset + 1;
@@ -10938,7 +10945,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_dtx_sacch,
               { "DTX (SACCH)", "gsm_a.rr.dtx_sacch",
-                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_sacch_vals), 0xb0,
+                FT_UINT8, BASE_DEC,  VALS(gsm_a_rr_dtx_sacch_vals), 0x00,
                 "Discontinuous Transmission (DTX-SACCH)", HFILL }
             },
             { &hf_gsm_a_rr_radio_link_timeout,
