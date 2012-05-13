@@ -178,6 +178,9 @@ http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/I
 #define SPOTLIGHT_CMD_GET_VOLID   2
 #define SPOTLIGHT_CMD_GET_THREE   3
 
+/* Spotlight epoch is UNIX epoch minus SPOTLIGHT_TIME_DELTA */
+#define SPOTLIGHT_TIME_DELTA G_GINT64_CONSTANT(280878921600U)
+
 /* ----------------------------- */
 static int proto_afp			    = -1;
 static int hf_afp_reserved		    = -1;
@@ -689,6 +692,7 @@ static int hf_afp_spotlight_returncode = -1;
 static int hf_afp_spotlight_volflags = -1;
 static int hf_afp_spotlight_reqlen = -1;
 static int hf_afp_spotlight_uuid = -1;
+static int hf_afp_spotlight_date = -1;
 
 static const value_string flag_vals[] = {
 	{0,	"Start" },
@@ -3983,6 +3987,7 @@ dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 #define SQ_TYPE_DATA    0x0700
 #define SQ_TYPE_CNIDS   0x8700
 #define SQ_TYPE_UUID    0x0e00
+#define SQ_TYPE_DATE    0x8600
 
 #define SQ_CPX_TYPE_ARRAY    0x0a00
 #define SQ_CPX_TYPE_STRING   0x0c00
@@ -4130,6 +4135,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 	gint query_length;
 	guint64 query_type;
 	guint64 complex_query_type;
+	nstime_t t;
 
 	proto_item *item_query;
 	proto_tree *sub_tree;
@@ -4252,6 +4258,13 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 				sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
 				spotlight_CNID_array(tvb, sub_tree, offset + 8, encoding);
 			}
+			offset += query_length;
+			break;
+		case SQ_TYPE_DATE:
+			query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding) >> 24;
+			t.secs = query_data64 - SPOTLIGHT_TIME_DELTA;
+			t.nsecs = 0;
+			proto_tree_add_time(tree, hf_afp_spotlight_date, tvb, offset, query_length, &t);
 			offset += query_length;
 			break;
 		default:
@@ -6588,6 +6601,11 @@ proto_register_afp(void)
 		{ &hf_afp_spotlight_uuid,
 		  { "UUID",               "afp.spotlight.uuid",
 		    FT_GUID, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_afp_spotlight_date,
+		  { "Date",               "afp.spotlight.date",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_unknown,
