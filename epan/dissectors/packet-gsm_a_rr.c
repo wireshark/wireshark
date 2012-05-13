@@ -605,8 +605,8 @@ static int hf_gsm_a_rr_index_start_3g = -1;
 static int hf_gsm_a_rr_absolute_index_start_emr = -1;
 static int hf_gsm_a_rr_qsearch_c_initial = -1;
 static int hf_gsm_a_rr_fdd_rep_quant = -1;
-static int hf_gsm_a_rr_fdd_multirate_reporting = -1;
-static int hf_gsm_a_rr_tdd_multirate_reporting = -1;
+static int hf_gsm_a_rr_fdd_multirat_reporting = -1;
+static int hf_gsm_a_rr_tdd_multirat_reporting = -1;
 static int hf_gsm_a_rr_qsearch_p = -1;
 static int hf_gsm_a_rr_3g_search_prio = -1;
 static int hf_gsm_a_rr_fdd_reporting_offset = -1;
@@ -748,7 +748,7 @@ static int hf_gsm_a_rr_eutran_ccn_active = -1;
 static int hf_gsm_a_rr_eutran_start = -1;
 static int hf_gsm_a_rr_eutran_stop = -1;
 static int hf_gsm_a_rr_qsearch_c_eutran_initial = -1;
-static int hf_gsm_a_rr_eutran_multirate_reporting = -1;
+static int hf_gsm_a_rr_eutran_multirat_reporting = -1;
 static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp = -1;
 static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq = -1;
 static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_2 = -1;
@@ -5722,7 +5722,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
     curr_bit_offset += 4;
     rep_quant = gsm_rr_csn_flag(tvb, tree, curr_bit_offset, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
     curr_bit_offset += 1;
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_multirate_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
     curr_bit_offset += 2;
 
 
@@ -5908,7 +5908,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         curr_bit_offset += 4;
         rep_quant = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
         curr_bit_offset++;
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_multirate_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
 
         if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN FDD Reporting", "Present", "Not Present"))
@@ -6416,7 +6416,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
             bit_offset += 4;
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_rep_quant, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset += 1;
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_multirate_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_qmin, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
@@ -6425,7 +6425,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_qoffset, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bit_offset += 4;
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_multirate_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
         proto_item_set_len(item2, (bit_offset>>3) - (bit_offset_sav>>3)+1);
@@ -6444,7 +6444,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_rep_quant, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             reporting_quant = gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Reporting Quantity", "Ec/No", "RSCP");
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_multirate_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
         if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "FDD Reporting Parameters", "Present", "Not Present"))
@@ -6461,9 +6461,9 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo 
             }
             bit_offset += 3;
         }
-        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "TDD Multirate Reporting", "Present", "Not Present"))
+        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "TDD Multirat Reporting", "Present", "Not Present"))
         {
-            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_multirate_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
         if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "TDD Reporting Parameters", "Present", "Not Present"))
@@ -9685,9 +9685,9 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_rep_quant, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         reporting_quant = gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Reporting Quantity", "Ec/No", "RSCP");
-        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Multirate Reporting", "Present", "Not Present"))
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Multirat Reporting", "Present", "Not Present"))
         {
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_multirate_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
         if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Reporting Offset", "Present", "Not Present"))
@@ -9704,9 +9704,9 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             }
             bit_offset += 3;
         }
-        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Multirate Reporting", "Present", "Not Present"))
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Multirat Reporting", "Present", "Not Present"))
         {
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_multirate_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
         if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Reporting Offset", "Present", "Not Present"))
@@ -9723,8 +9723,8 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             }
             bit_offset += 3;
         }
-        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "CDMA2000 Multirate Reporting", "Present", "Not Present"))
-            bit_offset += 2; /* CDMA2000 Multirate Reporting */
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "CDMA2000 Multirat Reporting", "Present", "Not Present"))
+            bit_offset += 2; /* CDMA2000 Multirat Reporting */
         if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "CDMA2000 Reporting Threshold", "Present", "Not Present"))
             bit_offset += 6; /* CDMA2000 Reporting Offset + CDMA2000 Reporting Threshold */
         proto_item_set_len(item, (bit_offset>>3) - (bit_offset_sav>>3)+1);
@@ -11329,15 +11329,15 @@ proto_register_gsm_a_rr(void)
                 FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_fdd_rep_quant_value), 0x0,
                 "FDD Reporting Quantity (FDD Rep Quant)", HFILL }
             },
-            { &hf_gsm_a_rr_fdd_multirate_reporting,
-              { "FDD Multirate Reporting", "gsm_a.rr.fdd_multirate_reporting",
+            { &hf_gsm_a_rr_fdd_multirat_reporting,
+              { "FDD Multirat Reporting", "gsm_a.rr.fdd_multirat_reporting",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
-                "Number of cells from the FDD access technology that shall be included in the list of strongest cells or in the measurement report (FDD Multirate Reporting)", HFILL }
+                "Number of cells from the FDD access technology that shall be included in the list of strongest cells or in the measurement report (FDD Multirat Reporting)", HFILL }
             },
-            { &hf_gsm_a_rr_tdd_multirate_reporting,
-              { "TDD Multirate Reporting", "gsm_a.rr.tdd_multirate_reporting",
+            { &hf_gsm_a_rr_tdd_multirat_reporting,
+              { "TDD Multirat Reporting", "gsm_a.rr.tdd_multirat_reporting",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
-                "Number of cells from the TDD access technology that shall be included in the list of strongest cells or in the measurement report (TDD Multirate Reporting)", HFILL }
+                "Number of cells from the TDD access technology that shall be included in the list of strongest cells or in the measurement report (TDD Multirat Reporting)", HFILL }
             },
             { &hf_gsm_a_rr_qsearch_p,
               { "Qsearch P", "gsm_a.rr.qsearch_p",
@@ -11864,8 +11864,8 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8, BASE_DEC, VALS(gsm_a_rr_qsearch_c_eutran_initial), 0x00,
                 NULL, HFILL }
             },
-            { &hf_gsm_a_rr_eutran_multirate_reporting,
-              { "E-UTRAN_MULTIRATE_REPORTING (nb of E-UTRAN cells to be included in measurement report)", "gsm_a.rr.eutran_multirate_reporting",
+            { &hf_gsm_a_rr_eutran_multirat_reporting,
+              { "E-UTRAN_MULTIRAT_REPORTING (nb of E-UTRAN cells to be included in measurement report)", "gsm_a.rr.eutran_multirat_reporting",
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 NULL, HFILL }
             },
