@@ -4128,7 +4128,7 @@ static const char *spotlight_get_cpx_qtype_string(guint64 cpx_query_type)
 static gint
 spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint64 cpx_query_type, gint count, gint toc_offset, guint encoding)
 {
-	gint j;
+	gint i, j;
 	gint subquery_count;
 	gint toc_index;
 	guint64 query_data64;
@@ -4199,16 +4199,18 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
 			offset += 8;
 			offset = spotlight_dissect_query_loop(tvb, sub_tree, offset, complex_query_type, subquery_count, toc_offset, encoding);
+			count--;
 			break;
 		case SQ_TYPE_NULL:
 			subquery_count = (gint)(query_data64 >> 32);
-			proto_tree_add_text(tree, tvb, offset, query_length, "%u %s", subquery_count, plurality(subquery_count, "null", "nulls"));
-			count -= subquery_count;
+			for (i = 0; i < subquery_count; i++, count--) 
+				proto_tree_add_text(tree, tvb, offset, query_length, "null");
 			offset += query_length;
 			break;
 		case SQ_TYPE_BOOL:
 			proto_tree_add_text(tree, tvb, offset, query_length, "bool: %s",
 							 (query_data64 >> 32) ? "true" : "false");
+			count--;
 			offset += query_length;
 			break;
 		case SQ_TYPE_INT64:
@@ -4248,6 +4250,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 				}
 				break;
 			}
+			count--;
 			offset += query_length;
 			break;
 		case SQ_TYPE_CNIDS:
@@ -4258,6 +4261,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 				sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
 				spotlight_CNID_array(tvb, sub_tree, offset + 8, encoding);
 			}
+			count--;
 			offset += query_length;
 			break;
 		case SQ_TYPE_DATE:
@@ -4265,15 +4269,16 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 			t.secs = query_data64 - SPOTLIGHT_TIME_DELTA;
 			t.nsecs = 0;
 			proto_tree_add_time(tree, hf_afp_spotlight_date, tvb, offset, query_length, &t);
+			count--;
 			offset += query_length;
 			break;
 		default:
 			proto_tree_add_text(tree, tvb, offset, query_length, "type: %s",
 							 spotlight_get_qtype_string(query_type));
+			count--;
 			offset += query_length;
 			break;
 		}
-		count--;
 	}
 
 	return offset;
