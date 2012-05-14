@@ -100,9 +100,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 
         case ENC_UTF_16:
         case ENC_UCS_2:
-            /* tvb_unicode_strsize() returns a count of 16-bit
-               values; we need a count of bytes */
-            tvbr->len = (tvb_unicode_strsize (tvbr->tvb->ws_tvb, tvbr->offset)) * 2;
+            tvbr->len = tvb_unicode_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
             break;
 
         default:

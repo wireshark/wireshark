@@ -2020,7 +2020,7 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
 }
 
 /* UTF-16/UCS-2 version of tvb_strsize */
-/* Returns number of *16-bit units* (not bytes) including the null terminator */
+/* Returns number of bytes including the (two-bytes) null terminator */
 guint
 tvb_unicode_strsize(tvbuff_t *tvb, const gint offset)
 {
@@ -2035,7 +2035,7 @@ tvb_unicode_strsize(tvbuff_t *tvb, const gint offset)
 		i += 2;
 	} while(uchar != 0);
 
-	return i; /* Number of *16-bit units* */
+	return i;
 }
 
 /* Find length of string by looking for end of string ('\0'), up to
