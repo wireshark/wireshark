@@ -53,6 +53,82 @@ WSLUA_CLASS_DEFINE(TreeItem,NOP,NOP);
 /* TreeItems represent information in the packet-details pane.
    A root TreeItem is passed to dissectors as first argument. */
 
+WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
+    /*
+     Adds an child item to a given item, returning the child.
+     tree_item:add_packet_field([proto_field], [tvbrange], [encoding], ...)
+    */
+    TvbRange tvbr;
+    ProtoField field;
+    int hfid;
+    int ett;
+    ftenum_t type;
+    TreeItem tree_item  = shiftTreeItem(L,1);
+    guint encoding;
+    proto_item* item = NULL;
+
+    if (!tree_item) {
+        return luaL_error(L,"not a TreeItem!");
+    }
+    if (tree_item->expired) {
+        luaL_error(L,"expired TreeItem");
+        return 0;
+    }
+
+    if (! ( field = shiftProtoField(L,1) ) ) {
+        luaL_error(L,"TreeField:add_packet_field not passed a ProtoField");
+        return 0;
+    }
+    hfid = field->hfid;
+    type = field->type;
+    ett = field->ett;
+
+    tvbr = shiftTvbRange(L,1);
+    if (!tvbr) {
+        /* No TvbRange specified */
+        tvbr = ep_alloc(sizeof(struct _wslua_tvbrange));
+        tvbr->tvb = ep_alloc(sizeof(struct _wslua_tvb));
+        tvbr->tvb->ws_tvb = lua_tvb;
+        tvbr->offset = 0;
+        tvbr->len = 0;
+    }
+
+    encoding = (guint)luaL_checknumber(L,1);
+    lua_remove(L,1);
+    if (type == FT_STRINGZ) {
+        switch (encoding & ENC_CHARENCODING_MASK) {
+
+        case ENC_UTF_16:
+        case ENC_UCS_2:
+            /* tvb_unicode_strsize() returns a count of 16-bit
+               values; we need a count of bytes */
+            tvbr->len = (tvb_unicode_strsize (tvbr->tvb->ws_tvb, tvbr->offset)) * 2;
+            break;
+
+        default:
+            tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
+            break;
+        }
+    }
+    item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, encoding);
+
+    while(lua_gettop(L)) {
+        const gchar* s;
+        s = lua_tostring(L,1);
+        if (s) proto_item_append_text(item, " %s", s);
+        lua_remove(L,1);
+    }
+
+    tree_item = g_malloc(sizeof(struct _wslua_treeitem));
+    tree_item->item = item;
+    tree_item->tree = proto_item_add_subtree(item,ett > 0 ? ett : wslua_ett);
+    tree_item->expired = FALSE;
+
+    PUSH_TREEITEM(L,tree_item);
+
+    return 1;
+}
+
 static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
     TvbRange tvbr;
     Proto proto;
@@ -97,7 +173,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
         if (lua_gettop(L)) {
             switch(type) {
                 case FT_PROTOCOL:
-                    item = proto_tree_add_item(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,FALSE);
+                    item = proto_tree_add_item(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,ENC_NA);
                     lua_pushnumber(L,0);
                     lua_insert(L,1);
                     break;
@@ -160,7 +236,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
 
         } else {
             if (type == FT_STRINGZ) tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
-            item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, little_endian);
+            item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
         }
 
         if ( lua_gettop(L) ) {
@@ -352,15 +428,16 @@ static int TreeItem_gc(lua_State* L) {
 }
 
 static const luaL_reg TreeItem_methods[] = {
-    {"add",       TreeItem_add},
-    {"add_le",       TreeItem_add_le},
-    {"set_text",       TreeItem_set_text},
-    {"append_text",       TreeItem_append_text},
-    {"set_expert_flags",       TreeItem_set_expert_flags},
-    {"add_expert_info",       TreeItem_add_expert_info},
-    {"set_generated",       TreeItem_set_generated},
+    {"add_packet_field", TreeItem_add_packet_field},
+    {"add",              TreeItem_add},
+    {"add_le",           TreeItem_add_le},
+    {"set_text",         TreeItem_set_text},
+    {"append_text",      TreeItem_append_text},
+    {"set_expert_flags", TreeItem_set_expert_flags},
+    {"add_expert_info",  TreeItem_add_expert_info},
+    {"set_generated",    TreeItem_set_generated},
     {"set_hidden",       TreeItem_set_hidden},
-    {"set_len",       TreeItem_set_len},
+    {"set_len",          TreeItem_set_len},
     { NULL, NULL }
 };
 

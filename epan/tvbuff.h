@@ -393,6 +393,14 @@ extern gint tvb_pbrk_guint8(tvbuff_t *, const gint offset, const gint maxlength,
  */
 extern guint tvb_strsize(tvbuff_t *tvb, const gint offset);
 
+/** Find size of UCS-2 or UTF-16 stringz (NUL-terminated string) by
+ * looking for terminating 16-bit NUL.  The size of the string includes
+ * the terminating NUL.
+ *
+ * If the NUL isn't found, it throws the appropriate exception.
+ */
+extern guint tvb_unicode_strsize(tvbuff_t *tvb, const gint offset);
+
 /** Find length of string by looking for end of zero terminated string, up to
  * 'maxlength' characters'; if 'maxlength' is -1, searches to end
  * of tvbuff.

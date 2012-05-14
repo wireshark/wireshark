@@ -1183,6 +1183,7 @@ tvb_strncaseeql
 tvb_strneql
 tvb_strnlen
 tvb_strsize
+tvb_unicode_strsize
 tvb_uncompress
 tvbparse_casestring
 tvbparse_char

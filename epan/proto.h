@@ -237,8 +237,8 @@ typedef struct _protocol protocol_t;
  * For backwards compatibility, we interpret an encoding of 1 as meaning
  * "little-endian timespec", so that passing TRUE is interpreted as that.
  */
-#define ENC_TIME_TIMESPEC	0
-#define ENC_TIME_NTP		2
+#define ENC_TIME_TIMESPEC	0x00000000
+#define ENC_TIME_NTP		0x00000002
 
 /*
  * Historically, the only place the representation mattered for strings
@@ -249,7 +249,9 @@ typedef struct _protocol protocol_t;
  * values are encoded in all but the top bit (which is the byte-order
  * bit, required for FT_UINT_STRING and for UCS-2 and UTF-16 strings)
  * and the bottom bit (which we ignore for now so that programs that
- * pass TRUE for the encoding just do ASCII).
+ * pass TRUE for the encoding just do ASCII).  (The encodings are given
+ * directly as even numbers in hex, so that make-init-lua.pl can just
+ * turn them into numbers for use in init.lua.)
  *
  * We don't yet process ASCII and UTF-8 differently.  Ultimately, for
  * ASCII, all bytes with the 8th bit set should be mapped to some "this
@@ -270,11 +272,11 @@ typedef struct _protocol protocol_t;
  * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
  */
 #define ENC_CHARENCODING_MASK	0x7FFFFFFE	/* mask out byte-order bits */
-#define ENC_ASCII		(0 << 1)	/* shift up to avoid low-order bit */
-#define ENC_UTF_8		(1 << 1)
-#define ENC_UTF_16		(2 << 1)
-#define ENC_UCS_2		(3 << 1)
-#define ENC_EBCDIC		(4 << 1)
+#define ENC_ASCII		0x00000000
+#define ENC_UTF_8		0x00000002
+#define ENC_UTF_16		0x00000004
+#define ENC_UCS_2		0x00000006
+#define ENC_EBCDIC		0x00000008
 
 /*
  * TODO:

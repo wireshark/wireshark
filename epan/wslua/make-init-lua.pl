@@ -35,6 +35,7 @@ die "'$WSROOT' is not a directory" unless -d $WSROOT;
 my $wtap_encaps_table = '';
 my $ft_types_table = '';
 my $bases_table = '';
+my $encodings = '';
 my $expert_pi = '';
 my $menu_groups = '';
 
@@ -42,6 +43,7 @@ my %replacements = %{{
     WTAP_ENCAPS => \$wtap_encaps_table,
     FT_TYPES => \$ft_types_table,
     BASES => \$bases_table,
+    ENCODINGS => \$encodings,
     EXPERT => \$expert_pi,
     MENU_GROUPS => \$menu_groups,
 }};
@@ -58,7 +60,9 @@ $template .= $_ while(<TEMPLATE>);
 close TEMPLATE;
 
 #
-# make wiretap encapusulation table 
+# Extract values from wiretap/wtap.h:
+#
+#	WTAP_ENCAP_ values
 #
 
 $wtap_encaps_table = "-- Wiretap encapsulations\nwtap = {\n";
@@ -74,7 +78,9 @@ while(<WTAP_H>) {
 $wtap_encaps_table =~ s/,\n$/\n}\n/msi;
 
 #
-# enum fttype
+# Extract values from epan/ftypes/ftypes.h:
+#
+#	values from enum fttype
 #
 
 $ft_types_table = " -- Field Types\nftypes = {\n";
@@ -92,13 +98,15 @@ close FTYPES_H;
 
 $ft_types_table =~ s/,\n$/\n}\n/msi;
 
-
-
 #
-# enum base
+# Extract values from epan/proto.h:
+#
+#	values from enum base
+#	#defines for encodings and expert group and severity levels
 #
 
 $bases_table = "-- Display Bases\n base = {\n";
+$encodings = "-- Encodings\n";
 $expert_pi = "-- Expert flags and facilities\n";
 
 my $base_num = 0;
@@ -114,11 +122,19 @@ while(<PROTO_H>) {
         my ($name, $value) = ($1, hex($2));
         $expert_pi .= "$name = $value\n";
     }
+
+    if ( /^.define\s+(ENC_[A-Z0-9_]+)\s+((0x)?[0-9A-Fa-f]+)/ ) {
+        my ($name, $value) = ($1, hex($2));
+        $encodings .= "$name = $value\n";
+    }
 }
 close PROTO_H;
 
-# register_stat_group_t
-
+#
+# Extract values from stat_menu.h:
+#
+#	MENU_X_X values for register_stat_group_t
+#
 
 $menu_groups .= "-- menu groups for register_menu\n";
 my $menu_i = 0;
@@ -135,6 +151,7 @@ close STAT_MENU;
 
 
 $bases_table .= "}\n\n";
+$encodings .= "\n\n";
 $expert_pi .= "\n\n";
 
 for my $key (keys %replacements) {

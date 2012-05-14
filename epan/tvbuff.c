@@ -2019,8 +2019,8 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
 	return (nul_offset - abs_offset) + 1;
 }
 
-/* Unicode (UTF-16) version of tvb_strsize */
-/* Returns number of *UTF-16 characters* (not bytes) excluding the null terminator */
+/* UTF-16/UCS-2 version of tvb_strsize */
+/* Returns number of *16-bit units* (not bytes) including the null terminator */
 guint
 tvb_unicode_strsize(tvbuff_t *tvb, const gint offset)
 {
@@ -2035,7 +2035,7 @@ tvb_unicode_strsize(tvbuff_t *tvb, const gint offset)
 		i += 2;
 	} while(uchar != 0);
 
-	return i; /* Number of *UTF-16* characters */
+	return i; /* Number of *16-bit units* */
 }
 
 /* Find length of string by looking for end of string ('\0'), up to

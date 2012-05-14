@@ -64,6 +64,8 @@ end
 
 -- %BASES%
 
+-- %ENCODINGS%
+
 -- %EXPERT%
 
 -- %MENU_GROUPS%
