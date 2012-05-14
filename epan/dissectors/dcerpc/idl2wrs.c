@@ -2769,6 +2769,8 @@ static void parsetypedefenum(void)
 {
 	token_item_t *ti;
 	enum_list_t *enum_list, *el, *lastel;
+	char *p;
+	long val;
 	int eval, enumsize;
 	char dissectorname[256], valsstring[256], hfvalsstring[256];
 
@@ -2847,7 +2849,12 @@ static void parsetypedefenum(void)
 		if(!strcmp(ti->str,"=")){
 			ti=ti->next;
 			/* grab value */
-			el->val=atoi(ti->str);
+			val=strtol(ti->str,&p,0);
+			if (p==ti->str||*p) {
+				fprintf(stderr, "ERROR: typedefenum value is not a number\n");
+				Exit(10);
+			}
+			el->val=val;
 			ti=ti->next;
 		} else {
 			el->val=eval;
