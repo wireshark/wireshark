@@ -70,10 +70,10 @@ extern const value_string drsuapi_DsNameStatus_vals[];
 int drsuapi_dissect_DsNameStatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 
 #define DRSUAPI_DS_NAME_FLAG_NO_FLAGS		0
-#define DRSUAPI_DS_NAME_FLAG_SYNTACTICAL_ONLY		0
-#define DRSUAPI_DS_NAME_FLAG_EVAL_AT_DC		0
-#define DRSUAPI_DS_NAME_FLAG_GCVERIFY		0
-#define DRSUAPI_DS_NAME_FLAG_TRUST_REFERRAL		0
+#define DRSUAPI_DS_NAME_FLAG_SYNTACTICAL_ONLY		1
+#define DRSUAPI_DS_NAME_FLAG_EVAL_AT_DC		2
+#define DRSUAPI_DS_NAME_FLAG_GCVERIFY		4
+#define DRSUAPI_DS_NAME_FLAG_TRUST_REFERRAL		8
 
 extern const value_string drsuapi_DsNameFlags_vals[];
 int drsuapi_dissect_DsNameFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);

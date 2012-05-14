@@ -295,8 +295,8 @@ budb_dissect_NameString_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 /* INCLUDED FILE : ETH_CODE */
 static e_uuid_t uuid_dcerpc_budb = {
-    0xeb814e2a, 0x0099, 0x11ca,
-    { 0x86, 0x78, 0x02, 0x60, 0x8c, 0x2e, 0xa9, 0x6e}
+	  0xeb814e2a, 0x0099, 0x11ca,
+	  { 0x86, 0x78, 0x02, 0x60, 0x8c, 0x2e, 0xa9, 0x6e}
 };
 
 static guint16 ver_budb = 4;
@@ -304,33 +304,33 @@ static guint16 ver_budb = 4;
 static int
 budb_dissect_principal_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_name, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_name, param);
+	 return offset;
 }
 
 static int
 budb_dissect_principal_instance(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_instance, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_instance, param);
+	 return offset;
 }
 
 static int
 budb_dissect_principal_cell(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_cell, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_cell, param);
+	 return offset;
 }
 
 static int
 budb_dissect_principal_spare(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare, param);
+	 return offset;
 }
 
 
@@ -344,33 +344,33 @@ budb_dissect_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 budb_dissect_principal_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_principal_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_principal_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_principal_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_principal_spare4, param);
+	 return offset;
 }
 
 
@@ -385,8 +385,8 @@ budb_dissect_principal(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_principal);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_principal);
     }
 
     offset=budb_dissect_principal_name(tvb, offset, pinfo, tree, drep);
@@ -420,81 +420,81 @@ budb_dissect_int32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 static int
 budb_dissect_tapeSet_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_id, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_id, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_tapeServer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_tapeServer, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_tapeServer, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_format(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_format, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_format, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_maxTapes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_maxTapes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_maxTapes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_a(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_a, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_a, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_b(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_b, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_b, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeSet_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeSet_spare4, param);
+	 return offset;
 }
 
 
@@ -509,8 +509,8 @@ budb_dissect_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_tapeSet);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_tapeSet);
     }
 
     offset=budb_dissect_tapeSet_id(tvb, offset, pinfo, tree, drep);
@@ -540,57 +540,57 @@ budb_dissect_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 static int
 budb_dissect_dumpEntry_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_id, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_id, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_parent(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_parent, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_parent, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_level(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_level, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_level, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_flags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_flags, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_volumeSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_volumeSetName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_volumeSetName, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_dumpPath(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_dumpPath, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_dumpPath, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_name, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_name, param);
+	 return offset;
 }
 
 
@@ -606,73 +606,73 @@ budb_dissect_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 budb_dissect_dumpEntry_created(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_created, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_created, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_incTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_incTime, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_incTime, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_nVolumes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_nVolumes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_nVolumes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_tapes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_tapeSet(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_tapes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_tapeSet(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_tapes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_dumper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_principal(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_dumper, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_principal(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_dumper, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpEntry_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpEntry_spare4, param);
+	 return offset;
 }
 
 
@@ -687,8 +687,8 @@ budb_dissect_dumpEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_dumpEntry);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_dumpEntry);
     }
 
     offset=budb_dissect_dumpEntry_id(tvb, offset, pinfo, tree, drep);
@@ -730,137 +730,137 @@ budb_dissect_dumpEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 budb_dissect_tapeEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_name, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_name, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_flags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_flags, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_written(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_written, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_written, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_expires(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_expires, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_expires, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_nMBytes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nMBytes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nMBytes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_nBytes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nBytes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nBytes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_nFiles(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nFiles, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nFiles, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_nVolumes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nVolumes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_nVolumes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_seq, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_seq, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_tapeid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_tapeid, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_tapeid, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_useCount(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_useCount, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_useCount, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_mediaType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_mediaType, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_mediaType, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_dump(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_dump, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_dump, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeEntry_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeEntry_spare4, param);
+	 return offset;
 }
 
 
@@ -875,8 +875,8 @@ budb_dissect_tapeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_tapeEntry);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_tapeEntry);
     }
 
     offset=budb_dissect_tapeEntry_name(tvb, offset, pinfo, tree, drep);
@@ -920,17 +920,17 @@ budb_dissect_tapeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 budb_dissect_volumeEntry_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_name, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_name, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_flags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_flags, param);
+	 return offset;
 }
 
 
@@ -946,129 +946,129 @@ budb_dissect_udlong(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 budb_dissect_volumeEntry_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_id, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_id, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_server, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_server, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_partition, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_partition, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_nFrags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_nFrags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_nFrags, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_position(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_position, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_position, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_clone(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_clone, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_clone, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_incTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_incTime, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_incTime, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_startByte(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_startByte, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_startByte, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_nBytes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_nBytes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_nBytes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_seq, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_seq, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_dump(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_dump, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_dump, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_tape(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_tape, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_tape, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeEntry_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeEntry_spare4, param);
+	 return offset;
 }
 
 
@@ -1083,8 +1083,8 @@ budb_dissect_volumeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_volumeEntry);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_volumeEntry);
     }
 
     offset=budb_dissect_volumeEntry_name(tvb, offset, pinfo, tree, drep);
@@ -1130,31 +1130,31 @@ budb_dissect_volumeEntry(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 budb_dissect_volumeList_volumeList_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeList_volumeList_len, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_volumeList_volumeList_len, param);
+	 return offset;
 }
 
 static int
 budb_dissect_volumeList_volumeList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_volumeEntry(tvb, offset, pinfo, tree, drep, hf_budb_volumeList_volumeList_val, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_volumeEntry(tvb, offset, pinfo, tree, drep, hf_budb_volumeList_volumeList_val, param);
+	 return offset;
 }
 
 static int
 ptr_budb_dissect_volumeList_volumeList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, budb_dissect_volumeList_volumeList_val, NDR_POINTER_PTR, "volumeList_val", -1);
-    return offset;
+	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, budb_dissect_volumeList_volumeList_val, NDR_POINTER_PTR, "volumeList_val", -1);
+	 return offset;
 }
 
 static int
 ucarray_ptr_budb_dissect_volumeList_volumeList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_budb_dissect_volumeList_volumeList_val);
-    return offset;
+	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_budb_dissect_volumeList_volumeList_val);
+	 return offset;
 }
 
 
@@ -1169,8 +1169,8 @@ budb_dissect_volumeList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_volumeList);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_volumeList);
     }
 
     offset=budb_dissect_volumeList_volumeList_len(tvb, offset, pinfo, tree, drep);
@@ -1184,31 +1184,31 @@ budb_dissect_volumeList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 static int
 budb_dissect_dumpList_dumpList_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpList_dumpList_len, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dumpList_dumpList_len, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dumpList_dumpList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_dumpEntry(tvb, offset, pinfo, tree, drep, hf_budb_dumpList_dumpList_val, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_dumpEntry(tvb, offset, pinfo, tree, drep, hf_budb_dumpList_dumpList_val, param);
+	 return offset;
 }
 
 static int
 ptr_budb_dissect_dumpList_dumpList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, budb_dissect_dumpList_dumpList_val, NDR_POINTER_PTR, "dumpList_val", -1);
-    return offset;
+	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, budb_dissect_dumpList_dumpList_val, NDR_POINTER_PTR, "dumpList_val", -1);
+	 return offset;
 }
 
 static int
 ucarray_ptr_budb_dissect_dumpList_dumpList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_budb_dissect_dumpList_dumpList_val);
-    return offset;
+	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_budb_dissect_dumpList_dumpList_val);
+	 return offset;
 }
 
 
@@ -1223,8 +1223,8 @@ budb_dissect_dumpList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_dumpList);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_dumpList);
     }
 
     offset=budb_dissect_dumpList_dumpList_len(tvb, offset, pinfo, tree, drep);
@@ -1238,31 +1238,31 @@ budb_dissect_dumpList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 budb_dissect_tapeList_tapeList_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeList_tapeList_len, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_tapeList_tapeList_len, param);
+	 return offset;
 }
 
 static int
 budb_dissect_tapeList_tapeList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_tapeEntry(tvb, offset, pinfo, tree, drep, hf_budb_tapeList_tapeList_val, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_tapeEntry(tvb, offset, pinfo, tree, drep, hf_budb_tapeList_tapeList_val, param);
+	 return offset;
 }
 
 static int
 ptr_budb_dissect_tapeList_tapeList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, budb_dissect_tapeList_tapeList_val, NDR_POINTER_PTR, "tapeList_val", -1);
-    return offset;
+	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, budb_dissect_tapeList_tapeList_val, NDR_POINTER_PTR, "tapeList_val", -1);
+	 return offset;
 }
 
 static int
 ucarray_ptr_budb_dissect_tapeList_tapeList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_budb_dissect_tapeList_tapeList_val);
-    return offset;
+	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_budb_dissect_tapeList_tapeList_val);
+	 return offset;
 }
 
 
@@ -1277,8 +1277,8 @@ budb_dissect_tapeList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_tapeList);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_tapeList);
     }
 
     offset=budb_dissect_tapeList_tapeList_len(tvb, offset, pinfo, tree, drep);
@@ -1292,9 +1292,9 @@ budb_dissect_tapeList(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 budb_dissect_charListT_charListT_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_charListT_charListT_len, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_charListT_charListT_len, param);
+	 return offset;
 }
 
 
@@ -1308,27 +1308,27 @@ budb_dissect_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 static int
 budb_dissect_charListT_charListT_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_budb_charListT_charListT_val, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_budb_charListT_charListT_val, param);
+	 return offset;
 }
 
 static int
 fixedarray_budb_dissect_charListT_charListT_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    int count=1024;
-    while(count--){
-        offset=budb_dissect_charListT_charListT_val(tvb, offset, pinfo, tree, drep);
-    }
+	 int count=1024;
+	 while(count--){
+		 offset=budb_dissect_charListT_charListT_val(tvb, offset, pinfo, tree, drep);
+	 }
 
-    return offset;
+	 return offset;
 }
 
 static int
 uvarray_fixedarray_budb_dissect_charListT_charListT_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, fixedarray_budb_dissect_charListT_charListT_val);
-    return offset;
+	 offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, fixedarray_budb_dissect_charListT_charListT_val);
+	 return offset;
 }
 
 
@@ -1343,8 +1343,8 @@ budb_dissect_charListT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_charListT);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_charListT);
     }
 
     offset=budb_dissect_charListT_charListT_len(tvb, offset, pinfo, tree, drep);
@@ -1358,81 +1358,81 @@ budb_dissect_charListT(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 budb_dissect_DbHeader_dbversion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_dbversion, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_dbversion, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_created(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_created, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_created, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_cell(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_cell, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_cell, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_lastDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_lastDumpId, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_lastDumpId, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_lastInstanceId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_lastInstanceId, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_lastInstanceId, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_lastTapeId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_lastTapeId, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_lastTapeId, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_DbHeader_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_DbHeader_spare4, param);
+	 return offset;
 }
 
 
@@ -1447,8 +1447,8 @@ budb_dissect_DbHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_DbHeader);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_DbHeader);
     }
 
     offset=budb_dissect_DbHeader_dbversion(tvb, offset, pinfo, tree, drep);
@@ -1478,145 +1478,145 @@ budb_dissect_DbHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 budb_dissect_dbVolume_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_name, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_name, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_flags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_flags, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_id, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_id, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_server(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_server, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_server, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_partition, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_partition, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_nFrags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_nFrags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_nFrags, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_position(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_position, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_position, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_clone(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_clone, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_clone, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_incTime(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_incTime, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_incTime, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_startByte(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_startByte, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_startByte, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_nBytes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_nBytes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_nBytes, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_seq, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_seq, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_dump(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_dump, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_dump, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_tape(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_tape, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_tape, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dbVolume_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dbVolume_spare4, param);
+	 return offset;
 }
 
 
@@ -1631,8 +1631,8 @@ budb_dissect_dbVolume(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_dbVolume);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_dbVolume);
     }
 
     offset=budb_dissect_dbVolume_name(tvb, offset, pinfo, tree, drep);
@@ -1678,57 +1678,57 @@ budb_dissect_dbVolume(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 static int
 budb_dissect_structDumpHeader_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_type, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_type, param);
+	 return offset;
 }
 
 static int
 budb_dissect_structDumpHeader_structversion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_structversion, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_structversion, param);
+	 return offset;
 }
 
 static int
 budb_dissect_structDumpHeader_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_size, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_int32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_size, param);
+	 return offset;
 }
 
 static int
 budb_dissect_structDumpHeader_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_structDumpHeader_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_structDumpHeader_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_structDumpHeader_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_structDumpHeader_spare4, param);
+	 return offset;
 }
 
 
@@ -1743,8 +1743,8 @@ budb_dissect_structDumpHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_structDumpHeader);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_structDumpHeader);
     }
 
     offset=budb_dissect_structDumpHeader_type(tvb, offset, pinfo, tree, drep);
@@ -1784,8 +1784,8 @@ ref_budb_dissect_AddVolume_vol(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 budb_dissect_AddVolume_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_AddVolume_vol(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_AddVolume_vol(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1818,8 +1818,8 @@ ref_budb_dissect_CreateDump_dump(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 budb_dissect_CreateDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_CreateDump_dump(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_CreateDump_dump(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1828,8 +1828,8 @@ budb_dissect_CreateDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 budb_dissect_CreateDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_CreateDump_dump(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_CreateDump_dump(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -1848,8 +1848,8 @@ budb_dissect_DeleteDump_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 static int
 budb_dissect_DeleteDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_DeleteDump_id(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_DeleteDump_id(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1882,8 +1882,8 @@ ref_budb_dissect_DeleteTape_tape(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 budb_dissect_DeleteTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_DeleteTape_tape(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_DeleteTape_tape(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1939,14 +1939,14 @@ budb_dissect_DeleteVDP_curDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 budb_dissect_DeleteVDP_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ptr_budb_dissect_DeleteVDP_dsname(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_DeleteVDP_dsname(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_budb_dissect_DeleteVDP_dumpPath(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_DeleteVDP_dumpPath(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_DeleteVDP_curDumpId(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_DeleteVDP_curDumpId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2017,11 +2017,11 @@ ref_budb_dissect_FindClone_cloneSpare(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 budb_dissect_FindClone_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_FindClone_dumpID(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_FindClone_dumpID(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_budb_dissect_FindClone_volName(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_FindClone_volName(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2030,11 +2030,11 @@ budb_dissect_FindClone_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *p
 static int
 budb_dissect_FindClone_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_FindClone_clonetime(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_FindClone_clonetime(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_FindClone_cloneSpare(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_FindClone_cloneSpare(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2091,14 +2091,14 @@ ref_budb_dissect_FindDump_deptr(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 static int
 budb_dissect_FindDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ptr_budb_dissect_FindDump_volName(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_FindDump_volName(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_FindDump_beforeDate(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_FindDump_beforeDate(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_FindDump_dateSpare(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_FindDump_dateSpare(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2107,8 +2107,8 @@ budb_dissect_FindDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 budb_dissect_FindDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_FindDump_deptr(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_FindDump_deptr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2164,11 +2164,11 @@ ref_budb_dissect_FindLatestDump_dumpentry(tvbuff_t *tvb, int offset, packet_info
 static int
 budb_dissect_FindLatestDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ptr_budb_dissect_FindLatestDump_vsname(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_FindLatestDump_vsname(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_budb_dissect_FindLatestDump_dname(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_FindLatestDump_dname(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2177,8 +2177,8 @@ budb_dissect_FindLatestDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 budb_dissect_FindLatestDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_FindLatestDump_dumpentry(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_FindLatestDump_dumpentry(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2204,8 +2204,8 @@ ref_budb_dissect_FinishDump_dump(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 budb_dissect_FinishDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_FinishDump_dump(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_FinishDump_dump(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2214,8 +2214,8 @@ budb_dissect_FinishDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 budb_dissect_FinishDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_FinishDump_dump(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_FinishDump_dump(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2241,8 +2241,8 @@ ref_budb_dissect_FinishTape_tape(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 budb_dissect_FinishTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_FinishTape_tape(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_FinishTape_tape(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2367,23 +2367,23 @@ ptr_ptr_budb_dissect_GetDumps_dumps(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 budb_dissect_GetDumps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_GetDumps_majorVersion(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetDumps_majorVersion(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetDumps_flags(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetDumps_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_budb_dissect_GetDumps_name(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_GetDumps_name(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetDumps_start(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetDumps_start(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetDumps_end(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetDumps_end(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetDumps_index(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetDumps_index(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2392,14 +2392,14 @@ budb_dissect_GetDumps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 budb_dissect_GetDumps_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetDumps_nextIndex(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetDumps_nextIndex(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_GetDumps_dbUpdate(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetDumps_dbUpdate(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_ptr_budb_dissect_GetDumps_dumps(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_ptr_budb_dissect_GetDumps_dumps(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2517,23 +2517,23 @@ ptr_ptr_budb_dissect_GetTapes_tapes(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 budb_dissect_GetTapes_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_GetTapes_majorVersion(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetTapes_majorVersion(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetTapes_flags(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetTapes_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_budb_dissect_GetTapes_name(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_GetTapes_name(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetTapes_start(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetTapes_start(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetTapes_end(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetTapes_end(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetTapes_index(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetTapes_index(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2542,14 +2542,14 @@ budb_dissect_GetTapes_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 budb_dissect_GetTapes_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetTapes_nextIndex(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetTapes_nextIndex(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_GetTapes_dbUpdate(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetTapes_dbUpdate(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_ptr_budb_dissect_GetTapes_tapes(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_ptr_budb_dissect_GetTapes_tapes(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2667,23 +2667,23 @@ ptr_ptr_budb_dissect_GetVolumes_volumes(tvbuff_t *tvb, int offset, packet_info *
 static int
 budb_dissect_GetVolumes_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_GetVolumes_majorVersion(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetVolumes_majorVersion(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetVolumes_flags(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetVolumes_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_budb_dissect_GetVolumes_name(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_GetVolumes_name(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetVolumes_start(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetVolumes_start(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetVolumes_end(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetVolumes_end(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetVolumes_index(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetVolumes_index(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2692,14 +2692,14 @@ budb_dissect_GetVolumes_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *
 static int
 budb_dissect_GetVolumes_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetVolumes_nextIndex(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetVolumes_nextIndex(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_GetVolumes_dbUpdate(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetVolumes_dbUpdate(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_ptr_budb_dissect_GetVolumes_volumes(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_ptr_budb_dissect_GetVolumes_volumes(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2740,8 +2740,8 @@ ref_budb_dissect_UseTape_new(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 budb_dissect_UseTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_UseTape_tape(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_UseTape_tape(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2750,8 +2750,8 @@ budb_dissect_UseTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 static int
 budb_dissect_UseTape_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_UseTape_new(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_UseTape_new(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2824,17 +2824,17 @@ ref_budb_dissect_GetText_charListPtr(tvbuff_t *tvb, int offset, packet_info *pin
 static int
 budb_dissect_GetText_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_GetText_lockHandle(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetText_lockHandle(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetText_textType(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetText_textType(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetText_maxLength(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetText_maxLength(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetText_offset(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetText_offset(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2843,11 +2843,11 @@ budb_dissect_GetText_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 static int
 budb_dissect_GetText_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetText_nextOffset(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetText_nextOffset(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_GetText_charListPtr(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetText_charListPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2881,8 +2881,8 @@ ref_budb_dissect_GetTextVersion_tversion(tvbuff_t *tvb, int offset, packet_info 
 static int
 budb_dissect_GetTextVersion_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_GetTextVersion_textType(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetTextVersion_textType(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2891,8 +2891,8 @@ budb_dissect_GetTextVersion_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 budb_dissect_GetTextVersion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetTextVersion_tversion(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetTextVersion_tversion(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -2950,20 +2950,20 @@ ref_budb_dissect_SaveText_charListPtr(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 budb_dissect_SaveText_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_SaveText_lockHandle(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_SaveText_lockHandle(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_SaveText_textType(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_SaveText_textType(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_SaveText_offset(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_SaveText_offset(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_SaveText_flags(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_SaveText_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_SaveText_charListPtr(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_SaveText_charListPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2989,8 +2989,8 @@ budb_dissect_FreeAllLocks_instanceId(tvbuff_t *tvb, int offset, packet_info *pin
 static int
 budb_dissect_FreeAllLocks_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_FreeAllLocks_instanceId(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_FreeAllLocks_instanceId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3016,8 +3016,8 @@ budb_dissect_FreeLock_lockHandle(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 static int
 budb_dissect_FreeLock_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_FreeLock_lockHandle(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_FreeLock_lockHandle(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3057,8 +3057,8 @@ budb_dissect_GetInstanceId_request(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 budb_dissect_GetInstanceId_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetInstanceId_instanceId(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetInstanceId_instanceId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -3108,14 +3108,14 @@ ref_budb_dissect_GetLock_lockHandle(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 budb_dissect_GetLock_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_GetLock_instanceId(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetLock_instanceId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetLock_lockName(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetLock_lockName(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=budb_dissect_GetLock_expiration(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_GetLock_expiration(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3124,8 +3124,8 @@ budb_dissect_GetLock_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 static int
 budb_dissect_GetLock_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetLock_lockHandle(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetLock_lockHandle(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -3188,14 +3188,14 @@ budb_dissect_DbVerify_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 static int
 budb_dissect_DbVerify_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_DbVerify_status(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_DbVerify_status(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_DbVerify_orphans(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_DbVerify_orphans(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_DbVerify_host(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_DbVerify_host(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -3244,8 +3244,8 @@ ref_budb_dissect_DumpDB_charListPtr(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 budb_dissect_DumpDB_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_DumpDB_maxLength(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_DumpDB_maxLength(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3254,11 +3254,11 @@ budb_dissect_DumpDB_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 static int
 budb_dissect_DumpDB_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_DumpDB_flags(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_DumpDB_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_budb_dissect_DumpDB_charListPtr(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_DumpDB_charListPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -3284,8 +3284,8 @@ ref_budb_dissect_RestoreDbHeader_header(tvbuff_t *tvb, int offset, packet_info *
 static int
 budb_dissect_RestoreDbHeader_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_RestoreDbHeader_header(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_RestoreDbHeader_header(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3325,8 +3325,8 @@ budb_dissect_T_GetVersion_request(tvbuff_t *tvb _U_, int offset _U_, packet_info
 static int
 budb_dissect_T_GetVersion_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_T_GetVersion_majorVersion(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_T_GetVersion_majorVersion(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -3360,11 +3360,11 @@ ptr_budb_dissect_T_DumpHashTable_filename(tvbuff_t *tvb, int offset, packet_info
 static int
 budb_dissect_T_DumpHashTable_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_T_DumpHashTable_type(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_T_DumpHashTable_type(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ptr_budb_dissect_T_DumpHashTable_filename(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_T_DumpHashTable_filename(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3397,8 +3397,8 @@ ptr_budb_dissect_T_DumpDatabase_filename(tvbuff_t *tvb, int offset, packet_info 
 static int
 budb_dissect_T_DumpDatabase_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ptr_budb_dissect_T_DumpDatabase_filename(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ptr_budb_dissect_T_DumpDatabase_filename(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3423,9 +3423,9 @@ budb_dissect_uuid_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 budb_dissect_dfs_interfaceDescription_interface_uuid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uuid_t(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_interface_uuid, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uuid_t(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_interface_uuid, param);
+	 return offset;
 }
 
 
@@ -3439,124 +3439,124 @@ budb_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 budb_dissect_dfs_interfaceDescription_vers_major(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_vers_major, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_vers_major, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_vers_minor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_vers_minor, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_vers_minor, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_vers_provider(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_vers_provider, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_vers_provider, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare0(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare0, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare0, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare1, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare2, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare3, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare4, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare5, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare5, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare6, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare6, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare7, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare7, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare8, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare8, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spare9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare9, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spare9, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceDescription_spareText(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spareText, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceDescription_spareText, param);
+	 return offset;
 }
 
 static int
 fixedarray_budb_dissect_dfs_interfaceDescription_spareText(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    int count=50;
-    while(count--){
-        offset=budb_dissect_dfs_interfaceDescription_spareText(tvb, offset, pinfo, tree, drep);
-    }
+	 int count=50;
+	 while(count--){
+		 offset=budb_dissect_dfs_interfaceDescription_spareText(tvb, offset, pinfo, tree, drep);
+	 }
 
-    return offset;
+	 return offset;
 }
 
 
@@ -3571,8 +3571,8 @@ budb_dissect_dfs_interfaceDescription(tvbuff_t *tvb, int offset, packet_info *pi
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_dfs_interfaceDescription);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_dfs_interfaceDescription);
     }
 
     offset=budb_dissect_dfs_interfaceDescription_interface_uuid(tvb, offset, pinfo, tree, drep);
@@ -3612,24 +3612,24 @@ budb_dissect_dfs_interfaceDescription(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 budb_dissect_dfs_interfaceList_dfs_interfaceList_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceList_dfs_interfaceList_len, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceList_dfs_interfaceList_len, param);
+	 return offset;
 }
 
 static int
 budb_dissect_dfs_interfaceList_dfs_interfaceList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=budb_dissect_dfs_interfaceDescription(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceList_dfs_interfaceList_val, param);
-    return offset;
+	 guint32 param=0;
+	 offset=budb_dissect_dfs_interfaceDescription(tvb, offset, pinfo, tree, drep, hf_budb_dfs_interfaceList_dfs_interfaceList_val, param);
+	 return offset;
 }
 
 static int
 uvarray_budb_dissect_dfs_interfaceList_dfs_interfaceList_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, budb_dissect_dfs_interfaceList_dfs_interfaceList_val);
-    return offset;
+	 offset=dissect_ndr_uvarray(tvb, offset, pinfo, tree, drep, budb_dissect_dfs_interfaceList_dfs_interfaceList_val);
+	 return offset;
 }
 
 
@@ -3644,8 +3644,8 @@ budb_dissect_dfs_interfaceList(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_budb_dfs_interfaceList);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_budb_dfs_interfaceList);
     }
 
     offset=budb_dissect_dfs_interfaceList_dfs_interfaceList_len(tvb, offset, pinfo, tree, drep);
@@ -3675,8 +3675,8 @@ ref_budb_dissect_GetServerInterfaces_serverInterfacesP(tvbuff_t *tvb, int offset
 static int
 budb_dissect_GetServerInterfaces_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetServerInterfaces_serverInterfacesP(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetServerInterfaces_serverInterfacesP(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3685,8 +3685,8 @@ budb_dissect_GetServerInterfaces_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 budb_dissect_GetServerInterfaces_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_budb_dissect_GetServerInterfaces_serverInterfacesP(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ref_budb_dissect_GetServerInterfaces_serverInterfacesP(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_budb_rc, NULL);
 
@@ -3720,11 +3720,11 @@ ucarray_budb_dissect_AddVolumes_vol(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 budb_dissect_AddVolumes_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=budb_dissect_AddVolumes_cnt(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=budb_dissect_AddVolumes_cnt(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ucarray_budb_dissect_AddVolumes_vol(tvb, offset, pinfo, tree, drep);
-        offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
+ 	   offset=ucarray_budb_dissect_AddVolumes_vol(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -3750,1075 +3750,1075 @@ proto_register_budb(void)
 
 
 /* INCLUDED FILE : ETH_HFARR */
-        { &hf_budb_opnum,
-          { "Operation", "budb.opnum", FT_UINT16, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_rc,
-          { "Return code", "budb.rc", FT_UINT32, BASE_HEX,
-          VALS(NT_errors), 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_name,
-          { "name", "budb.principal.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_instance,
-          { "instance", "budb.principal.instance", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_cell,
-          { "cell", "budb.principal.cell", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_spare,
-          { "spare", "budb.principal.spare", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_spare1,
-          { "spare1", "budb.principal.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_spare2,
-          { "spare2", "budb.principal.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_spare3,
-          { "spare3", "budb.principal.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_principal_spare4,
-          { "spare4", "budb.principal.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_id,
-          { "id", "budb.tapeSet.id", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_tapeServer,
-          { "tapeServer", "budb.tapeSet.tapeServer", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_format,
-          { "format", "budb.tapeSet.format", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_maxTapes,
-          { "maxTapes", "budb.tapeSet.maxTapes", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_a,
-          { "a", "budb.tapeSet.a", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_b,
-          { "b", "budb.tapeSet.b", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_spare1,
-          { "spare1", "budb.tapeSet.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_spare2,
-          { "spare2", "budb.tapeSet.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_spare3,
-          { "spare3", "budb.tapeSet.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeSet_spare4,
-          { "spare4", "budb.tapeSet.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_id,
-          { "id", "budb.dumpEntry.id", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_parent,
-          { "parent", "budb.dumpEntry.parent", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_level,
-          { "level", "budb.dumpEntry.level", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_flags,
-          { "flags", "budb.dumpEntry.flags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_volumeSetName,
-          { "volumeSetName", "budb.dumpEntry.volumeSetName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_dumpPath,
-          { "dumpPath", "budb.dumpEntry.dumpPath", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_name,
-          { "name", "budb.dumpEntry.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_created,
-          { "created", "budb.dumpEntry.created", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_incTime,
-          { "incTime", "budb.dumpEntry.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_nVolumes,
-          { "nVolumes", "budb.dumpEntry.nVolumes", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_tapes,
-          { "tapes", "budb.dumpEntry.tapes", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_dumper,
-          { "dumper", "budb.dumpEntry.dumper", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_spare1,
-          { "spare1", "budb.dumpEntry.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_spare2,
-          { "spare2", "budb.dumpEntry.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_spare3,
-          { "spare3", "budb.dumpEntry.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpEntry_spare4,
-          { "spare4", "budb.dumpEntry.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_name,
-          { "name", "budb.tapeEntry.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_flags,
-          { "flags", "budb.tapeEntry.flags", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_written,
-          { "written", "budb.tapeEntry.written", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_expires,
-          { "expires", "budb.tapeEntry.expires", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_nMBytes,
-          { "nMBytes", "budb.tapeEntry.nMBytes", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_nBytes,
-          { "nBytes", "budb.tapeEntry.nBytes", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_nFiles,
-          { "nFiles", "budb.tapeEntry.nFiles", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_nVolumes,
-          { "nVolumes", "budb.tapeEntry.nVolumes", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_seq,
-          { "seq", "budb.tapeEntry.seq", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_tapeid,
-          { "tapeid", "budb.tapeEntry.tapeid", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_useCount,
-          { "useCount", "budb.tapeEntry.useCount", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_mediaType,
-          { "mediaType", "budb.tapeEntry.mediaType", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_dump,
-          { "dump", "budb.tapeEntry.dump", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_spare1,
-          { "spare1", "budb.tapeEntry.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_spare2,
-          { "spare2", "budb.tapeEntry.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_spare3,
-          { "spare3", "budb.tapeEntry.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeEntry_spare4,
-          { "spare4", "budb.tapeEntry.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_name,
-          { "name", "budb.volumeEntry.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_flags,
-          { "flags", "budb.volumeEntry.flags", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_id,
-          { "id", "budb.volumeEntry.id", FT_UINT64, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_server,
-          { "server", "budb.volumeEntry.server", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_partition,
-          { "partition", "budb.volumeEntry.partition", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_nFrags,
-          { "nFrags", "budb.volumeEntry.nFrags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_position,
-          { "position", "budb.volumeEntry.position", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_clone,
-          { "clone", "budb.volumeEntry.clone", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_incTime,
-          { "incTime", "budb.volumeEntry.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_startByte,
-          { "startByte", "budb.volumeEntry.startByte", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_nBytes,
-          { "nBytes", "budb.volumeEntry.nBytes", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_seq,
-          { "seq", "budb.volumeEntry.seq", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_dump,
-          { "dump", "budb.volumeEntry.dump", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_tape,
-          { "tape", "budb.volumeEntry.tape", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_spare1,
-          { "spare1", "budb.volumeEntry.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_spare2,
-          { "spare2", "budb.volumeEntry.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_spare3,
-          { "spare3", "budb.volumeEntry.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeEntry_spare4,
-          { "spare4", "budb.volumeEntry.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeList_volumeList_len,
-          { "volumeList_len", "budb.volumeList.volumeList_len", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_volumeList_volumeList_val,
-          { "volumeList_val", "budb.volumeList.volumeList_val", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpList_dumpList_len,
-          { "dumpList_len", "budb.dumpList.dumpList_len", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dumpList_dumpList_val,
-          { "dumpList_val", "budb.dumpList.dumpList_val", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeList_tapeList_len,
-          { "tapeList_len", "budb.tapeList.tapeList_len", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_tapeList_tapeList_val,
-          { "tapeList_val", "budb.tapeList.tapeList_val", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_charListT_charListT_len,
-          { "charListT_len", "budb.charListT.charListT_len", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_charListT_charListT_val,
-          { "charListT_val", "budb.charListT.charListT_val", FT_UINT8, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_dbversion,
-          { "dbversion", "budb.DbHeader.dbversion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_created,
-          { "created", "budb.DbHeader.created", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_cell,
-          { "cell", "budb.DbHeader.cell", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_lastDumpId,
-          { "lastDumpId", "budb.DbHeader.lastDumpId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_lastInstanceId,
-          { "lastInstanceId", "budb.DbHeader.lastInstanceId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_lastTapeId,
-          { "lastTapeId", "budb.DbHeader.lastTapeId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_spare1,
-          { "spare1", "budb.DbHeader.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_spare2,
-          { "spare2", "budb.DbHeader.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_spare3,
-          { "spare3", "budb.DbHeader.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbHeader_spare4,
-          { "spare4", "budb.DbHeader.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_name,
-          { "name", "budb.dbVolume.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_flags,
-          { "flags", "budb.dbVolume.flags", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_id,
-          { "id", "budb.dbVolume.id", FT_UINT64, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_server,
-          { "server", "budb.dbVolume.server", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_partition,
-          { "partition", "budb.dbVolume.partition", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_nFrags,
-          { "nFrags", "budb.dbVolume.nFrags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_position,
-          { "position", "budb.dbVolume.position", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_clone,
-          { "clone", "budb.dbVolume.clone", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_incTime,
-          { "incTime", "budb.dbVolume.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_startByte,
-          { "startByte", "budb.dbVolume.startByte", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_nBytes,
-          { "nBytes", "budb.dbVolume.nBytes", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_seq,
-          { "seq", "budb.dbVolume.seq", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_dump,
-          { "dump", "budb.dbVolume.dump", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_tape,
-          { "tape", "budb.dbVolume.tape", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_spare1,
-          { "spare1", "budb.dbVolume.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_spare2,
-          { "spare2", "budb.dbVolume.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_spare3,
-          { "spare3", "budb.dbVolume.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dbVolume_spare4,
-          { "spare4", "budb.dbVolume.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_structDumpHeader_type,
-          { "type", "budb.structDumpHeader.type", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_structDumpHeader_structversion,
-          { "structversion", "budb.structDumpHeader.structversion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_structDumpHeader_size,
-          { "size", "budb.structDumpHeader.size", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_structDumpHeader_spare1,
-          { "spare1", "budb.structDumpHeader.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_structDumpHeader_spare2,
-          { "spare2", "budb.structDumpHeader.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_structDumpHeader_spare3,
-          { "spare3", "budb.structDumpHeader.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_structDumpHeader_spare4,
-          { "spare4", "budb.structDumpHeader.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_AddVolume_vol,
-          { "vol", "budb.AddVolume.vol", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_CreateDump_dump,
-          { "dump", "budb.CreateDump.dump", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DeleteDump_id,
-          { "id", "budb.DeleteDump.id", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DeleteTape_tape,
-          { "tape", "budb.DeleteTape.tape", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DeleteVDP_dsname,
-          { "dsname", "budb.DeleteVDP.dsname", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DeleteVDP_dumpPath,
-          { "dumpPath", "budb.DeleteVDP.dumpPath", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DeleteVDP_curDumpId,
-          { "curDumpId", "budb.DeleteVDP.curDumpId", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindClone_dumpID,
-          { "dumpID", "budb.FindClone.dumpID", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindClone_volName,
-          { "volName", "budb.FindClone.volName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindClone_clonetime,
-          { "clonetime", "budb.FindClone.clonetime", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindClone_cloneSpare,
-          { "cloneSpare", "budb.FindClone.cloneSpare", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindDump_volName,
-          { "volName", "budb.FindDump.volName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindDump_beforeDate,
-          { "beforeDate", "budb.FindDump.beforeDate", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindDump_dateSpare,
-          { "dateSpare", "budb.FindDump.dateSpare", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindDump_deptr,
-          { "deptr", "budb.FindDump.deptr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindLatestDump_vsname,
-          { "vsname", "budb.FindLatestDump.vsname", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindLatestDump_dname,
-          { "dname", "budb.FindLatestDump.dname", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FindLatestDump_dumpentry,
-          { "dumpentry", "budb.FindLatestDump.dumpentry", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FinishDump_dump,
-          { "dump", "budb.FinishDump.dump", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FinishTape_tape,
-          { "tape", "budb.FinishTape.tape", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_majorVersion,
-          { "majorVersion", "budb.GetDumps.majorVersion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_flags,
-          { "flags", "budb.GetDumps.flags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_name,
-          { "name", "budb.GetDumps.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_start,
-          { "start", "budb.GetDumps.start", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_end,
-          { "end", "budb.GetDumps.end", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_index,
-          { "index", "budb.GetDumps.index", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_nextIndex,
-          { "nextIndex", "budb.GetDumps.nextIndex", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_dbUpdate,
-          { "dbUpdate", "budb.GetDumps.dbUpdate", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetDumps_dumps,
-          { "dumps", "budb.GetDumps.dumps", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_majorVersion,
-          { "majorVersion", "budb.GetTapes.majorVersion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_flags,
-          { "flags", "budb.GetTapes.flags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_name,
-          { "name", "budb.GetTapes.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_start,
-          { "start", "budb.GetTapes.start", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_end,
-          { "end", "budb.GetTapes.end", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_index,
-          { "index", "budb.GetTapes.index", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_nextIndex,
-          { "nextIndex", "budb.GetTapes.nextIndex", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_dbUpdate,
-          { "dbUpdate", "budb.GetTapes.dbUpdate", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTapes_tapes,
-          { "tapes", "budb.GetTapes.tapes", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_majorVersion,
-          { "majorVersion", "budb.GetVolumes.majorVersion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_flags,
-          { "flags", "budb.GetVolumes.flags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_name,
-          { "name", "budb.GetVolumes.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_start,
-          { "start", "budb.GetVolumes.start", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_end,
-          { "end", "budb.GetVolumes.end", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_index,
-          { "index", "budb.GetVolumes.index", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_nextIndex,
-          { "nextIndex", "budb.GetVolumes.nextIndex", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_dbUpdate,
-          { "dbUpdate", "budb.GetVolumes.dbUpdate", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetVolumes_volumes,
-          { "volumes", "budb.GetVolumes.volumes", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_UseTape_tape,
-          { "tape", "budb.UseTape.tape", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_UseTape_new,
-          { "new", "budb.UseTape.new", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetText_lockHandle,
-          { "lockHandle", "budb.GetText.lockHandle", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetText_textType,
-          { "textType", "budb.GetText.textType", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetText_maxLength,
-          { "maxLength", "budb.GetText.maxLength", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetText_offset,
-          { "offset", "budb.GetText.offset", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetText_nextOffset,
-          { "nextOffset", "budb.GetText.nextOffset", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetText_charListPtr,
-          { "charListPtr", "budb.GetText.charListPtr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTextVersion_textType,
-          { "textType", "budb.GetTextVersion.textType", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetTextVersion_tversion,
-          { "tversion", "budb.GetTextVersion.tversion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_SaveText_lockHandle,
-          { "lockHandle", "budb.SaveText.lockHandle", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_SaveText_textType,
-          { "textType", "budb.SaveText.textType", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_SaveText_offset,
-          { "offset", "budb.SaveText.offset", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_SaveText_flags,
-          { "flags", "budb.SaveText.flags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_SaveText_charListPtr,
-          { "charListPtr", "budb.SaveText.charListPtr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FreeAllLocks_instanceId,
-          { "instanceId", "budb.FreeAllLocks.instanceId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_FreeLock_lockHandle,
-          { "lockHandle", "budb.FreeLock.lockHandle", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetInstanceId_instanceId,
-          { "instanceId", "budb.GetInstanceId.instanceId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetLock_instanceId,
-          { "instanceId", "budb.GetLock.instanceId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetLock_lockName,
-          { "lockName", "budb.GetLock.lockName", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetLock_expiration,
-          { "expiration", "budb.GetLock.expiration", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetLock_lockHandle,
-          { "lockHandle", "budb.GetLock.lockHandle", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbVerify_status,
-          { "status", "budb.DbVerify.status", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbVerify_orphans,
-          { "orphans", "budb.DbVerify.orphans", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DbVerify_host,
-          { "host", "budb.DbVerify.host", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DumpDB_maxLength,
-          { "maxLength", "budb.DumpDB.maxLength", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DumpDB_flags,
-          { "flags", "budb.DumpDB.flags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_DumpDB_charListPtr,
-          { "charListPtr", "budb.DumpDB.charListPtr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_RestoreDbHeader_header,
-          { "header", "budb.RestoreDbHeader.header", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_T_GetVersion_majorVersion,
-          { "majorVersion", "budb.T_GetVersion.majorVersion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_T_DumpHashTable_type,
-          { "type", "budb.T_DumpHashTable.type", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_T_DumpHashTable_filename,
-          { "filename", "budb.T_DumpHashTable.filename", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_T_DumpDatabase_filename,
-          { "filename", "budb.T_DumpDatabase.filename", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_interface_uuid,
-          { "interface_uuid", "budb.dfs_interfaceDescription.interface_uuid", FT_GUID, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_vers_major,
-          { "vers_major", "budb.dfs_interfaceDescription.vers_major", FT_UINT16, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_vers_minor,
-          { "vers_minor", "budb.dfs_interfaceDescription.vers_minor", FT_UINT16, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_vers_provider,
-          { "vers_provider", "budb.dfs_interfaceDescription.vers_provider", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare0,
-          { "spare0", "budb.dfs_interfaceDescription.spare0", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare1,
-          { "spare1", "budb.dfs_interfaceDescription.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare2,
-          { "spare2", "budb.dfs_interfaceDescription.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare3,
-          { "spare3", "budb.dfs_interfaceDescription.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare4,
-          { "spare4", "budb.dfs_interfaceDescription.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare5,
-          { "spare5", "budb.dfs_interfaceDescription.spare5", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare6,
-          { "spare6", "budb.dfs_interfaceDescription.spare6", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare7,
-          { "spare7", "budb.dfs_interfaceDescription.spare7", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare8,
-          { "spare8", "budb.dfs_interfaceDescription.spare8", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spare9,
-          { "spare9", "budb.dfs_interfaceDescription.spare9", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceDescription_spareText,
-          { "spareText", "budb.dfs_interfaceDescription.spareText", FT_UINT8, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceList_dfs_interfaceList_len,
-          { "dfs_interfaceList_len", "budb.dfs_interfaceList.dfs_interfaceList_len", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_dfs_interfaceList_dfs_interfaceList_val,
-          { "dfs_interfaceList_val", "budb.dfs_interfaceList.dfs_interfaceList_val", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_GetServerInterfaces_serverInterfacesP,
-          { "serverInterfacesP", "budb.GetServerInterfaces.serverInterfacesP", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_AddVolumes_cnt,
-          { "cnt", "budb.AddVolumes.cnt", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_budb_AddVolumes_vol,
-          { "vol", "budb.AddVolumes.vol", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
+		{ &hf_budb_opnum,
+		  { "Operation", "budb.opnum", FT_UINT16, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_rc,
+		  { "Return code", "budb.rc", FT_UINT32, BASE_HEX,
+		  VALS(NT_errors), 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_name,
+		  { "name", "budb.principal.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_instance,
+		  { "instance", "budb.principal.instance", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_cell,
+		  { "cell", "budb.principal.cell", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_spare,
+		  { "spare", "budb.principal.spare", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_spare1,
+		  { "spare1", "budb.principal.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_spare2,
+		  { "spare2", "budb.principal.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_spare3,
+		  { "spare3", "budb.principal.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_principal_spare4,
+		  { "spare4", "budb.principal.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_id,
+		  { "id", "budb.tapeSet.id", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_tapeServer,
+		  { "tapeServer", "budb.tapeSet.tapeServer", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_format,
+		  { "format", "budb.tapeSet.format", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_maxTapes,
+		  { "maxTapes", "budb.tapeSet.maxTapes", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_a,
+		  { "a", "budb.tapeSet.a", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_b,
+		  { "b", "budb.tapeSet.b", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_spare1,
+		  { "spare1", "budb.tapeSet.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_spare2,
+		  { "spare2", "budb.tapeSet.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_spare3,
+		  { "spare3", "budb.tapeSet.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeSet_spare4,
+		  { "spare4", "budb.tapeSet.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_id,
+		  { "id", "budb.dumpEntry.id", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_parent,
+		  { "parent", "budb.dumpEntry.parent", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_level,
+		  { "level", "budb.dumpEntry.level", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_flags,
+		  { "flags", "budb.dumpEntry.flags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_volumeSetName,
+		  { "volumeSetName", "budb.dumpEntry.volumeSetName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_dumpPath,
+		  { "dumpPath", "budb.dumpEntry.dumpPath", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_name,
+		  { "name", "budb.dumpEntry.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_created,
+		  { "created", "budb.dumpEntry.created", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_incTime,
+		  { "incTime", "budb.dumpEntry.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_nVolumes,
+		  { "nVolumes", "budb.dumpEntry.nVolumes", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_tapes,
+		  { "tapes", "budb.dumpEntry.tapes", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_dumper,
+		  { "dumper", "budb.dumpEntry.dumper", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_spare1,
+		  { "spare1", "budb.dumpEntry.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_spare2,
+		  { "spare2", "budb.dumpEntry.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_spare3,
+		  { "spare3", "budb.dumpEntry.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpEntry_spare4,
+		  { "spare4", "budb.dumpEntry.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_name,
+		  { "name", "budb.tapeEntry.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_flags,
+		  { "flags", "budb.tapeEntry.flags", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_written,
+		  { "written", "budb.tapeEntry.written", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_expires,
+		  { "expires", "budb.tapeEntry.expires", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_nMBytes,
+		  { "nMBytes", "budb.tapeEntry.nMBytes", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_nBytes,
+		  { "nBytes", "budb.tapeEntry.nBytes", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_nFiles,
+		  { "nFiles", "budb.tapeEntry.nFiles", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_nVolumes,
+		  { "nVolumes", "budb.tapeEntry.nVolumes", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_seq,
+		  { "seq", "budb.tapeEntry.seq", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_tapeid,
+		  { "tapeid", "budb.tapeEntry.tapeid", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_useCount,
+		  { "useCount", "budb.tapeEntry.useCount", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_mediaType,
+		  { "mediaType", "budb.tapeEntry.mediaType", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_dump,
+		  { "dump", "budb.tapeEntry.dump", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_spare1,
+		  { "spare1", "budb.tapeEntry.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_spare2,
+		  { "spare2", "budb.tapeEntry.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_spare3,
+		  { "spare3", "budb.tapeEntry.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeEntry_spare4,
+		  { "spare4", "budb.tapeEntry.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_name,
+		  { "name", "budb.volumeEntry.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_flags,
+		  { "flags", "budb.volumeEntry.flags", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_id,
+		  { "id", "budb.volumeEntry.id", FT_UINT64, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_server,
+		  { "server", "budb.volumeEntry.server", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_partition,
+		  { "partition", "budb.volumeEntry.partition", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_nFrags,
+		  { "nFrags", "budb.volumeEntry.nFrags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_position,
+		  { "position", "budb.volumeEntry.position", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_clone,
+		  { "clone", "budb.volumeEntry.clone", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_incTime,
+		  { "incTime", "budb.volumeEntry.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_startByte,
+		  { "startByte", "budb.volumeEntry.startByte", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_nBytes,
+		  { "nBytes", "budb.volumeEntry.nBytes", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_seq,
+		  { "seq", "budb.volumeEntry.seq", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_dump,
+		  { "dump", "budb.volumeEntry.dump", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_tape,
+		  { "tape", "budb.volumeEntry.tape", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_spare1,
+		  { "spare1", "budb.volumeEntry.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_spare2,
+		  { "spare2", "budb.volumeEntry.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_spare3,
+		  { "spare3", "budb.volumeEntry.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeEntry_spare4,
+		  { "spare4", "budb.volumeEntry.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeList_volumeList_len,
+		  { "volumeList_len", "budb.volumeList.volumeList_len", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_volumeList_volumeList_val,
+		  { "volumeList_val", "budb.volumeList.volumeList_val", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpList_dumpList_len,
+		  { "dumpList_len", "budb.dumpList.dumpList_len", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dumpList_dumpList_val,
+		  { "dumpList_val", "budb.dumpList.dumpList_val", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeList_tapeList_len,
+		  { "tapeList_len", "budb.tapeList.tapeList_len", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_tapeList_tapeList_val,
+		  { "tapeList_val", "budb.tapeList.tapeList_val", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_charListT_charListT_len,
+		  { "charListT_len", "budb.charListT.charListT_len", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_charListT_charListT_val,
+		  { "charListT_val", "budb.charListT.charListT_val", FT_UINT8, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_dbversion,
+		  { "dbversion", "budb.DbHeader.dbversion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_created,
+		  { "created", "budb.DbHeader.created", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_cell,
+		  { "cell", "budb.DbHeader.cell", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_lastDumpId,
+		  { "lastDumpId", "budb.DbHeader.lastDumpId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_lastInstanceId,
+		  { "lastInstanceId", "budb.DbHeader.lastInstanceId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_lastTapeId,
+		  { "lastTapeId", "budb.DbHeader.lastTapeId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_spare1,
+		  { "spare1", "budb.DbHeader.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_spare2,
+		  { "spare2", "budb.DbHeader.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_spare3,
+		  { "spare3", "budb.DbHeader.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbHeader_spare4,
+		  { "spare4", "budb.DbHeader.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_name,
+		  { "name", "budb.dbVolume.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_flags,
+		  { "flags", "budb.dbVolume.flags", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_id,
+		  { "id", "budb.dbVolume.id", FT_UINT64, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_server,
+		  { "server", "budb.dbVolume.server", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_partition,
+		  { "partition", "budb.dbVolume.partition", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_nFrags,
+		  { "nFrags", "budb.dbVolume.nFrags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_position,
+		  { "position", "budb.dbVolume.position", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_clone,
+		  { "clone", "budb.dbVolume.clone", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_incTime,
+		  { "incTime", "budb.dbVolume.incTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_startByte,
+		  { "startByte", "budb.dbVolume.startByte", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_nBytes,
+		  { "nBytes", "budb.dbVolume.nBytes", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_seq,
+		  { "seq", "budb.dbVolume.seq", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_dump,
+		  { "dump", "budb.dbVolume.dump", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_tape,
+		  { "tape", "budb.dbVolume.tape", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_spare1,
+		  { "spare1", "budb.dbVolume.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_spare2,
+		  { "spare2", "budb.dbVolume.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_spare3,
+		  { "spare3", "budb.dbVolume.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dbVolume_spare4,
+		  { "spare4", "budb.dbVolume.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_structDumpHeader_type,
+		  { "type", "budb.structDumpHeader.type", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_structDumpHeader_structversion,
+		  { "structversion", "budb.structDumpHeader.structversion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_structDumpHeader_size,
+		  { "size", "budb.structDumpHeader.size", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_structDumpHeader_spare1,
+		  { "spare1", "budb.structDumpHeader.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_structDumpHeader_spare2,
+		  { "spare2", "budb.structDumpHeader.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_structDumpHeader_spare3,
+		  { "spare3", "budb.structDumpHeader.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_structDumpHeader_spare4,
+		  { "spare4", "budb.structDumpHeader.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_AddVolume_vol,
+		  { "vol", "budb.AddVolume.vol", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_CreateDump_dump,
+		  { "dump", "budb.CreateDump.dump", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DeleteDump_id,
+		  { "id", "budb.DeleteDump.id", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DeleteTape_tape,
+		  { "tape", "budb.DeleteTape.tape", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DeleteVDP_dsname,
+		  { "dsname", "budb.DeleteVDP.dsname", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DeleteVDP_dumpPath,
+		  { "dumpPath", "budb.DeleteVDP.dumpPath", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DeleteVDP_curDumpId,
+		  { "curDumpId", "budb.DeleteVDP.curDumpId", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindClone_dumpID,
+		  { "dumpID", "budb.FindClone.dumpID", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindClone_volName,
+		  { "volName", "budb.FindClone.volName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindClone_clonetime,
+		  { "clonetime", "budb.FindClone.clonetime", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindClone_cloneSpare,
+		  { "cloneSpare", "budb.FindClone.cloneSpare", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindDump_volName,
+		  { "volName", "budb.FindDump.volName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindDump_beforeDate,
+		  { "beforeDate", "budb.FindDump.beforeDate", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindDump_dateSpare,
+		  { "dateSpare", "budb.FindDump.dateSpare", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindDump_deptr,
+		  { "deptr", "budb.FindDump.deptr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindLatestDump_vsname,
+		  { "vsname", "budb.FindLatestDump.vsname", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindLatestDump_dname,
+		  { "dname", "budb.FindLatestDump.dname", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FindLatestDump_dumpentry,
+		  { "dumpentry", "budb.FindLatestDump.dumpentry", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FinishDump_dump,
+		  { "dump", "budb.FinishDump.dump", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FinishTape_tape,
+		  { "tape", "budb.FinishTape.tape", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_majorVersion,
+		  { "majorVersion", "budb.GetDumps.majorVersion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_flags,
+		  { "flags", "budb.GetDumps.flags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_name,
+		  { "name", "budb.GetDumps.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_start,
+		  { "start", "budb.GetDumps.start", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_end,
+		  { "end", "budb.GetDumps.end", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_index,
+		  { "index", "budb.GetDumps.index", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_nextIndex,
+		  { "nextIndex", "budb.GetDumps.nextIndex", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_dbUpdate,
+		  { "dbUpdate", "budb.GetDumps.dbUpdate", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetDumps_dumps,
+		  { "dumps", "budb.GetDumps.dumps", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_majorVersion,
+		  { "majorVersion", "budb.GetTapes.majorVersion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_flags,
+		  { "flags", "budb.GetTapes.flags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_name,
+		  { "name", "budb.GetTapes.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_start,
+		  { "start", "budb.GetTapes.start", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_end,
+		  { "end", "budb.GetTapes.end", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_index,
+		  { "index", "budb.GetTapes.index", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_nextIndex,
+		  { "nextIndex", "budb.GetTapes.nextIndex", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_dbUpdate,
+		  { "dbUpdate", "budb.GetTapes.dbUpdate", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTapes_tapes,
+		  { "tapes", "budb.GetTapes.tapes", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_majorVersion,
+		  { "majorVersion", "budb.GetVolumes.majorVersion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_flags,
+		  { "flags", "budb.GetVolumes.flags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_name,
+		  { "name", "budb.GetVolumes.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_start,
+		  { "start", "budb.GetVolumes.start", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_end,
+		  { "end", "budb.GetVolumes.end", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_index,
+		  { "index", "budb.GetVolumes.index", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_nextIndex,
+		  { "nextIndex", "budb.GetVolumes.nextIndex", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_dbUpdate,
+		  { "dbUpdate", "budb.GetVolumes.dbUpdate", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetVolumes_volumes,
+		  { "volumes", "budb.GetVolumes.volumes", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_UseTape_tape,
+		  { "tape", "budb.UseTape.tape", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_UseTape_new,
+		  { "new", "budb.UseTape.new", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetText_lockHandle,
+		  { "lockHandle", "budb.GetText.lockHandle", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetText_textType,
+		  { "textType", "budb.GetText.textType", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetText_maxLength,
+		  { "maxLength", "budb.GetText.maxLength", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetText_offset,
+		  { "offset", "budb.GetText.offset", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetText_nextOffset,
+		  { "nextOffset", "budb.GetText.nextOffset", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetText_charListPtr,
+		  { "charListPtr", "budb.GetText.charListPtr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTextVersion_textType,
+		  { "textType", "budb.GetTextVersion.textType", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetTextVersion_tversion,
+		  { "tversion", "budb.GetTextVersion.tversion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_SaveText_lockHandle,
+		  { "lockHandle", "budb.SaveText.lockHandle", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_SaveText_textType,
+		  { "textType", "budb.SaveText.textType", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_SaveText_offset,
+		  { "offset", "budb.SaveText.offset", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_SaveText_flags,
+		  { "flags", "budb.SaveText.flags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_SaveText_charListPtr,
+		  { "charListPtr", "budb.SaveText.charListPtr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FreeAllLocks_instanceId,
+		  { "instanceId", "budb.FreeAllLocks.instanceId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_FreeLock_lockHandle,
+		  { "lockHandle", "budb.FreeLock.lockHandle", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetInstanceId_instanceId,
+		  { "instanceId", "budb.GetInstanceId.instanceId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetLock_instanceId,
+		  { "instanceId", "budb.GetLock.instanceId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetLock_lockName,
+		  { "lockName", "budb.GetLock.lockName", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetLock_expiration,
+		  { "expiration", "budb.GetLock.expiration", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetLock_lockHandle,
+		  { "lockHandle", "budb.GetLock.lockHandle", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbVerify_status,
+		  { "status", "budb.DbVerify.status", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbVerify_orphans,
+		  { "orphans", "budb.DbVerify.orphans", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DbVerify_host,
+		  { "host", "budb.DbVerify.host", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DumpDB_maxLength,
+		  { "maxLength", "budb.DumpDB.maxLength", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DumpDB_flags,
+		  { "flags", "budb.DumpDB.flags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_DumpDB_charListPtr,
+		  { "charListPtr", "budb.DumpDB.charListPtr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_RestoreDbHeader_header,
+		  { "header", "budb.RestoreDbHeader.header", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_T_GetVersion_majorVersion,
+		  { "majorVersion", "budb.T_GetVersion.majorVersion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_T_DumpHashTable_type,
+		  { "type", "budb.T_DumpHashTable.type", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_T_DumpHashTable_filename,
+		  { "filename", "budb.T_DumpHashTable.filename", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_T_DumpDatabase_filename,
+		  { "filename", "budb.T_DumpDatabase.filename", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_interface_uuid,
+		  { "interface_uuid", "budb.dfs_interfaceDescription.interface_uuid", FT_GUID, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_vers_major,
+		  { "vers_major", "budb.dfs_interfaceDescription.vers_major", FT_UINT16, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_vers_minor,
+		  { "vers_minor", "budb.dfs_interfaceDescription.vers_minor", FT_UINT16, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_vers_provider,
+		  { "vers_provider", "budb.dfs_interfaceDescription.vers_provider", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare0,
+		  { "spare0", "budb.dfs_interfaceDescription.spare0", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare1,
+		  { "spare1", "budb.dfs_interfaceDescription.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare2,
+		  { "spare2", "budb.dfs_interfaceDescription.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare3,
+		  { "spare3", "budb.dfs_interfaceDescription.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare4,
+		  { "spare4", "budb.dfs_interfaceDescription.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare5,
+		  { "spare5", "budb.dfs_interfaceDescription.spare5", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare6,
+		  { "spare6", "budb.dfs_interfaceDescription.spare6", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare7,
+		  { "spare7", "budb.dfs_interfaceDescription.spare7", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare8,
+		  { "spare8", "budb.dfs_interfaceDescription.spare8", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spare9,
+		  { "spare9", "budb.dfs_interfaceDescription.spare9", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceDescription_spareText,
+		  { "spareText", "budb.dfs_interfaceDescription.spareText", FT_UINT8, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceList_dfs_interfaceList_len,
+		  { "dfs_interfaceList_len", "budb.dfs_interfaceList.dfs_interfaceList_len", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_dfs_interfaceList_dfs_interfaceList_val,
+		  { "dfs_interfaceList_val", "budb.dfs_interfaceList.dfs_interfaceList_val", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_GetServerInterfaces_serverInterfacesP,
+		  { "serverInterfacesP", "budb.GetServerInterfaces.serverInterfacesP", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_AddVolumes_cnt,
+		  { "cnt", "budb.AddVolumes.cnt", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_budb_AddVolumes_vol,
+		  { "vol", "budb.AddVolumes.vol", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
 
 /* END OF INCLUDED FILE : ETH_HFARR */
 
@@ -4829,21 +4829,21 @@ proto_register_budb(void)
 
 
 /* INCLUDED FILE : ETH_ETTARR */
-        &ett_budb,
-        &ett_budb_principal,
-        &ett_budb_tapeSet,
-        &ett_budb_dumpEntry,
-        &ett_budb_tapeEntry,
-        &ett_budb_volumeEntry,
-        &ett_budb_volumeList,
-        &ett_budb_dumpList,
-        &ett_budb_tapeList,
-        &ett_budb_charListT,
-        &ett_budb_DbHeader,
-        &ett_budb_dbVolume,
-        &ett_budb_structDumpHeader,
-        &ett_budb_dfs_interfaceDescription,
-        &ett_budb_dfs_interfaceList,
+		 &ett_budb,
+		 &ett_budb_principal,
+		 &ett_budb_tapeSet,
+		 &ett_budb_dumpEntry,
+		 &ett_budb_tapeEntry,
+		 &ett_budb_volumeEntry,
+		 &ett_budb_volumeList,
+		 &ett_budb_dumpList,
+		 &ett_budb_tapeList,
+		 &ett_budb_charListT,
+		 &ett_budb_DbHeader,
+		 &ett_budb_dbVolume,
+		 &ett_budb_structDumpHeader,
+		 &ett_budb_dfs_interfaceDescription,
+		 &ett_budb_dfs_interfaceList,
 /* END OF INCLUDED FILE : ETH_ETTARR */
 
 
@@ -4860,93 +4860,93 @@ static dcerpc_sub_dissector function_dissectors[] = {
 
 
 /* INCLUDED FILE : ETH_FT */
-    { 0, "AddVolume",
-        budb_dissect_AddVolume_request,
-        budb_dissect_AddVolume_response },
-    { 1, "CreateDump",
-        budb_dissect_CreateDump_request,
-        budb_dissect_CreateDump_response },
-    { 2, "DeleteDump",
-        budb_dissect_DeleteDump_request,
-        budb_dissect_DeleteDump_response },
-    { 3, "DeleteTape",
-        budb_dissect_DeleteTape_request,
-        budb_dissect_DeleteTape_response },
-    { 4, "DeleteVDP",
-        budb_dissect_DeleteVDP_request,
-        budb_dissect_DeleteVDP_response },
-    { 5, "FindClone",
-        budb_dissect_FindClone_request,
-        budb_dissect_FindClone_response },
-    { 6, "FindDump",
-        budb_dissect_FindDump_request,
-        budb_dissect_FindDump_response },
-    { 7, "FindLatestDump",
-        budb_dissect_FindLatestDump_request,
-        budb_dissect_FindLatestDump_response },
-    { 8, "FinishDump",
-        budb_dissect_FinishDump_request,
-        budb_dissect_FinishDump_response },
-    { 9, "FinishTape",
-        budb_dissect_FinishTape_request,
-        budb_dissect_FinishTape_response },
-    { 10, "GetDumps",
-        budb_dissect_GetDumps_request,
-        budb_dissect_GetDumps_response },
-    { 11, "GetTapes",
-        budb_dissect_GetTapes_request,
-        budb_dissect_GetTapes_response },
-    { 12, "GetVolumes",
-        budb_dissect_GetVolumes_request,
-        budb_dissect_GetVolumes_response },
-    { 13, "UseTape",
-        budb_dissect_UseTape_request,
-        budb_dissect_UseTape_response },
-    { 14, "GetText",
-        budb_dissect_GetText_request,
-        budb_dissect_GetText_response },
-    { 15, "GetTextVersion",
-        budb_dissect_GetTextVersion_request,
-        budb_dissect_GetTextVersion_response },
-    { 16, "SaveText",
-        budb_dissect_SaveText_request,
-        budb_dissect_SaveText_response },
-    { 17, "FreeAllLocks",
-        budb_dissect_FreeAllLocks_request,
-        budb_dissect_FreeAllLocks_response },
-    { 18, "FreeLock",
-        budb_dissect_FreeLock_request,
-        budb_dissect_FreeLock_response },
-    { 19, "GetInstanceId",
-        budb_dissect_GetInstanceId_request,
-        budb_dissect_GetInstanceId_response },
-    { 20, "GetLock",
-        budb_dissect_GetLock_request,
-        budb_dissect_GetLock_response },
-    { 21, "DbVerify",
-        budb_dissect_DbVerify_request,
-        budb_dissect_DbVerify_response },
-    { 22, "DumpDB",
-        budb_dissect_DumpDB_request,
-        budb_dissect_DumpDB_response },
-    { 23, "RestoreDbHeader",
-        budb_dissect_RestoreDbHeader_request,
-        budb_dissect_RestoreDbHeader_response },
-    { 24, "T_GetVersion",
-        budb_dissect_T_GetVersion_request,
-        budb_dissect_T_GetVersion_response },
-    { 25, "T_DumpHashTable",
-        budb_dissect_T_DumpHashTable_request,
-        budb_dissect_T_DumpHashTable_response },
-    { 26, "T_DumpDatabase",
-        budb_dissect_T_DumpDatabase_request,
-        budb_dissect_T_DumpDatabase_response },
-    { 27, "GetServerInterfaces",
-        budb_dissect_GetServerInterfaces_request,
-        budb_dissect_GetServerInterfaces_response },
-    { 28, "AddVolumes",
-        budb_dissect_AddVolumes_request,
-        budb_dissect_AddVolumes_response },
+	 { 0, "AddVolume",
+		 budb_dissect_AddVolume_request,
+		 budb_dissect_AddVolume_response },
+	 { 1, "CreateDump",
+		 budb_dissect_CreateDump_request,
+		 budb_dissect_CreateDump_response },
+	 { 2, "DeleteDump",
+		 budb_dissect_DeleteDump_request,
+		 budb_dissect_DeleteDump_response },
+	 { 3, "DeleteTape",
+		 budb_dissect_DeleteTape_request,
+		 budb_dissect_DeleteTape_response },
+	 { 4, "DeleteVDP",
+		 budb_dissect_DeleteVDP_request,
+		 budb_dissect_DeleteVDP_response },
+	 { 5, "FindClone",
+		 budb_dissect_FindClone_request,
+		 budb_dissect_FindClone_response },
+	 { 6, "FindDump",
+		 budb_dissect_FindDump_request,
+		 budb_dissect_FindDump_response },
+	 { 7, "FindLatestDump",
+		 budb_dissect_FindLatestDump_request,
+		 budb_dissect_FindLatestDump_response },
+	 { 8, "FinishDump",
+		 budb_dissect_FinishDump_request,
+		 budb_dissect_FinishDump_response },
+	 { 9, "FinishTape",
+		 budb_dissect_FinishTape_request,
+		 budb_dissect_FinishTape_response },
+	 { 10, "GetDumps",
+		 budb_dissect_GetDumps_request,
+		 budb_dissect_GetDumps_response },
+	 { 11, "GetTapes",
+		 budb_dissect_GetTapes_request,
+		 budb_dissect_GetTapes_response },
+	 { 12, "GetVolumes",
+		 budb_dissect_GetVolumes_request,
+		 budb_dissect_GetVolumes_response },
+	 { 13, "UseTape",
+		 budb_dissect_UseTape_request,
+		 budb_dissect_UseTape_response },
+	 { 14, "GetText",
+		 budb_dissect_GetText_request,
+		 budb_dissect_GetText_response },
+	 { 15, "GetTextVersion",
+		 budb_dissect_GetTextVersion_request,
+		 budb_dissect_GetTextVersion_response },
+	 { 16, "SaveText",
+		 budb_dissect_SaveText_request,
+		 budb_dissect_SaveText_response },
+	 { 17, "FreeAllLocks",
+		 budb_dissect_FreeAllLocks_request,
+		 budb_dissect_FreeAllLocks_response },
+	 { 18, "FreeLock",
+		 budb_dissect_FreeLock_request,
+		 budb_dissect_FreeLock_response },
+	 { 19, "GetInstanceId",
+		 budb_dissect_GetInstanceId_request,
+		 budb_dissect_GetInstanceId_response },
+	 { 20, "GetLock",
+		 budb_dissect_GetLock_request,
+		 budb_dissect_GetLock_response },
+	 { 21, "DbVerify",
+		 budb_dissect_DbVerify_request,
+		 budb_dissect_DbVerify_response },
+	 { 22, "DumpDB",
+		 budb_dissect_DumpDB_request,
+		 budb_dissect_DumpDB_response },
+	 { 23, "RestoreDbHeader",
+		 budb_dissect_RestoreDbHeader_request,
+		 budb_dissect_RestoreDbHeader_response },
+	 { 24, "T_GetVersion",
+		 budb_dissect_T_GetVersion_request,
+		 budb_dissect_T_GetVersion_response },
+	 { 25, "T_DumpHashTable",
+		 budb_dissect_T_DumpHashTable_request,
+		 budb_dissect_T_DumpHashTable_response },
+	 { 26, "T_DumpDatabase",
+		 budb_dissect_T_DumpDatabase_request,
+		 budb_dissect_T_DumpDatabase_response },
+	 { 27, "GetServerInterfaces",
+		 budb_dissect_GetServerInterfaces_request,
+		 budb_dissect_GetServerInterfaces_response },
+	 { 28, "AddVolumes",
+		 budb_dissect_AddVolumes_request,
+		 budb_dissect_AddVolumes_response },
 /* END OF INCLUDED FILE : ETH_FT */
 
 
@@ -4959,9 +4959,9 @@ proto_reg_handoff_budb(void)
 
 
 /* INCLUDED FILE : ETH_HANDOFF */
-    dcerpc_init_uuid(proto_budb, ett_budb,
-        &uuid_dcerpc_budb, ver_budb,
-        function_dissectors, hf_budb_opnum);
+	  dcerpc_init_uuid(proto_budb, ett_budb,
+		  &uuid_dcerpc_budb, ver_budb,
+		  function_dissectors, hf_budb_opnum);
 /* END OF INCLUDED FILE : ETH_HANDOFF */
 
 

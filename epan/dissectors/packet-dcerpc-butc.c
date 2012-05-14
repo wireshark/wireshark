@@ -205,8 +205,8 @@ butc_dissect_NameString_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 /* INCLUDED FILE : ETH_CODE */
 static e_uuid_t uuid_dcerpc_butc = {
-    0x1d193c08, 0x000b, 0x11ca,
-    { 0xba, 0x1d, 0x02, 0x60, 0x8c, 0x2e, 0xa9, 0x6e}
+	  0x1d193c08, 0x000b, 0x11ca,
+	  { 0xba, 0x1d, 0x02, 0x60, 0x8c, 0x2e, 0xa9, 0x6e}
 };
 
 static guint16 ver_butc = 4;
@@ -232,8 +232,8 @@ butc_dissect_Restore_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
     ALIGN_TO_4_BYTES;
 
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_Restore_flags);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+ 	   tree=proto_item_add_subtree(item, ett_butc_Restore_flags);
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &flags);
@@ -241,18 +241,18 @@ butc_dissect_Restore_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
     proto_tree_add_boolean(tree, hf_butc_Restore_flags_TC_RESTORE_CREATE, tvb, offset-4, 4, flags);
     if(flags&0x00000001){
-        proto_item_append_text(item, " TC_RESTORE_CREATE");
+ 	   proto_item_append_text(item, " TC_RESTORE_CREATE");
     }
     flags&=(~0x00000001);
 
     proto_tree_add_boolean(tree, hf_butc_Restore_flags_TC_RESTORE_INCR, tvb, offset-4, 4, flags);
     if(flags&0x00000002){
-        proto_item_append_text(item, " TC_RESTORE_INCR");
+ 	   proto_item_append_text(item, " TC_RESTORE_INCR");
     }
     flags&=(~0x00000002);
 
     if(flags){
-        proto_item_append_text(item, "UNKNOWN-FLAGS");
+ 	   proto_item_append_text(item, "UNKNOWN-FLAGS");
     }
 
     return offset;
@@ -268,9 +268,9 @@ butc_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 butc_dissect_afsNetAddr_type(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_butc_afsNetAddr_type, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint16(tvb, offset, pinfo, tree, drep, hf_butc_afsNetAddr_type, param);
+	 return offset;
 }
 
 
@@ -284,20 +284,20 @@ butc_dissect_uint8(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 static int
 butc_dissect_afsNetAddr_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_butc_afsNetAddr_data, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint8(tvb, offset, pinfo, tree, drep, hf_butc_afsNetAddr_data, param);
+	 return offset;
 }
 
 static int
 fixedarray_butc_dissect_afsNetAddr_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    int count=14;
-    while(count--){
-        offset=butc_dissect_afsNetAddr_data(tvb, offset, pinfo, tree, drep);
-    }
+	 int count=14;
+	 while(count--){
+		 offset=butc_dissect_afsNetAddr_data(tvb, offset, pinfo, tree, drep);
+	 }
 
-    return offset;
+	 return offset;
 }
 
 
@@ -312,8 +312,8 @@ butc_dissect_afsNetAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_afsNetAddr);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_afsNetAddr);
     }
 
     offset=butc_dissect_afsNetAddr_type(tvb, offset, pinfo, tree, drep);
@@ -337,17 +337,17 @@ butc_dissect_udlong(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 butc_dissect_tc_dumpDesc_vid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_vid, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_vid, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpDesc_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_name, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_name, param);
+	 return offset;
 }
 
 
@@ -361,9 +361,9 @@ butc_dissect_int32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 static int
 butc_dissect_tc_dumpDesc_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_partition, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_partition, param);
+	 return offset;
 }
 
 
@@ -379,25 +379,25 @@ butc_dissect_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 butc_dissect_tc_dumpDesc_date(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_date, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_date, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpDesc_cloneDate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_cloneDate, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_cloneDate, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpDesc_hostAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_hostAddr, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_hostAddr, param);
+	 return offset;
 }
 
 
@@ -411,33 +411,33 @@ butc_dissect_uint32(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 static int
 butc_dissect_tc_dumpDesc_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare1, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpDesc_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpDesc_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpDesc_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpDesc_spare4, param);
+	 return offset;
 }
 
 
@@ -452,8 +452,8 @@ butc_dissect_tc_dumpDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_dumpDesc);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpDesc);
     }
 
     offset=butc_dissect_tc_dumpDesc_vid(tvb, offset, pinfo, tree, drep);
@@ -483,113 +483,113 @@ butc_dissect_tc_dumpDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 butc_dissect_tc_restoreDesc_frag(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_frag, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_frag, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_tapeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_tapeName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_tapeName, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_position(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_position, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_position, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_origVid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_origVid, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_origVid, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_vid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_vid, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_vid, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_partition(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_partition, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_partition, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_Restore_flags(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_flags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_Restore_flags(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_flags, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_hostAddr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_hostAddr, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_afsNetAddr(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_hostAddr, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_realDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_realDumpId, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_realDumpId, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_spare4, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_oldName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_oldName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_oldName, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreDesc_newName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_newName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreDesc_newName, param);
+	 return offset;
 }
 
 
@@ -604,8 +604,8 @@ butc_dissect_tc_restoreDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_restoreDesc);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_restoreDesc);
     }
 
     offset=butc_dissect_tc_restoreDesc_frag(tvb, offset, pinfo, tree, drep);
@@ -643,73 +643,73 @@ butc_dissect_tc_restoreDesc(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 butc_dissect_tc_dumpStat_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_dumpID, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_dumpID, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_bytesDumped(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_bytesDumped, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_bytesDumped, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_volumeBeingDumped(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_volumeBeingDumped, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_udlong(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_volumeBeingDumped, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_numVolErrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_numVolErrs, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_numVolErrs, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_flags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_flags, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare1, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpStat_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpStat_spare4, param);
+	 return offset;
 }
 
 
@@ -724,8 +724,8 @@ butc_dissect_tc_dumpStat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_dumpStat);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpStat);
     }
 
     offset=butc_dissect_tc_dumpStat_dumpID(tvb, offset, pinfo, tree, drep);
@@ -753,65 +753,65 @@ butc_dissect_tc_dumpStat(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 butc_dissect_tc_tapeLabel_size(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_size, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_size, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeLabel_size_ext(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_size_ext, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_size_ext, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeLabel_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare1, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeLabel_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeLabel_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeLabel_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_spare4, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeLabel_nameLen(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_nameLen, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_nameLen, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeLabel_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_name, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeLabel_name, param);
+	 return offset;
 }
 
 
@@ -826,8 +826,8 @@ butc_dissect_tc_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_tapeLabel);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_tapeLabel);
     }
 
     offset=butc_dissect_tc_tapeLabel_size(tvb, offset, pinfo, tree, drep);
@@ -853,97 +853,97 @@ butc_dissect_tc_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 static int
 butc_dissect_tc_tapeSet_id(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_id, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_id, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_tapeServer(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_tapeServer, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_tapeServer, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_format(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_format, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_format, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_maxTapes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_maxTapes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_maxTapes, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_a(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_a, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_a, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_b(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_b, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_b, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_expDate(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_expDate, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_expDate, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_expType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_expType, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_expType, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare1, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tapeSet_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tapeSet_spare4, param);
+	 return offset;
 }
 
 
@@ -958,8 +958,8 @@ butc_dissect_tc_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_tapeSet);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_tapeSet);
     }
 
     offset=butc_dissect_tc_tapeSet_id(tvb, offset, pinfo, tree, drep);
@@ -993,41 +993,41 @@ butc_dissect_tc_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 static int
 butc_dissect_tc_tcInfo_tcVersion(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_tcVersion, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_tcVersion, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tcInfo_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare1, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tcInfo_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tcInfo_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_tcInfo_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_tcInfo_spare4, param);
+	 return offset;
 }
 
 
@@ -1042,8 +1042,8 @@ butc_dissect_tc_tcInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_tcInfo);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_tcInfo);
     }
 
     offset=butc_dissect_tc_tcInfo_tcVersion(tvb, offset, pinfo, tree, drep);
@@ -1063,31 +1063,31 @@ butc_dissect_tc_tcInfo(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 static int
 butc_dissect_tc_restoreArray_tc_restoreArray_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreArray_tc_restoreArray_len, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreArray_tc_restoreArray_len, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_tc_restoreDesc(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreArray_tc_restoreArray_val, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_tc_restoreDesc(tvb, offset, pinfo, tree, drep, hf_butc_tc_restoreArray_tc_restoreArray_val, param);
+	 return offset;
 }
 
 static int
 ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_tc_restoreArray_tc_restoreArray_val, NDR_POINTER_PTR, "tc_restoreArray_val", -1);
-    return offset;
+	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_tc_restoreArray_tc_restoreArray_val, NDR_POINTER_PTR, "tc_restoreArray_val", -1);
+	 return offset;
 }
 
 static int
 ucarray_ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val);
-    return offset;
+	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_butc_dissect_tc_restoreArray_tc_restoreArray_val);
+	 return offset;
 }
 
 
@@ -1102,8 +1102,8 @@ butc_dissect_tc_restoreArray(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_restoreArray);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_restoreArray);
     }
 
     offset=butc_dissect_tc_restoreArray_tc_restoreArray_len(tvb, offset, pinfo, tree, drep);
@@ -1117,31 +1117,31 @@ butc_dissect_tc_restoreArray(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 butc_dissect_tc_dumpArray_tc_dumpArray_len(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpArray_tc_dumpArray_len, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpArray_tc_dumpArray_len, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_tc_dumpDesc(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpArray_tc_dumpArray, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_tc_dumpDesc(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpArray_tc_dumpArray, param);
+	 return offset;
 }
 
 static int
 ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_tc_dumpArray_tc_dumpArray, NDR_POINTER_PTR, "tc_dumpArray", -1);
-    return offset;
+	 offset=dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_tc_dumpArray_tc_dumpArray, NDR_POINTER_PTR, "tc_dumpArray", -1);
+	 return offset;
 }
 
 static int
 ucarray_ptr_butc_dissect_tc_dumpArray_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_butc_dissect_tc_dumpArray_tc_dumpArray);
-    return offset;
+	 offset=dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep, ptr_butc_dissect_tc_dumpArray_tc_dumpArray);
+	 return offset;
 }
 
 
@@ -1156,8 +1156,8 @@ butc_dissect_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_dumpArray);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpArray);
     }
 
     offset=butc_dissect_tc_dumpArray_tc_dumpArray_len(tvb, offset, pinfo, tree, drep);
@@ -1171,81 +1171,81 @@ butc_dissect_tc_dumpArray(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 static int
 butc_dissect_tc_dumpInterface_dumpPath(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpPath, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpPath, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_volumeSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_volumeSetName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_volumeSetName, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_dumpName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpName, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_tapeSet(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_tc_tapeSet(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_tapeSet, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_tc_tapeSet(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_tapeSet, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_parentDumpId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_parentDumpId, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_parentDumpId, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_dumpLevel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpLevel, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_dumpLevel, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare1, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_dumpInterface_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_dumpInterface_spare4, param);
+	 return offset;
 }
 
 
@@ -1260,8 +1260,8 @@ butc_dissect_tc_dumpInterface(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_dumpInterface);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_dumpInterface);
     }
 
     offset=butc_dissect_tc_dumpInterface_dumpPath(tvb, offset, pinfo, tree, drep);
@@ -1291,33 +1291,33 @@ butc_dissect_tc_dumpInterface(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int
 butc_dissect_tc_statusInfoSwitchVol_nKBytes(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_nKBytes, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_nKBytes, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_statusInfoSwitchVol_volumeName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_volumeName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_volumeName, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_statusInfoSwitchVol_volsFailed(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_volsFailed, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_int32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_volsFailed, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_statusInfoSwitchVol_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchVol_spare1, param);
+	 return offset;
 }
 
 
@@ -1332,8 +1332,8 @@ butc_dissect_tc_statusInfoSwitchVol(tvbuff_t *tvb, int offset, packet_info *pinf
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitchVol);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitchVol);
     }
 
     offset=butc_dissect_tc_statusInfoSwitchVol_nKBytes(tvb, offset, pinfo, tree, drep);
@@ -1351,17 +1351,17 @@ butc_dissect_tc_statusInfoSwitchVol(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 butc_dissect_tc_statusInfoSwitchLabel_tapeLabel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_tc_tapeLabel(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchLabel_tapeLabel, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_tc_tapeLabel(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchLabel_tapeLabel, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tc_statusInfoSwitchLabel_spare1(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchLabel_spare1, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tc_statusInfoSwitchLabel_spare1, param);
+	 return offset;
 }
 
 
@@ -1376,8 +1376,8 @@ butc_dissect_tc_statusInfoSwitchLabel(tvbuff_t *tvb, int offset, packet_info *pi
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitchLabel);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitchLabel);
     }
 
     offset=butc_dissect_tc_statusInfoSwitchLabel_tapeLabel(tvb, offset, pinfo, tree, drep);
@@ -1475,69 +1475,69 @@ butc_dissect_union_tc_statusInfoSwitch(tvbuff_t *tvb, int offset, packet_info *p
     proto_item *item=NULL;
     proto_tree *tree=NULL;
     int old_offset;
-    guint32 level;
+    guint32 level = 0;
 
     ALIGN_TO_4_BYTES;
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "tc_statusInfoSwitch");
-        tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitch);
+ 	   item=proto_tree_add_text(parent_tree, tvb, offset, -1, "tc_statusInfoSwitch");
+ 	   tree=proto_item_add_subtree(item, ett_butc_tc_statusInfoSwitch);
     }
 
     offset=dissect_ndr_uint32(tvb, offset, pinfo, tree,
-                              drep, hf_index, &level);
+ 							 drep, hf_index, &level);
 
     switch(level){
     case TCOP_NONE:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_NONE_none(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_NONE_none(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_DUMP:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_DUMP_vol(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_DUMP_vol(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_RESTORE:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTORE_vol(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTORE_vol(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_LABELTAPE:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_LABELTAPE_label(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_LABELTAPE_label(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_READLABEL:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_READLABEL_label(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_READLABEL_label(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_SCANTAPE:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_STATUS:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_STATUS_spare2(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_STATUS_spare2(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_SAVEDB:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SAVEDB_spare3(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SAVEDB_spare3(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_RESTOREDB:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     case TCOP_SPARE:
-        ALIGN_TO_4_BYTES;
-        offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SPARE_spare5(tvb, offset, pinfo, tree, drep);
-        break;
+ 	   ALIGN_TO_4_BYTES;
+ 	   offset=butc_dissect_union_tc_statusInfoSwitch_TCOP_SPARE_spare5(tvb, offset, pinfo, tree, drep);
+ 	   break;
 
     }
 
@@ -1548,65 +1548,65 @@ butc_dissect_union_tc_statusInfoSwitch(tvbuff_t *tvb, int offset, packet_info *p
 static int
 butc_dissect_tciStatusS_taskName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_taskName, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_NameString_t(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_taskName, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tciStatusS_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_flags, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_flags, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tciStatusS_lastPolled(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_lastPolled, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_time_t(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_lastPolled, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tciStatusS_info(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_union_tc_statusInfoSwitch(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_info, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_union_tc_statusInfoSwitch(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_info, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tciStatusS_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_taskId, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_taskId, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tciStatusS_spare2(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare2, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare2, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tciStatusS_spare3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare3, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare3, param);
+	 return offset;
 }
 
 static int
 butc_dissect_tciStatusS_spare4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    guint32 param=0;
-    offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare4, param);
-    return offset;
+	 guint32 param=0;
+	 offset=butc_dissect_uint32(tvb, offset, pinfo, tree, drep, hf_butc_tciStatusS_spare4, param);
+	 return offset;
 }
 
 
@@ -1621,8 +1621,8 @@ butc_dissect_tciStatusS(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 
     old_offset=offset;
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-        tree=proto_item_add_subtree(item, ett_butc_tciStatusS);
+ 	   item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+ 	   tree=proto_item_add_subtree(item, ett_butc_tciStatusS);
     }
 
     offset=butc_dissect_tciStatusS_taskName(tvb, offset, pinfo, tree, drep);
@@ -1656,7 +1656,7 @@ butc_dissect_BUTC_PerformDump_tcdiPtr(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 ref_butc_dissect_BUTC_PerformDump_tcdiPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_tcdiPtr, NDR_POINTER_REF, "tcdiPtr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_tcdiPtr, NDR_POINTER_REF, "tcdiPtr", -1);
     return offset;
 }
 
@@ -1671,7 +1671,7 @@ butc_dissect_BUTC_PerformDump_dumps(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 ref_butc_dissect_BUTC_PerformDump_dumps(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_dumps, NDR_POINTER_REF, "dumps", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_dumps, NDR_POINTER_REF, "dumps", -1);
     return offset;
 }
 
@@ -1686,7 +1686,7 @@ butc_dissect_BUTC_PerformDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pin
 static int
 ref_butc_dissect_BUTC_PerformDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_dumpID, NDR_POINTER_REF, "dumpID", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformDump_dumpID, NDR_POINTER_REF, "dumpID", -1);
     return offset;
 }
 
@@ -1694,9 +1694,11 @@ ref_butc_dissect_BUTC_PerformDump_dumpID(tvbuff_t *tvb, int offset, packet_info 
 static int
 butc_dissect_BUTC_PerformDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_PerformDump_tcdiPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformDump_tcdiPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_butc_dissect_BUTC_PerformDump_dumps(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformDump_dumps(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1705,7 +1707,8 @@ butc_dissect_BUTC_PerformDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 butc_dissect_BUTC_PerformDump_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_PerformDump_dumpID(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformDump_dumpID(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -1723,7 +1726,7 @@ butc_dissect_BUTC_PerformRestore_dumpSetName(tvbuff_t *tvb, int offset, packet_i
 static int
 ptr_butc_dissect_BUTC_PerformRestore_dumpSetName(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_dumpSetName, NDR_POINTER_PTR, "dumpSetName", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_dumpSetName, NDR_POINTER_PTR, "dumpSetName", -1);
     return offset;
 }
 
@@ -1738,7 +1741,7 @@ butc_dissect_BUTC_PerformRestore_restores(tvbuff_t *tvb, int offset, packet_info
 static int
 ref_butc_dissect_BUTC_PerformRestore_restores(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_restores, NDR_POINTER_REF, "restores", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_restores, NDR_POINTER_REF, "restores", -1);
     return offset;
 }
 
@@ -1753,7 +1756,7 @@ butc_dissect_BUTC_PerformRestore_dumpID(tvbuff_t *tvb, int offset, packet_info *
 static int
 ref_butc_dissect_BUTC_PerformRestore_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_dumpID, NDR_POINTER_REF, "dumpID", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_PerformRestore_dumpID, NDR_POINTER_REF, "dumpID", -1);
     return offset;
 }
 
@@ -1761,9 +1764,11 @@ ref_butc_dissect_BUTC_PerformRestore_dumpID(tvbuff_t *tvb, int offset, packet_in
 static int
 butc_dissect_BUTC_PerformRestore_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ptr_butc_dissect_BUTC_PerformRestore_dumpSetName(tvb, offset, pinfo, tree, drep);
+ 	   offset=ptr_butc_dissect_BUTC_PerformRestore_dumpSetName(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_butc_dissect_BUTC_PerformRestore_restores(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformRestore_restores(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1772,7 +1777,8 @@ butc_dissect_BUTC_PerformRestore_request(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 butc_dissect_BUTC_PerformRestore_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_PerformRestore_dumpID(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_PerformRestore_dumpID(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -1791,7 +1797,8 @@ butc_dissect_BUTC_AbortDump_dumpID(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 butc_dissect_BUTC_AbortDump_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=butc_dissect_BUTC_AbortDump_dumpID(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_BUTC_AbortDump_dumpID(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1816,7 +1823,7 @@ butc_dissect_BUTC_LabelTape_label(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 ref_butc_dissect_BUTC_LabelTape_label(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_LabelTape_label, NDR_POINTER_REF, "label", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_LabelTape_label, NDR_POINTER_REF, "label", -1);
     return offset;
 }
 
@@ -1831,7 +1838,7 @@ butc_dissect_BUTC_LabelTape_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 ref_butc_dissect_BUTC_LabelTape_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_LabelTape_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_LabelTape_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
@@ -1839,7 +1846,8 @@ ref_butc_dissect_BUTC_LabelTape_taskId(tvbuff_t *tvb, int offset, packet_info *p
 static int
 butc_dissect_BUTC_LabelTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_LabelTape_label(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_LabelTape_label(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1848,7 +1856,8 @@ butc_dissect_BUTC_LabelTape_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 butc_dissect_BUTC_LabelTape_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_LabelTape_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_LabelTape_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -1866,7 +1875,7 @@ butc_dissect_BUTC_ReadLabel_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 ref_butc_dissect_BUTC_ReadLabel_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ReadLabel_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ReadLabel_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
@@ -1881,7 +1890,8 @@ butc_dissect_BUTC_ReadLabel_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 butc_dissect_BUTC_ReadLabel_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_ReadLabel_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_ReadLabel_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -1907,7 +1917,7 @@ butc_dissect_BUTC_ScanDumps_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 ref_butc_dissect_BUTC_ScanDumps_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanDumps_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanDumps_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
@@ -1915,7 +1925,8 @@ ref_butc_dissect_BUTC_ScanDumps_taskId(tvbuff_t *tvb, int offset, packet_info *p
 static int
 butc_dissect_BUTC_ScanDumps_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=butc_dissect_BUTC_ScanDumps_addDbFlag(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_BUTC_ScanDumps_addDbFlag(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -1924,7 +1935,8 @@ butc_dissect_BUTC_ScanDumps_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 butc_dissect_BUTC_ScanDumps_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_ScanDumps_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanDumps_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -1942,7 +1954,7 @@ butc_dissect_BUTC_TCInfo_tciptr(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 static int
 ref_butc_dissect_BUTC_TCInfo_tciptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_TCInfo_tciptr, NDR_POINTER_REF, "tciptr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_TCInfo_tciptr, NDR_POINTER_REF, "tciptr", -1);
     return offset;
 }
 
@@ -1957,7 +1969,8 @@ butc_dissect_BUTC_TCInfo_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 butc_dissect_BUTC_TCInfo_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_TCInfo_tciptr(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_TCInfo_tciptr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -1975,7 +1988,7 @@ butc_dissect_BUTC_SaveDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 static int
 ref_butc_dissect_BUTC_SaveDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_SaveDb_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_SaveDb_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
@@ -1990,7 +2003,8 @@ butc_dissect_BUTC_SaveDb_request(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 static int
 butc_dissect_BUTC_SaveDb_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_SaveDb_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_SaveDb_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -2008,7 +2022,7 @@ butc_dissect_BUTC_RestoreDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 ref_butc_dissect_BUTC_RestoreDb_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_RestoreDb_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_RestoreDb_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
@@ -2023,7 +2037,8 @@ butc_dissect_BUTC_RestoreDb_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 butc_dissect_BUTC_RestoreDb_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_RestoreDb_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_RestoreDb_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -2042,7 +2057,8 @@ butc_dissect_BUTC_EndStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 butc_dissect_BUTC_EndStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=butc_dissect_BUTC_EndStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_BUTC_EndStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2075,7 +2091,7 @@ butc_dissect_BUTC_GetStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 ref_butc_dissect_BUTC_GetStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_GetStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_GetStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
     return offset;
 }
 
@@ -2083,7 +2099,8 @@ ref_butc_dissect_BUTC_GetStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info
 static int
 butc_dissect_BUTC_GetStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=butc_dissect_BUTC_GetStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_BUTC_GetStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2092,7 +2109,8 @@ butc_dissect_BUTC_GetStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_in
 static int
 butc_dissect_BUTC_GetStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_GetStatus_statusPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_GetStatus_statusPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -2111,7 +2129,8 @@ butc_dissect_BUTC_RequestAbort_taskId(tvbuff_t *tvb, int offset, packet_info *pi
 static int
 butc_dissect_BUTC_RequestAbort_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=butc_dissect_BUTC_RequestAbort_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=butc_dissect_BUTC_RequestAbort_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2136,7 +2155,7 @@ butc_dissect_BUTC_ScanStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 ref_butc_dissect_BUTC_ScanStatus_taskId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_taskId, NDR_POINTER_REF, "taskId", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_taskId, NDR_POINTER_REF, "taskId", -1);
     return offset;
 }
 
@@ -2151,7 +2170,7 @@ butc_dissect_BUTC_ScanStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *p
 static int
 ref_butc_dissect_BUTC_ScanStatus_statusPtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_statusPtr, NDR_POINTER_REF, "statusPtr", -1);
     return offset;
 }
 
@@ -2166,7 +2185,7 @@ butc_dissect_BUTC_ScanStatus_flags(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 ref_butc_dissect_BUTC_ScanStatus_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-    offset=dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_flags, NDR_POINTER_REF, "flags", -1);
+    offset=dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, drep, butc_dissect_BUTC_ScanStatus_flags, NDR_POINTER_REF, "flags", -1);
     return offset;
 }
 
@@ -2174,9 +2193,11 @@ ref_butc_dissect_BUTC_ScanStatus_flags(tvbuff_t *tvb, int offset, packet_info *p
 static int
 butc_dissect_BUTC_ScanStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
 
    return offset;
@@ -2185,11 +2206,14 @@ butc_dissect_BUTC_ScanStatus_request(tvbuff_t *tvb _U_, int offset _U_, packet_i
 static int
 butc_dissect_BUTC_ScanStatus_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-        offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_taskId(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_butc_dissect_BUTC_ScanStatus_statusPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_statusPtr(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
-        offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=ref_butc_dissect_BUTC_ScanStatus_flags(tvb, offset, pinfo, tree, drep);
+ 	   offset=dissect_deferred_pointers(pinfo, tvb, offset, drep);
 
    offset=dissect_ntstatus(tvb, offset, pinfo, tree, drep, hf_butc_rc, NULL);
 
@@ -2224,625 +2248,625 @@ proto_register_butc(void)
 
 
 /* INCLUDED FILE : ETH_HFARR */
-        { &hf_butc_opnum,
-          { "Operation", "butc.opnum", FT_UINT16, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_rc,
-          { "Return code", "butc.rc", FT_UINT32, BASE_HEX,
-          VALS(NT_errors), 0,
-         NULL, HFILL }},
-
-        { &hf_butc_Restore_flags_TC_RESTORE_CREATE,
-          { "TC_RESTORE_CREATE", "butc.Restore_flags.TC_RESTORE_CREATE", FT_BOOLEAN, 32,
-          TFS(&TC_RESTORE_CREATE_tfs), 0x00000001,
-         NULL, HFILL }},
-
-        { &hf_butc_Restore_flags_TC_RESTORE_INCR,
-          { "TC_RESTORE_INCR", "butc.Restore_flags.TC_RESTORE_INCR", FT_BOOLEAN, 32,
-          TFS(&TC_RESTORE_INCR_tfs), 0x00000002,
-         NULL, HFILL }},
-
-        { &hf_butc_afsNetAddr_type,
-          { "type", "butc.afsNetAddr.type", FT_UINT16, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_afsNetAddr_data,
-          { "data", "butc.afsNetAddr.data", FT_UINT8, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_vid,
-          { "vid", "butc.tc_dumpDesc.vid", FT_UINT64, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_name,
-          { "name", "butc.tc_dumpDesc.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_partition,
-          { "partition", "butc.tc_dumpDesc.partition", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_date,
-          { "date", "butc.tc_dumpDesc.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_cloneDate,
-          { "cloneDate", "butc.tc_dumpDesc.cloneDate", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_hostAddr,
-          { "hostAddr", "butc.tc_dumpDesc.hostAddr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_spare1,
-          { "spare1", "butc.tc_dumpDesc.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_spare2,
-          { "spare2", "butc.tc_dumpDesc.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_spare3,
-          { "spare3", "butc.tc_dumpDesc.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpDesc_spare4,
-          { "spare4", "butc.tc_dumpDesc.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_frag,
-          { "frag", "butc.tc_restoreDesc.frag", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_tapeName,
-          { "tapeName", "butc.tc_restoreDesc.tapeName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_position,
-          { "position", "butc.tc_restoreDesc.position", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_origVid,
-          { "origVid", "butc.tc_restoreDesc.origVid", FT_UINT64, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_vid,
-          { "vid", "butc.tc_restoreDesc.vid", FT_UINT64, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_partition,
-          { "partition", "butc.tc_restoreDesc.partition", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_flags,
-          { "flags", "butc.tc_restoreDesc.flags", FT_UINT32, BASE_HEX,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_hostAddr,
-          { "hostAddr", "butc.tc_restoreDesc.hostAddr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_realDumpId,
-          { "realDumpId", "butc.tc_restoreDesc.realDumpId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_spare2,
-          { "spare2", "butc.tc_restoreDesc.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_spare3,
-          { "spare3", "butc.tc_restoreDesc.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_spare4,
-          { "spare4", "butc.tc_restoreDesc.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_oldName,
-          { "oldName", "butc.tc_restoreDesc.oldName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreDesc_newName,
-          { "newName", "butc.tc_restoreDesc.newName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_dumpID,
-          { "dumpID", "butc.tc_dumpStat.dumpID", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_bytesDumped,
-          { "bytesDumped", "butc.tc_dumpStat.bytesDumped", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_volumeBeingDumped,
-          { "volumeBeingDumped", "butc.tc_dumpStat.volumeBeingDumped", FT_UINT64, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_numVolErrs,
-          { "numVolErrs", "butc.tc_dumpStat.numVolErrs", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_flags,
-          { "flags", "butc.tc_dumpStat.flags", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_spare1,
-          { "spare1", "butc.tc_dumpStat.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_spare2,
-          { "spare2", "butc.tc_dumpStat.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_spare3,
-          { "spare3", "butc.tc_dumpStat.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpStat_spare4,
-          { "spare4", "butc.tc_dumpStat.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_size,
-          { "size", "butc.tc_tapeLabel.size", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_size_ext,
-          { "size_ext", "butc.tc_tapeLabel.size_ext", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_spare1,
-          { "spare1", "butc.tc_tapeLabel.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_spare2,
-          { "spare2", "butc.tc_tapeLabel.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_spare3,
-          { "spare3", "butc.tc_tapeLabel.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_spare4,
-          { "spare4", "butc.tc_tapeLabel.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_nameLen,
-          { "nameLen", "butc.tc_tapeLabel.nameLen", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeLabel_name,
-          { "name", "butc.tc_tapeLabel.name", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_id,
-          { "id", "butc.tc_tapeSet.id", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_tapeServer,
-          { "tapeServer", "butc.tc_tapeSet.tapeServer", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_format,
-          { "format", "butc.tc_tapeSet.format", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_maxTapes,
-          { "maxTapes", "butc.tc_tapeSet.maxTapes", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_a,
-          { "a", "butc.tc_tapeSet.a", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_b,
-          { "b", "butc.tc_tapeSet.b", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_expDate,
-          { "expDate", "butc.tc_tapeSet.expDate", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_expType,
-          { "expType", "butc.tc_tapeSet.expType", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_spare1,
-          { "spare1", "butc.tc_tapeSet.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_spare2,
-          { "spare2", "butc.tc_tapeSet.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_spare3,
-          { "spare3", "butc.tc_tapeSet.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tapeSet_spare4,
-          { "spare4", "butc.tc_tapeSet.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tcInfo_tcVersion,
-          { "tcVersion", "butc.tc_tcInfo.tcVersion", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tcInfo_spare1,
-          { "spare1", "butc.tc_tcInfo.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tcInfo_spare2,
-          { "spare2", "butc.tc_tcInfo.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tcInfo_spare3,
-          { "spare3", "butc.tc_tcInfo.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_tcInfo_spare4,
-          { "spare4", "butc.tc_tcInfo.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreArray_tc_restoreArray_len,
-          { "tc_restoreArray_len", "butc.tc_restoreArray.tc_restoreArray_len", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_restoreArray_tc_restoreArray_val,
-          { "tc_restoreArray_val", "butc.tc_restoreArray.tc_restoreArray_val", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpArray_tc_dumpArray_len,
-          { "tc_dumpArray_len", "butc.tc_dumpArray.tc_dumpArray_len", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpArray_tc_dumpArray,
-          { "tc_dumpArray", "butc.tc_dumpArray.tc_dumpArray", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_dumpPath,
-          { "dumpPath", "butc.tc_dumpInterface.dumpPath", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_volumeSetName,
-          { "volumeSetName", "butc.tc_dumpInterface.volumeSetName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_dumpName,
-          { "dumpName", "butc.tc_dumpInterface.dumpName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_tapeSet,
-          { "tapeSet", "butc.tc_dumpInterface.tapeSet", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_parentDumpId,
-          { "parentDumpId", "butc.tc_dumpInterface.parentDumpId", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_dumpLevel,
-          { "dumpLevel", "butc.tc_dumpInterface.dumpLevel", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_spare1,
-          { "spare1", "butc.tc_dumpInterface.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_spare2,
-          { "spare2", "butc.tc_dumpInterface.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_spare3,
-          { "spare3", "butc.tc_dumpInterface.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_dumpInterface_spare4,
-          { "spare4", "butc.tc_dumpInterface.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitchVol_nKBytes,
-          { "nKBytes", "butc.tc_statusInfoSwitchVol.nKBytes", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitchVol_volumeName,
-          { "volumeName", "butc.tc_statusInfoSwitchVol.volumeName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitchVol_volsFailed,
-          { "volsFailed", "butc.tc_statusInfoSwitchVol.volsFailed", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitchVol_spare1,
-          { "spare1", "butc.tc_statusInfoSwitchVol.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitchLabel_tapeLabel,
-          { "tapeLabel", "butc.tc_statusInfoSwitchLabel.tapeLabel", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitchLabel_spare1,
-          { "spare1", "butc.tc_statusInfoSwitchLabel.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_NONE_none,
-          { "none", "butc.tc_statusInfoSwitch.none", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_DUMP_vol,
-          { "vol", "butc.tc_statusInfoSwitch.vol", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_RESTORE_vol,
-          { "vol", "butc.tc_statusInfoSwitch.vol", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_LABELTAPE_label,
-          { "label", "butc.tc_statusInfoSwitch.label", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_READLABEL_label,
-          { "label", "butc.tc_statusInfoSwitch.label", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1,
-          { "spare1", "butc.tc_statusInfoSwitch.spare1", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_STATUS_spare2,
-          { "spare2", "butc.tc_statusInfoSwitch.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_SAVEDB_spare3,
-          { "spare3", "butc.tc_statusInfoSwitch.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4,
-          { "spare4", "butc.tc_statusInfoSwitch.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tc_statusInfoSwitch_TCOP_SPARE_spare5,
-          { "spare5", "butc.tc_statusInfoSwitch.spare5", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_taskName,
-          { "taskName", "butc.tciStatusS.taskName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_flags,
-          { "flags", "butc.tciStatusS.flags", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_lastPolled,
-          { "lastPolled", "butc.tciStatusS.lastPolled", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_info,
-          { "info", "butc.tciStatusS.info", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_taskId,
-          { "taskId", "butc.tciStatusS.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_spare2,
-          { "spare2", "butc.tciStatusS.spare2", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_spare3,
-          { "spare3", "butc.tciStatusS.spare3", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_tciStatusS_spare4,
-          { "spare4", "butc.tciStatusS.spare4", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_PerformDump_tcdiPtr,
-          { "tcdiPtr", "butc.BUTC_PerformDump.tcdiPtr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_PerformDump_dumps,
-          { "dumps", "butc.BUTC_PerformDump.dumps", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_PerformDump_dumpID,
-          { "dumpID", "butc.BUTC_PerformDump.dumpID", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_PerformRestore_dumpSetName,
-          { "dumpSetName", "butc.BUTC_PerformRestore.dumpSetName", FT_STRING, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_PerformRestore_restores,
-          { "restores", "butc.BUTC_PerformRestore.restores", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_PerformRestore_dumpID,
-          { "dumpID", "butc.BUTC_PerformRestore.dumpID", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_AbortDump_dumpID,
-          { "dumpID", "butc.BUTC_AbortDump.dumpID", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_LabelTape_label,
-          { "label", "butc.BUTC_LabelTape.label", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_LabelTape_taskId,
-          { "taskId", "butc.BUTC_LabelTape.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_ReadLabel_taskId,
-          { "taskId", "butc.BUTC_ReadLabel.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_ScanDumps_addDbFlag,
-          { "addDbFlag", "butc.BUTC_ScanDumps.addDbFlag", FT_INT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_ScanDumps_taskId,
-          { "taskId", "butc.BUTC_ScanDumps.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_TCInfo_tciptr,
-          { "tciptr", "butc.BUTC_TCInfo.tciptr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_SaveDb_taskId,
-          { "taskId", "butc.BUTC_SaveDb.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_RestoreDb_taskId,
-          { "taskId", "butc.BUTC_RestoreDb.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_EndStatus_taskId,
-          { "taskId", "butc.BUTC_EndStatus.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_GetStatus_taskId,
-          { "taskId", "butc.BUTC_GetStatus.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_GetStatus_statusPtr,
-          { "statusPtr", "butc.BUTC_GetStatus.statusPtr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_RequestAbort_taskId,
-          { "taskId", "butc.BUTC_RequestAbort.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_ScanStatus_taskId,
-          { "taskId", "butc.BUTC_ScanStatus.taskId", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_ScanStatus_statusPtr,
-          { "statusPtr", "butc.BUTC_ScanStatus.statusPtr", FT_NONE, BASE_NONE,
-          NULL, 0,
-         NULL, HFILL }},
-
-        { &hf_butc_BUTC_ScanStatus_flags,
-          { "flags", "butc.BUTC_ScanStatus.flags", FT_UINT32, BASE_DEC,
-          NULL, 0,
-         NULL, HFILL }},
+		{ &hf_butc_opnum,
+		  { "Operation", "butc.opnum", FT_UINT16, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_rc,
+		  { "Return code", "butc.rc", FT_UINT32, BASE_HEX,
+		  VALS(NT_errors), 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_Restore_flags_TC_RESTORE_CREATE,
+		  { "TC_RESTORE_CREATE", "butc.Restore_flags.TC_RESTORE_CREATE", FT_BOOLEAN, 32,
+		  TFS(&TC_RESTORE_CREATE_tfs), 0x00000001,
+		 NULL, HFILL }},
+
+		{ &hf_butc_Restore_flags_TC_RESTORE_INCR,
+		  { "TC_RESTORE_INCR", "butc.Restore_flags.TC_RESTORE_INCR", FT_BOOLEAN, 32,
+		  TFS(&TC_RESTORE_INCR_tfs), 0x00000002,
+		 NULL, HFILL }},
+
+		{ &hf_butc_afsNetAddr_type,
+		  { "type", "butc.afsNetAddr.type", FT_UINT16, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_afsNetAddr_data,
+		  { "data", "butc.afsNetAddr.data", FT_UINT8, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_vid,
+		  { "vid", "butc.tc_dumpDesc.vid", FT_UINT64, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_name,
+		  { "name", "butc.tc_dumpDesc.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_partition,
+		  { "partition", "butc.tc_dumpDesc.partition", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_date,
+		  { "date", "butc.tc_dumpDesc.date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_cloneDate,
+		  { "cloneDate", "butc.tc_dumpDesc.cloneDate", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_hostAddr,
+		  { "hostAddr", "butc.tc_dumpDesc.hostAddr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_spare1,
+		  { "spare1", "butc.tc_dumpDesc.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_spare2,
+		  { "spare2", "butc.tc_dumpDesc.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_spare3,
+		  { "spare3", "butc.tc_dumpDesc.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpDesc_spare4,
+		  { "spare4", "butc.tc_dumpDesc.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_frag,
+		  { "frag", "butc.tc_restoreDesc.frag", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_tapeName,
+		  { "tapeName", "butc.tc_restoreDesc.tapeName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_position,
+		  { "position", "butc.tc_restoreDesc.position", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_origVid,
+		  { "origVid", "butc.tc_restoreDesc.origVid", FT_UINT64, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_vid,
+		  { "vid", "butc.tc_restoreDesc.vid", FT_UINT64, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_partition,
+		  { "partition", "butc.tc_restoreDesc.partition", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_flags,
+		  { "flags", "butc.tc_restoreDesc.flags", FT_UINT32, BASE_HEX,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_hostAddr,
+		  { "hostAddr", "butc.tc_restoreDesc.hostAddr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_realDumpId,
+		  { "realDumpId", "butc.tc_restoreDesc.realDumpId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_spare2,
+		  { "spare2", "butc.tc_restoreDesc.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_spare3,
+		  { "spare3", "butc.tc_restoreDesc.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_spare4,
+		  { "spare4", "butc.tc_restoreDesc.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_oldName,
+		  { "oldName", "butc.tc_restoreDesc.oldName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreDesc_newName,
+		  { "newName", "butc.tc_restoreDesc.newName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_dumpID,
+		  { "dumpID", "butc.tc_dumpStat.dumpID", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_bytesDumped,
+		  { "bytesDumped", "butc.tc_dumpStat.bytesDumped", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_volumeBeingDumped,
+		  { "volumeBeingDumped", "butc.tc_dumpStat.volumeBeingDumped", FT_UINT64, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_numVolErrs,
+		  { "numVolErrs", "butc.tc_dumpStat.numVolErrs", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_flags,
+		  { "flags", "butc.tc_dumpStat.flags", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_spare1,
+		  { "spare1", "butc.tc_dumpStat.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_spare2,
+		  { "spare2", "butc.tc_dumpStat.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_spare3,
+		  { "spare3", "butc.tc_dumpStat.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpStat_spare4,
+		  { "spare4", "butc.tc_dumpStat.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_size,
+		  { "size", "butc.tc_tapeLabel.size", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_size_ext,
+		  { "size_ext", "butc.tc_tapeLabel.size_ext", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_spare1,
+		  { "spare1", "butc.tc_tapeLabel.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_spare2,
+		  { "spare2", "butc.tc_tapeLabel.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_spare3,
+		  { "spare3", "butc.tc_tapeLabel.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_spare4,
+		  { "spare4", "butc.tc_tapeLabel.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_nameLen,
+		  { "nameLen", "butc.tc_tapeLabel.nameLen", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeLabel_name,
+		  { "name", "butc.tc_tapeLabel.name", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_id,
+		  { "id", "butc.tc_tapeSet.id", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_tapeServer,
+		  { "tapeServer", "butc.tc_tapeSet.tapeServer", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_format,
+		  { "format", "butc.tc_tapeSet.format", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_maxTapes,
+		  { "maxTapes", "butc.tc_tapeSet.maxTapes", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_a,
+		  { "a", "butc.tc_tapeSet.a", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_b,
+		  { "b", "butc.tc_tapeSet.b", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_expDate,
+		  { "expDate", "butc.tc_tapeSet.expDate", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_expType,
+		  { "expType", "butc.tc_tapeSet.expType", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_spare1,
+		  { "spare1", "butc.tc_tapeSet.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_spare2,
+		  { "spare2", "butc.tc_tapeSet.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_spare3,
+		  { "spare3", "butc.tc_tapeSet.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tapeSet_spare4,
+		  { "spare4", "butc.tc_tapeSet.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tcInfo_tcVersion,
+		  { "tcVersion", "butc.tc_tcInfo.tcVersion", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tcInfo_spare1,
+		  { "spare1", "butc.tc_tcInfo.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tcInfo_spare2,
+		  { "spare2", "butc.tc_tcInfo.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tcInfo_spare3,
+		  { "spare3", "butc.tc_tcInfo.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_tcInfo_spare4,
+		  { "spare4", "butc.tc_tcInfo.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreArray_tc_restoreArray_len,
+		  { "tc_restoreArray_len", "butc.tc_restoreArray.tc_restoreArray_len", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_restoreArray_tc_restoreArray_val,
+		  { "tc_restoreArray_val", "butc.tc_restoreArray.tc_restoreArray_val", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpArray_tc_dumpArray_len,
+		  { "tc_dumpArray_len", "butc.tc_dumpArray.tc_dumpArray_len", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpArray_tc_dumpArray,
+		  { "tc_dumpArray", "butc.tc_dumpArray.tc_dumpArray", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_dumpPath,
+		  { "dumpPath", "butc.tc_dumpInterface.dumpPath", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_volumeSetName,
+		  { "volumeSetName", "butc.tc_dumpInterface.volumeSetName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_dumpName,
+		  { "dumpName", "butc.tc_dumpInterface.dumpName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_tapeSet,
+		  { "tapeSet", "butc.tc_dumpInterface.tapeSet", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_parentDumpId,
+		  { "parentDumpId", "butc.tc_dumpInterface.parentDumpId", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_dumpLevel,
+		  { "dumpLevel", "butc.tc_dumpInterface.dumpLevel", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_spare1,
+		  { "spare1", "butc.tc_dumpInterface.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_spare2,
+		  { "spare2", "butc.tc_dumpInterface.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_spare3,
+		  { "spare3", "butc.tc_dumpInterface.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_dumpInterface_spare4,
+		  { "spare4", "butc.tc_dumpInterface.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitchVol_nKBytes,
+		  { "nKBytes", "butc.tc_statusInfoSwitchVol.nKBytes", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitchVol_volumeName,
+		  { "volumeName", "butc.tc_statusInfoSwitchVol.volumeName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitchVol_volsFailed,
+		  { "volsFailed", "butc.tc_statusInfoSwitchVol.volsFailed", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitchVol_spare1,
+		  { "spare1", "butc.tc_statusInfoSwitchVol.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitchLabel_tapeLabel,
+		  { "tapeLabel", "butc.tc_statusInfoSwitchLabel.tapeLabel", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitchLabel_spare1,
+		  { "spare1", "butc.tc_statusInfoSwitchLabel.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_NONE_none,
+		  { "none", "butc.tc_statusInfoSwitch.none", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_DUMP_vol,
+		  { "vol", "butc.tc_statusInfoSwitch.vol", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_RESTORE_vol,
+		  { "vol", "butc.tc_statusInfoSwitch.vol", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_LABELTAPE_label,
+		  { "label", "butc.tc_statusInfoSwitch.label", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_READLABEL_label,
+		  { "label", "butc.tc_statusInfoSwitch.label", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_SCANTAPE_spare1,
+		  { "spare1", "butc.tc_statusInfoSwitch.spare1", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_STATUS_spare2,
+		  { "spare2", "butc.tc_statusInfoSwitch.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_SAVEDB_spare3,
+		  { "spare3", "butc.tc_statusInfoSwitch.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_RESTOREDB_spare4,
+		  { "spare4", "butc.tc_statusInfoSwitch.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tc_statusInfoSwitch_TCOP_SPARE_spare5,
+		  { "spare5", "butc.tc_statusInfoSwitch.spare5", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_taskName,
+		  { "taskName", "butc.tciStatusS.taskName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_flags,
+		  { "flags", "butc.tciStatusS.flags", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_lastPolled,
+		  { "lastPolled", "butc.tciStatusS.lastPolled", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_info,
+		  { "info", "butc.tciStatusS.info", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_taskId,
+		  { "taskId", "butc.tciStatusS.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_spare2,
+		  { "spare2", "butc.tciStatusS.spare2", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_spare3,
+		  { "spare3", "butc.tciStatusS.spare3", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_tciStatusS_spare4,
+		  { "spare4", "butc.tciStatusS.spare4", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_PerformDump_tcdiPtr,
+		  { "tcdiPtr", "butc.BUTC_PerformDump.tcdiPtr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_PerformDump_dumps,
+		  { "dumps", "butc.BUTC_PerformDump.dumps", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_PerformDump_dumpID,
+		  { "dumpID", "butc.BUTC_PerformDump.dumpID", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_PerformRestore_dumpSetName,
+		  { "dumpSetName", "butc.BUTC_PerformRestore.dumpSetName", FT_STRING, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_PerformRestore_restores,
+		  { "restores", "butc.BUTC_PerformRestore.restores", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_PerformRestore_dumpID,
+		  { "dumpID", "butc.BUTC_PerformRestore.dumpID", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_AbortDump_dumpID,
+		  { "dumpID", "butc.BUTC_AbortDump.dumpID", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_LabelTape_label,
+		  { "label", "butc.BUTC_LabelTape.label", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_LabelTape_taskId,
+		  { "taskId", "butc.BUTC_LabelTape.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_ReadLabel_taskId,
+		  { "taskId", "butc.BUTC_ReadLabel.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_ScanDumps_addDbFlag,
+		  { "addDbFlag", "butc.BUTC_ScanDumps.addDbFlag", FT_INT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_ScanDumps_taskId,
+		  { "taskId", "butc.BUTC_ScanDumps.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_TCInfo_tciptr,
+		  { "tciptr", "butc.BUTC_TCInfo.tciptr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_SaveDb_taskId,
+		  { "taskId", "butc.BUTC_SaveDb.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_RestoreDb_taskId,
+		  { "taskId", "butc.BUTC_RestoreDb.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_EndStatus_taskId,
+		  { "taskId", "butc.BUTC_EndStatus.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_GetStatus_taskId,
+		  { "taskId", "butc.BUTC_GetStatus.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_GetStatus_statusPtr,
+		  { "statusPtr", "butc.BUTC_GetStatus.statusPtr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_RequestAbort_taskId,
+		  { "taskId", "butc.BUTC_RequestAbort.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_ScanStatus_taskId,
+		  { "taskId", "butc.BUTC_ScanStatus.taskId", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_ScanStatus_statusPtr,
+		  { "statusPtr", "butc.BUTC_ScanStatus.statusPtr", FT_NONE, BASE_NONE,
+		  NULL, 0,
+		 NULL, HFILL }},
+
+		{ &hf_butc_BUTC_ScanStatus_flags,
+		  { "flags", "butc.BUTC_ScanStatus.flags", FT_UINT32, BASE_DEC,
+		  NULL, 0,
+		 NULL, HFILL }},
 
 /* END OF INCLUDED FILE : ETH_HFARR */
 
@@ -2853,22 +2877,22 @@ proto_register_butc(void)
 
 
 /* INCLUDED FILE : ETH_ETTARR */
-        &ett_butc,
-        &ett_butc_Restore_flags,
-        &ett_butc_afsNetAddr,
-        &ett_butc_tc_dumpDesc,
-        &ett_butc_tc_restoreDesc,
-        &ett_butc_tc_dumpStat,
-        &ett_butc_tc_tapeLabel,
-        &ett_butc_tc_tapeSet,
-        &ett_butc_tc_tcInfo,
-        &ett_butc_tc_restoreArray,
-        &ett_butc_tc_dumpArray,
-        &ett_butc_tc_dumpInterface,
-        &ett_butc_tc_statusInfoSwitchVol,
-        &ett_butc_tc_statusInfoSwitchLabel,
-        &ett_butc_tc_statusInfoSwitch,
-        &ett_butc_tciStatusS,
+		 &ett_butc,
+		 &ett_butc_Restore_flags,
+		 &ett_butc_afsNetAddr,
+		 &ett_butc_tc_dumpDesc,
+		 &ett_butc_tc_restoreDesc,
+		 &ett_butc_tc_dumpStat,
+		 &ett_butc_tc_tapeLabel,
+		 &ett_butc_tc_tapeSet,
+		 &ett_butc_tc_tcInfo,
+		 &ett_butc_tc_restoreArray,
+		 &ett_butc_tc_dumpArray,
+		 &ett_butc_tc_dumpInterface,
+		 &ett_butc_tc_statusInfoSwitchVol,
+		 &ett_butc_tc_statusInfoSwitchLabel,
+		 &ett_butc_tc_statusInfoSwitch,
+		 &ett_butc_tciStatusS,
 /* END OF INCLUDED FILE : ETH_ETTARR */
 
 
@@ -2885,48 +2909,48 @@ static dcerpc_sub_dissector function_dissectors[] = {
 
 
 /* INCLUDED FILE : ETH_FT */
-    { 0, "BUTC_PerformDump",
-        butc_dissect_BUTC_PerformDump_request,
-        butc_dissect_BUTC_PerformDump_response },
-    { 1, "BUTC_PerformRestore",
-        butc_dissect_BUTC_PerformRestore_request,
-        butc_dissect_BUTC_PerformRestore_response },
-    { 2, "BUTC_AbortDump",
-        butc_dissect_BUTC_AbortDump_request,
-        butc_dissect_BUTC_AbortDump_response },
-    { 3, "BUTC_LabelTape",
-        butc_dissect_BUTC_LabelTape_request,
-        butc_dissect_BUTC_LabelTape_response },
-    { 4, "BUTC_ReadLabel",
-        butc_dissect_BUTC_ReadLabel_request,
-        butc_dissect_BUTC_ReadLabel_response },
-    { 5, "BUTC_ScanDumps",
-        butc_dissect_BUTC_ScanDumps_request,
-        butc_dissect_BUTC_ScanDumps_response },
-    { 6, "BUTC_TCInfo",
-        butc_dissect_BUTC_TCInfo_request,
-        butc_dissect_BUTC_TCInfo_response },
-    { 7, "BUTC_SaveDb",
-        butc_dissect_BUTC_SaveDb_request,
-        butc_dissect_BUTC_SaveDb_response },
-    { 8, "BUTC_RestoreDb",
-        butc_dissect_BUTC_RestoreDb_request,
-        butc_dissect_BUTC_RestoreDb_response },
-    { 9, "BUTC_EndStatus",
-        butc_dissect_BUTC_EndStatus_request,
-        butc_dissect_BUTC_EndStatus_response },
-    { 10, "BUTC_GetStatus",
-        butc_dissect_BUTC_GetStatus_request,
-        butc_dissect_BUTC_GetStatus_response },
-    { 11, "BUTC_RequestAbort",
-        butc_dissect_BUTC_RequestAbort_request,
-        butc_dissect_BUTC_RequestAbort_response },
-    { 12, "BUTC_ScanStatus",
-        butc_dissect_BUTC_ScanStatus_request,
-        butc_dissect_BUTC_ScanStatus_response },
-    { 13, "BUTC_GetServerInterfaces",
-        butc_dissect_BUTC_GetServerInterfaces_request,
-        butc_dissect_BUTC_GetServerInterfaces_response },
+	 { 0, "BUTC_PerformDump",
+		 butc_dissect_BUTC_PerformDump_request,
+		 butc_dissect_BUTC_PerformDump_response },
+	 { 1, "BUTC_PerformRestore",
+		 butc_dissect_BUTC_PerformRestore_request,
+		 butc_dissect_BUTC_PerformRestore_response },
+	 { 2, "BUTC_AbortDump",
+		 butc_dissect_BUTC_AbortDump_request,
+		 butc_dissect_BUTC_AbortDump_response },
+	 { 3, "BUTC_LabelTape",
+		 butc_dissect_BUTC_LabelTape_request,
+		 butc_dissect_BUTC_LabelTape_response },
+	 { 4, "BUTC_ReadLabel",
+		 butc_dissect_BUTC_ReadLabel_request,
+		 butc_dissect_BUTC_ReadLabel_response },
+	 { 5, "BUTC_ScanDumps",
+		 butc_dissect_BUTC_ScanDumps_request,
+		 butc_dissect_BUTC_ScanDumps_response },
+	 { 6, "BUTC_TCInfo",
+		 butc_dissect_BUTC_TCInfo_request,
+		 butc_dissect_BUTC_TCInfo_response },
+	 { 7, "BUTC_SaveDb",
+		 butc_dissect_BUTC_SaveDb_request,
+		 butc_dissect_BUTC_SaveDb_response },
+	 { 8, "BUTC_RestoreDb",
+		 butc_dissect_BUTC_RestoreDb_request,
+		 butc_dissect_BUTC_RestoreDb_response },
+	 { 9, "BUTC_EndStatus",
+		 butc_dissect_BUTC_EndStatus_request,
+		 butc_dissect_BUTC_EndStatus_response },
+	 { 10, "BUTC_GetStatus",
+		 butc_dissect_BUTC_GetStatus_request,
+		 butc_dissect_BUTC_GetStatus_response },
+	 { 11, "BUTC_RequestAbort",
+		 butc_dissect_BUTC_RequestAbort_request,
+		 butc_dissect_BUTC_RequestAbort_response },
+	 { 12, "BUTC_ScanStatus",
+		 butc_dissect_BUTC_ScanStatus_request,
+		 butc_dissect_BUTC_ScanStatus_response },
+	 { 13, "BUTC_GetServerInterfaces",
+		 butc_dissect_BUTC_GetServerInterfaces_request,
+		 butc_dissect_BUTC_GetServerInterfaces_response },
 /* END OF INCLUDED FILE : ETH_FT */
 
 
@@ -2939,9 +2963,9 @@ proto_reg_handoff_butc(void)
 
 
 /* INCLUDED FILE : ETH_HANDOFF */
-    dcerpc_init_uuid(proto_butc, ett_butc,
-        &uuid_dcerpc_butc, ver_butc,
-        function_dissectors, hf_butc_opnum);
+	  dcerpc_init_uuid(proto_butc, ett_butc,
+		  &uuid_dcerpc_butc, ver_butc,
+		  function_dissectors, hf_butc_opnum);
 /* END OF INCLUDED FILE : ETH_HANDOFF */
 
 

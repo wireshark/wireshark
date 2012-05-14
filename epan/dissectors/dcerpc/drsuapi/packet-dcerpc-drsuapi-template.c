@@ -49,10 +49,8 @@ ETH_ETT
 static int
 ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
-	header_field_info *hfinfo;
 	static guint32 len;
 	dcerpc_info *di;
-	char *s;
 	int old_offset;
 
 	di=pinfo->private_data;
@@ -72,16 +70,9 @@ ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn(tvbuff_t *tvb, int offse
 
 	ALIGN_TO_2_BYTES;
 
-	s = tvb_get_unicode_string(tvb, offset, len*2, ENC_LITTLE_ENDIAN);
         if (tree && len) {
-            hfinfo = proto_registrar_get_nth(hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn);
-            if (hfinfo->type == FT_STRING) {
-                proto_tree_add_string(tree, hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn, tvb, offset,
-                                      len, s);
-            } else {
-                proto_tree_add_item(tree, hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn, tvb, offset,
-                                    len, DREP_ENC_INTEGER(drep));
-            }
+            proto_tree_add_item(tree, hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn, tvb, offset,
+                                len*2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
         }
 
 	offset+=2*len;
