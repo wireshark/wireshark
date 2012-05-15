@@ -624,12 +624,12 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
      * appropriate, regardless of whether the tree is NULL or not. */
     if (1) {
         /* !!! specify length */
-      ti = proto_tree_add_uint_format(tree, hf_ipv6_routing_hdr_opt, tvb,
+        ti = proto_tree_add_uint_format(tree, hf_ipv6_routing_hdr_opt, tvb,
                       offset, len, rt.ip6r_type,
                       "Routing Header, Type : %s (%u)",
                       val_to_str(rt.ip6r_type, routing_header_type, "Unknown"),
                       rt.ip6r_type);
-      rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
+        rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
         proto_tree_add_text(rthdr_tree, tvb,
             offset + offsetof(struct ip6_rthdr, ip6r_nxt), 1,
@@ -669,77 +669,75 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
             }
         }
         if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
-          proto_tree_add_item(rthdr_tree, hf_ipv6_mipv6_home_address, tvb,
+            proto_tree_add_item(rthdr_tree, hf_ipv6_mipv6_home_address, tvb,
                               offset + 8, 16, ENC_NA);
-          if (seg_left)
-            SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + 8, 16));
+            if (seg_left)
+                SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + 8, 16));
         }
-    if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
-        guint8 cmprI;
-        guint8 cmprE;
-        guint8 pad;
-        gint segments;
+        if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
+            guint8 cmprI;
+            guint8 cmprE;
+            guint8 pad;
+            gint segments;
 
-        /* IPv6 destination address used for elided bytes */
-        struct e_in6_addr dstAddr;
-        offset += 4;
-        memcpy((guint8 *)&dstAddr, (guint8 *)pinfo->dst.data, pinfo->dst.len);
-
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-        cmprI = tvb_get_guint8(tvb, offset) & 0xF0;
-        cmprE = tvb_get_guint8(tvb, offset) & 0x0F;
-        pad   = tvb_get_guint8(tvb, offset + 1) & 0xF0;
-
-        /* Shift bytes over */
-        cmprI >>= 4;
-        pad >>= 4;
-
-        /* from draft-ietf-6man-rpl-routing-header-03:
-        n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
-        segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
-        ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_hdr_rpl_segments, tvb, offset, 2, segments);
-        PROTO_ITEM_SET_GENERATED(ti);
-
-        if ((segments < 0) || (segments > 136)) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Calculated total segments is invalid, 0 < %d < 136 fails", segments);
-        } else {
-
+            /* IPv6 destination address used for elided bytes */
+            struct e_in6_addr dstAddr;
             offset += 4;
+            memcpy((guint8 *)&dstAddr, (guint8 *)pinfo->dst.data, pinfo->dst.len);
 
-            /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
-            while(segments > 1) {
-                struct e_in6_addr addr;
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
-                /* Display Full Address */
-                memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                tvb_memcpy(tvb, (guint8 *)&addr + cmprI, offset, (16-cmprI));
-                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
-                PROTO_ITEM_SET_GENERATED(ti);
-                offset += (16-cmprI);
-                segments--;
+            cmprI = tvb_get_guint8(tvb, offset) & 0xF0;
+            cmprE = tvb_get_guint8(tvb, offset) & 0x0F;
+            pad   = tvb_get_guint8(tvb, offset + 1) & 0xF0;
+
+            /* Shift bytes over */
+            cmprI >>= 4;
+            pad >>= 4;
+
+            /* from draft-ietf-6man-rpl-routing-header-03:
+            n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
+            segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
+            ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_hdr_rpl_segments, tvb, offset, 2, segments);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            if ((segments < 0) || (segments > 136)) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Calculated total segments is invalid, 0 < %d < 136 fails", segments);
+            } else {
+
+                offset += 4;
+
+                /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
+                while(segments > 1) {
+                    struct e_in6_addr addr;
+
+                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
+                    /* Display Full Address */
+                    memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                    tvb_memcpy(tvb, (guint8 *)&addr + cmprI, offset, (16-cmprI));
+                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprI), (guint8 *)&addr);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    offset += (16-cmprI);
+                    segments--;
+                }
+
+                /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
+                if (segments == 1) {
+                    struct e_in6_addr addr;
+
+                    proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
+                    /* Display Full Address */
+                    memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                    tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
+                    ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    /* offset += (16-cmprE); */
+                }
             }
-
-            /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
-            if (segments == 1) {
-                struct e_in6_addr addr;
-
-                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
-                /* Display Full Address */
-                memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
-                tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
-                ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
-                PROTO_ITEM_SET_GENERATED(ti);
-                offset += (16-cmprE);
-            }
-
         }
-
-    }
     }
 
     return len;
@@ -1659,15 +1657,15 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
 
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
-	add_ip_version_to_tree(ipv6_tree, tvb, offset + offsetof(struct ip6_hdr, ip6_vfc));
+    add_ip_version_to_tree(ipv6_tree, tvb, offset + offsetof(struct ip6_hdr, ip6_vfc));
 
     ipv6_tc = proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
                         offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
 
     ipv6_tc_tree = proto_item_add_subtree(ipv6_tc, ett_ipv6_traffic_class);
 
-	  /* Add DSCP using bit offset to be able to use the same hf field in IPv6 */
-	add_ip_dscp_to_tree(ipv6_tc_tree, tvb, ((offset + offsetof(struct ip6_hdr, ip6_flow))<<3)+4);
+    /* Add DSCP using bit offset to be able to use the same hf field in IPv6 */
+    add_ip_dscp_to_tree(ipv6_tc_tree, tvb, ((offset + offsetof(struct ip6_hdr, ip6_flow))<<3)+4);
 
     proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_ect, tvb,
                         offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
@@ -1883,7 +1881,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    non-final headers */
   hopopts = FALSE;
   routing = FALSE;
-  frag = FALSE;
   ah = FALSE;
   shim6 = FALSE;
   dstopts = FALSE;
@@ -1927,7 +1924,6 @@ again:
         if (next_tvb) {  /* Process post-fragment headers after reassembly... */
           offset= 0;
           offlg = 0;
-          frag = FALSE;
           tvb = next_tvb;
           goto again;
         }
@@ -2289,7 +2285,7 @@ proto_register_ipv6(void)
                                   FT_NONE, BASE_NONE, NULL, 0x0,
                                   "Option", HFILL }},
     { &hf_ipv6_opt_type,
-      { "Type",                   "ipv6.opt.type", 
+      { "Type",                   "ipv6.opt.type",
                                   FT_UINT8, BASE_DEC, VALS(ipv6_opt_vals), 0x0,
                                   "Options type", HFILL }},
     { &hf_ipv6_opt_length,
