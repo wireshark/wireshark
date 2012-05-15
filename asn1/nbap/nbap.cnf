@@ -533,8 +533,6 @@ guint32 payload_crc_value;
 #.FN_BODY RACH-ParametersItem-CTCH-SetupRqstFDD
 address 	dst_addr, null_addr;
 conversation_t *conversation;
-fp_info *nbap_fp_info_ul = NULL, *nbap_fp_info_dl = NULL; 
-int chan;
 
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
@@ -562,43 +560,8 @@ transportFormatSet_type = CPCH;
 			    &null_addr, PT_UDP,BindingID_port ,
 			    0, NO_ADDR2|NO_PORT2);
 
-		/* Set dissector */
-		conversation_set_dissector(conversation, fp_handle);
-		}
-
-		nbap_fp_info_ul = se_new0(fp_info);
-		nbap_fp_info_ul->iface_type = IuB_Interface;
-		nbap_fp_info_ul->division = Division_FDD;
-		nbap_fp_info_ul->release = 7;               /* Set values greater then the checks performed */
-		nbap_fp_info_ul->release_year = 2006;
-		nbap_fp_info_ul->release_month = 12;
-		nbap_fp_info_ul->is_uplink = TRUE;
-		nbap_fp_info_ul->channel = CHANNEL_CPCH;
-		nbap_fp_info_ul->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-		nbap_fp_info_ul->num_chans = nbap_dch_chnl_info[dch_id].num_ul_chans;
-		for (chan = 0; chan < nbap_dch_chnl_info[dch_id].num_ul_chans; chan++) {
-			nbap_fp_info_ul->chan_tf_size[chan] = nbap_dch_chnl_info[dch_id].ul_chan_tf_size[chan];
-			nbap_fp_info_ul->chan_num_tbs[chan] = nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[chan];
-		}
-
-		nbap_fp_info_dl = se_new0(fp_info);
-		nbap_fp_info_dl->iface_type = IuB_Interface;
-		nbap_fp_info_dl->division = Division_FDD;
-		nbap_fp_info_dl->release = 7;               /* Set values greater then the checks performed */
-		nbap_fp_info_dl->release_year = 2006;
-		nbap_fp_info_dl->release_month = 12;
-		nbap_fp_info_dl->is_uplink = FALSE;
-		nbap_fp_info_dl->channel = CHANNEL_CPCH;
-		nbap_fp_info_dl->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-		nbap_fp_info_dl->num_chans = nbap_dch_chnl_info[dch_id].num_dl_chans;
-		for (chan = 0; chan < nbap_dch_chnl_info[dch_id].num_dl_chans; chan++) {
-			nbap_fp_info_dl->chan_tf_size[chan] = nbap_dch_chnl_info[dch_id].dl_chan_tf_size[chan];
-			nbap_fp_info_dl->chan_num_tbs[chan] = nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[chan];
-		}
-
-		if(actx->pinfo->link_dir==P2P_DIR_DL){
-			/* For now have on fp_info_ul and on fp_info_dl, may not be needed */
-			//set_umts_fp_ul_conv_data(conversation, actx->pinfo->fd->num, &dst_addr, BindingID_port, commonphysicalchannelid, nbap_fp_info_ul, nbap_fp_info_dl);
+			/* Set dissector */
+			conversation_set_dissector(conversation, fp_handle);
 		}
 
 
