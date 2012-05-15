@@ -32,7 +32,105 @@
 #include "config.h"
 #endif
 
-#include "packet-cimd.h"
+#include <glib.h>
+
+#include <epan/packet.h>
+
+#define CIMD_STX   0x02 /* Start of CIMD PDU */
+#define CIMD_ETX   0x03 /* End of CIMD PDU */
+#define CIMD_COLON 0x3A /* CIMD colon */
+#define CIMD_DELIM 0x09 /* CIMD Delimiter */
+
+#define CIMD_OC_OFFSET  1 /* CIMD Operation Code Offset */
+#define CIMD_OC_LENGTH  2 /* CIMD Operation Code Length */
+#define CIMD_PN_OFFSET  4 /* CIMD Packet Number Offset */
+#define CIMD_PN_LENGTH  3 /* CIMD Packet Number Length */
+#define CIMD_PC_LENGTH  3 /* CIMD Parameter Code Length */
+#define CIMD_MIN_LENGTH 9 /* CIMD Minimal packet length : STX(1) + OC(2) + COLON(1) + PN(3) + DELIM(1) + ETX(1)*/
+
+/* define CIMD2 operation code */
+
+#define CIMD_Login                     1
+#define CIMD_LoginResp                51
+#define CIMD_Logout                    2
+#define CIMD_LogoutResp               52
+#define CIMD_SubmitMessage             3
+#define CIMD_SubmitMessageResp        53
+#define CIMD_EnqMessageStatus          4
+#define CIMD_EnqMessageStatusResp     54
+#define CIMD_DeliveryRequest           5
+#define CIMD_DeliveryRequestResp      55
+#define CIMD_CancelMessage             6
+#define CIMD_CancelMessageResp        56
+#define CIMD_SetMessage                8
+#define CIMD_SetMessageResp           58
+#define CIMD_GetMessage                9
+#define CIMD_GetMessageResp           59
+#define CIMD_Alive                    40
+#define CIMD_AliveResp                90
+#define CIMD_GeneralErrorResp         98
+#define CIMD_NACK                     99
+  /* SC2App */
+#define CIMD_DeliveryMessage          20
+#define CIMD_DeliveryMessageResp      70
+#define CIMD_DeliveryStatusReport     23
+#define CIMD_DeliveryStatusReportResp 73
+
+/* define CIMD2 operation's parameter codes */
+
+#define CIMD_UserIdentity            10
+#define CIMD_Password                11
+#define CIMD_Subaddress              12
+#define CIMD_WindowSize              19
+#define CIMD_DestinationAddress      21
+#define CIMD_OriginatingAddress      23
+#define CIMD_OriginatingImsi         26
+#define CIMD_AlphaOriginatingAddr    27
+#define CIMD_OriginatedVisitedMSCAd  28
+#define CIMD_DataCodingScheme        30
+#define CIMD_UserDataHeader          32
+#define CIMD_UserData                33
+#define CIMD_UserDataBinary          34
+#define CIMD_MoreMessagesToSend      44
+#define CIMD_ValidityPeriodRelative  50
+#define CIMD_ValidityPeriodAbsolute  51
+#define CIMD_ProtocolIdentifier      52
+#define CIMD_FirstDeliveryTimeRel    53
+#define CIMD_FirstDeliveryTimeAbs    54
+#define CIMD_ReplyPath               55
+#define CIMD_StatusReportRequest     56
+#define CIMD_CancelEnabled           58
+#define CIMD_CancelMode              59
+#define CIMD_SCTimeStamp             60
+#define CIMD_StatusCode              61
+#define CIMD_StatusErrorCode         62
+#define CIMD_DischargeTime           63
+#define CIMD_TariffClass             64
+#define CIMD_ServiceDescription      65
+#define CIMD_MessageCount            66
+#define CIMD_Priority                67
+#define CIMD_DeliveryRequestMode     68
+#define CIMD_SCAddress               69
+#define CIMD_GetParameter           500
+#define CIMD_SMSCTime               501
+#define CIMD_ErrorCode              900
+#define CIMD_ErrorText              901
+
+#define MAXPARAMSCOUNT               37
+
+typedef struct cimd_parameter_t cimd_parameter_t;
+
+typedef void (*cimd_pdissect)(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
+
+struct cimd_parameter_t {
+  cimd_pdissect  diss;
+  gint          *ett_p;
+  gint          *hf_p;
+};
+
+static void dissect_cimd_parameter(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
+static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
+static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset);
 
 static int proto_cimd = -1;
 /* Initialize the subtree pointers */
@@ -54,73 +152,73 @@ static int hf_cimd_dcs_indication_type = -1;
 
 static const value_string vals_hdr_OC[] = {
   /* operation codes array */
-  {CIMD_Login, "Login"},
-  {CIMD_LoginResp, "Login Resp"},
-  {CIMD_Logout, "Logout"},
-  {CIMD_LogoutResp, "Logout Resp"},
-  {CIMD_SubmitMessage, "Submit message"},
-  {CIMD_SubmitMessageResp, "Submit message Resp"},
-  {CIMD_EnqMessageStatus, "Enquire message status"},
-  {CIMD_EnqMessageStatusResp, "Enquire message status Resp"},
-  {CIMD_DeliveryRequest, "Delivery request"},
-  {CIMD_DeliveryRequestResp, "Delivery request Resp"},
-  {CIMD_CancelMessage, "Cancel message"},
-  {CIMD_CancelMessageResp, "Cancel message Resp"},
-  {CIMD_SetMessage, "Set message"},
-  {CIMD_SetMessageResp, "Set message Resp"},
-  {CIMD_GetMessage, "Get message"},
-  {CIMD_GetMessageResp, "Get message Resp"},
-  {CIMD_Alive, "Alive"},
-  {CIMD_AliveResp, "Alive Resp"},
-  {CIMD_GeneralErrorResp, "General error Resp"},
-  {CIMD_NACK, "Nack"},
+  {CIMD_Login,                    "Login"},
+  {CIMD_LoginResp,                "Login Resp"},
+  {CIMD_Logout,                   "Logout"},
+  {CIMD_LogoutResp,               "Logout Resp"},
+  {CIMD_SubmitMessage,            "Submit message"},
+  {CIMD_SubmitMessageResp,        "Submit message Resp"},
+  {CIMD_EnqMessageStatus,         "Enquire message status"},
+  {CIMD_EnqMessageStatusResp,     "Enquire message status Resp"},
+  {CIMD_DeliveryRequest,          "Delivery request"},
+  {CIMD_DeliveryRequestResp,      "Delivery request Resp"},
+  {CIMD_CancelMessage,            "Cancel message"},
+  {CIMD_CancelMessageResp,        "Cancel message Resp"},
+  {CIMD_SetMessage,               "Set message"},
+  {CIMD_SetMessageResp,           "Set message Resp"},
+  {CIMD_GetMessage,               "Get message"},
+  {CIMD_GetMessageResp,           "Get message Resp"},
+  {CIMD_Alive,                    "Alive"},
+  {CIMD_AliveResp,                "Alive Resp"},
+  {CIMD_GeneralErrorResp,         "General error Resp"},
+  {CIMD_NACK,                     "Nack"},
   /* SC2App */
-  {CIMD_DeliveryMessage, "Deliver message"},
-  {CIMD_DeliveryMessageResp, "Deliver message Resp"},
-  {CIMD_DeliveryStatusReport, "Deliver status report"},
+  {CIMD_DeliveryMessage,          "Deliver message"},
+  {CIMD_DeliveryMessageResp,      "Deliver message Resp"},
+  {CIMD_DeliveryStatusReport,     "Deliver status report"},
   {CIMD_DeliveryStatusReportResp, "Deliver status report Resp"},
   {0, NULL}
 };
 
 static const value_string cimd_vals_PC[] = {
   /* parameter codes array */
-  {CIMD_UserIdentity, "User Identity"},
-  {CIMD_Password, "Password"},
-  {CIMD_Subaddress, "Subaddr"},
-  {CIMD_WindowSize, "Window Size"},
-  {CIMD_DestinationAddress, "Destination Address"},
-  {CIMD_OriginatingAddress, "Originating Address"},
-  {CIMD_OriginatingImsi, "Originating IMSI"},
-  {CIMD_AlphaOriginatingAddr, "Alphanumeric Originating Address"},
+  {CIMD_UserIdentity,           "User Identity"},
+  {CIMD_Password,               "Password"},
+  {CIMD_Subaddress,             "Subaddr"},
+  {CIMD_WindowSize,             "Window Size"},
+  {CIMD_DestinationAddress,     "Destination Address"},
+  {CIMD_OriginatingAddress,     "Originating Address"},
+  {CIMD_OriginatingImsi,        "Originating IMSI"},
+  {CIMD_AlphaOriginatingAddr,   "Alphanumeric Originating Address"},
   {CIMD_OriginatedVisitedMSCAd, "Originated Visited MSC Address"},
-  {CIMD_DataCodingScheme, "Data Coding Scheme"},
-  {CIMD_UserDataHeader, "User Data Header"},
-  {CIMD_UserData, "User Data"},
-  {CIMD_UserDataBinary, "User Data Binary"},
-  {CIMD_MoreMessagesToSend, "More Messages To Send"},
+  {CIMD_DataCodingScheme,       "Data Coding Scheme"},
+  {CIMD_UserDataHeader,         "User Data Header"},
+  {CIMD_UserData,               "User Data"},
+  {CIMD_UserDataBinary,         "User Data Binary"},
+  {CIMD_MoreMessagesToSend,     "More Messages To Send"},
   {CIMD_ValidityPeriodRelative, "Validity Period Relative"},
   {CIMD_ValidityPeriodAbsolute, "Validity Period Absolute"},
-  {CIMD_ProtocolIdentifier, "Protocol Identifier"},
-  {CIMD_FirstDeliveryTimeRel, "First Delivery Time Relative"},
-  {CIMD_FirstDeliveryTimeAbs, "First Delivery Time Absolute"},
-  {CIMD_ReplyPath, "Reply Path"},
-  {CIMD_StatusReportRequest, "Status Report Request"},
-  {CIMD_CancelEnabled, "Cancel Enabled"},
-  {CIMD_CancelMode, "Cancel Mode"},
-  {CIMD_SCTimeStamp, "Service Centre Time Stamp"},
-  {CIMD_StatusCode, "Status Code"},
-  {CIMD_StatusErrorCode, "Status Error Code"},
-  {CIMD_DischargeTime, "Discharge Time"},
-  {CIMD_TariffClass, "Tariff Class"},
-  {CIMD_ServiceDescription, "Service Description"},
-  {CIMD_MessageCount, "Message Count"},
-  {CIMD_Priority, "Priority"},
-  {CIMD_DeliveryRequestMode, "Delivery Request Mode"},
-  {CIMD_SCAddress, "Service Center Address"},
-  {CIMD_GetParameter, "Get Parameter"},
-  {CIMD_SMSCTime, "SMS Center Time"},
-  {CIMD_ErrorCode, "Error Code"},
-  {CIMD_ErrorText, "Error Text"},
+  {CIMD_ProtocolIdentifier,     "Protocol Identifier"},
+  {CIMD_FirstDeliveryTimeRel,   "First Delivery Time Relative"},
+  {CIMD_FirstDeliveryTimeAbs,   "First Delivery Time Absolute"},
+  {CIMD_ReplyPath,              "Reply Path"},
+  {CIMD_StatusReportRequest,    "Status Report Request"},
+  {CIMD_CancelEnabled,          "Cancel Enabled"},
+  {CIMD_CancelMode,             "Cancel Mode"},
+  {CIMD_SCTimeStamp,            "Service Centre Time Stamp"},
+  {CIMD_StatusCode,             "Status Code"},
+  {CIMD_StatusErrorCode,        "Status Error Code"},
+  {CIMD_DischargeTime,          "Discharge Time"},
+  {CIMD_TariffClass,            "Tariff Class"},
+  {CIMD_ServiceDescription,     "Service Description"},
+  {CIMD_MessageCount,           "Message Count"},
+  {CIMD_Priority,               "Priority"},
+  {CIMD_DeliveryRequestMode,    "Delivery Request Mode"},
+  {CIMD_SCAddress,              "Service Center Address"},
+  {CIMD_GetParameter,           "Get Parameter"},
+  {CIMD_SMSCTime,               "SMS Center Time"},
+  {CIMD_ErrorCode,              "Error Code"},
+  {CIMD_ErrorText,              "Error Text"},
   {0, NULL}
 };
 
@@ -275,27 +373,27 @@ static void dissect_cimd_parameter(tvbuff_t *tvb, proto_tree *tree, gint pindex,
 static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset)
 {
   /* Set up structures needed to add the param subtree and manage it */
-  proto_item *param_item = NULL;
-  proto_tree *param_tree = NULL;
+  proto_item *param_item;
+  proto_tree *param_tree;
 
   gchar* payloadText;
-  gchar* tmpBuffer = (gchar*)ep_alloc(1024);
-  gchar* tmpBuffer1 = (gchar*)ep_alloc(1024);
-  int loop,i,poz, bufPoz = 0, bufPoz1 = 0, size, size1, resch;
-  gint g_offset, g_size;
-  gchar token[4];
-  gchar ch;
-  const char* mapping[128] = {
-    "_Oa","_L-", "", "_Y-", "_e`", "_e'", "_u`", "_i`", "_o`","_C,", /*10*/
-    "", "_O/", "_o/", "", "_A*", "_a*","_gd", "_--", "_gf", "_gg", "_gl", /*21*/
-    "_go", "_gp","_gi", "_gs", "_gt", "_gx", "_XX","_AE","_ae", "_ss","_E'", /*32*/
-    "","","_qq","", "_ox", "", "","", "", "", "", "", "", "", "", "",
-    "", "", "", "", "", "" , "", "", "", "", "", "", "", "", "", "",
-    "_!!", "", "", "", "", "", "","", "", "", "", "", "", "", "", "",
-    "", "", "", "", "", "", "", "","", "", "", "_A\"", "_O\"", "_N~",
-    "_U\"", "_so", "_??", "", "", "", "", "", "", "", "", "", "", "",
-    "", "", "", "", "", "", "", "","", "", "", "", "", "", "", "_a\"",
-    "_o\"","_n~","_n\"","_a`"
+  gchar* tmpBuffer          = (gchar*)ep_alloc(1024);
+  gchar* tmpBuffer1         = (gchar*)ep_alloc(1024);
+  int    loop,i,poz, bufPoz = 0, bufPoz1 = 0, size, size1, resch;
+  gint   g_offset, g_size;
+  gchar  token[4];
+  gchar  ch;
+  const char* mapping[128]  = {
+    "_Oa" , "_L-", ""    , "_Y-", "_e`", "_e'", "_u`", "_i`", "_o`", "_C,",        /*10*/
+    ""    , "_O/", "_o/" , ""   , "_A*", "_a*", "_gd", "_--", "_gf", "_gg", "_gl", /*21*/
+    "_go" , "_gp", "_gi" , "_gs", "_gt", "_gx", "_XX", "_AE", "_ae", "_ss", "_E'", /*32*/
+    ""    , ""   , "_qq" , ""   , "_ox", ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "",
+    ""    , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "",
+    "_!!" , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "",
+    ""    , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , "_A\"", "_O\"", "_N~",
+    "_U\"", "_so", "_??" , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   ,
+    ""    , ""   , ""    , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""   , ""    , ""    , ""   , "", "_a\"",
+    "_o\"", "_n~", "_n\"","_a`"
   };
 
   param_item = proto_tree_add_text(tree, tvb,
@@ -344,9 +442,9 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
       }
       else
       {
-        if(loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
-        if(loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
-        if(loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
+        if (loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
+        if (loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
+        if (loop < size) tmpBuffer[bufPoz++] = payloadText[loop++];
       }
     }
     else
@@ -357,7 +455,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   tmpBuffer[bufPoz] = '\0';
 
   size1 = (int)strlen(tmpBuffer);
-  for (loop=0; loop<size1;loop++)
+  for (loop=0; loop<size1; loop++)
   {
     ch = tmpBuffer[loop];
     switch ((gint)ch)
@@ -377,7 +475,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
     case 0x0E: resch = 0x00C5; break;
     case 0x0F: resch = 0x00E5; break;
     case 0x11: resch = 0x005F; break;
-    case 0x1B14: resch = 0x005E; break;
+/*  case 0x1B14: resch = 0x005E; break; */
 /*  case 0x1B28: resch = 0x007B; break; */
 /*  case 0x1B29: resch = 0x007D; break; */
 /*  case 0x1B2F: resch = 0x005C; break; */
@@ -485,7 +583,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
     case 0x7C: resch = 0x00F6; break;
     case 0x7D: resch = 0x00F1; break;
     case 0x7F: resch = 0x00E0; break;
-    default:resch = ch;break;
+    default:resch = ch; break;
     }
     tmpBuffer1[bufPoz1++] = (gchar)resch;
   }
@@ -497,17 +595,17 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
 static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint startOffset, gint endOffset)
 {
   /* Set up structures needed to add the param subtree and manage it */
-  proto_item *param_item = NULL;
-  proto_tree *param_tree = NULL;
-  gint offset;
-  guint dcs;
-  guint dcs_cg;  /* coding group */
-  guint dcs_cf;  /* compressed flag */
-  guint dcs_mcm; /* message class meaning flag */
-  guint dcs_chs; /* character set */
-  guint dcs_mc;  /* message class */
-  guint dcs_is;  /* indication sense */
-  guint dcs_it;  /* indication type */
+  proto_item *param_item;
+  proto_tree *param_tree;
+  gint        offset;
+  guint       dcs;
+  guint       dcs_cg;           /* coding group */
+  guint       dcs_cf;           /* compressed flag */
+  guint       dcs_mcm;          /* message class meaning flag */
+  guint       dcs_chs;          /* character set */
+  guint       dcs_mc;           /* message class */
+  guint       dcs_is;           /* indication sense */
+  guint       dcs_it;           /* indication type */
 
   gchar* bigbuf = (gchar*)ep_alloc(1024);
 
@@ -522,7 +620,7 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
   );
 
   offset = startOffset + 1 + CIMD_PC_LENGTH + 1;
-  dcs = decimal_int_value(tvb, offset, endOffset - offset);
+  dcs    = decimal_int_value(tvb, offset, endOffset - offset);
   proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, offset, endOffset - offset, dcs);
 
   dcs_cg = (dcs & 0xF0) >> 4;
@@ -602,10 +700,10 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
 static void
 dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 checksum, guint8 last1,guint8 OC, guint8 PN)
 {
-  guint PC = 0;         /* Parameter code */
-  gint idx;
-  gint offset = 0;
-  gint endOffset = 0;
+  guint       PC        = 0;    /* Parameter code */
+  gint        idx;
+  gint        offset    = 0;
+  gint        endOffset = 0;
   proto_item *cimd_item = NULL;
   proto_tree *cimd_tree = NULL;
 
@@ -644,15 +742,15 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
 static void
 dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8 OC = 0;         /* Operation Code */
-  guint8 PN = 0;         /* Packet number */
-  guint16 checksum = 0;  /* Checksum */
-  guint16 pkt_check = 0;
-  gint etxp = 0;         /* ETX position */
-  gint offset = 0;
+  guint8   OC              = 0; /* Operation Code */
+  guint8   PN              = 0; /* Packet number */
+  guint16  checksum        = 0; /* Checksum */
+  guint16  pkt_check       = 0;
+  gint     etxp            = 0; /* ETX position */
+  gint     offset          = 0;
   /*gint endOffset = 0;*/
   gboolean checksumIsValid = TRUE;
-  guint8 last1, last2, last3;
+  guint8   last1, last2, last3;
 
   etxp = tvb_find_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
   if (etxp == -1) return;
@@ -698,23 +796,18 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int etxp;
-  guint8 opcode = 0; /* Operation code */
+  int    etxp;
+  guint8 opcode = 0;            /* Operation code */
 
-  /**
-   * This runs atop TCP, so we are guaranteed that
-   * there is at least one byte in the tvbuff
-   */
+  if (tvb_length(tvb) < CIMD_MIN_LENGTH)
+    return FALSE;
+
   if (tvb_get_guint8(tvb, 0) != CIMD_STX)
     return FALSE;
 
   etxp = tvb_find_guint8(tvb, CIMD_OC_OFFSET, -1, CIMD_ETX);
   if (etxp == -1)
   { /* XXX - should we have an option to request reassembly? */
-    return FALSE;
-  }
-  if (etxp > (int)tvb_reported_length(tvb))
-  { /* XXX - "cannot happen" */
     return FALSE;
   }
 
@@ -739,101 +832,245 @@ proto_register_cimd(void)
 {
   static hf_register_info hf[] = {
     { &hf_cimd_opcode_indicator,
-      { "Operation Code", "cimd.opcode", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD Operation Code", HFILL }},
+      { "Operation Code", "cimd.opcode",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_packet_number_indicator,
-      { "Packet Number", "cimd.pnumber", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD Packet Number", HFILL }},
+      { "Packet Number", "cimd.pnumber",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_pcode_indicator,
-      { "Code", "cimd.pcode", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Parameter Code", HFILL }},
+      { "Parameter Code", "cimd.pcode",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_checksum_indicator,
-      { "Checksum", "cimd.chksum", FT_UINT8, BASE_HEX, NULL, 0x00, "CIMD Checksum", HFILL }},
+      { "Checksum", "cimd.chksum",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_dcs_coding_group_indicator,
-      { "Coding Group", "cimd.dcs.cg", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD DCS Coding Group", HFILL }},
+      { "DCS Coding Group", "cimd.dcs.cg",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_dcs_compressed_indicator,
-      { "Compressed", "cimd.dcs.cf", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD DCS Compressed Flag", HFILL }},
+      { "DCS Compressed Flag", "cimd.dcs.cf",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_dcs_message_class_meaning_indicator,
-      { "Message Class Meaning", "cimd.dcs.mcm", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD DCS Message Class Meaning Flag", HFILL }},
+      { "DCS Message Class Meaning", "cimd.dcs.mcm",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_dcs_message_class_indicator,
-      { "Message Class", "cimd.dcs.mc", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD DCS Message Class", HFILL }},
+      { "DCS Message Class", "cimd.dcs.mc",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_dcs_character_set_indicator,
-      { "Character Set", "cimd.dcs.chs", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD DCS Character Set", HFILL }},
+      { "DCS Character Set", "cimd.dcs.chs",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_dcs_indication_sense,
-      { "Indication Sense", "cimd.dcs.is", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD DCS Indication Sense", HFILL }},
+      { "DCS Indication Sense", "cimd.dcs.is",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_cimd_dcs_indication_type,
-      { "Indication Type", "cimd.dcs.it", FT_UINT8, BASE_DEC, NULL, 0x00, "CIMD DCS Indication Type", HFILL }},
+      { "DCS Indication Type", "cimd.dcs.it",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[0],
-      { "User Identity", "cimd.ui", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD User Identity", HFILL }},
+      { "User Identity", "cimd.ui",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[1],
-      { "Password", "cimd.passwd", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Password", HFILL }},
+      { "Password", "cimd.passwd",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[2],
-      { "Subaddress", "cimd.saddr", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Subaddress", HFILL }},
+      { "Subaddress", "cimd.saddr",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[3],
-      { "Window Size", "cimd.ws", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Window Size", HFILL }},
+      { "Window Size", "cimd.ws",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[4],
-      { "Destination Address", "cimd.da", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Destination Address", HFILL }},
+      { "Destination Address", "cimd.da",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[5],
-      { "Originating Address", "cimd.oa", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Originating Address", HFILL }},
+      { "Originating Address", "cimd.oa",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[6],
-      { "Originating IMSI", "cimd.oimsi", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Originating IMSI", HFILL }},
+      { "Originating IMSI", "cimd.oimsi",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[7],
-      { "Alphanumeric Originating Address", "cimd.aoi", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Alphanumeric Originating Address", HFILL }},
+      { "Alphanumeric Originating Address", "cimd.aoi",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[8],
-      { "Originated Visited MSC Address", "cimd.ovma", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Originated Visited MSC Address", HFILL }},
+      { "Originated Visited MSC Address", "cimd.ovma",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[9],
-      { "Data Coding Scheme", "cimd.dcs", FT_UINT8, BASE_HEX, NULL, 0x00, "CIMD Data Coding Scheme", HFILL }},
+      { "Data Coding Scheme", "cimd.dcs",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[10],
-      { "User Data Header", "cimd.udh", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD User Data Header", HFILL }},
+      { "User Data Header", "cimd.udh",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[11],
-      { "User Data", "cimd.ud", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD User Data", HFILL }},
+      { "User Data", "cimd.ud",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[12],
-      { "User Data Binary", "cimd.udb", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD User Data Binary", HFILL }},
+      { "User Data Binary", "cimd.udb",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[13],
-      { "More Messages To Send", "cimd.mms", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD More Messages To Send", HFILL }},
+      { "More Messages To Send", "cimd.mms",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[14],
-      { "Validity Period Relative", "cimd.vpr", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Validity Period Relative", HFILL }},
+      { "Validity Period Relative", "cimd.vpr",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[15],
-      { "Validity Period Absolute", "cimd.vpa", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Validity Period Absolute", HFILL }},
+      { "Validity Period Absolute", "cimd.vpa",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[16],
-      { "Protocol Identifier", "cimd.pi", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Protocol Identifier", HFILL }},
+      { "Protocol Identifier", "cimd.pi",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[17],
-      { "First Delivery Time Relative", "cimd.fdtr", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD First Delivery Time Relative", HFILL }},
+      { "First Delivery Time Relative", "cimd.fdtr",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[18],
-      { "First Delivery Time Absolute", "cimd.fdta", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD First Delivery Time Absolute", HFILL }},
+      { "First Delivery Time Absolute", "cimd.fdta",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[19],
-      { "Reply Path", "cimd.rpath", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Reply Path", HFILL }},
+      { "Reply Path", "cimd.rpath",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[20],
-      { "Status Report Request", "cimd.srr", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Status Report Request", HFILL }},
+      { "Status Report Request", "cimd.srr",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[21],
-      { "Cancel Enabled", "cimd.ce", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Cancel Enabled", HFILL }},
+      { "Cancel Enabled", "cimd.ce",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[22],
-      { "Cancel Mode", "cimd.cm", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Cancel Mode", HFILL }},
+      { "Cancel Mode", "cimd.cm",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[23],
-      { "Service Centre Time Stamp", "cimd.scts", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Service Centre Time Stamp", HFILL }},
+      { "Service Center Time Stamp", "cimd.scts",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[24],
-      { "Status Code", "cimd.stcode", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Status Code", HFILL }},
+      { "Status Code", "cimd.stcode",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[25],
-      { "Status Error Code", "cimd.sterrcode", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Status Error Code", HFILL }},
+      { "Status Error Code", "cimd.sterrcode",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[26],
-      { "Discharge Time", "cimd.dt", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Discharge Time", HFILL }},
+      { "Discharge Time", "cimd.dt",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[27],
-      { "Tariff Class", "cimd.tclass", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Tariff Class", HFILL }},
+      { "Tariff Class", "cimd.tclass",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[28],
-      { "Service Description", "cimd.sdes", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Service Description", HFILL }},
+      { "Service Description", "cimd.sdes",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[29],
-      { "Message Count", "cimd.mcount", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Message Count", HFILL }},
+      { "Message Count", "cimd.mcount",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[30],
-      { "Priority", "cimd.priority", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Priority", HFILL }},
+      { "Priority", "cimd.priority",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[31],
-      { "Delivery Request Mode", "cimd.drmode", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Delivery Request Mode", HFILL }},
+      { "Delivery Request Mode", "cimd.drmode",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[32],
-      { "Service Center Address", "cimd.scaddr", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Service Center Address", HFILL }},
+      { "Service Center Address", "cimd.scaddr",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[33],
-      { "Get Parameter", "cimd.gpar", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Get Parameter", HFILL }},
+      { "Get Parameter", "cimd.gpar",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[34],
-      { "SMS Center Time", "cimd.smsct", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD SMS Center Time", HFILL }},
+      { "SMS Center Time", "cimd.smsct",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[35],
-      { "Error Code", "cimd.errcode", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Error Code", HFILL }},
+      { "Error Code", "cimd.errcode",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    },
     { &hf_index[36],
-      { "Error Text", "cimd.errtext", FT_STRING, BASE_NONE, NULL, 0x00, "CIMD Error Text", HFILL }}
+      { "Error Text", "cimd.errtext",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        NULL, HFILL }
+    }
   };
 
   /* Setup protocol subtree array */
@@ -875,4 +1112,3 @@ proto_reg_handoff_cimd(void)
   cimd_handle = create_dissector_handle(dissect_cimd, proto_cimd);
   dissector_add_handle("tcp.port", cimd_handle);
 }
-

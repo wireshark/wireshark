@@ -1184,7 +1184,6 @@ DISSECTOR_INCLUDES =	\
 	packet-cell_broadcast.h	\
 	packet-charging_ase.h	\
 	packet-chdlc.h	\
-	packet-cimd.h	\
 	packet-cip.h	\
 	packet-cipsafety.h	\
 	packet-clearcase.h	\
