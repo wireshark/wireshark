@@ -109,7 +109,17 @@ static gint ett_ipcp = -1;
 static gint ett_ipcp_options = -1;
 static gint ett_ipcp_ipaddrs_opt = -1;
 static gint ett_ipcp_compress_opt = -1;
-static gint ett_ipcp_iphc_disableprot_opt = -1;
+static gint ett_ipcp_ipaddr_opt = -1;
+static gint ett_ipcp_mobileipv4_opt = -1;
+static gint ett_ipcp_pridns_opt = -1;
+static gint ett_ipcp_secdns_opt = -1;
+static gint ett_ipcp_prinbns_opt = -1;
+static gint ett_ipcp_secnbns_opt = -1;
+
+static gint ett_ipcp_iphc_rtp_compress_opt = -1;
+static gint ett_ipcp_iphc_enhanced_rtp_compress_opt = -1;
+static gint ett_ipcp_iphc_neghdrcomp_opt = -1;
+static gint ett_ipcp_rohc_profiles_opt = -1;
 
 static int proto_vsncp = -1;
 
@@ -1158,94 +1168,111 @@ static const range_string chap_alg_rvals[] = {
 
 /*
  * Options.  (IPCP)
+ * http://tools.ietf.org/html/rfc1172
+ * http://tools.ietf.org/html/rfc1332
+ * http://tools.ietf.org/html/rfc1877
+ * http://tools.ietf.org/html/rfc2290
+ * http://tools.ietf.org/html/rfc3241
+ * http://tools.ietf.org/html/rfc3545
  */
-#define CI_ADDRS        1       /* IP Addresses (deprecated) (RFC 1172) */
-#define CI_COMPRESSTYPE 2       /* Compression Type (RFC 1332) */
-#define CI_ADDR         3       /* IP Address (RFC 1332) */
-#define CI_MOBILE_IPv4  4       /* Mobile IPv4 (RFC 2290) */
-#define CI_MS_DNS1      129     /* Primary DNS value (RFC 1877) */
-#define CI_MS_WINS1     130     /* Primary WINS value (RFC 1877) */
-#define CI_MS_DNS2      131     /* Secondary DNS value (RFC 1877) */
-#define CI_MS_WINS2     132     /* Secondary WINS value (RFC 1877) */
+#define CI_ADDRS            1       /* IP Addresses (deprecated) (RFC 1172) */
+#define CI_COMPRESS_PROTO   2       /* Compression Protocol (RFC 1332) */
+#define CI_ADDR             3       /* IP Address (RFC 1332) */
+#define CI_MOBILE_IPv4      4       /* Mobile IPv4 (RFC 2290) */
+#define CI_PRI_DNS          129     /* Primary DNS value (RFC 1877) */
+#define CI_PRI_NBNS         130     /* Primary NBNS value (RFC 1877) */
+#define CI_SEC_DNS          131     /* Secondary DNS value (RFC 1877) */
+#define CI_SEC_NBNS         132     /* Secondary NBNS value (RFC 1877) */
 
-static void dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                int offset, guint length, packet_info *pinfo,
-                                proto_tree *tree);
-static void dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                int offset, guint length, packet_info *pinfo,
-                                proto_tree *tree);
-static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                int offset, guint length, packet_info *pinfo,
-                                proto_tree *tree);
-static void dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                int offset, guint length, packet_info *pinfo,
-                                proto_tree *tree);
+static int hf_ipcp_opt_type = -1;
+static int hf_ipcp_opt_length = -1;
+static int hf_ipcp_opt_src_address = -1;
+static int hf_ipcp_opt_dst_address = -1;
+static int hf_ipcp_opt_compress_proto = -1;
+static int hf_ipcp_opt_max_cid = -1;
+static int hf_ipcp_opt_mrru = -1;
+static int hf_ipcp_opt_max_slot_id = -1;
+static int hf_ipcp_opt_comp_slot_id = -1;
+static int hf_ipcp_opt_tcp_space = -1;
+static int hf_ipcp_opt_non_tcp_space = -1;
+static int hf_ipcp_opt_f_max_period = -1;
+static int hf_ipcp_opt_f_max_time = -1;
+static int hf_ipcp_opt_max_header = -1;
+static int hf_ipcp_data = -1;
+static int hf_ipcp_opt_ip_address = -1;
+static int hf_ipcp_opt_mobilenodehomeaddr = -1;
+static int hf_ipcp_opt_pri_dns_address = -1;
+static int hf_ipcp_opt_pri_nbns_address = -1;
+static int hf_ipcp_opt_sec_dns_address = -1;
+static int hf_ipcp_opt_sec_nbns_address = -1;
+
+static int hf_ipcp_opt_rohc_type = -1;
+static int hf_ipcp_opt_rohc_length = -1;
+static int hf_ipcp_opt_rohc_profile = -1;
+static int hf_ipcp_opt_iphc_type = -1;
+static int hf_ipcp_opt_iphc_length = -1;
+static int hf_ipcp_opt_iphc_param = -1;
+
+static void
+dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                       guint length, packet_info *pinfo _U_, proto_tree *tree);
+static void
+dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                          guint length, packet_info *pinfo _U_,
+                          proto_tree *tree);
+static void
+dissect_ipcp_rohc_profiles_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                               int offset, guint length,
+                               packet_info *pinfo _U_, proto_tree *tree);
+static void
+dissect_ipcp_iphc_simple_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                             guint length, packet_info *pinfo _U_,
+                             proto_tree *tree);
+static void
+dissect_ipcp_iphc_neghdrcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                                 int offset, guint length,
+                                 packet_info *pinfo _U_, proto_tree *tree);
+static void
+dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                      guint length, packet_info *pinfo _U_, proto_tree *tree);
+static void
+dissect_ipcp_mobileipv4_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                            guint length, packet_info *pinfo _U_,
+                            proto_tree *tree);
+static void
+dissect_ipcp_pri_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                         guint length, packet_info *pinfo _U_,
+                         proto_tree *tree);
+static void
+dissect_ipcp_pri_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                          guint length, packet_info *pinfo _U_,
+                          proto_tree *tree);
+static void
+dissect_ipcp_sec_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                         guint length, packet_info *pinfo _U_,
+                         proto_tree *tree);
+static void
+dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                          guint length, packet_info *pinfo _U_,
+                          proto_tree *tree);
 
 static const ip_tcp_opt ipcp_opts[] = {
-  {
-    CI_ADDRS,
-    "IP addresses (deprecated)",
-    &ett_ipcp_ipaddrs_opt,
-    FIXED_LENGTH,
-    10,
-    dissect_ipcp_addrs_opt
-  },
-  {
-    CI_COMPRESSTYPE,
-    "IP compression",
-    &ett_ipcp_compress_opt,
-    VARIABLE_LENGTH,
-    4,
-    dissect_ipcp_compress_opt
-  },
-  {
-    CI_ADDR,
-    "IP address",
-    NULL,
-    FIXED_LENGTH,
-    6,
-    dissect_ipcp_addr_opt
-  },
-  {
-    CI_MOBILE_IPv4,
-    "Mobile node's home IP address",
-    NULL,
-    FIXED_LENGTH,
-    6,
-    dissect_ipcp_addr_opt
-  },
-  {
-    CI_MS_DNS1,
-    "Primary DNS server IP address",
-    NULL,
-    FIXED_LENGTH,
-    6,
-    dissect_ipcp_addr_opt
-  },
-  {
-    CI_MS_WINS1,
-    "Primary WINS server IP address",
-    NULL,
-    FIXED_LENGTH,
-    6,
-    dissect_ipcp_addr_opt
-  },
-  {
-    CI_MS_DNS2,
-    "Secondary DNS server IP address",
-    NULL,
-    FIXED_LENGTH,
-    6,
-    dissect_ipcp_addr_opt
-  },
-  {
-    CI_MS_WINS2,
-    "Secondary WINS server IP address",
-    NULL,
-    FIXED_LENGTH,
-    6,
-    dissect_ipcp_addr_opt
-  }
+  {CI_ADDRS, "IP Addresses (deprecated)", &ett_ipcp_ipaddrs_opt,
+    FIXED_LENGTH, 10, dissect_ipcp_addrs_opt},
+  {CI_COMPRESS_PROTO, "IP Compression Protocol", &ett_ipcp_compress_opt,
+    VARIABLE_LENGTH, 4, dissect_ipcp_compress_opt},
+  {CI_ADDR, "IP address", &ett_ipcp_ipaddr_opt,
+    FIXED_LENGTH, 6, dissect_ipcp_addr_opt},
+  {CI_MOBILE_IPv4, "Mobile Node's Home IP Address", &ett_ipcp_mobileipv4_opt,
+    FIXED_LENGTH, 6, dissect_ipcp_mobileipv4_opt},
+  {CI_PRI_DNS, "Primary DNS Server IP Address", &ett_ipcp_pridns_opt,
+    FIXED_LENGTH, 6, dissect_ipcp_pri_dns_opt},
+  {CI_PRI_NBNS, "Primary NBNS Server IP Address", &ett_ipcp_prinbns_opt,
+    FIXED_LENGTH, 6, dissect_ipcp_pri_nbns_opt},
+  {CI_SEC_DNS, "Secondary DNS Server IP Address", &ett_ipcp_secdns_opt,
+    FIXED_LENGTH, 6, dissect_ipcp_sec_dns_opt},
+  {CI_SEC_NBNS, "Secondary NBNS Server IP Address", &ett_ipcp_secnbns_opt,
+    FIXED_LENGTH, 6, dissect_ipcp_sec_nbns_opt}
 };
 
 #define N_IPCP_OPTS     (sizeof ipcp_opts / sizeof ipcp_opts[0])
@@ -1254,57 +1281,63 @@ static const ip_tcp_opt ipcp_opts[] = {
 /*
  * IP Compression options
  */
-#define IPCP_COMPRESS_VJ_1172   0x37    /* value defined in RFC1172 (typo) */
-#define IPCP_COMPRESS_VJ        0x2d    /* value defined in RFC1332 (correct) */
-#define IPCP_COMPRESS_IPHC      0x61
+#define IPCP_ROHC               0x0003  /* RFC3241 */
+#define IPCP_COMPRESS_VJ_1172   0x0037  /* value defined in RFC1172 (typo) */
+#define IPCP_COMPRESS_VJ        0x002d  /* value defined in RFC1332 (correct) */
+#define IPCP_COMPRESS_IPHC      0x0061  /* RFC3544 (and RFC2509) */
 
 const value_string ipcp_compress_proto_vals[] = {
-  { IPCP_COMPRESS_VJ_1172, "VJ compression (RFC1172-typo)" },
+  { IPCP_ROHC,             "Robust Header Compression (ROHC)" },
   { IPCP_COMPRESS_VJ,      "VJ compression" },
+  { IPCP_COMPRESS_VJ_1172, "VJ compression (RFC1172-typo)" },
   { IPCP_COMPRESS_IPHC,    "IPHC compression" },
-  { 0,                  NULL }
+  { 0,                     NULL }
 };
 
 /* IPHC suboptions (RFC2508, 3544) */
 #define IPCP_IPHC_CRTP          1
 #define IPCP_IPHC_ECRTP         2
-#define IPCP_IPHC_DISABLE_PROTO 3       /* Disable compression for protocol */
+#define IPCP_IPHC_NEGHC         3
 
-const value_string ipcp_iphc_disable_proto_vals[] = {
-  { 1,  "TCP" },
-  { 2,  "Non-TCP" },
-  { 0,  NULL }
+static const value_string ipcp_iphc_parameter_vals[] = {
+  { 1, "The number of contexts for TCP Space is 0" },
+  { 2, "The number of contexts for Non TCP Space is 0" },
+  { 0, NULL }
 };
 
 static const ip_tcp_opt ipcp_iphc_subopts[] = {
-  {
-    IPCP_IPHC_CRTP,
-    "RTP compression (RFC2508)",
-    NULL,
-    FIXED_LENGTH,
-    2,
-    NULL
-  },
-  {
-    IPCP_IPHC_ECRTP,
-    "Enhanced RTP compression (RFC3545)",
-    NULL,
-    FIXED_LENGTH,
-    2,
-    NULL
-  },
-  {
-    IPCP_IPHC_DISABLE_PROTO,
-    "Enhanced RTP compression (RFC3545)",
-    &ett_ipcp_iphc_disableprot_opt,
-    FIXED_LENGTH,
-    3,
-    dissect_ipcp_iphc_disableprot_opt
-  },
+  {IPCP_IPHC_CRTP, "RTP compression (RFC2508)",
+    &ett_ipcp_iphc_rtp_compress_opt, FIXED_LENGTH, 2,
+    dissect_ipcp_iphc_simple_opt},
+  {IPCP_IPHC_ECRTP, "Enhanced RTP compression (RFC3545)",
+    &ett_ipcp_iphc_enhanced_rtp_compress_opt, FIXED_LENGTH, 2,
+    dissect_ipcp_iphc_simple_opt},
+  {IPCP_IPHC_NEGHC, "Negotiating header compression (RFC3545)",
+    &ett_ipcp_iphc_neghdrcomp_opt, FIXED_LENGTH, 3,
+    dissect_ipcp_iphc_neghdrcomp_opt}
 };
 
 #define N_IPCP_IPHC_SUBOPTS (sizeof ipcp_iphc_subopts / sizeof ipcp_iphc_subopts[0])
 
+
+/* ROHC suboptions */
+#define IPCP_ROHC_PROFILES      1
+
+/* From http://tools.ietf.org/html/rfc3095 */
+static const value_string ipcp_rohc_profile_vals[] = {
+  { 0x0000, "ROHC uncompressed -- no compression" },
+  { 0x0002, "ROHC UDP -- non-RTP UDP/IP compression" },
+  { 0x0003, "ROHC ESP -- ESP/IP compression" },
+  { 0, NULL }
+};
+
+static const ip_tcp_opt ipcp_rohc_subopts[] = {
+  {IPCP_ROHC_PROFILES, "Profiles (RFC3241)",
+    &ett_ipcp_rohc_profiles_opt, VARIABLE_LENGTH, 2,
+    dissect_ipcp_rohc_profiles_opt}
+};
+
+#define N_IPCP_ROHC_SUBOPTS (sizeof ipcp_rohc_subopts / sizeof ipcp_rohc_subopts[0])
 
 /*
  * Options.  (OSICP)
@@ -1671,7 +1704,7 @@ static const ip_tcp_opt ipv6cp_opts[] = {
     dissect_ipv6cp_if_id_opt
   },
   {
-    CI_COMPRESSTYPE,
+    CI_COMPRESS_PROTO,
     "IPv6 compression",
     &ett_ipv6cp_compress_opt,
     VARIABLE_LENGTH,
@@ -2766,176 +2799,302 @@ dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 }
 
 static void
+dissect_ipcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+                          const char *name)
+{
+  guint8 type;
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_uint_format_value(tree, hf_ipcp_opt_type, tvb, offset, 1,
+                                   type, "%s (%u)", name, type);
+  proto_tree_add_item(tree, hf_ipcp_opt_length, tvb, offset + 1, 1, ENC_NA);
+}
+
+/* http://tools.ietf.org/html/rfc1172#section-5.1 */
+static void
 dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                        guint length, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *tf;
-  proto_tree *field_tree = NULL;
+  proto_tree *field_tree;
 
-  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %u byte%s",
-                           optp->name, length, plurality(length, "", "s"));
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: Src: %s, Dst: %s",
+                           optp->name, tvb_ip_to_str(tvb, offset + 2),
+                           tvb_ip_to_str(tvb, offset + 6));
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  offset += 2;
-  length -= 2;
-  proto_tree_add_text(field_tree, tvb, offset, 4,
-                      "Source IP address: %s",
-                      tvb_ip_to_str(tvb, offset));
-  offset += 4;
-  length -= 4;
-  proto_tree_add_text(field_tree, tvb, offset, 4,
-                      "Destination IP address: %s",
-                      tvb_ip_to_str(tvb, offset));
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_src_address, tvb, offset + 2, 4,
+                      ENC_BIG_ENDIAN);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_dst_address, tvb, offset + 6, 4,
+                      ENC_BIG_ENDIAN);
+}
+
+static const true_false_string tfs_comp_slot_id = {
+    "The slot identifier may be compressed",
+    "The slot identifier must not be compressed"
+};
+
+/* http://tools.ietf.org/html/rfc1332#section-3.2 */
+static void
+dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                          guint length, packet_info *pinfo _U_,
+                          proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree;
+  guint16     us;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
+                           val_to_str_const(tvb_get_ntohs(tvb, offset + 2),
+                                            ipcp_compress_proto_vals,
+                                            "Unknown"));
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_compress_proto, tvb, offset + 2,
+                      2, ENC_BIG_ENDIAN);
+
+  us = tvb_get_ntohs(tvb, offset + 2);
+  switch (us) {
+    case IPCP_ROHC:
+      proto_tree_add_item(field_tree, hf_ipcp_opt_max_cid, tvb,
+                          offset + 4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(field_tree, hf_ipcp_opt_mrru, tvb,
+                          offset + 6, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(field_tree, hf_ipcp_opt_max_header, tvb,
+                          offset + 8, 2, ENC_BIG_ENDIAN);
+
+      if (length > 10) {
+        proto_item *tso;
+        proto_tree *subopt_tree;
+
+        /* suboptions */
+        offset += 10;
+        length -= 10;
+        tso = proto_tree_add_text(field_tree, tvb, offset, length,
+                                 "Suboptions: (%u byte%s)",
+                                 length, plurality(length, "", "s"));
+        subopt_tree = proto_item_add_subtree(tso, *optp->subtree_index);
+        dissect_ip_tcp_options(tvb, offset, length,
+                               ipcp_rohc_subopts, N_IPCP_ROHC_SUBOPTS, -1,
+                               pinfo, subopt_tree, NULL);
+      }
+      break;
+
+    case IPCP_COMPRESS_VJ_1172:
+    case IPCP_COMPRESS_VJ:
+      proto_tree_add_item(field_tree, hf_ipcp_opt_max_slot_id, tvb,
+                          offset + 4, 1, ENC_NA);
+      proto_tree_add_item(field_tree, hf_ipcp_opt_comp_slot_id, tvb,
+                          offset + 5, 1, ENC_NA);
+      break;
+
+    case IPCP_COMPRESS_IPHC:
+      proto_tree_add_item(field_tree, hf_ipcp_opt_tcp_space, tvb,
+                          offset + 4, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(field_tree, hf_ipcp_opt_non_tcp_space, tvb,
+                          offset + 6, 2, ENC_BIG_ENDIAN);
+      us = tvb_get_ntohs(tvb, offset + 8);
+      proto_tree_add_uint_format_value(field_tree, hf_ipcp_opt_f_max_period,
+                                       tvb, offset + 8, 2, us, "%u%s", us,
+                                       (us == 0) ? " (infinity)" : "");
+      us = tvb_get_ntohs(tvb, offset + 10);
+      proto_tree_add_uint_format_value(field_tree, hf_ipcp_opt_f_max_time,
+                                       tvb, offset + 10, 2, us, "%u%s", us,
+                                       (us == 0) ? " (infinity)" : "");
+      proto_tree_add_item(field_tree, hf_ipcp_opt_max_header, tvb,
+                          offset + 12, 2, ENC_BIG_ENDIAN);
+
+      if ( length > 14 ) {
+        proto_item *tso;
+        proto_tree *subopt_tree;
+
+        /* suboptions */
+        offset += 14;
+        length -= 14;
+        tso = proto_tree_add_text(field_tree, tvb, offset, length,
+                                 "Suboptions: (%u byte%s)",
+                                 length, plurality(length, "", "s"));
+        subopt_tree = proto_item_add_subtree(tso, *optp->subtree_index);
+        dissect_ip_tcp_options(tvb, offset, length,
+                               ipcp_iphc_subopts, N_IPCP_IPHC_SUBOPTS, -1,
+                               pinfo, subopt_tree, NULL);
+      }
+      break;
+
+    default:
+      if (length > 4)
+        proto_tree_add_item(field_tree, hf_ipcp_data, tvb, offset + 4,
+                            length - 4, ENC_NA);
+      break;
+  }
+}
+
+static void
+dissect_ipcp_opt_rohc_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+                               const char *name)
+{
+  guint8 type;
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_uint_format_value(tree, hf_ipcp_opt_rohc_type, tvb, offset,
+                                   1, type, "%s (%u)", name, type);
+  proto_tree_add_item(tree, hf_ipcp_opt_rohc_length, tvb, offset + 1, 1,
+                      ENC_NA);
+}
+
+static void
+dissect_ipcp_rohc_profiles_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                               int offset, guint length,
+                               packet_info *pinfo _U_, proto_tree *tree)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_rohc_type_len(tvb, offset, field_tree, optp->name);
+  if (length <= 2)
+    return;
+
+  for (offset += 2, length -= 2; length >= 2; length -= 2, offset += 2)
+    proto_tree_add_item(field_tree, hf_ipcp_opt_rohc_profile, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_ipcp_opt_iphc_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+                               const char *name)
+{
+  guint8 type;
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_uint_format_value(tree, hf_ipcp_opt_iphc_type, tvb, offset,
+                                   1, type, "%s (%u)", name, type);
+  proto_tree_add_item(tree, hf_ipcp_opt_iphc_length, tvb, offset + 1, 1,
+                      ENC_NA);
+}
+
+static void
+dissect_ipcp_iphc_simple_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                             int offset, guint length, packet_info *pinfo _U_,
+                             proto_tree *tree)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_iphc_type_len(tvb, offset, field_tree, optp->name);
+}
+
+static void
+dissect_ipcp_iphc_neghdrcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                                 int offset, guint length,
+                                 packet_info *pinfo _U_, proto_tree *tree)
+{
+  proto_tree *field_tree;
+  proto_item *tf;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_iphc_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_iphc_param, tvb,
+                      offset + 2, 1, ENC_NA);
 }
 
 static void
 dissect_ipcp_addr_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                       guint length, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
-                      tvb_ip_to_str(tvb, offset + 2));
-}
-
-static void
-dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                          guint length, packet_info *pinfo _U_,
-                          proto_tree *tree)
-{
-  guint8      ub;
-  guint16     us;
   proto_item *tf;
-  proto_tree *field_tree = NULL;
+  proto_tree *field_tree;
 
-  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %u byte%s",
-                           optp->name, length, plurality(length, "", "s"));
-
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
+                           optp->name, tvb_ip_to_str(tvb, offset + 2));
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-  offset += 2;  /* Skip option type + length */
-  length -= 2;
-
-  us = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_text( field_tree, tvb, offset, 2, "IP compression protocol: %s (0x%04x)",
-                       val_to_str_const( us, ipcp_compress_proto_vals, "Unknown protocol" ),
-                       us );
-  offset += 2;  /* skip protocol */
-  length -= 2;
-
-  if (length > 0) {
-    switch ( us ) {
-    case IPCP_COMPRESS_VJ_1172:
-    case IPCP_COMPRESS_VJ:
-      /* First byte is max slot id */
-      ub = tvb_get_guint8( tvb, offset );
-      proto_tree_add_text( field_tree, tvb, offset, 1,
-                           "Max slot id: %u (0x%02x)",
-                           ub, ub );
-      offset++;
-      length--;
-
-      if ( length > 0 ) {
-        /* second byte is "compress slot id" */
-        ub = tvb_get_guint8( tvb, offset );
-        proto_tree_add_text( field_tree, tvb, offset, 1,
-                             "Compress slot id: %s (0x%02x)",
-                             ub ? "yes" : "no",  ub );
-        offset++;
-        length--;
-      }
-      break;
-
-
-    case IPCP_COMPRESS_IPHC:
-      if ( length < 2 ) {
-        break;
-      }
-      us = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text( field_tree, tvb, offset, 2,
-                           "TCP space: %u (0x%04x)",
-                           us, us );
-      offset += 2;
-      length -= 2;
-
-
-      if ( length < 2 ) {
-        break;
-      }
-      us = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text( field_tree, tvb, offset, 2,
-                           "Non-TCP space: %u (0x%04x)",
-                           us, us );
-      offset += 2;
-      length -= 2;
-
-
-      if ( length < 2 ) {
-        break;
-      }
-      us = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text( field_tree, tvb, offset, 2,
-                           "Max period: %u (0x%04x) compressed packets",
-                           us, us );
-      offset += 2;
-      length -= 2;
-
-
-      if ( length < 2 ) {
-        break;
-      }
-      us = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text( field_tree, tvb, offset, 2,
-                           "Max time: %u (0x%04x) seconds",
-                           us, us );
-      offset += 2;
-      length -= 2;
-
-
-      if ( length < 2 ) {
-        break;
-      }
-      us = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text( field_tree, tvb, offset, 2,
-                           "Max header: %u (0x%04x) bytes",
-                           us, us );
-      offset += 2;
-      length -= 2;
-
-      if ( length > 0 ) {
-        /* suboptions */
-        tf = proto_tree_add_text(field_tree, tvb, offset, length,
-                                 "Suboptions: (%u byte%s)",
-                                 length, plurality(length, "", "s"));
-        field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-        dissect_ip_tcp_options(tvb, offset, length,
-                               ipcp_iphc_subopts, N_IPCP_IPHC_SUBOPTS, -1,
-                               pinfo, field_tree, NULL);
-      }
-      return;
-    }
-
-    if (length > 0) {
-      proto_tree_add_text(field_tree, tvb, offset, length,
-                          "Data (%d byte%s)", length,
-                          plurality(length, "", "s"));
-    }
-  }
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_ip_address, tvb, offset + 2, 4,
+                      ENC_BIG_ENDIAN);
 }
 
 static void
-dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                  int offset, guint length,
-                                  packet_info *pinfo _U_, proto_tree *tree)
+dissect_ipcp_mobileipv4_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                            guint length, packet_info *pinfo _U_,
+                            proto_tree *tree)
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8      param;
 
-  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
+                           optp->name, tvb_ip_to_str(tvb, offset + 2));
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_mobilenodehomeaddr, tvb,
+                      offset + 2, 4, ENC_BIG_ENDIAN);
+}
 
-  param = tvb_get_guint8(tvb, offset + 2);
-  proto_tree_add_text(field_tree, tvb, offset + 2, 1,
-                      "Protocol: %s (0x%02x)",
-                      val_to_str_const( param, ipcp_iphc_disable_proto_vals, "Unknown" ),
-                      param );
+static void
+dissect_ipcp_pri_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                         guint length, packet_info *pinfo _U_,
+                         proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
+                           optp->name, tvb_ip_to_str(tvb, offset + 2));
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_pri_dns_address, tvb,
+                      offset + 2, 4, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_ipcp_pri_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                          guint length, packet_info *pinfo _U_,
+                          proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
+                           optp->name, tvb_ip_to_str(tvb, offset + 2));
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_pri_nbns_address, tvb,
+                      offset + 2, 4, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_ipcp_sec_dns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                         guint length, packet_info *pinfo _U_,
+                         proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
+                           optp->name, tvb_ip_to_str(tvb, offset + 2));
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_sec_dns_address, tvb,
+                      offset + 2, 4, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+                          guint length, packet_info *pinfo _U_,
+                          proto_tree *tree)
+{
+  proto_item *tf;
+  proto_tree *field_tree;
+
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %s",
+                           optp->name, tvb_ip_to_str(tvb, offset + 2));
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_ipcp_opt_type_len(tvb, offset, field_tree, optp->name);
+  proto_tree_add_item(field_tree, hf_ipcp_opt_sec_nbns_address, tvb,
+                      offset + 2, 4, ENC_BIG_ENDIAN);
 }
 
 
@@ -5795,15 +5954,110 @@ proto_reg_handoff_vsnp(void)
 void
 proto_register_ipcp(void)
 {
+  static hf_register_info hf[] = {
+    { &hf_ipcp_opt_type,
+      { "Type", "ipcp.opt.type", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_length,
+      { "Length", "ipcp.opt.length", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_src_address,
+      { "Source IP Address", "ipcp.opt.src_address", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_dst_address,
+      { "Destination IP Address", "ipcp.opt.dst_address", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_compress_proto,
+      { "IP Compression Protocol", "ipcp.opt.compress_proto", FT_UINT16,
+        BASE_HEX, VALS(ipcp_compress_proto_vals), 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_max_cid,
+      { "Max CID", "ipcp.opt.max_cid", FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Maximum value of a context identifier", HFILL }},
+    { &hf_ipcp_opt_mrru,
+      { "MRRU", "ipcp.opt.mrru", FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Maximum Reconstructed Reception Unit", HFILL }},
+    { &hf_ipcp_opt_max_slot_id,
+      { "Max Slot ID", "ipcp.opt.max_slot_id", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_comp_slot_id,
+      { "Comp Slot ID", "ipcp.opt.comp_slot_id", FT_BOOLEAN, 8,
+        TFS(&tfs_comp_slot_id), 0x01, NULL, HFILL }},
+    { &hf_ipcp_opt_tcp_space,
+      { "TCP Space", "ipcp.opt.tcp_space", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_non_tcp_space,
+      { "Non TCP Space", "ipcp.opt.non_tcp_space", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_f_max_period,
+      { "F Max Period", "ipcp.opt.f_max_period", FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Maximum interval between full headers", HFILL }},
+    { &hf_ipcp_opt_f_max_time,
+      { "F Max Time", "ipcp.opt.f_max_time", FT_UINT16, BASE_DEC,
+        NULL, 0x0, "Maximum time interval between full headers", HFILL }},
+    { &hf_ipcp_opt_max_header,
+      { "F Max Time", "ipcp.opt.max_header", FT_UINT16, BASE_DEC, NULL, 0x0,
+        "The largest header size in octets that may be compressed", HFILL }},
+    { &hf_ipcp_data,
+      { "Data", "ipcp.data", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_ip_address,
+      { "IP Address", "ipcp.opt.ip_address", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_mobilenodehomeaddr,
+      { "Mobile Node's Home Address", "ipcp.opt.mobilenodehomeaddress",
+        FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_pri_dns_address,
+      { "Primary DNS Address", "ipcp.opt.pri_dns_address",
+        FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_pri_nbns_address,
+      { "Primary NBNS Address", "ipcp.opt.pri_nbns_address",
+        FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_sec_dns_address,
+      { "Secondary DNS Address", "ipcp.opt.sec_dns_address",
+        FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_sec_nbns_address,
+      { "Secondary NBNS Address", "ipcp.opt.sec_nbns_address",
+        FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_rohc_type,
+      { "Type", "ipcp.opt.rohc.type", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_rohc_length,
+      { "Length", "ipcp.opt.rohc.length", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_rohc_profile,
+      { "Profile", "ipcp.opt.rohc.profile", FT_UINT16, BASE_HEX,
+        VALS(ipcp_rohc_profile_vals), 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_iphc_type,
+      { "Type", "ipcp.opt.iphc.type", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_iphc_length,
+      { "Length", "ipcp.opt.iphc.length", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_ipcp_opt_iphc_param,
+      { "Parameter", "ipcp.opt.iphc.param", FT_UINT8, BASE_DEC,
+        VALS(ipcp_iphc_parameter_vals), 0x0, NULL, HFILL }},
+  };
+
   static gint *ett[] = {
     &ett_ipcp,
     &ett_ipcp_options,
     &ett_ipcp_ipaddrs_opt,
     &ett_ipcp_compress_opt,
+    &ett_ipcp_ipaddr_opt,
+    &ett_ipcp_mobileipv4_opt,
+    &ett_ipcp_pridns_opt,
+    &ett_ipcp_secdns_opt,
+    &ett_ipcp_prinbns_opt,
+    &ett_ipcp_secnbns_opt,
+    &ett_ipcp_iphc_rtp_compress_opt,
+    &ett_ipcp_iphc_enhanced_rtp_compress_opt,
+    &ett_ipcp_iphc_neghdrcomp_opt,
+    &ett_ipcp_rohc_profiles_opt
   };
 
   proto_ipcp = proto_register_protocol("PPP IP Control Protocol", "PPP IPCP",
                                        "ipcp");
+  proto_register_field_array(proto_ipcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -6359,7 +6613,6 @@ proto_register_ipv6cp(void)
     &ett_ipv6cp_options,
     &ett_ipv6cp_if_id_opt,
     &ett_ipv6cp_compress_opt,
-    &ett_ipcp_iphc_disableprot_opt
   };
 
   proto_ipv6cp = proto_register_protocol("PPP IPv6 Control Protocol",
