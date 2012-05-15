@@ -1018,7 +1018,7 @@ static int hf_afp_acl_access_bitmap_generic_read    = -1;
 static gint  afp_equal (gconstpointer v, gconstpointer v2);
 static guint afp_hash  (gconstpointer v);
 
-static gint dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset);
+static gint dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
 
 typedef struct {
 	guint32 conversation;
@@ -4158,7 +4158,8 @@ static const char *spotlight_get_cpx_qtype_string(guint64 cpx_query_type)
 }
 
 static gint
-spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint64 cpx_query_type, gint count, gint toc_offset, guint encoding)
+spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                             guint64 cpx_query_type, gint count, gint toc_offset, guint encoding)
 {
 	gint i, j;
 	gint subquery_count;
@@ -4255,13 +4256,25 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 
 			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
 			offset += 8;
-			offset = spotlight_dissect_query_loop(tvb, sub_tree, offset, complex_query_type, subquery_count, toc_offset, encoding);
+			offset = spotlight_dissect_query_loop(tvb, pinfo, sub_tree, offset, complex_query_type, subquery_count, toc_offset, encoding);
 			count--;
 			break;
 		case SQ_TYPE_NULL:
 			subquery_count = (gint)(query_data64 >> 32);
-			for (i = 0; i < subquery_count; i++, count--) 
-				proto_tree_add_text(tree, tvb, offset, query_length, "null");
+			if (subquery_count > count) {
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
+				expert_add_info_format(pinfo, item_query, PI_MALFORMED, PI_ERROR,
+					"Subquery count (%d) > query count (%d)", subquery_count, count);
+                count = 0;
+			} else if (subquery_count > 20) {
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
+				expert_add_info_format(pinfo, item_query, PI_PROTOCOL, PI_WARN,
+					"Abnormal number of subqueries (%d)", subquery_count);
+                count -= subquery_count;
+			} else {
+				for (i = 0; i < subquery_count; i++, count--)
+					proto_tree_add_text(tree, tvb, offset, query_length, "null");
+			}
 			offset += query_length;
 			break;
 		case SQ_TYPE_BOOL:
@@ -4314,7 +4327,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 				} else {
 					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
 					sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-					(void)dissect_spotlight(tvb, sub_tree, offset + 8);
+					(void)dissect_spotlight(tvb, pinfo, sub_tree, offset + 8);
 				}
 				break;
 			}
@@ -4353,7 +4366,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 }
 
 static gint
-dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
+dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	guint encoding;
 	gint i;
@@ -4443,7 +4456,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
 
 	/* Queries */
-	offset = spotlight_dissect_query_loop(tvb, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, offset + (gint)toc_offset + 8, encoding);
+	offset = spotlight_dissect_query_loop(tvb, pinfo, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, offset + (gint)toc_offset + 8, encoding);
 
 	/* ToC */
 	if (toc_entries < 1) {
@@ -4512,7 +4525,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 }
 
 static gint
-dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, afp_request_val *request_val)
+dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, afp_request_val *request_val)
 {
 	gint len;
 
@@ -4547,7 +4560,7 @@ dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_tree_add_item(tree, hf_afp_spotlight_reqlen, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		offset = dissect_spotlight(tvb, tree, offset);
+		offset = dissect_spotlight(tvb, pinfo, tree, offset);
 
 		break;
 	}
@@ -4728,7 +4741,7 @@ dissect_reply_afp_get_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 /* ************************** */
 static gint
-dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, afp_request_val *request_val)
+dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, afp_request_val *request_val)
 {
 	gint len;
 
@@ -4755,7 +4768,7 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		offset = dissect_spotlight(tvb, tree, offset);
+		offset = dissect_spotlight(tvb, pinfo, tree, offset);
 		break;
 	}
 	return offset;
