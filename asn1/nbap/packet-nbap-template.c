@@ -49,6 +49,18 @@
 #define PSNAME "NBAP"
 #define PFNAME "nbap"
 
+/* Debug */
+#if 1
+#define nbap_debug0(str) g_warning(str)
+#define nbap_debug1(str,p1) g_warning(str,p1)
+#define nbap_debug2(str,p1,p2) g_warning(str,p1,p2)
+#define nbap_debug3(str,p1,p2,p3) g_warning(str,p1,p2,p3)
+#else
+#define nbap_debug0(str)
+#define nbap_debug1(str,p1)
+#define nbap_debug2(str,p1,p2)
+#define nbap_debug3(str,p1,p2,p3)
+#endif
 
 /* Global variables */
 dissector_handle_t fp_handle;
@@ -84,6 +96,21 @@ struct _nbap_msg_info_for_fp
 	guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
 };
 
+typedef struct
+{
+    gint num_ul_chans;
+    gint ul_chan_tf_size[MAX_FP_CHANS];
+    gint ul_chan_num_tbs[MAX_FP_CHANS];
+    gint num_dl_chans;
+    gint dl_chan_tf_size[MAX_FP_CHANS];
+    gint dl_chan_num_tbs[MAX_FP_CHANS];
+
+}nbap_dch_chanel_info_t;
+
+nbap_dch_chanel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
+gint g_num_dch_in_flow;
+gint g_dchs_in_flow_list[maxNrOfTFs];
+
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
 /* Global variables */
@@ -92,6 +119,16 @@ static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
 static guint32 dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id;
+static guint num_items;
+
+enum TransportFormatSet_type_enum
+{
+    DCH_UL,
+    DCH_DL,
+	CPCH,
+};
+
+enum TransportFormatSet_type_enum transportFormatSet_type;
 
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;

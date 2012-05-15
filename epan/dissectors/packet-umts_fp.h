@@ -82,7 +82,7 @@ typedef struct fp_info
     guint16 release_year;                /* e.g. 2001 */
     guint8  release_month;               /* e.g. 12 for December */
     gboolean is_uplink;
-    gint channel;                       /* see definitions above */
+    gint channel;                       /* see Channel types definitions above */
     guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
     gint paging_indications;
     gint num_chans;
@@ -105,15 +105,38 @@ typedef struct fp_info
     enum   fp_link_type link_type;
 }fp_info;
 
-struct _umts_fp_conversation_info
+/* From NBAC-Constants.asn */
+#define FP_maxNrOfTFs			32
+
+typedef struct
 {
-	guint32 dl_frame_number;		/* the frame where this conversation is started from CRNC */
-	guint32 ul_frame_number;		/* the frame where this conversation is started from Node B */
+    gint num_ul_chans;
+    gint ul_chan_tf_size[MAX_FP_CHANS];
+    gint ul_chan_num_tbs[MAX_FP_CHANS];
+    gint num_dl_chans;
+    gint dl_chan_tf_size[MAX_FP_CHANS];
+    gint dl_chan_num_tbs[MAX_FP_CHANS];
+
+}fp_dch_chanel_info_t;
+
+typedef struct
+{
+    enum fp_interface_type iface_type;
+    enum division_type     division;
+    gint channel;                       /* see Channel types definitions above */
+	guint32 dl_frame_number;			/* the frame where this conversation is started from CRNC */
+	guint32 ul_frame_number;			/* the frame where this conversation is started from Node B */
 	address crnc_address;
 	guint16 crnc_port;
-	guint32 dch_id;
-	fp_info* fp_info_dl; 
-	fp_info* fp_info_ul; 
-};
+	/* DCH's in this flow */
+	gint num_dch_in_flow;
+	gint dchs_in_flow_list[FP_maxNrOfTFs];
 
-void set_umts_fp_ul_conv_data(conversation_t *conversation, guint32 ul_frame_number, address *crnc_address, guint16 crnc_port,guint32 ch_id, fp_info *fp_info_ul,  fp_info *fp_info_dl);
+    guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
+
+
+	fp_dch_chanel_info_t fp_dch_chanel_info[FP_maxNrOfTFs];
+
+}umts_fp_conversation_info_t;
+
+void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);

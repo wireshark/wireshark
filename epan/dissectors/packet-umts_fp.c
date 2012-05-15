@@ -532,35 +532,14 @@ void proto_reg_handoff_fp(void);
  * CRNC sends data downlink on uplink parameters.
  */
 void 
-set_umts_fp_ul_conv_data(conversation_t *conversation, guint32 ul_frame_number, address *crnc_address, guint16 crnc_port, guint32 ch_id, fp_info *fp_info_ul, fp_info *fp_info_dl)
+set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info)
 {
-	struct _umts_fp_conversation_info *p_conv_data = NULL;
 
 	if(conversation==NULL)
 		return;
 
-	p_conv_data = conversation_get_proto_data(conversation, proto_fp);
+	conversation_add_proto_data(conversation, proto_fp, umts_fp_conversation_info);
 
-	/*
-	 * If not, add a new data item.
-	 */
-	if ( ! p_conv_data ) {
-		/* Create conversation data */
-		p_conv_data = se_alloc(sizeof(struct _umts_fp_conversation_info));
-		p_conv_data->dl_frame_number = 0;
-		p_conv_data->ul_frame_number = ul_frame_number;
-		SE_COPY_ADDRESS(&(p_conv_data->crnc_address), crnc_address);
-		p_conv_data->crnc_port = crnc_port;
-		p_conv_data->dch_id = ch_id;
-		p_conv_data->fp_info_ul = fp_info_ul;
-		p_conv_data->fp_info_dl = fp_info_dl;
-
-		conversation_add_proto_data(conversation, proto_fp, p_conv_data);
-	}
-
-	/*
-	 * Update the conversation data.
-	 */
 
 }
 
@@ -3144,6 +3123,75 @@ static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return TRUE;
 }
 
+static fp_info*
+fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff_t *tvb, packet_info *pinfo)
+{
+	fp_info *fpi;
+	guint8 oct, tfi;
+	int offset = 0, i;
+
+	fpi = ep_alloc0(sizeof(fp_info));
+
+	fpi->iface_type = p_conv_data->iface_type;
+	fpi->division = p_conv_data->division;
+	fpi->release = 7;               /* Set values greater then the checks performed */
+	fpi->release_year = 2006;
+	fpi->release_month = 12;
+	fpi->channel = p_conv_data->channel;
+	fpi->dch_crc_present = p_conv_data->dch_crc_present;
+	/*fpi->paging_indications;*/
+    fpi->num_chans = p_conv_data->num_dch_in_flow;
+
+	if(pinfo->link_dir==P2P_DIR_UL){
+		fpi->is_uplink = TRUE;
+	}else{
+		fpi->is_uplink = FALSE;
+	}
+
+	/* Peek at the packet as the per packet info seems not to take the tfi into account */
+	oct = tvb_get_guint8(tvb,offset);
+	if((oct&0x01) == 1){
+		/* control frame, we're done */
+		return fpi;
+	}
+
+	/* Set offset to point to first TFI
+	 * the Number of TFI's = number of DCH's in the flow 
+	 */
+	offset = 2;
+
+	for(i=0;i<fpi->num_chans;i++){
+		tfi = tvb_get_guint8(tvb,offset);
+		if(pinfo->link_dir==P2P_DIR_UL){
+			fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
+			fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
+		}else{
+			fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
+			fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
+		}
+		offset++;
+	}
+#if 0
+	/* remaining data to be set */
+    no_ddi_entries;
+    edch_ddi[MAX_EDCH_DDIS];
+    edch_macd_pdu_size[MAX_EDCH_DDIS];
+    edch_type;  /* 1 means T2 */
+
+    cur_tb;	/* current transport block (required for dissecting of single TBs */
+    cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
+
+    srcport 
+	destport
+
+    enum   fp_hsdsch_entity hsdsch_entity;
+    enum   fp_link_type link_type;
+#endif
+
+
+
+	return fpi;
+}
 
 /*****************************/
 /* Main dissection function. */
@@ -3154,7 +3202,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint             offset = 0;
     struct fp_info   *p_fp_info;
 	conversation_t *p_conv = NULL;
-	struct _umts_fp_conversation_info *p_conv_data = NULL;
+	umts_fp_conversation_info_t *p_conv_data = NULL;
 
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP");
@@ -3182,7 +3230,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* CRNC -> Node B */
 				pinfo->link_dir=P2P_DIR_UL;
 				if (p_fp_info == NULL){
-					p_fp_info = p_conv_data->fp_info_ul;
+					p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo);
 				}
 			}else{
 				proto_item* item = proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
@@ -3190,7 +3238,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				PROTO_ITEM_SET_GENERATED(item);
 				pinfo->link_dir=P2P_DIR_DL;
 				if (p_fp_info == NULL){
-					p_fp_info = p_conv_data->fp_info_dl;
+					p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo);
 				}
 			}
 		}
@@ -3233,8 +3281,13 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 val_to_str_const(p_fp_info->channel,
                                  channel_type_vals,
                                  "Unknown channel type"));
-    if (p_conv && (p_conv_data->dch_id != 0xffffffff)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "(%u) ",p_conv_data->dch_id);
+    if (p_conv) {
+		int i;
+		col_append_fstr(pinfo->cinfo, COL_INFO, "(%u",p_conv_data->dchs_in_flow_list[0]);
+		for (i=1; i < p_conv_data->num_dch_in_flow; i++){
+			col_append_fstr(pinfo->cinfo, COL_INFO, ",%u",p_conv_data->dchs_in_flow_list[i]);
+		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, ") ");
     }
     proto_item_append_text(ti, " (%s)",
                            val_to_str_const(p_fp_info->channel,
