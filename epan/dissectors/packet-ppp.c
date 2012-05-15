@@ -131,11 +131,11 @@ static gint hf_vsnp_pdnid = -1;
 
 static gint ett_vsnp =-1;
 
-static int proto_osicp = -1;
+static int proto_osinlcp = -1;
 
-static gint ett_osicp = -1;
-static gint ett_osicp_options = -1;
-static gint ett_osicp_align_npdu_opt = -1;
+static gint ett_osinlcp = -1;
+static gint ett_osinlcp_options = -1;
+static gint ett_osinlcp_align_npdu_opt = -1;
 
 static int proto_bcp = -1;
 static int hf_bcp_flags = -1;
@@ -1340,26 +1340,25 @@ static const ip_tcp_opt ipcp_rohc_subopts[] = {
 #define N_IPCP_ROHC_SUBOPTS (sizeof ipcp_rohc_subopts / sizeof ipcp_rohc_subopts[0])
 
 /*
- * Options.  (OSICP)
+ * Options.  (OSINLCP)
  */
-#define CI_OSICP_ALIGN_NPDU      1       /* Alignment of the OSI NPDU (RFC 1377) */
+#define CI_OSINLCP_ALIGN_NPDU    1  /* Alignment of the OSI NPDU (RFC 1377) */
 
-static void dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
-                                         int offset, guint length, packet_info *pinfo,
-                                         proto_tree *tree);
+static int hf_osinlcp_opt_type = -1;
+static int hf_osinlcp_opt_length = -1;
+static int hf_osinlcp_opt_alignment = -1;
 
-static const ip_tcp_opt osicp_opts[] = {
-  {
-    CI_OSICP_ALIGN_NPDU,
-    "Align-NPDU",
-    &ett_osicp_align_npdu_opt,
-    FIXED_LENGTH,
-    3,
-    dissect_osicp_align_npdu_opt
-  }
+static void
+dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                               int offset, guint length, packet_info *pinfo,
+                               proto_tree *tree);
+
+static const ip_tcp_opt osinlcp_opts[] = {
+  {CI_OSINLCP_ALIGN_NPDU, "Align-NPDU", &ett_osinlcp_align_npdu_opt,
+    FIXED_LENGTH, 3, dissect_osinlcp_align_npdu_opt}
 };
 
-#define N_OSICP_OPTS     (sizeof osicp_opts / sizeof osicp_opts[0])
+#define N_OSINLCP_OPTS   (sizeof osinlcp_opts / sizeof osinlcp_opts[0])
 
 /*
  * Options.  (CCP)
@@ -3099,20 +3098,29 @@ dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 
 static void
-dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+dissect_osinlcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+                             const char *name)
+{
+  guint8 type;
+
+  type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_uint_format_value(tree, hf_osinlcp_opt_type, tvb, offset, 1,
+                                   type, "%s (%u)", name, type);
+  proto_tree_add_item(tree, hf_osinlcp_opt_length, tvb, offset + 1, 1, ENC_NA);
+}
+static void
+dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                              guint length, packet_info *pinfo _U_,
                              proto_tree *tree)
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8      alignment;
 
-  tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+  tf = proto_tree_add_text(tree, tvb, offset, length, "%s: Alignment: %u",
+                           optp->name, tvb_get_guint8(tvb, offset + 2));
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-
-  alignment = tvb_get_guint8(tvb, offset + 2);
-  proto_tree_add_text(field_tree, tvb, offset + 2, 1,
-                      "Alignment: %u", alignment);
+  proto_tree_add_item(field_tree, hf_osinlcp_opt_alignment, tvb, offset + 2, 1,
+                      ENC_NA);
 }
 
 static void
@@ -4250,10 +4258,10 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * RFC 1377.
  */
 static void
-dissect_osicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_osinlcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_cp(tvb, proto_osicp, ett_osicp, cp_vals, ett_osicp_options,
-             osicp_opts, N_OSICP_OPTS, pinfo, tree);
+  dissect_cp(tvb, proto_osinlcp, ett_osinlcp, cp_vals, ett_osinlcp_options,
+             osinlcp_opts, N_OSINLCP_OPTS, pinfo, tree);
 }
 
 /*
@@ -6122,16 +6130,30 @@ proto_register_bcp(void)
 }
 
 void
-proto_register_osicp(void)
+proto_register_osinlcp(void)
 {
-  static gint *ett[] = {
-    &ett_osicp,
-    &ett_osicp_options,
-    &ett_osicp_align_npdu_opt,
+  static hf_register_info hf[] = {
+    { &hf_osinlcp_opt_type,
+      { "Type", "osinlcp.opt.type", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_osinlcp_opt_length,
+      { "Length", "osinlcp.opt.length", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_osinlcp_opt_alignment,
+      { "Alignment", "osinlcp.opt.alignment", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }}
   };
 
-  proto_osicp = proto_register_protocol("PPP OSI Control Protocol", "PPP OSICP",
-                                        "osicp");
+  static gint *ett[] = {
+    &ett_osinlcp,
+    &ett_osinlcp_options,
+    &ett_osinlcp_align_npdu_opt,
+  };
+
+  proto_osinlcp = proto_register_protocol("PPP OSI Network Layer Control Protocol",
+                                          "PPP OSINLCP",
+                                          "osinlcp");
+  proto_register_field_array(proto_osinlcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -6147,18 +6169,18 @@ proto_reg_handoff_bcp(void)
 }
 
 void
-proto_reg_handoff_osicp(void)
+proto_reg_handoff_osinlcp(void)
 {
-  dissector_handle_t osicp_handle;
+  dissector_handle_t osinlcp_handle;
 
-  osicp_handle = create_dissector_handle(dissect_osicp, proto_osicp);
-  dissector_add_uint("ppp.protocol", PPP_OSINLCP, osicp_handle);
+  osinlcp_handle = create_dissector_handle(dissect_osinlcp, proto_osinlcp);
+  dissector_add_uint("ppp.protocol", PPP_OSINLCP, osinlcp_handle);
 
   /*
    * See above comment about NDISWAN for an explanation of why we're
    * registering with the "ethertype" dissector table.
    */
-  dissector_add_uint("ethertype", PPP_OSINLCP, osicp_handle);
+  dissector_add_uint("ethertype", PPP_OSINLCP, osinlcp_handle);
 }
 
 void
