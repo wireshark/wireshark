@@ -58,13 +58,10 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <glib.h>
 
-#include <epan/addr_resolv.h>
 #include <epan/packet.h>
+#include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 
 /* IF PROTO exposes code to other dissectors, then it must be exported

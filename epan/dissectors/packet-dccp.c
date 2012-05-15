@@ -52,10 +52,8 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
@@ -1428,7 +1426,7 @@ proto_reg_handoff_dccp(void)
     dccp_handle = create_dissector_handle(dissect_dccp, proto_dccp);
     dissector_add_uint("ip.proto", IP_PROTO_DCCP, dccp_handle);
     data_handle = find_dissector("data");
-    dccp_tap = register_tap("dccp");
+    dccp_tap    = register_tap("dccp");
 }
 
 /*

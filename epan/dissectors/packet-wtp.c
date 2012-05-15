@@ -31,10 +31,12 @@
 # include "config.h"
 #endif
 
+#ifdef DEBUG
 #include <stdio.h>
-#include <stdlib.h>
+#endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/emem.h>

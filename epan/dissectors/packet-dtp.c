@@ -28,11 +28,12 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
-
-#include <stdlib.h>
+#endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 
 /*

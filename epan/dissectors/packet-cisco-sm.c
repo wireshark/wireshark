@@ -43,21 +43,21 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
+#include <glib.h>
 
 #include <epan/packet.h>
 
-#define MESSAGE_TYPE_START				0
-#define MESSAGE_TYPE_STOP				1
-#define MESSAGE_TYPE_ACTIVE				2
-#define MESSAGE_TYPE_STANDBY			3
-#define MESSAGE_TYPE_Q_HOLD_INVOKE		4
-#define MESSAGE_TYPE_Q_HOLD_RESPONSE	5
-#define MESSAGE_TYPE_Q_RESUME_INVOKE	6
-#define MESSAGE_TYPE_Q_RESUME_RESPONSE	7
-#define MESSAGE_TYPE_Q_RESET_INVOKE		8
-#define MESSAGE_TYPE_Q_RESET_RESPONSE	9
-#define MESSAGE_TYPE_PDU				0x8000
+#define MESSAGE_TYPE_START              0
+#define MESSAGE_TYPE_STOP               1
+#define MESSAGE_TYPE_ACTIVE             2
+#define MESSAGE_TYPE_STANDBY            3
+#define MESSAGE_TYPE_Q_HOLD_INVOKE      4
+#define MESSAGE_TYPE_Q_HOLD_RESPONSE    5
+#define MESSAGE_TYPE_Q_RESUME_INVOKE    6
+#define MESSAGE_TYPE_Q_RESUME_RESPONSE  7
+#define MESSAGE_TYPE_Q_RESET_INVOKE     8
+#define MESSAGE_TYPE_Q_RESET_RESPONSE   9
+#define MESSAGE_TYPE_PDU                0x8000
 
 static const value_string sm_message_type_value[] = {
 	{ MESSAGE_TYPE_START,			"Start Message" },
@@ -223,7 +223,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case SM_PROTOCOL_X101:
 			if (!tree)
 				return;
-			/* XXX Reveres enginered so this may not be correct!!!
+			/* XXX Reverse enginered so this may not be correct!!!
 			 * EISUP - used between Cisco HSI and Cisco PGW devices,
 			 * uses RUDP with default port number 8003.
 			 * Protocol stack is RUDP->Cisco SM->SDP.
@@ -261,7 +261,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case SM_PROTOCOL_X114:
 			if (!tree)
 				return;
-			/* XXX Reveres enginered so this may not be correct!!! */
+			/* XXX Reverse enginered so this may not be correct!!! */
 			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;

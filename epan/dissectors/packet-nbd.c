@@ -28,18 +28,15 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-
-#include <epan/prefs.h>
-
 #include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include "packet-tcp.h"
 
-static gint proto_nbd			= -1;
+static gint proto_nbd = -1;
 static int hf_nbd_magic = -1;
 static int hf_nbd_type = -1;
 static int hf_nbd_error = -1;

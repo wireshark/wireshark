@@ -32,13 +32,12 @@ proper helper routines
 # include "config.h"
 #endif
 
-#include <glib.h>
-#include <epan/packet.h>
-
-#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
+#include <glib.h>
+
+#include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/to_str.h>
 #include <epan/prefs.h>

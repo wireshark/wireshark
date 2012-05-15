@@ -32,15 +32,13 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 
+#include <glib.h>
+
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
-#include <epan/packet.h>
 #include <epan/prefs.h>
 #include <wsutil/str_util.h>
 

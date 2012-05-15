@@ -32,11 +32,11 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 
-#include <string.h>
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 

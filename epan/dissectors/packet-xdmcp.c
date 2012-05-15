@@ -27,10 +27,10 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <ctype.h>
 
 #include <glib.h>
+
 #include <epan/packet.h>
 
 #define UDP_PORT_XDMCP 177

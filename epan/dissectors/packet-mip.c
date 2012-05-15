@@ -30,10 +30,7 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
-#include <time.h>
 
 #include <epan/packet.h>
 #include <epan/sminmpec.h>

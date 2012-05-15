@@ -43,7 +43,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
@@ -59,38 +58,38 @@
 /* String tables */
 static const value_string string_norm_type[] =
 {
-	{ NORM_INFO, "INFO" },
-	{ NORM_DATA, "DATA" },
-	{ NORM_CMD, "CMD" },
-	{ NORM_NACK, "NACK" },
-	{ NORM_ACK, "ACK" },
+	{ NORM_INFO,   "INFO" },
+	{ NORM_DATA,   "DATA" },
+	{ NORM_CMD,    "CMD" },
+	{ NORM_NACK,   "NACK" },
+	{ NORM_ACK,    "ACK" },
 	{ NORM_REPORT, "REPORT" },
 	{ 0, NULL }
 };
 
 static const value_string string_norm_cmd_type[] =
 {
-	{ NORM_CMD_FLUSH, "FLUSH" },
-	{ NORM_CMD_EOT, "EOT" },
-	{ NORM_CMD_SQUELCH, "SQUELCH" },
-	{ NORM_CMD_CC, "CC" },
-	{ NORM_CMD_REPAIR_ADV, "REPAIR_ADV" },
-	{ NORM_CMD_ACK_REQ, "ACK_REQ" },
+	{ NORM_CMD_FLUSH,       "FLUSH" },
+	{ NORM_CMD_EOT,         "EOT" },
+	{ NORM_CMD_SQUELCH,     "SQUELCH" },
+	{ NORM_CMD_CC,          "CC" },
+	{ NORM_CMD_REPAIR_ADV,  "REPAIR_ADV" },
+	{ NORM_CMD_ACK_REQ,     "ACK_REQ" },
 	{ NORM_CMD_APPLICATION, "APPLICATION" },
 	{ 0, NULL }
 };
 
 static const value_string string_norm_ack_type[] =
 {
-	{ NORM_ACK_CC, "ACK CC" },
+	{ NORM_ACK_CC,    "ACK CC" },
 	{ NORM_ACK_FLUSH, "ACK FLUSH" },
 	{ 0, NULL }
 };
 
 static const value_string string_norm_nack_form[] =
 {
-	{ NORM_NACK_ITEMS, "Items" },
-	{ NORM_NACK_RANGES, "Ranges" },
+	{ NORM_NACK_ITEMS,    "Items" },
+	{ NORM_NACK_RANGES,   "Ranges" },
 	{ NORM_NACK_ERASURES, "Erasures" },
 	{ 0, NULL }
 };

@@ -31,78 +31,80 @@
 # include "config.h"
 #endif
 
+#ifdef DEBUG
 #include <stdio.h>
-#include <stdlib.h>
+#endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include "packet-wap.h"
 #include "packet-wtls.h"
 
 /* File scoped variables for the protocol and registered fields */
-static int proto_wtls 							= HF_EMPTY;
+static int proto_wtls = HF_EMPTY;
 
 /* These fields used by fixed part of header */
-static int hf_wtls_record                             = HF_EMPTY;
-static int hf_wtls_record_type                                = HF_EMPTY;
-static int hf_wtls_record_length                      = HF_EMPTY;
-static int hf_wtls_record_sequence                    = HF_EMPTY;
-static int hf_wtls_record_ciphered                    = HF_EMPTY;
-static int hf_wtls_hands                              = HF_EMPTY;
-static int hf_wtls_hands_type                 = HF_EMPTY;
-static int hf_wtls_hands_length                       = HF_EMPTY;
-static int hf_wtls_hands_cli_hello            = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_version    = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_gmt                = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_random     = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_session    = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_session_str    = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_cli_key_id    = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_cli_key_len    = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_trust_key_id    = HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_exchange               =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_exchange_suite         =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_parameter_index                =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_parameter_set          =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_identifier_type                =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_identifier_charset             =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_identifier_size                =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_identifier                     =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_identifier_str                 =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_cipher_suite               =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_cipher_suite_item  =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_compression_methods                =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_compression                =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_sequence_mode      =HF_EMPTY;
-static int hf_wtls_hands_cli_hello_key_refresh        =HF_EMPTY;
-static int hf_wtls_hands_serv_hello           = HF_EMPTY;
-static int hf_wtls_hands_serv_hello_version   = HF_EMPTY;
-static int hf_wtls_hands_serv_hello_gmt               = HF_EMPTY;
-static int hf_wtls_hands_serv_hello_random    = HF_EMPTY;
-static int hf_wtls_hands_serv_hello_session   = HF_EMPTY;
-static int hf_wtls_hands_serv_hello_session_str   = HF_EMPTY;
-static int hf_wtls_hands_serv_hello_cli_key_id                =HF_EMPTY;
-static int hf_wtls_hands_serv_hello_cipher_suite_item =HF_EMPTY;
-static int hf_wtls_hands_serv_hello_cipher_bulk               =HF_EMPTY;
-static int hf_wtls_hands_serv_hello_cipher_mac                =HF_EMPTY;
-static int hf_wtls_hands_serv_hello_compression               =HF_EMPTY;
-static int hf_wtls_hands_serv_hello_sequence_mode     =HF_EMPTY;
-static int hf_wtls_hands_serv_hello_key_refresh       =HF_EMPTY;
-static int hf_wtls_hands_certificates =HF_EMPTY;
-static int hf_wtls_hands_certificate 	=HF_EMPTY;
-static int hf_wtls_hands_certificate_type     =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_version     =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_signature_type      =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_issuer_type =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_issuer_charset      =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_issuer_size =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_issuer_name =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_valid_not_before    =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_valid_not_after     =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_subject_type        =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_subject_charset     =HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_subject_size        = HF_EMPTY;
-static int hf_wtls_hands_certificate_wtls_subject_name        = HF_EMPTY;
+static int hf_wtls_record = HF_EMPTY;
+static int hf_wtls_record_type = HF_EMPTY;
+static int hf_wtls_record_length = HF_EMPTY;
+static int hf_wtls_record_sequence = HF_EMPTY;
+static int hf_wtls_record_ciphered = HF_EMPTY;
+static int hf_wtls_hands = HF_EMPTY;
+static int hf_wtls_hands_type = HF_EMPTY;
+static int hf_wtls_hands_length = HF_EMPTY;
+static int hf_wtls_hands_cli_hello = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_version = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_gmt = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_random = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_session = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_session_str = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_cli_key_id = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_cli_key_len = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_trust_key_id = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_exchange = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_exchange_suite = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_parameter_index = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_parameter_set = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_identifier_type = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_identifier_charset = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_identifier_size = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_identifier = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_identifier_str = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_cipher_suite = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_cipher_suite_item = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_compression_methods = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_compression = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_sequence_mode = HF_EMPTY;
+static int hf_wtls_hands_cli_hello_key_refresh = HF_EMPTY;
+static int hf_wtls_hands_serv_hello = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_version = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_gmt = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_random = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_session = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_session_str = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_cli_key_id = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_cipher_suite_item = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_cipher_bulk = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_cipher_mac = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_compression = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_sequence_mode = HF_EMPTY;
+static int hf_wtls_hands_serv_hello_key_refresh = HF_EMPTY;
+static int hf_wtls_hands_certificates = HF_EMPTY;
+static int hf_wtls_hands_certificate = HF_EMPTY;
+static int hf_wtls_hands_certificate_type = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_version = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_signature_type = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_issuer_type = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_issuer_charset = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_issuer_size = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_issuer_name = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_valid_not_before = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_valid_not_after = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_subject_type = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_subject_charset = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_subject_size = HF_EMPTY;
+static int hf_wtls_hands_certificate_wtls_subject_name = HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_public_key_type = HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_key_parameter_index = HF_EMPTY;
 static int hf_wtls_hands_certificate_wtls_key_parameter_set = HF_EMPTY;
@@ -114,12 +116,12 @@ static int hf_wtls_alert_level = HF_EMPTY;
 static int hf_wtls_alert_description = HF_EMPTY;
 
 /* Initialize the subtree pointers */
-static gint ett_wtls 							= ETT_EMPTY;
-static gint ett_wtls_rec                              = ETT_EMPTY;
-static gint ett_wtls_msg_type                                 = ETT_EMPTY;
-static gint ett_wtls_msg_type_item                    = ETT_EMPTY;
-static gint ett_wtls_msg_type_item_sub                        = ETT_EMPTY;
-static gint ett_wtls_msg_type_item_sub_sub            = ETT_EMPTY;
+static gint ett_wtls = ETT_EMPTY;
+static gint ett_wtls_rec = ETT_EMPTY;
+static gint ett_wtls_msg_type = ETT_EMPTY;
+static gint ett_wtls_msg_type_item = ETT_EMPTY;
+static gint ett_wtls_msg_type_item_sub = ETT_EMPTY;
+static gint ett_wtls_msg_type_item_sub_sub = ETT_EMPTY;
 
 static const value_string wtls_vals_record_type[] = {
 	{ 1, "change_cipher_data" },
@@ -159,9 +161,9 @@ static const value_string wtls_vals_cipher_mac[] = {
 static value_string_ext wtls_vals_cipher_mac_ext = VALUE_STRING_EXT_INIT(wtls_vals_cipher_mac);
 
 static const value_string wtls_vals_handshake_type[] = {
-	{ 0, "Hello Request" },
-	{ 1, "Client Hello" },
-	{ 2, "Server Hello" },
+	{  0, "Hello Request" },
+	{  1, "Client Hello" },
+	{  2, "Server Hello" },
 	{ 11, "Certificate" },
 	{ 12, "Server Key Exchange" },
 	{ 13, "Certificate Request" },
@@ -169,21 +171,21 @@ static const value_string wtls_vals_handshake_type[] = {
 	{ 15, "Certificate Verify" },
 	{ 16, "Client Key Exchange" },
 	{ 20, "Finished" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 static value_string_ext wtls_vals_handshake_type_ext = VALUE_STRING_EXT_INIT(wtls_vals_handshake_type);
 
 static const value_string wtls_vals_key_exchange_suite[] = {
-	{ 0, "NULL" },
-	{ 1, "Shared Secret" },
-	{ 2, "Diffie Hellman Anonymous" },
-	{ 3, "Diffie Hellman Anonymous 512" },
-	{ 4, "Diffie Hellman Anonymous 768" },
-	{ 5, "RSA Anonymous" },
-	{ 6, "RSA Anonymous 512" },
-	{ 7, "RSA Anonymous 768" },
-	{ 8, "RSA" },
-	{ 9, "RSA 512" },
+	{  0, "NULL" },
+	{  1, "Shared Secret" },
+	{  2, "Diffie Hellman Anonymous" },
+	{  3, "Diffie Hellman Anonymous 512" },
+	{  4, "Diffie Hellman Anonymous 768" },
+	{  5, "RSA Anonymous" },
+	{  6, "RSA Anonymous 512" },
+	{  7, "RSA Anonymous 768" },
+	{  8, "RSA" },
+	{  9, "RSA 512" },
 	{ 10, "RSA 768" },
 	{ 11, "EC Diffie Hellman Anonymous" },
 	{ 12, "EC Diffie Hellman Anonymous 113" },
@@ -198,12 +200,12 @@ static const value_string wtls_vals_key_exchange_suite[] = {
 static value_string_ext wtls_vals_key_exchange_suite_ext = VALUE_STRING_EXT_INIT(wtls_vals_key_exchange_suite);
 
 static const value_string wtls_vals_identifier_type[] = {
-	{ 0, "No identifier" },
-	{ 1, "Textual Name" },
-	{ 2, "Binary Name" },
+	{   0, "No identifier" },
+	{   1, "Textual Name" },
+	{   2, "Binary Name" },
 	{ 254, "SHA-1 Hash of Public Key" },
 	{ 255, "x509 Distinguished Name" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 static value_string_ext wtls_vals_identifier_type_ext = VALUE_STRING_EXT_INIT(wtls_vals_identifier_type);
 
@@ -212,77 +214,77 @@ static const value_string wtls_vals_certificate_type[] = {
 	{ 2, "X.509" },
 	{ 3, "X.968" },
 	{ 4, "URL" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 static value_string_ext wtls_vals_certificate_type_ext = VALUE_STRING_EXT_INIT(wtls_vals_certificate_type);
 
 static const value_string wtls_vals_compression[] = {
 	{ 0, "Null" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_sequence_mode[] = {
 	{ 0, "Off" },
 	{ 1, "Implicit" },
 	{ 2, "Explicit" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_certificate_signature[] = {
 	{ 0, "Anonymous" },
 	{ 1, "ECDSA_SHA" },
 	{ 2, "RSA_SHA" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_public_key_type[] = {
 	{ 2, "RSA" },
 	{ 3, "ECDH" },
 	{ 4, "ECSA" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_alert_level[] = {
 	{ 1, "Warning" },
 	{ 2, "Critical" },
 	{ 3, "Fatal" },
-	{ 0x00, NULL }
+	{ 0, NULL }
 };
 
 static const value_string wtls_vals_alert_description[] = {
-	{ 0,"connection_close_notify"},
-	{ 1,"session_close_notify"},
-	{ 5,"no_connection"},
-	{ 10,"unexpected_message"},
-	{ 11,"time_required"},
-	{ 20,"bad_record_mac"},
-	{ 21,"decryption_failed"},
-	{ 22,"record_overflow"},
-	{ 30,"decompression_failure"},
-	{ 40,"handshake_failure"},
-	{ 42,"bad_certificate"},
-	{ 43,"unsupported_certificate"},
-	{ 44,"certificate_revoked"},
-	{ 45,"certificate_expired"},
-	{ 46,"certificate_unknown"},
-	{ 47,"illegal_parameter"},
-	{ 48,"unknown_ca"},
-	{ 49,"access_denied"},
-	{ 50,"decode_error"},
-	{ 51,"decrypt_error"},
-	{ 52,"unknown_key_id"},
-	{ 53,"disabled_key_id"},
-	{ 54,"key_exchange_disabled"},
-	{ 55,"session_not_ready"},
-	{ 56,"unknown_parameter_index"},
-	{ 57,"duplicate_finished_received"},
-	{ 60,"export_restriction"},
-	{ 70,"protocol_version"},
-	{ 71,"insufficient_security"},
-	{ 80,"internal_error"},
-	{ 90,"user_canceled"},
-	{ 100,"no_renegotiation"},
-	{ 0x00, NULL }
+	{   0, "connection_close_notify"},
+	{   1, "session_close_notify"},
+	{   5, "no_connection"},
+	{  10, "unexpected_message"},
+	{  11, "time_required"},
+	{  20, "bad_record_mac"},
+	{  21, "decryption_failed"},
+	{  22, "record_overflow"},
+	{  30, "decompression_failure"},
+	{  40, "handshake_failure"},
+	{  42, "bad_certificate"},
+	{  43, "unsupported_certificate"},
+	{  44, "certificate_revoked"},
+	{  45, "certificate_expired"},
+	{  46, "certificate_unknown"},
+	{  47, "illegal_parameter"},
+	{  48, "unknown_ca"},
+	{  49, "access_denied"},
+	{  50, "decode_error"},
+	{  51, "decrypt_error"},
+	{  52, "unknown_key_id"},
+	{  53, "disabled_key_id"},
+	{  54, "key_exchange_disabled"},
+	{  55, "session_not_ready"},
+	{  56, "unknown_parameter_index"},
+	{  57, "duplicate_finished_received"},
+	{  60, "export_restriction"},
+	{  70, "protocol_version"},
+	{  71, "insufficient_security"},
+	{  80, "internal_error"},
+	{  90, "user_canceled"},
+	{ 100, "no_renegotiation"},
+	{ 0, NULL }
 };
 static value_string_ext wtls_vals_alert_description_ext = VALUE_STRING_EXT_INIT(wtls_vals_alert_description);
 
@@ -294,24 +296,24 @@ static value_string_ext wtls_vals_alert_description_ext = VALUE_STRING_EXT_INIT(
 #define WTLS_ALERT 			0x02
 #define WTLS_PLAIN_HANDSHAKE 		0x03
 
-#define WTLS_HANDSHAKE_CLIENT_HELLO	1
-#define WTLS_HANDSHAKE_SERVER_HELLO	2
+#define WTLS_HANDSHAKE_CLIENT_HELLO	 1
+#define WTLS_HANDSHAKE_SERVER_HELLO	 2
 #define WTLS_HANDSHAKE_CERTIFICATE	11
 
-#define CERTIFICATE_WTLS		1
-#define CERTIFICATE_X509		2
-#define CERTIFICATE_X968		3
-#define CERTIFICATE_URL			4
+#define CERTIFICATE_WTLS		 1
+#define CERTIFICATE_X509		 2
+#define CERTIFICATE_X968		 3
+#define CERTIFICATE_URL			 4
 
-#define IDENTIFIER_NULL			0
-#define IDENTIFIER_TEXT			1
-#define IDENTIFIER_BIN			2
-#define IDENTIFIER_SHA_1		254
-#define IDENTIFIER_X509			255
+#define IDENTIFIER_NULL			 0
+#define IDENTIFIER_TEXT			 1
+#define IDENTIFIER_BIN			 2
+#define IDENTIFIER_SHA_1	       254
+#define IDENTIFIER_X509		       255
 
-#define PUBLIC_KEY_RSA			2
-#define PUBLIC_KEY_ECDH			3
-#define PUBLIC_KEY_ECDSA		4
+#define PUBLIC_KEY_RSA			 2
+#define PUBLIC_KEY_ECDH			 3
+#define PUBLIC_KEY_ECDSA		 4
 
 static void dissect_wtls_handshake (proto_tree *, tvbuff_t *, guint, guint);
 

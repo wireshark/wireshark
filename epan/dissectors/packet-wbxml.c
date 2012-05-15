@@ -48,14 +48,11 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
 
 #include <epan/packet.h>
-
 #include <epan/prefs.h>
 #include <epan/emem.h>
 

@@ -26,15 +26,6 @@
 #ifndef __MSTP_H__
 #define __MSTP_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <glib.h>
-
-#include <epan/packet.h>
-
-
 /**
  * Returns a value string for the BACnet MS/TP Frame Type.
  * @param val

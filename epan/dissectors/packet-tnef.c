@@ -28,9 +28,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
 #include <glib.h>
 
 #include <epan/packet.h>

@@ -45,9 +45,7 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <math.h>
-
 
 #include <glib.h>
 

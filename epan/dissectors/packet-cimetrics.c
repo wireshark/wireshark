@@ -27,6 +27,8 @@
 # include "config.h"
 #endif
 
+#include <glib.h>
+
 #include <epan/packet.h>
 #include "packet-llc.h"
 #include <epan/oui.h>

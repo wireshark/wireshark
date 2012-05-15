@@ -28,13 +28,13 @@
 # include "config.h"
 #endif
 
+#include <glib.h>
+
 #include <epan/packet.h>
 #include <wsutil/crc32.h>
 #include <epan/crc32-tvb.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
-#include <stdlib.h>
-
 
 /* Packet Classes */
 #define TS2C_STANDARD			0xbef0

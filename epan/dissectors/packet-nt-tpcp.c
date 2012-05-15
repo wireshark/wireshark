@@ -27,10 +27,10 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h> /* this is for get_hostname and get_udp_port */
 
@@ -77,6 +77,7 @@ static const value_string type_vals[] = {
 /* Version info */
 #define TPCP_VER_1 1
 #define TPCP_VER_2 2
+
 #define TPCP_VER_1_LENGTH 16
 #define TPCP_VER_2_LENGTH 28
 
@@ -103,10 +104,10 @@ static gint ett_tpcp_flags = -1;
 static void
 dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	tpcpdu_t tpcph;
+	tpcpdu_t    tpcph;
 	proto_tree *tpcp_tree = NULL, *field_tree = NULL;
 	proto_item *ti, *tf;
-	guint8 length = TPCP_VER_1_LENGTH;
+	guint8      length    = TPCP_VER_1_LENGTH;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPCP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -114,7 +115,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* need to find out which version!! */
 	tpcph.version = tvb_get_guint8(tvb, 0);
 	/* as version 1 and 2 are so similar use the same structure, just don't use as much for version 1*/
-        /* XXX: Doing a memcpy into a struct is *not* kosher */
+	/* XXX: Doing a memcpy into a struct is *not* kosher */
 	if (tpcph.version == TPCP_VER_1) {
 		length = TPCP_VER_1_LENGTH;
 		tvb_memcpy(tvb, (guint8 *) &tpcph, 0, length);
@@ -129,7 +130,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tpcph.id        = g_ntohs(tpcph.id);
 	tpcph.flags     = g_ntohs(tpcph.flags);
 	tpcph.cport     = g_ntohs(tpcph.cport);
-        tpcph.signature = g_ntohl(tpcph.signature);
+	tpcph.signature = g_ntohl(tpcph.signature);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
@@ -233,22 +234,22 @@ proto_register_tpcp(void)
 	};
 
 
-    static gint *ett[] = {
-	&ett_tpcp,
-	&ett_tpcp_flags,
-    };
+	static gint *ett[] = {
+		&ett_tpcp,
+		&ett_tpcp_flags,
+	};
 
-    proto_tpcp = proto_register_protocol("Alteon - Transparent Proxy Cache Protocol",
-		"TPCP", "tpcp");
-    proto_register_field_array(proto_tpcp, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
+	proto_tpcp = proto_register_protocol("Alteon - Transparent Proxy Cache Protocol",
+					     "TPCP", "tpcp");
+	proto_register_field_array(proto_tpcp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_tpcp(void)
 {
-    dissector_handle_t tpcp_handle;
+	dissector_handle_t tpcp_handle;
 
-    tpcp_handle = create_dissector_handle(dissect_tpcp, proto_tpcp);
-    dissector_add_uint("udp.port", UDP_PORT_TPCP, tpcp_handle);
+	tpcp_handle = create_dissector_handle(dissect_tpcp, proto_tpcp);
+	dissector_add_uint("udp.port", UDP_PORT_TPCP, tpcp_handle);
 }

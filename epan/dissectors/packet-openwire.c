@@ -44,12 +44,12 @@
 #endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include "packet-tcp.h"
-#include <stdlib.h>
 
 static int proto_openwire = -1;
 static int hf_openwire_none = -1;

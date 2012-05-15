@@ -28,10 +28,8 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-
 #include <glib.h>
+
 #include <epan/packet.h>
 #include "packet-tcp.h"
 #include <epan/prefs.h>

@@ -27,11 +27,12 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-#include <stdlib.h>
 #include <string.h>
-#include <epan/llcsaps.h>
+
+#include <glib.h>
+
 #include <epan/packet.h>
+#include <epan/llcsaps.h>
 #include <epan/circuit.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
