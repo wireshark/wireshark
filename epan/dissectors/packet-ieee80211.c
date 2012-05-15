@@ -6438,10 +6438,12 @@ static int dissect_qos_capability(proto_tree * tree, tvbuff_t * tvb, int offset,
 
 /* 7.3.2.25 RSN information element */
 static int
-dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
+dissect_rsn_ie(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb,
+    int offset, guint32 tag_len)
 {
   proto_item *rsn_gcs_item, *rsn_pcs_item, *rsn_akms_item, *rsn_cap_item, *rsn_pmkid_item, *rsn_gmcs_item;
   proto_item *rsn_sub_pcs_item, *rsn_sub_akms_item;
+  proto_item *rsn_pcs_count, *rsn_akms_count, *rsn_pmkid_count;
   proto_tree *rsn_gcs_tree, *rsn_pcs_tree, *rsn_akms_tree, *rsn_cap_tree, *rsn_pmkid_tree, *rsn_gmcs_tree;
   proto_tree *rsn_sub_pcs_tree, *rsn_sub_akms_tree;
   guint16 pcs_count, akms_count, pmkid_count;
@@ -6466,10 +6468,16 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   offset += 4;
 
   /* 7.3.2.25.2 Pairwise Cipher suites */
-  proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  rsn_pcs_count = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   pcs_count = tvb_get_letohs(tvb, offset);
   offset += 2;
 
+  if (offset + (pcs_count * 4) > tag_end)
+  {
+    expert_add_info_format(pinfo, rsn_pcs_count, PI_MALFORMED, PI_ERROR,
+        "Pairwise Cipher Suite Count too large, 4*%u > %d", pcs_count, tag_end - offset);
+    pcs_count = (tag_end - offset) / 4;
+  }
 
   rsn_pcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_list, tvb, offset, pcs_count * 4, ENC_NA);
   rsn_pcs_tree = proto_item_add_subtree(rsn_pcs_item, ett_rsn_pcs_tree);
@@ -6490,10 +6498,22 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
     offset += 4;
   }
 
+  if(offset >= tag_end)
+  {
+    return offset;
+  }
+
   /* 7.3.2.25.2 AKM suites */
-  proto_tree_add_item(tree, hf_ieee80211_rsn_akms_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  rsn_akms_count = proto_tree_add_item(tree, hf_ieee80211_rsn_akms_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   akms_count = tvb_get_letohs(tvb, offset);
   offset += 2;
+
+  if (offset + (akms_count * 4) > tag_end)
+  {
+    expert_add_info_format(pinfo, rsn_akms_count, PI_MALFORMED, PI_ERROR,
+        "Auth Key Management (AKM) Suite Count too large, 4*%u > %d", akms_count, tag_end - offset);
+    akms_count = (tag_end - offset) / 4;
+  }
 
   rsn_akms_item = proto_tree_add_item(tree, hf_ieee80211_rsn_akms_list, tvb, offset, akms_count * 4, ENC_NA);
   rsn_akms_tree = proto_item_add_subtree(rsn_akms_item, ett_rsn_akms_tree);
@@ -6531,9 +6551,16 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
     return offset;
   }
   /* 7.3.2.25.4 PMKID */
-  proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  rsn_pmkid_count = proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   pmkid_count = tvb_get_letohs(tvb, offset);
   offset += 2;
+
+  if (offset + (pmkid_count * 16) > tag_end)
+  {
+    expert_add_info_format(pinfo, rsn_pmkid_count, PI_MALFORMED, PI_ERROR,
+        "PMKID Count too large, 16*%u > %d", pmkid_count, tag_end - offset);
+    pmkid_count = (tag_end - offset) / 16;
+  }
 
   rsn_pmkid_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid_list, tvb, offset, pmkid_count * 16, ENC_NA);
   rsn_pmkid_tree = proto_item_add_subtree(rsn_pmkid_item, ett_rsn_pmkid_tree);
@@ -9008,7 +9035,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       offset += 2;
 
-      offset = dissect_rsn_ie(tree, tvb, offset, tag_len);
+      offset = dissect_rsn_ie(pinfo, tree, tvb, offset, tag_len);
       break;
 
     case TAG_EXT_SUPP_RATES: /* 7.3.2.14 Extended Supported Rates element (50) */
