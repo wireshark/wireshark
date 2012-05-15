@@ -1111,6 +1111,7 @@ open_as_map_cb(GtkWindow *copy_bt, gpointer data _U_)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                 "Could not create temporary directory\n%s",
                 map_path);
+        fclose(tpl_file);
         return;
     }
 
