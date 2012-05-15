@@ -3097,7 +3097,6 @@ dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 }
 
 
-#if 0
 static void
 dissect_osinlcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
                              const char *name)
@@ -3109,11 +3108,11 @@ dissect_osinlcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
                                    type, "%s (%u)", name, type);
   proto_tree_add_item(tree, hf_osinlcp_opt_length, tvb, offset + 1, 1, ENC_NA);
 }
-#endif
+
 static void
-dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-                             guint length, packet_info *pinfo _U_,
-                             proto_tree *tree)
+dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+                               int offset, guint length,
+                               packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *tf;
   proto_tree *field_tree;
@@ -3121,6 +3120,7 @@ dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s: Alignment: %u",
                            optp->name, tvb_get_guint8(tvb, offset + 2));
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+  dissect_osinlcp_opt_type_len(tvb, offset, field_tree, optp->name);
   proto_tree_add_item(field_tree, hf_osinlcp_opt_alignment, tvb, offset + 2, 1,
                       ENC_NA);
 }
