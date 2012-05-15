@@ -14503,7 +14503,7 @@ dissect_nbap_T_dCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &dch_id, FALSE);
-	if(g_num_dch_in_flow>0);
+	if(g_num_dch_in_flow>0)
 		g_dchs_in_flow_list[g_num_dch_in_flow-1]=dch_id;
 
 
@@ -14533,7 +14533,7 @@ guint32 NrOfTransportBlocks;
 				nbap_dch_chnl_info[dch_id].num_dl_chans++;
 				nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case CPCH: 
+			case CPCH:
 				nbap_dch_chnl_info[dch_id].num_ul_chans++;
 				nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				nbap_dch_chnl_info[dch_id].num_dl_chans++;
@@ -36272,12 +36272,12 @@ static const per_sequence_t RadioLinkSetupResponseFDD_sequence[] = {
 static int
 dissect_nbap_RadioLinkSetupResponseFDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 210 "../../asn1/nbap/nbap.cnf"
-	
+
 	g_nbap_msg_info_for_fp.ProcedureCode = ProcedureCode;
 	g_nbap_msg_info_for_fp.ddMode = ddMode;
 	g_nbap_msg_info_for_fp.is_uplink = FALSE;
 	g_nbap_msg_info_for_fp.dch_crc_present = 2; /* unknown */
-	
+
 	col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkSetupResponse(FDD) ");
 	/* Node B -> CRNC */
 	actx->pinfo->link_dir=P2P_DIR_UL;
