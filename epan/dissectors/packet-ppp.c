@@ -3097,6 +3097,7 @@ dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 }
 
 
+#if 0
 static void
 dissect_osinlcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
                              const char *name)
@@ -3108,6 +3109,7 @@ dissect_osinlcp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
                                    type, "%s (%u)", name, type);
   proto_tree_add_item(tree, hf_osinlcp_opt_length, tvb, offset + 1, 1, ENC_NA);
 }
+#endif
 static void
 dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                              guint length, packet_info *pinfo _U_,
