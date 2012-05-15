@@ -1258,6 +1258,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_str(pinfo->cinfo, COL_INFO, " | ");
     }
     iPreviousFrameNumber = pinfo->fd->num;
+    tMsgProps.iOffsetFormat = 0;
     if (tvb_length(tvb) >= 4)
     {
         structId = tvb_get_ntohl(tvb, offset);

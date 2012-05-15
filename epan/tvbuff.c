@@ -939,7 +939,7 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 static const guint8*
 ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length)
 {
-	int           exception;
+	int           exception = 0;
 	const guint8 *p;
 
 	p = ensure_contiguous_no_exception(tvb, offset, length, &exception);

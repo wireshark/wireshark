@@ -974,7 +974,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 {
     guint instruction;
     gint offset = 0;
-    gint start_offset;
+    gint start_offset = 0;
     gint len;
     gint n;
     guint instruction_no = 0;
