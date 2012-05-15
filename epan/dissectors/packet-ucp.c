@@ -37,10 +37,7 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
 
 #include <glib.h>
 
@@ -804,17 +801,19 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         *offset += 1;   /* skip terminating '/' */
 }
 
+#define UCP_BUFSIZ 512
+
 static void
 ucp_handle_IRAstring(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
 {
-    char         strval[BUFSIZ + 1],
+    char         strval[UCP_BUFSIZ + 1],
                 *p_dst = strval;
     guint8       byte;
     int          idx = 0;
     int          tmpoff = *offset;
 
     while (((byte = tvb_get_guint8(tvb, tmpoff++)) != '/') &&
-           (idx < BUFSIZ))
+           (idx < UCP_BUFSIZ))
     {
         if (byte >= '0' && byte <= '9')
         {
@@ -839,7 +838,7 @@ ucp_handle_IRAstring(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
         idx++;
     }
     strval[idx] = '\0';
-    if (idx == BUFSIZ)
+    if (idx == UCP_BUFSIZ)
     {
         /*
          * Data clipped, eat rest of field
@@ -1664,7 +1663,7 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
         ;
     if ((tmpoff - offset) > 1) {
         int      len = tmpoff - offset - 1;
-	proto_tree *subtree;
+        proto_tree *subtree;
 
         ti = proto_tree_add_item(tree, hf_ucp_parm_XSer, tvb, offset, len, ENC_NA);
         tmptvb = tvb_new_subset(tvb, offset, len + 1, len + 1);
@@ -2777,7 +2776,7 @@ proto_reg_handoff_ucp(void)
     heur_dissector_add("tcp", dissect_ucp_heur, proto_ucp);
 
     /*
-     * Also register as a dissectoir that can be selected by a TCP port number via "decode as".
+     * Also register as a dissector that can be selected by a TCP port number via "decode as".
      */
     ucp_handle = create_dissector_handle(dissect_ucp_tcp, proto_ucp);
     dissector_add_handle("tcp.port", ucp_handle);

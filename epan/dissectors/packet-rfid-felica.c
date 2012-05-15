@@ -36,10 +36,9 @@
 #endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <ctype.h>
-#include <stdio.h>
 
 static int proto_felica = -1;
 
@@ -118,8 +117,8 @@ static int hf_felica_status_flag2 = -1;
  *          val_to_str_const(opcode, felica_opcodes, "Unknown"));
  */
 static const value_string felica_commands[] = {
-    {CMD_POLLING, "Polling"},
-    {CMD_READ_WO_ENCRYPTION, "Read Without Encryption"},
+    {CMD_POLLING,             "Polling"},
+    {CMD_READ_WO_ENCRYPTION,  "Read Without Encryption"},
     {CMD_WRITE_WO_ENCRYPTION, "Write Without Encryption"},
 
     /* End of commands */
@@ -127,8 +126,8 @@ static const value_string felica_commands[] = {
 };
 
 static const value_string felica_responses[] = {
-    {RES_POLLING, "Polling"},
-    {RES_READ_WO_ENCRYPTION, "Read Without Encryption"},
+    {RES_POLLING,             "Polling"},
+    {RES_READ_WO_ENCRYPTION,  "Read Without Encryption"},
     {RES_WRITE_WO_ENCRYPTION, "Write Without Encryption"},
 
     /* End of responses */
@@ -136,8 +135,8 @@ static const value_string felica_responses[] = {
 };
 
 static const value_string felica_req_codes[] = {
-    {RC_NO_REQ, "No Request"},
-    {RC_SYS_REQ, "System Code Request"},
+    {RC_NO_REQ,       "No Request"},
+    {RC_SYS_REQ,      "System Code Request"},
     {RC_COM_PERF_REQ, "Communication Performance Request"},
 
     /* Others are reserved for future use */
@@ -147,11 +146,11 @@ static const value_string felica_req_codes[] = {
 };
 
 static const value_string felica_sys_codes[] = {
-    {SC_FELICA_LITE, "FeliCa Lite"},
-    {SC_NFC_FORUM, "NFC Forum (NDEF)"},
+    {SC_FELICA_LITE,           "FeliCa Lite"},
+    {SC_NFC_FORUM,             "NFC Forum (NDEF)"},
     {SC_FELICA_NW_COMMON_AREA, "FeliCa Networks Common Area"},
-    {SC_IRUCA, "IruCa"},
-    {SC_DOUBLE_WILDCARD, "Wildcard"},
+    {SC_IRUCA,                 "IruCa"},
+    {SC_DOUBLE_WILDCARD,       "Wildcard"},
 
     /* End of system codes */
     {0x00, NULL}
@@ -169,9 +168,9 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
     proto_tree *felica_tree = NULL;
-    guint8 opcode;
-    guint8 rwe_pos = 0;
-    tvbuff_t *rwe_resp_data_tvb;
+    guint8      opcode;
+    guint8      rwe_pos     = 0;
+    tvbuff_t   *rwe_resp_data_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FeliCa");
     col_set_str(pinfo->cinfo, COL_INFO, "FeliCa Packet");
@@ -188,7 +187,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case CMD_POLLING:
         col_set_str(pinfo->cinfo, COL_INFO, "Polling Request");
         if (tree) {
-            proto_tree_add_item(felica_tree, hf_felica_command, tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(felica_tree, hf_felica_command,  tvb, 0, 1, ENC_NA);
             proto_tree_add_item(felica_tree, hf_felica_sys_code, tvb, 1, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_req_code, tvb, 3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_timeslot, tvb, 4, 1, ENC_BIG_ENDIAN);
@@ -199,8 +198,8 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_INFO, "Polling Response");
         if (tree) {
             proto_tree_add_item(felica_tree, hf_felica_response, tvb, 0, 1, ENC_NA);
-            proto_tree_add_item(felica_tree, hf_felica_idm, tvb, 1, 8, ENC_BIG_ENDIAN);
-            proto_tree_add_item(felica_tree, hf_felica_pnm, tvb, 9, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(felica_tree, hf_felica_idm,      tvb, 1, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(felica_tree, hf_felica_pnm,      tvb, 9, 8, ENC_BIG_ENDIAN);
 
             if (tvb_reported_length(tvb) == 19)
                 proto_tree_add_item(felica_tree, hf_felica_sys_code, tvb, 17, 2, ENC_BIG_ENDIAN);
@@ -216,8 +215,8 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case CMD_READ_WO_ENCRYPTION:
         col_set_str(pinfo->cinfo, COL_INFO, "Read Without Encryption Request");
         if (tree) {
-            proto_tree_add_item(felica_tree, hf_felica_command, tvb, 0, 1, ENC_NA);
-            proto_tree_add_item(felica_tree, hf_felica_idm, tvb, 1, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(felica_tree, hf_felica_command,     tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(felica_tree, hf_felica_idm,         tvb, 1, 8, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_nbr_of_svcs, tvb, 9, 1, ENC_BIG_ENDIAN);
 
             /* Service codes are always 2 bytes in length */
@@ -239,10 +238,10 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case RES_READ_WO_ENCRYPTION:
         col_set_str(pinfo->cinfo, COL_INFO, "Read Without Encryption Response");
         if (tree) {
-            proto_tree_add_item(felica_tree, hf_felica_response, tvb, 0, 1, ENC_NA);
-            proto_tree_add_item(felica_tree, hf_felica_idm, tvb, 1, 8, ENC_BIG_ENDIAN);
-            proto_tree_add_item(felica_tree, hf_felica_status_flag1, tvb, 9, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(felica_tree, hf_felica_status_flag2, tvb, 10, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(felica_tree, hf_felica_response,      tvb,  0, 1, ENC_NA);
+            proto_tree_add_item(felica_tree, hf_felica_idm,           tvb,  1, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(felica_tree, hf_felica_status_flag1,  tvb,  9, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(felica_tree, hf_felica_status_flag2,  tvb, 10, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(felica_tree, hf_felica_nbr_of_blocks, tvb, 11, 1, ENC_BIG_ENDIAN);
         }
         rwe_resp_data_tvb = tvb_new_subset_remaining(tvb, 12);
@@ -271,65 +270,92 @@ proto_register_felica(void)
     static hf_register_info hf[] = {
 
     {&hf_felica_command,
-        { "Command", "felica.cmd", FT_UINT8, BASE_HEX,
-        VALS(felica_commands), 0x0, NULL, HFILL }},
+     { "Command", "felica.cmd",
+       FT_UINT8, BASE_HEX, VALS(felica_commands), 0x0,
+       NULL, HFILL }
+    },
     {&hf_felica_response,
-        { "Response", "felica.res", FT_UINT8, BASE_HEX,
-        VALS(felica_responses), 0x0, NULL, HFILL }},
+        { "Response", "felica.res",
+          FT_UINT8, BASE_HEX,
+        VALS(felica_responses), 0x0,
+          NULL, HFILL }
+    },
 
     /* Request Code */
     {&hf_felica_req_code,
-        { "Request Code", "felica.req.code", FT_UINT8, BASE_HEX,
-        VALS(felica_req_codes), 0x0, NULL, HFILL }},
+     { "Request Code", "felica.req.code",
+       FT_UINT8, BASE_HEX, VALS(felica_req_codes), 0x0,
+       NULL, HFILL }
+    },
 
     {&hf_felica_idm,
-        { "IDm (Manufacture ID)/NFCID2", "felica.idm", FT_UINT64, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }},
+     { "IDm (Manufacture ID)/NFCID2", "felica.idm",
+       FT_UINT64, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    },
 
     /* System Code */
     {&hf_felica_sys_code,
-        { "System Code", "felica.sys_code", FT_UINT16, BASE_HEX,
-        VALS(felica_sys_codes), 0x0, NULL, HFILL }},
+     { "System Code", "felica.sys_code",
+       FT_UINT16, BASE_HEX, VALS(felica_sys_codes), 0x0,
+       NULL, HFILL }
+    },
 
     /* Service Code */
     {&hf_felica_svc_code,
-        { "Service Code", "felica.svc_code", FT_UINT16, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }},
+     { "Service Code", "felica.svc_code",
+       FT_UINT16, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    },
 
       /* Parameter/PAD */
     {&hf_felica_pnm,
-        { "PNm (Manufacture Parameter)/PAD", "felica.pnm", FT_UINT64, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }},
+     { "PNm (Manufacture Parameter)/PAD", "felica.pnm",
+       FT_UINT64, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    },
 
     /* Number of Services */
     {&hf_felica_nbr_of_svcs,
-        { "Number of Services", "felica.svcs", FT_UINT8, BASE_DEC,
-        NULL, 0x0, NULL, HFILL }},
+     { "Number of Services", "felica.svcs",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }
+    },
 
     /* Number of Blocks */
     {&hf_felica_nbr_of_blocks,
-        { "Number of Blocks", "felica.blocks", FT_UINT8, BASE_DEC,
-        NULL, 0x0, NULL, HFILL }},
+     { "Number of Blocks", "felica.blocks",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }
+    },
 
     /* Block ID */
     {&hf_felica_block_nbr,
-        { "Block Number", "felica.block.nbr", FT_UINT8, BASE_DEC,
-        NULL, 0x0, NULL, HFILL }},
+     { "Block Number", "felica.block.nbr",
+       FT_UINT8, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }
+    },
 
     /* Status Flag 1 */
     {&hf_felica_status_flag1,
-        { "Status Flag 1", "felica.status.flag1", FT_UINT8, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }},
+     { "Status Flag 1", "felica.status.flag1",
+       FT_UINT8, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    },
 
     /* Status Flag 2 */
     {&hf_felica_status_flag2,
-        { "Status Flag 2", "felica.status.flag2", FT_UINT8, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }},
+     { "Status Flag 2", "felica.status.flag2",
+       FT_UINT8, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    },
 
     /* Timeslot */
     {&hf_felica_timeslot,
-        { "Timeslot", "felica.timeslot", FT_UINT8, BASE_HEX,
-        NULL, 0x0, NULL, HFILL }}
+     { "Timeslot", "felica.timeslot",
+       FT_UINT8, BASE_HEX, NULL, 0x0,
+       NULL, HFILL }
+    }
     };
 
     static gint *ett[] = {

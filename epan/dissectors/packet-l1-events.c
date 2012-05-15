@@ -33,9 +33,8 @@
 #include "config.h"
 #endif
 
-#include <ctype.h>
-
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/strutil.h>
 

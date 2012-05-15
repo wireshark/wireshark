@@ -29,10 +29,10 @@
 # include "config.h"
 #endif
 
-#include <ctype.h>
 #include <glib.h>
-#include <epan/prefs.h>
+
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/llcsaps.h>
 #include <epan/aftypes.h>
 #include <epan/nlpid.h>
@@ -54,12 +54,12 @@ static guint global_tcp_port_osi_over_tpkt = 0;
 
 cksum_status_t
 calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
-  const gchar *buffer;
-  guint   available_len;
+  const gchar  *buffer;
+  guint         available_len;
   const guint8 *p;
-  guint32 c0, c1;
-  guint   seglen;
-  guint   i;
+  guint32       c0, c1;
+  guint         seglen;
+  guint         i;
 
   if ( 0 == checksum )
     return( NO_CKSUM );
@@ -99,7 +99,7 @@ calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
     len -= seglen;
   }
   if (c0 != 0 || c1 != 0)
-    return( CKSUM_NOT_OK );	/* XXX - what should the checksum field be? */
+    return( CKSUM_NOT_OK );  /* XXX - what should the checksum field be? */
   else
     return( CKSUM_OK );
 }
@@ -107,14 +107,14 @@ calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
 
 cksum_status_t
 check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, int offset_check, guint16* result) {
-  const gchar *buffer;
-  guint   available_len;
+  const gchar  *buffer;
+  guint         available_len;
   const guint8 *p;
-  guint8 discard = 0;
-  guint32 c0, c1, factor;
-  guint   seglen, initlen = len;
-  guint   i;
-  int     block, x, y;
+  guint8        discard         = 0;
+  guint32       c0, c1, factor;
+  guint         seglen, initlen = len;
+  guint         i;
+  int           block, x, y;
 
   if ( 0 == checksum )
     return( NO_CKSUM );
@@ -191,7 +191,7 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
   *result = ( x << 8 ) | ( y & 0xFF );
 
   if (*result != checksum)
-    return( CKSUM_NOT_OK );	/* XXX - what should the checksum field be? */
+    return( CKSUM_NOT_OK );  /* XXX - what should the checksum field be? */
   else
     return( CKSUM_OK );
 }
@@ -209,26 +209,26 @@ check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum, in
  * means T.70 for an IPI and X.29 for an SPI.
  */
 const value_string nlpid_vals[] = {
-	{ NLPID_NULL,            "NULL" },
-	{ NLPID_SPI_X_29,        "X.29" },
-	{ NLPID_X_633,           "X.633" },
-	{ NLPID_Q_931,           "Q.931" },
-	{ NLPID_Q_2931,          "Q.2931" },
-	{ NLPID_Q_2119,          "Q.2119" },
-	{ NLPID_SNAP,            "SNAP" },
-	{ NLPID_ISO8473_CLNP,    "CLNP" },
-	{ NLPID_ISO9542_ESIS,    "ESIS" },
-	{ NLPID_ISO10589_ISIS,   "ISIS" },
-	{ NLPID_ISO10747_IDRP,   "IDRP" },
-	{ NLPID_ISO9542X25_ESIS, "ESIS (X.25)" },
-	{ NLPID_ISO10030,        "ISO 10030" },
-	{ NLPID_ISO11577,        "ISO 11577" },
-	{ NLPID_COMPRESSED,      "Data compression protocol" },
-	{ NLPID_IP,              "IP" },
-	{ NLPID_SNDCF,		 "SubNetwork Dependent Convergence Function"},
-	{ NLPID_IP6,             "IPv6" },
-	{ NLPID_PPP,             "PPP" },
-	{ 0,                     NULL },
+  { NLPID_NULL,            "NULL" },
+  { NLPID_SPI_X_29,        "X.29" },
+  { NLPID_X_633,           "X.633" },
+  { NLPID_Q_931,           "Q.931" },
+  { NLPID_Q_2931,          "Q.2931" },
+  { NLPID_Q_2119,          "Q.2119" },
+  { NLPID_SNAP,            "SNAP" },
+  { NLPID_ISO8473_CLNP,    "CLNP" },
+  { NLPID_ISO9542_ESIS,    "ESIS" },
+  { NLPID_ISO10589_ISIS,   "ISIS" },
+  { NLPID_ISO10747_IDRP,   "IDRP" },
+  { NLPID_ISO9542X25_ESIS, "ESIS (X.25)" },
+  { NLPID_ISO10030,        "ISO 10030" },
+  { NLPID_ISO11577,        "ISO 11577" },
+  { NLPID_COMPRESSED,      "Data compression protocol" },
+  { NLPID_IP,              "IP" },
+  { NLPID_SNDCF,           "SubNetwork Dependent Convergence Function"},
+  { NLPID_IP6,             "IPv6" },
+  { NLPID_PPP,             "PPP" },
+  { 0,                     NULL },
 };
 
 static dissector_table_t osinl_subdissector_table;
@@ -244,7 +244,7 @@ dissect_osi_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint8 nlpid;
+  guint8    nlpid;
   tvbuff_t *new_tvb;
 
   pinfo->current_proto = "OSI";
@@ -274,7 +274,7 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO");
       if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
       }
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
@@ -284,9 +284,9 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_osi(void)
 {
-  static gboolean osi_prefs_initialized = FALSE;
+  static gboolean           osi_prefs_initialized = FALSE;
   static dissector_handle_t osi_tpkt_handle;
-  static guint tcp_port_osi_over_tpkt;
+  static guint              tcp_port_osi_over_tpkt;
 
   if (!osi_prefs_initialized) {
     osi_handle = create_dissector_handle(dissect_osi, proto_osi);
@@ -299,10 +299,10 @@ proto_reg_handoff_osi(void)
     dissector_add_uint("chdlctype", CHDLCTYPE_OSI, osi_handle);
     dissector_add_uint("null.type", BSD_AF_ISO, osi_handle);
     dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
-    dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /*  ISO-TP4 ISO Transport Protocol Class 4 [RFC905,RC77] */  
+    dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /*  ISO-TP4 ISO Transport Protocol Class 4 [RFC905,RC77] */
     data_handle = find_dissector("data");
     ppp_handle  = find_dissector("ppp");
-  
+
 
     osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
     dissector_add_handle("tcp.port", osi_tpkt_handle); /* for 'decode-as' */
@@ -338,7 +338,7 @@ proto_register_osi(void)
    * (typically non OSI protocols like IP,IPv6,PPP */
   osinl_excl_subdissector_table = register_dissector_table("osinl.excl",
                                                            "OSI excl NLPID", FT_UINT8, BASE_HEX);
-	
+
   proto_osi = proto_register_protocol("OSI", "OSI", "osi");
   /* Preferences how OSI protocols should be dissected */
   osi_module = prefs_register_protocol(proto_osi, proto_reg_handoff_osi);

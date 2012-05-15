@@ -65,8 +65,8 @@
 
 #include <stdio.h>
 #include <string.h>
+
 #include <glib.h>
-#include <ctype.h>
 
 #ifdef HAVE_LIBNETTLE
 #define HAVE_KERBEROS

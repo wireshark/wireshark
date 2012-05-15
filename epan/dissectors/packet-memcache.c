@@ -37,11 +37,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+
 #include <glib.h>
 
-#include <epan/conversation.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/strutil.h>
 #include <epan/base64.h>
 #include <epan/emem.h>

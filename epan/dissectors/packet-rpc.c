@@ -30,8 +30,9 @@
 #endif
 
 #include <glib.h>
+
 #include <string.h>
-#include <ctype.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
