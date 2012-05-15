@@ -2379,9 +2379,9 @@ tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guin
 /*
  * Given a tvbuff, an offset, a length, and an encoding, allocate a
  * buffer big enough to hold a non-null-terminated string of that length
- * at that offset, plus a trailing '\0', copy the string into it, and
- * return a pointer to the string; if the encoding is EBCDIC, map
- * the string from EBCDIC to ASCII.
+ * at that offset, plus a trailing '\0', copy into the buffer the
+ * string as converted from the appropriate encoding to UTF-8, and
+ * return a pointer to the string.
  *
  * Throws an exception if the tvbuff ends before the string does.
  *
@@ -2393,14 +2393,11 @@ tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guin
  */
 guint8 *
 tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
-			     const gint length, const gint encoding)
+			     const gint length, const guint encoding)
 {
 	const guint8 *ptr;
-	guint8       *strbuf = NULL;
+	guint8       *strbuf;
 
-	tvb_ensure_bytes_exist(tvb, offset, length);
-
-	ptr    = ensure_contiguous(tvb, offset, length);
 	switch (encoding & ENC_CHARENCODING_MASK) {
 
 	case ENC_ASCII:
@@ -2417,10 +2414,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * XXX - should map all octets with the 8th bit
 		 * not set to a "substitute" UTF-8 character.
 		 */
-		strbuf = ep_alloc(length + 1);
-		if (length != 0) {
-			memcpy(strbuf, ptr, length);
-		}
+		strbuf = tvb_get_ephemeral_string(tvb, offset, length);
 		break;
 
 	case ENC_UTF_8:
@@ -2428,10 +2422,7 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 * XXX - should map all invalid UTF-8 sequences
 		 * to a "substitute" UTF-8 character.
 		 */
-		strbuf = ep_alloc(length + 1);
-		if (length != 0) {
-			memcpy(strbuf, ptr, length);
-		}
+		strbuf = tvb_get_ephemeral_string(tvb, offset, length);
 		break;
 
 	case ENC_UTF_16:
@@ -2461,29 +2452,36 @@ tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
 		 *
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
+		tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
 		strbuf = ep_alloc(length + 1);
 		if (length != 0) {
+			ptr = ensure_contiguous(tvb, offset, length);
 			memcpy(strbuf, ptr, length);
+			EBCDIC_to_ASCII(strbuf, length);
 		}
-		EBCDIC_to_ASCII(strbuf, length);
+		strbuf[length] = '\0';
 		break;
 	}
-
-	strbuf[length] = '\0';
 	return strbuf;
 }
 
 guint8 *
 tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 {
-	return tvb_get_ephemeral_string_enc(tvb, offset, length, ENC_UTF_8|ENC_NA);
+	guint8       *strbuf;
+
+	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
+	strbuf = ep_alloc(length + 1);
+	tvb_memcpy(tvb, strbuf, offset, length);
+	strbuf[length] = '\0';
+	return strbuf;
 }
 
 /*
  * Unicode (UTF-16) version of tvb_get_ephemeral_string()
  * XXX - this is UCS-2, not UTF-16, as it doesn't handle surrogate pairs
  *
- * Encoding paramter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Specify length in bytes
  *
@@ -2567,7 +2565,7 @@ tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length)
  * string (including the terminating null) through a pointer.
  */
 guint8 *
-tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding)
+tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
 	guint   size;
 	guint8 *strptr;
@@ -2629,7 +2627,79 @@ tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
  * after the current packet has been dissected.
  */
 guint8 *
-tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding)
+tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
+{
+	guint   size;
+	guint8 *strptr;
+
+	switch (encoding & ENC_CHARENCODING_MASK) {
+
+	case ENC_ASCII:
+	default:
+		/*
+		 * For now, we treat bogus values as meaning
+		 * "ASCII" rather than reporting an error,
+		 * for the benefit of old dissectors written
+		 * when the last argument to proto_tree_add_item()
+		 * was a gboolean for the byte order, not an
+		 * encoding value, and passed non-zero values
+		 * other than TRUE to mean "little-endian".
+		 *
+		 * XXX - should map all octets with the 8th bit
+		 * not set to a "substitute" UTF-8 character.
+		 */
+		strptr = tvb_get_ephemeral_stringz(tvb, offset, lengthp);
+		break;
+
+	case ENC_UTF_8:
+		/*
+		 * XXX - should map all invalid UTF-8 sequences
+		 * to a "substitute" UTF-8 character.
+		 */
+		strptr = tvb_get_ephemeral_stringz(tvb, offset, lengthp);
+		break;
+
+	case ENC_UTF_16:
+		/*
+		 * XXX - needs to handle surrogate pairs and to map
+		 * invalid characters and sequences to a "substitute"
+		 * UTF-8 character.
+		 */
+		strptr = tvb_get_ephemeral_unicode_stringz(tvb, offset, lengthp,
+		    encoding & ENC_LITTLE_ENDIAN);
+		break;
+
+	case ENC_UCS_2:
+		/*
+		 * XXX - needs to map values that are not valid UCS-2
+		 * characters (such as, I think, values used as the
+		 * components of a UTF-16 surrogate pair) to a
+		 * "substitute" UTF-8 character.
+		 */
+		strptr = tvb_get_ephemeral_unicode_stringz(tvb, offset, lengthp,
+		    encoding & ENC_LITTLE_ENDIAN);
+		break;
+
+	case ENC_EBCDIC:
+		/*
+		 * XXX - do the copy and conversion in one pass.
+		 *
+		 * XXX - multiple "dialects" of EBCDIC?
+		 */
+		size = tvb_strsize(tvb, offset);
+		strptr = ep_alloc(size);
+		tvb_memcpy(tvb, strptr, offset, size);
+		EBCDIC_to_ASCII(strptr, size);
+		if (lengthp)
+			*lengthp = size;
+		break;
+	}
+
+	return strptr;
+}
+
+guint8 *
+tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 {
 	guint   size;
 	guint8 *strptr;
@@ -2637,17 +2707,9 @@ tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, g
 	size   = tvb_strsize(tvb, offset);
 	strptr = ep_alloc(size);
 	tvb_memcpy(tvb, strptr, offset, size);
-	if ((encoding & ENC_CHARENCODING_MASK) == ENC_EBCDIC)
-		EBCDIC_to_ASCII(strptr, size);
 	if (lengthp)
 		*lengthp = size;
 	return strptr;
-}
-
-guint8 *
-tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
-{
-	return tvb_get_ephemeral_stringz_enc(tvb, offset, lengthp, ENC_UTF_8|ENC_NA);
 }
 
 /*

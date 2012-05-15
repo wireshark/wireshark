@@ -482,7 +482,7 @@ extern guint8 *tvb_get_string(tvbuff_t *tvb, const gint offset, const gint lengt
 extern gchar  *tvb_get_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 extern guint8 *tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length);
 extern guint8 *tvb_get_ephemeral_string_enc(tvbuff_t *tvb, const gint offset,
-    const gint length, const gint encoding);
+    const gint length, const guint encoding);
 extern gchar  *tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding);
 extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const gint length);
 
@@ -523,10 +523,10 @@ extern guint8 *tvb_get_seasonal_string(tvbuff_t *tvb, const gint offset, const g
  *                   or file is opened.
  */
 extern guint8 *tvb_get_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-extern guint8 *tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding);
+extern guint8 *tvb_get_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 extern const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 extern guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
-extern guint8 *tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, gint encoding);
+extern guint8 *tvb_get_ephemeral_stringz_enc(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 extern gchar  *tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 extern guint8 *tvb_get_seasonal_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 
