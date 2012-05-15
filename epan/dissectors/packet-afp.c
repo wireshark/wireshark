@@ -4265,12 +4265,12 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
 				expert_add_info_format(pinfo, item_query, PI_MALFORMED, PI_ERROR,
 					"Subquery count (%d) > query count (%d)", subquery_count, count);
-                count = 0;
+				count = 0;
 			} else if (subquery_count > 20) {
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "null");
 				expert_add_info_format(pinfo, item_query, PI_PROTOCOL, PI_WARN,
 					"Abnormal number of subqueries (%d)", subquery_count);
-                count -= subquery_count;
+				count -= subquery_count;
 			} else {
 				for (i = 0; i < subquery_count; i++, count--)
 					proto_tree_add_text(tree, tvb, offset, query_length, "null");
