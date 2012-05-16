@@ -39,10 +39,12 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
           </para>
           <para>
-            Infinite and large loops in the ANSI MAP, Bluetooth HCI, IEEE 802.3, LTP,
+            Infinite and large loops in the ANSI MAP, ASF, Bluetooth HCI, IEEE 802.3, LTP,
 	    have been fixed. Most were discovered by Laurent Butti.
             <!-- Fixed in trunk: r41741 (802.3) -->
             <!-- Fixed in trunk: r42129 (ANSI MAP) -->
+            <!-- Fixed in trunk: r42113 (ASF) -->
+            <!-- Fixed in trunk: r42115 (ASF) -->
             <!-- Fixed in trunk: r42114 (BTHCI) -->
             <!-- Fixed in trunk: r42116 (BTHCI) -->
             <!-- Fixed in trunk: r42121 (LTP) -->
@@ -64,6 +66,7 @@ Wireshark Info
 	    7124
 	    7125
 	    7118
+	    7120
           </para>
           <para>Versions affected: 1.6.0 to 1.6.7.</para>
           <!-- <para>
@@ -94,12 +97,12 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-09.html">wnpa-sec-2012-09</ulink>
           </para>
           <para>
-            Wireshark could crash on SPARC processors due to misaligned memory.
+            Wireshark could crash on SPARC processors due to misaligned memory. Discovered by Klaus Heckelmann.
             <!-- Fixed in trunk: r42393, r42407, r42431 -->
             <!-- Fixed in trunk-1.6: r42669 -->
             <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7138">Bug
-            7138</ulink>)
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221">Bug
+            7221</ulink>)
           </para>
           <para>Versions affected: 1.6.0 to 1.6.7.</para>
           <!-- <para>
@@ -128,6 +131,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          The MSISDN is not seen correctly in GTP packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7042">Bug
+          7042</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark doesn't calculate the right IPv4 destination using source routing options when bad options precede them.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7043">Bug
           7043</ulink>)
@@ -137,6 +146,12 @@ Wireshark Info
           BOOTP dissector issue with DHCP option 82 - suboption 9.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7047">Bug
           7047</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          MPLS dissector in 1.6.7 and 1.7.1 misdecodes some MPLS CW packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7089">Bug
+          7089</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -161,6 +176,12 @@ Wireshark Info
           LTP infinite loop.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7124">Bug
           7124</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong values in DNS CERT RR.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7130">Bug
+          7130</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -190,11 +211,15 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ANSI MAP,
+ASF,
 Bluetooth HCI,
 DHCP,
 DIAMETER,
+DNS,
+GTP,
 IPv4,
 LTP,
+MPLS,
 NFS,
 
     </para>

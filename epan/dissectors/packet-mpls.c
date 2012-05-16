@@ -708,6 +708,8 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree  *mpls_tree = NULL;
     proto_item  *ti;
     tvbuff_t *next_tvb;
+    int found = 0;
+    guint8 first_nibble;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPLS");
 
@@ -762,12 +764,37 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (bos) break;
     }
 
+    first_nibble = (tvb_get_guint8(tvb, offset) >> 4) & 0x0F;
+
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if ( !dissector_try_uint(mpls_subdissector_table, label, next_tvb, pinfo, tree))
-    {
-        switch ( mpls_default_payload )
-        {
+    /* 1) explicit label-to-dissector binding ? */
+    found = dissector_try_uint(mpls_subdissector_table, label,
+                               next_tvb, pinfo, tree);
+    if (found)
+        return;
+
+    /* 2) use the 1st nibble logic (see BCP 4928, RFC 4385 and 5586) */
+    if (first_nibble == 4) {
+        call_dissector(dissector_ip, next_tvb, pinfo, tree);
+        return;
+    } else if (first_nibble == 6) {
+        call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
+        return;
+    } else if (first_nibble == 1) {
+        dissect_pw_ach(next_tvb, pinfo, tree);
+        return;
+    } else if (first_nibble == 0) {
+        /*
+         * FF: it should be a PW with a CW but... it's not
+         * guaranteed (e.g. an Ethernet PW w/o CW and a DA MAC
+         * address like 00:xx:xx:xx:xx:xx).  So, let the user and
+         * eventually any further PW heuristics decide.
+         */
+    }
+
+    /* 3) use the mpls_default_payload info from user */
+    switch (mpls_default_payload) {
         case MDD_PW_SATOP:
                call_dissector(dissector_pw_satop, next_tvb, pinfo, tree);
                break;
@@ -811,7 +838,6 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case MDD_MPLS_PW_GENERIC:
                dissect_pw_mcw(next_tvb, pinfo, tree);
                break;
-        }
     }
 }
 

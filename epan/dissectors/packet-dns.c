@@ -213,7 +213,7 @@ typedef struct _dns_conv_info_t {
 #define T_ATMA          34              /* ??? */
 #define T_NAPTR         35              /* naming authority pointer (RFC 3403) */
 #define	T_KX		36		/* Key Exchange (RFC 2230) */
-#define	T_CERT		37		/* Certificate (RFC 2538) */
+#define	T_CERT		37		/* Certificate (RFC 4398) */
 #define T_A6		38              /* IPv6 address with indirection (RFC 2874) */
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
@@ -476,7 +476,7 @@ static const value_string dns_types[] = {
 	{ T_ATMA,	"ATMA" },
 	{ T_NAPTR,	"NAPTR" }, /* RFC 3403 */
 	{ T_KX,		"KX" }, /* RFC 2230 */
-	{ T_CERT,	"CERT" }, /* RFC 2538 */
+	{ T_CERT,	"CERT" }, /* RFC 4398 */
 	{ T_A6,		"A6" }, /* RFC 2874 */
 	{ T_DNAME,	"DNAME" }, /* RFC 2672 */
 
@@ -566,7 +566,7 @@ dns_type_description (guint type)
     "ATMA",
     "Naming authority pointer",		/* RFC 2168 */
     "Key Exchange",			/* RFC 2230 */
-    "Certificate",			/* RFC 2538 */
+    "Certificate",			/* RFC 4398 */
     "IPv6 address with indirection",	/* RFC 2874 */
     "Non-terminal DNS name redirection", /* RFC 2672 */
     NULL,
@@ -1144,16 +1144,27 @@ static const value_string algo_vals[] = {
 	  { 0,                          NULL }
 };
 
-#define DNS_CERT_PGP		1	/* PGP */
-#define DNS_CERT_PKIX		2	/* PKIX */
-#define DNS_CERT_SPKI		3	/* SPKI */
+/* See RFC 4398 */
+#define DNS_CERT_PKIX		1	/* X509 certificate */
+#define DNS_CERT_SPKI		2	/* Simple public key certificate */
+#define DNS_CERT_PGP		3	/* OpenPGP packet */
+#define DNS_CERT_IPKIX		4	/* Indirect PKIX */
+#define DNS_CERT_ISPKI		5	/* Indirect SPKI */
+#define DNS_CERT_IPGP		6	/* Indirect PGP */
+#define DNS_CERT_ACPKIX		7	/* Attribute certificate */
+#define DNS_CERT_IACPKIX	8	/* Indirect ACPKIX */
 #define DNS_CERT_PRIVATEURI	253	/* Private, URI */
 #define DNS_CERT_PRIVATEOID	254	/* Private, OID */
 
 static const value_string cert_vals[] = {
-	  { DNS_CERT_PGP,        "PGP" },
 	  { DNS_CERT_PKIX,       "PKIX" },
 	  { DNS_CERT_SPKI,       "SPKI" },
+	  { DNS_CERT_PGP,        "PGP" },
+	  { DNS_CERT_IPKIX,      "IPKIX" },
+	  { DNS_CERT_ISPKI,      "ISPKI" },
+	  { DNS_CERT_IPGP,       "IPGP" },
+	  { DNS_CERT_ACPKIX,     "ACPKIX" },
+	  { DNS_CERT_IACPKIX,    "IACPKIX" },
 	  { DNS_CERT_PRIVATEURI, "Private, URI" },
 	  { DNS_CERT_PRIVATEOID, "Private, OID" },
 	  { 0,                   NULL }
@@ -2113,7 +2124,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	if (rr_len < 2)
 	  goto bad_rr;
 	cert_keytag = tvb_get_ntohs(tvb, cur_offset);
-	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key footprint: 0x%04x",
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key tag: 0x%04x",
 		cert_keytag);
 	cur_offset += 2;
 	rr_len -= 2;
@@ -2128,7 +2139,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	rr_len -= 1;
 
 	if (rr_len != 0)
-	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Certificate or CRL");
       }
 
     break;
