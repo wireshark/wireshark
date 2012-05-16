@@ -1854,6 +1854,22 @@ CPPFLAGS="$CPPFLAGS '-DPLUGIN_DIR=\"\$(plugindir)\"'"
 PLUGIN_LIBS=""
 AC_SUBST(PLUGIN_LIBS)
 
+#
+# Check if (emem) memory allocations must be 8-byte aligned.
+# I haven't been able to write C code that reliably makes that determination
+# (different versions of GCC with or without optimization give different
+# results) so just assume everything except (32-bit) x86 needs 8-byte
+# alignment (64-bit x86 will get 8-byte alignment from G_MEM_ALIGN anyway).
+#
+AC_MSG_CHECKING(whether we need memory allocations to be 8-byte aligned)
+if test x$host_cpu != xi386
+then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(NEED_8_BYTE_ALIGNMENT, 1, [Define if we need memory allocations to be 8-byte aligned])
+else
+  AC_MSG_RESULT(no)
+fi
+
 dnl libtool defs
 #
 # Yes, AM_PROG_LIBTOOL is redundant with newer version(s) of some tool(s)

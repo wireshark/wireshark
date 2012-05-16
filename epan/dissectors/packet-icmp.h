@@ -30,7 +30,7 @@ typedef struct _icmp_transaction_t {
     guint32 rqst_frame;
     guint32 resp_frame;
     nstime_t rqst_time;
-    double resp_time;
+    nstime_t resp_time;
 } icmp_transaction_t;
 
 #endif

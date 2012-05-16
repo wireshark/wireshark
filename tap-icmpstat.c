@@ -123,27 +123,28 @@ icmpstat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 {
     icmpstat_t *icmpstat = tapdata;
     const icmp_transaction_t *trans = data;
-    double *rt;
+    double resp_time, *rt;
 
     if (trans == NULL)
         return 0;
 
     if (trans->resp_frame) {
+        resp_time = nstime_to_msec(&trans->resp_time);
         rt = g_malloc(sizeof(double));
         if (rt == NULL)
             return 0;
-        *rt = trans->resp_time;
+        *rt = resp_time;
         icmpstat->rt_list = g_slist_insert_sorted(icmpstat->rt_list, rt, compare_doubles);
         icmpstat->num_resps++;
-        if (icmpstat->min_msecs > trans->resp_time) {
+        if (icmpstat->min_msecs > resp_time) {
             icmpstat->min_frame = trans->resp_frame;
-            icmpstat->min_msecs = trans->resp_time;
+            icmpstat->min_msecs = resp_time;
         }
-        if (icmpstat->max_msecs < trans->resp_time) {
+        if (icmpstat->max_msecs < resp_time) {
             icmpstat->max_frame = trans->resp_frame;
-            icmpstat->max_msecs = trans->resp_time;
+            icmpstat->max_msecs = resp_time;
         }
-        icmpstat->tot_msecs += trans->resp_time;
+        icmpstat->tot_msecs += resp_time;
     } else if (trans->rqst_frame)
         icmpstat->num_rqsts++;
     else
