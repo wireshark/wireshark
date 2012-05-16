@@ -2262,7 +2262,7 @@ dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
             switch (spice_info->playback_mode) {
                 case SPICE_AUDIO_DATA_MODE_RAW:
                     proto_tree_add_text(tree, tvb, offset, message_size - 4, "RAW playback data");
-                    break; 
+                    break;
                 case SPICE_AUDIO_DATA_MODE_CELT_0_5_1:
                     proto_tree_add_text(tree, tvb, offset, message_size - 4, "CELT 0.5.1 encoded playback data");
                     break;
@@ -3571,7 +3571,7 @@ proto_register_spice(void)
         },
         { &hf_common_cap_byte1,
           { "Capabilitities", "spice.common_cap_byte1",
-            FT_UINT32, BASE_NONE, 0, 0,
+            FT_UINT32, BASE_DEC, 0, 0,
             NULL, HFILL }
         },
         { &hf_common_cap_auth_select,
@@ -4201,4 +4201,3 @@ proto_reg_handoff_spice(void)
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
