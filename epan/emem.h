@@ -157,6 +157,18 @@ gchar* se_strdup_printf(const gchar* fmt, ...)
 /* release all memory allocated */
 void se_free_all(void);
 
+/* G_MEM_ALIGN is not always enough: http://mail.gnome.org/archives/gtk-devel-list/2004-December/msg00091.html
+ * So, we check (in configure) if we need 8-byte alignment.  (Windows
+ * shouldn't need such a check until someone trys running it 32-bit on a CPU
+ * with more stringent alignment requirements than i386.)
+ *
+ * Yes, this ignores the possibility of needing 16-byte alignment for long doubles.
+ */
+#if defined(NEED_8_BYTE_ALIGNMENT) && (G_MEM_ALIGN < 8)
+#define WS_MEM_ALIGN 8
+#else
+#define WS_MEM_ALIGN G_MEM_ALIGN
+#endif
 
 
 

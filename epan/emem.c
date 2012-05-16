@@ -693,10 +693,10 @@ emem_alloc_chunk(size_t size, emem_header_t *mem)
 	 * 8 pad bytes for our canary.
 	 */
 	 if (use_canary) {
-		pad = emem_canary_pad(asize);
 		asize += sizeof(void *);
+		pad = emem_canary_pad(asize);
 	} else
-		pad = (G_MEM_ALIGN - (asize & (G_MEM_ALIGN-1))) & (G_MEM_ALIGN-1);
+		pad = (WS_MEM_ALIGN - (asize & (WS_MEM_ALIGN-1))) & (WS_MEM_ALIGN-1);
 
 	asize += pad;
 
