@@ -137,6 +137,7 @@ typedef struct
 
 	fp_dch_chanel_info_t fp_dch_chanel_info[FP_maxNrOfTFs];
 
+	enum   fp_hsdsch_entity hsdsch_entity;
 }umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);

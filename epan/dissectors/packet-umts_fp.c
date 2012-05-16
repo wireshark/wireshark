@@ -3140,7 +3140,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 	fpi->channel = p_conv_data->channel;
 	fpi->dch_crc_present = p_conv_data->dch_crc_present;
 	/*fpi->paging_indications;*/
-    fpi->num_chans = p_conv_data->num_dch_in_flow;
+	fpi->link_type = FP_Link_Ethernet;
 
 	if(pinfo->link_dir==P2P_DIR_UL){
 		fpi->is_uplink = TRUE;
@@ -3148,29 +3148,42 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 		fpi->is_uplink = FALSE;
 	}
 
-	/* Peek at the packet as the per packet info seems not to take the tfi into account */
-	oct = tvb_get_guint8(tvb,offset);
-	if((oct&0x01) == 1){
-		/* control frame, we're done */
+	switch(fpi->channel){
+	case CHANNEL_HSDSCH:
+		fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
 		return fpi;
-	}
+	case CHANNEL_DCH:
+		fpi->num_chans = p_conv_data->num_dch_in_flow;
 
-	/* Set offset to point to first TFI
-	 * the Number of TFI's = number of DCH's in the flow 
-	 */
-	offset = 2;
 
-	for(i=0;i<fpi->num_chans;i++){
-		tfi = tvb_get_guint8(tvb,offset);
-		if(pinfo->link_dir==P2P_DIR_UL){
-			fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
-			fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
-		}else{
-			fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
-			fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
+		/* Peek at the packet as the per packet info seems not to take the tfi into account */
+		oct = tvb_get_guint8(tvb,offset);
+		if((oct&0x01) == 1){
+			/* control frame, we're done */
+			return fpi;
 		}
-		offset++;
+
+		/* Set offset to point to first TFI
+		 * the Number of TFI's = number of DCH's in the flow 
+		 */
+		offset = 2;
+
+		for(i=0;i<fpi->num_chans;i++){
+			tfi = tvb_get_guint8(tvb,offset);
+			if(pinfo->link_dir==P2P_DIR_UL){
+				fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
+				fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
+			}else{
+				fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
+				fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
+			}
+			offset++;
+		}
+		break;
+	default:
+		return NULL;
 	}
+
 #if 0
 	/* remaining data to be set */
     no_ddi_entries;

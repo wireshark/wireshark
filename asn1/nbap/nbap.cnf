@@ -491,9 +491,9 @@ guint32 payload_crc_value;
 		g_nbap_msg_info_for_fp.dch_crc_present = FALSE;
 	}
 
-##.FN_BODY DCH-ID VAL_PTR = &dch_id
+#.FN_BODY DCH-ID VAL_PTR = &t_dch_id
 #%(DEFAULT_BODY)s
-#	if(g_num_dch_in_flow>0);
+#	if(g_num_dch_in_flow>0)
 #		g_dchs_in_flow_list[g_num_dch_in_flow-1]=dch_id;
 #
 # Only get the DCH-ID in this particularcase
@@ -505,6 +505,10 @@ guint32 payload_crc_value;
 	if(g_num_dch_in_flow>0)
 		g_dchs_in_flow_list[g_num_dch_in_flow-1]=dch_id;
 
+#.FN_BODY DCH-ModifySpecificItem-FDD/dCH-ID
+
+%(DEFAULT_BODY)s
+	dch_id = t_dch_id;
 
 #.FN_BODY CommonPhysicalChannelID VAL_PTR = &commonphysicalchannelid
 %(DEFAULT_BODY)s
@@ -601,12 +605,6 @@ guint32 NrOfTransportBlocks;
 				nbap_dch_chnl_info[dch_id].num_dl_chans++;
 				nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case CPCH:
-				nbap_dch_chnl_info[dch_id].num_ul_chans++;
-				nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-				nbap_dch_chnl_info[dch_id].num_dl_chans++;
-				nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-				break;
 			default:
 				break;
 		}
@@ -623,10 +621,6 @@ guint32 TransportBlockSize;
 				nbap_dch_chnl_info[dch_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
 			case DCH_DL:
-				nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
-				break;
-			case CPCH:
-				nbap_dch_chnl_info[dch_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
 			default:
@@ -743,6 +737,7 @@ BindingID_port = 0;
 
 address 	dst_addr, null_addr;
 conversation_t *conversation;
+umts_fp_conversation_info_t *umts_fp_conversation_info;
 
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
@@ -771,6 +766,18 @@ BindingID_port = 0;
 
 			/* Set dissector */
 			conversation_set_dissector(conversation, fp_handle);
+
+			if(actx->pinfo->link_dir==P2P_DIR_DL){
+				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+				/* Fill in the HSDSCH relevant data */
+
+				umts_fp_conversation_info->iface_type        = IuB_Interface;
+				umts_fp_conversation_info->division          = Division_FDD;
+				umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
+
+				umts_fp_conversation_info->hsdsch_entity = hs;
+				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+			}
 		}
 
 
