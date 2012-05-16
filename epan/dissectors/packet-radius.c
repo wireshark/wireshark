@@ -267,7 +267,9 @@ static gboolean radius_call_equal(gconstpointer k1, gconstpointer k2)
 			return TRUE;
 		/* check the request and response are of the same code type */
 		if ((key1->code == RADIUS_PKT_TYPE_ACCESS_REQUEST) &&
-		    ((key2->code == RADIUS_PKT_TYPE_ACCESS_ACCEPT) || (key2->code == RADIUS_PKT_TYPE_ACCESS_REJECT)))
+		    ((key2->code == RADIUS_PKT_TYPE_ACCESS_ACCEPT) ||
+		     (key2->code == RADIUS_PKT_TYPE_ACCESS_REJECT) ||
+		     (key2->code == RADIUS_PKT_TYPE_ACCESS_CHALLENGE)))
 			return TRUE;
 
 		if ((key1->code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST) &&
@@ -1555,6 +1557,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case RADIUS_PKT_TYPE_DISCONNECT_NAK:
 		case RADIUS_PKT_TYPE_COA_ACK:
 		case RADIUS_PKT_TYPE_COA_NAK:
+		case RADIUS_PKT_TYPE_ACCESS_CHALLENGE:
 			/* Don't bother finding conversations if we're encapsulated within
 			 * an error packet, such as an ICMP destination unreachable */
 			if (pinfo->flags.in_error_pkt)
