@@ -155,10 +155,13 @@ static const value_string playback_server_message_types[] = {
     { 0, NULL }
 };
 
+#define SPICE_AUDIO_DATA_MODE_INVALID 0
+#define SPICE_AUDIO_DATA_MODE_RAW 1
+#define SPICE_AUDIO_DATA_MODE_CELT_0_5_1 2
 static const value_string playback_mode_vals[] = {
-    { 0, "INVALID" },
-    { 1, "RAW" },
-    { 2, "CELT_0_5_1" },
+    { SPICE_AUDIO_DATA_MODE_INVALID, "INVALID" },
+    { SPICE_AUDIO_DATA_MODE_RAW, "RAW" },
+    { SPICE_AUDIO_DATA_MODE_CELT_0_5_1, "CELT_0_5_1" },
     { 0, NULL }
 };
 
@@ -304,6 +307,10 @@ static const value_string record_client_message_types[] = {
 #define SPICE_RECORD_CAP_VOLUME_MASK (1 << SPICE_RECORD_CAP_VOLUME)
 
 /* display channel */
+#define SPICE_DISPLAY_CAP_SIZED_STREAM 0
+
+#define SPICE_DISPLAY_CAP_SIZED_STREAM_MASK (1 << SPICE_DISPLAY_CAP_SIZED_STREAM)
+
 /* display channel server messages */
 #define SPICE_DISPLAY_MODE                  101
 #define SPICE_DISPLAY_MARK                  102
@@ -332,6 +339,7 @@ static const value_string record_client_message_types[] = {
 #define SPICE_DISPLAY_DRAW_ALPHA_BLEND      313
 #define SPICE_DISPLAY_DRAW_SURFACE_CREATE   314
 #define SPICE_DISPLAY_DRAW_SURFACE_DESTROY  315
+#define SPICE_DISPLAY_STREAM_DATA_SIZED     316
 
 static const value_string display_server_message_types[] = {
     { SPICE_DISPLAY_MODE,                 "MODE" },
@@ -361,6 +369,7 @@ static const value_string display_server_message_types[] = {
     { SPICE_DISPLAY_DRAW_ALPHA_BLEND,     "DRAW_ALPHA_BLEND" },
     { SPICE_DISPLAY_DRAW_SURFACE_CREATE,  "DRAW_SURFACE_CREATE" },
     { SPICE_DISPLAY_DRAW_SURFACE_DESTROY, "DRAW_SURFACE_DESTROY" },
+    { SPICE_DISPLAY_STREAM_DATA_SIZED,    "STREAM_DATA_SIZED" },
     { 0, NULL }
 };
 
@@ -565,6 +574,7 @@ typedef struct {
     guint32 server_auth;
     guint32 auth_selected;
     spice_session_state_e next_state;
+    guint16 playback_mode;
     guint8 channel_type;
     guint8 channel_id;
     gboolean client_mini_header;
@@ -897,7 +907,6 @@ static int hf_auth_select_client = -1;
 static int hf_ticket_server = -1;
 static int hf_main_cap_semi_migrate = -1;
 static int hf_main_cap_vm_name_uuid = -1;
-static int hf_display_cap = -1;
 static int hf_inputs_cap = -1;
 static int hf_cursor_cap = -1;
 static int hf_common_cap_byte1 = -1;
@@ -1003,6 +1012,7 @@ static int hf_playback_cap_celt = -1;
 static int hf_playback_cap_volume = -1;
 static int hf_record_cap_volume = -1;
 static int hf_record_cap_celt = -1;
+static int hf_display_cap_sized_stream = -1;
 static int hf_vm_uuid = -1;
 static int hf_vm_name = -1;
 
@@ -2200,6 +2210,20 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
+        case SPICE_DISPLAY_STREAM_DATA_SIZED:
+            proto_tree_add_item(tree, hf_display_stream_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_multi_media_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_display_stream_width, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(tree, hf_display_stream_height, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            dissect_SpiceRect(tvb, tree, offset, -1);
+            offset += sizeof_SpiceRect;
+            proto_tree_add_item(tree, hf_display_stream_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            break;
         case SPICE_DISPLAY_STREAM_DESTROY_ALL:
             proto_tree_add_text(tree, tvb, offset, 0, "DISPLAY_STREAM_DESTROY_ALL message");
             break;
@@ -2227,7 +2251,7 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 }
 
 static guint32
-dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
+dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 message_size, spice_conversation_t *spice_info, guint32 offset)
 {
     guint8 num_channels, mute;
 
@@ -2235,11 +2259,23 @@ dissect_spice_playback_server(tvbuff_t *tvb, proto_tree *tree, const guint16 mes
         case SPICE_PLAYBACK_DATA:
             proto_tree_add_item(tree, hf_playback_record_mode_timstamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            /* TODO - mode dependent, there may be more data here */
+            switch (spice_info->playback_mode) {
+                case SPICE_AUDIO_DATA_MODE_RAW:
+                    proto_tree_add_text(tree, tvb, offset, message_size - 4, "RAW playback data");
+                    break; 
+                case SPICE_AUDIO_DATA_MODE_CELT_0_5_1:
+                    proto_tree_add_text(tree, tvb, offset, message_size - 4, "CELT 0.5.1 encoded playback data");
+                    break;
+                default:
+                    proto_tree_add_text(tree, tvb, offset, message_size - 4, "unknown playback mode: %u", spice_info->playback_mode);
+                    break;
+            }
+            offset += (message_size - 4);
             break;
         case SPICE_PLAYBACK_MODE:
             proto_tree_add_item(tree, hf_playback_record_mode_timstamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+            spice_info->playback_mode = tvb_get_letohs(tvb, offset);
             proto_tree_add_item(tree, hf_playback_record_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             /* TODO - mode dependent, there may be more data here */
@@ -2456,7 +2492,7 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             name_len = tvb_get_letohl(tvb, offset);
             proto_tree_add_text(tree, tvb, offset, 4, "Name length (bytes): %u", name_len);
             offset += 4;
-            proto_tree_add_item(tree, hf_vm_name, tvb, offset, name_len, ENC_NA);
+            proto_tree_add_item(tree, hf_vm_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
             offset += name_len;
             break;
         case SPICE_MAIN_UUID:
@@ -2696,7 +2732,7 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 
     switch (spice_info->channel_type) {
         case SPICE_CHANNEL_PLAYBACK:
-            offset = dissect_spice_playback_server(tvb, message_tree, message_type, offset);
+            offset = dissect_spice_playback_server(tvb, message_tree, message_type, message_size, spice_info, offset);
             break;
         case SPICE_CHANNEL_RECORD:
             offset = dissect_spice_record_server(tvb, message_tree, message_type, offset);
@@ -2878,7 +2914,15 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
                 }
                 break;
             case SPICE_CHANNEL_DISPLAY:
-                proto_tree_add_item(tree, hf_display_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                switch (i) {
+                    case 0:
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
+                        proto_tree_add_boolean(cap_tree, hf_display_cap_sized_stream, tvb, offset, 4, val);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case SPICE_CHANNEL_INPUTS:
                 proto_tree_add_item(tree, hf_inputs_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3033,6 +3077,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         spice_info->next_state = SPICE_LINK_CLIENT;
         spice_info->client_auth = 0;
         spice_info->server_auth = 0;
+        spice_info->playback_mode = SPICE_AUDIO_DATA_MODE_INVALID;
         spice_info->client_mini_header = FALSE;
         spice_info->server_mini_header = FALSE;
         conversation_add_proto_data(conversation, proto_spice, spice_info);
@@ -3526,7 +3571,7 @@ proto_register_spice(void)
         },
         { &hf_common_cap_byte1,
           { "Capabilitities", "spice.common_cap_byte1",
-            FT_NONE, BASE_NONE, 0, 0,
+            FT_UINT32, BASE_NONE, 0, 0,
             NULL, HFILL }
         },
         { &hf_common_cap_auth_select,
@@ -3569,6 +3614,11 @@ proto_register_spice(void)
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_RECORD_CAP_CELT_0_5_1_MASK,
             NULL, HFILL }
         },
+        { &hf_display_cap_sized_stream,
+          { "Sized stream display channel support", "spice.display_cap_sized_stream",
+            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_SIZED_STREAM_MASK,
+            NULL, HFILL }
+        },
         { &hf_cursor_cap,
           { "Cursor channel capability", "spice.cursor_cap",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3587,11 +3637,6 @@ proto_register_spice(void)
         { &hf_main_cap_vm_name_uuid,
           { "VM name and UUID messages capability", "spice.main_cap_vm_name_uuid",
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_MAIN_CAP_VM_NAME_UUID_MASK,
-            NULL, HFILL }
-        },
-        { &hf_display_cap,
-          { "Display channelcapability", "spice.display_cap",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_playback_record_mode_timstamp,
