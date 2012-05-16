@@ -20,7 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-# 
+#
 
 if [ "$WS_SYSTEM" == "Windows" ] ; then
 	MAKE="nmake -f Makefile.nmake"
@@ -41,8 +41,8 @@ unittests_step_test() {
     # dir before we can use them.
     # {Note that 'INSTALL_DIR' must be a Windows Pathname)
 	if [ "$WS_SYSTEM" == "Windows" ] ; then
-		(cd `dirname $DUT` && $MAKE `basename $DUT`_install INSTALL_DIR='..\wireshark-gtk2') > testout.txt 2>&1
-		if [ $? -ne 0 ]; then 
+		(cd `dirname $DUT` && $MAKE `basename $DUT`_install INSTALL_DIR='wireshark-gtk2\') > testout.txt 2>&1
+		if [ $? -ne 0 ]; then
 			echo
 			cat ./testout.txt
 			test_step_failed "install $DUT failed"
