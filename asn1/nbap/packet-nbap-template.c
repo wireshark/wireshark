@@ -109,6 +109,7 @@ typedef struct
 
 nbap_dch_chanel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
 gint g_num_dch_in_flow;
+/* maxNrOfTFs					INTEGER ::= 32 */
 gint g_dchs_in_flow_list[maxNrOfTFs];
 
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;

@@ -3124,12 +3124,13 @@ static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static fp_info*
-fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff_t *tvb, packet_info *pinfo)
+fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	fp_info *fpi;
 	guint8 tfi;
 	int offset = 0, i;
 	gboolean is_control_frame;
+	proto_item *item;
 
 	fpi = ep_alloc0(sizeof(fp_info));
 
@@ -3180,10 +3181,13 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 			if(pinfo->link_dir==P2P_DIR_UL){
 				fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
 				fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
+				item = proto_tree_add_text(tree,tvb,offset,1,"TFI %u: UL TBs %u size %u",tfi, fpi->chan_num_tbs[i],fpi->chan_tf_size[i]);
 			}else{
 				fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
 				fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
-			}
+				item = proto_tree_add_text(tree,tvb,offset,1,"TFI %u: DL TBs %u size %u",tfi, fpi->chan_num_tbs[i],fpi->chan_tf_size[i]);
+		}
+			PROTO_ITEM_SET_GENERATED(item);
 			offset++;
 		}
 		break;
@@ -3250,7 +3254,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* CRNC -> Node B */
 				pinfo->link_dir=P2P_DIR_UL;
 				if (p_fp_info == NULL){
-					p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo);
+					p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo, fp_tree);
 				}
 			}else{
 				proto_item* item = proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
@@ -3258,7 +3262,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				PROTO_ITEM_SET_GENERATED(item);
 				pinfo->link_dir=P2P_DIR_DL;
 				if (p_fp_info == NULL){
-					p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo);
+					p_fp_info = fp_set_per_packet_inf_from_conv(p_conv_data, tvb, pinfo, fp_tree);
 				}
 			}
 		}

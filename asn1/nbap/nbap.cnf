@@ -287,9 +287,14 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 
 # RadioLinkReconfigurationPrepareFDD
 #.FN_HDR RadioLinkReconfigurationPrepareFDD
-col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationPrepare(FDD) ");
-/* CRNC -> Node B */
-actx->pinfo->link_dir=P2P_DIR_DL;
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationPrepare(FDD) ");
+	/* CRNC -> Node B */
+	actx->pinfo->link_dir=P2P_DIR_DL;
+	g_nbap_msg_info_for_fp.ProcedureCode = ProcedureCode;
+	g_nbap_msg_info_for_fp.ddMode = ddMode;
+	g_nbap_msg_info_for_fp.is_uplink = TRUE;
+	g_nbap_msg_info_for_fp.dch_crc_present = 2; /* unknown */
+
 
 # RadioLinkReconfigurationReady
 #.FN_HDR RadioLinkReconfigurationReady
@@ -583,6 +588,14 @@ transportFormatSet_type = CPCH;
 	transportFormatSet_type = DCH_DL;
 	nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
+#.FN_HDR DCH-ModifySpecificItem-FDD/ul-TransportFormatSet
+	transportFormatSet_type = DCH_UL;
+	nbap_dch_chnl_info[dch_id].num_ul_chans = 0;
+
+#.FN_HDR DCH-ModifySpecificItem-FDD/dl-TransportFormatSet
+	transportFormatSet_type = DCH_DL;
+	nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
+
 #.FN_HDR TransportFormatSet-DynamicPartList
 	num_items = 0;
 
@@ -628,6 +641,10 @@ guint32 TransportBlockSize;
 		}
 	}
 
+#.FN_BODY RL-Specific-DCH-Info-Item/dCH-id
+
+%(DEFAULT_BODY)s
+	dch_id = t_dch_id;
 
 #.FN_BODY RL-Specific-DCH-Info-Item
 address 	dst_addr, null_addr;
@@ -677,6 +694,10 @@ dch_id = 0xFFFFFFFF;
 				/* DCH's in this flow */
 				umts_fp_conversation_info->num_dch_in_flow = g_num_dch_in_flow;
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+				/* Temp kludge to owercome a problem with multiple single flows in one MSG */
+				if(g_num_dch_in_flow == 1){
+					g_dchs_in_flow_list[0] = dch_id;
+				}
 				for (i = 0; i < g_num_dch_in_flow; i++) {
 					umts_fp_conversation_info->dchs_in_flow_list[i] = g_dchs_in_flow_list[i];
 
