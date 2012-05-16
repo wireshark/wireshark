@@ -3538,6 +3538,7 @@ void iax2_analysis(
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't create temporary file for IAX2 analysis:\n%s.",
 			      g_strerror(errno));
+		g_free(user_data);
 		return;
 	}
 	user_data->f_tempname = g_strdup(tempname);
@@ -3547,6 +3548,8 @@ void iax2_analysis(
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "Can't create temporary file for IAX2 analysis:\n%s.",
 			      g_strerror(errno));
+		g_free(user_data->f_tempname);
+		g_free(user_data);
 		return;
 	}
 	user_data->r_tempname = g_strdup(tempname);
