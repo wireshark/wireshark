@@ -39,12 +39,46 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
           </para>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
+            Infinite and large loops in the ANSI MAP, Bluetooth HCI, IEEE 802.3, LTP,
+	    have been fixed. Most were discovered by Laurent Butti.
+            <!-- Fixed in trunk: r41741 (802.3) -->
+            <!-- Fixed in trunk: r42129 (ANSI MAP) -->
+            <!-- Fixed in trunk: r42114 (BTHCI) -->
+            <!-- Fixed in trunk: r42116 (BTHCI) -->
+            <!-- Fixed in trunk: r42121 (LTP) -->
+
+            <!-- Fixed in trunk-1.6: r42665 (802.3) -->
+            <!-- Fixed in trunk-1.6: r42374 (ANSI MAP) -->
+            <!-- Fixed in trunk-1.6: r42451 (BTHCI) -->
+
+
             <!-- Fixed in trunk-1.6: r????? -->
             <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>)
+	    7122
+	    7119
+	    7124
+	    7125
+	    7118
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.6.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-09.html">wnpa-sec-2012-09</ulink>
+          </para>
+          <para>
+            The DIAMETER dissector could try to allocate memory improperly and crash.
+            <!-- Fixed in trunk: r42200 -->
+            <!-- Fixed in trunk-1.6: r42369 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7138">Bug
+            7138</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.6.</para>
           <!-- <para>
@@ -73,7 +107,39 @@ Wireshark Info
 -->
 
         <listitem><para>
-	  Wireshark could crash while reading SSL decryption keys on 64-bit Windows.
+          Wireshark doesn't calculate the right IPv4 destination using source routing options when bad options precede them.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7043">Bug
+          7043</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BOOTP dissector issue with DHCP option 82 - suboption 9.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7047">Bug
+          7047</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ANSI MAP infinite loop.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7119">Bug
+          7119</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          HCIEVT infinite loop.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7122">Bug
+          7122</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark doesn't decode NFSv4.1 operations.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7127">Bug
+          7127</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          LTP infinite loop.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7124">Bug
+          7124</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -102,6 +168,13 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ANSI MAP,
+Bluetooth HCI,
+DHCP,
+DIAMETER,
+IPv4,
+LTP,
+NFS,
 
     </para>
     </section>
@@ -109,7 +182,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-
+pcap, pcap-ng
 
     </para>
     </section>

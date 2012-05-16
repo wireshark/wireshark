@@ -1,108 +1,16 @@
 ------------------------------------------------------------------------
-r41830 | gerald | 2012-03-29 13:19:56 -0700 (Thu, 29 Mar 2012) | 2 lines
+r41975 | gerald | 2012-04-06 13:03:55 -0700 (Fri, 06 Apr 2012) | 2 lines
 Changed paths:
    M /trunk-1.6/config.nmake
-   M /trunk-1.6/tools/win64-setup.sh
-
-Use the GnuTLS 2.12.18-1.2-1 bundle.
-
-------------------------------------------------------------------------
-r41854 | gerald | 2012-03-30 10:53:59 -0700 (Fri, 30 Mar 2012) | 3 lines
-Changed paths:
-   M /trunk-1.6/Makefile.am
-
-Remove the dependency on tools/make-services.pl for the services target.
-This is likely the cause of unwanted "services" file build attempts.
-
-------------------------------------------------------------------------
-r41879 | gerald | 2012-04-01 07:33:58 -0700 (Sun, 01 Apr 2012) | 1 line
-Changed paths:
-   M /trunk-1.6/epan/enterprise-numbers
-   M /trunk-1.6/manuf
-   M /trunk-1.6/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-04-01]
-------------------------------------------------------------------------
-r41940 | cmaynard | 2012-04-04 12:39:52 -0700 (Wed, 04 Apr 2012) | 2 lines
-Changed paths:
+   M /trunk-1.6/configure.in
+   M /trunk-1.6/debian/changelog
+   M /trunk-1.6/debian/wireshark-common.files
    M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/Makefile.am
+   M /trunk-1.6/make-version.pl
+   M /trunk-1.6/version.conf
+   M /trunk-1.6/wiretap/Makefile.am
 
-Bug 3046 was fixed at one point but is back again, so add it back to the list of known bugs.
-
-------------------------------------------------------------------------
-r41972 | gerald | 2012-04-06 10:43:35 -0700 (Fri, 06 Apr 2012) | 65 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/dumpcap.c
-   M /trunk-1.6/epan/dissectors/packet-h263.c
-   M /trunk-1.6/gtk/hostlist_table.c
-   M /trunk-1.6/ipmap.html
-   M /trunk-1.6/packaging/nsis/Makefile.nmake
-   M /trunk-1.6/packaging/nsis/wireshark.nsi
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r41876 | etxrab | 2012-04-01 02:20:35 -0700 (Sun, 01 Apr 2012) | 1 line
-  Changed paths:
-     M /trunk/epan/dissectors/packet-h263.c
-
-  At least 4 bytes is required to check PSC, fixes bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6996
-  r41937 | guy | 2012-04-04 12:13:39 -0700 (Wed, 04 Apr 2012) | 6 lines
-  Changed paths:
-     M /trunk/dumpcap.c
-
-  Work around WinPcap bug wherein pcap_open() returns -1 without putting
-  an error message into errbuf (the bug has been reported to
-  winpcap-bugs).
-
-  Should fix bug 6922.
-  ------------------------------------------------------------------------
-  r41941 | guy | 2012-04-04 12:46:45 -0700 (Wed, 04 Apr 2012) | 2 lines
-  Changed paths:
-     M /trunk/dumpcap.c
-
-  Fix tpo.
-  ------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r41914 | gerald | 2012-04-03 17:47:21 -0700 (Tue, 03 Apr 2012) | 9 lines
-  Changed paths:
-     M /trunk/packaging/nsis/Makefile.nmake
-     M /trunk/packaging/nsis/wireshark.nsi
-
-  Add and update a bunch of Programs and Features-related registry
-  keys. Sort the keys by name. Calculate the installation size after all
-  of the files have been installed and add that in the "EstimatedSize"
-  key. Fix the display icon. Add a hint about our target platform. Add
-  version information.
-
-  We now look like a grown-up application in the Programs and Features
-  control panel.
-  ------------------------------------------------------------------------
-  r41938 | guy | 2012-04-04 12:26:07 -0700 (Wed, 04 Apr 2012) | 2 lines
-  Changed paths:
-     M /trunk/dumpcap.c
-
-  Work around that WinPcap bug for another pcap_open() call.
-  ------------------------------------------------------------------------
-  r41967 | gerald | 2012-04-05 15:10:53 -0700 (Thu, 05 Apr 2012) | 7 lines
-  Changed paths:
-     M /trunk/ipmap.html
-     M /trunk/ui/gtk/hostlist_table.c
-
-  Instead of loading our coordinates from a separate text file via
-  OpenLayers.Layer.Text, insert them into a JSON array and load them using
-  OpenLayers.Layer.Vector + OpenLayers.Format.GeoJSON. This should fix the
-  endpoint map feature on modern browsers.
-
-  Switch OpenStreetMap to a simpler map from OSGeo.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
+1.6.7 → 1.6.8.
 
 ------------------------------------------------------------------------
