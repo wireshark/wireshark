@@ -3132,7 +3132,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 	gboolean is_control_frame;
 	proto_item *item;
 
-	fpi = ep_alloc0(sizeof(fp_info));
+	fpi = se_alloc0(sizeof(fp_info));
+	p_add_proto_data(pinfo->fd, proto_fp, fpi);
 
 	fpi->iface_type = p_conv_data->iface_type;
 	fpi->division = p_conv_data->division;
@@ -3155,17 +3156,10 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 	switch(fpi->channel){
 	case CHANNEL_HSDSCH:
 		fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
-		if(is_control_frame){
-			return fpi;
-		}else{
-			/* data frames is broken */
-			return NULL;
-		}
+		return fpi;
+
 	case CHANNEL_DCH:
 		fpi->num_chans = p_conv_data->num_dch_in_flow;
-
-
-		/* Peek at the packet as the per packet info seems not to take the tfi into account */
 		if(is_control_frame){
 			/* control frame, we're done */
 			return fpi;
@@ -3176,6 +3170,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 		 */
 		offset = 2;
 
+		/* Peek at the packet as the per packet info seems not to take the tfi into account */
 		for(i=0;i<fpi->num_chans;i++){
 			tfi = tvb_get_guint8(tvb,offset);
 			if(pinfo->link_dir==P2P_DIR_UL){
