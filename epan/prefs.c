@@ -235,7 +235,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	module->description = description;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
-	module->submodules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_submodules");
+	module->submodules = NULL;	/* no submodules, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
 	module->obsolete = FALSE;
@@ -299,6 +299,10 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		/*
 		 * It goes into the list for this module.
 		 */
+
+		if (parent->submodules == NULL)
+			parent->submodules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_submodules");
+
 		pe_tree_insert_string(parent->submodules, title, module, EMEM_TREE_STRING_NOCASE);
 	}
 
@@ -2087,7 +2091,7 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_CAP_AUTO_SCROLL          "capture.auto_scroll"
 #define PRS_CAP_SHOW_INFO            "capture.show_info"
 
-/* obsolete preference */ 
+/* obsolete preference */
 #define PRS_CAP_SYNTAX_CHECK_FILTER  "capture.syntax_check_filter"
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
