@@ -81,6 +81,7 @@ static int mgcp_tcp_port_count;
 static int mgcp_udp_port_count;
 
 e_prefs prefs;
+static e_prefs default_prefs;
 
 static const gchar	*gui_ptree_line_style_text[] =
 	{ "NONE", "SOLID", "DOTTED", "TABBED", NULL };
@@ -1213,7 +1214,8 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
  *  user's preferences file.
  */
 static void
-init_prefs(void) {
+init_prefs(void)
+{
   int         i;
   fmt_data    *cfmt;
   static const gchar *col_fmt[DEF_NUM_COLS*2] = {
@@ -1396,6 +1398,9 @@ init_prefs(void) {
   filter_expression_init(TRUE);
 
   prefs_initialized = TRUE;
+
+  /* Keep a copy of the default preferences established here */
+  copy_prefs(&default_prefs, &prefs);
 }
 
 /*
@@ -3214,171 +3219,239 @@ write_prefs(char **pf_path_return)
 	"#\n"
 	"# This file is regenerated each time preferences are saved within\n"
 	"# Wireshark.  Making manual changes should be safe, however.\n"
-	"# Protocol preferences that have been commented out have not been\n"
+	"# Preferences that have been commented out have not been\n"
 	"# changed from their default value.\n", pf);
 
   fprintf (pf, "\n######## User Interface ########\n");
 
   fprintf(pf, "\n# Vertical scrollbars should be on right side?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_scrollbar_on_right == default_prefs.gui_scrollbar_on_right)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_SCROLLBAR_ON_RIGHT ": %s\n",
 	  prefs.gui_scrollbar_on_right == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Packet-list selection bar can be used to browse w/o selecting?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_plist_sel_browse == default_prefs.gui_plist_sel_browse)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_PLIST_SEL_BROWSE ": %s\n",
 	  prefs.gui_plist_sel_browse == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Protocol-tree selection bar can be used to browse w/o selecting?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_ptree_sel_browse == default_prefs.gui_ptree_sel_browse)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_PTREE_SEL_BROWSE ": %s\n",
 	  prefs.gui_ptree_sel_browse == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Alternating colors in TreeViews?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_altern_colors == default_prefs.gui_altern_colors)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_ALTERN_COLORS ": %s\n",
 	  prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Display LEDs on Expert Composite Dialog Tabs?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_expert_composite_eyecandy == default_prefs.gui_expert_composite_eyecandy)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_EXPERT_COMPOSITE_EYECANDY ": %s\n",
 	  prefs.gui_expert_composite_eyecandy == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Place filter toolbar inside the statusbar?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.filter_toolbar_show_in_statusbar == default_prefs.filter_toolbar_show_in_statusbar)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR ": %s\n",
 	 prefs.filter_toolbar_show_in_statusbar == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Protocol-tree line style.\n");
   fprintf(pf, "# One of: NONE, SOLID, DOTTED, TABBED\n");
+  if (prefs.gui_ptree_line_style == default_prefs.gui_ptree_line_style)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_PTREE_LINE_STYLE ": %s\n",
           gui_ptree_line_style_text[prefs.gui_ptree_line_style]);
 
   fprintf(pf, "\n# Protocol-tree expander style.\n");
   fprintf(pf, "# One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
+  if (prefs.gui_ptree_expander_style == default_prefs.gui_ptree_expander_style)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
 	  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
 
   fprintf(pf, "\n# Hex dump highlight style.\n");
   fprintf(pf, "# One of: BOLD, INVERSE\n");
+  if (prefs.gui_hex_dump_highlight_style == default_prefs.gui_hex_dump_highlight_style)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE ": %s\n",
 	  gui_hex_dump_highlight_style_text[prefs.gui_hex_dump_highlight_style]);
 
   fprintf(pf, "\n# Main Toolbar style.\n");
   fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
+  if (prefs.gui_toolbar_main_style == default_prefs.gui_toolbar_main_style)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
 	  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
 
   fprintf(pf, "\n# Filter Toolbar style.\n");
   fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
+  if (prefs.gui_toolbar_filter_style == default_prefs.gui_toolbar_filter_style)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_TOOLBAR_FILTER_STYLE ": %s\n",
 	  gui_toolbar_style_text[prefs.gui_toolbar_filter_style]);
 
   fprintf(pf, "\n# Save window position at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_geometry_save_position == default_prefs.gui_geometry_save_position)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_POSITION ": %s\n",
 	  prefs.gui_geometry_save_position == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Save window size at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_geometry_save_size == default_prefs.gui_geometry_save_size)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_SIZE ": %s\n",
 	  prefs.gui_geometry_save_size == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Save window maximized state at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_geometry_save_maximized == default_prefs.gui_geometry_save_maximized)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED ": %s\n",
 	  prefs.gui_geometry_save_maximized == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Use Mac OS X style (Mac OS X with native GTK only)?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_macosx_style == default_prefs.gui_macosx_style)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_MACOSX_STYLE ": %s\n",
 	  prefs.gui_macosx_style == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Open a console window (WIN32 only)?\n");
   fprintf(pf, "# One of: NEVER, AUTOMATIC, ALWAYS\n");
+  if (prefs.gui_console_open == default_prefs.gui_console_open)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_CONSOLE_OPEN ": %s\n",
 	  gui_console_open_text[prefs.gui_console_open]);
 
   fprintf(pf, "\n# The max. number of entries in the display filter list.\n");
   fprintf(pf, "# A decimal number.\n");
+  if (prefs.gui_recent_df_entries_max == default_prefs.gui_recent_df_entries_max)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_RECENT_DF_ENTRIES_MAX ": %d\n",
 	  prefs.gui_recent_df_entries_max);
 
   fprintf(pf, "\n# The max. number of items in the open recent files list.\n");
   fprintf(pf, "# A decimal number.\n");
+  if (prefs.gui_recent_files_count_max == default_prefs.gui_recent_files_count_max)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_RECENT_COUNT_MAX ": %d\n",
 	  prefs.gui_recent_files_count_max);
 
   fprintf(pf, "\n# Where to start the File Open dialog box.\n");
   fprintf(pf, "# One of: LAST_OPENED, SPECIFIED\n");
+  if (prefs.gui_fileopen_style == default_prefs.gui_fileopen_style)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_FILEOPEN_STYLE ": %s\n",
 	  gui_fileopen_style_text[prefs.gui_fileopen_style]);
 
   if (prefs.gui_fileopen_dir != NULL) {
     fprintf(pf, "\n# Directory to start in when opening File Open dialog.\n");
+    if (strcmp(prefs.gui_fileopen_dir, default_prefs.gui_fileopen_dir) == 0)
+      fprintf(pf, "#");
     fprintf(pf, PRS_GUI_FILEOPEN_DIR ": %s\n",
 	    prefs.gui_fileopen_dir);
   }
 
   fprintf(pf, "\n# The preview timeout in the File Open dialog.\n");
   fprintf(pf, "# A decimal number (in seconds).\n");
+  if (prefs.gui_fileopen_preview == default_prefs.gui_fileopen_preview)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_FILEOPEN_PREVIEW ": %d\n",
 	  prefs.gui_fileopen_preview);
 
   fprintf(pf, "\n# Ask to save unsaved capture files?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_ask_unsaved == default_prefs.gui_ask_unsaved)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_ASK_UNSAVED ": %s\n",
 	  prefs.gui_ask_unsaved == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Wrap to beginning/end of file during search?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_find_wrap == default_prefs.gui_find_wrap)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_FIND_WRAP ": %s\n",
 	  prefs.gui_find_wrap == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Settings dialogs use a save button?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_use_pref_save == default_prefs.gui_use_pref_save)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_USE_PREF_SAVE ": %s\n",
 	  prefs.gui_use_pref_save == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# The path to the webbrowser.\n");
   fprintf(pf, "# Ex: mozilla %%s\n");
+  if (strcmp(prefs.gui_webbrowser, default_prefs.gui_webbrowser) == 0)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_WEBBROWSER ": %s\n", prefs.gui_webbrowser);
 
   fprintf(pf, "\n# Custom window title. (Appended to existing titles.)\n");
+  if (strcmp(prefs.gui_window_title, default_prefs.gui_window_title) == 0)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_WINDOW_TITLE ": %s\n",
 	  prefs.gui_window_title);
 
   fprintf(pf, "\n# Custom start page title.\n");
+  if (strcmp(prefs.gui_start_title, default_prefs.gui_start_title) == 0)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_START_TITLE ": %s\n",
 	  prefs.gui_start_title);
 
   fprintf(pf, "\n# Show version in the start page and main screen's title bar.\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_version_in_start_page == default_prefs.gui_version_in_start_page)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_VERSION_IN_START_PAGE ": %s\n",
 	  prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Automatically scroll the recently expanded item.\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.gui_auto_scroll_on_expand == default_prefs.gui_auto_scroll_on_expand)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_AUTO_SCROLL ": %s\n",
 	  prefs.gui_auto_scroll_on_expand == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# The percentage down the view the recently expanded item should be scrolled.\n");
   fprintf(pf, "# A decimal number (a percentage).\n");
+  if (prefs.gui_auto_scroll_percentage == default_prefs.gui_auto_scroll_percentage)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_AUTO_SCROLL_PERCENTAGE ": %d\n",
 	  prefs.gui_auto_scroll_percentage);
 
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
   fprintf(pf, "\n# Layout type (1-6).\n");
+  if (prefs.gui_layout_type == default_prefs.gui_layout_type)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_LAYOUT_TYPE ": %d\n",
 	  prefs.gui_layout_type);
 
   fprintf(pf, "\n# Layout content of the panes (1-3).\n");
   fprintf(pf, "# One of: NONE, PLIST, PDETAILS, PBYTES\n");
+  if (prefs.gui_layout_content_1 == default_prefs.gui_layout_content_1)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_LAYOUT_CONTENT_1 ": %s\n",
 	  gui_layout_content_text[prefs.gui_layout_content_1]);
+  if (prefs.gui_layout_content_2 == default_prefs.gui_layout_content_2)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_LAYOUT_CONTENT_2 ": %s\n",
 	  gui_layout_content_text[prefs.gui_layout_content_2]);
+  if (prefs.gui_layout_content_3 == default_prefs.gui_layout_content_3)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_LAYOUT_CONTENT_3 ": %s\n",
 	  gui_layout_content_text[prefs.gui_layout_content_3]);
 
@@ -3425,16 +3498,26 @@ write_prefs(char **pf_path_return)
   fprintf (pf, "\n######## User Interface: Font ########\n");
 
   fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
+  if (strcmp(prefs.gui_font_name, default_prefs.gui_font_name) == 0)
+    fprintf(pf, "#");
   fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name);
 
   fprintf (pf, "\n######## User Interface: Colors ########\n");
 
   fprintf (pf, "\n# Color preferences for a marked frame.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
+  if (prefs.gui_marked_fg.red == default_prefs.gui_marked_fg.red &&
+      prefs.gui_marked_fg.green == default_prefs.gui_marked_fg.green &&
+      prefs.gui_marked_fg.blue == default_prefs.gui_marked_fg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_FG,
 	   (prefs.gui_marked_fg.red * 255 / 65535),
 	   (prefs.gui_marked_fg.green * 255 / 65535),
 	   (prefs.gui_marked_fg.blue * 255 / 65535));
+  if (prefs.gui_marked_bg.red == default_prefs.gui_marked_bg.red &&
+      prefs.gui_marked_bg.green == default_prefs.gui_marked_bg.green &&
+      prefs.gui_marked_bg.blue == default_prefs.gui_marked_bg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_MARKED_BG,
 	   (prefs.gui_marked_bg.red * 255 / 65535),
 	   (prefs.gui_marked_bg.green * 255 / 65535),
@@ -3442,10 +3525,18 @@ write_prefs(char **pf_path_return)
 
   fprintf (pf, "\n# Color preferences for a ignored frame.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
+  if (prefs.gui_ignored_fg.red == default_prefs.gui_ignored_fg.red &&
+      prefs.gui_ignored_fg.green == default_prefs.gui_ignored_fg.green &&
+      prefs.gui_ignored_fg.blue == default_prefs.gui_ignored_fg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_FG,
 	   (prefs.gui_ignored_fg.red * 255 / 65535),
 	   (prefs.gui_ignored_fg.green * 255 / 65535),
 	   (prefs.gui_ignored_fg.blue * 255 / 65535));
+  if (prefs.gui_ignored_bg.red == default_prefs.gui_ignored_bg.red &&
+      prefs.gui_ignored_bg.green == default_prefs.gui_ignored_bg.green &&
+      prefs.gui_ignored_bg.blue == default_prefs.gui_ignored_bg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_GUI_IGNORED_BG,
 	   (prefs.gui_ignored_bg.red * 255 / 65535),
 	   (prefs.gui_ignored_bg.green * 255 / 65535),
@@ -3465,18 +3556,34 @@ write_prefs(char **pf_path_return)
 
   fprintf (pf, "\n# TCP stream window color preferences.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
+  if (prefs.st_client_fg.red == default_prefs.st_client_fg.red &&
+      prefs.st_client_fg.green == default_prefs.st_client_fg.green &&
+      prefs.st_client_fg.blue == default_prefs.st_client_fg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_FG,
 	   (prefs.st_client_fg.red * 255 / 65535),
 	   (prefs.st_client_fg.green * 255 / 65535),
 	   (prefs.st_client_fg.blue * 255 / 65535));
+  if (prefs.st_client_bg.red == default_prefs.st_client_bg.red &&
+      prefs.st_client_bg.green == default_prefs.st_client_bg.green &&
+      prefs.st_client_bg.blue == default_prefs.st_client_bg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_CL_BG,
 	   (prefs.st_client_bg.red * 255 / 65535),
 	   (prefs.st_client_bg.green * 255 / 65535),
 	   (prefs.st_client_bg.blue * 255 / 65535));
+  if (prefs.st_server_fg.red == default_prefs.st_server_fg.red &&
+      prefs.st_server_fg.green == default_prefs.st_server_fg.green &&
+      prefs.st_server_fg.blue == default_prefs.st_server_fg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_FG,
 	   (prefs.st_server_fg.red * 255 / 65535),
 	   (prefs.st_server_fg.green * 255 / 65535),
 	   (prefs.st_server_fg.blue * 255 / 65535));
+  if (prefs.st_server_bg.red == default_prefs.st_server_bg.red &&
+      prefs.st_server_bg.green == default_prefs.st_server_bg.green &&
+      prefs.st_server_bg.blue == default_prefs.st_server_bg.blue)
+    fprintf(pf, "#");
   fprintf (pf, "%s: %02x%02x%02x\n", PRS_STREAM_SR_BG,
 	   (prefs.st_server_bg.red * 255 / 65535),
 	   (prefs.st_server_bg.green * 255 / 65535),
@@ -3492,6 +3599,8 @@ write_prefs(char **pf_path_return)
           "# G_LOG_LEVEL_INFO     = 64\n"
           "# G_LOG_LEVEL_DEBUG    = 128\n");
 
+  if (prefs.console_log_level == default_prefs.console_log_level)
+    fprintf(pf, "#");
   fprintf(pf, PRS_CONSOLE_LOG_LEVEL ": %u\n",
           prefs.console_log_level);
 
@@ -3529,64 +3638,90 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n# Capture in promiscuous mode?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.capture_prom_mode == default_prefs.capture_prom_mode)
+    fprintf(pf, "#");
   fprintf(pf, PRS_CAP_PROM_MODE ": %s\n",
 	  prefs.capture_prom_mode == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Capture in Pcap-NG format?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.capture_pcap_ng == default_prefs.capture_pcap_ng)
+    fprintf(pf, "#");
   fprintf(pf, PRS_CAP_PCAP_NG ": %s\n",
 	  prefs.capture_pcap_ng == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Update packet list in real time during capture?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.capture_real_time == default_prefs.capture_real_time)
+    fprintf(pf, "#");
   fprintf(pf, PRS_CAP_REAL_TIME ": %s\n",
 	  prefs.capture_real_time == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Scroll packet list during capture?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.capture_auto_scroll == default_prefs.capture_auto_scroll)
+    fprintf(pf, "#");
   fprintf(pf, PRS_CAP_AUTO_SCROLL ": %s\n",
 	  prefs.capture_auto_scroll == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Show capture info dialog while capturing?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.capture_show_info == default_prefs.capture_show_info)
+    fprintf(pf, "#");
   fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
 	  prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
 
   fprintf (pf, "\n######## Printing ########\n");
 
-  fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n"
-	   "print.format: %s\n", pr_formats[prefs.pr_format]);
+  fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n");
+  if (prefs.pr_format == default_prefs.pr_format)
+    fprintf(pf, "#");
+  fprintf (pf, "print.format: %s\n", pr_formats[prefs.pr_format]);
 
-  fprintf (pf, "\n# Can be one of \"command\" or \"file\".\n"
-	   "print.destination: %s\n", pr_dests[prefs.pr_dest]);
+  fprintf (pf, "\n# Can be one of \"command\" or \"file\".\n");
+  if (prefs.pr_dest == default_prefs.pr_dest)
+    fprintf(pf, "#");
+  fprintf (pf, "print.destination: %s\n", pr_dests[prefs.pr_dest]);
 
   fprintf (pf, "\n# This is the file that gets written to when the "
-	   "destination is set to \"file\"\n"
-	   "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
+	   "destination is set to \"file\"\n");
+  if (strcmp(prefs.pr_file, default_prefs.pr_file) == 0)
+    fprintf(pf, "#");
+  fprintf (pf, "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
 
   fprintf (pf, "\n# Output gets piped to this command when the destination "
-	   "is set to \"command\"\n"
-	   "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
+	   "is set to \"command\"\n");
+  if (strcmp(prefs.pr_cmd, default_prefs.pr_cmd) == 0)
+    fprintf(pf, "#");
+  fprintf (pf, "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
 
   fprintf(pf, "\n####### Name Resolution ########\n");
 
   fprintf(pf, "\n# Resolve addresses to names?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
+  if (prefs.name_resolve == default_prefs.name_resolve)
+    fprintf(pf, "#");
   fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
 	  name_resolve_to_string(prefs.name_resolve));
 
   fprintf(pf, "\n# Name resolution concurrency.\n");
   fprintf(pf, "# A decimal number.\n");
+  if (prefs.name_resolve_concurrency == default_prefs.name_resolve_concurrency)
+    fprintf(pf, "#");
   fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
 	  prefs.name_resolve_concurrency);
 
   fprintf(pf, "\n# Load SMI modules?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.load_smi_modules == default_prefs.load_smi_modules)
+    fprintf(pf, "#");
   fprintf(pf, PRS_NAME_RESOLVE_LOAD_SMI_MODULES ": %s\n",
 	  prefs.load_smi_modules == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Suppress SMI errors?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.suppress_smi_errors == default_prefs.suppress_smi_errors)
+    fprintf(pf, "#");
   fprintf(pf, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS ": %s\n",
 	  prefs.suppress_smi_errors == TRUE ? "TRUE" : "FALSE");
 
@@ -3594,10 +3729,15 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n# Tap update interval in ms.\n");
   fprintf(pf, "# An integer value greater between 100 and 10000.\n");
+  if (prefs.tap_update_interval == default_prefs.tap_update_interval)
+    fprintf(pf, "#");
   fprintf(pf, PRS_TAP_UPDATE_INTERVAL ": %d\n",
           prefs.tap_update_interval);
+
   fprintf(pf, "\n# Maximum visible channels in RTP Player window.\n");
   fprintf(pf, "# An integer value greater than 0.\n");
+  if (prefs.rtp_player_max_visible == default_prefs.rtp_player_max_visible)
+    fprintf(pf, "#");
   fprintf(pf, PRS_RTP_PLAYER_MAX_VISIBLE ": %d\n",
 	  prefs.rtp_player_max_visible);
 
@@ -3621,6 +3761,8 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n# Display hidden items in packet details pane?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  if (prefs.display_hidden_proto_items == default_prefs.display_hidden_proto_items)
+    fprintf(pf, "#");
   fprintf(pf, PRS_DISPLAY_HIDDEN_PROTO_ITEMS ": %s\n",
 	  prefs.display_hidden_proto_items == TRUE ? "TRUE" : "FALSE");
 
@@ -3678,9 +3820,12 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;
   dest->gui_hex_dump_highlight_style = src->gui_hex_dump_highlight_style;
   dest->gui_toolbar_main_style = src->gui_toolbar_main_style;
+  dest->gui_toolbar_filter_style = src->gui_toolbar_filter_style;
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
   dest->gui_console_open = src->gui_console_open;
   dest->gui_fileopen_style = src->gui_fileopen_style;
+  dest->gui_recent_df_entries_max = src->gui_recent_df_entries_max;
+  dest->gui_recent_files_count_max = src->gui_recent_files_count_max;
   dest->gui_fileopen_preview = src->gui_fileopen_preview;
   dest->gui_ask_unsaved = src->gui_ask_unsaved;
   dest->gui_find_wrap = src->gui_find_wrap;
@@ -3716,6 +3861,8 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_show_info = src->capture_show_info;
   dest->name_resolve = src->name_resolve;
   dest->name_resolve_concurrency = src->name_resolve_concurrency;
+  dest->tap_update_interval = src->tap_update_interval;
+  dest->rtp_player_max_visible = src->rtp_player_max_visible;
   dest->display_hidden_proto_items = src->display_hidden_proto_items;
 
 }
