@@ -31,7 +31,12 @@
 #include <glib.h>
 
 #include "packet-rpc.h"
-#include "packet-bootparams.h"
+
+#define BOOTPARAMSPROC_NULL 0
+#define BOOTPARAMSPROC_WHOAMI 1
+#define BOOTPARAMSPROC_GETFILE 2
+
+#define BOOTPARAMS_PROGRAM 100026
 
 static int proto_bootparams = -1;
 static int hf_bootparams_procedure_v1 = -1;

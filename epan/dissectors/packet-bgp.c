@@ -54,11 +54,11 @@
 #endif
 
 #include <string.h>
+
 #include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/addr_and_mask.h>
-#include "packet-bgp.h"
 #include "packet-frame.h"
 #include <epan/afn.h>
 #include <epan/prefs.h>
@@ -68,33 +68,249 @@
 
 /* #define MAX_STR_LEN 256 */
 
+/* some handy things to know */
+#define BGP_MAX_PACKET_SIZE            4096
+#define BGP_MARKER_SIZE                  16    /* size of BGP marker */
+#define BGP_HEADER_SIZE                  19    /* size of BGP header, including marker */
+#define BGP_MIN_OPEN_MSG_SIZE            29
+#define BGP_MIN_UPDATE_MSG_SIZE          23
+#define BGP_MIN_NOTIFICATION_MSG_SIZE    21
+#define BGP_MIN_KEEPALVE_MSG_SIZE       BGP_HEADER_SIZE
+#define BGP_TCP_PORT                    179
+#define BGP_ROUTE_DISTINGUISHER_SIZE      8
+
+/* BGP message types */
+#define BGP_OPEN          1
+#define BGP_UPDATE        2
+#define BGP_NOTIFICATION  3
+#define BGP_KEEPALIVE     4
+#define BGP_ROUTE_REFRESH 5
+#define BGP_CAPABILITY    6
+#define BGP_ROUTE_REFRESH_CISCO 0x80
+
+
+/* BGP ROUTE-REFRESH message */
+struct bgp_route_refresh {
+    guint8  bgpr_marker[BGP_MARKER_SIZE];
+    guint16 bgpr_len;
+    guint8  bgpr_type;
+    guint16 bgpr_afi;
+    guint8  bgpr_reserved;
+    guint8  bgpr_safi;
+};
+
+/* path attribute */
+struct bgp_attr {
+    guint8 bgpa_flags;
+    guint8 bgpa_type;
+};
+
+/* attribute flags, from RFC1771 */
+#define BGP_ATTR_FLAG_OPTIONAL        0x80
+#define BGP_ATTR_FLAG_TRANSITIVE      0x40
+#define BGP_ATTR_FLAG_PARTIAL         0x20
+#define BGP_ATTR_FLAG_EXTENDED_LENGTH 0x10
+
+/* SSA flags */
+#define BGP_SSA_TRANSITIVE    0x8000
+#define BGP_SSA_TYPE          0x7FFF
+
+/* SSA Types */
+#define BGP_SSA_L2TPv3          1
+#define BGP_SSA_mGRE            2
+#define BGP_SSA_IPSec           3
+#define BGP_SSA_MPLS            4
+#define BGP_SSA_L2TPv3_IN_IPSec 5
+#define BGP_SSA_mGRE_IN_IPSec   6
+
+/* AS_PATH segment types */
+#define AS_SET             1   /* RFC1771 */
+#define AS_SEQUENCE        2   /* RFC1771 */
+#define AS_CONFED_SET      4   /* RFC1965 has the wrong values, corrected in  */
+#define AS_CONFED_SEQUENCE 3   /* draft-ietf-idr-bgp-confed-rfc1965bis-01.txt */
+
+/* OPEN message Optional Parameter types  */
+#define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
+#define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
+
+/* BGP capability code */
+#define BGP_CAPABILITY_RESERVED                    0    /* RFC2434 */
+#define BGP_CAPABILITY_MULTIPROTOCOL               1    /* RFC2858 */
+#define BGP_CAPABILITY_ROUTE_REFRESH               2    /* RFC2918 */
+#define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING 3    /* draft-ietf-idr-route-filter-04.txt */
+#define BGP_CAPABILITY_GRACEFUL_RESTART            0x40    /* draft-ietf-idr-restart-05  */
+#define BGP_CAPABILITY_4_OCTET_AS_NUMBER           0x41    /* draft-ietf-idr-as4bytes-06 */
+#define BGP_CAPABILITY_DYNAMIC_CAPABILITY          0x42    /* draft-ietf-idr-dynamic-cap-03 */
+#define BGP_CAPABILITY_ADDITIONAL_PATHS            0x45    /* draft-ietf-idr-add-paths */
+#define BGP_CAPABILITY_ORF_CISCO                   0x82    /* Cisco */
+#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         0x80    /* Cisco */
+
+#define BGP_ORF_PREFIX_CISCO    0x80 /* Cisco */
+#define BGP_ORF_COMM_CISCO      0x81 /* Cisco */
+#define BGP_ORF_EXTCOMM_CISCO   0x82 /* Cisco */
+#define BGP_ORF_ASPATH_CISCO    0x83 /* Cisco */
+
+#define BGP_ORF_COMM        0x02 /* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_EXTCOMM     0x03 /* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_ASPATH      0x04 /* draft-ietf-idr-aspath-orf-02.txt */
+/* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_ACTION      0xc0
+#define BGP_ORF_ADD         0x00
+#define BGP_ORF_REMOVE      0x40
+#define BGP_ORF_REMOVEALL   0x80
+#define BGP_ORF_MATCH       0x20
+#define BGP_ORF_PERMIT      0x00
+#define BGP_ORF_DENY        0x20
+
+/* well-known communities, from RFC1997 */
+#define BGP_COMM_NO_EXPORT           0xFFFFFF01
+#define BGP_COMM_NO_ADVERTISE        0xFFFFFF02
+#define BGP_COMM_NO_EXPORT_SUBCONFED 0xFFFFFF03
+#define FOURHEX0                     0x00000000
+#define FOURHEXF                     0xFFFF0000
+
+/* attribute types */
+#define BGPTYPE_ORIGIN              1 /* RFC1771           */
+#define BGPTYPE_AS_PATH             2 /* RFC1771           */
+#define BGPTYPE_NEXT_HOP            3 /* RFC1771           */
+#define BGPTYPE_MULTI_EXIT_DISC     4 /* RFC1771           */
+#define BGPTYPE_LOCAL_PREF          5 /* RFC1771           */
+#define BGPTYPE_ATOMIC_AGGREGATE    6 /* RFC1771           */
+#define BGPTYPE_AGGREGATOR          7 /* RFC1771           */
+#define BGPTYPE_COMMUNITIES         8 /* RFC1997           */
+#define BGPTYPE_ORIGINATOR_ID       9 /* RFC2796           */
+#define BGPTYPE_CLUSTER_LIST       10 /* RFC2796           */
+#define BGPTYPE_DPA                11 /* work in progress  */
+#define BGPTYPE_ADVERTISER         12 /* RFC1863           */
+#define BGPTYPE_RCID_PATH          13 /* RFC1863           */
+#define BGPTYPE_MP_REACH_NLRI      14 /* RFC2858           */
+#define BGPTYPE_MP_UNREACH_NLRI    15 /* RFC2858           */
+#define BGPTYPE_EXTENDED_COMMUNITY 16 /* Draft Ramachandra */
+#define BGPTYPE_NEW_AS_PATH        17 /* draft-ietf-idr-as4bytes */
+#define BGPTYPE_NEW_AGGREGATOR     18 /* draft-ietf-idr-as4bytes */
+#define BGPTYPE_SAFI_SPECIFIC_ATTR 19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
+#define BGPTYPE_TUNNEL_ENCAPS_ATTR 23 /* RFC5512 */
+
+/* Extended community type */
+/* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
+#define BGP_EXT_COM_QOS_MARK_T  0x04    /* QoS Marking transitive attribute of regular type (8bit)           */
+#define BGP_EXT_COM_QOS_MARK_NT 0x44    /* QoS Marking non-transitive attribute of regular type (8bit)       */
+                                        /* Format Type(1byte):Flags(1byte):QoS Set(1byte):Tec. Type(1byte):  */
+                                        /*        Marking O(2bytes):Marking A(1byte):Proc.Cnt(1byte)         */
+#define BGP_EXT_COM_COS_CAP_T   0x05    /* CoS Capability - Format Type(1byte):Flags(1byte):remaining '0..0' */
+
+                                        /* draft-ietf-idr-bgp-ext-communities */
+#define BGP_EXT_COM_RT_0        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
+#define BGP_EXT_COM_RT_1        0x0102  /* Route Target,Format IP address:AN(2bytes) */
+#define BGP_EXT_COM_RT_2        0x0202  /* Route Target,Format AS(2bytes):AN(4bytes) */
+#define BGP_EXT_COM_RO_0        0x0003  /* Route Origin,Format AS(2bytes):AN(4bytes) */
+#define BGP_EXT_COM_RO_1        0x0103  /* Route Origin,Format IP address:AN(2bytes) */
+#define BGP_EXT_COM_RO_2        0x0203  /* Route Origin,Format AS(2bytes):AN(4bytes) */
+#define BGP_EXT_COM_LINKBAND    ((BGP_ATTR_FLAG_TRANSITIVE << 8) | 0x0004)
+                                        /* Link Bandwidth,Format AS(2bytes):
+                                         * Bandwidth(4bytes) */
+                                        /* -2 version of the draft */
+#define BGP_EXT_COM_VPN_ORIGIN  0x0005  /* OSPF Domin ID / VPN of Origin  */
+                                        /* draft-rosen-vpns-ospf-bgp-mpls */
+#define BGP_EXT_COM_OSPF_RTYPE  0x8000  /* OSPF Route Type,Format Area(4B):RouteType(1B):Options(1B) */
+#define BGP_EXT_COM_OSPF_RID    0x8001  /* OSPF Router ID,Format RouterID(4B):Unused(2B) */
+#define BGP_EXT_COM_L2INFO      0x800a  /* draft-kompella-ppvpn-l2vpn */
+
+/* Extended community QoS Marking technology type */
+#define QOS_TECH_TYPE_DSCP         0x00  /* DiffServ enabled IP (DSCP encoding) */
+#define QOS_TECH_TYPE_802_1q       0x01  /* Ethernet using 802.1q priority tag */
+#define QOS_TECH_TYPE_E_LSP        0x02  /* MPLS using E-LSP */
+#define QOS_TECH_TYPE_VC           0x03  /* Virtual Channel (VC) encoding using separate channels for */
+                                         /* QoS forwarding / one channel per class (e.g. ATM VCs, FR  */
+                                         /* VCs, MPLS L-LSPs) */
+#define QOS_TECH_TYPE_GMPLS_TIME   0x04   /* GMPLS - time slot encoding */
+#define QOS_TECH_TYPE_GMPLS_LAMBDA 0x05  /* GMPLS - lambda encoding */
+#define QOS_TECH_TYPE_GMPLS_FIBRE  0x06  /* GMPLS - fibre encoding */
+
+/* OSPF codes for  BGP_EXT_COM_OSPF_RTYPE draft-rosen-vpns-ospf-bgp-mpls  */
+#define BGP_OSPF_RTYPE_RTR      1 /* OSPF Router LSA */
+#define BGP_OSPF_RTYPE_NET      2 /* OSPF Network LSA */
+#define BGP_OSPF_RTYPE_SUM      3 /* OSPF Summary LSA */
+#define BGP_OSPF_RTYPE_EXT      5 /* OSPF External LSA, note that ASBR doesn't apply to MPLS-VPN */
+#define BGP_OSPF_RTYPE_NSSA     7 /* OSPF NSSA External*/
+#define BGP_OSPF_RTYPE_SHAM     129 /* OSPF-MPLS-VPN Sham link */
+#define BGP_OSPF_RTYPE_METRIC_TYPE 0x1 /* LSB of RTYPE Options Field */
+
+/* Extended community & Route dinstinguisher formats */
+#define FORMAT_AS2_LOC      0x00    /* Format AS(2bytes):AN(4bytes) */
+#define FORMAT_IP_LOC       0x01    /* Format IP address:AN(2bytes) */
+#define FORMAT_AS4_LOC      0x02    /* Format AS(4bytes):AN(2bytes) */
+
+/* RFC 2858 subsequent address family numbers */
+#define SAFNUM_UNICAST          1
+#define SAFNUM_MULCAST          2
+#define SAFNUM_UNIMULC          3
+#define SAFNUM_MPLS_LABEL       4  /* rfc3107 */
+#define SAFNUM_MCAST_VPN        5  /* draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt */
+#define SAFNUM_ENCAPSULATION    7  /* rfc5512 */
+#define SAFNUM_TUNNEL          64  /* draft-nalawade-kapoor-tunnel-safi-02.txt */
+#define SAFNUM_VPLS            65
+#define SAFNUM_LAB_VPNUNICAST 128  /* Draft-rosen-rfc2547bis-03 */
+#define SAFNUM_LAB_VPNMULCAST 129
+#define SAFNUM_LAB_VPNUNIMULC 130
+#define SAFNUM_ROUTE_TARGET   132  /* RFC 4684 Constrained Route Distribution for BGP/MPLS IP VPN */
+
+/* BGP Additional Paths Capability */
+#define BGP_ADDPATH_RECEIVE  0x01
+#define BGP_ADDPATH_SEND     0x02
+
+/* mcast-vpn route types draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt */
+#define MCAST_VPN_RTYPE_INTRA_AS_IPMSI_AD 1
+#define MCAST_VPN_RTYPE_INTER_AS_IPMSI_AD 2
+#define MCAST_VPN_RTYPE_SPMSI_AD          3
+#define MCAST_VPN_RTYPE_LEAF_AD           4
+#define MCAST_VPN_RTYPE_SOURCE_ACTIVE_AD  5
+#define MCAST_VPN_RTYPE_SHARED_TREE_JOIN  6
+#define MCAST_VPN_RTYPE_SOURCE_TREE_JOIN  7
+
+/* RFC 5512 Tunnel Types */
+#define TUNNEL_TYPE_L2TP_OVER_IP 1
+#define TUNNEL_TYPE_GRE          2
+#define TUNNEL_TYPE_IP_IN_IP     7
+
+/* RFC 5512/5640 Sub-TLV Types */
+#define TUNNEL_SUBTLV_ENCAPSULATION 1
+#define TUNNEL_SUBTLV_PROTO_TYPE    2
+#define TUNNEL_SUBTLV_COLOR         4
+#define TUNNEL_SUBTLV_LOAD_BALANCE  5
+
+#ifndef offsetof
+#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
+#endif
+
+
 static const value_string bgptypevals[] = {
-    { BGP_OPEN, "OPEN Message" },
-    { BGP_UPDATE, "UPDATE Message" },
-    { BGP_NOTIFICATION, "NOTIFICATION Message" },
-    { BGP_KEEPALIVE, "KEEPALIVE Message" },
-    { BGP_ROUTE_REFRESH, "ROUTE-REFRESH Message" },
-    { BGP_CAPABILITY, "CAPABILITY Message" },
+    { BGP_OPEN,                "OPEN Message" },
+    { BGP_UPDATE,              "UPDATE Message" },
+    { BGP_NOTIFICATION,        "NOTIFICATION Message" },
+    { BGP_KEEPALIVE,           "KEEPALIVE Message" },
+    { BGP_ROUTE_REFRESH,       "ROUTE-REFRESH Message" },
+    { BGP_CAPABILITY,          "CAPABILITY Message" },
     { BGP_ROUTE_REFRESH_CISCO, "Cisco ROUTE-REFRESH Message" },
     { 0, NULL }
 };
 
-#define BGP_MAJOR_ERROR_MSG_HDR 1
-#define BGP_MAJOR_ERROR_OPEN_MSG 2
-#define BGP_MAJOR_ERROR_UPDATE_MSG 3
-#define BGP_MAJOR_ERROR_HT_EXPIRED 4
+#define BGP_MAJOR_ERROR_MSG_HDR       1
+#define BGP_MAJOR_ERROR_OPEN_MSG      2
+#define BGP_MAJOR_ERROR_UPDATE_MSG    3
+#define BGP_MAJOR_ERROR_HT_EXPIRED    4
 #define BGP_MAJOR_ERROR_STATE_MACHINE 5
-#define BGP_MAJOR_ERROR_CEASE 6
-#define BGP_MAJOR_ERROR_CAP_MSG 7
+#define BGP_MAJOR_ERROR_CEASE         6
+#define BGP_MAJOR_ERROR_CAP_MSG       7
 
 static const value_string bgpnotify_major[] = {
-    { BGP_MAJOR_ERROR_MSG_HDR, "Message Header Error" },
-    { BGP_MAJOR_ERROR_OPEN_MSG, "OPEN Message Error" },
-    { BGP_MAJOR_ERROR_UPDATE_MSG, "UPDATE Message Error" },
-    { BGP_MAJOR_ERROR_HT_EXPIRED, "Hold Timer Expired" },
+    { BGP_MAJOR_ERROR_MSG_HDR,       "Message Header Error" },
+    { BGP_MAJOR_ERROR_OPEN_MSG,      "OPEN Message Error" },
+    { BGP_MAJOR_ERROR_UPDATE_MSG,    "UPDATE Message Error" },
+    { BGP_MAJOR_ERROR_HT_EXPIRED,    "Hold Timer Expired" },
     { BGP_MAJOR_ERROR_STATE_MACHINE, "Finite State Machine Error" },
-    { BGP_MAJOR_ERROR_CEASE, "Cease" },
-    { BGP_MAJOR_ERROR_CAP_MSG, "CAPABILITY Message Error" },
+    { BGP_MAJOR_ERROR_CEASE,         "Cease" },
+    { BGP_MAJOR_ERROR_CAP_MSG,       "CAPABILITY Message Error" },
     { 0, NULL }
 };
 
@@ -117,15 +333,15 @@ static const value_string bgpnotify_minor_open_msg[] = {
 };
 
 static const value_string bgpnotify_minor_update_msg[] = {
-    { 1, "Malformed Attribute List" },
-    { 2, "Unrecognized Well-known Attribute" },
-    { 3, "Missing Well-known Attribute" },
-    { 4, "Attribute Flags Error" },
-    { 5, "Attribute Length Error" },
-    { 6, "Invalid ORIGIN Attribute" },
-    { 7, "AS Routing Loop [Deprecated]" },
-    { 8, "Invalid NEXT_HOP Attribute" },
-    { 9, "Optional Attribute Error" },
+    { 1,  "Malformed Attribute List" },
+    { 2,  "Unrecognized Well-known Attribute" },
+    { 3,  "Missing Well-known Attribute" },
+    { 4,  "Attribute Flags Error" },
+    { 5,  "Attribute Length Error" },
+    { 6,  "Invalid ORIGIN Attribute" },
+    { 7,  "AS Routing Loop [Deprecated]" },
+    { 8,  "Invalid NEXT_HOP Attribute" },
+    { 9,  "Optional Attribute Error" },
     { 10, "Invalid Network Field" },
     { 11, "Malformed AS_PATH" },
     { 0, NULL }
@@ -183,21 +399,21 @@ static const value_string as_segment_type[] = {
 };
 
 static const value_string bgpattr_type[] = {
-    { BGPTYPE_ORIGIN, "ORIGIN" },
-    { BGPTYPE_AS_PATH, "AS_PATH" },
-    { BGPTYPE_NEXT_HOP, "NEXT_HOP" },
-    { BGPTYPE_MULTI_EXIT_DISC, "MULTI_EXIT_DISC" },
-    { BGPTYPE_LOCAL_PREF, "LOCAL_PREF" },
-    { BGPTYPE_ATOMIC_AGGREGATE, "ATOMIC_AGGREGATE" },
-    { BGPTYPE_AGGREGATOR, "AGGREGATOR" },
-    { BGPTYPE_COMMUNITIES, "COMMUNITIES" },
-    { BGPTYPE_ORIGINATOR_ID, "ORIGINATOR_ID" },
-    { BGPTYPE_CLUSTER_LIST, "CLUSTER_LIST" },
-    { BGPTYPE_MP_REACH_NLRI, "MP_REACH_NLRI" },
-    { BGPTYPE_MP_UNREACH_NLRI, "MP_UNREACH_NLRI" },
+    { BGPTYPE_ORIGIN,             "ORIGIN" },
+    { BGPTYPE_AS_PATH,            "AS_PATH" },
+    { BGPTYPE_NEXT_HOP,           "NEXT_HOP" },
+    { BGPTYPE_MULTI_EXIT_DISC,    "MULTI_EXIT_DISC" },
+    { BGPTYPE_LOCAL_PREF,         "LOCAL_PREF" },
+    { BGPTYPE_ATOMIC_AGGREGATE,   "ATOMIC_AGGREGATE" },
+    { BGPTYPE_AGGREGATOR,         "AGGREGATOR" },
+    { BGPTYPE_COMMUNITIES,        "COMMUNITIES" },
+    { BGPTYPE_ORIGINATOR_ID,      "ORIGINATOR_ID" },
+    { BGPTYPE_CLUSTER_LIST,       "CLUSTER_LIST" },
+    { BGPTYPE_MP_REACH_NLRI,      "MP_REACH_NLRI" },
+    { BGPTYPE_MP_UNREACH_NLRI,    "MP_UNREACH_NLRI" },
     { BGPTYPE_EXTENDED_COMMUNITY, "EXTENDED_COMMUNITIES" },
-    { BGPTYPE_NEW_AS_PATH, "NEW_AS_PATH" },
-    { BGPTYPE_NEW_AGGREGATOR, "NEW_AGGREGATOR" },
+    { BGPTYPE_NEW_AS_PATH,        "NEW_AS_PATH" },
+    { BGPTYPE_NEW_AGGREGATOR,     "NEW_AGGREGATOR" },
     { BGPTYPE_SAFI_SPECIFIC_ATTR, "SAFI_SPECIFIC_ATTRIBUTE" },
     { BGPTYPE_TUNNEL_ENCAPS_ATTR, "TUNNEL_ENCAPSULATION_ATTRIBUTE" },
     { 0, NULL }
@@ -212,70 +428,70 @@ static const value_string tunnel_type[] = {
 
 static const value_string subtlv_type[] = {
     { TUNNEL_SUBTLV_ENCAPSULATION, "ENCAPSULATION" },
-    { TUNNEL_SUBTLV_PROTO_TYPE, "PROTOCOL_TYPE" },
-    { TUNNEL_SUBTLV_COLOR, "COLOR" },
-    { TUNNEL_SUBTLV_LOAD_BALANCE, "LOAD_BALANCE" },
+    { TUNNEL_SUBTLV_PROTO_TYPE,    "PROTOCOL_TYPE" },
+    { TUNNEL_SUBTLV_COLOR,         "COLOR" },
+    { TUNNEL_SUBTLV_LOAD_BALANCE,  "LOAD_BALANCE" },
     { 0, NULL }
 };
 
 static const value_string bgpext_com8_type[] = {
-    { BGP_EXT_COM_QOS_MARK_T, "QoS Marking - transitive" },
+    { BGP_EXT_COM_QOS_MARK_T,  "QoS Marking - transitive" },
     { BGP_EXT_COM_QOS_MARK_NT, "QoS Marking - non-transitive" },
-    { BGP_EXT_COM_COS_CAP_T, "CoS Capability - transitive" },
+    { BGP_EXT_COM_COS_CAP_T,   "CoS Capability - transitive" },
     { 0, NULL }
 };
 
 static const value_string bgpext_com_type[] = {
-    { BGP_EXT_COM_RT_0, "two-octet AS specific Route Target" },
-    { BGP_EXT_COM_RT_1, "IPv4 address specific Route Target" },
-    { BGP_EXT_COM_RT_2, "four-octet AS specific Route Target" },
-    { BGP_EXT_COM_RO_0, "two-octet AS specific Route Origin" },
-    { BGP_EXT_COM_RO_1, "IPv4 address specific Route Origin" },
-    { BGP_EXT_COM_RO_2, "four-octet AS specific Route Origin" },
-    { BGP_EXT_COM_LINKBAND, "Link Bandwidth" },
+    { BGP_EXT_COM_RT_0,       "two-octet AS specific Route Target" },
+    { BGP_EXT_COM_RT_1,       "IPv4 address specific Route Target" },
+    { BGP_EXT_COM_RT_2,       "four-octet AS specific Route Target" },
+    { BGP_EXT_COM_RO_0,       "two-octet AS specific Route Origin" },
+    { BGP_EXT_COM_RO_1,       "IPv4 address specific Route Origin" },
+    { BGP_EXT_COM_RO_2,       "four-octet AS specific Route Origin" },
+    { BGP_EXT_COM_LINKBAND,   "Link Bandwidth" },
     { BGP_EXT_COM_VPN_ORIGIN, "OSPF Domain" },
     { BGP_EXT_COM_OSPF_RTYPE, "OSPF Route Type" },
-    { BGP_EXT_COM_OSPF_RID, "OSPF Router ID" },
-    { BGP_EXT_COM_L2INFO, "Layer 2 Information" },
+    { BGP_EXT_COM_OSPF_RID,   "OSPF Router ID" },
+    { BGP_EXT_COM_L2INFO,     "Layer 2 Information" },
     { 0, NULL }
 };
 
 static const value_string qos_tech_type[] = {
-    { QOS_TECH_TYPE_DSCP, "DiffServ enabled IP (DSCP encoding)" },
-    { QOS_TECH_TYPE_802_1q, "Ethernet using 802.1q priority tag" },
-    { QOS_TECH_TYPE_E_LSP, "MPLS using E-LSP" },
-    { QOS_TECH_TYPE_VC, "Virtual Channel (VC) encoding" },
-    { QOS_TECH_TYPE_GMPLS_TIME, "GMPLS - time slot encoding" },
+    { QOS_TECH_TYPE_DSCP,         "DiffServ enabled IP (DSCP encoding)" },
+    { QOS_TECH_TYPE_802_1q,       "Ethernet using 802.1q priority tag" },
+    { QOS_TECH_TYPE_E_LSP,        "MPLS using E-LSP" },
+    { QOS_TECH_TYPE_VC,           "Virtual Channel (VC) encoding" },
+    { QOS_TECH_TYPE_GMPLS_TIME,   "GMPLS - time slot encoding" },
     { QOS_TECH_TYPE_GMPLS_LAMBDA, "GMPLS - lambda encoding" },
-    { QOS_TECH_TYPE_GMPLS_FIBRE, "GMPLS - fibre encoding" },
+    { QOS_TECH_TYPE_GMPLS_FIBRE,  "GMPLS - fibre encoding" },
     { 0, NULL }
 };
 
 static const value_string bgp_ssa_type[] = {
-    { BGP_SSA_L2TPv3 , "L2TPv3 Tunnel" },
-    { BGP_SSA_mGRE , "mGRE Tunnel" },
-    { BGP_SSA_IPSec , "IPSec Tunnel" },
-    { BGP_SSA_MPLS , "MPLS Tunnel" },
+    { BGP_SSA_L2TPv3 ,          "L2TPv3 Tunnel" },
+    { BGP_SSA_mGRE ,            "mGRE Tunnel" },
+    { BGP_SSA_IPSec ,           "IPSec Tunnel" },
+    { BGP_SSA_MPLS ,            "MPLS Tunnel" },
     { BGP_SSA_L2TPv3_IN_IPSec , "L2TPv3 in IPSec Tunnel" },
-    { BGP_SSA_mGRE_IN_IPSec , "mGRE in IPSec Tunnel" },
+    { BGP_SSA_mGRE_IN_IPSec ,   "mGRE in IPSec Tunnel" },
     { 0, NULL }
 };
 
 static const value_string bgp_l2vpn_encaps[] = {
-    { 0,                      "Reserved"},
-    { 1,                      "Frame Relay"},
-    { 2,                      "ATM AAL5 VCC transport"},
-    { 3,                      "ATM transparent cell transport"},
-    { 4,                      "Ethernet VLAN"},
-    { 5,                      "Ethernet"},
-    { 6,                      "Cisco-HDLC"},
-    { 7,                      "PPP"},
-    { 8,                      "CEM"},
-    { 9,                      "ATM VCC cell transport"},
-    { 10,                     "ATM VPC cell transport"},
-    { 11,                     "MPLS"},
-    { 12,                     "VPLS"},
-    { 64,                     "IP-interworking"},
+    { 0,  "Reserved"},
+    { 1,  "Frame Relay"},
+    { 2,  "ATM AAL5 VCC transport"},
+    { 3,  "ATM transparent cell transport"},
+    { 4,  "Ethernet VLAN"},
+    { 5,  "Ethernet"},
+    { 6,  "Cisco-HDLC"},
+    { 7,  "PPP"},
+    { 8,  "CEM"},
+    { 9,  "ATM VCC cell transport"},
+    { 10, "ATM VPC cell transport"},
+    { 11, "MPLS"},
+    { 12, "VPLS"},
+    { 64, "IP-interworking"},
     { 0, NULL }
 };
 
@@ -291,26 +507,26 @@ static const value_string bgpext_ospf_rtype[] = {
 
 /* Subsequent address family identifier, RFC2858 */
 static const value_string bgpattr_nlri_safi[] = {
-    { 0, "Reserved" },
-    { SAFNUM_UNICAST, "Unicast" },
-    { SAFNUM_MULCAST, "Multicast" },
-    { SAFNUM_UNIMULC, "Unicast+Multicast" },
-    { SAFNUM_MPLS_LABEL, "Labeled Unicast"},
-    { SAFNUM_MCAST_VPN, "MCAST-VPN"},
-    { SAFNUM_ENCAPSULATION, "Encapsulation"},
-    { SAFNUM_TUNNEL, "Tunnel"},
-    { SAFNUM_VPLS, "VPLS"},
+    { 0,                     "Reserved" },
+    { SAFNUM_UNICAST,        "Unicast" },
+    { SAFNUM_MULCAST,        "Multicast" },
+    { SAFNUM_UNIMULC,        "Unicast+Multicast" },
+    { SAFNUM_MPLS_LABEL,     "Labeled Unicast"},
+    { SAFNUM_MCAST_VPN,      "MCAST-VPN"},
+    { SAFNUM_ENCAPSULATION,  "Encapsulation"},
+    { SAFNUM_TUNNEL,         "Tunnel"},
+    { SAFNUM_VPLS,           "VPLS"},
     { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
     { SAFNUM_LAB_VPNMULCAST, "Labeled VPN Multicast" },
     { SAFNUM_LAB_VPNUNIMULC, "Labeled VPN Unicast+Multicast" },
-    { SAFNUM_ROUTE_TARGET, "Route Target Filter" },
+    { SAFNUM_ROUTE_TARGET,   "Route Target Filter" },
     { 0, NULL }
 };
 
 /* ORF Type, draft-ietf-idr-route-filter-04.txt */
 static const value_string orf_type_vals[] = {
-    { 2,        "Communities ORF-Type" },
-    { 3,        "Extended Communities ORF-Type" },
+    {   2,      "Communities ORF-Type" },
+    {   3,      "Extended Communities ORF-Type" },
     { 128,      "Cisco PrefixList ORF-Type" },
     { 129,      "Cisco CommunityList ORF-Type" },
     { 130,      "Cisco Extended CommunityList ORF-Type" },
@@ -347,16 +563,16 @@ static const value_string orf_entry_match_vals[] = {
 };
 
 static const value_string capability_vals[] = {
-    { BGP_CAPABILITY_RESERVED, "Reserved capability" },
-    { BGP_CAPABILITY_MULTIPROTOCOL, "Multiprotocol extensions capability" },
-    { BGP_CAPABILITY_ROUTE_REFRESH, "Route refresh capability" },
+    { BGP_CAPABILITY_RESERVED,                    "Reserved capability" },
+    { BGP_CAPABILITY_MULTIPROTOCOL,               "Multiprotocol extensions capability" },
+    { BGP_CAPABILITY_ROUTE_REFRESH,               "Route refresh capability" },
     { BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING, "Cooperative route filtering capability" },
-    { BGP_CAPABILITY_GRACEFUL_RESTART, "Graceful Restart capability" },
-    { BGP_CAPABILITY_4_OCTET_AS_NUMBER, "Support for 4-octet AS number capability" },
-    { BGP_CAPABILITY_DYNAMIC_CAPABILITY, "Support for Dynamic capability" },
-    { BGP_CAPABILITY_ADDITIONAL_PATHS, "Support for Additional Paths" },
-    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO, "Route refresh capability" },
-    { BGP_CAPABILITY_ORF_CISCO, "Cooperative route filtering capability" },
+    { BGP_CAPABILITY_GRACEFUL_RESTART,            "Graceful Restart capability" },
+    { BGP_CAPABILITY_4_OCTET_AS_NUMBER,           "Support for 4-octet AS number capability" },
+    { BGP_CAPABILITY_DYNAMIC_CAPABILITY,          "Support for Dynamic capability" },
+    { BGP_CAPABILITY_ADDITIONAL_PATHS,            "Support for Additional Paths" },
+    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,         "Route refresh capability" },
+    { BGP_CAPABILITY_ORF_CISCO,                   "Cooperative route filtering capability" },
     { 0, NULL }
 };
 

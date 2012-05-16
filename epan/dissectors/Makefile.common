@@ -1150,12 +1150,10 @@ DIRTY_DISSECTOR_SRC = \
 #
 DISSECTOR_INCLUDES =	\
 	$(PIDL_DISSECTOR_INCLUDES)	\
-	packet-acn.h	\
 	packet-acp133.h	\
 	packet-acse.h	\
 	packet-actrace.h	\
 	packet-afp.h	\
-	packet-afs.h	\
 	packet-aim.h	\
 	packet-alcap.h	\
 	packet-ansi_a.h	\
@@ -1164,14 +1162,11 @@ DISSECTOR_INCLUDES =	\
 	packet-ap1394.h	\
 	packet-arcnet.h	\
 	packet-arp.h	\
-	packet-assa_r3_public.h	\
 	packet-atalk.h	\
 	packet-atm.h	\
 	packet-bacapp.h	\
 	packet-ber.h	\
 	packet-bfd.h	\
-	packet-bgp.h	\
-	packet-bootparams.h	\
 	packet-bssap.h	\
 	packet-bssgp.h	\
 	packet-bthci_acl.h	\
