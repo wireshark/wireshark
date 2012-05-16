@@ -5107,6 +5107,8 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
          * mandatory part of the GTP-C header (the first 4 octets).
          */
         new_p_tvb = tvb_new_subset_remaining(tvb,msg_length+4);
+        col_append_str(pinfo->cinfo, COL_INFO, " / ");
+        col_set_fence(pinfo->cinfo, COL_INFO);
         dissect_gtpv2(new_p_tvb, pinfo, tree);
     }
 
