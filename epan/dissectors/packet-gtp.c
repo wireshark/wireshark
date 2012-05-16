@@ -7842,7 +7842,6 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             /* TODO: This code should be cleaned up to handle more than one
             * header and possibly display the header content */
             if (next_hdr) {
-                offset++;
                 switch (next_hdr) {
                 case 1:
                     /* MBMS support indication */
