@@ -2053,6 +2053,7 @@ capture(void)
      the capture child to finish; it will report that it finished,
      or will exit abnormally, so  we'll stop reading from the sync
      pipe, pick up the exit status, and quit. */
+  memset(&action, 0, sizeof(action));
   action.sa_handler = capture_cleanup;
   action.sa_flags = SA_RESTART;
   sigemptyset(&action.sa_mask);

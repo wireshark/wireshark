@@ -24,7 +24,7 @@ dnsserver_dissect_struct_DNS_RPC_NAME(tvbuff_t *tvb _U_, int offset _U_, packet_
 	dcerpc_info *di = NULL;
 	guint8 len;
 	const char *dn;
-	int dn_len;
+	int dn_len = 0;
 	guint16 bc;
 
 	di=pinfo->private_data;

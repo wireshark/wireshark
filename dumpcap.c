@@ -4069,6 +4069,7 @@ main(int argc, char *argv[])
      * our signal handler returns we don't want to restart
      * a call that was waiting for packets to arrive.
      */
+    memset(&action, 0, sizeof(action));
     action.sa_flags = 0;
     sigemptyset(&action.sa_mask);
     sigaction(SIGTERM, &action, NULL);

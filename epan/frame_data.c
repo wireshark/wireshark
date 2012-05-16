@@ -199,13 +199,10 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->cum_bytes = cum_bytes + phdr->len;
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
+  fdata->subnum = 0;
   /* To save some memory, we coerce it into a gint16 */
   g_assert(phdr->pkt_encap <= G_MAXINT16);
   fdata->lnk_t = (gint16) phdr->pkt_encap;
-  fdata->abs_ts.secs = phdr->ts.secs;
-  fdata->abs_ts.nsecs = phdr->ts.nsecs;
-  fdata->shift_offset.secs = 0;
-  fdata->shift_offset.nsecs = 0;
   fdata->flags.passed_dfilter = 0;
   fdata->flags.dependent_of_displayed = 0;
   fdata->flags.encoding = PACKET_CHAR_ENC_CHAR_ASCII;
@@ -216,6 +213,16 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.has_ts = (phdr->presence_flags & WTAP_HAS_TS) ? 1 : 0;
   fdata->flags.has_if_id = (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) ? 1 : 0;
   fdata->color_filter = NULL;
+  fdata->abs_ts.secs = phdr->ts.secs;
+  fdata->abs_ts.nsecs = phdr->ts.nsecs;
+  fdata->shift_offset.secs = 0;
+  fdata->shift_offset.nsecs = 0;
+  fdata->rel_ts.secs = 0;
+  fdata->rel_ts.nsecs = 0;
+  fdata->del_dis_ts.secs = 0;
+  fdata->del_dis_ts.nsecs = 0;
+  fdata->del_cap_ts.secs = 0;
+  fdata->del_cap_ts.nsecs = 0;
   fdata->opt_comment = phdr->opt_comment;
 }
 
@@ -302,4 +309,3 @@ frame_data_cleanup(frame_data *fdata)
 
   fdata->pfd = NULL;
 }
-

@@ -12472,7 +12472,7 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
 	smb_info_t *si = pinfo->private_data;
 	const char *fn;
-	int fn_len;
+	int fn_len = 0;
 
 	DISSECTOR_ASSERT(si);
 

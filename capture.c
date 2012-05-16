@@ -240,7 +240,7 @@ guint32 drops)
     /* We're not doing a capture any more, so we don't have a save file. */
     return FALSE;
   }
-  
+
   /* Set the read filter to NULL. */
   /* XXX - this is odd here; try to put it somewhere where it fits better */
   cf_set_rfcode(capture_opts->cf, NULL);
@@ -566,7 +566,7 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
       /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
       packet_count_save = cf_get_packet_count(capture_opts->cf);
       /* Tell the GUI we are not doing a capture any more.
-         Must be done after the cf_finish_tail(), so file lengths are 
+         Must be done after the cf_finish_tail(), so file lengths are
          correctly displayed */
       capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
 
@@ -709,7 +709,7 @@ capture_stat_start(capture_options *capture_opts) {
 
 static void
 capture_stat_cache_update(if_stat_cache_t *sc) {
-  gchar stat_line[MAX_STAT_LINE_LEN];
+  gchar stat_line[MAX_STAT_LINE_LEN] = "";
   gchar **stat_parts;
   GList *sc_entry;
   if_stat_cache_item_t *sc_item;

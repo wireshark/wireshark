@@ -332,6 +332,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	int	count, line_count;
 
 	eth_hdr_len = 0;
+	memset(&tm, 0, sizeof(tm));
 	/* Our file pointer should be on the first line containing the
 	 * summary information for a packet. Read in that line and
 	 * extract the useful information
@@ -406,7 +407,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		*err_info = g_strdup("dbs_etherwatch: header line not valid");
 		return -1;
 	}
-	
+
 	/* Determine whether it is Ethernet II or IEEE 802 */
 	if(strncmp(&line[ETH_II_CHECK_POS], ETH_II_CHECK_STR,
 		strlen(ETH_II_CHECK_STR)) == 0) {
@@ -574,7 +575,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset) {
 	else
 	{
 		pos = COUNT_POS_HEX;
-	}	
+	}
 
 	/* Check that the record is as least as long as the start position */
 	while(i < pos)

@@ -455,7 +455,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                            union wtap_pseudo_header *pseudo_header, guint8 *pd,
                            int length, int *err, gchar **err_info)
 {
-    gint64 offset;
+    gint64 offset = 0;
     long dollar_offset, before_time_offset, after_time_offset;
     static gchar linebuff[MAX_LINE_LENGTH+1];
     gchar aal_header_chars[AAL_HEADER_CHARS];
@@ -749,7 +749,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     if (!is_comment) {
-        /* Each binary byte is written out as 2 hex string chars */ 
+        /* Each binary byte is written out as 2 hex string chars */
         for (; n < phdr->len; n++) {
             gchar c[2];
             c[0] = char_from_hex((guint8)(pd[n] >> 4));
@@ -1589,4 +1589,3 @@ free_line_prefix_info(gpointer key, gpointer value,
     /* Item will always be removed from table */
     return TRUE;
 }
-
