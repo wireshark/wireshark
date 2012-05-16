@@ -282,15 +282,15 @@ reassemble_test.exe: $(REASSEMBLE_TEST_OBJ)
 
 exntest_install:
 	set copycmd=/y
-	if exist exntest.exe          xcopy exntest.exe          $(INSTALL_DIR) /d
+	if exist exntest.exe          xcopy exntest.exe          ..\$(INSTALL_DIR) /d
 
 tvbtest_install:
 	set copycmd=/y
-	if exist tvbtest.exe          xcopy tvbtest.exe          $(INSTALL_DIR) /d
+	if exist tvbtest.exe          xcopy tvbtest.exe          ..\$(INSTALL_DIR) /d
 
 reassemble_test_install:
 	set copycmd=/y
-	if exist reassemble_test.exe          xcopy reassemble_test.exe          $(INSTALL_DIR) /d
+	if exist reassemble_test.exe          xcopy reassemble_test.exe          ..\$(INSTALL_DIR) /d
 
 
 #
