@@ -193,9 +193,14 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
   wth->phdr.ts.nsecs = 0;
 
   if( csids->byteswapped ) {
-    PBSWAP16(buf);   /* the ip len */
-    PBSWAP16(buf+2); /* ip id */
-    PBSWAP16(buf+4); /* ip flags and fragoff */
+    if( hdr.caplen >= 2 ) {
+      PBSWAP16(buf);   /* the ip len */
+      if( hdr.caplen >= 4 ) {
+        PBSWAP16(buf+2); /* ip id */
+        if( hdr.caplen >= 6 )
+          PBSWAP16(buf+4); /* ip flags and fragoff */
+      }
+    }
   }
 
   return TRUE;
@@ -246,9 +251,14 @@ csids_seek_read (wtap *wth,
   }
 
   if( csids->byteswapped ) {
-    PBSWAP16(pd);   /* the ip len */
-    PBSWAP16(pd+2); /* ip id */
-    PBSWAP16(pd+4); /* ip flags and fragoff */
+    if( hdr.caplen >= 2 ) {
+      PBSWAP16(pd);   /* the ip len */
+      if( hdr.caplen >= 4 ) {
+        PBSWAP16(pd+2); /* ip id */
+        if( hdr.caplen >= 6 )
+          PBSWAP16(pd+4); /* ip flags and fragoff */
+      }
+    }
   }
 
   return TRUE;

@@ -323,6 +323,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
     guint       token_index=0;
     guint32     dword;
+    guchar      needle;
 
     gcp_msg_t* msg = NULL;
     gcp_trx_t* trx = NULL;
@@ -422,23 +423,32 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             "Sorry, no \"/\" in the MEGACO header, I can't parse this packet");
         return;
     }
-    tvb_previous_offset = tvb_previous_offset + 1;
-    /* As version should follow /, just add 1, works till ver 9 */
+
+    /* skip / */
+    tvb_previous_offset++;
+
+    /* assume at least one digit in version */
     tvb_current_offset  = tvb_previous_offset + 1;
 
+    if (isdigit(tvb_get_guint8(tvb, tvb_current_offset))) {
+        /* 2-digit version */
+        tvb_current_offset++;
+    }
 
     tokenlen = tvb_current_offset - tvb_previous_offset;
     ver_offset = tvb_previous_offset;
     ver_length = tokenlen;
 
-    /* Pos of version + 2 should take us past version + SEP                 */
+    tvb_previous_offset = tvb_current_offset;
+    tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_previous_offset);
 
-    tvb_previous_offset = tvb_previous_offset + 2;
-    /* in case of CRLF              */
-    if (tvb_get_guint8(tvb, tvb_current_offset ) == '\n')
-        tvb_previous_offset++;
-    if (tvb_get_guint8(tvb, tvb_current_offset ) == '\r')
-        tvb_previous_offset++;
+    if (tvb_previous_offset == tvb_current_offset) {
+        proto_tree_add_text(megaco_tree, tvb, 0, -1,
+            "[ Parse error: missing SEP in MEGACO header ]");
+        return;
+    }
+
+    tvb_previous_offset = tvb_current_offset;
 
     /* mId should follow here,
      * mId = (( domainAddress / domainName ) [":" portNumber]) / mtpAddress / deviceName
@@ -450,13 +460,15 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * pathNAME = ["*"] NAME *("/" / "*"/ ALPHA / DIGIT /"_" / "$" )["@" pathDomainName ]
      */
 
-    tokenlen = tvb_find_line_end( tvb, tvb_previous_offset, -1, &tvb_next_offset, FALSE);
-    /* accept white spaces as SEParator too */
-    if ( (tvb_current_offset=tvb_find_guint8(tvb, tvb_previous_offset, tokenlen, ' ')) != -1 ) {
-        /* SEP after mID might be spaces only */
-        tokenlen = tvb_current_offset-tvb_previous_offset;
-        tvb_next_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset);
+    tvb_current_offset = tvb_pbrk_guint8(tvb, tvb_current_offset, -1, " \t\r\n", &needle);
+    if (tvb_current_offset == -1) {
+        proto_tree_add_text(megaco_tree, tvb, 0, -1,
+            "[ Parse error: no body in MEGACO message (missing SEP after mId) ]");
+        return;
     }
+
+    tokenlen = tvb_current_offset-tvb_previous_offset;
+    tvb_next_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset);
 
    /* Att this point we should point to the "\n" ending the mId element
     * or to the next character after white space SEP
@@ -3690,4 +3702,3 @@ proto_reg_handoff_megaco(void)
     dissector_add_uint("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
 
 }
-
