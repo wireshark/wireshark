@@ -22799,6 +22799,12 @@ BindingID_port = 0;
 				umts_fp_conversation_info->iface_type        = IuB_Interface;
 				umts_fp_conversation_info->division          = Division_FDD;
 				umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
+				umts_fp_conversation_info->dl_frame_number   = 0;
+				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
+
+				/* Cheat and use the DCH entries */
+				umts_fp_conversation_info->num_dch_in_flow = 1;
+				umts_fp_conversation_info->dchs_in_flow_list[0] = hsdsch_macdflow_id;
 
 				umts_fp_conversation_info->hsdsch_entity = hs;
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);

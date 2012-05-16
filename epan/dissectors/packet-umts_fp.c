@@ -3127,8 +3127,9 @@ static fp_info*
 fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff_t *tvb, packet_info *pinfo)
 {
 	fp_info *fpi;
-	guint8 oct, tfi;
+	guint8 tfi;
 	int offset = 0, i;
+	gboolean is_control_frame;
 
 	fpi = ep_alloc0(sizeof(fp_info));
 
@@ -3148,17 +3149,23 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 		fpi->is_uplink = FALSE;
 	}
 
+	is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
+
 	switch(fpi->channel){
 	case CHANNEL_HSDSCH:
 		fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
-		return fpi;
+		if(is_control_frame){
+			return fpi;
+		}else{
+			/* data frames is broken */
+			return NULL;
+		}
 	case CHANNEL_DCH:
 		fpi->num_chans = p_conv_data->num_dch_in_flow;
 
 
 		/* Peek at the packet as the per packet info seems not to take the tfi into account */
-		oct = tvb_get_guint8(tvb,offset);
-		if((oct&0x01) == 1){
+		if(is_control_frame){
 			/* control frame, we're done */
 			return fpi;
 		}
