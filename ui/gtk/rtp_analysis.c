@@ -1092,7 +1092,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		cairo_move_to(cr,
 			user_data->dlg.dialog_graph.surface_width-right_x_border+1.5,
 			user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10+0.5);
-		
+
 		cairo_line_to(cr,
 			user_data->dlg.dialog_graph.surface_width-right_x_border+1.5+xwidth,
 			user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10+0.5);
@@ -1630,7 +1630,7 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
 	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &dgg->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_SELECTED, &dgg->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_INSENSITIVE, &dgg->rgba_color);
-#else	
+#else
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &dgg->color);
@@ -3704,11 +3704,22 @@ void rtp_analysis(
 
 
 	/* file names for storing sound data */
-	/*XXX: check for errors*/
 	fd = create_tempfile(&tempname, "wireshark_rtp_f");
+	if (fd < 0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Can't create temporary file for RTP analysis:\n%s.",
+			      g_strerror(errno));
+		return;
+	}
 	user_data->f_tempname = g_strdup(tempname);
 	ws_close(fd);
 	fd = create_tempfile(&tempname, "wireshark_rtp_r");
+	if (fd < 0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Can't create temporary file for RTP analysis:\n%s.",
+			      g_strerror(errno));
+		return;
+	}
 	user_data->r_tempname = g_strdup(tempname);
 	ws_close(fd);
 	user_data->forward.saveinfo.fp = NULL;
@@ -3910,4 +3921,3 @@ register_tap_listener_rtp_analysis(void)
 {
 	register_stat_cmd_arg("rtp", rtp_analysis_init, NULL);
 }
-

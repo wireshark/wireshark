@@ -1067,11 +1067,11 @@ static void dialog_graph_draw(user_data_t* user_data)
 		cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 		cairo_set_line_width (cr, 1.0);
-		cairo_move_to(cr, 
-			user_data->dlg.dialog_graph.surface_width-right_x_border+1.5, 
+		cairo_move_to(cr,
+			user_data->dlg.dialog_graph.surface_width-right_x_border+1.5,
 			user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10+0.5);
-		
-		cairo_line_to(cr, 
+
+		cairo_line_to(cr,
 			user_data->dlg.dialog_graph.surface_width-right_x_border+1.5+xwidth,
 			user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10+0.5);
 		cairo_stroke(cr);
@@ -1086,8 +1086,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-			cairo_move_to (cr, 
-				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth, 
+			cairo_move_to (cr,
+				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth,
 				user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10-label_height/2);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -1102,8 +1102,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-			cairo_move_to (cr, 
-				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth, 
+			cairo_move_to (cr,
+				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth,
 				user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10-label_height/2);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -1118,8 +1118,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-			cairo_move_to (cr, 
-				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth, 
+			cairo_move_to (cr,
+				user_data->dlg.dialog_graph.surface_width-right_x_border+15+label_width-lwidth,
 				user_data->dlg.dialog_graph.surface_height-bottom_y_border-draw_height*i/10-label_height/2);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -1220,8 +1220,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
 			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-			cairo_move_to (cr, 
-				x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2, 
+			cairo_move_to (cr,
+				x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
 				user_data->dlg.dialog_graph.surface_height-bottom_y_border+20);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -1247,8 +1247,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-	cairo_move_to (cr, 
-		user_data->dlg.dialog_graph.surface_width-right_x_border+33-lwidth, 
+	cairo_move_to (cr,
+		user_data->dlg.dialog_graph.surface_width-right_x_border+33-lwidth,
 		user_data->dlg.dialog_graph.surface_height-bottom_y_border+3);
 	pango_cairo_show_layout (cr, layout);
 	cairo_destroy (cr);
@@ -1262,8 +1262,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-	cairo_move_to (cr, 
-		user_data->dlg.dialog_graph.surface_width-right_x_border+33-lwidth, 
+	cairo_move_to (cr,
+		user_data->dlg.dialog_graph.surface_width-right_x_border+33-lwidth,
 		user_data->dlg.dialog_graph.surface_height-bottom_y_border+3+9);
 	pango_cairo_show_layout (cr, layout);
 	cairo_destroy (cr);
@@ -1298,8 +1298,8 @@ static void dialog_graph_draw(user_data_t* user_data)
 #else
 				cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
-				cairo_move_to (cr, 
-					x_pos-1-lwidth/2, 
+				cairo_move_to (cr,
+					x_pos-1-lwidth/2,
 					user_data->dlg.dialog_graph.surface_height-bottom_y_border+3+7*(i/2));
 				pango_cairo_show_layout (cr, layout);
 				cairo_destroy (cr);
@@ -1367,7 +1367,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.dialog_graph.draw_area));
 
 #if GTK_CHECK_VERSION(2,22,0)
-	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0); 
+	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0);
 #else
 	gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
 #endif
@@ -1417,7 +1417,7 @@ static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 
 	gtk_widget_get_allocation (widget, &allocation);
 
-	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0); 
+	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0);
 	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill (cr);
 
@@ -1430,7 +1430,7 @@ static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event,
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 #if GTK_CHECK_VERSION(2,22,0)
-	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0); 
+	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0);
 #else
 	gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
 #endif
@@ -3533,11 +3533,22 @@ void iax2_analysis(
 
 
 	/* file names for storing sound data */
-	/*XXX: check for errors*/
 	fd = create_tempfile(&tempname, "wireshark_iax2_f");
+	if (fd < 0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Can't create temporary file for IAX2 analysis:\n%s.",
+			      g_strerror(errno));
+		return;
+	}
 	user_data->f_tempname = g_strdup(tempname);
 	ws_close(fd);
 	fd = create_tempfile(&tempname, "wireshark_iax2_r");
+	if (fd < 0) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			      "Can't create temporary file for IAX2 analysis:\n%s.",
+			      g_strerror(errno));
+		return;
+	}
 	user_data->r_tempname = g_strdup(tempname);
 	ws_close(fd);
 	user_data->forward.saveinfo.fp = NULL;
