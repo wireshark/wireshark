@@ -667,6 +667,7 @@ DISSECTOR_SRC = \
 	packet-ismacryp.c	\
 	packet-ismp.c		\
 	packet-isns.c		\
+	packet-iso7816.c	\
 	packet-isup.c		\
 	packet-itdm.c		\
 	packet-iua.c		\

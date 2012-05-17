@@ -746,6 +746,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ismacryp.c
 	dissectors/packet-ismp.c
 	dissectors/packet-isns.c
+	dissectors/packet-iso7816.c
 	dissectors/packet-isup.c
 	dissectors/packet-itdm.c
 	dissectors/packet-iua.c

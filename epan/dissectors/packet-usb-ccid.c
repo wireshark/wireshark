@@ -146,6 +146,7 @@ static gint ett_ccid = -1;
 /* Table of payload types - adapted from the I2C dissector */
 enum {
     SUB_DATA = 0,
+    SUB_ISO7816,
     SUB_GSM_SIM,
     SUB_PN532_ACS_PSEUDO_APDU,
 
@@ -288,6 +289,12 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	       }
       }
 
+      else if (sub_selected == SUB_ISO7816) {
+        /* sent/received is from the perspective of the card reader */
+        pinfo->p2p_dir = P2P_DIR_SENT;
+        call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
+      }
+
       /* The user probably wanted GSM SIM, or something else */
       else {
 	call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
@@ -329,6 +336,11 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU && tvb_get_guint8(tvb, 10) == 0xD5) {
 	  call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, ccid_tree);
 	}
+
+        else if (sub_selected == SUB_ISO7816) {
+          pinfo->p2p_dir = P2P_DIR_RECV;
+          call_dissector(sub_handles[SUB_ISO7816], next_tvb, pinfo, tree);
+        }
 
 	else {
 	  call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
@@ -415,6 +427,7 @@ proto_register_ccid(void)
 
     static const enum_val_t sub_enum_vals[] = {
         { "data", "Data", SUB_DATA },
+        { "iso7816", "Generic ISO 7816", SUB_ISO7816 },
         { "gsm_sim", "GSM SIM", SUB_GSM_SIM },
 	{ "pn532", "NXP PN532 with ACS Pseudo-Header", SUB_PN532_ACS_PSEUDO_APDU},
         { NULL, NULL, 0 }
@@ -446,6 +459,7 @@ proto_reg_handoff_ccid(void)
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
 
     sub_handles[SUB_DATA] = find_dissector("data");
+    sub_handles[SUB_ISO7816] = find_dissector("iso7816");
     sub_handles[SUB_GSM_SIM] = find_dissector("gsm_sim");
     sub_handles[SUB_PN532_ACS_PSEUDO_APDU] = find_dissector("pn532");
 }
