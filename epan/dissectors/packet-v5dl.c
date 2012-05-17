@@ -437,7 +437,5 @@ proto_register_v5dl(void)
 void
 proto_reg_handoff_v5dl(void)
 {
-	gboolean init = FALSE;
-
 	v52_handle = find_dissector("v52");
 }
