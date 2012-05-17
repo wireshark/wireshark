@@ -2853,7 +2853,7 @@ dissect_spice_common_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offse
                 } else {
                     spice_info->server_auth = val;
                 }
-                ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_NA);
                 auth_tree = proto_item_add_subtree(ti, ett_auth_tree);
                 proto_tree_add_boolean(auth_tree, hf_common_cap_auth_select, tvb, offset, 4, val);
                 proto_tree_add_boolean(auth_tree, hf_common_cap_auth_spice, tvb, offset, 4, val);
@@ -2892,7 +2892,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
             case SPICE_CHANNEL_PLAYBACK:
                 switch (i) {
                     case 0:
-                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_NA);
                         cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
                         proto_tree_add_boolean(cap_tree, hf_playback_cap_celt, tvb, offset, 4, val);
                         proto_tree_add_boolean(cap_tree, hf_playback_cap_volume, tvb, offset, 4, val);
@@ -2904,7 +2904,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
             case SPICE_CHANNEL_MAIN:
                 switch (i) {
                     case 0:
-                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_NA);
                         cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
                         proto_tree_add_boolean(cap_tree, hf_main_cap_semi_migrate, tvb, offset, 4, val);
                         proto_tree_add_boolean(cap_tree, hf_main_cap_vm_name_uuid, tvb, offset, 4, val); /*Note: only relevant for client. TODO: dissect only for client */
@@ -2916,7 +2916,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
             case SPICE_CHANNEL_DISPLAY:
                 switch (i) {
                     case 0:
-                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_NA);
                         cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
                         proto_tree_add_boolean(cap_tree, hf_display_cap_sized_stream, tvb, offset, 4, val);
                         break;
@@ -2933,7 +2933,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
             case SPICE_CHANNEL_RECORD:
                 switch (i) {
                     case 0:
-                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_NA);
                         cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
                         proto_tree_add_boolean(cap_tree, hf_record_cap_celt, tvb, offset, 4, val);
                         proto_tree_add_boolean(cap_tree, hf_record_cap_volume, tvb, offset, 4, val);
@@ -3571,7 +3571,7 @@ proto_register_spice(void)
         },
         { &hf_common_cap_byte1,
           { "Capabilitities", "spice.common_cap_byte1",
-            FT_UINT32, BASE_DEC, 0, 0,
+            FT_NONE, BASE_NONE, 0, 0,
             NULL, HFILL }
         },
         { &hf_common_cap_auth_select,
