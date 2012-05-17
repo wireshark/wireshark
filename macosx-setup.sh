@@ -18,7 +18,7 @@
 # The following libraries are required.
 #
 GETTEXT_VERSION=0.18.1.1
-GLIB_VERSION=2.31.20
+GLIB_VERSION=2.32.3
 #
 # pkg-config 0.26 appears to have broken the "we have our own GLib"
 # stuff, even if you explicitly set GLIB_CFLAGS and GLIB_LIBS.
@@ -26,16 +26,16 @@ GLIB_VERSION=2.31.20
 # so we use 0.25 instead.
 #
 PKG_CONFIG_VERSION=0.26
-ATK_VERSION=2.2.0
-PANGO_VERSION=1.29.5
-PNG_VERSION=1.5.9
+ATK_VERSION=2.4.0
+PANGO_VERSION=1.30.0
+PNG_VERSION=1.5.10
 PIXMAN_VERSION=0.24.4
-CAIRO_VERSION=1.10.2
-GDK_PIXBUF_VERSION=2.25.2
+CAIRO_VERSION=1.12.2
+GDK_PIXBUF_VERSION=2.26.1
 if [ -z "$GTK3" ]; then
   GTK_VERSION=2.24.10
 else
-  GTK_VERSION=3.2.4
+  GTK_VERSION=3.5.2
 fi
 
 #
@@ -64,9 +64,9 @@ LIBGPG_ERROR_VERSION=1.10
 # file, but http://directory.fsf.org/project/libgcrypt/ lists only
 # 1.4.6.
 #
-LIBGCRYPT_VERSION=1.4.6
+LIBGCRYPT_VERSION=1.5.0
 GNUTLS_VERSION=2.12.7
-LUA_VERSION=5.1.4
+LUA_VERSION=5.2.0
 PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
@@ -230,8 +230,8 @@ if [ -n "$GTK3" ]; then
   # And now cairo itself.
   #
   echo "Downloading, building, and installing Cairo:"
-  curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
-  tar xvfz cairo-$CAIRO_VERSION.tar.gz || exit 1
+  curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
+  gzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
   cd cairo-$CAIRO_VERSION
   #./configure --enable-quartz=no || exit 1
   # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
@@ -243,8 +243,8 @@ fi
 
 echo "Downloading, building, and installing ATK:"
 atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.bz2 || exit 1
-bzcat atk-$ATK_VERSION.tar.bz2 | tar xf - || exit 1
+curl -O http://ftp.gnome.org/pub/gnome/sources/atk/$atk_dir/atk-$ATK_VERSION.tar.xz || exit 1
+xzcat atk-$ATK_VERSION.tar.xz | tar xf - || exit 1
 cd atk-$ATK_VERSION
 ./configure || exit 1
 make -j 3 || exit 1
@@ -253,8 +253,8 @@ cd ..
 
 echo "Downloading, building, and installing Pango:"
 pango_dir=`expr $PANGO_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.bz2
-bzcat pango-$PANGO_VERSION.tar.bz2 | tar xf - || exit 1
+curl -L -O http://ftp.gnome.org/pub/gnome/sources/pango/$pango_dir/pango-$PANGO_VERSION.tar.xz
+xzcat pango-$PANGO_VERSION.tar.xz | tar xf - || exit 1
 cd pango-$PANGO_VERSION
 ./configure || exit 1
 make -j 3 || exit 1
