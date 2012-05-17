@@ -3256,10 +3256,10 @@ static void dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset _U_, 
 
     usfn = val_to_str_const (fieldType, r3_upstreamfieldnames, "[Unknown Field]");
 
-    upstreamfield_length = proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldlength, tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    upstreamfield_item = proto_tree_add_none_format (upstreamfield_tree, hf_r3_upstreamfield, tvb, offset + 0, fieldLength, "Upstream Field: %s (%u)", usfn, fieldType);
     upstreamfield_tree = proto_item_add_subtree (upstreamfield_item, ett_r3upstreamfield);
 
-    proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldlength, tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    upstreamfield_length = proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldlength, tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (upstreamfield_tree, hf_r3_upstreamfieldtype, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
 
     if (fieldLength < 2)
