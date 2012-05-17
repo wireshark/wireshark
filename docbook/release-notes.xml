@@ -74,6 +74,7 @@ Wireshark Info
             <!-- Fixed in trunk-1.4: r42694 (BACapp) -->
             <!-- Fixed in trunk-1.4: r42695 (BACapp) -->
             <!-- Fixed in trunk-1.4: r42696 (LTP) -->
+            <!-- Fixed in trunk-1.4: r42697 (R3) -->
 
             (Bugs
 	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7118">7118</ulink>,
