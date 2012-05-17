@@ -3661,6 +3661,16 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 	}
 }
 
+static int
+protoo_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
+{
+	gsize res = g_strlcpy(dest, src, dest_size);
+
+	if (res > dest_size)
+		res = dest_size;
+	return (int) res;
+}
+
 /* -------------------------- */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
@@ -3761,21 +3771,21 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_UINT_BYTES:
 			case FT_BYTES:
 				bytes = fvalue_get(&finfo->value);
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   bytes_to_str(bytes,
 									fvalue_length(&finfo->value)),
 							   size-offset_r);
 				break;
 
 			case FT_ABSOLUTE_TIME:
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   abs_time_to_str(fvalue_get(&finfo->value),
 									   hfinfo->display, TRUE),
 							   size-offset_r);
 				break;
 
 			case FT_RELATIVE_TIME:
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   rel_time_to_secs_str(fvalue_get(&finfo->value)),
 							   size-offset_r);
 				break;
@@ -3786,7 +3796,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				if (hfinfo->strings) {
 					tfstring = (const struct true_false_string*) hfinfo->strings;
 				}
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   u_integer ?
 							     tfstring->true_string :
 							     tfstring->false_string, size-offset_r);
@@ -3853,7 +3863,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				offset_r = (int)strlen(result);
 				break;
 			case FT_EUI64:
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   eui64_to_str(fvalue_get_integer64(&finfo->value)),
 							   size-offset_r);
 				break;
@@ -3904,7 +3914,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_IPv4:
 				ipv4 = fvalue_get(&finfo->value);
 				n_addr = ipv4_get_net_order_addr(ipv4);
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   ip_to_str((guint8 *)&n_addr),
 							   size-offset_r);
 				break;
@@ -3917,25 +3927,25 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				break;
 
 			case FT_ETHER:
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   bytes_to_str_punct(fvalue_get(&finfo->value),
 									      FT_ETHER_LEN, ':'),
 							   size-offset_r);
 				break;
 
 			case FT_GUID:
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   guid_to_str((e_guid_t *)fvalue_get(&finfo->value)),
 							   size-offset_r);
 				break;
 
 			case FT_OID:
 				bytes = fvalue_get(&finfo->value);
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   oid_resolved_from_encoded(bytes,
 										     fvalue_length(&finfo->value)),
 							   size-offset_r);
-				offset_e += (int)g_strlcpy(expr+offset_e,
+				offset_e += protoo_strlcpy(expr+offset_e,
 							   oid_encoded2string(bytes, fvalue_length(&finfo->value)),
 							   size-offset_e);
 				break;
@@ -3956,7 +3966,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_STRINGZ:
 			case FT_UINT_STRING:
 				bytes = fvalue_get(&finfo->value);
-				offset_r += (int)g_strlcpy(result+offset_r,
+				offset_r += protoo_strlcpy(result+offset_r,
 							   format_text(bytes, strlen(bytes)),
 							   size-offset_r);
 				break;
