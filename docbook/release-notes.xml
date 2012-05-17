@@ -39,8 +39,9 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
           </para>
           <para>
-            Infinite and large loops in the ANSI MAP, ASF, Bluetooth HCI, IEEE 802.3, LTP,
-	    have been fixed. Discovered by Laurent Butti.
+            Infinite and large loops in the ANSI MAP, ASF, Bluetooth HCI, IEEE 802.11, IEEE 802.3, and LTP
+	    dissectors have been fixed. Discovered by Laurent Butti.
+            <!-- Fixed in trunk: r42631 (802.11) -->
             <!-- Fixed in trunk: r41741 (802.3) -->
             <!-- Fixed in trunk: r42129 (ANSI MAP) -->
             <!-- Fixed in trunk: r42113 (ASF) -->
@@ -50,6 +51,7 @@ Wireshark Info
             <!-- Fixed in trunk: r42121 (LTP) -->
             <!-- Fixed in trunk: r42122 (R3) -->
 
+            <!-- Fixed in trunk-1.6: r42673 (802.11) -->
             <!-- Fixed in trunk-1.6: r42665 (802.3) -->
             <!-- Fixed in trunk-1.6: r42374 (ANSI MAP) -->
             <!-- Fixed in trunk-1.6: r42671 (ASF) -->
@@ -57,17 +59,14 @@ Wireshark Info
             <!-- Fixed in trunk-1.6: r42666 (LTP) -->
             <!-- Fixed in trunk-1.6: r42667 (R3) -->
 
-
-            <!-- Fixed in trunk-1.6: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
-	    7122
-	    7119
-	    7124
-	    7125
-	    7118
-	    7120
+            (Bugs
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6805">6805</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7118">7118</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7119">7119</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7120">7120</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7122">7122</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7124">7124</ulink>,
+	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7125">7125</ulink>)
           </para>
           <para>Versions affected: 1.6.0 to 1.6.7.</para>
           <!-- <para>
