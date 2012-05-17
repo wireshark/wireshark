@@ -2001,7 +2001,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
            filled in on a failure to open an rpcap: URL. */
         g_strlcpy(open_err_str,
                   "Unknown error (pcap bug; actual error cause not reported)",
-                  sizeof *open_err_str);
+                  sizeof open_err_str);
     }
   } else
 #endif /* HAVE_PCAP_OPEN */
