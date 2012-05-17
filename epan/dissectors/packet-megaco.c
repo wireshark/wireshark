@@ -159,9 +159,11 @@ static int megaco_tap = -1;
 * a detailed tree that expresses a somewhat more semantically meaningful
 * decode.
 */
+static guint global_megaco_txt_sctp_port = PORT_MEGACO_TXT;
 static guint global_megaco_txt_tcp_port = PORT_MEGACO_TXT;
 static guint global_megaco_txt_udp_port = PORT_MEGACO_TXT;
 #if 0
+static guint global_megaco_bin_sctp_port = PORT_MEGACO_BIN;
 static guint global_megaco_bin_tcp_port = PORT_MEGACO_BIN;
 static guint global_megaco_bin_udp_port = PORT_MEGACO_BIN;
 #endif
@@ -3521,6 +3523,11 @@ proto_register_megaco(void)
 
     megaco_module = prefs_register_protocol(proto_megaco, proto_reg_handoff_megaco);
 
+    prefs_register_uint_preference(megaco_module, "sctp.txt_port",
+                                   "MEGACO Text SCTP Port",
+                                   "Set the SCTP port for MEGACO text messages",
+                                   10, &global_megaco_txt_sctp_port);
+
     prefs_register_uint_preference(megaco_module, "tcp.txt_port",
                                    "MEGACO Text TCP Port",
                                    "Set the TCP port for MEGACO text messages",
@@ -3532,6 +3539,11 @@ proto_register_megaco(void)
                                    10, &global_megaco_txt_udp_port);
 
 #if 0
+    prefs_register_uint_preference(megaco_module, "sctp.bin_port",
+                                   "MEGACO Binary SCTP Port",
+                                   "Set the SCTP port for MEGACO binary messages",
+                                   10, &global_megaco_bin_sctp_port);
+
     prefs_register_uint_preference(megaco_module, "tcp.bin_port",
                                    "MEGACO Binary TCP Port",
                                    "Set the TCP port for MEGACO binary messages",
@@ -3579,9 +3591,11 @@ proto_reg_handoff_megaco(void)
     * Variables to allow for proper deletion of dissector registration when
     * the user changes port from the gui.
     */
+    static guint txt_sctp_port;
     static guint txt_tcp_port;
     static guint txt_udp_port;
 #if 0
+    static guint bin_sctp_port;
     static guint bin_tcp_port;
     static guint bin_udp_port;
 #endif
@@ -3599,17 +3613,19 @@ proto_reg_handoff_megaco(void)
         dissector_add_uint("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 
         megaco_prefs_initialized = TRUE;
-    }
-    else {
+    } else {
+        dissector_delete_uint("sctp.port", txt_sctp_port, megaco_text_handle);
         dissector_delete_uint("tcp.port", txt_tcp_port, megaco_text_tcp_handle);
         dissector_delete_uint("udp.port", txt_udp_port, megaco_text_handle);
     }
 
     /* Set our port number for future use */
 
+    txt_sctp_port = global_megaco_txt_sctp_port;
     txt_tcp_port = global_megaco_txt_tcp_port;
     txt_udp_port = global_megaco_txt_udp_port;
 
+    dissector_add_uint("sctp.port", global_megaco_txt_sctp_port, megaco_text_handle);
     dissector_add_uint("tcp.port", global_megaco_txt_tcp_port, megaco_text_tcp_handle);
     dissector_add_uint("udp.port", global_megaco_txt_udp_port, megaco_text_handle);
 
