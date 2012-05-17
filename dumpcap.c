@@ -1996,10 +1996,10 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                  (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
                  (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
                  CAP_READ_TIMEOUT, &auth, open_err_str);
-    if ((*open_err_str)[0] == '\0') {
+    if (open_err_str[0] == '\0') {
         /* Work around known WinPcap bug wherein no error message is
            filled in on a failure to open an rpcap: URL. */
-        g_strlcpy(*open_err_str,
+        g_strlcpy(open_err_str,
                   "Unknown error (pcap bug; actual error cause not reported)",
                   sizeof *open_err_str);
     }
