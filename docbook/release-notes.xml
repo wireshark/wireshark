@@ -42,6 +42,7 @@ Wireshark Info
           <para>
             Infinite and large loops in the
             ANSI MAP,
+            BACapp,
             Bluetooth HCI,
             IEEE 802.3,
 	    dissectors have been fixed. Discovered by Laurent Butti.
@@ -69,6 +70,7 @@ Wireshark Info
             <!-- Fixed in trunk-1.4: r42693 (802.3) -->
             <!-- Fixed in trunk-1.4: r42452 (BTHCI) -->
             <!-- Fixed in trunk-1.4: r42690 (ANSI MAP) -->
+            <!-- Fixed in trunk-1.4: r42694 (BACapp) -->
 
             (Bugs
 	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7118">7118</ulink>,
@@ -191,6 +193,7 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ANSI MAP,
+BACapp,
 Bluetooth HCI,
 DIAMETER,
 DNS,
