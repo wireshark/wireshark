@@ -179,10 +179,7 @@ typedef struct _proto_avp_t {
 
 static const char* simple_avp(diam_ctx_t*, diam_avp_t*, tvbuff_t*);
 
-static const value_string no_vs[] = {{0, NULL} };
-static GArray no_garr = { (void*)no_vs, 1 };
-static value_string_ext no_vs_avps_ext = { (value_string_match_t) match_strval_ext_init, 0, (void*)no_vs};
-static diam_vnd_t unknown_vendor = { 0xffffffff, &no_garr, &no_vs_avps_ext,  &no_garr };
+static diam_vnd_t unknown_vendor = { 0xffffffff, NULL, NULL, NULL };
 static diam_vnd_t no_vnd = { 0, NULL, NULL, NULL };
 static diam_avp_t unknown_avp = {0, &unknown_vendor, simple_avp, simple_avp, -1, -1, NULL };
 static GArray* all_cmds;
@@ -1338,6 +1335,11 @@ strcase_equal(gconstpointer ka, gconstpointer kb)
 }
 
 
+/* Note: Dynamic "value string arrays" (e.g., vs_cmds, vs_avps, ...) are constructed using */
+/*       "zero-terminated" GArrays so that they will have the same form as standard        */
+/*       value_string arrays created at compile time. Since the last entry in a            */
+/*       value_string array must be {0, NULL}, we are assuming that NULL == 0 (hackish).   */
+
 static int
 dictionary_load(void)
 {
@@ -1364,6 +1366,9 @@ dictionary_load(void)
 
 	dictionary.vnds = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_vnds");
 	dictionary.avps = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_avps");
+
+	unknown_vendor.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
+	unknown_vendor.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
 
 	no_vnd.vs_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 	no_vnd.vs_avps = g_array_new(TRUE,TRUE,sizeof(value_string));
@@ -1778,4 +1783,3 @@ proto_reg_handoff_diameter(void)
 	range_foreach(diameter_tcp_port_range, tcp_range_add_callback);
 	range_foreach(diameter_sctp_port_range, sctp_range_add_callback);
 }
-
