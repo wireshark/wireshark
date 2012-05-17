@@ -36,7 +36,7 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
@@ -80,10 +80,10 @@ static void
 dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*v5ef_tree, *addr_tree;
-        proto_item	*v5ef_ti, *addr_ti;
-	int		direction;
-	int		v5ef_header_len;
-	guint16		addr, eah, eal, efaddr;
+	proto_item	*v5ef_ti, *addr_ti;
+	int		 direction;
+	int		 v5ef_header_len;
+	guint16		 addr, eah, eal, efaddr;
 	tvbuff_t	*next_tvb;
 	const char	*srcname = "src";
 	const char	*dstname = "dst";
@@ -91,14 +91,14 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5-EF");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	addr = tvb_get_ntohs(tvb, 0);
-	eah = (addr & V5EF_EAH) >> V5EF_EAH_SHIFT;
-        eal = (addr & V5EF_EAL) >> V5EF_EAL_SHIFT;
-        efaddr = (eah << 7) + eal;
+	addr		= tvb_get_ntohs(tvb, 0);
+	eah		= (addr & V5EF_EAH) >> V5EF_EAH_SHIFT;
+	eal		= (addr & V5EF_EAL) >> V5EF_EAL_SHIFT;
+	efaddr		= (eah << 7) + eal;
 	v5ef_header_len = 2;	/* addr */
 
-        direction = pinfo->pseudo_header->isdn.uton;
-        if (direction==0) {
+	direction = pinfo->pseudo_header->isdn.uton;
+	if (direction==0) {
 	        srcname = "LE";
 	        dstname = "AN";
 	 } else if (direction > 0) {
@@ -134,17 +134,19 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(addr_tree, hf_v5ef_ea2, tvb, 1, 1, addr);
 	}
 	else {
-		v5ef_ti = NULL;
+		v5ef_ti	  = NULL;
 		v5ef_tree = NULL;
 	}
 
 	if (tree)
 		proto_item_set_len(v5ef_ti, v5ef_header_len);
 
-        next_tvb = tvb_new_subset_remaining(tvb, v5ef_header_len);
+	next_tvb = tvb_new_subset_remaining(tvb, v5ef_header_len);
 
-        if(efaddr>8175) call_dissector(v5dl_handle,next_tvb, pinfo, tree);
-        else call_dissector(lapd_handle,next_tvb, pinfo, tree);
+	if (efaddr>8175)
+		call_dissector(v5dl_handle,next_tvb, pinfo, tree);
+	else
+		call_dissector(lapd_handle,next_tvb, pinfo, tree);
 }
 
 void
@@ -197,16 +199,11 @@ proto_register_v5ef(void)
 void
 proto_reg_handoff_v5ef(void)
 {
-	static gboolean init = FALSE;
+	dissector_handle_t v5ef_handle;
 
-	if (!init) {
-		dissector_handle_t v5ef_handle;
+	v5ef_handle = find_dissector("v5ef");
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_V5_EF, v5ef_handle);
 
-		v5ef_handle = find_dissector("v5ef");
-		dissector_add_uint("wtap_encap", WTAP_ENCAP_V5_EF, v5ef_handle);
-
-		lapd_handle = find_dissector("lapd");
-		v5dl_handle = find_dissector("v5dl");
-		init = TRUE;
-	}
+	lapd_handle = find_dissector("lapd");
+	v5dl_handle = find_dissector("v5dl");
 }

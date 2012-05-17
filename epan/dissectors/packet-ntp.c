@@ -29,9 +29,8 @@
 # include "config.h"
 #endif
 
-#include <string.h>
-#include <time.h>
 #include <math.h>
+
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -585,11 +584,11 @@ static tvbparse_wanted_t* want_ignore;
 const char *
 tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 {
-	guint32 tempstmp, tempfrac;
-	time_t temptime;
-	struct tm *bd;
-	double fractime;
-	char *buff;
+	guint32		 tempstmp, tempfrac;
+	time_t		 temptime;
+	struct tm	*bd;
+	double		 fractime;
+	char		*buff;
 
 	tempstmp = tvb_get_ntohl(tvb, offset);
 	tempfrac = tvb_get_ntohl(tvb, offset+4);
@@ -606,7 +605,7 @@ tvb_ntp_fmt_ts(tvbuff_t *tvb, gint offset)
 	fractime = bd->tm_sec + tempfrac / NTP_FLOAT_DENOM;
 	buff=ep_alloc(NTP_TS_SIZE);
 	g_snprintf(buff, NTP_TS_SIZE,
-                 "%s %2d, %d %02d:%02d:%09.6f UTC",
+		 "%s %2d, %d %02d:%02d:%09.6f UTC",
 		 mon_names[bd->tm_mon],
 		 bd->tm_mday,
 		 bd->tm_year + 1900,
@@ -635,7 +634,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *ntp_tree;
 	proto_item      *ti = NULL;
-	guint8          flags;
+	guint8		 flags;
 	void (*dissector)(tvbuff_t *, proto_item *, guint8);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
@@ -679,17 +678,17 @@ dissect_ntp_std(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 {
 	proto_tree      *flags_tree;
 	proto_item	*tf;
-	guint8		stratum;
-	guint8		ppoll;
-	gint8		precision;
-	double		rootdelay;
-	double		rootdispersion;
-	guint32		refid_addr;
+	guint8		 stratum;
+	guint8		 ppoll;
+	gint8		 precision;
+	double		 rootdelay;
+	double		 rootdispersion;
+	guint32		 refid_addr;
 	const gchar	*buffc;
 	gchar           *buff;
-	int		i;
-	int		macofs;
-	gint            maclen;
+	int		 i;
+	int		 macofs;
+	gint		 maclen;
 
 	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
 
@@ -845,10 +844,10 @@ dissect_ntp_ext(tvbuff_t *tvb, proto_tree *ntp_tree, int offset)
 {
 	proto_tree      *ext_tree, *flags_tree;
 	proto_item	*tf;
-	guint16         extlen;
-	int             endoffset;
-	guint8          flags;
-	guint32         vallen, vallen_round, siglen;
+	guint16		 extlen;
+	int		 endoffset;
+	guint8		 flags;
+	guint32		 vallen, vallen_round, siglen;
 
 	extlen = tvb_get_ntohs(tvb, offset+2);
 	if (extlen < 8) {
@@ -1031,18 +1030,18 @@ dissect_ntp_ctrl_clockstatus(tvbuff_t *tvb, proto_tree *status_tree, guint16 off
 static void
 dissect_ntp_ctrl(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 {
-	proto_tree *flags_tree;
-	proto_item *tf;
-	guint8 flags2;
+	proto_tree	*flags_tree;
+	proto_item	*tf;
+	guint8		 flags2;
 
-	proto_tree *status_tree, *data_tree, *item_tree;
-	proto_item *ts, *td, *ti;
-	guint16 status;
-	guint16 associd;
-	guint16 datalen;
-	guint16 data_offset;
+	proto_tree	*status_tree, *data_tree, *item_tree;
+	proto_item	*ts, *td, *ti;
+	guint16		 status;
+	guint16		 associd;
+	guint16		 datalen;
+	guint16		 data_offset;
 
-	tvbparse_t *tt;
+	tvbparse_t	*tt;
 	tvbparse_elem_t *element;
 
 	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
@@ -1194,7 +1193,7 @@ dissect_ntp_priv(tvbuff_t *tvb, proto_tree *ntp_tree, guint8 flags)
 {
 	proto_tree      *flags_tree;
 	proto_item	*tf;
-	guint8		auth_seq, impl, reqcode;
+	guint8		 auth_seq, impl, reqcode;
 
 	tf = proto_tree_add_uint(ntp_tree, hf_ntp_flags, tvb, 0, 1, flags);
 
@@ -1422,7 +1421,7 @@ proto_register_ntp(void)
 		{ &hf_ntppriv_reqcode, {
 			"Request code", "ntppriv.reqcode", FT_UINT8, BASE_DEC,
 			VALS(priv_rc_types), 0, NULL, HFILL }}
-        };
+	};
 	static gint *ett[] = {
 		&ett_ntp,
 		&ett_ntp_flags,

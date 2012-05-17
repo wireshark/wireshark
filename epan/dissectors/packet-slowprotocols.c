@@ -31,8 +31,8 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/llcsaps.h>
@@ -728,7 +728,7 @@ static const value_string esmc_quality_level_opt_2_short[] = {
     {  0,   "QL-STU" },
     {  1,   "QL-PRS" },
     {  4,   "QL-TNC" },
-    { 7,    "QL-ST2" },
+    {  7,   "QL-ST2" },
     { 10,   "QL-ST3" },
     { 12,   "QL-SMC" },
     { 13,   "QL-ST3E" },

@@ -1,4 +1,4 @@
-/* packet-rtpmidi.c
+/* packet-rtp-midi.c
  *
  * Routines for RFC 4695/6295 RTP-MIDI dissection
  * Copyright 2006-2012, Tobias Erichsen <t.erichsen@gmx.de>
@@ -53,11 +53,9 @@
 #endif
 
 #include <glib.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
-
-#include <stdio.h>
-#include <string.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
@@ -2513,388 +2511,388 @@ static const true_false_string rtp_midi_sj_chapter_x_flag_l = {
 
 
 
-static int hf_rtp_midi_bflag				= -1;
-static int hf_rtp_midi_jflag				= -1;
-static int hf_rtp_midi_zflag				= -1;
-static int hf_rtp_midi_pflag				= -1;
-static int hf_rtp_midi_shortlen				= -1;
-static int hf_rtp_midi_longlen				= -1;
+static int hf_rtp_midi_bflag					= -1;
+static int hf_rtp_midi_jflag					= -1;
+static int hf_rtp_midi_zflag					= -1;
+static int hf_rtp_midi_pflag					= -1;
+static int hf_rtp_midi_shortlen					= -1;
+static int hf_rtp_midi_longlen					= -1;
 
-static int hf_rtp_midi_sflag				= -1;
-static int hf_rtp_midi_yflag				= -1;
-static int hf_rtp_midi_aflag				= -1;
-static int hf_rtp_midi_hflag				= -1;
-static int hf_rtp_midi_totchan				= -1;
-static int hf_rtp_midi_check_seq_num			= -1;
+static int hf_rtp_midi_sflag					= -1;
+static int hf_rtp_midi_yflag					= -1;
+static int hf_rtp_midi_aflag					= -1;
+static int hf_rtp_midi_hflag					= -1;
+static int hf_rtp_midi_totchan					= -1;
+static int hf_rtp_midi_check_seq_num				= -1;
 
-static int hf_rtp_midi_deltatime1			= -1;
-static int hf_rtp_midi_deltatime2			= -1;
-static int hf_rtp_midi_deltatime3			= -1;
-static int hf_rtp_midi_deltatime4			= -1;
+static int hf_rtp_midi_deltatime1				= -1;
+static int hf_rtp_midi_deltatime2				= -1;
+static int hf_rtp_midi_deltatime3				= -1;
+static int hf_rtp_midi_deltatime4				= -1;
 
-static int hf_rtp_midi_channel_status			= -1;
-static int hf_rtp_midi_common_status			= -1;
-static int hf_rtp_midi_channel				= -1;
-static int hf_rtp_midi_note				= -1;
-static int hf_rtp_midi_velocity				= -1;
-static int hf_rtp_midi_pressure				= -1;
-static int hf_rtp_midi_controller			= -1;
-static int hf_rtp_midi_controller_value			= -1;
-static int hf_rtp_midi_program				= -1;
-static int hf_rtp_midi_channel_pressure			= -1;
-static int hf_rtp_midi_pitch_bend			= -1;
-static int hf_rtp_midi_pitch_bend_truncated		= -1;
+static int hf_rtp_midi_channel_status				= -1;
+static int hf_rtp_midi_common_status				= -1;
+static int hf_rtp_midi_channel					= -1;
+static int hf_rtp_midi_note					= -1;
+static int hf_rtp_midi_velocity					= -1;
+static int hf_rtp_midi_pressure					= -1;
+static int hf_rtp_midi_controller				= -1;
+static int hf_rtp_midi_controller_value				= -1;
+static int hf_rtp_midi_program					= -1;
+static int hf_rtp_midi_channel_pressure				= -1;
+static int hf_rtp_midi_pitch_bend				= -1;
+static int hf_rtp_midi_pitch_bend_truncated			= -1;
 
-static int hf_rtp_midi_manu_short			= -1;
-static int hf_rtp_midi_manu_long			= -1;
+static int hf_rtp_midi_manu_short				= -1;
+static int hf_rtp_midi_manu_long				= -1;
 
-static int hf_rtp_midi_sysjour_toc_s			= -1;
-static int hf_rtp_midi_sysjour_toc_d			= -1;
-static int hf_rtp_midi_sysjour_toc_v			= -1;
-static int hf_rtp_midi_sysjour_toc_q			= -1;
-static int hf_rtp_midi_sysjour_toc_f			= -1;
-static int hf_rtp_midi_sysjour_toc_x			= -1;
-static int hf_rtp_midi_sysjour_len			= -1;
+static int hf_rtp_midi_sysjour_toc_s				= -1;
+static int hf_rtp_midi_sysjour_toc_d				= -1;
+static int hf_rtp_midi_sysjour_toc_v				= -1;
+static int hf_rtp_midi_sysjour_toc_q				= -1;
+static int hf_rtp_midi_sysjour_toc_f				= -1;
+static int hf_rtp_midi_sysjour_toc_x				= -1;
+static int hf_rtp_midi_sysjour_len				= -1;
 
-static int hf_rtp_midi_chanjour_sflag			= -1;
-static int hf_rtp_midi_chanjour_chan			= -1;
-static int hf_rtp_midi_chanjour_hflag			= -1;
-static int hf_rtp_midi_chanjour_len			= -1;
-static int hf_rtp_midi_chanjour_toc_p			= -1;
-static int hf_rtp_midi_chanjour_toc_c			= -1;
-static int hf_rtp_midi_chanjour_toc_m			= -1;
-static int hf_rtp_midi_chanjour_toc_w			= -1;
-static int hf_rtp_midi_chanjour_toc_n			= -1;
-static int hf_rtp_midi_chanjour_toc_e			= -1;
-static int hf_rtp_midi_chanjour_toc_t			= -1;
-static int hf_rtp_midi_chanjour_toc_a			= -1;
+static int hf_rtp_midi_chanjour_sflag				= -1;
+static int hf_rtp_midi_chanjour_chan				= -1;
+static int hf_rtp_midi_chanjour_hflag				= -1;
+static int hf_rtp_midi_chanjour_len				= -1;
+static int hf_rtp_midi_chanjour_toc_p				= -1;
+static int hf_rtp_midi_chanjour_toc_c				= -1;
+static int hf_rtp_midi_chanjour_toc_m				= -1;
+static int hf_rtp_midi_chanjour_toc_w				= -1;
+static int hf_rtp_midi_chanjour_toc_n				= -1;
+static int hf_rtp_midi_chanjour_toc_e				= -1;
+static int hf_rtp_midi_chanjour_toc_t				= -1;
+static int hf_rtp_midi_chanjour_toc_a				= -1;
 
-static int hf_rtp_midi_cj_chapter_p_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_p_program		= -1;
-static int hf_rtp_midi_cj_chapter_p_bflag		= -1;
-static int hf_rtp_midi_cj_chapter_p_bank_msb		= -1;
-static int hf_rtp_midi_cj_chapter_p_xflag		= -1;
-static int hf_rtp_midi_cj_chapter_p_bank_lsb		= -1;
+static int hf_rtp_midi_cj_chapter_p_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_p_program			= -1;
+static int hf_rtp_midi_cj_chapter_p_bflag			= -1;
+static int hf_rtp_midi_cj_chapter_p_bank_msb			= -1;
+static int hf_rtp_midi_cj_chapter_p_xflag			= -1;
+static int hf_rtp_midi_cj_chapter_p_bank_lsb			= -1;
 
-static int hf_rtp_midi_cj_chapter_c_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_c_length		= -1;
-static int hf_rtp_midi_cj_chapter_c_number		= -1;
-static int hf_rtp_midi_cj_chapter_c_aflag		= -1;
-static int hf_rtp_midi_cj_chapter_c_value		= -1;
-static int hf_rtp_midi_cj_chapter_c_tflag		= -1;
-static int hf_rtp_midi_cj_chapter_c_alt			= -1;
+static int hf_rtp_midi_cj_chapter_c_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_c_length			= -1;
+static int hf_rtp_midi_cj_chapter_c_number			= -1;
+static int hf_rtp_midi_cj_chapter_c_aflag			= -1;
+static int hf_rtp_midi_cj_chapter_c_value			= -1;
+static int hf_rtp_midi_cj_chapter_c_tflag			= -1;
+static int hf_rtp_midi_cj_chapter_c_alt				= -1;
 
-static int hf_rtp_midi_cj_chapter_m_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_pflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_eflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_uflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_wflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_zflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_length		= -1;
-static int hf_rtp_midi_cj_chapter_m_qflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_pending		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_pnum_lsb	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_qflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_pnum_msb	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_jflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_kflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_lflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_mflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_nflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_tflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_vflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_rflag		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_msb		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_msb_x		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_lsb		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_lsb_x		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_a_button_g	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_a_button_x	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_a_button	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_c_button	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_c_button_g	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_c_button_r	= -1;
-static int hf_rtp_midi_cj_chapter_m_log_count		= -1;
-static int hf_rtp_midi_cj_chapter_m_log_count_x		= -1;
+static int hf_rtp_midi_cj_chapter_m_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_pflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_eflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_uflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_wflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_zflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_length			= -1;
+static int hf_rtp_midi_cj_chapter_m_qflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_pending			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_pnum_lsb		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_qflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_pnum_msb		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_jflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_kflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_lflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_mflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_nflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_tflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_vflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_rflag			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_msb			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_msb_x			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_lsb			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_lsb_x			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_a_button_g		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_a_button_x		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_a_button		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_c_button		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_c_button_g		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_c_button_r		= -1;
+static int hf_rtp_midi_cj_chapter_m_log_count			= -1;
+static int hf_rtp_midi_cj_chapter_m_log_count_x			= -1;
 
-static int hf_rtp_midi_cj_chapter_w_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_w_first		= -1;
-static int hf_rtp_midi_cj_chapter_w_rflag		= -1;
-static int hf_rtp_midi_cj_chapter_w_second		= -1;
+static int hf_rtp_midi_cj_chapter_w_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_w_first			= -1;
+static int hf_rtp_midi_cj_chapter_w_rflag			= -1;
+static int hf_rtp_midi_cj_chapter_w_second			= -1;
 
-static int hf_rtp_midi_cj_chapter_n_bflag		= -1;
-static int hf_rtp_midi_cj_chapter_n_len			= -1;
-static int hf_rtp_midi_cj_chapter_n_low			= -1;
-static int hf_rtp_midi_cj_chapter_n_high		= -1;
-static int hf_rtp_midi_cj_chapter_n_log_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_n_log_notenum		= -1;
-static int hf_rtp_midi_cj_chapter_n_log_yflag		= -1;
-static int hf_rtp_midi_cj_chapter_n_log_velocity	= -1;
-static int hf_rtp_midi_cj_chapter_n_log_octet		= -1;
+static int hf_rtp_midi_cj_chapter_n_bflag			= -1;
+static int hf_rtp_midi_cj_chapter_n_len				= -1;
+static int hf_rtp_midi_cj_chapter_n_low				= -1;
+static int hf_rtp_midi_cj_chapter_n_high			= -1;
+static int hf_rtp_midi_cj_chapter_n_log_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_n_log_notenum			= -1;
+static int hf_rtp_midi_cj_chapter_n_log_yflag			= -1;
+static int hf_rtp_midi_cj_chapter_n_log_velocity		= -1;
+static int hf_rtp_midi_cj_chapter_n_log_octet			= -1;
 
-static int hf_rtp_midi_cj_chapter_e_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_e_len			= -1;
-static int hf_rtp_midi_cj_chapter_e_log_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_e_log_notenum		= -1;
-static int hf_rtp_midi_cj_chapter_e_log_vflag		= -1;
-static int hf_rtp_midi_cj_chapter_e_log_velocity	= -1;
-static int hf_rtp_midi_cj_chapter_e_log_count		= -1;
+static int hf_rtp_midi_cj_chapter_e_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_e_len				= -1;
+static int hf_rtp_midi_cj_chapter_e_log_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_e_log_notenum			= -1;
+static int hf_rtp_midi_cj_chapter_e_log_vflag			= -1;
+static int hf_rtp_midi_cj_chapter_e_log_velocity		= -1;
+static int hf_rtp_midi_cj_chapter_e_log_count			= -1;
 
-static int hf_rtp_midi_cj_chapter_t_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_t_pressure		= -1;
+static int hf_rtp_midi_cj_chapter_t_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_t_pressure			= -1;
 
-static int hf_rtp_midi_cj_chapter_a_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_a_len			= -1;
-static int hf_rtp_midi_cj_chapter_a_log_sflag		= -1;
-static int hf_rtp_midi_cj_chapter_a_log_notenum		= -1;
-static int hf_rtp_midi_cj_chapter_a_log_xflag		= -1;
-static int hf_rtp_midi_cj_chapter_a_log_pressure	= -1;
+static int hf_rtp_midi_cj_chapter_a_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_a_len				= -1;
+static int hf_rtp_midi_cj_chapter_a_log_sflag			= -1;
+static int hf_rtp_midi_cj_chapter_a_log_notenum			= -1;
+static int hf_rtp_midi_cj_chapter_a_log_xflag			= -1;
+static int hf_rtp_midi_cj_chapter_a_log_pressure		= -1;
 
-static int hf_rtp_midi_sj_chapter_v_sflag		= -1;
-static int hf_rtp_midi_sj_chapter_v_count		= -1;
+static int hf_rtp_midi_sj_chapter_v_sflag			= -1;
+static int hf_rtp_midi_sj_chapter_v_count			= -1;
 
-static int hf_rtp_midi_sj_chapter_d_sflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_bflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_gflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_hflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_jflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_kflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_yflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_zflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_sflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_bflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_gflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_hflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_jflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_kflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_yflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_zflag			= -1;
 
-static int hf_rtp_midi_sj_chapter_d_reset_sflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_reset_count		= -1;
-static int hf_rtp_midi_sj_chapter_d_tune_sflag		= -1;
-static int hf_rtp_midi_sj_chapter_d_tune_count		= -1;
-static int hf_rtp_midi_sj_chapter_d_song_sel_sflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_song_sel_value	= -1;
+static int hf_rtp_midi_sj_chapter_d_reset_sflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_reset_count			= -1;
+static int hf_rtp_midi_sj_chapter_d_tune_sflag			= -1;
+static int hf_rtp_midi_sj_chapter_d_tune_count			= -1;
+static int hf_rtp_midi_sj_chapter_d_song_sel_sflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_song_sel_value		= -1;
 
-static int hf_rtp_midi_sj_chapter_d_syscom_sflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_cflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_vflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_lflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_dsz		= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_length	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_count	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_value	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_legal	= -1;
-static int hf_rtp_midi_sj_chapter_d_syscom_data		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_sflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_cflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_vflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_lflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_dsz			= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_length		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_count		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_value		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_legal		= -1;
+static int hf_rtp_midi_sj_chapter_d_syscom_data			= -1;
 
-static int hf_rtp_midi_sj_chapter_d_sysreal_sflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_sysreal_cflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_sysreal_lflag	= -1;
-static int hf_rtp_midi_sj_chapter_d_sysreal_length	= -1;
-static int hf_rtp_midi_sj_chapter_d_sysreal_count	= -1;
-static int hf_rtp_midi_sj_chapter_d_sysreal_legal	= -1;
-static int hf_rtp_midi_sj_chapter_d_sysreal_data	= -1;
+static int hf_rtp_midi_sj_chapter_d_sysreal_sflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_sysreal_cflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_sysreal_lflag		= -1;
+static int hf_rtp_midi_sj_chapter_d_sysreal_length		= -1;
+static int hf_rtp_midi_sj_chapter_d_sysreal_count		= -1;
+static int hf_rtp_midi_sj_chapter_d_sysreal_legal		= -1;
+static int hf_rtp_midi_sj_chapter_d_sysreal_data		= -1;
 
-static int hf_rtp_midi_sj_chapter_q_sflag		= -1;
-static int hf_rtp_midi_sj_chapter_q_nflag		= -1;
-static int hf_rtp_midi_sj_chapter_q_dflag		= -1;
-static int hf_rtp_midi_sj_chapter_q_cflag		= -1;
-static int hf_rtp_midi_sj_chapter_q_tflag		= -1;
-static int hf_rtp_midi_sj_chapter_q_top			= -1;
-static int hf_rtp_midi_sj_chapter_q_clock		= -1;
-static int hf_rtp_midi_sj_chapter_q_timetools		= -1;
+static int hf_rtp_midi_sj_chapter_q_sflag			= -1;
+static int hf_rtp_midi_sj_chapter_q_nflag			= -1;
+static int hf_rtp_midi_sj_chapter_q_dflag			= -1;
+static int hf_rtp_midi_sj_chapter_q_cflag			= -1;
+static int hf_rtp_midi_sj_chapter_q_tflag			= -1;
+static int hf_rtp_midi_sj_chapter_q_top				= -1;
+static int hf_rtp_midi_sj_chapter_q_clock			= -1;
+static int hf_rtp_midi_sj_chapter_q_timetools			= -1;
 
-static int hf_rtp_midi_sj_chapter_f_sflag		= -1;
-static int hf_rtp_midi_sj_chapter_f_cflag		= -1;
-static int hf_rtp_midi_sj_chapter_f_pflag		= -1;
-static int hf_rtp_midi_sj_chapter_f_qflag		= -1;
-static int hf_rtp_midi_sj_chapter_f_dflag		= -1;
-static int hf_rtp_midi_sj_chapter_f_point		= -1;
-static int hf_rtp_midi_sj_chapter_f_mt0			= -1;
-static int hf_rtp_midi_sj_chapter_f_mt1			= -1;
-static int hf_rtp_midi_sj_chapter_f_mt2			= -1;
-static int hf_rtp_midi_sj_chapter_f_mt3			= -1;
-static int hf_rtp_midi_sj_chapter_f_mt4			= -1;
-static int hf_rtp_midi_sj_chapter_f_mt5			= -1;
-static int hf_rtp_midi_sj_chapter_f_mt6			= -1;
-static int hf_rtp_midi_sj_chapter_f_mt7			= -1;
-static int hf_rtp_midi_sj_chapter_f_hr			= -1;
-static int hf_rtp_midi_sj_chapter_f_mn			= -1;
-static int hf_rtp_midi_sj_chapter_f_sc			= -1;
-static int hf_rtp_midi_sj_chapter_f_fr			= -1;
+static int hf_rtp_midi_sj_chapter_f_sflag			= -1;
+static int hf_rtp_midi_sj_chapter_f_cflag			= -1;
+static int hf_rtp_midi_sj_chapter_f_pflag			= -1;
+static int hf_rtp_midi_sj_chapter_f_qflag			= -1;
+static int hf_rtp_midi_sj_chapter_f_dflag			= -1;
+static int hf_rtp_midi_sj_chapter_f_point			= -1;
+static int hf_rtp_midi_sj_chapter_f_mt0				= -1;
+static int hf_rtp_midi_sj_chapter_f_mt1				= -1;
+static int hf_rtp_midi_sj_chapter_f_mt2				= -1;
+static int hf_rtp_midi_sj_chapter_f_mt3				= -1;
+static int hf_rtp_midi_sj_chapter_f_mt4				= -1;
+static int hf_rtp_midi_sj_chapter_f_mt5				= -1;
+static int hf_rtp_midi_sj_chapter_f_mt6				= -1;
+static int hf_rtp_midi_sj_chapter_f_mt7				= -1;
+static int hf_rtp_midi_sj_chapter_f_hr				= -1;
+static int hf_rtp_midi_sj_chapter_f_mn				= -1;
+static int hf_rtp_midi_sj_chapter_f_sc				= -1;
+static int hf_rtp_midi_sj_chapter_f_fr				= -1;
 
-static int hf_rtp_midi_sj_chapter_x_sflag		= -1;
-static int hf_rtp_midi_sj_chapter_x_tflag		= -1;
-static int hf_rtp_midi_sj_chapter_x_cflag		= -1;
-static int hf_rtp_midi_sj_chapter_x_fflag		= -1;
-static int hf_rtp_midi_sj_chapter_x_dflag		= -1;
-static int hf_rtp_midi_sj_chapter_x_lflag		= -1;
-static int hf_rtp_midi_sj_chapter_x_sta			= -1;
-static int hf_rtp_midi_sj_chapter_x_tcount		= -1;
-static int hf_rtp_midi_sj_chapter_x_count		= -1;
-static int hf_rtp_midi_sj_chapter_x_first1		= -1;
-static int hf_rtp_midi_sj_chapter_x_first2		= -1;
-static int hf_rtp_midi_sj_chapter_x_first3		= -1;
-static int hf_rtp_midi_sj_chapter_x_first4		= -1;
-static int hf_rtp_midi_sj_chapter_x_data		= -1;
-static int hf_rtp_midi_sj_chapter_x_invalid_data	= -1;
+static int hf_rtp_midi_sj_chapter_x_sflag			= -1;
+static int hf_rtp_midi_sj_chapter_x_tflag			= -1;
+static int hf_rtp_midi_sj_chapter_x_cflag			= -1;
+static int hf_rtp_midi_sj_chapter_x_fflag			= -1;
+static int hf_rtp_midi_sj_chapter_x_dflag			= -1;
+static int hf_rtp_midi_sj_chapter_x_lflag			= -1;
+static int hf_rtp_midi_sj_chapter_x_sta				= -1;
+static int hf_rtp_midi_sj_chapter_x_tcount			= -1;
+static int hf_rtp_midi_sj_chapter_x_count			= -1;
+static int hf_rtp_midi_sj_chapter_x_first1			= -1;
+static int hf_rtp_midi_sj_chapter_x_first2			= -1;
+static int hf_rtp_midi_sj_chapter_x_first3			= -1;
+static int hf_rtp_midi_sj_chapter_x_first4			= -1;
+static int hf_rtp_midi_sj_chapter_x_data			= -1;
+static int hf_rtp_midi_sj_chapter_x_invalid_data		= -1;
 
-static int hf_rtp_midi_quarter_frame_type		= -1;
-static int hf_rtp_midi_quarter_frame_value		= -1;
-static int hf_rtp_midi_spp_truncated			= -1;
-static int hf_rtp_midi_spp				= -1;
-static int hf_rtp_midi_song_select			= -1;
-static int hf_rtp_midi_manu_data			= -1;
-static int hf_rtp_midi_edu_data				= -1;
-static int hf_rtp_midi_unknown_data			= -1;
-static int hf_rtp_midi_sysex_common_non_realtime	= -1;
-static int hf_rtp_midi_sysex_common_realtime		= -1;
-static int hf_rtp_midi_sysex_common_device_id		= -1;
+static int hf_rtp_midi_quarter_frame_type			= -1;
+static int hf_rtp_midi_quarter_frame_value			= -1;
+static int hf_rtp_midi_spp_truncated				= -1;
+static int hf_rtp_midi_spp					= -1;
+static int hf_rtp_midi_song_select				= -1;
+static int hf_rtp_midi_manu_data				= -1;
+static int hf_rtp_midi_edu_data					= -1;
+static int hf_rtp_midi_unknown_data				= -1;
+static int hf_rtp_midi_sysex_common_non_realtime		= -1;
+static int hf_rtp_midi_sysex_common_realtime			= -1;
+static int hf_rtp_midi_sysex_common_device_id			= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_mtc		= -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_ext		= -1;
-static int hf_rtp_midi_sysex_common_nrt_gi		= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd		= -1;
-static int hf_rtp_midi_sysex_common_tuning		= -1;
-static int hf_rtp_midi_sysex_common_nrt_gm		= -1;
-static int hf_rtp_midi_sysex_common_nrt_dls		= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc			= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_ext			= -1;
+static int hf_rtp_midi_sysex_common_nrt_gi			= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd			= -1;
+static int hf_rtp_midi_sysex_common_tuning			= -1;
+static int hf_rtp_midi_sysex_common_nrt_gm			= -1;
+static int hf_rtp_midi_sysex_common_nrt_dls			= -1;
 
-static int hf_rtp_midi_sysex_common_rt_mtc		= -1;
-static int hf_rtp_midi_sysex_common_rt_sc		= -1;
-static int hf_rtp_midi_sysex_common_rt_ni		= -1;
-static int hf_rtp_midi_sysex_common_rt_dc		= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_cueing	= -1;
-static int hf_rtp_midi_sysex_common_rt_mmc_commands	= -1;
-static int hf_rtp_midi_sysex_common_rt_mmc_responses	= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc			= -1;
+static int hf_rtp_midi_sysex_common_rt_sc			= -1;
+static int hf_rtp_midi_sysex_common_rt_ni			= -1;
+static int hf_rtp_midi_sysex_common_rt_dc			= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_cueing		= -1;
+static int hf_rtp_midi_sysex_common_rt_mmc_commands		= -1;
+static int hf_rtp_midi_sysex_common_rt_mmc_responses		= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_gi_device_family = -1;
+static int hf_rtp_midi_sysex_common_nrt_gi_device_family	= -1;
 static int hf_rtp_midi_sysex_common_nrt_gi_device_family_member = -1;
-static int hf_rtp_midi_sysex_common_nrt_gi_software_rev = -1;
+static int hf_rtp_midi_sysex_common_nrt_gi_software_rev		= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_sd_packet_number = -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_packet_number	= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_sd_header_sn	= -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_header_sf	= -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_header_sp	= -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_header_sl	= -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_header_ls	= -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_header_le	= -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_header_lt	= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_header_sn		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_header_sf		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_header_sp		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_header_sl		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_header_ls		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_header_le		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_header_lt		= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_sd_packet_count = -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_packet_check = -1;
-static int hf_rtp_midi_sysex_common_nrt_sd_packet_data  = -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_packet_count		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_packet_check		= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_packet_data		= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_sd_ext_ln	= -1;
+static int hf_rtp_midi_sysex_common_nrt_sd_ext_ln		= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_fd_device_id	= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd_type		= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd_name		= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd_length	= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd_packet_num	= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd_byte_count	= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd_packet_data	= -1;
-static int hf_rtp_midi_sysex_common_nrt_fd_checksum	= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_device_id		= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_type			= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_name			= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_length		= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_packet_num		= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_byte_count		= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_packet_data		= -1;
+static int hf_rtp_midi_sysex_common_nrt_fd_checksum		= -1;
 
-static int hf_rtp_midi_sysex_common_tune_program	= -1;
-static int hf_rtp_midi_sysex_common_tune_name		= -1;
-static int hf_rtp_midi_sysex_common_tune_freq		= -1;
-static int hf_rtp_midi_sysex_common_tune_checksum	= -1;
-static int hf_rtp_midi_sysex_common_tune_changes	= -1;
-static int hf_rtp_midi_sysex_common_tune_note		= -1;
+static int hf_rtp_midi_sysex_common_tune_program		= -1;
+static int hf_rtp_midi_sysex_common_tune_name			= -1;
+static int hf_rtp_midi_sysex_common_tune_freq			= -1;
+static int hf_rtp_midi_sysex_common_tune_checksum		= -1;
+static int hf_rtp_midi_sysex_common_tune_changes		= -1;
+static int hf_rtp_midi_sysex_common_tune_note			= -1;
 
-static int hf_rtp_midi_sysex_common_rt_mtc_fm_type	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_fm_hr	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_fm_mn	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_fm_sc	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_fm_fr	= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_fm_type		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_fm_hr		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_fm_mn		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_fm_sc		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_fm_fr		= -1;
 
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u1	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u2	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u3	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u4	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u5	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u6	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u7	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u8	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_ub_u9	= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u1		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u2		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u3		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u4		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u5		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u6		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u7		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u8		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_ub_u9		= -1;
 
-static int hf_rtp_midi_sysex_common_nrt_mtc_type	= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_hr		= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_mn		= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_sc		= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_fr		= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_ff		= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_enl		= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_enm		= -1;
-static int hf_rtp_midi_sysex_common_nrt_mtc_add		= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_type		= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_hr			= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_mn			= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_sc			= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_fr			= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_ff			= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_enl			= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_enm			= -1;
+static int hf_rtp_midi_sysex_common_nrt_mtc_add			= -1;
 
-static int hf_rtp_midi_sysex_common_rt_mtc_cue_enl	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_cue_enm	= -1;
-static int hf_rtp_midi_sysex_common_rt_mtc_cue_add	= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_cue_enl		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_cue_enm		= -1;
+static int hf_rtp_midi_sysex_common_rt_mtc_cue_add		= -1;
 
-static int hf_rtp_midi_sysex_common_rt_ni_bar_num	= -1;
-static int hf_rtp_midi_sysex_common_rt_ni_bytes		= -1;
-static int hf_rtp_midi_sysex_common_rt_ni_numerator	= -1;
-static int hf_rtp_midi_sysex_common_rt_ni_denominator	= -1;
-static int hf_rtp_midi_sysex_common_rt_ni_midi_clocks	= -1;
-static int hf_rtp_midi_sysex_common_rt_ni_32nds		= -1;
+static int hf_rtp_midi_sysex_common_rt_ni_bar_num		= -1;
+static int hf_rtp_midi_sysex_common_rt_ni_bytes			= -1;
+static int hf_rtp_midi_sysex_common_rt_ni_numerator		= -1;
+static int hf_rtp_midi_sysex_common_rt_ni_denominator		= -1;
+static int hf_rtp_midi_sysex_common_rt_ni_midi_clocks		= -1;
+static int hf_rtp_midi_sysex_common_rt_ni_32nds			= -1;
 
-static int hf_rtp_midi_sysex_common_rt_dc_volume	= -1;
-static int hf_rtp_midi_sysex_common_rt_dc_balance	= -1;
+static int hf_rtp_midi_sysex_common_rt_dc_volume		= -1;
+static int hf_rtp_midi_sysex_common_rt_dc_balance		= -1;
 
 
 /* RTP MIDI fields defining a subtree */
 
-static gint ett_rtp_midi				= -1;
-static gint ett_rtp_midi_commands			= -1;
-static gint ett_rtp_midi_journal			= -1;
-static gint ett_rtp_midi_command			= -1;
-static gint ett_rtp_midi_systemjournal			= -1;
-static gint ett_rtp_midi_channeljournals		= -1;
-static gint ett_rtp_midi_systemchapters			= -1;
-static gint ett_rtp_midi_sj_chapter_d			= -1;
-static gint ett_rtp_midi_sj_chapter_d_field_b		= -1;
-static gint ett_rtp_midi_sj_chapter_d_field_g		= -1;
-static gint ett_rtp_midi_sj_chapter_d_field_h		= -1;
-static gint ett_rtp_midi_sj_chapter_d_field_j		= -1;
-static gint ett_rtp_midi_sj_chapter_d_field_k		= -1;
-static gint ett_rtp_midi_sj_chapter_d_field_y		= -1;
-static gint ett_rtp_midi_sj_chapter_d_field_z		= -1;
-static gint ett_rtp_midi_sj_chapter_v			= -1;
-static gint ett_rtp_midi_sj_chapter_q			= -1;
-static gint ett_rtp_midi_sj_chapter_f			= -1;
-static gint ett_rtp_midi_sj_chapter_f_complete		= -1;
-static gint ett_rtp_midi_sj_chapter_f_partial		= -1;
-static gint ett_rtp_midi_sj_chapter_x			= -1;
-static gint ett_rtp_midi_sj_chapter_x_first		= -1;
-static gint ett_rtp_midi_sj_chapter_x_data		= -1;
-static gint ett_rtp_midi_channeljournal			= -1;
-static gint ett_rtp_midi_channelchapters		= -1;
-static gint ett_rtp_midi_cj_chapter_p			= -1;
-static gint ett_rtp_midi_cj_chapter_c			= -1;
-static gint ett_rtp_midi_cj_chapter_c_loglist		= -1;
-static gint ett_rtp_midi_cj_chapter_c_logitem		= -1;
-static gint ett_rtp_midi_cj_chapter_m			= -1;
-static gint ett_rtp_midi_cj_chapter_m_loglist		= -1;
-static gint ett_rtp_midi_cj_chapter_m_logitem		= -1;
-static gint ett_rtp_midi_cj_chapter_m_log_msb		= -1;
-static gint ett_rtp_midi_cj_chapter_m_log_lsb		= -1;
-static gint ett_rtp_midi_cj_chapter_m_log_a_button	= -1;
-static gint ett_rtp_midi_cj_chapter_m_log_c_button	= -1;
-static gint ett_rtp_midi_cj_chapter_m_log_count		= -1;
-static gint ett_rtp_midi_cj_chapter_w			= -1;
-static gint ett_rtp_midi_cj_chapter_n			= -1;
-static gint ett_rtp_midi_cj_chapter_n_loglist		= -1;
-static gint ett_rtp_midi_cj_chapter_n_logitem		= -1;
-static gint ett_rtp_midi_cj_chapter_n_octets		= -1;
-static gint ett_rtp_midi_cj_chapter_e			= -1;
-static gint ett_rtp_midi_cj_chapter_e_loglist		= -1;
-static gint ett_rtp_midi_cj_chapter_e_logitem		= -1;
-static gint ett_rtp_midi_cj_chapter_t			= -1;
-static gint ett_rtp_midi_cj_chapter_a			= -1;
-static gint ett_rtp_midi_cj_chapter_a_loglist		= -1;
-static gint ett_rtp_midi_cj_chapter_a_logitem		= -1;
-static gint ett_rtp_midi_sysex_data			= -1;
-static gint ett_rtp_midi_sysex_edu			= -1;
-static gint ett_rtp_midi_sysex_manu			= -1;
-static gint ett_rtp_midi_sysex_common_rt		= -1;
-static gint ett_rtp_midi_sysex_common_nrt		= -1;
-static gint ett_rtp_midi_sysex_common_tune_note		= -1;
+static gint ett_rtp_midi					= -1;
+static gint ett_rtp_midi_commands				= -1;
+static gint ett_rtp_midi_journal				= -1;
+static gint ett_rtp_midi_command				= -1;
+static gint ett_rtp_midi_systemjournal				= -1;
+static gint ett_rtp_midi_channeljournals			= -1;
+static gint ett_rtp_midi_systemchapters				= -1;
+static gint ett_rtp_midi_sj_chapter_d				= -1;
+static gint ett_rtp_midi_sj_chapter_d_field_b			= -1;
+static gint ett_rtp_midi_sj_chapter_d_field_g			= -1;
+static gint ett_rtp_midi_sj_chapter_d_field_h			= -1;
+static gint ett_rtp_midi_sj_chapter_d_field_j			= -1;
+static gint ett_rtp_midi_sj_chapter_d_field_k			= -1;
+static gint ett_rtp_midi_sj_chapter_d_field_y			= -1;
+static gint ett_rtp_midi_sj_chapter_d_field_z			= -1;
+static gint ett_rtp_midi_sj_chapter_v				= -1;
+static gint ett_rtp_midi_sj_chapter_q				= -1;
+static gint ett_rtp_midi_sj_chapter_f				= -1;
+static gint ett_rtp_midi_sj_chapter_f_complete			= -1;
+static gint ett_rtp_midi_sj_chapter_f_partial			= -1;
+static gint ett_rtp_midi_sj_chapter_x				= -1;
+static gint ett_rtp_midi_sj_chapter_x_first			= -1;
+static gint ett_rtp_midi_sj_chapter_x_data			= -1;
+static gint ett_rtp_midi_channeljournal				= -1;
+static gint ett_rtp_midi_channelchapters			= -1;
+static gint ett_rtp_midi_cj_chapter_p				= -1;
+static gint ett_rtp_midi_cj_chapter_c				= -1;
+static gint ett_rtp_midi_cj_chapter_c_loglist			= -1;
+static gint ett_rtp_midi_cj_chapter_c_logitem			= -1;
+static gint ett_rtp_midi_cj_chapter_m				= -1;
+static gint ett_rtp_midi_cj_chapter_m_loglist			= -1;
+static gint ett_rtp_midi_cj_chapter_m_logitem			= -1;
+static gint ett_rtp_midi_cj_chapter_m_log_msb			= -1;
+static gint ett_rtp_midi_cj_chapter_m_log_lsb			= -1;
+static gint ett_rtp_midi_cj_chapter_m_log_a_button		= -1;
+static gint ett_rtp_midi_cj_chapter_m_log_c_button		= -1;
+static gint ett_rtp_midi_cj_chapter_m_log_count			= -1;
+static gint ett_rtp_midi_cj_chapter_w				= -1;
+static gint ett_rtp_midi_cj_chapter_n				= -1;
+static gint ett_rtp_midi_cj_chapter_n_loglist			= -1;
+static gint ett_rtp_midi_cj_chapter_n_logitem			= -1;
+static gint ett_rtp_midi_cj_chapter_n_octets			= -1;
+static gint ett_rtp_midi_cj_chapter_e				= -1;
+static gint ett_rtp_midi_cj_chapter_e_loglist			= -1;
+static gint ett_rtp_midi_cj_chapter_e_logitem			= -1;
+static gint ett_rtp_midi_cj_chapter_t				= -1;
+static gint ett_rtp_midi_cj_chapter_a				= -1;
+static gint ett_rtp_midi_cj_chapter_a_loglist			= -1;
+static gint ett_rtp_midi_cj_chapter_a_logitem			= -1;
+static gint ett_rtp_midi_sysex_data				= -1;
+static gint ett_rtp_midi_sysex_edu				= -1;
+static gint ett_rtp_midi_sysex_manu				= -1;
+static gint ett_rtp_midi_sysex_common_rt			= -1;
+static gint ett_rtp_midi_sysex_common_nrt			= -1;
+static gint ett_rtp_midi_sysex_common_tune_note			= -1;
 
 
 static guint rtp_midi_payload_type_value	= 0;
@@ -2967,12 +2965,12 @@ decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 static int
 decode_note_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
-	guint8		 note		= 0;
-	guint8		 velocity	= 0;
-	const gchar	*status_str	= NULL;
-	const gchar	*note_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 note;
+	guint8		 velocity;
+	const gchar	*status_str;
+	const gchar	*note_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 
@@ -3088,12 +3086,12 @@ decode_note_off(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned in
 static int
 decode_note_on(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
-	guint8		 note		= 0;
-	guint8		 velocity	= 0;
-	const gchar	*status_str	= NULL;
-	const gchar	*note_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 note;
+	guint8		 velocity;
+	const gchar	*status_str;
+	const gchar	*note_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 
@@ -3215,12 +3213,12 @@ decode_note_on(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int
 static int
 decode_poly_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
-	guint8		 note		= 0;
-	guint8		 pressure	= 0;
-	const gchar	*status_str	= NULL;
-	const gchar	*note_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 note;
+	guint8		 pressure;
+	const gchar	*status_str;
+	const gchar	*note_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 
@@ -3336,10 +3334,10 @@ decode_poly_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 static int
 decode_channel_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
-	guint8		 pressure	= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 pressure;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 
@@ -3412,12 +3410,12 @@ decode_channel_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
 static int
 decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
-	guint8		 octet1		= 0;
-	guint8		 octet2		= 0;
-	guint8		 pitch		= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item   = NULL;
-	proto_tree	*command_tree   = NULL;
+	guint8		 octet1;
+	guint8		 octet2;
+	guint8		 pitch;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 
@@ -3532,10 +3530,10 @@ decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static int
 decode_program_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
-	guint8		 program	= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 program;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 
@@ -3610,12 +3608,12 @@ return 1;
 static int
 decode_control_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
-	guint8		 controller	= 0;
-	guint8		 value		= 0;
-	const gchar	*status_str	= NULL;
-	const gchar	*ctrl_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 controller;
+	guint8		 value;
+	const gchar	*status_str;
+	const gchar	*ctrl_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( status >> 4, rtp_midi_channel_status, rtp_midi_unknown_value_hex );
 
@@ -3737,7 +3735,7 @@ decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* sample number */
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_sn, tvb, offset, 2, ENC_BIG_ENDIAN );
-	offset += 2;
+	offset	 += 2;
 	data_len -= 2;
 	consumed += 2;
 
@@ -3755,7 +3753,7 @@ decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* sample period */
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_sp, tvb, offset, 3, ENC_BIG_ENDIAN );
-	offset += 3;
+	offset	 += 3;
 	data_len -= 3;
 	consumed += 3;
 
@@ -3764,7 +3762,7 @@ decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* sample length */
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_sl, tvb, offset, 3, ENC_BIG_ENDIAN );
-	offset += 3;
+	offset	 += 3;
 	data_len -= 3;
 	consumed += 3;
 
@@ -3773,7 +3771,7 @@ decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* loop start */
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_ls, tvb, offset, 3, ENC_BIG_ENDIAN );
-	offset += 3;
+	offset	 += 3;
 	data_len -= 3;
 	consumed += 3;
 
@@ -3782,7 +3780,7 @@ decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* loop end */
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_le, tvb, offset, 3, ENC_BIG_ENDIAN );
-	offset += 3;
+	offset	 += 3;
 	data_len -= 3;
 	consumed += 3;
 
@@ -3819,7 +3817,7 @@ decode_sysex_common_nrt_sd_packet( tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_packet_data, tvb, offset, data_len - 1, ENC_NA );
 
-		offset += ( data_len - 1 );
+		offset	 += ( data_len - 1 );
 		data_len -= ( data_len - 1 );
 		consumed += ( data_len -1 );
 	}
@@ -3848,9 +3846,6 @@ decode_sysex_common_nrt_sd_req( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* sample number */
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_sn, tvb, offset, 2, ENC_BIG_ENDIAN );
-	/*Fix Clang Warning
-	offset += 2;
-	data_len -= 2;*/
 	consumed += 2;
 
 	return consumed;
@@ -3862,7 +3857,7 @@ decode_sysex_common_nrt_sd_req( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 static unsigned int
 decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
+	guint8		 sub_id;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -3882,7 +3877,7 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* sample number */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_sn, tvb, offset, 2, ENC_BIG_ENDIAN );
-		offset += 2;
+		offset	 += 2;
 		data_len -= 2;
 		consumed += 2;
 
@@ -3891,7 +3886,7 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* loop number */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_ext_ln, tvb, offset, 2, ENC_BIG_ENDIAN );
-		offset += 2;
+		offset	 += 2;
 		data_len -= 2;
 		consumed += 2;
 
@@ -3909,7 +3904,7 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* loop start */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_ls, tvb, offset, 3, ENC_BIG_ENDIAN );
-		offset += 3;
+		offset	 += 3;
 		data_len -= 3;
 		consumed += 3;
 
@@ -3918,9 +3913,6 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* loop end */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_le, tvb, offset, 3, ENC_BIG_ENDIAN );
-		/*Fix Clang Warning
-		offset += 3;
-		data_len -= 3;*/
 		consumed += 3;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_NRT_SD_EXT_LOOP_POINTS_REQUEST ) {
@@ -3930,7 +3922,7 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* sample number */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_sn, tvb, offset, 2, ENC_BIG_ENDIAN );
-		offset += 2;
+		offset	 += 2;
 		data_len -= 2;
 		consumed += 2;
 
@@ -3939,9 +3931,6 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* loop number */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_ext_ln, tvb, offset, 2, ENC_BIG_ENDIAN );
-		/*Fix Clang Warning 
-		offset += 2;
-		data_len -= 2; */
 		consumed += 2;
 
 	}
@@ -3954,8 +3943,7 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 static unsigned int
 decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
-	guint8		 manu_short	= 0;
+	guint8		 sub_id;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -3976,6 +3964,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		/* nothing more to do... */
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_NRT_GI_IDENTITY_REPLY ) {
+		guint8 manu_short;
 
 		if ( data_len < 1 ) {
 			return consumed;
@@ -3994,7 +3983,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				return consumed;
 			}
 			proto_tree_add_item( tree, hf_rtp_midi_manu_long, tvb, offset, 2, ENC_BIG_ENDIAN );
-			offset +=2 ;
+			offset	 += 2 ;
 			data_len -= 2;
 			consumed += 2;
 		}
@@ -4004,7 +3993,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			return consumed;
 		}
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_gi_device_family, tvb, offset, 2, ENC_BIG_ENDIAN );
-		offset +=2 ;
+		offset	 += 2 ;
 		data_len -= 2;
 		consumed += 2;
 
@@ -4013,7 +4002,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			return consumed;
 		}
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_gi_device_family_member, tvb, offset, 2, ENC_BIG_ENDIAN );
-		offset +=2 ;
+		offset	 += 2 ;
 		data_len -= 2;
 		consumed += 2;
 
@@ -4022,9 +4011,6 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			return consumed;
 		}
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_gi_software_rev, tvb, offset, 4, ENC_BIG_ENDIAN );
-		/*Fix Clang Warning
-		offset +=4 ;
-		data_len -= 4;*/
 		consumed += 4;
 	}
 
@@ -4036,7 +4022,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  */
 static unsigned int
 decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
+	guint8		 sub_id;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4065,7 +4051,7 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 		/* file type */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_type, tvb, offset, 4, ENC_ASCII|ENC_NA );
-		offset += 4;
+		offset	 += 4;
 		data_len -= 4;
 		consumed += 4;
 
@@ -4074,7 +4060,7 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 		/* file length */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_length, tvb, offset, 4, ENC_BIG_ENDIAN );
-		offset += 4;
+		offset	 += 4;
 		data_len -= 4;
 		consumed += 4;
 
@@ -4082,8 +4068,6 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 			/* file-name */
 			proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_name, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-			/*Fix Clang Warning
-			offset += data_len;*/
 			data_len -= data_len;
 			consumed += data_len;
 		}
@@ -4113,7 +4097,7 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 			proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_packet_data, tvb, offset, data_len - 1, ENC_NA );
 
-			offset += ( data_len - 1 );
+			offset	 += ( data_len - 1 );
 			data_len -= ( data_len - 1 );
 			consumed += ( data_len -1 );
 		}
@@ -4143,7 +4127,7 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 		/* file type */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_type, tvb, offset, 4, ENC_ASCII|ENC_NA );
-		offset += 4;
+		offset	 += 4;
 		data_len -= 4;
 		consumed += 4;
 
@@ -4151,8 +4135,6 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 			/* file-name */
 			proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_name, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-			/*Fix Clang Warning
-			offset += data_len;*/
 			data_len -= data_len;
 			consumed += data_len;
 		}
@@ -4168,12 +4150,10 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static unsigned int
 decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 
-	proto_item	*tune_item	= NULL;
-	proto_tree	*tune_tree	= NULL;
-	const gchar	*note_str	= NULL;
-	guint8		 sub_id		= 0;
-	guint8		 changes	= 0;
-	guint8		 note		= 0;
+	proto_item	*tune_item;
+	proto_tree	*tune_tree;
+	const gchar	*note_str;
+	guint8		 sub_id;
 	int		 consumed	= 0;
 	unsigned int	 i;
 
@@ -4214,7 +4194,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 		/* file length */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_tune_name, tvb, offset, 16, ENC_ASCII|ENC_NA );
-		offset += 16;
+		offset	 += 16;
 		data_len -= 16;
 		consumed += 16;
 
@@ -4231,7 +4211,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			/* frequency */
 			proto_tree_add_item( tune_tree, hf_rtp_midi_sysex_common_tune_freq, tvb, offset, 3, ENC_BIG_ENDIAN );
 
-			offset += 3;
+			offset	 += 3;
 			data_len -= 3;
 			consumed += 3;
 
@@ -4247,6 +4227,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		consumed++;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_TUNING_NOTE_CHANGE ) {
+		guint8 changes;
 
 		if ( data_len < 1 )
 			return -1;
@@ -4268,6 +4249,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		consumed++;
 
 		for ( i=0; i < changes; i++ ) {
+			guint8 note;
 
 			if ( data_len < 4 )
 				return -1;
@@ -4288,7 +4270,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			/* frequency */
 			proto_tree_add_item( tune_tree, hf_rtp_midi_sysex_common_tune_freq, tvb, offset, 3, ENC_BIG_ENDIAN );
 
-			offset += 3;
+			offset	 += 3;
 			data_len -= 3;
 			consumed += 3;
 
@@ -4514,8 +4496,6 @@ decode_sysex_common_nrt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 		/* additional data */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_mtc_add, tvb, offset, data_len, ENC_NA );
-		/*Fix Clang Warning
-		offset += data_len;*/
 		data_len -= data_len;
 		consumed += data_len;
 	}
@@ -4561,8 +4541,6 @@ decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* additional data */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_mtc_cue_add, tvb, offset, data_len, ENC_NA );
-		/*Fix Clang Warning
-		offset += data_len;*/
 		data_len -= data_len;
 		consumed += data_len;
 	}
@@ -4578,10 +4556,10 @@ decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
  */
 static unsigned int
 decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 common_nrt	= 0;
-	const gchar	*nrt_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 common_nrt;
+	const gchar	*nrt_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
 	int		 ext_consumed	= 0;
 
@@ -4662,7 +4640,7 @@ decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	}
 
 	/* set our pointers correct to move past already decoded data */
-	offset += ext_consumed;
+	offset	 += ext_consumed;
 	data_len -= ext_consumed;
 	consumed += ext_consumed;
 
@@ -4684,7 +4662,7 @@ decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  */
 static unsigned int
 decode_sysex_common_rt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
+	guint8		 sub_id;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4848,9 +4826,8 @@ decode_sysex_common_rt_sc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  */
 static unsigned int
 decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
+	guint8		 sub_id;
 	int		 consumed	= 0;
-	int		 bytes		= 0;
 
 	if ( data_len < 1 )
 		return consumed;
@@ -4869,13 +4846,11 @@ decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 		/* bar number */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_ni_bar_num, tvb, offset, 2, ENC_BIG_ENDIAN );
-		/*Fix Clang Warning
-		offset += 2;
-		data_len -= 2;*/
 		consumed += 2;
 
 	} else if ( ( sub_id == RTP_MIDI_SYSEX_COMMON_RT_NT_TIME_SIGNATURE_IMMEDIATE ) ||
 			( sub_id == RTP_MIDI_SYSEX_COMMON_RT_NT_TIME_SIGNATURE_DELAYED ) ) {
+		int bytes;
 
 		if ( data_len < 1 )
 			return -1;
@@ -4946,7 +4921,7 @@ decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  */
 static unsigned int
 decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
+	guint8		 sub_id;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4966,9 +4941,6 @@ decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 		/* volume */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_dc_volume, tvb, offset, 2, ENC_BIG_ENDIAN );
-		/*Fix Clang Warning
-		offset += 2;
-		data_len -= 2;*/
 		consumed += 2;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_RT_DC_MASTER_BALANCE ) {
@@ -4978,9 +4950,6 @@ decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 		/* balance */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_dc_balance, tvb, offset, 2, ENC_BIG_ENDIAN );
-		/*Fix Clang Warning
-		offset += 2;
-		data_len -= 2;*/
 		consumed += 2;
 
 	}
@@ -5036,10 +5005,10 @@ decode_sysex_common_rt_mmc_response( tvbuff_t *tvb, packet_info *pinfo _U_, prot
  */
 static unsigned int
 decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 common_rt	= 0;
-	const gchar	*rt_str		= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 common_rt;
+	const gchar	*rt_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
 	int		 ext_consumed	= 0;
 
@@ -5098,7 +5067,7 @@ decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	}
 
 	/* set our pointers correct to move past already decoded data */
-	offset += ext_consumed;
+	offset	 += ext_consumed;
 	data_len -= ext_consumed;
 	consumed += ext_consumed;
 
@@ -5118,8 +5087,8 @@ decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
  */
 static unsigned int
 decode_sysex_common_educational( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -5139,8 +5108,8 @@ decode_sysex_common_educational( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
  */
 static unsigned int
 decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len, unsigned int manu_code _U_) {
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -5166,20 +5135,18 @@ decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
  */
 static unsigned int
 decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	guint8		 octet		= 0;
-	guint8		 manu_short	= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
-	int		 data_len	= 0;
+	int		 data_len;
 	int		 ext_consumed	= 0;
-	guint16		 manufacturer	= 0;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_SYSEX_END, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
+		guint8 octet;
 		octet = tvb_get_guint8( tvb, offset + consumed );
 		consumed++;
 
@@ -5211,6 +5178,8 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 
 	/* lets see if we have enough data for the sysex-id */
 	if ( data_len > 1 ) {
+		guint8  manu_short;
+		guint16 manufacturer;
 		manufacturer = tvb_get_guint8( tvb, offset );
 		proto_tree_add_item( command_tree, hf_rtp_midi_manu_short, tvb, offset, 1, ENC_BIG_ENDIAN );
 		manu_short = tvb_get_guint8( tvb, offset );
@@ -5232,11 +5201,11 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 				if ( data_len > 2 ) {
 					manufacturer = tvb_get_ntohs( tvb, offset );
 					proto_tree_add_item( command_tree, hf_rtp_midi_manu_long, tvb, offset, 2, ENC_BIG_ENDIAN );
-					offset +=2 ;
-					data_len -= 2;
-					ext_consumed = decode_sysex_common_manufacturer( tvb, pinfo, command_tree, offset, data_len, manufacturer );
+					offset	     +=	2 ;
+					data_len     -= 2;
+					ext_consumed  = decode_sysex_common_manufacturer( tvb, pinfo, command_tree, offset, data_len, manufacturer );
 				}  else {
-					ext_consumed = -1;
+					ext_consumed  = -1;
 				}
 				break;
 			default:
@@ -5251,8 +5220,6 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 
 	/* set our pointers correct to move past already decoded data */
 	offset += ext_consumed;
-	/*Fix Clang Warning
-	data_len -= ext_consumed;*/
 
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset, 1, ENC_BIG_ENDIAN );
 
@@ -5270,10 +5237,10 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
  */
 static int
 decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	guint8		 value		= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 value;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_MTC_QUARTER_FRAME, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 
@@ -5315,12 +5282,12 @@ decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
  */
 static int
 decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	guint8		 octet1		= 0;
-	guint8		 octet2		= 0;
-	guint8		 position	= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 octet1;
+	guint8		 octet2;
+	guint8		 position;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_SONG_POSITION_POINTER, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 
@@ -5382,10 +5349,10 @@ decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 static int
 decode_song_select(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	guint8		 song_nr	= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	guint8		 song_nr;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_SONG_SELECT, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 
@@ -5425,16 +5392,16 @@ decode_song_select(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
  */
 static int
 decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	guint8		 octet		= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_UNDEFINED_F4, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
+		guint8 octet;
 		octet = tvb_get_guint8( tvb, offset + consumed );
 		consumed++;
 
@@ -5464,16 +5431,16 @@ decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
  */
 static int
 decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	guint8		 octet		= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 	int		 consumed	= 0;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_UNDEFINED_F5, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
+		guint8 octet;
 		octet = tvb_get_guint8( tvb, offset + consumed );
 		consumed++;
 		/* Is this command done? */
@@ -5502,9 +5469,9 @@ decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
  */
 static int
 decode_tune_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len _U_ ) {
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_TUNE_REQUEST, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1, "%s", status_str );
@@ -5524,16 +5491,16 @@ decode_tune_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
  */
 static int
 decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
-	guint8		 octet		= 0;
-	const gchar	*status_str	= NULL;
-	proto_item	*command_item	= NULL;
-	proto_tree	*command_tree	= NULL;
-	int		 consumed	= 0;
+	const gchar	*status_str;
+	proto_item	*command_item;
+	proto_tree	*command_tree;
+	int		 consumed = 0;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_SYSEX_END, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 
 	/* we need to parse "away" data until the next command */
 	while ( cmd_len ) {
+		guint8 octet;
 		octet = tvb_get_guint8( tvb, offset + consumed );
 		consumed++;
 
@@ -5584,16 +5551,14 @@ decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsign
 static int
 decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 *runningstatus, unsigned int *rsoffset )
 {
-	guint8		 octet		= 0;
-	const gchar	*valstr		= NULL;
 	int		 consumed	= 0;
 	int		 ext_consumed	= 0;
-	gboolean	 using_rs	= FALSE;
-	proto_item	*command_item     = NULL;
-	proto_tree	*command_tree     = NULL;
+	guint8		 octet;
+	gboolean	 using_rs;
 
 
-/*	guint8		octet2;
+#if 0
+	guint8		octet2;
 	guint8		octet3;
 	guint8		cmd;
 	guint8		channel;
@@ -5608,8 +5573,8 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 	guint8		subid1;
 	guint8		subid2;
 	guint8		sysexchan;
-	unsigned int	helpoffset;*/
-
+	unsigned int	helpoffset;
+#endif
 
 	/* extra sanity check */
 	if ( !cmd_len ) {
@@ -5623,6 +5588,10 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 	/* midi realtime-data -> one octet  -- unlike serial-wired MIDI realtime-commands in RTP-MIDI will
 	 * not be intermingled with other MIDI-commands, so we handle this case right here and return */
 	if ( octet >= 0xf8 ) {
+		proto_item  *command_item;
+		proto_tree  *command_tree;
+		const gchar *valstr;
+
 		valstr =  val_to_str( octet, rtp_midi_common_status, rtp_midi_unknown_value_hex );
 		command_item = proto_tree_add_text(tree, tvb, offset, 1, "%s", valstr );
 		command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command);
@@ -5748,9 +5717,9 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
  */
 static int
 decode_cj_chapter_c( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_loglist_tree		= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_cj_chapter_tree;
+	proto_tree			*rtp_midi_loglist_tree;
 	int				 consumed			= 0;
 	guint8				 octet;
 	int				 count;
@@ -5818,10 +5787,10 @@ decode_cj_chapter_c( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	proto_tree			*rtp_midi_loglist_item_tree	= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_cj_chapter_tree;
+	proto_tree			*rtp_midi_loglist_tree;
+	proto_tree			*rtp_midi_loglist_item_tree;
 	guint16				header;
 	guint8				logitemheader;
 	int				length;
@@ -5854,7 +5823,7 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 	/* done with header */
 	consumed += 2;
-	offset += 2;
+	offset	 += 2;
 
 	/* do we have the pending field? */
 	if ( header & 0x4000 ) {
@@ -6004,8 +5973,8 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			proto_tree_add_item( ti, hf_rtp_midi_cj_chapter_m_log_a_button, tvb, offset, 2, ENC_BIG_ENDIAN );
 
 			consumed += 2;
-			offset += 2;
-			length -= 2;
+			offset	 += 2;
+			length	 -= 2;
 		}
 
 		/* do we have a c-button field? */
@@ -6022,8 +5991,8 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			proto_tree_add_item( ti, hf_rtp_midi_cj_chapter_m_log_c_button, tvb, offset, 2, ENC_BIG_ENDIAN );
 
 			consumed += 2;
-			offset += 2;
-			length -= 2;
+			offset	 += 2;
+			length	 -= 2;
 		}
 
 		/* do we have a count field? */
@@ -6055,10 +6024,10 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	const gchar			*note_str			= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_cj_chapter_tree;
+	proto_tree			*rtp_midi_loglist_tree;
+	const gchar			*note_str;
 	int				 consumed			= 0;
 	guint16				 header;
 	guint8				 note;
@@ -6104,7 +6073,7 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_n_low, tvb, offset, 2, ENC_BIG_ENDIAN );
 	proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_n_high, tvb, offset, 2, ENC_BIG_ENDIAN );
 
-	offset += 2;
+	offset	 += 2;
 	consumed += 2;
 
 	if ( log_count > 0 ) {
@@ -6169,10 +6138,10 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	const gchar			*note_str			= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_cj_chapter_tree;
+	proto_tree			*rtp_midi_loglist_tree;
+	const gchar			*note_str;
 	int				 consumed			= 0;
 	guint8				 header;
 	guint8				 note;
@@ -6257,10 +6226,10 @@ decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	const gchar			*note_str			= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_cj_chapter_tree;
+	proto_tree			*rtp_midi_loglist_tree;
+	const gchar			*note_str;
 	int				 consumed			= 0;
 	guint8				 header;
 	guint8				 note;
@@ -6299,7 +6268,7 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 	for ( i = 0; i < log_count; i++ ) {
 
-		note = tvb_get_guint8( tvb, offset ) & 0x7f;
+		note	 = tvb_get_guint8( tvb, offset ) & 0x7f;
 		pressure = tvb_get_guint8( tvb, offset + 1 ) & 0x7f;
 
 		note_str = val_to_str( note, rtp_midi_note_values, rtp_midi_unknown_value_dec );
@@ -6332,10 +6301,10 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_chanjournal_tree	= NULL;
-	proto_tree			*rtp_midi_cj_chapters_tree	= NULL;
-	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_chanjournal_tree;
+	proto_tree			*rtp_midi_cj_chapters_tree;
+	proto_tree			*rtp_midi_cj_chapter_tree;
 	guint32				chanflags;
 	guint16				chanjourlen;
 	int				consumed = 0;
@@ -6370,7 +6339,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	rtp_midi_cj_chapters_tree = proto_item_add_subtree( ti, ett_rtp_midi_channelchapters );
 
 	/* take care of length of header */
-	offset += 3;
+	offset	 += 3;
 	consumed += 3;
 
 	/* Do we have a program change chapter? */
@@ -6391,7 +6360,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_p_xflag, tvb, offset + 2, 1, ENC_BIG_ENDIAN );
 		proto_tree_add_item( rtp_midi_cj_chapter_tree, hf_rtp_midi_cj_chapter_p_bank_lsb, tvb, offset + 2, 1, ENC_BIG_ENDIAN );
 
-		offset += 3;
+		offset	 += 3;
 		consumed += 3;
 	}
 
@@ -6402,7 +6371,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 
 	}
 
@@ -6413,7 +6382,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* Do we have a pitch-wheel chapter? */
@@ -6447,7 +6416,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* Do we have a note command extras chapter? */
@@ -6457,7 +6426,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* Do we have channel aftertouch chapter? */
@@ -6484,8 +6453,6 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		/*Fix Clang Warning
-		offset += ext_consumed;*/
 	}
 
 	/* Make sanity check for consumed data vs. stated length of this channels journal */
@@ -6502,8 +6469,8 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
-	proto_item	*ti			= NULL;
-	proto_tree	*rtp_midi_field_tree	= NULL;
+	proto_item	*ti;
+	proto_tree	*rtp_midi_field_tree;
 	int		 consumed		= 0;
 	guint16		 f4flags;
 	guint16		 f4length;
@@ -6528,7 +6495,7 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_dsz, tvb, offset, 2, ENC_BIG_ENDIAN );
 	proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_length, tvb, offset, 2, ENC_BIG_ENDIAN );
 
-	offset += 2;
+	offset	 += 2;
 	consumed += 2;
 	f4length -= 2;
 
@@ -6562,8 +6529,8 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			}
 		}
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_value, tvb, offset, valuelen, ENC_NA );
-		offset+=valuelen;
-		f4length-=valuelen;
+		offset	 += valuelen;
+		f4length -= valuelen;
 	}
 
 	if ( f4flags & RTP_MIDI_SJ_CHAPTER_D_SYSCOM_FLAG_L ) {
@@ -6573,8 +6540,8 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_legal, tvb, offset, f4length, ENC_NA );
-		offset+=f4length;
-		f4length-=f4length;
+		offset	 += f4length;
+		f4length -= f4length;
 	}
 
 	/* if we still have data, the length-field was incorrect we dump the data here and abort! */
@@ -6585,8 +6552,6 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_data, tvb, offset, f4length, ENC_NA );
-		/*Fix Clang Warning
-		offset += f4length;*/
 		consumed += f4length;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6602,8 +6567,8 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
-	proto_item	*ti			= NULL;
-	proto_tree	*rtp_midi_field_tree	= NULL;
+	proto_item	*ti;
+	proto_tree	*rtp_midi_field_tree;
 	int		 consumed		= 0;
 	guint16		 f5flags;
 	guint16		 f5length;
@@ -6628,7 +6593,7 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_dsz, tvb, offset, 2, ENC_BIG_ENDIAN );
 	proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_length, tvb, offset, 2, ENC_BIG_ENDIAN );
 
-	offset += 2;
+	offset	 += 2;
 	consumed += 2;
 	f5length -= 2;
 
@@ -6662,8 +6627,8 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			}
 		}
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_value, tvb, offset, valuelen, ENC_NA );
-		offset+=valuelen;
-		f5length-=valuelen;
+		offset	 += valuelen;
+		f5length -= valuelen;
 	}
 
 	if ( f5flags & RTP_MIDI_SJ_CHAPTER_D_SYSCOM_FLAG_L ) {
@@ -6673,8 +6638,8 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_legal, tvb, offset, f5length, ENC_NA );
-		offset+=f5length;
-		f5length-=f5length;
+		offset	 += f5length;
+		f5length -= f5length;
 	}
 
 	/* if we still have data, we dump it here - see above! */
@@ -6685,8 +6650,6 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_data, tvb, offset, f5length, ENC_NA );
-		/*Fix Clang Warning
-		offset += f5length;*/
 		consumed += f5length;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6700,8 +6663,8 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
-	proto_item	*ti			= NULL;
-	proto_tree	*rtp_midi_field_tree	= NULL;
+	proto_item	*ti;
+	proto_tree	*rtp_midi_field_tree;
 	int		 consumed		= 0;
 	guint8		 f9flags;
 	guint8		 f9length;
@@ -6748,8 +6711,8 @@ decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_sysreal_legal, tvb, offset, f9length, ENC_NA );
-		offset+=f9length;
-		f9length-=f9length;
+		offset	 += f9length;
+		f9length -= f9length;
 	}
 
 	/* if we still have data, the length-field was incorrect we dump the data here and abort! */
@@ -6761,8 +6724,6 @@ decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_sysreal_data, tvb, offset, f9length, ENC_NA );
-		/*Fix Clang Warning 
-		offset += f9length;*/
 		consumed += f9length;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6777,8 +6738,8 @@ decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static int
 decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
-	proto_item	*ti			= NULL;
-	proto_tree	*rtp_midi_field_tree	= NULL;
+	proto_item	*ti;
+	proto_tree	*rtp_midi_field_tree;
 	int		 consumed		= 0;
 	guint8		 fdflags;
 	guint8		 fdlength;
@@ -6789,7 +6750,7 @@ decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	}
 
 	/* Get flags & length */
-	fdflags = tvb_get_guint8( tvb, offset );
+	fdflags  = tvb_get_guint8( tvb, offset );
 	fdlength = fdflags & RTP_MIDI_SJ_CHAPTER_D_SYSREAL_MASK_LENGTH;
 
 	/* now we can display our tree, as we now have the full length */
@@ -6825,8 +6786,8 @@ decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_sysreal_legal, tvb, offset, fdlength, ENC_NA );
-		offset+=fdlength;
-		fdlength-=fdlength;
+		offset	 += fdlength;
+		fdlength -= fdlength;
 	}
 
 	/* if we still have data, the length-field was incorrect we dump the data here and abort! */
@@ -6839,8 +6800,6 @@ decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_sysreal_data, tvb, offset, fdlength, ENC_NA );
 
-		/*Fix Clang Warning
-		offset += fdlength;*/
 		consumed += fdlength;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6855,10 +6814,10 @@ decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
  */
 static int
 decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_item			*tix				= NULL;
-	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_field_tree		= NULL;
+	proto_item			*ti;
+	proto_item			*tix;
+	proto_tree			*rtp_midi_sj_chapter_tree;
+	proto_tree			*rtp_midi_field_tree;
 	guint8				header;
 	int				consumed = 0;
 	int				ext_consumed;
@@ -6949,7 +6908,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* do we have 0xF5 field? */
@@ -6959,7 +6918,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* do we have 0xF9 field? */
@@ -6969,7 +6928,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* do we have 0xFD field? */
@@ -6979,8 +6938,6 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		/*Fix Clang Warning
-		offset += ext_consumed;*/
 	}
 
 
@@ -6994,8 +6951,8 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_sj_chapter_tree;
 	guint8				header;
 	int				consumed = 0;
 	int				len = 1;
@@ -7034,7 +6991,7 @@ decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		proto_tree_add_item( rtp_midi_sj_chapter_tree, hf_rtp_midi_sj_chapter_q_clock, tvb, offset, 3, ENC_BIG_ENDIAN );
 
 		consumed += 3;
-		offset += 3;
+		offset	 += 3;
 
 	} else {
 		proto_tree_add_item( rtp_midi_sj_chapter_tree, hf_rtp_midi_sj_chapter_q_top, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -7051,8 +7008,6 @@ decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		proto_tree_add_item( rtp_midi_sj_chapter_tree, hf_rtp_midi_sj_chapter_q_timetools, tvb, offset, 3, ENC_BIG_ENDIAN );
 
 		consumed += 3;
-		/*Fix Clang Warning
-		offset += 3;*/
 	}
 
 	return consumed;
@@ -7063,9 +7018,9 @@ decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_sj_field_tree		= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_sj_chapter_tree;
+	proto_tree			*rtp_midi_sj_field_tree;
 	guint8				header;
 	int				consumed = 0;
 	int				len = 1;
@@ -7125,7 +7080,7 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		}
 
 		consumed += 4;
-		offset += 4;
+		offset	 += 4;
 	}
 
 	if ( header & RTP_MIDI_SJ_CHAPTER_F_FLAG_P ) {
@@ -7146,8 +7101,6 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		proto_tree_add_item( rtp_midi_sj_field_tree, hf_rtp_midi_sj_chapter_f_mt7, tvb, offset, 4, ENC_BIG_ENDIAN );
 
 		consumed += 4;
-		/*Fix Clang Warning
-		offset += 4;*/
 	}
 
 	return consumed;
@@ -7158,18 +7111,16 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int max_length ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
-	proto_tree			*rtp_midi_sj_data_tree		= NULL;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_sj_chapter_tree;
+	proto_tree			*rtp_midi_sj_data_tree;
 	guint8				header;
 	guint8				octet;
 	unsigned int			consumed = 0;
-	unsigned long			field = 0;
-	unsigned long			fieldlen = 0;
-	unsigned long			cmdlen = 0;
+	unsigned long			cmdlen   = 0;
 	unsigned int			i;
 
-	/* Can we read this chapters header? */
+	/* Can we read this chapter's header? */
 	if ( !tvb_bytes_exist( tvb, offset, 1 ) ) {
 		return -1;
 	}
@@ -7216,6 +7167,8 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	}
 
 	if ( header & RTP_MIDI_SJ_CHAPTER_X_FLAG_F ) {
+		unsigned long field    = 0;
+		unsigned long fieldlen = 0;
 
 		/* FIRST is "compressed" using only the necessary amount of octets, like delta-time */
 		for ( i=0; i < 4; i++ ) {
@@ -7249,11 +7202,12 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 				break;
 
 		}
-		consumed+=fieldlen;
-		offset+=fieldlen;
+		consumed += fieldlen;
+		offset	 += fieldlen;
 
 	}
 
+	/* XXX: 'cmdlen' in the following is always 0 (since initialized to 0 above) ??? */
 	if ( header & RTP_MIDI_SJ_CHAPTER_X_FLAG_D ) {
 		ti = proto_tree_add_text( rtp_midi_sj_chapter_tree, tvb, offset,  max_length - consumed, RTP_MIDI_TREE_NAME_SJ_CHAPTER_X_DATA );
 		rtp_midi_sj_data_tree = proto_item_add_subtree( ti, ett_rtp_midi_sj_chapter_x_data );
@@ -7262,9 +7216,9 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			if ( octet & 0x80 ) {
 				proto_tree_add_item( rtp_midi_sj_data_tree, hf_rtp_midi_sj_chapter_x_data, tvb, offset, cmdlen, ENC_NA );
 				offset += cmdlen;
-				cmdlen = 0;
+				cmdlen	= 0;
 			}
-			consumed +=1;
+			consumed += 1;
 		}
 		/* unfinished command still to put into tree */
 		if ( cmdlen ) {
@@ -7295,11 +7249,10 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
  */
 static int
 decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
-	proto_item			*ti				= NULL;
-	proto_tree			*rtp_midi_sysjournal_tree	= NULL;
-	proto_tree			*rtp_midi_sj_chapters_tree	= NULL;
-	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
-	int				consumed = 0;
+	proto_item			*ti;
+	proto_tree			*rtp_midi_sysjournal_tree;
+	proto_tree			*rtp_midi_sj_chapters_tree;
+	int				consumed     = 0;
 	int				ext_consumed = 0;
 	guint16				sysjourlen;
 	guint16				systemflags;
@@ -7312,7 +7265,7 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 
 	systemflags = tvb_get_ntohs( tvb, offset );
-	sysjourlen = systemflags & RTP_MIDI_SJ_MASK_LENGTH;
+	sysjourlen  = systemflags & RTP_MIDI_SJ_MASK_LENGTH;
 
 	ti = proto_tree_add_text( tree, tvb, offset, sysjourlen, RTP_MIDI_TREE_NAME_SYSTEM_JOURNAL );
 	rtp_midi_sysjournal_tree = proto_item_add_subtree( ti, ett_rtp_midi_systemjournal );
@@ -7325,7 +7278,7 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	proto_tree_add_item( rtp_midi_sysjournal_tree, hf_rtp_midi_sysjour_toc_x, tvb, offset, 2, ENC_BIG_ENDIAN );
 	proto_tree_add_item( rtp_midi_sysjournal_tree, hf_rtp_midi_sysjour_len, tvb, offset, 2, ENC_BIG_ENDIAN );
 
-	offset += 2;
+	offset	 += 2;
 	consumed += 2;
 
 	ti = proto_tree_add_text( rtp_midi_sysjournal_tree, tvb, offset, sysjourlen - 2, RTP_MIDI_TREE_NAME_SYSTEM_CHAPTERS );
@@ -7338,11 +7291,12 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* Do we have a active sensing chapter? */
 	if ( systemflags & RTP_MIDI_SJ_FLAG_V ) {
+		proto_tree *rtp_midi_sj_chapter_tree;
 		/* Can we get the data for the Active Sense chapter? */
 		if ( !tvb_bytes_exist( tvb, offset, 1 ) ) {
 			return -1;
@@ -7365,7 +7319,7 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 	/* Do we have a MTC chapter? */
@@ -7375,7 +7329,7 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		offset	 += ext_consumed;
 	}
 
 
@@ -7391,8 +7345,6 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		/*Fix Clang Warning
-		offset += ext_consumed;*/
 	}
 
 
@@ -7418,17 +7370,11 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 {
-	proto_item		*ti				= NULL;
-	proto_item		*command_item			= NULL;
-	proto_item		*journal_item			= NULL;
-	proto_tree		*rtp_midi_tree			= NULL;
-	proto_tree		*rtp_midi_commands_tree		= NULL;
-	proto_tree		*rtp_midi_journal_tree		= NULL;
-	proto_tree		*rtp_midi_chanjournals_tree	= NULL;
-	unsigned int		 offset				= 0;
+	proto_item		*ti;
+	proto_tree		*rtp_midi_tree;
+	unsigned int		 offset = 0;
 
 	guint8			flags;		/* used for command-section and journal-section*/
-	guint8			octet;
 	unsigned int		cmd_len;
 	unsigned int		cmd_count;
 	guint8			runningstatus;
@@ -7464,10 +7410,11 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 
 	/* see if we have small or large len-field */
 	if (flags & RTP_MIDI_CS_FLAG_B)  {
-		octet = tvb_get_guint8( tvb, offset+1 );
-		cmd_len = ( cmd_len << 8 ) | octet;
+		guint8	octet;
+		octet	 = tvb_get_guint8( tvb, offset+1 );
+		cmd_len	 = ( cmd_len << 8 ) | octet;
 		proto_tree_add_item( rtp_midi_tree, hf_rtp_midi_longlen, tvb, offset, 2, ENC_BIG_ENDIAN );
-		offset += 2;
+		offset	+= 2;
 	} else {
 		proto_tree_add_item( rtp_midi_tree, hf_rtp_midi_shortlen, tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset++;
@@ -7475,6 +7422,9 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 
 	/* if we have a command-section -> dissect it */
 	if ( cmd_len ) {
+		proto_item *command_item;
+		proto_tree *rtp_midi_commands_tree;
+
 		command_item = proto_tree_add_text( rtp_midi_tree, tvb, offset, cmd_len, RTP_MIDI_TREE_NAME_COMMAND );
 		rtp_midi_commands_tree = proto_item_add_subtree( command_item, ett_rtp_midi_commands );
 
@@ -7485,10 +7435,10 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 		}
 
 		/* No commands decoded yet */
-		cmd_count=0;
+		cmd_count = 0;
 
 		/* RTP-MIDI-pdus always start with no running status */
-		runningstatus=0;
+		runningstatus = 0;
 
 		/* Multiple MIDI-commands might follow - the exact number can only be discovered by really decoding the commands! */
 		while ( cmd_len) {
@@ -7497,14 +7447,14 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 			if ( ( cmd_count ) || ( flags & RTP_MIDI_CS_FLAG_Z ) ) {
 
 				/* Decode a delta-time - if 0 is returned something went wrong */
-				consumed=decodetime( tvb, pinfo, rtp_midi_commands_tree, offset, cmd_len );
+				consumed = decodetime( tvb, pinfo, rtp_midi_commands_tree, offset, cmd_len );
 				if ( -1 == consumed ) {
 					THROW( ReportedBoundsError );
 					return;
 				}
 
 				/* seek to next command and set remaining length */
-				offset += consumed;
+				offset  += consumed;
 				cmd_len -= consumed;
 			}
 
@@ -7519,7 +7469,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 				}
 
 				/* seek to next delta-time and set remaining length */
-				offset += consumed;
+				offset  += consumed;
 				cmd_len -= consumed;
 
 				/* as we have successfully decoded another command, increment count */
@@ -7533,6 +7483,8 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 
 	/* if we have a journal-section -> dissect it */
 	if ( flags & RTP_MIDI_CS_FLAG_J ) {
+		proto_item *journal_item;
+		proto_tree *rtp_midi_journal_tree;
 
 		journal_item = proto_tree_add_text( rtp_midi_tree, tvb, offset, -1, RTP_MIDI_TREE_NAME_JOURNAL );
 		rtp_midi_journal_tree = proto_item_add_subtree( journal_item, ett_rtp_midi_journal );
@@ -7572,6 +7524,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 
 		/* do we have channel journal(s)? */
 		if ( flags & RTP_MIDI_JS_FLAG_A ) {
+			proto_tree *rtp_midi_chanjournals_tree;
 			ti = proto_tree_add_text( rtp_midi_journal_tree, tvb, offset, -1, RTP_MIDI_TREE_NAME_CHANNEL_JOURNAL );
 			rtp_midi_chanjournals_tree = proto_item_add_subtree( ti, ett_rtp_midi_channeljournals );
 

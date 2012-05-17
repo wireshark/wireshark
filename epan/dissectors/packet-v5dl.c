@@ -37,7 +37,7 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
+
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
@@ -94,14 +94,14 @@ static const value_string v5dl_direction_vals[] = {
 };
 
 static const value_string v5dl_addr_vals[] = {
-        { 8175, "ISDN Protocol" },
-        { 8176, "PSTN Protocol" },
-        { 8177, "CONTROL Protocol" },
-        { 8178, "BCC Protocol" },
-        { 8179, "PROT Protocol" },
-        { 8180, "Link Control Protocol" },
-        { 8191, "VALUE RESERVED" },
-        { 0,    NULL } };
+	{ 8175, "ISDN Protocol" },
+	{ 8176, "PSTN Protocol" },
+	{ 8177, "CONTROL Protocol" },
+	{ 8178, "BCC Protocol" },
+	{ 8179, "PROT Protocol" },
+	{ 8180, "Link Control Protocol" },
+	{ 8191, "VALUE RESERVED" },
+	{ 0,	NULL } };
 
 /* Used only for U frames */
 static const xdlc_cf_items v5dl_cf_items = {
@@ -254,12 +254,18 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
 		if (checksum == checksum_calculated) {
-			checksum_ti = proto_tree_add_uint_format(v5dl_tree, hf_v5dl_checksum, tvb, checksum_offset, 2, 0,"Checksum: 0x%04x [correct]", checksum);
+			checksum_ti = proto_tree_add_uint_format(v5dl_tree, hf_v5dl_checksum, tvb, checksum_offset,
+								 2, 0,
+								 "Checksum: 0x%04x [correct]",
+								 checksum);
 			checksum_tree = proto_item_add_subtree(checksum_ti, ett_v5dl_checksum);
 			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_good, tvb, checksum_offset, 2, TRUE);
 			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_bad, tvb, checksum_offset, 2, FALSE);
 		} else {
-			checksum_ti = proto_tree_add_uint_format(v5dl_tree, hf_v5dl_checksum, tvb, checksum_offset, 2, 0,"Checksum: 0x%04x [incorrect, should be 0x%04x]", checksum, checksum_calculated);
+			checksum_ti = proto_tree_add_uint_format(v5dl_tree, hf_v5dl_checksum, tvb, checksum_offset,
+								 2, 0,
+								 "Checksum: 0x%04x [incorrect, should be 0x%04x]",
+								 checksum, checksum_calculated);
 			checksum_tree = proto_item_add_subtree(checksum_ti, ett_v5dl_checksum);
 			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_good, tvb, checksum_offset, 2, FALSE);
 			proto_tree_add_boolean(checksum_tree, hf_v5dl_checksum_bad, tvb, checksum_offset, 2, TRUE);
@@ -431,10 +437,7 @@ proto_register_v5dl(void)
 void
 proto_reg_handoff_v5dl(void)
 {
-	static gboolean init = FALSE;
+	gboolean init = FALSE;
 
-	if (!init) {
-		v52_handle = find_dissector("v52");
-		init = TRUE;
-	} 
+	v52_handle = find_dissector("v52");
 }

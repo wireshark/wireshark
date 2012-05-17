@@ -29,8 +29,8 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <glib.h>
+
 #include <epan/packet.h>
 
 static int proto_yhoo = -1;
@@ -52,48 +52,48 @@ static gint ett_yhoo = -1;
 /* This is from yahoolib.h from gtkyahoo */
 
 /* Service constants */
-#define YAHOO_SERVICE_LOGON		1
-#define YAHOO_SERVICE_LOGOFF		2
-#define YAHOO_SERVICE_ISAWAY		3
-#define YAHOO_SERVICE_ISBACK		4
-#define YAHOO_SERVICE_IDLE		5
-#define YAHOO_SERVICE_MESSAGE		6
-#define YAHOO_SERVICE_IDACT		7
-#define YAHOO_SERVICE_IDDEACT		8
-#define YAHOO_SERVICE_MAILSTAT		9
-#define YAHOO_SERVICE_USERSTAT		10
-#define YAHOO_SERVICE_NEWMAIL		11
-#define YAHOO_SERVICE_CHATINVITE	12
-#define YAHOO_SERVICE_CALENDAR		13
-#define YAHOO_SERVICE_NEWPERSONALMAIL	14
-#define YAHOO_SERVICE_NEWCONTACT	15
-#define YAHOO_SERVICE_ADDIDENT		16
-#define YAHOO_SERVICE_ADDIGNORE		17
-#define YAHOO_SERVICE_PING		18
-#define YAHOO_SERVICE_GROUPRENAME	19
-#define YAHOO_SERVICE_SYSMESSAGE	20
-#define YAHOO_SERVICE_PASSTHROUGH2	22
-#define YAHOO_SERVICE_CONFINVITE	24
-#define YAHOO_SERVICE_CONFLOGON		25
-#define YAHOO_SERVICE_CONFDECLINE	26
-#define YAHOO_SERVICE_CONFLOGOFF	27
-#define YAHOO_SERVICE_CONFADDINVITE	28
-#define YAHOO_SERVICE_CONFMSG		29
-#define YAHOO_SERVICE_CHATLOGON		30
-#define YAHOO_SERVICE_CHATLOGOFF	31
-#define YAHOO_SERVICE_CHATMSG		32
-#define YAHOO_SERVICE_FILETRANSFER	70
-#define YAHOO_SERVICE_CHATADDINVITE 157
-#define YAHOO_SERVICE_AVATAR		188
-#define YAHOO_SERVICE_PICTURE_CHECKSUM	189
-#define YAHOO_SERVICE_PICTURE			190
-#define YAHOO_SERVICE_PICTURE_UPDATE	193
-#define YAHOO_SERVICE_PICTURE_UPLOAD	194
-#define YAHOO_SERVICE_YAHOO6_STATUS_UPDATE 198
-#define YAHOO_SERVICE_AVATAR_UPDATE		199
-#define YAHOO_SERVICE_AUDIBLE			208
-#define YAHOO_SERVICE_WEBLOGIN			550
-#define YAHOO_SERVICE_SMS_MSG			746
+#define YAHOO_SERVICE_LOGON                   1
+#define YAHOO_SERVICE_LOGOFF                  2
+#define YAHOO_SERVICE_ISAWAY                  3
+#define YAHOO_SERVICE_ISBACK                  4
+#define YAHOO_SERVICE_IDLE                    5
+#define YAHOO_SERVICE_MESSAGE                 6
+#define YAHOO_SERVICE_IDACT                   7
+#define YAHOO_SERVICE_IDDEACT                 8
+#define YAHOO_SERVICE_MAILSTAT                9
+#define YAHOO_SERVICE_USERSTAT               10
+#define YAHOO_SERVICE_NEWMAIL                11
+#define YAHOO_SERVICE_CHATINVITE             12
+#define YAHOO_SERVICE_CALENDAR               13
+#define YAHOO_SERVICE_NEWPERSONALMAIL        14
+#define YAHOO_SERVICE_NEWCONTACT             15
+#define YAHOO_SERVICE_ADDIDENT               16
+#define YAHOO_SERVICE_ADDIGNORE              17
+#define YAHOO_SERVICE_PING                   18
+#define YAHOO_SERVICE_GROUPRENAME            19
+#define YAHOO_SERVICE_SYSMESSAGE             20
+#define YAHOO_SERVICE_PASSTHROUGH2           22
+#define YAHOO_SERVICE_CONFINVITE             24
+#define YAHOO_SERVICE_CONFLOGON              25
+#define YAHOO_SERVICE_CONFDECLINE            26
+#define YAHOO_SERVICE_CONFLOGOFF             27
+#define YAHOO_SERVICE_CONFADDINVITE          28
+#define YAHOO_SERVICE_CONFMSG                29
+#define YAHOO_SERVICE_CHATLOGON              30
+#define YAHOO_SERVICE_CHATLOGOFF             31
+#define YAHOO_SERVICE_CHATMSG                32
+#define YAHOO_SERVICE_FILETRANSFER           70
+#define YAHOO_SERVICE_CHATADDINVITE         157
+#define YAHOO_SERVICE_AVATAR                188
+#define YAHOO_SERVICE_PICTURE_CHECKSUM      189
+#define YAHOO_SERVICE_PICTURE               190
+#define YAHOO_SERVICE_PICTURE_UPDATE        193
+#define YAHOO_SERVICE_PICTURE_UPLOAD        194
+#define YAHOO_SERVICE_YAHOO6_STATUS_UPDATE  198
+#define YAHOO_SERVICE_AVATAR_UPDATE         199
+#define YAHOO_SERVICE_AUDIBLE               208
+#define YAHOO_SERVICE_WEBLOGIN              550
+#define YAHOO_SERVICE_SMS_MSG               746
 
 
 /* Message flags */
@@ -105,69 +105,69 @@ static gint ett_yhoo = -1;
 
 struct yahoo_rawpacket
 {
-	char version[8];		/* 7 chars and trailing null */
-	unsigned char len[4];		/* length - little endian */
-	unsigned char service[4];	/* service - little endian */
-	unsigned char connection_id[4];	/* connection number - little endian */
-	unsigned char magic_id[4];	/* magic number used for http session */
+	char          version[8];       /* 7 chars and trailing null */
+	unsigned char len[4];           /* length - little endian */
+	unsigned char service[4];       /* service - little endian */
+	unsigned char connection_id[4]; /* connection number - little endian */
+	unsigned char magic_id[4];      /* magic number used for http session */
 	unsigned char unknown1[4];
 	unsigned char msgtype[4];
-	char nick1[36];
-	char nick2[36];
-	char content[1];		/* was zero, had problems with aix xlc */
+	char          nick1[36];
+	char          nick2[36];
+	char          content[1];       /* was zero, had problems with aix xlc */
 };
 
 static const value_string yhoo_service_vals[] = {
-	{YAHOO_SERVICE_LOGON, "Pager Logon"},
-	{YAHOO_SERVICE_LOGOFF, "Pager Logoff"},
-	{YAHOO_SERVICE_ISAWAY, "Is Away"},
-	{YAHOO_SERVICE_ISBACK, "Is Back"},
-	{YAHOO_SERVICE_IDLE, "Idle"},
-	{YAHOO_SERVICE_MESSAGE, "Message"},
-	{YAHOO_SERVICE_IDACT, "Activate Identity"},
-	{YAHOO_SERVICE_IDDEACT, "Deactivate Identity"},
-	{YAHOO_SERVICE_MAILSTAT, "Mail Status"},
-	{YAHOO_SERVICE_USERSTAT, "User Status"},
-	{YAHOO_SERVICE_NEWMAIL, "New Mail"},
-	{YAHOO_SERVICE_CHATINVITE, "Chat Invitation"},
-	{YAHOO_SERVICE_CALENDAR, "Calendar Reminder"},
-	{YAHOO_SERVICE_NEWPERSONALMAIL, "New Personals Mail"},
-	{YAHOO_SERVICE_NEWCONTACT, "New Friend"},
-	{YAHOO_SERVICE_GROUPRENAME, "Group Renamed"},
-	{YAHOO_SERVICE_ADDIDENT, "Add Identity"},
-	{YAHOO_SERVICE_ADDIGNORE, "Add Ignore"},
-	{YAHOO_SERVICE_PING, "Ping"},
-	{YAHOO_SERVICE_SYSMESSAGE, "System Message"},
-	{YAHOO_SERVICE_CONFINVITE, "Conference Invitation"},
-	{YAHOO_SERVICE_CONFLOGON, "Conference Logon"},
-	{YAHOO_SERVICE_CONFDECLINE, "Conference Decline"},
-	{YAHOO_SERVICE_CONFLOGOFF, "Conference Logoff"},
-	{YAHOO_SERVICE_CONFMSG, "Conference Message"},
-	{YAHOO_SERVICE_CONFADDINVITE, "Conference Additional Invitation"},
-	{YAHOO_SERVICE_CHATLOGON, "Chat Logon"},
-	{YAHOO_SERVICE_CHATLOGOFF, "Chat Logoff"},
-	{YAHOO_SERVICE_CHATMSG, "Chat Message"},
-	{YAHOO_SERVICE_FILETRANSFER, "File Transfer"},
-	{YAHOO_SERVICE_PASSTHROUGH2, "Passthrough 2"},
-	{YAHOO_SERVICE_CHATADDINVITE, "Chat add Invite"},
-	{YAHOO_SERVICE_AVATAR, "Avatar"},
-	{YAHOO_SERVICE_PICTURE_CHECKSUM, "Picture Checksum"},
-	{YAHOO_SERVICE_PICTURE, "Picture"},
-	{YAHOO_SERVICE_PICTURE_UPDATE, "Picture Update"},
-	{YAHOO_SERVICE_PICTURE_UPLOAD, "Picture Upload"},
+	{YAHOO_SERVICE_LOGON,                "Pager Logon"},
+	{YAHOO_SERVICE_LOGOFF,               "Pager Logoff"},
+	{YAHOO_SERVICE_ISAWAY,               "Is Away"},
+	{YAHOO_SERVICE_ISBACK,               "Is Back"},
+	{YAHOO_SERVICE_IDLE,                 "Idle"},
+	{YAHOO_SERVICE_MESSAGE,              "Message"},
+	{YAHOO_SERVICE_IDACT,                "Activate Identity"},
+	{YAHOO_SERVICE_IDDEACT,              "Deactivate Identity"},
+	{YAHOO_SERVICE_MAILSTAT,             "Mail Status"},
+	{YAHOO_SERVICE_USERSTAT,             "User Status"},
+	{YAHOO_SERVICE_NEWMAIL,              "New Mail"},
+	{YAHOO_SERVICE_CHATINVITE,           "Chat Invitation"},
+	{YAHOO_SERVICE_CALENDAR,             "Calendar Reminder"},
+	{YAHOO_SERVICE_NEWPERSONALMAIL,      "New Personals Mail"},
+	{YAHOO_SERVICE_NEWCONTACT,           "New Friend"},
+	{YAHOO_SERVICE_GROUPRENAME,          "Group Renamed"},
+	{YAHOO_SERVICE_ADDIDENT,             "Add Identity"},
+	{YAHOO_SERVICE_ADDIGNORE,            "Add Ignore"},
+	{YAHOO_SERVICE_PING,                 "Ping"},
+	{YAHOO_SERVICE_SYSMESSAGE,           "System Message"},
+	{YAHOO_SERVICE_CONFINVITE,           "Conference Invitation"},
+	{YAHOO_SERVICE_CONFLOGON,            "Conference Logon"},
+	{YAHOO_SERVICE_CONFDECLINE,          "Conference Decline"},
+	{YAHOO_SERVICE_CONFLOGOFF,           "Conference Logoff"},
+	{YAHOO_SERVICE_CONFMSG,              "Conference Message"},
+	{YAHOO_SERVICE_CONFADDINVITE,        "Conference Additional Invitation"},
+	{YAHOO_SERVICE_CHATLOGON,            "Chat Logon"},
+	{YAHOO_SERVICE_CHATLOGOFF,           "Chat Logoff"},
+	{YAHOO_SERVICE_CHATMSG,              "Chat Message"},
+	{YAHOO_SERVICE_FILETRANSFER,         "File Transfer"},
+	{YAHOO_SERVICE_PASSTHROUGH2,         "Passthrough 2"},
+	{YAHOO_SERVICE_CHATADDINVITE,        "Chat add Invite"},
+	{YAHOO_SERVICE_AVATAR,               "Avatar"},
+	{YAHOO_SERVICE_PICTURE_CHECKSUM,     "Picture Checksum"},
+	{YAHOO_SERVICE_PICTURE,              "Picture"},
+	{YAHOO_SERVICE_PICTURE_UPDATE,       "Picture Update"},
+	{YAHOO_SERVICE_PICTURE_UPLOAD,       "Picture Upload"},
 	{YAHOO_SERVICE_YAHOO6_STATUS_UPDATE, "Status update"},
-	{YAHOO_SERVICE_AUDIBLE, "Audible"},
-	{YAHOO_SERVICE_WEBLOGIN, "Weblogin"},
-	{YAHOO_SERVICE_SMS_MSG, "SMS Message"},
+	{YAHOO_SERVICE_AUDIBLE,              "Audible"},
+	{YAHOO_SERVICE_WEBLOGIN,             "Weblogin"},
+	{YAHOO_SERVICE_SMS_MSG,              "SMS Message"},
 	{0, NULL}
 };
 
 static const value_string yhoo_msgtype_vals[] = {
-	{YAHOO_MSGTYPE_NONE, "None"},
-	{YAHOO_MSGTYPE_NORMAL, "Normal"},
-	{YAHOO_MSGTYPE_BOUNCE, "Bounce"},
-	{YAHOO_MSGTYPE_STATUS, "Status Update"},
-	{YAHOO_MSGTYPE_OFFLINE, "Request Offline"},
+	{YAHOO_MSGTYPE_NONE,                 "None"},
+	{YAHOO_MSGTYPE_NORMAL,               "Normal"},
+	{YAHOO_MSGTYPE_BOUNCE,               "Bounce"},
+	{YAHOO_MSGTYPE_STATUS,               "Status Update"},
+	{YAHOO_MSGTYPE_OFFLINE,              "Request Offline"},
 	{0, NULL}
 };
 
@@ -175,7 +175,7 @@ static gboolean
 dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *yhoo_tree, *ti;
-	int offset = 0;
+	int		 offset = 0;
 
 	if (pinfo->srcport != TCP_PORT_YHOO && pinfo->destport != TCP_PORT_YHOO) {
 		/* Not the Yahoo port - not a Yahoo Messenger packet. */
