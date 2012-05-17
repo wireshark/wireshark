@@ -45,6 +45,7 @@ Wireshark Info
             BACapp,
             Bluetooth HCI,
             IEEE 802.3,
+            LTP,
 	    dissectors have been fixed. Discovered by Laurent Butti.
             <!-- Fixed in trunk: r42631 (802.11) -->
             <!-- Fixed in trunk: r41741 (802.3) -->
@@ -71,6 +72,8 @@ Wireshark Info
             <!-- Fixed in trunk-1.4: r42452 (BTHCI) -->
             <!-- Fixed in trunk-1.4: r42690 (ANSI MAP) -->
             <!-- Fixed in trunk-1.4: r42694 (BACapp) -->
+            <!-- Fixed in trunk-1.4: r42695 (BACapp) -->
+            <!-- Fixed in trunk-1.4: r42696 (LTP) -->
 
             (Bugs
 	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7118">7118</ulink>,

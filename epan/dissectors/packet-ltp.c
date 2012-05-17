@@ -435,6 +435,17 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 		expert_add_info_format(pinfo, ltp_tree, PI_UNDECODED, PI_ERROR, "Negative reception claim count: %d", rcpt_clm_cnt);
 		return 0;
 	}
+    /* Each reception claim is at least 2 bytes, so if the count is larger than the
+     * max number of claims we can possibly squeeze into the remaining tvbuff, then
+     * the packet is malformed.
+     */
+	if (rcpt_clm_cnt > tvb_length_remaining(tvb, frame_offset + segment_offset) / 2) {
+		proto_item_set_end(ltp_rpt_item, tvb, frame_offset + segment_offset);
+		expert_add_info_format(pinfo, ltp_tree, PI_MALFORMED, PI_ERROR,
+				"Reception claim count impossibly large: %d > %d", rcpt_clm_cnt,
+				tvb_length_remaining(tvb, frame_offset + segment_offset) / 2);
+		return 0;
+	}
 	proto_tree_add_uint(ltp_rpt_tree, hf_ltp_rpt_clm_cnt, tvb, frame_offset + segment_offset, rcpt_clm_cnt_size, rcpt_clm_cnt);
 	segment_offset += rcpt_clm_cnt_size;
 
