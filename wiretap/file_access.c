@@ -428,7 +428,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_5VIEWS */
-	{ "Accellent 5Views capture", "5views", "*.5vw", ".5vw", FALSE,
+	{ "InfoVista 5View capture", "5views", "*.5vw", ".5vw", FALSE,
 	  _5views_dump_can_write_encap, _5views_dump_open },
 
 	/* WTAP_FILE_IPTRACE_1_0 */

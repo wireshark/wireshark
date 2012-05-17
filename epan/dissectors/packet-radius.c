@@ -452,50 +452,56 @@ static const gchar* dissect_cosine_vpvc(proto_tree* tree, tvbuff_t* tvb) {
 static void
 radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
 {
-	md5_state_t md_ctx;
-	md5_byte_t digest[16];
-	int i;
-	gint totlen, returned_length;
-	const guint8 *pd;
+	md5_state_t md_ctx, old_md_ctx;
+	md5_byte_t digest[AUTHENTICATOR_LENGTH];
+	int i, j;
+	gint totlen = 0, returned_length, padded_length;
+	guint8 *pd;
 	guchar c;
 
-	DISSECTOR_ASSERT(dest_len > 2);  /* \"\"\0 */
-	dest[0] = '"';
-	dest[1] = '\0';
-	totlen = 1;
-	dest_len -= 1; /* Need to add trailing \" */
+	DISSECTOR_ASSERT(dest_len > 0);
+	dest[0] = '\0';
+	if ( length <= 0 )
+		return;
+
+	/* The max avp length is 253 (255 - 2 for type & length), but only the
+	 * User-Password is marked with encrypt=1 in dictionary.rfc2865, and the
+	 * User-Password max length is only 128 (130 - 2 for type & length) per
+	 * tools.ietf.org/html/rfc2865#section-5.2, so enforce that limit here.
+	 */
+	if ( length > 128 )
+		length = 128;
 
 	md5_init(&md_ctx);
-	md5_append(&md_ctx,(const guint8*)shared_secret,(int)strlen(shared_secret));
-	md5_append(&md_ctx,authenticator, AUTHENTICATOR_LENGTH);
-	md5_finish(&md_ctx,digest);
+	md5_append(&md_ctx, (const guint8*)shared_secret, (int)strlen(shared_secret));
+	old_md_ctx = md_ctx;
+	md5_append(&md_ctx, authenticator, AUTHENTICATOR_LENGTH);
+	md5_finish(&md_ctx, digest);
 
-	pd = tvb_get_ptr(tvb,offset,length);
-	for( i = 0 ; i < AUTHENTICATOR_LENGTH && i < length ; i++ ) {
-		c = pd[i] ^ digest[i];
-		if ( isprint(c) ) {
-			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-						     "%c",c);
-			totlen += MIN(returned_length, dest_len-totlen-1);
-		} else {
-			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-						     "\\%03o",c);
-			totlen += MIN(returned_length, dest_len-totlen-1);
+	padded_length = length + ((length % AUTHENTICATOR_LENGTH) ?
+		(AUTHENTICATOR_LENGTH - (length % AUTHENTICATOR_LENGTH)) : 0);
+	pd = ep_alloc0(padded_length);
+	tvb_memcpy(tvb, pd, offset, length);
+
+	for ( i = 0; i < padded_length; i += AUTHENTICATOR_LENGTH ) {
+		for ( j = 0; j < AUTHENTICATOR_LENGTH; j++ ) {
+			c = pd[i + j] ^ digest[j];
+			if ( isprint(c) ) {
+				returned_length = g_snprintf(&dest[totlen], dest_len - totlen,
+					"%c", c);
+				totlen += MIN(returned_length, dest_len - totlen - 1);
+			}
+			else if ( c ) {
+				returned_length = g_snprintf(&dest[totlen], dest_len - totlen,
+					"\\%03o", c);
+				totlen += MIN(returned_length, dest_len - totlen - 1);
+			}
 		}
+
+		md_ctx = old_md_ctx;
+		md5_append(&md_ctx, &pd[i], AUTHENTICATOR_LENGTH);
+		md5_finish(&md_ctx, digest);
 	}
-	while(i<length) {
-		if ( isprint(pd[i]) ) {
-			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-						     "%c", pd[i]);
-			totlen += MIN(returned_length, dest_len-totlen-1);
-		} else {
-			returned_length = g_snprintf(&dest[totlen], dest_len-totlen,
-						     "\\%03o", pd[i]);
-			totlen += MIN(returned_length, dest_len-totlen-1);
-		}
-		i++;
-	}
-	g_snprintf(&dest[totlen], dest_len+1-totlen, "%c", '"');
 }
 
 

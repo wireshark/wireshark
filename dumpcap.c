@@ -666,12 +666,27 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
      */
     caps = g_malloc(sizeof *caps);
 
+    /*
+     * WinPcap 4.1.2, and possibly earlier versions, have a bug
+     * wherein, when an open with an rpcap: URL fails, the error
+     * message for the error is not copied to errbuf and whatever
+     * on-the-stack junk is in errbuf is treated as the error
+     * message.
+     *
+     * To work around that (and any other bugs of that sort, we
+     * initialize errbuf to an empty string.  If we get an error
+     * and the string is empty, we report it as an unknown error.
+     * (If we *don't* get an error, and the string is *non*-empty,
+     * that could be a warning returned, such as "can't turn
+     * promiscuous mode on"; we currently don't do so.)
+     */
+    errbuf[0] = '\0';
 #ifdef HAVE_PCAP_OPEN
     pch = pcap_open(devname, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
     caps->can_set_rfmon = FALSE;
     if (pch == NULL) {
         if (err_str != NULL)
-            *err_str = g_strdup(errbuf);
+            *err_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
         g_free(caps);
         return NULL;
     }
@@ -730,7 +745,7 @@ get_if_capabilities(const char *devname, gboolean monitor_mode
     caps->can_set_rfmon = FALSE;
     if (pch == NULL) {
         if (err_str != NULL)
-            *err_str = g_strdup(errbuf);
+            *err_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
         g_free(caps);
         return NULL;
     }
@@ -1981,6 +1996,13 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                  (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
                  (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
                  CAP_READ_TIMEOUT, &auth, open_err_str);
+    if ((*open_err_str)[0] == '\0') {
+        /* Work around known WinPcap bug wherein no error message is
+           filled in on a failure to open an rpcap: URL. */
+        g_strlcpy(*open_err_str,
+                  "Unknown error (pcap bug; actual error cause not reported)",
+                  sizeof *open_err_str);
+    }
   } else
 #endif /* HAVE_PCAP_OPEN */
   {

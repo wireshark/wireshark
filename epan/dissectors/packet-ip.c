@@ -295,7 +295,7 @@ static dissector_handle_t tapa_handle;
 /* IP option lengths */
 #define IPOLEN_SEC      11
 #define IPOLEN_LSRR_MIN 3
-#define IPOLEN_TIMESTAMP_MIN 5
+#define IPOLEN_TIMESTAMP_MIN 4
 #define IPOLEN_RR_MIN   3
 #define IPOLEN_SID      4
 #define IPOLEN_SSRR_MIN 3

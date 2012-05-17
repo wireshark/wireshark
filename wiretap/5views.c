@@ -223,8 +223,12 @@ _5views_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 		wth->data_offset += bytes_read;
 
 		TimeStamped_Header.Key = pletohl(&TimeStamped_Header.Key);
-		if(TimeStamped_Header.Key != CST_5VW_RECORDS_HEADER_KEY)
+		if(TimeStamped_Header.Key != CST_5VW_RECORDS_HEADER_KEY) {
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("5views: Time-stamped header has bad key value 0x%08X",
+			    TimeStamped_Header.Key);
 			return FALSE;
+		}
 
 		TimeStamped_Header.RecSubType =
 		    pletohl(&TimeStamped_Header.RecSubType);
