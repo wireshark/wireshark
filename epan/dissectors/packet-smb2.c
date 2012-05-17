@@ -7439,7 +7439,7 @@ proto_register_smb2(void)
 		NULL, 0, "Reserved bytes", HFILL }},
 
 	{ &hf_smb2_dhnq_buffer_reserved,
-		{ "Reserved", "smb2.hf_smb2_dhnq_buffer_reserved", FT_UINT64, BASE_HEX,
+		{ "Reserved", "smb2.dhnq_buffer_reserved", FT_UINT64, BASE_HEX,
 		NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb2_dh2x_buffer_timeout,
