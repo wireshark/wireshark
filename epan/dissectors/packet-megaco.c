@@ -328,6 +328,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint       token_index=0;
     guint32     dword;
     guchar      needle;
+    guint8      first;
 
     gcp_msg_t* msg = NULL;
     gcp_trx_t* trx = NULL;
@@ -490,6 +491,8 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             PROTO_ITEM_SET_HIDDEN(hidden_item);
         }
     }
+    col_clear(pinfo->cinfo, COL_INFO);
+    first = 1;
     do{
     tvb_previous_offset = tvb_next_offset;
 
@@ -576,8 +579,11 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_current_offset = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset)-1; /* cut last RBRKT */
             len = tvb_current_offset - tvb_previous_offset;
 
+            if (!first) {
+              col_append_str(pinfo->cinfo, COL_INFO, " ");
+            }
             if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %s TransactionResponseAck",
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s TransactionResponseAck",
                 tvb_format_text(tvb,tvb_previous_offset,len));
 
             if(tree)
@@ -607,8 +613,11 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb_previous_offset, tokenlen,
                     "Pending" );
 
+            if (!first) {
+              col_append_str(pinfo->cinfo, COL_INFO, " ");
+            }
             if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pending",
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s Pending",
                 tvb_format_text(tvb,tvb_offset,len));
 
             if(tree)
@@ -669,8 +678,11 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_current_offset-1);
             len = tvb_current_offset - tvb_offset;
+            if (!first) {
+              col_append_str(pinfo->cinfo, COL_INFO, " ");
+            }
             if (check_col(pinfo->cinfo, COL_INFO) )
-                col_append_fstr(pinfo->cinfo, COL_INFO, " %s Request",
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s Request",
                 tvb_format_text(tvb,tvb_offset,len));
                 trx_id = strtoul(tvb_format_text(tvb,tvb_offset,len),NULL,10);
             if(tree)
@@ -1356,6 +1368,7 @@ nextcontext:
 
         tvb_next_offset = tvb_transaction_end_offset;
 
+    first = 0;
     }
     while( tvb_transaction_end_offset < tvb_len - 2);
 
