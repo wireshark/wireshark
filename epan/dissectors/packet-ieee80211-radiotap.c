@@ -223,6 +223,7 @@ static int radiotap_tap = -1;
 
 /* Settings */
 static gboolean radiotap_bit14_fcs = FALSE;
+static gboolean radiotap_interpret_high_rates_as_mcs = FALSE;
 
 struct _radiotap_info {
 	guint radiotap_length;
@@ -878,19 +879,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			 * to 11a or 11g, which do exist, or for 11n
 			 * implementations that stuff a rate value into
 			 * this field, which also appear to exist.
-			 *
-			 * We currently handle that by assuming that
-			 * if the 0x80 bit is set *and* the remaining
-			 * bits have a value between 0 and 15 it's
-			 * an MCS value, otherwise it's a rate.  If
-			 * there are cases where systems that use
-			 * "0x80 + MCS index" for MCS indices > 15,
-			 * or stuff a rate value here between 64 and
-			 * 71.5 Mb/s in here, we'll need a preference
-			 * setting.  Such rates do exist, e.g. 11n
-			 * MCS 7 at 20 MHz with a long guard interval.
 			 */
-			if (rate >= 0x80 && rate <= 0x8f) {
+			if (radiotap_interpret_high_rates_as_mcs &&
+					rate >= 0x80 && rate <= (0x80+76)) {
 				/*
 				 * XXX - we don't know the channel width
 				 * or guard interval length, so we can't
@@ -2663,6 +2654,12 @@ void proto_register_radiotap(void)
 				       "Some generators (e.g. AirPcap) use a non-standard radiotap flag 14 to put "
 				       "the FCS into the header.",
 				       &radiotap_bit14_fcs);
+
+	prefs_register_bool_preference(radiotap_module, "interpret_high_rates_as_mcs",
+				       "Interpret high rates as MCS",
+				       "Some generators use rates with bit 7 set to indicate an MCS, e.g. BSD. "
+					   "others (Linux, AirPcap) do not.",
+				       &radiotap_interpret_high_rates_as_mcs);
 }
 
 void proto_reg_handoff_radiotap(void)
