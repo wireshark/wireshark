@@ -43,6 +43,7 @@ Wireshark Info
             Infinite and large loops in the
             ANSI MAP,
             Bluetooth HCI,
+            IEEE 802.3,
 	    dissectors have been fixed. Discovered by Laurent Butti.
             <!-- Fixed in trunk: r42631 (802.11) -->
             <!-- Fixed in trunk: r41741 (802.3) -->
@@ -65,6 +66,7 @@ Wireshark Info
             <!-- Fixed in trunk-1.6: r42666 (LTP) -->
             <!-- Fixed in trunk-1.6: r42667 (R3) -->
 
+            <!-- Fixed in trunk-1.4: r42693 (802.3) -->
             <!-- Fixed in trunk-1.4: r42452 (BTHCI) -->
             <!-- Fixed in trunk-1.4: r42690 (ANSI MAP) -->
 
@@ -93,6 +95,24 @@ Wireshark Info
             <!-- Fixed in trunk-1.4: r42691 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7138">Bug
             7138</ulink>)
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.7.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-10.html">wnpa-sec-2012-10</ulink>
+          </para>
+          <para>
+            Wireshark could crash on SPARC processors due to misaligned memory. Discovered by Klaus Heckelmann.
+            <!-- Fixed in trunk: r42393, r42407, r42431 -->
+            <!-- Fixed in trunk-1.6: r42669 -->
+            <!-- Fixed in trunk-1.4: r42662 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221">Bug
+            7221</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.7.</para>
           <!-- <para>
