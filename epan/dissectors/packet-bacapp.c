@@ -4706,7 +4706,6 @@ static const fragment_items msg_frag_items = {
     &hf_msg_fragment_multiple_tails,
     &hf_msg_fragment_too_long_fragment,
     &hf_msg_fragment_error,
-    &hf_msg_fragment_count,
     /* Reassembled in field */
     &hf_msg_reassembled_in,
     /* Reassembled length field */
