@@ -39,7 +39,7 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
           </para>
           <para>
-            Infinite and large loops in the ANSI MAP, ASF, BACapp, Bluetooth HCI, IEEE 802.11, IEEE 802.3, and LTP
+            Infinite and large loops in the ANSI MAP, ASF, BACapp, Bluetooth HCI, IEEE 802.11, IEEE 802.3, LTP, and R3
 	    dissectors have been fixed. Discovered by Laurent Butti.
             <!-- Fixed in trunk: r42631 (802.11) -->
             <!-- Fixed in trunk: r41741 (802.3) -->

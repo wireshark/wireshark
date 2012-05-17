@@ -5508,9 +5508,17 @@ dissect_rsn_ie(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb,
   }
   offset += 4;
 
-  proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   /* 7.3.2.25.2 Pairwise Cipher suites */
+  rsn_pcs_count = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   pcs_count = tvb_get_letohs(tvb, offset);
   offset += 2;
+
+  if (offset + (pcs_count * 4) > tag_end)
+  {
+    expert_add_info_format(pinfo, rsn_pcs_count, PI_MALFORMED, PI_ERROR,
+        "Pairwise Cipher Suite Count too large, 4*%u > %d", pcs_count, tag_end - offset);
+    pcs_count = (tag_end - offset) / 4;
+  }
 
   rsn_pcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_list, tvb, offset, pcs_count * 4, FALSE);
   rsn_pcs_tree = proto_item_add_subtree(rsn_pcs_item, ett_rsn_pcs_tree);
