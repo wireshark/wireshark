@@ -7,8 +7,6 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-include Custom.common
-
 include Makefile.common
 
 CFLAGS= $(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
