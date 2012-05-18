@@ -23,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-include Custom.nmake
+include Custom.common
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_C_FILES = \

@@ -7,7 +7,7 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-include Custom.nmake
+include Custom.common
 
 include Makefile.common
 

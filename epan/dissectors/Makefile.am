@@ -47,7 +47,7 @@ libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 DIST_SUBDIRS = dcerpc pidl
 
 EXTRA_DIST = \
-	Custom.nmake		\
+	Custom.common		\
 	Makefile.common		\
 	Makefile.nmake		\
 	packet-ncp2222.inc	\
