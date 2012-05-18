@@ -4062,14 +4062,24 @@ main(int argc, char *argv[])
     SetConsoleCtrlHandler(capture_cleanup_handler, TRUE);
 #else
     /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
-       and exit. */
+       and exit.  Do the same with SIGPIPE, in case, for example,
+       we're writing to our standard output and it's a pipe.
+       Do the same with SIGHUP if it's not being ignored (if we're
+       being run under nohup, it might be ignored, in which case we
+       should leave it ignored).
+
+       XXX - apparently, Coverity complained that part of action
+       wasn't initialized.  Perhaps it's running on Linux, where
+       struct sigaction has an ignored "sa_restorer" element and
+       where "sa_handler" and "sa_sigaction" might not be two
+       members of a union. */
+    memset(&action, 0, sizeof(action));
     action.sa_handler = capture_cleanup_handler;
     /*
      * Arrange that system calls not get restarted, because when
      * our signal handler returns we don't want to restart
      * a call that was waiting for packets to arrive.
      */
-    memset(&action, 0, sizeof(action));
     action.sa_flags = 0;
     sigemptyset(&action.sa_mask);
     sigaction(SIGTERM, &action, NULL);
