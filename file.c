@@ -3705,7 +3705,7 @@ typedef struct {
  * up a message box for the failure.
  */
 static gboolean
-save_packet(capture_file *cf, frame_data *fdata,
+save_packet(capture_file *cf _U_, frame_data *fdata,
             union wtap_pseudo_header *pseudo_header, const guint8 *pd,
             void *argsp)
 {
@@ -3714,7 +3714,22 @@ save_packet(capture_file *cf, frame_data *fdata,
   int           err;
 
   /* init the wtap header for saving */
-  hdr.presence_flags = wtap_phdr(cf->wth)->presence_flags;
+  /* XXX - these are the only flags that correspond to data that we have
+     in the frame_data structure and that matter on a per-packet basis.
+
+     For WTAP_HAS_CAP_LEN, either the file format has separate "captured"
+     and "on the wire" lengths, or it doesn't.
+
+     For WTAP_HAS_DROP_COUNT, Wiretap doesn't actually supply the value
+     to its callers.
+
+     For WTAP_HAS_PACK_FLAGS, we currently don't save the FCS length
+     from the packet flags. */
+  hdr.presence_flags = 0;
+  if (fdata->flags.has_ts)
+    hdr.presence_flags |= WTAP_HAS_TS;
+  if (fdata->flags.has_ts)
+    hdr.presence_flags |= WTAP_HAS_INTERFACE_ID;
   hdr.ts.secs      = fdata->abs_ts.secs;
   hdr.ts.nsecs     = fdata->abs_ts.nsecs;
   hdr.caplen       = fdata->cap_len;
