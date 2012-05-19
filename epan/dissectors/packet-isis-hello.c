@@ -434,7 +434,7 @@ dissect_hello_mt_port_cap_spb_digest_clv(tvbuff_t   *tvb,
         ++offset;
 
         /* Digest: */
-        proto_tree_add_text( tree, tvb, offset, DIGEST_LEN, "Digest:");
+        proto_tree_add_text( subtree, tvb, offset, DIGEST_LEN, "Digest:");
         for (i = 0 ; i < DIGEST_LEN ; i+= 8, offset += 8) {
             proto_tree_add_text( subtree, tvb, offset, 8,
                                  "  %02x %02x %02x %02x %02x %02x %02x %02x",
