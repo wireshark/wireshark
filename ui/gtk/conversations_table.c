@@ -2765,15 +2765,16 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     current_table = registered_ct_tables;
     while(current_table) {
         registered = current_table->data;
-        page_lb = gtk_label_new("");
         conversations = init_ct_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
                                                  registered->filter, registered->packet_func);
-        g_object_set_data(G_OBJECT(conversations->win), CONV_PTR_KEY, conversations);
-        gtk_notebook_append_page(GTK_NOTEBOOK(nb), conversations->win, page_lb);
-        conversations->win = win;
-        conversations->page_lb = page_lb;
-        pages[++page] = conversations;
-
+        if (conversations) {
+            g_object_set_data(G_OBJECT(conversations->win), CONV_PTR_KEY, conversations);
+            page_lb = gtk_label_new("");
+            gtk_notebook_append_page(GTK_NOTEBOOK(nb), conversations->win, page_lb);
+            conversations->win = win;
+            conversations->page_lb = page_lb;
+            pages[++page] = conversations;
+        }
         current_table = g_slist_next(current_table);
     }
 
