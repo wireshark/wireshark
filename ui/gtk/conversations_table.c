@@ -2586,27 +2586,28 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 static void
 ct_nb_switch_page_cb(GtkNotebook *nb, gpointer *pg _U_, guint page, gpointer data)
 {
-    GtkWidget *copy_bt = (GtkWidget *) data;
-    GtkWidget *follow_stream_bt = g_object_get_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY);
-    void      **pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
+    GtkWidget  *copy_bt          = (GtkWidget *) data;
+    GtkWidget  *follow_stream_bt = g_object_get_data(G_OBJECT(nb), FOLLOW_STREAM_BT_KEY);
+    void      **pages            = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
 
     page++;
 
-    if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && copy_bt) {
+    /* XXX: is the 'if' test really needed ??  */
+    if (pages && (page > 0) && ((int) page <= GPOINTER_TO_INT(pages[0]))) {
         g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
         g_object_set_data(G_OBJECT(follow_stream_bt), CONV_PTR_KEY, pages[page]);
-    }
 
-    /* Filter Stream only available for TCP and UDP */
-    if (strcmp(((conversations_table *)pages[page])->name, "TCP") == 0) {
-        gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP Stream.");
-        gtk_widget_set_sensitive(follow_stream_bt, TRUE);
-    } else if (strcmp(((conversations_table *)pages[page])->name, "UDP") == 0) {
-        gtk_widget_set_tooltip_text(follow_stream_bt, "Follow UDP Stream.");
-        gtk_widget_set_sensitive(follow_stream_bt, TRUE);
-    } else {
-        gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP or UDP Stream.");
-        gtk_widget_set_sensitive(follow_stream_bt, FALSE);
+        /* Filter Stream only available for TCP and UDP */
+        if (strcmp(((conversations_table *)pages[page])->name, "TCP") == 0) {
+            gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP Stream.");
+            gtk_widget_set_sensitive(follow_stream_bt, TRUE);
+        } else if (strcmp(((conversations_table *)pages[page])->name, "UDP") == 0) {
+            gtk_widget_set_tooltip_text(follow_stream_bt, "Follow UDP Stream.");
+            gtk_widget_set_sensitive(follow_stream_bt, TRUE);
+        } else {
+            gtk_widget_set_tooltip_text(follow_stream_bt, "Follow TCP or UDP Stream.");
+            gtk_widget_set_sensitive(follow_stream_bt, FALSE);
+        }
     }
 }
 
