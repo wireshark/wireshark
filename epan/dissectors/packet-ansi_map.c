@@ -16547,7 +16547,7 @@ void proto_register_ansi_map(void) {
             NULL, HFILL }},
         { &hf_ansi_map_cdmaserviceoption,
           { "CDMAServiceOption", "ansi_map.cdmaserviceoption",
-            FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(&cdmaserviceoption_vals), 0x0,
+            FT_UINT16, BASE_RANGE_STRING | BASE_DEC, RVALS(cdmaserviceoption_vals), 0x0,
             NULL, HFILL }},
         { &hf_ansi_trans_cap_waddr,
           { "WIN Addressing (WADDR)", "ansi_map.trans_cap_waddr",

@@ -902,7 +902,7 @@ proto_register_mp4ves(void)
 		},
 		{ &hf_mp4ves_start_code,
 		  { "Start code",		"mp4ves.start_code",
-		    FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&mp4ves_startcode_vals), 0x0,
+		    FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(mp4ves_startcode_vals), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_mp4ves_vop_coding_type,

@@ -901,7 +901,7 @@ proto_register_mpls_pm(void)
                 "Control Code",
                 "mpls.pm.ctrl.code",
                 FT_UINT8, BASE_RANGE_STRING | BASE_HEX,
-                RVALS(&mpls_pm_query_ctrl_code_rvals), 0x0,
+                RVALS(mpls_pm_query_ctrl_code_rvals), 0x0,
                 "Code identifying the query type", HFILL
             }
         },
@@ -911,7 +911,7 @@ proto_register_mpls_pm(void)
                 "Control Code",
                 "mpls.pm.ctrl.code",
                 FT_UINT8, BASE_RANGE_STRING | BASE_HEX,
-                RVALS(&mpls_pm_response_ctrl_code_rvals), 0x0,
+                RVALS(mpls_pm_response_ctrl_code_rvals), 0x0,
                 "Code identifying the response type", HFILL
             }
         },
@@ -963,7 +963,7 @@ proto_register_mpls_pm(void)
                 "Origin Timestamp Format (OTF)",
                 "mpls.pm.otf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_pm_time_stamp_format_rvals), 0x0F,
+                RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
             }
         },
@@ -1083,7 +1083,7 @@ proto_register_mpls_pm(void)
                 "Querier timestamp format (QTF)",
                 "mpls.pm.qtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_pm_time_stamp_format_rvals), 0xF0,
+                RVALS(mpls_pm_time_stamp_format_rvals), 0xF0,
                 NULL, HFILL
             }
         },
@@ -1093,7 +1093,7 @@ proto_register_mpls_pm(void)
                 "Querier timestamp format (QTF)",
                 "mpls.pm.qtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_pm_time_stamp_format_rvals), 0x0F,
+                RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
             }
         },
@@ -1103,7 +1103,7 @@ proto_register_mpls_pm(void)
                 "Responder timestamp format (RTF)",
                 "mpls.pm.rtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_pm_time_stamp_format_rvals), 0x0F,
+                RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
             }
         },
@@ -1113,7 +1113,7 @@ proto_register_mpls_pm(void)
                 "Responder timestamp format (RTF)",
                 "mpls.pm.rtf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_pm_time_stamp_format_rvals), 0xF0,
+                RVALS(mpls_pm_time_stamp_format_rvals), 0xF0,
                 NULL, HFILL
             }
         },
@@ -1123,7 +1123,7 @@ proto_register_mpls_pm(void)
                 "Responder's preferred timestamp format (RPTF)",
                 "mpls.pm.rptf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_pm_time_stamp_format_rvals), 0xF0,
+                RVALS(mpls_pm_time_stamp_format_rvals), 0xF0,
                 NULL, HFILL
             }
         },
@@ -1133,7 +1133,7 @@ proto_register_mpls_pm(void)
                 "Responder's preferred timestamp format (RPTF)",
                 "mpls.pm.rptf",
                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_pm_time_stamp_format_rvals), 0x0F,
+                RVALS(mpls_pm_time_stamp_format_rvals), 0x0F,
                 NULL, HFILL
             }
         },

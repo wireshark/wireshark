@@ -19960,7 +19960,7 @@ void proto_register_gsm_map(void) {
           NULL, HFILL }},
       { &hf_gsm_map_locationnumber_nai,
         { "Nature of address indicator", "gsm_map.locationnumber.nai",
-          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(&gsm_map_na_vals), 0x3f,
+          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(gsm_map_na_vals), 0x3f,
           NULL, HFILL }},
       { &hf_gsm_map_locationnumber_inn,
         { "Internal Network Number indicator (INN)", "gsm_map.locationnumber.inn",

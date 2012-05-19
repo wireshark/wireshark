@@ -3291,22 +3291,22 @@ proto_register_omron_fins(void)
         { "Gateway Count", "omron.gct", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_omron_dna,
-        { "Destination network address", "omron.dna", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&omron_dna_range), 0x0, NULL, HFILL }},
+        { "Destination network address", "omron.dna", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(omron_dna_range), 0x0, NULL, HFILL }},
 
         { &hf_omron_da1,
-        { "Destination node number", "omron.da1", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&omron_da1_range), 0x0, NULL, HFILL }},
+        { "Destination node number", "omron.da1", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(omron_da1_range), 0x0, NULL, HFILL }},
 
         { &hf_omron_da2,
-        { "Destination unit address", "omron.da2", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&omron_da2_range), 0x0, NULL, HFILL }},
+        { "Destination unit address", "omron.da2", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(omron_da2_range), 0x0, NULL, HFILL }},
 
         { &hf_omron_sna,
-        { "Source network address", "omron.sna", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&omron_sna_range), 0x0, NULL, HFILL }},
+        { "Source network address", "omron.sna", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(omron_sna_range), 0x0, NULL, HFILL }},
 
         { &hf_omron_sa1,
-        { "Source node number", "omron.sa1", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&omron_sa1_range), 0x0, NULL, HFILL }},
+        { "Source node number", "omron.sa1", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(omron_sa1_range), 0x0, NULL, HFILL }},
 
         { &hf_omron_sa2,
-        { "Source unit address", "omron.sa2", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(&omron_sa2_range), 0x0, NULL, HFILL }},
+        { "Source unit address", "omron.sa2", FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(omron_sa2_range), 0x0, NULL, HFILL }},
 
         { &hf_omron_sid,
         { "Service ID", "omron.sid", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -3590,7 +3590,7 @@ proto_register_omron_fins(void)
         { &hf_omron_network_address,
         { "Network address", "omron.network_address", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_error_reset_fals_no,
-        { "Error reset FAL no.", "omron.error_reset_fals_no", FT_UINT16, BASE_RANGE_STRING|BASE_HEX, RVALS(&omron_error_reset_range), 0x0, NULL, HFILL }},
+        { "Error reset FAL no.", "omron.error_reset_fals_no", FT_UINT16, BASE_RANGE_STRING|BASE_HEX, RVALS(omron_error_reset_range), 0x0, NULL, HFILL }},
         { &hf_omron_beginning_record_no,
         { "Beginning record no.", "omron.beginning_record_no", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_omron_no_of_records,

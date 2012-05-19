@@ -3363,7 +3363,7 @@ proto_register_ospf(void)
            BASE_HEX, NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
          { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc", FT_UINT8,
-           BASE_RANGE_STRING | BASE_DEC, RVALS(&mpls_link_stlv_bcmodel_rvals), 0x0,
+           BASE_RANGE_STRING | BASE_DEC, RVALS(mpls_link_stlv_bcmodel_rvals), 0x0,
            NULL, HFILL }},
 
         {&hf_ospf_filter[OSPFF_LS_OIF_LOCAL_NODE_ID],

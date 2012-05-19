@@ -184,7 +184,7 @@ proto_register_mpls_psc(void)
             {
                 "Request", "mpls.psc.req", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_req_rvals),
+                RVALS(mpls_psc_req_rvals),
                 0x3C, NULL, HFILL
             }
         },
@@ -193,7 +193,7 @@ proto_register_mpls_psc(void)
             {
                 "Protection Type", "mpls.psc.pt", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_pt_rvals),
+                RVALS(mpls_psc_pt_rvals),
                 0x03, NULL, HFILL
             }
         },
@@ -202,7 +202,7 @@ proto_register_mpls_psc(void)
             {
                 "R", "mpls.psc.rev", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_rev_rvals),
+                RVALS(mpls_psc_rev_rvals),
                 0x80, NULL, HFILL
             }
         },
@@ -211,7 +211,7 @@ proto_register_mpls_psc(void)
             {
                 "Fault Path", "mpls.psc.fpath", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_fpath_rvals),
+                RVALS(mpls_psc_fpath_rvals),
                 0x0, NULL, HFILL
             }
         },
@@ -220,7 +220,7 @@ proto_register_mpls_psc(void)
             {
                 "Data Path", "mpls.psc.dpath", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_dpath_rvals),
+                RVALS(mpls_psc_dpath_rvals),
                 0x0, NULL, HFILL
             }
         },

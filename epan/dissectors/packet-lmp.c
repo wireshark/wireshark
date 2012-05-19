@@ -2359,7 +2359,7 @@ proto_register_lmp(void)
 		  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
 		{ "Encoding Type", "lmp.begin_verify.enctype",
-		  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(&gmpls_lsp_enc_rvals), 0x0,
+		  FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gmpls_lsp_enc_rvals), 0x0,
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_VERIFY_ID],
 		{ "Verify-ID", "lmp.verifyid", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -2413,10 +2413,10 @@ proto_register_lmp(void)
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
 		{ "Interface Switching Capability", "lmp.data_link_switching", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
-		  RVALS(&gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
+		  RVALS(gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
 		{ "LSP Encoding Type", "lmp.data_link_encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
-		  RVALS(&gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
+		  RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
 
 	   {&hf_lmp_filter[LMPF_VAL_ERROR],
 		{ "Error Code", "lmp.error", FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -2675,10 +2675,10 @@ proto_register_lmp(void)
 			NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
 		{ "Interface Switching Capability", "lmp.lad_switching", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
-		  RVALS(&gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
+		  RVALS(gmpls_switching_type_rvals), 0x0, NULL, HFILL }},
 	   {&hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
 		{ "LSP Encoding Type", "lmp.lad_encoding", FT_UINT8, BASE_DEC|BASE_RANGE_STRING,
-		  RVALS(&gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
+		  RVALS(gmpls_lsp_enc_rvals), 0x0, NULL, HFILL }},
 	};
 
     for (i=0; i<NUM_LMP_SUBTREES; i++) {
