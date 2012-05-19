@@ -462,8 +462,11 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 		strm->avail_in = state->avail_in;
 		strm->next_in = state->next_in;
 		/* decompress and handle errors */
-		/* ret = inflate(strm, Z_NO_FLUSH); */
+#ifdef Z_BLOCK
 		ret = inflate(strm, Z_BLOCK);
+#else
+		ret = inflate(strm, Z_NO_FLUSH);
+#endif
 		state->avail_in = strm->avail_in;
 		state->next_in = strm->next_in;
 		if (ret == Z_STREAM_ERROR) {
@@ -492,6 +495,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 		 */
 
 		strm->adler = crc32(strm->adler, buf2, count2 - strm->avail_out);
+#ifdef Z_BLOCK
 		if (state->fast_seek_cur) {
 			struct zlib_cur_seek_point *cur = (struct zlib_cur_seek_point *) state->fast_seek_cur;
 			unsigned int ready = count2 - strm->avail_out;
@@ -524,6 +528,7 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
 			if (cur->have >= ZLIB_WINSIZE && ret != Z_STREAM_END && (strm->data_type & 128) && !(strm->data_type & 64))
 				zlib_fast_seek_add(state, cur, (strm->data_type & 7), state->raw_pos - strm->avail_in, state->pos + (count - strm->avail_out));
 		}
+#endif
 		buf2 = (buf2 + count2 - strm->avail_out);
 		count2 = strm->avail_out;
 
@@ -646,7 +651,7 @@ gz_head(FILE_T state)
 			inflateReset(&(state->strm));
 			state->strm.adler = crc32(0L, Z_NULL, 0);
 			state->compression = ZLIB;
-
+#ifdef Z_BLOCK
 			if (state->fast_seek) {
 				struct zlib_cur_seek_point *cur = g_malloc(sizeof(struct zlib_cur_seek_point));
 
@@ -655,6 +660,7 @@ gz_head(FILE_T state)
 				state->fast_seek_cur = cur;
 				fast_seek_header(state, state->raw_pos - state->avail_in, state->pos, GZIP_AFTER_HEADER);
 			}
+#endif
 			return 0;
 		}
 		else {
