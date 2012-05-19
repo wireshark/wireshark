@@ -507,8 +507,13 @@ guint32 payload_crc_value;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &dch_id, FALSE);
-	if(g_num_dch_in_flow>0)
+	if(g_num_dch_in_flow>0){
 		g_dchs_in_flow_list[g_num_dch_in_flow-1]=dch_id;
+		nbap_dch_chnl_info[dch_id].next_dch = 0;
+		if(prev_dch_id != 0){
+			nbap_dch_chnl_info[prev_dch_id].next_dch = dch_id;
+		}
+	}
 
 #.FN_BODY DCH-ModifySpecificItem-FDD/dCH-ID
 
@@ -542,6 +547,8 @@ guint32 payload_crc_value;
 #.FN_BODY RACH-ParametersItem-CTCH-SetupRqstFDD
 address 	dst_addr, null_addr;
 conversation_t *conversation;
+umts_fp_conversation_info_t *umts_fp_conversation_info;
+int j, num_tf;
 
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
@@ -571,14 +578,49 @@ transportFormatSet_type = CPCH;
 
 			/* Set dissector */
 			conversation_set_dissector(conversation, fp_handle);
+			if(actx->pinfo->link_dir==P2P_DIR_DL){
+				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+				/* Fill in the data */
+				umts_fp_conversation_info->iface_type        = IuB_Interface;
+				umts_fp_conversation_info->division          = Division_FDD;
+				umts_fp_conversation_info->channel           = CHANNEL_CPCH;
+				umts_fp_conversation_info->dl_frame_number   = 0;
+				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
+				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
+				umts_fp_conversation_info->crnc_port         = BindingID_port;
+
+				/* DCH's in this flow */
+				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+				/* Set data for First or single channel */
+				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
+				for (j = 0; j < num_tf; j++) {
+					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
+				}
+
+				/* Traffic flows per DCH(DL) */
+				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
+				for (j = 0; j < num_tf; j++) {
+					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
+				}
+
+				umts_fp_conversation_info->dchs_in_flow_list[0] = commonphysicalchannelid;
+				umts_fp_conversation_info->num_dch_in_flow=1;
+				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+			}
 		}
 
 
 #.FN_HDR DCH-Specific-FDD-InformationList
 	g_num_dch_in_flow = 0;
+	prev_dch_id = 0;
 
 #.FN_HDR DCH-Specific-FDD-Item
 	g_num_dch_in_flow++;
+
+#.FN_FTR DCH-Specific-FDD-Item
+	prev_dch_id = dch_id;
 
 #.FN_HDR DCH-Specific-FDD-Item/ul-TransportFormatSet
 	transportFormatSet_type = DCH_UL;
@@ -618,6 +660,12 @@ guint32 NrOfTransportBlocks;
 				nbap_dch_chnl_info[dch_id].num_dl_chans++;
 				nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
+			case CPCH: 
+				nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans++;
+				nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
+				nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans++;
+				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
+				break;
 			default:
 				break;
 		}
@@ -635,6 +683,10 @@ guint32 TransportBlockSize;
 				break;
 			case DCH_DL:
 				nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
+				break;
+			case CPCH:
+				nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[num_items-1] = TransportBlockSize;
+				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
 			default:
 				break;
@@ -692,29 +744,44 @@ dch_id = 0xFFFFFFFF;
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
 
 				/* DCH's in this flow */
-				umts_fp_conversation_info->num_dch_in_flow = g_num_dch_in_flow;
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
-				/* Temp kludge to owercome a problem with multiple single flows in one MSG */
-				if(g_num_dch_in_flow == 1){
-					g_dchs_in_flow_list[0] = dch_id;
+				/* Set data for First or single channel */
+				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[dch_id].num_ul_chans;
+				for (j = 0; j < num_tf; j++) {
+					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].ul_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[j];
 				}
-				for (i = 0; i < g_num_dch_in_flow; i++) {
-					umts_fp_conversation_info->dchs_in_flow_list[i] = g_dchs_in_flow_list[i];
 
+				/* Traffic flows per DCH(DL) */
+				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[dch_id].num_dl_chans;
+				for (j = 0; j < num_tf; j++) {
+					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].dl_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[j];
+				}
+
+				/* Set data for associated DCH's if we have any */
+				i = dch_id;
+				umts_fp_conversation_info->dchs_in_flow_list[0] = dch_id;
+				while(nbap_dch_chnl_info[i].next_dch != 0){
+					i = nbap_dch_chnl_info[i].next_dch;
+					umts_fp_conversation_info->num_dch_in_flow++;
+					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
 					/* Traffic flows per DCH(UL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[i].num_ul_chans = num_tf = nbap_dch_chnl_info[g_dchs_in_flow_list[i]].num_ul_chans;
+					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[i].ul_chan_tf_size[j] = nbap_dch_chnl_info[g_dchs_in_flow_list[i]].ul_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[i].ul_chan_num_tbs[j] = nbap_dch_chnl_info[g_dchs_in_flow_list[i]].ul_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
 					}
 
 					/* Traffic flows per DCH(DL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[i].num_dl_chans = num_tf = nbap_dch_chnl_info[g_dchs_in_flow_list[i]].num_dl_chans;
+					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[i].dl_chan_tf_size[j] = nbap_dch_chnl_info[g_dchs_in_flow_list[i]].dl_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[i].dl_chan_num_tbs[j] = nbap_dch_chnl_info[g_dchs_in_flow_list[i]].dl_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
 					}
 				}
+				umts_fp_conversation_info->num_dch_in_flow++;
+				umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}
 		}

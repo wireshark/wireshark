@@ -98,6 +98,8 @@ struct _nbap_msg_info_for_fp
 
 typedef struct
 {
+	gint num_dch_in_flow;
+	gint next_dch;
     gint num_ul_chans;
     gint ul_chan_tf_size[MAX_FP_CHANS];
     gint ul_chan_num_tbs[MAX_FP_CHANS];
@@ -119,8 +121,9 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
-static guint32 t_dch_id, dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id;
+static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id;
 static guint num_items;
+static gboolean show_conv_data_collection = TRUE;
 
 enum TransportFormatSet_type_enum
 {

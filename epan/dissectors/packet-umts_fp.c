@@ -33,6 +33,7 @@
 #include <epan/conversation.h>
 
 #include "packet-umts_fp.h"
+#include "packet-umts_mac.h"
 
 /* The Frame Protocol (FP) is described in:
  * 3GPP TS 25.427 (for dedicated channels)
@@ -46,6 +47,7 @@
 
 /* Initialize the protocol and registered fields. */
 int proto_fp = -1;
+extern int proto_umts_mac;
 
 static int hf_fp_release = -1;
 static int hf_fp_release_version = -1;
@@ -3131,6 +3133,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 	int offset = 0, i;
 	gboolean is_control_frame;
 	proto_item *item;
+	/*umts_mac_info *macinf;*/
 
 	fpi = se_alloc0(sizeof(fp_info));
 	p_add_proto_data(pinfo->fd, proto_fp, fpi);
@@ -3159,12 +3162,31 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 		return fpi;
 
 	case CHANNEL_DCH:
+		/* fall trough */
+	case CHANNEL_CPCH:
 		fpi->num_chans = p_conv_data->num_dch_in_flow;
 		if(is_control_frame){
 			/* control frame, we're done */
 			return fpi;
 		}
 
+#if 0
+		/* For now cheat */
+		if(p_conv_data->dchs_in_flow_list[0] == 31){
+			macinf = se_new0(umts_mac_info);
+			macinf->ctmux[0]   = 1;
+			macinf->content[0] = MAC_CONTENT_DCCH;
+			p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+		}
+
+	guint32 urnti[MAX_RLC_CHANS];
+	guint8 mode[MAX_RLC_CHANS];
+	guint8 rbid[MAX_RLC_CHANS];
+	enum rlc_li_size li_size[MAX_RLC_CHANS];
+	gboolean ciphered[MAX_RLC_CHANS];
+	gboolean deciphered[MAX_RLC_CHANS];
+
+#endif
 		/* Set offset to point to first TFI
 		 * the Number of TFI's = number of DCH's in the flow 
 		 */
@@ -3181,7 +3203,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 				fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
 				fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
 				item = proto_tree_add_text(tree,tvb,offset,1,"TFI %u: DL TBs %u size %u",tfi, fpi->chan_num_tbs[i],fpi->chan_tf_size[i]);
-		}
+			}
 			PROTO_ITEM_SET_GENERATED(item);
 			offset++;
 		}
