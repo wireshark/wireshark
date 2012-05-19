@@ -25,7 +25,7 @@ HorizontalVelocity
 	
   proto_tree_add_item(tree, proto_lpp, tvb, 0, -1, ENC_NA);
 
-  col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/LPP");
+  col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPP");
 #.END
 
 # Handle 64 bit constraint

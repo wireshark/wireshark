@@ -7867,7 +7867,7 @@ dissect_lpp_LPP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 	
   proto_tree_add_item(tree, proto_lpp, tvb, 0, -1, ENC_NA);
 
-  col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/LPP");
+  col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPP");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_LPP_Message, LPP_Message_sequence);
