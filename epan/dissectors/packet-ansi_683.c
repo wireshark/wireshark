@@ -1526,8 +1526,6 @@ for_param_block_val_spasm(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 of
             tvb, offset, 1,
             "%s :  Reserved",
             bigbuf);
-
-        offset++;
     }
     else
     {
@@ -1561,8 +1559,6 @@ for_param_block_val_spasm(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 of
             tvb, offset, 3,
             "%s :  Reserved",
             bigbuf);
-
-        offset += 3;
     }
 }
 

@@ -1508,7 +1508,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     case ACN_DMP_VECTOR_ALLOCATE_MAP_REPLY:
       /* Single reason code  */
       proto_tree_add_item(pdu_tree, hf_acn_dmp_reason_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
-      data_offset += 1;
+      /* data_offset += 1; */
     case ACN_DMP_VECTOR_DEALLOCATE_MAP:
       /* No data for this */
       break;
@@ -2480,7 +2480,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       proto_tree_add_item(pdu_tree, hf_acn_reason_code,              tvb, data_offset, 1, ENC_BIG_ENDIAN);
-      offset += 1;
+      /* offset += 1; */
       break;
     case ACN_SDT_VECTOR_CONNECT:
       break;

@@ -1064,7 +1064,7 @@ spotlight_get_utf16_string_encoding(tvbuff_t *tvb, gint offset, gint query_lengt
 			byte_order_mark = tvb_get_letohs(tvb, offset);
 		else
 			byte_order_mark = tvb_get_ntohs(tvb, offset);
-			
+
 		if (byte_order_mark == 0xFFFE) {
 			utf16_encoding = ENC_BIG_ENDIAN | ENC_UTF_16;
 		}
@@ -4227,20 +4227,20 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				* However the existence of such a mark can not be assumed.
 				* If the mark is missing, big endian encoding is assumed.
 				*/
-				
+
 				subquery_count = 1;
 				query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding);
 				query_length = (query_data64 & 0xffff) * 8;
-				
+
 				unicode_encoding = spotlight_get_utf16_string_encoding(tvb, offset + 16, query_length - 8, encoding);
 				mark_exists = (unicode_encoding & ENC_UTF_16);
 				unicode_encoding &= ~ENC_UTF_16;
-				
+
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length + 8,
 								 "%s, toc index: %u, utf-16 string: '%s'",
 								 spotlight_get_cpx_qtype_string(complex_query_type),
 								 toc_index + 1,
-								 tvb_get_ephemeral_unicode_string(tvb, offset + (mark_exists ? 18 : 16), 
+								 tvb_get_ephemeral_unicode_string(tvb, offset + (mark_exists ? 18 : 16),
 								 query_length - (mark_exists? 10 : 8), unicode_encoding));
 				break;
 			default:
@@ -4317,13 +4317,13 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				unicode_encoding &= ~ENC_UTF_16;
 
 				proto_tree_add_text(tree, tvb, offset, query_length, "utf-16 string: '%s'",
-						    tvb_get_ephemeral_unicode_string(tvb, offset + (mark_exists ? 10 : 8), 
+						    tvb_get_ephemeral_unicode_string(tvb, offset + (mark_exists ? 10 : 8),
 								query_length - (mark_exists? 10 : 8), unicode_encoding));
 				break;
 			}
 			case SQ_CPX_TYPE_FILEMETA:
 				if (query_length <= 8) {
-					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta (empty)");
+					/* item_query = */ proto_tree_add_text(tree, tvb, offset, query_length, "filemeta (empty)");
 				} else {
 					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
 					sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
@@ -4336,7 +4336,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			break;
 		case SQ_TYPE_CNIDS:
 			if (query_length <= 8) {
-				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array (empty)");
+				/* item_query = */ proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array (empty)");
 			} else {
 				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array");
 				sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
@@ -4494,7 +4494,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 					    toc_entry >> 32,
 					    spotlight_get_cpx_qtype_string((toc_entry & 0xffff0000) >> 16),
 					    (toc_entry & 0xffff) * 8);
-		} else if ((((toc_entry & 0xffff0000) >> 16) == SQ_CPX_TYPE_STRING) 
+		} else if ((((toc_entry & 0xffff0000) >> 16) == SQ_CPX_TYPE_STRING)
 			|| (((toc_entry & 0xffff0000) >> 16) == SQ_CPX_TYPE_UTF16_STRING)) {
 			proto_tree_add_text(sub_tree_toc,
 					    tvb,
@@ -4750,7 +4750,7 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case SPOTLIGHT_CMD_GET_VOLPATH:
 		proto_tree_add_item(tree, hf_afp_vol_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		
+
 		proto_tree_add_item(tree, hf_afp_spotlight_reply_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
@@ -6673,7 +6673,7 @@ proto_register_afp(void)
 		  { "Padding",               "afp.spotlight.reserved",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "Spotlight RPC Padding", HFILL }},
-			
+
 		{ &hf_afp_spotlight_reply_reserved,
 		  { "Reserved",               "afp.spotlight.reserved",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,

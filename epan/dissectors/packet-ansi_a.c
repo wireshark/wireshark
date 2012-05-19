@@ -5305,7 +5305,6 @@ elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
     proto_item  *item;
 
     curr_offset = offset;
-    adds_app = 0;
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -8973,7 +8972,6 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guin
     gint        dec_idx;
 
     curr_offset = offset;
-    consumed = 0;
 
     if ((int)idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
@@ -11794,7 +11792,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * add DTAP message name
      */
-    saved_offset = offset;
     oct = tvb_get_guint8(tvb, offset++);
 
     msg_str = my_match_strval_idx((guint32) oct, ansi_a_dtap_strings, &idx, &dec_idx);

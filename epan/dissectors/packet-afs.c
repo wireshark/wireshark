@@ -2018,7 +2018,7 @@ dissect_fs_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 			break;
 		case 134: /* Store ACL */
 			OUT_FS_AFSFid("Target");
-			offset = dissect_acl(tvb, rxinfo, tree, offset);
+			/* offset = */ dissect_acl(tvb, rxinfo, tree, offset);
 			break;
 		case 135: /* Store Status */
 			OUT_FS_AFSFid("Target");
@@ -3076,9 +3076,9 @@ dissect_backup_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 }
 
 static void
-dissect_backup_request(tvbuff_t *tvb _U_, struct rxinfo *rxinfo _U_, proto_tree *tree _U_, int offset, int opcode)
+dissect_backup_request(tvbuff_t *tvb _U_, struct rxinfo *rxinfo _U_, proto_tree *tree _U_, int offset _U_, int opcode)
 {
-	offset += 4;  /* skip the opcode */
+        /* offset += 4; */ /* skip the opcode */
 
 	switch ( opcode )
 	{

@@ -364,7 +364,7 @@ dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 
 	/* Message Channel ID */
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
-                        ENC_BIG_ENDIAN);
+			    ENC_BIG_ENDIAN);
 	channel_id = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 
@@ -506,7 +506,8 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 	text_length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	text = tvb_get_ephemeral_string(tvb, offset, text_length);
-	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); offset+=text_length;
+	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); /* offset+=text_length; */
+
 	offset = tvb_length(tvb);
 
 	return offset;
@@ -549,7 +550,7 @@ dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_
 	proto_tree_add_text(entry, tvb, offset, 2, "Unknown"); offset += 2;
 	proto_tree_add_item(entry, hf_aim_icbm_client_err_client_caps_flags, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
 	proto_tree_add_text(entry, tvb, offset, 1, "Unknown");	offset += 1;
-	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); offset += 2;
+	proto_tree_add_text(entry, tvb, offset, 2, "Downcounter?"); /* offset += 2;*/
 
 	offset = start_offset + length;
 
@@ -564,7 +565,7 @@ dissect_aim_tlv_value_extended_data(proto_item *ti, guint16 valueid _U_, tvbuff_
 	{
 	        /* a message follows */
 	        tvbuff_t *subtvb = tvb_new_subset_remaining(tvb, offset);
-	        offset += dissect_aim_rendezvous_extended_message(subtvb, entry);
+		/* offset += */ dissect_aim_rendezvous_extended_message(subtvb, entry);
 	}
 	else
 	{
@@ -584,7 +585,7 @@ dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, ENC_NA); offset+=8;
 
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
-                        ENC_BIG_ENDIAN); offset += 2;
+			    ENC_BIG_ENDIAN); offset += 2;
 
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 
