@@ -250,6 +250,7 @@ struct bgp_attr {
 #define SAFNUM_ENCAPSULATION    7  /* rfc5512 */
 #define SAFNUM_TUNNEL          64  /* draft-nalawade-kapoor-tunnel-safi-02.txt */
 #define SAFNUM_VPLS            65
+#define SAFNUM_MDT             66  /* rfc6037 */
 #define SAFNUM_LAB_VPNUNICAST 128  /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST 129
 #define SAFNUM_LAB_VPNUNIMULC 130
@@ -693,6 +694,9 @@ static int hf_bgp_encaps_tunnel_tlv_len = -1;
 static int hf_bgp_encaps_tunnel_tlv_type = -1;
 static int hf_bgp_encaps_tunnel_subtlv_len = -1;
 static int hf_bgp_encaps_tunnel_subtlv_type = -1;
+static int hf_bgp_mdt_safi_rd = -1;
+static int hf_bgp_mdt_safi_ipv4_addr = -1;
+static int hf_bgp_mdt_safi_group_addr = -1;
 
 
 static gint ett_bgp = -1;
@@ -1127,6 +1131,40 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
 }
 
 /*
+ * Decodes an MDT-SAFI message.
+ */
+static guint
+decode_mdt_safi(proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+    const guint ip_length = 4;
+    const guint mdt_safi_nlri_length_bits = 128;
+    guint length; /* length in bits */
+    gint  orig_offset = offset;
+    proto_item *item;
+        
+    length = tvb_get_guint8(tvb, offset);
+    if (length != mdt_safi_nlri_length_bits)
+        return -1;
+    offset++;
+
+    item = proto_tree_add_item(tree, hf_bgp_mdt_safi_rd, tvb,
+                               offset, BGP_ROUTE_DISTINGUISHER_SIZE, ENC_NA);
+    proto_item_set_text(item, "Route Distinguisher: %s",
+                        decode_bgp_rd(tvb, offset));
+    offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+
+    proto_tree_add_item(tree, hf_bgp_mdt_safi_ipv4_addr, tvb,
+                        offset, ip_length, ENC_BIG_ENDIAN);
+    offset += ip_length;
+
+    proto_tree_add_item(tree, hf_bgp_mdt_safi_group_addr, tvb,
+                        offset, ip_length, ENC_BIG_ENDIAN);
+    offset += ip_length;
+
+    return offset - orig_offset;
+}
+
+/*
  * Decode an MPLS label stack
  * XXX - We should change *buf to **buf, use ep_alloc() and drop the buflen
  * argument.
@@ -1407,6 +1445,11 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 break;
             case SAFNUM_MCAST_VPN:
                 total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
+                if (total_length < 0)
+                    return -1;
+                break;
+            case SAFNUM_MDT:
+                total_length = decode_mdt_safi(tree, tvb, offset);
                 if (total_length < 0)
                     return -1;
                 break;
@@ -4243,6 +4286,15 @@ proto_register_bgp(void)
       { &hf_bgp_encaps_tunnel_subtlv_type,
         { "Type code", "bgp.encaps_tunnel_subtlv_type", FT_UINT8, BASE_DEC,
           VALS(subtlv_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_mdt_safi_rd,
+        { "Route Distinguisher", "bgp.mdt_safi_rd", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mdt_safi_ipv4_addr,
+        { "IPv4 Address", "bgp.mdt_safi_ipv4_addr", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+       { &hf_bgp_mdt_safi_group_addr,
+        { "Group Address", "bgp.mdt_safi_group_addr", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
     };
 
     static gint *ett[] = {
