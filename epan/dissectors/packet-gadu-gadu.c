@@ -55,6 +55,7 @@ static int hf_gadu_gadu_contact_type = -1;
 
 static int hf_gadu_gadu_login_uin = -1;
 
+static int hf_gadu_gadu_msg_uin = -1;
 static int hf_gadu_gadu_msg_sender = -1;
 static int hf_gadu_gadu_msg_recipient = -1;
 static int hf_gadu_gadu_msg_seq = -1;
@@ -74,7 +75,7 @@ static int hf_gadu_gadu_status_ip = -1;
 static int hf_gadu_gadu_status_port = -1;
 static int hf_gadu_gadu_status_version = -1;
 static int hf_gadu_gadu_status_img_size = -1;
-static int hf_gadu_gadu_status_desc = -1;
+static int hf_gadu_gadu_status_descr = -1;
 
 static int hf_gadu_gadu_new_status_status = -1;
 static int hf_gadu_gadu_new_status_desc = -1;
@@ -82,8 +83,6 @@ static int hf_gadu_gadu_new_status_desc = -1;
 static int hf_gadu_gadu_welcome_seed = -1;
 
 static int hf_gadu_gadu_data = -1;
-
-#define GG_TYPE_VS(x) { x, #x }
 
 #define GG_ERA_OMNIX_MASK 0x04000000
 #define GG_HAS_AUDIO_MASK 0x40000000
@@ -129,6 +128,9 @@ static int hf_gadu_gadu_data = -1;
 #define GG_OWN_MESSAGE              0x5A
 #define GG_OWN_RESOURCE_INFO        0x5B
 #define GG_USERLIST100_VERSION      0x5C
+
+
+#define GG_TYPE_VS(x) { x, #x }
 
 /* original (GG_*) names likes in documentation (http://toxygen.net/libgadu/protocol/#ch1.16) */
 static const value_string gadu_gadu_packets_type_recv[] = {
@@ -245,12 +247,36 @@ static const value_string gadu_gadu_packets_type_send[] = {
 	{ 0, NULL }
 };
 
+static const value_string gadu_gadu_msg_ack_status_vals[] = {
+	{ 0x01, "Message blocked" },
+	{ 0x02, "Message delivered" },
+	{ 0x03, "Message queued" },
+	{ 0x04, "Message not delivered (queue full)" },
+	{ 0x06, "CTCP Message not delivered" },
+	{ 0, NULL }
+};
+
+#define GG_STATUS_NOT_AVAIL         0x01
+#define GG_STATUS_NOT_AVAIL_DESCR   0x15
+#define GG_STATUS_FFC               0x17
+#define GG_STATUS_FFC_DESCR         0x18
+#define GG_STATUS_AVAIL             0x02
+#define GG_STATUS_AVAIL_DESCR       0x04
+#define GG_STATUS_BUSY              0x03 
+#define GG_STATUS_BUSY_DESCR        0x05
+#define GG_STATUS_DND               0x21
+#define GG_STATUS_DND_DESCR         0x22
+#define GG_STATUS_INVISIBLE         0x14
+#define GG_STATUS_INVISIBLE_DESCR   0x16
+#define GG_STATUS_BLOCKED           0x06
+
+
 struct gadu_gadu_conv_data {
 	guint32 uin;	/* uin from login packet */
 };
 
 static struct gadu_gadu_conv_data *
-create_gadu_gadu_conversation(packet_info *pinfo, guint32 uin)
+gadu_gadu_create_conversation(packet_info *pinfo, guint32 uin)
 {
 	conversation_t *conv;
 	struct gadu_gadu_conv_data *gg_conv;
@@ -268,7 +294,7 @@ create_gadu_gadu_conversation(packet_info *pinfo, guint32 uin)
 }
 
 static struct gadu_gadu_conv_data *
-get_gadu_gadu_conversation_data(packet_info *pinfo)
+gadu_gadu_get_conversation_data(packet_info *pinfo)
 {
 	conversation_t *conv;
 	
@@ -276,6 +302,18 @@ get_gadu_gadu_conversation_data(packet_info *pinfo)
 	if (conv)
 		return conversation_get_proto_data(conv, proto_gadu_gadu);
 	return NULL;
+}
+
+static gboolean
+gadu_gadu_status_has_descr(int status)
+{
+        return
+			(status == GG_STATUS_NOT_AVAIL_DESCR) ||
+			(status == GG_STATUS_FFC_DESCR) ||
+			(status == GG_STATUS_AVAIL_DESCR) ||
+			(status == GG_STATUS_BUSY_DESCR) ||
+			(status == GG_STATUS_DND_DESCR) ||
+			(status == GG_STATUS_INVISIBLE_DESCR);
 }
 
 static int
@@ -304,28 +342,61 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, int hfindex, proto_tree *tree, i
 
 	GString *str;
 	guint8 ch;
+	gint len;
+	
+	len = tvb_reported_length_remaining(tvb, offset);
 
 	str = g_string_new(NULL);
 
-	while ((ch = tvb_get_guint8(tvb, offset))) {
+	while (len && (ch = tvb_get_guint8(tvb, offset))) {
 		if (ch < 0x80)
 			g_string_append_c(str, ch);
 		else
 			g_string_append_unichar(str, table_cp1250[ch-0x80]);
 		offset++;
+		len--;
 	}
-	offset++;	/* NUL */
+	if (len)
+		offset++;	/* NUL */
 
 	/* proto_item_fill_label() is broken for UTF-8 strings.
 	 * It's using internally format_text() which doesn't support UTF-8 
 	 *
-	 * So instead of using proto_tree_add_string() use proto_tree_add_string()
+	 * So don't use proto_tree_add_string() but proto_tree_add_string_format_value()
 	 */
 	proto_tree_add_string_format_value(tree, hfindex, tvb, org_offset, offset - org_offset, str->str, "%s", str->str);
 	g_string_free(str, TRUE);
 
 	return offset;
 }
+
+static int
+dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, int hfindex, proto_tree *tree, int offset)
+{
+	const int org_offset = offset;
+
+	char *str;
+	guint32 len;
+
+	len = tvb_get_letohl(tvb, offset);
+	offset += 4;
+
+	if (len > 0) {
+		/* The one below doesn't work, same reason like in dissect_gadu_gadu_stringz_cp1250() */
+		/* proto_tree_add_item(tree, hfindex, tvb, offset-4, len+4, ENC_UTF_8|ENC_NA); */
+
+		/* Use workaround */
+		str = tvb_get_ephemeral_string_enc(tvb, offset, len, ENC_UTF_8|ENC_NA);
+
+	} else
+		str = "";
+
+	offset += len;
+
+	proto_tree_add_string_format_value(tree, hfindex, tvb, org_offset, offset - org_offset, str, "%s", str);
+	return offset;
+}
+
 
 static int
 dissect_gadu_gadu_disconnecting(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int offset)
@@ -353,10 +424,10 @@ dissect_gadu_gadu_login70(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
 	guint32 uin;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Login (7.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Login request (7.0)");
 
 	uin = tvb_get_letohl(tvb, offset) & ~(GG_ERA_OMNIX_MASK | GG_HAS_AUDIO_MASK);
-	create_gadu_gadu_conversation(pinfo, uin);
+	gadu_gadu_create_conversation(pinfo, uin);
 
 	proto_tree_add_uint(tree, hf_gadu_gadu_login_uin, tvb, offset, 4, uin);
 	offset += 4;
@@ -371,10 +442,10 @@ dissect_gadu_gadu_login80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 {
 	guint32 uin;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Login (8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Login request (8.0)");
 
 	uin = tvb_get_letohl(tvb, offset);
-	create_gadu_gadu_conversation(pinfo, uin);
+	gadu_gadu_create_conversation(pinfo, uin);
 
 	proto_tree_add_item(tree, hf_gadu_gadu_login_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -387,7 +458,7 @@ dissect_gadu_gadu_login80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static int
 dissect_gadu_gadu_login_ok(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int offset)
 {
-	col_set_str(pinfo->cinfo, COL_INFO, "Login ok (< 8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Login success (< 8.0)");
 
 	/* not empty packet, but content unknown */
 
@@ -397,7 +468,7 @@ dissect_gadu_gadu_login_ok(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tr
 static int
 dissect_gadu_gadu_login_failed(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int offset)
 {
-	col_set_str(pinfo->cinfo, COL_INFO, "Login failed (< 8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Login fail (< 8.0)");
 
 	/* empty packet */
 
@@ -407,7 +478,7 @@ dissect_gadu_gadu_login_failed(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree
 static int
 dissect_gadu_gadu_login_ok80(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int offset)
 {
-	col_set_str(pinfo->cinfo, COL_INFO, "Login ok (8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Login success (8.0)");
 
 	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 4, ENC_NA);	/* 01 00 00 00 */
 	offset += 4;
@@ -418,7 +489,7 @@ dissect_gadu_gadu_login_ok80(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *
 static int
 dissect_gadu_gadu_login80_failed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	col_set_str(pinfo->cinfo, COL_INFO, "Login failed (8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Login fail (8.0)");
 
 	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 4, ENC_NA);	/* 01 00 00 00 */
 	offset += 4;
@@ -427,17 +498,32 @@ dissect_gadu_gadu_login80_failed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static int
+dissect_gadu_gadu_msg_attr(tvbuff_t *tvb _U_, proto_tree *tree _U_, int offset)
+{
+	/* XXX, stub */
+
+	return offset;
+}
+
+static int
 dissect_gadu_gadu_recv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	struct gadu_gadu_conv_data *conv;
+	proto_item *ti;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Received message (< 8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Receive message (< 8.0)");
 
-	if ((conv = get_gadu_gadu_conversation_data(pinfo))) {
-		proto_item *ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_recipient, tvb, offset, 4, conv->uin);
+	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_recipient, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
+
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
+		PROTO_ITEM_SET_GENERATED(ti);
+		PROTO_ITEM_SET_HIDDEN(ti);
 	}
 
+	ti = proto_tree_add_item(tree, hf_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(ti);
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_sender, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -452,7 +538,7 @@ dissect_gadu_gadu_recv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	offset = dissect_gadu_gadu_stringz_cp1250(tvb, hf_gadu_gadu_msg_text, tree, offset);
 
-	/* XXX packet not fully dissected (attributes) */
+	offset = dissect_gadu_gadu_msg_attr(tvb, tree, offset);
 
 	return offset;
 }
@@ -463,15 +549,21 @@ dissect_gadu_gadu_send_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	struct gadu_gadu_conv_data *conv;
 	proto_item *ti;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Outgoing message (< 8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Send message (< 8.0)");
 
-	if ((conv = get_gadu_gadu_conversation_data(pinfo))) {
-		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_sender, tvb, offset, 4, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
-	}
-
+	ti = proto_tree_add_item(tree, hf_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(ti);
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_recipient, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
+
+	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_sender, tvb, 0, 0, conv->uin);
+		PROTO_ITEM_SET_GENERATED(ti);
+
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
+		PROTO_ITEM_SET_GENERATED(ti);
+		PROTO_ITEM_SET_HIDDEN(ti);
+	}
 
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -484,7 +576,7 @@ dissect_gadu_gadu_send_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	offset = dissect_gadu_gadu_stringz_cp1250(tvb, hf_gadu_gadu_msg_text, tree, offset);
 
-	/* XXX packet not fully dissected (attributes) */
+	offset = dissect_gadu_gadu_msg_attr(tvb, tree, offset);
 
 	return offset;
 }
@@ -493,14 +585,21 @@ static int
 dissect_gadu_gadu_recv_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	struct gadu_gadu_conv_data *conv;
+	proto_item *ti;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Received message (8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Receive message (8.0)");
 
-	if ((conv = get_gadu_gadu_conversation_data(pinfo))) {
-		proto_item *ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_recipient, tvb, offset, 4, conv->uin);
+	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_recipient, tvb, 0, 0, conv->uin);
 		PROTO_ITEM_SET_GENERATED(ti);
+
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
+		PROTO_ITEM_SET_GENERATED(ti);
+		PROTO_ITEM_SET_HIDDEN(ti);
 	}
 
+	ti = proto_tree_add_item(tree, hf_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(ti);
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_sender, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -530,15 +629,21 @@ dissect_gadu_gadu_send_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	struct gadu_gadu_conv_data *conv;
 	proto_item *ti;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Outgoing message (8.0)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Send message (8.0)");
 
-	if ((conv = get_gadu_gadu_conversation_data(pinfo))) {
-		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_sender, tvb, offset, 4, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
-	}
-
+	ti = proto_tree_add_item(tree, hf_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(ti);
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_recipient, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
+
+	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_sender, tvb, 0, 0, conv->uin);
+		PROTO_ITEM_SET_GENERATED(ti);
+
+		ti = proto_tree_add_uint(tree, hf_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
+		PROTO_ITEM_SET_GENERATED(ti);
+		PROTO_ITEM_SET_HIDDEN(ti);
+	}
 
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -578,20 +683,59 @@ dissect_gadu_gadu_send_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static int
-dissect_gadu_gadu_status77(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_gadu_gadu_status60(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	guint32 uin;
+	guint8 status;
 
-	col_set_str(pinfo->cinfo, COL_INFO, "Received status (7.7)");
+	col_set_str(pinfo->cinfo, COL_INFO, "Receive status (6.0)");
 
 	uin = tvb_get_letohl(tvb, offset) & ~(GG_ERA_OMNIX_MASK | GG_HAS_AUDIO_MASK);
 	proto_tree_add_uint(tree, hf_gadu_gadu_status_uin, tvb, offset, 4, uin);
 	offset += 4;
 
+	status = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_gadu_gadu_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_gadu_gadu_status_ip, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_gadu_gadu_status_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_img_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA);	/* 00 */
+	offset += 1;
+
+	if (gadu_gadu_status_has_descr(status))
+		offset = dissect_gadu_gadu_stringz_cp1250(tvb, hf_gadu_gadu_status_descr, tree, offset);
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_status77(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	guint32 uin;
+	guint8 status;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Receive status (7.7)");
+
+	uin = tvb_get_letohl(tvb, offset) & ~(GG_ERA_OMNIX_MASK | GG_HAS_AUDIO_MASK);
+	proto_tree_add_uint(tree, hf_gadu_gadu_status_uin, tvb, offset, 4, uin);
+	offset += 4;
+
+	status = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_gadu_gadu_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_gadu_gadu_status_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -609,7 +753,59 @@ dissect_gadu_gadu_status77(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
-	/* XXX packet not fully dissected */
+	if (gadu_gadu_status_has_descr(status))
+		offset = dissect_gadu_gadu_stringz_cp1250(tvb, hf_gadu_gadu_status_descr, tree, offset);
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_status80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Receive status (8.0)");
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 4, ENC_NA);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_status_img_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 4, ENC_NA);
+	offset += 4;
+
+	offset = dissect_gadu_gadu_uint32_string_utf8(tvb, hf_gadu_gadu_status_descr, tree, offset);
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_new_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	guint32 status;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "New status (< 8.0)");
+
+	status = tvb_get_letohl(tvb, offset);
+	proto_tree_add_item(tree, hf_gadu_gadu_new_status_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	if (gadu_gadu_status_has_descr(status & 0xff))
+		offset = dissect_gadu_gadu_stringz_cp1250(tvb, hf_gadu_gadu_status_descr, tree, offset);
 
 	return offset;
 }
@@ -617,8 +813,6 @@ dissect_gadu_gadu_status77(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_gadu_gadu_new_status80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	guint32 desc_len;
-
 	col_set_str(pinfo->cinfo, COL_INFO, "New status (8.0)");
 
 	proto_tree_add_item(tree, hf_gadu_gadu_new_status_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -626,20 +820,8 @@ dissect_gadu_gadu_new_status80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 4, ENC_NA);
 	offset += 4;
-	
-	/* description_len */
-	desc_len = tvb_get_letohl(tvb, offset);
-	offset += 4;
 
-	if (desc_len > 0) {
-		/* The one below doesn't work, the same reason like in dissect_gadu_gadu_stringz_cp1250() */
-		/* proto_tree_add_item(tree, hf_gadu_gadu_new_status_desc, tvb, offset, desc_len, ENC_UTF_8|ENC_NA); */
-
-		/* Use workaround */
-		char *desc_str = tvb_get_ephemeral_string_enc(tvb, offset, desc_len, ENC_UTF_8|ENC_NA);
-		proto_tree_add_string_format_value(tree, hf_gadu_gadu_new_status_desc, tvb, offset, desc_len, desc_str, "%s", desc_str);
-	}
-	offset += desc_len;
+	offset = dissect_gadu_gadu_uint32_string_utf8(tvb, hf_gadu_gadu_new_status_desc, tree, offset);
 
 	return offset;
 }
@@ -647,7 +829,7 @@ dissect_gadu_gadu_new_status80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_gadu_gadu_list_empty(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int offset)
 {
-	col_set_str(pinfo->cinfo, COL_INFO, "Notify list empty");
+	col_set_str(pinfo->cinfo, COL_INFO, "Notify list (empty)");
 
 	/* empty packet */
 
@@ -809,8 +991,16 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_send_msg_ack(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_STATUS60:
+				offset = dissect_gadu_gadu_status60(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
 			case GG_STATUS77:
 				offset = dissect_gadu_gadu_status77(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_STATUS80:
+				offset = dissect_gadu_gadu_status80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
 			case GG_WELCOME:
@@ -860,6 +1050,10 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_send_msg80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_NEW_STATUS:
+				offset = dissect_gadu_gadu_new_status(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
 			case GG_NEW_STATUS80:
 				offset = dissect_gadu_gadu_new_status80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
@@ -906,6 +1100,9 @@ proto_register_gadu_gadu(void)
 			{ "Login UIN", "gadu-gadu.login.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 	/* Message common */
+		{ &hf_gadu_gadu_msg_uin,
+			{ "Message sender or recipient", "gadu-gadu.msg.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
 		{ &hf_gadu_gadu_msg_sender,
 			{ "Message sender", "gadu-gadu.msg.sender", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
@@ -946,7 +1143,7 @@ proto_register_gadu_gadu(void)
 			{ "Status", "gadu-gadu.status.status", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_gadu_gadu_status_ip,
-			{ "IP", "gadu-gadu.status.remote_ip", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+			{ "IP", "gadu-gadu.status.remote_ip", FT_IPv4, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_gadu_gadu_status_port,
 			{ "Port", "gadu-gadu.status.remote_port", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
@@ -957,7 +1154,7 @@ proto_register_gadu_gadu(void)
 		{ &hf_gadu_gadu_status_img_size,
 			{ "Image size", "gadu-gadu.status.image_size", FT_UINT8, BASE_DEC, NULL, 0x00, "Maximum image size in KB", HFILL }
 		},
-		{ &hf_gadu_gadu_status_desc,
+		{ &hf_gadu_gadu_status_descr,
 			{ "Description", "gadu-gadu.status.description", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 	/* New status (setting) common */
@@ -973,7 +1170,7 @@ proto_register_gadu_gadu(void)
 		},
 	/* GG_SEND_MSG_ACK */
 		{ &hf_gadu_gadu_msg_ack_status,
-			{ "Message status", "gadu-gadu.msg_ack.status", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+			{ "Message status", "gadu-gadu.msg_ack.status", FT_UINT32, BASE_HEX, gadu_gadu_msg_ack_status_vals, 0x00, NULL, HFILL }
 		},
 		{ &hf_gadu_gadu_msg_ack_recipient,
 			{ "Message recipient", "gadu-gadu.msg_ack.recipient", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
