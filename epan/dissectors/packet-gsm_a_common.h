@@ -753,6 +753,7 @@ extern const value_string gsm_a_qos_traff_hdl_pri_vals[];
 extern const value_string gsm_a_type_of_number_values[];
 extern const value_string gsm_a_numbering_plan_id_values[];
 extern const value_string gsm_a_sms_vals[];
+extern const value_string tighter_cap_level_vals[];
 extern value_string_ext gsm_a_rr_rxlev_vals_ext;
 extern const value_string gsm_a_gm_type_of_ciph_alg_vals[];
 
@@ -997,6 +998,7 @@ typedef enum
     DE_DAY_SAVING_TIME,             /* Daylight Saving Time */
     DE_EMERGENCY_NUM_LIST,          /* Emergency Number List */
     DE_ADD_UPD_PARAMS,              /* Additional update parameters */
+    DE_MM_TIMER,                    /* MM Timer */
     /* Call Control Information Elements 10.5.4 */
     DE_AUX_STATES,                  /* Auxiliary States */
     DE_BEARER_CAP,                  /* Bearer Capability */
@@ -1096,7 +1098,9 @@ typedef enum
     DE_REQ_MS_INFO,                 /* [7] 10.5.5.25 Requested MS information */
     DE_UE_NETWORK_CAP,              /* [7] 10.5.5.26 UE network capability */
     DE_EUTRAN_IRAT_INFO_CONTAINER,  /* [7] 10.5.5.27 E-UTRAN inter RAT information container */
-	DE_VOICE_DOMAIN_PREF,           /* [7] 10.5.5.28 Voice domain preference and UE's usage setting */
+    DE_VOICE_DOMAIN_PREF,           /* [7] 10.5.5.28 Voice domain preference and UE's usage setting */
+    DE_PTMSI_TYPE,                  /* [10] 10.5.5.29 P-TMSI type */
+    DE_LAI_2,                       /* [10] 10.5.5.30 Location Area Identification 2 */
     /* Session Management Information Elements [3] 10.5.6 */
     DE_ACC_POINT_NAME,              /* Access Point Name */
     DE_NET_SAPI,                    /* Network Service Access Point Identifier */

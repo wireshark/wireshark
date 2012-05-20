@@ -438,6 +438,14 @@ static const value_string vamos_level_vals[] = {
     { 0, NULL}
 };
 
+const value_string tighter_cap_level_vals[] = {
+    { 0, "TIGHTER not supported" },
+    { 1, "TIGHTER supported for speech and signalling channels only" },
+    { 2, "TIGHTER supported for speech and signalling channels and for GPRS and EGPRS, but not for EGPRS2" },
+    { 3, "TIGHTER supported for speech and signalling channels and for GPRS, EGPRS and EGPRS2" },
+    { 0, NULL}
+};
+
 static const value_string gsm_a_rr_rxlev_vals [] = {
     {  0, "< -110 dBm"},
     {  1, "-110 <= x < -109 dBm"},
@@ -651,6 +659,8 @@ static int hf_gsm_a_e_utra_meas_and_report_support = -1;
 static int hf_gsm_a_prio_based_resel_support = -1;
 static int hf_gsm_a_utra_csg_cells_reporting = -1;
 static int hf_gsm_a_vamos_level = -1;
+static int hf_gsm_a_tighter_cap = -1;
+static int hf_gsm_a_selective_ciph_down_sacch = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat = -1;
@@ -2376,7 +2386,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 
 /*
  * [3] 10.5.1.7 Mobile Station Classmark 3
- * 3GPP TS 24.008 version 9.6.0 Release 9
+ * 3GPP TS 24.008 version 10.6.1 Release 10
  */
 #define AVAILABLE_BITS_CHECK(n) \
     bits_left = ((len + offset) << 3) - bit_offset; \
@@ -3031,6 +3041,24 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     bit_offset = bit_offset + 2;
 
     /*
+     * Release 10 starts here
+     *
+     * < TIGHTER Capability : bit(2) > -- Release 10 starts here.
+     * Extract TIGHTER Capability
+     */
+    AVAILABLE_BITS_CHECK(2);
+    proto_tree_add_bits_item(tree, hf_gsm_a_tighter_cap, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 2;
+
+    /*
+     * < Selective Ciphering of Downlink SACCH : bit >
+     * Extract Selective Ciphering of Downlink SACCH
+     */
+    AVAILABLE_BITS_CHECK(1);
+    proto_tree_add_bits_item(tree, hf_gsm_a_selective_ciph_down_sacch, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset = bit_offset + 1;
+
+    /*
      * Add spare bits until we reach an octet boundary
      */
     bits_left = (((len + offset) << 3) - bit_offset) & 0x07;
@@ -3253,6 +3281,7 @@ de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
     proto_tree_add_item(tree, hf_gsm_a_rr_t3212, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 7, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_att, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -3283,6 +3312,7 @@ de_ps_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
     proto_tree_add_item(tree, hf_gsm_a_gm_rac, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3), 6, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_nmo_1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_nmo, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
@@ -3380,7 +3410,7 @@ static const true_false_string gsm_a_ext_periodic_timers_value = {
 };
 
 static guint16
-de_ms_net_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_ms_net_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset, bit_offset;
 
@@ -4098,6 +4128,16 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_vamos_level,
         { "VAMOS Level", "gsm_a.classmark3.vamos_level",
         FT_UINT8, BASE_DEC, VALS(vamos_level_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_tighter_cap,
+        { "TIGHTER Capability", "gsm_a.classmark3.tighter_cap",
+        FT_UINT8, BASE_DEC, VALS(tighter_cap_level_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_selective_ciph_down_sacch,
+        { "Selective Ciphering of Downlink SACCH", "gsm_a.classmark3.selective_ciph_down_sacch",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x00,
         NULL, HFILL}
     },
     { &hf_gsm_a_geo_loc_type_of_shape,

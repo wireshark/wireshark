@@ -66,6 +66,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 9.6.0 Release 9)
  *
+ *   Reference [10]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 10.6.1 Release 10)
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -252,6 +258,7 @@ const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00,	"Daylight Saving Time" },
 	{ 0x00, "Emergency Number List" },
 	{ 0x00, "Additional update parameters" },
+	{ 0x00, "MM Timer" },
 	/* Call Control Information Elements 10.5.4 */
 	{ 0x00,	"Auxiliary States" },					/* 10.5.4.4 Auxiliary states */
 	{ 0x00,	"Bearer Capability" },					/* 10.5.4.4a Backup bearer capability */
@@ -431,7 +438,10 @@ static int hf_gsm_a_dtap_serv_cat_b4 = -1;
 static int hf_gsm_a_dtap_serv_cat_b3 = -1;
 static int hf_gsm_a_dtap_serv_cat_b2 = -1;
 static int hf_gsm_a_dtap_serv_cat_b1 = -1;
+static int hf_gsm_a_dtap_csmo = -1;
 static int hf_gsm_a_dtap_csmt = -1;
+static int hf_gsm_a_dtap_mm_timer_unit = -1;
+static int hf_gsm_a_dtap_mm_timer_value = -1;
 static int hf_gsm_a_dtap_alerting_pattern = -1;
 static int hf_gsm_a_dtap_ccbs_activation = -1;
 static int hf_gsm_a_dtap_stream_identifier = -1;
@@ -508,6 +518,7 @@ static gint ett_bc_oct_6f = -1;
 static gint ett_bc_oct_6g = -1;
 static gint ett_bc_oct_7 = -1;
 static gint ett_epc_ue_tl_a_lb_setup = -1;
+static gint ett_mm_timer = -1;
 
 static char a_bigbuf[1024];
 
@@ -1073,7 +1084,12 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 /*
  * 10.5.3.14 Additional update parameters
  */
-static const true_false_string gsm_a_dtap_csmt_vals = {
+static const true_false_string gsm_a_dtap_csmo_value = {
+	"CS fallback mobile originating call",
+	"No additional information"
+};
+
+static const true_false_string gsm_a_dtap_csmt_value = {
 	"CS fallback mobile terminating call",
 	"No additional information"
 };
@@ -1085,13 +1101,61 @@ de_add_upd_params(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_csmo, tvb, (curr_offset<<3)+6, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_csmt, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
 
 	return(len);
 }
 
 /*
+ * 10.5.3.15 MM Timer
+ */
+static const value_string gsm_a_dtap_mm_timer_unit_vals[] = {
+	{ 0x00, "value is incremented in multiples of 2 seconds" },
+	{ 0x01, "value is incremented in multiples of 1 minute" },
+	{ 0x02, "value is incremented in multiples of decihours" },
+	{ 0x07, "value indicates that the timer is deactivated" },
+	{ 0, NULL }
+};
+
+static guint16
+de_mm_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint8       oct;
+	guint16      val;
+	const gchar *str;
+	proto_tree  *subtree;
+	proto_item  *item = NULL;
+
+	oct = tvb_get_guint8(tvb, offset);
+	val = oct&0x1f;
+
+	switch (oct>>5)
+	{
+		case 0:  str = "sec"; val*=2; break;
+		case 1:  str = "min"; break;
+		case 2:  str = "min"; val*=6; break;
+		case 7:  str = "";
+			item = proto_tree_add_text(tree, tvb, offset, 1,
+			                           "MM Timer: timer is deactivated");
+			break;
+		default:  str = "min";
+	}
+
+	if (item == NULL) {
+		item = proto_tree_add_text(tree, tvb, offset, 1,
+		                           "MM Timer: %u %s", val, str);
+	}
+
+	subtree = proto_item_add_subtree(item, ett_mm_timer);
+	proto_tree_add_item(subtree, hf_gsm_a_dtap_mm_timer_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_dtap_mm_timer_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	return (1);
+}
+
+ /*
  * [3] 10.5.4.4 Auxiliary states
  */
 static guint16
@@ -2723,7 +2787,8 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 	case 18: str = "No user responding"; break;
 	case 19: str = "User alerting, no answer"; break;
 	case 21: str = "Call rejected"; break;
-	case 22: str = "Number changed"; break;
+	case 22: str = "Call rejected due to feature at the destination"; break;
+	case 24: str = "Number changed"; break;
 	case 25: str = "Pre-emption"; break;
 	case 26: str = "Non selected user clearing"; break;
 	case 27: str = "Destination out of order"; break;
@@ -4180,6 +4245,7 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	de_day_saving_time,	/* Daylight Saving Time */
 	de_emerg_num_list, /* Emergency Number List */
 	de_add_upd_params, /* Additional update parameters */
+	de_mm_timer, /* MM Timer */
 	/* Call Control Information Elements 10.5.4 */
 	de_aux_states,	/* Auxiliary States */
 	de_bearer_cap,	/* Bearer Capability */
@@ -4421,6 +4487,9 @@ dtap_mm_cm_reestab_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
 	ELEM_OPT_TV(0x13, GSM_A_PDU_TYPE_COMMON, DE_LAI, NULL);
+	
+	ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
+
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4461,6 +4530,8 @@ dtap_mm_cm_srvc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL);
+
+	ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_DTAP, DE_MM_TIMER, " - T3246 value");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4576,6 +4647,10 @@ dtap_mm_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
 
 	ELEM_OPT_TV_SHORT(0x80, GSM_A_PDU_TYPE_COMMON, DE_PRIO, NULL);
+
+	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_DTAP, DE_ADD_UPD_PARAMS, NULL);
+
+	ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4710,6 +4785,8 @@ dtap_mm_loc_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	/* 34 Emergency Number List O TLV 5-50 10.5.3.13 */
 	ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, NULL);
 
+	ELEM_OPT_TLV(0x35, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Per MS T3212");
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
@@ -4729,6 +4806,8 @@ dtap_mm_loc_upd_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	is_uplink = IS_UPLINK_FALSE;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_REJ_CAUSE, NULL);
+
+	ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_DTAP, DE_MM_TIMER, " - T3246 value");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -4835,6 +4914,10 @@ dtap_mm_loc_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_COMMON, DE_MS_CM_2, " - Mobile station classmark for UMTS");
 
 	ELEM_OPT_TV_SHORT(0xc0, GSM_A_PDU_TYPE_DTAP, DE_ADD_UPD_PARAMS, NULL);
+
+	ELEM_OPT_TV_SHORT(0xD0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
+
+	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_COMMON, DE_MS_NET_FEAT_SUP, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5159,7 +5242,7 @@ dtap_cc_emerg_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	ELEM_OPT_TLV(0x40, GSM_A_PDU_TYPE_DTAP, DE_SUP_CODEC_LIST, NULL);
 
-	ELEM_OPT_TLV(0x2e, GSM_A_PDU_TYPE_DTAP, DE_SERV_CAT, " Emergency");
+	ELEM_OPT_TLV(0x2e, GSM_A_PDU_TYPE_DTAP, DE_SERV_CAT, " - Emergency category");
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -6619,9 +6702,24 @@ proto_register_gsm_a_dtap(void)
 		FT_BOOLEAN, 8, NULL, 0x01,
 		NULL, HFILL }
 	},
+	{ &hf_gsm_a_dtap_csmo,
+		{ "CSMO", "gsm_a.dtap.csmo",
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_dtap_csmo_value), 0x0,
+		NULL, HFILL }
+	},
 	{ &hf_gsm_a_dtap_csmt,
 		{ "CSMT", "gsm_a.dtap.csmt",
-		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_dtap_csmt_vals), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_dtap_csmt_value), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_mm_timer_unit,
+		{ "Unit", "gsm_a.dtap.mm_timer_unit",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_dtap_mm_timer_unit_vals), 0xe0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_mm_timer_value,
+		{ "Timer value", "gsm_a.dtap.mm_timer_value",
+		FT_UINT8, BASE_DEC, NULL, 0x1f,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_alerting_pattern,
@@ -6897,7 +6995,7 @@ proto_register_gsm_a_dtap(void)
 	};
 
 	/* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    20
+#define NUM_INDIVIDUAL_ELEMS    21
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_CC +
 		  NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
@@ -6923,6 +7021,7 @@ proto_register_gsm_a_dtap(void)
 	ett[17] = &ett_bc_oct_6g;
 	ett[18] = &ett_bc_oct_7;
 	ett[19] = &ett_epc_ue_tl_a_lb_setup;
+	ett[20] = &ett_mm_timer;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
