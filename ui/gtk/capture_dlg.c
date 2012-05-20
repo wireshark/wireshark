@@ -4251,8 +4251,10 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-    /* user didn't saved his current file, ask him */
+  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+    prefs.gui_ask_unsaved) {
+    /* This is a temporary capture file or has unsaved changes; ask the
+       user whether to save the capture. */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 "%sSave capture file before starting a new capture?%s\n\n"
                 "If you start a new capture without saving, your current capture data will\nbe discarded.",

@@ -306,8 +306,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* Indicate whether it's a permanent or temporary file. */
   cf->is_tempfile = is_tempfile;
 
-  /* If it's a temporary capture buffer file, mark it as not saved. */
-  cf->user_saved = !is_tempfile;
+  /* No user changes yet. */
+  cf->unsaved_changes = FALSE;
 
   reset_elapsed();
 
@@ -386,8 +386,8 @@ cf_reset_state(capture_file *cf)
     g_free(cf->filename);
     cf->filename = NULL;
   }
-  /* ...which means we have nothing to save. */
-  cf->user_saved = FALSE;
+  /* ...which means we have no changes to that file to save. */
+  cf->unsaved_changes = FALSE;
 
   dfilter_free(cf->rfcode);
   cf->rfcode = NULL;
@@ -3687,8 +3687,8 @@ cf_update_capture_comment(capture_file *cf, gchar *comment)
 
   /* The comment has changed, let's update it */
   wtap_write_shb_comment(cf->wth, comment);
-  /* Mark the file as unsaved */
-  cf->user_saved = FALSE;
+  /* Mark the file as having unsaved changes */
+  cf->unsaved_changes = TRUE;
 }
 
 typedef struct {
@@ -3944,7 +3944,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        the data, and it means we have to spend time opening and
        reading the file, which could be a significant amount of
        time if the file is large. */
-    cf->user_saved = TRUE;
+    cf->unsaved_changes = FALSE;
 
     if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
       /* XXX - report errors if this fails?

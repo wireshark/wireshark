@@ -2419,15 +2419,17 @@ capture_input_drops(capture_options *capture_opts _U_, guint32 dropped)
 void
 capture_input_closed(capture_options *capture_opts, gchar *msg)
 {
+  capture_file *cf = (capture_file *) capture_opts->cf;
+
   if (msg != NULL)
     fprintf(stderr, "tshark: %s\n", msg);
 
   report_counts();
 
-  if(capture_opts->cf != NULL && ((capture_file *) capture_opts->cf)->wth != NULL) {
-    wtap_close(((capture_file *) capture_opts->cf)->wth);
-    if(((capture_file *) capture_opts->cf)->user_saved == FALSE) {
-      ws_unlink(((capture_file *) capture_opts->cf)->filename);
+  if(cf != NULL && cf->wth != NULL) {
+    wtap_close(cf->wth);
+    if(cf->is_tempfile) {
+      ws_unlink(cf->filename);
     }
   }
 #ifdef USE_BROKEN_G_MAIN_LOOP
@@ -3526,8 +3528,8 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   /* Indicate whether it's a permanent or temporary file. */
   cf->is_tempfile = is_tempfile;
 
-  /* If it's a temporary capture buffer file, mark it as not saved. */
-  cf->user_saved = !is_tempfile;
+  /* No user changes yet. */
+  cf->unsaved_changes = FALSE;
 
   cf->cd_t      = wtap_file_type(cf->wth);
   cf->count     = 0;

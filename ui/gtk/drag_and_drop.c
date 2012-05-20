@@ -356,8 +356,10 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 	cf_names_freeme[sel_data_len] = '\0';
 
         /* ask the user to save it's current capture file first */
-        if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-            /* user didn't saved his current file, ask him */
+        if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+          prefs.gui_ask_unsaved) {
+          /* This is a temporary capture file or has unsaved changes; ask the
+             user whether to save the capture. */
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                         "%sSave capture file before opening a new one?%s\n\n"

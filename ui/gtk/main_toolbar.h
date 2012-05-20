@@ -50,18 +50,12 @@ void toolbar_colorize_changed(gboolean packet_list_colorize);
 void toolbar_auto_scroll_live_changed(gboolean auto_scroll_live);
 #endif
 
-/** We have (or don't have) a capture file now.
- *
- * @param have_capture_file TRUE, if we have a capture file
- * @param can_save_as TRUE, if we can save this capture file
+/* Enable or disable toolbar items based on whether you have a capture file
+ * and, if so, whether you've finished reading it and whether there's stuff
+ * in it that hasn't yet been saved to a permanent file.
+ * @param cf cfile_t for the capture file in question
  */
-void set_toolbar_for_capture_file(gboolean have_capture_file, gboolean can_save_as);
-
-/** We have (or don't have) an unsaved capture file now.
- *
- * @param have_unsaved_capture_file TRUE, if we have an unsaved capture file
- */
-void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file);
+void set_toolbar_for_capture_file(capture_file *cf);
 
 /** We have (or don't have) a capture in progress now.
  *

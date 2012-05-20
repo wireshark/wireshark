@@ -1009,9 +1009,11 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
 {
     gpointer dialog;
 
-    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+    if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+      prefs.gui_ask_unsaved) {
+      /* This is a temporary capture file or has unsaved changes; ask the
+         user whether to save the capture. */
         gtk_window_present(GTK_WINDOW(top_level));
-        /* user didn't saved his current file, ask him */
         dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                     ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
                     "%sSave capture file before program quit?%s\n\n"
@@ -1115,10 +1117,12 @@ static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _
 void
 file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-  gpointer dialog;
+    gpointer dialog;
 
-    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-       /* user didn't saved his current file, ask him */
+    if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+      prefs.gui_ask_unsaved) {
+      /* This is a temporary capture file or has unsaved changes; ask the
+         user whether to save the capture. */
         dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                       ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
                        "%sSave capture file before program quit?%s\n\n"

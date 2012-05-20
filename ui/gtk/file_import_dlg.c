@@ -800,9 +800,11 @@ file_import_ok_cb(GtkWidget *widget _U_, gpointer data)
 {
     text_import_info_t *text_import_info;
 
-    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+    if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+      prefs.gui_ask_unsaved) {
+      /* This is a temporary capture file or has unsaved changes; ask the
+         user whether to save the capture. */
         gpointer dialog;
-        /* user didn't save his current file, ask him */
         dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 "%sSave capture file before opening a new one?%s\n\n"
                 "If you open a new capture file without saving, your capture data will be discarded.",

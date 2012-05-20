@@ -1584,8 +1584,8 @@ raw_cf_open(capture_file *cf, const char *fname)
     /* Indicate whether it's a permanent or temporary file. */
     cf->is_tempfile = FALSE;
 
-    /* If it's a temporary capture buffer file, mark it as not saved. */
-    cf->user_saved = FALSE;
+    /* No user changes yet. */
+    cf->unsaved_changes = FALSE;
 
     cf->cd_t      = WTAP_FILE_UNKNOWN;
     cf->count     = 0;

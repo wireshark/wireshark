@@ -1752,8 +1752,8 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	g_free(record->fdata->opt_comment);
 	record->fdata->opt_comment = new_packet_comment;
 
-	/* Mark the file as unsaved */
-	cfile.user_saved = FALSE;
+	/* Mark the file as having unsaved changes */
+	cfile.unsaved_changes = TRUE;
 	set_menus_for_capture_file(&cfile);
 
 	new_packet_list_queue_draw();

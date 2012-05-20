@@ -4196,8 +4196,10 @@ menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_) {
     gpointer  dialog;
 
 
-    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-        /* user didn't saved his current file, ask him */
+    if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+      prefs.gui_ask_unsaved) {
+      /* This is a temporary capture file or has unsaved changes; ask the
+         user whether to save the capture. */
         dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
                                "%sSave capture file before opening a new one?%s\n\n"
                                "If you open a new capture file without saving, your current capture data will be discarded.",
@@ -4638,25 +4640,27 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
-        set_toolbar_for_capture_file(FALSE, FALSE);
-        set_toolbar_for_unsaved_capture_file(FALSE);
     } else {
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_save_as(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", TRUE);
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", !cf->user_saved);
+        /*
+         * "Save" should be available only if the file is a temporary file
+         * or has unsaved changes.
+         */
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save",
+                             (cf->is_tempfile || cf->unsaved_changes));
         /*
          * "Save As..." works only if we can write the file out in at least
          * one format (so we can save the whole file or just a subset) or
-         * if we have an unsaved capture (so writing the whole file out
+         * if the file is a temporary file (so writing the whole file out
          * with a raw data copy makes sense).
          */
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs",
-                             cf_can_save_as(cf) || !cf->user_saved);
+                             cf_can_save_as(cf) || cf->is_tempfile);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
-        set_toolbar_for_unsaved_capture_file(!cf->user_saved);
-        set_toolbar_for_capture_file(TRUE, cf_can_save_as(cf) || !cf->user_saved);
     }
+    set_toolbar_for_capture_file(cf);
 }
 
 /* Enable or disable menu items based on whether there's a capture in

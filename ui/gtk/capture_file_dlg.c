@@ -604,8 +604,10 @@ void
 file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   gpointer  dialog;
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-    /* user didn't save his current file, ask him */
+  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+    prefs.gui_ask_unsaved) {
+    /* This is a temporary capture file or has unsaved changes; ask the
+       user whether to save the capture. */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 "%sSave capture file before opening a new one?%s\n\n"
                 "If you open a new capture file without saving, your capture data will be discarded.",
@@ -908,8 +910,10 @@ void
 file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   gpointer  dialog;
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-    /* user didn't saved his current file, ask him */
+  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+    prefs.gui_ask_unsaved) {
+    /* This is a temporary capture file or has unsaved changes; ask the
+       user whether to save the capture. */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
                 "%sSave the capture file before merging to another one?%s\n\n"
                 "A temporary capture file can't be merged.",
@@ -1078,8 +1082,10 @@ void
 file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
   gpointer  dialog;
 
-  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-    /* user didn't saved his current file, ask him */
+  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
+    prefs.gui_ask_unsaved) {
+    /* This is a temporary capture file or has unsaved changes; ask the
+       user whether to save the capture. */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 "%sSave capture file before closing it?%s\n\n"
                 "If you close without saving, your capture data will be discarded.",
@@ -1094,9 +1100,13 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
 
 void
 file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
-  /* If the file's already been saved, do nothing.  */
-  if (cfile.user_saved)
+  /* If the file has no unsaved changes, and is not a temporary file,
+     do nothing.  */
+  if (!cfile.unsaved_changes && !cfile.is_tempfile)
     return;
+
+  /* XXX TODO - if it's not a temporary file, "save" should just save
+     on top of the existing file. */
 
   /* Do a "Save As". */
   file_save_as_cmd(after_save_no_action, NULL, FALSE);
