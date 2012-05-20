@@ -3132,7 +3132,6 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 	guint8 tfi;
 	int offset = 0, i;
 	gboolean is_control_frame;
-	proto_item *item;
 	/*umts_mac_info *macinf;*/
 
 	fpi = se_alloc0(sizeof(fp_info));
@@ -3163,7 +3162,11 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 
 	case CHANNEL_DCH:
 		/* fall trough */
-	case CHANNEL_CPCH:
+	case CHANNEL_PCH:
+		/* fall trough */
+	case CHANNEL_FACH_FDD:
+		/* fall trough */
+	case CHANNEL_RACH_FDD:
 		fpi->num_chans = p_conv_data->num_dch_in_flow;
 		if(is_control_frame){
 			/* control frame, we're done */
@@ -3198,13 +3201,10 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff
 			if(pinfo->link_dir==P2P_DIR_UL){
 				fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
 				fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
-				item = proto_tree_add_text(tree,tvb,offset,1,"TFI %u: UL TBs %u size %u",tfi, fpi->chan_num_tbs[i],fpi->chan_tf_size[i]);
 			}else{
 				fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
 				fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
-				item = proto_tree_add_text(tree,tvb,offset,1,"TFI %u: DL TBs %u size %u",tfi, fpi->chan_num_tbs[i],fpi->chan_tf_size[i]);
 			}
-			PROTO_ITEM_SET_GENERATED(item);
 			offset++;
 		}
 		break;

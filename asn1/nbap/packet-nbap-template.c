@@ -130,6 +130,7 @@ enum TransportFormatSet_type_enum
     DCH_UL,
     DCH_DL,
 	CPCH,
+	FACH,
 };
 
 enum TransportFormatSet_type_enum transportFormatSet_type;
