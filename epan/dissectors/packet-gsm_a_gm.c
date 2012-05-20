@@ -35,6 +35,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 9.6.0 Release 9)
  *
+ *   Reference [10]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 10.6.1 Release 10)
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -191,14 +197,17 @@ const value_string gsm_gm_elem_strings[] = {
 	{ 0x00, "Enhanced network service access point identifier" },
 	{ 0x00, "Request type" },
 	{ 0x00, "Notification indicator" },
+	{ 0x00, "Connectivity type" },
 	/* GPRS Common Information Elements 10.5.7 */
 	{ 0x00,	"PDP Context Status" },
 	{ 0x00,	"Radio Priority" },
 	{ 0x00,	"GPRS Timer" },
 	{ 0x00,	"GPRS Timer 2" },
+	{ 0x00,	"GPRS Timer 3" },
 	{ 0x00, "Radio Priority 2"},
 	{ 0x00,	"MBMS context status"},
 	{ 0x00,	"Uplink data status"},
+	{ 0x00,	"Device properties"},
 	{ 0x00, "Spare Nibble"},
 	{ 0, NULL }
 };
@@ -268,6 +277,10 @@ static int hf_gsm_a_gm_tmsi_flag = -1;
 static int hf_gsm_a_gm_update_type = -1;
 static int hf_gsm_a_gm_gprs_timer_unit = -1;
 static int hf_gsm_a_gm_gprs_timer_value = -1;
+static int hf_gsm_a_gm_gprs_timer2_unit = -1;
+static int hf_gsm_a_gm_gprs_timer2_value = -1;
+static int hf_gsm_a_gm_gprs_timer3_unit = -1;
+static int hf_gsm_a_gm_gprs_timer3_value = -1;
 static int hf_gsm_a_gm_nsapi_5_ul_stat = -1;
 static int hf_gsm_a_gm_nsapi_6_ul_stat = -1;
 static int hf_gsm_a_gm_nsapi_7_ul_stat = -1;
@@ -279,6 +292,7 @@ static int hf_gsm_a_gm_nsapi_12_ul_stat = -1;
 static int hf_gsm_a_gm_nsapi_13_ul_stat = -1;
 static int hf_gsm_a_gm_nsapi_14_ul_stat = -1;
 static int hf_gsm_a_gm_nsapi_15_ul_stat = -1;
+static int hf_gsm_a_gm_device_prop_low_prio = -1;
 static int hf_gsm_a_gm_pco_pid = -1;
 static int hf_gsm_a_gm_type_of_identity = -1;
 int hf_gsm_a_gm_rac = -1;
@@ -317,6 +331,7 @@ static int hf_gsm_a_sm_tmgi = -1;
 static int hf_gsm_a_sm_enh_nsapi = -1;
 static int hf_gsm_a_sm_req_type = -1;
 static int hf_gsm_a_sm_notif_ind = -1;
+static int hf_gsm_a_sm_connectivity_type = -1;
 static int hf_gsm_a_gm_rac_ctrled_early_cm_sending = -1;
 static int hf_gsm_a_gm_rac_pseudo_sync = -1;
 static int hf_gsm_a_gm_rac_vgcs = -1;
@@ -3352,7 +3367,7 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	guint16      val;
 	const gchar *str;
 	proto_tree  *subtree;
-	proto_item  *item;
+	proto_item  *item = NULL;
 
 	oct = tvb_get_guint8(tvb, offset);
 	val = oct&0x1f;
@@ -3363,18 +3378,16 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 		case 1:  str = "min"; break;
 		case 2:  str = "min"; val*=6; break;
 		case 7:
-			 proto_tree_add_text(tree,
-				tvb, offset, 1,
-				"GPRS Timer: timer is deactivated");
-
-		default: str = "min";
+			item = proto_tree_add_text(tree, tvb, offset, 1,
+			                           "GPRS Timer: timer is deactivated");
+			break;
+		default:  str = "min";
 	}
 
-	item = proto_tree_add_text(tree,
-		tvb, offset, 1,
-		"GPRS Timer: %u %s",
-		val,
-		str);
+	if (item == NULL) {
+		item = proto_tree_add_text(tree, tvb, offset, 1,
+		                           "GPRS Timer: %u %s", val, str);
+	}
 
 	subtree = proto_item_add_subtree(item, ett_gmm_gprs_timer);
 	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3394,6 +3407,8 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 	guint16      val;
 	guint32      curr_offset;
 	const gchar *str;
+	proto_tree  *subtree;
+	proto_item  *item = NULL;
 
 	curr_offset = offset;
 
@@ -3407,19 +3422,79 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 		case 1:  str = "min"; break;
 		case 2:  str = "min"; val*=6; break;
 		case 7:
-			 proto_tree_add_text(tree,
-				tvb, curr_offset, 1,
-				"GPRS Timer: timer is deactivated");
-
-		default: str = "min";
+			item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+			                           "GPRS Timer: timer is deactivated");
+			break;
+		default:  str = "min";
 	}
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"GPRS Timer: %u %s %s (%u)",
-		val,
-		str, add_string ? add_string : "", oct);
+	if (item == NULL) {
+		item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+		                           "GPRS Timer: %u %s %s",
+		                           val, str, add_string ? add_string : "");
+	}
 
+	subtree = proto_item_add_subtree(item, ett_gmm_gprs_timer);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer2_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer2_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return (curr_offset - offset);
+}
+
+/*
+ * [10] 10.5.7.4a
+ */
+static const value_string gsm_a_gm_gprs_timer3_unit_vals[] = {
+	{ 0x00, "value is incremented in multiples of 10 minutes" },
+	{ 0x01, "value is incremented in multiples of 1 hour" },
+	{ 0x02, "value is incremented in multiples of 10 hours" },
+	{ 0x03, "value is incremented in multiples of 2 seconds" },
+	{ 0x04, "value is incremented in multiples of 30 seconds" },
+	{ 0x05, "value is incremented in multiples of 1 minute" },
+	{ 0x07, "value indicates that the timer is deactivated" },
+	{ 0, NULL }
+};
+
+static guint16
+de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint8       oct;
+	guint16      val;
+	guint32      curr_offset;
+	const gchar *str;
+	proto_tree  *subtree;
+	proto_item  *item = NULL;
+
+	curr_offset = offset;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	val = oct&0x1f;
+
+	switch (oct>>5)
+	{
+		case 0:  str = "min"; val*=10; break;
+		case 1:  str = "hr"; break;
+		case 2:  str = "hr"; val*=10; break;
+		case 3:  str = "sec"; val*=2; break;
+		case 4:  str = "sec"; val*=30; break;
+		case 5:  str = "min"; break;
+		case 7:
+			item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+			                           "GPRS Timer: timer is deactivated");
+			break;
+		default:  str = "hr";
+	}
+
+	if (item == NULL) {
+		item = proto_tree_add_text(tree, tvb, curr_offset, 1,
+		                           "GPRS Timer: %u %s", val, str);
+	}
+
+	subtree = proto_item_add_subtree(item, ett_gmm_gprs_timer);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer3_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_gsm_a_gm_gprs_timer3_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return (curr_offset - offset);
@@ -3547,6 +3622,31 @@ de_gc_uplink_data_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	curr_offset++;
 */
 	return (len);
+}
+
+/*
+ * [8] 10.5.7.8 Device properties
+ */
+static const true_false_string gsm_a_gm_device_prop_low_prio_value = {
+	"MS is configured for NAS signalling low priority",
+	"MS is not configured for NAS signalling low priority"
+};
+
+static guint16
+de_gc_device_properties(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guint32 bit_offset;
+
+	curr_offset = offset;
+	bit_offset  = (curr_offset<<3)+4;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+	bit_offset += 3;
+	proto_tree_add_bits_item(tree, hf_gsm_a_gm_device_prop_low_prio, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return (curr_offset - offset);
 }
 
 /*
@@ -5004,13 +5104,35 @@ static const value_string gsm_a_sm_notif_ind_vals[] = {
 };
 
 static guint16
-de_sm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sm_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 
 	curr_offset = offset;
 
 	proto_tree_add_item(tree, hf_gsm_a_sm_notif_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+	return (len);
+}
+
+/*
+ * [10] 10.5.6.19 Connectivity type
+ */
+static const range_string gsm_a_sm_connectivity_type_vals[] = {
+	{ 0x0,	0x0, "The PDN connection type is not indicated"},
+	{ 0x1,	0x1, "The PDN connection is considered a LIPA PDN connection"},
+	{ 0x2,	0xF, "The PDN connection type is not indicated"},
+	{ 0, 0, NULL }
+};
+
+static guint16
+de_sm_connectivity_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_sm_connectivity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	return (len);
 }
@@ -5068,14 +5190,17 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_sm_enh_nsapi,                   /* Enhanced network service access point identifier */
 	de_sm_req_type,                    /* Request type */
 	de_sm_notif_ind,                   /* Notification indicator */
+	de_sm_connectivity_type,           /* Connectivity type */
 	/* GPRS Common Information Elements 10.5.7 */
 	de_gc_context_stat,                /* PDP Context Status */
 	de_gc_radio_prio,                  /* Radio Priority */
 	de_gc_timer,                       /* GPRS Timer */
 	de_gc_timer2,                      /* GPRS Timer 2 */
+	de_gc_timer3,                      /* GPRS Timer 3 */
 	de_gc_radio_prio2,                 /* Radio Priority 2 */
 	de_gc_mbms_context_stat,           /* 10.5.7.6 MBMS context status */
 	de_gc_uplink_data_stat,            /* 10.5.7.7 Uplink data status */
+	de_gc_device_properties,           /* 10.5.7.8 Device properties */
 	NULL,	/* NONE */
 };
 
@@ -6902,6 +7027,26 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_gm_gprs_timer2_unit,
+		  { "Unit", "gsm_a.gm.gprs_timer2_unit",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_gprs_timer_unit_vals), 0xe0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_gprs_timer2_value,
+		  { "Timer value", "gsm_a.gm.gprs_timer2_value",
+		    FT_UINT8, BASE_DEC, NULL, 0x1f,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_gprs_timer3_unit,
+		  { "Unit", "gsm_a.gm.gprs_timer3_unit",
+		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_gprs_timer3_unit_vals), 0xe0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_gprs_timer3_value,
+		  { "Timer value", "gsm_a.gm.gprs_timer3_value",
+		    FT_UINT8, BASE_DEC, NULL, 0x1f,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_gm_nsapi_5_ul_stat,
 		  { "NSAPI(5) uplink status", "gsm_a.gm.nsapi_5_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
@@ -6955,6 +7100,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_nsapi_15_ul_stat,
 		  { "NSAPI(15) uplink status", "gsm_a.gm.nsapi_15_ul_stat",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_nsapi_ul_stat_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_device_prop_low_prio,
+		  { "Low priority", "gsm_a.gm.device_prop_low_prio",
+		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_gm_device_prop_low_prio_value), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_pco_pid,
@@ -7260,6 +7410,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_sm_notif_ind,
 		  { "Notification indicator value", "gsm_a.sm.notif_ind",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_notif_ind_vals), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_connectivity_type,
+		  { "Connectivity type value", "gsm_a.sm.connectivity_type",
+		    FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_a_sm_connectivity_type_vals), 0x0F,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ctrled_early_cm_sending,

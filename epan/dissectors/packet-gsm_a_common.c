@@ -64,6 +64,7 @@ const value_string gsm_common_elem_strings[] = {
     { 0x00, "PS domain specific system information" },
     { 0x00, "PLMN List" },
     { 0x00, "NAS container for PS HO" },
+    { 0x00, "MS network feature support" },
     { 0, NULL }
 };
 
@@ -558,6 +559,7 @@ static int hf_gsm_a_nmo_1 = -1;
 static int hf_gsm_a_nmo = -1;
 static int hf_gsm_a_old_xid = -1;
 static int hf_gsm_a_iov_ui = -1;
+static int hf_gsm_a_ext_periodic_timers = -1;
 static int hf_gsm_a_b7spare = -1;
 int hf_gsm_a_b8spare = -1;
 static int hf_gsm_a_multi_bnd_sup_fields = -1;
@@ -3333,10 +3335,10 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 
     return(curr_offset - offset);
 }
+
 /*
  * 10.5.1.14 NAS container for PS HO
  */
-
 
 static const value_string gsm_a_pld_xid_vals[] = {
     { 0x00, "The MS shall perform a Reset of LLC and SNDCP without old XID indicator" },
@@ -3369,6 +3371,30 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     return(curr_offset - offset);
 }
 
+/*
+ * 10.5.1.15 MS network feature support
+ */
+static const true_false_string gsm_a_ext_periodic_timers_value = {
+    "MS supports the extended periodic timer in this domain",
+    "MS does not support the extended periodic timer in this domain"
+};
+
+static guint16
+de_ms_net_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset, bit_offset;
+
+    curr_offset = offset;
+    bit_offset  = (curr_offset<<3)+4;
+
+    proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    bit_offset += 3;
+    proto_tree_add_bits_item(tree, hf_gsm_a_ext_periodic_timers, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    return (curr_offset - offset);
+}
+
 
 guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
     /* Common Information Elements 10.5.1 */
@@ -3388,8 +3414,9 @@ guint16 (*common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     de_cn_common_gsm_map_nas_sys_info, /* 10.5.1.12.1 CN Common GSM-MAP NAS system information */
     de_cs_domain_spec_sys_info,        /* 10.5.1.12.2 CS domain specific system information */
     de_ps_domain_spec_sys_info,        /* 10.5.1.12.2 PS domain specific system information */
-    de_plmn_list,           /* 10.5.1.13 PLMN list */
-    de_nas_cont_for_ps_ho,  /* 10.5.1.14 NAS container for PS HO */
+    de_plmn_list,                      /* 10.5.1.13 PLMN list */
+    de_nas_cont_for_ps_ho,             /* 10.5.1.14 NAS container for PS HO */
+    de_ms_net_feat_sup,                /* 10.5.1.15 MS network feature support */
     NULL,                   /* NONE */
 };
 
@@ -3606,6 +3633,11 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_iov_ui,
         { "IOV-UI", "gsm_a.iov_ui",
         FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_gsm_a_ext_periodic_timers,
+        { "Extended periodic timers", "gsm_a.ext_periodic_timers",
+        FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_ext_periodic_timers_value), 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_skip_ind,

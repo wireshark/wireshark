@@ -776,6 +776,7 @@ typedef enum
     DE_PS_DOMAIN_SPEC_SYS_INFO,        /* PS domain specific system information */
     DE_PLMN_LIST,                      /* PLMN List */
     DE_NAS_CONT_FOR_PS_HO,             /* 10.5.1.14 NAS container for PS HO */
+    DE_MS_NET_FEAT_SUP,                /* 10.5.1.15 MS network feature support */
 
     DE_COMMON_NONE          /* NONE */
 }
@@ -1115,14 +1116,17 @@ typedef enum
     DE_ENH_NSAPI,                   /* Enhanced network service access point identifier */
     DE_REQ_TYPE,                    /* Request type */
     DE_SM_NOTIF_IND,                /* Notification indicator */
+    DE_SM_CONNECTIVITY_TYPE,        /* Connectivity type */
     /* GPRS Common Information Elements [8] 10.5.7 */
     DE_PDP_CONTEXT_STAT,            /* [8] 10.5.7.1     PDP Context Status */
     DE_RAD_PRIO,                    /* [8] 10.5.7.2     Radio Priority */
     DE_GPRS_TIMER,                  /* [8] 10.5.7.3     GPRS Timer */
     DE_GPRS_TIMER_2,                /* [8] 10.5.7.4     GPRS Timer 2 */
+    DE_GPRS_TIMER_3,                /* [10] 10.5.7.4a   GPRS Timer 3 */
     DE_RAD_PRIO_2,                  /* [8] 10.5.7.5     Radio Priority 2 */
     DE_MBMS_CTX_STATUS,             /* [8] 10.5.7.6     MBMS context status */
     DE_UPLINK_DATA_STATUS,          /* [8] 10.5.7.7     Uplink data status */
+    DE_DEVICE_PROPERTIES,           /* [10] 10.5.7.8    Device properties */
     DE_GM_NONE                          /* NONE */
 }
 gm_elem_idx_t;
@@ -1293,10 +1297,13 @@ typedef enum
     DE_EMM_EPS_UPD_TYPE,        /* 9.9.3.14 EPS update type */
     DE_EMM_ESM_MSG_CONT,        /* 9.9.3.15 ESM message conta */
     DE_EMM_GPRS_TIMER,          /* 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+    DE_EMM_GPRS_TIMER_2,        /* 9.9.3.16A GPRS timer 2, See subclause 10.5.7.4 in 3GPP TS 24.008. */
+    DE_EMM_GPRS_TIMER_3,        /* 9.9.3.16B GPRS timer 3, See subclause 10.5.7.4a in 3GPP TS 24.008. */
     DE_EMM_ID_TYPE_2,           /* 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
     DE_EMM_IMEISV_REQ,          /* 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
     DE_EMM_KSI_AND_SEQ_NO,      /* 9.9.3.19 KSI and sequence number */
     DE_EMM_MS_NET_CAP,          /* 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+    DE_EMM_MS_NET_FEAT_SUP,     /* 9.9.3.20A MS network feature support, See subclause 10.5.1.15 in 3GPP TS 24.008. */
     DE_EMM_NAS_KEY_SET_ID,      /* 9.9.3.21 NAS key set identifier (coded inline)*/
     DE_EMM_NAS_MSG_CONT,        /* 9.9.3.22 NAS message container */
     DE_EMM_NAS_SEC_ALGS,        /* 9.9.3.23 NAS security algorithms */
@@ -1322,6 +1329,7 @@ typedef enum
     DE_EMM_GEN_MSG_CONT_TYPE,   /* 9.9.3.42 Generic message container type */
     DE_EMM_GEN_MSG_CONT,        /* 9.9.3.43 Generic message container */
     DE_EMM_VOICE_DMN_PREF,      /* 9.9.3.44 Voice domain preference and UE's usage setting */
+    DE_EMM_GUTI_TYPE,           /* 9.9.3.45 GUTI type */
     DE_EMM_NONE                 /* NONE */
 
 }
