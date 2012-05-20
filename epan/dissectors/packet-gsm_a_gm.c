@@ -3377,7 +3377,7 @@ de_gc_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 		case 0:  str = "sec"; val*=2; break;
 		case 1:  str = "min"; break;
 		case 2:  str = "min"; val*=6; break;
-		case 7:
+		case 7:  str = "";
 			item = proto_tree_add_text(tree, tvb, offset, 1,
 			                           "GPRS Timer: timer is deactivated");
 			break;
