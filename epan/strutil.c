@@ -187,7 +187,7 @@ format_text(const guchar *string, size_t len)
     }
     c = *string++;
 
-    if (g_unichar_isprint(c)) {
+    if (isprint(c)) {
       fmtbuf[idx][column] = c;
       column++;
     } else {
@@ -293,7 +293,7 @@ format_text_wsp(const guchar *string, size_t len)
     }
     c = *string++;
 
-    if (g_unichar_isprint(c)) {
+    if (isprint(c)) {
       fmtbuf[idx][column] = c;
       column++;
     } else if  (isspace(c)) {
