@@ -269,6 +269,7 @@ typedef struct _mate_config_frame {
 
 typedef struct _mate_runtime_data {
 	guint current_items; /* a count of items */
+	GMemChunk* mate_items;
 	float now;
 	guint highest_analyzed_frame;
 

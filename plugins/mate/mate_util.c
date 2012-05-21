@@ -82,30 +82,50 @@ void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... )
 
 /**
  * scs_init:
+ * @collection: the scs hash
  *
  *  Initializes the scs hash.
  **/
 
+/* Don't call variables "small" or "huge". They are keywords for the MSVC compiler. Rename them to "mate_small" and "mate_huge"*/
 struct _scs_collection {
 	GHashTable* hash;	/* key: a string value: guint number of subscribers */
+	GMemChunk* ctrs;
+	GMemChunk* mate_small;
+	GMemChunk* mate_medium;
+	GMemChunk* mate_large;
+	GMemChunk* mate_huge;
 };
 
-/* ToDo? free any string,ctr entries pointed to by the hash table ??
- *       XXX: AFAIKT destroy_scs_collection() might be called only when reading a
- *         mate config file. Since reading a new config file can apparently currently
- *         only be done once after starting Wireshark, in theory this fcn
- *         currently should never be called since there will never be an existing
- *         scs_collection to be destroyed.
- */
-static void destroy_scs_collection(SCS_collection* c) {
-    if (c->hash) g_hash_table_destroy(c->hash);
+extern void destroy_scs_collection(SCS_collection* c) {
+	if ( c->ctrs ) g_mem_chunk_destroy(c->ctrs);
+	if ( c->mate_small ) g_mem_chunk_destroy(c->mate_small);
+	if ( c->mate_medium ) g_mem_chunk_destroy(c->mate_medium);
+	if ( c->mate_large ) g_mem_chunk_destroy(c->mate_large);
+	if ( c->mate_huge ) g_mem_chunk_destroy(c->mate_huge);
+
+	if (c->hash) g_hash_table_destroy(c->hash);
 }
 
-static SCS_collection* scs_init(void) {
+extern SCS_collection* scs_init(void) {
 	SCS_collection* c = g_malloc(sizeof(SCS_collection));
 
 	c->hash =  g_hash_table_new(g_str_hash,g_str_equal);
 
+	c->ctrs = g_mem_chunk_new("ints_scs_chunk", sizeof(guint),
+							   sizeof(guint) * SCS_SMALL_CHUNK_SIZE, G_ALLOC_AND_FREE);
+
+	c->mate_small = g_mem_chunk_new("small_scs_chunk", SCS_SMALL_SIZE,
+							   SCS_SMALL_SIZE * SCS_SMALL_CHUNK_SIZE, G_ALLOC_AND_FREE);
+
+	c->mate_medium = g_mem_chunk_new("medium_scs_chunk", SCS_MEDIUM_SIZE,
+							   SCS_MEDIUM_SIZE * SCS_MEDIUM_CHUNK_SIZE, G_ALLOC_AND_FREE);
+
+	c->mate_large = g_mem_chunk_new("large_scs_chunk", SCS_LARGE_SIZE,
+							   SCS_LARGE_SIZE * SCS_LARGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
+
+	c->mate_huge = g_mem_chunk_new("huge_scs_chunk", SCS_HUGE_SIZE,
+							   SCS_HUGE_SIZE * SCS_HUGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
 	return c;
 }
 
@@ -126,31 +146,37 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 	gchar* orig = NULL;
 	guint* ip = NULL;
 	size_t len = 0;
+	GMemChunk* chunk = NULL;
 
 	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer)&ip);
 
 	if (ip) {
 		(*ip)++;
 	} else {
-		ip = g_slice_new(guint);
+		ip = g_mem_chunk_alloc(c->ctrs);
 		*ip = 0;
 
 		len = strlen(s) + 1;
 
 		if (len <= SCS_SMALL_SIZE) {
+			chunk = c->mate_small;
 			len = SCS_SMALL_SIZE;
 		} else if (len <= SCS_MEDIUM_SIZE) {
+			chunk = c->mate_medium;
 			len = SCS_MEDIUM_SIZE;
 		} else if (len <= SCS_LARGE_SIZE) {
+			chunk = c->mate_large;
 			len = SCS_LARGE_SIZE;
 		} else if (len < SCS_HUGE_SIZE) {
+			chunk = c->mate_huge;
 			len = SCS_HUGE_SIZE;
 		} else {
+			chunk = c->mate_huge;
 			len = SCS_HUGE_SIZE;
 			g_warning("mate SCS: string truncated due to huge size");
 		}
 
-                orig = g_slice_alloc(len);
+		orig = g_mem_chunk_alloc(chunk);
 		g_strlcpy(orig,s,len);
 
 		g_hash_table_insert(c->hash,orig,ip);
@@ -171,6 +197,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 	gchar* orig = NULL;
 	guint* ip = NULL;
 	size_t len = 0xffff;
+	GMemChunk* chunk = NULL;
 
 	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer)&ip);
 
@@ -181,17 +208,17 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 			len = strlen(orig);
 
 			if (len < SCS_SMALL_SIZE) {
-				len = SCS_SMALL_SIZE;
+				chunk = c->mate_small;
 			} else if (len < SCS_MEDIUM_SIZE) {
-				len = SCS_MEDIUM_SIZE;
+				chunk = c->mate_medium;
 			} else if (len < SCS_LARGE_SIZE) {
-				len = SCS_LARGE_SIZE;
+				chunk = c->mate_large;
 			} else {
-				len = SCS_HUGE_SIZE;
+				chunk = c->mate_huge;
 			}
 
-			g_slice_free1(len, orig);
-			g_slice_free(guint,ip);
+			g_mem_chunk_free(chunk,orig);
+			g_mem_chunk_free(c->ctrs,ip);
 		}
 		else {
 			(*ip)--;
@@ -225,7 +252,7 @@ gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 *  AVPs & Co.
 ***************************************************************************
 * The Thing operates mainly on avps, avpls and loals
-* - attribute value pairs (two strings: the name and the value and an operator)
+* - attribute value pairs (two strings: the name and the value and an opeartor)
 * - avp lists a somehow sorted list of avps
 * - loal (list of avp lists) an arbitrarily sorted list of avpls
 *
@@ -242,6 +269,7 @@ typedef union _any_avp_type {
 } any_avp_type;
 
 
+static GMemChunk* avp_chunk = NULL;
 static SCS_collection* avp_strings = NULL;
 
 #ifdef _AVP_DEBUGGING
@@ -271,7 +299,7 @@ static int* dbg_avpl_op = &dbg_avpl_op_level;
  * @avpl: a pointer to the level of debugging of facility "avpl"
  * @avpl_op: a pointer to the level of debugging of facility "avpl_op"
  *
- * If enabled sets up the debug facilities for the avp library.
+ * If enabled set's up the debug facilities for the avp library.
  *
  **/
 extern void setup_avp_debug(FILE* fp, int* general, int* avp, int* avp_op, int* avpl, int* avpl_op) {
@@ -287,6 +315,7 @@ extern void setup_avp_debug(FILE* fp, int* general, int* avp, int* avp_op, int* 
 
 /**
  * avp_init:
+ * @chunk_size: the initial chunk's size.
  *
  * (Re)Initializes the avp library.
  *
@@ -296,7 +325,12 @@ extern void avp_init(void) {
 	if (avp_strings) destroy_scs_collection(avp_strings);
 	avp_strings = scs_init();
 
+	if ( avp_chunk ) g_mem_chunk_destroy(avp_chunk);
+	avp_chunk = g_mem_chunk_new("avp_chunk", sizeof(any_avp_type),
+								AVP_CHUNK_SIZE, G_ALLOC_AND_FREE);
+
 }
+
 
 /**
  * new_avp_from_finfo:
@@ -309,7 +343,7 @@ extern void avp_init(void) {
  *
  **/
 extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
-	AVP*   new = (AVP*)g_slice_new(any_avp_type);
+	AVP* new = g_mem_chunk_alloc(avp_chunk);
 	gchar* value;
 
 	new->n = scs_subscribe(avp_strings, name);
@@ -350,7 +384,7 @@ extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
  *
  **/
 extern AVP* new_avp(const gchar* name, const gchar* value, gchar o) {
-	AVP* new = (AVP*)g_slice_new(any_avp_type);
+	AVP* new = g_mem_chunk_alloc(avp_chunk);
 
 	new->n = scs_subscribe(avp_strings, name);
 	new->v = scs_subscribe(avp_strings, value);
@@ -377,7 +411,7 @@ extern void delete_avp(AVP* avp) {
 
 	scs_unsubscribe(avp_strings, avp->n);
 	scs_unsubscribe(avp_strings, avp->v);
-	g_slice_free(any_avp_type,(any_avp_type*)avp);
+	g_mem_chunk_free(avp_chunk,avp);
 }
 
 
@@ -385,13 +419,13 @@ extern void delete_avp(AVP* avp) {
 * avp_copy:
  * @from: the avp to be copied.
  *
- * Creates an avp whose name op and value are copies of the given one.
+ * Creates an avp whose name op and value are copyes of the given one.
  *
  * Return value: a pointer to the newly created avp.
  *
  **/
 extern AVP* avp_copy(AVP* from) {
-	AVP* new = (AVP*)g_slice_new(any_avp_type);
+	AVP* new = g_mem_chunk_alloc(avp_chunk);
 
 	new->n = scs_subscribe(avp_strings, from->n);
 	new->v = scs_subscribe(avp_strings, from->v);
@@ -414,7 +448,7 @@ extern AVP* avp_copy(AVP* from) {
  *
  **/
 extern AVPL* new_avpl(const gchar* name) {
-	AVPL* new_avpl_p = (AVPL*)g_slice_new(any_avp_type);
+	AVPL* new_avpl_p = g_mem_chunk_alloc(avp_chunk);
 
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,7,dbg_fp,"new_avpl_p: %X name=%s",new_avpl_p,name);
@@ -448,7 +482,7 @@ extern void rename_avpl(AVPL* avpl, gchar* name) {
  *         it is not inserted.
  **/
 extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
-	AVPN* new = (AVPN*)g_slice_new(any_avp_type);
+	AVPN* new = g_mem_chunk_alloc(avp_chunk);
 	AVPN* c;
 
 	new->avp = avp;
@@ -472,7 +506,7 @@ extern gboolean insert_avp(AVPL* avpl, AVP* avp) {
 #ifdef _AVP_DEBUGGING
 					dbg_print(dbg_avpl_op,7,dbg_fp,"delete_avpn: %X",new);
 #endif
-					g_slice_free(any_avp_type,(any_avp_type*)new);
+					g_mem_chunk_free(avp_chunk,new);
 					return FALSE;
 				}
 			}
@@ -577,7 +611,7 @@ extern AVP* extract_avp_by_name(AVPL* avpl, gchar* name) {
 
 	avp = curr->avp;
 
-	g_slice_free(any_avp_type,(any_avp_type*)curr);
+	g_mem_chunk_free(avp_chunk,curr);
 
 	(avpl->len)--;
 
@@ -618,7 +652,7 @@ extern AVP* extract_first_avp(AVPL* avpl) {
 	avp = node->avp;
 
 	if (avp) {
-		g_slice_free(any_avp_type,(any_avp_type*)node);
+		g_mem_chunk_free(avp_chunk,node);
 		(avpl->len)--;
 #ifdef _AVP_DEBUGGING
 		dbg_print(dbg_avpl,4,dbg_fp,"avpl: %X new len: %i",avpl,avpl->len);
@@ -655,7 +689,7 @@ extern AVP* extract_last_avp(AVPL* avpl) {
 	avp = node->avp;
 
 	if (avp) {
-		g_slice_free(any_avp_type,(any_avp_type*)node);
+		g_mem_chunk_free(avp_chunk,node);
 		(avpl->len)--;
 #ifdef _AVP_DEBUGGING
 		dbg_print(dbg_avpl,4,dbg_fp,"avpl: %X new len: %i",avpl,avpl->len);
@@ -693,7 +727,7 @@ extern void delete_avpl(AVPL* avpl, gboolean avps_too) {
 	}
 
 	scs_unsubscribe(avp_strings,avpl->name);
-	g_slice_free(any_avp_type,(any_avp_type*)avpl);
+	g_mem_chunk_free(avp_chunk,avpl);
 }
 
 
@@ -1323,7 +1357,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 
 							cs->prev->next = cs->next;
 							cs->next->prev = cs->prev;
-							g_slice_free(any_avp_type,(any_avp_type*)cs);
+							g_mem_chunk_free(avp_chunk,cs);
 
 							cs = n;
 							cm = cm->next;
@@ -1350,7 +1384,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
  * Return value: a pointer to the newly created loal.
  **/
 extern LoAL* new_loal(const gchar* name) {
-	LoAL* new_loal_p = (LoAL*)g_slice_new(any_avp_type);
+	LoAL* new_loal_p = g_mem_chunk_alloc(avp_chunk);
 
 	if (! name) {
 		name = "anonymous";
@@ -1377,7 +1411,7 @@ extern LoAL* new_loal(const gchar* name) {
  *
  **/
 extern void loal_append(LoAL* loal, AVPL* avpl) {
-	LoALnode* node = (LoALnode*)g_slice_new(any_avp_type);
+	LoALnode* node = g_mem_chunk_alloc(avp_chunk);
 
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,3,dbg_fp,"new_loal_node: %X",node);
@@ -1420,7 +1454,7 @@ extern AVPL* extract_first_avpl(LoAL* loal) {
 	avpl = node->avpl;
 
 	if ( avpl ) {
-		g_slice_free(any_avp_type,(any_avp_type*)node);
+		g_mem_chunk_free(avp_chunk,node);
 
 #ifdef _AVP_DEBUGGING
 		dbg_print(dbg_avpl_op,3,dbg_fp,"extract_first_avpl: got %s",avpl->name);
@@ -1454,7 +1488,7 @@ extern AVPL* extract_last_avpl(LoAL* loal){
 	avpl = node->avpl;
 
 	if ( avpl ) {
-		g_slice_free(any_avp_type,(any_avp_type*)node);
+		g_mem_chunk_free(avp_chunk,node);
 #ifdef _AVP_DEBUGGING
 		dbg_print(dbg_avpl_op,3,dbg_fp,"delete_loal_node: %X",node);
 #endif
@@ -1515,7 +1549,7 @@ extern void delete_loal(LoAL* loal, gboolean avpls_too, gboolean avps_too) {
 	}
 
 	scs_unsubscribe(avp_strings,loal->name);
-	g_slice_free(any_avp_type,(any_avp_type*)loal);
+	g_mem_chunk_free(avp_chunk,loal);
 }
 
 
