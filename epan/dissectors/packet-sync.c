@@ -289,7 +289,7 @@ proto_register_sync(void)
 
     sync_module = prefs_register_protocol(proto_sync, proto_reg_handoff_sync);
 
-    register_dissector("sync", dissect_sync, proto_sync);
+    new_register_dissector("sync", dissect_sync, proto_sync);
 }
 
 void
