@@ -1,590 +1,493 @@
 ------------------------------------------------------------------------
-r40515 | gerald | 2012-01-15 08:04:29 -0800 (Sun, 15 Jan 2012) | 1 line
+r41831 | gerald | 2012-03-29 13:22:06 -0700 (Thu, 29 Mar 2012) | 2 lines
+Changed paths:
+   M /trunk-1.4/config.nmake
+   M /trunk-1.4/tools/win64-setup.sh
+
+Use the GnuTLS 2.12.18-1.2-1 bundle.
+
+------------------------------------------------------------------------
+r41882 | gerald | 2012-04-01 08:04:36 -0700 (Sun, 01 Apr 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-01-15]
+[Automatic manuf, services and enterprise-numbers update for 2012-04-01]
 ------------------------------------------------------------------------
-r40653 | gerald | 2012-01-22 08:04:25 -0800 (Sun, 22 Jan 2012) | 1 line
+r41983 | gerald | 2012-04-08 08:04:14 -0700 (Sun, 08 Apr 2012) | 1 line
+Changed paths:
+   M /trunk-1.4/epan/enterprise-numbers
+   M /trunk-1.4/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2012-04-08]
+------------------------------------------------------------------------
+r42069 | guy | 2012-04-14 10:36:38 -0700 (Sat, 14 Apr 2012) | 15 lines
+Changed paths:
+   M /trunk-1.4/wiretap/k12.c
+
+Backported from the trunk:
+
+------------------------------------------------------------------------
+r42067 | guy | 2012-04-14 10:20:22 -0700 (Sat, 14 Apr 2012) | 4 lines
+
+More double-free fixes - destroy_k12_file_data() frees its argument, so
+calling g_free() on that argument after calling destroy_k12_file_data()
+is always an error.
+------------------------------------------------------------------------
+r42062 | etxrab | 2012-04-14 00:53:22 -0700 (Sat, 14 Apr 2012) | 1 line
+
+From From Evan Huus: Potential double-free while importing k12xx *.rf5
+files https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7084
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r42072 | guy | 2012-04-14 10:46:58 -0700 (Sat, 14 Apr 2012) | 7 lines
+Changed paths:
+   M /trunk-1.4/dumpcap.c
+
+Copied from the trunk:
+
+------------------------------------------------------------------------
+r42070 | guy | 2012-04-14 10:45:03 -0700 (Sat, 14 Apr 2012) | 2 lines
+
+From Evan Huus: add a missing free.  Fixes bug 7092.
+
+------------------------------------------------------------------------
+r42085 | gerald | 2012-04-15 08:04:26 -0700 (Sun, 15 Apr 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-01-22]
+[Automatic manuf, services and enterprise-numbers update for 2012-04-15]
 ------------------------------------------------------------------------
-r40760 | gerald | 2012-01-29 08:04:07 -0800 (Sun, 29 Jan 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-
-[Automatic manuf, services and enterprise-numbers update for 2012-01-29]
-------------------------------------------------------------------------
-r40871 | gerald | 2012-02-05 08:04:23 -0800 (Sun, 05 Feb 2012) | 1 line
+r42194 | gerald | 2012-04-22 08:04:29 -0700 (Sun, 22 Apr 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-02-05]
+[Automatic manuf, services and enterprise-numbers update for 2012-04-22]
 ------------------------------------------------------------------------
-r40984 | gerald | 2012-02-12 08:04:15 -0800 (Sun, 12 Feb 2012) | 1 line
+r42335 | gerald | 2012-04-29 08:04:27 -0700 (Sun, 29 Apr 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-02-12]
+[Automatic manuf, services and enterprise-numbers update for 2012-04-29]
 ------------------------------------------------------------------------
-r41068 | gerald | 2012-02-19 08:04:47 -0800 (Sun, 19 Feb 2012) | 1 line
+r42337 | guy | 2012-04-29 11:05:33 -0700 (Sun, 29 Apr 2012) | 13 lines
+Changed paths:
+   M /trunk-1.4/packaging/macosx/Info.plist.in
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r42328 | guy | 2012-04-28 19:27:08 -0700 (Sat, 28 Apr 2012) | 8 lines
+
+  Make the extension lower case.
+
+  Say "Pcap" rather than "Libpcap" - pcap format is used by WinPcap as
+  well (and it's also read and written by this library called Wiretap
+  :-)).
+
+  Add an additional entry for pcap-NG.
+
+------------------------------------------------------------------------
+r42338 | guy | 2012-04-29 11:06:59 -0700 (Sun, 29 Apr 2012) | 9 lines
+Changed paths:
+   M /trunk-1.4/packaging/nsis/wireshark.nsi
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r42329 | guy | 2012-04-28 19:38:55 -0700 (Sat, 28 Apr 2012) | 4 lines
+
+  Add .ntar as a suffix (some pcap-ng files use it).
+
+  Sort the suffixes alphabetically.
+
+------------------------------------------------------------------------
+r42339 | guy | 2012-04-29 11:11:14 -0700 (Sun, 29 Apr 2012) | 8 lines
+Changed paths:
+   M /trunk-1.4/wiretap/file_access.c
+
+Copy over revisions from the trunk with manual intervention:
+
+  ------------------------------------------------------------------------
+  r42330 | guy | 2012-04-28 19:49:17 -0700 (Sat, 28 Apr 2012) | 3 lines
+
+  Add ".dmp" as a suffix for pcap files of various flavors.  Add ".ntar"
+  as a suffix for pcap-ng files.
+
+------------------------------------------------------------------------
+r42450 | gerald | 2012-05-06 08:04:26 -0700 (Sun, 06 May 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-02-19]
+[Automatic manuf, services and enterprise-numbers update for 2012-05-06]
 ------------------------------------------------------------------------
-r41192 | gerald | 2012-02-26 08:05:07 -0800 (Sun, 26 Feb 2012) | 1 line
+r42452 | guy | 2012-05-06 10:45:09 -0700 (Sun, 06 May 2012) | 21 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-bthci_evt.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r42116 | guy | 2012-04-17 16:08:23 -0700 (Tue, 17 Apr 2012) | 4 lines
+
+  Might as well make the loop indices just guint; the generated code's
+  unlikely to be worse, and could be better on the 32-bit-and-bigger
+  machines on which Wireshark runs.
+
+  ------------------------------------------------------------------------
+  r42114 | etxrab | 2012-04-17 14:09:10 -0700 (Tue, 17 Apr 2012) | 1
+line
+
+  From Evan Huus: We were using guint8s as loop counters based on field
+  lengths, and they were overflowing/wrapping falsely. Making them
+  guint16s fixes the problem. Bug 7122 -HCIEVT infinite loop
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7122
+
+This should fix the fuzz failures that started showing up on the 1.6
+buildbot.
+
+------------------------------------------------------------------------
+r42615 | gerald | 2012-05-13 08:04:27 -0700 (Sun, 13 May 2012) | 1 line
 Changed paths:
    M /trunk-1.4/epan/enterprise-numbers
    M /trunk-1.4/manuf
    M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-02-26]
+[Automatic manuf, services and enterprise-numbers update for 2012-05-13]
 ------------------------------------------------------------------------
-r41336 | gerald | 2012-03-04 08:04:40 -0800 (Sun, 04 Mar 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-03-04]
-------------------------------------------------------------------------
-r41485 | gerald | 2012-03-11 08:04:40 -0700 (Sun, 11 Mar 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-03-11]
-------------------------------------------------------------------------
-r41643 | gerald | 2012-03-18 12:37:18 -0700 (Sun, 18 Mar 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-03-18]
-------------------------------------------------------------------------
-r41730 | gerald | 2012-03-21 15:52:13 -0700 (Wed, 21 Mar 2012) | 3 lines
+r42662 | morriss | 2012-05-16 13:01:58 -0700 (Wed, 16 May 2012) | 38 lines
 Changed paths:
    M /trunk-1.4/configure.in
-
-Don't use GNUTLS 3.0, at least until we determine the impact of their
-license change.
-
-------------------------------------------------------------------------
-r41732 | gerald | 2012-03-21 16:19:57 -0700 (Wed, 21 Mar 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/debian/copyright
-
-Add a missing "T".
-------------------------------------------------------------------------
-r41749 | gerald | 2012-03-23 13:44:24 -0700 (Fri, 23 Mar 2012) | 106 lines
-Changed paths:
-   M /trunk-1.4/doc/tshark.pod
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-iax2.c
-   M /trunk-1.4/epan/dissectors/packet-mysql.c
-   M /trunk-1.4/epan/dissectors/packet-packetbb.c
-   M /trunk-1.4/epan/dissectors/packet-pgm.c
-   M /trunk-1.4/epan/dissectors/packet-tcp.c
-   M /trunk-1.4/epan/dissectors/packet-tcp.h
-   M /trunk-1.4/epan/uat.h
-   M /trunk-1.4/gtk/main_toolbar.c
-   M /trunk-1.4/gtk/main_toolbar.h
-   M /trunk-1.4/gtk/menus.c
-   M /trunk-1.4/gtk/tcp_graph.c
-   M /trunk-1.4/wiretap/k12text.l
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r39873 | guy | 2011-11-15 17:56:58 -0800 (Tue, 15 Nov 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-mysql.c
-
-  Thou shalt not use proto_tree_add_string() with an FT_BYTES field.
-  ------------------------------------------------------------------------
-  r40616 | cmaynard | 2012-01-20 14:03:52 -0800 (Fri, 20 Jan 2012) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-packetbb.c
-
-  Avoid a potential infinite loop by stopping dissection when a message has no tlvblock.  Patch from Martin Kaiser via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6687
-  ------------------------------------------------------------------------
-  r40644 | cmaynard | 2012-01-21 17:59:00 -0800 (Sat, 21 Jan 2012) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-pgm.c
-
-  Patch from DXDragon [AT] yandex.ru (using e-mail address instead of name because I don't know how to enter Cyrillic letters) to fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5687 - Some PGM options are not parsed correctly.
-  ------------------------------------------------------------------------
-  r40911 | cmaynard | 2012-02-06 19:20:33 -0800 (Mon, 06 Feb 2012) | 5 lines
-  Changed paths:
-     M /trunk/doc/tshark.pod
-
-  Update the documentation to match the sort order.  This documentation error was pointed out by Markus Amend on -users.
-  Reference: http://article.gmane.org/gmane.network.wireshark.user/14477
-
-  (BTW, I quickly scanned through tap-iousers.c:iousers_draw() and the sorting seems to be very inefficient.)
-  ------------------------------------------------------------------------
-  r40944 | morriss | 2012-02-09 11:17:28 -0800 (Thu, 09 Feb 2012) | 5 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-iax2.c
-
-  From Sean Bright via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6815 :
-
-  Don't use tvb_get_ptr() to retrieve a string being sent into
-  proto_tree_add_string_format(): use tvb_get_ephemeral_string() instead.
-  ------------------------------------------------------------------------
-  r37856 | cmaynard | 2011-07-01 12:40:35 -0700 (Fri, 01 Jul 2011) | 7 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-tcp.c
-
-  Since the TCP Flags tree encompasses 12 bits including the 3 reserved bits and
-  the nonce bit, we should display 3 nibbles on the Flags summary line in order
-  to represent all flag bits.  While arguably we need not worry about reserved
-  bits, the nonce bit is not currently represented, so that bit alone pushes us
-  into the next nibble.
-  ------------------------------------------------------------------------
-  r40949 | cmaynard | 2012-02-09 19:37:28 -0800 (Thu, 09 Feb 2012) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-tcp.c
-     M /trunk/epan/dissectors/packet-tcp.h
-
-  Since the nonce and reserved bits were added in r34084, tcp.flags is now 12 bits, so its type needs to be changed from an FT_UINT8 to an FT_UINT16.  This should avoid the crash experienced by Lanell Allen as reported on -dev: http://article.gmane.org/gmane.network.wireshark.devel/24846 (although in my testing on Windows XP SP3 (32-bit), Wireshark did not crash).
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-  ------------------------------------------------------------------------
-  r40508 | guy | 2012-01-14 12:58:41 -0800 (Sat, 14 Jan 2012) | 6 lines
-  Changed paths:
-     M /trunk/wiretap/k12text.l
-
-  wth->phdr.pkt_encap isn't set on a seek-and-read; pass the encapsulation
-  directly to k12text_set_pseudo_header(), so that it's passed the right
-  encapsulation for seek-and-read as well as for read.  Fixes the
-  "malformed frames when reading some K12 text files" problem for which
-  we're using bug 6735.
-  ------------------------------------------------------------------------
-  r40727 | guy | 2012-01-25 15:03:33 -0800 (Wed, 25 Jan 2012) | 4 lines
-  Changed paths:
-     M /trunk/epan/uat.h
-     M /trunk/epan/wslua/wslua_proto.c
-
-  Fix usage of g_ascii_strdown() and g_ascii_strup() - they do *not*
-  modify the string in place, they return a g_mallocated modified version
-  of the string passed into them.
-  ------------------------------------------------------------------------
-  r40769 | stig | 2012-01-30 05:05:27 -0800 (Mon, 30 Jan 2012) | 2 lines
-  Changed paths:
-     M /trunk/ui/gtk/main_menubar.c
-     M /trunk/ui/gtk/main_toolbar.c
-     M /trunk/ui/gtk/main_toolbar.h
-
-  Disable the save-as button in the toolbar if we cannot save-as,
-  because this will assert.
-  ------------------------------------------------------------------------
-  r40927 | stig | 2012-02-08 03:16:30 -0800 (Wed, 08 Feb 2012) | 2 lines
-  Changed paths:
-     M /trunk/ui/gtk/main_menubar.c
-
-  Disable the File->Merge... menu item if we cannot save-as,
-  because this will assert.
-  ------------------------------------------------------------------------
-  r40950 | cmaynard | 2012-02-09 21:05:17 -0800 (Thu, 09 Feb 2012) | 2 lines
-  Changed paths:
-     M /trunk/ui/gtk/tcp_graph.c
-
-  Delete the TH_* defines and use those from epan/dissectors/packet-tcp.h.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r41753 | guy | 2012-03-24 10:28:46 -0700 (Sat, 24 Mar 2012) | 3 lines
-Changed paths:
-   M /trunk-1.4/epan/dissectors/packet-mysql.c
-
-Need to include <epan/expert.h> in order to use
-expert_add_info_format().
-
-------------------------------------------------------------------------
-r41760 | gerald | 2012-03-25 08:04:27 -0700 (Sun, 25 Mar 2012) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-03-25]
-------------------------------------------------------------------------
-r41768 | gerald | 2012-03-26 10:19:25 -0700 (Mon, 26 Mar 2012) | 15 lines
-Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-ansi_a.c
-
-Copy over r40962 by hand:
-
-  ------------------------------------------------------------------------
-  r40962 | guy | 2012-02-10 18:31:52 -0800 (Fri, 10 Feb 2012) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ansi_a.c
-
-  Global variables considered harmful.  Pass pinfo along as a parameter;
-  this appears to fix bug 6823 (the actual crash was a null pinfo being
-  passed to call_dissector()).
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r41769 | gerald | 2012-03-26 10:27:46 -0700 (Mon, 26 Mar 2012) | 18 lines
-Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/wiretap/pcap-common.c
-
-Copy over r41008 from the trunk:
-
-  ------------------------------------------------------------------------
-  r41008 | morriss | 2012-02-12 19:03:03 -0800 (Sun, 12 Feb 2012) | 7 lines
-  Changed paths:
-     M /trunk/wiretap/pcap-common.c
-
-  Fix the crash reported in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6804
-
-  For WTAP_ENCAP_ERF files if we find an Extension and/or Multi-Channel header,
-  ensure that the size of the full pseudoheader is smaller than the packet size
-  to avoid an underflow and subsequent attempt to allocate a rather large amount
-  of memory.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r41772 | gerald | 2012-03-26 11:47:46 -0700 (Mon, 26 Mar 2012) | 122 lines
-Changed paths:
-   M /trunk-1.4/AUTHORS
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-dtls.c
-   M /trunk-1.4/epan/dissectors/packet-http.c
-   M /trunk-1.4/epan/dissectors/packet-ssl-utils.c
-   M /trunk-1.4/wiretap/erf.c
-   M /trunk-1.4/wiretap/pcapng.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r41037 | guy | 2012-02-15 22:39:44 -0800 (Wed, 15 Feb 2012) | 10 lines
-  Changed paths:
-     M /trunk-1.6/wiretap/pcapng.c
-
-  Support Section Header Block options of arbitrary size - change
-  backported from the trunk.
-
-  Should fix the immediate problem in bug 6846; we also need to make sure
-  (in all branches) that, as long as the file begins with an SHB with a
-  valid byte order field, we recognize the file as a pcap-NG file (so that
-  if there really *is* a problem with the SHB, the error reported to the
-  user is an error in a pcap-NG file's SHB, *not* an "unknown file type"
-  error).
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-  ------------------------------------------------------------------------
-  r41025 | guy | 2012-02-13 22:00:14 -0800 (Mon, 13 Feb 2012) | 49 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-http.c
-
-  To quote section "7.2.1 Type" of RFC 2068, "Hypertext Transfer Protocol
-  -- HTTP/1.1":
-
-     Any HTTP/1.1 message containing an entity-body SHOULD include a
-     Content-Type header field defining the media type of that body. If
-     and only if the media type is not given by a Content-Type field, the
-     recipient MAY attempt to guess the media type via inspection of its
-     content and/or the name extension(s) of the URL used to identify the
-     resource. If the media type remains unknown, the recipient SHOULD
-     treat it as type "application/octet-stream".
-
-  To quote section "4. Encoding of Transport Layer" of RFC 2565, "Internet
-  Printing Protocol/1.0: Encoding and Transport":
-
-     HTTP/1.1 [RFC2068] is the transport layer for this protocol.
-
-  	...
-
-     Note: even though port 631 is the IPP default, port 80 remains the
-     default for an HTTP URI.  Thus a URI for a printer using port 631
-     MUST contain an explicit port, e.g. "http://forest:631/pinetree".  An
-     HTTP URI for IPP with no explicit port implicitly reference port 80,
-     which is consistent with the rules for HTTP/1.1. Each HTTP operation
-     MUST use the POST method where the request-URI is the object target
-     of the operation, and where the "Content-Type" of the message-body in
-     each request and response MUST be "application/ipp". The message-body
-     MUST contain the operation layer and MUST have the syntax described
-     in section 3.2 "Syntax of Encoding". A client implementation MUST
-     adhere to the rules for a client described for HTTP1.1 [RFC2068]. A
-     printer (server) implementation MUST adhere the rules for an origin
-     server described for HTTP1.1 [RFC2068].
-
-  So, when choosing a subdissector for HTTP request bodies, search based
-  on the media type first, and only if we *don't* find a dissector for the
-  media type, do other stuff such as heuristics or choosing a subdissector
-  based on the port number.
-
-  This fixes a number of problems; in particular, it fixes bug 6765
-  "non-IPP packets to or from port 631 are dissected as IPP" without
-  requiring the IPP dissector to attempt to determine whether an entity
-  body looks like IPP.  It also ensures that the default dissector for
-  HTTP entity bodies, the "media" dissector, will get the media type
-  passed to it in pinfo->match_string.
-
-  Don't use "!str*cmp()" while we're at it - it's valid C, but the "!" can
-  make it look as if it's checking for something not being the case when,
-  in fact, you're checking for equality rather than inequality.  (The
-  str*cmp() routines don't return Boolean results.)
-  ------------------------------------------------------------------------
-  r41030 | guy | 2012-02-14 14:31:33 -0800 (Tue, 14 Feb 2012) | 3 lines
-  Changed paths:
-     M /trunk/wiretap/erf.c
-
-  TYPE_PAD records can have zero bytes of payload; don't treat them as
-  errors.
-  ------------------------------------------------------------------------
-  r41097 | etxrab | 2012-02-20 22:44:50 -0800 (Mon, 20 Feb 2012) | 1 line
-  Changed paths:
-     M /trunk-1.6/wiretap/pcapng.c
-
-  Support options of arbitrary size - changes backported from the trunk.
-  ------------------------------------------------------------------------
-  r41098 | etxrab | 2012-02-20 22:54:57 -0800 (Mon, 20 Feb 2012) | 1 line
-  Changed paths:
-     M /trunk-1.6/wiretap/pcapng.c
-
-  Free the buffer
-  ------------------------------------------------------------------------
-  r41100 | etxrab | 2012-02-20 23:24:53 -0800 (Mon, 20 Feb 2012) | 1 line
-  Changed paths:
-     M /trunk-1.6/wiretap/pcapng.c
-
-  Declare opt_cont_buf_len
-  ------------------------------------------------------------------------
-  r41130 | guy | 2012-02-21 14:25:13 -0800 (Tue, 21 Feb 2012) | 3 lines
-  Changed paths:
-     M /trunk-1.6/wiretap/pcapng.c
-
-  WTAP_ERR_BAD_RECORD was renamed WTAP_ERR_BAD_FILE in the 1.7 branch; we
-  still have to use WTAP_ERR_BAD_RECORD in 1.6 and before.
-  ------------------------------------------------------------------------
-  r41036 | etxrab | 2012-02-15 21:21:09 -0800 (Wed, 15 Feb 2012) | 4 lines
-  Changed paths:
-     M /trunk/AUTHORS
-     M /trunk/epan/dissectors/packet-dtls.c
-     M /trunk/epan/dissectors/packet-ssl-utils.c
-
-  From Naoyoshi Ueda:
-  Patch to fix DTLS decryption.
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6847
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r41774 | gerald | 2012-03-26 12:30:54 -0700 (Mon, 26 Mar 2012) | 107 lines
-Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/dumpcap.c
-   M /trunk-1.4/epan/dissectors/packet-isakmp.c
-   M /trunk-1.4/epan/dissectors/packet-udp.c
-   M /trunk-1.4/gtk/dfilter_expr_dlg.c
-   M /trunk-1.4/wiretap/pcapng.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r41718 | alagoutte | 2012-03-21 02:49:35 -0700 (Wed, 21 Mar 2012) | 5 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-isakmp.c
-
-  From me via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6972
-  ISAKMP : VendorID CheckPoint : Malformed Packet
-
-  Wrong minimum length when there is not CheckPoint "Data" after VendorID
-  ------------------------------------------------------------------------
-  r41734 | cmaynard | 2012-03-21 20:41:58 -0700 (Wed, 21 Mar 2012) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-udp.c
-
-  If the checksum is 0, then only report "no checksum" for UDP/IPv4.  This patch is from Jaap Keuter via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6232
-  ------------------------------------------------------------------------
-
-
-Copy over r41057 from trunk-1.6:
-
-  ------------------------------------------------------------------------
-  r41057 | guy | 2012-02-17 16:01:02 -0800 (Fri, 17 Feb 2012) | 10 lines
-  Changed paths:
-     M /trunk-1.6/epan/dissectors/packet-mp2t.c
-
-  Don't trust the pointer value in a packet; it could be invalid, and this
-  could cause an unsigned length value to be reduced by more than its
-  value, turning it into a very large value.
-
-  This is, in effect, a backport of r41001 and r41002 to 1.6, although the
-  code path is different enough that it had to be done by hand.  I don't
-  know whether bug 6833 would show up in 1.6, but, in any case, clearly
-  setting remaining_length to a negative number Would Be Wrong, so let's
-  not do that.
-  ------------------------------------------------------------------------
+   M /trunk-1.4/epan/emem.c
+   M /trunk-1.4/epan/emem.h
 
 Copy over with manual intervention:
 
   ------------------------------------------------------------------------
-  r41153 | guy | 2012-02-23 02:12:51 -0800 (Thu, 23 Feb 2012) | 39 lines
-  Changed paths:
-     M /trunk-1.6/wiretap/pcapng.c
+  r42431 | morriss | 2012-05-04 17:56:32 -0400 (Fri, 04 May 2012) | 15 lines
 
-  Copy over revisions from the trunk, with manual intervention:
+  The rest of the fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221
+  (emem alignment problems on SPARC) :
 
-    ------------------------------------------------------------------------
-    r41152 | guy | 2012-02-23 02:03:16 -0800 (Thu, 23 Feb 2012) | 10 lines
+  Have emem use 8-byte alignment when we need it.
 
-    Do a check of the block total length in pcapng_read_unknown_block().
+  Since I can't seem to write code that which reliably (across GCC versions and
+  optimization levels) determines if 8-byte alignment is needed for doubles,
+  "when" is defined as "if we're compiling for a CPU other than i386."
 
-    That means we don't need to do the block length check in
-    pcapng_read_block(); each block type reader, including the one for
-    unknown block types, does a check that's as stringent as that block
-    length check or more stringent, which means any block whose length is
-    less than the minimum will fail with the same error in both cases.
+  Windows doesn't need a check because it's either i386 or 64-bit (x86_64 or
+  maybe ia64--both of which get 8-byte alignment from G_MEM_ALIGN).
 
-    Fix the message for a too-short NRB.
-
-    ------------------------------------------------------------------------
-    r41145 | guy | 2012-02-22 15:44:25 -0800 (Wed, 22 Feb 2012) | 2 lines
-
-    Fix typo introduced by previous checkin.
-
-    ------------------------------------------------------------------------
-    r41143 | guy | 2012-02-22 10:32:43 -0800 (Wed, 22 Feb 2012) | 16 lines
-
-    Add sanity checks to make sure the claimed block size is big enough to:
-
-  	1) contain the block length fields and block type field;
-
-  	2) contain that plus the fixed-length portion of the block;
-
-  	3) for blocks that have a variable-length portion other than the
-  	   options, contain that variable-length portion.
-
-    Fixes a crash we're seeing with a bad pcap-NG file in the Wireshark
-    menagerie (7799-lastPacketWithoutComment.pcapng - the last packet's
-    block length is 128, but it claims to have 98 bytes of packet data,
-    which requires a 132-byte block).
-
-    Clean up white space (use 8-space tabs).
+  (And, yes, all of this is ignoring the 16-byte alignment requirements of long
+  doubles.)
 
   ------------------------------------------------------------------------
-  r41272 | morriss | 2012-03-01 08:42:49 -0800 (Thu, 01 Mar 2012) | 4 lines
-  Changed paths:
-     M /trunk/ui/gtk/dfilter_expr_dlg.c
+  r42407 | morriss | 2012-05-03 21:33:58 -0400 (Thu, 03 May 2012) | 14 lines
 
-  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6891 :
+  Partial fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221
+  (emem alignment problems on SPARC) :
 
-  Handle generating selected values for hf's with BASE_DEC_HEX and BASE_HEX_DEC.
-  ------------------------------------------------------------------------
-  r41348 | guy | 2012-03-04 23:18:13 -0800 (Sun, 04 Mar 2012) | 6 lines
-  Changed paths:
-     M /trunk-1.6/dumpcap.c
+  Add the room for the pointer to the next (from r31577) *before* calculating
+  the canary+pad: that way the complete allocation
+  (allocation+canary_ptr+canary+pad) will end on an 8-byte boundary (as was the
+  case before r31577).
 
-  Don't try to write an interface statistics block if we're capturing from
-  a pipe - we don't have a pcap_t from which to get the statistics in that
-  case.
+  This only solves the alignment problem when using canaries (i.e., not, by
+  default, se_ allocations).
 
-  Fixes bug 5939.
-  ------------------------------------------------------------------------
+  (And, yes, this is ignoring the 16-byte alignment requirements of long
+  doubles.)
 
-
-Update the release notes.
 
 ------------------------------------------------------------------------
-r41776 | gerald | 2012-03-26 13:21:32 -0700 (Mon, 26 Mar 2012) | 20 lines
+r42681 | gerald | 2012-05-17 12:02:43 -0700 (Thu, 17 May 2012) | 2 lines
 Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-mp2t.c
+   M /trunk-1.4/epan/dissectors/packet-dns.c
 
-Copy over r41057 from trunk-1.6:
-
-  ------------------------------------------------------------------------
-  r41057 | guy | 2012-02-17 16:01:02 -0800 (Fri, 17 Feb 2012) | 10 lines
-  Changed paths:
-     M /trunk-1.6/epan/dissectors/packet-mp2t.c
-
-  Don't trust the pointer value in a packet; it could be invalid, and this
-  could cause an unsigned length value to be reduced by more than its
-  value, turning it into a very large value.
-
-  This is, in effect, a backport of r41001 and r41002 to 1.6, although the
-  code path is different enough that it had to be done by hand.  I don't
-  know whether bug 6833 would show up in 1.6, but, in any case, clearly
-  setting remaining_length to a negative number Would Be Wrong, so let's
-  not do that.
-  ------------------------------------------------------------------------
-
-Update the release notes.
+hf.dns.apl.coded.prefix → dns.apl.coded.prefix.
 
 ------------------------------------------------------------------------
-r41783 | gerald | 2012-03-26 16:29:29 -0700 (Mon, 26 Mar 2012) | 20 lines
+r42688 | gerald | 2012-05-17 14:09:48 -0700 (Thu, 17 May 2012) | 81 lines
 Changed paths:
+   M /trunk-1.4/doc/wireshark.pod.template
    M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-radiotap.c
+   M /trunk-1.4/dumpcap.c
+   M /trunk-1.4/epan/dissectors/packet-dns.c
+   M /trunk-1.4/epan/dissectors/packet-ip.c
+   M /trunk-1.4/epan/dissectors/packet-radius.c
+   M /trunk-1.4/wiretap/5views.c
+   M /trunk-1.4/wiretap/csids.c
+   M /trunk-1.4/wiretap/file_access.c
 
 Copy over r41781 with manual intervention:
 
   ------------------------------------------------------------------------
-  r41781 | guy | 2012-03-26 15:12:03 -0700 (Mon, 26 Mar 2012) | 10 lines
+  r41937 | guy | 2012-04-04 12:13:39 -0700 (Wed, 04 Apr 2012) | 6 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-radiotap.c
+     M /trunk/dumpcap.c
 
-  There is no "dBm transmit attenuation" field in radiotap; there is,
-  however, a dBm transmit *power* field.
+  Work around WinPcap bug wherein pcap_open() returns -1 without putting
+  an error message into errbuf (the bug has been reported to
+  winpcap-bugs).
 
-  Fix up the capitalization of "dB" and "dBm", and improve the blurb for
-  attenuation fields, while we're at it.
+  Should fix bug 6922.
+  ------------------------------------------------------------------------
+  r41995 | cmaynard | 2012-04-09 11:22:05 -0700 (Mon, 09 Apr 2012) | 2 lines
+  Changed paths:
+     M /trunk-1.6/epan/dissectors/packet-ip.c
 
-  Should fix bug 7000:
+  Set the minimum length of the Internet Timestamp option to 4 bytes instead of 5.  RFC 791 only states that the smallest legal value of the pointer is 5, not the smallest size for the option itself.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7043
+  ------------------------------------------------------------------------
+  r42108 | pascal | 2012-04-17 05:44:04 -0700 (Tue, 17 Apr 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dns.c
 
-  	https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7000
+  From Bertho Stultiens:
+  Use certificate values from RFC 4398
+  From me: rename fields according to RFC and update references to RFC
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7130
+  ------------------------------------------------------------------------
+  r42388 | cmaynard | 2012-05-02 13:37:59 -0700 (Wed, 02 May 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-radius.c
+
+  Properly decrypt user-password according to http://tools.ietf.org/html/rfc2865#section-5.2
+  This fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6779
+  #BACKPORT
+  ------------------------------------------------------------------------
+  r42144 | guy | 2012-04-19 16:19:10 -0700 (Thu, 19 Apr 2012) | 2 lines
+  Changed paths:
+     M /trunk/wiretap/csids.c
+
+  Don't byte-swap bytes that aren't there.
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r41938 | guy | 2012-04-04 12:26:07 -0700 (Wed, 04 Apr 2012) | 2 lines
+  Changed paths:
+     M /trunk/dumpcap.c
+
+  Work around that WinPcap bug for another pcap_open() call.
+  ------------------------------------------------------------------------
+  r41941 | guy | 2012-04-04 12:46:45 -0700 (Wed, 04 Apr 2012) | 2 lines
+  Changed paths:
+     M /trunk/dumpcap.c
+
+  Fix tpo.
+  ------------------------------------------------------------------------
+  r42120 | guy | 2012-04-17 19:49:37 -0700 (Tue, 17 Apr 2012) | 11 lines
+  Changed paths:
+     M /trunk-1.6/doc/wireshark.pod.template
+     M /trunk-1.6/wiretap/5views.c
+     M /trunk-1.6/wiretap/file_access.c
+
+  Pick up changes from the trunk:
+
+    ------------------------------------------------------------------------
+    r42119 | guy | 2012-04-17 19:48:23 -0700 (Tue, 17 Apr 2012) | 6 lines
+
+    If we see a 5View time-stamped header with a bad key, make sure we
+    return the right error code and information string.
+
+    InfoVista bought Accellent Group, and, at least according to the
+    InfoVista Web site, it's "5View", not "5Views".
+
+    ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r42690 | gerald | 2012-05-17 14:20:47 -0700 (Thu, 17 May 2012) | 16 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-ansi_a.c
+
+Copy over r42129 with manual intervention:
+
+  ------------------------------------------------------------------------
+  r42129 | etxrab | 2012-04-18 04:12:15 -0700 (Wed, 18 Apr 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ansi_a.c
+
+  Fix Bug 7119 ANSI MAP infinite loop.
+  Make conumed a guint16 to avoid wrapping add expert items.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7119
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r42692 | gerald | 2012-05-17 14:33:48 -0700 (Thu, 17 May 2012) | 17 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-diameter.c
+
+Copy over r42200 with manual intervention:
+
+  ------------------------------------------------------------------------
+  r42200 | wmeier | 2012-04-22 18:36:57 -0700 (Sun, 22 Apr 2012) | 7 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-diameter.c
+
+  It's not kosher to alloc and init a GArray ourselves instead of calling g_array_new().
+
+  Fixes Bug #7138 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7138)
+
+  A puzzle: why did the buildbot fuzz-testing only start failing on this on 04/18/2012
+            since the bug has existed for quite some time ?
   ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r41785 | gerald | 2012-03-26 18:00:49 -0700 (Mon, 26 Mar 2012) | 2 lines
+r42693 | gerald | 2012-05-17 14:43:11 -0700 (Thu, 17 May 2012) | 21 lines
 Changed paths:
-   M /trunk-1.4/config.nmake
-   M /trunk-1.4/tools/win32-setup.sh
-   M /trunk-1.4/tools/win64-setup.sh
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-slowprotocols.c
 
-Use GNUTLS 2.12.18.
+Copy over r41741 with manual intervention:
 
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r41741 | morriss | 2012-03-22 17:53:58 -0700 (Thu, 22 Mar 2012) | 9 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-slowprotocols.c
+
+  From Elliot Parsons via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6983 :
+
+  In the packet-slowprotocols dissector, there is a bug in the event notification
+  dissector. The code uses the incorrect value to skip past the data of a vendor
+  specific notification.
+
+  The attached patch file sets the offset to increment by raw_octet, which
+  corrects the issue.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r42694 | gerald | 2012-05-17 14:55:23 -0700 (Thu, 17 May 2012) | 5 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-bacapp.c
+
+Copy over packet-bacapp.c r42323 and parts of bacapp.h from the trunk. This
+includes r42053 (which fixes bug 7121) along with a bunch of other changes.
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r42695 | gerald | 2012-05-17 15:09:21 -0700 (Thu, 17 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-bacapp.c
+
+Use the 1.4 API.
+
+------------------------------------------------------------------------
+r42696 | gerald | 2012-05-17 15:11:51 -0700 (Thu, 17 May 2012) | 12 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-ltp.c
+
+Copy over r42121 from the trunk:
+
+  ------------------------------------------------------------------------
+  r42121 | etxrab | 2012-04-17 22:24:32 -0700 (Tue, 17 Apr 2012) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ltp.c
+
+  From Evan Huus: Catch impossible sub-field counts. Fixes LTP infinite loop https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7124
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r42697 | gerald | 2012-05-17 15:20:04 -0700 (Thu, 17 May 2012) | 12 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+   M /trunk-1.4/epan/dissectors/packet-assa_r3.c
+
+Copy over r42122 from the trunk:
+
+  ------------------------------------------------------------------------
+  r42122 | etxrab | 2012-04-17 22:29:02 -0700 (Tue, 17 Apr 2012) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-assa_r3.c
+
+  From Evan Huus: There were two cases where we could underflow an unsigned subtraction, leading to huge values and near-infinite loops. Catch them and add an expert_info warning that the packet is bad. Also fix some other expert_info messages to hang off of the right dissection tree. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7125
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r42698 | guy | 2012-05-17 15:52:06 -0700 (Thu, 17 May 2012) | 4 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-assa_r3.c
+
+Go back to the original code setting upstreamfield_item, and have the
+proto_tree_add_item() call that adds an entry for the length set
+upstreamfield_length, as is being done in the trunk.
+
+------------------------------------------------------------------------
+r42699 | guy | 2012-05-17 15:54:36 -0700 (Thu, 17 May 2012) | 3 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-bacapp.c
+
+In 1.4, there was no fragment_count hf_ entry in the fragment_items
+structure.
+
+------------------------------------------------------------------------
+r42700 | gerald | 2012-05-17 15:54:43 -0700 (Thu, 17 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.4/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r42702 | guy | 2012-05-17 16:01:32 -0700 (Thu, 17 May 2012) | 3 lines
+Changed paths:
+   M /trunk-1.4/dumpcap.c
+
+In capture_loop_open_input(), open_err_str is an array, not a pointer to
+an array.
+
+------------------------------------------------------------------------
+r42703 | guy | 2012-05-17 16:10:48 -0700 (Thu, 17 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.4/epan/dissectors/packet-assa_r3.c
+
+Wrong tree argument was being passed to proto_tree_add_none_format().
+
+------------------------------------------------------------------------
+r42704 | guy | 2012-05-17 16:13:25 -0700 (Thu, 17 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.4/dumpcap.c
+
+Another array vs. pointer-to-array issue.
+
+------------------------------------------------------------------------
+r42726 | gerald | 2012-05-20 08:04:32 -0700 (Sun, 20 May 2012) | 1 line
+Changed paths:
+   M /trunk-1.4/epan/enterprise-numbers
+   M /trunk-1.4/manuf
+   M /trunk-1.4/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-05-20]
 ------------------------------------------------------------------------

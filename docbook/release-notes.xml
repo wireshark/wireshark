@@ -204,7 +204,7 @@ Bluetooth HCI,
 DIAMETER,
 DNS,
 IPv4,
-RADIUS,
+RADIUS
 
     </para>
     </section>
@@ -212,7 +212,7 @@ RADIUS,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-5View, pcap-ng.
+5View, pcap-ng
 
     </para>
     </section>
