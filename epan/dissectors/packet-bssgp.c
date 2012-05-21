@@ -6314,7 +6314,7 @@ proto_register_bssgp(void)
         },
         { &hf_bssgp_elem_id,
           { "Element ID", "bssgp.elem_id",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
         { &hf_bssgp_bss_area_ind,

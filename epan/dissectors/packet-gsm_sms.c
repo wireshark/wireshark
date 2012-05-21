@@ -2543,7 +2543,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
         proto_tree_add_text(subtree,
                             tvb, offset, 1,
-                            "Information Element Identifier: %d",
+                            "Information Element Identifier: 0x%02X",
                             oct);
 
         offset++;

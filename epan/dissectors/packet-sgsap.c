@@ -1456,7 +1456,7 @@ void proto_register_sgsap(void) {
     },
     { &hf_sgsap_elem_id,
         { "Element ID",    "sgsap.elem_id",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sgsap_eps_location_update_type,

@@ -4839,17 +4839,17 @@ proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_common_elem_id,
         { "Element ID", "nas_eps.common.elem_id",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_elem_id,
         { "Element ID", "nas_eps.emm.elem_id",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
     { &hf_nas_eps_bearer_id,
         { "EPS bearer identity",    "nas_eps.bearer_id",
-        FT_UINT8, BASE_HEX, NULL, 0xf0,
+        FT_UINT8, BASE_DEC, NULL, 0xf0,
         NULL, HFILL }
     },
     { &hf_nas_eps_spare_bits,
@@ -5547,7 +5547,7 @@ proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_esm_elem_id,
         { "Element ID", "nas_eps.esm.elem_id",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_proc_trans_id,

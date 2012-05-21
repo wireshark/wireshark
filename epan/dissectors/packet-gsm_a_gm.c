@@ -6900,7 +6900,7 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_gm_elem_id,
 		  { "Element ID",	"gsm_a_gm.elem_id",
-		    FT_UINT8, BASE_DEC, NULL, 0,
+		    FT_UINT8, BASE_HEX, NULL, 0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_qos_delay_cls,

@@ -6579,7 +6579,7 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_dtap_elem_id,
 		{ "Element ID", "gsm_a_dtap.elem_id",
-		FT_UINT8, BASE_DEC, NULL, 0,
+		FT_UINT8, BASE_HEX, NULL, 0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_cld_party_bcd_num,

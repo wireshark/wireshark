@@ -539,7 +539,7 @@ proto_register_gsm_a_rp(void)
 	},
 	{ &hf_gsm_a_rp_elem_id,
 		{ "Element ID",	"gsm_a_rp.elem_id",
-		FT_UINT8, BASE_DEC, NULL, 0,
+		FT_UINT8, BASE_HEX, NULL, 0,
 		NULL, HFILL }
 	},
 	};

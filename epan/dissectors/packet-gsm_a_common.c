@@ -1519,8 +1519,8 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         other_decode_bitfield_value(buf, oct, 0xf0, 8);
         proto_tree_add_text(subtree,
             tvb, curr_offset, 1,
-            "%s = Element ID",
-            buf);
+            "%s = Element ID: 0x%1x-",
+            buf, oct>>4);
 
         if (elem_funcs[idx] == NULL)
         {
@@ -3462,7 +3462,7 @@ proto_register_gsm_a_common(void)
     {
     { &hf_gsm_a_common_elem_id,
         { "Element ID", "gsm_a_common.elem_id",
-        FT_UINT8, BASE_DEC, NULL, 0,
+        FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
     { &hf_gsm_a_l_ext,
@@ -3627,7 +3627,7 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_L3_protocol_discriminator,
         { "Protocol discriminator", "gsm_a.L3_protocol_discriminator",
-        FT_UINT8, BASE_DEC, VALS(protocol_discriminator_vals), 0x0f,
+        FT_UINT8, BASE_HEX, VALS(protocol_discriminator_vals), 0x0f,
         NULL, HFILL }
     },
     { &hf_gsm_a_call_prio,
