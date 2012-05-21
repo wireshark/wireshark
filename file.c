@@ -1127,11 +1127,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     if (refilter) {
       fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
 
-    /* This frame passed the display filter but it may depend on other
-     * (potentially not displayed) frames.  Find those frames and mark them
-     * as depended upon.
-     */
-      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
+      if (fdata->flags.passed_dfilter) {
+        /* This frame passed the display filter but it may depend on other
+         * (potentially not displayed) frames.  Find those frames and mark them
+         * as depended upon.
+         *
+         * (We don't have to do this if we're not filtering--that is, the
+         * 'else' case below.)
+         */
+        g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
+      }
     }
   } else
     fdata->flags.passed_dfilter = 1;
