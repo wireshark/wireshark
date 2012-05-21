@@ -256,12 +256,12 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			tmp_strinfo.rtp_stats.time = 0;
 			tmp_strinfo.rtp_stats.reg_pt = PT_UNDEFINED;
 
-            /* Get the Setup frame number who set this RTP stream */
-            p_conv_data = p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
-            if (p_conv_data)
+			/* Get the Setup frame number who set this RTP stream */
+			p_conv_data = p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
+			if (p_conv_data)
 				tmp_strinfo.setup_frame_number = p_conv_data->frame_number;
-            else
-                tmp_strinfo.setup_frame_number = 0xFFFFFFFF;
+			else
+				tmp_strinfo.setup_frame_number = 0xFFFFFFFF;
 
 			strinfo = g_malloc(sizeof(rtp_stream_info_t));
 			*strinfo = tmp_strinfo;  /* memberwise copy of struct */
@@ -435,8 +435,8 @@ get_dyn_pt_clock_rate(gchar *payload_type_str)
 
 /****************************************************************************/
 int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
-                              packet_info *pinfo,
-                              const struct _rtp_info *rtpinfo)
+		       packet_info *pinfo,
+		       const struct _rtp_info *rtpinfo)
 {
 	double current_time;
 	double current_jitter;
@@ -593,7 +593,7 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 	}
 
 	/* Can only analyze defined sampling rates */
-    if (clock_rate != 0) {
+	if (clock_rate != 0) {
 		statinfo->clock_rate = clock_rate;
 		/* Convert from sampling clock to ms */
 		nominaltime = nominaltime /(clock_rate/1000);
