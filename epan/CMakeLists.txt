@@ -1087,6 +1087,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-stun.c
 	dissectors/packet-sua.c
 	dissectors/packet-symantec.c
+	dissectors/packet-sync.c
 	dissectors/packet-synergy.c
 	dissectors/packet-synphasor.c
 	dissectors/packet-syslog.c
