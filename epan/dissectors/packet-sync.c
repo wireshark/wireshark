@@ -31,14 +31,10 @@
 
 #include <epan/packet.h>
 
-#define SYNC_PORT 5000
-
 #define TYPE_0_LEN 17
 #define TYPE_1_LEN 11
 #define TYPE_2_LEN 12
 #define TYPE_3_LEN 19
-
-void proto_reg_handoff_sync(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_sync = -1;
@@ -79,10 +75,11 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int         offset = 0;
     tvbuff_t   *next_tvb;
 
-    type = tvb_get_guint8(tvb, offset) >> 4;
+    type  = tvb_get_guint8(tvb, offset) >> 4;
     spare = tvb_get_guint8(tvb, offset) & 0x0F;
 
-    /* Heuristics to check if packet is really MBMS sync
+    /* Heuristics to check if packet is really MBMS sync */
+#if 0
     if ( type > 3 )
         return 0;
 
@@ -96,11 +93,10 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ( (type != 2) && (spare != 0) )
         return 0;
-    */
+#endif
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SYNC");
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo, COL_INFO, "MBMS synchronisation protocol");
+    col_set_str(pinfo->cinfo, COL_INFO, "MBMS synchronisation protocol");
 
     /* Ugly, but necessary to get the correct length for type 3 */
     packet_nr = tvb_get_ntohs(tvb, offset+3);
@@ -118,7 +114,10 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_item(tree, proto_sync, tvb, 0, TYPE_2_LEN + (spare & 0x01 ? 40 : 20), ENC_NA);
                 break;
             case 3:
-                ti = proto_tree_add_item(tree, proto_sync, tvb, 0, TYPE_3_LEN + (gint16)(packet_nr % 2 == 0 ? 1.5*packet_nr : 1.5*(packet_nr-1)+2), ENC_NA);
+                ti = proto_tree_add_item(tree, proto_sync, tvb, 0,
+                                         TYPE_3_LEN + (gint16)(packet_nr % 2 == 0 ?
+                                                               1.5*packet_nr : 1.5*(packet_nr-1)+2),
+                                         ENC_NA);
                 break;
             default:
                 ti = proto_tree_add_item(tree, proto_sync, tvb, 0, -1, ENC_NA);
@@ -135,23 +134,23 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Octet 2 - Time Stamp */
         timestamp = tvb_get_ntohs(tvb, offset) * 10;
         proto_tree_add_string_format(sync_tree, hf_sync_timestamp, tvb, offset, 2, "", "Timestamp: %u ms", timestamp);
-        offset+=2;
+        offset += 2;
 
         /* Octet 4 - Packet Number */
         proto_tree_add_string_format(sync_tree, hf_sync_packet_nr, tvb, offset, 2, "", "Packet Number: %hu", packet_nr+1);
-        offset+=2;
+        offset += 2;
 
         /* Octet 6 - Elapsed Octet Counter */
         proto_tree_add_item(sync_tree, hf_sync_elapsed_octet_ctr, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset+=4;
+        offset += 4;
 
-        switch(type) {
+        switch (type) {
             case 0:
                 /* SYNC PDU Type 0 */
                 proto_tree_add_item(sync_tree, hf_sync_total_nr_of_packet, tvb, offset, 3, ENC_BIG_ENDIAN);
-                offset+=3;
+                offset += 3;
                 proto_tree_add_item(sync_tree, hf_sync_total_nr_of_octet, tvb, offset, 5, ENC_BIG_ENDIAN);
-                offset+=5;
+                offset += 5;
                 proto_tree_add_item(sync_tree, hf_sync_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 break;
@@ -160,7 +159,7 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* XXX - Calculate the CRC and check against this value? */
                 proto_tree_add_item(sync_tree, hf_sync_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sync_tree, hf_sync_payload_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset+=2;
+                offset += 2;
 
                 /* XXX - The payload may not always be present? */
                 next_tvb = tvb_new_subset(tvb, offset, -1, -1);
@@ -175,12 +174,12 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* SYNC PDU Type 3 */
                 total_nr_of_packet = tvb_get_ntoh24(tvb, offset);
                 proto_tree_add_item(sync_tree, hf_sync_total_nr_of_packet, tvb, offset, 3, ENC_BIG_ENDIAN);
-                offset+=3;
+                offset += 3;
                 proto_tree_add_item(sync_tree, hf_sync_total_nr_of_octet, tvb, offset, 5, ENC_BIG_ENDIAN);
-                offset+=5;
+                offset += 5;
                 proto_tree_add_item(sync_tree, hf_sync_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sync_tree, hf_sync_payload_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset+=2;
+                offset += 2;
 
                 if (offset < (gint)tvb_reported_length(tvb)) {
                     int i;
