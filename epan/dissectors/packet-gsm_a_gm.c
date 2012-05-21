@@ -3486,7 +3486,7 @@ de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 	guint8       oct;
 	guint16      val;
 	guint32      curr_offset;
-	const gchar *str;
+	const gchar *str = NULL;
 	proto_tree  *subtree;
 	proto_item  *item = NULL;
 
@@ -3542,7 +3542,7 @@ de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 	guint8       oct;
 	guint16      val;
 	guint32      curr_offset;
-	const gchar *str;
+	const gchar *str = NULL;
 	proto_tree  *subtree;
 	proto_item  *item = NULL;
 
