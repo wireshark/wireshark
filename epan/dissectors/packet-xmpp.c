@@ -412,6 +412,14 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     call_dissector(xml_handle,tvb,pinfo,xmpp_tree);
 
+    /* If XML dissector is disabled, we can't do much */
+    if (!proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(xml_handle))))
+    {
+        col_append_str(pinfo->cinfo, COL_INFO, "(XML dissector disabled, can't dissect XMPP)");
+        expert_add_info_format(pinfo, xmpp_item, PI_UNDECODED, PI_WARN, "XML dissector disabled, can't dissect XMPP");
+        return;
+    }
+
     /*if stream end occurs then return*/
     if(xmpp_stream_close(xmpp_tree,tvb, pinfo))
     {
