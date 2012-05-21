@@ -339,10 +339,10 @@ static int hf_pn_io_channel_properties = -1;
 static int hf_pn_io_channel_properties_type = -1;
 static int hf_pn_io_channel_properties_accumulative = -1;
 static int hf_pn_io_channel_properties_maintenance = -1;
-/* replaced with 2 bit values
+#if 0 /* replaced with 2 bit values */
 static int hf_pn_io_channel_properties_maintenance_required = -1;
 static int hf_pn_io_channel_properties_maintenance_demanded = -1;
-*/
+#endif
 static int hf_pn_io_NumberOfSubframeBlocks = -1;
 static int hf_pn_io_channel_properties_specifier = -1;
 static int hf_pn_io_channel_properties_direction = -1;
@@ -711,22 +711,22 @@ static const value_string pn_io_block_type[] = {
     { 0x0109, "IRInfoBlock"},
     { 0x010A, "SRInfoBlock"},
     { 0x010B, "ARFSUBlock"},
-	{ 0x0110, "IODControlReq Prm End.req"},
-	{ 0x8110, "IODControlRes Prm End.rsp"},
-	{ 0x0111, "IODControlReq Prm End.req"},
-	{ 0x8111, "IODControlRes Prm End.rsp"},
-	{ 0x0112, "IOXBlockReq Application Ready.req"},
-	{ 0x8112, "IOXBlockRes Application Ready.rsp"},
-	{ 0x0113, "IOXBlockReq Application Ready.req"},
-	{ 0x8113, "IOXBlockRes Application Ready.rsp"},
-	{ 0x0114, "IODReleaseReq"},
-	{ 0x8114, "IODReleaseRes"},
+    { 0x0110, "IODControlReq Prm End.req"},
+    { 0x8110, "IODControlRes Prm End.rsp"},
+    { 0x0111, "IODControlReq Prm End.req"},
+    { 0x8111, "IODControlRes Prm End.rsp"},
+    { 0x0112, "IOXBlockReq Application Ready.req"},
+    { 0x8112, "IOXBlockRes Application Ready.rsp"},
+    { 0x0113, "IOXBlockReq Application Ready.req"},
+    { 0x8113, "IOXBlockRes Application Ready.rsp"},
+    { 0x0114, "IODReleaseReq"},
+    { 0x8114, "IODReleaseRes"},
     { 0x0115, "ARRPCServerBlockReq"},
     { 0x8115, "ARRPCServerBlockRes"},
-	{ 0x0116, "IOXControlReq Ready for Companion.req"},
-	{ 0x8116, "IOXControlRes Ready for Companion.rsp"},
-	{ 0x0117, "IOXControlReq Ready for RT_CLASS_3.req"},
-	{ 0x8117, "IOXControlRes Ready for RT_CLASS_3.rsp"},
+    { 0x0116, "IOXControlReq Ready for Companion.req"},
+    { 0x8116, "IOXControlRes Ready for Companion.rsp"},
+    { 0x0117, "IOXControlReq Ready for RT_CLASS_3.req"},
+    { 0x8117, "IOXControlRes Ready for RT_CLASS_3.rsp"},
     { 0x0118, "ControlBlockPrmBegin"},
     { 0x0119, "SubmoduleListBlock"},
     { 0x8118, "ControlBlockPrmBeginRes"},
@@ -2888,12 +2888,12 @@ dissect_ChannelProperties(tvbuff_t *tvb, int offset,
                     hf_pn_io_channel_properties_direction, &u16ChannelProperties);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_specifier, &u16ChannelProperties);
-/* replaced with 2 bit values
+#if 0  /* replaced with 2 bit values */
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_maintenance_demanded, &u16ChannelProperties);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_maintenance_required, &u16ChannelProperties);
-*/
+#endif
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_maintenance, &u16ChannelProperties);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
@@ -3877,7 +3877,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_control_command_ready_for_companion, &u16Command);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_ready_for_rt_class3, &u16Command);
-	/* Prm.Begin */
+    /* Prm.Begin */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_prmbegin, &u16Command);
 
@@ -3929,8 +3929,8 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
     e_uuid_t    ar_uuid;
     guint16     u16SessionKey;
     guint16     u16Command;
-	proto_item *sub_item;
-	proto_tree *sub_tree;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
 
     if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
@@ -3959,7 +3959,7 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
 
     /* ControlCommand */
     sub_item = proto_tree_add_item(tree, hf_pn_io_control_command, tvb, offset, 2, ENC_BIG_ENDIAN);
-	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_command);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_command);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_prmend, &u16Command);
@@ -3973,7 +3973,7 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
                         hf_pn_io_control_command_ready_for_companion, &u16Command);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_ready_for_rt_class3, &u16Command);
-	/* Prm.Begin */
+    /* Prm.Begin */
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_prmbegin, &u16Command);
 
@@ -5838,11 +5838,11 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     guint32 u32Api;
     proto_item *iocr_item;
     proto_tree *iocr_tree;
-	proto_item *ar_item;
+    proto_item *ar_item;
     proto_tree *ar_tree;
     guint32 u32IOCRStart;
     gint32  i32EndOffset;
-	guint32 u32ARDataStart;
+    guint32 u32ARDataStart;
 
     /* added BlockversionLow == 1  */
     if(u8BlockVersionHigh != 1 || u8BlockVersionLow > 1) {
@@ -5856,26 +5856,26 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     /* BlockversionLow:  0 */
     if(u8BlockVersionLow == 0){
     while(u16NumberOfARs--) {
-			ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_BIG_ENDIAN);
-			ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
-			u32ARDataStart = offset;
-			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
+            ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_BIG_ENDIAN);
+            ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
+            u32ARDataStart = offset;
+            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                             hf_pn_io_ar_uuid, &aruuid);
-			proto_item_append_text(ar_item,"ARUUID:%s",guid_to_str((const e_guid_t*) &aruuid));
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            proto_item_append_text(ar_item,"ARUUID:%s",guid_to_str((const e_guid_t*) &aruuid));
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_ar_type, &u16ARType);
-			offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
+            offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                          hf_pn_io_cminitiator_objectuuid, &uuid);
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
         pStationName = ep_alloc(u16NameLength+1);
         tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
         pStationName[u16NameLength] = '\0';
-			proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+            proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
         offset += u16NameLength;
 
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
 
         while(u16NumberOfIOCRs--) {
@@ -5940,95 +5940,95 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
         }
 
         /* AlarmCRType */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_alarmcr_type, &u16AlarmCRType);
         /* LocalAlarmReference */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_localalarmref, &u16LocalAlarmReference);
         /* RemoteAlarmReference */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
         /* ParameterServerObjectUUID */
-			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                             hf_pn_io_parameter_server_objectuuid, &uuid);
         /* StationNameLength */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
         /* ParameterServerStationName */
         pStationName = ep_alloc(u16NameLength+1);
         tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
         pStationName[u16NameLength] = '\0';
-			proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
+            proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
         offset += u16NameLength;
         /* NumberOfAPIs */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_number_of_apis, &u16NumberOfAPIs);
         /* API */
         if (u16NumberOfAPIs > 0){
-				offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep,
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep,
                 hf_pn_io_api, &u32Api);
             }
-			proto_item_set_len(ar_item, offset - u32ARDataStart);
+            proto_item_set_len(ar_item, offset - u32ARDataStart);
         }
     }
     else
     {    /* BlockversionLow == 1 */
         while(u16NumberOfARs--) {
-			ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_NA);
-			ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
-			u32ARDataStart = offset;
+            ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_NA);
+            ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
+            u32ARDataStart = offset;
             /*ARUUID */
-			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_ar_uuid, &aruuid);
-			proto_item_append_text(ar_item,"ARUUID:%s",guid_to_str((const e_guid_t*) &aruuid));
+            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_ar_uuid, &aruuid);
+            proto_item_append_text(ar_item,"ARUUID:%s",guid_to_str((const e_guid_t*) &aruuid));
             /* CMInitiatorObjectUUID */
-			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_objectuuid, &uuid);
+            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_objectuuid, &uuid);
             /* ParameterServerObjectUUID */
-			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_parameter_server_objectuuid, &uuid);
+            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_parameter_server_objectuuid, &uuid);
             /* ARProperties*/
-			offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
+            offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
             /* ARType*/
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_ar_type, &u16ARType);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_ar_type, &u16ARType);
             /* AlarmCRType */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_alarmcr_type, &u16AlarmCRType);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_alarmcr_type, &u16AlarmCRType);
             /* LocalAlarmReference */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_localalarmref, &u16LocalAlarmReference);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_localalarmref, &u16LocalAlarmReference);
             /* RemoteAlarmReference */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
             /* InitiatorUDPRTPort*/
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
             /* ResponderUDPRTPort*/
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
             /* CMInitiatorStationName*/
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
             pStationName = ep_alloc(u16NameLength+1);
             tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
             pStationName[u16NameLength] = '\0';
-			proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+            proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
             offset += u16NameLength;
             /** align padding! **/
-			offset = dissect_pn_align4(tvb, offset, pinfo, ar_tree);
+            offset = dissect_pn_align4(tvb, offset, pinfo, ar_tree);
 
             /* StationNameLength */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
             if(u16NameLength != 0){
                 /* ParameterServerStationName */
                 pStationName = ep_alloc(u16NameLength+1);
                 tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
                 pStationName[u16NameLength] = '\0';
-				proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
+                proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
                 offset += u16NameLength;
             }
-			else
-			{ /* display no name present */
-				proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, " <no ParameterServerStationName present>");
-			}
+            else
+            { /* display no name present */
+                proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, " <no ParameterServerStationName present>");
+            }
             /** align padding! **/
-			offset = dissect_pn_align4(tvb, offset, pinfo, ar_tree);
+            offset = dissect_pn_align4(tvb, offset, pinfo, ar_tree);
 
             /* NumberOfIOCRs*/
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
             /* align to next 32 bit */
-			offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
+            offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
 
             while(u16NumberOfIOCRs--) {
                 iocr_item = proto_tree_add_item(ar_tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
@@ -6081,26 +6081,26 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                         "TransferStatus: 0x%02x (OK)", u8TransferStatus);
                 }
                 offset++;
-				proto_item_set_len(iocr_item, offset - u32IOCRStart);
+                proto_item_set_len(iocr_item, offset - u32IOCRStart);
             }
             /* NumberOfAPIs */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_number_of_apis, &u16NumberOfAPIs);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_number_of_apis, &u16NumberOfAPIs);
             /* align to next 32 bit */
-			offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
+            offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
             /* API */
             if (u16NumberOfAPIs > 0){
-				offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_api, &u32Api);
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_api, &u32Api);
             }
             /* get the number of subblocks an dissect them */
-			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_number_of_ARDATAInfo, &u16NumberofEntries);
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_number_of_ARDATAInfo, &u16NumberofEntries);
 
-			offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
+            offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
 
             while ((offset < i32EndOffset) && (u16NumberofEntries > 0)){
-				offset = dissect_a_block(tvb, offset, pinfo, ar_tree, drep);
+                offset = dissect_a_block(tvb, offset, pinfo, ar_tree, drep);
                 u16NumberofEntries--;
             }
-			proto_item_set_len(ar_item, offset - u32ARDataStart);
+            proto_item_set_len(ar_item, offset - u32ARDataStart);
         }
     }
     return offset;
@@ -8994,13 +8994,13 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
 
 /* the PNIO dcerpc interface table */
 static dcerpc_sub_dissector pn_io_dissectors[] = {
-{ 0, "Connect", dissect_IPNIO_rqst, dissect_IPNIO_resp },
-{ 1, "Release", dissect_IPNIO_rqst, dissect_IPNIO_resp },
-{ 2, "Read",    dissect_IPNIO_rqst,    dissect_IPNIO_Read_resp },
-{ 3, "Write",   dissect_IPNIO_Write_rqst,   dissect_IPNIO_Write_resp },
-{ 4, "Control", dissect_IPNIO_rqst, dissect_IPNIO_resp },
-{ 5, "Read Implicit",    dissect_IPNIO_rqst,    dissect_IPNIO_Read_resp },
-    { 0, NULL, NULL, NULL }
+{ 0, "Connect",       dissect_IPNIO_rqst, dissect_IPNIO_resp },
+{ 1, "Release",       dissect_IPNIO_rqst, dissect_IPNIO_resp },
+{ 2, "Read",          dissect_IPNIO_rqst,    dissect_IPNIO_Read_resp },
+{ 3, "Write",         dissect_IPNIO_Write_rqst,   dissect_IPNIO_Write_resp },
+{ 4, "Control",       dissect_IPNIO_rqst, dissect_IPNIO_resp },
+{ 5, "Read Implicit", dissect_IPNIO_rqst,    dissect_IPNIO_Read_resp },
+{ 0, NULL, NULL, NULL }
 };
 
 
@@ -9014,995 +9014,2363 @@ proto_register_pn_io (void)
 {
     static hf_register_info hf[] = {
     { &hf_pn_io_opnum,
-        { "Operation", "pn_io.opnum", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Operation", "pn_io.opnum",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_reserved16,
-        { "Reserved", "pn_io.reserved16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "Reserved", "pn_io.reserved16",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_array,
-        { "Array", "pn_io.array", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Array", "pn_io.array",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_status,
-        { "Status", "pn_io.status", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Status", "pn_io.status",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_args_max,
-        { "ArgsMaximum", "pn_io.args_max", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ArgsMaximum", "pn_io.args_max",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_args_len,
-        { "ArgsLength", "pn_io.args_len", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ArgsLength", "pn_io.args_len",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_array_max_count,
-        { "MaximumCount", "pn_io.array_max_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "MaximumCount", "pn_io.array_max_count",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_array_offset,
-        { "Offset", "pn_io.array_offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Offset", "pn_io.array_offset",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_array_act_count,
-        { "ActualCount", "pn_io.array_act_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ActualCount", "pn_io.array_act_count",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
-	{ &hf_pn_io_ar_data,
-	{ "ARDATA for AR:", "pn_io.ar_data", FT_NONE, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
+    { &hf_pn_io_ar_data,
+      { "ARDATA for AR:", "pn_io.ar_data",
+        FT_NONE, BASE_NONE, 0x0, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_type,
-    { "ARType", "pn_io.ar_type", FT_UINT16, BASE_HEX, VALS(pn_io_ar_type), 0x0, NULL, HFILL }},
+      { "ARType", "pn_io.ar_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ar_type), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_cminitiator_macadd,
-      { "CMInitiatorMacAdd", "pn_io.cminitiator_mac_add", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
+      { "CMInitiatorMacAdd", "pn_io.cminitiator_mac_add",
+        FT_ETHER, BASE_NONE, 0x0, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_cminitiator_objectuuid,
-      { "CMInitiatorObjectUUID", "pn_io.cminitiator_uuid", FT_GUID, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
+      { "CMInitiatorObjectUUID", "pn_io.cminitiator_uuid",
+        FT_GUID, BASE_NONE, 0x0, 0x0,
+        NULL, HFILL }
+    },
         { &hf_pn_io_parameter_server_objectuuid,
-      { "ParameterServerObjectUUID", "pn_io.parameter_server_objectuuid", FT_GUID, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
+          { "ParameterServerObjectUUID", "pn_io.parameter_server_objectuuid",
+            FT_GUID, BASE_NONE, 0x0, 0x0,
+            NULL, HFILL }
+        },
     { &hf_pn_io_ar_properties,
-        { "ARProperties", "pn_io.ar_properties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ARProperties", "pn_io.ar_properties",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_properties_state,
-        { "State", "pn_io.ar_properties.state", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_state), 0x00000007, NULL, HFILL }},
+      { "State", "pn_io.ar_properties.state",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_state), 0x00000007,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_properties_supervisor_takeover_allowed,
-        { "SupervisorTakeoverAllowed", "pn_io.ar_properties.supervisor_takeover_allowed", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_supervisor_takeover_allowed), 0x00000008, NULL, HFILL }},
+      { "SupervisorTakeoverAllowed", "pn_io.ar_properties.supervisor_takeover_allowed",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_supervisor_takeover_allowed), 0x00000008,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_properties_parametrization_server,
-        { "ParametrizationServer", "pn_io.ar_properties.parametrization_server", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_parametrization_server), 0x00000010, NULL, HFILL }},
+      { "ParametrizationServer", "pn_io.ar_properties.parametrization_server",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_parametrization_server), 0x00000010,
+        NULL, HFILL }
+    },
 /*removed with 2.3
     { &hf_pn_io_ar_properties_data_rate,
-        { "DataRate", "pn_io.ar_properties.data_rate", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_data_rate), 0x00000060, NULL, HFILL }},
+    { "DataRate", "pn_io.ar_properties.data_rate",
+    FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_data_rate), 0x00000060,
+    NULL, HFILL }
+    },
 */
     { &hf_pn_io_ar_properties_reserved_1,
-        { "Reserved_1", "pn_io.ar_properties.reserved_1", FT_UINT32, BASE_HEX, NULL, 0x000000E0, NULL, HFILL }},
+      { "Reserved_1", "pn_io.ar_properties.reserved_1",
+        FT_UINT32, BASE_HEX, NULL, 0x000000E0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_properties_device_access,
-        { "DeviceAccess", "pn_io.ar_properties.device_access", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_DeviceAccess), 0x00000100, NULL, HFILL }},
+      { "DeviceAccess", "pn_io.ar_properties.device_access",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_DeviceAccess), 0x00000100,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_properties_companion_ar,
-        { "CompanionAR", "pn_io.ar_properties.companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_companion_ar), 0x00000600, NULL, HFILL }},
+      { "CompanionAR", "pn_io.ar_properties.companion_ar",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_companion_ar), 0x00000600,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_properties_achnowledge_companion_ar,
-        { "AcknowledgeCompanionAR", "pn_io.ar_properties.acknowledge_companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_acknowldege_companion_ar), 0x00000800, NULL, HFILL }},
+      { "AcknowledgeCompanionAR", "pn_io.ar_properties.acknowledge_companion_ar",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_acknowldege_companion_ar), 0x00000800,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_arproperties_StartupMode,
-        { "StartupMode", "pn_io.ar_properties.StartupMode", FT_UINT32, BASE_HEX, VALS(pn_io_arpropertiesStartupMode), 0x40000000, NULL, HFILL }},
+      { "StartupMode", "pn_io.ar_properties.StartupMode",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arpropertiesStartupMode), 0x40000000,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_ar_properties_reserved,
-        { "Reserved", "pn_io.ar_properties.reserved", FT_UINT32, BASE_HEX, NULL, 0x3FFFF000, NULL, HFILL }},
+      { "Reserved", "pn_io.ar_properties.reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x3FFFF000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ar_properties_pull_module_alarm_allowed,
-        { "PullModuleAlarmAllowed", "pn_io.ar_properties.pull_module_alarm_allowed", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_pull_module_alarm_allowed), 0x80000000, NULL, HFILL }},
+      { "PullModuleAlarmAllowed", "pn_io.ar_properties.pull_module_alarm_allowed",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_pull_module_alarm_allowed), 0x80000000,
+        NULL, HFILL }
+    },
 
     { &hf_pn_RedundancyInfo,
-        { "RedundancyInfo.EndPoint", "pn_io.srl_data.redundancyInfo", FT_UINT16, BASE_HEX, VALS(pn_io_RedundancyInfo), 0x0000003, NULL, HFILL }},
+      { "RedundancyInfo.EndPoint", "pn_io.srl_data.redundancyInfo",
+        FT_UINT16, BASE_HEX, VALS(pn_io_RedundancyInfo), 0x0000003,
+        NULL, HFILL }
+    },
     { &hf_pn_RedundancyInfo_reserved,
-        { "RedundancyInfo.reserved", "pn_io.srl_data.redundancyInfoReserved", FT_UINT16, BASE_HEX, NULL, 0xFFFFFFFC, NULL, HFILL }},
+      { "RedundancyInfo.reserved", "pn_io.srl_data.redundancyInfoReserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFFFFFFC,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_ARDATAInfo,
-    { "ARDataInfo.NumberOfEntries", "pn_io.number_of_ARDATAInfo", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ARDataInfo.NumberOfEntries", "pn_io.number_of_ARDATAInfo",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_cminitiator_activitytimeoutfactor,
-        { "CMInitiatorActivityTimeoutFactor", "pn_io.cminitiator_activitytimeoutfactor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
+      { "CMInitiatorActivityTimeoutFactor", "pn_io.cminitiator_activitytimeoutfactor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - special values */
     { &hf_pn_io_cminitiator_udprtport,
-        { "CMInitiatorUDPRTPort", "pn_io.cminitiator_udprtport", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
+      { "CMInitiatorUDPRTPort", "pn_io.cminitiator_udprtport",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - special values */
     { &hf_pn_io_station_name_length,
-        { "StationNameLength", "pn_io.station_name_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "StationNameLength", "pn_io.station_name_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_cminitiator_station_name,
-        { "CMInitiatorStationName", "pn_io.cminitiator_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "CMInitiatorStationName", "pn_io.cminitiator_station_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_responder_station_name,
-        { "CMResponderrStationName", "pn_io.cmresponder_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "CMResponderrStationName", "pn_io.cmresponder_station_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_parameter_server_station_name,
-        { "ParameterServerStationName", "pn_io.parameter_server_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "ParameterServerStationName", "pn_io.parameter_server_station_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_cmresponder_macadd,
-      { "CMResponderMacAdd", "pn_io.cmresponder_macadd", FT_ETHER, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
+      { "CMResponderMacAdd", "pn_io.cmresponder_macadd",
+        FT_ETHER, BASE_NONE, 0x0, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_cmresponder_udprtport,
-        { "CMResponderUDPRTPort", "pn_io.cmresponder_udprtport", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
+      { "CMResponderUDPRTPort", "pn_io.cmresponder_udprtport",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - special values */
 
     { &hf_pn_io_number_of_iocrs,
-    { "NumberOfIOCRs", "pn_io.number_of_iocrs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfIOCRs", "pn_io.number_of_iocrs",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_tree,
-    { "IOCR", "pn_io.iocr_tree", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IOCR", "pn_io.iocr_tree",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_type,
-    { "IOCRType", "pn_io.iocr_type", FT_UINT16, BASE_HEX, VALS(pn_io_iocr_type), 0x0, NULL, HFILL }},
+      { "IOCRType", "pn_io.iocr_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_iocr_type), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_reference,
-    { "IOCRReference", "pn_io.iocr_reference", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IOCRReference", "pn_io.iocr_reference",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_txports_port,
-    { "IOCRTxPorts.Port", "pn_io.iocr_txports_port", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "IOCRTxPorts.Port", "pn_io.iocr_txports_port",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_txports_redundantport,
-    { "IOCRTxPorts.RedundantPort", "pn_io.iocr_txports_redundantport", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "IOCRTxPorts.RedundantPort", "pn_io.iocr_txports_redundantport",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_iocr_SubframeOffset,
-    { "SubframeOffset", "pn_io.subframe_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "SubframeOffset", "pn_io.subframe_offset",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_SubframeData,
-    { "SubframeData", "pn_io.subframe_data", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SubframeData", "pn_io.subframe_data",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_RedundancyDataHoldFactor,
-    { "RedundancyDataHoldFactor", "pn_io.RedundancyDataHoldFactor", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "RedundancyDataHoldFactor", "pn_io.RedundancyDataHoldFactor",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_sr_properties,
-    { "SRProperties", "pn_io.sr_properties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SRProperties", "pn_io.sr_properties",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_sr_properties_InputValidOnBackupAR,
-    { "InputValidOnBackupAR", "pn_io.sr_properties.InputValidOnBackupAR", FT_UINT32, BASE_HEX, VALS(pn_io_sr_properties_BackupAR), 0x01, NULL, HFILL }},
+      { "InputValidOnBackupAR", "pn_io.sr_properties.InputValidOnBackupAR",
+        FT_UINT32, BASE_HEX, VALS(pn_io_sr_properties_BackupAR), 0x01,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sr_properties_ActivateRedundancyAlarm,
-    { "ActivateRedundancyAlarm", "pn_io.sr_properties.ActivateRedundancyAlarm", FT_UINT32, BASE_HEX,  VALS(pn_io_sr_properties_ActivateRedundancyAlarm), 0x02, NULL, HFILL }},
+      { "ActivateRedundancyAlarm", "pn_io.sr_properties.ActivateRedundancyAlarm",
+        FT_UINT32, BASE_HEX, VALS(pn_io_sr_properties_ActivateRedundancyAlarm), 0x02,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sr_properties_Reserved_1,
-    { "Reserved_1", "pn_io.sr_properties.Reserved_1", FT_UINT32, BASE_HEX, NULL, 0x0FFFC, NULL, HFILL }},
+      { "Reserved_1", "pn_io.sr_properties.Reserved_1",
+        FT_UINT32, BASE_HEX, NULL, 0x0FFFC,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sr_properties_Reserved_2,
-    { "Reserved_2", "pn_io.sr_properties.Reserved_2", FT_UINT32, BASE_HEX, NULL, 0x0FFFF0000, NULL, HFILL }},
+      { "Reserved_2", "pn_io.sr_properties.Reserved_2",
+        FT_UINT32, BASE_HEX, NULL, 0x0FFFF0000,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_lt,
-    { "LT", "pn_io.lt", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "LT", "pn_io.lt",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_iocr_properties,
-    { "IOCRProperties", "pn_io.iocr_properties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IOCRProperties", "pn_io.iocr_properties",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_rtclass,
-    { "RTClass", "pn_io.iocr_properties.rtclass", FT_UINT32, BASE_HEX, VALS(pn_io_iocr_properties_rtclass), 0x0000000F, NULL, HFILL }},
+      { "RTClass", "pn_io.iocr_properties.rtclass",
+        FT_UINT32, BASE_HEX, VALS(pn_io_iocr_properties_rtclass), 0x0000000F,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_reserved_1,
-    { "Reserved1", "pn_io.iocr_properties.reserved1", FT_UINT32, BASE_HEX, NULL, 0x000007F0, NULL, HFILL }},
+      { "Reserved1", "pn_io.iocr_properties.reserved1",
+        FT_UINT32, BASE_HEX, NULL, 0x000007F0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_media_redundancy,
-    { "MediaRedundancy", "pn_io.iocr_properties.media_redundancy", FT_UINT32, BASE_HEX, VALS(pn_io_iocr_properties_media_redundancy), 0x00000800, NULL, HFILL }},
+      { "MediaRedundancy", "pn_io.iocr_properties.media_redundancy",
+        FT_UINT32, BASE_HEX, VALS(pn_io_iocr_properties_media_redundancy), 0x00000800,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_reserved_2,
-    { "Reserved2", "pn_io.iocr_properties.reserved2", FT_UINT32, BASE_HEX, NULL, 0x00FFF000, NULL, HFILL }},
+      { "Reserved2", "pn_io.iocr_properties.reserved2",
+        FT_UINT32, BASE_HEX, NULL, 0x00FFF000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_reserved_3,
-    { "Reserved3", "pn_io.iocr_properties.reserved3", FT_UINT32, BASE_HEX, NULL, 0x1F000000, NULL, HFILL }},
+      { "Reserved3", "pn_io.iocr_properties.reserved3",
+        FT_UINT32, BASE_HEX, NULL, 0x1F000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_fast_forwarding_mac_adr,
-    { "FastForwardingMACAdr", "pn_io.iocr_properties.fast_forwarding_mac_adr", FT_UINT32, BASE_HEX, NULL, 0x20000000, NULL, HFILL }},
+      { "FastForwardingMACAdr", "pn_io.iocr_properties.fast_forwarding_mac_adr",
+        FT_UINT32, BASE_HEX, NULL, 0x20000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_distributed_subframe_watchdog,
-    { "DistributedSubFrameWatchDog", "pn_io.iocr_properties.distributed_subframe_watchdog", FT_UINT32, BASE_HEX, NULL, 0x40000000, NULL, HFILL }},
+      { "DistributedSubFrameWatchDog", "pn_io.iocr_properties.distributed_subframe_watchdog",
+        FT_UINT32, BASE_HEX, NULL, 0x40000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_properties_full_subframe_structure,
-    { "FullSubFrameStructure", "pn_io.iocr_properties.full_subframe_structure", FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL }},
+      { "FullSubFrameStructure", "pn_io.iocr_properties.full_subframe_structure",
+        FT_UINT32, BASE_HEX, NULL, 0x80000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_SFIOCRProperties,
-      { "SFIOCRProperties", "pn_io.SFIOCRProperties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SFIOCRProperties", "pn_io.SFIOCRProperties",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_DistributedWatchDogFactor,
-      { "SFIOCRProperties.DistributedWatchDogFactor", "pn_io.SFIOCRProperties.DistributedWatchDogFactor", FT_UINT32, BASE_HEX, NULL, 0x0FF, NULL, HFILL }},
+      { "SFIOCRProperties.DistributedWatchDogFactor", "pn_io.SFIOCRProperties.DistributedWatchDogFactor",
+        FT_UINT32, BASE_HEX, NULL, 0x0FF,
+        NULL, HFILL }
+    },
     { &hf_pn_io_RestartFactorForDistributedWD,
-      { "SFIOCRProperties.RestartFactorForDistributedWD", "pn_io.SFIOCRProperties.RestartFactorForDistributedWD", FT_UINT32, BASE_HEX, NULL, 0xff00, NULL, HFILL }},
+      { "SFIOCRProperties.RestartFactorForDistributedWD", "pn_io.SFIOCRProperties.RestartFactorForDistributedWD",
+        FT_UINT32, BASE_HEX, NULL, 0xff00,
+        NULL, HFILL }
+    },
     { &hf_pn_io_SFIOCRProperties_DFPmode,
-      { "SFIOCRProperties.DFPmode", "pn_io.SFIOCRProperties.DFPmode", FT_UINT32, BASE_HEX, NULL, 0xFF0000, NULL, HFILL }},
+      { "SFIOCRProperties.DFPmode", "pn_io.SFIOCRProperties.DFPmode",
+        FT_UINT32, BASE_HEX, NULL, 0xFF0000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_SFIOCRProperties_reserved_1,
-      { "SFIOCRProperties.reserved_1", "pn_io.SFIOCRProperties.reserved_1", FT_UINT32, BASE_HEX, NULL, 0x0F000000, NULL, HFILL }},
+      { "SFIOCRProperties.reserved_1", "pn_io.SFIOCRProperties.reserved_1",
+        FT_UINT32, BASE_HEX, NULL, 0x0F000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_SFIOCRProperties_reserved_2,
-      { "SFIOCRProperties.reserved_2", "pn_io.SFIOCRProperties.reserved_2", FT_UINT32, BASE_HEX, NULL, 0x030000000, NULL, HFILL }},
+      { "SFIOCRProperties.reserved_2", "pn_io.SFIOCRProperties.reserved_2",
+        FT_UINT32, BASE_HEX, NULL, 0x030000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_SFIOCRProperties_DFPRedundantPathLayout,
-      { "SFIOCRProperties.DFPRedundantPathLayout", "pn_io.SFIOCRProperties.DFPRedundantPathLayout", FT_UINT32, BASE_HEX, VALS(pn_io_DFPRedundantPathLayout_decode), 0x040000000, NULL, HFILL }},
+      { "SFIOCRProperties.DFPRedundantPathLayout", "pn_io.SFIOCRProperties.DFPRedundantPathLayout",
+        FT_UINT32, BASE_HEX, VALS(pn_io_DFPRedundantPathLayout_decode), 0x040000000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_SFIOCRProperties_SFCRC16,
-      { "SFIOCRProperties.SFCRC16", "pn_io.SFIOCRProperties.SFCRC16", FT_UINT32, BASE_HEX, VALS(pn_io_SFCRC16_Decode), 0x080000000, NULL, HFILL }},
+      { "SFIOCRProperties.SFCRC16", "pn_io.SFIOCRProperties.SFCRC16",
+        FT_UINT32, BASE_HEX, VALS(pn_io_SFCRC16_Decode), 0x080000000,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_data_length,
-      { "DataLength", "pn_io.data_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "DataLength", "pn_io.data_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ir_frame_data,
-      { "Frame data", "pn_io.ir_frame_data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Frame data", "pn_io.ir_frame_data",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_frame_id,
-      { "FrameID", "pn_io.frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "FrameID", "pn_io.frame_id",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_send_clock_factor,
-      { "SendClockFactor", "pn_io.send_clock_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, /* XXX - special values */
+      { "SendClockFactor", "pn_io.send_clock_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    }, /* XXX - special values */
     { &hf_pn_io_reduction_ratio,
-      { "ReductionRatio", "pn_io.reduction_ratio", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }}, /* XXX - special values */
+      { "ReductionRatio", "pn_io.reduction_ratio",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    }, /* XXX - special values */
     { &hf_pn_io_phase,
-      { "Phase", "pn_io.phase", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Phase", "pn_io.phase",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sequence,
-      { "Sequence", "pn_io.sequence", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Sequence", "pn_io.sequence",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_frame_send_offset,
-      { "FrameSendOffset", "pn_io.frame_send_offset", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "FrameSendOffset", "pn_io.frame_send_offset",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_frame_data_properties,
-      { "FrameDataProperties", "pn_io.frame_data_properties", FT_UINT32, BASE_HEX, VALS(pn_io_frame_data_properties), 0x0, NULL, HFILL }},
+      { "FrameDataProperties", "pn_io.frame_data_properties",
+        FT_UINT32, BASE_HEX, VALS(pn_io_frame_data_properties), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_watchdog_factor,
-      { "WatchdogFactor", "pn_io.watchdog_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "WatchdogFactor", "pn_io.watchdog_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_hold_factor,
-      { "DataHoldFactor", "pn_io.data_hold_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "DataHoldFactor", "pn_io.data_hold_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_tag_header,
-      { "IOCRTagHeader", "pn_io.iocr_tag_header", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IOCRTagHeader", "pn_io.iocr_tag_header",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocr_multicast_mac_add,
-      { "IOCRMulticastMACAdd", "pn_io.iocr_multicast_mac_add", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IOCRMulticastMACAdd", "pn_io.iocr_multicast_mac_add",
+        FT_ETHER, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_apis,
-      { "NumberOfAPIs", "pn_io.number_of_apis", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfAPIs", "pn_io.number_of_apis",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_io_data_objects,
-      { "NumberOfIODataObjects", "pn_io.number_of_io_data_objects", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfIODataObjects", "pn_io.number_of_io_data_objects",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_io_data_object_frame_offset,
-      { "IODataObjectFrameOffset", "pn_io.io_data_object_frame_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "IODataObjectFrameOffset", "pn_io.io_data_object_frame_offset",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_iocs,
-      { "NumberOfIOCS", "pn_io.number_of_iocs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfIOCS", "pn_io.number_of_iocs",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iocs_frame_offset,
-      { "IOCSFrameOffset", "pn_io.iocs_frame_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "IOCSFrameOffset", "pn_io.iocs_frame_offset",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_alarmcr_type,
-    { "AlarmCRType", "pn_io.alarmcr_type", FT_UINT16, BASE_HEX, VALS(pn_io_alarmcr_type), 0x0, NULL, HFILL }},
+      { "AlarmCRType", "pn_io.alarmcr_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_alarmcr_type), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_alarmcr_properties,
-    { "AlarmCRProperties", "pn_io.alarmcr_properties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "AlarmCRProperties", "pn_io.alarmcr_properties",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarmcr_properties_priority,
-    { "priority", "pn_io.alarmcr_properties.priority", FT_UINT32, BASE_HEX, VALS(pn_io_alarmcr_properties_priority), 0x00000001, NULL, HFILL }},
+      { "priority", "pn_io.alarmcr_properties.priority",
+        FT_UINT32, BASE_HEX, VALS(pn_io_alarmcr_properties_priority), 0x00000001,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarmcr_properties_transport,
-    { "Transport", "pn_io.alarmcr_properties.transport", FT_UINT32, BASE_HEX, VALS(pn_io_alarmcr_properties_transport), 0x00000002, NULL, HFILL }},
+      { "Transport", "pn_io.alarmcr_properties.transport",
+        FT_UINT32, BASE_HEX, VALS(pn_io_alarmcr_properties_transport), 0x00000002,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarmcr_properties_reserved,
-    { "Reserved", "pn_io.alarmcr_properties.reserved", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFC, NULL, HFILL }},
+      { "Reserved", "pn_io.alarmcr_properties.reserved",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFC,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_rta_timeoutfactor,
-        { "RTATimeoutFactor", "pn_io.rta_timeoutfactor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
+      { "RTATimeoutFactor", "pn_io.rta_timeoutfactor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - special values */
     { &hf_pn_io_rta_retries,
-        { "RTARetries", "pn_io.rta_retries", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},  /* XXX - only values 3 - 15 allowed */
+      { "RTARetries", "pn_io.rta_retries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - only values 3 - 15 allowed */
     { &hf_pn_io_localalarmref,
-        { "LocalAlarmReference", "pn_io.localalarmref", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
+      { "LocalAlarmReference", "pn_io.localalarmref",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - special values */
     { &hf_pn_io_remotealarmref,
-        { "RemoteAlarmReference", "pn_io.remotealarmref", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
+      { "RemoteAlarmReference", "pn_io.remotealarmref",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - special values */
     { &hf_pn_io_maxalarmdatalength,
-        { "MaxAlarmDataLength", "pn_io.maxalarmdatalength", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},  /* XXX - only values 200 - 1432 allowed */
+      { "MaxAlarmDataLength", "pn_io.maxalarmdatalength",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - only values 200 - 1432 allowed */
     { &hf_pn_io_alarmcr_tagheaderhigh,
-        { "AlarmCRTagHeaderHigh", "pn_io.alarmcr_tagheaderhigh", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},  /* XXX - 16 bitfield! */
+      { "AlarmCRTagHeaderHigh", "pn_io.alarmcr_tagheaderhigh",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - 16 bitfield! */
     { &hf_pn_io_alarmcr_tagheaderlow,
-        { "AlarmCRTagHeaderLow", "pn_io.alarmcr_tagheaderlow", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},  /* XXX - 16 bitfield!*/
+      { "AlarmCRTagHeaderLow", "pn_io.alarmcr_tagheaderlow",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },  /* XXX - 16 bitfield!*/
 
     { &hf_pn_io_api_tree,
-      { "API", "pn_io.api", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "API", "pn_io.api",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_module_tree,
-      { "Module", "pn_io.module", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Module", "pn_io.module",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_tree,
-      { "Submodule", "pn_io.submodule", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Submodule", "pn_io.submodule",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_io_data_object,
-      { "IODataObject", "pn_io.io_data_object", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IODataObject", "pn_io.io_data_object",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_io_cs,
-      { "IOCS", "pn_io.io_cs", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IOCS", "pn_io.io_cs",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_substitutionmode,
-      { "Substitutionmode", "pn_io.substitutionmode", FT_UINT16, BASE_HEX, VALS(pn_io_substitutionmode), 0x0, NULL, HFILL }},
+      { "Substitutionmode", "pn_io.substitutionmode",
+        FT_UINT16, BASE_HEX, VALS(pn_io_substitutionmode), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_IRData_uuid,
-      { "IRDataUUID", "pn_io.IRData_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IRDataUUID", "pn_io.IRData_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_ar_uuid,
-      { "ARUUID", "pn_io.ar_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "ARUUID", "pn_io.ar_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_target_ar_uuid,
-      { "TargetARUUID", "pn_io.target_ar_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "TargetARUUID", "pn_io.target_ar_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_api,
-      { "API", "pn_io.api", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "API", "pn_io.api",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_slot_nr,
-      { "SlotNumber", "pn_io.slot_nr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SlotNumber", "pn_io.slot_nr",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_subslot_nr,
-      { "SubslotNumber", "pn_io.subslot_nr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SubslotNumber", "pn_io.subslot_nr",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_index,
-      { "Index", "pn_io.index", FT_UINT16, BASE_HEX, VALS(pn_io_index), 0x0, NULL, HFILL }},
+      { "Index", "pn_io.index",
+        FT_UINT16, BASE_HEX, VALS(pn_io_index), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_seq_number,
-      { "SeqNumber", "pn_io.seq_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "SeqNumber", "pn_io.seq_number",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_record_data_length,
-      { "RecordDataLength", "pn_io.record_data_length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "RecordDataLength", "pn_io.record_data_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_add_val1,
-      { "AdditionalValue1", "pn_io.add_val1", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "AdditionalValue1", "pn_io.add_val1",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_add_val2,
-      { "AdditionalValue2", "pn_io.add_val2", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "AdditionalValue2", "pn_io.add_val2",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_block_header,
-      { "BlockHeader", "pn_io.block_header", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "BlockHeader", "pn_io.block_header",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_block_type,
-      { "BlockType", "pn_io.block_type", FT_UINT16, BASE_HEX, VALS(pn_io_block_type), 0x0, NULL, HFILL }},
+      { "BlockType", "pn_io.block_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_block_type), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_block_length,
-      { "BlockLength", "pn_io.block_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "BlockLength", "pn_io.block_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_block_version_high,
-      { "BlockVersionHigh", "pn_io.block_version_high", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "BlockVersionHigh", "pn_io.block_version_high",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_block_version_low,
-      { "BlockVersionLow", "pn_io.block_version_low", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "BlockVersionLow", "pn_io.block_version_low",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sessionkey,
-      { "SessionKey", "pn_io.session_key", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "SessionKey", "pn_io.session_key",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command,
-      { "ControlCommand", "pn_io.control_command", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ControlCommand", "pn_io.control_command",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_control_command_reserved,
-      { "ControlBlockProperties.reserved", "pn_io.control_properties_reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ControlBlockProperties.reserved", "pn_io.control_properties_reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_prmend,
-      { "PrmEnd", "pn_io.control_command.prmend", FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL }},
+      { "PrmEnd", "pn_io.control_command.prmend",
+        FT_UINT16, BASE_DEC, NULL, 0x0001,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_applready,
-      { "ApplicationReady", "pn_io.control_command.applready", FT_UINT16, BASE_DEC, NULL, 0x0002, NULL, HFILL }},
+      { "ApplicationReady", "pn_io.control_command.applready",
+        FT_UINT16, BASE_DEC, NULL, 0x0002,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_release,
-      { "Release", "pn_io.control_command.release", FT_UINT16, BASE_DEC, NULL, 0x0004, NULL, HFILL }},
+      { "Release", "pn_io.control_command.release",
+        FT_UINT16, BASE_DEC, NULL, 0x0004,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_done,
-      { "Done", "pn_io.control_command.done", FT_UINT16, BASE_DEC, NULL, 0x0008, NULL, HFILL }},
+      { "Done", "pn_io.control_command.done",
+        FT_UINT16, BASE_DEC, NULL, 0x0008,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_ready_for_companion,
-      { "ReadyForCompanion", "pn_io.control_command.ready_for_companion", FT_UINT16, BASE_DEC, NULL, 0x0010, NULL, HFILL }},
+      { "ReadyForCompanion", "pn_io.control_command.ready_for_companion",
+        FT_UINT16, BASE_DEC, NULL, 0x0010,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_ready_for_rt_class3,
-      { "ReadyForRT Class 3", "pn_io.control_command.ready_for_rt_class3", FT_UINT16, BASE_DEC, NULL, 0x0020, NULL, HFILL }},
+      { "ReadyForRT Class 3", "pn_io.control_command.ready_for_rt_class3",
+        FT_UINT16, BASE_DEC, NULL, 0x0020,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_prmbegin,
-      { "PrmBegin", "pn_io.control_command.prmbegin", FT_UINT16,BASE_DEC, VALS(pn_io_control_properties_prmbegin_vals), 0x0040, NULL, HFILL }},
+      { "PrmBegin", "pn_io.control_command.prmbegin",
+        FT_UINT16, BASE_DEC, VALS(pn_io_control_properties_prmbegin_vals), 0x0040,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_command_reserved_7_15,
-      { "ControlBlockProperties.reserved", "pn_io.control_properties_reserved_7_15", FT_UINT16, BASE_HEX, NULL, 0x0FF80, NULL, HFILL }},
+      { "ControlBlockProperties.reserved", "pn_io.control_properties_reserved_7_15",
+        FT_UINT16, BASE_HEX, NULL, 0x0FF80,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_control_block_properties,
-      { "ControlBlockProperties", "pn_io.control_block_properties", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_vals), 0x0, NULL, HFILL }},
+      { "ControlBlockProperties", "pn_io.control_block_properties",
+        FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_block_properties_applready,
-      { "ControlBlockProperties", "pn_io.control_block_properties.appl_ready", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ControlBlockProperties", "pn_io.control_block_properties.appl_ready",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_control_block_properties_applready0,
-      { "ApplicationReady", "pn_io.control_block_properties.appl_ready0", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_vals), 0x0001, NULL, HFILL }},
+      { "ApplicationReady", "pn_io.control_block_properties.appl_ready0",
+        FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_vals), 0x0001,
+        NULL, HFILL }
+    },
     { &hf_pn_io_AlarmSequenceNumber,
-      { "AlarmSequenceNumber", "pn_io.AlarmSequenceNumber", FT_UINT16, BASE_HEX,NULL, 0x0, NULL, HFILL }},
+      { "AlarmSequenceNumber", "pn_io.AlarmSequenceNumber",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_SubmoduleListEntries,
-      { "NumberOfEntries", "pn_io.SubmoduleListEntries", FT_UINT16, BASE_DEC,NULL, 0x0, NULL, HFILL }},
+      { "NumberOfEntries", "pn_io.SubmoduleListEntries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_error_code,
-      { "ErrorCode", "pn_io.error_code", FT_UINT8, BASE_HEX, VALS(pn_io_error_code), 0x0, NULL, HFILL }},
+      { "ErrorCode", "pn_io.error_code",
+        FT_UINT8, BASE_HEX, VALS(pn_io_error_code), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_decode,
-      { "ErrorDecode", "pn_io.error_decode", FT_UINT8, BASE_HEX, VALS(pn_io_error_decode), 0x0, NULL, HFILL }},
+      { "ErrorDecode", "pn_io.error_decode",
+        FT_UINT8, BASE_HEX, VALS(pn_io_error_decode), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code1,
-      { "ErrorCode1", "pn_io.error_code1", FT_UINT8, BASE_DEC, VALS(pn_io_error_code1), 0x0, NULL, HFILL }},
+      { "ErrorCode1", "pn_io.error_code1",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code1), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code1_pniorw,
-      { "ErrorCode1", "pn_io.error_code1", FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pniorw), 0x0, NULL, HFILL }},
+      { "ErrorCode1", "pn_io.error_code1",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pniorw), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pniorw,
-      { "ErrorCode2 for PNIORW is user specified!", "pn_io.error_code2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ErrorCode2 for PNIORW is user specified!", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code1_pnio,
-      { "ErrorCode1", "pn_io.error_code1", FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pnio), 0x0, NULL, HFILL }},
+      { "ErrorCode1", "pn_io.error_code1",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code1_pnio), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_1,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_1), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_1), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_2,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_2), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_2), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_3,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_3), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_3), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_4,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_4), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_4), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_5,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_5), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_5), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_6,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_6), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_6), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_7,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_7), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_7), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_8,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_8), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_8), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_20,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_20), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_20), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_21,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_21), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_21), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_22,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_22), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_22), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_23,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_23), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_23), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_40,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_40), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_40), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_61,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_61), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_61), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_62,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_62), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_62), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_63,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_63), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_63), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_64,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_64), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_64), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_65,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_65), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_65), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_66,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_66), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_66), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_70,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_70), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_70), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_71,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_71), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_71), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_72,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_72), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_72), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_73,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_73), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_73), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_74,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_74), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_74), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_75,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_75), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_75), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_76,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_76), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_76), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_77,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_77), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_77), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_253,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_253), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_253), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_code2_pnio_255,
-      { "ErrorCode2", "pn_io.error_code2", FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_255), 0x0, NULL, HFILL }},
+      { "ErrorCode2", "pn_io.error_code2",
+        FT_UINT8, BASE_DEC, VALS(pn_io_error_code2_pnio_255), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_block,
-    { "Block", "pn_io.block", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Block", "pn_io.block",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_alarm_type,
-      { "AlarmType", "pn_io.alarm_type", FT_UINT16, BASE_HEX, VALS(pn_io_alarm_type), 0x0, NULL, HFILL }},
+      { "AlarmType", "pn_io.alarm_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_alarm_type), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_alarm_specifier,
-      { "AlarmSpecifier", "pn_io.alarm_specifier", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "AlarmSpecifier", "pn_io.alarm_specifier",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarm_specifier_sequence,
-      { "SequenceNumber", "pn_io.alarm_specifier.sequence", FT_UINT16, BASE_HEX, NULL, 0x07FF, NULL, HFILL }},
+      { "SequenceNumber", "pn_io.alarm_specifier.sequence",
+        FT_UINT16, BASE_HEX, NULL, 0x07FF,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarm_specifier_channel,
-      { "ChannelDiagnosis", "pn_io.alarm_specifier.channel", FT_UINT16, BASE_HEX, NULL, 0x0800, NULL, HFILL }},
+      { "ChannelDiagnosis", "pn_io.alarm_specifier.channel",
+        FT_UINT16, BASE_HEX, NULL, 0x0800,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarm_specifier_manufacturer,
-      { "ManufacturerSpecificDiagnosis", "pn_io.alarm_specifier.manufacturer", FT_UINT16, BASE_HEX, NULL, 0x1000, NULL, HFILL }},
+      { "ManufacturerSpecificDiagnosis", "pn_io.alarm_specifier.manufacturer",
+        FT_UINT16, BASE_HEX, NULL, 0x1000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarm_specifier_submodule,
-      { "SubmoduleDiagnosisState", "pn_io.alarm_specifier.submodule", FT_UINT16, BASE_HEX, NULL, 0x2000, NULL, HFILL }},
+      { "SubmoduleDiagnosisState", "pn_io.alarm_specifier.submodule",
+        FT_UINT16, BASE_HEX, NULL, 0x2000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarm_specifier_ardiagnosis,
-      { "ARDiagnosisState", "pn_io.alarm_specifier.ardiagnosis", FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL }},
+      { "ARDiagnosisState", "pn_io.alarm_specifier.ardiagnosis",
+        FT_UINT16, BASE_HEX, NULL, 0x8000,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_alarm_dst_endpoint,
-      { "AlarmDstEndpoint", "pn_io.alarm_dst_endpoint", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "AlarmDstEndpoint", "pn_io.alarm_dst_endpoint",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_alarm_src_endpoint,
-      { "AlarmSrcEndpoint", "pn_io.alarm_src_endpoint", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "AlarmSrcEndpoint", "pn_io.alarm_src_endpoint",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdu_type,
-      { "PDUType", "pn_io.pdu_type", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "PDUType", "pn_io.pdu_type",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdu_type_type,
-      { "Type", "pn_io.pdu_type.type", FT_UINT8, BASE_HEX, VALS(pn_io_pdu_type), 0x0F, NULL, HFILL }},
+      { "Type", "pn_io.pdu_type.type",
+        FT_UINT8, BASE_HEX, VALS(pn_io_pdu_type), 0x0F,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdu_type_version,
-      { "Version", "pn_io.pdu_type.version", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+      { "Version", "pn_io.pdu_type.version",
+        FT_UINT8, BASE_HEX, NULL, 0xF0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_add_flags,
-      { "AddFlags", "pn_io.add_flags", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "AddFlags", "pn_io.add_flags",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_window_size,
-      { "WindowSize", "pn_io.window_size", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+      { "WindowSize", "pn_io.window_size",
+        FT_UINT8, BASE_DEC, NULL, 0x0F,
+        NULL, HFILL }
+    },
     { &hf_pn_io_tack,
-      { "TACK", "pn_io.tack", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+      { "TACK", "pn_io.tack",
+        FT_UINT8, BASE_HEX, NULL, 0xF0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_send_seq_num,
-      { "SendSeqNum", "pn_io.send_seq_num", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SendSeqNum", "pn_io.send_seq_num",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ack_seq_num,
-      { "AckSeqNum", "pn_io.ack_seq_num", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "AckSeqNum", "pn_io.ack_seq_num",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_var_part_len,
-      { "VarPartLen", "pn_io.var_part_len", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "VarPartLen", "pn_io.var_part_len",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_module_ident_number,
-      { "ModuleIdentNumber", "pn_io.module_ident_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ModuleIdentNumber", "pn_io.module_ident_number",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_ident_number,
-      { "SubmoduleIdentNumber", "pn_io.submodule_ident_number", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SubmoduleIdentNumber", "pn_io.submodule_ident_number",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_number_of_modules,
-      { "NumberOfModules", "pn_io.number_of_modules", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfModules", "pn_io.number_of_modules",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_module_properties,
-      { "ModuleProperties", "pn_io.module_properties", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ModuleProperties", "pn_io.module_properties",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_module_state,
-      { "ModuleState", "pn_io.module_state", FT_UINT16, BASE_HEX, VALS(pn_io_module_state), 0x0, NULL, HFILL }},
+      { "ModuleState", "pn_io.module_state",
+        FT_UINT16, BASE_HEX, VALS(pn_io_module_state), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_submodules,
-      { "NumberOfSubmodules", "pn_io.number_of_submodules", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfSubmodules", "pn_io.number_of_submodules",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_submodule_properties,
-      { "SubmoduleProperties", "pn_io.submodule_properties", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SubmoduleProperties", "pn_io.submodule_properties",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_properties_type,
-      { "Type", "pn_io.submodule_properties.type", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_type), 0x0003, NULL, HFILL }},
+      { "Type", "pn_io.submodule_properties.type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_type), 0x0003,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_properties_shared_input,
-      { "SharedInput", "pn_io.submodule_properties.shared_input", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_shared_input), 0x0004, NULL, HFILL }},
+      { "SharedInput", "pn_io.submodule_properties.shared_input",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_shared_input), 0x0004,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_properties_reduce_input_submodule_data_length,
-      { "ReduceInputSubmoduleDataLength", "pn_io.submodule_properties.reduce_input_submodule_data_length", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_input_submodule_data_length), 0x0008, NULL, HFILL }},
+      { "ReduceInputSubmoduleDataLength", "pn_io.submodule_properties.reduce_input_submodule_data_length",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_input_submodule_data_length), 0x0008,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_properties_reduce_output_submodule_data_length,
-      { "ReduceOutputSubmoduleDataLength", "pn_io.submodule_properties.reduce_output_submodule_data_length", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_output_submodule_data_length), 0x0010, NULL, HFILL }},
+      { "ReduceOutputSubmoduleDataLength", "pn_io.submodule_properties.reduce_output_submodule_data_length",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_reduce_output_submodule_data_length), 0x0010,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_properties_discard_ioxs,
-      { "DiscardIOXS", "pn_io.submodule_properties.discard_ioxs", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_discard_ioxs), 0x0020, NULL, HFILL }},
+      { "DiscardIOXS", "pn_io.submodule_properties.discard_ioxs",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_properties_discard_ioxs), 0x0020,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_properties_reserved,
-      { "Reserved", "pn_io.submodule_properties.reserved", FT_UINT16, BASE_HEX, NULL, 0xFFC0, NULL, HFILL }},
+      { "Reserved", "pn_io.submodule_properties.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFC0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_submodule_state,
-      { "SubmoduleState", "pn_io.submodule_state", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SubmoduleState", "pn_io.submodule_state",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_format_indicator,
-      { "FormatIndicator", "pn_io.submodule_state.format_indicator", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_format_indicator), 0x8000, NULL, HFILL }},
+      { "FormatIndicator", "pn_io.submodule_state.format_indicator",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_format_indicator), 0x8000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_add_info,
-      { "AddInfo", "pn_io.submodule_state.add_info", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_add_info), 0x0007, NULL, HFILL }},
+      { "AddInfo", "pn_io.submodule_state.add_info",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_add_info), 0x0007,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_qualified_info,
-      { "QualifiedInfo", "pn_io.submodule_state.qualified_info", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_qualified_info), 0x0008, NULL, HFILL }},
+      { "QualifiedInfo", "pn_io.submodule_state.qualified_info",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_qualified_info), 0x0008,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_maintenance_required,
-      { "MaintenanceRequired", "pn_io.submodule_state.maintenance_required", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_required), 0x0010, NULL, HFILL }},
+      { "MaintenanceRequired", "pn_io.submodule_state.maintenance_required",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_required), 0x0010,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_maintenance_demanded,
-      { "MaintenanceDemanded", "pn_io.submodule_state.maintenance_demanded", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_demanded), 0x0020, NULL, HFILL }},
+      { "MaintenanceDemanded", "pn_io.submodule_state.maintenance_demanded",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_demanded), 0x0020,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_diag_info,
-      { "DiagInfo", "pn_io.submodule_state.diag_info", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_diag_info), 0x0040, NULL, HFILL }},
+      { "DiagInfo", "pn_io.submodule_state.diag_info",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_diag_info), 0x0040,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_ar_info,
-      { "ARInfo", "pn_io.submodule_state.ar_info", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_ar_info), 0x0780, NULL, HFILL }},
+      { "ARInfo", "pn_io.submodule_state.ar_info",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_ar_info), 0x0780,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_ident_info,
-      { "IdentInfo", "pn_io.submodule_state.ident_info", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_ident_info), 0x7800, NULL, HFILL }},
+      { "IdentInfo", "pn_io.submodule_state.ident_info",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_ident_info), 0x7800,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_state_detail,
-      { "Detail", "pn_io.submodule_state.detail", FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_detail), 0x7FFF, NULL, HFILL }},
+      { "Detail", "pn_io.submodule_state.detail",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_detail), 0x7FFF,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_data_description_tree,
-      { "DataDescription", "pn_io.data_description", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "DataDescription", "pn_io.data_description",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_description,
-      { "DataDescription", "pn_io.data_description", FT_UINT16, BASE_HEX, VALS(pn_io_data_description), 0x0, NULL, HFILL }},
+      { "DataDescription", "pn_io.data_description",
+        FT_UINT16, BASE_HEX, VALS(pn_io_data_description), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_submodule_data_length,
-      { "SubmoduleDataLength", "pn_io.submodule_data_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "SubmoduleDataLength", "pn_io.submodule_data_length",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_iocs,
-      { "LengthIOCS", "pn_io.length_iocs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LengthIOCS", "pn_io.length_iocs",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_iops,
-      { "LengthIOPS", "pn_io.length_iops", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LengthIOPS", "pn_io.length_iops",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_iocs,
-      { "IOCS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IOCS", "pn_io.ioxs",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_iops,
-      { "IOPS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IOPS", "pn_io.ioxs",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ioxs,
-      { "IOxS", "pn_io.ioxs", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IOxS", "pn_io.ioxs",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ioxs_extension,
-      { "Extension (1:another IOxS follows/0:no IOxS follows)", "pn_io.ioxs.extension", FT_UINT8, BASE_HEX, NULL, 0x01, NULL, HFILL }},
+      { "Extension (1:another IOxS follows/0:no IOxS follows)", "pn_io.ioxs.extension",
+        FT_UINT8, BASE_HEX, NULL, 0x01,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ioxs_res14,
-      { "Reserved (should be zero)", "pn_io.ioxs.res14", FT_UINT8, BASE_HEX, NULL, 0x1E, NULL, HFILL }},
+      { "Reserved (should be zero)", "pn_io.ioxs.res14",
+        FT_UINT8, BASE_HEX, NULL, 0x1E,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ioxs_instance,
-      { "Instance (only valid, if DataState is bad)", "pn_io.ioxs.instance", FT_UINT8, BASE_HEX, VALS(pn_io_ioxs), 0x60, NULL, HFILL }},
+      { "Instance (only valid, if DataState is bad)",
+        "pn_io.ioxs.instance", FT_UINT8, BASE_HEX, VALS(pn_io_ioxs),
+        0x60, NULL, HFILL }
+    },
     { &hf_pn_io_ioxs_datastate,
-      { "DataState (1:good/0:bad)", "pn_io.ioxs.datastate", FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
+      { "DataState (1:good/0:bad)", "pn_io.ioxs.datastate",
+        FT_UINT8, BASE_HEX, NULL, 0x80,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_address_resolution_properties,
-      { "AddressResolutionProperties", "pn_io.address_resolution_properties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "AddressResolutionProperties", "pn_io.address_resolution_properties",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mci_timeout_factor,
-      { "MCITimeoutFactor", "pn_io.mci_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "MCITimeoutFactor", "pn_io.mci_timeout_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_provider_station_name,
-      { "ProviderStationName", "pn_io.provider_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "ProviderStationName", "pn_io.provider_station_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_user_structure_identifier,
-      { "UserStructureIdentifier", "pn_io.user_structure_identifier", FT_UINT16, BASE_HEX, VALS(pn_io_user_structure_identifier), 0x0, NULL, HFILL }},
+      { "UserStructureIdentifier", "pn_io.user_structure_identifier",
+        FT_UINT16, BASE_HEX, VALS(pn_io_user_structure_identifier), 0x0,
+        NULL, HFILL }
+    },
 
 
     { &hf_pn_io_subframe_data,
-      { "SubFrameData", "pn_io.subframe_data", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SubFrameData", "pn_io.subframe_data",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_subframe_reserved2,
-      { "Reserved1", "pn_io.subframe_data.reserved1", FT_UINT32, BASE_DEC, NULL, 0xFFFF0000, NULL, HFILL }},
+      { "Reserved1", "pn_io.subframe_data.reserved1",
+        FT_UINT32, BASE_DEC, NULL, 0xFFFF0000,
+        NULL, HFILL }
+    },
     { &hf_pn_io_subframe_data_length,
-      { "DataLength", "pn_io.subframe_data.data_length", FT_UINT32, BASE_DEC, NULL, 0x0000FF00, NULL, HFILL }},
+      { "DataLength", "pn_io.subframe_data.data_length",
+        FT_UINT32, BASE_DEC, NULL, 0x0000FF00,
+        NULL, HFILL }
+    },
     { &hf_pn_io_subframe_reserved1,
-      { "Reserved1", "pn_io.subframe_data.reserved1", FT_UINT32, BASE_DEC, NULL, 0x00000080, NULL, HFILL }},
+      { "Reserved1", "pn_io.subframe_data.reserved1",
+        FT_UINT32, BASE_DEC, NULL, 0x00000080,
+        NULL, HFILL }
+    },
     { &hf_pn_io_subframe_data_position,
-      { "DataPosition", "pn_io.subframe_data.position", FT_UINT32, BASE_DEC, NULL, 0x0000007F, NULL, HFILL }},
+      { "DataPosition", "pn_io.subframe_data.position",
+        FT_UINT32, BASE_DEC, NULL, 0x0000007F,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_channel_number,
-      { "ChannelNumber", "pn_io.channel_number", FT_UINT16, BASE_HEX, VALS(pn_io_channel_number), 0x0, NULL, HFILL }},
+      { "ChannelNumber", "pn_io.channel_number",
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_number), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_channel_properties,
-      { "ChannelProperties", "pn_io.channel_properties", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ChannelProperties", "pn_io.channel_properties",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_channel_properties_type,
-      { "Type", "pn_io.channel_properties.type", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_type), 0x00FF, NULL, HFILL }},
+      { "Type", "pn_io.channel_properties.type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_type), 0x00FF,
+        NULL, HFILL }
+    },
     { &hf_pn_io_channel_properties_accumulative,
-      { "Accumulative", "pn_io.channel_properties.accumulative", FT_UINT16, BASE_HEX, NULL, 0x0100, NULL, HFILL }},
-/* replaced with 2 bit values
+      { "Accumulative", "pn_io.channel_properties.accumulative",
+        FT_UINT16, BASE_HEX, NULL, 0x0100,
+        NULL, HFILL }
+    },
+#if 0 /* replaced with 2 bit values */
     { &hf_pn_io_channel_properties_maintenance_required,
-      { "MaintenanceRequired", "pn_io.channel_properties.maintenance_required", FT_UINT16, BASE_HEX, NULL, 0x0200, NULL, HFILL }},
+      { "MaintenanceRequired", "pn_io.channel_properties.maintenance_required",
+        FT_UINT16, BASE_HEX, NULL, 0x0200,
+        NULL, HFILL }
+    },
     { &hf_pn_io_channel_properties_maintenance_demanded,
-      { "MaintenanceDemanded", "pn_io.channel_properties.maintenance_demanded", FT_UINT16, BASE_HEX, NULL, 0x0400, NULL, HFILL }},
-*/
+      { "MaintenanceDemanded", "pn_io.channel_properties.maintenance_demanded",
+        FT_UINT16, BASE_HEX, NULL, 0x0400,
+        NULL, HFILL }
+    },
+#endif
     { &hf_pn_io_NumberOfSubframeBlocks,
-      { "NumberOfSubframeBlocks", "pn_io.NumberOfSubframeBlocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfSubframeBlocks", "pn_io.NumberOfSubframeBlocks",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_channel_properties_maintenance,
-      { "Maintenance", "pn_io.channel_properties.maintenance", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_maintenance), 0x0600, NULL, HFILL }},
+      { "Maintenance", "pn_io.channel_properties.maintenance",
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_maintenance), 0x0600,
+        NULL, HFILL }
+    },
       { &hf_pn_io_channel_properties_specifier,
-      { "Specifier", "pn_io.channel_properties.specifier", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_specifier), 0x1800, NULL, HFILL }},
+        { "Specifier", "pn_io.channel_properties.specifier",
+          FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_specifier), 0x1800,
+          NULL, HFILL }
+      },
     { &hf_pn_io_channel_properties_direction,
-      { "Direction", "pn_io.channel_properties.direction", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_direction), 0xE000, NULL, HFILL }},
+      { "Direction", "pn_io.channel_properties.direction",
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_direction), 0xE000,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_channel_error_type,
-      { "ChannelErrorType", "pn_io.channel_error_type", FT_UINT16, BASE_HEX, VALS(pn_io_channel_error_type), 0x0, NULL, HFILL }},
+      { "ChannelErrorType", "pn_io.channel_error_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_error_type), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_ext_channel_error_type0,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type0", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type0",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8000,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type0800", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8000), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type0800",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8000), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8001,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8001", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8001), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8001",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8001), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8002,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8002", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8002), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8002",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8002), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8003,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8003", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8003), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8003",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8003), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8004,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8004", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8004), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8004",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8004), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8005,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8005", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8005), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8005",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8005), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8007,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8007", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8007), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8007",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8007), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x8008,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8008", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8008), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8008",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8008), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x800A,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800A", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800A), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800A",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800A), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x800B,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800B", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800B), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800B",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800B), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_error_type0x800C,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800C", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800C), 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800C",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800C), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_ext_channel_error_type,
-      { "ExtChannelErrorType", "pn_io.ext_channel_error_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ext_channel_add_value,
-      { "ExtChannelAddValue", "pn_io.ext_channel_add_value", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ExtChannelAddValue", "pn_io.ext_channel_add_value",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_ptcp_subdomain_id,
-      { "PTCPSubdomainID", "pn_io.ptcp_subdomain_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "PTCPSubdomainID", "pn_io.ptcp_subdomain_id",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ir_data_id,
-      { "IRDataID", "pn_io.ir_data_id", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IRDataID", "pn_io.ir_data_id",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_max_bridge_delay,
-      { "MaxBridgeDelay", "pn_io.max_bridge_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "MaxBridgeDelay", "pn_io.max_bridge_delay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_ports,
-      { "NumberOfPorts", "pn_io.number_of_ports", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfPorts", "pn_io.number_of_ports",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_max_port_tx_delay,
-      { "MaxPortTxDelay", "pn_io.max_port_tx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "MaxPortTxDelay", "pn_io.max_port_tx_delay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_max_port_rx_delay,
-      { "MaxPortRxDelay", "pn_io.max_port_rx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "MaxPortRxDelay", "pn_io.max_port_rx_delay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
    { &hf_pn_io_max_line_rx_delay,
-      { "MaxLineRxDelay", "pn_io.max_line_rx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+     { "MaxLineRxDelay", "pn_io.max_line_rx_delay",
+       FT_UINT32, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }
+   },
    { &hf_pn_io_yellowtime,
-      { "YellowTime", "pn_io.yellowtime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+     { "YellowTime", "pn_io.yellowtime",
+       FT_UINT32, BASE_DEC, NULL, 0x0,
+       NULL, HFILL }
+   },
 
     { &hf_pn_io_reserved_interval_begin,
-      { "ReservedIntervalBegin", "pn_io.reserved_interval_begin", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ReservedIntervalBegin", "pn_io.reserved_interval_begin",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_reserved_interval_end,
-      { "ReservedIntervalEnd", "pn_io.reserved_interval_end", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ReservedIntervalEnd", "pn_io.reserved_interval_end",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pllwindow,
-      { "PLLWindow", "pn_io.pllwindow", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "PLLWindow", "pn_io.pllwindow",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sync_send_factor,
-      { "SyncSendFactor", "pn_io.sync_send_factor", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "SyncSendFactor", "pn_io.sync_send_factor",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sync_properties,
-      { "SyncProperties", "pn_io.sync_properties", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SyncProperties", "pn_io.sync_properties",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_sync_frame_address,
-      { "SyncFrameAddress", "pn_io.sync_frame_address", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SyncFrameAddress", "pn_io.sync_frame_address",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ptcp_timeout_factor,
-      { "PTCPTimeoutFactor", "pn_io.ptcp_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "PTCPTimeoutFactor", "pn_io.ptcp_timeout_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ptcp_takeover_timeout_factor,
-      { "PTCPTakeoverTimeoutFactor", "pn_io.ptcp_takeover_timeout_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "PTCPTakeoverTimeoutFactor", "pn_io.ptcp_takeover_timeout_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ptcp_master_startup_time,
-      { "PTCPMasterStartupTime", "pn_io.ptcp_master_startup_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "PTCPMasterStartupTime", "pn_io.ptcp_master_startup_time",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ptcp_master_priority_1,
-      { "PTCP_MasterPriority1", "pn_io.ptcp_master_priority_1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "PTCP_MasterPriority1", "pn_io.ptcp_master_priority_1",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ptcp_master_priority_2,
-      { "PTCP_MasterPriority2", "pn_io.ptcp_master_priority_2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "PTCP_MasterPriority2", "pn_io.ptcp_master_priority_2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ptcp_length_subdomain_name,
-      { "PTCPLengthSubdomainName", "pn_io.ptcp_length_subdomain_name", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "PTCPLengthSubdomainName", "pn_io.ptcp_length_subdomain_name",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ptcp_subdomain_name,
-      { "PTCPSubdomainName", "pn_io.ptcp_subdomain_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "PTCPSubdomainName", "pn_io.ptcp_subdomain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdportstatistic_ifInOctets,
-      { "ifInOctets", "pn_io.ifInOctets", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ifInOctets", "pn_io.ifInOctets",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdportstatistic_ifOutOctets,
-      { "ifOutOctets", "pn_io.ifOutOctets", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ifOutOctets", "pn_io.ifOutOctets",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdportstatistic_ifInDiscards,
-      { "ifInDiscards", "pn_io.ifInDiscards", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ifInDiscards", "pn_io.ifInDiscards",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdportstatistic_ifOutDiscards,
-      { "ifOutDiscards", "pn_io.ifOutDiscards", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ifOutDiscards", "pn_io.ifOutDiscards",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdportstatistic_ifInErrors,
-      { "ifInErrors", "pn_io.ifInErrors", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ifInErrors", "pn_io.ifInErrors",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_pdportstatistic_ifOutErrors,
-      { "ifOutErrors", "pn_io.ifOutErrors", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ifOutErrors", "pn_io.ifOutErrors",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_domain_boundary,
-      { "DomainBoundary", "pn_io.domain_boundary", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "DomainBoundary", "pn_io.domain_boundary",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_domain_boundary_ingress,
-      { "DomainBoundaryIngress", "pn_io.domain_boundary.ingress", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "DomainBoundaryIngress", "pn_io.domain_boundary.ingress",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_domain_boundary_egress,
-      { "DomainBoundaryEgress", "pn_io.domain_boundary.egress", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "DomainBoundaryEgress", "pn_io.domain_boundary.egress",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_multicast_boundary,
-      { "MulticastBoundary", "pn_io.multicast_boundary", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MulticastBoundary", "pn_io.multicast_boundary",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_adjust_properties,
-      { "AdjustProperties", "pn_io.adjust_properties", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "AdjustProperties", "pn_io.adjust_properties",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_PreambleLength,
-      { "Preamble Length", "pn_io.preamble_length", FT_UINT16, BASE_HEX, VALS(pn_io_preamble_length), 0x0, NULL, HFILL }},
+      { "Preamble Length", "pn_io.preamble_length",
+        FT_UINT16, BASE_HEX, VALS(pn_io_preamble_length), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mau_type,
-      { "MAUType", "pn_io.mau_type", FT_UINT16, BASE_HEX, VALS(pn_io_mau_type), 0x0, NULL, HFILL }},
+      { "MAUType", "pn_io.mau_type",
+        FT_UINT16, BASE_HEX, VALS(pn_io_mau_type), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mau_type_mode,
-      { "MAUTypeMode", "pn_io.mau_type_mode", FT_UINT16, BASE_HEX, VALS(pn_io_mau_type_mode), 0x0, NULL, HFILL }},
+      { "MAUTypeMode", "pn_io.mau_type_mode",
+        FT_UINT16, BASE_HEX, VALS(pn_io_mau_type_mode), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_port_state,
-      { "PortState", "pn_io.port_state", FT_UINT16, BASE_HEX, VALS(pn_io_port_state), 0x0, NULL, HFILL }},
+      { "PortState", "pn_io.port_state",
+        FT_UINT16, BASE_HEX, VALS(pn_io_port_state), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_line_delay,
-      { "LineDelay", "pn_io.line_delay", FT_UINT32, BASE_DEC, NULL, 0x0, "LineDelay in nanoseconds", HFILL }},
+      { "LineDelay", "pn_io.line_delay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "LineDelay in nanoseconds", HFILL }
+    },
     { &hf_pn_io_number_of_peers,
-      { "NumberOfPeers", "pn_io.number_of_peers", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfPeers", "pn_io.number_of_peers",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_peer_port_id,
-      { "LengthPeerPortID", "pn_io.length_peer_port_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LengthPeerPortID", "pn_io.length_peer_port_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_peer_port_id,
-      { "PeerPortID", "pn_io.peer_port_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "PeerPortID", "pn_io.peer_port_id",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_peer_chassis_id,
-      { "LengthPeerChassisID", "pn_io.length_peer_chassis_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LengthPeerChassisID", "pn_io.length_peer_chassis_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_peer_chassis_id,
-      { "PeerChassisID", "pn_io.peer_chassis_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "PeerChassisID", "pn_io.peer_chassis_id",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_own_chassis_id,
-      { "LengthOwnChassisID", "pn_io.length_own_chassis_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LengthOwnChassisID", "pn_io.length_own_chassis_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_own_chassis_id,
-      { "OwnChassisID", "pn_io.own_chassis_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "OwnChassisID", "pn_io.own_chassis_id",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_own_port_id,
-      { "LengthOwnPortID", "pn_io.length_own_port_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LengthOwnPortID", "pn_io.length_own_port_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_own_port_id,
-      { "OwnPortID", "pn_io.own_port_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "OwnPortID", "pn_io.own_port_id",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_peer_macadd,
-      { "PeerMACAddress", "pn_io.peer_macadd", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "PeerMACAddress", "pn_io.peer_macadd",
+        FT_ETHER, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_macadd,
-      { "MACAddress", "pn_io.macadd", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "MACAddress", "pn_io.macadd",
+        FT_ETHER, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_media_type,
-      { "MediaType", "pn_io.media_type", FT_UINT32, BASE_HEX, VALS(pn_io_media_type), 0x0, NULL, HFILL }},
+      { "MediaType", "pn_io.media_type",
+        FT_UINT32, BASE_HEX, VALS(pn_io_media_type), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_ethertype,
-      { "Ethertype", "pn_io.ethertype", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "Ethertype", "pn_io.ethertype",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_rx_port,
-      { "RXPort", "pn_io.rx_port", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "RXPort", "pn_io.rx_port",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_frame_details,
-      { "FrameDetails", "pn_io.frame_details", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "FrameDetails", "pn_io.frame_details",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_frame_details_sync_frame,
-      { "SyncFrame", "pn_io.frame_details.sync_frame", FT_UINT8, BASE_HEX, VALS(pn_io_frame_details_sync_master_vals), 0x03, NULL, HFILL }},
+      { "SyncFrame", "pn_io.frame_details.sync_frame",
+        FT_UINT8, BASE_HEX, VALS(pn_io_frame_details_sync_master_vals), 0x03,
+        NULL, HFILL }
+    },
     { &hf_pn_io_frame_details_meaning_frame_send_offset,
-      { "Meaning", "pn_io.frame_details.meaning_frame_send_offset", FT_UINT8, BASE_HEX, VALS(pn_io_frame_details_meaning_frame_send_offset_vals), 0x0C, NULL, HFILL }},
+      { "Meaning", "pn_io.frame_details.meaning_frame_send_offset",
+        FT_UINT8, BASE_HEX, VALS(pn_io_frame_details_meaning_frame_send_offset_vals), 0x0C,
+        NULL, HFILL }
+    },
     { &hf_pn_io_frame_details_reserved,
-      { "Reserved", "pn_io.frame_details.reserved", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
+      { "Reserved", "pn_io.frame_details.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0xF0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_nr_of_tx_port_groups,
-      { "NumberOfTxPortGroups", "pn_io.nr_of_tx_port_groups", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfTxPortGroups", "pn_io.nr_of_tx_port_groups",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties,
-      { "TxPortGroupProperties", "pn_io.tx_port_properties", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "TxPortGroupProperties", "pn_io.tx_port_properties",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit0,
-      { "TxPortLocal", "pn_io.tx_port_properties_bit_0", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x01, NULL, HFILL }},
+      { "TxPortLocal", "pn_io.tx_port_properties_bit_0",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x01,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit1,
-      { "TxPort_1", "pn_io.tx_port_properties_bit_1", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x02, NULL, HFILL }},
+      { "TxPort_1", "pn_io.tx_port_properties_bit_1",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x02,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit2,
-      { "TxPort_2", "pn_io.tx_port_properties_bit_2", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x04, NULL, HFILL }},
+      { "TxPort_2", "pn_io.tx_port_properties_bit_2",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x04,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit3,
-      { "TxPort_3", "pn_io.tx_port_properties_bit_3", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x08, NULL, HFILL }},
+      { "TxPort_3", "pn_io.tx_port_properties_bit_3",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x08,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit4,
-      { "TxPort_4", "pn_io.tx_port_properties_bit_4", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x10, NULL, HFILL }},
+      { "TxPort_4", "pn_io.tx_port_properties_bit_4",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x10,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit5,
-      { "TxPort_5", "pn_io.tx_port_properties_bit_5", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x20, NULL, HFILL }},
+      { "TxPort_5", "pn_io.tx_port_properties_bit_5",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x20,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit6,
-      { "TxPort_6", "pn_io.tx_port_properties_bit_6", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x40, NULL, HFILL }},
+      { "TxPort_6", "pn_io.tx_port_properties_bit_6",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x40,
+        NULL, HFILL }
+    },
     { &hf_pn_io_TxPortGroupProperties_bit7,
-      { "TxPort_7", "pn_io.tx_port_properties_bit_7", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x80, NULL, HFILL }},
+      { "TxPort_7", "pn_io.tx_port_properties_bit_7",
+        FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x80,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_start_of_red_frame_id,
-      { "StartOfRedFrameID", "pn_io.start_of_red_frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "StartOfRedFrameID", "pn_io.start_of_red_frame_id",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_end_of_red_frame_id,
-      { "EndOfRedFrameID", "pn_io.end_of_red_frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "EndOfRedFrameID", "pn_io.end_of_red_frame_id",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_ir_begin_end_port,
-      { "Port", "pn_io.ir_begin_end_port", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Port", "pn_io.ir_begin_end_port",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_assignments,
-      { "NumberOfAssignments", "pn_io.number_of_assignments", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfAssignments", "pn_io.number_of_assignments",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_phases,
-      { "NumberOfPhases", "pn_io.number_of_phases", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfPhases", "pn_io.number_of_phases",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_red_orange_period_begin,
-      { "RedOrangePeriodBegin", "pn_io.red_orange_period_begin", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "RedOrangePeriodBegin", "pn_io.red_orange_period_begin",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_orange_period_begin,
-      { "OrangePeriodBegin", "pn_io.orange_period_begin", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "OrangePeriodBegin", "pn_io.orange_period_begin",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_green_period_begin,
-      { "GreenPeriodBegin", "pn_io.green_period_begin", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "GreenPeriodBegin", "pn_io.green_period_begin",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_tx_phase_assignment,
-      { "TXPhaseAssignment", "pn_io.tx_phase_assignment", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "TXPhaseAssignment", "pn_io.tx_phase_assignment",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_rx_phase_assignment,
-      { "RXPhaseAssignment", "pn_io.rx_phase_assignment", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "RXPhaseAssignment", "pn_io.rx_phase_assignment",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_slot,
-      { "Slot", "pn_io.slot", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Slot", "pn_io.slot",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_subslot,
-      { "Subslot", "pn_io.subslot", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Subslot", "pn_io.subslot",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_slots,
-      { "NumberOfSlots", "pn_io.number_of_slots", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfSlots", "pn_io.number_of_slots",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_subslots,
-      { "NumberOfSubslots", "pn_io.number_of_subslots", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfSubslots", "pn_io.number_of_subslots",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_maintenance_required_drop_budget,
-      { "MaintenanceRequiredDropBudget", "pn_io.maintenance_required_drop_budget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MaintenanceRequiredDropBudget", "pn_io.maintenance_required_drop_budget",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_maintenance_demanded_drop_budget,
-      { "MaintenanceDemandedDropBudget", "pn_io.maintenance_demanded_drop_budget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MaintenanceDemandedDropBudget", "pn_io.maintenance_demanded_drop_budget",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_drop_budget,
-      { "ErrorDropBudget", "pn_io.error_drop_budget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ErrorDropBudget", "pn_io.error_drop_budget",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_maintenance_required_power_budget,
-      { "MaintenanceRequiredPowerBudget", "pn_io.maintenance_required_power_budget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MaintenanceRequiredPowerBudget", "pn_io.maintenance_required_power_budget",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_maintenance_demanded_power_budget,
-      { "MaintenanceDemandedPowerBudget", "pn_io.maintenance_demanded_power_budget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MaintenanceDemandedPowerBudget", "pn_io.maintenance_demanded_power_budget",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_error_power_budget,
-      { "ErrorPowerBudget", "pn_io.error_power_budget", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "ErrorPowerBudget", "pn_io.error_power_budget",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_fiber_optic_type,
-      { "FiberOpticType", "pn_io.fiber_optic_type", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_type), 0x0, NULL, HFILL }},
+      { "FiberOpticType", "pn_io.fiber_optic_type",
+        FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_type), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_fiber_optic_cable_type,
-      { "FiberOpticCableType", "pn_io.fiber_optic_cable_type", FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_cable_type), 0x0, NULL, HFILL }},
+      { "FiberOpticCableType", "pn_io.fiber_optic_cable_type",
+        FT_UINT32, BASE_HEX, VALS(pn_io_fiber_optic_cable_type), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_controller_appl_cycle_factor,
-      { "ControllerApplicationCycleFactor", "pn_io.controller_appl_cycle_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ControllerApplicationCycleFactor", "pn_io.controller_appl_cycle_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_time_data_cycle,
-      { "TimeDataCycle", "pn_io.time_data_cycle", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "TimeDataCycle", "pn_io.time_data_cycle",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_time_io_input,
-      { "TimeIOInput", "pn_io.time_io_input", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "TimeIOInput", "pn_io.time_io_input",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_time_io_output,
-      { "TimeIOOutput", "pn_io.time_io_output", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "TimeIOOutput", "pn_io.time_io_output",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_time_io_input_valid,
-      { "TimeIOInputValid", "pn_io.time_io_input_valid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "TimeIOInputValid", "pn_io.time_io_input_valid",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_time_io_output_valid,
-      { "TimeIOOutputValid", "pn_io.time_io_output_valid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "TimeIOOutputValid", "pn_io.time_io_output_valid",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_maintenance_status,
-      { "MaintenanceStatus", "pn_io.maintenance_status", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MaintenanceStatus", "pn_io.maintenance_status",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_maintenance_status_required,
-      { "Required", "pn_io.maintenance_status_required", FT_UINT32, BASE_HEX, NULL, 0x0001, NULL, HFILL }},
+      { "Required", "pn_io.maintenance_status_required",
+        FT_UINT32, BASE_HEX, NULL, 0x0001,
+        NULL, HFILL }
+    },
     { &hf_pn_io_maintenance_status_demanded,
-      { "Demanded", "pn_io.maintenance_status_demanded", FT_UINT32, BASE_HEX, NULL, 0x0002, NULL, HFILL }},
+      { "Demanded", "pn_io.maintenance_status_demanded",
+        FT_UINT32, BASE_HEX, NULL, 0x0002,
+        NULL, HFILL }
+    },
 
 
     { &hf_pn_io_vendor_id_high,
-      { "VendorIDHigh", "pn_io.vendor_id_high", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "VendorIDHigh", "pn_io.vendor_id_high",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_vendor_id_low,
-      { "VendorIDLow", "pn_io.vendor_id_low", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "VendorIDLow", "pn_io.vendor_id_low",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_vendor_block_type,
-      { "VendorBlockType", "pn_io.vendor_block_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "VendorBlockType", "pn_io.vendor_block_type",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_order_id,
-    { "OrderID", "pn_io.order_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "OrderID", "pn_io.order_id",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_serial_number,
-    { "IMSerialNumber", "pn_io.im_serial_number", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IMSerialNumber", "pn_io.im_serial_number",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_hardware_revision,
-      { "IMHardwareRevision", "pn_io.im_hardware_revision", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMHardwareRevision", "pn_io.im_hardware_revision",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
       /* XXX - better use a simple char here -> vals */
     { &hf_pn_io_im_revision_prefix,
-      { "IMRevisionPrefix", "pn_io.im_revision_prefix", FT_UINT8, BASE_HEX, VALS(pn_io_im_revision_prefix_vals), 0x0, NULL, HFILL }},
+      { "IMRevisionPrefix", "pn_io.im_revision_prefix",
+        FT_UINT8, BASE_HEX, VALS(pn_io_im_revision_prefix_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_sw_revision_functional_enhancement,
-      { "IMSWRevisionFunctionalEnhancement", "pn_io.im_sw_revision_functional_enhancement", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMSWRevisionFunctionalEnhancement", "pn_io.im_sw_revision_functional_enhancement",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_revision_bugfix,
-      { "IM_SWRevisionBugFix", "pn_io.im_revision_bugfix", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IM_SWRevisionBugFix", "pn_io.im_revision_bugfix",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_sw_revision_internal_change,
-      { "IMSWRevisionInternalChange", "pn_io.im_sw_revision_internal_change", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMSWRevisionInternalChange", "pn_io.im_sw_revision_internal_change",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_revision_counter,
-      { "IMRevisionCounter", "pn_io.im_revision_counter", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMRevisionCounter", "pn_io.im_revision_counter",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_profile_id,
-      { "IMProfileID", "pn_io.im_profile_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMProfileID", "pn_io.im_profile_id",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_profile_specific_type,
-      { "IMProfileSpecificType", "pn_io.im_profile_specific_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMProfileSpecificType", "pn_io.im_profile_specific_type",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_version_major,
-      { "IMVersionMajor", "pn_io.im_version_major", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMVersionMajor", "pn_io.im_version_major",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_version_minor,
-      { "IMVersionMinor", "pn_io.im_version_minor", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IMVersionMinor", "pn_io.im_version_minor",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_supported,
-      { "IM_Supported", "pn_io.im_supported", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "IM_Supported", "pn_io.im_supported",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_number_of_ars,
-      { "NumberOfARs", "pn_io.number_of_ars", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfARs", "pn_io.number_of_ars",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_cycle_counter,
-      { "CycleCounter", "pn_io.cycle_counter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "CycleCounter", "pn_io.cycle_counter",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status,
-      { "DataStatus", "pn_io.ds", FT_UINT8, BASE_HEX, 0, 0x0, NULL, HFILL }},
+      { "DataStatus", "pn_io.ds",
+        FT_UINT8, BASE_HEX, 0, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status_res67,
-      { "Reserved (should be zero)", "pn_io.ds_res67", FT_UINT8, BASE_HEX, 0, 0xc0, NULL, HFILL }},
+      { "Reserved (should be zero)", "pn_io.ds_res67",
+        FT_UINT8, BASE_HEX, 0, 0xc0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status_ok,
-      { "StationProblemIndicator (1:Ok/0:Problem)", "pn_io.ds_ok", FT_UINT8, BASE_HEX, 0, 0x20, NULL, HFILL }},
+      { "StationProblemIndicator (1:Ok/0:Problem)", "pn_io.ds_ok",
+        FT_UINT8, BASE_HEX, 0, 0x20,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status_operate,
-      { "ProviderState (1:Run/0:Stop)", "pn_io.ds_operate", FT_UINT8, BASE_HEX, 0, 0x10, NULL, HFILL }},
+      { "ProviderState (1:Run/0:Stop)", "pn_io.ds_operate",
+        FT_UINT8, BASE_HEX, 0, 0x10,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status_res3,
-      { "Reserved (should be zero)", "pn_io.ds_res3", FT_UINT8, BASE_HEX, 0, 0x08, NULL, HFILL }},
+      { "Reserved (should be zero)", "pn_io.ds_res3",
+        FT_UINT8, BASE_HEX, 0, 0x08,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status_valid,
-      { "DataValid (1:Valid/0:Invalid)", "pn_io.ds_valid", FT_UINT8, BASE_HEX, 0, 0x04, NULL, HFILL }},
+      { "DataValid (1:Valid/0:Invalid)", "pn_io.ds_valid",
+        FT_UINT8, BASE_HEX, 0, 0x04,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status_res1,
-	  { "primary AR of a given AR-set is present (0:One/ 1:None)", "pn_io.ds_res1", FT_UINT8, BASE_HEX, 0, 0x02, NULL, HFILL }},
+      { "primary AR of a given AR-set is present (0:One/ 1:None)", "pn_io.ds_res1",
+        FT_UINT8, BASE_HEX, 0, 0x02,
+        NULL, HFILL }
+    },
     { &hf_pn_io_data_status_primary,
-      { "State (1:Primary/0:Backup)", "pn_io.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, NULL, HFILL }},
+      { "State (1:Primary/0:Backup)", "pn_io.ds_primary",
+        FT_UINT8, BASE_HEX, 0, 0x01,
+        NULL, HFILL }
+    },
     { &hf_pn_io_transfer_status,
-      { "TransferStatus", "pn_io.transfer_status", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "TransferStatus", "pn_io.transfer_status",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_actual_local_time_stamp,
-      { "ActualLocalTimeStamp", "pn_io.actual_local_time_stamp", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "ActualLocalTimeStamp", "pn_io.actual_local_time_stamp",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_local_time_stamp,
-      { "LocalTimeStamp", "pn_io.local_time_stamp", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LocalTimeStamp", "pn_io.local_time_stamp",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_number_of_log_entries,
-      { "NumberOfLogEntries", "pn_io.number_of_log_entries", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NumberOfLogEntries", "pn_io.number_of_log_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_entry_detail,
-      { "EntryDetail", "pn_io.entry_detail", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "EntryDetail", "pn_io.entry_detail",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_ip_address,
-        { "IPAddress", "pn_io.ip_address", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IPAddress", "pn_io.ip_address",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_subnetmask,
-        { "Subnetmask", "pn_io.subnetmask", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "Subnetmask", "pn_io.subnetmask",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_standard_gateway,
-        { "StandardGateway", "pn_io.standard_gateway", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "StandardGateway", "pn_io.standard_gateway",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_mrp_domain_uuid,
-      { "MRP_DomainUUID", "pn_io.mrp_domain_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "MRP_DomainUUID", "pn_io.mrp_domain_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_role,
-      { "MRP_Role", "pn_io.mrp_role", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_role_vals), 0x0, NULL, HFILL }},
+      { "MRP_Role", "pn_io.mrp_role",
+        FT_UINT16, BASE_HEX, VALS(pn_io_mrp_role_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_length_domain_name,
-        { "MRP_LengthDomainName", "pn_io.mrp_length_domain_name", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "MRP_LengthDomainName", "pn_io.mrp_length_domain_name",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_domain_name,
-        { "MRP_DomainName", "pn_io.mrp_domain_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "MRP_DomainName", "pn_io.mrp_domain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_mrp_prio,
-        { "MRP_Prio", "pn_io.mrp_prio", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_prio_vals), 0x0, NULL, HFILL }},
+      { "MRP_Prio", "pn_io.mrp_prio",
+        FT_UINT16, BASE_HEX, VALS(pn_io_mrp_prio_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_topchgt,
-        { "MRP_TOPchgT", "pn_io.mrp_topchgt", FT_UINT16, BASE_DEC, NULL, 0x0, "time base 10ms", HFILL }},
+      { "MRP_TOPchgT", "pn_io.mrp_topchgt",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "time base 10ms", HFILL }
+    },
     { &hf_pn_io_mrp_topnrmax,
-        { "MRP_TOPNRmax", "pn_io.mrp_topnrmax", FT_UINT16, BASE_DEC, NULL, 0x0, "number of iterations", HFILL }},
+      { "MRP_TOPNRmax", "pn_io.mrp_topnrmax",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "number of iterations", HFILL }
+    },
     { &hf_pn_io_mrp_tstshortt,
-        { "MRP_TSTshortT", "pn_io.mrp_tstshortt", FT_UINT16, BASE_DEC, NULL, 0x0, "time base 1 ms", HFILL }},
+      { "MRP_TSTshortT", "pn_io.mrp_tstshortt",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "time base 1 ms", HFILL }
+    },
     { &hf_pn_io_mrp_tstdefaultt,
-        { "MRP_TSTdefaultT", "pn_io.mrp_tstdefaultt", FT_UINT16, BASE_DEC, NULL, 0x0, "time base 1ms", HFILL }},
+      { "MRP_TSTdefaultT", "pn_io.mrp_tstdefaultt",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "time base 1ms", HFILL }
+    },
     { &hf_pn_io_mrp_tstnrmax,
-        { "MRP_TSTNRmax", "pn_io.mrp_tstnrmax", FT_UINT16, BASE_DEC, NULL, 0x0, "number of outstanding test indications causes ring failure", HFILL }},
+      { "MRP_TSTNRmax", "pn_io.mrp_tstnrmax",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "number of outstanding test indications causes ring failure", HFILL }
+    },
     { &hf_pn_io_mrp_check,
-        { "MRP_Check", "pn_io.mrp_check", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MRP_Check", "pn_io.mrp_check",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_mrp_rtmode,
-        { "MRP_RTMode", "pn_io.mrp_rtmode", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MRP_RTMode", "pn_io.mrp_rtmode",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_rtmode_rtclass12,
-        { "RTClass1_2", "pn_io.mrp_rtmode.class1_2", FT_UINT32, BASE_HEX, VALS(pn_io_mrp_rtmode_rtclass12_vals), 0x00000001, NULL, HFILL }},
+      { "RTClass1_2", "pn_io.mrp_rtmode.class1_2",
+        FT_UINT32, BASE_HEX, VALS(pn_io_mrp_rtmode_rtclass12_vals), 0x00000001,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_rtmode_rtclass3,
-        { "RTClass1_3", "pn_io.mrp_rtmode.class3", FT_UINT32, BASE_HEX, VALS(pn_io_mrp_rtmode_rtclass3_vals), 0x00000002, NULL, HFILL }},
+      { "RTClass1_3", "pn_io.mrp_rtmode.class3",
+        FT_UINT32, BASE_HEX, VALS(pn_io_mrp_rtmode_rtclass3_vals), 0x00000002,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_rtmode_reserved1,
-        { "Reserved_1", "pn_io.mrp_rtmode.reserved_1", FT_UINT32, BASE_HEX, NULL, 0x00fffffc, NULL, HFILL }},
+      { "Reserved_1", "pn_io.mrp_rtmode.reserved_1",
+        FT_UINT32, BASE_HEX, NULL, 0x00fffffc,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_rtmode_reserved2,
-        { "Reserved_2", "pn_io.mrp_rtmode.reserved_2", FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL }},
+      { "Reserved_2", "pn_io.mrp_rtmode.reserved_2",
+        FT_UINT32, BASE_HEX, NULL, 0xff000000,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_mrp_lnkdownt,
-        { "MRP_LNKdownT", "pn_io.mrp_lnkdownt", FT_UINT16, BASE_HEX, NULL, 0x0, "Link down Interval in ms", HFILL }},
+      { "MRP_LNKdownT", "pn_io.mrp_lnkdownt",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Link down Interval in ms", HFILL }
+    },
     { &hf_pn_io_mrp_lnkupt,
-        { "MRP_LNKupT", "pn_io.mrp_lnkupt", FT_UINT16, BASE_HEX, NULL, 0x0, "Link up Interval in ms", HFILL }},
+      { "MRP_LNKupT", "pn_io.mrp_lnkupt",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Link up Interval in ms", HFILL }
+    },
     { &hf_pn_io_mrp_lnknrmax,
-        { "MRP_LNKNRmax", "pn_io.mrp_lnknrmax", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "MRP_LNKNRmax", "pn_io.mrp_lnknrmax",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_version,
-        { "MRP_Version", "pn_io.mrp_version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "MRP_Version", "pn_io.mrp_version",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_substitute_active_flag,
-        { "SubstituteActiveFlag", "pn_io.substitute_active_flag", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "SubstituteActiveFlag", "pn_io.substitute_active_flag",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_data,
-        { "LengthData", "pn_io.length_data", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "LengthData", "pn_io.length_data",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_mrp_ring_state,
-        { "MRP_RingState", "pn_io.mrp_ring_state", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_ring_state_vals), 0x0, NULL, HFILL }},
+      { "MRP_RingState", "pn_io.mrp_ring_state",
+        FT_UINT16, BASE_HEX, VALS(pn_io_mrp_ring_state_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mrp_rt_state,
-        { "MRP_RTState", "pn_io.mrp_rt_state", FT_UINT16, BASE_HEX, VALS(pn_io_mrp_rt_state_vals), 0x0, NULL, HFILL }},
+      { "MRP_RTState", "pn_io.mrp_rt_state",
+        FT_UINT16, BASE_HEX, VALS(pn_io_mrp_rt_state_vals), 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_im_tag_function,
-        { "IM_Tag_Function", "pn_io.im_tag_function", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IM_Tag_Function", "pn_io.im_tag_function",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_tag_location,
-        { "IM_Tag_Location", "pn_io.im_tag_location", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IM_Tag_Location", "pn_io.im_tag_location",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_date,
-        { "IM_Date", "pn_io.im_date", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IM_Date", "pn_io.im_date",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_im_descriptor,
-        { "IM_Descriptor", "pn_io.im_descriptor", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "IM_Descriptor", "pn_io.im_descriptor",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_fs_hello_mode,
-        { "FSHelloMode", "pn_io.fs_hello_mode", FT_UINT32, BASE_HEX, VALS(pn_io_fs_hello_mode_vals), 0x0, NULL, HFILL }},
+      { "FSHelloMode", "pn_io.fs_hello_mode",
+        FT_UINT32, BASE_HEX, VALS(pn_io_fs_hello_mode_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_fs_hello_interval,
-        { "FSHelloInterval", "pn_io.fs_hello_interval", FT_UINT32, BASE_DEC, NULL, 0x0, "ms before conveying a second DCP_Hello.req", HFILL }},
+      { "FSHelloInterval", "pn_io.fs_hello_interval",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "ms before conveying a second DCP_Hello.req", HFILL }
+    },
     { &hf_pn_io_fs_hello_retry,
-        { "FSHelloRetry", "pn_io.fs_hello_retry", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "FSHelloRetry", "pn_io.fs_hello_retry",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_fs_hello_delay,
-        { "FSHelloDelay", "pn_io.fs_hello_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "FSHelloDelay", "pn_io.fs_hello_delay",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_fs_parameter_mode,
-        { "FSParameterMode", "pn_io.fs_parameter_mode", FT_UINT32, BASE_HEX, VALS(pn_io_fs_parameter_mode_vals), 0x0, NULL, HFILL }},
+      { "FSParameterMode", "pn_io.fs_parameter_mode",
+        FT_UINT32, BASE_HEX, VALS(pn_io_fs_parameter_mode_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_fs_parameter_uuid,
-        { "FSParameterUUID", "pn_io.fs_parameter_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "FSParameterUUID", "pn_io.fs_parameter_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     { &hf_pn_io_check_sync_mode,
-      { "CheckSyncMode", "pn_io.check_sync_mode", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "CheckSyncMode", "pn_io.check_sync_mode",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_check_sync_mode_reserved,
-      { "Reserved", "pn_io.check_sync_mode.reserved", FT_UINT16, BASE_HEX, NULL, 0xFFFC, NULL, HFILL }},
+      { "Reserved", "pn_io.check_sync_mode.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFFC,
+        NULL, HFILL }
+    },
     { &hf_pn_io_check_sync_mode_sync_master,
-      { "SyncMaster", "pn_io.check_sync_mode.sync_master", FT_UINT16, BASE_HEX, NULL, 0x0002, NULL, HFILL }},
+      { "SyncMaster", "pn_io.check_sync_mode.sync_master",
+        FT_UINT16, BASE_HEX, NULL, 0x0002,
+        NULL, HFILL }
+    },
     { &hf_pn_io_check_sync_mode_cable_delay,
-      { "CableDelay", "pn_io.check_sync_mode.cable_delay", FT_UINT16, BASE_HEX, NULL, 0x0001, NULL, HFILL }},
+      { "CableDelay", "pn_io.check_sync_mode.cable_delay",
+        FT_UINT16, BASE_HEX, NULL, 0x0001,
+        NULL, HFILL }
+    },
 
     /* profisafe parameter */
     { &hf_pn_io_profisafe_f_prm_flag1,
-      { "F_Prm_Flag1", "pn_io.profisafe.f_prm_flag1", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "F_Prm_Flag1", "pn_io.profisafe.f_prm_flag1",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag1_chck_seq,
-      { "F_Check_SeqNr", "pn_io.profisafe.f_prm_flag1.f_check_seqnr", FT_UINT8, BASE_HEX, VALS(pn_io_f_check_seqnr), 0x01, NULL, HFILL }},
+      { "F_Check_SeqNr", "pn_io.profisafe.f_prm_flag1.f_check_seqnr",
+        FT_UINT8, BASE_HEX, VALS(pn_io_f_check_seqnr), 0x01,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag1_chck_ipar,
-      { "F_Check_iPar", "pn_io.profisafe.f_prm_flag1.f_check_ipar", FT_UINT8, BASE_HEX, VALS(pn_io_f_check_ipar), 0x02, NULL, HFILL }},
+      { "F_Check_iPar", "pn_io.profisafe.f_prm_flag1.f_check_ipar",
+        FT_UINT8, BASE_HEX, VALS(pn_io_f_check_ipar), 0x02,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag1_sil,
-      { "F_SIL", "pn_io.profisafe.f_prm_flag1.f_sil", FT_UINT8, BASE_HEX, VALS(pn_io_f_sil), 0xc, NULL, HFILL }},
+      { "F_SIL", "pn_io.profisafe.f_prm_flag1.f_sil",
+        FT_UINT8, BASE_HEX, VALS(pn_io_f_sil), 0xc,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag1_crc_len,
-      { "F_CRC_Length", "pn_io.profisafe.f_prm_flag1.f_crc_len", FT_UINT8, BASE_HEX, VALS(pn_io_f_crc_len), 0x30, NULL, HFILL }},
+      { "F_CRC_Length", "pn_io.profisafe.f_prm_flag1.f_crc_len",
+        FT_UINT8, BASE_HEX, VALS(pn_io_f_crc_len), 0x30,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag1_reserved,
-      { "Reserved", "pn_io.profisafe.f_prm_flag1.reserved", FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+      { "Reserved", "pn_io.profisafe.f_prm_flag1.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0xC0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag2,
-      { "F_Prm_Flag2", "pn_io.profisafe.f_prm_flag2", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "F_Prm_Flag2", "pn_io.profisafe.f_prm_flag2",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag2_reserved,
-      { "Reserved", "pn_io.profisafe.f_prm_flag2.reserved", FT_UINT8, BASE_HEX, NULL, 0x07, NULL, HFILL }},
+      { "Reserved", "pn_io.profisafe.f_prm_flag2.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x07,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag2_f_block_id,
-      { "F_BlockId", "pn_io.profisafe.f_prm_flag2.f_block_id", FT_UINT8, BASE_HEX, VALS(pn_io_f_block_id), 0x38, NULL, HFILL }},
+      { "F_BlockId", "pn_io.profisafe.f_prm_flag2.f_block_id",
+        FT_UINT8, BASE_HEX, VALS(pn_io_f_block_id), 0x38,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_prm_flag2_f_par_version,
-      { "F_ParVersion", "pn_io.profisafe.f_prm_flag2.f_par_version", FT_UINT8, BASE_HEX, VALS(pn_io_f_par_version), 0xC0, NULL, HFILL }},
+      { "F_ParVersion", "pn_io.profisafe.f_prm_flag2.f_par_version",
+        FT_UINT8, BASE_HEX, VALS(pn_io_f_par_version), 0xC0,
+        NULL, HFILL }
+    },
       { &hf_pn_io_profisafe_f_src_addr,
-      { "F_Source_Address", "pn_io.profisafe.f_src_addr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { "F_Source_Address", "pn_io.profisafe.f_src_addr",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+      },
     { &hf_pn_io_profisafe_f_dst_addr,
-      { "F_Destination_Address", "pn_io.profisafe.f_dst_addr", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "F_Destination_Address", "pn_io.profisafe.f_dst_addr",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_wd_time,
-      { "F_WD_Time", "pn_io.profisafe._f_wd_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "F_WD_Time", "pn_io.profisafe._f_wd_time",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profisafe_f_par_crc,
-      { "F_Par_CRC", "pn_io.profisafe._f_par_crc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "F_Par_CRC", "pn_io.profisafe._f_par_crc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
 
     /* profidrive parameter access */
     { &hf_pn_io_profidrive_request_reference,
-      { "RequestReference", "pn_io.profidrive.parameter.request_reference", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "RequestReference", "pn_io.profidrive.parameter.request_reference",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_request_id,
-      { "RequestID", "pn_io.profidrive.parameter.request_id", FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_request_id_vals), 0x0, NULL, HFILL }},
+      { "RequestID", "pn_io.profidrive.parameter.request_id",
+        FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_request_id_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_do_id,
-      { "DO", "pn_io.profidrive.parameter.do", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "DO", "pn_io.profidrive.parameter.do",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_no_of_parameters,
-      { "NoOfParameters", "pn_io.profidrive.parameter.no_of_parameters", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NoOfParameters", "pn_io.profidrive.parameter.no_of_parameters",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_param_attribute,
-      { "Attribute", "pn_io.profidrive.parameter.attribute", FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_attribute_vals), 0x0, NULL, HFILL }},
+      { "Attribute", "pn_io.profidrive.parameter.attribute",
+        FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_attribute_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_param_no_of_elems,
-      { "NoOfElements", "pn_io.profidrive.parameter.no_of_elems", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NoOfElements", "pn_io.profidrive.parameter.no_of_elems",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_param_number,
-      { "Parameter", "pn_io.profidrive.parameter.number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Parameter", "pn_io.profidrive.parameter.number",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_param_subindex,
-      { "Index", "pn_io.profidrive.parameter.index", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "Index", "pn_io.profidrive.parameter.index",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_response_id,
-      { "ResponseID", "pn_io.profidrive.parameter.response_id", FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_response_id_vals), 0x0, NULL, HFILL }},
+      { "ResponseID", "pn_io.profidrive.parameter.response_id",
+        FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_response_id_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_param_format,
-      { "Format", "pn_io.profidrive.parameter.format", FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_format_vals), 0x0, NULL, HFILL }},
+      { "Format", "pn_io.profidrive.parameter.format",
+        FT_UINT8, BASE_HEX, VALS(pn_io_profidrive_format_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_param_no_of_values,
-      { "NoOfValues", "pn_io.profidrive.parameter.no_of_values", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { "NoOfValues", "pn_io.profidrive.parameter.no_of_values",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_profidrive_param_value,
-      { "Value", "pn_io.profidrive.parameter.value", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { "Value", "pn_io.profidrive.parameter.value",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_packedframe_SFCRC,
-      { "SFCRC16", "pn_io.packedframe.sfcrc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }}
+      { "SFCRC16", "pn_io.packedframe.sfcrc",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    }
     };
 
     static gint *ett[] = {
