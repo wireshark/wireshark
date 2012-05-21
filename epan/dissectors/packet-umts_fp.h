@@ -23,25 +23,25 @@
  */
 
 /* Channel types */
-#define CHANNEL_RACH_FDD      1
-#define CHANNEL_RACH_TDD      2
-#define CHANNEL_FACH_FDD      3
-#define CHANNEL_FACH_TDD      4
-#define CHANNEL_DSCH_FDD      5         /* DSCH Downlink Shared Channel */
-#define CHANNEL_DSCH_TDD      6
-#define CHANNEL_USCH_TDD_384  8
-#define CHANNEL_USCH_TDD_128  24
-#define CHANNEL_PCH           9
-#define CHANNEL_CPCH          10
-#define CHANNEL_BCH           11
-#define CHANNEL_DCH           12        /* DCH Dedicated Transport Channel */
-#define CHANNEL_HSDSCH        13
-#define CHANNEL_IUR_CPCHF     14
-#define CHANNEL_IUR_FACH      15
-#define CHANNEL_IUR_DSCH      16
-#define CHANNEL_EDCH          17        /* E-DCH Enhanced DCH */
-#define CHANNEL_RACH_TDD_128  18
-#define CHANNEL_HSDSCH_COMMON 19
+#define CHANNEL_RACH_FDD          1
+#define CHANNEL_RACH_TDD          2
+#define CHANNEL_FACH_FDD          3
+#define CHANNEL_FACH_TDD          4
+#define CHANNEL_DSCH_FDD          5         /* DSCH Downlink Shared Channel */
+#define CHANNEL_DSCH_TDD          6
+#define CHANNEL_USCH_TDD_384      8
+#define CHANNEL_USCH_TDD_128     24
+#define CHANNEL_PCH               9
+#define CHANNEL_CPCH             10
+#define CHANNEL_BCH              11
+#define CHANNEL_DCH              12        /* DCH Dedicated Transport Channel */
+#define CHANNEL_HSDSCH           13
+#define CHANNEL_IUR_CPCHF        14
+#define CHANNEL_IUR_FACH         15
+#define CHANNEL_IUR_DSCH         16
+#define CHANNEL_EDCH             17        /* E-DCH Enhanced DCH */
+#define CHANNEL_RACH_TDD_128     18
+#define CHANNEL_HSDSCH_COMMON    19
 #define CHANNEL_HSDSCH_COMMON_T3 20
 #define CHANNEL_EDCH_COMMON      21
 
@@ -53,17 +53,17 @@ enum fp_interface_type
 
 enum division_type
 {
-    Division_FDD=1,
-    Division_TDD_384=2,
-    Division_TDD_128=3,
-    Division_TDD_768=4
+    Division_FDD     = 1,
+    Division_TDD_384 = 2,
+    Division_TDD_128 = 3,
+    Division_TDD_768 = 4
 };
 
 enum fp_hsdsch_entity
 {
-    entity_not_specified=0,
-    hs=1,
-    ehs=2
+    entity_not_specified = 0,
+    hs                   = 1,
+    ehs                  = 2
 };
 
 enum fp_link_type
@@ -96,17 +96,17 @@ typedef struct fp_info
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
     guint8 edch_type;  /* 1 means T2 */
 
-    gint cur_tb;	/* current transport block (required for dissecting of single TBs */
+    gint cur_tb;    /* current transport block (required for dissecting of single TBs */
     gint cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
 
     guint16 srcport, destport;
 
     enum   fp_hsdsch_entity hsdsch_entity;
     enum   fp_link_type link_type;
-}fp_info;
+} fp_info;
 
 /* From NBAC-Constants.asn */
-#define FP_maxNrOfTFs			32
+#define FP_maxNrOfTFs           32
 
 typedef struct
 {
@@ -117,27 +117,27 @@ typedef struct
     gint dl_chan_tf_size[MAX_FP_CHANS];
     gint dl_chan_num_tbs[MAX_FP_CHANS];
 
-}fp_dch_chanel_info_t;
+} fp_dch_chanel_info_t;
 
 typedef struct
 {
     enum fp_interface_type iface_type;
     enum division_type     division;
     gint channel;                       /* see Channel types definitions above */
-	guint32 dl_frame_number;			/* the frame where this conversation is started from CRNC */
-	guint32 ul_frame_number;			/* the frame where this conversation is started from Node B */
-	address crnc_address;
-	guint16 crnc_port;
-	/* DCH's in this flow */
-	gint num_dch_in_flow;
-	gint dchs_in_flow_list[FP_maxNrOfTFs];
+    guint32 dl_frame_number;            /* the frame where this conversation is started from CRNC */
+    guint32 ul_frame_number;            /* the frame where this conversation is started from Node B */
+    address crnc_address;
+    guint16 crnc_port;
+    /* DCH's in this flow */
+    gint num_dch_in_flow;
+    gint dchs_in_flow_list[FP_maxNrOfTFs];
 
     guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
 
 
-	fp_dch_chanel_info_t fp_dch_chanel_info[FP_maxNrOfTFs];
+    fp_dch_chanel_info_t fp_dch_chanel_info[FP_maxNrOfTFs];
 
-	enum   fp_hsdsch_entity hsdsch_entity;
-}umts_fp_conversation_info_t;
+    enum   fp_hsdsch_entity hsdsch_entity;
+} umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);
