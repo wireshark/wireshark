@@ -2914,7 +2914,7 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     guint16 u16ChannelErrorType;
     guint16 u16ExtChannelErrorType;
     guint32 u32ExtChannelAddValue;
-    guint16 u16Index;
+    guint16 u16Index = 0;
     guint32 u32RecDataLen;
     pnio_ar_t *ar = NULL;
 
@@ -3500,7 +3500,7 @@ dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
     guint8 u8LengthIOCS;
     guint8 u8LengthIOPS;
     guint16 u16LengthData;
-    guint16 u16Index;
+    guint16 u16Index = 0;
     guint32 u32RecDataLen;
     pnio_ar_t *ar = NULL;
 
@@ -4965,7 +4965,7 @@ dissect_PDPortFODataReal_block(tvbuff_t *tvb, int offset,
 {
     guint32 u32FiberOpticType;
     guint32 u32FiberOpticCableType;
-    guint16 u16Index;
+    guint16 u16Index = 0;
     guint32 u32RecDataLen;
     pnio_ar_t *ar = NULL;
 
@@ -5372,7 +5372,7 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
 {
     guint16 u16SlotNr;
     guint16 u16SubslotNr;
-    guint16 u16Index;
+    guint16 u16Index = 0;
     guint32 u32RecDataLen;
     pnio_ar_t *ar = NULL;
 
