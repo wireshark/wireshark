@@ -3322,7 +3322,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 val_to_str_const(p_fp_info->channel,
                                  channel_type_vals,
                                  "Unknown channel type"));
-    if (p_conv) {
+    if (p_conv_data) {
 		int i;
 		col_append_fstr(pinfo->cinfo, COL_INFO, "(%u",p_conv_data->dchs_in_flow_list[0]);
 		for (i=1; i < p_conv_data->num_dch_in_flow; i++){
