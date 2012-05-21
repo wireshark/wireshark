@@ -203,12 +203,6 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          Wireshark is unable to display the correct IEEE 802.11 MCS data rates due to header definition is unsigned 8-bit integer.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7134">Bug
-          7134</ulink>)
-        </para></listitem>
-
-        <listitem><para>
           Megaco parser problem with LF in header.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7198">Bug
           7198</ulink>)
