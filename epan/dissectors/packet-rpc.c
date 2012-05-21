@@ -2378,7 +2378,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			se_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 		}
 
-		if(rpc_call && rpc_call->rep_num){
+		if(rpc_call->rep_num){
 			proto_item *tmp_item;
 
 			tmp_item=proto_tree_add_uint_format(rpc_tree, hf_rpc_reqframe,
