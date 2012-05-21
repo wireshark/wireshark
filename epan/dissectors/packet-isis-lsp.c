@@ -81,6 +81,9 @@ static int hf_isis_lsp_att = -1;
 static int hf_isis_lsp_hippity = -1;
 static int hf_isis_lsp_is_type = -1;
 static int hf_isis_lsp_root_id = -1;
+static int hf_isis_lsp_spb_link_metric = -1;
+static int hf_isis_lsp_spb_port_count = -1;
+static int hf_isis_lsp_spb_port_id = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -92,6 +95,7 @@ static gint ett_isis_lsp_clv_ext_is_reachability = -1; /* CLV 22 */
 static gint ett_isis_lsp_part_of_clv_ext_is_reachability = -1;
 static gint ett_isis_lsp_subclv_admin_group = -1;
 static gint ett_isis_lsp_subclv_unrsv_bw = -1;
+static gint ett_isis_lsp_subclv_spb_link_metric = -1;
 static gint ett_isis_lsp_clv_unknown = -1;
 static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
@@ -2177,6 +2181,54 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 
 /*
+ * Name: dissect_subclv_spb_link_metric ()
+ *
+ * Description: Called by function dissect_lsp_ext_is_reachability_clv().
+ *
+ *   This function is called by dissect_lsp_ext_is_reachability_clv()
+ *   for dissect the SPB link metric sub-CLV (code 29).
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   int : subtlv type
+ *   int : subtlv length
+ *
+ * Output:
+ *   void
+ */
+
+static void
+dissect_subclv_spb_link_metric(tvbuff_t   *tvb,
+        proto_tree *tree, int offset, int subtype, int sublen)
+{
+    const int SUBLEN     = 6;
+
+    if (sublen != SUBLEN) {
+        isis_dissect_unknown( tvb, tree, offset,
+                              "Short SPB Link Metric sub-TLV (%d vs %d)", sublen, SUBLEN);
+        return;
+    }
+    else {
+        proto_tree *subtree, *ti;
+        ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+                                  "SPB Link Metric: Type: 0x%02x (%d), Length: %d", subtype, subtype, sublen);
+        subtree = proto_item_add_subtree(ti,
+                  ett_isis_lsp_subclv_spb_link_metric);
+
+		proto_tree_add_item(subtree, hf_isis_lsp_spb_link_metric,
+				            tvb, offset, 3, ENC_BIG_ENDIAN);
+
+		proto_tree_add_item(subtree, hf_isis_lsp_spb_port_count,
+				            tvb, offset+3, 1, ENC_BIG_ENDIAN);
+
+		proto_tree_add_item(subtree, hf_isis_lsp_spb_port_id,
+				            tvb, offset+4, 2, ENC_BIG_ENDIAN);
+    }
+}
+
+/*
  * Name: dissect_lsp_ext_is_reachability_clv()
  *
  * Description: Decode a Extended IS Reachability CLV - code 22
@@ -2259,6 +2311,10 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 					proto_tree_add_text (ntree, tvb, offset+11+i, 5,
 						"Traffic engineering default metric: %d",
 						tvb_get_ntoh24(tvb, offset+13+i) );
+					break;
+				case 29:
+					dissect_subclv_spb_link_metric(tvb, ntree, 
+                            offset+13+i, clv_code, clv_len);
 					break;
 				case 250:
 				case 251:
@@ -2747,7 +2803,6 @@ isis_register_lsp(int proto_isis) {
 		{ "MT-ID", "isis.lsp.clv_mt",
 			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-
 		{ &hf_isis_lsp_p,
 		{ "Partition Repair",	"isis.lsp.partition_repair", FT_BOOLEAN, 8,
 			TFS(&tfs_supported_not_supported), ISIS_LSP_PARTITION_MASK,
@@ -2770,7 +2825,20 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_is_type,
 		{ "Type of Intermediate System",	"isis.lsp.is_type", FT_UINT8, BASE_DEC,
 			VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
-			NULL, HFILL }}
+			NULL, HFILL }},
+
+		{ &hf_isis_lsp_spb_link_metric,
+        { "SPB Link Metric", "isis.lsp.spb.link_metric",
+		    FT_UINT24, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_isis_lsp_spb_port_count,
+        { "Number of Ports", "isis.lsp.spb.port_count",
+		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_isis_lsp_spb_port_id,
+        { "Port Id", "isis.lsp.spb.port_id",
+		    FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL }}
+
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,
@@ -2783,6 +2851,7 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_part_of_clv_ext_is_reachability,
 		&ett_isis_lsp_subclv_admin_group,
 		&ett_isis_lsp_subclv_unrsv_bw,
+		&ett_isis_lsp_subclv_spb_link_metric,
 		&ett_isis_lsp_clv_unknown,
 		&ett_isis_lsp_clv_partition_dis,
 		&ett_isis_lsp_clv_prefix_neighbors,
