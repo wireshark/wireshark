@@ -3126,7 +3126,7 @@ static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static fp_info*
-fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_)
 {
 	fp_info *fpi;
 	guint8 tfi;
