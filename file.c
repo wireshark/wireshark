@@ -1131,15 +1131,16 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
         /* This frame passed the display filter but it may depend on other
          * (potentially not displayed) frames.  Find those frames and mark them
          * as depended upon.
-         *
-         * (We don't have to do this if we're not filtering--that is, the
-         * 'else' case below.)
          */
         g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
       }
     }
-  } else
+  } else {
     fdata->flags.passed_dfilter = 1;
+
+    /* If there's no dfilter then there are no frame dependencies */
+    fdata->flags.dependent_of_displayed = 0;
+  }
 
   if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
     cf->displayed_count++;
