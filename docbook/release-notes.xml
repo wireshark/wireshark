@@ -254,15 +254,15 @@ DHCP,
 DIAMETER,
 DNS,
 GTP,
-IEEE 802.3,
 IEEE 802.11,
+IEEE 802.3,
 IPv4,
 LTP,
 Megaco,
 MPLS,
 NFS,
 OPC UA,
-RADIUS,
+RADIUS
 
     </para>
     </section>
