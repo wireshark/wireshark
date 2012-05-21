@@ -30,7 +30,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 #define SYNC_PORT 5000
 
@@ -74,11 +73,11 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *sync_tree;
-    guint8 type, spare;
-    guint16 packet_nr, packet_len1, packet_len2;
-    guint32 timestamp, total_nr_of_packet;
-    int offset = 0;
-    tvbuff_t *next_tvb;
+    guint8      type, spare;
+    guint16     packet_nr, packet_len1, packet_len2;
+    guint32     timestamp, total_nr_of_packet;
+    int         offset = 0;
+    tvbuff_t   *next_tvb;
 
     type = tvb_get_guint8(tvb, offset) >> 4;
     spare = tvb_get_guint8(tvb, offset) & 0x0F;
@@ -223,8 +222,6 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_sync(void)
 {
-    module_t *sync_module;
-
     static hf_register_info hf_sync[] = {
         { &hf_sync_type,
             { "PDU Type", "sync.type",
@@ -287,8 +284,6 @@ proto_register_sync(void)
     proto_register_field_array(proto_sync, hf_sync, array_length(hf_sync));
     proto_register_subtree_array(ett_sync_array, array_length(ett_sync_array));
 
-    sync_module = prefs_register_protocol(proto_sync, proto_reg_handoff_sync);
-
     new_register_dissector("sync", dissect_sync, proto_sync);
 }
 
@@ -296,7 +291,7 @@ void
 proto_reg_handoff_sync(void)
 {
     sync_handle = new_create_dissector_handle(dissect_sync, proto_sync);
-    ip_handle = find_dissector("ip");
+    ip_handle   = find_dissector("ip");
 
     dissector_add_handle("udp.port", sync_handle);
 }
