@@ -1222,7 +1222,7 @@ typedef struct _pinfo_method_t {
 
 static int Pinfo_hi(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-    Address addr = g_malloc(sizeof(address));
+    Address addr;
 
     if (!pinfo) return 0;
     if (pinfo->expired) {
@@ -1230,6 +1230,7 @@ static int Pinfo_hi(lua_State *L) {
         return 0;
     }
 
+    addr = g_malloc(sizeof(address));
     if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
         COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
     } else {
@@ -1242,7 +1243,7 @@ static int Pinfo_hi(lua_State *L) {
 
 static int Pinfo_lo(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-    Address addr = g_malloc(sizeof(address));
+    Address addr;
 
     if (!pinfo) return 0;
     if (pinfo->expired) {
@@ -1250,6 +1251,7 @@ static int Pinfo_lo(lua_State *L) {
         return 0;
     }
 
+    addr = g_malloc(sizeof(address));
     if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
         COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
     } else {

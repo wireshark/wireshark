@@ -317,7 +317,7 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
         WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
     } */
 
-    if (pr >= 0.0 || pr <= 1.0) {
+    if (pr >= 0.0 && pr <= 1.0) {
         ops->update_progress(pd->pw, (float) pr, task);
     } else {
         WSLUA_ERROR(ProgDlg_update,"Progress value out of range (must be between 0.0 and 1.0)");

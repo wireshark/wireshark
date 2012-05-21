@@ -1574,9 +1574,6 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 
     if(!(name && ui_name)) return 0;
 
-    name = g_strdup(name);
-    ui_name = g_strdup(ui_name);
-
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
@@ -1586,6 +1583,9 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
         case FT_UINT32:
         {
             DissectorTable dt = g_malloc(sizeof(struct _wslua_distbl_t));
+
+            name = g_strdup(name);
+            ui_name = g_strdup(ui_name);
 
             dt->table = register_dissector_table(name, ui_name, type, base);
             dt->name = name;
