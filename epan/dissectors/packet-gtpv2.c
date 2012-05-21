@@ -2973,7 +2973,7 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_item *flag;
     proto_tree *flag_tree;
     int         offset;
-    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len;
+    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len, hbr_len;
 
     offset = 0;
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
@@ -3051,13 +3051,23 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_tree_add_text(tree, tvb, offset, vdp_len, "Voice Domain Preference and UE's Usage Setting");
         offset = offset +  vdp_len;
     }
+
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    /* s+2 Higher bitrates than 16 Mbps flag */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    if (offset == (gint)length){
+        hbr_len = tvb_get_guint8(tvb,offset);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* s+2 Higher bitrates than 16 Mbps flag */
+        if(hbr_len){
+            proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += hbr_len;
+        }
+    }else{
+        return;
+    }
+
     proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
+
 }
 
 /* Type = 105 (decimal)
@@ -3069,7 +3079,7 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item *flag;
     proto_tree *flag_tree;
     int         offset;
-    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len;
+    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len, hbr_len;
 
     offset = 0;
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
@@ -3143,12 +3153,20 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_text(tree, tvb, offset, vdp_len, "Voice Domain Preference and UE's Usage Setting");
         offset = offset +  vdp_len;
     }
+
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    /* s+2 Higher bitrates than 16 Mbps flag */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    if (offset < (gint)length){
+        hbr_len = tvb_get_guint8(tvb,offset);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* s+2 Higher bitrates than 16 Mbps flag */
+        if(hbr_len){
+            proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += hbr_len;
+        }
+    }else{
+        return;
+    }
 
     proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
 
@@ -3163,7 +3181,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item *flag;
     proto_tree *flag_tree;
     int         offset;
-    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len;
+    guint8      oct, drxi, nr_qui, uamb_ri, samb_ri, vdp_len, hbr_len;
 
     offset = 0;
     flag = proto_tree_add_text(tree, tvb, offset, 3, "MM Context flags");
@@ -3241,14 +3259,22 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* (r+3) to s Voice Domain Preference and UE's Usage Setting */
     if(vdp_len){
         proto_tree_add_text(tree, tvb, offset, vdp_len, "Voice Domain Preference and UE's Usage Setting");
-        /*offset = offset +  vdp_len;*/
+        offset = offset +  vdp_len;
     }
+
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    /* s+2 Higher bitrates than 16 Mbps flag */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    if (offset < (gint)length){
+        hbr_len = tvb_get_guint8(tvb,offset);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* s+2 Higher bitrates than 16 Mbps flag */
+        if(hbr_len){
+            proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += hbr_len;
+        }
+    }else{
+        return;
+    }
 
     /* (s+3) to (n+4) These octet(s) is/are present only if explicitly specified */
     proto_tree_add_text(flag_tree, tvb, offset, -1, "The rest of the IE not dissected yet");
