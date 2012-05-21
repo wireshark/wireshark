@@ -175,17 +175,17 @@ static void dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb,
 static void dissect_lsp_ip_reachability_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_ipreach_subclv(tvbuff_t *tvb,
-        proto_tree *tree, int offset, int clv_code, int clv_len);
+	proto_tree *tree, int offset, int clv_code, int clv_len);
 static void dissect_lsp_mt_reachable_IPv4_prefx_clv(tvbuff_t *tvb,
-        proto_tree *tree, int offset, int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_mt_reachable_IPv6_prefx_clv(tvbuff_t *tvb,
-        proto_tree *tree, int offset, int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_isis_rt_capable_clv(tvbuff_t *tvb,
-        proto_tree *tree, int offset, int id_length, int length);
+	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_isis_grp_address_clv(tvbuff_t *tvb,
-        proto_tree *tree, int offset, int id_length,int length);
-static void
-        fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid);
+	proto_tree *tree, int offset, int id_length,int length);
+static void fp_get_hmac_addr (guint64 hmac, guint16 *swid,
+	guint16 *sswid, guint16 *lid);
 
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 	{
@@ -242,18 +242,18 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
-        {
-                ISIS_CLV_HOSTNAME,
-                "Hostname",
-                &ett_isis_lsp_clv_hostname,
-                dissect_lsp_hostname_clv
-        },
-        {
-                ISIS_CLV_TE_ROUTER_ID,
-                "Traffic Engineering Router ID",
-                &ett_isis_lsp_clv_te_router_id,
-                dissect_lsp_te_router_id_clv
-        },
+	{
+		ISIS_CLV_HOSTNAME,
+		"Hostname",
+		&ett_isis_lsp_clv_hostname,
+		dissect_lsp_hostname_clv
+	},
+	{
+		ISIS_CLV_TE_ROUTER_ID,
+		"Traffic Engineering Router ID",
+		&ett_isis_lsp_clv_te_router_id,
+		dissect_lsp_te_router_id_clv
+	},
 	{
 		ISIS_CLV_IP_ADDR,
 		"IP Interface address(es)",
@@ -314,13 +314,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_rt_capable_IPv4_prefx,
 		dissect_isis_rt_capable_clv
 	},
-	 {
-                ISIS_GRP_ADDR,
-                "GROUP ADDRESS TLV",
+	{
+		ISIS_GRP_ADDR,
+		"GROUP ADDRESS TLV",
 		&ett_isis_lsp_clv_grp_address_IPv4_prefx,
 		dissect_isis_grp_address_clv
-	 },
-
+	},
 	{
 		0,
 		"",
@@ -378,18 +377,18 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 		&ett_isis_lsp_clv_nlpid,
 		dissect_lsp_nlpid_clv
 	},
-        {
-                ISIS_CLV_HOSTNAME,
-                "Hostname",
-                &ett_isis_lsp_clv_hostname,
-                dissect_lsp_hostname_clv
-        },
-        {
-                ISIS_CLV_TE_ROUTER_ID,
-                "Traffic Engineering Router ID",
-                &ett_isis_lsp_clv_te_router_id,
-                dissect_lsp_te_router_id_clv
-        },
+	{
+		ISIS_CLV_HOSTNAME,
+		"Hostname",
+		&ett_isis_lsp_clv_hostname,
+		dissect_lsp_hostname_clv
+	},
+	{
+		ISIS_CLV_TE_ROUTER_ID,
+		"Traffic Engineering Router ID",
+		&ett_isis_lsp_clv_te_router_id,
+		dissect_lsp_te_router_id_clv
+	},
 	{
 		ISIS_CLV_EXTD_IP_REACH,
 		"Extended IP Reachability",
@@ -500,7 +499,7 @@ dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 	mt_block = tvb_get_ntohs(tvb, offset);
 
 	proto_tree_add_text ( tree, tvb, offset, 1 ,
-                        "4 most significant bits reserved, should be set to 0 (%d)", ISIS_LSP_MT_MSHIP_RES(mt_block));
+	                     "4 most significant bits reserved, should be set to 0 (%d)", ISIS_LSP_MT_MSHIP_RES(mt_block));
 
 	mt_id = ISIS_LSP_MT_MSHIP_ID(mt_block);
 	/*mask out the lower 12 bits */
@@ -525,7 +524,7 @@ dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 	}
 
 	proto_tree_add_text ( tree, tvb, offset, 2 ,
-                        "%s (%d)", mt_desc, mt_id);
+	                     "%s (%d)", mt_desc, mt_id);
 
 }
 
@@ -619,11 +618,11 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 			/* find out if the mask matches one of 33 possible prefix lengths */
 			bitmask = 0xffffffff;
 			for(prefix_len = 32; prefix_len >= 0; prefix_len--) {
-			  if (bitmask==mask) {
-			    found_mask = TRUE;
-			    break;
-			  }
-			  bitmask = bitmask << 1;
+				if (bitmask==mask) {
+					found_mask = TRUE;
+					break;
+				}
+				bitmask = bitmask << 1;
 			}
 
 			/* If we have a discontiguous netmask, dump the mask, otherwise print the prefix_len */
@@ -635,7 +634,7 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 				ip_to_str((guint8*)&src),
 				prefix_len );
 			} else {
-			  ti = proto_tree_add_text ( tree, tvb, offset, 12,
+				ti = proto_tree_add_text ( tree, tvb, offset, 12,
 				"IPv4 prefix: %s mask %s",
 				ip_to_str((guint8*)&src),
 				tvb_ip_to_str(tvb, offset+8));
@@ -652,27 +651,27 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 
 			if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+1))) {
-			  proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   Not supported");
-					       } else {
-                          proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   %d, %s",
-					       ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+1)),
-					       ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+1)) ? "External" : "Internal");
-					       }
-
-                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+2))) {
-                          proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric: Not supported");
+				proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   Not supported");
 			} else {
-                          proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric:  %d, %s",
-                                               ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+2)),
-					       ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+2)) ? "External" : "Internal");
+				proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   %d, %s",
+				                     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+1)),
+				                     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+1)) ? "External" : "Internal");
 			}
 
-                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+3))) {
-                          proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   Not supported");
+			if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+2))) {
+				proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric: Not supported");
 			} else {
-                          proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   %d, %s",
-                                               ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+3)),
-					       ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+3)) ? "External" : "Internal");
+				proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric:  %d, %s",
+				                     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+2)),
+				                     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+2)) ? "External" : "Internal");
+			}
+
+			if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+3))) {
+				proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   Not supported");
+			} else {
+				proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   %d, %s",
+				                     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+3)),
+				                     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+3)) ? "External" : "Internal");
 			}
 		}
 		offset += 12;
@@ -698,34 +697,34 @@ static void
 dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code, int clv_len)
 {
 
-        switch (clv_code) {
-        case 1:
-                while (clv_len >= 4) {
-                        proto_tree_add_text(tree, tvb, offset, 4,
-                                    "32-Bit Administrative tag: 0x%08x (=%u)",
-                                    tvb_get_ntohl(tvb, offset),
-                                    tvb_get_ntohl(tvb, offset));
-                        offset+=4;
-                        clv_len-=4;
-                }
-                break;
-        case 2:
-                while (clv_len >= 8) {
-                        proto_tree_add_text(tree, tvb, offset, 8,
-                                    "64-Bit Administrative tag: 0x%08x%08x",
-                                    tvb_get_ntohl(tvb, offset),
-                                    tvb_get_ntohl(tvb, offset+4));
-                        offset+=8;
-                        clv_len-=8;
-                }
-                break;
+	switch (clv_code) {
+	case 1:
+		while (clv_len >= 4) {
+			proto_tree_add_text(tree, tvb, offset, 4,
+			                    "32-Bit Administrative tag: 0x%08x (=%u)",
+			                    tvb_get_ntohl(tvb, offset),
+			                    tvb_get_ntohl(tvb, offset));
+			offset+=4;
+			clv_len-=4;
+		}
+		break;
+	case 2:
+		while (clv_len >= 8) {
+			proto_tree_add_text(tree, tvb, offset, 8,
+			                    "64-Bit Administrative tag: 0x%08x%08x",
+			                    tvb_get_ntohl(tvb, offset),
+			                    tvb_get_ntohl(tvb, offset+4));
+			offset+=8;
+			clv_len-=8;
+		}
+		break;
 
-        default :
-                proto_tree_add_text (tree, tvb, offset, clv_len+2,
-                                     "Unknown sub-TLV: code %u, length %u",
-                                     clv_code, clv_len );
-                break;
-        }
+		default :
+			proto_tree_add_text (tree, tvb, offset, clv_len+2,
+			                     "Unknown sub-TLV: code %u, length %u",
+			                     clv_code, clv_len );
+			break;
+	}
 }
 
 
@@ -777,60 +776,59 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 		if (byte_length == -1) {
 			 isis_dissect_unknown(tvb, tree, offset,
 			 	"IPv4 prefix has an invalid length: %d bits", bit_length );
-      			return;
-    		}
+				return;
+			}
 		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x40) != 0)
-                        subclvs_len = 1+tvb_get_guint8(tvb, offset+5+byte_length);
+			subclvs_len = 1+tvb_get_guint8(tvb, offset+5+byte_length);
 
 		pi = proto_tree_add_text (tree, tvb, offset, 5+byte_length+subclvs_len,
-                                          "IPv4 prefix: %s/%d, Metric: %u, Distribution: %s, %ssub-TLVs present",
-                                          ip_to_str (prefix),
-                                          bit_length,
-                                          metric,
-                                          ((ctrl_info & 0x80) == 0) ? "up" : "down",
-                                          ((ctrl_info & 0x40) == 0) ? "no " : "" );
+		                          "IPv4 prefix: %s/%d, Metric: %u, Distribution: %s, %ssub-TLVs present",
+		                          ip_to_str (prefix),
+		                          bit_length,
+		                          metric,
+		                          ((ctrl_info & 0x80) == 0) ? "up" : "down",
+		                          ((ctrl_info & 0x40) == 0) ? "no " : "" );
 
-                /* open up a new tree per prefix */
+		/* open up a new tree per prefix */
 		subtree = proto_item_add_subtree (pi, ett_isis_lsp_part_of_clv_ext_ip_reachability);
 
 		proto_tree_add_text (subtree, tvb, offset+5, byte_length, "IPv4 prefix: %s/%u",
-                                     ip_to_str (prefix),
-                                     bit_length);
+		                     ip_to_str (prefix), bit_length);
 
 		proto_tree_add_text (subtree, tvb, offset, 4, "Metric: %u", metric);
 
 		proto_tree_add_text (subtree, tvb, offset+4, 1, "Distribution: %s",
-                                     ((ctrl_info & 0x80) == 0) ? "up" : "down");
+		                     ((ctrl_info & 0x80) == 0) ? "up" : "down");
 
 		len = 5 + byte_length;
 		if ((ctrl_info & 0x40) != 0) {
-                        subclvs_len = tvb_get_guint8(tvb, offset+len);
-                        pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
-                                             subclvs_len);
-                        proto_item_set_len (pi, subclvs_len+1);
-                        /* open up a new tree for the subTLVs */
-                        subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
+			subclvs_len = tvb_get_guint8(tvb, offset+len);
+			pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
+			                          subclvs_len);
+			proto_item_set_len (pi, subclvs_len+1);
+			/* open up a new tree for the subTLVs */
+			subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
 
-                        i =0;
-                        while (i < subclvs_len) {
+			i =0;
+			while (i < subclvs_len) {
 				clv_code = tvb_get_guint8(tvb, offset+len+1); /* skip the total subtlv len indicator */
 				clv_len  = tvb_get_guint8(tvb, offset+len+2);
 
-                                /*
-                                 * we pass on now the raw data to the ipreach_subtlv dissector
-                                 * therefore we need to skip 3 bytes
-                                 * (total subtlv len, subtlv type, subtlv len)
-                                 */
-                                dissect_ipreach_subclv(tvb, subtree2, offset+len+3, clv_code, clv_len);
-                                i += clv_len + 2;
-                        }
-                        len += 1 + subclvs_len;
-                } else {
-                        proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
-                        proto_item_set_len (pi, len);
-                }
+				/*
+				 * we pass on now the raw data to the ipreach_subtlv dissector
+				 * therefore we need to skip 3 bytes
+				 * (total subtlv len, subtlv type, subtlv len)
+				 */
+				dissect_ipreach_subclv(tvb, subtree2, offset+len+3, clv_code, clv_len);
+				i += clv_len + 2;
+			}
+			len += 1 + subclvs_len;
+		} else {
+			proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
+			                     proto_item_set_len (pi, len);
+		}
 
 		offset += len;
 		length -= len;
@@ -1002,299 +1000,298 @@ static void
 dissect_isis_rt_capable_clv(tvbuff_t *tvb,
         proto_tree *tree, int offset, int id_length _U_, int length)
 {
-        gint len;
-        guint16 rt_block;
-        guint32 rt_block1;
-        proto_item *ti;
-        proto_tree *rt_tree;
+	gint len;
+	guint16 rt_block;
+	guint32 rt_block1;
+	proto_item *ti;
+	proto_tree *rt_tree;
 
-        const char *mt_desc;
-        gint root_id = 1;       /* To display the root id */
-        gint sec_vlan_id = 1;   /* To display the seconadary VLAN id */
-        length = length - 5;    /* Ignoring the 5 reserved bytes */
-        offset = offset + 5;
+	const char *mt_desc;
+	gint root_id = 1;       /* To display the root id */
+	gint sec_vlan_id = 1;   /* To display the seconadary VLAN id */
+	length = length - 5;    /* Ignoring the 5 reserved bytes */
+	offset = offset + 5;
 
-        while (length>1) {
+	while (length>1) {
 		/* fetch two bytes */
-                rt_block = tvb_get_ntohs(tvb, offset);
+		rt_block = tvb_get_ntohs(tvb, offset);
 
-                /* Mask out the lower 8 bits */
-                switch ((rt_block&0xff00)>>8) {
+		/* Mask out the lower 8 bits */
+		switch ((rt_block&0xff00)>>8) {
 
-                case TRILL_VERSION:
-                    mt_desc = "TRILL version";
+		case TRILL_VERSION:
+			mt_desc = "TRILL version";
 
-                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
 
-                    length = length-1;
-                    offset = offset+1;
+			length = length-1;
+			offset = offset+1;
 
-                    len = tvb_get_guint8(tvb, offset); /* 1 byte fetched displays the length */
-                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+			len = tvb_get_guint8(tvb, offset); /* 1 byte fetched displays the length */
+			proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
 
-                    rt_block = tvb_get_ntohs(tvb, offset); /* Fetch the data in the next two bytes for display */
-                    proto_tree_add_text(rt_tree, tvb, offset+1, 1, "Maximum version: %d", (rt_block&0x00ff));
+			rt_block = tvb_get_ntohs(tvb, offset); /* Fetch the data in the next two bytes for display */
+			proto_tree_add_text(rt_tree, tvb, offset+1, 1, "Maximum version: %d", (rt_block&0x00ff));
 
-                    length = length-2;
-                    offset = offset+2;
+			length = length-2;
+			offset = offset+2;
 
-                    break;
+			break;
 
-                case TREES:
-                    mt_desc = "Trees";
-                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+		case TREES:
+			mt_desc = "Trees";
+			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
 
-                    length = length-1;
-                    offset = offset+1;
+			length = length-1;
+			offset = offset+1;
 
-                    len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+			len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
 
-                    length = length-1;
-                    offset = offset+1;
+			length = length-1;
+			offset = offset+1;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Nof. trees to compute: %d", rt_block);
+			rt_block = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Nof. trees to compute: %d", rt_block);
 
-                    length = length-2;
-                    offset = offset+2;
+			length = length-2;
+			offset = offset+2;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Maximum nof. trees to compute: %d", rt_block);
+			rt_block = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Maximum nof. trees to compute: %d", rt_block);
 
-                    length = length-2;
-                    offset = offset+2;
+			length = length-2;
+			offset = offset+2;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
+			rt_block = tvb_get_ntohs(tvb, offset);
 
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Nof. trees to use: %d", rt_block);
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Nof. trees to use: %d", rt_block);
 
-                    length = length-2;
-                    offset = offset+2;
+			length = length-2;
+			offset = offset+2;
 
-                    break;
+			break;
 
-                case TREE_IDENTIFIER:
-                    mt_desc = "Tree root identifier";
-                    ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+		case TREE_IDENTIFIER:
+			mt_desc = "Tree root identifier";
+			ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
 
-                    length = length-1;
-                    offset = offset+1;
+			length = length-1;
+			offset = offset+1;
 
-                    len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+			len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
 
-                    rt_block = tvb_get_ntohs(tvb, offset+1);
+			rt_block = tvb_get_ntohs(tvb, offset+1);
 
-                    proto_tree_add_text(rt_tree, tvb, offset+1, 2, "Starting tree no: %d", rt_block);
+			proto_tree_add_text(rt_tree, tvb, offset+1, 2, "Starting tree no: %d", rt_block);
 
-                    len = len-2;
-                    length = length-2;
-                    offset = offset+3;
+			len = len-2;
+			length = length-2;
+			offset = offset+3;
 
-                    while (len>1) {
-                          rt_block = tvb_get_ntohs(tvb, offset);
-                          proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname(%dth root): %d", root_id, rt_block);
-                          root_id = root_id+1;
-                          len = len-2;
-                          length = length-2;
-                          offset = offset+2;
-                    }
-                    break;
+			while (len>1) {
+				rt_block = tvb_get_ntohs(tvb, offset);
+				proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname(%dth root): %d", root_id, rt_block);
+				root_id = root_id+1;
+				len = len-2;
+				length = length-2;
+				offset = offset+2;
+			}
+			break;
 
-                case NICKNAME:
-                    mt_desc = "The nickname";
-                    ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+		case NICKNAME:
+			mt_desc = "The nickname";
+			ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
 
-                    length = length-1;
-                    offset = offset+1;
-                    len = tvb_get_guint8(tvb, offset);
+			length = length-1;
+			offset = offset+1;
+			len = tvb_get_guint8(tvb, offset);
 
-                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
-                    length = length-1;
-                    offset = offset+1;
+			proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+			length = length-1;
+			offset = offset+1;
 
-                    while (len>0) {
-                        rt_block = tvb_get_ntohs(tvb, offset);
+			while (len>0) {
+				rt_block = tvb_get_ntohs(tvb, offset);
 
-                        proto_tree_add_text(rt_tree, tvb, offset, 1, "Nickname priority: %d", ((rt_block&0xff00)>>8));
+				proto_tree_add_text(rt_tree, tvb, offset, 1, "Nickname priority: %d", ((rt_block&0xff00)>>8));
 
-                        length = length-1;
-                        offset = offset+1;
-                        len = len-1;
-                        rt_block = tvb_get_ntohs(tvb, offset);
+				length = length-1;
+				offset = offset+1;
+				len = len-1;
+				rt_block = tvb_get_ntohs(tvb, offset);
 
-                        proto_tree_add_text(rt_tree, tvb, offset, 2, "Tree root priority: %d", rt_block);
+				proto_tree_add_text(rt_tree, tvb, offset, 2, "Tree root priority: %d", rt_block);
 
-                        length = length-2;
-                        offset = offset+2;
-                        len = len-2;
+				length = length-2;
+				offset = offset+2;
+				len = len-2;
 
-                        rt_block = tvb_get_ntohs(tvb, offset);
+				rt_block = tvb_get_ntohs(tvb, offset);
 
-                        proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname: %x", rt_block);
+				proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname: %x", rt_block);
 
-                        length = length-2;
-                        offset = offset+2;
-                        len = len-2;
-                    }
-                    break;
+				length = length-2;
+				offset = offset+2;
+				len = len-2;
+			}
+			break;
 
-                case INTERESTED_VLANS:
-                    mt_desc = "Interested VLAN and spanning tree root";
-                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+		case INTERESTED_VLANS:
+			mt_desc = "Interested VLAN and spanning tree root";
+			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
 
-                    length = length-1;
-                    offset = offset+1;
+			length = length-1;
+			offset = offset+1;
 
-                    len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+			len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
 
-                    length = length-1;
-                    offset = offset+1;
-                    len = len-1;
+			length = length-1;
+			offset = offset+1;
+			len = len-1;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
+			rt_block = tvb_get_ntohs(tvb, offset);
 
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname: %x", rt_block);
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname: %x", rt_block);
 
-                    length = length-2;
-                    offset = offset+2;
-                    len = len-2;
+			length = length-2;
+			offset = offset+2;
+			len = len-2;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
+			rt_block = tvb_get_ntohs(tvb, offset);
 
-                    proto_tree_add_text(rt_tree, tvb, offset, 2,
-                                        "%s%s", (rt_block&0x8000) ? "IPv4 multicast router set, " : "IPv4 multicast router not set, ",
-                                                (rt_block&0x4000) ? "IPv6 multicast router set" : "IPv6 multicast router not set");
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Vlan start id: %x", (rt_block&0x0fff));
+			proto_tree_add_text(rt_tree, tvb, offset, 2,
+			                    "%s%s", (rt_block&0x8000) ? "IPv4 multicast router set, " : "IPv4 multicast router not set, ",
+			                    (rt_block&0x4000) ? "IPv6 multicast router set" : "IPv6 multicast router not set");
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Vlan start id: %x", (rt_block&0x0fff));
 
-                    length = length-2;
-                    offset = offset+2;
-                    len = len-2;
+			length = length-2;
+			offset = offset+2;
+			len = len-2;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
+			rt_block = tvb_get_ntohs(tvb, offset);
 
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Vlan end id: %x", (rt_block&0x0fff));
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Vlan end id: %x", (rt_block&0x0fff));
 
-                    length = length-2;
-                    offset = offset+2;
-                    len = len-2;
+			length = length-2;
+			offset = offset+2;
+			len = len-2;
 
-                    rt_block1 = tvb_get_ntohl(tvb, offset);
+			rt_block1 = tvb_get_ntohl(tvb, offset);
 
-                    proto_tree_add_text(rt_tree, tvb, offset, 4, "Appointed forward state lost counter: %d", rt_block1);
+			proto_tree_add_text(rt_tree, tvb, offset, 4, "Appointed forward state lost counter: %d", rt_block1);
 
-                    length = length-4;
-                    offset = offset+4;
-                    len = len-4;
+			length = length-4;
+			offset = offset+4;
+			len = len-4;
 
-                    while (len>0) {
-                        proto_tree_add_item(rt_tree, hf_isis_lsp_root_id, tvb, offset,
-                                            6, ENC_BIG_ENDIAN);
+			while (len>0) {
+				proto_tree_add_item(rt_tree, hf_isis_lsp_root_id, tvb, offset, 6, ENC_BIG_ENDIAN);
 
-                        length = length-6;
-                        offset = offset+6;
-                        len = len-6;
-                        length = length-2;
-                    }
-                    break;
+				length = length-6;
+				offset = offset+6;
+				len = len-6;
+				length = length-2;
+			}
+			break;
 
-                case TREES_USED_IDENTIFIER:
-                    mt_desc = "Trees used identifier";
+		case TREES_USED_IDENTIFIER:
+			mt_desc = "Trees used identifier";
 
-                    ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+			ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
 
-                    length = length-1;
-                    offset = offset+1;
+			length = length-1;
+			offset = offset+1;
 
-                    len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+			len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
 
-                    rt_block = tvb_get_ntohs(tvb, offset+1);
+			rt_block = tvb_get_ntohs(tvb, offset+1);
 
-                    proto_tree_add_text(rt_tree, tvb, offset+1, 2, "Starting tree no: %d", rt_block);
-                    len = len-2;
-                    length = length-2;
-                    offset = offset+3;
-                    root_id = 1;
+			proto_tree_add_text(rt_tree, tvb, offset+1, 2, "Starting tree no: %d", rt_block);
+			len = len-2;
+			length = length-2;
+			offset = offset+3;
+			root_id = 1;
 
-                    while (len>0) {
-                        rt_block = tvb_get_ntohs(tvb, offset);
-                        proto_tree_add_text(rt_tree, tvb, offset,2,"Nickname(%dth root): %d", root_id, rt_block);
-                        root_id = root_id+1;
+			while (len>0) {
+				rt_block = tvb_get_ntohs(tvb, offset);
+				proto_tree_add_text(rt_tree, tvb, offset,2,"Nickname(%dth root): %d", root_id, rt_block);
+				root_id = root_id+1;
 
-                        len = len-2;
-                        offset = offset+2;
-                        length = length-2;
-                    }
-                    break;
+				len = len-2;
+				offset = offset+2;
+				length = length-2;
+			}
+			break;
 
-                case VLAN_GROUP:
-                    mt_desc = "The VLAN group";
-                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+		case VLAN_GROUP:
+			mt_desc = "The VLAN group";
+			ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+			rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
 
-                    length = length-1;
-                    offset = offset+1;
+			length = length-1;
+			offset = offset+1;
 
-                    len = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+			len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
 
-                    len = len-1;
-                    length = length-1;
-                    offset = offset+1;
+			len = len-1;
+			length = length-1;
+			offset = offset+1;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Primary vlan id: %d", (rt_block&0x0fff));
+			rt_block = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Primary vlan id: %d", (rt_block&0x0fff));
 
-                    length = length-2;
-                    offset = offset+2;
-                    len = len-2;
+			length = length-2;
+			offset = offset+2;
+			len = len-2;
 
-                    rt_block = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Secondary vlan id: %d", (rt_block&0x0fff));
+			rt_block = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_text(rt_tree, tvb, offset, 2, "Secondary vlan id: %d", (rt_block&0x0fff));
 
-                    length = length-2;
-                    offset = offset+2;
-                    len = len-2;
-                    sec_vlan_id = 1;
+			length = length-2;
+			offset = offset+2;
+			len = len-2;
+			sec_vlan_id = 1;
 
-                    while (len>0) {
-                        rt_block = tvb_get_ntohs(tvb, offset);
+			while (len>0) {
+				rt_block = tvb_get_ntohs(tvb, offset);
 
-                        proto_tree_add_text(rt_tree, tvb, offset, 2, "%dth secondary vlan id: %x", sec_vlan_id, rt_block);
+				proto_tree_add_text(rt_tree, tvb, offset, 2, "%dth secondary vlan id: %x", sec_vlan_id, rt_block);
 
-                        length = length-2;
-                        offset = offset+2;
-                        sec_vlan_id = sec_vlan_id+1;
-                        len = len-2;
-                    }
-                    break;
+				length = length-2;
+				offset = offset+2;
+				sec_vlan_id = sec_vlan_id+1;
+				len = len-2;
+			}
+			break;
 
-                default:
-                    mt_desc = "INVALID";
-                    proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+		default:
+			mt_desc = "INVALID";
+			proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    offset = offset+1;
-                    length = length-2-(tvb_get_guint8(tvb, offset));
-                    offset = offset+1+(tvb_get_guint8(tvb, offset));
-                    break;
-                }
-        }
+			offset = offset+1;
+			length = length-2-(tvb_get_guint8(tvb, offset));
+			offset = offset+1+(tvb_get_guint8(tvb, offset));
+			break;
+		}
+	}
 }
 
 
@@ -1342,63 +1339,63 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		if (byte_length == -1) {
 			isis_dissect_unknown(tvb, tree, offset,
 				"IPv6 prefix has an invalid length: %d bits", bit_length );
-      			return;
-    		}
+				return;
+			}
 		metric = tvb_get_ntohl(tvb, offset);
 		subclvs_len = 0;
 		if ((ctrl_info & 0x20) != 0)
-                        subclvs_len = 1+tvb_get_guint8(tvb, offset+6+byte_length);
+			subclvs_len = 1+tvb_get_guint8(tvb, offset+6+byte_length);
 
 		pi = proto_tree_add_text (tree, tvb, offset, 6+byte_length+subclvs_len,
-                                          "IPv6 prefix: %s/%u, Metric: %u, Distribution: %s, %s, %ssub-TLVs present",
-                                          ip6_to_str (&prefix),
-                                          bit_length,
-                                          metric,
-                                          ((ctrl_info & 0x80) == 0) ? "up" : "down",
-                                          ((ctrl_info & 0x40) == 0) ? "internal" : "external",
-                                          ((ctrl_info & 0x20) == 0) ? "no " : "" );
+		                          "IPv6 prefix: %s/%u, Metric: %u, Distribution: %s, %s, %ssub-TLVs present",
+		                          ip6_to_str (&prefix),
+		                          bit_length,
+		                          metric,
+		                          ((ctrl_info & 0x80) == 0) ? "up" : "down",
+		                          ((ctrl_info & 0x40) == 0) ? "internal" : "external",
+		                          ((ctrl_info & 0x20) == 0) ? "no " : "" );
 
 		subtree = proto_item_add_subtree (pi, ett_isis_lsp_part_of_clv_ipv6_reachability);
 
 		proto_tree_add_text (subtree, tvb, offset+6, byte_length, "IPv6 prefix: %s/%u",
-                                     ip6_to_str (&prefix),
-                                     bit_length);
+		                     ip6_to_str (&prefix),
+		                     bit_length);
 
 		proto_tree_add_text (subtree, tvb, offset, 4,
-			"Metric: %u", metric);
+		                     "Metric: %u", metric);
 
 		proto_tree_add_text (subtree, tvb, offset+4, 1,
-			"Distribution: %s, %s",
-			((ctrl_info & 0x80) == 0) ? "up" : "down",
-			((ctrl_info & 0x40) == 0) ? "internal" : "external" );
+		                     "Distribution: %s, %s",
+		                     ((ctrl_info & 0x80) == 0) ? "up" : "down",
+		                     ((ctrl_info & 0x40) == 0) ? "internal" : "external" );
 
 		if ((ctrl_info & 0x1f) != 0) {
 			proto_tree_add_text (subtree, tvb, offset+4, 1,
-					     "Reserved bits: 0x%x",
-					     (ctrl_info & 0x1f) );
-                }
+			                     "Reserved bits: 0x%x",
+			                     (ctrl_info & 0x1f) );
+		}
 
 		len = 6 + byte_length;
 		if ((ctrl_info & 0x20) != 0) {
-                        subclvs_len = tvb_get_guint8(tvb, offset+len);
-                        pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
-                                             subclvs_len);
-                        proto_item_set_len (pi, subclvs_len+1);
-                        /* open up a new tree for the subTLVs */
-                        subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
+			subclvs_len = tvb_get_guint8(tvb, offset+len);
+			pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
+			                          subclvs_len);
+			proto_item_set_len (pi, subclvs_len+1);
+			/* open up a new tree for the subTLVs */
+			subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
 
-                        i =0;
-                        while (i < subclvs_len) {
+			i =0;
+			while (i < subclvs_len) {
 				clv_code = tvb_get_guint8(tvb, offset+len+1); /* skip the total subtlv len indicator */
 				clv_len  = tvb_get_guint8(tvb, offset+len+2);
-                                dissect_ipreach_subclv(tvb, subtree2, offset+len+3, clv_code, clv_len);
-                                i += clv_len + 2;
-                        }
-                        len += 1 + subclvs_len;
-                } else {
-                        proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
-                        proto_item_set_len (pi, len);
-                }
+				dissect_ipreach_subclv(tvb, subtree2, offset+len+3, clv_code, clv_len);
+				i += clv_len + 2;
+			}
+			len += 1 + subclvs_len;
+		} else {
+			proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
+			proto_item_set_len (pi, len);
+		}
 		offset += len;
 		length -= len;
 	}
@@ -1473,7 +1470,7 @@ static void
 dissect_lsp_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-        isis_dissect_hostname_clv(tvb, tree, offset, length,
+	isis_dissect_hostname_clv(tvb, tree, offset, length,
 		hf_isis_lsp_hostname);
 }
 
@@ -1499,8 +1496,8 @@ static void
 dissect_lsp_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-        isis_dissect_te_router_id_clv(tvb, tree, offset, length,
-                hf_isis_lsp_clv_te_router_id );
+	isis_dissect_te_router_id_clv(tvb, tree, offset, length,
+		hf_isis_lsp_clv_te_router_id );
 }
 
 
@@ -1558,186 +1555,186 @@ static void
 dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t   *tvb,
         proto_tree *tree, int offset, int subtype, int sublen)
 {
-    const int CIST_ROOT_ID_LEN            = 8; /* CIST Root Identifier */
-    const int CIST_EXT_ROOT_PATH_COST_LEN = 4; /* CIST External Root Path Cost */
-    const int BRIDGE_PRI_LEN              = 2; /* Bridge Priority */
-    const int V_SPSOURCEID_LEN            = 4; /* v | SPSourceID */
-    const int NUM_TREES_LEN               = 1; /* num of trees */
+	const int CIST_ROOT_ID_LEN            = 8; /* CIST Root Identifier */
+	const int CIST_EXT_ROOT_PATH_COST_LEN = 4; /* CIST External Root Path Cost */
+	const int BRIDGE_PRI_LEN              = 2; /* Bridge Priority */
+	const int V_SPSOURCEID_LEN            = 4; /* v | SPSourceID */
+	const int NUM_TREES_LEN               = 1; /* num of trees */
 
-    const int CIST_ROOT_ID_OFFSET = 0;
-    const int CIST_EXT_ROOT_PATH_COST_OFFSET = CIST_ROOT_ID_OFFSET            + CIST_ROOT_ID_LEN;
-    const int BRIDGE_PRI_OFFSET              = CIST_EXT_ROOT_PATH_COST_OFFSET + CIST_EXT_ROOT_PATH_COST_LEN;
-    const int V_SPSOURCEID_OFFSET            = BRIDGE_PRI_OFFSET              + BRIDGE_PRI_LEN;
-    const int NUM_TREES_OFFSET               = V_SPSOURCEID_OFFSET            + V_SPSOURCEID_LEN;
-    const int FIXED_LEN                      = NUM_TREES_OFFSET               + NUM_TREES_LEN;
-    const int VLAN_ID_TUPLE_LEN = 8;
+	const int CIST_ROOT_ID_OFFSET = 0;
+	const int CIST_EXT_ROOT_PATH_COST_OFFSET = CIST_ROOT_ID_OFFSET            + CIST_ROOT_ID_LEN;
+	const int BRIDGE_PRI_OFFSET              = CIST_EXT_ROOT_PATH_COST_OFFSET + CIST_EXT_ROOT_PATH_COST_LEN;
+	const int V_SPSOURCEID_OFFSET            = BRIDGE_PRI_OFFSET              + BRIDGE_PRI_LEN;
+	const int NUM_TREES_OFFSET               = V_SPSOURCEID_OFFSET            + V_SPSOURCEID_LEN;
+	const int FIXED_LEN                      = NUM_TREES_OFFSET               + NUM_TREES_LEN;
+	const int VLAN_ID_TUPLE_LEN = 8;
 
-    if (sublen < FIXED_LEN) {
-        isis_dissect_unknown( tvb, tree, offset,
-                              "Short SPB Digest subTLV (%d vs %d)", sublen, FIXED_LEN);
-        return;
-    }
-    else {
-        proto_tree *subtree, *ti;
-        int subofs = offset;
-        const guint8 *cist_root_identifier = tvb_get_ptr   (tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN);
-        const guint32 cist_root_path_cost  = tvb_get_ntohl (tvb, subofs + CIST_EXT_ROOT_PATH_COST_OFFSET);
-        const guint16 bridge_priority      = tvb_get_ntohs (tvb, subofs + BRIDGE_PRI_OFFSET);
-        const guint32 v_spsourceid         = tvb_get_ntohl (tvb, subofs + V_SPSOURCEID_OFFSET);
-        guint8        num_trees            = tvb_get_guint8(tvb, subofs + NUM_TREES_OFFSET);
+	if (sublen < FIXED_LEN) {
+		isis_dissect_unknown( tvb, tree, offset,
+		                      "Short SPB Digest subTLV (%d vs %d)", sublen, FIXED_LEN);
+		return;
+	}
+	else {
+		proto_tree *subtree, *ti;
+		int subofs = offset;
+		const guint8 *cist_root_identifier = tvb_get_ptr   (tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN);
+		const guint32 cist_root_path_cost  = tvb_get_ntohl (tvb, subofs + CIST_EXT_ROOT_PATH_COST_OFFSET);
+		const guint16 bridge_priority      = tvb_get_ntohs (tvb, subofs + BRIDGE_PRI_OFFSET);
+		const guint32 v_spsourceid         = tvb_get_ntohl (tvb, subofs + V_SPSOURCEID_OFFSET);
+		guint8        num_trees            = tvb_get_guint8(tvb, subofs + NUM_TREES_OFFSET);
 
-        /*************************/
-        ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
-                                  "SPB Instance: Type: 0x%02x, Length: %d", subtype, sublen);
-        subtree = proto_item_add_subtree(ti, ett_isis_lsp_clv_mt_cap_spb_instance);
+		/*************************/
+		ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+		                          "SPB Instance: Type: 0x%02x, Length: %d", subtype, sublen);
+		subtree = proto_item_add_subtree(ti, ett_isis_lsp_clv_mt_cap_spb_instance);
 
-        /*************************/
-        proto_tree_add_text( subtree, tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN,
-                             "CIST Root Identifier: %08x-%08x-%08x-%08x-%08x-%08x-%08x-%08x",
-                             cist_root_identifier[0],
-                             cist_root_identifier[1],
-                             cist_root_identifier[2],
-                             cist_root_identifier[3],
-                             cist_root_identifier[4],
-                             cist_root_identifier[5],
-                             cist_root_identifier[6],
-                             cist_root_identifier[7]);
-        proto_tree_add_text( subtree, tvb, subofs + CIST_EXT_ROOT_PATH_COST_OFFSET, CIST_EXT_ROOT_PATH_COST_LEN,
-                             "CIST External Root Path Cost: 0x%08x (%u)",
-                             cist_root_path_cost,
-                             cist_root_path_cost);
-        proto_tree_add_text( subtree, tvb, subofs + BRIDGE_PRI_OFFSET, BRIDGE_PRI_LEN,
-                             "Bridge Priority: 0x%04x (%u)",
-                             bridge_priority,
-                             bridge_priority);
-        proto_tree_add_text( subtree, tvb, subofs + V_SPSOURCEID_OFFSET, V_SPSOURCEID_LEN,
-                             "V: %u, SPSourceId: 0x%05x (%u)",
-                             (v_spsourceid & (1 << 20)) ? 1 : 0,
-                             v_spsourceid & 0xfffff,
-                             v_spsourceid & 0xfffff);
-        proto_tree_add_text( subtree, tvb, subofs + NUM_TREES_OFFSET, NUM_TREES_LEN,
-                             "Number of Trees: 0x%02x (%u)%s",
-                             num_trees,
-                             num_trees,
-                             num_trees ? "" : " Invalid subTLV: zero trees");
+		/*************************/
+		proto_tree_add_text( subtree, tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN,
+		                     "CIST Root Identifier: %08x-%08x-%08x-%08x-%08x-%08x-%08x-%08x",
+		                     cist_root_identifier[0],
+		                     cist_root_identifier[1],
+		                     cist_root_identifier[2],
+		                     cist_root_identifier[3],
+		                     cist_root_identifier[4],
+		                     cist_root_identifier[5],
+		                     cist_root_identifier[6],
+		                     cist_root_identifier[7]);
+		proto_tree_add_text( subtree, tvb, subofs + CIST_EXT_ROOT_PATH_COST_OFFSET, CIST_EXT_ROOT_PATH_COST_LEN,
+		                     "CIST External Root Path Cost: 0x%08x (%u)",
+		                     cist_root_path_cost,
+		                     cist_root_path_cost);
+		proto_tree_add_text( subtree, tvb, subofs + BRIDGE_PRI_OFFSET, BRIDGE_PRI_LEN,
+		                     "Bridge Priority: 0x%04x (%u)",
+		                     bridge_priority,
+		                     bridge_priority);
+		proto_tree_add_text( subtree, tvb, subofs + V_SPSOURCEID_OFFSET, V_SPSOURCEID_LEN,
+		                     "V: %u, SPSourceId: 0x%05x (%u)",
+		                     (v_spsourceid & (1 << 20)) ? 1 : 0,
+		                     v_spsourceid & 0xfffff,
+		                     v_spsourceid & 0xfffff);
+		proto_tree_add_text( subtree, tvb, subofs + NUM_TREES_OFFSET, NUM_TREES_LEN,
+		                     "Number of Trees: 0x%02x (%u)%s",
+		                     num_trees,
+		                     num_trees,
+		                     num_trees ? "" : " Invalid subTLV: zero trees");
 
-        subofs += FIXED_LEN;
-        sublen -= FIXED_LEN;
+		subofs += FIXED_LEN;
+		sublen -= FIXED_LEN;
 
-        /*************************/
-        if (sublen != (num_trees * VLAN_ID_TUPLE_LEN)) {
-            proto_tree_add_text( subtree, tvb, subofs, 0,
-                                 "SubTLV length doesn't match number of trees");
-            return;
-        }
-        while (sublen > 0 && num_trees > 0) {
-            if (sublen < VLAN_ID_TUPLE_LEN) {
-                isis_dissect_unknown( tvb, subtree, offset,
-                                      "Short VLAN_ID entry (%d vs %d)", sublen, VLAN_ID_TUPLE_LEN);
-                return;
-            }
-            else {
-                const guint8 flags       = tvb_get_guint8(tvb, subofs);
-                const guint8 *ect_id     = tvb_get_ptr(tvb, subofs + 1, 4);
-                const guint8 *bvid_spvid = tvb_get_ptr(tvb, subofs + 1 + 4, 3);
-                const guint16 bvid       = (0xff0 & (((guint16)bvid_spvid[0]) << 4)) | (0x0f & (bvid_spvid[1] >> 4));
-                const guint16 spvid      = (0xf00 & (((guint16)bvid_spvid[1]) << 8)) | (0xff & (bvid_spvid[2]));
-                proto_tree_add_text( subtree, tvb, subofs, VLAN_ID_TUPLE_LEN,
-                                     "  U: %u, M: %u, A: %u, ECT: %02x-%02x-%02x-%02x, BVID: 0x%03x (%d),%s SPVID: 0x%03x (%d)",
-                                     (flags >> 7) & 1,
-                                     (flags >> 6) & 1,
-                                     (flags >> 5) & 1,
-                                     ect_id[0], ect_id[1], ect_id[2], ect_id[3],
-                                     bvid, bvid,
-                                     (  bvid < 10   ? "   "
-                                      : bvid < 100  ? "  "
-                                      : bvid < 1000 ? " "
-                                      : ""),
-                                     spvid, spvid);
-                subofs += VLAN_ID_TUPLE_LEN;
-                sublen -= VLAN_ID_TUPLE_LEN;
-                --num_trees;
-            }
-        }
-        if (num_trees) {
-            isis_dissect_unknown( tvb, subtree, offset,
-                                  "Short subTLV (%d vs %d)", sublen, num_trees * VLAN_ID_TUPLE_LEN);
-            return;
-        }
-    }
+		/*************************/
+		if (sublen != (num_trees * VLAN_ID_TUPLE_LEN)) {
+			proto_tree_add_text( subtree, tvb, subofs, 0,
+			                     "SubTLV length doesn't match number of trees");
+			return;
+		}
+		while (sublen > 0 && num_trees > 0) {
+			if (sublen < VLAN_ID_TUPLE_LEN) {
+				isis_dissect_unknown( tvb, subtree, offset,
+				                      "Short VLAN_ID entry (%d vs %d)", sublen, VLAN_ID_TUPLE_LEN);
+				return;
+			}
+			else {
+				const guint8 flags       = tvb_get_guint8(tvb, subofs);
+				const guint8 *ect_id     = tvb_get_ptr(tvb, subofs + 1, 4);
+				const guint8 *bvid_spvid = tvb_get_ptr(tvb, subofs + 1 + 4, 3);
+				const guint16 bvid       = (0xff0 & (((guint16)bvid_spvid[0]) << 4)) | (0x0f & (bvid_spvid[1] >> 4));
+				const guint16 spvid      = (0xf00 & (((guint16)bvid_spvid[1]) << 8)) | (0xff & (bvid_spvid[2]));
+				proto_tree_add_text( subtree, tvb, subofs, VLAN_ID_TUPLE_LEN,
+				                     "  U: %u, M: %u, A: %u, ECT: %02x-%02x-%02x-%02x, BVID: 0x%03x (%d),%s SPVID: 0x%03x (%d)",
+				                     (flags >> 7) & 1,
+				                     (flags >> 6) & 1,
+				                     (flags >> 5) & 1,
+				                     ect_id[0], ect_id[1], ect_id[2], ect_id[3],
+				                     bvid, bvid,
+				                     (  bvid < 10   ? "   "
+				                      : bvid < 100  ? "  "
+				                      : bvid < 1000 ? " "
+				                      : ""),
+				                     spvid, spvid);
+				subofs += VLAN_ID_TUPLE_LEN;
+				sublen -= VLAN_ID_TUPLE_LEN;
+				--num_trees;
+			}
+		}
+		if (num_trees) {
+			isis_dissect_unknown( tvb, subtree, offset,
+			                      "Short subTLV (%d vs %d)", sublen, num_trees * VLAN_ID_TUPLE_LEN);
+			return;
+		}
+	}
 }
 static void
 dissect_isis_lsp_clv_mt_cap_spb_oalg(tvbuff_t   *tvb,
-        proto_tree *tree, int offset, int subtype, int sublen)
+	proto_tree *tree, int offset, int subtype, int sublen)
 {
-    isis_dissect_unknown( tvb, tree, offset,
-                          "MT-Cap SPB Opaque Algorithm: Type: 0x%02x, Length: %d", subtype, sublen);
+	isis_dissect_unknown( tvb, tree, offset,
+	                      "MT-Cap SPB Opaque Algorithm: Type: 0x%02x, Length: %d", subtype, sublen);
 }
 static void
 dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t   *tvb,
-        proto_tree *tree, int offset, int subtype, int sublen)
+	proto_tree *tree, int offset, int subtype, int sublen)
 {
-    const int BMAC_LEN = 6; /* B-MAC Address */
-    const int BVID_LEN = 2; /* Base-VID */
+	const int BMAC_LEN = 6; /* B-MAC Address */
+	const int BVID_LEN = 2; /* Base-VID */
 
-    const int BMAC_OFFSET = 0;
-    const int BVID_OFFSET = BMAC_OFFSET + BMAC_LEN;
-    const int FIXED_LEN   = BVID_OFFSET + BVID_LEN;
+	const int BMAC_OFFSET = 0;
+	const int BVID_OFFSET = BMAC_OFFSET + BMAC_LEN;
+	const int FIXED_LEN   = BVID_OFFSET + BVID_LEN;
 
-    const int ISID_LEN = 4;
+	const int ISID_LEN = 4;
 
-    if (sublen < FIXED_LEN) {
-        isis_dissect_unknown( tvb, tree, offset,
-                              "Short SPBM Service Identifier and Unicast Address subTLV (%d vs %d)", sublen, FIXED_LEN);
-        return;
-    }
-    else {
-        proto_tree *subtree, *ti;
-        int subofs = offset;
-        const guint8 *bmac = tvb_get_ptr  (tvb, subofs + BMAC_OFFSET, BMAC_LEN);
-        const guint16 bvid = tvb_get_ntohs(tvb, subofs + BVID_OFFSET);
+	if (sublen < FIXED_LEN) {
+		isis_dissect_unknown( tvb, tree, offset,
+		                      "Short SPBM Service Identifier and Unicast Address subTLV (%d vs %d)", sublen, FIXED_LEN);
+		return;
+	}
+	else {
+		proto_tree *subtree, *ti;
+		int subofs = offset;
+		const guint8 *bmac = tvb_get_ptr  (tvb, subofs + BMAC_OFFSET, BMAC_LEN);
+		const guint16 bvid = tvb_get_ntohs(tvb, subofs + BVID_OFFSET);
 
-        /*************************/
-        ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
-                                  "SPB Service ID and Unicast Address: Type: 0x%02x, Length: %d", subtype, sublen);
-        subtree = proto_item_add_subtree(ti, ett_isis_lsp_clv_mt_cap_spbm_service_identifier);
+		/*************************/
+		ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+		                          "SPB Service ID and Unicast Address: Type: 0x%02x, Length: %d", subtype, sublen);
+		subtree = proto_item_add_subtree(ti, ett_isis_lsp_clv_mt_cap_spbm_service_identifier);
 
-        /*************************/
-        proto_tree_add_text( subtree, tvb, subofs + BMAC_OFFSET, BMAC_LEN,
-                             "B-MAC: %02x-%02x-%02x-%02x-%02x-%02x",
-                             bmac[0],
-                             bmac[1],
-                             bmac[2],
-                             bmac[3],
-                             bmac[4],
-                             bmac[5]);
-        proto_tree_add_text( subtree, tvb, subofs + BVID_OFFSET, BVID_LEN,
-                             "Base-VID: 0x%03x (%u)",
-                             bvid, bvid);
+		/*************************/
+		proto_tree_add_text( subtree, tvb, subofs + BMAC_OFFSET, BMAC_LEN,
+		                     "B-MAC: %02x-%02x-%02x-%02x-%02x-%02x",
+		                     bmac[0],
+		                     bmac[1],
+		                     bmac[2],
+		                     bmac[3],
+		                     bmac[4],
+		                     bmac[5]);
+		proto_tree_add_text( subtree, tvb, subofs + BVID_OFFSET, BVID_LEN,
+		                     "Base-VID: 0x%03x (%u)",
+		                     bvid, bvid);
 
-        subofs += FIXED_LEN;
-        sublen -= FIXED_LEN;
+		subofs += FIXED_LEN;
+		sublen -= FIXED_LEN;
 
-        /*************************/
-        while (sublen > 0) {
-            if (sublen < ISID_LEN) {
-                isis_dissect_unknown( tvb, subtree, offset,
-                                      "Short ISID entry (%d vs %d)", sublen, ISID_LEN);
-                return;
-            }
-            else {
-                const guint32 isid = tvb_get_ntohl(tvb, subofs);
-                proto_tree_add_text( subtree, tvb, subofs, ISID_LEN,
-                                     "  T: %u, R: %u, ISID: 0x%06x (%d)",
-                                     (isid >> 31) & 1,
-                                     (isid >> 30) & 1,
-                                     isid & 0x00ffffff,
-                                     isid & 0x00ffffff);
-                subofs += ISID_LEN;
-                sublen -= ISID_LEN;
-            }
-        }
-    }
+		/*************************/
+		while (sublen > 0) {
+			if (sublen < ISID_LEN) {
+				isis_dissect_unknown( tvb, subtree, offset,
+				                      "Short ISID entry (%d vs %d)", sublen, ISID_LEN);
+				return;
+			}
+			else {
+				const guint32 isid = tvb_get_ntohl(tvb, subofs);
+				proto_tree_add_text( subtree, tvb, subofs, ISID_LEN,
+				                     "  T: %u, R: %u, ISID: 0x%06x (%d)",
+				                     (isid >> 31) & 1,
+				                     (isid >> 30) & 1,
+				                     isid & 0x00ffffff,
+				                     isid & 0x00ffffff);
+				subofs += ISID_LEN;
+				sublen -= ISID_LEN;
+			}
+		}
+	}
 }
 /*
  * Name: dissect_lsp_clv_mt_cap()
@@ -1758,43 +1755,43 @@ static void
 dissect_isis_lsp_clv_mt_cap(tvbuff_t *tvb, proto_tree *tree, int offset,
                             int id_length _U_, int length)
 {
-    if (length >= 2) {
-        /* mtid */
-        guint16 mtid = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_text( tree, tvb, offset, 2,
-                             "MTID: 0x%03x, Overload: %d",
-                             (mtid & 0xfff),
-                             (mtid & 0x8000) ? 1 : 0);
-        length -= 2;
-        offset += 2;
-        while (length >= 2) {
-            guint8 subtype   = tvb_get_guint8(tvb, offset);
-            guint8 subtlvlen = tvb_get_guint8(tvb, offset+1);
-            length -= 2;
-            offset += 2;
-            if (subtlvlen > length) {
-                isis_dissect_unknown( tvb, tree, offset,
-                                      "Short type 0x%02x TLV (%d vs %d)", subtype, subtlvlen, length);
-                return;
-            }
-            if (subtype == 0x01) { /* SPB Instance */
-                dissect_isis_lsp_clv_mt_cap_spb_instance(tvb, tree, offset, subtype, subtlvlen);
-            }
-            else if (subtype == 0x02) { /* OALG */
-                dissect_isis_lsp_clv_mt_cap_spb_oalg(tvb, tree, offset, subtype, subtlvlen);
-            }
-            else if (subtype == 0x03) { /* SPBM Service Identifier */
-                dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvb, tree, offset, subtype, subtlvlen);
-            }
-            else {
-                isis_dissect_unknown( tvb, tree, offset,
-                                      "Unknown SubTlv: Type: 0x%02x, Length: %d", subtype, subtlvlen);
-            }
-            length -= subtlvlen;
-            offset += subtlvlen;
-        }
+	if (length >= 2) {
+		/* mtid */
+		guint16 mtid = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_text( tree, tvb, offset, 2,
+		                     "MTID: 0x%03x, Overload: %d",
+		                     (mtid & 0xfff),
+		                     (mtid & 0x8000) ? 1 : 0);
+		length -= 2;
+		offset += 2;
+		while (length >= 2) {
+			guint8 subtype   = tvb_get_guint8(tvb, offset);
+			guint8 subtlvlen = tvb_get_guint8(tvb, offset+1);
+			length -= 2;
+			offset += 2;
+			if (subtlvlen > length) {
+				isis_dissect_unknown( tvb, tree, offset,
+				                      "Short type 0x%02x TLV (%d vs %d)", subtype, subtlvlen, length);
+				return;
+			}
+			if (subtype == 0x01) { /* SPB Instance */
+				dissect_isis_lsp_clv_mt_cap_spb_instance(tvb, tree, offset, subtype, subtlvlen);
+			}
+			else if (subtype == 0x02) { /* OALG */
+				dissect_isis_lsp_clv_mt_cap_spb_oalg(tvb, tree, offset, subtype, subtlvlen);
+			}
+			else if (subtype == 0x03) { /* SPBM Service Identifier */
+				dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvb, tree, offset, subtype, subtlvlen);
+			}
+			else {
+				isis_dissect_unknown( tvb, tree, offset,
+				                      "Unknown SubTlv: Type: 0x%02x, Length: %d", subtype, subtlvlen);
+			}
+			length -= subtlvlen;
+			offset += subtlvlen;
+		}
 
-    }
+	}
 }
 
 /*
@@ -1944,35 +1941,35 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, proto_tree *tree,
 
 
 
-                        proto_tree_add_text (ntree, tvb, offset, 1,
-					     "Default Metric: %d, %s",
-					     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset)),
-					     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset)) ? "External" : "Internal");
+				proto_tree_add_text (ntree, tvb, offset, 1,
+				                     "Default Metric: %d, %s",
+				                     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset)),
+				                     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset)) ? "External" : "Internal");
 
 			if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+1))) {
-                          proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   Not supported");
+				proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   Not supported");
 			} else {
-                          proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   %d, %s",
-                                             ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+1)),
-					     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+1)) ? "External" : "Internal");
+				proto_tree_add_text (ntree, tvb, offset+1, 1, "Delay Metric:   %d, %s",
+				                     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+1)),
+				                     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+1)) ? "External" : "Internal");
 			}
 
 
-                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+2))) {
-                          proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric: Not supported");
-                        } else {
-                          proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric: %d, %s",
-					       ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+2)),
-					       ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+2)) ? "External" : "Internal");
-                        }
+			if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+2))) {
+				proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric: Not supported");
+			} else {
+				proto_tree_add_text (ntree, tvb, offset+2, 1, "Expense Metric: %d, %s",
+				                     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+2)),
+				                     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+2)) ? "External" : "Internal");
+			}
 
-                        if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+3))) {
-                          proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   Not supported");
-                        } else {
-                          proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   %d, %s",
-					       ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+3)),
-					       ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+3)) ? "External" : "Internal");
-                        }
+			if (ISIS_LSP_CLV_METRIC_SUPPORTED(tvb_get_guint8(tvb, offset+3))) {
+				proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   Not supported");
+			} else {
+				proto_tree_add_text (ntree, tvb, offset+3, 1, "Error Metric:   %d, %s",
+				                     ISIS_LSP_CLV_METRIC_VALUE(tvb_get_guint8(tvb, offset+3)),
+				                     ISIS_LSP_CLV_METRIC_IE(tvb_get_guint8(tvb, offset+3)) ? "External" : "Internal");
+			}
 
 		}
 		offset += tlen;
@@ -2203,28 +2200,27 @@ static void
 dissect_subclv_spb_link_metric(tvbuff_t   *tvb,
         proto_tree *tree, int offset, int subtype, int sublen)
 {
-    const int SUBLEN     = 6;
+	const int SUBLEN     = 6;
 
-    if (sublen != SUBLEN) {
-        isis_dissect_unknown( tvb, tree, offset,
-                              "Short SPB Link Metric sub-TLV (%d vs %d)", sublen, SUBLEN);
-        return;
-    }
-    else {
-        proto_tree *subtree, *ti;
-        ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
-                                  "SPB Link Metric: Type: 0x%02x (%d), Length: %d", subtype, subtype, sublen);
-        subtree = proto_item_add_subtree(ti,
-                  ett_isis_lsp_subclv_spb_link_metric);
+	if (sublen != SUBLEN) {
+		isis_dissect_unknown( tvb, tree, offset,
+		                      "Short SPB Link Metric sub-TLV (%d vs %d)", sublen, SUBLEN);
+		return;
+	}
+	else {
+		proto_tree *subtree, *ti;
+		ti = proto_tree_add_text( tree, tvb, offset-2, sublen+2,
+		                          "SPB Link Metric: Type: 0x%02x (%d), Length: %d", subtype, subtype, sublen);
+		subtree = proto_item_add_subtree(ti, ett_isis_lsp_subclv_spb_link_metric);
 
 		proto_tree_add_item(subtree, hf_isis_lsp_spb_link_metric,
-				            tvb, offset, 3, ENC_BIG_ENDIAN);
+		                    tvb, offset, 3, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(subtree, hf_isis_lsp_spb_port_count,
-				            tvb, offset+3, 1, ENC_BIG_ENDIAN);
+		                    tvb, offset+3, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(subtree, hf_isis_lsp_spb_port_id,
-				            tvb, offset+4, 2, ENC_BIG_ENDIAN);
+		                    tvb, offset+4, 2, ENC_BIG_ENDIAN);
     }
 }
 
@@ -2314,7 +2310,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 					break;
 				case 29:
 					dissect_subclv_spb_link_metric(tvb, ntree, 
-                            offset+13+i, clv_code, clv_len);
+						offset+13+i, clv_code, clv_len);
 					break;
 				case 250:
 				case 251:
@@ -2569,15 +2565,15 @@ static void isis_lsp_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo
 	proto_item * item;
 
 	checksum_tree = proto_item_add_subtree(it_cksum, ett_isis_lsp_cksum);
-        item = proto_tree_add_boolean(checksum_tree, hf_isis_lsp_checksum_good, tvb,
-	   offset, 2, is_cksum_correct);
-        PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_boolean(checksum_tree, hf_isis_lsp_checksum_bad, tvb,
-	   offset, 2, !is_cksum_correct);
-        PROTO_ITEM_SET_GENERATED(item);
+	item = proto_tree_add_boolean(checksum_tree, hf_isis_lsp_checksum_good, tvb,
+	                              offset, 2, is_cksum_correct);
+	PROTO_ITEM_SET_GENERATED(item);
+	item = proto_tree_add_boolean(checksum_tree, hf_isis_lsp_checksum_bad, tvb,
+	                              offset, 2, !is_cksum_correct);
+	PROTO_ITEM_SET_GENERATED(item);
 	if (!is_cksum_correct) {
-	  expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
-	  col_append_str(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
+		expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+		col_append_str(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
 	}
 }
 
@@ -2637,11 +2633,11 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 				    id_length+2);
 		proto_tree_add_string_format(lsp_tree, hf_isis_lsp_lsp_id,
 			tvb, offset, id_length + 2,
-                        value, "LSP-ID: %s", value);
+			value, "LSP-ID: %s", value);
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );
 	}
 	offset += id_length + 2;
@@ -2828,16 +2824,16 @@ isis_register_lsp(int proto_isis) {
 			NULL, HFILL }},
 
 		{ &hf_isis_lsp_spb_link_metric,
-        { "SPB Link Metric", "isis.lsp.spb.link_metric",
-		    FT_UINT24, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
+		{ "SPB Link Metric", "isis.lsp.spb.link_metric",
+			FT_UINT24, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_spb_port_count,
-        { "Number of Ports", "isis.lsp.spb.port_count",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		{ "Number of Ports", "isis.lsp.spb.port_count",
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_spb_port_id,
-        { "Port Id", "isis.lsp.spb.port_id",
-		    FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL }}
+		{ "Port Id", "isis.lsp.spb.port_id",
+			FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL }}
 
 	};
 	static gint *ett[] = {
@@ -2858,15 +2854,15 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_authentication,
 		&ett_isis_lsp_clv_ip_authentication,
 		&ett_isis_lsp_clv_nlpid,
-                &ett_isis_lsp_clv_hostname,
+		&ett_isis_lsp_clv_hostname,
 		&ett_isis_lsp_clv_ipv4_int_addr,
 		&ett_isis_lsp_clv_ipv6_int_addr, /* CLV 232 */
-                &ett_isis_lsp_clv_mt_cap,
-                &ett_isis_lsp_clv_mt_cap_spb_instance,
-                &ett_isis_lsp_clv_mt_cap_spbm_service_identifier,
+		&ett_isis_lsp_clv_mt_cap,
+		&ett_isis_lsp_clv_mt_cap_spb_instance,
+		&ett_isis_lsp_clv_mt_cap_spbm_service_identifier,
 		&ett_isis_lsp_clv_te_router_id,
 		&ett_isis_lsp_clv_ip_reachability,
-                &ett_isis_lsp_clv_ip_reach_subclv,
+		&ett_isis_lsp_clv_ip_reach_subclv,
 		&ett_isis_lsp_clv_ext_ip_reachability, /* CLV 135 */
 		&ett_isis_lsp_part_of_clv_ext_ip_reachability,
 		&ett_isis_lsp_clv_ipv6_reachability, /* CLV 236 */
@@ -2875,7 +2871,7 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_mt_is,
 		&ett_isis_lsp_part_of_clv_mt_is,
 		&ett_isis_lsp_clv_rt_capable_IPv4_prefx,
-                &ett_isis_lsp_clv_grp_address_IPv4_prefx,    /*CLV 142*/
+		&ett_isis_lsp_clv_grp_address_IPv4_prefx,    /*CLV 142*/
 		&ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
 		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx
 	};
