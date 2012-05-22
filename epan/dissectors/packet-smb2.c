@@ -48,7 +48,8 @@
 #include "packet-dcerpc-nt.h"
 #include <string.h>
 
-
+static char smb_header_label[] = "SMB2 Header";
+static char smb_transform_header_label[] = "SMB2 Transform Header";
 
 static int proto_smb2 = -1;
 static int hf_smb2_cmd = -1;
@@ -308,11 +309,20 @@ static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
 static int hf_smb2_error_reserved = -1;
 static int hf_smb2_reserved = -1;
+static int hf_smb2_transform_signature = -1;
+static int hf_smb2_transform_nonce = -1;
+static int hf_smb2_transform_msg_size = -1;
+static int hf_smb2_transform_reserved = -1;
+static int hf_smb2_transform_sessionid = -1;
+static int hf_smb2_encryption_aes128_ccm = -1;
+static int hf_smb2_transform_enc_alg = -1;
+static int hf_smb2_transform_encyrpted_data = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
 static gint ett_smb2_ea = -1;
 static gint ett_smb2_header = -1;
+static gint ett_smb2_encrypted= -1;
 static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
 static gint ett_smb2_file_basic_info = -1;
@@ -379,6 +389,7 @@ static gint ett_smb2_full_directory_info = -1;
 static gint ett_smb2_file_name_info = -1;
 static gint ett_smb2_lock_info = -1;
 static gint ett_smb2_lock_flags = -1;
+static gint ett_smb2_transform_enc_alg = -1;
 
 static int smb2_tap = -1;
 
@@ -6084,6 +6095,47 @@ static smb2_function smb2_dissector[256] = {
 };
 
 
+#define ENC_ALG_aes128_ccm	0x0001
+
+static int
+dissect_smb2_transform_header(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_transform_info_t *sti)
+{
+	static const int *sf_fields[] = {
+		&hf_smb2_encryption_aes128_ccm,
+		NULL
+	};
+
+	/* signature */
+	proto_tree_add_item(tree, hf_smb2_transform_signature, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+	offset += 16;
+
+	/* nonce */
+	proto_tree_add_item(tree, hf_smb2_transform_nonce, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+	tvb_memcpy(tvb, sti->nonce, offset, 16);
+	offset += 16;
+
+	/* size */
+	proto_tree_add_item(tree, hf_smb2_transform_msg_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	sti->size = tvb_get_letohl(tvb, offset);
+	offset += 4;
+
+	/* reserved */
+	proto_tree_add_item(tree, hf_smb2_transform_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* enc algorithm */
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_transform_enc_alg, ett_smb2_transform_enc_alg, sf_fields, ENC_LITTLE_ENDIAN);
+	sti->alg = tvb_get_letohs(tvb, offset);
+	offset += 2;
+
+	/* session ID */
+	proto_tree_add_item(tree, hf_smb2_transform_sessionid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	tvb_memcpy(tvb, sti->session_id, offset, 8);
+	offset += 8;
+
+	return offset;
+}
+
 static int
 dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
 {
@@ -6220,6 +6272,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 static int
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolean first_in_chain)
 {
+	gboolean smb2_transform_header = FALSE;
 	proto_item *seqnum_item;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -6229,16 +6282,23 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	proto_tree *flags_tree=NULL;
 	int offset = 0;
 	int chain_offset = 0;
+	char* label = smb_header_label;
 	conversation_t *conversation;
 	smb2_saved_info_t *ssi=NULL, ssi_key;
 	smb2_info_t *si;
+	smb2_transform_info_t *sti;
 
+	sti=ep_alloc(sizeof(smb2_transform_info_t));
 	si=ep_alloc(sizeof(smb2_info_t));
 	si->conv=NULL;
 	si->saved=NULL;
 	si->tree=NULL;
 	si->top_tree=parent_tree;
 
+	if (tvb_get_guint8(tvb, 0) == 0xfd) {
+		smb2_transform_header = TRUE;
+		label = smb_transform_header_label;
+	}
 	/* find which conversation we are part of and get the data for that
 	 * conversation
 	 */
@@ -6280,7 +6340,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 
 	if (tree) {
-		header_item = proto_tree_add_text(tree, tvb, offset, -1, "SMB2 Header");
+		header_item = proto_tree_add_text(tree, tvb, offset, -1, "%s", label);
 		header_tree = proto_item_add_subtree(header_item, ett_smb2_header);
 	}
 
@@ -6289,167 +6349,179 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	proto_tree_add_text(header_tree, tvb, offset, 4, "Server Component: SMB2");
 	offset += 4;
 
-	/* header length */
-	proto_tree_add_item(header_tree, hf_smb2_header_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
+	if (!smb2_transform_header) {
+		/* header length */
+		proto_tree_add_item(header_tree, hf_smb2_header_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 
-	/* credit charge (previously "epoch" (unused) which has been deprecated as of "SMB 2.1") */
-	proto_tree_add_item(header_tree, hf_smb2_credit_charge, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
+		/* credit charge (previously "epoch" (unused) which has been deprecated as of "SMB 2.1") */
+		proto_tree_add_item(header_tree, hf_smb2_credit_charge, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 
-	/* Status Code */
-	si->status=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
-
-
-	/* opcode */
-	si->opcode=tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-
-	/* we need the flags before we know how to parse the credits field */
-	si->flags=tvb_get_letohl(tvb, offset+2);
-
-	/* credits */
-	if (si->flags & SMB2_FLAGS_RESPONSE) {
-		proto_tree_add_item(header_tree, hf_smb2_credits_granted, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	} else {
-		proto_tree_add_item(header_tree, hf_smb2_credits_requested, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	}
-	offset += 2;
-
-	/* flags */
-	if(header_tree){
-		flags_item = proto_tree_add_text(header_tree, tvb, offset, 4,
-			"Flags: 0x%08x", si->flags);
-		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
-	}
-	proto_tree_add_boolean(flags_tree, hf_smb2_flags_dfs_op, tvb, offset, 4, si->flags);
-	proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature, tvb, offset, 4, si->flags);
-	proto_tree_add_boolean(flags_tree, hf_smb2_flags_chained, tvb, offset, 4, si->flags);
-	proto_tree_add_boolean(flags_tree, hf_smb2_flags_async_cmd, tvb, offset, 4, si->flags);
-	proto_tree_add_boolean(flags_tree, hf_smb2_flags_response, tvb, offset, 4, si->flags);
-
-	offset += 4;
-
-	/* Next Command */
-	chain_offset=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
-
-	/* command sequence number*/
-	si->seqnum=tvb_get_letoh64(tvb, offset);
-	ssi_key.seqnum=si->seqnum;
-	seqnum_item=proto_tree_add_item(header_tree, hf_smb2_seqnum, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-	if(seqnum_item && (si->seqnum==-1)){
-		proto_item_append_text(seqnum_item, " (unsolicited response)");
-	}
-	offset += 8;
-
-	/* Tree ID and Session ID */
-	offset = dissect_smb2_tid_sesid(pinfo, header_tree, tvb, offset, si);
-
-	/* Signature */
-	proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, ENC_NA);
-	offset += 16;
-
-	proto_item_set_len(header_item, offset);
+		/* Status Code */
+		si->status=tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-			decode_smb2_name(si->opcode),
-			(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request");
-		if(si->status){
-			col_append_fstr(
-				pinfo->cinfo, COL_INFO, ", Error: %s",
-				val_to_str(si->status, NT_errors,
-				"Unknown (0x%08X)"));
-		}
-	}
+		/* opcode */
+		si->opcode=tvb_get_letohs(tvb, offset);
+		proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 
+		/* we need the flags before we know how to parse the credits field */
+		si->flags=tvb_get_letohl(tvb, offset+2);
 
-	if(!pinfo->fd->flags.visited){
-		/* see if we can find this seqnum in the unmatched table */
-		ssi=g_hash_table_lookup(si->conv->unmatched, &ssi_key);
-
-		if(!(si->flags & SMB2_FLAGS_RESPONSE)){
-			/* This is a request */
-			if(ssi){
-				/* this is a request and we already found
-				 * an older ssi so just delete the previous
-				 * one
-				 */
-				g_hash_table_remove(si->conv->unmatched, ssi);
-				ssi=NULL;
-			}
-
-			if(!ssi){
-				/* no we couldnt find it, so just add it then
-				 * if was a request we are decoding
-				 */
-				ssi=se_alloc(sizeof(smb2_saved_info_t));
-				ssi->class=0;
-				ssi->infolevel=0;
-				ssi->seqnum=ssi_key.seqnum;
-				ssi->frame_req=pinfo->fd->num;
-				ssi->frame_res=0;
-				ssi->req_time=pinfo->fd->abs_ts;
-				ssi->extra_info=NULL;
-				ssi->extra_info_type=SMB2_EI_NONE;
-				g_hash_table_insert(si->conv->unmatched, ssi, ssi);
-			}
+		/* credits */
+		if (si->flags & SMB2_FLAGS_RESPONSE) {
+			proto_tree_add_item(header_tree, hf_smb2_credits_granted, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		} else {
-			/* This is a response */
-			if(ssi){
-				/* just  set the response frame and move it to the matched table */
-				ssi->frame_res=pinfo->fd->num;
-				g_hash_table_remove(si->conv->unmatched, ssi);
-				g_hash_table_insert(si->conv->matched, ssi, ssi);
+			proto_tree_add_item(header_tree, hf_smb2_credits_requested, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		}
+		offset += 2;
+
+		/* flags */
+		if(header_tree){
+			flags_item = proto_tree_add_text(header_tree, tvb, offset, 4,
+				"Flags: 0x%08x", si->flags);
+			flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
+		}
+		proto_tree_add_boolean(flags_tree, hf_smb2_flags_dfs_op, tvb, offset, 4, si->flags);
+		proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature, tvb, offset, 4, si->flags);
+		proto_tree_add_boolean(flags_tree, hf_smb2_flags_chained, tvb, offset, 4, si->flags);
+		proto_tree_add_boolean(flags_tree, hf_smb2_flags_async_cmd, tvb, offset, 4, si->flags);
+		proto_tree_add_boolean(flags_tree, hf_smb2_flags_response, tvb, offset, 4, si->flags);
+
+		offset += 4;
+
+		/* Next Command */
+		chain_offset=tvb_get_letohl(tvb, offset);
+		proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+
+		/* command sequence number*/
+		si->seqnum=tvb_get_letoh64(tvb, offset);
+		ssi_key.seqnum=si->seqnum;
+		seqnum_item=proto_tree_add_item(header_tree, hf_smb2_seqnum, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		if(seqnum_item && (si->seqnum==-1)){
+			proto_item_append_text(seqnum_item, " (unsolicited response)");
+		}
+		offset += 8;
+
+		/* Tree ID and Session ID */
+		offset = dissect_smb2_tid_sesid(pinfo, header_tree, tvb, offset, si);
+
+		/* Signature */
+		proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, ENC_NA);
+		offset += 16;
+
+		proto_item_set_len(header_item, offset);
+
+
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+				decode_smb2_name(si->opcode),
+				(si->flags & SMB2_FLAGS_RESPONSE)?"Response":"Request");
+			if(si->status){
+				col_append_fstr(
+					pinfo->cinfo, COL_INFO, ", Error: %s",
+					val_to_str(si->status, NT_errors,
+					"Unknown (0x%08X)"));
 			}
 		}
-	} else {
-		/* see if we can find this seqnum in the matched table */
-		ssi=g_hash_table_lookup(si->conv->matched, &ssi_key);
-		/* if we couldnt find it in the matched table, it might still
-		 * be in the unmatched table
-		 */
-		if(!ssi){
+
+
+		if(!pinfo->fd->flags.visited){
+			/* see if we can find this seqnum in the unmatched table */
 			ssi=g_hash_table_lookup(si->conv->unmatched, &ssi_key);
-		}
-	}
 
-	if(ssi){
-		if(!(si->flags & SMB2_FLAGS_RESPONSE)){
-			if(ssi->frame_res){
-				proto_item *tmp_item;
-				tmp_item=proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0, ssi->frame_res);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+			if(!(si->flags & SMB2_FLAGS_RESPONSE)){
+				/* This is a request */
+				if(ssi){
+					/* this is a request and we already found
+					* an older ssi so just delete the previous
+					* one
+					*/
+					g_hash_table_remove(si->conv->unmatched, ssi);
+					ssi=NULL;
+				}
+
+				if(!ssi){
+					/* no we couldnt find it, so just add it then
+					* if was a request we are decoding
+					*/
+					ssi=se_alloc(sizeof(smb2_saved_info_t));
+					ssi->class=0;
+					ssi->infolevel=0;
+					ssi->seqnum=ssi_key.seqnum;
+					ssi->frame_req=pinfo->fd->num;
+					ssi->frame_res=0;
+					ssi->req_time=pinfo->fd->abs_ts;
+					ssi->extra_info=NULL;
+					ssi->extra_info_type=SMB2_EI_NONE;
+					g_hash_table_insert(si->conv->unmatched, ssi, ssi);
+				}
+			} else {
+				/* This is a response */
+				if(ssi){
+					/* just  set the response frame and move it to the matched table */
+					ssi->frame_res=pinfo->fd->num;
+					g_hash_table_remove(si->conv->unmatched, ssi);
+					g_hash_table_insert(si->conv->matched, ssi, ssi);
+				}
 			}
 		} else {
-			if(ssi->frame_req){
-				proto_item *tmp_item;
-				nstime_t t, deltat;
-
-				tmp_item=proto_tree_add_uint(header_tree, hf_smb2_response_to, tvb, 0, 0, ssi->frame_req);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
-				t = pinfo->fd->abs_ts;
-				nstime_delta(&deltat, &t, &ssi->req_time);
-				tmp_item=proto_tree_add_time(header_tree, hf_smb2_time, tvb,
-				    0, 0, &deltat);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+			/* see if we can find this seqnum in the matched table */
+			ssi=g_hash_table_lookup(si->conv->matched, &ssi_key);
+			/* if we couldnt find it in the matched table, it might still
+			* be in the unmatched table
+			*/
+			if(!ssi){
+				ssi=g_hash_table_lookup(si->conv->unmatched, &ssi_key);
 			}
 		}
+
+		if(ssi){
+			if(!(si->flags & SMB2_FLAGS_RESPONSE)){
+				if(ssi->frame_res){
+					proto_item *tmp_item;
+					tmp_item=proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0, ssi->frame_res);
+					PROTO_ITEM_SET_GENERATED(tmp_item);
+				}
+			} else {
+				if(ssi->frame_req){
+					proto_item *tmp_item;
+					nstime_t t, deltat;
+
+					tmp_item=proto_tree_add_uint(header_tree, hf_smb2_response_to, tvb, 0, 0, ssi->frame_req);
+					PROTO_ITEM_SET_GENERATED(tmp_item);
+					t = pinfo->fd->abs_ts;
+					nstime_delta(&deltat, &t, &ssi->req_time);
+					tmp_item=proto_tree_add_time(header_tree, hf_smb2_time, tvb,
+					0, 0, &deltat);
+					PROTO_ITEM_SET_GENERATED(tmp_item);
+				}
+			}
+		}
+		/* if we dont have ssi yet we must fake it */
+		/*qqq*/
+		si->saved=ssi;
+
+		tap_queue_packet(smb2_tap, pinfo, si);
+
+		/* Decode the payload */
+		offset = dissect_smb2_command(pinfo, tree, tvb, offset, si);
+	} else {
+		proto_item *enc_item=NULL;
+		proto_tree *enc_tree=NULL;
+
+		offset = dissect_smb2_transform_header(pinfo, header_tree, tvb, offset, sti);
+		enc_item = proto_tree_add_text(tree, tvb, offset, -1, "Encrypted SMB2 data");
+		enc_tree = proto_item_add_subtree(enc_item, ett_smb2_encrypted);
+		proto_tree_add_item(enc_tree, hf_smb2_transform_encyrpted_data, tvb, offset, sti->size, ENC_LITTLE_ENDIAN);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted SMB 2.2");
+		offset += sti->size;
 	}
-	/* if we dont have ssi yet we must fake it */
-	/*qqq*/
-	si->saved=ssi;
-
-	tap_queue_packet(smb2_tap, pinfo, si);
-
-	/* Decode the payload */
-	offset = dissect_smb2_command(pinfo, tree, tvb, offset, si);
 
 	if (chain_offset > 0) {
 		tvbuff_t *next_tvb;
@@ -6471,7 +6543,7 @@ dissect_smb2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (tvb_length(tvb) < 4)
 		return FALSE;
 
-	if( (tvb_get_guint8(tvb, 0) != 0xfe)
+	if( ((tvb_get_guint8(tvb, 0) != 0xfe) && (tvb_get_guint8(tvb, 0) != 0xfd))
 	    || (tvb_get_guint8(tvb, 1) != 'S')
 	    || (tvb_get_guint8(tvb, 2) != 'M')
 	    || (tvb_get_guint8(tvb, 3) != 'B') ){
@@ -7494,6 +7566,38 @@ proto_register_smb2(void)
 		{ "Application Guid", "smb2.app_instance.app_guid", FT_GUID, BASE_NONE,
 		NULL, 0, NULL, HFILL}},
 
+	{ &hf_smb2_transform_signature,
+		{ "Signature", "smb2.header.transform.signature", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_transform_nonce,
+		{ "Nonce", "smb2.header.transform.nonce", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_transform_msg_size,
+		{ "Message size", "smb2.header.transform.msg_size", FT_UINT32, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_transform_reserved,
+		{ "Reserved", "smb2.header.transform.reserved", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_transform_sessionid,
+		{ "Session ID", "smb2.header.transform.sessionid", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_transform_enc_alg,
+		{ "Encryption ALG", "smb2.header.transform.encryption_alg", FT_UINT16, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_encryption_aes128_ccm,
+		{ "SMB2_ENCRYPTION_AES128_CCM", "smb2.header.transform.enc_aes128_ccm", FT_BOOLEAN, 16,
+		NULL, ENC_ALG_aes128_ccm, NULL, HFILL }},
+
+	{ &hf_smb2_transform_encyrpted_data,
+		{ "Data", "smb2.header.transform.enc_data", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -7501,6 +7605,7 @@ proto_register_smb2(void)
 		&ett_smb2_ea,
 		&ett_smb2_olb,
 		&ett_smb2_header,
+		&ett_smb2_encrypted,
 		&ett_smb2_command,
 		&ett_smb2_secblob,
 		&ett_smb2_file_basic_info,
@@ -7567,6 +7672,7 @@ proto_register_smb2(void)
 		&ett_smb2_DH2C_buffer,
 		&ett_smb2_dh2x_flags,
 		&ett_smb2_APP_INSTANCE_buffer,
+		&ett_smb2_transform_enc_alg,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",

@@ -107,6 +107,15 @@ typedef struct _smb2_info_t {
 	proto_tree *top_tree;	
 } smb2_info_t;
 
+/* for transform content information */
+
+typedef struct _smb2_transform_info_t {
+	guint8  nonce[16];
+	guint32 size;
+	guint16 alg;
+	guint8  session_id[8];
+} smb2_transform_info_t;
+
 
 int dissect_smb2_FILE_OBJECTID_BUFFER(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
 int dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, guint32 *ioctl_function);
