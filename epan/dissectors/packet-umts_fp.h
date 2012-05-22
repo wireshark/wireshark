@@ -35,13 +35,13 @@
 #define CHANNEL_CPCH             10
 #define CHANNEL_BCH              11
 #define CHANNEL_DCH              12        /* DCH Dedicated Transport Channel */
-#define CHANNEL_HSDSCH           13
+#define CHANNEL_HSDSCH           13        /* HS-DSCH – High Speed Downlink Shared Channel */
 #define CHANNEL_IUR_CPCHF        14
 #define CHANNEL_IUR_FACH         15
 #define CHANNEL_IUR_DSCH         16
 #define CHANNEL_EDCH             17        /* E-DCH Enhanced DCH */
 #define CHANNEL_RACH_TDD_128     18
-#define CHANNEL_HSDSCH_COMMON    19
+#define CHANNEL_HSDSCH_COMMON    19        /* HS-DSCH – High Speed Downlink Shared Channel */
 #define CHANNEL_HSDSCH_COMMON_T3 20
 #define CHANNEL_EDCH_COMMON      21
 
@@ -101,6 +101,7 @@ typedef struct fp_info
 
     guint16 srcport, destport;
 
+	/* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
     enum   fp_link_type link_type;
 } fp_info;
@@ -119,6 +120,7 @@ typedef struct
 
 } fp_dch_chanel_info_t;
 
+
 typedef struct
 {
     enum fp_interface_type iface_type;
@@ -134,9 +136,16 @@ typedef struct
 
     guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
 
-
+	/* DCH type chanel data */
     fp_dch_chanel_info_t fp_dch_chanel_info[FP_maxNrOfTFs];
 
+	/* E-DCH related data */
+    gint   no_ddi_entries;
+    guint8 edch_ddi[MAX_EDCH_DDIS];
+    guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
+    guint8 edch_type;  /* 1 means T2 */
+
+	/* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
 } umts_fp_conversation_info_t;
 

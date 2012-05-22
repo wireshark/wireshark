@@ -50,7 +50,7 @@
 #define PFNAME "nbap"
 
 /* Debug */
-#if 1
+#if 0
 #define nbap_debug0(str) g_warning(str)
 #define nbap_debug1(str,p1) g_warning(str,p1)
 #define nbap_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -84,6 +84,9 @@ static int ett_nbap_TransportLayerAddress_nsap = -1;
 
 #include "packet-nbap-ett.c"
 
+
+extern int proto_fp;
+
 /*
  * Structure to build information needed to dissect the FP flow beeing set up.
  */
@@ -110,6 +113,25 @@ typedef struct
 }nbap_dch_chanel_info_t;
 
 nbap_dch_chanel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
+
+/* Struct to collect E-DCH data in a packet 
+ * As the address data comes before the ddi entries
+ * we save the address to be able to find the conversation and update the
+ * conversation data.
+ */
+typedef struct
+{
+	address 	crnc_address;
+    guint16		crnc_port;
+    gint		no_ddi_entries;
+    guint8		edch_ddi[MAX_EDCH_DDIS];
+    guint		edch_macd_pdu_size[MAX_EDCH_DDIS];
+    guint8		edch_type;  /* 1 means T2 */
+
+} nbap_edch_chanel_info_t;
+
+nbap_edch_chanel_info_t nbap_edch_chanel_info[maxNrOfEDCHMACdFlows];
+
 gint g_num_dch_in_flow;
 /* maxNrOfTFs					INTEGER ::= 32 */
 gint g_dchs_in_flow_list[maxNrOfTFs];
@@ -121,7 +143,8 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
-static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id;
+static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id, e_dch_ddi_value;
+static guint32 MACdPDU_Size;
 static guint num_items;
 static gboolean show_conv_data_collection = TRUE;
 

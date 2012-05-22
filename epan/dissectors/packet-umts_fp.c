@@ -3123,7 +3123,7 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
     guint8    tfi;
     int       offset = 0, i;
     gboolean  is_control_frame;
-    /*umts_mac_info *macinf;*/
+    umts_mac_info *macinf;
 
     fpi = se_alloc0(sizeof(fp_info));
     p_add_proto_data(pinfo->fd, proto_fp, fpi);
@@ -3148,12 +3148,28 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
 
     switch (fpi->channel) {
-        case CHANNEL_HSDSCH:
+        case CHANNEL_HSDSCH: /* HS-DSCH – High Speed Downlink Shared Channel */
             fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
+            return fpi;
+
+		case CHANNEL_EDCH:
+			fpi->no_ddi_entries = p_conv_data->no_ddi_entries;
+			for (i=0; i<fpi->no_ddi_entries; i++) {
+				fpi->edch_ddi[i] = p_conv_data->edch_ddi[i];
+				fpi->edch_macd_pdu_size[i] = p_conv_data->edch_macd_pdu_size[i];
+			}
+			fpi->edch_type = p_conv_data->edch_type;
             return fpi;
 
         case CHANNEL_DCH:
             /* fall trough */
+            /* For now cheat */
+            if (p_conv_data->dchs_in_flow_list[0] == 31) {
+                macinf = se_new0(umts_mac_info);
+                macinf->ctmux[0]   = 1;
+                macinf->content[0] = MAC_CONTENT_DCCH;
+                p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+            }
         case CHANNEL_PCH:
             /* fall trough */
         case CHANNEL_FACH_FDD:
