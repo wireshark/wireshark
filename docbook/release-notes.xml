@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.13">
+  <!ENTITY WiresharkCurrentVersion "1.4.14">
 
 ]>
 
@@ -37,92 +37,17 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-08.html">wnpa-sec-2012-08</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-11.html">wnpa-sec-2012-11</ulink>
           </para>
           <para>
-            Infinite and large loops in the
-            ANSI MAP,
-            BACapp,
-            Bluetooth HCI,
-            IEEE 802.3,
-            LTP, and
-            R3
-	    dissectors have been fixed. Discovered by Laurent Butti.
-            <!-- Fixed in trunk: r42631 (802.11) -->
-            <!-- Fixed in trunk: r41741 (802.3) -->
-            <!-- Fixed in trunk: r42129 (ANSI MAP) -->
-            <!-- Fixed in trunk: r42113 (ASF) -->
-            <!-- Fixed in trunk: r42115 (ASF) -->
-            <!-- Fixed in trunk: r42203 (BACapp) -->
-            <!-- Fixed in trunk: r42114 (BTHCI) -->
-            <!-- Fixed in trunk: r42116 (BTHCI) -->
-            <!-- Fixed in trunk: r42121 (LTP) -->
-            <!-- Fixed in trunk: r42122 (R3) -->
-
-            <!-- Fixed in trunk-1.6: r42673 (802.11) -->
-            <!-- Fixed in trunk-1.6: r42679 (802.11) -->
-            <!-- Fixed in trunk-1.6: r42665 (802.3) -->
-            <!-- Fixed in trunk-1.6: r42374 (ANSI MAP) -->
-            <!-- Fixed in trunk-1.6: r42671 (ASF) -->
-            <!-- Fixed in trunk-1.6: r42674 (BACapp) -->
-            <!-- Fixed in trunk-1.6: r42451 (BTHCI) -->
-            <!-- Fixed in trunk-1.6: r42666 (LTP) -->
-            <!-- Fixed in trunk-1.6: r42667 (R3) -->
-
-            <!-- Fixed in trunk-1.4: r42693 (802.3) -->
-            <!-- Fixed in trunk-1.4: r42452 (BTHCI) -->
-            <!-- Fixed in trunk-1.4: r42690 (ANSI MAP) -->
-            <!-- Fixed in trunk-1.4: r42694 (BACapp) -->
-            <!-- Fixed in trunk-1.4: r42695 (BACapp) -->
-            <!-- Fixed in trunk-1.4: r42696 (LTP) -->
-            <!-- Fixed in trunk-1.4: r42697 (R3) -->
-            <!-- Fixed in trunk-1.4: r42698 (R3) -->
-
-            (Bugs
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7118">7118</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7119">7119</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7121">7121</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7122">7122</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7124">7124</ulink>,
-	    <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7125">7125</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.7.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-09.html">wnpa-sec-2012-09</ulink>
-          </para>
-          <para>
-            The DIAMETER dissector could try to allocate memory improperly and crash.
-            <!-- Fixed in trunk: r42200 -->
-            <!-- Fixed in trunk-1.6: r42369 -->
-            <!-- Fixed in trunk-1.4: r42691 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7138">Bug
-            7138</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.7.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-10.html">wnpa-sec-2012-10</ulink>
-          </para>
-          <para>
-            Wireshark could crash on SPARC processors due to misaligned memory. Discovered by Klaus Heckelmann.
-            <!-- Fixed in trunk: r42393, r42407, r42431 -->
-            <!-- Fixed in trunk-1.6: r42669 -->
-            <!-- Fixed in trunk-1.4: r42662 -->
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221">Bug
             7221</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.12, 1.6.0 to 1.6.7.</para>
+          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
@@ -147,29 +72,7 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          User-Password - PAP decoding passwords longer than 16 bytes.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6779">Bug
-          6779</ulink>)
-        </para></listitem>
 
-        <listitem><para>
-          Wireshark error message for failure to open an rpcap: URL for a remote device is malformed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6922">Bug
-          6922</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark doesn't calculate the right IPv4 destination using source routing options when bad options precede them.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7043">Bug
-          7043</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong values in DNS CERT RR.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7130">Bug
-          7130</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -198,13 +101,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-ANSI MAP,
-BACapp,
-Bluetooth HCI,
-DIAMETER,
-DNS,
-IPv4,
-RADIUS
+.
 
     </para>
     </section>
@@ -212,7 +109,7 @@ RADIUS
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-5View, pcap-ng
+.
 
     </para>
     </section>
