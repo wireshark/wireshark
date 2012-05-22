@@ -11,4 +11,10 @@
 </libs>
 <include_paths>INCLUDE_DIRS
 </include_paths>
+<gcc_options>
+    -D_U_="__attribute((unused))"
+</gcc_options>
+<include_preamble>
+    config.h
+</include_preamble>
 </descriptor>
