@@ -48,9 +48,19 @@ extern "C" {
  */
 #define ws_statb64	struct _stat64
 
-/*  Win32: Since GLib2.6, we use UTF8 throughout the code, so file functions
- *  must tweak a given filename from UTF8 to UTF16 as we use NT Unicode (Win9x
- *  - now unsupported - used locale based encoding here).
+/*  Win32 (and Win64): we use UTF-8 for filenames and pathnames throughout
+ *  the code, so file functions must convert filenames and pathnames from
+ *  UTF-8 to UTF-16 as we use NT Unicode (Win9x - now unsupported - used
+ *  locale-based encoding here).  Microsoft's UN*X-style wrappers don't
+ *  do that - they expect locale-based encodings - so we need our own
+ *  wrappers.  (We don't use the wrappers from GLib as that would, at
+ *  least for the wrappers that return file descriptors or take them
+ *  as arguments, require that we use the version of the C runtime with
+ *  which the GLib binaries were built, and we can't guarantee to do that.)
+ *
+ *  Note also that ws_stdio_rename() uses MoveFileEx() with
+ *  MOVEFILE_REPLACE_EXISTING, so that it acts like UN*X rename(),
+ *  removing the target if necessary.
  */
 
 #include <stdio.h>
@@ -75,8 +85,8 @@ extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *
 #define ws_freopen	ws_stdio_freopen
 
 /*
- * These routines don't take pathnames, so they're the same regardless
- * of what version of GLib we have.
+ * These routines don't take pathnames, so they don't require
+ * pathname-converting wrappers on Windows.
  */
 #define ws_read    _read
 #define ws_write   _write
@@ -148,7 +158,7 @@ extern char *getenv_utf8(const char *varname);
 #define WS_DIRENT			const char
 #define ws_dir_open			g_dir_open
 #define ws_dir_read_name		g_dir_read_name
-#define ws_dir_get_name(dirent)	dirent
+#define ws_dir_get_name(dirent)		dirent
 #define ws_dir_rewind			g_dir_rewind
 #define ws_dir_close			g_dir_close
 
