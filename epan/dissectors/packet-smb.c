@@ -10501,6 +10501,7 @@ static const value_string qfsi_vals[] = {
 };
 
 static const value_string sfsi_vals[] = {
+	{ 0x203,	"Request Transport Encryption"},
 	{ 1006,		"Set FS Quota Info"},
 	{0, NULL}
 };
@@ -13394,6 +13395,42 @@ dissect_sfsi_request(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	DISSECTOR_ASSERT(si);
 
 	switch(si->info_level) {
+	case 0x203: /* REQUEST_TRANSPORT_ENCRYPTION */ {
+		proto_item *blob_item;
+		tvbuff_t *blob_tvb;
+		proto_tree *blob_tree;
+
+		/* security blob */
+		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
+						tvb, offset,
+						tvb_length_remaining(tvb,offset),
+						ENC_NA);
+
+		/* As an optimization, because Windows is perverse,
+		   we check to see if NTLMSSP is the first part of the
+		   blob, and if so, call the NTLMSSP dissector,
+		   otherwise we call the GSS-API dissector. This is because
+		   Windows can request RAW NTLMSSP, but will happily handle
+		   a client that wraps NTLMSSP in SPNEGO
+		*/
+
+		blob_tree = proto_item_add_subtree(blob_item,
+						   ett_smb_secblob);
+
+		blob_tvb = tvb_new_subset(tvb, offset,
+					  tvb_length_remaining(tvb,offset),
+					  tvb_length_remaining(tvb,offset));
+
+		if (tvb_strneql(blob_tvb, 0, "NTLMSSP", 7) == 0) {
+			call_dissector(ntlmssp_handle, blob_tvb, pinfo, blob_tree);
+		} else {
+			call_dissector(gssapi_handle, blob_tvb, pinfo, blob_tree);
+		}
+
+		offset += tvb_length_remaining(tvb,offset);
+		*bcp = 0;
+		break;
+	}
 	case 1006:	/* QUERY_FS_QUOTA_INFO */
 		offset = dissect_nt_quota(tvb, tree, offset, bcp);
 		break;
@@ -13416,6 +13453,42 @@ dissect_sfsi_response(tvbuff_t * tvb _U_, packet_info * pinfo, proto_tree * tree
 	DISSECTOR_ASSERT(si);
 
 	switch(si->info_level) {
+	case 0x203: /* REQUEST_TRANSPORT_ENCRYPTION */ {
+		proto_item *blob_item;
+		tvbuff_t *blob_tvb;
+		proto_tree *blob_tree;
+
+		/* security blob */
+		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
+						tvb, offset,
+						tvb_length_remaining(tvb,offset),
+						ENC_NA);
+
+		/* As an optimization, because Windows is perverse,
+		   we check to see if NTLMSSP is the first part of the
+		   blob, and if so, call the NTLMSSP dissector,
+		   otherwise we call the GSS-API dissector. This is because
+		   Windows can request RAW NTLMSSP, but will happily handle
+		   a client that wraps NTLMSSP in SPNEGO
+		*/
+
+		blob_tree = proto_item_add_subtree(blob_item,
+						   ett_smb_secblob);
+
+		blob_tvb = tvb_new_subset(tvb, offset,
+					  tvb_length_remaining(tvb,offset),
+					  tvb_length_remaining(tvb,offset));
+
+		if (tvb_strneql(blob_tvb, 0, "NTLMSSP", 7) == 0) {
+			call_dissector(ntlmssp_handle, blob_tvb, pinfo, blob_tree);
+		} else {
+			call_dissector(gssapi_handle, blob_tvb, pinfo, blob_tree);
+		}
+
+		offset += tvb_length_remaining(tvb,offset);
+		*bcp = 0;
+		break;
+	}
 	case 1006:	/* QUERY_FS_QUOTA_INFO */
 		/* nothing */
 		break;
