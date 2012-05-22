@@ -130,6 +130,10 @@ typedef struct
     guint32 ul_frame_number;            /* the frame where this conversation is started from Node B */
     address crnc_address;
     guint16 crnc_port;
+
+	/* For PCH channel */
+	gint paging_indications;
+
     /* DCH's in this flow */
     gint num_dch_in_flow;
     gint dchs_in_flow_list[FP_maxNrOfTFs];

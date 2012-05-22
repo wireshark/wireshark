@@ -135,7 +135,6 @@ nbap_edch_chanel_info_t nbap_edch_chanel_info[maxNrOfEDCHMACdFlows];
 gint g_num_dch_in_flow;
 /* maxNrOfTFs					INTEGER ::= 32 */
 gint g_dchs_in_flow_list[maxNrOfTFs];
-
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
 /* Global variables */
@@ -144,9 +143,10 @@ static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
 static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id, e_dch_ddi_value;
-static guint32 MACdPDU_Size;
+static guint32 MACdPDU_Size, commontransportchannelid;
 static guint num_items;
 static gboolean show_conv_data_collection = TRUE;
+static gint paging_indications;
 
 enum TransportFormatSet_type_enum
 {
@@ -154,6 +154,7 @@ enum TransportFormatSet_type_enum
     DCH_DL,
 	CPCH,
 	FACH,
+	PCH,
 };
 
 enum TransportFormatSet_type_enum transportFormatSet_type;

@@ -3161,6 +3161,9 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
 			fpi->edch_type = p_conv_data->edch_type;
             return fpi;
 
+        case CHANNEL_PCH:
+            /* fall trough */
+			fpi->paging_indications = p_conv_data->paging_indications;
         case CHANNEL_DCH:
             /* fall trough */
             /* For now cheat */
@@ -3170,8 +3173,6 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
                 macinf->content[0] = MAC_CONTENT_DCCH;
                 p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
             }
-        case CHANNEL_PCH:
-            /* fall trough */
         case CHANNEL_FACH_FDD:
             /* fall trough */
         case CHANNEL_RACH_FDD:

@@ -523,6 +523,9 @@ guint32 payload_crc_value;
 #.FN_BODY CommonPhysicalChannelID VAL_PTR = &commonphysicalchannelid
 %(DEFAULT_BODY)s
 
+#.FN_BODY CommonTransportChannelID VAL_PTR = &commontransportchannelid
+%(DEFAULT_BODY)s
+
 #.FN_BODY E-DCH-MACdFlow-ID VAL_PTR = &e_dch_macdflow_id
 %(DEFAULT_BODY)s
 
@@ -610,6 +613,26 @@ transportFormatSet_type = CPCH;
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}
 		}
+#.FN_BODY PICH-Mode VAL_PTR = &PICH_Mode
+guint32 PICH_Mode = 0;
+%(DEFAULT_BODY)s
+
+	switch(PICH_Mode){
+		case 0: /* 	v18 */
+			paging_indications = 18;
+			break;
+		case 1: /*	v36 */
+			paging_indications = 36;
+			break;
+		case 2: /*	v72 */
+			paging_indications = 72;
+			break;
+		case 3: /* 	v144 */
+			paging_indications = 144;
+			break;
+	}
+
+ 
 
 #.FN_BODY PCH-ParametersItem-CTCH-SetupRqstFDD
 
@@ -622,7 +645,6 @@ int i, j, num_tf;
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
 
-transportFormatSet_type = CPCH;
 /* There can only be one item, set num_items here to collect the TransportFormatSet data */
 num_items = 1;
 
@@ -653,33 +675,34 @@ num_items = 1;
 			if(actx->pinfo->link_dir==P2P_DIR_DL){
 				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
 				/* Fill in the data */
-				umts_fp_conversation_info->iface_type        = IuB_Interface;
-				umts_fp_conversation_info->division          = Division_FDD;
-				umts_fp_conversation_info->channel           = CHANNEL_PCH;
-				umts_fp_conversation_info->dl_frame_number   = 0;
-				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
+				umts_fp_conversation_info->iface_type         = IuB_Interface;
+				umts_fp_conversation_info->division           = Division_FDD;
+				umts_fp_conversation_info->channel            = CHANNEL_PCH;
+				umts_fp_conversation_info->dl_frame_number    = 0;
+				umts_fp_conversation_info->ul_frame_number    = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
-				umts_fp_conversation_info->crnc_port         = BindingID_port;
+				umts_fp_conversation_info->crnc_port          = BindingID_port;
+				umts_fp_conversation_info->paging_indications = paging_indications;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				/* Set data for First or single channel */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
+				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_ul_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[j];
 				}
 
 				/* Traffic flows per DCH(DL) */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
+				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_dl_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_num_tbs[j];
 				}
 
 				/* Set data for associated DCH's if we have any */
-				i = commonphysicalchannelid;
-				umts_fp_conversation_info->dchs_in_flow_list[0] = commonphysicalchannelid;
+				i = commontransportchannelid;
+				umts_fp_conversation_info->dchs_in_flow_list[0] = commontransportchannelid;
 				while(nbap_dch_chnl_info[i].next_dch != 0){
 					i = nbap_dch_chnl_info[i].next_dch;
 					umts_fp_conversation_info->num_dch_in_flow++;
@@ -824,9 +847,9 @@ transportFormatSet_type = CPCH;
 	nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
 #.FN_HDR PCH-ParametersItem-CTCH-SetupRqstFDD/transportFormatSet
-	transportFormatSet_type = CPCH;
-	nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans = 0;
-	nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans = 0;
+	transportFormatSet_type = PCH;
+	nbap_dch_chnl_info[commontransportchannelid].num_dl_chans = 0;
+	nbap_dch_chnl_info[commontransportchannelid].num_ul_chans = 0;
 
 
 #.FN_HDR TransportFormatSet-DynamicPartList
@@ -857,6 +880,12 @@ guint32 NrOfTransportBlocks;
 				nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans++;
 				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
+			case PCH: 
+				nbap_dch_chnl_info[commontransportchannelid].num_ul_chans++;
+				nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
+				nbap_dch_chnl_info[commontransportchannelid].num_dl_chans++;
+				nbap_dch_chnl_info[commontransportchannelid].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
+				break;
 			default:
 				break;
 		}
@@ -878,6 +907,10 @@ guint32 TransportBlockSize;
 			case CPCH:
 				nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[num_items-1] = TransportBlockSize;
+				break;
+			case PCH:
+				nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[num_items-1] = TransportBlockSize;
+				nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
 			default:
 				break;
