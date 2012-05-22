@@ -357,7 +357,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
             g_free(str);
             goto AGAIN;
         }
-        if (cf_save(&cfile, file_name8->str, &g_range, filetype, FALSE) != CF_OK) {
+        if (cf_save_as(&cfile, file_name8->str, &g_range, filetype, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
         AGAIN:
             g_array_free(savable_file_types, TRUE);
