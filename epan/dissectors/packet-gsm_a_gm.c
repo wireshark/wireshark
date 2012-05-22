@@ -3962,7 +3962,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			default:
 			{
 				if (e_len > 0) {
-					if ((prot >= 0xff00) && (prot <= 0xffff)) {
+					if (prot >= 0xff00) {
 						dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset, TRUE);
 						if ((e_len - 3) > 0) {
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_pco_app_spec_info, tvb, curr_offset+3, e_len-3, ENC_NA);
@@ -5480,7 +5480,7 @@ dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_GMM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x2A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3302 value" );
-	
+
 	ELEM_OPT_TLV(0x3A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
