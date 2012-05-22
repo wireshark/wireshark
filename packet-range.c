@@ -72,10 +72,16 @@ static void packet_range_calc(packet_range_t *range) {
     range->displayed_ignored_mark_range_cnt = 0L;
     range->displayed_ignored_user_range_cnt = 0L;
 
-    /* This doesn't work unless you have a full set of frame_data
+    /* XXX - this doesn't work unless you have a full set of frame_data
      * structures for all packets in the capture, which is not,
      * for example, the case when TShark is doing a one-pass
      * read of a file or a live capture.
+     *
+     * It's also horribly slow on large captures, causing it to
+     * take a long time for the Save As dialog to pop up, for
+     * example.  We should really keep these statistics in
+     * the capture_file structure, updating them whenever we
+     * filter the display, etc..
      */
     if (cfile.frames != NULL) {
         /* The next for-loop is used to obtain the amount of packets
@@ -181,10 +187,24 @@ static void packet_range_calc_user(packet_range_t *range) {
     range->displayed_user_range_cnt   = 0L;
     range->displayed_ignored_user_range_cnt = 0L;
 
-    /* This doesn't work unless you have a full set of frame_data
+    /* XXX - this doesn't work unless you have a full set of frame_data
      * structures for all packets in the capture, which is not,
      * for example, the case when TShark is doing a one-pass
      * read of a file or a live capture.
+     *
+     * It's also horribly slow on large captures, causing it to
+     * take a long time for the Save As dialog to pop up, for
+     * example.  This obviously can't be kept in the capture_file
+     * structure and recalculated whenever we filter the display
+     * or mark frames as ignored, as the results of this depend
+     * on what the user specifies.  In some cases, limiting the
+     * frame_data structures at which we look to the ones specified
+     * by the user might help, but if most of the frames are in
+     * the range, that won't help.  In that case, if we could
+     * examine the *complement* of the range, and *subtract* them
+     * from the statistics for the capture as a whole, that might
+     * help, but if the user specified about *half* the packets in
+     * the range, that won't help, either.
      */
     if (cfile.frames != NULL) {
         for(framenum = 1; framenum <= cfile.count; framenum++) {
