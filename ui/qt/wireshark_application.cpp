@@ -200,6 +200,14 @@ void WiresharkApplication::captureFileCallback(int event, void * data)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
         emit captureFileReadFinished(cf);
         break;
+    case(cf_cb_file_reload_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload started");
+        emit captureFileReadStarted(cf);
+        break;
+    case(cf_cb_file_reload_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
+        emit captureFileReadFinished(cf);
+        break;
 
     case(cf_cb_packet_selected):
     case(cf_cb_packet_unselected):
@@ -212,10 +220,6 @@ void WiresharkApplication::captureFileCallback(int event, void * data)
 //        break;
 //    case(cf_cb_file_save_finished):
 //        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save finished");
-//        break;
-//    case(cf_cb_file_save_reload_finished):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
-//        main_cf_cb_file_save_reload_finished(data);
 //        break;
 //    case(cf_cb_file_save_failed):
 //        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");

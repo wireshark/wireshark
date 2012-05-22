@@ -738,7 +738,7 @@ statusbar_cf_file_closed_cb(capture_file *cf _U_)
 
 
 static void
-statusbar_cf_file_read_started_cb(capture_file *cf)
+statusbar_cf_file_read_started_cb(capture_file *cf, const char *action)
 {
     const gchar *name_ptr;
 
@@ -747,7 +747,7 @@ statusbar_cf_file_read_started_cb(capture_file *cf)
 
     name_ptr = get_basename(cf->filename);
 
-    statusbar_push_file_msg(" Loading: %s", name_ptr);
+    statusbar_push_file_msg(" %s: %s", action, name_ptr);
 }
 
 
@@ -937,14 +937,6 @@ statusbar_cf_file_save_finished_cb(gpointer data _U_)
 }
 
 static void
-statusbar_cf_file_reload_finished_cb(capture_file *cf)
-{
-    statusbar_pop_file_msg();
-    statusbar_set_filename(cf->filename, cf->f_datalen, &(cf->elapsed_time));
-}
-
-
-static void
 statusbar_cf_file_save_failed_cb(gpointer data _U_)
 {
     /* Pop the "Saving:" message off the status bar. */
@@ -964,9 +956,15 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         statusbar_cf_file_closed_cb(data);
         break;
     case(cf_cb_file_read_started):
-        statusbar_cf_file_read_started_cb(data);
+        statusbar_cf_file_read_started_cb(data, "Loading");
         break;
     case(cf_cb_file_read_finished):
+        statusbar_cf_file_read_finished_cb(data);
+        break;
+    case(cf_cb_file_reload_started):
+        statusbar_cf_file_read_started_cb(data, "Reloading");
+        break;
+    case(cf_cb_file_reload_finished):
         statusbar_cf_file_read_finished_cb(data);
         break;
     case(cf_cb_packet_selected):
@@ -981,9 +979,6 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_file_save_finished):
         statusbar_cf_file_save_finished_cb(data);
-        break;
-    case(cf_cb_file_save_reload_finished):
-        statusbar_cf_file_reload_finished_cb(data);
         break;
     case(cf_cb_file_save_failed):
         statusbar_cf_file_save_failed_cb(data);
