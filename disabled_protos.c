@@ -382,7 +382,14 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
   /* ANSI C doesn't say whether "rename()" removes the target if it
      exists; the Win32 call to rename files doesn't do so, which I
      infer is the reason why the MSVC++ "rename()" doesn't do so.
-     We must therefore remove the target file first, on Windows. */
+     We must therefore remove the target file first, on Windows.
+
+     XXX - ws_rename() should be ws_stdio_rename() on Windows,
+     and ws_stdio_rename() uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
+     so it should remove the target if it exists, so this stuff
+     shouldn't be necessary.  Perhaps it dates back to when we were
+     calling rename(), with that being a wrapper around Microsoft's
+     _rename(), which didn't remove the target. */
   if (ws_remove(ff_path) < 0 && errno != ENOENT) {
     /* It failed for some reason other than "it's not there"; if
        it's not there, we don't need to remove it, so we just
