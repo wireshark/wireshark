@@ -42,6 +42,13 @@ typedef enum {
     after_save_exit                 /**< exit program */
 } action_after_save_e;
 
+/** Do a "Save", opening a dialog box if the current file is a temporary file.
+ *
+ * @param action_after_save the action to take, when save completed
+ * @param action_after_save_data data for action_after_save
+ */
+void file_save_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
+
 /** Open the "Save As" dialog box.
  *
  * @param action_after_save the action to take, when save completed

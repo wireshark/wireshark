@@ -1100,16 +1100,20 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
 
 void
 file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
-  /* If the file has no unsaved changes, and is not a temporary file,
-     do nothing.  */
-  if (!cfile.unsaved_changes && !cfile.is_tempfile)
-    return;
-
-  /* XXX TODO - if it's not a temporary file, "save" should just save
-     on top of the existing file. */
-
-  /* Do a "Save As". */
-  file_save_as_cmd(after_save_no_action, NULL, FALSE);
+  if (cfile.is_tempfile) {
+    /* This is a temporary capture file, so saving it means saving
+       it to a permanent file. */
+    file_save_as_cmd(after_save_no_action, NULL, FALSE);
+  } else {
+    if (cfile.unsaved_changes) {
+      /* This is not a temporary capture file, but it has unsaved
+         changes, so saving it means doing a "safe save" on top
+         of the existing file, in the same format - no UI needed. */
+      file_save_cmd(after_save_no_action, NULL);
+    }
+    /* Otherwise just do nothing (this shouldn't even be enabled if
+       it's not a temporary file and there are no unsaved changes). */
+  }
 }
 
 /* Attach a list of the valid 'save as' file types to a combo_box by
@@ -1174,6 +1178,23 @@ file_save_update_dynamics(void)
 action_after_save_e action_after_save_g;
 gpointer            action_after_save_data_g;
 
+
+void
+file_save_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
+{
+  char *fname;
+
+  action_after_save_g       = action_after_save;
+  action_after_save_data_g  = action_after_save_data;
+
+  /* XXX - cfile.filename might get freed out from under us, because
+     the code path through which cf_save() goes currently closes the
+     current file and then opens and reloads the saved file, so make
+     a copy and free it later. */
+  fname = g_strdup(cfile.filename);
+  cf_save(&cfile, fname, cfile.cd_t, FALSE);
+  g_free(fname);
+}
 
 void
 file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data, gboolean save_only_displayed)
@@ -1298,11 +1319,11 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
 
   /* XXX - if the user requests to save to an already existing filename, */
   /* ask in a dialog if that's intended */
-  /* currently, cf_save() will simply deny it */
+  /* currently, cf_save_as() will simply deny it */
 
   /* Write out the packets (all, or only the ones from the current
      range) to the file with the specified name. */
-  if (cf_save(&cfile, cf_name, &range, file_type,
+  if (cf_save_as(&cfile, cf_name, &range, file_type,
 	  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb))) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
@@ -1317,7 +1338,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   }
 
   /* The write succeeded; get rid of the file selection box. */
-  /* cf_save() might already closed our dialog! */
+  /* cf_save_as() might already closed our dialog! */
   if (file_save_as_w)
     window_destroy(GTK_WIDGET (fs));
 

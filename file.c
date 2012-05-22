@@ -3805,10 +3805,11 @@ cf_can_save_as(capture_file *cf)
   return FALSE;
 }
 
-cf_status_t
-cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_format, gboolean compressed)
+static cf_status_t
+cf_save_packets(capture_file *cf, const char *fname, packet_range_t *range,
+                guint save_format, gboolean compressed, gboolean do_overwrite)
 {
-  gchar        *from_filename;
+  gchar        *fname_new = NULL;
   int           err;
   gboolean      do_copy;
   wtap_dumper  *pdh;
@@ -3816,37 +3817,59 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
-  /* don't write over an existing file. */
-  /* this should've been already checked by our caller, just to be sure... */
   if (file_exists(fname)) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "%sCapture file: \"%s\" already exists!%s\n\n"
-      "Please choose a different filename.",
-      simple_dialog_primary_start(), fname, simple_dialog_primary_end());
-    goto fail;
+    if (do_overwrite) {
+      /* We're overwriting an existing file; write out to a new file,
+         and, if that succeeds, rename the new file on top of the
+         old file.  That makes this a "safe save", so that we don't
+         lose the old file if we have a problem writing out the new
+         file.  (If the existing file is the current capture file,
+         we *HAVE* to do that, otherwise we're overwriting the file
+         from which we're reading the packets that we're writing!) */
+
+      fname_new = g_strdup_printf("%s~", fname);
+    } else {
+      /* don't write over an existing file. */
+      /* this should've been already checked by our caller, just to be sure... */
+      if (file_exists(fname)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "%sCapture file: \"%s\" already exists!%s\n\n"
+                      "Please choose a different filename.",
+                      simple_dialog_primary_start(),
+                      fname,
+                      simple_dialog_primary_end());
+        goto fail;
+      }
+    }
   }
 
   packet_range_process_init(range);
 
-  if (packet_range_process_all(range) && save_format == cf->cd_t) {
+  if (packet_range_process_all(range) && save_format == cf->cd_t
+      && !cf->unsaved_changes) {
     /* We're not filtering packets, and we're saving it in the format
-       it's already in, so we can just move or copy the raw data. */
+       it's already in, and there are no changes we have in memory
+       that aren't saved to the file, so we can just move or copy the
+       raw data. */
 
     if (cf->is_tempfile) {
       /* The file being saved is a temporary file from a live
          capture, so it doesn't need to stay around under that name;
-         first, try renaming the capture buffer file to the new name. */
+         first, try renaming the capture buffer file to the new name.
+
+         XXX - ws_rename() should be ws_stdio_rename() on Windows,
+         and ws_stdio_rename() uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
+         so it should remove the target if it exists, so this stuff
+         should be OK even on Windows. */
 #ifndef _WIN32
       if (ws_rename(cf->filename, fname) == 0) {
         /* That succeeded - there's no need to copy the source file. */
-        from_filename = NULL;
-    do_copy = FALSE;
+        do_copy = FALSE;
       } else {
         if (errno == EXDEV) {
           /* They're on different file systems, so we have to copy the
              file. */
           do_copy = TRUE;
-          from_filename = cf->filename;
         } else {
           /* The rename failed, but not because they're on different
              file systems - put up an error message.  (Or should we
@@ -3862,24 +3885,32 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
       }
 #else
       do_copy = TRUE;
-      from_filename = cf->filename;
 #endif
     } else {
       /* It's a permanent file, so we should copy it, and not remove the
          original. */
       do_copy = TRUE;
-      from_filename = cf->filename;
     }
 
     if (do_copy) {
-      /* Copy the file, if we haven't moved it. */
-      if (!copy_file_binary_mode(from_filename, fname))
+      /* Copy the file, if we haven't moved it.
+         This does not happen if we have unsaved changes (see above),
+         so it's either happening as the result of an explicit "Save
+         As", in which case we've already made sure the target file
+         doesn't exist, or it's a "Save" on a temporary file for a
+         capture, in which case the user was asked for the file name
+         and, again, we've already made sure the target file doesn't
+         exist.  That means we don't need to worry about safe saves. */
+      if (!copy_file_binary_mode(cf->filename, fname))
         goto fail;
     }
   } else {
     /* Either we're filtering packets, or we're saving in a different
-       format; we can't do that by copying or moving the capture file,
-       we have to do it by writing the packets out in Wiretap. */
+       format, or we're saving changes, such as added, modified, or
+       removed comments, that haven't yet been written to the
+       underlying file; we can't do that by copying or moving the
+       capture file, we have to do it by writing the packets out in
+       Wiretap. */
 
     wtapng_section_t *shb_hdr = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
@@ -3887,8 +3918,20 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     shb_hdr = wtap_file_get_shb_info(cf->wth);
     idb_inf = wtap_file_get_idb_info(cf->wth);
 
-    pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
-        compressed, shb_hdr, idb_inf, &err);
+    if (fname_new != NULL) {
+      /* We're overwriting an existing file; write out to a new file,
+         and, if that succeeds, rename the new file on top of the
+         old file.  That makes this a "safe save", so that we don't
+         lose the old file if we have a problem writing out the new
+         file.  (If the existing file is the current capture file,
+         we *HAVE* to do that, otherwise we're overwriting the file
+         from which we're reading the packets that we're writing!) */
+      pdh = wtap_dump_open_ng(fname_new, save_format, cf->lnk_t, cf->snap,
+                              compressed, shb_hdr, idb_inf, &err);
+    } else {
+      pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
+                              compressed, shb_hdr, idb_inf, &err);
+    }
     g_free(idb_inf);
     idb_inf = NULL;
 
@@ -3940,6 +3983,27 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     }
   }
 
+  if (fname_new != NULL) {
+    /* We wrote out to fname_new, and should rename it on top of
+       fname; fname is now closed, so that should be possible even
+       on Windows.  Do the rename. */
+    if (ws_rename(fname_new, fname) == -1) {
+      /* Well, the rename failed.  Discard the file we wrote out,
+         and return an error. */
+      int rename_err = errno;
+
+      /* If this fails, there's nothing we can do to deal with that,
+         and whatever error it got is less relevant to the user than
+         the error from the rename failing, so we don't bother
+         checking for errors in the unlink. */
+      ws_unlink(fname_new);
+
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    file_rename_error_message(rename_err), fname);
+      goto fail;
+    }
+  }
+
   cf_callback_invoke(cf_cb_file_save_finished, NULL);
 
   if (packet_range_process_all(range)) {
@@ -3952,7 +4016,12 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        file be the one we have opened and from which we're reading
        the data, and it means we have to spend time opening and
        reading the file, which could be a significant amount of
-       time if the file is large. */
+       time if the file is large.
+
+       If the capture-file-writing code were to return the
+       seek offset of each packet it writes, we could save that
+       in the frame_data structure for the frame, and just open
+       the file without reading it again. */
     cf->unsaved_changes = FALSE;
 
     if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
@@ -3982,6 +4051,23 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 fail:
   cf_callback_invoke(cf_cb_file_save_failed, NULL);
   return CF_ERROR;
+}
+
+cf_status_t
+cf_save(capture_file *cf, const char *fname, guint save_format, gboolean compressed)
+{
+  packet_range_t range;
+
+  /* This only does a "save all", so we have our own packet_range_t
+     structure, which is set to the default "save everything" state. */
+  packet_range_init(&range);
+  return cf_save_packets(cf, fname, &range, save_format, compressed, TRUE);
+}
+
+cf_status_t
+cf_save_as(capture_file *cf, const char *fname, packet_range_t *range, guint save_format, gboolean compressed)
+{
+  return cf_save_packets(cf, fname, range, save_format, compressed, FALSE);
 }
 
 static void
@@ -4120,6 +4206,11 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
   }
 }
 
+/*
+ * XXX - whether we mention the source pathname, the target pathname,
+ * or both depends on the error and on what we find if we look for
+ * one or both of them.
+ */
 static const char *
 file_rename_error_message(int err)
 {
@@ -4129,14 +4220,21 @@ file_rename_error_message(int err)
   switch (err) {
 
   case ENOENT:
+    /* XXX - should check whether the source exists and, if not,
+       report it as the problem and, if so, report the destination
+       as the problem. */
     errmsg = "The path to the file \"%s\" doesn't exist.";
     break;
 
   case EACCES:
+    /* XXX - if we're doing a rename after a safe save, we should
+       probably say something else. */
     errmsg = "You don't have permission to move the capture file to \"%s\".";
     break;
 
   default:
+    /* XXX - this should probably mention both the source and destination
+       pathnames. */
     g_snprintf(errmsg_errno, sizeof(errmsg_errno),
             "The file \"%%s\" could not be moved: %s.",
                 wtap_strerror(err));
