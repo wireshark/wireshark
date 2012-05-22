@@ -228,6 +228,7 @@ static int hf_smb2_signature = -1;
 static int hf_smb2_credit_charge = -1;
 static int hf_smb2_credits_requested = -1;
 static int hf_smb2_credits_granted = -1;
+static int hf_smb2_channel_sequence = -1;
 static int hf_smb2_dialect_count = -1;
 static int hf_smb2_security_mode = -1;
 static int hf_smb2_secmode_flags_sign_required = -1;
@@ -6350,6 +6351,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	offset += 4;
 
 	if (!smb2_transform_header) {
+		/* we need the flags before we know how to parse the credits field */
+		si->flags=tvb_get_letohl(tvb, offset+12);
+
 		/* header length */
 		proto_tree_add_item(header_tree, hf_smb2_header_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
@@ -6359,18 +6363,22 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		offset += 2;
 
 		/* Status Code */
-		si->status=tvb_get_letohl(tvb, offset);
-		proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
-
+		if (si->flags & SMB2_FLAGS_RESPONSE) {
+			si->status=tvb_get_letohl(tvb, offset);
+			proto_tree_add_item(header_tree, hf_smb2_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
+		} else {
+			si->status=0;
+			proto_tree_add_item(header_tree, hf_smb2_channel_sequence, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(header_tree, hf_smb2_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+		}
 
 		/* opcode */
 		si->opcode=tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
-
-		/* we need the flags before we know how to parse the credits field */
-		si->flags=tvb_get_letohl(tvb, offset+2);
 
 		/* credits */
 		if (si->flags & SMB2_FLAGS_RESPONSE) {
@@ -7189,6 +7197,10 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_credits_granted,
 		{ "Credits granted", "smb2.credits.granted", FT_UINT16, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb2_channel_sequence,
+		{ "Channel Sequence", "smb2.channel_sequence", FT_UINT16, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_dialect_count,
