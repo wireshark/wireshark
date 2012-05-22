@@ -1482,7 +1482,7 @@ void
 file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
 #if _WIN32
-  win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), action_after_save, action_after_save_data);
+  win32_export_specified_packets_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 #else /* _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *compressed_cb;
 
