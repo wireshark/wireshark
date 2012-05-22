@@ -270,7 +270,7 @@ static void compute_elapsed(GTimeVal *start_time)
   delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
     time_now.tv_usec - start_time->tv_usec;
 
-  computed_elapsed = (gulong) (delta_time / 1000); /* ms*/
+  computed_elapsed = (gulong) (delta_time / 1000); /* ms */
 }
 
 cf_status_t
@@ -1135,12 +1135,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
         g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
       }
     }
-  } else {
+  } else
     fdata->flags.passed_dfilter = 1;
-
-    /* If there's no dfilter then there are no frame dependencies */
-    fdata->flags.dependent_of_displayed = 0;
-  }
 
   if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
     cf->displayed_count++;
@@ -1815,6 +1811,13 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        * "init_dissection()"), and null out the GSList pointer. */
       fdata->flags.visited = 0;
       frame_data_cleanup(fdata);
+    }
+
+    if (redissect || refilter) {
+      /* If we're redissecting or refiltering then any frame dependencies 
+       * from the previous dissection/filtering are no longer valid.
+       */
+      fdata->flags.dependent_of_displayed = 0;
     }
 
     if (!cf_read_frame(cf, fdata))
@@ -2851,7 +2854,7 @@ match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
 static void
 match_subtree_text(proto_node *node, gpointer data)
 {
-  match_data    *mdata = (match_data*) data;
+  match_data    *mdata = (match_data *) data;
   const gchar   *string = mdata->string;
   size_t        string_len = mdata->string_len;
   capture_file  *cf = mdata->cf;
@@ -3655,10 +3658,10 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
 }
 
 /*
- * Read the comment in SHB block 
+ * Read the comment in SHB block
  */
 
-const gchar* 
+const gchar *
 cf_read_shb_comment(capture_file *cf)
 {
   wtapng_section_t *shb_inf;
