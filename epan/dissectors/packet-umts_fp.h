@@ -35,13 +35,13 @@
 #define CHANNEL_CPCH             10
 #define CHANNEL_BCH              11
 #define CHANNEL_DCH              12        /* DCH Dedicated Transport Channel */
-#define CHANNEL_HSDSCH           13        /* HS-DSCH – High Speed Downlink Shared Channel */
+#define CHANNEL_HSDSCH           13        /* HS-DSCH - High Speed Downlink Shared Channel */
 #define CHANNEL_IUR_CPCHF        14
 #define CHANNEL_IUR_FACH         15
 #define CHANNEL_IUR_DSCH         16
 #define CHANNEL_EDCH             17        /* E-DCH Enhanced DCH */
 #define CHANNEL_RACH_TDD_128     18
-#define CHANNEL_HSDSCH_COMMON    19        /* HS-DSCH – High Speed Downlink Shared Channel */
+#define CHANNEL_HSDSCH_COMMON    19        /* HS-DSCH - High Speed Downlink Shared Channel */
 #define CHANNEL_HSDSCH_COMMON_T3 20
 #define CHANNEL_EDCH_COMMON      21
 

@@ -274,25 +274,25 @@ static const value_string division_vals[] =
 static const value_string data_control_vals[] = {
     { 0,   "Data" },
     { 1,   "Control" },
-    { 0,   NULL },
+    { 0,   NULL }
 };
 
 static const value_string direction_vals[] = {
     { 0,   "Downlink" },
     { 1,   "Uplink" },
-    { 0,   NULL },
+    { 0,   NULL }
 };
 
 static const value_string crci_vals[] = {
     { 0,   "Correct" },
     { 1,   "Not correct" },
-    { 0,   NULL },
+    { 0,   NULL }
 };
 
 static const value_string paging_indication_vals[] = {
     { 0,   "no PI-bitmap in payload" },
     { 1,   "PI-bitmap in payload" },
-    { 0,   NULL },
+    { 0,   NULL }
 };
 
 static const value_string spreading_factor_vals[] = {
@@ -383,7 +383,7 @@ static const value_string dch_control_frame_type_vals[] = {
     { DCH_RADIO_INTERFACE_PARAMETER_UPDATE, "RADIO INTERFACE PARAMETER UPDATE" },
     { DCH_TIMING_ADVANCE,                   "TIMING ADVANCE" },
     { DCH_TNL_CONGESTION_INDICATION,        "TNL CONGESTION INDICATION" },
-    { 0,   NULL },
+    { 0,   NULL }
 };
 
 
@@ -414,7 +414,7 @@ static const value_string common_control_frame_type_vals[] = {
     { COMMON_HS_DSCH_Capacity_Request,            "HS-DSCH Capacity Request" },
     { COMMON_HS_DSCH_Capacity_Allocation,         "HS-DSCH Capacity Allocation" },
     { COMMON_HS_DSCH_Capacity_Allocation_Type_2,  "HS-DSCH Capacity Allocation Type 2" },
-    { 0,   NULL },
+    { 0,   NULL }
 };
 
 /* Dissect message parts */
@@ -3148,7 +3148,7 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
 
     switch (fpi->channel) {
-        case CHANNEL_HSDSCH: /* HS-DSCH – High Speed Downlink Shared Channel */
+        case CHANNEL_HSDSCH: /* HS-DSCH - High Speed Downlink Shared Channel */
             fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
             return fpi;
 
