@@ -10306,7 +10306,7 @@ static const value_string trans2_cmd_vals[] = {
 	{ 0x01,		"FIND_FIRST2" },
 	{ 0x02,		"FIND_NEXT2" },
 	{ 0x03,		"QUERY_FS_INFO" },
-	{ 0x04,		"SET_FS_QUOTA" },
+	{ 0x04,		"SET_FS_INFO" },
 	{ 0x05,		"QUERY_PATH_INFO" },
 	{ 0x06,		"SET_PATH_INFO" },
 	{ 0x07,		"QUERY_FILE_INFO" },
@@ -13360,6 +13360,50 @@ dissect_nt_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 }
 
 static int
+dissect_sfsi_request(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
+    int offset, guint16 *bcp)
+{
+	smb_info_t *si;
+
+	if(!*bcp){
+		return offset;
+	}
+
+	si = (smb_info_t *)pinfo->private_data;
+	DISSECTOR_ASSERT(si);
+
+	switch(si->info_level) {
+	case 1006:	/* QUERY_FS_QUOTA_INFO */
+		offset = dissect_nt_quota(tvb, tree, offset, bcp);
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_sfsi_response(tvbuff_t * tvb _U_, packet_info * pinfo, proto_tree * tree _U_,
+    int offset, guint16 *bcp)
+{
+	smb_info_t *si;
+
+	if(!*bcp){
+		return offset;
+	}
+
+	si = (smb_info_t *)pinfo->private_data;
+	DISSECTOR_ASSERT(si);
+
+	switch(si->info_level) {
+	case 1006:	/* QUERY_FS_QUOTA_INFO */
+		/* nothing */
+		break;
+	}
+
+	return offset;
+}
+
+static int
 dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, int subcmd, guint16 dc)
 {
@@ -13392,8 +13436,8 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* no data field in this request */
 		break;
-	case 0x0004:	/* TRANS2_SET_QUOTA */
-		offset = dissect_nt_quota(tvb, tree, offset, &dc);
+	case 0x0004:	/* TRANS2_SET_FS_INFORMATION */
+		offset = dissect_sfsi_request(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* no data field in this request */
@@ -15627,6 +15671,9 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case 0x0003:	/*TRANS2_QUERY_FS_INFORMATION*/
 		offset = dissect_qfsi_vals(tvb, pinfo, tree, offset, &dc);
+		break;
+	case 0x0004:	/*TRANS2_SET_FS_INFORMATION*/
+		offset = dissect_sfsi_response(tvb, pinfo, tree, offset, &dc);
 		break;
 	case 0x0005:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		offset = dissect_qpi_loi_vals(tvb, pinfo, tree, item, offset, &dc);
