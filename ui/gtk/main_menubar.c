@@ -1003,6 +1003,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='PreviousFile' action='/File/Set/PreviousFile'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
+"      <menuitem name='ExportSpecifiedPackets' action='/File/ExportSpecifiedPackets'/>\n"
 "      <menu name= 'ExportPacketDissections' action='/File/ExportPacketDissections'>\n"
 "        <menuitem name='AsTxt' action='/File/ExportPacketDissections/Text'/>\n"
 "        <menuitem name='AsPostScript' action='/File/ExportPacketDissections/PostScript'/>\n"
@@ -1445,6 +1446,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/SaveAs",             GTK_STOCK_SAVE_AS,                 "Save _As...",        "<shift><control>S",    NULL,           G_CALLBACK(file_save_as_cmd_cb) },
 
   { "/File/Set",                NULL,                              "File Set",           NULL,                   NULL,           NULL },
+  { "/File/ExportSpecifiedPackets", NULL,         "Export Specified Packets...", NULL,           NULL,           G_CALLBACK(file_export_specified_packets_cmd_cb) },
   { "/File/ExportPacketDissections",  NULL,                        "Export Packet Dissections", NULL,                   NULL,           NULL },
   { "/File/ExportSelectedPacketBytes", NULL,         "Export Selected Packet _Bytes...", "<control>H",           NULL,           G_CALLBACK(savehex_cb) },
   { "/File/ExportSSLSessionKeys",  NULL,                   "Export SSL Session Keys...", NULL,                   NULL,           G_CALLBACK(savesslkeys_cb) },
@@ -4176,7 +4178,7 @@ static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpo
     switch(btn) {
     case(ESD_BTN_YES):
         /* save file first */
-        file_save_as_cmd(after_save_open_recent_file, data, FALSE);
+        file_save_as_cmd(after_save_open_recent_file, data);
         break;
     case(ESD_BTN_NO):
         cf_close(&cfile);
@@ -4635,6 +4637,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSpecifiedPackets", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", FALSE);
@@ -4650,13 +4653,18 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save",
                              (cf->is_tempfile || cf->unsaved_changes));
         /*
-         * "Save As..." works only if we can write the file out in at least
-         * one format (so we can save the whole file or just a subset) or
-         * if the file is a temporary file (so writing the whole file out
-         * with a raw data copy makes sense).
+         * "Save As..." should be available only if we have no unsaved
+         * changes (so saving just involves copying the raw file) or if
+         * we can write the file out in at least one format.
          */
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs",
-                             cf_can_save_as(cf) || cf->is_tempfile);
+                             (!cf->unsaved_changes || cf_can_save_as(cf)));
+        /*
+         * "Export Specified Packets..." should be available only if
+         * we can write the file out in at least one format.
+         */
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSpecifiedPackets",
+                             cf_can_save_as(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", TRUE);

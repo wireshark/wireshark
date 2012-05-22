@@ -208,17 +208,33 @@ gboolean cf_can_save_as(capture_file *cf);
 cf_status_t cf_save(capture_file * cf, const char *fname, guint save_format, gboolean compressed);
 
 /**
- * Save a capture file (or a range of it).  Fails if the specified
- * pathname already exists.
+ * Save all packets in a capture file to a new file, and, if that succeeds,
+ * make that file the current capture file.  Fails if the specified
+ * target file already exists.
  *
  * @param cf the capture file to save to
  * @param fname the filename to save to
- * @param range the range of packets to save
  * @param save_format the format of the file to save (libpcap, ...)
  * @param compressed whether to gzip compress the file
  * @return one of cf_status_t
  */
-cf_status_t cf_save_as(capture_file * cf, const char *fname, packet_range_t *range, guint save_format, gboolean compressed);
+cf_status_t cf_save_as(capture_file * cf, const char *fname, guint save_format, gboolean compressed);
+
+/**
+ * Export some or all packets from a capture file to a new file.  Fails if
+ * the specified target file already exists.
+ *
+ * @param cf the capture file to write to
+ * @param fname the filename to write to
+ * @param range the range of packets to write
+ * @param save_format the format of the file to write (libpcap, ...)
+ * @param compressed whether to gzip compress the file
+ * @return one of cf_status_t
+ */
+cf_status_t cf_export_specified_packets(capture_file *cf, const char *fname,
+                                        packet_range_t *range,
+                                        guint save_format,
+                                        gboolean compressed);
 
 /**
  * Get a displayable name of the capture file.

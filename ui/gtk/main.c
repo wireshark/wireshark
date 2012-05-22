@@ -1102,7 +1102,7 @@ static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _
     switch(btn) {
     case(ESD_BTN_SAVE):
         /* save file first */
-        file_save_as_cmd(after_save_exit, NULL, FALSE);
+        file_save_as_cmd(after_save_exit, NULL);
         break;
     case(ESD_BTN_QUIT_DONT_SAVE):
         main_do_quit();
@@ -1419,10 +1419,11 @@ main_cf_cb_file_closing(capture_file *cf)
         gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
     }
 
-    /* Destroy all windows, which refer to the
+    /* Destroy all windows that refer to the
        capture file we're closing. */
     destroy_packet_wins();
     file_save_as_destroy();
+    file_export_specified_packets_destroy();
 
     /* Restore the standard title bar message. */
     set_main_window_name("The Wireshark Network Analyzer");

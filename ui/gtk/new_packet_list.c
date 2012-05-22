@@ -1450,7 +1450,7 @@ new_packet_list_set_font(PangoFontDescription *font)
 static void
 mark_frames_ready(void)
 {
-	file_save_update_dynamics();
+	file_export_specified_packets_update_dynamics();
 	packets_bar_update();
 	new_packet_list_queue_draw();
 }

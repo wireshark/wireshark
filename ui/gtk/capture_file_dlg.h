@@ -53,13 +53,16 @@ void file_save_cmd(action_after_save_e action_after_save, gpointer action_after_
  *
  * @param action_after_save the action to take, when save completed
  * @param action_after_save_data data for action_after_save
- * @param save_only_displayed Save only the displayed packets
  */
-void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data, gboolean save_only_displayed);
+void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
 
-/** Destroy the save as dialog.
+/** Destroy the "Save As" dialog.
  */
 void file_save_as_destroy(void);
+
+/** Destroy the "Export Specified Packets" dialog.
+ */
+void file_export_specified_packets_destroy(void);
 
 /** User requested the "Open" dialog box.
  *
@@ -96,6 +99,21 @@ void file_save_as_cmd_cb(GtkWidget *widget, gpointer data);
  */
 void file_close_cmd_cb(GtkWidget *widget, gpointer data);
 
+/** User requested the "Export Specified Packets" dialog box.
+ *
+ * @param widget parent widget
+ * @param data unused
+ */
+void file_export_specified_packets_cmd_cb(GtkWidget *widget, gpointer data);
+
+/*
+ * Set the "Save only marked packets" toggle button as appropriate for
+ * the current output file type and count of marked packets.
+ * Called when the "Export Specified Packets..." dialog box is created
+ * and when either the file type or the marked count changes.
+ */
+void file_export_specified_packets_update_dynamics(void);
+
 /** User requested "Reload".
  *
  * @param widget parent widget
@@ -116,13 +134,5 @@ void file_color_import_cmd_cb(GtkWidget *widget, gpointer data);
  * @param data unused
  */
 void file_color_export_cmd_cb(GtkWidget *widget, gpointer data);
-
-/*
- * Set the "Save only marked packets" toggle button as appropriate for
- * the current output file type and count of marked packets.
- * Called when the "Save As..." dialog box is created and when either
- * the file type or the marked count changes.
- */
-void file_save_update_dynamics(void);
 
 #endif /* capture_file_dlg.h */

@@ -779,7 +779,7 @@ file_import_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
     switch (btn) {
     case ESD_BTN_SAVE:
         /* save file first */
-        file_save_as_cmd(after_save_no_action, NULL, FALSE);
+        file_save_as_cmd(after_save_no_action, NULL);
         break;
     case ESD_BTN_DONT_SAVE:
         cf_close(&cfile);

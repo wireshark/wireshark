@@ -3806,13 +3806,14 @@ cf_can_save_as(capture_file *cf)
 }
 
 static cf_status_t
-cf_save_packets(capture_file *cf, const char *fname, packet_range_t *range,
-                guint save_format, gboolean compressed, gboolean do_overwrite)
+cf_save_packets(capture_file *cf, const char *fname, guint save_format,
+                gboolean compressed, gboolean do_overwrite)
 {
   gchar        *fname_new = NULL;
   int           err;
   gboolean      do_copy;
   wtap_dumper  *pdh;
+  packet_range_t range;
   save_callback_args_t callback_args;
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
@@ -3843,14 +3844,10 @@ cf_save_packets(capture_file *cf, const char *fname, packet_range_t *range,
     }
   }
 
-  packet_range_process_init(range);
-
-  if (packet_range_process_all(range) && save_format == cf->cd_t
-      && !cf->unsaved_changes) {
-    /* We're not filtering packets, and we're saving it in the format
-       it's already in, and there are no changes we have in memory
-       that aren't saved to the file, so we can just move or copy the
-       raw data. */
+  if (save_format == cf->cd_t && !cf->unsaved_changes) {
+    /* We're saving in the format it's already in, and there are no
+       changes we have in memory that aren't saved to the file, so
+       we can just move or copy the raw data. */
 
     if (cf->is_tempfile) {
       /* The file being saved is a temporary file from a live
@@ -3905,12 +3902,11 @@ cf_save_packets(capture_file *cf, const char *fname, packet_range_t *range,
         goto fail;
     }
   } else {
-    /* Either we're filtering packets, or we're saving in a different
-       format, or we're saving changes, such as added, modified, or
-       removed comments, that haven't yet been written to the
-       underlying file; we can't do that by copying or moving the
-       capture file, we have to do it by writing the packets out in
-       Wiretap. */
+    /* Either we're saving in a different format or we're saving changes,
+       such as added, modified, or removed comments, that haven't yet
+       been written to the underlying file; we can't do that by copying
+       or moving the capture file, we have to do it by writing the packets
+       out in Wiretap. */
 
     wtapng_section_t *shb_hdr = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
@@ -3943,23 +3939,15 @@ cf_save_packets(capture_file *cf, const char *fname, packet_range_t *range,
     /* Add address resolution */
     wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list());
 
-    /* XXX - we let the user save a subset of the packets.
+    /* Create a packet range that's set to the default "save everything"
+       state. */
+    packet_range_init(&range);
 
-       If we do that, should we make that file the current file?  If so,
-       it means we can no longer get at the other packets.  What does
-       NetMon do? */
-
-    /* Iterate through the list of packets, processing the packets we were
-       told to process.
-
-       XXX - we've already called "packet_range_process_init(range)", but
-       "process_specified_packets()" will do it again.  Fortunately,
-       that's harmless in this case, as we haven't done anything to
-       "range" since we initialized it. */
+    /* Iterate through the list of packets, processing all the packets. */
     callback_args.pdh = pdh;
     callback_args.fname = fname;
     callback_args.file_type = save_format;
-    switch (process_specified_packets(cf, range, "Saving", "selected packets",
+    switch (process_specified_packets(cf, &range, "Saving", "selected packets",
                                       TRUE, save_packet, &callback_args)) {
 
     case PSP_FINISHED:
@@ -4006,44 +3994,41 @@ cf_save_packets(capture_file *cf, const char *fname, packet_range_t *range,
 
   cf_callback_invoke(cf_cb_file_save_finished, NULL);
 
-  if (packet_range_process_all(range)) {
-    /* We saved the entire capture, not just some packets from it.
-       Open and read the file we saved it to.
+  /* Open and read the file we saved to.
 
-       XXX - this is somewhat of a waste; we already have the
-       packets, all this gets us is updated file type information
-       (which we could just stuff into "cf"), and having the new
-       file be the one we have opened and from which we're reading
-       the data, and it means we have to spend time opening and
-       reading the file, which could be a significant amount of
-       time if the file is large.
+     XXX - this is somewhat of a waste; we already have the
+     packets, all this gets us is updated file type information
+     (which we could just stuff into "cf"), and having the new
+     file be the one we have opened and from which we're reading
+     the data, and it means we have to spend time opening and
+     reading the file, which could be a significant amount of
+     time if the file is large.
 
-       If the capture-file-writing code were to return the
-       seek offset of each packet it writes, we could save that
-       in the frame_data structure for the frame, and just open
-       the file without reading it again. */
-    cf->unsaved_changes = FALSE;
+     If the capture-file-writing code were to return the
+     seek offset of each packet it writes, we could save that
+     in the frame_data structure for the frame, and just open
+     the file without reading it again. */
+  cf->unsaved_changes = FALSE;
 
-    if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
-      /* XXX - report errors if this fails?
-         What should we return if it fails or is aborted? */
+  if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
+    /* XXX - report errors if this fails?
+       What should we return if it fails or is aborted? */
 
-      switch (cf_read(cf, TRUE)) {
+    switch (cf_read(cf, TRUE)) {
 
-      case CF_READ_OK:
-      case CF_READ_ERROR:
-        /* Just because we got an error, that doesn't mean we were unable
-           to read any of the file; we handle what we could get from the
-           file. */
-        break;
+    case CF_READ_OK:
+    case CF_READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
 
-      case CF_READ_ABORTED:
-        /* The user bailed out of re-reading the capture file; the
-           capture file has been closed - just return (without
-           changing any menu settings; "cf_close()" set them
-           correctly for the "no capture file open" state). */
-        break;
-      }
+    case CF_READ_ABORTED:
+      /* The user bailed out of re-reading the capture file; the
+         capture file has been closed - just return (without
+         changing any menu settings; "cf_close()" set them
+         correctly for the "no capture file open" state). */
+      break;
     }
   }
   return CF_OK;
@@ -4056,18 +4041,104 @@ fail:
 cf_status_t
 cf_save(capture_file *cf, const char *fname, guint save_format, gboolean compressed)
 {
-  packet_range_t range;
-
-  /* This only does a "save all", so we have our own packet_range_t
-     structure, which is set to the default "save everything" state. */
-  packet_range_init(&range);
-  return cf_save_packets(cf, fname, &range, save_format, compressed, TRUE);
+  return cf_save_packets(cf, fname, save_format, compressed, TRUE);
 }
 
 cf_status_t
-cf_save_as(capture_file *cf, const char *fname, packet_range_t *range, guint save_format, gboolean compressed)
+cf_save_as(capture_file *cf, const char *fname, guint save_format, gboolean compressed)
 {
-  return cf_save_packets(cf, fname, range, save_format, compressed, FALSE);
+  return cf_save_packets(cf, fname, save_format, compressed, FALSE);
+}
+
+cf_status_t
+cf_export_specified_packets(capture_file *cf, const char *fname,
+                            packet_range_t *range, guint save_format,
+                            gboolean compressed)
+{
+  int           err;
+  wtap_dumper  *pdh;
+  save_callback_args_t callback_args;
+  wtapng_section_t *shb_hdr = NULL;
+  wtapng_iface_descriptions_t *idb_inf = NULL;
+
+  cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
+
+  if (file_exists(fname)) {
+    /* don't write over an existing file. */
+    /* this should've been already checked by our caller, just to be sure... */
+    if (file_exists(fname)) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "%sCapture file: \"%s\" already exists!%s\n\n"
+                    "Please choose a different filename.",
+                    simple_dialog_primary_start(),
+                    fname,
+                    simple_dialog_primary_end());
+      goto fail;
+    }
+  }
+
+  packet_range_process_init(range);
+
+  /* We're writing out specified packets from the specified capture
+     file to another file.  Even if all captured packets are to be
+     written, don't special-case the operation - read each packet
+     and then write it out if it's one of the specified ones. */
+
+  shb_hdr = wtap_file_get_shb_info(cf->wth);
+  idb_inf = wtap_file_get_idb_info(cf->wth);
+
+  pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
+                          compressed, shb_hdr, idb_inf, &err);
+  g_free(idb_inf);
+  idb_inf = NULL;
+
+  if (pdh == NULL) {
+    cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
+    goto fail;
+  }
+
+  /* Add address resolution */
+  wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list());
+
+  /* Iterate through the list of packets, processing the packets we were
+     told to process.
+
+     XXX - we've already called "packet_range_process_init(range)", but
+     "process_specified_packets()" will do it again.  Fortunately,
+     that's harmless in this case, as we haven't done anything to
+     "range" since we initialized it. */
+  callback_args.pdh = pdh;
+  callback_args.fname = fname;
+  callback_args.file_type = save_format;
+  switch (process_specified_packets(cf, range, "Writing", "specified packets",
+                                    TRUE, save_packet, &callback_args)) {
+
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+
+  case PSP_STOPPED:
+    /* The user decided to abort the writing.
+       XXX - remove the output file? */
+    break;
+
+  case PSP_FAILED:
+    /* Error while writing. */
+    wtap_dump_close(pdh, &err);
+    goto fail;
+  }
+
+  if (!wtap_dump_close(pdh, &err)) {
+    cf_close_failure_alert_box(fname, err);
+    goto fail;
+  }
+
+  cf_callback_invoke(cf_cb_file_save_finished, NULL);
+  return CF_OK;
+
+fail:
+  cf_callback_invoke(cf_cb_file_save_failed, NULL);
+  return CF_ERROR;
 }
 
 static void

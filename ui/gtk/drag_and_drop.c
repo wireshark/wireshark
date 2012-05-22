@@ -294,7 +294,7 @@ dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
     switch(btn) {
     case(ESD_BTN_SAVE):
         /* save file first */
-        file_save_as_cmd(after_save_open_dnd_file, data, FALSE);
+        file_save_as_cmd(after_save_open_dnd_file, data);
         break;
     case(ESD_BTN_DONT_SAVE):
         cf_close(&cfile);
