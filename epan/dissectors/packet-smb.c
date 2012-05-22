@@ -557,6 +557,7 @@ static int hf_smb_storage_type = -1;
 static int hf_smb_resume = -1;
 static int hf_smb_max_referral_level = -1;
 static int hf_smb_qfsi_information_level = -1;
+static int hf_smb_sfsi_information_level = -1;
 static int hf_smb_number_of_links = -1;
 static int hf_smb_delete_pending = -1;
 static int hf_smb_index_number = -1;
@@ -10499,6 +10500,11 @@ static const value_string qfsi_vals[] = {
 	{0, NULL}
 };
 
+static const value_string sfsi_vals[] = {
+	{ 1006,		"Set FS Quota Info"},
+	{0, NULL}
+};
+
 static const value_string nt_rename_vals[] = {
    	{ 0x0103,	"Create Hard Link"},
   	{0, NULL}
@@ -10936,6 +10942,21 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 					val_to_str(si->info_level, qfsi_vals,
+						   "Unknown (0x%02x)"));
+
+		break;
+	case 0x0004:	/*TRANS2_SET_FS_INFORMATION*/
+		/* level of interest */
+		CHECK_BYTE_COUNT_TRANS(4);
+		si->info_level = tvb_get_letohs(tvb, offset+2);
+		if (t2i != NULL && !pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_sfsi_information_level, tvb, offset+2, 2, si->info_level);
+		COUNT_BYTES_TRANS(4);
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+					val_to_str(si->info_level, sfsi_vals,
 						   "Unknown (0x%02x)"));
 
 		break;
@@ -16116,6 +16137,14 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 						item=proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
 					PROTO_ITEM_SET_GENERATED(item);
 					break;
+
+				case 0x0004:	/* SET_FS_INFORMATION */
+					if (t2i->info_level == -1)
+						item=proto_tree_add_text(tree, tvb, 0, 0, "Level of Information: <UNKNOWN> since information level wasn't found in request packet");
+					else
+						item=proto_tree_add_uint(tree, hf_smb_sfsi_information_level, tvb, 0, 0, si->info_level);
+					PROTO_ITEM_SET_GENERATED(item);
+					break;
 				}
 
 				if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -19608,6 +19637,10 @@ proto_register_smb(void)
 	{ &hf_smb_qfsi_information_level,
 		{ "Level of Interest", "smb.qfsi_loi", FT_UINT16, BASE_HEX,
 		VALS(qfsi_vals), 0, "Level of interest for QUERY_FS_INFORMATION2 command", HFILL }},
+
+	{ &hf_smb_sfsi_information_level,
+		{ "Level of Interest", "smb.sfsi_loi", FT_UINT16, BASE_HEX,
+		VALS(sfsi_vals), 0, "Level of interest for SET_FS_INFORMATION2 command", HFILL }},
 
   	{ &hf_smb_nt_rename_level,
 		{ "Level of Interest", "smb.ntr_loi", FT_UINT16, BASE_DEC,
