@@ -7237,7 +7237,7 @@ proto_register_smb2(void)
 		"If the host supports MULTI CHANNEL", HFILL }},
 
 	{ &hf_smb2_cap_persistent_handles,
-		{ "LARGE MTU", "smb2.capabilities.persistent_handles", FT_BOOLEAN, 32,
+		{ "PERSISTENT HANDLES", "smb2.capabilities.persistent_handles", FT_BOOLEAN, 32,
 		TFS(&tfs_cap_persistent_handles), NEGPROT_CAP_PERSISTENT_HANDLES,
 		"If the host supports PERSISTENT HANDLES", HFILL }},
 
