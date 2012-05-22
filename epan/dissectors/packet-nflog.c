@@ -289,7 +289,8 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						nstime_t ts;
 
 						ts.secs  = tvb_get_ntoh64(tvb, offset + 4);
-						ts.nsecs = tvb_get_ntoh64(tvb, offset + 12);
+						/* XXX - add an "expert info" warning if this is >= 10^9? */
+						ts.nsecs = (int)tvb_get_ntoh64(tvb, offset + 12);
 						proto_tree_add_time(tlv_tree, hf_nflog_tlv_timestamp,
 									tvb, offset + 4, value_len, &ts);
 						handled = TRUE;
