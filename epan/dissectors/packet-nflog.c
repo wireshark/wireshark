@@ -60,10 +60,10 @@ enum ws_nfulnl_attr_type {
 #define BYTE_ORDER_HOST 3
 
 static enum_val_t byte_order_types[] = {
-    { "Auto", "Auto", BYTE_ORDER_AUTO },
-    { "Host", "Host", BYTE_ORDER_HOST },
-    { "LE",   "LE",   BYTE_ORDER_BE },
-    { "BE",   "BE",   BYTE_ORDER_LE },
+    { "Auto", "Auto",          BYTE_ORDER_AUTO },
+    { "Host", "Host",          BYTE_ORDER_HOST },
+    { "LE",   "Little Endian", BYTE_ORDER_LE },
+    { "BE",   "Big Endian",    BYTE_ORDER_BE },
     { NULL, NULL, 0 }
 };
 
@@ -85,6 +85,7 @@ static int hf_nflog_tlv_type = -1;
 static int hf_nflog_tlv_prefix = -1;
 static int hf_nflog_tlv_uid = -1;
 static int hf_nflog_tlv_gid = -1;
+static int hf_nflog_tlv_timestamp = -1;
 static int hf_nflog_tlv_unknown = -1;
 
 static dissector_handle_t ip_handle;
@@ -256,7 +257,9 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(tlv_tree, hf_nflog_tlv_type, tvb, offset + 2, 2, enc);
 			switch (tlv_type) {
 				case WS_NFULA_PAYLOAD:
+					handled = TRUE;
 					break;
+
 				case WS_NFULA_PREFIX:
 					if (value_len >= 1) {
 						proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix,
@@ -264,6 +267,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						handled = TRUE;
 					}
 					break;
+
 				case WS_NFULA_UID:
 					if (value_len == 4) {
 						proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid,
@@ -271,10 +275,23 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						handled = TRUE;
 					}
 					break;
+
 				case WS_NFULA_GID:
 					if (value_len == 4) {
 						proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid,
 								    tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+						handled = TRUE;
+					}
+					break;
+
+				case WS_NFULA_TIMESTAMP:
+					if (value_len == 16) {
+						nstime_t ts;
+
+						ts.secs  = tvb_get_ntoh64(tvb, offset + 4);
+						ts.nsecs = tvb_get_ntoh64(tvb, offset + 12);
+						proto_tree_add_time(tlv_tree, hf_nflog_tlv_timestamp,
+									tvb, offset + 4, value_len, &ts);
 						handled = TRUE;
 					}
 					break;
@@ -344,6 +361,9 @@ proto_register_nflog(void)
 		},
 		{ &hf_nflog_tlv_gid,
 			{ "GID", "nflog.gid", FT_INT32, BASE_DEC, NULL, 0x00, "TLV GID Value", HFILL }
+		},
+		{ &hf_nflog_tlv_timestamp,
+			{ "Timestamp", "nflog.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00, "TLV Timestamp Value", HFILL }
 		},
 		{ &hf_nflog_tlv_unknown,
 			{ "Value", "nflog.tlv_value", FT_BYTES, BASE_NONE, NULL, 0x00, "TLV Value", HFILL }
