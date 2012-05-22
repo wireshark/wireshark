@@ -522,9 +522,11 @@ guint32 payload_crc_value;
 
 #.FN_BODY CommonPhysicalChannelID VAL_PTR = &commonphysicalchannelid
 %(DEFAULT_BODY)s
+nbap_dch_chnl_info[commonphysicalchannelid].next_dch = 0;
 
 #.FN_BODY CommonTransportChannelID VAL_PTR = &commontransportchannelid
 %(DEFAULT_BODY)s
+nbap_dch_chnl_info[commontransportchannelid].next_dch = 0;
 
 #.FN_BODY E-DCH-MACdFlow-ID VAL_PTR = &e_dch_macdflow_id
 %(DEFAULT_BODY)s
@@ -688,9 +690,11 @@ num_items = 1;
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				/* Set data for First or single channel */
 				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_ul_chans;
+				nbap_debug1("PCH-ParametersItem-CTCH-SetupRqstFDD: num_tf %%u",num_tf);
 				for (j = 0; j < num_tf; j++) {
 					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j];
 					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[j];
+					nbap_debug2("PCH-ParametersItem-CTCH-SetupRqstFDD:UL tf %%u ul_chan_tf_size %%u",j, nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j]);
 				}
 
 				/* Traffic flows per DCH(DL) */
@@ -698,10 +702,12 @@ num_items = 1;
 				for (j = 0; j < num_tf; j++) {
 					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j];
 					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_num_tbs[j];
+					nbap_debug2("PCH-ParametersItem-CTCH-SetupRqstFDD:DL tf %%u ul_chan_tf_size %%u",j, nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j]);
 				}
 
 				/* Set data for associated DCH's if we have any */
 				i = commontransportchannelid;
+				nbap_debug2("PCH-ParametersItem-CTCH-SetupRqstFDD: commontransportchannelid %%u next ch %%u",commontransportchannelid, nbap_dch_chnl_info[i].next_dch);
 				umts_fp_conversation_info->dchs_in_flow_list[0] = commontransportchannelid;
 				while(nbap_dch_chnl_info[i].next_dch != 0){
 					i = nbap_dch_chnl_info[i].next_dch;
@@ -722,6 +728,7 @@ num_items = 1;
 					}
 				}
 				umts_fp_conversation_info->num_dch_in_flow++;
+				nbap_debug1("PCH-ParametersItem-CTCH-SetupRqstFDD: num_dch_in_flow %%u", umts_fp_conversation_info->num_dch_in_flow);
 				umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}

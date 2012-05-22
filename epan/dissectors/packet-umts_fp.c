@@ -3162,8 +3162,16 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
             return fpi;
 
         case CHANNEL_PCH:
-            /* fall trough */
 			fpi->paging_indications = p_conv_data->paging_indications;
+			fpi->num_chans = p_conv_data->num_dch_in_flow;
+            /* Set offset to point to first TFI
+             */
+            if (is_control_frame) {
+                /* control frame, we're done */
+                return fpi;
+            }
+            offset = 3;
+			break;
         case CHANNEL_DCH:
             /* fall trough */
             /* For now cheat */
@@ -3181,64 +3189,48 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
                 /* control frame, we're done */
                 return fpi;
             }
-
-#if 0
-            /* For now cheat */
-            if (p_conv_data->dchs_in_flow_list[0] == 31) {
-                macinf = se_new0(umts_mac_info);
-                macinf->ctmux[0]   = 1;
-                macinf->content[0] = MAC_CONTENT_DCCH;
-                p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
-            }
-
-            guint32 urnti[MAX_RLC_CHANS];
-            guint8 mode[MAX_RLC_CHANS];
-            guint8 rbid[MAX_RLC_CHANS];
-            enum rlc_li_size li_size[MAX_RLC_CHANS];
-            gboolean ciphered[MAX_RLC_CHANS];
-            gboolean deciphered[MAX_RLC_CHANS];
-
-#endif
             /* Set offset to point to first TFI
              * the Number of TFI's = number of DCH's in the flow
              */
             offset = 2;
 
-            /* Peek at the packet as the per packet info seems not to take the tfi into account */
-            for (i=0; i<fpi->num_chans; i++) {
-                tfi = tvb_get_guint8(tvb,offset);
-                if (pinfo->link_dir==P2P_DIR_UL) {
-                    fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
-                    fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
-                }
-                else{
-                    fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
-                    fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
-                }
-                offset++;
-            }
             break;
         default:
             return NULL;
     }
 
+
 #if 0
-    /* remaining data to be set */
-    no_ddi_entries;
-    edch_ddi[MAX_EDCH_DDIS];
-    edch_macd_pdu_size[MAX_EDCH_DDIS];
-    edch_type;  /* 1 means T2 */
+        /* For now cheat */
+        if (p_conv_data->dchs_in_flow_list[0] == 31) {
+            macinf = se_new0(umts_mac_info);
+            macinf->ctmux[0]   = 1;
+            macinf->content[0] = MAC_CONTENT_DCCH;
+            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+        }
 
-    cur_tb;    /* current transport block (required for dissecting of single TBs */
-    cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
+        guint32 urnti[MAX_RLC_CHANS];
+        guint8 mode[MAX_RLC_CHANS];
+        guint8 rbid[MAX_RLC_CHANS];
+        enum rlc_li_size li_size[MAX_RLC_CHANS];
+        gboolean ciphered[MAX_RLC_CHANS];
+        gboolean deciphered[MAX_RLC_CHANS];
 
-    srcport
-    destport
-
-        enum   fp_hsdsch_entity hsdsch_entity;
-    enum   fp_link_type link_type;
 #endif
 
+        /* Peek at the packet as the per packet info seems not to take the tfi into account */
+        for (i=0; i<fpi->num_chans; i++) {
+            tfi = tvb_get_guint8(tvb,offset);
+            if (pinfo->link_dir==P2P_DIR_UL) {
+                fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
+                fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
+            }
+            else{
+                fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
+                fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
+            }
+            offset++;
+        }
 
 
     return fpi;
