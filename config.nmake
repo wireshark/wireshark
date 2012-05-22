@@ -19,7 +19,7 @@ SVN_REVISION=0
 # Updated by make-version.pl
 VERSION_MAJOR=1
 VERSION_MINOR=6
-VERSION_MICRO=8
+VERSION_MICRO=9
 VERSION_BUILD=$(SVN_REVISION)
 
 # Local build information. Recommended: Unique string for your
