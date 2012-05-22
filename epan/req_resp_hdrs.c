@@ -54,6 +54,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	gboolean	chunked_encoding = FALSE;
 	gboolean	keepalive_found = FALSE;
 	gchar		*line;
+	gchar		*content_type = NULL;
 
 	/*
 	 * Do header desegmentation if we've been told to.
@@ -158,6 +159,10 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 						content_length_found = TRUE;
 				} else if (g_ascii_strncasecmp(line, "Content-Type:", 13) == 0) {
 					content_type_found = TRUE;
+					content_type = line+13;
+					while (*content_type == ' ') {
+						content_type++;
+					}
 				} else if (g_ascii_strncasecmp(line, "Connection:", 11) == 0) {
 					/* Check for keep-alive */
 					header_val = line+11;
@@ -212,6 +217,22 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 */
 	if (desegment_body) {
 		if (content_length_found) {
+			if (content_length >= 128*1024) { /* MS-RPCH stipulate that the content-length must be between 128K and 2G */
+				gchar *tmp;
+				if (content_type_found &&
+				strncmp(content_type, "application/rpc", 15) == 0) {
+					/* It looks like a RPC_IN_DATA request or a RPC_OUT_DATA response
+					 * in which the content-length is meaningless
+					 */
+					return TRUE;
+				}
+				/* Following sizeof will return the length of the string + \0 we need to not count it*/
+				tmp = tvb_get_ephemeral_string(tvb, 0, sizeof("RPC_OUT_DATA") - 1);
+				if ((strncmp(tmp, "RPC_IN_DATA", sizeof("RPC_IN_DATA") - 1) == 0) ||
+				    (strncmp(tmp, "RPC_OUT_DATA", sizeof("RPC_OUT_DATA") - 1) == 0)) {
+					return TRUE;
+				}
+			}
 			/* next_offset has been set to the end of the headers */
 			if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
 				length_remaining = tvb_length_remaining(tvb,
