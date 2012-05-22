@@ -1003,24 +1003,22 @@ static const char *ui_desc_menubar =
 "        <menuitem name='PreviousFile' action='/File/Set/PreviousFile'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
-"      <menu name= 'Export' action='/File/Export'>\n"
-"        <menu name= 'File' action='/File/Export/File'>\n"
-"          <menuitem name='AsTxt' action='/File/Export/File/Text'/>\n"
-"          <menuitem name='AsPostScript' action='/File/Export/File/PostScript'/>\n"
-"          <menuitem name='AsCSV' action='/File/Export/File/CSV'/>\n"
-"          <menuitem name='AsCArrays' action='/File/Export/File/CArrays'/>\n"
-"          <separator/>\n"
-"          <menuitem name='AsPSML' action='/File/Export/File/PSML'/>\n"
-"          <menuitem name='AsPDML' action='/File/Export/File/PDML'/>\n"
-"          <separator/>\n"
-"        </menu>\n"
-"      <menuitem name='SelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
-"      <menuitem name='SSLSessionKeys' action='/File/Export/SslSessionKeys'/>\n"
-"        <menu name= 'Objects' action='/File/Export/Objects'>\n"
-"          <menuitem name='HTTP' action='/File/Export/Objects/HTTP'/>\n"
-"          <menuitem name='DICOM' action='/File/Export/Objects/DICOM'/>\n"
-"          <menuitem name='SMB' action='/File/Export/Objects/SMB'/>\n"
-"        </menu>\n"
+"      <menu name= 'ExportPacketDissections' action='/File/ExportPacketDissections'>\n"
+"        <menuitem name='AsTxt' action='/File/ExportPacketDissections/Text'/>\n"
+"        <menuitem name='AsPostScript' action='/File/ExportPacketDissections/PostScript'/>\n"
+"        <menuitem name='AsCSV' action='/File/ExportPacketDissections/CSV'/>\n"
+"        <menuitem name='AsCArrays' action='/File/ExportPacketDissections/CArrays'/>\n"
+"        <separator/>\n"
+"        <menuitem name='AsPSML' action='/File/ExportPacketDissections/PSML'/>\n"
+"        <menuitem name='AsPDML' action='/File/ExportPacketDissections/PDML'/>\n"
+"        <separator/>\n"
+"      </menu>\n"
+"      <menuitem name='ExportSelectedPacketBytes' action='/File/ExportSelectedPacketBytes'/>\n"
+"      <menuitem name='ExportSSLSessionKeys' action='/File/ExportSSLSessionKeys'/>\n"
+"      <menu name= 'ExportObjects' action='/File/ExportObjects'>\n"
+"        <menuitem name='HTTP' action='/File/ExportObjects/HTTP'/>\n"
+"        <menuitem name='DICOM' action='/File/ExportObjects/DICOM'/>\n"
+"        <menuitem name='SMB' action='/File/ExportObjects/SMB'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='Print' action='/File/Print'/>\n"
@@ -1425,61 +1423,60 @@ static const char *ui_desc_menubar =
  */
 static const GtkActionEntry main_menu_bar_entries[] = {
   /* Top level */
-  { "/File",                    NULL,                           "_File",            NULL,                   NULL,           NULL },
-  { "/Edit",                    NULL,                           "_Edit",            NULL,                   NULL,           NULL },
-  { "/View",                    NULL,                           "_View",            NULL,                   NULL,           NULL },
-  { "/Go",                      NULL,                           "_Go",              NULL,                   NULL,           NULL },
-  { "/Capture",                 NULL,                           "_Capture",         NULL,                   NULL,           NULL },
-  { "/Analyze",                 NULL,                           "_Analyze",         NULL,                   NULL,           NULL },
-  { "/Statistics",              NULL,                           "_Statistics",      NULL,                   NULL,           NULL },
-  { "/Telephony",               NULL,                           "Telephon_y",       NULL,                   NULL,           NULL },
-  { "/Tools",                   NULL,                           "_Tools",           NULL,                   NULL,           NULL },
-  { "/Internals",               NULL,                           "_Internals",       NULL,                   NULL,           NULL },
-  { "/Help",                    NULL,                           "_Help",            NULL,                   NULL,           NULL },
+  { "/File",                    NULL,                              "_File",              NULL,                   NULL,           NULL },
+  { "/Edit",                    NULL,                              "_Edit",              NULL,                   NULL,           NULL },
+  { "/View",                    NULL,                              "_View",              NULL,                   NULL,           NULL },
+  { "/Go",                      NULL,                              "_Go",                NULL,                   NULL,           NULL },
+  { "/Capture",                 NULL,                              "_Capture",           NULL,                   NULL,           NULL },
+  { "/Analyze",                 NULL,                              "_Analyze",           NULL,                   NULL,           NULL },
+  { "/Statistics",              NULL,                              "_Statistics",        NULL,                   NULL,           NULL },
+  { "/Telephony",               NULL,                              "Telephon_y",         NULL,                   NULL,           NULL },
+  { "/Tools",                   NULL,                              "_Tools",             NULL,                   NULL,           NULL },
+  { "/Internals",               NULL,                              "_Internals",         NULL,                   NULL,           NULL },
+  { "/Help",                    NULL,                              "_Help",              NULL,                   NULL,           NULL },
 
-  { "/File/Open",               GTK_STOCK_OPEN,                 "_Open...",         "<control>O",           "Open a file",  G_CALLBACK(file_open_cmd_cb) },
-  { "/File/OpenRecent",         NULL,                           "Open _Recent",     NULL,                   NULL,           NULL },
-  { "/File/Merge",              NULL,                           "_Merge...",        NULL,                   NULL,           G_CALLBACK(file_merge_cmd_cb) },
-  { "/File/Import",             NULL,                           "_Import...",       NULL,                   NULL,           G_CALLBACK(file_import_cmd_cb) },
-  { "/File/Close",              GTK_STOCK_CLOSE,                "_Close",           "<control>W",           NULL,           G_CALLBACK(file_close_cmd_cb) },
+  { "/File/Open",               GTK_STOCK_OPEN,                    "_Open...",           "<control>O",           "Open a file",  G_CALLBACK(file_open_cmd_cb) },
+  { "/File/OpenRecent",         NULL,                              "Open _Recent",       NULL,                   NULL,           NULL },
+  { "/File/Merge",              NULL,                              "_Merge...",          NULL,                   NULL,           G_CALLBACK(file_merge_cmd_cb) },
+  { "/File/Import",             NULL,                              "_Import...",         NULL,                   NULL,           G_CALLBACK(file_import_cmd_cb) },
+  { "/File/Close",              GTK_STOCK_CLOSE,                   "_Close",             "<control>W",           NULL,           G_CALLBACK(file_close_cmd_cb) },
 
-  { "/File/Save",               GTK_STOCK_SAVE,                 "_Save",            "<control>S",           NULL,           G_CALLBACK(file_save_cmd_cb) },
-  { "/File/SaveAs",             GTK_STOCK_SAVE_AS,              "Save _As...",      "<shift><control>S",    NULL,           G_CALLBACK(file_save_as_cmd_cb) },
+  { "/File/Save",               GTK_STOCK_SAVE,                    "_Save",              "<control>S",           NULL,           G_CALLBACK(file_save_cmd_cb) },
+  { "/File/SaveAs",             GTK_STOCK_SAVE_AS,                 "Save _As...",        "<shift><control>S",    NULL,           G_CALLBACK(file_save_as_cmd_cb) },
 
-  { "/File/Set",                NULL,                           "File Set",         NULL,                   NULL,           NULL },
-  { "/File/Export",             NULL,                           "Export",           NULL,                   NULL,           NULL },
-  { "/File/Print",              GTK_STOCK_PRINT,                "_Print...",        "<control>P",           NULL,           G_CALLBACK(file_print_cmd_cb) },
-  { "/File/Quit",               GTK_STOCK_QUIT,                 "_Quit",            "<control>Q",           NULL,           G_CALLBACK(file_quit_cmd_cb) },
+  { "/File/Set",                NULL,                              "File Set",           NULL,                   NULL,           NULL },
+  { "/File/ExportPacketDissections",  NULL,                        "Export Packet Dissections", NULL,                   NULL,           NULL },
+  { "/File/ExportSelectedPacketBytes", NULL,         "Export Selected Packet _Bytes...", "<control>H",           NULL,           G_CALLBACK(savehex_cb) },
+  { "/File/ExportSSLSessionKeys",  NULL,                   "Export SSL Session Keys...", NULL,                   NULL,           G_CALLBACK(savesslkeys_cb) },
+  { "/File/ExportObjects",      NULL,                              "Export Objects",     NULL,                   NULL,           NULL },
+  { "/File/Print",              GTK_STOCK_PRINT,                   "_Print...",          "<control>P",           NULL,           G_CALLBACK(file_print_cmd_cb) },
+  { "/File/Quit",               GTK_STOCK_QUIT,                    "_Quit",              "<control>Q",           NULL,           G_CALLBACK(file_quit_cmd_cb) },
 
-  { "/File/Set/ListFiles",  WIRESHARK_STOCK_FILE_SET_LIST,  "List Files",       NULL,                   NULL,           G_CALLBACK(fileset_cb) },
-  { "/File/Set/NextFile",   WIRESHARK_STOCK_FILE_SET_NEXT,  "Next File",        NULL,                   NULL,           G_CALLBACK(fileset_next_cb) },
-  { "/File/Set/PreviousFile",WIRESHARK_STOCK_FILE_SET_PREVIOUS, "Previous File",    NULL,               NULL,           G_CALLBACK(fileset_previous_cb) },
+  { "/File/Set/ListFiles",      WIRESHARK_STOCK_FILE_SET_LIST,     "List Files",         NULL,                   NULL,           G_CALLBACK(fileset_cb) },
+  { "/File/Set/NextFile",       WIRESHARK_STOCK_FILE_SET_NEXT,     "Next File",          NULL,                   NULL,           G_CALLBACK(fileset_next_cb) },
+  { "/File/Set/PreviousFile",   WIRESHARK_STOCK_FILE_SET_PREVIOUS, "Previous File",      NULL,                   NULL,           G_CALLBACK(fileset_previous_cb) },
 
-  { "/File/Export/File",                NULL,       "File",                         NULL,                   NULL,           NULL },
-  { "/File/Export/File/Text",           NULL,       "as \"Plain _Text\" file...",   NULL,                   NULL,           G_CALLBACK(export_text_cmd_cb) },
-  { "/File/Export/File/PostScript",     NULL,       "as \"_PostScript\" file...",   NULL,                   NULL,           G_CALLBACK(export_ps_cmd_cb) },
-  { "/File/Export/File/CSV",            NULL,       "as \"_CSV\" (Comma Separated Values packet summary) file...",
-                                                                                    NULL,                   NULL,           G_CALLBACK(export_csv_cmd_cb) },
-  { "/File/Export/File/CArrays",        NULL,       "as \"C _Arrays\" (packet bytes) file...",
-                                                                                    NULL,                   NULL,           G_CALLBACK(export_carrays_cmd_cb) },
-  { "/File/Export/File/PSML",           NULL,       "as XML - \"P_SML\" (packet summary) file...",
-                                                                                    NULL,                   NULL,           G_CALLBACK(export_psml_cmd_cb) },
-  { "/File/Export/File/PDML",           NULL,       "as XML - \"P_DML\" (packet details) file...",
-                                                                                    NULL,                   NULL,           G_CALLBACK(export_pdml_cmd_cb) },
-  { "/File/Export/SelectedPacketBytes", NULL,       "Selected Packet _Bytes...",    "<control>H",           NULL,           G_CALLBACK(savehex_cb) },
-  { "/File/Export/SslSessionKeys",  NULL,       "SSL Session Keys...",  NULL,           NULL,           G_CALLBACK(savesslkeys_cb) },
-  { "/File/Export/Objects",             NULL,       "Objects",                      NULL,                   NULL,           NULL },
-  { "/File/Export/Objects/HTTP",        NULL,       "_HTTP",                        NULL,                   NULL,           G_CALLBACK(eo_http_cb) },
-  { "/File/Export/Objects/DICOM",       NULL,       "_DICOM",                       NULL,                   NULL,           G_CALLBACK(eo_dicom_cb) },
-  { "/File/Export/Objects/SMB",         NULL,       "_SMB",                         NULL,                   NULL,           G_CALLBACK(eo_smb_cb) },
+  { "/File/ExportPacketDissections/Text",       NULL,       "as \"Plain _Text\" file...",      NULL,                   NULL,           G_CALLBACK(export_text_cmd_cb) },
+  { "/File/ExportPacketDissections/PostScript", NULL,       "as \"_PostScript\" file...",      NULL,                   NULL,           G_CALLBACK(export_ps_cmd_cb) },
+  { "/File/ExportPacketDissections/CSV",        NULL,       "as \"_CSV\" (Comma Separated Values packet summary) file...",
+                                                                                         NULL,                   NULL,           G_CALLBACK(export_csv_cmd_cb) },
+  { "/File/ExportPacketDissections/CArrays",    NULL,       "as \"C _Arrays\" (packet bytes) file...",
+                                                                                         NULL,                   NULL,           G_CALLBACK(export_carrays_cmd_cb) },
+  { "/File/ExportPacketDissections/PSML",       NULL,       "as XML - \"P_SML\" (packet summary) file...",
+                                                                                         NULL,                   NULL,           G_CALLBACK(export_psml_cmd_cb) },
+  { "/File/ExportPacketDissections/PDML",       NULL,       "as XML - \"P_DML\" (packet details) file...",
+                                                                                         NULL,                   NULL,           G_CALLBACK(export_pdml_cmd_cb) },
+  { "/File/ExportObjects/HTTP",           NULL,       "_HTTP",                           NULL,                   NULL,           G_CALLBACK(eo_http_cb) },
+  { "/File/ExportObjects/DICOM",          NULL,       "_DICOM",                          NULL,                   NULL,           G_CALLBACK(eo_dicom_cb) },
+  { "/File/ExportObjects/SMB",            NULL,       "_SMB",                            NULL,                   NULL,           G_CALLBACK(eo_smb_cb) },
 
 
-  { "/Edit/Copy",                       NULL,       "Copy",                         NULL,                   NULL,           NULL },
+  { "/Edit/Copy",                         NULL,       "Copy",                            NULL,                   NULL,           NULL },
 
-  { "/Edit/Copy/Description",           NULL,       "Description",                  "<shift><control>D",    NULL,           G_CALLBACK(copy_description_cb) },
-  { "/Edit/Copy/Fieldname",             NULL,       "Fieldname",                    "<shift><control>F",    NULL,           G_CALLBACK(copy_fieldname_cb) },
-  { "/Edit/Copy/Value",                 NULL,       "Value",                        "<shift><control>V",    NULL,           G_CALLBACK(copy_value_cb) },
-  { "/Edit/Copy/AsFilter",              NULL,       "As Filter",                    "<shift><control>C",    NULL,           G_CALLBACK(copy_as_filter_cb) },
+  { "/Edit/Copy/Description",             NULL,       "Description",                     "<shift><control>D",    NULL,           G_CALLBACK(copy_description_cb) },
+  { "/Edit/Copy/Fieldname",               NULL,       "Fieldname",                       "<shift><control>F",    NULL,           G_CALLBACK(copy_fieldname_cb) },
+  { "/Edit/Copy/Value",                   NULL,       "Value",                           "<shift><control>V",    NULL,           G_CALLBACK(copy_value_cb) },
+  { "/Edit/Copy/AsFilter",                NULL,       "As Filter",                       "<shift><control>C",    NULL,           G_CALLBACK(copy_as_filter_cb) },
 
 #if 0
     /*
@@ -4638,7 +4635,10 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs", FALSE);
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", FALSE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
     } else {
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_save_as(cf));
@@ -4657,7 +4657,10 @@ set_menus_for_capture_file(capture_file *cf)
          */
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs",
                              cf_can_save_as(cf) || cf->is_tempfile);
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
     }
     set_toolbar_for_capture_file(cf);
@@ -4672,7 +4675,13 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/OpenRecent",
                          !capture_in_progress);
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export",
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections",
+                         capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes",
+                         capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys",
+                         capture_in_progress);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects",
                          capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Set",
                          !capture_in_progress);
@@ -5423,7 +5432,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
                              (id == -1) ? FALSE : TRUE);
         set_menu_sensitivity(ui_manager_main_menubar,
-                             "/Menubar/FileMenu/Export/SelectedPacketBytes", TRUE);
+                             "/Menubar/FileMenu/ExportSelectedPacketBytes", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar,
                              "/Menubar/GoMenu/GotoCorrespondingPacket", hfinfo->type == FT_FRAMENUM);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description",
@@ -5468,7 +5477,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FilterFieldReference",
                              FALSE);
         set_menu_sensitivity(ui_manager_main_menubar,
-                             "/Menubar/FileMenu/Export/SelectedPacketBytes", FALSE);
+                             "/Menubar/FileMenu/ExportSelectedPacketBytes", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar,
                              "/Menubar/GoMenu/GotoCorrespondingPacket", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Copy/Description", FALSE);
