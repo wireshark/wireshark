@@ -240,6 +240,7 @@ static int hf_smb2_cap_large_mtu = -1;
 static int hf_smb2_cap_multi_channel = -1;
 static int hf_smb2_cap_persistent_handles = -1;
 static int hf_smb2_cap_directory_leasing = -1;
+static int hf_smb2_cap_encryption = -1;
 static int hf_smb2_dialect = -1;
 static int hf_smb2_max_trans_size = -1;
 static int hf_smb2_max_read_size = -1;
@@ -876,6 +877,11 @@ static const true_false_string tfs_cap_persistent_handles = {
 static const true_false_string tfs_cap_directory_leasing = {
 	"This host supports DIRECTORY LEASING",
 	"This host does NOT support DIRECTORY LEASING"
+};
+
+static const true_false_string tfs_cap_encryption = {
+	"This host supports ENCRYPTION",
+	"This host does NOT support ENCRYPTION"
 };
 
 static const true_false_string tfs_smb2_ioctl_network_interface_capability_rss = {
@@ -1939,6 +1945,7 @@ dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 *le
 #define NEGPROT_CAP_MULTI_CHANNEL	0x00000008
 #define NEGPROT_CAP_PERSISTENT_HANDLES	0x00000010
 #define NEGPROT_CAP_DIRECTORY_LEASING	0x00000020
+#define NEGPROT_CAP_ENCRYPTION		0x00000040
 static int
 dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
@@ -1958,6 +1965,7 @@ dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	proto_tree_add_boolean(tree, hf_smb2_cap_multi_channel, tvb, offset, 4, cap);
 	proto_tree_add_boolean(tree, hf_smb2_cap_persistent_handles, tvb, offset, 4, cap);
 	proto_tree_add_boolean(tree, hf_smb2_cap_directory_leasing, tvb, offset, 4, cap);
+	proto_tree_add_boolean(tree, hf_smb2_cap_encryption, tvb, offset, 4, cap);
 
 	offset += 4;
 
@@ -7237,6 +7245,11 @@ proto_register_smb2(void)
 		{ "DIRECTORY LEASING", "smb2.capabilities.directory_leasing", FT_BOOLEAN, 32,
 		TFS(&tfs_cap_directory_leasing), NEGPROT_CAP_DIRECTORY_LEASING,
 		"If the host supports DIRECTORY LEASING", HFILL }},
+
+	{ &hf_smb2_cap_encryption,
+		{ "ENCRYPTION", "smb2.capabilities.encryption", FT_BOOLEAN, 32,
+		TFS(&tfs_cap_encryption), NEGPROT_CAP_ENCRYPTION,
+		"If the host supports ENCRYPTION", HFILL }},
 
 	{ &hf_smb2_max_trans_size,
 		{ "Max Transaction Size", "smb2.max_trans_size", FT_UINT32, BASE_DEC,
