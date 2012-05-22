@@ -86,6 +86,7 @@ static void file_save_as_select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, gpointer fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_export_specified_packets_cb(GtkWidget *w, gpointer fs);
+static void file_export_specified_packets_select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_export_specified_packets_ok_cb(GtkWidget *w, gpointer fs);
 static void file_export_specified_packets_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_import_ok_cb(GtkWidget *w, gpointer filter_list);
@@ -1551,8 +1552,9 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(compressed_cb);
 #endif
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY, compressed_cb);
-  /* Ok: now "select" the default filetype which invokes file_save_as_select_file_type_cb */
-  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_save_as_select_file_type_cb), NULL);
+
+  /* Ok: now "select" the default filetype which invokes file_export_specified_packets_select_file_type_cb */
+  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_export_specified_packets_select_file_type_cb), NULL);
   ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), 0);
 
   g_signal_connect(file_export_specified_packets_w, "destroy",
@@ -1564,6 +1566,22 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     window_destroy(file_export_specified_packets_w);
   }
 #endif /* _WIN32 */
+}
+
+static void
+file_export_specified_packets_select_file_type_cb(GtkWidget *w, gpointer data _U_)
+{
+  int new_file_type;
+  gpointer ptr;
+  GtkWidget *compressed_cb;
+
+  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(w), &ptr)) {
+      g_assert_not_reached();  /* Programming error: somehow nothing is active */
+  }
+  new_file_type = GPOINTER_TO_INT(ptr);
+
+  compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY);
+  gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_file_type));
 }
 
 static void
