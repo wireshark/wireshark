@@ -259,6 +259,7 @@ static int hf_smb2_share_flags_access_based_dir_enum = -1;
 static int hf_smb2_share_flags_force_levelii_oplock = -1;
 static int hf_smb2_share_flags_enable_hash_v1 = -1;
 static int hf_smb2_share_flags_enable_hash_v2 = -1;
+static int hf_smb2_share_flags_encrypt_data = -1;
 static int hf_smb2_share_caching = -1;
 static int hf_smb2_share_caps = -1;
 static int hf_smb2_share_caps_dfs = -1;
@@ -2067,6 +2068,7 @@ static const value_string share_cache_vals[] = {
 #define SHARE_FLAGS_force_levelii_oplock	0x00001000
 #define SHARE_FLAGS_enable_hash_v1		0x00002000
 #define SHARE_FLAGS_enable_hash_v2		0x00004000
+#define SHARE_FLAGS_encryption_required		0x00008000
 
 static int
 dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -2081,6 +2083,7 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_share_flags_force_levelii_oplock,
 		&hf_smb2_share_flags_enable_hash_v1,
 		&hf_smb2_share_flags_enable_hash_v2,
+		&hf_smb2_share_flags_encrypt_data,
 		NULL
 	};
 	proto_item *item;
@@ -7306,6 +7309,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_share_flags_enable_hash_v2,
 	  	{ "Enable hash V2", "smb2.share_flags.enable_hash_v2", FT_BOOLEAN, 32,
 		NULL, SHARE_FLAGS_enable_hash_v2, "The share supports hash generation V2 for branch cache retrieval of data (see also section 2.2.31.2 of MS-SMB2)", HFILL }},
+
+	{ &hf_smb2_share_flags_encrypt_data,
+		{ "Encrypted data required", "smb2.share_flags.encrypt_data", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_encryption_required, "The share require data encryption", HFILL }},
 
 	{ &hf_smb2_share_caching,
 		{ "Caching policy", "smb2.share.caching", FT_UINT32, BASE_HEX,
