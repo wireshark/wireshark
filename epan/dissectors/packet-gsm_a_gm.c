@@ -296,6 +296,7 @@ static int hf_gsm_a_gm_nsapi_14_ul_stat = -1;
 static int hf_gsm_a_gm_nsapi_15_ul_stat = -1;
 static int hf_gsm_a_gm_device_prop_low_prio = -1;
 static int hf_gsm_a_gm_pco_pid = -1;
+static int hf_gsm_a_gm_pco_app_spec_info = -1;
 static int hf_gsm_a_gm_type_of_identity = -1;
 int hf_gsm_a_gm_rac = -1;
 static int hf_gsm_a_gm_apc = -1;
@@ -443,6 +444,7 @@ static gint ett_gmm_rai = -1;
 static gint ett_gmm_gprs_timer = -1;
 
 static gint ett_sm_tft = -1;
+static gint ett_sm_pco = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t rrc_irat_ho_info_handle;
@@ -3792,43 +3794,45 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 /*
  * [7] 10.5.6.3 Protocol configuration options
  */
-static const value_string gsm_a_sm_pco_ms2net_prot_vals[] = {
-	{ 0x01, "P-CSCF IPv6 Address Request" },
-	{ 0x02, "IM CN Subsystem Signalling Flag" },
-	{ 0x03, "DNS Server IPv6 Address Request" },
-	{ 0x04, "Not Supported" },
-	{ 0x05, "MS Support of Network Requested Bearer Control indicator" },
-	{ 0x06, "Reserved" },
-	{ 0x07, "DSMIPv6 Home Agent Address Request" },
-	{ 0x08, "DSMIPv6 Home Network Prefix Request" },
-	{ 0x09, "DSMIPv6 IPv4 Home Agent Address Request" },
-	{ 0x0a, "IP address allocation via NAS signalling" },
-	{ 0x0b, "IPv4 address allocation via DHCPv4" },
-	{ 0x0c, "P-CSCF IPv4 Address Request" },
-	{ 0x0d, "DNS Server IPv4 Address Request" },
-	{ 0x0e, "MSISDN Request" },
-	{ 0x0f, "IFOM-Support-Request" },
-	{ 0x10, "IPv4 Link MTU Request" },
-	{ 0, NULL }
+static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
+	{ 0x0001, 0x0001, "P-CSCF IPv6 Address Request" },
+	{ 0x0002, 0x0002, "IM CN Subsystem Signalling Flag" },
+	{ 0x0003, 0x0003, "DNS Server IPv6 Address Request" },
+	{ 0x0004, 0x0004, "Not Supported" },
+	{ 0x0005, 0x0005, "MS Support of Network Requested Bearer Control indicator" },
+	{ 0x0006, 0x0006, "Reserved" },
+	{ 0x0007, 0x0007, "DSMIPv6 Home Agent Address Request" },
+	{ 0x0008, 0x0008, "DSMIPv6 Home Network Prefix Request" },
+	{ 0x0009, 0x0009, "DSMIPv6 IPv4 Home Agent Address Request" },
+	{ 0x000a, 0x000a, "IP address allocation via NAS signalling" },
+	{ 0x000b, 0x000b, "IPv4 address allocation via DHCPv4" },
+	{ 0x000c, 0x000c, "P-CSCF IPv4 Address Request" },
+	{ 0x000d, 0x000d, "DNS Server IPv4 Address Request" },
+	{ 0x000e, 0x000e, "MSISDN Request" },
+	{ 0x000f, 0x000f, "IFOM-Support-Request" },
+	{ 0x0010, 0x0010, "IPv4 Link MTU Request" },
+	{ 0xff00, 0xffff, "Operator Specific Use" },
+	{ 0, 0, NULL }
 };
-static const value_string gsm_a_sm_pco_net2ms_prot_vals[] = {
-	{ 0x01, "P-CSCF IPv6 Address" },
-	{ 0x02, "IM CN Subsystem Signalling Flag" },
-	{ 0x03, "DNS Server IPv6 Address" },
-	{ 0x04, "Policy Control rejection code" },
-	{ 0x05, "Selected Bearer Control Mode" },
-	{ 0x06, "Reserved" },
-	{ 0x07, "DSMIPv6 Home Agent Address" },
-	{ 0x08, "DSMIPv6 Home Network Prefix" },
-	{ 0x09, "DSMIPv6 IPv4 Home Agent Address" },
-	{ 0x0a, "Reserved" },
-	{ 0x0b, "Reserved" },
-	{ 0x0c, "P-CSCF IPv4 Address" },
-	{ 0x0d, "DNS Server IPv4 Address" },
-	{ 0x0e, "MSISDN" },
-	{ 0x0f, "IFOM-Support" },
-	{ 0x10, "IPv4 Link MTU" },
-	{ 0, NULL }
+static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
+	{ 0x0001, 0x0001, "P-CSCF IPv6 Address" },
+	{ 0x0002, 0x0002, "IM CN Subsystem Signalling Flag" },
+	{ 0x0003, 0x0003, "DNS Server IPv6 Address" },
+	{ 0x0004, 0x0004, "Policy Control rejection code" },
+	{ 0x0005, 0x0005, "Selected Bearer Control Mode" },
+	{ 0x0006, 0x0006, "Reserved" },
+	{ 0x0007, 0x0007, "DSMIPv6 Home Agent Address" },
+	{ 0x0008, 0x0008, "DSMIPv6 Home Network Prefix" },
+	{ 0x0009, 0x0009, "DSMIPv6 IPv4 Home Agent Address" },
+	{ 0x000a, 0x000a, "Reserved" },
+	{ 0x000b, 0x000b, "Reserved" },
+	{ 0x000c, 0x000c, "P-CSCF IPv4 Address" },
+	{ 0x000d, 0x000d, "DNS Server IPv4 Address" },
+	{ 0x000e, 0x000e, "MSISDN" },
+	{ 0x000f, 0x000f, "IFOM-Support" },
+	{ 0x0010, 0x0010, "IPv4 Link MTU" },
+	{ 0xff00, 0xffff, "Operator Specific Use" },
+	{ 0, 0, NULL }
 };
 
 static const value_string gsm_a_gm_link_dir_vals[] = {
@@ -3848,6 +3852,8 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	struct e_in6_addr  ipv6_addr;
 	int                link_dir;
 	guint32            ipv4_addr;
+	proto_item        *pco_item;
+	proto_tree        *pco_tree;
 
 	curr_len    = len;
 	curr_offset = offset;
@@ -3886,17 +3892,18 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		 */
 
 		prot = tvb_get_ntohs(tvb, curr_offset);
-		proto_tree_add_uint_format(tree, hf_gsm_a_gm_pco_pid, tvb, curr_offset, 2, (guint32)prot,
-				"Protocol or Container ID: %s (%u)",
+		pco_item = proto_tree_add_uint_format(tree, hf_gsm_a_gm_pco_pid, tvb, curr_offset, 2, (guint32)prot,
+				"Protocol or Container ID: %s (0x%04x)",
 				link_dir ?
-					val_to_str_const((guint32)prot, gsm_a_sm_pco_net2ms_prot_vals, val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown")) :
-					val_to_str_const((guint32)prot, gsm_a_sm_pco_ms2net_prot_vals, val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown")),
+					rval_to_str((guint32)prot, gsm_a_sm_pco_net2ms_prot_vals, val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown")) :
+					rval_to_str((guint32)prot, gsm_a_sm_pco_ms2net_prot_vals, val_to_str_ext_const(prot, &ppp_vals_ext, "Unknown")),
 				(guint32)prot);
+		pco_tree = proto_item_add_subtree(pco_item, ett_sm_pco);
 
 		curr_len    -= 2;
 		curr_offset += 2;
 		e_len = tvb_get_guint8(tvb, curr_offset);
-		proto_tree_add_text(tree, tvb, curr_offset, 1, "Length: 0x%02x (%u)", e_len, e_len);
+		proto_tree_add_text(pco_tree, tvb, curr_offset, 1, "Length: 0x%02x (%u)", e_len, e_len);
 		curr_len    -= 1;
 		curr_offset += 1;
 
@@ -3907,7 +3914,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0007:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
 					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
-					proto_tree_add_text(tree, tvb, curr_offset, 16, "IPv6: %s", ip6_to_str(&ipv6_addr));
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 16, "IPv6: %s", ip6_to_str(&ipv6_addr));
 				}
 				break;
 			case 0x0002:
@@ -3919,22 +3926,22 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x0004:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 1)) {
 					oct = tvb_get_guint8(tvb, curr_offset);
-					proto_tree_add_text(tree, tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", oct, oct);
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", oct, oct);
 				}
 				break;
 			case 0x0005:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 1)) {
 					oct = tvb_get_guint8(tvb, curr_offset);
-					proto_tree_add_text(tree, tvb, curr_offset, 1, "%s", (oct == 1) ? "MS only" :
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 1, "%s", (oct == 1) ? "MS only" :
 										((oct == 2) ? "MS/NW" : "Unknown"));
 				}
 				break;
 			case 0x0008:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
 					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
-					proto_tree_add_text(tree, tvb, curr_offset, 16,	"IPv6: %s", ip6_to_str(&ipv6_addr));
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 16,	"IPv6: %s", ip6_to_str(&ipv6_addr));
 					oct = tvb_get_guint8(tvb, curr_offset+16);
-					proto_tree_add_text(tree, tvb, curr_offset+16, 1, "Prefix length: %u", oct);
+					proto_tree_add_text(pco_tree, tvb, curr_offset+16, 1, "Prefix length: %u", oct);
 				}
 				break;
 			case 0x0009:
@@ -3942,39 +3949,46 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 			case 0x000D:
 				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
 					ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
-					proto_tree_add_text(tree, tvb, curr_offset, 4,	"IPv4: %s",
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 4,	"IPv4: %s",
 										ip_to_str((guint8 *)&ipv4_addr));
 				}
 				break;
 			case 0x0010:
 				if ((link_dir == P2P_DIR_DL) && (e_len == 2)) {
 					guint16 word = tvb_get_ntohs(tvb, curr_offset);
-					proto_tree_add_text(tree, tvb, curr_offset, 1, "IPv4 link MTU size: %u octets", word);
+					proto_tree_add_text(pco_tree, tvb, curr_offset, 2, "IPv4 link MTU size: %u octets", word);
 				}
 				break;
 			default:
 			{
 				if (e_len > 0) {
-					dissector_handle_t handle;
-					handle = dissector_get_uint_handle (gprs_sm_pco_subdissector_table, prot);
-					if (handle != NULL)
-					{
-						/*
-						 * dissect the embedded message
-						 */
-						l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-						/* In this case we do not want the columns updated */
-						col_set_writable(pinfo->cinfo, FALSE);
-						call_dissector(handle, l3_tvb, pinfo, tree);
-						col_set_writable(pinfo->cinfo, TRUE);
-					}
-					else
-					{
-						/*
-						 * dissect the embedded DATA message
-						 */
-						l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
-						call_dissector(data_handle, l3_tvb, pinfo, tree);
+					if ((prot >= 0xff00) && (prot <= 0xffff)) {
+						dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset, TRUE);
+						if ((e_len - 3) > 0) {
+							proto_tree_add_item(pco_tree, hf_gsm_a_gm_pco_app_spec_info, tvb, curr_offset+3, e_len-3, ENC_NA);
+						}
+					} else {
+						dissector_handle_t handle;
+						handle = dissector_get_uint_handle (gprs_sm_pco_subdissector_table, prot);
+						if (handle != NULL)
+						{
+							/*
+							 * dissect the embedded message
+							*/
+							l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+							/* In this case we do not want the columns updated */
+							col_set_writable(pinfo->cinfo, FALSE);
+							call_dissector(handle, l3_tvb, pinfo, pco_tree);
+							col_set_writable(pinfo->cinfo, TRUE);
+						}
+						else
+						{
+							/*
+							* dissect the embedded DATA message
+							*/
+							l3_tvb = tvb_new_subset(tvb, curr_offset, e_len, e_len);
+							call_dissector(data_handle, l3_tvb, pinfo, pco_tree);
+						}
 					}
 				}
 			}
@@ -7248,6 +7262,11 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_gm_pco_app_spec_info,
+		  { "Application specific information", "gsm_a.gm.app_spec_info",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_gm_type_of_identity,
 		  { "Type of identity", "gsm_a.gm.type_of_identity",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_gm_type_of_identity_vals), 0x07,
@@ -7871,7 +7890,7 @@ proto_register_gsm_a_gm(void)
 	};
 
 	/* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	18
+#define	NUM_INDIVIDUAL_ELEMS	19
 	gint *ett[NUM_INDIVIDUAL_ELEMS +
 		  NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SM +
 		  NUM_GSM_GM_ELEM];
@@ -7894,6 +7913,7 @@ proto_register_gsm_a_gm(void)
 	ett[15] = &ett_gmm_gprs_timer;
 	ett[16] = &ett_gmm_network_cap;
 	ett[17] = &ett_gsm_a_gm_msrac_multislot_capability;
+	ett[18] = &ett_sm_pco;
 
 	last_offset = NUM_INDIVIDUAL_ELEMS;
 
