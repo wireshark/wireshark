@@ -274,6 +274,15 @@ static gint ett_tcp_opt_rvbd_probe_flags = -1;
 static gint ett_tcp_opt_rvbd_trpy = -1;
 static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 
+/* Some protocols such as encrypted DCE/RPCoverHTTP have dependencies
+ * from one PDU to the next PDU and require that they are called in sequence.
+ * These protocols would not be able to handle PDUs coming out of order
+ * or for example when a PDU is seen twice, like for retransmissions.
+ * This preference can be set for such protocols to make sure that we dont invoke
+ * the subdissectors for retransmitted or out-of-order segments.
+ */
+static gboolean tcp_no_subdissector_on_error = FALSE;
+
 /*
  *  TCP option
  */
@@ -3793,6 +3802,13 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
+    if (tcp_no_subdissector_on_error && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
+        /* Don't try to dissect a retransmission high chance that it will mess
+         * subdissectors for protocols that require in-order delivery of the
+	 * PDUs. (i.e. DCE/RPCoverHTTP and encryption)
+         */
+        return FALSE;
+    }
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
@@ -3850,6 +3866,13 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     } else {
         low_port = src_port;
         high_port = dst_port;
+    }
+    if (tcp_no_subdissector_on_error && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
+        /* Don't try to dissect a retransmission high chance that it will mess
+         * subdissectors for protocols that require in-order delivery of the
+	 * PDUs. (i.e. DCE/RPCoverHTTP and encryption)
+         */
+        return FALSE;
     }
     if (low_port != 0 &&
         dissector_try_uint(subdissector_table, low_port, next_tvb, pinfo, tree)){
@@ -5572,6 +5595,11 @@ proto_register_tcp(void)
         "Ignore TCP Timestamps in summary",
         "Do not place the TCP Timestamps in the summary line",
         &tcp_ignore_timestamps);
+
+    prefs_register_bool_preference(tcp_module, "no_subdissector_on_error",
+        "Do not call subdissectors for error packets",
+        "Do not call any subdissectors for Retransmitted or OutOfOrder segments",
+        &tcp_no_subdissector_on_error);
 
     register_init_routine(tcp_init);
 }
