@@ -57,7 +57,7 @@ LIBWIRESHARK_SRC = 		\
 	funnel.c    		\
 	gcp.c			\
 	geoip_db.c		\
-        golay.c			\
+	golay.c			\
 	guid-utils.c    	\
 	h225-persistentdata.c	\
 	in_cksum.c		\
@@ -65,7 +65,7 @@ LIBWIRESHARK_SRC = 		\
 	ipv4.c			\
 	next_tvb.c		\
 	nstime.c		\
-        oids.c			\
+	oids.c			\
 	osi-utils.c		\
 	packet.c		\
 	plugins.c		\
@@ -148,6 +148,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	column_info.h		\
 	column-utils.h		\
 	conversation.h		\
+	conv_id.h		\
 	crc16-tvb.h		\
 	crc32-tvb.h		\
 	crc8-tvb.h		\
