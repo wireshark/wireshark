@@ -103,6 +103,9 @@ static gint ett_yhoo = -1;
 #define YAHOO_MSGTYPE_STATUS	4
 #define YAHOO_MSGTYPE_OFFLINE	1515563606	/* yuck! */
 
+#define YAHOO_RAWPACKET_LEN 105
+
+#if 0
 struct yahoo_rawpacket
 {
 	char          version[8];       /* 7 chars and trailing null */
@@ -116,6 +119,7 @@ struct yahoo_rawpacket
 	char          nick2[36];
 	char          content[1];       /* was zero, had problems with aix xlc */
 };
+#endif
 
 static const value_string yhoo_service_vals[] = {
 	{YAHOO_SERVICE_LOGON,                "Pager Logon"},
@@ -183,7 +187,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* get at least a full packet structure */
-	if ( tvb_length(tvb) < sizeof(struct yahoo_rawpacket) ) {
+	if ( tvb_length(tvb) < YAHOO_RAWPACKET_LEN ) {
 		/* Not enough data captured; maybe it is a Yahoo
 		   Messenger packet, but it contains too little data to
 		   tell. */

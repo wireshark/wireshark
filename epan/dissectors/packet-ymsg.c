@@ -207,6 +207,10 @@ enum ypacket_status {
 	YPACKET_STATUS_OFFLINE = 0x5a55aa56
 };
 
+/* The size of the below struct minus 6 bytes of content */
+#define YAHOO_HEADER_SIZE 20
+
+#if 0
 struct yahoo_rawpacket
 {
 	char ymsg[4];			/* Packet identification string (YMSG) */
@@ -218,6 +222,7 @@ struct yahoo_rawpacket
 	unsigned char session_id[4];	/* Session ID */
 	char content[6];		/* 6 is the minimum size of the content */
 };
+#endif
 
 static const value_string ymsg_service_vals[] = {
 	{YAHOO_SERVICE_LOGON, "Pager Logon"},
@@ -378,7 +383,6 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree      *content_tree;
 	char *keybuf;
 	char *valbuf;
-	int headersize = sizeof(struct yahoo_rawpacket)-6;
 	int keylen = 0;
 	int vallen = 0;
 	int offset = 0;
@@ -452,7 +456,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				/* Don't continue unless there is room for another whole item.
 				   (including 2 2-byte delimiters */
-				if (offset >= (headersize+content_len-4))
+				if (offset >= (YAHOO_HEADER_SIZE+content_len-4))
 				{
 					break;
 				}
