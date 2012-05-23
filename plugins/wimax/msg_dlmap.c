@@ -2092,6 +2092,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* if there is a compressed ul-map, also decode that and include in the length */
     guint offset = 0;
     proto_item *ti = NULL;
+    proto_item *ti_dlmap_ies = NULL;
     proto_item *generic_item = NULL;
     proto_tree *tree = NULL;
     proto_tree *ie_tree = NULL;
@@ -2137,8 +2138,8 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     /* DL-MAP IEs */
     length -= 15; /* remaining length in bytes (11 bytes above + CRC at end) */
     if (dl_ie_count) {
-        ti = proto_tree_add_text(tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
-        ie_tree = proto_item_add_subtree(ti, ett_dlmap_ie);
+        ti_dlmap_ies = proto_tree_add_text(tree, tvb, offset, length, "DL-MAP IEs (%d bytes)", length);
+        ie_tree = proto_item_add_subtree(ti_dlmap_ies, ett_dlmap_ie);
 
         length = BYTE_TO_NIB(mac_len - sizeof(mac_crc) - 1); /* convert length to nibbles */
 
@@ -2153,6 +2154,17 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     }
 
     if (ulmap_appended) {
+        /* Replace the text of items to set the correct length in bytes.*/
+        proto_item_set_text(ti, "Compressed DL-MAP (%u bytes)", NIB_ADDR(nib));
+        proto_item_set_text(ti_dlmap_ies, "DL-MAP IEs (%u bytes)",NIB_ADDR(nib)- offset);
+
+        /* set the length of items */
+        proto_item_set_end(ti_dlmap_ies, tvb, NIB_ADDR(nib));
+        proto_item_set_end(ti, tvb, NIB_ADDR(nib));
+
+        /* update the info column */
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Compressed UL-MAP");
+
         /* subtract 8 from lennib (CRC) */
         nib += wimax_decode_ulmapc(base_tree, bufptr, nib, lennib - 8, tvb);
     }
