@@ -210,7 +210,7 @@ append_file_type(QStringList &filters, int ft)
 
     filter = wtap_file_type_string(ft);
     filter += " (";
-    extensions_list = wtap_get_file_extensions_list(ft);
+    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
            conventionally used for it, so we'll just use "*.*"

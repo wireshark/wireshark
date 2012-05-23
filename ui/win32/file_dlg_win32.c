@@ -271,6 +271,8 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     TCHAR  file_name16[MAX_PATH] = _T("");
     GString *file_name8;
     gchar *file_last_dot;
+    GSList *extensions_list, *extension;
+    gboolean add_extension;
     gchar *dirname;
     int    ofnsize;
 #if (_MSC_VER >= 1500)
@@ -323,12 +325,35 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     if (GetSaveFileName(ofn)) {
         filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
 
-        /* append the default file extension if there's none given by the user */
-        /* (we expect a file extension to be at most 5 chars + the dot) */
+        /*
+	 * Append the default file extension if there's none given by the user
+	 * or if they gave one that's not one of the valid extensions for
+	 * the file type.
+	 */
         file_name8 = g_string_new(utf_16to8(file_name16));
         file_last_dot = strrchr(file_name8->str,'.');
-        if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
-            if(wtap_default_file_extension(filetype) != NULL) {
+        extensions_list = wtap_get_file_extensions_list(filetype, FALSE);
+        if (extensions_list != NULL) {
+            /* We have one or more extensions for this file type.
+	       Start out assuming we need to add the default one. */
+            add_extension = TRUE;
+            if (file_last_dot != NULL) {
+                /* OK, see if the file has one of those extensions. */
+                for (extension = extensions_list; extension != NULL && file_last_dot != NULL;
+                     extension = g_slist_next(extension)) {
+                    if (g_ascii_strcasecmp((char *)extension->data, file_last_dot) == 0) {
+                        /* The file name has one of the extensions for this file type */
+                        add_extension = FALSE;
+                        break;
+                    }
+                }
+            }
+        } else {
+            /* We have no extensions for this file type.  Don't add one. */
+            add_extension = FALSE;
+        }	
+        if (add_extension) {
+            if (wtap_default_file_extension(filetype) != NULL) {
                 g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(filetype));
             }
         }
@@ -420,6 +445,8 @@ win32_export_specified_packets_file(HWND h_wnd) {
     TCHAR  file_name16[MAX_PATH] = _T("");
     GString *file_name8;
     gchar *file_last_dot;
+    GSList *extensions_list, *extension;
+    gboolean add_extension;
     gchar *dirname;
     int    ofnsize;
 #if (_MSC_VER >= 1500)
@@ -472,12 +499,35 @@ win32_export_specified_packets_file(HWND h_wnd) {
     if (GetSaveFileName(ofn)) {
         filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
 
-        /* append the default file extension if there's none given by the user */
-        /* (we expect a file extension to be at most 5 chars + the dot) */
+        /*
+	 * Append the default file extension if there's none given by the user
+	 * or if they gave one that's not one of the valid extensions for
+	 * the file type.
+	 */
         file_name8 = g_string_new(utf_16to8(file_name16));
         file_last_dot = strrchr(file_name8->str,'.');
-        if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
-            if(wtap_default_file_extension(filetype) != NULL) {
+        extensions_list = wtap_get_file_extensions_list(filetype, FALSE);
+        if (extensions_list != NULL) {
+            /* We have one or more extensions for this file type.
+	       Start out assuming we need to add the default one. */
+            add_extension = TRUE;
+            if (file_last_dot != NULL) {
+                /* OK, see if the file has one of those extensions. */
+                for (extension = extensions_list; extension != NULL && file_last_dot != NULL;
+                     extension = g_slist_next(extension)) {
+                    if (g_ascii_strcasecmp((char *)extension->data, file_last_dot) == 0) {
+                        /* The file name has one of the extensions for this file type */
+                        add_extension = FALSE;
+                        break;
+                    }
+                }
+            }
+        } else {
+            /* We have no extensions for this file type.  Don't add one. */
+            add_extension = FALSE;
+        }	
+        if (add_extension) {
+            if (wtap_default_file_extension(filetype) != NULL) {
                 g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(filetype));
             }
         }
@@ -1535,7 +1585,7 @@ append_file_type(GArray *sa, int ft)
     TCHAR *str16;
     guint16 zero = 0;
 
-    extensions_list = wtap_get_file_extensions_list(ft);
+    extensions_list = wtap_get_file_extensions_list(ft, TRUE);
     if (extensions_list == NULL) {
         /* This file type doesn't have any particular extension
            conventionally used for it, so we'll just use "*.*"
