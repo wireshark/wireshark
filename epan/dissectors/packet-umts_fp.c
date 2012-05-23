@@ -34,6 +34,7 @@
 
 #include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
+#include "packet-rlc.h"
 
 /* The Frame Protocol (FP) is described in:
  * 3GPP TS 25.427 (for dedicated channels)
@@ -48,6 +49,7 @@
 /* Initialize the protocol and registered fields. */
 int proto_fp = -1;
 extern int proto_umts_mac;
+extern int proto_rlc;
 
 static int hf_fp_release = -1;
 static int hf_fp_release_version = -1;
@@ -3124,6 +3126,7 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
     int       offset = 0, i;
     gboolean  is_control_frame;
     umts_mac_info *macinf;
+    rlc_info *rlcinf;
 
     fpi = se_alloc0(sizeof(fp_info));
     p_add_proto_data(pinfo->fd, proto_fp, fpi);
@@ -3170,10 +3173,15 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
                 /* control frame, we're done */
                 return fpi;
             }
+			/* Set offset to TFI */
             offset = 3;
 			break;
         case CHANNEL_DCH:
-            /* fall trough */
+            fpi->num_chans = p_conv_data->num_dch_in_flow;
+            if (is_control_frame) {
+                /* control frame, we're done */
+                return fpi;
+            }
             /* For now cheat */
             if (p_conv_data->dchs_in_flow_list[0] == 31) {
                 macinf = se_new0(umts_mac_info);
@@ -3181,8 +3189,37 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
                 macinf->content[0] = MAC_CONTENT_DCCH;
                 p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
             }
+            /* Set offset to point to first TFI
+             * the Number of TFI's = number of DCH's in the flow
+             */
+            offset = 2;
+			break;
         case CHANNEL_FACH_FDD:
-            /* fall trough */
+            fpi->num_chans = p_conv_data->num_dch_in_flow;
+            if (is_control_frame) {
+                /* control frame, we're done */
+                return fpi;
+            }
+            /* Set offset to point to first TFI
+             * the Number of TFI's = number of DCH's in the flow
+             */
+            offset = 2;
+			/* Set MAC data */
+            macinf = se_new0(umts_mac_info);
+            macinf->ctmux[0]   = 1;
+            macinf->content[0] = MAC_CONTENT_DCCH;
+            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+			/* Set RLC data */
+			rlcinf = se_new0(rlc_info);
+			/* Make configurable ?(avaliable in NBAP?) */
+			/* urnti[MAX_RLC_CHANS] */
+			rlcinf->mode[0] = RLC_AM;
+			/* rbid[MAX_RLC_CHANS] */
+			rlcinf->li_size[0] = RLC_LI_7BITS;
+			rlcinf->ciphered[0] = FALSE;
+			rlcinf->deciphered[0] = FALSE;
+			p_add_proto_data(pinfo->fd, proto_rlc, macinf);
+			break;
         case CHANNEL_RACH_FDD:
             fpi->num_chans = p_conv_data->num_dch_in_flow;
             if (is_control_frame) {
@@ -3193,8 +3230,12 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
              * the Number of TFI's = number of DCH's in the flow
              */
             offset = 2;
-
-            break;
+			/* set MAC data */
+            macinf = se_new0(umts_mac_info);
+            macinf->ctmux[0]   = 1;
+            macinf->content[0] = MAC_CONTENT_DCCH;
+            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+			break;
         default:
             return NULL;
     }
