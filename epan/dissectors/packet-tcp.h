@@ -59,6 +59,7 @@ typedef struct tcpheader {
 	guint16 th_dport;
 	guint8  th_hlen;
 	guint16 th_flags;
+	guint32 th_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
 	address ip_src;
 	address ip_dst;
 } tcp_info_t;

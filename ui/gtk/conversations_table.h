@@ -26,6 +26,7 @@
 #ifndef __CONVERSATIONS_TABLE_H__
 #define __CONVERSATIONS_TABLE_H__
 
+#include <epan/conv_id.h>
 #include "sat.h"
 
 /** @file
@@ -34,45 +35,46 @@
 
 /** Conversation information */
 typedef struct _conversation_t {
-	address  src_address;    /**< source address */
-	address  dst_address;    /**< destination address */
-	SAT_E    sat;            /**< address type */
-	guint32  port_type;      /**< port_type (e.g. PT_TCP) */
-	guint32  src_port;       /**< source port */
-	guint32  dst_port;       /**< destination port */
+    address     src_address;    /**< source address */
+    address     dst_address;    /**< destination address */
+    SAT_E       sat;            /**< address type */
+    guint32     port_type;      /**< port_type (e.g. PT_TCP) */
+    guint32     src_port;       /**< source port */
+    guint32     dst_port;       /**< destination port */
+    conv_id_t   conv_id;        /**< conversation id */
 
-	guint64  rx_frames;      /**< number of received packets */
-	guint64  tx_frames;      /**< number of transmitted packets */
-	guint64  rx_bytes;       /**< number of received bytes */
-	guint64  tx_bytes;       /**< number of transmitted bytes */
+    guint64     rx_frames;      /**< number of received packets */
+    guint64     tx_frames;      /**< number of transmitted packets */
+    guint64     rx_bytes;       /**< number of received bytes */
+    guint64     tx_bytes;       /**< number of transmitted bytes */
 
-	nstime_t start_time;     /**< start time for the conversation */
-	nstime_t stop_time;      /**< stop time for the conversation */
+    nstime_t    start_time;     /**< start time for the conversation */
+    nstime_t    stop_time;      /**< stop time for the conversation */
 
-	gboolean modified;       /**< new to redraw the row */	
-	GtkTreeIter iter;
-	gboolean iter_valid;     /**< not a new row */	
+    gboolean    modified;       /**< new to redraw the row */
+    GtkTreeIter iter;
+    gboolean    iter_valid;     /**< not a new row */
 } conv_t;
 
 /** Conversation widget */
 typedef struct _conversations_table {
-	const char          *name;              /**< the name of the table */
-	const char          *filter;            /**< the filter used */
-	gboolean             use_dfilter;       /**< use display filter */
-	GtkWidget           *win;               /**< GTK window */
-	GtkWidget           *page_lb;           /**< page label */
-	GtkWidget           *name_lb;           /**< name label */
-	GtkWidget           *scrolled_window;   /**< the scrolled window */
-	GtkTreeView         *table;             /**< the GTK table */
-	const char          *default_titles[14]; /**< Column headers */
-	GtkWidget           *menu;              /**< context menu */
-	gboolean            has_ports;          /**< table has ports */
-	guint32             num_conversations;  /**< number of conversations */
-	GArray		    *conversations;     /**< array of conversation values */
-	GHashTable          *hashtable;         /**< conversations hash table */
+    const char  *name;               /**< the name of the table */
+    const char  *filter;             /**< the filter used */
+    gboolean    use_dfilter;         /**< use display filter */
+    GtkWidget   *win;                /**< GTK window */
+    GtkWidget   *page_lb;            /**< page label */
+    GtkWidget   *name_lb;            /**< name label */
+    GtkWidget   *scrolled_window;    /**< the scrolled window */
+    GtkTreeView *table;              /**< the GTK table */
+    const char  *default_titles[14]; /**< Column headers */
+    GtkWidget   *menu;               /**< context menu */
+    gboolean    has_ports;           /**< table has ports */
+    guint32     num_conversations;   /**< number of conversations */
+    GArray      *conversations;      /**< array of conversation values */
+    GHashTable  *hashtable;          /**< conversations hash table */
 
-	gboolean 	    fixed_col;      	/**< if switched to fixed column */
-	gboolean            resolve_names;      /**< resolve address names? */
+    gboolean    fixed_col;           /**< if switched to fixed column */
+    gboolean    resolve_names;       /**< resolve address names? */
 } conversations_table;
 
 /** Register the conversation table for the multiple conversation window.
@@ -116,7 +118,37 @@ extern void init_conversation_notebook_cb(GtkWidget *widget, gpointer data);
  * @param port_type the port type (e.g. PT_TCP)
  */
 extern void add_conversation_table_data(conversations_table *ct, const address *src, const address *dst,
-			guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts,
-			SAT_E sat, int port_type);
-#endif /* __CONVERSATIONS_TABLE_H__ */
+            guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts,
+            SAT_E sat, int port_type);
 
+/** Add some data to the conversation table, passing a value to be used in
+ *  addition to the address and port quadruple to uniquely identify the
+ *  conversation.
+ *
+ * @param ct the table to add the data to
+ * @param src source address
+ * @param dst destination address
+ * @param src_port source port
+ * @param dst_port destination port
+ * @param num_frames number of packets
+ * @param num_bytes number of bytes
+ * @param ts timestamp
+ * @param sat address type
+ * @param port_type the port type (e.g. PT_TCP)
+ * @param conv_id a value to help differentiate the conversation in case the address and port quadruple is not sufficiently unique
+ */
+extern void
+add_conversation_table_data_with_conv_id(
+    conversations_table *ct,
+    const address *src,
+    const address *dst,
+    guint32 src_port,
+    guint32 dst_port,
+    conv_id_t conv_id,
+    int num_frames,
+    int num_bytes,
+    nstime_t *ts,
+    SAT_E sat,
+    int port_type);
+
+#endif /* __CONVERSATIONS_TABLE_H__ */

@@ -2467,7 +2467,7 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
     GtkTreeModel *model;
     GtkTreeSelection  *sel;
     guint32 idx = 0;
-    gchar *filter;
+    gchar *filter = NULL;
     conv_t *conv;
 
     if (!ct)
@@ -2486,25 +2486,42 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
     }
 
     conv = &g_array_index(ct->conversations, conv_t, idx);
-    filter = g_strdup_printf("%s==%s && %s==%s && %s==%s && %s==%s",
-                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                             ep_address_to_str(&conv->src_address),
-                             ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT),
-                             ct_port_to_str(conv->port_type, conv->src_port),
-                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                             ep_address_to_str(&conv->dst_address),
-                             ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT),
-                             ct_port_to_str(conv->port_type, conv->dst_port));
 
-    apply_selected_filter (ACTYPE_SELECTED|ACTION_MATCH, filter);
+    /* Generate and apply a display filter to isolate the conversation. The
+     * TCP filter is a special case because it uses the stream identifier/index
+     * (tcp.stream, which is stored in conv_id) to ensure the filter results
+     * in a unique conversation even in the face of port reuse. All others use
+     * the address/port tuple.
+     */
+    if ((strcmp(ct->name, "TCP") == 0) && (conv->conv_id != CONV_ID_UNSET))
+    {
+        filter = g_strdup_printf("tcp.stream eq %d", conv->conv_id);
+    }
+    else
+    {
+        filter = g_strdup_printf("%s==%s && %s==%s && %s==%s && %s==%s",
+                                 ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
+                                 ep_address_to_str(&conv->src_address),
+                                 ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT),
+                                 ct_port_to_str(conv->port_type, conv->src_port),
+                                 ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
+                                 ep_address_to_str(&conv->dst_address),
+                                 ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT),
+                                 ct_port_to_str(conv->port_type, conv->dst_port));
+    }
+    apply_selected_filter(ACTYPE_SELECTED|ACTION_MATCH, filter);
+    g_free(filter);
+    filter = NULL;
+
+    /* For TCP or UDP conversations, take things one step further and present
+     * the Follow Stream dialog. Other conversation types? Not so much.
+     */
     if (strcmp(ct->name, "TCP") == 0)
-        follow_tcp_stream_cb (follow_stream_bt, data);
+        follow_tcp_stream_cb(follow_stream_bt, data);
     else if (strcmp(ct->name, "UDP") == 0)
-        follow_udp_stream_cb (follow_stream_bt, data);
+        follow_udp_stream_cb(follow_stream_bt, data);
     else
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
-
-    g_free (filter);
 }
 
 
@@ -2838,6 +2855,7 @@ typedef struct _key {
     address     addr2;
     guint32     port1;
     guint32     port2;
+    conv_id_t   conv_id;
 } conv_key_t;
 
 
@@ -2856,6 +2874,7 @@ conversation_hash(gconstpointer v)
     hash_val += key->port1;
     ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
     hash_val += key->port2;
+    hash_val ^= key->conv_id;
 
     return hash_val;
 }
@@ -2869,22 +2888,25 @@ conversation_match(gconstpointer v, gconstpointer w)
     const conv_key_t *v1 = (const conv_key_t *)v;
     const conv_key_t *v2 = (const conv_key_t *)w;
 
-    if (v1->port1 == v2->port1 &&
-        v1->port2 == v2->port2 &&
-        ADDRESSES_EQUAL(&v1->addr1, &v2->addr1) &&
-        ADDRESSES_EQUAL(&v1->addr2, &v2->addr2)) {
-        return 1;
-    }
+    if (v1->conv_id == v2->conv_id)
+    {
+        if (v1->port1 == v2->port1 &&
+            v1->port2 == v2->port2 &&
+            ADDRESSES_EQUAL(&v1->addr1, &v2->addr1) &&
+            ADDRESSES_EQUAL(&v1->addr2, &v2->addr2)) {
+            return 1;
+        }
 
-    if (v1->port2 == v2->port1 &&
-        v1->port1 == v2->port2 &&
-        ADDRESSES_EQUAL(&v1->addr2, &v2->addr1) &&
-        ADDRESSES_EQUAL(&v1->addr1, &v2->addr2)) {
-        return 1;
+        if (v1->port2 == v2->port1 &&
+            v1->port1 == v2->port2 &&
+            ADDRESSES_EQUAL(&v1->addr2, &v2->addr1) &&
+            ADDRESSES_EQUAL(&v1->addr1, &v2->addr2)) {
+            return 1;
+        }
     }
 
     /*
-     * The addresses or the ports don't match.
+     * The addresses, ports, or conversation IDs don't match.
      */
     return 0;
 }
@@ -2893,44 +2915,60 @@ conversation_match(gconstpointer v, gconstpointer w)
 void
 add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, SAT_E sat, int port_type_val)
 {
+    add_conversation_table_data_with_conv_id(ct, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, sat, port_type_val);
+}
+
+void
+add_conversation_table_data_with_conv_id(
+    conversations_table *ct,
+    const address *src,
+    const address *dst,
+    guint32 src_port,
+    guint32 dst_port,
+    conv_id_t conv_id,
+    int num_frames,
+    int num_bytes,
+    nstime_t *ts,
+    SAT_E sat,
+    int port_type_val)
+{
     const address *addr1, *addr2;
     guint32 port1, port2;
-    conv_t *conversation=NULL;
-    unsigned int conversation_idx=0;
+    conv_t *conversation = NULL;
+    unsigned int conversation_idx = 0;
 
-    if(src_port>dst_port){
-        addr1=src;
-        addr2=dst;
-        port1=src_port;
-        port2=dst_port;
-    } else if(src_port<dst_port){
-        addr2=src;
-        addr1=dst;
-        port2=src_port;
-        port1=dst_port;
-    } else if(CMP_ADDRESS(src, dst)<0){
-        addr1=src;
-        addr2=dst;
-        port1=src_port;
-        port2=dst_port;
+    if (src_port > dst_port) {
+        addr1 = src;
+        addr2 = dst;
+        port1 = src_port;
+        port2 = dst_port;
+    } else if (src_port < dst_port) {
+        addr2 = src;
+        addr1 = dst;
+        port2 = src_port;
+        port1 = dst_port;
+    } else if (CMP_ADDRESS(src, dst) < 0) {
+        addr1 = src;
+        addr2 = dst;
+        port1 = src_port;
+        port2 = dst_port;
     } else {
-        addr2=src;
-        addr1=dst;
-        port2=src_port;
-        port1=dst_port;
+        addr2 = src;
+        addr1 = dst;
+        port2 = src_port;
+        port1 = dst_port;
     }
 
     /* if we dont have any entries at all yet */
-    if(ct->conversations==NULL){
-        ct->conversations= g_array_sized_new(FALSE, FALSE, sizeof(conv_t), 10000);
+    if (ct->conversations == NULL) {
+        ct->conversations = g_array_sized_new(FALSE, FALSE, sizeof(conv_t), 10000);
 
         ct->hashtable = g_hash_table_new_full(conversation_hash,
                                               conversation_match, /* key_equal_func */
                                               g_free,             /* key_destroy_func */
                                               NULL);              /* value_destroy_func */
 
-    }
-    else {
+    } else {
         /* try to find it among the existing known conversations */
         conv_key_t existing_key;
 
@@ -2938,6 +2976,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         existing_key.addr2 = *addr2;
         existing_key.port1 = port1;
         existing_key.port2 = port2;
+        existing_key.conv_id = conv_id;
         conversation_idx = GPOINTER_TO_UINT(g_hash_table_lookup(ct->hashtable, &existing_key));
         if (conversation_idx) {
             conversation_idx--;
@@ -2947,20 +2986,21 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
 
     /* if we still dont know what conversation this is it has to be a new one
        and we have to allocate it and append it to the end of the list */
-    if(conversation==NULL){
+    if (conversation == NULL) {
         conv_key_t *new_key;
         conv_t conv;
 
         COPY_ADDRESS(&conv.src_address, addr1);
         COPY_ADDRESS(&conv.dst_address, addr2);
-        conv.sat=sat;
-        conv.port_type=port_type_val;
-        conv.src_port=port1;
-        conv.dst_port=port2;
-        conv.rx_frames=0;
-        conv.tx_frames=0;
-        conv.rx_bytes=0;
-        conv.tx_bytes=0;
+        conv.sat = sat;
+        conv.port_type = port_type_val;
+        conv.src_port = port1;
+        conv.dst_port = port2;
+        conv.conv_id = conv_id;
+        conv.rx_frames = 0;
+        conv.tx_frames = 0;
+        conv.rx_bytes = 0;
+        conv.tx_bytes = 0;
         conv.iter_valid = FALSE;
         conv.modified = TRUE;
 
@@ -2972,7 +3012,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
             nstime_set_unset(&conv.stop_time);
         }
         g_array_append_val(ct->conversations, conv);
-        conversation_idx=ct->num_conversations;
+        conversation_idx = ct->num_conversations;
         conversation=&g_array_index(ct->conversations, conv_t, conversation_idx);
 
         /* ct->conversations address is not a constant but src/dst_address.data are */
@@ -2981,6 +3021,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         SET_ADDRESS(&new_key->addr2, conversation->dst_address.type, conversation->dst_address.len, conversation->dst_address.data);
         new_key->port1 = port1;
         new_key->port2 = port2;
+        new_key->conv_id = conv_id;
         g_hash_table_insert(ct->hashtable, new_key, GUINT_TO_POINTER(conversation_idx +1));
 
         ct->num_conversations++;
@@ -2988,12 +3029,12 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
 
     /* update the conversation struct */
     conversation->modified = TRUE;
-    if( (!CMP_ADDRESS(src, addr1))&&(!CMP_ADDRESS(dst, addr2))&&(src_port==port1)&&(dst_port==port2) ){
-        conversation->tx_frames+=num_frames;
-        conversation->tx_bytes+=num_bytes;
+    if ( (!CMP_ADDRESS(src, addr1)) && (!CMP_ADDRESS(dst, addr2)) && (src_port==port1) && (dst_port==port2) ) {
+        conversation->tx_frames += num_frames;
+        conversation->tx_bytes += num_bytes;
     } else {
-        conversation->rx_frames+=num_frames;
-        conversation->rx_bytes+=num_bytes;
+        conversation->rx_frames += num_frames;
+        conversation->rx_bytes += num_bytes;
     }
 
     if (ts) {

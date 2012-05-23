@@ -4140,6 +4140,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tcpd) {
         item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
         PROTO_ITEM_SET_GENERATED(item);
+
+        /* Copy the stream index into the header as well to make it available
+         * to tap listeners.
+         */
+        tcph->th_stream = tcpd->stream;
     }
 
     /* Do we need to calculate timestamps relative to the tcp-stream? */

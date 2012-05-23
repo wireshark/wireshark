@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
+#include <epan/conv_id.h>
 #include <epan/conversation.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/dissectors/packet-ip.h>
@@ -54,27 +55,39 @@ typedef struct _io_users_t {
 } io_users_t;
 
 typedef struct _io_users_item_t {
-	struct _io_users_item_t *next;
-	char *name1;
-	char *name2;
-	address addr1;
-	address addr2;
-	guint32 frames1;
-	guint32 frames2;
-	guint64 bytes1;
-	guint64 bytes2;
-	nstime_t start_time;
-	nstime_t stop_time;
+    struct _io_users_item_t *next;
+    char                    *name1;
+    char                    *name2;
+    conv_id_t               conv_id;
+    address                 addr1;
+    address                 addr2;
+    guint32                 frames1;
+    guint32                 frames2;
+    guint64                 bytes1;
+    guint64                 bytes2;
+    nstime_t                start_time;
+    nstime_t                stop_time;
 } io_users_item_t;
 
+#define iousers_process_name_packet(iu, name1, name2, direction, pkt_len, ts) \
+    iousers_process_name_packet_with_conv_id(iu, name1, name2, CONV_ID_UNSET, direction, pkt_len, ts)
+
 void
-iousers_process_name_packet(io_users_t *iu, char *name1, char *name2, int direction, guint64 pkt_len, nstime_t *ts)
+iousers_process_name_packet_with_conv_id(
+    io_users_t *iu,
+    char *name1,
+    char *name2,
+    conv_id_t conv_id,
+    int direction,
+    guint64 pkt_len,
+    nstime_t *ts)
 {
 	io_users_item_t *iui;
 
 	for(iui=iu->items;iui;iui=iui->next){
-		if((!strcmp(iui->name1, name1))
-		&& (!strcmp(iui->name2, name2)) ){
+		if((iui->conv_id==conv_id)
+            && (!strcmp(iui->name1, name1))
+            && (!strcmp(iui->name2, name2)) ){
 			break;
 		}
 	}
@@ -83,10 +96,9 @@ iousers_process_name_packet(io_users_t *iu, char *name1, char *name2, int direct
 		iui=g_malloc(sizeof(io_users_item_t));
 		iui->next=iu->items;
 		iu->items=iui;
-/*		iui->addr1=NULL;*/
 		iui->name1=g_strdup(name1);
-/*		iui->addr2=NULL;*/
 		iui->name2=g_strdup(name2);
+        iui->conv_id=conv_id;
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -253,7 +265,7 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
 	}
 
-	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
+	iousers_process_name_packet_with_conv_id(iu, name1, name2, tcph->th_stream, direction, pinfo->fd->pkt_len, &pinfo->fd->rel_ts);
 
 	return 1;
 }
