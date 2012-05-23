@@ -467,7 +467,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
                  OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = export_specified_packets_file_hook_proc;
-    ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
+    ofn->lpTemplateName = _T("WIRESHARK_EXPORT_SPECIFIED_PACKETS_FILENAME_TEMPLATE");
 
     if (GetSaveFileName(ofn)) {
         filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
