@@ -29,9 +29,10 @@
 #include <stdio.h>
 
 #include <string.h>
-#include "epan/epan_dissect.h"
-#include "epan/packet_info.h"
+#include <epan/epan_dissect.h>
+#include <epan/packet_info.h>
 #include <epan/tap.h>
+#include <epan/timestamp.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/strutil.h>
 #include "globals.h"
@@ -69,6 +70,7 @@ typedef struct _io_stat_t {
     guint invl_prec;      /* Decimal precision of the time interval (1=10s, 2=100s etc) */
     guint32 num_cols;     /* The number of columns of statistics in the table */
     struct _io_stat_item_t *items;  /* Each item is a single cell in the table */
+    time_t start_time;    /* Time of first frame matching the filter */
     const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
     guint64 *max_vals;    /* The max value sans the decimal or nsecs portion in each stat column */
     guint32 *max_frame;   /* The max frame number displayed in each stat column */
@@ -106,6 +108,9 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     mit = (io_stat_item_t *) arg;
     parent = mit->parent;
     relative_time = (guint64)((pinfo->fd->rel_ts.secs*1000000) + ((pinfo->fd->rel_ts.nsecs+500)/1000));
+    if (mit->parent->start_time == 0) {
+        mit->parent->start_time = pinfo->fd->abs_ts.secs - pinfo->fd->rel_ts.secs;
+    }
 
     /* The prev item before the main one is always the last interval we saw packets for */
     it = mit->prev;
@@ -542,6 +547,8 @@ iostat_draw(void *arg)
     io_stat_item_t *mit, **stat_cols, *item;
     io_stat_t *iot;
     column_width *col_w; 
+    struct tm * tm_time;
+    time_t the_time;
 
     mit = (io_stat_item_t *)arg;
     iot = mit->parent;
@@ -607,6 +614,18 @@ iostat_draw(void *arg)
         invl_col_w = (2*dur_mag) + 8;
     else
         invl_col_w = (2*dur_mag) + (2*invl_prec) + 10;
+
+    /* Update the width of the time interval column (in fact the date) */ 
+    switch (timestamp_get_type()) {
+    case TS_ABSOLUTE:
+      invl_col_w=12;
+      break;
+    case TS_ABSOLUTE_WITH_DATE:
+      invl_col_w=23;
+      break;
+    default:
+      break;
+    }
     invl_col_w = MAX(invl_col_w, 12);
     borderlen = MAX(borderlen, invl_col_w);
 
@@ -866,6 +885,21 @@ iostat_draw(void *arg)
     }
     
     printf("\n| Interval");
+    switch (timestamp_get_type()) {
+    case TS_ABSOLUTE:
+      printf("\n| Time    ");
+      break;
+    case TS_ABSOLUTE_WITH_DATE:
+      printf("\n| Date    ");
+      break;
+    case TS_RELATIVE:
+    case TS_NOT_SET:
+      printf("\n| Interval");
+      break;
+    default:
+      break;
+    }
+
     spaces_s = &spaces[borderlen-(invl_col_w-11)];
     printf("%s|", spaces_s);
 
@@ -904,20 +938,57 @@ iostat_draw(void *arg)
         if (i==num_rows-1)
             last_row = TRUE;
 
-        /* Display the interval for this row */
+        /* Compute the interval for this row */
         if (!last_row) {
             invl_end = t + interval;
         } else {
             invl_end = duration;
         }
-        if (invl_prec==0) {
-            printf(full_fmt, (guint32)(t/1000000),
+
+	    /* Patch for Absolute Time */
+	    the_time=iot->start_time+(guint32)(t/1000000);
+	    tm_time = localtime(&the_time);
+
+	    /* Display the interval for this row */
+	    switch (timestamp_get_type()) {    	  
+	    case TS_ABSOLUTE:
+	      printf("| %02d:%02d:%02d |",
+		     tm_time->tm_hour,
+		     tm_time->tm_min,
+		     tm_time->tm_sec);
+	      break;
+    	  
+	    case TS_ABSOLUTE_WITH_DATE:
+	      printf("| %04d-%02d-%02d %02d:%02d:%02d |",
+		     tm_time->tm_year + 1900,
+		     tm_time->tm_mon + 1,
+		     tm_time->tm_mday,
+		     tm_time->tm_hour,
+		     tm_time->tm_min,
+		     tm_time->tm_sec);
+	      break;
+    	  
+	    case TS_RELATIVE:
+	    case TS_NOT_SET:
+
+          if (invl_prec==0) {
+              printf(full_fmt, (guint32)(t/1000000),
                              (guint32)(invl_end/1000000));
-        } else {
-            printf(full_fmt, (guint32)(t/1000000),
+          } else {
+              printf(full_fmt, (guint32)(t/1000000),
                              (guint32)(t%1000000) / dv,
                              (guint32) (invl_end/1000000),
                              (guint32)((invl_end%1000000) / dv));
+          }
+	      break;
+	    /*    case TS_DELTA:
+	  	case TS_DELTA_DIS:
+		case TS_EPOCH:
+		case TS_UTC:
+		case TS_UTC_WITH_DATE:
+		    are not implemented */
+        default:
+          break;
         }
 
         /* Display all the stat values in this row */
@@ -1234,6 +1305,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 
     /* Find how many ',' separated filters we have */
     io->num_cols = 1;
+    io->start_time=0;
 
     if (idx) {
         filters = optarg + idx;
