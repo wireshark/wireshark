@@ -202,7 +202,6 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YHOO");
 
-	offset = 0;
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
 			     ( tvb_memeql(tvb, offset + 0, "YPNS", 4) == 0 ) ? "Request" : "Response",
@@ -211,8 +210,8 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_yhoo, tvb, offset, -1,
-			ENC_NA);
+		ti = proto_tree_add_item(tree, proto_yhoo, tvb,
+			offset, -1, ENC_NA);
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_version, tvb,
@@ -262,34 +261,34 @@ void
 proto_register_yhoo(void)
 {
 	static hf_register_info hf[] = {
-			{ &hf_yhoo_service, {
+		{ &hf_yhoo_service, {
 				"Service Type", "yhoo.service", FT_UINT32, BASE_DEC,
 				VALS(yhoo_service_vals), 0, NULL, HFILL }},
-			{ &hf_yhoo_msgtype, {
+		{ &hf_yhoo_msgtype, {
 				"Message Type", "yhoo.msgtype", FT_UINT32, BASE_DEC,
 				VALS(yhoo_msgtype_vals), 0, "Message Type Flags", HFILL }},
-			{ &hf_yhoo_connection_id, {
+		{ &hf_yhoo_connection_id, {
 				"Connection ID", "yhoo.connection_id", FT_UINT32, BASE_HEX,
 				NULL, 0, NULL, HFILL }},
-			{ &hf_yhoo_magic_id, {
+		{ &hf_yhoo_magic_id, {
 				"Magic ID", "yhoo.magic_id", FT_UINT32, BASE_HEX,
 				NULL, 0, NULL, HFILL }},
-			{ &hf_yhoo_unknown1, {
+		{ &hf_yhoo_unknown1, {
 				"Unknown 1", "yhoo.unknown1", FT_UINT32, BASE_HEX,
 				NULL, 0, NULL, HFILL }},
-			{ &hf_yhoo_len, {
+		{ &hf_yhoo_len, {
 				"Packet Length", "yhoo.len", FT_UINT32, BASE_DEC,
 				NULL, 0, NULL, HFILL }},
-			{ &hf_yhoo_nick1, {
+		{ &hf_yhoo_nick1, {
 				"Real Nick (nick1)", "yhoo.nick1", FT_STRING, BASE_NONE,
 				NULL, 0, NULL, HFILL }},
-			{ &hf_yhoo_nick2, {
+		{ &hf_yhoo_nick2, {
 				"Active Nick (nick2)", "yhoo.nick2", FT_STRING, BASE_NONE,
 				NULL, 0, NULL, HFILL }},
-			{ &hf_yhoo_content, {
+		{ &hf_yhoo_content, {
 				"Content", "yhoo.content", FT_STRING, BASE_NONE,
 				NULL, 0, "Data portion of the packet", HFILL }},
-			{ &hf_yhoo_version, {
+		{ &hf_yhoo_version, {
 				"Version", "yhoo.version", FT_STRING, BASE_NONE,
 				NULL, 0, "Packet version identifier", HFILL }},
         };
