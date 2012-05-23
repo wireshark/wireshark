@@ -326,20 +326,23 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
 
         /*
-	 * Append the default file extension if there's none given by the user
-	 * or if they gave one that's not one of the valid extensions for
-	 * the file type.
-	 */
+         * Append the default file extension if there's none given by the user
+         * or if they gave one that's not one of the valid extensions for
+         * the file type.
+         */
         file_name8 = g_string_new(utf_16to8(file_name16));
         file_last_dot = strrchr(file_name8->str,'.');
         extensions_list = wtap_get_file_extensions_list(filetype, FALSE);
         if (extensions_list != NULL) {
             /* We have one or more extensions for this file type.
-	       Start out assuming we need to add the default one. */
+               Start out assuming we need to add the default one. */
             add_extension = TRUE;
             if (file_last_dot != NULL) {
+                /* Skip past the dot. */
+                file_last_dot++;
+
                 /* OK, see if the file has one of those extensions. */
-                for (extension = extensions_list; extension != NULL && file_last_dot != NULL;
+                for (extension = extensions_list; extension != NULL;
                      extension = g_slist_next(extension)) {
                     if (g_ascii_strcasecmp((char *)extension->data, file_last_dot) == 0) {
                         /* The file name has one of the extensions for this file type */
@@ -351,7 +354,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         } else {
             /* We have no extensions for this file type.  Don't add one. */
             add_extension = FALSE;
-        }	
+        }
         if (add_extension) {
             if (wtap_default_file_extension(filetype) != NULL) {
                 g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(filetype));
@@ -500,20 +503,23 @@ win32_export_specified_packets_file(HWND h_wnd) {
         filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
 
         /*
-	 * Append the default file extension if there's none given by the user
-	 * or if they gave one that's not one of the valid extensions for
-	 * the file type.
-	 */
+         * Append the default file extension if there's none given by the user
+         * or if they gave one that's not one of the valid extensions for
+         * the file type.
+         */
         file_name8 = g_string_new(utf_16to8(file_name16));
         file_last_dot = strrchr(file_name8->str,'.');
         extensions_list = wtap_get_file_extensions_list(filetype, FALSE);
         if (extensions_list != NULL) {
             /* We have one or more extensions for this file type.
-	       Start out assuming we need to add the default one. */
+               Start out assuming we need to add the default one. */
             add_extension = TRUE;
             if (file_last_dot != NULL) {
+                /* Skip past the dot. */
+                file_last_dot++;
+
                 /* OK, see if the file has one of those extensions. */
-                for (extension = extensions_list; extension != NULL && file_last_dot != NULL;
+                for (extension = extensions_list; extension != NULL;
                      extension = g_slist_next(extension)) {
                     if (g_ascii_strcasecmp((char *)extension->data, file_last_dot) == 0) {
                         /* The file name has one of the extensions for this file type */
@@ -525,7 +531,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
         } else {
             /* We have no extensions for this file type.  Don't add one. */
             add_extension = FALSE;
-        }	
+        }
         if (add_extension) {
             if (wtap_default_file_extension(filetype) != NULL) {
                 g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(filetype));
@@ -1836,7 +1842,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
             packet_range_init(&g_range);
             /* default to displayed packets */
             g_range.process_filtered   = TRUE;
-	    g_range.include_dependents   = TRUE;
+            g_range.include_dependents   = TRUE;
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
