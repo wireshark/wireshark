@@ -102,7 +102,7 @@
 #define BUNDLE_BLOCK_TYPE_METADATA_EXTENSION    0x08 /* RFC6258 */
 #define BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY    0x09 /* RFC6257 */
 #define BUNDLE_BLOCK_TYPE_CUSTODY_TRANSFER      0x0a /* http://bioserve.colorado.edu/bp-acs/ */
-#define BUNDLE_BLOCK_TYPE_EXTENDED_CLASS        0x13 /* http://tools.ietf.org/html/draft-irtf-dtnrg-ecos-02 */
+#define BUNDLE_BLOCK_TYPE_EXTENDED_COS          0x13 /* http://tools.ietf.org/html/draft-irtf-dtnrg-ecos-02 */
 
 /* Payload Header Processing Flags */
 #define PAYLOAD_PROCFLAGS_REPLICATE_MASK        0x01
@@ -141,6 +141,11 @@
 #define BLOCK_CONTROL_DISCARD_BLOCK     0x10
 #define BLOCK_CONTROL_NOT_PROCESSED     0x20
 #define BLOCK_CONTROL_EID_REFERENCE     0x40
+
+/* ECOS Flags */
+#define ECOS_FLAGS_CRITICAL             0x01
+#define ECOS_FLAGS_STREAMING            0x02
+#define ECOS_FLAGS_ORDINAL              0x04
 
 #define IPN_SCHEME_STR			"ipn"
 

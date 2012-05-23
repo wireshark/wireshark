@@ -181,6 +181,14 @@ static int hf_block_control_eid_reference = -1;
 /* Non-Primary Block Type Code Variable */
 static int hf_bundle_block_type_code = -1;
 
+/* ECOS Flag Variables */
+static int hf_ecos_flags = -1;
+static int hf_ecos_flags_critical = -1;
+static int hf_ecos_flags_streaming = -1;
+static int hf_ecos_flags_ordinal = -1;
+
+static int hf_ecos_ordinal = -1;
+
 /* Administrative Record Variables */
 static int hf_bundle_admin_statflags = -1;
 static int hf_bundle_admin_rcvd = -1;
@@ -261,6 +269,18 @@ static const value_string bundle_block_type_codes[] = {
     {0x09, "Extension Security Block"},
     {0x0a, "Custody Transfer Enhancement Block"},
     {0x13, "Extended Class of Service Block"},
+    {0, NULL}
+};
+
+static const value_string ecos_flags[] = {
+    {0x00, "None"},
+    {0x01, "ECOS Critical"},
+    {0x02, "ECOS Streaming"},
+    {0x03, "ECOS Critical+Streaming"},
+    {0x04, "ECOS Ordinal"},
+    {0x05, "ECOS Critical+Ordinal"},
+    {0x06, "ECOS Streaming+Ordinal"},
+    {0x07, "ECOS Critical+Streaming+Ordinal"},
     {0, NULL}
 };
 
@@ -1929,22 +1949,22 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int pa
         fill_start = evaluate_sdnv(tvb, offset, &sdnv_length_start);
         if (fill_start < 0 || sdnv_length_start < 0) {
             proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                        "ACS: Unable to process fill start SDNV");
+                                        "ACS: Unable to process CTEB Custody ID Range start SDNV");
             return 0;
         }
         fill_length = evaluate_sdnv(tvb, offset + sdnv_length_start, &sdnv_length_length);
         if (fill_length < 0 || sdnv_length_length < 0) {
             proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                        "ACS: Unable to process fill length SDNV");
+                                        "ACS: Unable to process CTEB Custody ID Range length SDNV");
             return 0;
         }
         if (fill_length == 1) {
             proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_start + sdnv_length_length,
-                                "Fill: %d", fill_start);
+                                "CTEB Custody ID Range: %d", fill_start);
         }
         else {
             proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_start + sdnv_length_length,
-                                "Fill: %d-%d", fill_start, fill_start + fill_length - 1);
+                                "CTEB Custody ID Range: %d-%d", fill_start, fill_start + fill_length - 1);
         }
         right_edge = fill_start + fill_length;
         offset += sdnv_length_start + sdnv_length_length;
@@ -1956,22 +1976,22 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int pa
             fill_gap = evaluate_sdnv(tvb, offset, &sdnv_length_gap);
             if (fill_gap < 0 || sdnv_length_gap < 0) {
                 proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                            "ACS: Unable to process fill gap SDNV");
+                                            "ACS: Unable to process CTEB Custody ID Range gap SDNV");
                 return 0;
             }
             fill_length = evaluate_sdnv(tvb, offset + sdnv_length_gap, &sdnv_length_length);
             if (fill_length < 0 || sdnv_length_length < 0) {
                 proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                            "ACS: Unable to process fill length SDNV");
+                                            "ACS: Unable to process CTEB Custody ID Range length SDNV");
                 return 0;
             }
             if (fill_length == 1) {
                 proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_gap + sdnv_length_length,
-                                    "Fill: %d", right_edge + fill_gap);
+                                    "CTEB Custody ID Range: %d", right_edge + fill_gap);
             }
             else {
                 proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length_gap + sdnv_length_length,
-                                    "Fill: %d-%d", right_edge + fill_gap, right_edge + fill_gap + fill_length - 1);
+                                    "CTEB Custody ID Range: %d-%d", right_edge + fill_gap, right_edge + fill_gap + fill_length - 1);
             }
             right_edge += fill_gap + fill_length;
             offset += sdnv_length_gap + sdnv_length_length;
@@ -1980,7 +2000,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset, int pa
 
         if (payload_bytes_processed > payload_length) {
             proto_tree_add_text(admin_record_tree, tvb, offset, 0,
-                                        "ACS: Fill data extends past payload length");
+                                        "ACS: CTEB Custody ID Range data extends past payload length");
             return 0;
         }
 
@@ -2069,6 +2089,8 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     int block_length;
     guint8 type;
     int control_flags;
+    int control_flags_offset;
+    int control_flags_length;
     proto_tree *block_flag_tree = NULL;
     proto_item *block_flag_item = NULL;
     int num_eid_ref = 0;
@@ -2106,11 +2128,11 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
                            tvb, header_start + offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
                            tvb, header_start + offset, sdnv_length, control_flags);
+    control_flags_offset = header_start + offset;
+    control_flags_length = sdnv_length;
     offset += sdnv_length;
 
     /* TODO: if this block has EID references, add them to display tree */
-    /* TODO: for some blocks, their definition requires that no EID
-     * references exist, this should be checked */
     if (control_flags & BLOCK_CONTROL_EID_REFERENCE) {
         num_eid_ref = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
         offset += sdnv_length;
@@ -2143,7 +2165,6 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     case BUNDLE_BLOCK_TYPE_PREVIOUS_HOP_INSERT:
     case BUNDLE_BLOCK_TYPE_METADATA_EXTENSION:
     case BUNDLE_BLOCK_TYPE_EXTENSION_SECURITY:
-    case BUNDLE_BLOCK_TYPE_EXTENDED_CLASS:
     {
         /* not yet dissected, skip past data */
         offset += block_length;
@@ -2155,9 +2176,17 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
         const char *cteb_creator_custodian_eid = NULL;
         int cteb_creator_custodian_eid_length = -1;
 
+        /* check requirements for Block Processing Control Flags */
+        if ((control_flags & BLOCK_CONTROL_REPLICATE) != 0) {
+            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: Replicate must be clear for CTEB");
+        }
+        if ((control_flags & BLOCK_CONTROL_EID_REFERENCE) != 0) {
+            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: EID-Reference must be clear for CTEB");
+        }
+
         /* there are two elements in a CTEB, first is the custody ID */
         custody_id = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
-        proto_tree_add_text(block_tree, tvb, header_start + offset, sdnv_length, "Custody ID: %d", custody_id);
+        proto_tree_add_text(block_tree, tvb, header_start + offset, sdnv_length, "CTEB Custody ID: %d", custody_id);
         offset += sdnv_length;
 
         /* and second is the creator custodian EID */
@@ -2194,6 +2223,47 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
                                 "CTEB Is Valid");
         }
         offset += cteb_creator_custodian_eid_length;
+
+        break;
+    }
+    case BUNDLE_BLOCK_TYPE_EXTENDED_COS:
+    {
+        proto_item *ecos_flag_item;
+        proto_tree *ecos_flag_tree;
+        int flags;
+        int flow_label;
+
+        /* check requirements for Block Processing Control Flags */
+        if ((control_flags & BLOCK_CONTROL_REPLICATE) == 0) {
+            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: Replicate must be set for ECOS");
+        }
+        if ((control_flags & BLOCK_CONTROL_EID_REFERENCE) != 0) {
+            proto_tree_add_text(block_tree, tvb, control_flags_offset, control_flags_length, "Block Processing Control Flags: ERROR: EID-Reference must be clear for ECOS");
+        }
+
+        /* flags byte */
+        flags = (int)tvb_get_guint8(tvb, header_start + offset);
+        ecos_flag_item = proto_tree_add_item(block_tree, hf_ecos_flags, tvb, header_start + offset, 1, ENC_BIG_ENDIAN);
+        ecos_flag_tree = proto_item_add_subtree(ecos_flag_item, ett_block_flags);
+        proto_tree_add_boolean(ecos_flag_tree, hf_ecos_flags_critical, tvb, header_start + offset, 1, flags);
+        proto_tree_add_boolean(ecos_flag_tree, hf_ecos_flags_streaming, tvb, header_start + offset, 1, flags);
+        proto_tree_add_boolean(ecos_flag_tree, hf_ecos_flags_ordinal, tvb, header_start + offset, 1, flags);
+        offset += 1;
+
+        /* ordinal byte */
+        proto_tree_add_item(block_tree, hf_ecos_ordinal, tvb, header_start + offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        /* optional flow label sdnv */
+        if ((flags & ECOS_FLAGS_ORDINAL) != 0) {
+            flow_label = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+            if(flow_label < 0) {
+                proto_tree_add_text(block_tree, tvb, header_start + offset, sdnv_length, "ECOS Flow Label: Error");
+                return 0;
+            }
+            proto_tree_add_text(block_tree, tvb, header_start + offset, sdnv_length, "ECOS Flow Label: %d", flow_label);
+            offset += sdnv_length;
+        }
 
         break;
     }
@@ -2750,6 +2820,26 @@ proto_register_bundle(void)
         {&hf_bundle_block_type_code,
          {"Non-Primary Bundle Block Type Code", "bundle.block_type_code",
           FT_UINT8, BASE_DEC, VALS(bundle_block_type_codes), 0x0, NULL, HFILL}
+        },
+        {&hf_ecos_flags,
+         {"ECOS Flags", "bundle.block.ecos.flags",
+          FT_UINT8, BASE_HEX, VALS(ecos_flags), 0x0, NULL, HFILL}
+        },
+        {&hf_ecos_flags_critical,
+         {"ECOS Critical Flag", "bundle.block.ecos.flags.critical",
+          FT_BOOLEAN, 8, NULL, ECOS_FLAGS_CRITICAL, NULL, HFILL}
+        },
+        {&hf_ecos_flags_streaming,
+         {"ECOS Streaming Flag", "bundle.block.ecos.flags.streaming",
+          FT_BOOLEAN, 8, NULL, ECOS_FLAGS_STREAMING, NULL, HFILL}
+        },
+        {&hf_ecos_flags_ordinal,
+         {"ECOS Ordinal Flag", "bundle.block.ecos.flags.ordinal",
+          FT_BOOLEAN, 8, NULL, ECOS_FLAGS_ORDINAL, NULL, HFILL}
+        },
+        {&hf_ecos_ordinal,
+         {"ECOS Ordinal", "bundle.block.ecos.ordinal",
+          FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
     };
 
