@@ -2400,7 +2400,7 @@ dis_iei_upi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
 #if 0
 /* TS 123 040 V9.3.0 (2010-10) */
-static const value_string gsm_sms_tp_ud_ie-_d_vals[] = {
+static const value_string gsm_sms_tp_ud_ie_id_vals[] = {
     { 0x00,  "Concatenated short messages, 8-bit reference number (SMS Control)" },
     { 0x01,  "Special SMS Message Indication (SMS Control)" },
     { 0x02,  "Reserved" },
