@@ -146,12 +146,14 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     guint8 color_resolution;
     guint8 image_bpp;
     guint tvb_len = tvb_reported_length(tvb);
-    char *str = tvb_get_ephemeral_string(tvb, 0, 6);
+    char *str;
+
     guint8 version = 0;
 
     if (tvb_len < 20)
         return 0;
 
+    str = tvb_get_ephemeral_string(tvb, 0, 6);
     /* Check whether we're processing a GIF object */
     /* see http://www.w3.org/Graphics/GIF/spec-gif89a.txt section 17 */
     if (strcmp(str, "GIF87a") == 0) {
