@@ -1185,8 +1185,9 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 	    offset+=8;
 	    len_remain=0;
 	  }
+	  break;
 	}
-	break;
+	/* fall through */
       case SNMP_ENGINEID_FORMAT_OCTETS:
       default:
 	/* max. 27 bytes, administratively assigned or unknown format */
