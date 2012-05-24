@@ -141,6 +141,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->filename = cf->filename;
   st->file_length = cf->f_datalen;
   st->file_type = cf->cd_t;
+  st->iscompressed = cf->iscompressed;
   st->is_tempfile = cf->is_tempfile;
   st->encap_type = cf->lnk_t;
   st->has_snap = cf->has_snap;

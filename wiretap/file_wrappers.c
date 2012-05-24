@@ -121,6 +121,7 @@ struct wtap_reader {
 	gint64 start;           /* where the gzip data started, for rewinding */
 	gint64 raw;             /* where the raw data started, for seeking */
 	int compression;        /* 0: ?, 1: uncompressed, 2: zlib */
+	gboolean is_compressed; /* FALSE if completely uncompressed, TRUE otherwise */
 	/* seek request */
 	gint64 skip;            /* amount to skip (already rewound if backwards) */
 	int seek;               /* true if seek request pending */
@@ -128,8 +129,8 @@ struct wtap_reader {
 	int err;                /* error code */
 	const char *err_info;   /* additional error information string for some errors */
 
-	unsigned int  avail_in;  /* number of bytes available at next_in */
-	unsigned char *next_in;  /* next input byte */
+	unsigned int  avail_in; /* number of bytes available at next_in */
+	unsigned char *next_in; /* next input byte */
 #ifdef HAVE_LIBZ
 	/* zlib inflate stream */
 	z_stream strm;          /* stream structure in-place (not a pointer) */
@@ -140,7 +141,7 @@ struct wtap_reader {
 	void *fast_seek_cur;
 };
 
-/* values for gz_state compression */
+/* values for wtap_reader compression */
 #define UNKNOWN		0	/* look for a gzip header */
 #define UNCOMPRESSED	1	/* copy input directly */
 #ifdef HAVE_LIBZ
@@ -651,6 +652,7 @@ gz_head(FILE_T state)
 			inflateReset(&(state->strm));
 			state->strm.adler = crc32(0L, Z_NULL, 0);
 			state->compression = ZLIB;
+			state->is_compressed = TRUE;
 #ifdef Z_BLOCK
 			if (state->fast_seek) {
 				struct zlib_cur_seek_point *cur = g_malloc(sizeof(struct zlib_cur_seek_point));
@@ -785,6 +787,9 @@ filed_open(int fd)
 
 	/* open the file with the appropriate mode (or just use fd) */
 	state->fd = fd;
+
+	/* we don't yet know whether it's compressed */
+	state->is_compressed = FALSE;
 
 	/* save the current position for rewinding (only if reading) */
 	state->start = ws_lseek64(state->fd, 0, SEEK_CUR);
@@ -1083,6 +1088,12 @@ file_fstat(FILE_T stream, ws_statb64 *statb, int *err)
 		return -1;
 	}
 	return 0;
+}
+
+gboolean
+file_iscompressed(FILE_T stream)
+{
+	return stream->is_compressed;
 }
 
 int 

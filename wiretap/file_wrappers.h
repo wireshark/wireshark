@@ -35,6 +35,7 @@ extern gint64 file_skip(FILE_T file, gint64 delta, int *err);
 extern gint64 file_tell(FILE_T stream);
 extern gint64 file_tell_raw(FILE_T stream);
 extern int file_fstat(FILE_T stream, ws_statb64 *statb, int *err);
+extern gboolean file_iscompressed(FILE_T stream);
 extern int file_read(void *buf, unsigned int count, FILE_T file);
 extern int file_getc(FILE_T stream);
 extern char *file_gets(char *buf, int len, FILE_T stream);

@@ -78,6 +78,12 @@ wtap_file_type(wtap *wth)
 	return wth->file_type;
 }
 
+gboolean
+wtap_iscompressed(wtap *wth)
+{
+	return file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
+}
+
 guint
 wtap_snapshot_length(wtap *wth)
 {

@@ -1190,10 +1190,7 @@ file_save_cmd(action_after_save_e action_after_save, gpointer action_after_save_
      a copy and free it later. */
   fname = g_strdup(cfile.filename);
 
-  /* XXX - if we're editing a compressed capture file, we should
-     remember that it's compressed, and write it out in compressed
-     form. */
-  cf_save_packets(&cfile, fname, cfile.cd_t, FALSE);
+  cf_save_packets(&cfile, fname, cfile.cd_t, cfile.iscompressed);
   g_free(fname);
 }
 

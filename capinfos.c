@@ -191,6 +191,7 @@ typedef enum {
 typedef struct _capture_info {
   const char    *filename;
   guint16       file_type;
+  gboolean      iscompressed;
   int           file_encap;
   gint64        filesize;
 
@@ -358,7 +359,9 @@ print_stats(const gchar *filename, capture_info *cf_info)
   stop_time_t = (time_t)cf_info->stop_time;
 
   if (filename)           printf     ("File name:           %s\n", filename);
-  if (cap_file_type)      printf     ("File type:           %s\n", file_type_string);
+  if (cap_file_type)      printf     ("File type:           %s%s\n",
+                                      file_type_string,
+                                      cf_info->iscompressed ? " (gzip compressed)" : "");
   if (cap_file_encap)     printf     ("File encapsulation:  %s\n", file_encap_string);
   if (cap_file_encap && (cf_info->file_encap == WTAP_ENCAP_PER_PACKET)) {
     int i;
@@ -749,6 +752,7 @@ process_cap_file(wtap *wth, const char *filename)
 
   /* File Type */
   cf_info.file_type = wtap_file_type(wth);
+  cf_info.iscompressed = wtap_iscompressed(wth);
 
   /* File Encapsulation */
   cf_info.file_encap = wtap_file_encap(wth);

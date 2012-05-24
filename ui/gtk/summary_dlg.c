@@ -238,7 +238,9 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Length:", string_buff);
 
   /* format */
-  g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_file_type_string(summary.file_type));
+  g_snprintf(string_buff, SUM_STR_MAX, "%s%s",
+             wtap_file_type_string(summary.file_type),
+             summary.iscompressed? " (gzip compressed)" : "");
   add_string_to_table(table, &row, "Format:", string_buff);
 
   /* encapsulation */

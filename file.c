@@ -530,6 +530,9 @@ cf_read(capture_file *cf, gboolean reloading)
   else
     cf_callback_invoke(cf_cb_file_read_started, cf);
 
+  /* Record whether the file is compressed. */
+  cf->iscompressed = wtap_iscompressed(cf->wth);
+
   /* Find the size of the file. */
   size = wtap_file_size(cf->wth, NULL);
 
@@ -3818,7 +3821,8 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
-  if (save_format == cf->cd_t && !cf->unsaved_changes) {
+  if (save_format == cf->cd_t && compressed == cf->iscompressed
+      && !cf->unsaved_changes) {
     /* We're saving in the format it's already in, and there are no
        changes we have in memory that aren't saved to the file, so
        we can just move or copy the raw data. */

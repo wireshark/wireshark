@@ -1074,6 +1074,7 @@ guint8 *wtap_buf_ptr(wtap *wth);
  * from the file so far. */
 gint64 wtap_read_so_far(wtap *wth);
 gint64 wtap_file_size(wtap *wth, int *err);
+gboolean wtap_iscompressed(wtap *wth);
 guint wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
