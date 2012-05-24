@@ -864,14 +864,14 @@ capture_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 #ifdef HAVE_LIBPCAP
     const gchar *action_name;
-    gchar *name;
+    const gchar *name;
 
     action_name = gtk_action_get_name (action);
     name = strrchr(action_name,'/');
-    if(name){
+    if(name) {
         name = name+1;
-    }else{
-        name = g_strdup_printf("%s",action_name);
+    } else {
+        name = action_name;
     }
     if(strcmp(name, "Interfaces") == 0){
         capture_if_cb(NULL /* GtkWidget *w _U_ */, user_data);
@@ -3140,7 +3140,7 @@ main_menu_new(GtkAccelGroup ** table) {
 }
 
 static void
-menu_dissector_filter_cb(  GtkAction *action _U_,  gpointer callback_data)
+menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 {
     dissector_filter_t      *filter_entry = callback_data;
     GtkWidget               *filter_te;
@@ -3162,7 +3162,9 @@ menu_dissector_filter_cb(  GtkAction *action _U_,  gpointer callback_data)
     g_free( (void *) buf);
 }
 
-static gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data) {
+static gboolean
+menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data)
+{
     dissector_filter_t *filter_entry = callback_data;
 
     /* XXX - this gets the packet_info of the last dissected packet, */
@@ -3171,7 +3173,9 @@ static gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t 
     return (edt != NULL) ? filter_entry->is_filter_valid(&edt->pi) : FALSE;
 }
 
-static void menu_dissector_filter(capture_file *cf) {
+static void
+menu_dissector_filter(capture_file *cf)
+{
     GList *list_entry = dissector_filter_list;
     dissector_filter_t *filter_entry;
 
@@ -3238,6 +3242,7 @@ static void menu_dissector_filter(capture_file *cf) {
                  action_name,
                  GTK_UI_MANAGER_MENUITEM,
                  FALSE);
+        g_free(action_name);
         i++;
         list_entry = g_list_next(list_entry);
     }
