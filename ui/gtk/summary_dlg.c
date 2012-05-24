@@ -143,11 +143,10 @@ summary_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
 
   /*g_warning("The new comment is '%s'",new_packet_comment);*/
 
-  summary_update_comment(&cfile, new_comment);
-  /* Mark the file as having unsaved changes; this causes a popup asking to save the file if we quit the file */
-  cfile.unsaved_changes = TRUE;
-  set_menus_for_capture_file(&cfile);
+  cf_update_capture_comment(&cfile, new_comment);
 
+  /* Update the menus in case the file might need to be saved */
+  set_menus_for_capture_file(&cfile);
 }
 
 static void

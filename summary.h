@@ -89,12 +89,5 @@ summary_fill_in(capture_file *cf, summary_tally *st);
 extern void
 summary_fill_in_capture(capture_file *cf, capture_options *capture_opts, summary_tally *st);
 #endif
-extern void
-summary_update_comment(capture_file *cf, gchar *comment);
 
 #endif /* summary.h */
-
-
-
-
-
