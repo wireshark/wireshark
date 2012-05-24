@@ -131,6 +131,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   gtk_widget_show (vbox);
 
   view = gtk_text_view_new ();
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
 
   /* Get the comment */
