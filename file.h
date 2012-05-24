@@ -118,7 +118,7 @@ void cf_reload(capture_file *cf);
  * Read all packets of a capture file into the internal structures.
  *
  * @param cf the capture file to be read
- * @param from_save reread asked from cf_save
+ * @param from_save reread asked from cf_save_packets
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
@@ -196,21 +196,11 @@ cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
 gboolean cf_can_save_as(capture_file *cf);
 
 /**
- * Save a capture file.  Does a "safe save" if the specified
- * pathname already exists.
- *
- * @param cf the capture file to save to
- * @param fname the filename to save to
- * @param save_format the format of the file to save (libpcap, ...)
- * @param compressed whether to gzip compress the file
- * @return one of cf_status_t
- */
-cf_status_t cf_save(capture_file * cf, const char *fname, guint save_format, gboolean compressed);
-
-/**
  * Save all packets in a capture file to a new file, and, if that succeeds,
- * make that file the current capture file.  Fails if the specified
- * target file already exists.
+ * make that file the current capture file.  If there's already a file with
+ * that name, do a "safe save", writing to a temporary file in the same
+ * directory and, if the write succeeds, renaming the new file on top of the
+ * old file, so that if the write fails, the old file is still intact.
  *
  * @param cf the capture file to save to
  * @param fname the filename to save to
@@ -218,11 +208,14 @@ cf_status_t cf_save(capture_file * cf, const char *fname, guint save_format, gbo
  * @param compressed whether to gzip compress the file
  * @return one of cf_status_t
  */
-cf_status_t cf_save_as(capture_file * cf, const char *fname, guint save_format, gboolean compressed);
+cf_status_t cf_save_packets(capture_file * cf, const char *fname, guint save_format, gboolean compressed);
 
 /**
- * Export some or all packets from a capture file to a new file.  Fails if
- * the specified target file already exists.
+ * Export some or all packets from a capture file to a new file.  If there's
+ * already a file with that name, do a "safe save", writing to a temporary
+ * file in the same directory and, if the write succeeds, renaming the new
+ * file on top of the old file, so that if the write fails, the old file is
+ * still intact.
  *
  * @param cf the capture file to write to
  * @param fname the filename to write to

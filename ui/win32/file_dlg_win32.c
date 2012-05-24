@@ -362,33 +362,23 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         }
 
         g_sf_hwnd = NULL;
-        /* Write out all the packets to the file with the specified name. */
 
-        /* GetSaveFileName() already asked the user if he wants to overwrite the old file,        */
-        /* so if we are here, user already confirmed to overwrite - just delete the old file now. */
-        /* Note: Windows ws_unlink cannot delete a currently open file; Therefore the             */
-        /*       GetSaveFileName dialog has been coded to prevent doing a 'save as' to the        */
-        /*       currently open capture file.                                                     */
-        /* XX: Windows Wireshark is built with GLIB >= 2.6 these         */
-        /*     days so ws_unlink will properly convert the               */
-        /*     UTF8 filename to UTF16 & then do a _wunlink.              */
-        /* XX: if the cf_save_as fails, it will do a GTK simple_dialog() */
-        /*     which is not useful while doing a Windows dialog.         */
-        /*     (A GTK dialog box will be generated and basically will    */
-        /*     only appear when the redisplayed Windows 'save_as-file'   */
-        /*     dialog is dismissed. It will then need to be dismissed.   */
-        /*     This should be fixed even though the cf_save_as()         */
-        /*     presumably should rarely fail in this case.               */
-        if ((ws_unlink(file_name8->str) != 0) && (errno == EACCES)) {
-            /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-            gchar *str = g_strdup_printf("Unable to delete file: %s\nPlease choose another name !", file_name8->str);
-            MessageBox( NULL, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
-            g_free(str);
-            goto AGAIN;
-        }
-        if (cf_save_as(&cfile, file_name8->str, filetype, FALSE) != CF_OK) {
+        /*
+         * GetSaveFileName() already asked the user if he wants to overwrite
+         * the old file, so if we are here, the user already said "yes".
+         * Write out all the packets to the file with the specified name.
+         *
+         * XXX: if the cf_save_packets() fails, it will do a GTK+
+         * simple_dialog(), which is not useful while runing a Windows
+         * dialog.
+         * (A GTK dialog box will be generated and basically will
+         * only appear when the redisplayed Windows 'save_as-file'
+         * dialog is dismissed. It will then need to be dismissed.
+         * This should be fixed even though the cf_save_packets()
+         * presumably should rarely fail in this case.
+         */
+        if (cf_save_packets(&cfile, file_name8->str, filetype) != CF_OK) {
             /* The write failed.  Try again. */
-        AGAIN:
             g_array_free(savable_file_types, TRUE);
             g_string_free(file_name8, TRUE /* free_segment */);
             g_free( (void *) ofn->lpstrFilter);
@@ -539,35 +529,24 @@ win32_export_specified_packets_file(HWND h_wnd) {
         }
 
         g_sf_hwnd = NULL;
-        /* Write out the specified packets to the file with the specified name. */
 
-        /* GetSaveFileName() already asked the user if he wants to overwrite the old file,        */
-        /* so if we are here, user already confirmed to overwrite - just delete the old file now. */
-        /* Note: Windows ws_unlink cannot delete a currently open file; Therefore the             */
-        /*       GetSaveFileName dialog has been coded to prevent doing a 'save as' to the        */
-        /*       currently open capture file.                                                     */
-        /* XX: Windows Wireshark is built with GLIB >= 2.6 these       */
-        /*     days so ws_unlink will properly convert the             */
-        /*     UTF8 filename to UTF16 & then do a _wunlink.            */
-        /* XX: if the cf_export_specified_packets fails, it will do a  */
-        /*     GTK simple_dialog() which is not useful while doing a   */
-        /*     Windows dialog.                                         */
-        /*     (A GTK dialog box will be generated and basically will  */
-        /*     only appear when the redisplayed Windows 'save_as-file' */
-        /*     dialog is dismissed. It will then need to be dismissed. */
-        /*     This should be fixed even though the                    */
-        /*     cf_export_specified_packets() presumably should rarely  */
-        /*     fail in this case.                                      */
-        if ((ws_unlink(file_name8->str) != 0) && (errno == EACCES)) {
-            /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-            gchar *str = g_strdup_printf("Unable to delete file: %s\nPlease choose another name !", file_name8->str);
-            MessageBox( NULL, utf_8to16(str), _T("Error"), MB_ICONERROR | MB_APPLMODAL | MB_OK);
-            g_free(str);
-            goto AGAIN;
-        }
+        /*
+         * GetSaveFileName() already asked the user if he wants to overwrite
+         * the old file, so if we are here, the user already said "yes".
+         * Write out the specified packets to the file with the specified
+         * name.
+         *
+         * XXX: if the cf_export_specified_packets() fails, it will do a
+         * GTK+ simple_dialog(), which is not useful while runing a Windows
+         * dialog.
+         * (A GTK dialog box will be generated and basically will
+         * only appear when the redisplayed Windows 'save_as-file'
+         * dialog is dismissed. It will then need to be dismissed.
+         * This should be fixed even though the cf_save_packets()
+         * presumably should rarely fail in this case.
+         */
         if (cf_export_specified_packets(&cfile, file_name8->str, &g_range, filetype, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
-        AGAIN:
             g_array_free(savable_file_types, TRUE);
             g_string_free(file_name8, TRUE /* free_segment */);
             g_free( (void *) ofn->lpstrFilter);

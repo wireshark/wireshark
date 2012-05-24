@@ -1185,11 +1185,15 @@ file_save_cmd(action_after_save_e action_after_save, gpointer action_after_save_
   action_after_save_data_g  = action_after_save_data;
 
   /* XXX - cfile.filename might get freed out from under us, because
-     the code path through which cf_save() goes currently closes the
+     the code path through which cf_save_packets() goes currently closes the
      current file and then opens and reloads the saved file, so make
      a copy and free it later. */
   fname = g_strdup(cfile.filename);
-  cf_save(&cfile, fname, cfile.cd_t, FALSE);
+
+  /* XXX - if we're editing a compressed capture file, we should
+     remember that it's compressed, and write it out in compressed
+     form. */
+  cf_save_packets(&cfile, fname, cfile.cd_t, FALSE);
   g_free(fname);
 }
 
@@ -1285,6 +1289,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	    *dirname;
   gpointer   ptr;
   int        file_type;
+  gboolean   compressed;
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
@@ -1295,14 +1300,10 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
       g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
   file_type = GPOINTER_TO_INT(ptr);
-
-  /* XXX - if the user requests to save to an already existing filename, */
-  /* ask in a dialog if that's intended */
-  /* currently, cf_save_as() will simply deny it */
+  compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
 
   /* Write out all the packets to the file with the specified name. */
-  if (cf_save_as(&cfile, cf_name, file_type,
-	  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb))) != CF_OK) {
+  if (cf_save_packets(&cfile, cf_name, file_type, compressed) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
@@ -1316,7 +1317,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   }
 
   /* The write succeeded; get rid of the file selection box. */
-  /* cf_save_as() might already closed our dialog! */
+  /* cf_save_packets() might already closed our dialog! */
   if (file_save_as_w)
     window_destroy(GTK_WIDGET (fs));
 
@@ -1369,7 +1370,6 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
     switch(btn) {
     case(ESD_BTN_OK):
         /* save file */
-        ws_unlink(cf_name);
         file_save_as_cb(NULL, data);
         break;
     case(ESD_BTN_CANCEL):
@@ -1594,7 +1594,6 @@ file_export_specified_packets_exists_answered_cb(gpointer dialog _U_, gint btn, 
     switch(btn) {
     case(ESD_BTN_OK):
         /* save file */
-        ws_unlink(cf_name);
         file_export_specified_packets_cb(NULL, data);
         break;
     case(ESD_BTN_CANCEL):
@@ -1699,6 +1698,7 @@ file_export_specified_packets_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	    *dirname;
   gpointer   ptr;
   int        file_type;
+  gboolean   compressed;
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
@@ -1709,14 +1709,11 @@ file_export_specified_packets_cb(GtkWidget *w _U_, gpointer fs) {
       g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
   file_type = GPOINTER_TO_INT(ptr);
-
-  /* XXX - if the user requests to save to an already existing filename, */
-  /* ask in a dialog if that's intended */
-  /* currently, cf_export_specified_packets() will simply deny it */
+  compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
 
   /* Write out the specified packets to the file with the specified name. */
   if (cf_export_specified_packets(&cfile, cf_name, &range, file_type,
-	  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb))) != CF_OK) {
+                                  compressed) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */

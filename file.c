@@ -3805,9 +3805,9 @@ cf_can_save_as(capture_file *cf)
   return FALSE;
 }
 
-static cf_status_t
+cf_status_t
 cf_save_packets(capture_file *cf, const char *fname, guint save_format,
-                gboolean compressed, gboolean do_overwrite)
+                gboolean compressed)
 {
   gchar        *fname_new = NULL;
   int           err;
@@ -3818,32 +3818,6 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
-  if (file_exists(fname)) {
-    if (do_overwrite) {
-      /* We're overwriting an existing file; write out to a new file,
-         and, if that succeeds, rename the new file on top of the
-         old file.  That makes this a "safe save", so that we don't
-         lose the old file if we have a problem writing out the new
-         file.  (If the existing file is the current capture file,
-         we *HAVE* to do that, otherwise we're overwriting the file
-         from which we're reading the packets that we're writing!) */
-
-      fname_new = g_strdup_printf("%s~", fname);
-    } else {
-      /* don't write over an existing file. */
-      /* this should've been already checked by our caller, just to be sure... */
-      if (file_exists(fname)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "%sCapture file: \"%s\" already exists!%s\n\n"
-                      "Please choose a different filename.",
-                      simple_dialog_primary_start(),
-                      fname,
-                      simple_dialog_primary_end());
-        goto fail;
-      }
-    }
-  }
-
   if (save_format == cf->cd_t && !cf->unsaved_changes) {
     /* We're saving in the format it's already in, and there are no
        changes we have in memory that aren't saved to the file, so
@@ -3853,12 +3827,13 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
       /* The file being saved is a temporary file from a live
          capture, so it doesn't need to stay around under that name;
          first, try renaming the capture buffer file to the new name.
-
-         XXX - ws_rename() should be ws_stdio_rename() on Windows,
-         and ws_stdio_rename() uses MoveFileEx() with MOVEFILE_REPLACE_EXISTING,
-         so it should remove the target if it exists, so this stuff
-         should be OK even on Windows. */
-#ifndef _WIN32
+         This acts as a "safe save", in that, if the file already
+         exists, the existing file will be removed only if the rename
+         succeeds.  (This is true even on Windows, as we're using
+         ws_rename(), which is #defined to be ws_stdio_rename() on
+         Windows, and ws_stdio_rename() uses MoveFileEx() with
+         MOVEFILE_REPLACE_EXISTING, so it will remove the target if
+         it exists. */
       if (ws_rename(cf->filename, fname) == 0) {
         /* That succeeded - there's no need to copy the source file. */
         do_copy = FALSE;
@@ -3880,9 +3855,6 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
           goto fail;
         }
       }
-#else
-      do_copy = TRUE;
-#endif
     } else {
       /* It's a permanent file, so we should copy it, and not remove the
          original. */
@@ -3890,16 +3862,18 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
     }
 
     if (do_copy) {
-      /* Copy the file, if we haven't moved it.
-         This does not happen if we have unsaved changes (see above),
-         so it's either happening as the result of an explicit "Save
-         As", in which case we've already made sure the target file
-         doesn't exist, or it's a "Save" on a temporary file for a
-         capture, in which case the user was asked for the file name
-         and, again, we've already made sure the target file doesn't
-         exist.  That means we don't need to worry about safe saves. */
-      if (!copy_file_binary_mode(cf->filename, fname))
-        goto fail;
+      /* Copy the file, if we haven't moved it.  If we're overwriting
+         an existing file, we do it with a "safe save", by writing
+         to a new file and, if the write succeeds, renaming the
+         new file on top of the old file. */
+      if (file_exists(fname)) {
+        fname_new = g_strdup_printf("%s~", fname);
+        if (!copy_file_binary_mode(cf->filename, fname_new))
+          goto fail;
+      } else {
+        if (!copy_file_binary_mode(cf->filename, fname))
+          goto fail;
+      }
     }
   } else {
     /* Either we're saving in a different format or we're saving changes,
@@ -3914,7 +3888,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
     shb_hdr = wtap_file_get_shb_info(cf->wth);
     idb_inf = wtap_file_get_idb_info(cf->wth);
 
-    if (fname_new != NULL) {
+    if (file_exists(fname)) {
       /* We're overwriting an existing file; write out to a new file,
          and, if that succeeds, rename the new file on top of the
          old file.  That makes this a "safe save", so that we don't
@@ -3922,6 +3896,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
          file.  (If the existing file is the current capture file,
          we *HAVE* to do that, otherwise we're overwriting the file
          from which we're reading the packets that we're writing!) */
+      fname_new = g_strdup_printf("%s~", fname);
       pdh = wtap_dump_open_ng(fname_new, save_format, cf->lnk_t, cf->snap,
                               compressed, shb_hdr, idb_inf, &err);
     } else {
@@ -3976,18 +3951,9 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
        fname; fname is now closed, so that should be possible even
        on Windows.  Do the rename. */
     if (ws_rename(fname_new, fname) == -1) {
-      /* Well, the rename failed.  Discard the file we wrote out,
-         and return an error. */
-      int rename_err = errno;
-
-      /* If this fails, there's nothing we can do to deal with that,
-         and whatever error it got is less relevant to the user than
-         the error from the rename failing, so we don't bother
-         checking for errors in the unlink. */
-      ws_unlink(fname_new);
-
+      /* Well, the rename failed. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    file_rename_error_message(rename_err), fname);
+                    file_rename_error_message(errno), fname);
       goto fail;
     }
   }
@@ -4034,20 +4000,18 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
   return CF_OK;
 
 fail:
+  if (fname_new == NULL) {
+    /* We were trying to write to a temporary file; get rid of it if it
+       exists.  (We don't care whether this fails, as, if it fails,
+       there's not much we can do about it.  I guess if it failed for
+       a reason other than "it doesn't exist", we could report an
+       error, so the user knows there's a junk file that they might
+       want to clean up.) */
+    ws_unlink(fname_new);
+    g_free(fname_new);
+  }
   cf_callback_invoke(cf_cb_file_save_failed, NULL);
   return CF_ERROR;
-}
-
-cf_status_t
-cf_save(capture_file *cf, const char *fname, guint save_format, gboolean compressed)
-{
-  return cf_save_packets(cf, fname, save_format, compressed, TRUE);
-}
-
-cf_status_t
-cf_save_as(capture_file *cf, const char *fname, guint save_format, gboolean compressed)
-{
-  return cf_save_packets(cf, fname, save_format, compressed, FALSE);
 }
 
 cf_status_t
@@ -4055,6 +4019,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
                             packet_range_t *range, guint save_format,
                             gboolean compressed)
 {
+  gchar        *fname_new = NULL;
   int           err;
   wtap_dumper  *pdh;
   save_callback_args_t callback_args;
@@ -4062,20 +4027,6 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   wtapng_iface_descriptions_t *idb_inf = NULL;
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
-
-  if (file_exists(fname)) {
-    /* don't write over an existing file. */
-    /* this should've been already checked by our caller, just to be sure... */
-    if (file_exists(fname)) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "%sCapture file: \"%s\" already exists!%s\n\n"
-                    "Please choose a different filename.",
-                    simple_dialog_primary_start(),
-                    fname,
-                    simple_dialog_primary_end());
-      goto fail;
-    }
-  }
 
   packet_range_process_init(range);
 
@@ -4087,8 +4038,21 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
 
-  pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
-                          compressed, shb_hdr, idb_inf, &err);
+  if (file_exists(fname)) {
+    /* We're overwriting an existing file; write out to a new file,
+       and, if that succeeds, rename the new file on top of the
+       old file.  That makes this a "safe save", so that we don't
+       lose the old file if we have a problem writing out the new
+       file.  (If the existing file is the current capture file,
+       we *HAVE* to do that, otherwise we're overwriting the file
+       from which we're reading the packets that we're writing!) */
+    fname_new = g_strdup_printf("%s~", fname);
+    pdh = wtap_dump_open_ng(fname_new, save_format, cf->lnk_t, cf->snap,
+                            compressed, shb_hdr, idb_inf, &err);
+  } else {
+    pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
+                            compressed, shb_hdr, idb_inf, &err);
+  }
   g_free(idb_inf);
   idb_inf = NULL;
 
@@ -4133,10 +4097,32 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     goto fail;
   }
 
+  if (fname_new != NULL) {
+    /* We wrote out to fname_new, and should rename it on top of
+       fname; fname is now closed, so that should be possible even
+       on Windows.  Do the rename. */
+    if (ws_rename(fname_new, fname) == -1) {
+      /* Well, the rename failed. */
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    file_rename_error_message(errno), fname);
+      goto fail;
+    }
+  }
+
   cf_callback_invoke(cf_cb_file_save_finished, NULL);
   return CF_OK;
 
 fail:
+  if (fname_new == NULL) {
+    /* We were trying to write to a temporary file; get rid of it if it
+       exists.  (We don't care whether this fails, as, if it fails,
+       there's not much we can do about it.  I guess if it failed for
+       a reason other than "it doesn't exist", we could report an
+       error, so the user knows there's a junk file that they might
+       want to clean up.) */
+    ws_unlink(fname_new);
+    g_free(fname_new);
+  }
   cf_callback_invoke(cf_cb_file_save_failed, NULL);
   return CF_ERROR;
 }
