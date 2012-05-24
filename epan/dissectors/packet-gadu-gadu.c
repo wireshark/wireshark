@@ -316,7 +316,7 @@ static const value_string gadu_gadu_userlist_reply_type_vals[] = {
 	{ 0, NULL }
 };
 
-/* XXX, add compatilible libgadu versions? */
+/* XXX, add compatible libgadu versions? */
 static const value_string gadu_gadu_version_vals[] = {
 	{ 0x2e, "Gadu-Gadu 8.0 (build 8283)" },
 	{ 0x2d, "Gadu-Gadu 8.0 (build 4881)" },
@@ -423,7 +423,7 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, int hfindex, proto_tree *tree, i
 
 	str = g_string_new(NULL);
 
-	while (len && (ch = tvb_get_guint8(tvb, offset))) {
+	while ((len > 0) && (ch = tvb_get_guint8(tvb, offset))) {
 		if (ch < 0x80)
 			g_string_append_c(str, ch);
 		else
@@ -431,7 +431,7 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, int hfindex, proto_tree *tree, i
 		offset++;
 		len--;
 	}
-	if (len)
+	if (len > 0)
 		offset++;	/* NUL */
 
 	/* proto_item_fill_label() is broken for UTF-8 strings.
@@ -1149,8 +1149,11 @@ dissect_gadu_gadu_userlist80_compressed(tvbuff_t *tvb, packet_info *pinfo, proto
 	int remain = tvb_reported_length_remaining(tvb, offset);
 	tvbuff_t *uncomp_tvb;
 
+	if (remain <= 0)
+		return offset;
+
 	if ((uncomp_tvb = tvb_child_uncompress(tvb, tvb, offset, remain))) {
-		proto_tree_add_text(tree, tvb, offset, remain, "Userlist XML data: [Decompression successed]");
+		proto_tree_add_text(tree, tvb, offset, remain, "Userlist XML data: [Decompression succeeded]");
 
 		add_new_data_source(pinfo, uncomp_tvb, "Uncompressed userlist");
 		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree);
