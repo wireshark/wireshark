@@ -33,6 +33,7 @@
 #include "pcap-common.h"
 #include "pcap-encap.h"
 #include "libpcap.h"
+#include "erf.h"
 
 /* See source to the "libpcap" library for information on the "libpcap"
    file format. */
@@ -667,6 +668,14 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	    wth->phdr.ts.nsecs = hdr.hdr.ts_usec;
 	  } else {
 	    wth->phdr.ts.nsecs = hdr.hdr.ts_usec * 1000;
+	  }
+	} else {
+	  /* update frame.interface_id for ERF format */
+	  wth->phdr.presence_flags |= WTAP_HAS_INTERFACE_ID;
+	  wth->phdr.interface_id = wth->pseudo_header.erf.phdr.flags & 0x03;
+
+	  if(!wth->interface_data) {
+	    erf_populate_interfaces(wth);
 	  }
 	}
 	wth->phdr.caplen = packet_size;
