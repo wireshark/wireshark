@@ -3693,9 +3693,12 @@ cf_update_capture_comment(capture_file *cf, gchar *comment)
   if (shb_inf && shb_inf->opt_comment) {
     if (strcmp(shb_inf->opt_comment, comment) == 0) {
       g_free(comment);
+      g_free(shb_inf);
       return;
     }
   }
+
+  g_free(shb_inf);
 
   /* The comment has changed, let's update it */
   wtap_write_shb_comment(cf->wth, comment);
