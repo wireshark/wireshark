@@ -119,7 +119,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *ok_bt, *clear_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
   gchar *opt_comment;
-  const gchar *buf_str;
+  gchar *buf_str;
 
   edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments");
   gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 500, 160);
@@ -140,6 +140,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   if(opt_comment){
     buf_str = g_strdup_printf("%s", opt_comment);
     gtk_text_buffer_set_text (buffer, buf_str, -1);
+    g_free(buf_str);
   }
   gtk_container_add(GTK_CONTAINER(vbox), view);
   gtk_widget_show (view);
@@ -190,7 +191,7 @@ edit_capture_dlg_launch (void)
   GtkWidget *ok_bt, *clear_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
   const gchar *comment_str = NULL;
-  const gchar *buf_str;
+  gchar *buf_str;
 
   if (edit_or_add_capture_comment_dlg != NULL) {
     /* There's already an "Edit Capture Comment" dialog box; reactivate it. */
@@ -220,6 +221,7 @@ edit_capture_dlg_launch (void)
   if(comment_str != NULL){
     buf_str = g_strdup_printf("%s", comment_str);
     gtk_text_buffer_set_text (buffer, buf_str, -1);
+    g_free(buf_str);
   }
   gtk_container_add(GTK_CONTAINER(vbox), view);
   gtk_widget_show (view);
