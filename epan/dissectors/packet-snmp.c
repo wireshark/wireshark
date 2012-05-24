@@ -1378,6 +1378,10 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 	}
 
 	msg_len = tvb_length_remaining(p->msg_tvb,0);
+	if (msg_len <= 0) {
+		*error = "Not enough data remaining";
+		return FALSE;
+	}
 	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
 
 
@@ -1439,6 +1443,10 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 	}
 
 	msg_len = tvb_length_remaining(p->msg_tvb,0);
+	if (msg_len <= 0) {
+		*error = "Not enough data remaining";
+		return FALSE;
+	}
 	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
 
 	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
@@ -1498,7 +1506,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 
 	cryptgrm_len = tvb_length_remaining(encryptedData,0);
 
-	if (cryptgrm_len % 8) {
+	if ((cryptgrm_len <= 0) || (cryptgrm_len % 8)) {
 		*error = "decryptionError: the length of the encrypted data is not a mutiple of 8 octets";
 		return NULL;
 	}
@@ -1568,6 +1576,10 @@ snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 	tvb_memcpy(p->priv_tvb,&(iv[8]),0,8);
 
 	cryptgrm_len = tvb_length_remaining(encryptedData,0);
+	if (cryptgrm_len <= 0) {
+		*error = "Not enough data remaining";
+		return NULL;
+	}
 	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
 
 	cleartext = ep_alloc(cryptgrm_len);
@@ -2760,7 +2772,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1539 "../../asn1/snmp/packet-snmp-template.c"
+#line 1552 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3677,7 +3689,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2191 "../../asn1/snmp/packet-snmp-template.c"
+#line 2204 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3717,7 +3729,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2207 "../../asn1/snmp/packet-snmp-template.c"
+#line 2220 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 
