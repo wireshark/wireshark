@@ -55,6 +55,7 @@
 #define FILTER_SNIP_LEN 50
 #define SHB_STR_SNIP_LEN 50
 
+static GtkWidget *summary_dlg = NULL;
 
 static void
 add_string_to_table_sensitive(GtkWidget *list, guint *row, const gchar *title, const gchar *value, gboolean sensitive)
@@ -128,7 +129,7 @@ time_to_string(char *string_buff, gulong string_buff_size, time_t ti_time)
 }
 
 static void
-summary_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
+summary_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 {
   GtkTextBuffer *buffer;
   GtkTextIter start_iter;
@@ -141,32 +142,31 @@ summary_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
 
   new_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
 
-  /*g_warning("The new comment is '%s'",new_packet_comment);*/
-
   cf_update_capture_comment(&cfile, new_comment);
 
   /* Update the menus in case the file might need to be saved */
   set_menus_for_capture_file(&cfile);
+
+  window_destroy(summary_dlg);
 }
 
 static void
-summary_comment_text_buff_clear_cb(GtkWidget *w _U_, GtkWidget *view)
+summary_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  GtkTextBuffer *buffer;
-
-  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-  gtk_text_buffer_set_text (buffer, "", -1);
-
+  /* Note that we no longer have a Summary dialog box. */
+  summary_dlg = NULL;
 }
 
 void
 summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   summary_tally summary;
-  GtkWidget     *sum_open_w,
-                *main_vb, *bbox, *close_bt, *help_bt;
+  GtkWidget     *main_vb, *bbox, *cancel_bt, *ok_bt, *help_bt;
   GtkWidget     *table, *scrolled_window;
   GtkWidget     *list, *treeview;
+  GtkWidget     *comment_view, *comment_frame, *comment_vbox;
+  GtkTextBuffer *buffer = NULL;
+  gchar *buf_str;
   GtkListStore  *store;
   GtkTreeIter    iter;
   GtkCellRenderer *renderer;
@@ -193,6 +193,12 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   iface_options iface;
   unsigned int  i;
 
+  if (summary_dlg != NULL) {
+    /* There's already a Summary dialog box; reactivate it. */
+    reactivate_window(summary_dlg);
+    return;
+  }
+
   /* initial computations */
   summary_fill_in(&cfile, &summary);
 #ifdef HAVE_LIBPCAP
@@ -210,12 +216,12 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   disp_seconds = summary.filtered_stop - summary.filtered_start;
   marked_seconds = summary.marked_stop - summary.marked_start;
 
-  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Summary");
+  summary_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Summary");
 
   /* Container for each row of widgets */
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
-  gtk_container_add(GTK_CONTAINER(sum_open_w), main_vb);
+  gtk_container_add(GTK_CONTAINER(summary_dlg), main_vb);
 
   /* table */
   table = gtk_table_new(1, 2, FALSE);
@@ -253,60 +259,27 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_table(table, &row, "Packet size limit:", string_buff);
   }
 
-  /* Only allow editing of comment if filetype is PCAPNG  or if
-   * we already have a capture file comment (e.g., because the user created
-   * one via "add/edit capture file comment" UI).
-   */
-  if(summary.file_type == WTAP_FILE_PCAPNG || summary.opt_comment != NULL) {
-    GtkWidget *frame;
-    GtkWidget *comment_vbox;
-    GtkWidget *view;
-    GtkTextBuffer *buffer = NULL;
-    gchar *buf_str;
-    GtkWidget *ok_bt, *clear_bt;
+  /* Capture file comment area */
+  comment_frame = gtk_frame_new ("Capture file comments");
+  gtk_frame_set_shadow_type (GTK_FRAME (comment_frame), GTK_SHADOW_ETCHED_IN);
+  gtk_container_add (GTK_CONTAINER (main_vb), comment_frame);
+  gtk_widget_show (comment_frame);
 
-    frame = gtk_frame_new ("Capture comments");
-    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_IN);
-    gtk_container_add (GTK_CONTAINER (main_vb), frame);
-    gtk_widget_show (frame);
+  comment_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+  gtk_container_add (GTK_CONTAINER (comment_frame), comment_vbox);
+  gtk_widget_show (comment_vbox);
 
-    comment_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-    gtk_container_add (GTK_CONTAINER (frame), comment_vbox);
-    gtk_widget_show (comment_vbox);
-
-    view = gtk_text_view_new ();
-    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-    if(summary.opt_comment == NULL) {
-      buf_str = g_strdup_printf("[None]");
-    } else {
-      buf_str = g_strdup_printf("%s", summary.opt_comment);
-    }
+  comment_view = gtk_text_view_new ();
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (comment_view));
+  if(summary.opt_comment == NULL) {
+    gtk_text_buffer_set_text (buffer, "", -1);
+  } else {
+    buf_str = g_strdup_printf("%s", summary.opt_comment);
     gtk_text_buffer_set_text (buffer, buf_str, -1);
-    gtk_container_add(GTK_CONTAINER(comment_vbox), view);
-    gtk_widget_show (view);
     g_free(buf_str);
-
-    /* Button row. */
-    bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
-    gtk_box_pack_end (GTK_BOX(comment_vbox), bbox, FALSE, FALSE, 0);
-
-    ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-    g_signal_connect (ok_bt, "clicked",
-                      G_CALLBACK(summary_comment_text_buff_save_cb), view);
-    gtk_widget_set_sensitive (ok_bt, TRUE);
-    gtk_widget_set_tooltip_text(ok_bt, "Updates the comment, you need to save"
-                                " the the capture file as well to save the"
-                                " updated comment");
-
-
-    clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
-    g_signal_connect(clear_bt, "clicked",
-                     G_CALLBACK(summary_comment_text_buff_clear_cb), view);
-    gtk_widget_set_tooltip_text(clear_bt,
-                                "Clears the text from the box, not the capture");
-
-    gtk_widget_grab_default (ok_bt);
- }
+  }
+  gtk_container_add(GTK_CONTAINER(comment_vbox), comment_view);
+  gtk_widget_show (comment_view);
 
   /*
    * We must have no un-time-stamped packets (i.e., the number of
@@ -609,19 +582,24 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
   /* Button row. */
-  bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+  bbox = dlg_button_row_new(GTK_STOCK_CANCEL, GTK_STOCK_OK, GTK_STOCK_HELP, NULL);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
 
-  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
-  window_set_cancel_button(sum_open_w, close_bt, window_cancel_button_cb);
+  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  window_set_cancel_button(summary_dlg, cancel_bt, window_cancel_button_cb);
+
+  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  g_signal_connect (ok_bt, "clicked",
+                    G_CALLBACK(summary_ok_cb), comment_view);
+  gtk_widget_grab_focus(ok_bt);
 
   help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_SUMMARY_DIALOG);
 
-  gtk_widget_grab_focus(close_bt);
 
-  g_signal_connect(sum_open_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(summary_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(summary_dlg, "destroy", G_CALLBACK(summary_destroy_cb), NULL);
 
-  gtk_widget_show_all(sum_open_w);
-  window_present(sum_open_w);
+  gtk_widget_show_all(summary_dlg);
+  window_present(summary_dlg);
 }
