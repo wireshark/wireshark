@@ -1168,7 +1168,13 @@ file_save_as_select_file_type_cb(GtkWidget *w, gpointer data _U_)
   new_file_type = GPOINTER_TO_INT(ptr);
 
   compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY);
-  gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_file_type));
+  if (!wtap_dump_can_compress(new_file_type)) {
+    /* Can't compress this file type; turn off compression and make
+       the compression checkbox insensitive. */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(compressed_cb), FALSE);
+    gtk_widget_set_sensitive(compressed_cb, FALSE);
+  } else
+    gtk_widget_set_sensitive(compressed_cb, TRUE);
 }
 
 
@@ -1247,13 +1253,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* compressed */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
   gtk_container_add(GTK_CONTAINER(ft_hb), compressed_cb);
-  /* XXX - disable output compression for now, as this doesn't work with the
-   * current optimization to simply copy a capture file if it's using the same
-   * encapsulation ... */
-  /* the rest of the implementation is just working fine :-( */
-#if 0
   gtk_widget_show(compressed_cb);
-#endif
   g_object_set_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY, compressed_cb);
   /* Ok: now "select" the default filetype which invokes file_save_as_select_file_type_cb */
   g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_save_as_select_file_type_cb), NULL);
@@ -1541,13 +1541,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* compressed */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
   gtk_container_add(GTK_CONTAINER(ft_hb), compressed_cb);
-  /* XXX - disable output compression for now, as this doesn't work with the
-   * current optimization to simply copy a capture file if it's using the same
-   * encapsulation ... */
-  /* the rest of the implementation is just working fine :-( */
-#if 0
   gtk_widget_show(compressed_cb);
-#endif
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY, compressed_cb);
 
   /* Ok: now "select" the default filetype which invokes file_export_specified_packets_select_file_type_cb */
@@ -1578,7 +1572,13 @@ file_export_specified_packets_select_file_type_cb(GtkWidget *w, gpointer data _U
   new_file_type = GPOINTER_TO_INT(ptr);
 
   compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY);
-  gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_file_type));
+  if (!wtap_dump_can_compress(new_file_type)) {
+    /* Can't compress this file type; turn off compression and make
+       the compression checkbox insensitive. */
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(compressed_cb), FALSE);
+    gtk_widget_set_sensitive(compressed_cb, FALSE);
+  } else
+    gtk_widget_set_sensitive(compressed_cb, TRUE);
 }
 
 static void
