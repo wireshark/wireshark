@@ -234,7 +234,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Name:", string_buff);
 
   /* length */
-  g_snprintf(string_buff, SUM_STR_MAX, "%" G_GINT64_MODIFIER "d bytes", summary.file_length);
+  g_snprintf(string_buff, SUM_STR_MAX, "%" G_GINT64_MODIFIER "d bytes",
+             summary.file_length);
   add_string_to_table(table, &row, "Length:", string_buff);
 
   /* format */
@@ -253,8 +254,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_table(table, &row, "Packet size limit:", string_buff);
   }
 
-  /* Only allow editing of comment if filetype is PCAPNG */
-  if(summary.file_type == WTAP_FILE_PCAPNG){
+  /* Only allow editing of comment if filetype is PCAPNG  or if
+   * we already have a capture file comment (e.g., because the user created
+   * one via "add/edit capture file comment" UI).
+   */
+  if(summary.file_type == WTAP_FILE_PCAPNG || summary.opt_comment != NULL) {
     GtkWidget *frame;
     GtkWidget *comment_vbox;
     GtkWidget *view;
@@ -287,24 +291,21 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_box_pack_end (GTK_BOX(comment_vbox), bbox, FALSE, FALSE, 0);
 
     ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-    g_signal_connect (ok_bt, "clicked", G_CALLBACK(summary_comment_text_buff_save_cb), view);
+    g_signal_connect (ok_bt, "clicked",
+                      G_CALLBACK(summary_comment_text_buff_save_cb), view);
     gtk_widget_set_sensitive (ok_bt, TRUE);
-    gtk_widget_set_tooltip_text(ok_bt,
-           "Updates the comment, you need to save the the capture file as well to save the updated comment");
+    gtk_widget_set_tooltip_text(ok_bt, "Updates the comment, you need to save"
+                                " the the capture file as well to save the"
+                                " updated comment");
 
 
     clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
-    g_signal_connect(clear_bt, "clicked", G_CALLBACK(summary_comment_text_buff_clear_cb), view);
+    g_signal_connect(clear_bt, "clicked",
+                     G_CALLBACK(summary_comment_text_buff_clear_cb), view);
     gtk_widget_set_tooltip_text(clear_bt,
-           "Clears the text from the box, not the capture");
+                                "Clears the text from the box, not the capture");
 
     gtk_widget_grab_default (ok_bt);
-
-  }else{
-    if (summary.opt_comment != NULL) {
-    /* comment */
-    add_string_to_table(table, &row, "Comment:", summary.opt_comment);
-    }
  }
 
   /*
@@ -522,22 +523,22 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Packet size */
   if (summary.packet_count > 1) {
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f bytes",
-	       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-	       (float) ((gint64) summary.bytes)/summary.packet_count);
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               (float) ((gint64) summary.bytes)/summary.packet_count);
   } else {
     string_buff[0] = '\0';
   }
   if (summary.dfilter && summary.filtered_count > 1) {
     g_snprintf(string_buff2, SUM_STR_MAX, "%.3f bytes",
-	       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-	       (float) ((gint64) summary.filtered_bytes)/summary.filtered_count);
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               (float) ((gint64) summary.filtered_bytes)/summary.filtered_count);
   } else {
     string_buff2[0] = '\0';
   }
   if (summary.marked_count > 1) {
     g_snprintf(string_buff3, SUM_STR_MAX, "%.3f bytes",
-	       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-	       (float) ((gint64) summary.marked_bytes)/summary.marked_count);
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               (float) ((gint64) summary.marked_bytes)/summary.marked_count);
   } else {
     string_buff3[0] = '\0';
   }
@@ -584,22 +585,22 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* MBit per second */
   if (seconds > 0) {
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f",
-	       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-	       ((gint64) summary.bytes) * 8.0 / (seconds * 1000.0 * 1000.0));
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               ((gint64) summary.bytes) * 8.0 / (seconds * 1000.0 * 1000.0));
   } else {
     string_buff[0] = '\0';
   }
   if (summary.dfilter && disp_seconds > 0) {
     g_snprintf(string_buff2, SUM_STR_MAX, "%.3f",
-	       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-	       ((gint64) summary.filtered_bytes) * 8.0 / (disp_seconds * 1000.0 * 1000.0));
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               ((gint64) summary.filtered_bytes) * 8.0 / (disp_seconds * 1000.0 * 1000.0));
   } else {
     string_buff2[0] = '\0';
   }
   if (summary.marked_count && marked_seconds > 0) {
     g_snprintf(string_buff3, SUM_STR_MAX, "%.3f",
-	       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-	       ((gint64) summary.marked_bytes) * 8.0 / (marked_seconds * 1000.0 * 1000.0));
+               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+               ((gint64) summary.marked_bytes) * 8.0 / (marked_seconds * 1000.0 * 1000.0));
   } else {
     string_buff3[0] = '\0';
   }
