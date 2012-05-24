@@ -263,7 +263,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *comment_vbox;
     GtkWidget *view;
     GtkTextBuffer *buffer = NULL;
-    const gchar *buf_str;
+    gchar *buf_str;
     GtkWidget *ok_bt, *clear_bt;
 
     frame = gtk_frame_new ("Capture comments");
@@ -277,14 +277,15 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
     view = gtk_text_view_new ();
     buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-    if(summary.opt_comment == NULL){
+    if(summary.opt_comment == NULL) {
       buf_str = g_strdup_printf("[None]");
-    }else{
+    } else {
       buf_str = g_strdup_printf("%s", summary.opt_comment);
     }
     gtk_text_buffer_set_text (buffer, buf_str, -1);
     gtk_container_add(GTK_CONTAINER(comment_vbox), view);
     gtk_widget_show (view);
+    g_free(buf_str);
 
     /* Button row. */
     bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
