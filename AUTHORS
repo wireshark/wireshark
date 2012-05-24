@@ -2245,6 +2245,7 @@ Rich Coe                <Richard.Coe [AT] med.ge.com> {
 
 Dominic Béchaz          <bdo [AT] zhwin.ch> {
 	IEEE 1588 / PTP support
+	EPL v1 support
 }
 
 Richard van der Hoff	<richardv [AT] mxtelecom.com> {
@@ -2653,10 +2654,6 @@ Jakob Bratkovic		<j.bratkovic [AT] iskratel.si> {
 
 Mark Lewis		<mlewis [AT] altera.com> {
 	2dParityFec dissector
-}
-
-Dominic Bechaz		<bdo [AT] zhwin.ch> {
-	EPL v1 support
 }
 
 David Buechi		<bhd [AT] zhwin.ch> {
@@ -3140,8 +3137,9 @@ Michael Bernhard	<michael.bernhard [AT] bfh.ch> {
 	IEC 61850 dissector
 }
 
-Holger Freyther		<zecke [AT] selfish.org> {
+Holger Hans Peter Freyther	<zecke [AT] selfish.org> {
 	NexusWare C7 MTP over UDP dissector
+	DVB-H IPDC ESG
 }
 
 Jose Pico		<jose [AT] taddong.com> {
@@ -3401,10 +3399,6 @@ Gaurav Tungatkar	<gauravstt [AT] gmail.com> {
 	and Extension for Interface and Next-Hop
 }
 
-Holger Hans Peter Freyther <zecke [AT] selfish.org> {
-	DVB-H IPDC ESG
-}
-
 Paul Erkkila 		<pee [AT] erkkila.org> {
 	Hazelcast Dissector
 }
@@ -3440,7 +3434,6 @@ Kaloian Stoilov         <kalkata [AT] yahoo.com>
 Steven Lass             <stevenlass [AT] mail.com>
 Gregory Stark           <gsstark [AT] mit.edu>
 Darren Steele           <steeley [AT] steeley.co.uk>
-	                <smhuang [AT] pcs.csie.nctu.edu.tw>
 Michael Kopp            <michael.kopp [AT] isarnet.de>
 Bernd Leibing           <bernd.leibing [AT] kiz.uni-ulm.de>
 Chris Heath             <chris [AT] heathens.co.nz>
