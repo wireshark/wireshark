@@ -270,6 +270,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show (comment_vbox);
 
   comment_view = gtk_text_view_new ();
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(comment_view), GTK_WRAP_WORD);
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (comment_view));
   if(summary.opt_comment == NULL) {
     gtk_text_buffer_set_text (buffer, "", -1);
