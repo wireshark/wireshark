@@ -3388,6 +3388,10 @@ Michael Sakaluk		<mdsakalu [AT] ncsu.edu> {
 	Load balancing for mesh softwires (RFC 5640)
 }
 
+Mayuresh Raut		<msraut [AT] ncsu.edu> {
+	LSP ping over MPLS tunnels (RFC 6424)
+}
+
 Per Liedberg		<per.liedberg [AT] ericsson.com> {
 	RoHC dissection improvments
 }
