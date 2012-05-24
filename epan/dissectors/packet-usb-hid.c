@@ -880,13 +880,13 @@ proto_register_usb_hid(void)
 				TFS(&tfs_mainitem_bit8), 1<<8, NULL, HFILL }},
 
 		{ &hf_usb_hid_mainitem_colltype,
-			{ "Collection type", "usbhid.item.main.colltype", FT_UINT8, BASE_HEX,
+			{ "Collection type", "usbhid.item.main.colltype", FT_UINT8, BASE_RANGE_STRING|BASE_HEX,
 				RVALS(usb_hid_mainitem_colltype_vals), 0, NULL, HFILL }},
 
 		/* Global-report item data */
 
 		{ &hf_usb_hid_globalitem_usage,
-			{ "Usage page", "usbhid.item.global.usage", FT_UINT8, BASE_HEX,
+			{ "Usage page", "usbhid.item.global.usage", FT_UINT8, BASE_RANGE_STRING|BASE_HEX,
 				RVALS(usb_hid_item_usage_vals), 0, NULL, HFILL }},
 
 		{ &hf_usb_hid_globalitem_log_min,
@@ -960,7 +960,7 @@ proto_register_usb_hid(void)
 		/* Local-report item data */
 
 		{ &hf_usb_hid_localitem_usage,
-			{ "Usage", "usbhid.item.local.usage", FT_UINT8, BASE_HEX,
+			{ "Usage", "usbhid.item.local.usage", FT_UINT8, BASE_RANGE_STRING|BASE_HEX,
 				RVALS(usb_hid_item_usage_vals), 0, NULL, HFILL }},
 
 		{ &hf_usb_hid_localitem_usage_min,

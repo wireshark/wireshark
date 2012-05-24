@@ -5575,7 +5575,7 @@ proto_register_tn3270(void)
     { &hf_tn3270_character_set,
       { "Character Set",
         "tn3270.character_set",
-        FT_UINT8, BASE_HEX, RVALS(rvals_at_character_set), 0x0,
+        FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(rvals_at_character_set), 0x0,
         NULL, HFILL }
     },
     { &hf_tn3270_field_outlining,
