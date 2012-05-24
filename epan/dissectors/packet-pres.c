@@ -1866,7 +1866,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 403 "../../asn1/pres/packet-pres-template.c"
+#line 400 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1913,7 +1913,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 409 "../../asn1/pres/packet-pres-template.c"
+#line 406 "../../asn1/pres/packet-pres-template.c"
   };
 
   static uat_field_t users_flds[] = {
