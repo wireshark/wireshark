@@ -1521,39 +1521,39 @@ sub check_hf_entries($$)
                 #print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=$convert, bitmask=$bitmask, blurb=$blurb\n";
 
                 if ($abbrev eq '""' || $abbrev eq "NULL") {
-                        print STDERR "Error: field $name does not have an abbreviation in $filename\n";
+                        print STDERR "Error: $hf does not have an abbreviation in $filename\n";
                         $errorCount++;
                 }
                 if ($abbrev =~ m/\.\.+/) {
-                        print STDERR "Error: the abbreviation for field $name ($abbrev) contains two or more sequential periods in $filename\n";
+                        print STDERR "Error: the abbreviation for $hf ($abbrev) contains two or more sequential periods in $filename\n";
                         $errorCount++;
                 }
                 if ($name eq $abbrev) {
-                        print STDERR "Error: the abbreviation for field $name matches the field name in $filename\n";
+                        print STDERR "Error: the abbreviation for $hf matches the field name in $filename\n";
                         $errorCount++;
                 }
                 if (lc($name) eq lc($blurb)) {
-                        print STDERR "Error: the blurb for field $name ($abbrev) matches the field name in $filename\n";
+                        print STDERR "Error: the blurb for $hf ($abbrev) matches the field name in $filename\n";
                         $errorCount++;
                 }
                 if ($name =~ m/"\s+/) {
-                        print STDERR "Error: the name for field $name ($abbrev) has leading space in $filename\n";
+                        print STDERR "Error: the name for $hf ($abbrev) has leading space in $filename\n";
                         $errorCount++;
                 }
                 if ($name =~ m/\s+"/) {
-                        print STDERR "Error: the name for field $name ($abbrev) has trailing space in $filename\n";
+                        print STDERR "Error: the name for $hf ($abbrev) has trailing space in $filename\n";
                         $errorCount++;
                 }
                 if ($blurb =~ m/"\s+/) {
-                        print STDERR "Error: the blurb for field $name ($abbrev) has leading space in $filename\n";
+                        print STDERR "Error: the blurb for $hf ($abbrev) has leading space in $filename\n";
                         $errorCount++;
                 }
                 if ($blurb =~ m/\s+"/) {
-                        print STDERR "Error: the blurb for field $name ($abbrev) has trailing space in $filename\n";
+                        print STDERR "Error: the blurb for $hf ($abbrev) has trailing space in $filename\n";
                         $errorCount++;
                 }
                 if ($abbrev =~ m/\s+/) {
-                        print STDERR "Error: the abbreviation for field $name ($abbrev) has white space in $filename\n";
+                        print STDERR "Error: the abbreviation for $hf ($abbrev) has white space in $filename\n";
                         $errorCount++;
                 }
                 if ("\"".$hf ."\"" eq $name) {
@@ -1565,17 +1565,21 @@ sub check_hf_entries($$)
                         $errorCount++;
                 }
 		if ($ft ne "FT_BOOLEAN" && $convert =~ m/^TFS\(.*\)/) {
-                        print STDERR "Error: $abbrev uses a true/false string but is an $ft instead of FT_BOOLEAN in $filename\n";
+                        print STDERR "Error: $hf uses a true/false string but is an $ft instead of FT_BOOLEAN in $filename\n";
                         $errorCount++;
 		}
 		if ($ft eq "FT_BOOLEAN" && $convert =~ m/^VALS\(.*\)/) {
-                        print STDERR "Error: $abbrev uses a value_string but is an FT_BOOLEAN in $filename\n";
+                        print STDERR "Error: $hf uses a value_string but is an FT_BOOLEAN in $filename\n";
                         $errorCount++;
 		}
 		if (($ft eq "FT_BOOLEAN") && ($bitmask !~ /^(0x)?0+$/) && ($display =~ /^BASE_/)) {
-			print STDERR "Error: $abbrev: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in $filename\n";
+			print STDERR "Error: $hf: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in $filename\n";
 			$errorCount++;
 		}
+                if ($convert =~ m/RVALS/ && $display !~ m/BASE_RANGE_STRING/) {
+                        print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
+                        $errorCount++;
+                }
 ## Benign...
 ##		if (($ft eq "FT_BOOLEAN") && ($bitmask =~ /^(0x)?0+$/) && ($display ne "BASE_NONE")) {
 ##			print STDERR "Error: $abbrev: FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n";
