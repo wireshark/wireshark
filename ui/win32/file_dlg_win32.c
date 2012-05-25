@@ -59,9 +59,9 @@
 
 #include "ui/last_open_dir.h"
 
+#include "ui/gtk/main.h"
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
-#include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/capture_dlg.h"
