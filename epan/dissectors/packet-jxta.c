@@ -536,6 +536,9 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
         tpt_conversation = get_tpt_conversation(pinfo, TRUE);
         tpt_conv_data = (jxta_stream_conversation_data *) conversation_get_proto_data(tpt_conversation, proto_jxta);
+        if (NULL != tpt_conversation) {
+            return 0;
+        }
 
         if (0 == tpt_conv_data->initiator_welcome_frame) {
             /* The initiator welcome frame */
