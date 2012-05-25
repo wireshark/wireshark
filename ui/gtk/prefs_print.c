@@ -39,7 +39,6 @@
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/file_dlg.h"
-#include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/gtkglobals.h"
 
