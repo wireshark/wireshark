@@ -887,6 +887,8 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       /* mode is ciphertext with authentication */
       hasmac = TRUE;
       len2 = tvb_length_remaining(tvb, offset);
+      if (len2 <= 0)
+        return offset; 
       encrypted = TRUE;
       if (c1222_decrypt) {
 	buffer = tvb_memdup(tvb, offset, len2);
@@ -906,6 +908,8 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       /* mode is cleartext with authentication */
       hasmac = TRUE;
       len2 = tvb_length_remaining(tvb, offset);
+      if (len2 <= 0)
+        return offset;
       buffer = tvb_memdup(tvb, offset, len2);
       epsem_buffer = tvb_new_subset(tvb, offset, -1, -1);
       if (c1222_decrypt) {

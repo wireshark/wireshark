@@ -932,6 +932,8 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       /* mode is ciphertext with authentication */
       hasmac = TRUE;
       len2 = tvb_length_remaining(tvb, offset);
+      if (len2 <= 0)
+        return offset; 
       encrypted = TRUE;
       if (c1222_decrypt) {
 	buffer = tvb_memdup(tvb, offset, len2);
@@ -951,6 +953,8 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       /* mode is cleartext with authentication */
       hasmac = TRUE;
       len2 = tvb_length_remaining(tvb, offset);
+      if (len2 <= 0)
+        return offset;
       buffer = tvb_memdup(tvb, offset, len2);
       epsem_buffer = tvb_new_subset(tvb, offset, -1, -1);
       if (c1222_decrypt) {
@@ -1456,7 +1460,7 @@ static void dissect_C1222_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 987 "../../asn1/c1222/packet-c1222-template.c"
+#line 991 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1827,7 +1831,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1269 "../../asn1/c1222/packet-c1222-template.c"
+#line 1273 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1848,7 +1852,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1279 "../../asn1/c1222/packet-c1222-template.c"
+#line 1283 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   module_t *c1222_module;
