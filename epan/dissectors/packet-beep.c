@@ -624,7 +624,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       /* We dissect the rest as data and bail ... */
 
-      if (tree) {
+      if (tree && (tvb_length_remaining(tvb, offset) > 0)) {
         proto_tree_add_text(hdr, tvb, offset,
                             tvb_length_remaining(tvb, offset),
                             "Undissected Payload: %s",
@@ -649,7 +649,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (tvb_length_remaining(tvb, offset) > 0) { /* Dissect what is left as payload */
 
-      int pl_size = MIN(size, tvb_length_remaining(tvb, offset));
+      int pl_size = MIN(size, MAX(0, tvb_length_remaining(tvb, offset)));
 
       /* Except, check the payload length, and only dissect that much */
 
