@@ -1577,6 +1577,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
+	    /* fallthrough */
         case FT_UINT8:
         case FT_UINT16:
         case FT_UINT24:
