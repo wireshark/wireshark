@@ -391,7 +391,7 @@ dissect_hello_mt_port_cap_spb_mcid_clv(tvbuff_t   *tvb,
         offset += 3;
 
         /* Aux MCID: */
-        ti = proto_tree_add_text( subtree, tvb, offset, MCID_LEN, "Aux MCID:");
+        proto_tree_add_text( subtree, tvb, offset, MCID_LEN, "Aux MCID:");
         for (i = 0 ; i < 48 ; i+= 8, offset += 8) {
             proto_tree_add_text( subtree, tvb, offset, 8,
                                  "  %02x %02x %02x %02x %02x %02x %02x %02x",
