@@ -627,6 +627,10 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
    * is successful*/
   dtls_decrypted_data_avail = dtls_decrypted_data.data_len;
   if (ssl->state & SSL_HAVE_SESSION_KEY) {
+    if (!decoder) {
+      ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
+      return ret;
+    }
     if (ssl_decrypt_record(ssl, decoder, content_type, tvb_get_ptr(tvb, offset, record_length), record_length,
                            &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
       ret = 1;
