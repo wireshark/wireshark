@@ -43,10 +43,8 @@ gboolean win32_open_file (HWND h_wnd);
 /** Open the "Save As" dialog box.
  *
  * @param h_wnd HWND of the parent window.
- * @param action_after_save The action to take, when save completed
- * @param action_after_save_data Data for action_after_save
  */
-void win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer action_after_save_data);
+void win32_save_as_file(HWND h_wnd);
 
 /** Open the "Export Specified Packets" dialog box.
  *

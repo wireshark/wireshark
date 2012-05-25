@@ -4194,33 +4194,10 @@ capture_start_confirmed(void)
   }
 }
 
-/* user confirmed the "Save capture file..." dialog */
-static void
-capture_start_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
-{
-  switch(btn) {
-  case(ESD_BTN_SAVE):
-    /* save file first */
-    file_save_as_cmd(after_save_capture_dialog, data);
-    break;
-  case(ESD_BTN_DONT_SAVE):
-    /* XXX - unlink old file? */
-    /* start the capture */
-    capture_start_confirmed();
-    break;
-  case(ESD_BTN_CANCEL):
-    break;
-  default:
-    g_assert_not_reached();
-  }
-}
-
 /* user pressed the "Start" button (in dialog or toolbar) */
 void
 capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  gpointer  dialog;
-
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
   if (airpcap_if_active)
@@ -4251,19 +4228,9 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-    prefs.gui_ask_unsaved) {
-    /* This is a temporary capture file or has unsaved changes; ask the
-       user whether to save the capture. */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                "%sSave capture file before starting a new capture?%s\n\n"
-                "If you start a new capture without saving, your current capture data will\nbe discarded.",
-                simple_dialog_primary_start(), simple_dialog_primary_end());
-    simple_dialog_set_cb(dialog, capture_start_answered_cb, NULL);
-  } else {
-    /* unchanged file, just capture a new one */
+  /* XXX - will closing this remove a temporary file? */
+  if (do_file_close(&cfile, FALSE, " before starting a new capture"))
     capture_start_confirmed();
-  }
 }
 
 

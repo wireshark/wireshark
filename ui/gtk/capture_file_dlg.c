@@ -82,8 +82,10 @@ static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_merge_ok_cb(GtkWidget *w, gpointer fs);
 static void file_merge_destroy_cb(GtkWidget *win, gpointer user_data);
+static void do_file_save(capture_file *cf, gboolean dont_reopen);
+static void do_file_save_as(capture_file *cf);
+static void file_save_as_cb(GtkWidget *fs);
 static void file_save_as_select_file_type_cb(GtkWidget *w, gpointer data);
-static void file_save_as_ok_cb(GtkWidget *w, gpointer fs);
 static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_export_specified_packets_cb(GtkWidget *w, gpointer fs);
 static void file_export_specified_packets_select_file_type_cb(GtkWidget *w, gpointer data);
@@ -594,41 +596,12 @@ file_open_cmd(GtkWidget *w)
 #endif /* _WIN32 */
 }
 
-static void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
-{
-    switch(btn) {
-    case(ESD_BTN_SAVE):
-        /* save file first */
-        file_save_as_cmd(after_save_open_dialog, data);
-        break;
-    case(ESD_BTN_DONT_SAVE):
-        cf_close(&cfile);
-        file_open_cmd(data);
-        break;
-    case(ESD_BTN_CANCEL):
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
-
 void
 file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
-  gpointer  dialog;
-
-  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-    prefs.gui_ask_unsaved) {
-    /* This is a temporary capture file or has unsaved changes; ask the
-       user whether to save the capture. */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                "%sSave capture file before opening a new one?%s\n\n"
-                "If you open a new capture file without saving, your capture data will be discarded.",
-                simple_dialog_primary_start(), simple_dialog_primary_end());
-    simple_dialog_set_cb(dialog, file_open_answered_cb, widget);
-  } else {
-    /* unchanged file, just open a new one */
+  /* If there's unsaved data, let the user save it first.
+     If they cancel out of it, don't quit. */
+  if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
     file_open_cmd(widget);
-  }
 }
 
 /* user pressed "open" button */
@@ -904,37 +877,87 @@ file_merge_cmd(GtkWidget *w)
 #endif /* _WIN32 */
 }
 
-static void file_merge_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
-{
-    switch(btn) {
-    case(ESD_BTN_OK):
-        /* save file first */
-        file_save_as_cmd(after_save_merge_dialog, data);
-        break;
-    case(ESD_BTN_CANCEL):
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
-
 void
 file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
-  gpointer  dialog;
+  /* If there's unsaved data, let the user save it first.
+     If they cancel out of it, don't merge. */
+  GtkWidget *msg_dialog;
+  gchar     *vmessage, *message;
+  gint       response;
 
-  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-    prefs.gui_ask_unsaved) {
-    /* This is a temporary capture file or has unsaved changes; ask the
-       user whether to save the capture. */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-                "%sSave the capture file before merging to another one?%s\n\n"
-                "A temporary capture file can't be merged.",
-                simple_dialog_primary_start(), simple_dialog_primary_end());
-    simple_dialog_set_cb(dialog, file_merge_answered_cb, widget);
-  } else {
-    /* unchanged file, just start to merge */
-    file_merge_cmd(widget);
+  if (prefs.gui_ask_unsaved) {
+    if (cfile.is_tempfile || cfile.unsaved_changes) {
+      /* This is a temporary capture file or has unsaved changes; ask the
+         user whether to save the capture. */
+      if (cfile.is_tempfile) {
+        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            GTK_MESSAGE_QUESTION,
+                                            GTK_BUTTONS_NONE,
+                                            "Do you want to save the captured packets before merging another capture file into it?");
+
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+             "A temporary capture file can't be merged.");
+      } else {
+        /*
+         * Format the message.
+         *
+         * XXX - is this because cf_name is in the locale, rather than being
+         * guaranteed to be in UTF-8?
+         */
+        vmessage = g_strdup_printf("Do you want to save the changes you've made "
+                                   "to the capture file \"%s\" before merging another capture file into it?",
+                                   cfile.filename);
+
+        /* convert character encoding from locale to UTF8 (using iconv) */
+        message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
+        g_free(vmessage);
+  
+        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            GTK_MESSAGE_QUESTION,
+                                            GTK_BUTTONS_NONE,
+                                            "%s", message);
+        g_free(message);
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+             "The changes must be saved before the files are merged.");
+      }
+
+#ifndef _WIN32
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+#else
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+#endif
+      gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_ACCEPT);
+
+      response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
+      gtk_widget_destroy(msg_dialog);
+
+      switch (response) {
+
+      case GTK_RESPONSE_ACCEPT:
+        /* Save the file but don't close it */
+        do_file_save(&cfile, FALSE);
+        break;
+
+      case GTK_RESPONSE_CANCEL:
+      case GTK_RESPONSE_NONE:
+      case GTK_RESPONSE_DELETE_EVENT:
+      default:
+        /* Don't do the merge. */
+        return;
+      }
+    }
   }
+
+  /* Do the merge. */
+  file_merge_cmd(widget);
 }
 
 
@@ -1071,61 +1094,157 @@ file_merge_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   file_merge_w = NULL;
 }
 
-
-static void file_close_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+gboolean
+do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
 {
-    switch(btn) {
-    case(ESD_BTN_SAVE):
-        /* save file first */
-        file_save_as_cmd(after_save_close_file, NULL);
+  GtkWidget *msg_dialog;
+  gchar     *vmessage, *message;
+  gint       response;
+
+  if (cf->state == FILE_CLOSED)
+    return TRUE; /* already closed, nothing to do */
+
+  if (prefs.gui_ask_unsaved) {
+    if (cf->is_tempfile || cf->unsaved_changes) {
+      /* This is a temporary capture file or has unsaved changes; ask the
+         user whether to save the capture. */
+      if (cf->is_tempfile) {
+        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            GTK_MESSAGE_QUESTION,
+                                            GTK_BUTTONS_NONE,
+                                            "Do you want to save the captured packets%s?",
+                                            before_what);
+
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+             "Your captured packets will be lost if you don't save them.");
+      } else {
+        /*
+         * Format the message.
+         *
+         * XXX - is this because cf_name is in the locale, rather than being
+         * guaranteed to be in UTF-8?
+         */
+        vmessage = g_strdup_printf("Do you want to save the changes you've made "
+                                   "to the capture file \"%s\"%s?",
+                                   cf->filename, before_what);
+
+        /* convert character encoding from locale to UTF8 (using iconv) */
+        message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
+        g_free(vmessage);
+  
+        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            GTK_MESSAGE_QUESTION,
+                                            GTK_BUTTONS_NONE,
+                                            "%s", message);
+        g_free(message);
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+             "Your changes will be lost if you don't save them.");
+      }
+
+#ifndef _WIN32
+      /* If this is from a Quit operation, use "quit and don't save"
+         rather than just "don't save". */
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            (from_quit ? WIRESHARK_STOCK_QUIT_DONT_SAVE :
+                                         WIRESHARK_STOCK_DONT_SAVE),
+                            GTK_RESPONSE_REJECT);
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+      /* If there's a read in progress, we can't save. */
+      if (cf->state != FILE_READ_IN_PROGRESS)
+          gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                                GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+#else
+      /* If there's a read in progress, we can't save. */
+      if (cf->state != FILE_READ_IN_PROGRESS)
+          gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                                GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            (from_quit ? WIRESHARK_STOCK_QUIT_DONT_SAVE :
+                                         WIRESHARK_STOCK_DONT_SAVE),
+                            GTK_RESPONSE_REJECT);
+#endif
+      gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_ACCEPT);
+
+      response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
+      gtk_widget_destroy(msg_dialog);
+
+      switch (response) {
+
+      case GTK_RESPONSE_ACCEPT:
+        /* Save the file and close it */
+        do_file_save(cf, TRUE);
         break;
-    case(ESD_BTN_DONT_SAVE):
-        cf_close(&cfile);
+
+      case GTK_RESPONSE_REJECT:
+        /* Just close the file, discarding changes */
+        cf_close(cf);
         break;
-    case(ESD_BTN_CANCEL):
+
+      case GTK_RESPONSE_CANCEL:
+      case GTK_RESPONSE_NONE:
+      case GTK_RESPONSE_DELETE_EVENT:
+      default:
+        /* Don't close the file. */
+        return FALSE; /* file not closed */
         break;
-    default:
-        g_assert_not_reached();
+      }
+    } else {
+      /* User asked not to be bothered by those prompts, just close it.
+         XXX - should that apply only to saving temporary files? */
+      cf_close(cf);
     }
+  } else {
+    /* unchanged file, just close it */
+    cf_close(cf);
+  }
+  return TRUE; /* file closed */
 }
 
 /* Close a file */
 void
 file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
-  gpointer  dialog;
+  do_file_close(&cfile, FALSE, "");
+}
 
-  if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-    prefs.gui_ask_unsaved) {
-    /* This is a temporary capture file or has unsaved changes; ask the
-       user whether to save the capture. */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                "%sSave capture file before closing it?%s\n\n"
-                "If you close without saving, your capture data will be discarded.",
-                simple_dialog_primary_start(), simple_dialog_primary_end());
+/*
+ * Save the capture file in question, prompting the user for a file
+ * name to save to if necessary.
+ */
+static void
+do_file_save(capture_file *cf, gboolean dont_reopen)
+{
+  char *fname;
 
-    simple_dialog_set_cb(dialog, file_close_answered_cb, NULL);
+  if (cf->is_tempfile) {
+    /* This is a temporary capture file, so saving it means saving
+       it to a permanent file.  Prompt the user for a location
+       to which to save it. */
+    do_file_save_as(cf);
   } else {
-    /* unchanged file, just close it */
-    cf_close(&cfile);
+    if (cf->unsaved_changes) {
+      /* This is not a temporary capture file, but it has unsaved
+         changes, so saving it means doing a "safe save" on top
+         of the existing file, in the same format - no UI needed. */
+      /* XXX - cf->filename might get freed out from under us, because
+         the code path through which cf_save_packets() goes currently
+	 closes the current file and then opens and reloads the saved file,
+	 so make a copy and free it later. */
+      fname = g_strdup(cf->filename);
+      cf_save_packets(cf, fname, cf->cd_t, cf->iscompressed, dont_reopen);
+      g_free(fname);
+    }
+    /* Otherwise just do nothing. */
   }
 }
 
 void
 file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
-  if (cfile.is_tempfile) {
-    /* This is a temporary capture file, so saving it means saving
-       it to a permanent file. */
-    file_save_as_cmd(after_save_no_action, NULL);
-  } else {
-    if (cfile.unsaved_changes) {
-      /* This is not a temporary capture file, but it has unsaved
-         changes, so saving it means doing a "safe save" on top
-         of the existing file, in the same format - no UI needed. */
-      file_save_cmd(after_save_no_action, NULL);
-    }
-    /* Otherwise just do nothing (this shouldn't even be enabled if
-       it's not a temporary file and there are no unsaved changes). */
-  }
+  do_file_save(&cfile, FALSE);
 }
 
 /* Attach a list of the valid 'save as' file types to a combo_box by
@@ -1178,35 +1297,17 @@ file_save_as_select_file_type_cb(GtkWidget *w, gpointer data _U_)
 }
 
 
-action_after_save_e action_after_save_g;
-gpointer            action_after_save_data_g;
-
-
-void
-file_save_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
-{
-  char *fname;
-
-  action_after_save_g       = action_after_save;
-  action_after_save_data_g  = action_after_save_data;
-
-  /* XXX - cfile.filename might get freed out from under us, because
-     the code path through which cf_save_packets() goes currently closes the
-     current file and then opens and reloads the saved file, so make
-     a copy and free it later. */
-  fname = g_strdup(cfile.filename);
-
-  cf_save_packets(&cfile, fname, cfile.cd_t, cfile.iscompressed);
-  g_free(fname);
-}
-
-void
-file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
+static void
+do_file_save_as(capture_file *cf)
 {
 #if _WIN32
-  win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), action_after_save, action_after_save_data);
+  win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 #else /* _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
+  GtkWidget     *msg_dialog;
+  gchar         *vmessage, *message;
+  gint           response;
+  char          *cf_name;
 
   if (file_save_as_w != NULL) {
     /* There's already an "Save Capture File As" dialog box; reactivate it. */
@@ -1219,11 +1320,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* build the file selection */
   file_save_as_w = file_selection_new ("Wireshark: Save Capture File As",
                                        FILE_SELECTION_SAVE);
-
-  /* as the dialog might already be gone, when using this values, we cannot
-   * set data to the dialog object, but keep global values */
-  action_after_save_g       = action_after_save;
-  action_after_save_data_g  = action_after_save_data;
 
   /* Container for each row of widgets */
 
@@ -1245,7 +1341,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, cfile.cd_t);
+  set_file_type_list(ft_combo_box, cf->cd_t);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_save_as_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
@@ -1262,10 +1358,111 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   g_signal_connect(file_save_as_w, "destroy",
                    G_CALLBACK(file_save_as_destroy_cb), NULL);
 
-  if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) == GTK_RESPONSE_ACCEPT) {
-    file_save_as_ok_cb(file_save_as_w, file_save_as_w);
-  } else {
-    window_destroy(file_save_as_w);
+  /*
+   * Loop until the user either selects a file or gives up.
+   */
+  for (;;) {
+    if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) != GTK_RESPONSE_ACCEPT) {
+      /* They clicked "Cancel" or closed the dialog or.... */
+      window_destroy(file_save_as_w);
+      return;
+    }
+
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_save_as_w));
+
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(cf_name) == EISDIR) {
+          /* It's a directory - set the file selection box to display that
+             directory, and go back and re-run it. */
+          set_last_open_dir(cf_name);
+          g_free(cf_name);
+          file_selection_set_current_folder(file_save_as_w,
+                                            get_last_open_dir());
+          continue;
+    }
+
+    /*
+     * Check that the from file is not the same as to file
+     * We do it here so we catch all cases ...
+     * Unfortunately, the file requester gives us an absolute file
+     * name and the read file name may be relative (if supplied on
+     * the command line). From Joerg Mayer.
+     */
+    if (files_identical(cf->filename, cf_name)) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        "%sCapture file: \"%s\" identical to loaded file!%s\n\n"
+        "Please choose a different filename.",
+        simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
+      g_free(cf_name);
+
+      /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+       * as this will prevent the user from closing the now existing error
+       * message, simply close the dialog (this is the best we can do here). */
+      if (file_save_as_w)
+        window_destroy(GTK_WIDGET(file_save_as_w));
+
+      return;
+    }
+
+    /* it the file doesn't exist, simply try to save it */
+    if (!file_exists(cf_name)) {
+      gtk_widget_hide(GTK_WIDGET(file_save_as_w));
+      g_free(cf_name);
+      file_save_as_cb(file_save_as_w);
+      return;
+    }
+
+    /* The file exists.  Ask the user if they want to overwrite it. */
+
+    /*
+     * Format the message.
+     *
+     * XXX - is this because cf_name is in the locale, rather than being
+     * guaranteed to be in UTF-8?
+     */
+    vmessage = g_strdup_printf("A file named \"%s\" already exists. Do you want to replace it?",
+                               cf_name);
+
+    /* convert character encoding from locale to UTF8 (using iconv) */
+    message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
+    g_free(vmessage);
+  
+    msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
+                                        GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_MESSAGE_QUESTION,
+                                        GTK_BUTTONS_NONE,
+                                        "%s", message);
+    g_free(message);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+        "A file or folder with the same name already exists in that folder. "
+        "Replacing it will overwrite its current contents.");
+
+    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
+#ifndef _WIN32
+                           GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                           "Replace", GTK_RESPONSE_ACCEPT,
+#else
+                           "Replace", GTK_RESPONSE_ACCEPT,
+                           GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+#endif
+                           NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_CANCEL);
+
+    response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
+    gtk_widget_destroy(msg_dialog);
+
+    if (response != GTK_RESPONSE_ACCEPT) {
+      /* The user doesn't want to overwrite this file; let them choose
+         another one */
+      g_free(cf_name);
+      continue;
+    }
+
+    /* save file */
+    gtk_widget_hide(GTK_WIDGET(file_save_as_w));
+    file_save_as_cb(file_save_as_w);
+    return;
   }
 #endif /* _WIN32 */
 }
@@ -1273,13 +1470,13 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 void
 file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  file_save_as_cmd(after_save_no_action, NULL);
+  do_file_save_as(&cfile);
 }
 
 /* all tests ok, we only have to save the file */
 /* (and probably continue with a pending operation) */
 static void
-file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
+file_save_as_cb(GtkWidget *fs) {
   GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
   gchar	    *cf_name;
@@ -1300,7 +1497,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
 
   /* Write out all the packets to the file with the specified name. */
-  if (cf_save_packets(&cfile, cf_name, file_type, compressed) != CF_OK) {
+  if (cf_save_packets(&cfile, cf_name, file_type, compressed, FALSE) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
@@ -1322,130 +1519,8 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   dirname = get_dirname(cf_name);  /* Overwrites cf_name */
   set_last_open_dir(dirname);
   g_free(cf_name);
-
-  /* we have finished saving, do we have pending things to do? */
-  switch(action_after_save_g) {
-  case(after_save_no_action):
-      break;
-  case(after_save_open_dialog):
-      file_open_cmd(action_after_save_data_g);
-      break;
-  case(after_save_open_recent_file):
-      menu_open_recent_file_cmd(action_after_save_data_g);
-      break;
-  case(after_save_open_dnd_file):
-      dnd_open_file_cmd(action_after_save_data_g);
-      break;
-  case(after_save_merge_dialog):
-      file_merge_cmd(action_after_save_data_g);
-      break;
-#ifdef HAVE_LIBPCAP
-  case(after_save_capture_dialog):
-      capture_start_confirmed();
-      break;
-#endif
-  case(after_save_close_file):
-      cf_close(&cfile);
-      break;
-  case(after_save_exit):
-      main_do_quit();
-      break;
-  default:
-      g_assert_not_reached();
-  }
-
-  action_after_save_g = after_save_no_action;
 }
 
-
-static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
-{
-    gchar	*cf_name;
-
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data));
-
-    switch(btn) {
-    case(ESD_BTN_OK):
-        /* save file */
-        file_save_as_cb(NULL, data);
-        break;
-    case(ESD_BTN_CANCEL):
-        /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-         * as this will prevent the user from closing the now existing error
-         * message, simply close the dialog (this is the best we can do here). */
-        if (file_save_as_w)
-            window_destroy(file_save_as_w);
-        break;
-    default:
-        g_assert_not_reached();
-    }
-    g_free(cf_name);
-}
-
-
-/* user pressed "Save As" dialog "Ok" button */
-static void
-file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
-  gchar	*cf_name;
-  gpointer  dialog;
-
-  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display that
-           directory, and leave the selection box displayed. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
-        file_selection_set_current_folder(fs, get_last_open_dir());
-        return;
-  }
-
-  /*
-   * Check that the from file is not the same as to file
-   * We do it here so we catch all cases ...
-   * Unfortunately, the file requester gives us an absolute file
-   * name and the read file name may be relative (if supplied on
-   * the command line). From Joerg Mayer.
-   */
-  if (files_identical(cfile.filename, cf_name)) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "%sCapture file: \"%s\" identical to loaded file!%s\n\n"
-      "Please choose a different filename.",
-      simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
-    g_free(cf_name);
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-    if (file_save_as_w)
-      window_destroy(GTK_WIDGET (fs));
-
-    return;
-  }
-
-  /* don't show the dialog while saving (or asking) */
-  gtk_widget_hide(GTK_WIDGET (fs));
-
-  /* it the file doesn't exist, simply try to save it */
-  if (!file_exists(cf_name)) {
-    file_save_as_cb(NULL, fs);
-    g_free(cf_name);
-    return;
-  }
-
-  /* The file exists.  Ask the user if they want to overwrite it. */
-  dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-      "%s"
-      "A file named \"%s\" already exists. Do you want to replace it?"
-      "%s\n\n"
-      "A file or folder with the same name already exists in that folder. "
-      "Replacing it will overwrite its current contents.",
-      simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
-  simple_dialog_set_cb(dialog, file_save_as_exists_answered_cb, fs);
-
-  g_free(cf_name);
-}
 
 void
 file_save_as_destroy(void)

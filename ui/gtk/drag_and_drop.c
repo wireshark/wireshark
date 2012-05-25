@@ -287,34 +287,12 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     g_free(cf_names_freeme);
 }
 
-/* ask the user to save current unsaved file, before opening the dnd file */
-static void
-dnd_save_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
-{
-    switch(btn) {
-    case(ESD_BTN_SAVE):
-        /* save file first */
-        file_save_as_cmd(after_save_open_dnd_file, data);
-        break;
-    case(ESD_BTN_DONT_SAVE):
-        cf_close(&cfile);
-        dnd_open_file_cmd(data);
-        break;
-    case(ESD_BTN_CANCEL):
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
-
-
 /* we have received some drag and drop data */
 /* (as we only registered to "text/uri-list", we will only get a file list here) */
 static void
 dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gint y _U_,
                   GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 {
-    gpointer  dialog;
     gchar *cf_names_freeme;
     const guchar *sel_data_data;
     gint sel_data_len;
@@ -355,21 +333,10 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 	memcpy(cf_names_freeme, sel_data_data, sel_data_len);
 	cf_names_freeme[sel_data_len] = '\0';
 
-        /* ask the user to save it's current capture file first */
-        if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-          prefs.gui_ask_unsaved) {
-          /* This is a temporary capture file or has unsaved changes; ask the
-             user whether to save the capture. */
-            dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
-                        ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                        "%sSave capture file before opening a new one?%s\n\n"
-                        "If you open a new capture file without saving, your current capture data will be discarded.",
-                        simple_dialog_primary_start(), simple_dialog_primary_end());
-            simple_dialog_set_cb(dialog, dnd_save_file_answered_cb, cf_names_freeme );
-        } else {
-            /* unchanged file */
+        /* If there's unsaved data, let the user save it first.
+           If they cancel out of it, don't open the file. */
+        if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
             dnd_open_file_cmd( cf_names_freeme );
-        }
     }
 }
 

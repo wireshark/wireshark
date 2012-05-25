@@ -3813,7 +3813,7 @@ cf_can_save_as(capture_file *cf)
 
 cf_status_t
 cf_save_packets(capture_file *cf, const char *fname, guint save_format,
-                gboolean compressed)
+                gboolean compressed, gboolean dont_reopen)
 {
   gchar        *fname_new = NULL;
   int           err;
@@ -3966,42 +3966,44 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
   }
 
   cf_callback_invoke(cf_cb_file_save_finished, NULL);
-
-  /* Open and read the file we saved to.
-
-     XXX - this is somewhat of a waste; we already have the
-     packets, all this gets us is updated file type information
-     (which we could just stuff into "cf"), and having the new
-     file be the one we have opened and from which we're reading
-     the data, and it means we have to spend time opening and
-     reading the file, which could be a significant amount of
-     time if the file is large.
-
-     If the capture-file-writing code were to return the
-     seek offset of each packet it writes, we could save that
-     in the frame_data structure for the frame, and just open
-     the file without reading it again. */
   cf->unsaved_changes = FALSE;
 
-  if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
-    /* XXX - report errors if this fails?
-       What should we return if it fails or is aborted? */
+  if (!dont_reopen) {
+    /* Open and read the file we saved to.
 
-    switch (cf_read(cf, TRUE)) {
+       XXX - this is somewhat of a waste; we already have the
+       packets, all this gets us is updated file type information
+       (which we could just stuff into "cf"), and having the new
+       file be the one we have opened and from which we're reading
+       the data, and it means we have to spend time opening and
+       reading the file, which could be a significant amount of
+       time if the file is large.
 
-    case CF_READ_OK:
-    case CF_READ_ERROR:
-      /* Just because we got an error, that doesn't mean we were unable
-         to read any of the file; we handle what we could get from the
-         file. */
-      break;
+       If the capture-file-writing code were to return the
+       seek offset of each packet it writes, we could save that
+       in the frame_data structure for the frame, and just open
+       the file without reading it again. */
 
-    case CF_READ_ABORTED:
-      /* The user bailed out of re-reading the capture file; the
-         capture file has been closed - just return (without
-         changing any menu settings; "cf_close()" set them
-         correctly for the "no capture file open" state). */
-      break;
+    if ((cf_open(cf, fname, FALSE, &err)) == CF_OK) {
+      /* XXX - report errors if this fails?
+         What should we return if it fails or is aborted? */
+
+      switch (cf_read(cf, TRUE)) {
+
+      case CF_READ_OK:
+      case CF_READ_ERROR:
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file. */
+        break;
+
+      case CF_READ_ABORTED:
+        /* The user bailed out of re-reading the capture file; the
+           capture file has been closed - just return (without
+           changing any menu settings; "cf_close()" set them
+           correctly for the "no capture file open" state). */
+        break;
+      }
     }
   }
   return CF_OK;

@@ -30,31 +30,18 @@
  *  @ingroup dialog_group
  */
 
-/** the action to take, after save has been done */
-typedef enum {
-    after_save_no_action,           /**< no action to take */
-    after_save_close_file,          /**< close the file */
-    after_save_open_dialog,         /**< open the file open dialog */
-    after_save_open_recent_file,    /**< open the specified recent file */
-    after_save_open_dnd_file,       /**< open the specified file from drag and drop */
-    after_save_merge_dialog,        /**< open the file merge dialog */
-    after_save_capture_dialog,      /**< open the capture dialog */
-    after_save_exit                 /**< exit program */
-} action_after_save_e;
-
-/** Do a "Save", opening a dialog box if the current file is a temporary file.
+/** If there are unsaved changes, ask the user whether to save them,
+ * discard them, or cancel the operation that would cause the changes
+ * to be lost if not saved.
  *
- * @param action_after_save the action to take, when save completed
- * @param action_after_save_data data for action_after_save
- */
-void file_save_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
-
-/** Open the "Save As" dialog box.
+ * @param cf the capture_file structure for the file to be closed
+ * @param from_quit TRUE if this is from a quit operation
+ * @param before_what description of the operation, or a null string
+ * for an explicit close operation
  *
- * @param action_after_save the action to take, when save completed
- * @param action_after_save_data data for action_after_save
+ * @return TRUE if the user didn't cancel the operation, FALSE if they did
  */
-void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
+gboolean do_file_close(capture_file *cf, gboolean from_quit, const char *before_what);
 
 /** Destroy the "Save As" dialog.
  */

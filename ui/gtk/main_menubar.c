@@ -46,6 +46,8 @@
 
 #include <epan/filesystem.h>
 
+#include "../cfile.h"
+#include "../globals.h"
 #include "../print.h"
 #include "../color_filters.h"
 #include "../stat_menu.h"
@@ -4178,41 +4180,13 @@ menu_open_recent_file_cmd(gpointer action)
     }
 }
 
-static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
-{
-    switch(btn) {
-    case(ESD_BTN_YES):
-        /* save file first */
-        file_save_as_cmd(after_save_open_recent_file, data);
-        break;
-    case(ESD_BTN_NO):
-        cf_close(&cfile);
-        menu_open_recent_file_cmd(data);
-        break;
-    case(ESD_BTN_CANCEL):
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
 static void
-menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_) {
-    gpointer  dialog;
-
-
-    if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-      prefs.gui_ask_unsaved) {
-      /* This is a temporary capture file or has unsaved changes; ask the
-         user whether to save the capture. */
-        dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
-                               "%sSave capture file before opening a new one?%s\n\n"
-                               "If you open a new capture file without saving, your current capture data will be discarded.",
-                               simple_dialog_primary_start(), simple_dialog_primary_end());
-        simple_dialog_set_cb(dialog, menu_open_recent_file_answered_cb, action);
-    } else {
-        /* unchanged file */
+menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_)
+{
+    /* If there's unsaved data, let the user save it first.
+       If they cancel out of it, don't open the file. */
+    if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
         menu_open_recent_file_cmd(action);
-    }
 }
 
 static void

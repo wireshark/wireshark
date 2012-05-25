@@ -239,7 +239,6 @@ capture_options global_capture_opts;
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void show_main_window(gboolean);
-static void file_quit_answered_cb(gpointer dialog, gint btn, gpointer data);
 static void main_save_window_geometry(GtkWidget *widget);
 
 
@@ -1007,25 +1006,12 @@ main_do_quit(void)
 static gboolean
 main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_)
 {
-    gpointer dialog;
-
-    if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-      prefs.gui_ask_unsaved) {
-      /* This is a temporary capture file or has unsaved changes; ask the
-         user whether to save the capture. */
-        gtk_window_present(GTK_WINDOW(top_level));
-        dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
-                    ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
-                    "%sSave capture file before program quit?%s\n\n"
-                    "If you quit the program without saving, your capture data will be discarded.",
-                    simple_dialog_primary_start(), simple_dialog_primary_end());
-        simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
-        return TRUE;
-    } else {
-        /* unchanged file, just exit */
-        /* "main_do_quit()" indicates whether the main window should be deleted. */
+    /* If there's unsaved data, let the user save it first.
+       If they cancel out of it, don't quit. */
+    if (do_file_close(&cfile, TRUE, " before quitting"))
         return main_do_quit();
-    }
+    else
+        return TRUE; /* will this keep the window from being deleted? */
 }
 
 
@@ -1097,42 +1083,12 @@ main_save_window_geometry(GtkWidget *widget)
     statusbar_save_window_geometry();
 }
 
-static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
-{
-    switch(btn) {
-    case(ESD_BTN_SAVE):
-        /* save file first */
-        file_save_as_cmd(after_save_exit, NULL);
-        break;
-    case(ESD_BTN_QUIT_DONT_SAVE):
-        main_do_quit();
-        break;
-    case(ESD_BTN_CANCEL):
-        break;
-    default:
-        g_assert_not_reached();
-    }
-}
-
 void
 file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-    gpointer dialog;
-
-    if((cfile.state != FILE_CLOSED) && (cfile.is_tempfile || cfile.unsaved_changes) &&
-      prefs.gui_ask_unsaved) {
-      /* This is a temporary capture file or has unsaved changes; ask the
-         user whether to save the capture. */
-        dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
-                      ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
-                       "%sSave capture file before program quit?%s\n\n"
-                       "If you quit the program without saving, your capture data will be discarded.",
-                       simple_dialog_primary_start(), simple_dialog_primary_end());
-        simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
-    } else {
-        /* unchanged file, just exit */
+    /* If there's unsaved data, let the user save it first. */
+    if (do_file_close(&cfile, TRUE, " before quitting"))
         main_do_quit();
-    }
 }
 
 static void

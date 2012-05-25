@@ -206,9 +206,13 @@ gboolean cf_can_save_as(capture_file *cf);
  * @param fname the filename to save to
  * @param save_format the format of the file to save (libpcap, ...)
  * @param compressed whether to gzip compress the file
+ * @param dont_reopen TRUE if it shouldn't reopen and make that file the
+ * current capture file
  * @return one of cf_status_t
  */
-cf_status_t cf_save_packets(capture_file * cf, const char *fname, guint save_format, gboolean compressed);
+cf_status_t cf_save_packets(capture_file * cf, const char *fname,
+                            guint save_format, gboolean compressed,
+                            gboolean dont_reopen);
 
 /**
  * Export some or all packets from a capture file to a new file.  If there's

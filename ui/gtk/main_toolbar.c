@@ -1,4 +1,4 @@
-/* toolbar.c
+/* main_toolbar.c
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
@@ -36,6 +36,7 @@
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 
+#include "../cfile.h"
 #include "../color_filters.h"
 
 #include "ui/recent.h"

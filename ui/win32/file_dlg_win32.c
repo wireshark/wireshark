@@ -265,7 +265,9 @@ win32_open_file (HWND h_wnd) {
 
 
 void
-win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer action_after_save_data) {
+win32_save_as_file(HWND h_wnd)
+{
+    HWND h_wnd;
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
@@ -278,6 +280,8 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
+
+    hwnd = GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 
     savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.lnk_t);
     if (savable_file_types == NULL)
@@ -383,7 +387,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
             g_string_free(file_name8, TRUE /* free_segment */);
             g_free( (void *) ofn->lpstrFilter);
             g_free( (void *) ofn);
-            win32_save_as_file(h_wnd, action_after_save, action_after_save_data);
+            win32_save_as_file(h_wnd);
             return;
         }
 
@@ -392,37 +396,6 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         set_last_open_dir(dirname);
 
         g_string_free(file_name8, TRUE /* free_segment */);
-
-        /* we have finished saving, do we have pending things to do? */
-        switch(action_after_save) {
-            case(after_save_no_action):
-                break;
-            case(after_save_open_dialog):
-                win32_open_file(h_wnd);
-                break;
-            case(after_save_open_recent_file):
-                menu_open_recent_file_cmd(action_after_save_data);
-                break;
-            case(after_save_open_dnd_file):
-                dnd_open_file_cmd(action_after_save_data);
-                break;
-            case(after_save_merge_dialog):
-                win32_merge_file(h_wnd);
-                break;
-#ifdef HAVE_LIBPCAP
-            case(after_save_capture_dialog):
-                capture_start_confirmed();
-                break;
-#endif
-            case(after_save_close_file):
-                cf_close(&cfile);
-                break;
-            case(after_save_exit):
-                main_do_quit();
-                break;
-            default:
-                g_assert_not_reached();
-        }
     }
     g_sf_hwnd = NULL;
     g_array_free(savable_file_types, TRUE);
