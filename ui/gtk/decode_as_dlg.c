@@ -679,6 +679,7 @@ decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
       "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
       g_strerror(errno));
      g_free(pf_dir_path);
+     return;
   }
 
   daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE, TRUE);
@@ -687,6 +688,7 @@ decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
       "Can't open decode_as_entries file\n\"%s\": %s.", daf_path,
       g_strerror(errno));
     g_free(daf_path);
+    return;
   }
 
   fputs("# \"Decode As\" entries file for Wireshark " VERSION ".\n"
