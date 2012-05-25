@@ -184,7 +184,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
       if (!wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset)) {
         if (*err != 0) {
           in_files[i].state = GOT_ERROR;
-          return NULL;
+          return &in_files[i];
         }
         in_files[i].state = AT_EOF;
       } else
@@ -212,7 +212,11 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
   /* Count this packet. */
   in_files[ei].packet_num++;
 
-  /* Return the ordinal of the file from which the packet was read. */
+  /*
+   * Return a pointer to the merge_in_file_t of the file from which the
+   * packet was read.
+   */
+  *err = 0;
   return &in_files[ei];
 }
 
@@ -257,7 +261,10 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
     return NULL;
   }
 
-  /* Return the ordinal of the file from which the packet was read. */
+  /*
+   * Return a pointer to the merge_in_file_t of the file from which the
+   * packet was read.
+   */
   *err = 0;
   return &in_files[i];
 }
