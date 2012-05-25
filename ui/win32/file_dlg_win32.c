@@ -267,7 +267,6 @@ win32_open_file (HWND h_wnd) {
 void
 win32_save_as_file(HWND h_wnd)
 {
-    HWND h_wnd;
     GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
@@ -280,8 +279,6 @@ win32_save_as_file(HWND h_wnd)
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
-
-    hwnd = GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 
     savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.lnk_t);
     if (savable_file_types == NULL)
@@ -381,7 +378,7 @@ win32_save_as_file(HWND h_wnd)
          * This should be fixed even though the cf_save_packets()
          * presumably should rarely fail in this case.
          */
-        if (cf_save_packets(&cfile, file_name8->str, filetype, FALSE) != CF_OK) {
+        if (cf_save_packets(&cfile, file_name8->str, filetype, FALSE, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
             g_array_free(savable_file_types, TRUE);
             g_string_free(file_name8, TRUE /* free_segment */);
