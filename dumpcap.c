@@ -1868,6 +1868,7 @@ cap_pipe_open_live(char *pipename,
                            "The capture session coud not be initiated "
                            "due to error on socket connect: Path name too long");
                 pcap_opts->cap_pipe_err = PIPERR;
+                ws_close(fd);
                 return;
             }
             b = connect(fd, (struct sockaddr *)&sa, sizeof sa);
@@ -1876,6 +1877,7 @@ cap_pipe_open_live(char *pipename,
                            "The capture session coud not be initiated "
                            "due to error on socket connect: %s", g_strerror(errno));
                 pcap_opts->cap_pipe_err = PIPERR;
+                ws_close(fd);
                 return;
             }
         } else {
