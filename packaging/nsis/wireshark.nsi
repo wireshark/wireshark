@@ -883,10 +883,10 @@ File "..\..\wireshark-gtk2\${EXPAT_DLL}"
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
 
-!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
-SetOutPath $INSTDIR\etc\pango
-File "${GTK_DIR}\etc\pango\pango.*"
-!endif
+#!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
+#SetOutPath $INSTDIR\etc\pango
+#File "${GTK_DIR}\etc\pango\pango.*"
+#!endif
 
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
 File "..\..\wireshark-gtk2\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
