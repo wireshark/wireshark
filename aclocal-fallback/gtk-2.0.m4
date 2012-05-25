@@ -39,7 +39,7 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
   fi
 
   min_gtk_version=ifelse([$1], ,2.0.0,$1)
-  AC_MSG_CHECKING(for GTK+ - version >= $min_gtk_version)
+  AC_MSG_CHECKING(for GTK+ - version >= $min_gtk_version and < 3.0)
 
   if test x$PKG_CONFIG != xno ; then
     ## don't try to run the test against uninstalled libtool libs

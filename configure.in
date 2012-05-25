@@ -222,12 +222,6 @@ if test "x$with_gcrypt" = "xyes"; then
   )
 fi
 
-AC_ARG_WITH([gtk3],
-  AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
-                  [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
-  with_gtk3="$withval", with_gtk="no")
-
-
 # libsmi
 # FIXME: currently the path argument to with-libsmi is being ignored
 AX_LIBSMI
@@ -781,22 +775,12 @@ AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
 # programs to be built with GTK+.
 #
 if test "x$enable_wireshark" = "xyes"; then
-if test "x$with_gtk3" = "xyes"; then
-	AM_PATH_GTK_3_0(3.0.0,
-        [
-                CFLAGS="$CFLAGS $GTK_CFLAGS"
-                CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
-                AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
-        ], GTK_OK=no, gthread)
-
-else
 	AM_PATH_GTK_2_0(2.4.0,
 	[
 		CFLAGS="$CFLAGS $GTK_CFLAGS"
 		CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 		AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
 	], GTK_OK=no, gthread)
-fi
 else
 	GTK_OK=no
 fi
