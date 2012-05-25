@@ -287,9 +287,9 @@ add_byte_param(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 
 	if (hf_index != -1) {
 		hfinfo = proto_registrar_get_nth(hf_index);
-		if (hfinfo && count != 1 &&
-				(hfinfo->type == FT_INT8 || hfinfo->type == FT_UINT8)
-				&& count != 1) {
+		if ((hfinfo == NULL) ||
+				((hfinfo->type == FT_INT8 || hfinfo->type == FT_UINT8)
+				&& (count != 1))) {
 			THROW(ReportedBoundsError);
 		}
 		switch (hfinfo->type) {
