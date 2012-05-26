@@ -3881,7 +3881,6 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
       }
 #else
       do_copy = TRUE;
-      from_filename = cf->filename;
 #endif
     } else {
       /* It's a permanent file, so we should copy it, and not remove the
