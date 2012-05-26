@@ -3836,11 +3836,28 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
          first, try renaming the capture buffer file to the new name.
          This acts as a "safe save", in that, if the file already
          exists, the existing file will be removed only if the rename
-         succeeds.  (This is true even on Windows, as we're using
-         ws_rename(), which is #defined to be ws_stdio_rename() on
-         Windows, and ws_stdio_rename() uses MoveFileEx() with
-         MOVEFILE_REPLACE_EXISTING, so it will remove the target if
-         it exists. */
+         succeeds.
+
+         Sadly, on Windows, as we have the current capture file
+         open, even MoveFileEx() with MOVEFILE_REPLACE_EXISTING
+         (to cause the rename to remove an existing target), as
+         done by ws_stdio_rename() (ws_rename() is #defined to
+         be ws_stdio_rename() on Windows) will fail.
+
+         According to the MSDN documentation for CreateFile(), if,
+         when we open a capture file, we were to directly do a CreateFile(),
+         opening with FILE_SHARE_DELETE|FILE_SHARE_READ, and then
+         convert it to a file descriptor with _open_osfhandle(),
+         that would allow the file to be renamed out from under us.
+
+         It would also allow it to be deleted out from under us; according
+         to the MSDN documentation on DeleteFile(), "The DeleteFile function
+         marks a file for deletion on close. Therefore, the file deletion
+         does not occur until the last handle to the file is closed.
+         Subsequent calls to CreateFile to open the file fail with
+         ERROR_ACCESS_DENIED.", so it sounds as if deleting it out from
+         under us would be safe. */
+#ifndef _WIN32
       if (ws_rename(cf->filename, fname) == 0) {
         /* That succeeded - there's no need to copy the source file. */
         do_copy = FALSE;
@@ -3862,6 +3879,10 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
           goto fail;
         }
       }
+#else
+      do_copy = TRUE;
+      from_filename = cf->filename;
+#endif
     } else {
       /* It's a permanent file, so we should copy it, and not remove the
          original. */
