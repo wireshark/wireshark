@@ -5,7 +5,7 @@
 #
 # Trying to follow "Building Wireshark on SnowLeopard"
 # given by Michael Tuexen at
-# http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html 
+# http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html
 #
 
 # To set up a GTK3 environment
@@ -29,7 +29,7 @@ PKG_CONFIG_VERSION=0.26
 ATK_VERSION=2.4.0
 PANGO_VERSION=1.30.0
 PNG_VERSION=1.5.10
-PIXMAN_VERSION=0.24.4
+PIXMAN_VERSION=0.26.0
 CAIRO_VERSION=1.12.2
 GDK_PIXBUF_VERSION=2.26.1
 if [ -z "$GTK3" ]; then
@@ -45,7 +45,7 @@ fi
 XZ_VERSION=5.0.3
 
 # In case we want to build with cmake
-CMAKE_VERSION=2.8.7
+CMAKE_VERSION=2.8.8
 
 #
 # The following libraries are optional.
@@ -65,7 +65,7 @@ LIBGPG_ERROR_VERSION=1.10
 # 1.4.6.
 #
 LIBGCRYPT_VERSION=1.5.0
-GNUTLS_VERSION=2.12.7
+GNUTLS_VERSION=2.12.19
 LUA_VERSION=5.2.0
 PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
@@ -231,7 +231,7 @@ if [ -n "$GTK3" ]; then
   #
   echo "Downloading, building, and installing Cairo:"
   curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz || exit 1
-  gzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
+  xzcat cairo-$CAIRO_VERSION.tar.xz | tar xf - || exit 1
   cd cairo-$CAIRO_VERSION
   #./configure --enable-quartz=no || exit 1
   # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
@@ -239,7 +239,7 @@ if [ -n "$GTK3" ]; then
   make -j 3 || exit 1
   $DO_MAKE_INSTALL || exit 1
   cd ..
-fi 
+fi
 
 echo "Downloading, building, and installing ATK:"
 atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
@@ -360,7 +360,7 @@ then
 	# XXX - is there some reason to prefer nettle?  Or does
 	# Wireshark directly use libgcrypt routines?
 	#
-	./configure --with-libgcrypt || exit 1
+	./configure --with-libgcrypt --without-p11-kit || exit 1
 	make -j 3 || exit 1
 	#
 	# The pkgconfig file for GnuTLS says "requires zlib", but OS X,
@@ -372,7 +372,7 @@ then
 	# depend on building GnuTLS with zlib, an alternative would be
 	# to configure it not to use zlib.)
 	#
-	patch -p0 lib/gnutls.pc <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
+	patch -p0 lib/gnutls.pc.in <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
 	$DO_MAKE_INSTALL || exit 1
 	cd ..
 fi

@@ -1,10 +1,8 @@
-*** gnutls.pc.orig	2011-07-15 15:02:32.000000000 -0700
---- gnutls.pc	2011-07-15 15:02:42.000000000 -0700
-***************
-*** 21,25 ****
-  Version: 2.12.7
-  Libs: -L${libdir} -lgnutls
-  Libs.private: -L/usr/local/lib -lgcrypt -L/usr/local/lib -lgpg-error -L/usr/local/lib -lintl -liconv -lc -R/usr/local/lib 
-- Requires.private: zlib
-  Cflags: -I${includedir}
---- 21,24 ----
+--- gnutls.pc.in.orig	2012-05-27 02:08:48.000000000 +0200
++++ gnutls.pc.in	2012-05-27 02:11:39.000000000 +0200
+@@ -21,5 +21,4 @@
+ Version: @VERSION@
+ Libs: -L${libdir} -lgnutls
+ Libs.private: @LTLIBGCRYPT@ @LTLIBNETTLE@ @NETTLE_LIBS@ @GNUTLS_ZLIB_LIBS_PRIVATE@
+-@GNUTLS_REQUIRES_PRIVATE@
+ Cflags: -I${includedir}
