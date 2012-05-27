@@ -674,7 +674,7 @@ airpcap_update_channel_combo(GtkWidget* channel_cb, airpcap_if_info_t* if_info)
             gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(channel_cb), 0);
         }
 
-        if (if_info != NULL && if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
+        if (if_info->pSupportedChannels != NULL && if_info->numSupportedChannels > 0){
             guint i;
             for (i = 0; i<(if_info->numSupportedChannels); i++){
                 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(channel_cb), ieee80211_mhz_to_str(airpcap_if_selected->pSupportedChannels[i].Frequency));
