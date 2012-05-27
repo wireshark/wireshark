@@ -613,7 +613,7 @@ static gboolean     vwr_read(wtap *, int *, gchar **, gint64 *);
 static gboolean     vwr_seek_read(wtap *, gint64, union wtap_pseudo_header *, guchar *,
                                   int, int *, gchar **);
 
-static int          vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, gchar **);
+static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, gchar **);
 static void         vwr_read_rec_data(wtap *, guint8 *, guint8 *, int);
 
 static int          vwr_get_fpga_version(wtap *, int *, gchar **);
@@ -693,17 +693,14 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
 static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     vwr_t       *vwr = (vwr_t *)wth->priv;
-    int         ret;
     guint8      rec[B_SIZE];                        /* local buffer (holds input record) */
     int         rec_size = 0, IS_TX;
     guint8      *data_ptr;
     guint16     pkt_len;                            /* length of radiotap headers */
 
     /* read the next frame record header in the capture file; if no more frames, return */
-    if ((ret = vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, err, err_info)) <= 0) {
-        *err_info = g_strdup_printf("Record not readable or EOF encountered");
+    if (!vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, err, err_info))
         return(FALSE);                                  /* Read error or EOF */
-    }
 
     *data_offset = (file_tell(wth->fh) - 16);           /* set offset for random seek @PLCP */
 
@@ -773,7 +770,7 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
         return(FALSE);
 
     /* read in the record header */
-    if (vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, err, err_info) <= 0)
+    if (!vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, err, err_info))
         return(FALSE);                                  /* Read error or EOF */
 
     /* read over the entire record (frame + trailer) into a local buffer */
@@ -806,11 +803,10 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 
 /* scan down in the input capture file to find the next frame header */
 /* decode and skip over all non-frame messages that are in the way */
-/* return the offset into the file for the first byte of the frame (if found); -1 on */
-/* error; zero if EOF with no frame */
+/* return TRUE on success, FALSE on EOF or error */
 /* also return the frame size in bytes and the "is transmitted frame" flag */
 
-static int vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX, int *err, gchar **err_info)
+static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX, int *err, gchar **err_info)
 {
     int     bytes_read, file_off;
     int     f_len, v_type;
@@ -828,10 +824,7 @@ static int vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX,
     while (1) {
         if ((bytes_read = file_read(header, 16, fh)) != 16) {
             *err = file_error(fh, err_info);
-            if (*err != 0)
-                return(-1);
-            else
-                return(0);
+            return(FALSE);
         }
         else
             file_off += bytes_read;
@@ -844,17 +837,17 @@ static int vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX,
             if (f_len > B_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("vwr: Invalid message record length %d", f_len);
-                return(-1);
+                return(FALSE);
             }
             else if (v_type != VT_FRAME) {
                 if (file_seek(fh, f_len, SEEK_CUR, err) < 0)
-                    return(-1);
+                    return(FALSE);
                 else
                     file_off += f_len;
             }
             else {
                 *rec_size = f_len;
-                return(file_off);
+                return(TRUE);
             }
         }
     }
