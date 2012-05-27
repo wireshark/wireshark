@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-05-18
+# 2012-05-25
 # 
 # Note
 # 
@@ -11023,7 +11023,18 @@ aol-3	5193/tcp	# AmericaOnline3               [Bruce_Mackey]                    
 aol-3	5193/udp	# AmericaOnline3               [Bruce_Mackey]                                     [Bruce_Mackey]
 cpscomm	5194/tcp	# CipherPoint Config Service   [CipherPoint]                                      [CipherPoint]                                             2010-03-03
 # 5194        udp    Reserved
-# 5195-5199            Unassigned
+# The protocol is used by a
+# license server and client
+ampl-lic	5195/tcp	# programs to control use of   [AMPL_Optimization]                                [David_M_Gay]                                             2012-05-25
+# program licenses that float
+# to networked machines
+# 5195        udp    Reserved
+# The protocol is used by two
+ampl-tableproxy	5196/tcp	# programs that exchange       [AMPL_Optimization]                                [David_M_Gay]                                             2012-05-25
+# "table" data used in the
+# AMPL modeling language
+# 5196        udp    Reserved
+# 5197-5199            Unassigned
 targus-getdata	5200/tcp	# TARGUS GetData               [John_Keaveney]                                    [John_Keaveney]
 targus-getdata	5200/udp	# TARGUS GetData               [John_Keaveney]                                    [John_Keaveney]
 targus-getdata1	5201/tcp	# TARGUS GetData 1             [John_Keaveney]                                    [John_Keaveney]
@@ -16428,6 +16439,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # remote                                Protocol                     [Gregory_Dudek]                                    [Gregory_Dudek]                                                                                                                                                   protovers=<protocol vesion number> forground=<primary device
 # or system> version=<firmware/instrument controller version>
 # remoteburn                            LaCie Remote Burn            [Serge_DE_LUCA]                                    [Serge_DE_LUCA]                                                                                                                                                   Defined TXT keys: server_version, min_client_version
+# remotecontrol                  tcp    Raymarine remote control     [Raymarine_UK_Limited]                             [Geoffrey_Beer]                                           2012-05-24                                                                                              Defined TXT keys: raymarine-mfd-rrc-version,
+# protocol                                                                                                                                                                                                                                          raymarine-mfd-model, raymarine-mfd-serial
 # renderpipe                            ARTvps RenderDrive/PURE      [Andrew_Hoddinott]                                 [Andrew_Hoddinott]                                                                                                                                                Defined TXT keys: None
 # Renderer Protocol
 # rendezvouspong                        RendezvousPong               [Math_Game_House_Soft]                             [Math_Game_House_Soft]                                                                                                                                            Defined TXT keys: None
@@ -16944,6 +16957,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Amitava_Dutta]                                           Amitava Dutta                                   mailto:Amitava.Dutta&woodbridgenj.ncr.com
 # [Amnon_Horowitz]                                          Amnon Horowitz                                  mailto:amnonh&microsoft.com
 # [Amol_P_Tambe]                                            Amol P Tambe                                    mailto:amol_tambe&symantec.com                                2011-02-02
+# [AMPL_Optimization]                                                                 AMPL Optimization,    mailto:dmg&ampl.com                                           2012-05-25
+# Inc.
 # [Amy_Kang]                                                Amy Kang                                        mailto:amy.kang&sun.com                                       2009-03-10
 # [Amy_Weaver]                                              Amy Weaver                                      mailto:aweaver&vpnet.com
 # [Amy_Weaver_2]                                            Amy Weaver                                      mailto:amy_weaver&nai.com
@@ -17801,6 +17816,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [David_Lemson]                                            David Lemson                                    mailto:dlemson&microsoft.com
 # [David_Lethe]                                             David Lethe                                     mailto:david&santools.com                                     2010-12-24
 # [David_Luxford]                                           David Luxford                                   mailto:david.luxford&asg.com                                  2010-07-01
+# [David_M_Gay]                                             David M. Gay              AMPL Optimization,    mailto:dmg&ampl.com                                           2012-05-25
+# Inc.
 # [David_M_O_Rourke]                                        David M. O'Rourke                               mailto:daveo&apple.com                                        2003-01
 # [David_M_Rhodes]                                          David M. Rhodes                                 mailto:davidrho&cnd.hp.com
 # [David_Manns]                                             David Manns                                     mailto:davidm&pulsonix.com                                    2008-02-28
@@ -18268,6 +18285,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Geoff_Higgins]                                           Geoff Higgins                                   mailto:geoff.higgins&sun.com                                  2006-03
 # [Geoff_Meacock]                                           Geoff Meacock                                   mailto:gbibmswl&ibmmail.com
 # [Geoff_Mendal]                                            Geoff Mendal                                    mailto:mendal&talarian.com
+# [Geoffrey_Beer]                                           Geoffrey Beer             Raymarine UK Limited  mailto:Geoff.Beer&raymarine.com                               2012-05-24
 # [Geoffrey_Wossum]                                         Geoffrey Wossum                                 mailto:geoffrey&pager.net                                     2003-02
 # [Geoffry_Meek]                                            Geoffry Meek                                    mailto:geoff&meek.com
 # [George_Balesta]                                          George Balesta                                  mailto:George.Baletsa&tfn.com
@@ -20257,6 +20275,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ray_Jantz]                                               Ray Jantz                                       mailto:ray.jantz&lsil.com
 # [Ray_Ozzie]                                               Ray Ozzie                                       mailto:ray&rocks.net
 # [Rayan_Zachariassen]                                      Rayan Zachariassen                              mailto:rayan&ai.toronto.edu
+# [Raymarine_UK_Limited]                                                              Raymarine UK Limited  mailto:Geoff.Beer&raymarine.com                               2012-05-24
 # [Raymond_A_Diedrichs]                                     Raymond A. Diedrichs                            mailto:rayd&slu.tr.unisys.com
 # [Raymond_Chaw]                                            Raymond Chaw                                    mailto:Raymond&esecutech.com                                  2007-05
 # [Raymond_J_Young]                                         Raymond J. Young                                mailto:Raymond.Young&ca.com                                   2002-04
