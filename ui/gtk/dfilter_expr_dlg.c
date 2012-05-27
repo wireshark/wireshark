@@ -72,11 +72,6 @@
 #define E_DFILTER_EXPR_OK_BT_KEY		"dfilter_expr_accept_bt"
 #define E_DFILTER_EXPR_VALUE_KEY		"dfilter_expr_value"
 
-typedef struct protocol_data {
-  char 	*abbrev;
-  int  	hfinfo_index;
-} protocol_data_t;
-
 static void show_relations(GtkWidget *relation_list, ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
 static void add_relation_list(GtkWidget *relation_list, const char *relation, gboolean sensitive);
