@@ -155,16 +155,16 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   /* Get info from SHB */
   shb_inf = wtap_file_get_shb_info(cf->wth);
   if(shb_inf == NULL){
-	  st->opt_comment    = NULL;
-	  st->shb_hardware   = NULL;
-	  st->shb_os         = NULL;
-	  st->shb_user_appl  = NULL;
+    st->opt_comment    = NULL;
+    st->shb_hardware   = NULL;
+    st->shb_os         = NULL;
+    st->shb_user_appl  = NULL;
   }else{
-	  st->opt_comment    = shb_inf->opt_comment;
-	  st->shb_hardware   = shb_inf->shb_hardware;
-	  st->shb_os         = shb_inf->shb_os;
-	  st->shb_user_appl  = shb_inf->shb_user_appl;
-	  g_free(shb_inf);
+    st->opt_comment    = shb_inf->opt_comment;
+    st->shb_hardware   = shb_inf->shb_hardware;
+    st->shb_os         = shb_inf->shb_os;
+    st->shb_user_appl  = shb_inf->shb_user_appl;
+    g_free(shb_inf);
   }
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
@@ -217,13 +217,13 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
       iface.snap = wtapng_if_descr.snap_len;
       iface.has_snap = (iface.snap != 65535);
       iface.linktype = wtapng_if_descr.link_type;
-	  if(wtapng_if_descr.num_stat_entries == 1){
-		  /* dumpcap only writes one ISB, only handle that for now */
-		  if_stats = &g_array_index(wtapng_if_descr.interface_statistics, wtapng_if_stats_t, 0);
-		  iface.drops_known = TRUE;
-		  iface.drops = if_stats->isb_ifdrop;
-		  iface.isb_comment = if_stats->opt_comment;
-	  }
+      if(wtapng_if_descr.num_stat_entries == 1){
+          /* dumpcap only writes one ISB, only handle that for now */
+          if_stats = &g_array_index(wtapng_if_descr.interface_statistics, wtapng_if_stats_t, 0);
+          iface.drops_known = TRUE;
+          iface.drops = if_stats->isb_ifdrop;
+          iface.isb_comment = if_stats->opt_comment;
+      }
       g_array_append_val(st->ifaces, iface);
     }
     g_free(idb_info);
