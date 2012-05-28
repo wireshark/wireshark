@@ -1394,7 +1394,6 @@ static guint
 dissect_artnet_rdm_sub(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *pinfo _U_)
 {
   guint8 cc;
-  guint16 sc;
   gint size;
 
   proto_tree_add_item(tree, hf_artnet_rdm_rdmver, tvb,
@@ -1426,7 +1425,6 @@ dissect_artnet_rdm_sub(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_in
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  sc = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(tree, hf_artnet_rdm_sub_sub_count, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
