@@ -39,7 +39,6 @@
 #include "packet-per.h"
 #include "packet-isup.h"
 #include "packet-umts_fp.h"
-#include "packet-rlc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -96,7 +95,7 @@ struct _nbap_msg_info_for_fp
 	guint32 ProcedureCode;
 	guint32 ddMode;
 	gboolean is_uplink;
-    gint channel;                       /* see definitions in packet-umts_fp.h Channel types */
+	gint channel;                       /* see definitions in packet-umts_fp.h Channel types */
 	guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
 };
 
@@ -104,16 +103,16 @@ typedef struct
 {
 	gint num_dch_in_flow;
 	gint next_dch;
-    gint num_ul_chans;
-    gint ul_chan_tf_size[MAX_FP_CHANS];
-    gint ul_chan_num_tbs[MAX_FP_CHANS];
-    gint num_dl_chans;
-    gint dl_chan_tf_size[MAX_FP_CHANS];
-    gint dl_chan_num_tbs[MAX_FP_CHANS];
+	gint num_ul_chans;
+	gint ul_chan_tf_size[MAX_FP_CHANS];
+	gint ul_chan_num_tbs[MAX_FP_CHANS];
+	gint num_dl_chans;
+	gint dl_chan_tf_size[MAX_FP_CHANS];
+	gint dl_chan_num_tbs[MAX_FP_CHANS];
 
-}nbap_dch_chanel_info_t;
+}nbap_dch_channel_info_t;
 
-nbap_dch_chanel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
+nbap_dch_channel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
 
 /* Struct to collect E-DCH data in a packet 
  * As the address data comes before the ddi entries
@@ -123,25 +122,25 @@ nbap_dch_chanel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
 typedef struct
 {
 	address 	crnc_address;
-    guint16		crnc_port;
-    gint		no_ddi_entries;
-    guint8		edch_ddi[MAX_EDCH_DDIS];
-    guint		edch_macd_pdu_size[MAX_EDCH_DDIS];
-    guint8		edch_type;  /* 1 means T2 */
+	guint16		crnc_port;
+	gint		no_ddi_entries;
+	guint8		edch_ddi[MAX_EDCH_DDIS];
+	guint		edch_macd_pdu_size[MAX_EDCH_DDIS];
+	guint8		edch_type;  /* 1 means T2 */
 
-} nbap_edch_chanel_info_t;
+} nbap_edch_channel_info_t;
 
-nbap_edch_chanel_info_t nbap_edch_chanel_info[maxNrOfEDCHMACdFlows];
+nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
 
 typedef struct
 {
-	address 		crnc_address;
-    guint16			crnc_port;
-	enum rlc_mode	rlc_mode;
-	guint32			hsdsch_physical_layer_category;
-} nbap_hsdsch_chanel_info_t;
+	address 			crnc_address;
+	guint16				crnc_port;
+	enum fp_rlc_mode	rlc_mode;
+	guint32				hsdsch_physical_layer_category;
+} nbap_hsdsch_channel_info_t;
 
-nbap_hsdsch_chanel_info_t nbap_hsdsch_chanel_info[maxNrOfMACdFlows];
+nbap_hsdsch_channel_info_t nbap_hsdsch_channel_info[maxNrOfMACdFlows];
 
 gint g_num_dch_in_flow;
 /* maxNrOfTFs					INTEGER ::= 32 */
@@ -160,8 +159,8 @@ static gint paging_indications;
 
 enum TransportFormatSet_type_enum
 {
-    DCH_UL,
-    DCH_DL,
+	DCH_UL,
+	DCH_DL,
 	CPCH,
 	FACH,
 	PCH

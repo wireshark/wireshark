@@ -1047,13 +1047,16 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	guint16     total_len;
 
 	switch (mode) {
-		case RLC_AM: offs = 1; 
+		case RLC_AM:
+			offs = 1; 
 			break;
-		case RLC_UM: offs = 0; 
+		case RLC_UM:
+			offs = 0; 
 			break;
-		case RLC_TM: 
+		case RLC_TM:
 			/* fall trough */
-		case RLC_MODE_UNKNOWN: 
+		case RLC_UNKNOWN_MODE:
+		default:
 			return -1;
 	}
 	hdr_len = offs;

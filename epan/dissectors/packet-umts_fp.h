@@ -73,11 +73,11 @@ enum fp_link_type
     FP_Link_Ethernet
 };
 
-enum rlc_mode {
-	RLC_MODE_UNKNOWN,
-	RLC_TM,
-	RLC_UM,
-	RLC_AM
+enum fp_rlc_mode {
+    FP_RLC_MODE_UNKNOWN,
+    FP_RLC_TM,
+    FP_RLC_UM,
+    FP_RLC_AM
 };
 
 /* Info attached to each FP packet */
@@ -108,7 +108,7 @@ typedef struct fp_info
 
     guint16 srcport, destport;
 
-	/* HSDSCH Related data */
+    /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
     enum   fp_link_type link_type;
 } fp_info;
@@ -125,7 +125,7 @@ typedef struct
     gint dl_chan_tf_size[MAX_FP_CHANS];
     gint dl_chan_num_tbs[MAX_FP_CHANS];
 
-} fp_dch_chanel_info_t;
+} fp_dch_channel_info_t;
 
 
 typedef struct
@@ -138,26 +138,26 @@ typedef struct
     address crnc_address;
     guint16 crnc_port;
 
-	/* For PCH channel */
-	gint paging_indications;
+    /* For PCH channel */
+    gint paging_indications;
 
     /* DCH's in this flow */
     gint num_dch_in_flow;
     gint dchs_in_flow_list[FP_maxNrOfTFs];
 
     guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
-	enum rlc_mode rlc_mode;
+    enum fp_rlc_mode rlc_mode;
 
-	/* DCH type chanel data */
-    fp_dch_chanel_info_t fp_dch_chanel_info[FP_maxNrOfTFs];
+    /* DCH type channel data */
+    fp_dch_channel_info_t fp_dch_channel_info[FP_maxNrOfTFs];
 
-	/* E-DCH related data */
+    /* E-DCH related data */
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
     guint8 edch_type;  /* 1 means T2 */
 
-	/* HSDSCH Related data */
+    /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
 } umts_fp_conversation_info_t;
 

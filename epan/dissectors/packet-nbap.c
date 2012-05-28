@@ -47,7 +47,6 @@
 #include "packet-per.h"
 #include "packet-isup.h"
 #include "packet-umts_fp.h"
-#include "packet-rlc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -1534,7 +1533,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nbap-val.h ---*/
-#line 72 "../../asn1/nbap/packet-nbap-template.c"
+#line 71 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nbap = -1;
@@ -4838,7 +4837,7 @@ static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
 static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
 
 /*--- End of included file: packet-nbap-hf.c ---*/
-#line 80 "../../asn1/nbap/packet-nbap-template.c"
+#line 79 "../../asn1/nbap/packet-nbap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_nbap = -1;
@@ -6476,7 +6475,7 @@ static gint ett_nbap_UnsuccessfulOutcome = -1;
 static gint ett_nbap_Outcome = -1;
 
 /*--- End of included file: packet-nbap-ett.c ---*/
-#line 87 "../../asn1/nbap/packet-nbap-template.c"
+#line 86 "../../asn1/nbap/packet-nbap-template.c"
 
 
 extern int proto_fp;
@@ -6489,7 +6488,7 @@ struct _nbap_msg_info_for_fp
 	guint32 ProcedureCode;
 	guint32 ddMode;
 	gboolean is_uplink;
-    gint channel;                       /* see definitions in packet-umts_fp.h Channel types */
+	gint channel;                       /* see definitions in packet-umts_fp.h Channel types */
 	guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
 };
 
@@ -6497,16 +6496,16 @@ typedef struct
 {
 	gint num_dch_in_flow;
 	gint next_dch;
-    gint num_ul_chans;
-    gint ul_chan_tf_size[MAX_FP_CHANS];
-    gint ul_chan_num_tbs[MAX_FP_CHANS];
-    gint num_dl_chans;
-    gint dl_chan_tf_size[MAX_FP_CHANS];
-    gint dl_chan_num_tbs[MAX_FP_CHANS];
+	gint num_ul_chans;
+	gint ul_chan_tf_size[MAX_FP_CHANS];
+	gint ul_chan_num_tbs[MAX_FP_CHANS];
+	gint num_dl_chans;
+	gint dl_chan_tf_size[MAX_FP_CHANS];
+	gint dl_chan_num_tbs[MAX_FP_CHANS];
 
-}nbap_dch_chanel_info_t;
+}nbap_dch_channel_info_t;
 
-nbap_dch_chanel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
+nbap_dch_channel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
 
 /* Struct to collect E-DCH data in a packet 
  * As the address data comes before the ddi entries
@@ -6516,25 +6515,25 @@ nbap_dch_chanel_info_t nbap_dch_chnl_info[maxNrOfDCHs];
 typedef struct
 {
 	address 	crnc_address;
-    guint16		crnc_port;
-    gint		no_ddi_entries;
-    guint8		edch_ddi[MAX_EDCH_DDIS];
-    guint		edch_macd_pdu_size[MAX_EDCH_DDIS];
-    guint8		edch_type;  /* 1 means T2 */
+	guint16		crnc_port;
+	gint		no_ddi_entries;
+	guint8		edch_ddi[MAX_EDCH_DDIS];
+	guint		edch_macd_pdu_size[MAX_EDCH_DDIS];
+	guint8		edch_type;  /* 1 means T2 */
 
-} nbap_edch_chanel_info_t;
+} nbap_edch_channel_info_t;
 
-nbap_edch_chanel_info_t nbap_edch_chanel_info[maxNrOfEDCHMACdFlows];
+nbap_edch_channel_info_t nbap_edch_channel_info[maxNrOfEDCHMACdFlows];
 
 typedef struct
 {
-	address 		crnc_address;
-    guint16			crnc_port;
-	enum rlc_mode	rlc_mode;
-	guint32			hsdsch_physical_layer_category;
-} nbap_hsdsch_chanel_info_t;
+	address 			crnc_address;
+	guint16				crnc_port;
+	enum fp_rlc_mode	rlc_mode;
+	guint32				hsdsch_physical_layer_category;
+} nbap_hsdsch_channel_info_t;
 
-nbap_hsdsch_chanel_info_t nbap_hsdsch_chanel_info[maxNrOfMACdFlows];
+nbap_hsdsch_channel_info_t nbap_hsdsch_channel_info[maxNrOfMACdFlows];
 
 gint g_num_dch_in_flow;
 /* maxNrOfTFs					INTEGER ::= 32 */
@@ -6553,8 +6552,8 @@ static gint paging_indications;
 
 enum TransportFormatSet_type_enum
 {
-    DCH_UL,
-    DCH_DL,
+	DCH_UL,
+	DCH_DL,
 	CPCH,
 	FACH,
 	PCH
@@ -11922,7 +11921,7 @@ dissect_nbap_MACdPDU_Size(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 	{
 		return offset;
 	}
-	nbap_edch_chanel_info[e_dch_macdflow_id].edch_macd_pdu_size[num_items-1] = MACdPDU_Size;
+	nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[num_items-1] = MACdPDU_Size;
 
 
 
@@ -17814,7 +17813,7 @@ dissect_nbap_E_DCH_DDI_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 	{
 		return offset;
 	}
-	nbap_edch_chanel_info[e_dch_macdflow_id].edch_ddi[num_items-1] = e_dch_ddi_value;
+	nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[num_items-1] = e_dch_ddi_value;
 
 
 
@@ -17963,7 +17962,7 @@ dissect_nbap_E_DCH_LogicalChannelInformation(tvbuff_t *tvb _U_, int offset _U_, 
                                                   1, maxNoOfLogicalChannels, FALSE);
 
 
-	nbap_edch_chanel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
+	nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
 
 
 
@@ -18004,9 +18003,9 @@ guint32 no_ddi_entries, i;
 	}
     /* Check if we have converstaion info */
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
-    p_conv = find_conversation(actx->pinfo->fd->num, &nbap_edch_chanel_info[e_dch_macdflow_id].crnc_address, &null_addr,
+    p_conv = find_conversation(actx->pinfo->fd->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
                                PT_UDP,
-                               nbap_edch_chanel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
+                               nbap_edch_channel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
 	if(!p_conv)
 		return offset;
 
@@ -18014,15 +18013,15 @@ guint32 no_ddi_entries, i;
 
 	if(!p_conv_data)
 		return offset;
-	no_ddi_entries = p_conv_data->no_ddi_entries = nbap_edch_chanel_info[e_dch_macdflow_id].no_ddi_entries;
+	no_ddi_entries = p_conv_data->no_ddi_entries = nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries;
 	nbap_debug2("E-DCH-MACdFlow-Specific-InfoItem: e_dch_macdflow_id %u, no_ddi_entries %u",e_dch_macdflow_id,no_ddi_entries);
 	for (i = 0; i < no_ddi_entries; i++) {
-		p_conv_data->edch_ddi[i]			= nbap_edch_chanel_info[e_dch_macdflow_id].edch_ddi[i];
-		p_conv_data->edch_macd_pdu_size[i]	= nbap_edch_chanel_info[e_dch_macdflow_id].edch_macd_pdu_size[i];
+		p_conv_data->edch_ddi[i]			= nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i];
+		p_conv_data->edch_macd_pdu_size[i]	= nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i];
 		nbap_debug3("E-DCH-MACdFlow-Specific-InfoItem: e_dch_macdflow_id %u edch_ddi %u edch_macd_pdu_size %u",
 			e_dch_macdflow_id, 
-			nbap_edch_chanel_info[e_dch_macdflow_id].edch_ddi[i],
-			nbap_edch_chanel_info[e_dch_macdflow_id].edch_macd_pdu_size[i]
+			nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i],
+			nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i]
 		);
 	}
 
@@ -22982,8 +22981,8 @@ dissect_nbap_HSDSCH_MACdFlow_Specific_InfoItem(tvbuff_t *tvb _U_, int offset _U_
 	dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
 
 	/* Set address for collection of HSDSCH entries */
-	COPY_ADDRESS(&(nbap_hsdsch_chanel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
-	nbap_hsdsch_chanel_info[hsdsch_macdflow_id].crnc_port = BindingID_port;
+	COPY_ADDRESS(&(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
+	nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port = BindingID_port;
 
 
 
@@ -23074,11 +23073,11 @@ dissect_nbap_RLC_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 	switch(rlc_mode){
 		case 0:
 			/* rLC-AM */
-			nbap_hsdsch_chanel_info[hsdsch_macdflow_id].rlc_mode = RLC_AM;
+			nbap_hsdsch_channel_info[hsdsch_macdflow_id].rlc_mode = FP_RLC_AM;
 			break;
 		case 1:
 			/* rLC-UM */
-			nbap_hsdsch_chanel_info[hsdsch_macdflow_id].rlc_mode = RLC_UM;
+			nbap_hsdsch_channel_info[hsdsch_macdflow_id].rlc_mode = FP_RLC_UM;
 			break;
 	}
 
@@ -23151,7 +23150,7 @@ dissect_nbap_T_hSDSCH_Physical_Layer_Category(tvbuff_t *tvb _U_, int offset _U_,
                                                             1U, 64U, &hsdsch_physical_layer_category, TRUE);
 
 
-	nbap_hsdsch_chanel_info[hsdsch_macdflow_id].hsdsch_physical_layer_category = hsdsch_physical_layer_category;
+	nbap_hsdsch_channel_info[hsdsch_macdflow_id].hsdsch_physical_layer_category = hsdsch_physical_layer_category;
 
 
 
@@ -23224,8 +23223,8 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 	if (!actx->pinfo->fd->flags.visited){
 		/* Set port to zero use that as an indication of wether we have data or not */
 		for (i = 0; i < maxNrOfMACdFlows; i++) {
-			nbap_hsdsch_chanel_info[i].crnc_port = 0;
-			nbap_hsdsch_chanel_info[i].rlc_mode = RLC_MODE_UNKNOWN;
+			nbap_hsdsch_channel_info[i].crnc_port = 0;
+			nbap_hsdsch_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
 		}
 	}
 
@@ -23239,21 +23238,21 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 	/* Set port to zero use that as an indication of wether we have data or not */
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 	for (i = 0; i < maxNrOfMACdFlows; i++) {
-		if (nbap_hsdsch_chanel_info[i].crnc_port != 0){
+		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
 			nbap_debug3("HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %u Look for conv on IP %s Port %u", 
 						i, 
-						ep_address_to_str (&(nbap_hsdsch_chanel_info[i].crnc_address)),
-						nbap_hsdsch_chanel_info[i].crnc_port);
-			conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_chanel_info[i].crnc_address), &null_addr,
+						ep_address_to_str (&(nbap_hsdsch_channel_info[i].crnc_address)),
+						nbap_hsdsch_channel_info[i].crnc_port);
+			conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
                                PT_UDP,
-                               nbap_hsdsch_chanel_info[i].crnc_port, 0, NO_ADDR_B);
+                               nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
 
 			if (conversation == NULL) {
 				/* It's not part of any conversation - create a new one. */
-				nbap_debug1("HSDSCH-MACdFlows-Information:Set up conv on Port %u",nbap_hsdsch_chanel_info[i].crnc_port);
-				conversation = conversation_new(actx->pinfo->fd->num, &(nbap_hsdsch_chanel_info[i].crnc_address),
-					&null_addr, PT_UDP, nbap_hsdsch_chanel_info[i].crnc_port,
+				nbap_debug1("HSDSCH-MACdFlows-Information:Set up conv on Port %u",nbap_hsdsch_channel_info[i].crnc_port);
+				conversation = conversation_new(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address),
+					&null_addr, PT_UDP, nbap_hsdsch_channel_info[i].crnc_port,
 					0, NO_ADDR2|NO_PORT2);
 
 				/* Set dissector */
@@ -23268,19 +23267,19 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 					umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
 					umts_fp_conversation_info->dl_frame_number   = 0;
 					umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-					SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_chanel_info[i].crnc_address);
-					umts_fp_conversation_info->crnc_port         = nbap_hsdsch_chanel_info[i].crnc_port;
+					SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
+					umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
 
 					/* Cheat and use the DCH entries */
 					umts_fp_conversation_info->num_dch_in_flow++;
 					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-					if(nbap_hsdsch_chanel_info[i].hsdsch_physical_layer_category > 12){
+					if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
 						umts_fp_conversation_info->hsdsch_entity = ehs;
 					}else{
 						umts_fp_conversation_info->hsdsch_entity = hs;
 					}
-					umts_fp_conversation_info->rlc_mode = nbap_hsdsch_chanel_info[i].rlc_mode;
+					umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
 					set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 				}
 			}
@@ -27876,22 +27875,22 @@ dch_id = 0xFFFFFFFF;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
-				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
+				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				/* Set data for First or single channel */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[dch_id].num_ul_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[dch_id].num_ul_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].ul_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].ul_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[j];
 				}
 
 				/* Traffic flows per DCH(DL) */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[dch_id].num_dl_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[dch_id].num_dl_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].dl_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].dl_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[j];
 				}
 
 				/* Set data for associated DCH's if we have any */
@@ -27902,17 +27901,17 @@ dch_id = 0xFFFFFFFF;
 					umts_fp_conversation_info->num_dch_in_flow++;
 					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
 					/* Traffic flows per DCH(UL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
+					umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
 					}
 
 					/* Traffic flows per DCH(DL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
+					umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
 					}
 				}
 				umts_fp_conversation_info->num_dch_in_flow++;
@@ -27996,11 +27995,11 @@ BindingID_port = 0;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
-				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
+				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
 				/* Set address for collection of DDI entries */
-				COPY_ADDRESS(&(nbap_edch_chanel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
-				nbap_edch_chanel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
+				COPY_ADDRESS(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
+				nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
 
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}
@@ -31504,22 +31503,22 @@ transportFormatSet_type = CPCH;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
-				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
+				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				/* Set data for First or single channel */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
 				}
 
 				/* Traffic flows per DCH(DL) */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
 				}
 
 				/* Set data for associated DCH's if we have any */
@@ -31530,17 +31529,17 @@ transportFormatSet_type = CPCH;
 					umts_fp_conversation_info->num_dch_in_flow++;
 					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
 					/* Traffic flows per DCH(UL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
+					umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
 					}
 
 					/* Traffic flows per DCH(DL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
+					umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
 					}
 				}
 				umts_fp_conversation_info->num_dch_in_flow++;
@@ -31669,24 +31668,24 @@ num_items = 1;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port          = BindingID_port;
 				umts_fp_conversation_info->paging_indications = paging_indications;
-				umts_fp_conversation_info->rlc_mode			  = RLC_MODE_UNKNOWN;
+				umts_fp_conversation_info->rlc_mode           = FP_RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				/* Set data for First or single channel */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_ul_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_ul_chans;
 				nbap_debug1("PCH-ParametersItem-CTCH-SetupRqstFDD: num_tf %u",num_tf);
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[j];
 					nbap_debug2("PCH-ParametersItem-CTCH-SetupRqstFDD:UL tf %u ul_chan_tf_size %u",j, nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[j]);
 				}
 
 				/* Traffic flows per DCH(DL) */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_dl_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commontransportchannelid].num_dl_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commontransportchannelid].dl_chan_num_tbs[j];
 					nbap_debug2("PCH-ParametersItem-CTCH-SetupRqstFDD:DL tf %u ul_chan_tf_size %u",j, nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[j]);
 				}
 
@@ -31699,17 +31698,17 @@ num_items = 1;
 					umts_fp_conversation_info->num_dch_in_flow++;
 					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
 					/* Traffic flows per DCH(UL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
+					umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_tf_size[j] = nbap_dch_chnl_info[i].ul_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].ul_chan_num_tbs[j] = nbap_dch_chnl_info[i].ul_chan_num_tbs[j];
 					}
 
 					/* Traffic flows per DCH(DL) */
-					umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
+					umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_dl_chans = num_tf = nbap_dch_chnl_info[i].num_dl_chans;
 					for (j = 0; j < num_tf; j++) {
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
-						umts_fp_conversation_info->fp_dch_chanel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
+						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
 					}
 				}
 				umts_fp_conversation_info->num_dch_in_flow++;
@@ -31801,22 +31800,22 @@ transportFormatSet_type = CPCH;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
-				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
+				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				/* Set data for First or single channel */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].ul_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[j];
 				}
 
 				/* Traffic flows per DCH(DL) */
-				umts_fp_conversation_info->fp_dch_chanel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
+				umts_fp_conversation_info->fp_dch_channel_info[0].num_dl_chans = num_tf = nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans;
 				for (j = 0; j < num_tf; j++) {
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
-					umts_fp_conversation_info->fp_dch_chanel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[j];
+					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[j];
 				}
 
 				umts_fp_conversation_info->dchs_in_flow_list[0] = commonphysicalchannelid;
@@ -54115,7 +54114,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 186 "../../asn1/nbap/packet-nbap-template.c"
+#line 185 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -67344,7 +67343,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 250 "../../asn1/nbap/packet-nbap-template.c"
+#line 249 "../../asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -68983,7 +68982,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 258 "../../asn1/nbap/packet-nbap-template.c"
+#line 257 "../../asn1/nbap/packet-nbap-template.c"
   };
 
 
@@ -70114,7 +70113,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 292 "../../asn1/nbap/packet-nbap-template.c"
+#line 291 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 

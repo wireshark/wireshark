@@ -3155,17 +3155,31 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
             fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
             macinf = se_new0(umts_mac_info);
             macinf->content[0] = MAC_CONTENT_PS_DTCH;
-			p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
 
-			rlcinf = se_new0(rlc_info);
-			/* Make configurable ?(avaliable in NBAP?) */
-			/* urnti[MAX_RLC_CHANS] */
-			rlcinf->mode[0] = p_conv_data->rlc_mode;
-			/* rbid[MAX_RLC_CHANS] */
-			rlcinf->li_size[0] = RLC_LI_7BITS;
-			rlcinf->ciphered[0] = FALSE;
-			rlcinf->deciphered[0] = FALSE;
-			p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+            rlcinf = se_new0(rlc_info);
+            /* Make configurable ?(available in NBAP?) */
+            /* urnti[MAX_RLC_CHANS] */
+            switch (p_conv_data->rlc_mode) {
+                case FP_RLC_TM:
+                    rlcinf->mode[0] = RLC_TM;
+                    break;
+                case FP_RLC_UM:
+                    rlcinf->mode[0] = RLC_UM;
+                    break;
+                case FP_RLC_AM:
+                    rlcinf->mode[0] = RLC_AM;
+                    break;
+                case FP_RLC_MODE_UNKNOWN:
+                default:
+                    rlcinf->mode[0] = RLC_UNKNOWN_MODE;
+                    break;
+            }
+            /* rbid[MAX_RLC_CHANS] */
+            rlcinf->li_size[0] = RLC_LI_7BITS;
+            rlcinf->ciphered[0] = FALSE;
+            rlcinf->deciphered[0] = FALSE;
+            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
 
             return fpi;
 
@@ -3277,12 +3291,12 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
         for (i=0; i<fpi->num_chans; i++) {
             tfi = tvb_get_guint8(tvb,offset);
             if (pinfo->link_dir==P2P_DIR_UL) {
-                fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_tf_size[tfi];
-                fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].ul_chan_num_tbs[tfi];
+                fpi->chan_tf_size[i] = p_conv_data->fp_dch_channel_info[i].ul_chan_tf_size[tfi];
+                fpi->chan_num_tbs[i] = p_conv_data->fp_dch_channel_info[i].ul_chan_num_tbs[tfi];
             }
             else{
-                fpi->chan_tf_size[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_tf_size[tfi];
-                fpi->chan_num_tbs[i] = p_conv_data->fp_dch_chanel_info[i].dl_chan_num_tbs[tfi];
+                fpi->chan_tf_size[i] = p_conv_data->fp_dch_channel_info[i].dl_chan_tf_size[tfi];
+                fpi->chan_num_tbs[i] = p_conv_data->fp_dch_channel_info[i].dl_chan_num_tbs[tfi];
             }
             offset++;
         }

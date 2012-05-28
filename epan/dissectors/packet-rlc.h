@@ -21,15 +21,17 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Defene this in umts_fp instead */
-#if 0
+/* Do not change enum order and append only to keep
+   backward compatibility with UDP framing format */
 enum rlc_mode {
-	RLC_MODE_UNKNOWN,
 	RLC_TM,
 	RLC_UM,
-	RLC_AM
+	RLC_AM,
+	RLC_UNKNOWN_MODE
 };
-#endif
+
+/* Do not change enum order and append only to keep
+   backward compatibility with UDP framing format */
 enum rlc_li_size {
 	RLC_LI_VARIABLE,
 	RLC_LI_7BITS,
