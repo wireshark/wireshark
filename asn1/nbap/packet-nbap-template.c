@@ -39,6 +39,7 @@
 #include "packet-per.h"
 #include "packet-isup.h"
 #include "packet-umts_fp.h"
+#include "packet-rlc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -131,6 +132,16 @@ typedef struct
 } nbap_edch_chanel_info_t;
 
 nbap_edch_chanel_info_t nbap_edch_chanel_info[maxNrOfEDCHMACdFlows];
+
+typedef struct
+{
+	address 		crnc_address;
+    guint16			crnc_port;
+	enum rlc_mode	rlc_mode;
+	guint32			hsdsch_physical_layer_category;
+} nbap_hsdsch_chanel_info_t;
+
+nbap_hsdsch_chanel_info_t nbap_hsdsch_chanel_info[maxNrOfMACdFlows];
 
 gint g_num_dch_in_flow;
 /* maxNrOfTFs					INTEGER ::= 32 */

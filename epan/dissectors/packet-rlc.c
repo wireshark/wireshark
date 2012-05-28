@@ -1799,7 +1799,12 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	fpi  = p_get_proto_data(pinfo->fd, proto_fp);
 	rlci = p_get_proto_data(pinfo->fd, proto_rlc);
 
-	if (!fpi || !rlci) return;
+	if (!fpi || !rlci) {
+		ti = proto_tree_add_text(tree, tvb, 0, -1,
+					 "Can't dissect RLC frame because no per-frame info was attached!");
+		PROTO_ITEM_SET_GENERATED(ti);
+		return;
+	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);

@@ -139,6 +139,7 @@ typedef struct
     gint dchs_in_flow_list[FP_maxNrOfTFs];
 
     guint8  dch_crc_present;            /* 0=No, 1=Yes, 2=Unknown */
+	enum rlc_mode rlc_mode;
 
 	/* DCH type chanel data */
     fp_dch_chanel_info_t fp_dch_chanel_info[FP_maxNrOfTFs];

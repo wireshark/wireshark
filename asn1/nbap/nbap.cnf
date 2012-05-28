@@ -593,6 +593,7 @@ transportFormatSet_type = CPCH;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
+				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
@@ -685,6 +686,7 @@ num_items = 1;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port          = BindingID_port;
 				umts_fp_conversation_info->paging_indications = paging_indications;
+				umts_fp_conversation_info->rlc_mode			  = RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
@@ -782,6 +784,7 @@ transportFormatSet_type = CPCH;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
+				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
@@ -973,6 +976,7 @@ dch_id = 0xFFFFFFFF;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
+				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
@@ -1060,6 +1064,7 @@ BindingID_port = 0;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
+				umts_fp_conversation_info->rlc_mode			 = RLC_MODE_UNKNOWN;
 
 				/* Set address for collection of DDI entries */
 				COPY_ADDRESS(&(nbap_edch_chanel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
@@ -1143,61 +1148,122 @@ guint32 no_ddi_entries, i;
 	}
 	nbap_edch_chanel_info[e_dch_macdflow_id].edch_macd_pdu_size[num_items-1] = MACdPDU_Size;
 
+#.FN_BODY RLC-Mode VAL_PTR = &rlc_mode
+	guint32 rlc_mode;
 
+%(DEFAULT_BODY)s
+	switch(rlc_mode){
+		case 0:
+			/* rLC-AM */
+			nbap_hsdsch_chanel_info[hsdsch_macdflow_id].rlc_mode = RLC_AM;
+			break;
+		case 1:
+			/* rLC-UM */
+			nbap_hsdsch_chanel_info[hsdsch_macdflow_id].rlc_mode = RLC_UM;
+			break;
+	}
 
-#.FN_BODY HSDSCH-MACdFlow-Specific-InfoItem
-
-address 	dst_addr, null_addr;
-conversation_t *conversation;
-umts_fp_conversation_info_t *umts_fp_conversation_info;
-
-transportLayerAddress_ipv4 = 0;
-BindingID_port = 0;
+#.FN_BODY UE-Capability-Information/hSDSCH-Physical-Layer-Category  VAL_PTR = &hsdsch_physical_layer_category
+	guint32 hsdsch_physical_layer_category;
 
 %(DEFAULT_BODY)s
 
-		if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
-		{
-			return offset;
+	nbap_hsdsch_chanel_info[hsdsch_macdflow_id].hsdsch_physical_layer_category = hsdsch_physical_layer_category;
+
+#.FN_BODY HSDSCH-MACdFlow-Specific-InfoItem
+
+	address 	dst_addr;
+	transportLayerAddress_ipv4 = 0;
+	BindingID_port = 0;
+
+%(DEFAULT_BODY)s
+
+	if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+	{
+		return offset;
+	}
+
+	dst_addr.type=AT_IPv4;
+	dst_addr.len=4;
+	dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+	/* Set address for collection of HSDSCH entries */
+	COPY_ADDRESS(&(nbap_hsdsch_chanel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
+	nbap_hsdsch_chanel_info[hsdsch_macdflow_id].crnc_port = BindingID_port;
+
+
+#.FN_BODY HSDSCH-FDD-Information
+/*
+ * Collect the information about the HSDSCH MACdFlows set up conversation(s) and set the conversation data.
+ */
+	address 	null_addr;
+	conversation_t *conversation = NULL;
+	umts_fp_conversation_info_t *umts_fp_conversation_info;
+	guint32 i;
+
+	if (!actx->pinfo->fd->flags.visited){
+		/* Set port to zero use that as an indication of wether we have data or not */
+		for (i = 0; i < maxNrOfMACdFlows; i++) {
+			nbap_hsdsch_chanel_info[i].crnc_port = 0;
+			nbap_hsdsch_chanel_info[i].rlc_mode = RLC_MODE_UNKNOWN;
 		}
-		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+	}
 
-		dst_addr.type=AT_IPv4;
-		dst_addr.len=4;
-		dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+%(DEFAULT_BODY)s
 
-		conversation = find_conversation(actx->pinfo->fd->num,&dst_addr,
-			&null_addr, PT_UDP, BindingID_port,
-			0, NO_ADDR_B|NO_PORT_B);
+	if (actx->pinfo->fd->flags.visited){
+		return offset;
+	}
+	/* Set port to zero use that as an indication of wether we have data or not */
+	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+	for (i = 0; i < maxNrOfMACdFlows; i++) {
+		if (nbap_hsdsch_chanel_info[i].crnc_port != 0){
+			nbap_debug3("HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %%u Look for conv on IP %%s Port %%u", 
+						i, 
+						ep_address_to_str (&(nbap_hsdsch_chanel_info[i].crnc_address)),
+						nbap_hsdsch_chanel_info[i].crnc_port);
+			conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_chanel_info[i].crnc_address), &null_addr,
+                               PT_UDP,
+                               nbap_hsdsch_chanel_info[i].crnc_port, 0, NO_ADDR_B);
 
-		if (conversation == NULL) {
-			/* It's not part of any conversation - create a new one. */
-			conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
-			    &null_addr, PT_UDP,BindingID_port ,
-			    0, NO_ADDR2|NO_PORT2);
 
-			/* Set dissector */
-			conversation_set_dissector(conversation, fp_handle);
+			if (conversation == NULL) {
+				/* It's not part of any conversation - create a new one. */
+				nbap_debug1("HSDSCH-MACdFlows-Information:Set up conv on Port %%u",nbap_hsdsch_chanel_info[i].crnc_port);
+				conversation = conversation_new(actx->pinfo->fd->num, &(nbap_hsdsch_chanel_info[i].crnc_address),
+					&null_addr, PT_UDP, nbap_hsdsch_chanel_info[i].crnc_port,
+					0, NO_ADDR2|NO_PORT2);
 
-			if(actx->pinfo->link_dir==P2P_DIR_DL){
-				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
-				/* Fill in the HSDSCH relevant data */
+				/* Set dissector */
+				conversation_set_dissector(conversation, fp_handle);
 
-				umts_fp_conversation_info->iface_type        = IuB_Interface;
-				umts_fp_conversation_info->division          = Division_FDD;
-				umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
-				umts_fp_conversation_info->dl_frame_number   = 0;
-				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
+				if(actx->pinfo->link_dir==P2P_DIR_DL){
+					umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+					/* Fill in the HSDSCH relevant data */
 
-				/* Cheat and use the DCH entries */
-				umts_fp_conversation_info->num_dch_in_flow = 1;
-				umts_fp_conversation_info->dchs_in_flow_list[0] = hsdsch_macdflow_id;
+					umts_fp_conversation_info->iface_type        = IuB_Interface;
+					umts_fp_conversation_info->division          = Division_FDD;
+					umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
+					umts_fp_conversation_info->dl_frame_number   = 0;
+					umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
+					SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_chanel_info[i].crnc_address);
+					umts_fp_conversation_info->crnc_port         = nbap_hsdsch_chanel_info[i].crnc_port;
 
-				umts_fp_conversation_info->hsdsch_entity = ehs;
-				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+					/* Cheat and use the DCH entries */
+					umts_fp_conversation_info->num_dch_in_flow++;
+					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
+
+					if(nbap_hsdsch_chanel_info[i].hsdsch_physical_layer_category > 12){
+						umts_fp_conversation_info->hsdsch_entity = ehs;
+					}else{
+						umts_fp_conversation_info->hsdsch_entity = hs;
+					}
+					umts_fp_conversation_info->rlc_mode = nbap_hsdsch_chanel_info[i].rlc_mode;
+					set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+				}
 			}
 		}
-
+	}
 
 
 #.REGISTER_NEW

@@ -3153,6 +3153,20 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
     switch (fpi->channel) {
         case CHANNEL_HSDSCH: /* HS-DSCH - High Speed Downlink Shared Channel */
             fpi->hsdsch_entity = p_conv_data->hsdsch_entity;
+            macinf = se_new0(umts_mac_info);
+            macinf->content[0] = MAC_CONTENT_PS_DTCH;
+			p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+
+			rlcinf = se_new0(rlc_info);
+			/* Make configurable ?(avaliable in NBAP?) */
+			/* urnti[MAX_RLC_CHANS] */
+			rlcinf->mode[0] = p_conv_data->rlc_mode;
+			/* rbid[MAX_RLC_CHANS] */
+			rlcinf->li_size[0] = RLC_LI_7BITS;
+			rlcinf->ciphered[0] = FALSE;
+			rlcinf->deciphered[0] = FALSE;
+			p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+
             return fpi;
 
 		case CHANNEL_EDCH:
@@ -3218,7 +3232,7 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
 			rlcinf->li_size[0] = RLC_LI_7BITS;
 			rlcinf->ciphered[0] = FALSE;
 			rlcinf->deciphered[0] = FALSE;
-			p_add_proto_data(pinfo->fd, proto_rlc, macinf);
+			p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
 			break;
         case CHANNEL_RACH_FDD:
             fpi->num_chans = p_conv_data->num_dch_in_flow;

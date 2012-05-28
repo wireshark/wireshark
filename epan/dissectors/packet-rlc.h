@@ -22,6 +22,7 @@
  */
 
 enum rlc_mode {
+	RLC_MODE_UNKNOWN,
 	RLC_TM,
 	RLC_UM,
 	RLC_AM
