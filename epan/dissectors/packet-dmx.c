@@ -1,7 +1,7 @@
 /* packet-dmx.c
  * DMX packet disassembly.
  *
- * $Id: $
+ * $Id$
  *
  * This dissector is written by
  * 
