@@ -207,6 +207,9 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
   guint i;
 
   if (st->ifaces->len == 0) {
+    /*
+     * XXX - do this only if we have a live capture.
+     */
     for (i = 0; i < capture_opts->all_ifaces->len; i++) {
       device = g_array_index(capture_opts->all_ifaces, interface_t, i);
       if (!device.selected) {
