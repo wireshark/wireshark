@@ -593,17 +593,17 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
     switch (rrc_nas_sys_info_gsm_map_type) {
       case RRC_NAS_SYS_INFO_CN_COMMON:
         item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CN Common GSM-MAP NAS system information");
-        subtree = proto_item_add_subtree(item, hf_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+        subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
         de_cn_common_gsm_map_nas_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
         break;
       case RRC_NAS_SYS_INFO_CS:
         item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "CS domain specific system information");
-        subtree = proto_item_add_subtree(item, hf_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+        subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
         de_cs_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
         break;
       case RRC_NAS_SYS_INFO_PS:
         item = proto_tree_add_text(tree, nas_sys_info_gsm_map_tvb, 0, length, "PS domain specific system information");
-        subtree = proto_item_add_subtree(item, hf_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
+        subtree = proto_item_add_subtree(item, ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo);
         de_ps_domain_spec_sys_info(nas_sys_info_gsm_map_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
         break;
       default:

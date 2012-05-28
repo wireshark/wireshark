@@ -96,6 +96,7 @@ static int ett_rrc = -1;
 #include "packet-rrc-ett.c"
 
 static gint ett_rrc_eutraFeatureGroupIndicators = -1;
+static gint ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo = -1;
 
 /* Global variables */
 static proto_tree *top_tree;
@@ -202,6 +203,7 @@ void proto_register_rrc(void) {
     &ett_rrc,
 #include "packet-rrc-ettarr.c"
     &ett_rrc_eutraFeatureGroupIndicators,
+	&ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo,
   };
 
 
