@@ -1922,6 +1922,12 @@ this_was_not_normal_ldap:
 	  /* we are done */
 	  return;
 	}
+	/* Ok it might be a strange case of SASL still
+	 * It has been seen with Exchange setup to MS AD
+	 * when Exchange pretend that there is SASL but in fact data are still
+	 * in clear*/
+	if ((sasl_len + 4) == tvb_length_remaining(tvb, 0))
+		tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
  end:
 	return;
 }
