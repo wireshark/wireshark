@@ -439,6 +439,11 @@ DISSECTOR_SRC = \
 	packet-dlm3.c		\
 	packet-dlsw.c		\
 	packet-dmp.c		\
+	packet-dmx.c		\
+	packet-dmx-chan.c	\
+	packet-dmx-test.c	\
+	packet-dmx-text.c	\
+	packet-dmx-sip.c	\
 	packet-dnp.c		\
 	packet-dns.c		\
 	packet-dplay.c		\

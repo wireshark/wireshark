@@ -519,6 +519,11 @@ set(DISSECTOR_SRC
 	dissectors/packet-dlm3.c
 	dissectors/packet-dlsw.c
 	dissectors/packet-dmp.c
+	dissectors/packet-dmx.c
+	dissectors/packet-dmx-chan.c
+	dissectors/packet-dmx-test.c
+	dissectors/packet-dmx-text.c
+	dissectors/packet-dmx-sip.c
 	dissectors/packet-dnp.c
 	dissectors/packet-dns.c
 	dissectors/packet-dplay.c
