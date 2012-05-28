@@ -1363,8 +1363,9 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
 		      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
   
-  // check for old version that included the 0xCC startcode
-  // The 0xCC will never be the first byte of the RDM packet
+  /* check for old version that included the 0xCC startcode
+   * The 0xCC will never be the first byte of the RDM packet
+   */
   sc = tvb_get_guint8(tvb, offset);
 
   if (sc == 0xCC) {
@@ -1745,7 +1746,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gint offset = 0;
   guint size;
   guint16 opcode;
-  proto_tree *ti,*hi,*si,*artnet_tree=NULL,*artnet_header_tree=NULL;
+  proto_tree *ti = NULL,*hi = NULL,*si = NULL,*artnet_tree=NULL,*artnet_header_tree=NULL;
 
   /* Set the protocol column */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARTNET");
