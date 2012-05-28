@@ -156,7 +156,6 @@ static const gchar *ProcedureID;
 static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id, e_dch_ddi_value;
 static guint32 MACdPDU_Size, commontransportchannelid;
 static guint num_items;
-static gboolean show_conv_data_collection = TRUE;
 static gint paging_indications;
 
 enum TransportFormatSet_type_enum

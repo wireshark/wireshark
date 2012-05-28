@@ -6549,7 +6549,6 @@ static const gchar *ProcedureID;
 static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id, e_dch_ddi_value;
 static guint32 MACdPDU_Size, commontransportchannelid;
 static guint num_items;
-static gboolean show_conv_data_collection = TRUE;
 static gint paging_indications;
 
 enum TransportFormatSet_type_enum
@@ -54116,7 +54115,7 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-nbap-fn.c ---*/
-#line 187 "../../asn1/nbap/packet-nbap-template.c"
+#line 186 "../../asn1/nbap/packet-nbap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -67345,7 +67344,7 @@ void proto_register_nbap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nbap-hfarr.c ---*/
-#line 251 "../../asn1/nbap/packet-nbap-template.c"
+#line 250 "../../asn1/nbap/packet-nbap-template.c"
   };
 
   /* List of subtrees */
@@ -68984,7 +68983,7 @@ void proto_register_nbap(void) {
     &ett_nbap_Outcome,
 
 /*--- End of included file: packet-nbap-ettarr.c ---*/
-#line 259 "../../asn1/nbap/packet-nbap-template.c"
+#line 258 "../../asn1/nbap/packet-nbap-template.c"
   };
 
 
@@ -70115,7 +70114,7 @@ proto_reg_handoff_nbap(void)
 
 
 /*--- End of included file: packet-nbap-dis-tab.c ---*/
-#line 293 "../../asn1/nbap/packet-nbap-template.c"
+#line 292 "../../asn1/nbap/packet-nbap-template.c"
 }
 
 

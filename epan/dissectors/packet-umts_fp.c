@@ -32,9 +32,9 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 
-#include "packet-umts_fp.h"
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
+#include "packet-umts_fp.h"
 
 /* The Frame Protocol (FP) is described in:
  * 3GPP TS 25.427 (for dedicated channels)
