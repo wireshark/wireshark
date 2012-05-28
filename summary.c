@@ -26,6 +26,8 @@
 # include "config.h"
 #endif
 
+#include <wiretap/pcap-encap.h>
+
 #include <epan/packet.h>
 #include "cfile.h"
 #include "summary.h"
@@ -171,7 +173,6 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 }
 
 
-#ifdef HAVE_LIBPCAP
 void
 summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_tally *st)
 {
@@ -202,7 +203,7 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
       iface.drops = cf->drops;
       iface.has_snap = device.has_snaplen;
       iface.snap = device.snaplen;
-      iface.linktype = device.active_dlt;
+      iface.encap_type = wtap_pcap_encap_to_wtap_encap(device.active_dlt);
       g_array_append_val(st->ifaces, iface);
     }
   } else {
@@ -216,7 +217,7 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
       iface.drops = 0;
       iface.snap = wtapng_if_descr.snap_len;
       iface.has_snap = (iface.snap != 65535);
-      iface.linktype = wtapng_if_descr.link_type;
+      iface.encap_type = wtapng_if_descr.wtap_encap;
       if(wtapng_if_descr.num_stat_entries == 1){
           /* dumpcap only writes one ISB, only handle that for now */
           if_stats = &g_array_index(wtapng_if_descr.interface_statistics, wtapng_if_stats_t, 0);
@@ -229,4 +230,3 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
     g_free(idb_info);
   }
 }
-#endif

@@ -38,7 +38,7 @@ typedef struct iface_options_tag {
     gboolean drops_known;    /**< TRUE if number of packet drops is known */
     gboolean has_snap;       /**< TRUE if maximum capture packet length is known */
     int      snap;           /**< Maximum captured packet length */
-    int      linktype;       /**< wiretap encapsulation type */
+    int      encap_type;     /**< wiretap encapsulation type */
 } iface_options;
 
 typedef struct _summary_tally {

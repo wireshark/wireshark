@@ -171,7 +171,6 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkTreeIter    iter;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
-  const char    *dl_description;
   static const char *titles[] = { "Traffic", "Captured", "Displayed", "Marked" };
 
   gchar         string_buff[SUM_STR_MAX];
@@ -388,12 +387,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
         g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
       }
     }
-    dl_description = wtap_encap_string(iface.linktype);
-    if (dl_description != NULL)
-      g_snprintf(string_buff4, SUM_STR_MAX, "%s", dl_description);
-    else
-      g_snprintf(string_buff4, SUM_STR_MAX, "DLT %d", iface.linktype);
-
+    g_snprintf(string_buff4, SUM_STR_MAX, "%s", wtap_encap_string(iface.encap_type));
     g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, 0, string_buff, 1, string_buff2, 2, string_buff3, 3, string_buff4, 4, string_buff5,-1);
