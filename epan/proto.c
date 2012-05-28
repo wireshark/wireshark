@@ -7529,7 +7529,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 			crumb_end_bit_offset = mask_initial_bit_offset
 				+ crumb_spec[i].crumb_bit_offset
 				+ crumb_spec[i].crumb_bit_length;
-			crumb_mask = (1 << crumb_spec[i].crumb_bit_length) - 1;
+			crumb_mask = (G_GUINT64_CONSTANT(1) << crumb_spec[i].crumb_bit_length) - 1;
 
 			if (crumb_end_bit_offset > mask_greatest_bit_offset) {
 				mask_greatest_bit_offset = crumb_end_bit_offset;

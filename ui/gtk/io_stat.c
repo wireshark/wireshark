@@ -414,7 +414,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 						}
 						j--;
 						t -= pt;
-						if(t > io->interval * 1000) {
+						if(t > (guint64) io->interval * 1000) {
 							pt = (guint64) io->interval * 1000;
 						} else {
 							pt = t;
