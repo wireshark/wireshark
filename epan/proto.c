@@ -4443,7 +4443,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	g_hash_table_insert(proto_short_names, (gpointer)short_name, (gpointer)short_name);
 
 	found_invalid = FALSE;
-	for (i = 0; i < strlen(filter_name); i++) {
+	for (i = 0; filter_name[i]; i++) {
 		c = filter_name[i];
 		if (!(islower(c) || isdigit(c) || c == '-' || c == '_' || c == '.')) {
 			found_invalid = TRUE;

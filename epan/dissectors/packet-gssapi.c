@@ -133,7 +133,7 @@ gssapi_oid_hash(gconstpointer k)
 	const char *key = (const char *)k;
 	guint hash = 0, i;
 
-	for (i = 0; i < strlen(key); i++)
+	for (i = 0; key[i]; i++)
 		hash += key[i];
 
 	return hash;

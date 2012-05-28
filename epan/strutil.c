@@ -579,7 +579,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
       is_reserved = TRUE;
     }
 
-    for (i = 0; i < strlen(reserved); i++) {
+    for (i = 0; reserved[i]; i++) {
       if (c == reserved[i])
 	is_reserved = TRUE;
     }
