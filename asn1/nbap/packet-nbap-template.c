@@ -164,7 +164,7 @@ enum TransportFormatSet_type_enum
     DCH_DL,
 	CPCH,
 	FACH,
-	PCH,
+	PCH
 };
 
 enum TransportFormatSet_type_enum transportFormatSet_type;

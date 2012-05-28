@@ -73,6 +73,13 @@ enum fp_link_type
     FP_Link_Ethernet
 };
 
+enum rlc_mode {
+	RLC_MODE_UNKNOWN,
+	RLC_TM,
+	RLC_UM,
+	RLC_AM
+};
+
 /* Info attached to each FP packet */
 typedef struct fp_info
 {

@@ -21,13 +21,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* Defene this in umts_fp instead */
+#if 0
 enum rlc_mode {
 	RLC_MODE_UNKNOWN,
 	RLC_TM,
 	RLC_UM,
 	RLC_AM
 };
-
+#endif
 enum rlc_li_size {
 	RLC_LI_VARIABLE,
 	RLC_LI_7BITS,
