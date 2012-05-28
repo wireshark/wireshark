@@ -309,7 +309,8 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	if (aix) {
 		/*
 		 * Yes.  Skip all the tests for other mutant formats,
-		 * and set the precision to nanosecond precision.
+		 * and for the ERF link-layer header type, and set the
+		 * precision to nanosecond precision.
 		 */
 		wth->file_type = WTAP_FILE_PCAP_AIX;
 		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
@@ -371,13 +372,13 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		case THIS_FORMAT:
 			/*
 			 * Well, it looks as if it might be 991029.
-			 * Put the seek pointer back, and return success.
+			 * Put the seek pointer back, and finish.
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 				g_free(wth->priv);
 				return -1;
 			}
-			return 1;
+			goto done;
 
 		case OTHER_FORMAT:
 			/*
@@ -424,13 +425,13 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 			/*
 			 * Well, it looks as if it might be a standard
 			 * libpcap file.
-			 * Put the seek pointer back, and return success.
+			 * Put the seek pointer back, and finish.
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 				g_free(wth->priv);
 				return -1;
 			}
-			return 1;
+			goto done;
 
 		case OTHER_FORMAT:
 			/*
@@ -462,13 +463,13 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		case THIS_FORMAT:
 			/*
 			 * Well, it looks as if it might be ss990417.
-			 * Put the seek pointer back, and return success.
+			 * Put the seek pointer back, and finish.
 			 */
 			if (file_seek(wth->fh, first_packet_offset, SEEK_SET, err) == -1) {
 				g_free(wth->priv);
 				return -1;
 			}
-			return 1;
+			goto done;
 
 		case OTHER_FORMAT:
 			/*
@@ -491,6 +492,7 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 
+done:
 	/*
 	 * We treat a DLT_ value of 13 specially - it appears that in
 	 * Nokia libpcap format, it's some form of ATM with what I
@@ -503,6 +505,13 @@ int libpcap_open(wtap *wth, int *err, gchar **err_info)
 	if (wth->file_type == WTAP_FILE_PCAP_NOKIA && hdr.network == 13)
 		wth->file_encap = WTAP_ENCAP_ATM_PDUS;
 
+	if (wth->file_encap == WTAP_ENCAP_ERF) {
+		/*
+		 * Populate set of interface IDs for ERF format.
+		 * Currently, this *has* to be done at open time.
+		 */
+		erf_populate_interfaces(wth);
+	}
 	return 1;
 }
 
@@ -670,13 +679,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	    wth->phdr.ts.nsecs = hdr.hdr.ts_usec * 1000;
 	  }
 	} else {
-	  /* update frame.interface_id for ERF format */
+	  /* Set interface ID for ERF format */
 	  wth->phdr.presence_flags |= WTAP_HAS_INTERFACE_ID;
 	  wth->phdr.interface_id = wth->pseudo_header.erf.phdr.flags & 0x03;
-
-	  if(!wth->interface_data) {
-	    erf_populate_interfaces(wth);
-	  }
 	}
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
