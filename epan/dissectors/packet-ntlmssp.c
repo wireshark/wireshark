@@ -313,7 +313,7 @@ static void printnbyte(const guint8* tab,int nb,const char* txt,const char* txt2
   fprintf(stderr,"%s ",txt);
   for(i=0;i<nb;i++)
   {
-    fprintf(stderr,"%02hhX ",*(tab+i));
+    fprintf(stderr,"%02X ",*(tab+i));
   }
   fprintf(stderr,"%s",txt2);
 }

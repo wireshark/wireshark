@@ -2392,7 +2392,7 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	len = tvb_get_guint8(tvb, offset + 1);
 
 
-	di = proto_tree_add_text(tree, tvb, offset, len + 2, "Descriptor Tag=0x%02hhx", tag);
+	di = proto_tree_add_text(tree, tvb, offset, len + 2, "Descriptor Tag=0x%02x", tag);
 	descriptor_tree = proto_item_add_subtree(di, ett_mpeg_descriptor);
 
 	proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_tag, tvb, offset, 1, ENC_BIG_ENDIAN);

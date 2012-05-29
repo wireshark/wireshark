@@ -59,7 +59,7 @@ static void printnbyte(const guint8* tab,int nb,const char* txt,const char* txt2
     debugprintf("%s ",txt);
     for(i=0;i<nb;i++)
     {
-        debugprintf("%02hhX ",*(tab+i));
+        debugprintf("%02X ",*(tab+i));
     }
     debugprintf("%s",txt2);
 }
