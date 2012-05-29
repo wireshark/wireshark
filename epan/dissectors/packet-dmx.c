@@ -149,16 +149,15 @@ proto_register_dmx(void)
 	proto_dmx = proto_register_protocol("DMX", "DMX", "dmx");
 	proto_register_field_array(proto_dmx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_dissector("dmx", dissect_dmx, proto_dmx);
 }
 
 void
 proto_reg_handoff_dmx(void)
 {
 	static gboolean dmx_initialized = FALSE;
-	static dissector_handle_t dmx_handle;
 
 	if (!dmx_initialized) {
-		dmx_handle = create_dissector_handle(dissect_dmx, proto_dmx);
 		rdm_handle = find_dissector("rdm");
 		dmx_test_handle = find_dissector("dmx-chan");
 		dmx_test_handle = find_dissector("dmx-test");
