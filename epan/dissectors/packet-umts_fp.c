@@ -520,7 +520,7 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Dissect dedicated channels */
 static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                        int offset, struct fp_info *p_fp_info,
-                                       gboolean is_common);
+                                       gboolean is_common, rlc_info  *rlcinf);
 
 static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                     int offset, struct fp_info *p_fp_info,
@@ -2279,7 +2279,7 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /* Dissect an E-DCH channel       */
 static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                        int offset, struct fp_info *p_fp_info,
-                                       gboolean is_common)
+                                       gboolean is_common, rlc_info  *rlcinf)
 {
     gboolean is_control_frame;
     guint8   number_of_subframes;
@@ -2391,6 +2391,9 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                 /* DDI (6 bits) */
                 ddi_ti = proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
                                                      offset*8 + bit_offset, 6, &ddi, ENC_BIG_ENDIAN);
+				if(rlcinf){
+					rlcinf->rbid[i] = (guint8)ddi;
+				}
 
                 /* Look up the size from this DDI value */
                 for (p=0; p < p_fp_info->no_ddi_entries; p++) {
@@ -3189,8 +3192,21 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
 				fpi->edch_ddi[i] = p_conv_data->edch_ddi[i];
 				fpi->edch_macd_pdu_size[i] = p_conv_data->edch_macd_pdu_size[i];
 			}
+
 			fpi->edch_type = p_conv_data->edch_type;
-            return fpi;
+
+            macinf = se_new0(umts_mac_info);
+            macinf->content[0] = MAC_CONTENT_PS_DTCH;
+            p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
+
+			rlcinf = se_new0(rlc_info);
+			rlcinf->mode[0] = RLC_AM;
+            rlcinf->li_size[0] = RLC_LI_7BITS;
+            rlcinf->ciphered[0] = FALSE;
+            rlcinf->deciphered[0] = FALSE;
+            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+
+			return fpi;
 
         case CHANNEL_PCH:
 			fpi->paging_indications = p_conv_data->paging_indications;
@@ -3313,6 +3329,7 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item       *ti;
     gint              offset = 0;
     struct fp_info   *p_fp_info;
+	rlc_info         *rlcinf;
     conversation_t   *p_conv;
     umts_fp_conversation_info_t *p_conv_data = NULL;
 
@@ -3366,6 +3383,8 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
         return;
     }
+
+	rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
 
     /* Show release information */
     if (preferences_show_release_info) {
@@ -3528,7 +3547,7 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case CHANNEL_EDCH:
         case CHANNEL_EDCH_COMMON:
             dissect_e_dch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info,
-                                       p_fp_info->channel == CHANNEL_EDCH_COMMON);
+                                       p_fp_info->channel == CHANNEL_EDCH_COMMON, rlcinf);
             break;
 
         default:

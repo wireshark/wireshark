@@ -437,7 +437,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     fpinf = p_get_proto_data(pinfo->fd, proto_fp);
     macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
     pos = fpinf->cur_tb;
-    if (!macinf) {
+    if (!macinf|| !fpinf) {
         proto_tree_add_text(edch_tree, tvb, 0, -1,
             "Cannot dissect MAC frame because per-frame info is missing");
         return;
