@@ -83,6 +83,7 @@ download_file(const char *url, const char *filename) {
     /* connect to url */
     conn = netio_ie5_connect (url);
     if (conn == NULL) {
+        ws_close(fd);
         g_warning("Couldn't connect to %s!", url);
         return -1;
     }

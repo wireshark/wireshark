@@ -812,7 +812,10 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	last_item = first_item+display_items-1;
 
 	/* if no items to display */
-	if (display_items == 0)	return;
+	if (display_items == 0)	{
+		g_free(time_str);
+		return;
+	}
 
 
 	/* Calculate the x borders */
