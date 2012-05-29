@@ -1714,9 +1714,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,
         offset += len_field-1;
     }
 
-    if (ti)
-        proto_item_set_len(ti, offset-offset_start);
-
+    proto_item_set_len(ti, offset-offset_start);
     return offset-offset_start;
 }
 
@@ -1806,9 +1804,8 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             break;
     }
     offset += dat_len;
-    if (ti)
-        proto_item_set_len(ti, offset-offset_start);
 
+    proto_item_set_len(ti, offset-offset_start);
     return offset-offset_start;
 }
 
@@ -2079,8 +2076,7 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         offset += (len_byte-4);
     }
 
-    if (ti)
-        proto_item_set_len(ti, offset-offset_start);
+    proto_item_set_len(ti, offset-offset_start);
     return offset-offset_start;
 }
 
@@ -2132,8 +2128,7 @@ dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
                 "No CA descriptors for this elementary stream");
     }
 
-    if (ti)
-        proto_item_set_len(ti, offset-offset_start);
+    proto_item_set_len(ti, offset-offset_start);
     return offset-offset_start;
 }
 
@@ -2168,8 +2163,7 @@ dissect_dvbci_text(const gchar *title, tvbuff_t *tvb, gint offset,
     dissect_si_string(tvb, offset, len_field, pinfo, text_tree, "Text", FALSE);
     offset += len_field;
 
-    if (ti)
-        proto_item_set_len(ti, offset-offset_start);
+    proto_item_set_len(ti, offset-offset_start);
     return (offset-offset_start);
 }
 
@@ -4289,8 +4283,7 @@ dissect_dvbci_cis(tvbuff_t *tvb, gint offset,
         offset += tpl_len;
     } while ((tvb_reported_length_remaining(tvb, offset) > 0) && (tpl_code != CISTPL_END));
 
-    if (ti_main)
-        proto_item_set_len(ti_main, offset-offset_start);
+    proto_item_set_len(ti_main, offset-offset_start);
  }
 
 
