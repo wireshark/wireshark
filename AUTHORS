@@ -3653,3 +3653,8 @@ snax <snax[AT]shmoo.com> gave permission to use his(?) weak key
 detection code from Airsnort.
 
 IANA gave permission for their port-numbers file to be used.
+
+Deepti Ragha	<dlragha [AT] ncsu.edu> {
+	Additions to ARP dissector to support opcodes as specified by IANA in
+http://www.iana.org/assignments/arp-parameters/arp-parameters.xml	
+}
