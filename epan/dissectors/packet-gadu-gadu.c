@@ -597,7 +597,7 @@ dissect_gadu_gadu_login_hash(tvbuff_t *tvb, proto_tree *tree, int offset)
 			break;
 
 		default:
-			proto_tree_add_bytes(tree, hf_gadu_gadu_data, tvb, offset, 64, ENC_NA);
+			proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 64, ENC_NA);
 			break;
 	}
 	offset += 64;
