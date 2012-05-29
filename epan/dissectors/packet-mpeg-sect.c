@@ -104,6 +104,12 @@ enum {
 	TID_ETV_DDB  = 0xE4
 };
 
+/* From ETSI TS 102 899 */
+enum {
+	TID_AIT = 0x74
+};
+
+
 static const value_string mpeg_sect_table_id_vals[] = {
 
 	{ TID_PAT,         "Program Association Table (PAT)" },
@@ -123,6 +129,7 @@ static const value_string mpeg_sect_table_id_vals[] = {
 	{ TID_RST,         "Running Status Table (RST)" },
 	{ TID_ST,          "Stuffing Table (ST)" },
 	{ TID_TOT,         "Time Offset Table (TOT)" },
+	{ TID_AIT,         "Application Information Table (AIT)" },
 	{ TID_SCT,         "Superframe Composition Table (SCT)" },
 	{ TID_FCT,         "Frame Composition Table (FCT)" },
 	{ TID_TCT,         "Time-Slot Composition Table (TCT)" },
@@ -232,7 +239,7 @@ packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
 }
 
 
-void
+guint
 packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 		     proto_tree *tree, guint start, guint end)
 {
@@ -262,6 +269,8 @@ packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 		expert_add_info_format( pinfo, msg_error, PI_MALFORMED,
 					PI_ERROR, "Invalid CRC" );
 	}
+
+   return 4;
 }
 
 

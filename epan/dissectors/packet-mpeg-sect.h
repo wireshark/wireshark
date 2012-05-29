@@ -61,7 +61,7 @@ packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
 /*
  *  Used to process the mpeg CRC information & report erorrs found with it.
  */
-extern void
+extern guint
 packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 						proto_tree *tree, guint start, guint end);
 #endif
