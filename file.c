@@ -4029,7 +4029,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
   return CF_OK;
 
 fail:
-  if (fname_new == NULL) {
+  if (fname_new != NULL) {
     /* We were trying to write to a temporary file; get rid of it if it
        exists.  (We don't care whether this fails, as, if it fails,
        there's not much we can do about it.  I guess if it failed for
@@ -4142,7 +4142,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   return CF_OK;
 
 fail:
-  if (fname_new == NULL) {
+  if (fname_new != NULL) {
     /* We were trying to write to a temporary file; get rid of it if it
        exists.  (We don't care whether this fails, as, if it fails,
        there's not much we can do about it.  I guess if it failed for
