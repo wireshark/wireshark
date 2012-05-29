@@ -138,6 +138,10 @@ static int hf_scsi_sbc_lbppbe			= -1;
 static int hf_scsi_sbc_lbpme			= -1;
 static int hf_scsi_sbc_lbprz			= -1;
 static int hf_scsi_sbc_lalba			= -1;
+static int hf_scsi_sbc_get_lba_status_lba	= -1;
+static int hf_scsi_sbc_get_lba_status_data_length = -1;
+static int hf_scsi_sbc_get_lba_status_num_blocks = -1;
+static int hf_scsi_sbc_get_lba_status_provisioning_status = -1;
 
 static gint ett_scsi_format_unit		= -1;
 static gint ett_scsi_prefetch			= -1;
@@ -158,7 +162,7 @@ static gint ett_scsi_wrverify			= -1;
 static gint ett_scsi_writesame			= -1;
 static gint ett_scsi_unmap			= -1;
 static gint ett_scsi_unmap_block_descriptor	= -1;
-
+static gint ett_scsi_lba_status_descriptor      = -1;
 
 
 static const true_false_string dpo_tfs = {
@@ -703,6 +707,13 @@ static const value_string scsi_ptype_val[] = {
     {0, NULL},
 };
 
+static const value_string scsi_provisioning_type_val[] = {
+    {0x0, "The LBA is MAPPED" },
+    {0x1, "The LBA is DEALLOCATED" },
+    {0x2, "The LBA is ANCHORED" },
+    {0, NULL},
+};
+
 void
 dissect_sbc_startstopunit (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                             guint offset, gboolean isreq _U_, gboolean iscdb,
@@ -1195,6 +1206,7 @@ const value_string service_action_vals[] = {
 	{EXTENDED_FORM,              "Extended Form"},
 	{SERVICE_READ_CAPACITY16,    "Read Capacity(16)"},
 	{SERVICE_READ_LONG16,	     "Read Long(16)"},
+	{SERVICE_GET_LBA_STATUS,     "Get LBA Status"},
 	{0, NULL}
 };
 
@@ -1277,6 +1289,28 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
 		offset++;
 
 		break;
+	case SERVICE_GET_LBA_STATUS:
+        	proto_tree_add_text (tree, tvb, offset, 1,
+                             "Service Action: %s",
+                             val_to_str (service_action,
+                                         service_action_vals,
+                                         "Unknown (0x%02x)"));
+		offset++;
+
+		proto_tree_add_item (tree, hf_scsi_sbc_get_lba_status_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
+		offset += 8;
+
+	        proto_tree_add_item (tree, hf_scsi_sbc_alloclen32, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+
+		/* reserved */
+		offset++;
+
+		proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_control,
+			ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+		offset++;
+
+		break;
 	};
     } else if (!iscdb) {
         if(cdata && cdata->itlq){
@@ -1309,6 +1343,46 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                 proto_tree_add_item (tree, hf_scsi_sbc_lalba, tvb, offset+14, 2, ENC_BIG_ENDIAN);
 
                 break;
+	    case SERVICE_GET_LBA_STATUS:
+		proto_tree_add_item (tree, hf_scsi_sbc_get_lba_status_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+                block_len = tvb_get_ntohl (tvb, offset);
+		offset += 4;
+
+		/* reserved */
+		offset += 4;
+
+		while (tvb_length_remaining(tvb, offset) >= 16) {
+			proto_tree *tr;
+			proto_item *it;
+			guint64 lba;
+			guint32 num_blocks;
+			guint8  type;
+
+			it = proto_tree_add_text(tree, tvb, offset, 16, "LBA Status Descriptor:  ");
+			tr = proto_item_add_subtree(it, ett_scsi_lba_status_descriptor);
+
+			proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_lba, tvb, offset, 8, ENC_BIG_ENDIAN);
+			lba = tvb_get_ntoh64(tvb, offset);
+			offset += 8;
+
+			proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_num_blocks, tvb, offset, 4, ENC_BIG_ENDIAN);
+			num_blocks = tvb_get_ntohl(tvb, offset);
+			offset += 4;
+
+			proto_tree_add_item (tr, hf_scsi_sbc_get_lba_status_provisioning_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+			type = tvb_get_guint8(tvb, offset) & 0x07;
+			offset++;
+
+			/* reserved */
+			offset += 3;
+
+			proto_item_append_text (it, "%" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u  %s",
+				lba,
+				lba + num_blocks - 1,
+				val_to_str(type, scsi_provisioning_type_val, "Unknown (0x%02x)")
+				);
+		}
+	        break;
             }
         }
     }
@@ -1914,6 +1988,18 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_lalba,
           {"LOWEST_ALIGNED_LBA", "scsi.sbc.lalba", FT_UINT16, BASE_DEC,
            NULL, 0x3fff, NULL, HFILL}},
+        { &hf_scsi_sbc_get_lba_status_lba,
+          {"LBA", "scsi.sbc.get_lba_status.start_lba", FT_UINT64, BASE_DEC,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_get_lba_status_data_length,
+          {"Data Length", "scsi.sbc.get_lba_status.data_length", FT_UINT32, BASE_DEC,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_sbc_get_lba_status_num_blocks,
+          {"Num Blocks", "scsi.sbc.get_lba_status.num_blocks", FT_UINT32, BASE_DEC,
+           NULL, 0, NULL, HFILL}},
+	{ &hf_scsi_sbc_get_lba_status_provisioning_status,
+          {"Provisioning Type", "scsi.sbc.get_lba_status.provisioning_type", FT_UINT8, BASE_DEC,
+           VALS(scsi_provisioning_type_val), 0x07, NULL, HFILL}},
 	};
 
 
@@ -1937,7 +2023,8 @@ proto_register_scsi_sbc(void)
 		&ett_scsi_wrverify,
 		&ett_scsi_writesame,
 		&ett_scsi_unmap,
-		&ett_scsi_unmap_block_descriptor
+		&ett_scsi_unmap_block_descriptor,
+		&ett_scsi_lba_status_descriptor
 	};
 
 	/* Register the protocol name and description */

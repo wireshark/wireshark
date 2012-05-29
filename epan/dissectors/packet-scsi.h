@@ -224,6 +224,7 @@ extern int hf_scsi_alloclen16;
 #define EXTENDED_FORM              0x08
 #define SERVICE_READ_CAPACITY16	   0x10
 #define SERVICE_READ_LONG16	   0x11
+#define SERVICE_GET_LBA_STATUS     0x12
 
 extern const value_string service_action_vals[];
 extern const value_string scsi_devid_codeset_val[];
