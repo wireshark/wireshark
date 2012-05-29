@@ -77,13 +77,33 @@ static const value_string iso7816_atr_init_char[] = {
 };
 
 static const value_string iso7816_ins[] = {
+    /* instructions defined in ISO 7816-4 */
     { 0x0E, "Erase binary" },
     { 0x20, "Verify" },
     { 0x70, "Manage channel" },
     { 0x82, "External authenticate" },
     { 0xA4, "Select file" },
-    /* other values will be added */
+    { 0xB0, "Read binary" },
+    { 0xB2, "Read records" },
+    { 0xC0, "Get response" },
+    { 0xC2, "Envelope" },
+    { 0xCA, "Get data" },
+    { 0xD0, "Write binary" },
+    { 0xD2, "Write record" },
+    { 0xD6, "Update binary" },
+    { 0xDA, "Put data" },
+    { 0xDC, "Update record" },
+    { 0xE2, "Append record" },
     { 0, NULL }
+};
+
+static const range_string iso7816_sw1[] = {
+  { 0x61, 0x61, "Normal processing" },
+  { 0x62, 0x63, "Warning processing" },
+  { 0x64, 0x65, "Execution error" },
+  { 0x67, 0x6F, "Checking error" },
+  { 0x90, 0x90, "Normal processing" },
+  { 0,0,  NULL }
 };
 
 
@@ -191,17 +211,37 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
+dissect_iso7816_le(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8      le;
+    proto_item *le_item;
+
+    le = tvb_get_guint8(tvb, offset);
+    le_item = proto_tree_add_item(
+            tree, hf_iso7816_le, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (le==0)
+        proto_item_append_text(le_item, " (maximum number of available bytes)");
+
+    return 1;
+}
+
+
+static int
 dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint   offset = 0;
+    guint8 ins;
     gint   body_len;
     guint8 lc;
 
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Command APDU");
 
     proto_tree_add_item(tree, hf_iso7816_cla, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    ins = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_iso7816_ins, tvb, offset, 1, ENC_BIG_ENDIAN);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+            val_to_str_const(ins, iso7816_ins, "Unknown instruction"));
     offset++;
     proto_tree_add_item(tree, hf_iso7816_p1, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -214,9 +254,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* nothing to do for body_len==0 */
     if (body_len==1) {
-        proto_tree_add_item(
-                tree, hf_iso7816_le, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
+        offset += dissect_iso7816_le(tvb, offset, pinfo, tree);
     }
     else if (body_len>1) {
         lc = tvb_get_guint8(tvb, offset);
@@ -228,9 +266,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += lc;
         }
         if (tvb_reported_length_remaining(tvb, offset)>0) {
-            proto_tree_add_item(
-                    tree, hf_iso7816_le, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
+            offset += dissect_iso7816_le(tvb, offset, pinfo, tree);
         }
     }
 
@@ -407,8 +443,8 @@ proto_register_iso7816(void)
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_iso7816_sw1,
-            { "Status Word SW1", "iso7816.apdu.sw1",
-                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+            { "Status Word SW1", "iso7816.apdu.sw1", FT_UINT8,
+                BASE_RANGE_STRING|BASE_HEX, RVALS(iso7816_sw1), 0, NULL, HFILL }
         },
         { &hf_iso7816_sw2,
             { "Status Word SW2", "iso7816.apdu.sw2",
