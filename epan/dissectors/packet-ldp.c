@@ -11,6 +11,8 @@
  * (c) Copyright 2011, Shobhank Sharma <ssharma5@ncsu.edu>
  *   -  update the VCCV bitmaps as per RFC 5885
  *
+ * (c) Copyright 2012, Aditya Ambadkar and Diana Chris <arambadk,dvchris@ncsu.edu>
+ *   -  support for the flowlabel sub-tlv as per RFC 6391
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -184,6 +186,9 @@ static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1 = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2 = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3 = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_flowlabel_t = -1;                    /* Flow label interface parameter RFC6391 */
+static int hf_ldp_tlv_fec_vc_intparam_flowlabel_r = -1;                    /* Flow label interface parameter RFC6391 */
+static int hf_ldp_tlv_fec_vc_intparam_flowlabel_res = -1;                  /* Flow label interface parameter RFC6391 */
 static int hf_ldp_tlv_lspid_act_flg = -1;
 static int hf_ldp_tlv_lspid_cr_lsp = -1;
 static int hf_ldp_tlv_lspid_ldpid = -1;
@@ -274,7 +279,6 @@ static int hf_ldp_tlv_intparam_vccv_cctype_ttl1 = -1;
 static int hf_ldp_tlv_intparam_vccv_cvtype_icmpping = -1;
 static int hf_ldp_tlv_intparam_vccv_cvtype_lspping = -1;
 static int hf_ldp_tlv_intparam_vccv_cvtype_bfd = -1;
-
 
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
@@ -587,8 +591,7 @@ static const true_false_string fec_vc_tdmopt_f = {
 #define FEC_VC_INTERFACEPARAM_FCSRETENT    0x0A
 #define FEC_VC_INTERFACEPARAM_TDMOPTION    0x0B
 #define FEC_VC_INTERFACEPARAM_VCCV         0x0C
-
-
+#define FEC_VC_INTERFACEPARAM_FLOWLABEL    0x17
 
 static const value_string fec_vc_interfaceparm[] = {
   {FEC_VC_INTERFACEPARAM_MTU,           "MTU"},
@@ -603,6 +606,7 @@ static const value_string fec_vc_interfaceparm[] = {
   {FEC_VC_INTERFACEPARAM_FCSRETENT,     "FCS retention indicator"},
   {FEC_VC_INTERFACEPARAM_TDMOPTION,     "TDM options"},
   {FEC_VC_INTERFACEPARAM_VCCV,          "VCCV"},
+  {FEC_VC_INTERFACEPARAM_FLOWLABEL,     "Flow Label"},
   {0, NULL},
 };
 
@@ -611,7 +615,10 @@ static const true_false_string fec_vc_cbit = {
     "Control Word NOT Present"
 };
 
-
+static const true_false_string fec_vc_ = {
+    "Control Word Present",
+    "Control Word NOT Present"
+};
 
 static const value_string tlv_atm_merge_vals[] = {
     {0, "Merge not supported"},
@@ -877,7 +884,10 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
         &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1,
         &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
         &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
-        &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4
+        &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
+        &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
+        &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
+        &hf_ldp_tlv_fec_vc_intparam_flowlabel_res,
     };
 
     proto_tree *ti, *val_tree, *fec_tree=NULL;
@@ -2760,7 +2770,10 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
         32 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1,
         33 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
         34 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
-        35 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4
+        35 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
+        36 - hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
+        37 - hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
+        38 - hf_ldp_tlv_fec_vc_intparam_flowlabel_res
     };
 #endif
     proto_tree *ti = proto_tree_add_text(tree, tvb, offset, rem, "Interface Parameter");
@@ -2854,6 +2867,12 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
         proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[30], tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[31], tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[32], tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        break;
+    case FEC_VC_INTERFACEPARAM_FLOWLABEL:
+        proto_item_append_text(ti,": Flow Label for Pseudowire");
+        proto_tree_add_item(vcintparam_tree, *interface_parameters_hf[36], tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcintparam_tree, *interface_parameters_hf[37], tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcintparam_tree, *interface_parameters_hf[38], tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     default: /* unknown */
         proto_item_append_text(ti," unknown");
@@ -3560,6 +3579,15 @@ proto_register_ldp(void)
 	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
           { "BFD BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd4", FT_BOOLEAN, 8,
             NULL, 0x20, "VC FEC Interface Param VCCV CV Type BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
+
+	{ &hf_ldp_tlv_fec_vc_intparam_flowlabel_t,
+          { "Flow Label Transmit bit", "ldp.msg.tlv.fec.vc.intparam.flowlabel.t", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL}},
+
+	{ &hf_ldp_tlv_fec_vc_intparam_flowlabel_r,
+          { "Flow Label Receive bit", "ldp.msg.tlv.fec.vc.intparam.flowlabel.r", FT_UINT8, BASE_DEC, NULL, 0x40, NULL, HFILL}},
+
+    { &hf_ldp_tlv_fec_vc_intparam_flowlabel_res,
+          { "Flow Label Reserved", "ldp.msg.tlv.fec.vc.intparam.flowlabel.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL}},
 
         { &hf_ldp_tlv_lspid_act_flg,
           { "Action Indicator Flag", "ldp.msg.tlv.lspid.actflg", FT_UINT16, BASE_HEX,

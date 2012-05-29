@@ -24,6 +24,9 @@
  *     - Identification of BFD CC, BFD CV and ON-Demand CV ACH types as per RFC 6428, RFC 6426
  *       respectively and the corresponding decoding of messages
  *
+ * (c) Copyright 2012, Aditya Ambadkar and Diana Chris <arambadk,dvchris@ncsu.edu>
+ *   -  Added preference to select BOS label as flowlabel as per RFC 6391
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -210,6 +213,9 @@ static enum_val_t mpls_default_payload_defs[] = {
         ,-1
     }
 };
+
+/* For RFC6391 - Flow aware transport of pseudowire over a mpls PSN*/
+static gboolean mpls_bos_flowlabel = FALSE;
 
 static int hf_mpls_label;
 static int hf_mpls_label_special;
@@ -565,7 +571,11 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ti = proto_tree_add_item(tree, proto_mpls, tvb, offset, 4, ENC_NA);
             mpls_tree = proto_item_add_subtree(ti, ett_mpls);
 
-            proto_item_append_text(ti, ", Label: %u", label);
+            if (mpls_bos_flowlabel) {
+                proto_item_append_text(ti, ", Label: %u (Flow Label)", label);
+            } else {
+                proto_item_append_text(ti, ", Label: %u", label);
+            }
             if (label <= LABEL_MAX_RESERVED){
                 proto_tree_add_item(mpls_tree, hf_mpls_label_special, tvb,
                                     offset, 4, ENC_BIG_ENDIAN);
@@ -773,6 +783,13 @@ proto_register_mpls(void)
                                    &mpls_default_payload,
                                    mpls_default_payload_defs,
                                    FALSE );
+
+    /* RFC6391: Flow aware transport of pseudowire*/
+    prefs_register_bool_preference(module_mpls,
+                                    "flowlabel_in_mpls_header",
+                                    "Assume bottom of stack label as Flow label",
+                                    "Lowest label is used to segregate flows inside a pseudowire",
+                                    &mpls_bos_flowlabel);
     }
 
 void

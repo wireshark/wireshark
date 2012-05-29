@@ -3407,6 +3407,14 @@ Bill Schiller		<bill.schiller [AT] emerson.com> {
 	HART/IP dissector
 }
 
+Aditya Ambadkar     <arambadk [AT] ncsu.edu> {
+    Support for flow label sub-tlv according to RFC 6391
+}
+
+Diana Chris         <dvchris [AT] ncsu.edu> {
+    Support for flow label sub-tlv according to RFC 6391
+}
+
 Guy Martin		<gmsoft [AT] tuxicoman.be> {
 	DVB-DATA MultiProtocol Encapsulation dissector
 	DVB Event Information Table (EIT) dissector
