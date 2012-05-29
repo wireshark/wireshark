@@ -410,6 +410,9 @@ File "..\..\epan\wslua\dtd_gen.lua"
 !ifdef SMI_DIR
 File "..\..\wireshark-gtk2\libsmi-2.dll"
 !endif
+!ifdef GEOIP_DIR
+File "..\..\wireshark-gtk2\libGeoIP-1.dll"
+!endif
 File "..\..\wireshark-gtk2\COPYING.txt"
 File "..\..\wireshark-gtk2\NEWS.txt"
 File "..\..\wireshark-gtk2\README.txt"

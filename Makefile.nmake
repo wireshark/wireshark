@@ -900,7 +900,7 @@ process_libs:
 !ENDIF
 !IFDEF GEOIP_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		. GeoIP-1.4.6-$(WIRESHARK_TARGET_PLATFORM)ws.zip
+		GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip
 !ENDIF
 !IFDEF HHC_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
@@ -973,6 +973,7 @@ clean_setup:
     rm -r -f AirPcap_Devpack_4_1_0_1622
     rm -r -f GeoIP-1.4.5ws
     rm -r -f GeoIP-1.4.6-win??ws
+    rm -r -f GeoIP-1.4.8-win??ws
     rm -r -f WpdPack
     cd "$(MAKEDIR)"
 
@@ -1191,6 +1192,9 @@ install-all: install-generated-files
 	xcopy "$(SMI_DIR)\share\mibs\tubs\*" $(INSTALL_DIR)\snmp\mibs /d
 	xcopy "$(SMI_DIR)\share\pibs\*" $(INSTALL_DIR)\snmp\mibs /d
 	xcopy "$(SMI_DIR)\share\yang\*.yang" $(INSTALL_DIR)\snmp\mibs /d
+!ENDIF
+!IFDEF GEOIP_DIR
+	xcopy "$(GEOIP_DIR)\bin\libGeoip-1.dll" $(INSTALL_DIR) /d
 !ENDIF
 	cd $(INSTALL_DIR)
 	peflags --dynamicbase=true --nxcompat=true *.dll

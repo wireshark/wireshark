@@ -406,7 +406,7 @@ SMI_PKG=svn-40773
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-GEOIP_DIR=$(WIRESHARK_LIB_DIR)\GeoIP-1.4.6-win32ws\libGeoIP
+GEOIP_PKG=1.4.8
 
 !else
 ##### Win64 Libraries #####
@@ -615,7 +615,7 @@ SMI_PKG=svn-40773
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-GEOIP_DIR=$(WIRESHARK_LIB_DIR)\GeoIP-1.4.6-win64ws\libGeoIP
+GEOIP_PKG=1.4.8
 
 !endif
 
@@ -1322,12 +1322,14 @@ SMI_CFLAGS=
 SMI_CONFIG=
 !ENDIF
 
-!IFDEF GEOIP_DIR
+!IFDEF GEOIP_PKG
+GEOIP_DIR=$(WIRESHARK_LIB_DIR)\GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws
 GEOIP_CONFIG=^#define HAVE_GEOIP 1
 GEOIP_V6_CONFIG=^#define HAVE_GEOIP_V6 1
-GEOIP_CFLAGS=/I$(GEOIP_DIR)
-GEOIP_LIBS=$(GEOIP_DIR)\GeoIP.lib
+GEOIP_CFLAGS=/I$(GEOIP_DIR)/include
+GEOIP_LIBS=$(GEOIP_DIR)\lib\libGeoIP-1.lib
 !ELSE
+GEOIP_DIR=
 GEOIP_LIBS=
 GEOIP_CFLAGS=
 GEOIP_CONFIG=
