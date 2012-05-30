@@ -2762,6 +2762,7 @@ static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
 static gint ett_lte_rrc_featureGroupIndRel10 = -1;
 static gint ett_lte_rrc_neighCellConfig = -1;
 static gint ett_lte_rrc_absTimeInfo = -1;
+static gint ett_lte_rrc_nas_SecurityParam = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
@@ -15033,7 +15034,7 @@ dissect_lte_rrc_T_nas_SecurityParamFromEUTRA(tvbuff_t *tvb _U_, int offset _U_, 
 
   length = tvb_length(nas_sec_param_from_eutra_tvb);
   item = proto_tree_add_text(tree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
-  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamFromEUTRA);
+  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
   de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 
 
@@ -17664,7 +17665,7 @@ dissect_lte_rrc_T_nas_SecurityParamToEUTRA(tvbuff_t *tvb _U_, int offset _U_, as
 
   length = tvb_length(nas_sec_param_to_eutra_tvb);
   item = proto_tree_add_text(tree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
-  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamToEUTRA);
+  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
   de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 
 
@@ -27267,7 +27268,7 @@ static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, p
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 1674 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1675 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -34061,7 +34062,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 1779 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 1780 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -35310,7 +35311,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2170 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2171 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -35352,7 +35353,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2196 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2197 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 

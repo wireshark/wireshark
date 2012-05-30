@@ -573,7 +573,7 @@ if(ue_eutra_cap_tvb){
 %(DEFAULT_BODY)s
   length = tvb_length(nas_sec_param_from_eutra_tvb);
   item = proto_tree_add_text(tree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
-  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamFromEUTRA);
+  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
   de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 
 #.FN_BODY SecurityConfigHO/handoverType/interRAT/nas-SecurityParamToEUTRA VAL_PTR = &nas_sec_param_to_eutra_tvb
@@ -585,7 +585,7 @@ if(ue_eutra_cap_tvb){
 %(DEFAULT_BODY)s
   length = tvb_length(nas_sec_param_to_eutra_tvb);
   item = proto_tree_add_text(tree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
-  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamToEUTRA);
+  subtree = proto_item_add_subtree(item, ett_lte_rrc_nas_SecurityParam);
   de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 
 #.FN_BODY SI-OrPSI-GERAN VAL_PTR = &lte_rrc_si_or_psi_geran_val

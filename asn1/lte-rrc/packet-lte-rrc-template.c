@@ -169,6 +169,7 @@ static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
 static gint ett_lte_rrc_featureGroupIndRel10 = -1;
 static gint ett_lte_rrc_neighCellConfig = -1;
 static gint ett_lte_rrc_absTimeInfo = -1;
+static gint ett_lte_rrc_nas_SecurityParam = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
