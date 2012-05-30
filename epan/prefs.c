@@ -2577,6 +2577,13 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
 	find_index_from_string_array(value, gui_layout_content_text, 0);
   } else if (strcmp(pref_name, PRS_CONSOLE_LOG_LEVEL) == 0) {
     prefs.console_log_level = strtoul(value, NULL, 10);
+    if (prefs.console_log_level & G_LOG_LEVEL_INFO|G_LOG_LEVEL_DEBUG) {
+	/*
+	 * GLib >= 2.32 drops INFO and DEBUG messages by default. Tell
+	 * it not to do that.
+	 */
+	g_setenv("G_MESSAGES_DEBUG", "all", TRUE);
+    }
 
 /* handle the capture options */
   } else if (strcmp(pref_name, PRS_CAP_DEVICE) == 0) {

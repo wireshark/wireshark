@@ -29,6 +29,8 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
+WIRESHARK_CMD="$WIRESHARK -k"
+
 capture_test_output_print() {
 	wait
 	for f in "$@"; do
@@ -201,17 +203,40 @@ capture_step_fifo() {
 
 # capture packets via a fifo
 capture_step_stdin() {
+        CONSOLE_LOG_ARGS=""
+        if [ "$DUT" == "$WIRESHARK_CMD" -a "$WS_SYSTEM" == "Windows" ] ; then
+            CONSOLE_LOG_ARGS="-o console.log.level:127"
+        fi
+
 	(cat "${CAPTURE_DIR}dhcp.pcap"; sleep 1; tail -c +25 "${CAPTURE_DIR}dhcp.pcap") | \
 	$DUT -i - $TRAFFIC_CAPTURE_PROMISC \
 		-w ./testout.pcap \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-		> ./testout.txt 2>&1
+                $CONSOLE_LOG_ARGS \
+		> ./testout.txt 2> ./testerr.txt
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		capture_test_output_print ./testout.txt ./dumpcap_debug_log.tmp
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		capture_test_output_print ./testout.txt ./testerr.txt ./dumpcap_debug_log.tmp
+		test_step_failed "Exit status of $DUT: $RETURNVALUE"
 		return
 	fi
+        
+        if [ -n "$CONSOLE_LOG_ARGS" ] ; then
+            grep "Wireshark is up and ready to go" ./testout.txt > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                test_step_failed "No startup message!"
+            fi
+
+            grep "Capture started" ./testerr.txt > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                test_step_failed "No capture started message!"
+            fi
+
+            grep "Capture stopped" ./testerr.txt > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                test_step_failed "No capture stopped message!"
+            fi
+        fi
 
 	# we should have an output file now
 	if [ ! -f "./testout.pcap" ]; then
@@ -388,7 +413,7 @@ capture_step_snapshot() {
 wireshark_capture_suite() {
 	# k: start capture immediately
 	# WIRESHARK_QUIT_AFTER_CAPTURE needs to be set.
-	DUT="$WIRESHARK -k"
+	DUT="$WIRESHARK_CMD"
 	test_step_add "Capture 10 packets" capture_step_10packets
 	# piping to stdout doesn't work with Wireshark and capturing!
 	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout
@@ -431,6 +456,7 @@ dumpcap_capture_suite() {
 capture_cleanup_step() {
 	ping_cleanup
 	rm -f ./testout.txt
+	rm -f ./testerr.txt
 	rm -f ./testout2.txt
 	rm -f ./testout.pcap
 	rm -f ./testout2.pcap
