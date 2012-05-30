@@ -1,7 +1,5 @@
 # Makefile.am
-# Automake file for Gryphon plugin
-# By Steve Limkemann <stevelim@dgtech.com>
-# Copyright 1998 Steve Limkemann
+# Automake file for Giop plugins
 #
 # $Id$
 #
@@ -34,15 +32,15 @@ endif
 
 plugindir = @plugindir@
 
-plugin_LTLIBRARIES = gryphon.la
-gryphon_la_SOURCES = \
+plugin_LTLIBRARIES = giop.la
+giop_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
-gryphon_la_LDFLAGS = -module -avoid-version
-gryphon_la_LIBADD = @PLUGIN_LIBS@
+giop_la_LDFLAGS = -module -avoid-version
+giop_la_LIBADD = @PLUGIN_LIBS@
 
 # Libs must be cleared, or else libtool won't create a shared module.
 # If your module needs to be linked against any particular libraries,
@@ -113,7 +111,7 @@ plugin.c: $(DISSECTOR_SRC) $(top_srcdir)/tools/make-dissector-reg \
 #	@rm -f $(distdir)/plugin.c
 
 CLEANFILES = \
-	gryphon \
+	giop \
 	*~
 
 MAINTAINERCLEANFILES = \
