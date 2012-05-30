@@ -5990,11 +5990,13 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777266" name="3GPP Gxx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
+  <application id="16777269" name="Ericsson HSI" uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml">
+  </application>
   <application id="16777272" name="3GPP S6b" uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm">
   </application>
-  <application id="16777304" name="Ericsson Sy" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
-  </application>
   <application id="16777292" name="3GPP SGmb" uri="http://www.3gpp.org/ftp/Specs/html-info/29061.htm">
+  </application>
+  <application id="16777304" name="Ericsson Sy" uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml">
   </application>
   &nasreq;
 	&eap;
