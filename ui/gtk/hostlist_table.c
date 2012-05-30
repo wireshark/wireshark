@@ -712,7 +712,7 @@ draw_hostlist_table_data(hostlist_table *hl)
         if (!host->iter_valid) {
             char *entries[2];
 #ifdef HAVE_GEOIP
-            char geoip[NUM_GEOIP_COLS][COL_STR_LEN];
+            char *geoip[NUM_GEOIP_COLS];
             guint j;
 
             if ((host->address.type == AT_IPv4 || host->address.type == AT_IPv6) && !hl->geoip_visible) {
@@ -740,15 +740,15 @@ draw_hostlist_table_data(hostlist_table *hl)
             for (j = 0; j < NUM_GEOIP_COLS; j++) {
                 if (host->address.type == AT_IPv4 && j < geoip_db_num_dbs()) {
                     const guchar *name = geoip_db_lookup_ipv4(j, pntohl(host->address.data), "-");
-                    g_strlcpy(geoip[j], format_text (name, strlen(name)), COL_STR_LEN);
+                    geoip[j] = g_strdup(name);
                 } else if (host->address.type == AT_IPv6 && j < geoip_db_num_dbs()) {
                     const guchar *name;
                     const struct e_in6_addr *addr = (struct e_in6_addr *) host->address.data;
 
                     name = geoip_db_lookup_ipv6(j, *addr, "-");
-                    g_strlcpy(geoip[j], format_text (name, strlen(name)), COL_STR_LEN);
+                    geoip[j] = g_strdup(name);
                 } else {
-                  geoip[j][0] = 0;
+                  geoip[j] = NULL;
                 }
             }
 #endif /* HAVE_GEOIP */
@@ -781,6 +781,11 @@ draw_hostlist_table_data(hostlist_table *hl)
 #endif
                   INDEX_COLUMN,    i,
                     -1);
+
+#ifdef HAVE_GEOIP
+            for (j = 0; j < NUM_GEOIP_COLS; j++)
+                g_free(geoip[j]);
+#endif /* HAVE_GEOIP */
         }
         else {
             gtk_list_store_set (store, &host->iter,
