@@ -39,6 +39,7 @@
 #include "packet-per.h"
 #include "packet-isup.h"
 #include "packet-umts_fp.h"
+#include "packet-rrc.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -81,6 +82,7 @@ static int hf_nbap_transportLayerAddress_nsap = -1;
 static int ett_nbap = -1;
 static int ett_nbap_TransportLayerAddress = -1;
 static int ett_nbap_TransportLayerAddress_nsap = -1;
+static int ett_nbap_ib_sg_data = -1;
 
 #include "packet-nbap-ett.c"
 
@@ -156,6 +158,7 @@ static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_mac
 static guint32 MACdPDU_Size, commontransportchannelid;
 static guint num_items;
 static gint paging_indications;
+static guint32 ib_type, segment_type;
 
 enum TransportFormatSet_type_enum
 {
@@ -253,6 +256,7 @@ void proto_register_nbap(void) {
 		  &ett_nbap,
 		  &ett_nbap_TransportLayerAddress,
 		  &ett_nbap_TransportLayerAddress_nsap,
+		  &ett_nbap_ib_sg_data,
 #include "packet-nbap-ettarr.c"
   };
 

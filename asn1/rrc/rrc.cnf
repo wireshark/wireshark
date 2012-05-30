@@ -14,6 +14,12 @@ InterRATHandoverInfo_PDU
 ToTargetRNC-Container_PDU
 TargetRNC-ToSourceRNC-Container_PDU
 HandoverToUTRANCommand_PDU
+SysInfoType1_PDU
+SysInfoType2_PDU
+SysInfoType3_PDU
+SysInfoType7_PDU
+SysInfoType12_PDU
+MasterInformationBlock_PDU
 
 #.OMIT_ASSIGNMENT
 # Omit System-Information-Container for now it messes up the

@@ -450,6 +450,61 @@ actx->pinfo->link_dir=P2P_DIR_UL;
 # SecondaryULFrequencyReport
 # SecondaryULFrequencyUpdateIndication
 
+#.FN_BODY IB-Type VAL_PTR = &ib_type
+%(DEFAULT_BODY)s
+
+#.FN_BODY Segment-Type VAL_PTR = &segment_type
+%(DEFAULT_BODY)s
+
+#.FN_BODY MIB-SB-SIB-InformationItem-SystemInfoUpdateRqst
+
+	ib_type = 10; /* not-Used-sIB8 */
+	segment_type = 0;
+
+%(DEFAULT_BODY)s
+
+#.FN_BODY IB-SG-DATA VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+	if(!parameter_tvb)
+		return offset;
+	if((segment_type == 5 /*complete-SIB */)||(segment_type == 6 /*complete-SIB-short */)){
+		subtree = proto_item_add_subtree(actx->created_item, ett_nbap_ib_sg_data);
+	}else{
+		return offset;
+	}
+
+	switch(ib_type){
+		case 0:
+			/* mIB */
+			dissect_rrc_MasterInformationBlock_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		case 3:
+			/* iB-Type: sIB1 (3) */
+			dissect_rrc_SysInfoType1_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		case 4:
+			/* iB-Type: sIB2 (4) */
+			dissect_rrc_SysInfoType2_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		case 5:
+			/* iB-Type: sIB3 (5) */
+			dissect_rrc_SysInfoType3_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		case 9:
+			/* iB-Type: sIB7 (9) */
+			dissect_rrc_SysInfoType7_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		case 14:
+			/* iB-Type: sIB12 (14) */
+			dissect_rrc_SysInfoType12_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+		default:
+			break;
+		}
 
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
