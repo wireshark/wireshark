@@ -168,6 +168,7 @@ static int hf_smb_primary_domain = -1;
 static int hf_smb_server = -1;
 static int hf_smb_max_raw_buf_size = -1;
 static int hf_smb_server_guid = -1;
+static int hf_smb_volume_guid = -1;
 static int hf_smb_security_blob_len = -1;
 static int hf_smb_security_blob = -1;
 static int hf_smb_sm_mode16 = -1;
@@ -505,6 +506,7 @@ static int hf_smb_extended_attributes = -1;
 static int hf_smb_oplock_level = -1;
 static int hf_smb_create_action = -1;
 static int hf_smb_file_id = -1;
+static int hf_smb_file_id_64bit = -1;
 static int hf_smb_ea_error_offset = -1;
 static int hf_smb_end_of_file = -1;
 static int hf_smb_replace = -1;
@@ -5973,11 +5975,15 @@ dissect_open_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 	return offset;
 }
 
+/* [MS-CIFS].pdf 2.2.4.64.2 provides the last two file types, however
+   [MS-SMB].PDF 2.2.4.9.2 elides value 4, Character mode device.  */
 static const value_string filetype_vals[] = {
 	{ 0,		"Disk file or directory"},
 	{ 1,		"Named pipe in byte mode"},
 	{ 2,		"Named pipe in message mode"},
 	{ 3,		"Spooled printer"},
+	{ 4,		"Character mode device"},
+	{ 0xFFFF,	"Unknown file type"},
 	{0, NULL}
 };
 static int
@@ -10242,6 +10248,42 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	isdir=tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
+
+	/* Do we know whether or not EXTENDED_RESPONSES are required? */
+        /* MS-SMB 2.2.4.9.2 says that there is a Volume GUID, File ID,
+           Maximal Access Rights and Guest Maximal Access Rights here
+           if ExtendedResponses requested. */
+	if (si->sip->extra_info_type == SMB_EI_FILEDATA &&
+		((smb_fid_saved_info_t *)(si->sip->extra_info))->create_flags & 0x10) {
+	    proto_item *mar = NULL;
+	    proto_item *gmar = NULL;
+	    proto_tree *tr = NULL;
+
+	    /* The first field is a Volume GUID ... */
+
+	    proto_tree_add_item(tree, hf_smb_volume_guid,
+			tvb, offset, 16, ENC_NA);
+	    offset += 16;
+
+	    /* The file ID comes next */
+	    proto_tree_add_item(tree, hf_smb_file_id_64bit,
+			tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	    offset += 8;
+
+	    mar = proto_tree_add_text(tree, tvb, offset, 4,
+			"Maximal Access Rights");
+
+	    tr = proto_item_add_subtree(mar, ett_smb_nt_access_mask);
+
+	    offset = dissect_smb_access_mask(tvb, tr, offset);
+
+	    gmar = proto_tree_add_text(tree, tvb, offset, 4,
+			"Guest Maximal Access Rights");
+
+	    tr = proto_item_add_subtree(gmar, ett_smb_nt_access_mask);
+
+	    offset = dissect_smb_access_mask(tvb, tr, offset);
+	}
 
 	/* Try to remember the type of this fid so that we can dissect
 	 * any future security descriptor (access mask) properly
@@ -18235,6 +18277,10 @@ proto_register_smb(void)
 		{ "Server GUID", "smb.server_guid", FT_BYTES, BASE_NONE,
 		NULL, 0, "Globally unique identifier for this server", HFILL }},
 
+	{ &hf_smb_volume_guid,
+		{ "Volume GUID", "smb.volume_guid", FT_BYTES, BASE_NONE,
+		NULL, 0, "Globally unique identifer for this volume", HFILL }},
+
 	{ &hf_smb_security_blob_len,
 		{ "Security Blob Length", "smb.security_blob_len", FT_UINT16, BASE_DEC,
 		NULL, 0, NULL, HFILL }},
@@ -19511,6 +19557,10 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_id,
 		{ "Server unique file ID", "smb.create.file_id", FT_UINT32, BASE_HEX,
+		NULL, 0, NULL, HFILL }},
+
+	{ &hf_smb_file_id_64bit,
+		{ "Server unique 64-bit file ID", "smb.create.file_id_64b", FT_UINT64, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_error_offset,
