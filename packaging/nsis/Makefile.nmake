@@ -47,10 +47,7 @@ PLUGINS= \
 	../../plugins/asn1/asn1.dll \
 	../../plugins/docsis/docsis.dll \
 	../../plugins/ethercat/ethercat.dll \
-	../../plugins/giop/coseventcomm.dll \
-	../../plugins/giop/cosnaming.dll \
-	../../plugins/giop/parlay.dll \
-	../../plugins/giop/tango.dll \
+	../../plugins/giop/giop.dll \
 	../../plugins/gryphon/gryphon.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/m2m/m2m.dll \
