@@ -440,148 +440,95 @@ again:
 
 #ifdef HAVE_GEOIP_V6
 static void
-add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, struct e_in6_addr src, struct e_in6_addr dst)
+add_geoip_info_entry(proto_tree *geoip_info_item, tvbuff_t *tvb, gint offset, const struct e_in6_addr *ip, int isdst)
 {
-  guint dbnum, num_dbs;
-  int geoip_hf, geoip_src_hf, geoip_dst_hf;
-  const char *geoip_src_str, *geoip_dst_str;
-  proto_item *geoip_info_item;
   proto_tree *geoip_info_tree;
-  proto_item *item;
-  guint item_cnt;
+
+  guint num_dbs = geoip_db_num_dbs();
+  guint item_cnt = 0;
+  guint dbnum;
+
+  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
+
+  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
+    const char *geoip_str = geoip_db_lookup_ipv6(dbnum, *ip, NULL);
+
+    int geoip_hf, geoip_local_hf;
+
+    switch (geoip_db_type(dbnum)) {
+      case GEOIP_COUNTRY_EDITION_V6:
+        geoip_hf = hf_geoip_country;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_country : hf_geoip_src_country;
+        break;
+#if NUM_DB_TYPES > 31
+      case GEOIP_CITY_EDITION_REV0_V6:
+      case GEOIP_CITY_EDITION_REV1_V6:
+        geoip_hf = hf_geoip_city;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_city : hf_geoip_src_city;
+        break;
+      case GEOIP_ORG_EDITION_V6:
+        geoip_hf = hf_geoip_org;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_org : hf_geoip_src_org;
+        break;
+      case GEOIP_ISP_EDITION_V6:
+        geoip_hf = hf_geoip_isp;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_isp : hf_geoip_src_isp;
+        break;
+      case GEOIP_ASNUM_EDITION_V6:
+        geoip_hf = hf_geoip_asnum;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_asnum : hf_geoip_src_asnum;
+        break;
+#endif /* DB_NUM_TYPES */
+      case WS_LAT_FAKE_EDITION:
+        geoip_hf = hf_geoip_lat;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_lat : hf_geoip_src_lat;
+        break;
+      case WS_LON_FAKE_EDITION:
+        geoip_hf = hf_geoip_lon;
+        geoip_local_hf = (isdst) ? hf_geoip_dst_lon : hf_geoip_src_lon;
+        break;
+      default:
+        continue;
+        break;
+    }
+
+    if (geoip_str) {
+      proto_item *item;
+
+      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_local_hf, tvb,
+        offset, 16, geoip_str, "%s", geoip_str);
+      PROTO_ITEM_SET_GENERATED(item);
+      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
+        offset, 16, geoip_str, "%s", geoip_str);
+      PROTO_ITEM_SET_GENERATED(item);
+      PROTO_ITEM_SET_HIDDEN(item);
+
+      item_cnt++;
+      proto_item_append_text(geoip_info_item, "%s%s", plurality(item_cnt, "", ", "), geoip_str);
+    }
+  }
+
+  if (item_cnt == 0)
+    proto_item_append_text(geoip_info_item, "Unknown");
+}
+
+static void
+add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, const struct e_in6_addr *src, const struct e_in6_addr *dst)
+{
+  guint num_dbs;
+  proto_item *geoip_info_item;
 
   num_dbs = geoip_db_num_dbs();
-  if (num_dbs < 1) return;
+  if (num_dbs < 1)
+        return;
 
   geoip_info_item = proto_tree_add_text(tree, tvb, offset + IP6H_SRC, 16, "Source GeoIP: ");
-  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
   PROTO_ITEM_SET_GENERATED(geoip_info_item);
-  item_cnt = 0;
-
-  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
-    geoip_src_str = geoip_db_lookup_ipv6(dbnum, src, NULL);
-
-    switch (geoip_db_type(dbnum)) {
-      case GEOIP_COUNTRY_EDITION_V6:
-        geoip_hf = hf_geoip_country;
-        geoip_src_hf = hf_geoip_src_country;
-        break;
-#if NUM_DB_TYPES > 31
-      case GEOIP_CITY_EDITION_REV0_V6:
-        geoip_hf = hf_geoip_city;
-        geoip_src_hf = hf_geoip_src_city;
-        break;
-      case GEOIP_CITY_EDITION_REV1_V6:
-        geoip_hf = hf_geoip_city;
-        geoip_src_hf = hf_geoip_src_city;
-        break;
-      case GEOIP_ORG_EDITION_V6:
-        geoip_hf = hf_geoip_org;
-        geoip_src_hf = hf_geoip_src_org;
-        break;
-      case GEOIP_ISP_EDITION_V6:
-        geoip_hf = hf_geoip_isp;
-        geoip_src_hf = hf_geoip_src_isp;
-        break;
-      case GEOIP_ASNUM_EDITION_V6:
-        geoip_hf = hf_geoip_asnum;
-        geoip_src_hf = hf_geoip_src_asnum;
-        break;
-#endif /* DB_NUM_TYPES */
-      case WS_LAT_FAKE_EDITION:
-        geoip_hf = hf_geoip_lat;
-        geoip_src_hf = hf_geoip_src_lat;
-        break;
-      case WS_LON_FAKE_EDITION:
-        geoip_hf = hf_geoip_lon;
-        geoip_src_hf = hf_geoip_src_lon;
-        break;
-      default:
-        continue;
-        break;
-    }
-
-    if (geoip_src_str) {
-      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_src_hf, tvb,
-        offset + IP6H_SRC, 16, geoip_src_str, "%s", geoip_src_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
-        offset + IP6H_SRC, 16, geoip_src_str, "%s", geoip_src_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
-
-      item_cnt++;
-      proto_item_append_text(geoip_info_item, "%s%s", plurality(item_cnt, "", ", "), geoip_src_str);
-    }
-  }
-
-  if (item_cnt == 0)
-    proto_item_append_text(geoip_info_item, "Unknown");
+  add_geoip_info_entry(geoip_info_item, tvb, offset + IP6H_SRC, src, 0);
 
   geoip_info_item = proto_tree_add_text(tree, tvb, offset + IP6H_DST, 16, "Destination GeoIP: ");
-  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
   PROTO_ITEM_SET_GENERATED(geoip_info_item);
-  item_cnt = 0;
-
-  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
-    geoip_dst_str = geoip_db_lookup_ipv6(dbnum, dst, NULL);
-
-    switch (geoip_db_type(dbnum)) {
-      case GEOIP_COUNTRY_EDITION_V6:
-        geoip_hf = hf_geoip_country;
-        geoip_dst_hf = hf_geoip_dst_country;
-        break;
-#if NUM_DB_TYPES > 31
-      case GEOIP_CITY_EDITION_REV0_V6:
-        geoip_hf = hf_geoip_city;
-        geoip_dst_hf = hf_geoip_dst_city;
-        break;
-      case GEOIP_CITY_EDITION_REV1_V6:
-        geoip_hf = hf_geoip_city;
-        geoip_dst_hf = hf_geoip_dst_city;
-        break;
-      case GEOIP_ORG_EDITION_V6:
-        geoip_hf = hf_geoip_org;
-        geoip_dst_hf = hf_geoip_dst_org;
-        break;
-      case GEOIP_ISP_EDITION_V6:
-        geoip_hf = hf_geoip_isp;
-        geoip_dst_hf = hf_geoip_dst_isp;
-        break;
-      case GEOIP_ASNUM_EDITION_V6:
-        geoip_hf = hf_geoip_asnum;
-        geoip_dst_hf = hf_geoip_dst_asnum;
-        break;
-#endif /* DB_NUM_TYPES */
-      case WS_LAT_FAKE_EDITION:
-        geoip_hf = hf_geoip_lat;
-        geoip_dst_hf = hf_geoip_dst_lat;
-        break;
-      case WS_LON_FAKE_EDITION:
-        geoip_hf = hf_geoip_lon;
-        geoip_dst_hf = hf_geoip_dst_lon;
-        break;
-      default:
-        continue;
-        break;
-    }
-
-    if (geoip_dst_str) {
-      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_dst_hf, tvb,
-        offset + IP6H_DST, 16, geoip_dst_str, "%s", geoip_dst_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
-        offset + IP6H_DST, 16, geoip_dst_str, "%s", geoip_dst_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
-
-      item_cnt++;
-      proto_item_append_text(geoip_info_item, "%s%s", plurality(item_cnt, "", ", "), geoip_dst_str);
-    }
-  }
-
-  if (item_cnt == 0)
-    proto_item_append_text(geoip_info_item, "Unknown");
+  add_geoip_info_entry(geoip_info_item, tvb, offset + IP6H_DST, dst, 1);
 }
 #endif /* HAVE_GEOIP_V6 */
 
@@ -1867,7 +1814,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #ifdef HAVE_GEOIP_V6
   if (tree && ipv6_use_geoip) {
-    add_geoip_info(ipv6_tree, tvb, offset, ipv6.ip6_src, ipv6.ip6_dst);
+    add_geoip_info(ipv6_tree, tvb, offset, &ipv6.ip6_src, &ipv6.ip6_dst);
   }
 #endif
 
