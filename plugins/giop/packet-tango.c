@@ -47,10 +47,6 @@ static int hf_operationrequest = -1;/* Request_Operation field */
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
 
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = "0.0.1";
-#endif
-
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */
 #pragma warning(disable:4101)
@@ -4353,7 +4349,7 @@ void proto_register_giop_tango(void) {
 
 /* register me as handler for these interfaces */
 
-void proto_register_handoff_giop_tango(void) {
+void proto_reg_handoff_giop_tango(void) {
 
 
     
@@ -4380,7 +4376,7 @@ void proto_register_handoff_giop_tango(void) {
 }
 
 
-#ifndef ENABLE_STATIC
+#if 0
 
 G_MODULE_EXPORT void
 plugin_register(void)
