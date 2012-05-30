@@ -406,7 +406,7 @@ SMI_PKG=svn-40773
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-GEOIP_PKG=1.4.8
+GEOIP_PKG=1.4.8-2
 
 !else
 ##### Win64 Libraries #####
