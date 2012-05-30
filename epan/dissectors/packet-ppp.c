@@ -152,12 +152,23 @@ static int proto_ccp = -1;
 
 static gint ett_ccp = -1;
 static gint ett_ccp_options = -1;
+static gint ett_ccp_oui_opt = -1;
+static gint ett_ccp_predict1_opt = -1;
+static gint ett_ccp_predict2_opt = -1;
+static gint ett_ccp_puddle_opt = -1;
+static gint ett_ccp_hpppc_opt = -1;
 static gint ett_ccp_stac_opt = -1;
-static gint ett_ccp_mppc_opt = -1;
+static gint ett_ccp_stac_opt_check_mode = -1;
+static gint ett_ccp_mppe_opt = -1;
+static gint ett_ccp_mppe_opt_supp_bits = -1;
+static gint ett_ccp_gfza_opt = -1;
+static gint ett_ccp_v42bis_opt = -1;
 static gint ett_ccp_bsdcomp_opt = -1;
 static gint ett_ccp_lzsdcp_opt = -1;
 static gint ett_ccp_mvrca_opt = -1;
+static gint ett_ccp_dce_opt = -1;
 static gint ett_ccp_deflate_opt = -1;
+static gint ett_ccp_v44lzjh_opt = -1;
 
 static int proto_cbcp = -1;
 
@@ -728,16 +739,24 @@ static const value_string lzsdcp_checkmode_vals[] = {
     {LZSDCP_CM_NONE,   "None"},
     {LZSDCP_CM_LCB,    "LCB"},
     {LZSDCP_CM_SN,     "Sequence Number"},
-    {LZSDCP_CM_SN_LCB, "Sequence Number + LCB"},
+    {LZSDCP_CM_SN_LCB, "Sequence Number + LCB (default)"},
     {0,                NULL}
 };
 
 #define LZSDCP_PM_NONE          0
 #define LZSDCP_PM_PROC_UNCOMP   1
 static const value_string lzsdcp_processmode_vals[] = {
-    {LZSDCP_PM_NONE,        "None"},
+    {LZSDCP_PM_NONE,        "None (default)"},
     {LZSDCP_PM_PROC_UNCOMP, "Process-Uncompressed"},
     {0,                     NULL}
+};
+
+#define DCE_MODE_1  1
+#define DCE_MODE_2  2
+static const value_string dce_mode_vals[] = {
+    {DCE_MODE_1, "No Additional Negotiation"},
+    {DCE_MODE_2, "Full PPP Negotiation and State Machine"},
+    {0,          NULL}
 };
 
 /*
@@ -1252,55 +1271,117 @@ static const ip_tcp_opt osinlcp_opts[] = {
 #define CI_CCP_PUDDLE   3       /* Puddle Jumper (RFC1962) */
 #define CI_CCP_HPPPC    16      /* Hewlett-Packard PPC (RFC1962) */
 #define CI_CCP_STAC     17      /* stac Electronics LZS (RFC1974) */
-#define CI_CCP_MPPC     18      /* Microsoft PPC (RFC2218/3078) */
+#define CI_CCP_MPPE     18      /* Microsoft PPE/C (RFC2218/3078) */
 #define CI_CCP_GFZA     19      /* Gandalf FZA (RFC1962) */
 #define CI_CCP_V42BIS   20      /* V.42bis compression */
 #define CI_CCP_BSDLZW   21      /* BSD LZW Compress (RFC1977) */
 #define CI_CCP_LZSDCP   23      /* LZS-DCP (RFC1967) */
 #define CI_CCP_MVRCA    24      /* MVRCA (Magnalink) (RFC1975) */
+#define CI_CCP_DCE      25      /* DCE (RFC1976) */
 #define CI_CCP_DEFLATE  26      /* Deflate (RFC1979) */
+#define CI_CCP_V44LZJH  27      /* V.44/LZJH (http://www.watersprings.org/pub/id/draft-heath-ppp-v44-01.txt) */
 #define CI_CCP_RESERVED 255     /* Reserved (RFC1962) */
 
-/*
- * Microsoft Point-To-Point Compression (MPPC) and Encryption (MPPE)
- * supported bits.
- */
-#define MPPC_SUPPORTED_BITS_C   0x00000001      /* MPPC negotiation */
-#define MPPE_SUPPORTED_BITS_D   0x00000010      /* Obsolete */
-#define MPPE_SUPPORTED_BITS_L   0x00000020      /* 40-bit encryption */
-#define MPPE_SUPPORTED_BITS_S   0x00000040      /* 128-bit encryption */
-#define MPPE_SUPPORTED_BITS_M   0x00000080      /* 56-bit encryption */
-#define MPPE_SUPPORTED_BITS_H   0x01000000      /* stateless mode */
+static int hf_ccp_opt_type = -1;
+static int hf_ccp_opt_length = -1;
+static int hf_ccp_opt_oui = -1;
+static int hf_ccp_opt_subtype = -1;
+static int hf_ccp_opt_data = -1;
+static int hf_ccp_opt_history_count = -1;
+static int hf_ccp_opt_cm = -1;
+static int hf_ccp_opt_cm_reserved = -1;
+static int hf_ccp_opt_cm_check_mode = -1;
+static int hf_ccp_opt_supported_bits = -1;
+static int hf_ccp_opt_supported_bits_h = -1;
+static int hf_ccp_opt_supported_bits_m = -1;
+static int hf_ccp_opt_supported_bits_s = -1;
+static int hf_ccp_opt_supported_bits_l = -1;
+static int hf_ccp_opt_supported_bits_d = -1;
+static int hf_ccp_opt_supported_bits_c = -1;
+static int hf_ccp_opt_history = -1;
+static int hf_ccp_opt_version = -1;
+static int hf_ccp_opt_vd = -1;
+static int hf_ccp_opt_vd_vers = -1;
+static int hf_ccp_opt_vd_dict = -1;
+static int hf_ccp_opt_check_mode = -1;
+static int hf_ccp_opt_process_mode = -1;
+static int hf_ccp_opt_fe = -1;
+static int hf_ccp_opt_p = -1;
+static int hf_ccp_opt_History = -1; /* Different than hf_ccp_opt_history */
+static int hf_ccp_opt_contexts = -1;
+static int hf_ccp_opt_mode = -1;
+static int hf_ccp_opt_window = -1;
+static int hf_ccp_opt_method = -1;
+static int hf_ccp_opt_mbz = -1;
+static int hf_ccp_opt_chk = -1;
+static int hf_ccp_opt_mode_dictcount = -1;
+static int hf_ccp_opt_dict_size = -1;
+static int hf_ccp_opt_history_length = -1;
 
+static void dissect_ccp_oui_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree);
+static void dissect_ccp_other_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree);
+#define dissect_ccp_predict1_opt    dissect_ccp_other_opt
+#define dissect_ccp_predict2_opt    dissect_ccp_other_opt
+#define dissect_ccp_puddle_opt      dissect_ccp_other_opt
+#define dissect_ccp_hpppc_opt       dissect_ccp_other_opt
 static void dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree);
-static void dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+static void dissect_ccp_mppe_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree);
+static void dissect_ccp_gfza_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree);
+#define dissect_ccp_v42bis_opt      dissect_ccp_other_opt
 static void dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree);
 static void dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree);
 static void dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree);
+static void dissect_ccp_dce_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo _U_, proto_tree *tree);
 static void dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree);
+static void dissect_ccp_v44lzjh_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo, proto_tree *tree);
 
 static const ip_tcp_opt ccp_opts[] = {
+
+    {CI_CCP_OUI, "OUI", &ett_ccp_oui_opt,
+    VARIABLE_LENGTH, 6, dissect_ccp_oui_opt},
+    {CI_CCP_PREDICT1, "Predictor type 1", &ett_ccp_predict1_opt,
+    VARIABLE_LENGTH, 2, dissect_ccp_predict1_opt},
+    {CI_CCP_PREDICT2, "Predictor type 2", &ett_ccp_predict2_opt,
+    VARIABLE_LENGTH, 2, dissect_ccp_predict2_opt},
+    {CI_CCP_PUDDLE, "Puddle Jumper", &ett_ccp_puddle_opt,
+    VARIABLE_LENGTH, 2, dissect_ccp_puddle_opt},
+    {CI_CCP_HPPPC, "Hewlett-Packard PPC", &ett_ccp_hpppc_opt,
+    VARIABLE_LENGTH, 2, dissect_ccp_hpppc_opt},
     {CI_CCP_STAC, "Stac Electronics LZS", &ett_ccp_stac_opt,
         /* In RFC 1974, this is a fixed-length field of size 5, but in
          * Ascend Proprietary STAC compression this field is 6 octets. */
         VARIABLE_LENGTH, 5, dissect_ccp_stac_opt},
-    {CI_CCP_MPPC, "Microsoft PPC", &ett_ccp_mppc_opt,
-        FIXED_LENGTH, 6, dissect_ccp_mppc_opt},
-    {CI_CCP_BSDLZW, "BSD Compress", &ett_ccp_bsdcomp_opt,
+    {CI_CCP_MPPE, "Microsoft PPE/PPC", &ett_ccp_mppe_opt,
+        FIXED_LENGTH, 6, dissect_ccp_mppe_opt},
+    {CI_CCP_GFZA, "Gandalf FZA", &ett_ccp_gfza_opt,
+    VARIABLE_LENGTH, 3, dissect_ccp_gfza_opt},
+    {CI_CCP_V42BIS, "V.42bis compression", &ett_ccp_v42bis_opt,
+    VARIABLE_LENGTH, 2, dissect_ccp_v42bis_opt},
+    {CI_CCP_BSDLZW, "BSD LZW Compress", &ett_ccp_bsdcomp_opt,
         FIXED_LENGTH, 3, dissect_ccp_bsdcomp_opt},
     {CI_CCP_LZSDCP, "LZS-DCP", &ett_ccp_lzsdcp_opt,
         FIXED_LENGTH, 6, dissect_ccp_lzsdcp_opt},
     {CI_CCP_MVRCA, "MVRCA (Magnalink)", &ett_ccp_mvrca_opt,
         FIXED_LENGTH, 4, dissect_ccp_mvrca_opt},
+    {CI_CCP_DCE,
+        "PPP for Data Compression in Data Circuit-Terminating Equipment (DCE)",
+        &ett_ccp_dce_opt, FIXED_LENGTH, 3, dissect_ccp_dce_opt},
     {CI_CCP_DEFLATE, "Deflate", &ett_ccp_deflate_opt,
         /* RFC1979 says the length is 3 but it's actually 4. */
-        FIXED_LENGTH, 4, dissect_ccp_deflate_opt}
+        FIXED_LENGTH, 4, dissect_ccp_deflate_opt},
+    {CI_CCP_V44LZJH, "V.44/LZJH compression", &ett_ccp_v44lzjh_opt,
+        VARIABLE_LENGTH, 4, dissect_ccp_v44lzjh_opt}
 };
 
 #define N_CCP_OPTS      (sizeof ccp_opts / sizeof ccp_opts[0])
@@ -2865,106 +2946,231 @@ dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 
 static void
+dissect_ccp_opt_type_len(tvbuff_t *tvb, int offset, proto_tree *tree,
+    const char *name)
+{
+    guint8 type;
+
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint_format_value(tree, hf_ccp_opt_type, tvb, offset, 1,
+        type, "%s (%u)", name, type);
+    proto_tree_add_item(tree, hf_ccp_opt_length, tvb, offset + 1, 1, ENC_NA);
+}
+
+/* http://tools.ietf.org/html/rfc1962 */
+static void dissect_ccp_oui_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *field_tree;
+    proto_item *tf, *ti;
+    guint32 oui;
+    const gchar *manuf;
+
+    oui = tvb_get_ntoh24(tvb, offset + 2);
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+    ti = proto_tree_add_uint_format_value(field_tree, hf_ccp_opt_oui, tvb,
+        offset + 2, 3, oui, "%02x:%02x:%02x",
+        (oui >> 16) & 0xff, (oui >> 8) & 0xff, oui & 0xff);
+    manuf = uint_get_manuf_name_if_known(oui);
+    if (manuf)
+        proto_item_append_text(ti, "(%s)", manuf);
+
+    proto_tree_add_item(field_tree, hf_ccp_opt_subtype, tvb, offset + 5, 1,
+        ENC_NA);
+    if (length > 6) {
+        proto_tree_add_item(field_tree, hf_ccp_opt_data, tvb, offset + 6,
+            length - 6, ENC_NA);
+    }
+}
+
+/* The following configuration option types are mentioned at
+ * http://www.iana.org/assignments/ppp-numbers as referencing RFC1962; however,
+ * RFC1962 only mentions Proprietary Compression OUI in section 4.1.  These
+ * others are therefore being treated as section 4.2 "Other Compression Types",
+ * in terms of how they are dissected:
+ *      1)  Predictor type 1
+ *      2)  Predictor type 2
+ *      3)  Puddle Jumper
+ *      16) Hewlett-Packard PPC
+ *      20) V.42bis compression
+ */
+static void dissect_ccp_other_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    if (length > 2) {
+        proto_tree_add_item(field_tree, hf_ccp_opt_data, tvb, offset + 2,
+            length - 2, ENC_NA);
+    }
+}
+
+/* http://tools.ietf.org/html/rfc1974 */
+static void
 dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *tf;
     proto_tree *field_tree;
-    guint8      check_mode;
+    const char *stac_ascend = "Stac Electronics LZS (Ascend Proprietary version)";
+    static const int *check_mode_fields[] = {
+        &hf_ccp_opt_cm_reserved,
+        &hf_ccp_opt_cm_check_mode,
+        NULL
+    };
 
     if (length == 6) {
-        proto_tree_add_text(tree, tvb, offset, length,
-            "%s (Ascend Proprietary version)", optp->name);
+        tf = proto_tree_add_text(tree, tvb, offset, length, stac_ascend);
+        field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+        dissect_ccp_opt_type_len(tvb, offset, field_tree, stac_ascend);
+
         /* We don't know how to decode the following 4 octets, since
-           there's no public document that describe their usage. */
+           there are no public documents that describe their usage. */
+        proto_tree_add_item(field_tree, hf_ccp_opt_data, tvb, offset + 2,
+            length - 2, ENC_NA);
     } else {
         tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
         field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-        proto_tree_add_text(field_tree, tvb, offset + 2, 2,
-            "History Count: %u", tvb_get_ntohs(tvb, offset + 2));
-        check_mode = tvb_get_guint8(tvb, offset + 4);
-        proto_tree_add_text(field_tree, tvb, offset + 4, 1,
-            "Check Mode: %s (0x%02X)",
-            val_to_str_const(check_mode, stac_checkmode_vals, "Unknown"),
-            check_mode);
+        dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+        proto_tree_add_item(field_tree, hf_ccp_opt_history_count, tvb,
+            offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(field_tree, tvb, offset + 4, hf_ccp_opt_cm,
+            ett_ccp_stac_opt_check_mode, check_mode_fields, ENC_NA);
     }
 }
 
+/*
+ * Microsoft Point-To-Point Compression (MPPC) and Encryption (MPPE)
+ * supported bits.
+ */
+#define MPPC_SUPPORTED_BITS_C   0x00000001      /* MPPC negotiation */
+#define MPPE_SUPPORTED_BITS_D   0x00000010      /* Obsolete */
+#define MPPE_SUPPORTED_BITS_L   0x00000020      /* 40-bit encryption */
+#define MPPE_SUPPORTED_BITS_S   0x00000040      /* 128-bit encryption */
+#define MPPE_SUPPORTED_BITS_M   0x00000080      /* 56-bit encryption */
+#define MPPE_SUPPORTED_BITS_H   0x01000000      /* stateless mode */
+
+static const true_false_string ccp_mppe_h_tfs = {
+    "Stateless mode ON",
+    "Stateless mode OFF"
+};
+static const true_false_string ccp_mppe_m_tfs = {
+    "56-bit encryption ON",
+    "56-bit encryption OFF"
+};
+static const true_false_string ccp_mppe_s_tfs = {
+    "128-bit encryption ON",
+    "128-bit encryption OFF"
+};
+static const true_false_string ccp_mppe_l_tfs = {
+    "40-bit encryption ON",
+    "40-bit encryption OFF"
+};
+static const true_false_string ccp_mppe_d_tfs = {
+    "Obsolete (should NOT be 1)",
+    "Obsolete (should ALWAYS be 0)"
+};
+static const true_false_string ccp_mppe_c_tfs = {
+    "Desire to negotiate MPPC",
+    "No desire to negotiate MPPC"
+};
+
+/* http://tools.ietf.org/html/rfc2118,
+ * http://tools.ietf.org/html/rfc3078 */
 static void
-dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+dissect_ccp_mppe_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *tf;
-    proto_tree *flags_tree;
-    guint32     supported_bits;
+    proto_tree *field_tree;
+    static const int *supported_bits_fields[] = {
+        &hf_ccp_opt_supported_bits_h,
+        &hf_ccp_opt_supported_bits_m,
+        &hf_ccp_opt_supported_bits_s,
+        &hf_ccp_opt_supported_bits_l,
+        &hf_ccp_opt_supported_bits_d,
+        &hf_ccp_opt_supported_bits_c,
+        NULL
+    };
 
-    supported_bits = tvb_get_ntohl(tvb, offset + 2);
-    tf = proto_tree_add_text(tree, tvb, offset, length,
-        "%s: Supported Bits: 0x%08X", optp->name, supported_bits);
-    flags_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
 
-    proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
-        decode_boolean_bitfield(supported_bits, MPPC_SUPPORTED_BITS_C, 8 * 4,
-        "Desire to negotiate MPPC", "NO Desire to negotiate MPPC"));
-    proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
-        decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_D, 8 * 4,
-        "Obsolete (should NOT be 1)", "Obsolete (should ALWAYS be 0)"));
-    proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
-        decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_L, 8 * 4,
-        "40-bit encryption ON", "40-bit encryption OFF"));
-    proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
-        decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_S, 8 * 4,
-        "128-bit encryption ON", "128-bit encryption OFF"));
-    proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
-        decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_M, 8 * 4,
-        "56-bit encryption ON", "56-bit encryption OFF"));
-    proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
-        decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_H, 8 * 4,
-        "Stateless mode ON", "Stateless mode OFF"));
+    proto_tree_add_bitmask(field_tree, tvb, offset + 2,
+        hf_ccp_opt_supported_bits, ett_ccp_mppe_opt_supp_bits,
+        supported_bits_fields, ENC_BIG_ENDIAN);
 }
 
+/* http://tools.ietf.org/html/rfc1993 */
+static void dissect_ccp_gfza_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *field_tree;
+    proto_item *tf;
+
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    proto_tree_add_item(field_tree, hf_ccp_opt_history, tvb, offset + 2, 1,
+        ENC_NA);
+
+    if (length > 3) {
+        proto_tree_add_item(field_tree, hf_ccp_opt_version, tvb, offset + 3,
+            length - 3, ENC_NA);
+    }
+}
+
+/* http://tools.ietf.org/html/rfc1977 */
 static void
 dissect_ccp_bsdcomp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *tf;
     proto_tree *field_tree;
+    static const int *vd_fields[] = {
+        &hf_ccp_opt_vd_vers,
+        &hf_ccp_opt_vd_dict
+    };
 
     tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
 
-    proto_tree_add_text(field_tree, tvb, offset + 2, 1, "Version: %u",
-        tvb_get_guint8(tvb, offset + 2) >> 5);
-    proto_tree_add_text(field_tree, tvb, offset + 2, 1, "Dict: %u bits",
-        tvb_get_guint8(tvb, offset + 2) & 0x1f);
+    proto_tree_add_bitmask(field_tree, tvb, offset + 2, hf_ccp_opt_vd,
+        *optp->subtree_index, vd_fields, ENC_BIG_ENDIAN);
 }
 
+/* http://tools.ietf.org/html/rfc1967 */
 static void
 dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *tf;
     proto_tree *field_tree;
-    guint8      check_mode;
-    guint8      process_mode;
 
     tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
 
-    proto_tree_add_text(field_tree, tvb, offset + 2, 2, "History Count: %u",
-        tvb_get_ntohs(tvb, offset + 2));
-    check_mode = tvb_get_guint8(tvb, offset + 4);
-    proto_tree_add_text(field_tree, tvb, offset + 4, 1,
-        "Check Mode: %s (0x%02X)",
-        val_to_str_const(check_mode, lzsdcp_checkmode_vals, "Unknown"),
-        check_mode);
-    process_mode = tvb_get_guint8(tvb, offset + 5);
-    proto_tree_add_text(field_tree, tvb, offset + 5, 1,
-        "Process Mode: %s (0x%02X)",
-        val_to_str_const(process_mode, lzsdcp_processmode_vals, "Unknown"),
-        process_mode);
+    proto_tree_add_item(field_tree, hf_ccp_opt_history_count, tvb,
+        offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_ccp_opt_check_mode, tvb, offset + 4, 1,
+        ENC_NA);
+    proto_tree_add_item(field_tree, hf_ccp_opt_process_mode, tvb, offset + 5,
+        1, ENC_NA);
 }
 
+/* http://tools.ietf.org/html/rfc1975 */
 static void
 dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree)
@@ -2974,38 +3180,99 @@ dissect_ccp_mvrca_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
     tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
 
-    proto_tree_add_text(field_tree, tvb, offset + 2, 1, "Features: %u",
-        tvb_get_guint8(tvb, offset + 2) >> 5);
-    proto_tree_add_text(field_tree, tvb, offset + 2, 1,
-        "Packet by Packet flag: %s",
-        tvb_get_guint8(tvb, offset + 2) & 0x20 ? "true" : "false");
-    proto_tree_add_text(field_tree, tvb, offset + 2, 1, "History: %u",
-        tvb_get_guint8(tvb, offset + 2) & 0x20);
-    proto_tree_add_text(field_tree, tvb, offset + 3, 1,
-        "Number of contexts: %u", tvb_get_guint8(tvb, offset + 3));
+    proto_tree_add_item(field_tree, hf_ccp_opt_fe, tvb, offset + 2, 1, ENC_NA);
+    proto_tree_add_item(field_tree, hf_ccp_opt_p, tvb, offset + 2, 1, ENC_NA);
+    proto_tree_add_item(field_tree, hf_ccp_opt_History, tvb, offset + 2, 1,
+        ENC_NA);
+    proto_tree_add_item(field_tree, hf_ccp_opt_contexts, tvb, offset + 3, 1,
+        ENC_NA);
 }
 
+/* http://tools.ietf.org/html/rfc1976 */
+static void
+dissect_ccp_dce_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
+    guint length, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_item *tf;
+    proto_tree *field_tree;
+
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    proto_tree_add_item(field_tree, hf_ccp_opt_mode, tvb, offset + 2, 1,
+        ENC_NA);
+}
+
+static const value_string deflate_method_vals[] = {
+    {8, "zlib compression"},
+    {0, NULL}
+};
+
+static const value_string deflate_chk_vals[] = {
+    {0, "sequence number check method"},
+    {0, NULL}
+};
+
+/* http://tools.ietf.org/html/rfc1979 */
 static void
 dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     guint length, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *tf;
     proto_tree *field_tree;
-    guint8      method;
+    guint8 window;
 
     tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
 
-    proto_tree_add_text(field_tree, tvb, offset + 2, 1, "Window: %u",
-        hi_nibble(tvb_get_guint8(tvb, offset + 2)));
-    method = lo_nibble(tvb_get_guint8(tvb, offset + 2));
-    proto_tree_add_text(field_tree, tvb, offset + 2, 1, "Method: %s (0x%02x)",
-        method == 0x08 ?  "zlib compression" : "other", method);
-    proto_tree_add_text(field_tree, tvb, offset + 3, 1,
-        "Sequence number check method: %u",
-        tvb_get_guint8(tvb, offset + 2) & 0x03);
+    window = tvb_get_guint8(tvb, offset + 2);
+    proto_tree_add_uint_format_value(field_tree, hf_ccp_opt_window, tvb,
+        offset + 2, 1, window, "%u", 1 << (hi_nibble(window) + 8));
+    proto_tree_add_item(field_tree, hf_ccp_opt_method, tvb, offset + 2, 1,
+        ENC_NA);
+    proto_tree_add_item(field_tree, hf_ccp_opt_mbz, tvb, offset + 3, 1,
+        ENC_NA);
+    proto_tree_add_item(field_tree, hf_ccp_opt_chk, tvb, offset + 3, 1,
+        ENC_NA);
 }
+
+static const range_string v44lzjh_mode_dict_rvals[] = {
+    {0, 0, "Datagram Mode (one dictionary and no history)"},
+    {1, 1, "Multi-Datagram Mode (one dictionary with history)"},
+    {2, G_MAXUINT16, "Individual Link Mode" /* "(and proposed number of
+                                                 dictionaries each with a
+                                                 corresponding history" */},
+    {0, 0, NULL}
+};
+
+/* http://www.watersprings.org/pub/id/draft-heath-ppp-v44-01.txt */
+static void dissect_ccp_v44lzjh_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
+    int offset, guint length, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *tf;
+    proto_tree *field_tree;
+
+    tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
+    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    dissect_ccp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    proto_tree_add_item(field_tree, hf_ccp_opt_mode_dictcount, tvb, offset + 2,
+        2, ENC_BIG_ENDIAN);
+
+    if (length > 4) {
+        proto_tree_add_item(field_tree, hf_ccp_opt_dict_size, tvb, offset + 4,
+            2, ENC_BIG_ENDIAN);
+        if (length > 6) {
+            proto_tree_add_item(field_tree, hf_ccp_opt_history_length, tvb,
+                offset + 6, 2, ENC_BIG_ENDIAN);
+        }
+    }
+}
+
 
 static void
 dissect_cbcp_no_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
@@ -3528,6 +3795,56 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
         }
         break;
 
+    case CODEREJ:
+        if (tree && (length > 0)) {
+            /* TODO: Decode the rejected packet here ... but wait until we have
+             * a valid capture file with a CODEREJ, since the only capture file
+             * with CODEREJ packets in it that I know of is pppoe.dump.gz from
+             * the menagerie, and that file appears to have malformed CODEREJ
+             * packets as they don't include the Code, Identifier or Length
+             * fields so it's impossible to do the decode. */
+            proto_tree_add_bytes_format(fh_tree, hf_ppp_data, tvb, offset,
+                length, NULL, "Rejected Packet (%d byte%s): %s", length,
+                plurality(length, "", "s"),
+                tvb_bytes_to_str(tvb, offset, length));
+        }
+        break;
+
+    case PROTREJ:       /* LCP only: RFC 1661 */
+        if (tree) {
+            proto_tree_add_item(fh_tree, hf_lcp_rej_proto, tvb, offset, 2,
+                ENC_BIG_ENDIAN);
+        }
+        if (length > 2) {
+            gboolean save_in_error_pkt;
+            tvbuff_t *next_tvb;
+            guint16 protocol;
+
+            protocol = tvb_get_ntohs(tvb, offset);
+            offset += 2;
+            length -= 2;
+
+            /*
+             * Save the current value of the "we're inside an error packet"
+             * flag, and set that flag; subdissectors may treat packets that
+             * are the payload of error packets differently from "real"
+             * packets.
+             */
+            save_in_error_pkt = pinfo->flags.in_error_pkt;
+            pinfo->flags.in_error_pkt = TRUE;
+
+            /* Decode the rejected packet. */
+            next_tvb = tvb_new_subset(tvb, offset, length, length);
+            if (!dissector_try_uint(ppp_subdissector_table, protocol, next_tvb,
+                pinfo, fh_tree)) {
+                call_dissector(data_handle, next_tvb, pinfo, fh_tree);
+            }
+
+            /* Restore the "we're inside an error packet" flag. */
+            pinfo->flags.in_error_pkt = save_in_error_pkt;
+        }
+        break;
+
     case ECHOREQ: /* All 3 are LCP only: RFC 1661 */
     case ECHOREP:
     case DISCREQ:
@@ -3569,58 +3886,10 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
         }
         break;
 
-    case PROTREJ:       /* LCP only: RFC 1661 */
-        if (tree) {
-            proto_tree_add_item(fh_tree, hf_lcp_rej_proto, tvb, offset, 2,
-                ENC_BIG_ENDIAN);
-        }
-        if (length > 2) {
-            gboolean save_in_error_pkt;
-            tvbuff_t *next_tvb;
-            guint16 protocol;
-
-            protocol = tvb_get_ntohs(tvb, offset);
-            offset += 2;
-            length -= 2;
-
-            /*
-             * Save the current value of the "we're inside an error packet"
-             * flag, and set that flag; subdissectors may treat packets that
-             * are the payload of error packets differently from "real"
-             * packets.
-             */
-            save_in_error_pkt = pinfo->flags.in_error_pkt;
-            pinfo->flags.in_error_pkt = TRUE;
-
-            /* Decode the rejected packet. */
-            next_tvb = tvb_new_subset(tvb, offset, length, length);
-            if (!dissector_try_uint(ppp_subdissector_table, protocol, next_tvb,
-                pinfo, fh_tree)) {
-                call_dissector(data_handle, next_tvb, pinfo, fh_tree);
-            }
-
-            /* Restore the "we're inside an error packet" flag. */
-            pinfo->flags.in_error_pkt = save_in_error_pkt;
-        }
-        break;
-
-    case CODEREJ:
-        if (tree && (length > 0)) {
-            /* TODO: Decode the rejected packet here ... but wait until we have
-             * a valid capture file with a CODEREJ, since the only capture file
-             * with CODEREJ packets in it that I know of is pppoe.dump.gz from
-             * the menagerie, and that file appears to have malformed CODEREJ
-             * packets as they don't include the Code, Identifier or Length
-             * fields so it's impossible to do the decode. */
-            proto_tree_add_bytes_format(fh_tree, hf_ppp_data, tvb, offset,
-                length, NULL, "Rejected Packet (%d byte%s): %s", length,
-                plurality(length, "", "s"),
-                tvb_bytes_to_str(tvb, offset, length));
-        }
-        break;
-
     case TERMREQ:
     case TERMACK:
+    case RESETREQ:  /* RESETREQ and RESETACK are CCP only: RFC 1962 */
+    case RESETACK:
     default:
         if (tree && (length > 0)) {
             proto_tree_add_item(fh_tree, hf_ppp_data, tvb, offset, length,
@@ -5861,19 +6130,141 @@ proto_reg_handoff_osinlcp(void)
 void
 proto_register_ccp(void)
 {
+    static hf_register_info hf[] = {
+        { &hf_ccp_opt_type,
+            { "Type", "ccp.opt.type", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_length,
+            { "Length", "ccp.opt.length", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_oui,
+            { "OUI", "ccp.opt.oui", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_subtype,
+            { "Subtype", "ccp.opt.subtype", FT_UINT8, BASE_DEC_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_history_count,
+            { "History Count", "ccp.opt.history_count", FT_UINT16, BASE_DEC,
+                NULL, 0x0, "The maximum number of compression histories",
+                HFILL }},
+        { &hf_ccp_opt_cm,
+            { "Check Mode Field", "ccp.opt.cm", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_cm_reserved,
+            { "Reserved", "ccp.opt.cm.reserved", FT_UINT8, BASE_DEC,
+                NULL, 0xF8, NULL, HFILL }},
+        { &hf_ccp_opt_cm_check_mode,
+            { "Check Mode", "ccp.opt.cm.check_mode", FT_UINT8, BASE_DEC,
+                VALS(stac_checkmode_vals), 0x07, NULL, HFILL }},
+        { &hf_ccp_opt_supported_bits,
+            { "Supported Bits", "ccp.opt.supported_bits", FT_UINT32, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_supported_bits_h,
+            { "H", "ccp.opt.supported_bits.h", FT_BOOLEAN, 32,
+                TFS(&ccp_mppe_h_tfs), MPPE_SUPPORTED_BITS_H, NULL, HFILL }},
+        { &hf_ccp_opt_supported_bits_m,
+            { "M", "ccp.opt.supported_bits.m", FT_BOOLEAN, 32,
+                TFS(&ccp_mppe_m_tfs), MPPE_SUPPORTED_BITS_M, NULL, HFILL }},
+        { &hf_ccp_opt_supported_bits_s,
+            { "S", "ccp.opt.supported_bits.s", FT_BOOLEAN, 32,
+                TFS(&ccp_mppe_s_tfs), MPPE_SUPPORTED_BITS_S, NULL, HFILL }},
+        { &hf_ccp_opt_supported_bits_l,
+            { "L", "ccp.opt.supported_bits.l", FT_BOOLEAN, 32,
+                TFS(&ccp_mppe_l_tfs), MPPE_SUPPORTED_BITS_L, NULL, HFILL }},
+        { &hf_ccp_opt_supported_bits_d,
+            { "D", "ccp.opt.supported_bits.d", FT_BOOLEAN, 32,
+                TFS(&ccp_mppe_d_tfs), MPPE_SUPPORTED_BITS_D, NULL, HFILL }},
+        { &hf_ccp_opt_supported_bits_c,
+            { "C", "ccp.opt.supported_bits.c", FT_BOOLEAN, 32,
+                TFS(&ccp_mppe_c_tfs), MPPC_SUPPORTED_BITS_C, NULL, HFILL }},
+        { &hf_ccp_opt_history,
+            { "History", "ccp.opt.history", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Maximum size of the compression history in powers of 2",
+                HFILL }},
+        { &hf_ccp_opt_version,
+            { "Version", "ccp.opt.version", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_vd,
+            { "Vers/Dict", "ccp.opt.vd", FT_UINT8, BASE_HEX,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_vd_vers,
+            { "Vers", "ccp.opt.vd.vers", FT_UINT8, BASE_DEC,
+                NULL, 0xE0, NULL, HFILL }},
+        { &hf_ccp_opt_vd_dict,
+            { "Dict", "ccp.opt.vd.dict", FT_UINT8, BASE_DEC, NULL,
+                0x1F, "The size in bits of the largest code used", HFILL }},
+        { &hf_ccp_opt_check_mode,
+            { "Check Mode", "ccp.opt.check_mode", FT_UINT8, BASE_DEC,
+                VALS(&lzsdcp_checkmode_vals), 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_process_mode,
+            { "Process Mode", "ccp.opt.process_mode", FT_UINT8, BASE_DEC,
+                VALS(&lzsdcp_processmode_vals), 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_fe,
+            { "Features", "ccp.opt.fe", FT_UINT8, BASE_DEC,
+                NULL, 0xC0, NULL, HFILL }},
+        { &hf_ccp_opt_p,
+            { "Packet by Packet flag", "ccp.opt.p", FT_BOOLEAN, 8,
+                TFS(&tfs_enabled_disabled), 0x20, NULL, HFILL }},
+        { &hf_ccp_opt_History,
+            { "History", "ccp.opt.History", FT_UINT8, BASE_DEC,
+                NULL, 0x1F, NULL, HFILL }},
+        { &hf_ccp_opt_contexts,
+            { "# Contexts", "ccp.opt.contexts", FT_UINT8, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_mode,
+            { "Mode", "ccp.opt.mode", FT_UINT8, BASE_DEC,
+                VALS(&dce_mode_vals), 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_window,
+            { "Window", "ccp.opt.window", FT_UINT8, BASE_DEC,
+                NULL, 0xF0, NULL, HFILL }},
+        { &hf_ccp_opt_method,
+            { "Method", "ccp.opt.method", FT_UINT8, BASE_DEC,
+                VALS(&deflate_method_vals), 0x0F, NULL, HFILL }},
+        { &hf_ccp_opt_mbz,
+            { "MBZ", "ccp.opt.mbz", FT_UINT8, BASE_DEC,
+                NULL, 0xFC, NULL, HFILL }},
+        { &hf_ccp_opt_chk,
+            { "Chk", "ccp.opt.chk", FT_UINT8, BASE_DEC,
+                VALS(&deflate_chk_vals), 0x03, NULL, HFILL }},
+        { &hf_ccp_opt_mode_dictcount,
+            { "Mode/Dictionary Count", "ccp.opt.mode_dictcount", FT_UINT16,
+                BASE_DEC | BASE_RANGE_STRING, RVALS(v44lzjh_mode_dict_rvals),
+                0x0, NULL, HFILL }},
+        { &hf_ccp_opt_dict_size,
+            { "Dictionary Size", "ccp.opt.dict_size", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_history_length,
+            { "History Length", "ccp.opt.history_length", FT_UINT16, BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+        { &hf_ccp_opt_data,
+            { "Data", "ccp.opt.data", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }},
+    };
     static gint *ett[] = {
         &ett_ccp,
         &ett_ccp_options,
+        &ett_ccp_oui_opt,
+        &ett_ccp_predict1_opt,
+        &ett_ccp_predict2_opt,
+        &ett_ccp_puddle_opt,
+        &ett_ccp_hpppc_opt,
         &ett_ccp_stac_opt,
-        &ett_ccp_mppc_opt,
+        &ett_ccp_stac_opt_check_mode,
+        &ett_ccp_mppe_opt,
+        &ett_ccp_mppe_opt_supp_bits,
+        &ett_ccp_gfza_opt,
+        &ett_ccp_v42bis_opt,
         &ett_ccp_bsdcomp_opt,
         &ett_ccp_lzsdcp_opt,
         &ett_ccp_mvrca_opt,
-        &ett_ccp_deflate_opt
+        &ett_ccp_dce_opt,
+        &ett_ccp_deflate_opt,
+        &ett_ccp_v44lzjh_opt
     };
 
     proto_ccp = proto_register_protocol("PPP Compression Control Protocol",
         "PPP CCP", "ccp");
+    proto_register_field_array(proto_ccp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
