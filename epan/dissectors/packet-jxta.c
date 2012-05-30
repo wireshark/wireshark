@@ -203,7 +203,7 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
 
 static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
 static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-static conversation_t *get_tpt_conversation(packet_info * pinfo, gboolean create);
+static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo);
 static conversation_t *get_peer_conversation(packet_info * pinfo, jxta_stream_conversation_data* tpt_conv_data, gboolean create);
 
 static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, address * found_addr, gboolean initiator);
@@ -517,7 +517,6 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     guint available = tvb_reported_length_remaining(tvb, offset);
     gint processed = 0;
     gint needed = 0;
-    conversation_t *tpt_conversation = NULL;
     jxta_stream_conversation_data *tpt_conv_data = NULL;
     proto_item *jxta_tree_item = NULL;
     proto_tree *jxta_tree = NULL;
@@ -534,11 +533,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         address *welcome_addr;
         gboolean initiator = FALSE;
 
-        tpt_conversation = get_tpt_conversation(pinfo, TRUE);
-        tpt_conv_data = (jxta_stream_conversation_data *) conversation_get_proto_data(tpt_conversation, proto_jxta);
-        if (NULL != tpt_conversation) {
-            return 0;
-        }
+        tpt_conv_data = get_tpt_conversation(pinfo);
 
         if (0 == tpt_conv_data->initiator_welcome_frame) {
             /* The initiator welcome frame */
@@ -620,14 +615,8 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             /* Redo header processing, this time populating the tree. */
             headers_len = dissect_jxta_message_framing(tvb, pinfo, jxta_tree, &content_length, &content_type);
 
-            tpt_conversation = get_tpt_conversation(pinfo, TRUE);
-
-            if (NULL != tpt_conversation) {
-                tpt_conv_data = (jxta_stream_conversation_data *) conversation_get_proto_data(tpt_conversation, proto_jxta);
-                if (tpt_conv_data) {
-                    peer_conversation = get_peer_conversation(pinfo, tpt_conv_data, TRUE);
-                }
-            }
+            tpt_conv_data = get_tpt_conversation(pinfo);
+            peer_conversation = get_peer_conversation(pinfo, tpt_conv_data, TRUE);
 
             /* Use our source and destination addresses if we have them */
             if (NULL != peer_conversation) {
@@ -690,19 +679,14 @@ Common_Exit:
 *   which is associated with the packet info.
 *
 *   @param pinfo  The packet info from the underlying transport.
-*   @param create If TRUE then create a new conversation object if necessary.
 **/
-static conversation_t *get_tpt_conversation(packet_info * pinfo, gboolean create)
+static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo)
 {
     conversation_t *tpt_conversation =
         find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
     jxta_stream_conversation_data *tpt_conv_data;
 
     if (tpt_conversation == NULL) {
-        if (!create) {
-            return NULL;
-        }
-
         /*
          * No conversation exists yet - create one.
          */
@@ -735,7 +719,7 @@ static conversation_t *get_tpt_conversation(packet_info * pinfo, gboolean create
         conversation_add_proto_data(tpt_conversation, proto_jxta, tpt_conv_data);
     }
 
-    return tpt_conversation;
+    return tpt_conv_data;
 }
 
 /**
