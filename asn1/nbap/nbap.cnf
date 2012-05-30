@@ -612,7 +612,7 @@ int j, num_tf;
 
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
-transportFormatSet_type = CPCH;
+transportFormatSet_type = NBAP_CPCH;
 
 %(DEFAULT_BODY)s
 
@@ -803,7 +803,7 @@ int i, j, num_tf;
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
 
-transportFormatSet_type = CPCH;
+transportFormatSet_type = NBAP_CPCH;
 
 %(DEFAULT_BODY)s
 
@@ -896,23 +896,23 @@ transportFormatSet_type = CPCH;
 	prev_dch_id = dch_id;
 
 #.FN_HDR DCH-Specific-FDD-Item/ul-TransportFormatSet
-	transportFormatSet_type = DCH_UL;
+	transportFormatSet_type = NBAP_DCH_UL;
 	nbap_dch_chnl_info[dch_id].num_ul_chans = 0;
 
 #.FN_HDR DCH-Specific-FDD-Item/dl-TransportFormatSet
-	transportFormatSet_type = DCH_DL;
+	transportFormatSet_type = NBAP_DCH_DL;
 	nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
 #.FN_HDR DCH-ModifySpecificItem-FDD/ul-TransportFormatSet
-	transportFormatSet_type = DCH_UL;
+	transportFormatSet_type = NBAP_DCH_UL;
 	nbap_dch_chnl_info[dch_id].num_ul_chans = 0;
 
 #.FN_HDR DCH-ModifySpecificItem-FDD/dl-TransportFormatSet
-	transportFormatSet_type = DCH_DL;
+	transportFormatSet_type = NBAP_DCH_DL;
 	nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
 #.FN_HDR PCH-ParametersItem-CTCH-SetupRqstFDD/transportFormatSet
-	transportFormatSet_type = PCH;
+	transportFormatSet_type = NBAP_PCH;
 	nbap_dch_chnl_info[commontransportchannelid].num_dl_chans = 0;
 	nbap_dch_chnl_info[commontransportchannelid].num_ul_chans = 0;
 
@@ -931,21 +931,21 @@ guint32 NrOfTransportBlocks;
 
 	if(num_items>0){
 		switch(transportFormatSet_type){
-			case DCH_UL:
+			case NBAP_DCH_UL:
 				nbap_dch_chnl_info[dch_id].num_ul_chans++;
 				nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case DCH_DL:
+			case NBAP_DCH_DL:
 				nbap_dch_chnl_info[dch_id].num_dl_chans++;
 				nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case CPCH: 
+			case NBAP_CPCH: 
 				nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans++;
 				nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans++;
 				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case PCH: 
+			case NBAP_PCH: 
 				nbap_dch_chnl_info[commontransportchannelid].num_ul_chans++;
 				nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				nbap_dch_chnl_info[commontransportchannelid].num_dl_chans++;
@@ -963,17 +963,17 @@ guint32 TransportBlockSize;
 
 	if(num_items>0){
 		switch(transportFormatSet_type){
-			case DCH_UL:
+			case NBAP_DCH_UL:
 				nbap_dch_chnl_info[dch_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
-			case DCH_DL:
+			case NBAP_DCH_DL:
 				nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
-			case CPCH:
+			case NBAP_CPCH:
 				nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
-			case PCH:
+			case NBAP_PCH:
 				nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;

@@ -6555,11 +6555,11 @@ static guint32 ib_type, segment_type;
 
 enum TransportFormatSet_type_enum
 {
-	DCH_UL,
-	DCH_DL,
-	CPCH,
-	FACH,
-	PCH
+	NBAP_DCH_UL,
+	NBAP_DCH_DL,
+	NBAP_CPCH,
+	NBAP_FACH,
+	NBAP_PCH
 };
 
 enum TransportFormatSet_type_enum transportFormatSet_type;
@@ -14591,21 +14591,21 @@ guint32 NrOfTransportBlocks;
 
 	if(num_items>0){
 		switch(transportFormatSet_type){
-			case DCH_UL:
+			case NBAP_DCH_UL:
 				nbap_dch_chnl_info[dch_id].num_ul_chans++;
 				nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case DCH_DL:
+			case NBAP_DCH_DL:
 				nbap_dch_chnl_info[dch_id].num_dl_chans++;
 				nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case CPCH: 
+			case NBAP_CPCH: 
 				nbap_dch_chnl_info[commonphysicalchannelid].num_ul_chans++;
 				nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				nbap_dch_chnl_info[commonphysicalchannelid].num_dl_chans++;
 				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				break;
-			case PCH: 
+			case NBAP_PCH: 
 				nbap_dch_chnl_info[commontransportchannelid].num_ul_chans++;
 				nbap_dch_chnl_info[commontransportchannelid].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
 				nbap_dch_chnl_info[commontransportchannelid].num_dl_chans++;
@@ -14634,17 +14634,17 @@ guint32 TransportBlockSize;
 
 	if(num_items>0){
 		switch(transportFormatSet_type){
-			case DCH_UL:
+			case NBAP_DCH_UL:
 				nbap_dch_chnl_info[dch_id].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
-			case DCH_DL:
+			case NBAP_DCH_DL:
 				nbap_dch_chnl_info[dch_id].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
-			case CPCH:
+			case NBAP_CPCH:
 				nbap_dch_chnl_info[commonphysicalchannelid].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				nbap_dch_chnl_info[commonphysicalchannelid].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
-			case PCH:
+			case NBAP_PCH:
 				nbap_dch_chnl_info[commontransportchannelid].ul_chan_tf_size[num_items-1] = TransportBlockSize;
 				nbap_dch_chnl_info[commontransportchannelid].dl_chan_tf_size[num_items-1] = TransportBlockSize;
 				break;
@@ -14943,7 +14943,7 @@ dissect_nbap_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_T_ul_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 899 "../../asn1/nbap/nbap.cnf"
-	transportFormatSet_type = DCH_UL;
+	transportFormatSet_type = NBAP_DCH_UL;
 	nbap_dch_chnl_info[dch_id].num_ul_chans = 0;
 
 
@@ -14957,7 +14957,7 @@ dissect_nbap_T_ul_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_nbap_T_dl_TransportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 903 "../../asn1/nbap/nbap.cnf"
-	transportFormatSet_type = DCH_DL;
+	transportFormatSet_type = NBAP_DCH_DL;
 	nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
 
@@ -15322,7 +15322,7 @@ dissect_nbap_T_dCH_ID_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_nbap_T_ul_TransportFormatSet_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 907 "../../asn1/nbap/nbap.cnf"
-	transportFormatSet_type = DCH_UL;
+	transportFormatSet_type = NBAP_DCH_UL;
 	nbap_dch_chnl_info[dch_id].num_ul_chans = 0;
 
 
@@ -15336,7 +15336,7 @@ dissect_nbap_T_ul_TransportFormatSet_01(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_nbap_T_dl_TransportFormatSet_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 911 "../../asn1/nbap/nbap.cnf"
-	transportFormatSet_type = DCH_DL;
+	transportFormatSet_type = NBAP_DCH_DL;
 	nbap_dch_chnl_info[dch_id].num_dl_chans = 0;
 
 
@@ -31520,7 +31520,7 @@ int i, j, num_tf;
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
 
-transportFormatSet_type = CPCH;
+transportFormatSet_type = NBAP_CPCH;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_FACH_ParametersItem_CTCH_SetupRqstFDD, FACH_ParametersItem_CTCH_SetupRqstFDD_sequence);
@@ -31628,7 +31628,7 @@ dissect_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD(tvbuff_t *tvb _U_, int offs
 static int
 dissect_nbap_T_transportFormatSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 915 "../../asn1/nbap/nbap.cnf"
-	transportFormatSet_type = PCH;
+	transportFormatSet_type = NBAP_PCH;
 	nbap_dch_chnl_info[commontransportchannelid].num_dl_chans = 0;
 	nbap_dch_chnl_info[commontransportchannelid].num_ul_chans = 0;
 
@@ -31817,7 +31817,7 @@ int j, num_tf;
 
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
-transportFormatSet_type = CPCH;
+transportFormatSet_type = NBAP_CPCH;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nbap_RACH_ParametersItem_CTCH_SetupRqstFDD, RACH_ParametersItem_CTCH_SetupRqstFDD_sequence);

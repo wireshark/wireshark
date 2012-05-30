@@ -162,11 +162,11 @@ static guint32 ib_type, segment_type;
 
 enum TransportFormatSet_type_enum
 {
-	DCH_UL,
-	DCH_DL,
-	CPCH,
-	FACH,
-	PCH
+	NBAP_DCH_UL,
+	NBAP_DCH_DL,
+	NBAP_CPCH,
+	NBAP_FACH,
+	NBAP_PCH
 };
 
 enum TransportFormatSet_type_enum transportFormatSet_type;
