@@ -26,9 +26,9 @@ INCLUDES = -I$(top_srcdir) -I$(includedir)
 
 include Makefile.common
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
-endif
+#if HAVE_WARNINGS_AS_ERRORS
+#AM_CFLAGS = -Werror
+#endif
 
 plugindir = @plugindir@
 
