@@ -3125,7 +3125,7 @@ static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_)
 {
     fp_info  *fpi;
-    guint8    tfi;
+    guint8    tfi, c_t;
     int       offset = 0, i;
     gboolean  is_control_frame;
     umts_mac_info *macinf;
@@ -3232,7 +3232,25 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
                 macinf->ctmux[0]   = 1;
                 macinf->content[0] = MAC_CONTENT_DCCH;
                 p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
-            }
+
+				/* Set RLC data */
+				/* Peek at C/T, different RLC params for different logical channels */
+				c_t = tvb_get_guint8(tvb,offset);
+				rlcinf = se_new0(rlc_info);
+				/* Make configurable ?(avaliable in NBAP?) */
+				/* urnti[MAX_RLC_CHANS] */
+				if(c_t == 0 ){
+					rlcinf->mode[0] = RLC_UM;
+				}else{
+					rlcinf->mode[0] = RLC_AM;
+				}
+				/* rbid[MAX_RLC_CHANS] */
+				rlcinf->li_size[0] = RLC_LI_7BITS;
+				rlcinf->ciphered[0] = FALSE;
+				rlcinf->deciphered[0] = FALSE;
+
+				p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+			}
             /* Set offset to point to first TFI
              * the Number of TFI's = number of DCH's in the flow
              */
