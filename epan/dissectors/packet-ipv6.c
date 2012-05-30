@@ -452,10 +452,11 @@ add_geoip_info_entry(proto_tree *geoip_info_item, tvbuff_t *tvb, gint offset, co
 
   for (dbnum = 0; dbnum < num_dbs; dbnum++) {
     const char *geoip_str = geoip_db_lookup_ipv6(dbnum, *ip, NULL);
+    int db_type = geoip_db_type(dbnum);
 
     int geoip_hf, geoip_local_hf;
 
-    switch (geoip_db_type(dbnum)) {
+    switch (db_type) {
       case GEOIP_COUNTRY_EDITION_V6:
         geoip_hf = hf_geoip_country;
         geoip_local_hf = (isdst) ? hf_geoip_dst_country : hf_geoip_src_country;
@@ -494,14 +495,24 @@ add_geoip_info_entry(proto_tree *geoip_info_item, tvbuff_t *tvb, gint offset, co
 
     if (geoip_str) {
       proto_item *item;
-
-      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_local_hf, tvb,
-        offset, 16, geoip_str, "%s", geoip_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
-        offset, 16, geoip_str, "%s", geoip_str);
-      PROTO_ITEM_SET_GENERATED(item);
-      PROTO_ITEM_SET_HIDDEN(item);
+      if (db_type == WS_LAT_FAKE_EDITION || db_type == WS_LON_FAKE_EDITION) {
+        /* Convert latitude, longitude to double. Fix bug #5077 */
+        item = proto_tree_add_double_format_value(geoip_info_tree, geoip_local_hf, tvb,
+          offset, 16, g_ascii_strtod(geoip_str, NULL), "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        item  = proto_tree_add_double_format_value(geoip_info_tree, geoip_hf, tvb,
+          offset, 16, g_ascii_strtod(geoip_str, NULL), "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_HIDDEN(item);
+      } else {
+        item = proto_tree_add_string_format_value(geoip_info_tree, geoip_local_hf, tvb,
+          offset, 16, geoip_str, "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
+          offset, 16, geoip_str, "%s", geoip_str);
+        PROTO_ITEM_SET_GENERATED(item);
+        PROTO_ITEM_SET_HIDDEN(item);
+      }
 
       item_cnt++;
       proto_item_append_text(geoip_info_item, "%s%s", plurality(item_cnt, "", ", "), geoip_str);
@@ -2150,11 +2161,11 @@ proto_register_ipv6(void)
                                 NULL, HFILL }},
     { &hf_geoip_lat,
       { "Source or Destination GeoIP Latitude", "ipv6.geoip.lat",
-                                FT_STRING, BASE_NONE, NULL, 0x0,
+                                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_geoip_lon,
       { "Source or Destination GeoIP Longitude", "ipv6.geoip.lon",
-                                FT_STRING, BASE_NONE, NULL, 0x0,
+                                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_geoip_src_country,
       { "Source GeoIP Country", "ipv6.geoip.src_country",
@@ -2178,11 +2189,11 @@ proto_register_ipv6(void)
                                 NULL, HFILL }},
     { &hf_geoip_src_lat,
       { "Source GeoIP Latitude", "ipv6.geoip.src_lat",
-                                FT_STRING, BASE_NONE, NULL, 0x0,
+                                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_geoip_src_lon,
       { "Source GeoIP Longitude", "ipv6.geoip.src_lon",
-                                FT_STRING, BASE_NONE, NULL, 0x0,
+                                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_geoip_dst_country,
       { "Destination GeoIP Country", "ipv6.geoip.dst_country",
@@ -2206,11 +2217,11 @@ proto_register_ipv6(void)
                                 NULL, HFILL }},
     { &hf_geoip_dst_lat,
       { "Destination GeoIP Latitude", "ipv6.geoip.dst_lat",
-                                FT_STRING, BASE_NONE, NULL, 0x0,
+                                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_geoip_dst_lon,
       { "Destination GeoIP Longitude", "ipv6.geoip.dst_lon",
-                                FT_STRING, BASE_NONE, NULL, 0x0,
+                                FT_DOUBLE, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
 #endif /* HAVE_GEOIP_V6 */
 
