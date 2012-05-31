@@ -1715,6 +1715,11 @@ while ($_ = $ARGV[0])
                 print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
         }
 
+        if ($fileContents =~ m{ snprintf .* strlen }xo)
+        {
+                print STDERR "Warning: ".$filename." uses snprintf + strlen to assemble strings.\n";
+        }
+
         # optionally check the hf entries
         if ($check_hf) {
                 $errorCount += check_hf_entries(\$fileContents, $filename);
@@ -1803,4 +1808,3 @@ for my $apiGroup (@apiSummaryGroups) {
 }
 
 exit($errorCount);
-
