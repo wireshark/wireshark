@@ -3390,6 +3390,14 @@ Mayuresh Raut		<msraut [AT] ncsu.edu> {
 	LSP ping over MPLS tunnels (RFC 6424)
 }
 
+Sheetal Kshirsagar	<sdkshirs [AT] ncsu.edu> {
+	RPL SRH dissector enhancements (RFC 6554)
+}
+
+Andrew Williams		<anwilli5 [AT] ncsu.edu> {
+	IPv6 preference for RPL SRH strict compliance to RFC 6554
+}
+
 Per Liedberg		<per.liedberg [AT] ericsson.com> {
 	RoHC dissection improvments
 }

@@ -303,6 +303,9 @@ static gboolean ipv6_summary_in_tree = TRUE;
 static gboolean ipv6_use_geoip = TRUE;
 #endif /* HAVE_GEOIP_V6 */
 
+/* Perform strict RFC adherence checking */
+static gboolean g_ipv6_rpl_srh_strict_rfc_checking = FALSE;
+
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
 #endif
@@ -554,7 +557,7 @@ enum {
   IPv6_RT_HEADER_SOURCE_ROUTING=0,
   IPv6_RT_HEADER_NIMROD,
   IPv6_RT_HEADER_MobileIP,
-  IPv6_RT_HEADER_RPL=4
+  IPv6_RT_HEADER_RPL
 };
 
 /* Routing Header Types */
@@ -636,17 +639,25 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
             guint8 cmprI;
             guint8 cmprE;
             guint8 pad;
+            guint32 reserved;
             gint segments;
 
             /* IPv6 destination address used for elided bytes */
             struct e_in6_addr dstAddr;
+            /* IPv6 source address used for strict checking */
+            struct e_in6_addr srcAddr;
             offset += 4;
             memcpy((guint8 *)&dstAddr, (guint8 *)pinfo->dst.data, pinfo->dst.len);
+            memcpy((guint8 *)&srcAddr, (guint8 *)pinfo->src.data, pinfo->src.len);
+
+            /* from RFC6554: Multicast addresses MUST NOT appear in the IPv6 Destination Address field */
+            if(g_ipv6_rpl_srh_strict_rfc_checking && E_IN6_IS_ADDR_MULTICAST(&dstAddr)){
+                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Destination address must not be a multicast address ");
+            }
 
             proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
             cmprI = tvb_get_guint8(tvb, offset) & 0xF0;
             cmprE = tvb_get_guint8(tvb, offset) & 0x0F;
@@ -656,14 +667,27 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
             cmprI >>= 4;
             pad >>= 4;
 
-            /* from draft-ietf-6man-rpl-routing-header-03:
+            /* from RFC6554: when CmprI and CmprE are both 0, Pad MUST carry a value of 0 */
+            if(g_ipv6_rpl_srh_strict_rfc_checking && (cmprI == 0 && cmprE == 0 && pad != 0)){
+                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was %d", pad);
+            }
+
+            proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+            reserved = tvb_get_bits32(tvb, ((offset + 1) * 8) + 4, 20, ENC_BIG_ENDIAN);
+
+            if(g_ipv6_rpl_srh_strict_rfc_checking && reserved != 0){
+                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Reserved field must equal 0 but instead was %d", reserved);
+            }
+
+            /* from RFC6554:
             n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
             segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
             ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_hdr_rpl_segments, tvb, offset, 2, segments);
             PROTO_ITEM_SET_GENERATED(ti);
 
-            if ((segments < 0) || (segments > 136)) {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Calculated total segments is invalid, 0 < %d < 136 fails", segments);
+            if (segments < 0) {
+                /* This error should always be reported */
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Calculated total segments must be greater than or equal to 0, instead was %d", segments);
             } else {
 
                 offset += 4;
@@ -680,6 +704,53 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                     PROTO_ITEM_SET_GENERATED(ti);
                     offset += (16-cmprI);
                     segments--;
+
+                    if(g_ipv6_rpl_srh_strict_rfc_checking){
+                        /* from RFC6554: */
+                        /* The SRH MUST NOT specify a path that visits a node more than once. */
+                        /* To do this, we will just check the current 'addr' against the next addresses */
+                        gint tempSegments;
+                        gint tempOffset;
+                        tempSegments = segments; /* Has already been decremented above */
+                        tempOffset = offset; /* Has already been moved */
+                        while(tempSegments > 1) {
+                            struct e_in6_addr tempAddr;
+                            memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                            tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprI, tempOffset, (16-cmprI));
+                            /* Compare the addresses */
+                            if (memcmp(addr.bytes, tempAddr.bytes, 16) == 0) {
+                                /* Found a later address that is the same */
+                                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multiple instances of the same address must not appear in the source route list");
+                                break;
+                            }
+                            tempOffset += (16-cmprI);
+                            tempSegments--;
+                        }
+                        if (tempSegments == 1) {
+                            struct e_in6_addr tempAddr;
+
+                            memcpy((guint8 *)&tempAddr, (guint8 *)&dstAddr, sizeof(dstAddr));
+                            tvb_memcpy(tvb, (guint8 *)&tempAddr + cmprE, tempOffset, (16-cmprE));
+                            /* Compare the addresses */
+                            if (memcmp(addr.bytes, tempAddr.bytes, 16) == 0) {
+                                /* Found a later address that is the same */
+                                expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multiple instances of the same address must not appear in the source route list");
+                            }
+                        }
+                        /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
+                        if (memcmp(addr.bytes, srcAddr.bytes, 16) == 0) {
+                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Source address must not appear in the source route list");
+                        }
+
+                        if (memcmp(addr.bytes, dstAddr.bytes, 16) == 0) {
+                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Destination address must not appear in the source route list");
+                        }
+
+                        /* Multicast addresses MUST NOT appear in the in SRH */
+                        if(E_IN6_IS_ADDR_MULTICAST(&addr)){
+                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multicast addresses must not appear in the source route list");
+                        }
+                    }
                 }
 
                 /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
@@ -693,6 +764,22 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                     ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
                     PROTO_ITEM_SET_GENERATED(ti);
                     /* offset += (16-cmprE); */
+
+                    if(g_ipv6_rpl_srh_strict_rfc_checking){
+                        /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
+                        if (memcmp(addr.bytes, srcAddr.bytes, 16) == 0) {
+                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Source address must not appear in the source route list");
+                        }
+
+                        if (memcmp(addr.bytes, dstAddr.bytes, 16) == 0) {
+                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Destination address must not appear in the source route list");
+                        }
+
+                        /* Multicast addresses MUST NOT appear in the in SRH */
+                        if(E_IN6_IS_ADDR_MULTICAST(&addr)){
+                            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR, "Multicast addresses must not appear in the source route list");
+                        }
+                    }
                 }
             }
         }
@@ -2701,6 +2788,12 @@ proto_register_ipv6(void)
                   "Whether to look up IPv6 addresses in each GeoIP database we have loaded",
                   &ipv6_use_geoip);
 #endif /* HAVE_GEOIP_V6 */
+
+  /* RPL Strict Header Checking */
+  prefs_register_bool_preference(ipv6_module, "perform_strict_rpl_srh_rfc_checking",
+        "Perform strict checking for adherence to the RFC for RPL Source Routing Headers (RFC 6554)",
+        "Whether to check that all RPL Source Routing Headers adhere to RFC 6554",
+        &g_ipv6_rpl_srh_strict_rfc_checking);
 
   register_dissector("ipv6", dissect_ipv6, proto_ipv6);
   register_init_routine(ipv6_reassemble_init);
