@@ -3393,7 +3393,13 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     }
 
-
+	if(pinfo->p2p_dir == P2P_DIR_UNKNOWN){
+		if(pinfo->link_dir==P2P_DIR_UL){
+			pinfo->p2p_dir = P2P_DIR_RECV;
+		}else{
+			pinfo->p2p_dir = P2P_DIR_SENT;
+		}
+	}
     /* Can't dissect anything without it... */
     if (p_fp_info == NULL) {
         ti = proto_tree_add_text(fp_tree, tvb, offset, -1,
