@@ -159,7 +159,7 @@ proto_reg_handoff_dmx(void)
 
 	if (!dmx_initialized) {
 		rdm_handle = find_dissector("rdm");
-		dmx_test_handle = find_dissector("dmx-chan");
+		dmx_chan_handle = find_dissector("dmx-chan");
 		dmx_test_handle = find_dissector("dmx-test");
 		dmx_text_handle = find_dissector("dmx-text");
 		dmx_sip_handle = find_dissector("dmx-sip");
