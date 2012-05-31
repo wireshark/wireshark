@@ -72,6 +72,11 @@ Wireshark Info
         </para></listitem>
 -->
 
+      <listitem><para>
+	Rearranging columns in preferences doesn't work on 64-bit Windows.
+	(<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
+	6077</ulink>)
+      </para></listitem>
 
      </itemizedlist>
 
@@ -237,7 +242,7 @@ There are no new protocols in this release.
     web site</ulink>.
     </para>
     <para>
-    Training is available from
+    Official Wireshark training and certification are available from
     <ulink url="http://www.wiresharktraining.com/">Wireshark University</ulink>.
     </para>
   </section>
