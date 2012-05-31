@@ -404,6 +404,9 @@
         <gavp name="Restoration-Info"/>
       </grouped>
     </avp>
+ <!-- 
+652 Priviledged-Sender-Indication Enumerated
+-->   
     <!-- ************************ END IMS Cx Dx AVPS ******************* -->
 
 	</application>

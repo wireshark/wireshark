@@ -2606,11 +2606,13 @@ Note: The AVP codes from 256 to 299 are reserved for future use.
 316 Primary-OCS-Charging-Function-Name DiameterIdentity
 317 Secondary-OCS-Charging-Function-Name DiameterIdentity
 -->
-    <avp name="3GPP-AAA-Server-Name" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must" code="318">
-      <type type-name="DiameterIdentity"/>
+    <avp name="3GPP-AAA-Server-Name" code="318" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="Maximum-Number-Accesses" code="319" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
     </avp>
     <!--
-319 Maximum-Number-Accesses Unsigned32
 Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 -->
 		<avp name="GBA-UserSecSettings" code="400" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -2750,15 +2752,15 @@ Note: The AVP codes from 421 to 499 are reserved for TS 29.109
 -->
 <!-- Ref 3GPP TS 29.209 version 6.7.0 Release 6
  NOTE AVP 500 - 523 is in gqpolicy.xml
-      AVP 524 - 527 is in TGPPRx.xml (3GPP TS 29.214)
-Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
- NOTE AVP 600 - 651 is in imscxdx.xml
+      AVP 524 - 532 is in TGPPRx.xml (3GPP TS 29.214)
+Note: The AVP codes from 533 to 599 are reserved for TS 29.209 and TS 29.211
+ NOTE AVP 600 - 652 is in imscxdx.xml
 
 Note: The AVP codes from 652 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
- **************************   700 - 716         **************************
+ **************************   700 - 717         **************************
 Note: The AVP codes from 717 to799 are reserved for TS 29.329.
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
@@ -3833,7 +3835,15 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 		<avp name="QoS-Rule-Base-Name" code="1074" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 		  <type type-name="UTF8String"/>
 		</avp>
-
+<!--
+1075 Routing-Rule-Remove Grouped
+1076 Routing-Rule-Definition Grouped
+1077 Routing-Rule-Identifier OctetString
+1078 Routing-Filter Grouped
+1079 Routing-IP-Address Address
+1080 Flow-Direction Enumerated
+1081 Routing-Rule-Install Grouped
+-->
 <!-- Note: The AVP codes from 1072 to 1099 are reserved for TS 29.212 -->
 <!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -5239,8 +5249,11 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 				<gavp name="Visited-PLMN-Id"/>
 			</grouped>
 		</avp>
+    <avp name="CLR-Flags" code="1638" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
 
-<!--
+    <!--
 Note: The AVP codes from 1638 to 1699 are reserved for TS 29.272.
 -->
 
@@ -5625,8 +5638,11 @@ Note: The AVP codes from 1638 to 1699 are reserved for TS 29.272.
 			<enum name="Roaming-Default" code="4"/>
 			<enum name="Visiting-Default" code="5"/>
 		</avp>
+    <avp name="SGW-Address" code="2067" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Address"/>
+    </avp>
 
-<!-- Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299 -->
+    <!-- Note: The AVP codes from 2067 to 2099 are reserved for TS 32.299 -->
 		<avp name="Reserved" code="2100" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
@@ -5743,8 +5759,10 @@ Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
 2317	CSG-Access-Mode	Enumerated
 2318	CSG-Membership-Indication	Enumerated
 2319	User-CSG-Information	Grouped
+2320 Outgoing-Session-Id UTF8String
+2321 Initial-IMS-Charging-Identifier UTF8String
 
-Note: The AVP codes from 2320 to 2399 are reserved for TS 32.299
+Note: The AVP codes from 2322 to 2399 are reserved for TS 32.299
 2400	LMSI	OctetString
 2401	Serving-Node	Grouped
 2402	MME-Name	DiameterIdentity
@@ -5753,7 +5771,8 @@ Note: The AVP codes from 2320 to 2399 are reserved for TS 32.299
 2405	GMLC-Address	Address
 2406	Additional-Serving-Node	Grouped
 2407	PPR-Address	Address
-Note: The AVP codes from 2408 to 2499 are reserved for TS 29.173
+2408 MME-Realm DiameterIdentity
+Note: The AVP codes from 2409 to 2499 are reserved for TS 29.173
 -->
       <avp name="Location-Type" code="2500" vendor-bit="must" vendor-id="TGPP">
         <type type-name="Enumerated"/>
@@ -5791,10 +5810,14 @@ Note: The AVP codes from 2408 to 2499 are reserved for TS 29.173
           <gavp name="Response-Time"/>
         </grouped>
       </avp>
+    <avp name="Horizontal-Accuracy" code="2505" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="Vertical-Accuracy" code="2506" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
 
-      <!--
-2505	Horizontal-Accuracy	Unsigned32
-2506	Vertical-Accuracy	Unsigned32
+    <!--
 2507	Vertical-Requested	Enumerated
 -->
       <avp name="Velocity-Requested" code="2508" vendor-bit="must" vendor-id="TGPP">
@@ -5866,6 +5889,14 @@ Note: The AVP codes from 2408 to 2499 are reserved for TS 29.173
       <!--
 Note: The AVP codes from 2524 to 2599 are reserved for TS 29.172
 
+32.299 [5]
+2600 reserved -
+2601 IMS-Application-Reference-Identifier UTF8String
+2602 Low-Priority-Indicator Enumerated
+2603 IP-Realm-Default-Indicator Enumerated
+2604 Local-GW-Inserted-Indicator Enumerated
+2605 Transcoder-Inserted-Indicator Enumerated
+Note: The AVP codes from 2606 to 2699 are reserved for TS 32.299
 -->
 <!--- TGPP2 AVP's X.S0013-014-0
 http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S0013-014%20v0.3.0%20SBBC%20Ty%20Stage-3.doc

@@ -97,7 +97,13 @@
     </avp>
 <!-- 
 715	Repository-Data-ID	Grouped
-716	Sequence-Number	Unsigned32
+-->
+
+    <avp name="Sequence-Number" code="716" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <!--
+717 Pre-paging-Supported Enumerated
 -->
     <!-- Note: The AVP codes from 715 to799 are reserved for TS 29.329. -->
 		<!-- ************************ END 3GPP Sh AVPS ******************* -->
