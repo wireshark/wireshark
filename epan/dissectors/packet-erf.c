@@ -733,10 +733,9 @@ channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, gu
 }
 
 static void
-channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t* in_fmt)
+channelised_fill_vc_id_string(emem_strbuf_t* out_string, sdh_g707_format_t* in_fmt)
 {
   int      i;
-  int      print_index;
   gboolean is_printed  = FALSE;
 
   static char* g_vc_size_strings[] = {
@@ -748,7 +747,7 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
     "VC4-64c",  /*0x5*/
     "VC4-256c", /*0x6*/};
 
-  print_index = g_snprintf(out_string, maxstrlen, "%s(",
+  ep_strbuf_printf(out_string, "%s(",
                            (in_fmt->m_vc_size < array_length(g_vc_size_strings)) ?
                            g_vc_size_strings[in_fmt->m_vc_size] : g_vc_size_strings[0] );
 
@@ -757,12 +756,9 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
     /* line rate is not given */
     for (i = (DECHAN_MAX_AUG_INDEX -1); i >= 0; i--)
     {
-      if (print_index >= (maxstrlen-1))
-        break;
       if ((in_fmt->m_vc_index_array[i] > 0) || (is_printed) )
       {
-        print_index += g_snprintf(out_string+print_index, maxstrlen-print_index,
-                                  "%s%d",
+        ep_strbuf_append_printf(out_string, "%s%d",
                                   ((is_printed)?", ":""),
                                   in_fmt->m_vc_index_array[i]);
         is_printed = TRUE;
@@ -774,10 +770,7 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
   {
     for (i = in_fmt->m_sdh_line_rate - 2; i >= 0; i--)
     {
-      if (print_index >= (maxstrlen-1))
-        break;
-      print_index += g_snprintf(out_string+print_index, maxstrlen-print_index,
-                                "%s%d",
+      ep_strbuf_append_printf(out_string, "%s%d",
                                 ((is_printed)?", ":""),
                                 in_fmt->m_vc_index_array[i]);
       is_printed = TRUE;
@@ -788,16 +781,12 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
     /* Not printed . possibly its a ocXc packet with (0,0,0...) */
     for ( i =0; i < in_fmt->m_vc_size - 2; i++)
     {
-      if (print_index >= (maxstrlen-1))
-        break;
-      print_index += g_snprintf(out_string+print_index, maxstrlen-print_index,
-                                "%s0",
+      ep_strbuf_append_printf(out_string, "%s0",
                                 ((is_printed)?", ":""));
       is_printed = TRUE;
     }
   }
-  if (print_index < (maxstrlen-1))
-    g_snprintf(out_string+print_index, maxstrlen-print_index, ")");
+  ep_strbuf_append_c(out_string, ')');
   return;
 }
 
@@ -809,10 +798,10 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *ps
   guint8             vc_size          = (guint8)((hdr >> 16) & 0xFF);
   guint8             line_speed       = (guint8)((hdr >> 8) & 0xFF);
   sdh_g707_format_t  g707_format;
-  char               vc_id_string[64] = {'\0'};
+  emem_strbuf_t     *vc_id_string = ep_strbuf_new_label("");
 
   channelised_fill_sdh_g707_format(&g707_format, vc_id, vc_size, line_speed);
-  channelised_fill_vc_id_string(vc_id_string, 64, &g707_format);
+  channelised_fill_vc_id_string(vc_id_string, &g707_format);
 
   if (pseudo_hdr_tree) {
     proto_item *int_item;
@@ -828,7 +817,7 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *ps
     proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_seqnum, tvb, 0, 0, (guint16)((hdr >> 40) & 0x7FFF));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
     proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id);
-    proto_tree_add_text(int_tree, tvb, 0, 0, "Virtual Container ID (g.707): %s", vc_id_string);
+    proto_tree_add_text(int_tree, tvb, 0, 0, "Virtual Container ID (g.707): %s", vc_id_string->str);
     proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_assoc_virt_container_size, tvb, 0, 0, vc_size);
     proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_speed, tvb, 0, 0, line_speed);
     proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (guint8)((hdr >> 0) & 0xFF));
