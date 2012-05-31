@@ -2051,7 +2051,7 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 /*
  * Wireshark - Network traffic analyzer
  * By Gerald Combs
- * Copyright 1999 - 2006 Gerald Combs
+ * Copyright 1999 - 2012 Gerald Combs
  */
 
 static int hf_operationrequest = -1;/* Request_Operation field */
@@ -2100,10 +2100,6 @@ static int hf_operationrequest = -1;/* Request_Operation field */
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
-
-#ifndef ENABLE_STATIC
-G_MODULE_EXPORT const gchar version[] = "0.0.1";
-#endif
 
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */
