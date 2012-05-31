@@ -1080,7 +1080,11 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 static int
 dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
-	offset = dissect_rpc_bytes(tvb, tree, hf_rpc_auth_lk_owner, offset, 8, FALSE, NULL);
+	if (tree)
+		proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
+								8, ENC_NA);
+	offset += 8;
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
@@ -1092,11 +1096,20 @@ dissect_rpc_authgluster_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 static int
 dissect_rpc_authglusterfs_v2_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
+	int len;
+
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_pid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
 	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
-	offset = dissect_rpc_data(tvb, tree, hf_rpc_auth_lk_owner, offset);
+
+	len = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	if (tree)
+		proto_tree_add_item(tree, hf_rpc_auth_lk_owner, tvb, offset,
+								len, ENC_NA);
+	offset += len;
 
 	return offset;
 }
