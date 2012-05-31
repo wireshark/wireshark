@@ -467,6 +467,8 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
             }
             break;
         case CALC_TYPE_AVG:
+            if (it->num==0) /* avoid division by zero */
+               break;
             ftype=proto_registrar_get_ftype(it->hf_index);
             switch(ftype) {
                 case FT_FLOAT:
