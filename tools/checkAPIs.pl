@@ -1384,6 +1384,25 @@ sub checkAPIsCalledWithTvbGetPtr($$$)
         }
 }
 
+sub check_snprintf_plus_strlen($$)
+{
+	my ($fileContentsRef, $filename) = @_;
+	my @items;
+
+	# This catches both snprintf() and g_snprint.
+	# If we need to do more APIs, we can make this function look more like
+	# checkAPIsCalledWithTvbGetPtr().
+	@items = (${$fileContentsRef} =~ m/ (snprintf [^;]* ; ) /xsg);
+	while (@items) {
+		my ($item) = @items;
+		shift @items;
+		if ($item =~ / strlen\s*\( /xos) {
+			print STDERR "Warning: ".$filename." uses snprintf + strlen to assemble strings.\n";
+			last;
+		}
+	}
+}
+
 # Verify that all declared ett_ variables are registered.
 # Don't bother trying to check usage (for now)...
 sub check_ett_registration($$)
@@ -1715,11 +1734,6 @@ while ($_ = $ARGV[0])
                 print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
         }
 
-        if ($fileContents =~ m{ snprintf .* strlen }xo)
-        {
-                print STDERR "Warning: ".$filename." uses snprintf + strlen to assemble strings.\n";
-        }
-
         # optionally check the hf entries
         if ($check_hf) {
                 $errorCount += check_hf_entries(\$fileContents, $filename);
@@ -1740,6 +1754,8 @@ while ($_ = $ARGV[0])
         #if (@foundAPIs) {
         #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename.": ".join(',', @foundAPIs)."\n"
         #}
+
+	check_snprintf_plus_strlen(\$fileContents, $filename);
 
 	if (! $buildbot_flag) {
 		checkAddTextCalls(\$fileContents, $filename);
