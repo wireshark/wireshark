@@ -10253,7 +10253,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         /* MS-SMB 2.2.4.9.2 says that there is a Volume GUID, File ID,
            Maximal Access Rights and Guest Maximal Access Rights here
            if ExtendedResponses requested. */
-	if (si->sip->extra_info_type == SMB_EI_FILEDATA &&
+	if (si->sip != NULL && si->sip->extra_info_type == SMB_EI_FILEDATA &&
 		((smb_fid_saved_info_t *)(si->sip->extra_info))->create_flags & 0x10) {
 	    proto_item *mar = NULL;
 	    proto_item *gmar = NULL;
