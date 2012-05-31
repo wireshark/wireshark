@@ -974,6 +974,7 @@ clean_setup:
     rm -r -f GeoIP-1.4.5ws
     rm -r -f GeoIP-1.4.6-win??ws
     rm -r -f GeoIP-1.4.8-win??ws
+    rm -r -f GeoIP-1.4.8-*-win??ws
     rm -r -f WpdPack
     cd "$(MAKEDIR)"
 
