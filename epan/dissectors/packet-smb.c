@@ -18274,11 +18274,11 @@ proto_register_smb(void)
 		NULL, 0, "Maximum raw buffer size", HFILL }},
 
 	{ &hf_smb_server_guid,
-		{ "Server GUID", "smb.server_guid", FT_BYTES, BASE_NONE,
+		{ "Server GUID", "smb.server_guid", FT_GUID, BASE_NONE,
 		NULL, 0, "Globally unique identifier for this server", HFILL }},
 
 	{ &hf_smb_volume_guid,
-		{ "Volume GUID", "smb.volume_guid", FT_BYTES, BASE_NONE,
+		{ "Volume GUID", "smb.volume_guid", FT_GUID, BASE_NONE,
 		NULL, 0, "Globally unique identifer for this volume", HFILL }},
 
 	{ &hf_smb_security_blob_len,
@@ -19922,7 +19922,7 @@ proto_register_smb(void)
 		NULL, 0, "Dfs expanded name", HFILL }},
 
 	{ &hf_smb_dfs_referral_server_guid,
-		{ "Server GUID", "smb.dfs.referral.server_guid", FT_BYTES, BASE_NONE,
+		{ "Server GUID", "smb.dfs.referral.server_guid", FT_GUID, BASE_NONE,
 		NULL, 0, "Globally unique identifier for this server", HFILL }},
 
 	{ &hf_smb_end_of_search,
