@@ -81,11 +81,10 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"0x%03x: %s",
 			"%3u: %s"
 		};
-		static char string[255];
+		emem_strbuf_t *chan_str = ep_strbuf_new_label("");
 		proto_item *item;
 		guint16 length,r,c,row_count;
 		guint8 v;
-		char* ptr;
 		unsigned offset = 0;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_chan, tvb,
@@ -95,40 +94,29 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		length = tvb_reported_length_remaining(tvb, offset);
 
 		row_count = (length / global_disp_col_count) + ((length % global_disp_col_count) == 0 ? 0 : 1);
-		ptr = string;
-		/* XX: In theory the g_snprintf statements below could store '\0' bytes off the end of the     */
-		/*     'string' buffer'. This is so since g_snprint returns the number of characters which     */
-		/*     "would have been written" (whether or not there was room) and since ptr is always       */
-		/*     incremented by this amount. In practice the string buffer is large enough such that the */
-		/*     string buffer size is not exceeded even with the maximum number of columns which might  */
-		/*     be displayed.                                                                           */
-		/*     ToDo: consider recoding slightly ...                                                    */
 		for (r = 0; r < row_count;r++) {
 			for (c = 0;(c < global_disp_col_count) && (((r * global_disp_col_count) + c) < length);c++) {
-				if ((c % (global_disp_col_count / 2)) == 0) {
-					ptr += g_snprintf(ptr, (gulong)(sizeof string - strlen(string)), " ");
+				if ((global_disp_col_count >= 2) && ((c % (global_disp_col_count / 2)) == 0)) {
+					ep_strbuf_append(chan_str, " ");
 				}
 
 				v = tvb_get_guint8(tvb, (offset + (r * global_disp_col_count) + c));
 				if (global_disp_chan_val_type == 0) {
 					v = (v * 100) / 255;
 					if (v == 100) {
-						ptr += g_snprintf(ptr, (gulong)(sizeof string - strlen(string)), "FL ");
+						ep_strbuf_append(chan_str, "FL ");
 					} else {
-						ptr += g_snprintf(ptr, (gulong)(sizeof string - strlen(string)),
-									chan_format[global_disp_chan_val_type], v);
+						ep_strbuf_append_printf(chan_str, chan_format[global_disp_chan_val_type], v);
 					}
 				} else {
-					ptr += g_snprintf(ptr, (gulong)(sizeof string - strlen(string)),
-								chan_format[global_disp_chan_val_type], v);
+					ep_strbuf_append_printf(chan_str, chan_format[global_disp_chan_val_type], v);
 				}
 			}
 
 			proto_tree_add_none_format(dmx_chan_tree, hf_dmx_chan_output_dmx_data, tvb,
 							offset+(r * global_disp_col_count), c,
 							string_format[global_disp_chan_nr_type],
-							(r * global_disp_col_count) + 1, string);
-			ptr = string;
+							(r * global_disp_col_count) + 1, chan_str->str);
 		}
 
 		/* Add the real type hidden */
