@@ -31,7 +31,7 @@ Wireshark Info
 
     <para>
 
-    The following bugs have been fixed:
+      The following bugs have been fixed:
 
       <itemizedlist>
 
@@ -53,7 +53,11 @@ Wireshark Info
 	  3315</ulink>).
         </para></listitem>
 
-
+        <listitem><para>
+	  Rearranging columns in preferences doesn't work on 64-bit Windows.
+	  (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
+	  6077</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
@@ -152,12 +156,19 @@ Aastra Signalling Protocol (AASP),
 ActiveMQ OpenWire,
 Bandwidth Reservation Protocol (BRP),
 Bazaar,
+Binary Floor Control Protocol,
 BitTorrent DHT,
 C12.22,
 CANopen,
 CIP Motion,
 CIP Safety,
 Cisco FabricPath MiM,
+DMX,
+DMX Channel Data,
+DMX SIP,
+DMX Test,
+DMX Text,
+DVB Application Information Table,
 DVB Bouquet Association Table,
 DVB Event Information Table,
 DVB MultiProtocol Encapsulation (DVB-MPE),
@@ -196,15 +207,21 @@ High-availability Seamless Redundancy (HSR),
 HomePlug AV,
 HSR/PRP,
 IEEE 1722.1,
+ISO 7816,
+ixveriwave,
 Kismet drone/server protocol,
 KristalliNet,
 LCS-AP,
 Link Access Procedure, Satellite channel (LAPSat),
+LLRP,
 LTE Positioning Protocol A (LPPa),
 LTE Positioning Protocol,
 M3 Application Protocol (M3AP),
 MAC Address Acquisition Protocol,
+MBMS synchronisation protocol,
 Microsoft Credential Security Support Provider (CredSSP),
+MoldUDP,
+MoldUDP64,
 MPEG Conditional Access,
 MPEG descriptors,
 MPEG DSM-CC,
@@ -218,6 +235,7 @@ Netfilter LOG,
 NOE,
 NXP MiFare,
 NXP PN532,
+Open IPTV Forum
 openSAFETY,
 Performance Co-Pilot (PCP),
 PPI Sensor,
@@ -237,6 +255,8 @@ V5 Envelope Function (V5EF),
 Virtual eXtensible Local Area Network (VXLAN),
 VSS-Monitoring,
 Vuze DHT,
+WaveAgent,
+WebSocket,
 XMCP
 
     </para>
@@ -257,9 +277,13 @@ Too many protocols have been updated to list here.
 Aethra Telecommunications' PC108,
 Catapult DCT2000,
 Citrix NetScaler,
+Cisco Secure IDS IPLog,
 Endace ERF,
+Gammu DCT3,
 Generic MIME,
 IBM iSeries,
+InfoVista 5View,
+Ixia IxVeriWave,
 LANalyzer,
 Microsoft NetMon,
 MPEG2-TS,
@@ -374,12 +398,6 @@ XML
       4985</ulink>)
     </para>
 
-    <para>
-      Rearranging columns in preferences doesn't work on 64-bit Windows.
-      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
-      6077</ulink>)
-    </para>
-
   </section>
 
   <section id="GettingHelp"><title>Getting Help</title>
@@ -392,7 +410,7 @@ XML
     web site</ulink>.
     </para>
     <para>
-    Training is available from
+    Official Wireshark training and certification are available from
     <ulink url="http://www.wiresharktraining.com/">Wireshark University</ulink>.
     </para>
   </section>
