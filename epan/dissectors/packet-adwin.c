@@ -542,13 +542,13 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 	/*
 	 * Do we already have a state structure for this conv
 	 */
-	adwin_info = conversation_get_proto_data(conversation, proto_adwin);
+	adwin_info = (adwin_conv_info_t *)conversation_get_proto_data(conversation, proto_adwin);
 	if (!adwin_info) {
 		/*
 		 * No.  Attach that information to the conversation, and add
 		 * it to the list of information structures.
 		 */
-		adwin_info = se_alloc(sizeof(adwin_conv_info_t));
+		adwin_info = se_new(adwin_conv_info_t);
 		adwin_info->pdus = se_tree_create_non_persistent(
 					EMEM_TREE_TYPE_RED_BLACK, "adwin_pdus");
 
@@ -557,13 +557,13 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 	if (!pinfo->fd->flags.visited) {
 		if (direction == ADWIN_REQUEST) {
 			/* This is a request */
-			adwin_trans = se_alloc(sizeof(adwin_transaction_t));
+			adwin_trans = se_new(adwin_transaction_t);
 			adwin_trans->req_frame = pinfo->fd->num;
 			adwin_trans->rep_frame = 0;
 			adwin_trans->req_time = pinfo->fd->abs_ts;
 			se_tree_insert32(adwin_info->pdus, seq_num, (void *)adwin_trans);
 		} else {
-			adwin_trans = se_tree_lookup32(adwin_info->pdus, seq_num);
+			adwin_trans = (adwin_transaction_t *)se_tree_lookup32(adwin_info->pdus, seq_num);
 			if (adwin_trans) {
 				adwin_trans->rep_frame = pinfo->fd->num;
 			}
@@ -608,7 +608,7 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 dissect_UDPH1_generic(tvbuff_t *tvb, packet_info *pinfo,
-		      proto_tree *adwin_tree, proto_tree *adwin_debug_tree, gchar** info_string, gchar* packet_name)
+		      proto_tree *adwin_tree, proto_tree *adwin_debug_tree, gchar** info_string, const gchar* packet_name)
 {
 	guint32 i3plus1code =  0, instructionID, seq_num;
 
