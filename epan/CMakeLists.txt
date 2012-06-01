@@ -427,6 +427,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-componentstatus.c
 	dissectors/packet-cops.c
 	dissectors/packet-cosine.c
+	dissectors/packet-cosnaming.c
 	dissectors/packet-cpfi.c
 	dissectors/packet-cpha.c
 	dissectors/packet-csm-encaps.c

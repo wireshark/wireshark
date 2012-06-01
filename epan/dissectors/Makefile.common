@@ -347,6 +347,7 @@ DISSECTOR_SRC = \
 	packet-componentstatus.c \
 	packet-cops.c		\
 	packet-cosine.c		\
+	packet-cosnaming.c	\
 	packet-cpfi.c		\
 	packet-cpha.c		\
 	packet-csm-encaps.c	\

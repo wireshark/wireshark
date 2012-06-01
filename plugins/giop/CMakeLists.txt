@@ -21,16 +21,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-set(COSNAMING_SRC
-	packet-cosnaming.c
-)
-
 set(COSEVENTCOMM_SRC
 	packet-coseventcomm.c
 )
 
 set(CLEAN_FILES
-	${COSNAMING_SRC}
 	${COSEVENTCOMM_SRC}
 )
 
@@ -43,20 +38,6 @@ if (WERROR)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-add_library(cosnaming ${LINK_MODE_MODULE}
-	${COSNAMING_SRC}
-)
-set_target_properties(cosnaming PROPERTIES PREFIX "")
-set_target_properties(cosnaming PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
-
-target_link_libraries(cosnaming epan)
-
-install(TARGETS cosnaming
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION} NAMELINK_SKIP
-	RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}
-)
 
 add_library(coseventcomm ${LINK_MODE_MODULE}
 	${COSEVENTCOMM_SRC}
