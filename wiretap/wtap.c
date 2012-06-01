@@ -31,6 +31,10 @@
 #include <sys/types.h>
 #endif
 
+#ifdef _WIN32
+#include <fcntl.h>
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
