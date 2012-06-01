@@ -1083,6 +1083,13 @@ wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
 void wtap_write_shb_comment(wtap *wth, gchar *comment);
 
+/*** close the file descriptors for the current file ***/
+void wtap_fdclose(wtap *wth);
+
+/*** reopen the file descriptors for the current file ***/
+gboolean wtap_fdreopen(wtap *wth, const char *filename, int *err,
+	gboolean do_random);
+
 /*** close the current file ***/
 void wtap_sequential_close(wtap *wth);
 void wtap_close(wtap *wth);

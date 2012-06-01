@@ -766,7 +766,7 @@ gz_reset(FILE_T state)
 }
 
 FILE_T
-filed_open(int fd)
+file_fdopen(int fd)
 {
 #ifdef _STATBUF_ST_BLKSIZE	/* XXX, _STATBUF_ST_BLKSIZE portable? */
 	struct stat st;
@@ -862,7 +862,7 @@ file_open(const char *path)
 		return NULL;
 
 	/* open file handle */
-	ft = filed_open(fd);
+	ft = file_fdopen(fd);
 	if (ft == NULL) {
 		ws_close(fd);
 		return NULL;
@@ -1274,7 +1274,25 @@ file_clearerr(FILE_T stream)
 	stream->eof = 0;
 }
 
-int 
+void
+file_fdclose(FILE_T file)
+{
+	ws_close(file->fd);
+	file->fd = -1;
+}
+
+gboolean
+file_fdreopen(FILE_T file, const char *path)
+{
+	int fd;
+
+	if ((fd = ws_open(path, O_RDONLY|O_BINARY, 0000)) == -1)
+		return FALSE;
+	file->fd = fd;
+	return TRUE;
+}
+
+void
 file_close(FILE_T file)
 {
 	int fd = file->fd;
@@ -1291,7 +1309,13 @@ file_close(FILE_T file)
 	file->err = 0;
 	file->err_info = NULL;
 	g_free(file);
-	return ws_close(fd);
+	/*
+	 * If fd is -1, somebody's done a file_closefd() on us, so
+	 * we don't need to close the FD itself, and shouldn't do
+	 * so.
+	 */
+	if (fd != -1)
+		ws_close(fd);
 }
 
 #ifdef HAVE_LIBZ

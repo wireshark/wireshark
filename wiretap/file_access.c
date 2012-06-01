@@ -317,7 +317,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 #endif
-		if (!(wth->fh = filed_open(fd))) {
+		if (!(wth->fh = file_fdopen(fd))) {
 			*err = errno;
 			ws_close(fd);
 			g_free(wth);

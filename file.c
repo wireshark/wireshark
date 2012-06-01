@@ -3850,13 +3850,9 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
          convert it to a file descriptor with _open_osfhandle(),
          that would allow the file to be renamed out from under us.
 
-         It would also allow it to be deleted out from under us; according
-         to the MSDN documentation on DeleteFile(), "The DeleteFile function
-         marks a file for deletion on close. Therefore, the file deletion
-         does not occur until the last handle to the file is closed.
-         Subsequent calls to CreateFile to open the file fail with
-         ERROR_ACCESS_DENIED.", so it sounds as if deleting it out from
-         under us would be safe. */
+         However, that doesn't work in practice.  Perhaps the problem
+         is that the process doing the rename is the process that
+         has the file open. */
 #ifndef _WIN32
       if (ws_rename(cf->filename, fname) == 0) {
         /* That succeeded - there's no need to copy the source file. */
@@ -3975,12 +3971,25 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
 
   if (fname_new != NULL) {
     /* We wrote out to fname_new, and should rename it on top of
-       fname; fname is now closed, so that should be possible even
-       on Windows.  Do the rename. */
+       fname.  fname_new is now closed, so that should be possible even
+       on Windows.  However, on Windows, we first need to close whatever
+       file descriptors we have open for fname. */
+#ifdef _WIN32
+    wtap_fdclose(cf->wth);
+#endif
+    /* Now do the rename. */
     if (ws_rename(fname_new, fname) == -1) {
       /* Well, the rename failed. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     file_rename_error_message(errno), fname);
+#ifdef _WIN32
+      /* Attempt to reopen the file descriptors using fname. */
+      if (!wtap_fdreopen(cf->wth, fname, &err)) {
+        /* Oh, well, we're screwed. */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      file_open_error_message(err, FALSE), fname);
+      }
+#endif
       goto fail;
     }
   }

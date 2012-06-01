@@ -28,7 +28,7 @@
 #include <wsutil/file_util.h>
 
 extern FILE_T file_open(const char *path);
-extern FILE_T filed_open(int fildes);
+extern FILE_T file_fdopen(int fildes);
 extern void file_set_random_access(FILE_T stream, gboolean random, GPtrArray *seek);
 extern gint64 file_seek(FILE_T stream, gint64 offset, int whence, int *err);
 extern gint64 file_skip(FILE_T file, gint64 delta, int *err);
@@ -42,7 +42,9 @@ extern char *file_gets(char *buf, int len, FILE_T stream);
 extern int file_eof(FILE_T stream);
 extern int file_error(FILE_T fh, gchar **err_info);
 extern void file_clearerr(FILE_T stream);
-extern int file_close(FILE_T file);
+extern void file_fdclose(FILE_T file);
+extern int file_fdreopen(FILE_T file, const char *path);
+extern void file_close(FILE_T file);
 
 #ifdef HAVE_LIBZ
 typedef struct wtap_writer *GZWFILE_T;

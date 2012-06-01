@@ -15,20 +15,6 @@ buffer_free
 buffer_init
 buffer_remove_start
 
-file_seek
-file_tell
-file_error
-file_gets
-file_open
-filed_open
-file_read
-file_close
-file_getc
-file_gets
-file_eof
-file_clearerr
-file_set_random_access
-
 wtap_buf_ptr
 wtap_cleareof
 wtap_close
@@ -46,6 +32,8 @@ wtap_dump_open_ng
 wtap_dump_set_addrinfo_list
 wtap_encap_short_string
 wtap_encap_string
+wtap_fdclose
+wtap_fdreopen
 wtap_file_encap
 wtap_get_savable_file_types
 wtap_get_file_extensions_list
