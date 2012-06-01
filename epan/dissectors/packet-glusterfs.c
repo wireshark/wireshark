@@ -459,7 +459,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 	proto_item *subtree_item;
 	proto_tree *subtree;
 
-	proto_item *dict_item;
+	proto_item *dict_item = NULL;
 
 	/* create a subtree for all the items in the dict */
 	if (hfindex >= 0) {
