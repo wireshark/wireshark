@@ -3131,12 +3131,6 @@ static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         return FALSE;
     }
 
-    /* remember 'lower' UDP layer port information */
-    if (!p_fp_info->srcport || !p_fp_info->destport) {
-        p_fp_info->srcport = pinfo->srcport;
-        p_fp_info->destport = pinfo->destport;
-    }
-
     /* discriminate 'lower' UDP layer from 'user data' UDP layer
      * (i.e. if an FP over UDP packet contains a user UDP packet */
     if (p_fp_info->srcport != pinfo->srcport ||
@@ -3169,6 +3163,11 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
     fpi->dch_crc_present = p_conv_data->dch_crc_present;
     /*fpi->paging_indications;*/
     fpi->link_type = FP_Link_Ethernet;
+
+    /* remember 'lower' UDP layer port information so we can later
+     * differentiate 'lower' UDP layer from 'user data' UDP layer */
+    fpi->srcport = pinfo->srcport;
+    fpi->destport = pinfo->destport;
 
     if (pinfo->link_dir==P2P_DIR_UL) {
         fpi->is_uplink = TRUE;
