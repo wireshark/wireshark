@@ -223,6 +223,8 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
 		 */
+		g_warning("conversation_match_exact v1->addr1 %s v2->addr1 %s",ep_address_to_str(&v1->addr1),ep_address_to_str(&v2->addr1));
+		g_warning("conversation_match_exact v1->addr2 %s v2->addr2 %s",ep_address_to_str(&v1->addr2),ep_address_to_str(&v2->addr2));
 		return 1;
 	}
 
@@ -240,6 +242,8 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in opposite directions.
 		 */
+		g_warning("conversation_match_exact v1->addr2 %s v2->addr1 %s",ep_address_to_str(&v1->addr2),ep_address_to_str(&v2->addr1));
+		g_warning("conversation_match_exact v1->addr1 %s v2->addr2 %s",ep_address_to_str(&v1->addr1),ep_address_to_str(&v2->addr2));
 		return 1;
 	}
 
@@ -414,7 +418,7 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 static void
 free_data_list(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
-	conversation_t *conv = value;
+	conversation_t *conv = (conversation_t *)value;
 
 	/* TODO: se_slist? */
 	g_slist_free(conv->data_list);
@@ -503,7 +507,7 @@ conversation_insert_into_hashtable(GHashTable *hashtable, conversation_t *conv)
 {
 	conversation_t *chain_head, *chain_tail, *cur, *prev;
 
-	chain_head = g_hash_table_lookup(hashtable, conv->key_ptr);
+	chain_head = (conversation_t *)g_hash_table_lookup(hashtable, conv->key_ptr);
 
 	if (NULL==chain_head) {
 		/* New entry */
@@ -557,7 +561,7 @@ conversation_remove_from_hashtable(GHashTable *hashtable, conversation_t *conv)
 {
 	conversation_t *chain_head, *cur, *prev;
 
-	chain_head = g_hash_table_lookup(hashtable, conv->key_ptr);
+	chain_head = (conversation_t *)g_hash_table_lookup(hashtable, conv->key_ptr);
 
 	if (conv == chain_head) {
 		/* We are currently the front of the chain */
@@ -648,7 +652,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key->port1 = port1;
 	new_key->port2 = port2;
 
-	conversation = se_alloc(sizeof(conversation_t)); 
+	conversation = se_new(conversation_t); 
 	memset(conversation, 0, sizeof(conversation_t));
 
 	conversation->index = new_index;
