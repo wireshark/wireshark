@@ -411,7 +411,6 @@ if(ENABLE_PLUGINS)
 		plugins/asn1
 		plugins/docsis
 		plugins/ethercat
-		plugins/giop
 		plugins/gryphon
 		plugins/irda
 		plugins/m2m
