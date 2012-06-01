@@ -223,8 +223,6 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
 		 */
-		g_warning("conversation_match_exact v1->addr1 %s v2->addr1 %s",ep_address_to_str(&v1->addr1),ep_address_to_str(&v2->addr1));
-		g_warning("conversation_match_exact v1->addr2 %s v2->addr2 %s",ep_address_to_str(&v1->addr2),ep_address_to_str(&v2->addr2));
 		return 1;
 	}
 
@@ -242,8 +240,6 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in opposite directions.
 		 */
-		g_warning("conversation_match_exact v1->addr2 %s v2->addr1 %s",ep_address_to_str(&v1->addr2),ep_address_to_str(&v2->addr1));
-		g_warning("conversation_match_exact v1->addr1 %s v2->addr2 %s",ep_address_to_str(&v1->addr1),ep_address_to_str(&v2->addr2));
 		return 1;
 	}
 
