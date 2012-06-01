@@ -31,7 +31,6 @@ PLUGIN_NAME = giop
 DISSECTOR_SRC = \
 	packet-coseventcomm.c \
 	packet-cosnaming.c	\
-	packet-parlay.c	\
 	packet-tango.c
 
 # corresponding headers

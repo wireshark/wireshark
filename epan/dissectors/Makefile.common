@@ -177,7 +177,7 @@ ASN1_DISSECTOR_SRC = \
 
 #
 # asn2wrs-generated ASN.1 dissectors with warnings.
-#
+# and idl2wrs-generated dissectors
 DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-ansi_map.c \
 	packet-gnm.c \
@@ -188,6 +188,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-m3ap.c \
 	packet-nbap.c \
 	packet-p1.c \
+	packet-parlay.c \
 	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pres.c \
