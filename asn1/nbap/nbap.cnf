@@ -1150,7 +1150,7 @@ guint32 no_ddi_entries, i;
 	if(!p_conv)
 		return offset;
 
-	p_conv_data = conversation_get_proto_data(p_conv, proto_fp);
+	p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
 
 	if(!p_conv_data)
 		return offset;

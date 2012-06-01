@@ -3095,7 +3095,7 @@ static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     struct fp_info *p_fp_info;
 
-    p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+    p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
 
     /* if no FP info is present, assume this is not FP over UDP */
     if (!p_fp_info) return FALSE;
@@ -3131,7 +3131,7 @@ static fp_info *fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_c
     umts_mac_info *macinf;
     rlc_info *rlcinf;
 
-    fpi = se_alloc0(sizeof(fp_info));
+    fpi = se_new0(fp_info);
     p_add_proto_data(pinfo->fd, proto_fp, fpi);
 
     fpi->iface_type = p_conv_data->iface_type;
@@ -3361,14 +3361,14 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     top_level_tree = tree;
 
     /* Look for packet info! */
-    p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+    p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
 
     /* Check if we have converstaion info */
-    p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
+    p_conv = (conversation_t *)find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
                                pinfo->ptype,
                                pinfo->destport, pinfo->srcport, NO_ADDR_B);
     if (p_conv) {
-        p_conv_data = conversation_get_proto_data(p_conv, proto_fp);
+        p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
         if (p_conv_data) {
             if (ADDRESSES_EQUAL(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
                 proto_item* item = proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
@@ -3408,7 +3408,7 @@ static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-	rlcinf = p_get_proto_data(pinfo->fd, proto_rlc);
+	rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
 
     /* Show release information */
     if (preferences_show_release_info) {
