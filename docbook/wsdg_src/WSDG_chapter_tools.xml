@@ -332,12 +332,13 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>
-                <ulink url="http://www.microsoft.com/express/2005/download/default.aspx">Free Download</ulink>
-		(474MB)</para>
+                Free Download (link disappeared)
+		</para>
               </entry>
               <entry>
                 <para>
-                  <ulink url="#">Free Download</ulink> (420MB)</para>
+                Free Download (link disappeared)
+		</para>
               </entry>
               <entry>
                 <para>MSVC2005EE</para>
@@ -379,14 +380,13 @@ PARTICULAR PURPOSE.]]>
             <row>
               <entry>
                 <para>Visual C++ 2008 Express Edition SP1</para>
-                <para>(recommended)</para>
               </entry>
               <entry>
                 <para>Yes</para>
               </entry>
               <entry>
                 <para>
-                <ulink url="http://www.microsoft.com/express/Downloads/#Visual_Studio_2008_Express_Downloads">
+                <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=14597">
                 Free Download</ulink></para>
               </entry>
               <entry>
@@ -433,6 +433,7 @@ PARTICULAR PURPOSE.]]>
              <row>
               <entry>
                 <para>Visual C++ 2010 Express Edition</para>
+                <para>(recommended)</para>
               </entry>
               <entry>
                 <para>Yes</para>
@@ -468,46 +469,19 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>
-                <ulink url="#">Free Download</ulink> (363MB)</para>
+                Free Download (link disappeared)
+		</para>
               </entry>
               <entry>
                 <para>
-                  <ulink url="#">Free Download</ulink> (420MB)</para>
+                Free Download (link disappeared)
+		</para>
               </entry>
               <entry>
                 <para>DOTNET20</para>
               </entry>
               <entry>
                 <para>Microsoft.NET\SDK\v2.0\Bin\sdkvars.bat</para>
-              </entry>
-              <entry>
-                <para>vcredist_x86.exe
-                <superscript>3</superscript></para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Windows SDK for Windows Vista and</para>
-                <para>.NET Framework 3.0 Runtime Components</para>
-              </entry>
-              <entry>
-                <para>No</para>
-              </entry>
-              <entry>
-                <para>
-                <ulink url="#">Free Download</ulink> (1188MB)</para>
-              </entry>
-              <entry>
-                <para>No
-                <superscript>2</superscript></para>
-              </entry>
-              <entry>
-                <para>-</para>
-                <para>(not yet implemented!)</para>
-              </entry>
-              <entry>
-                <para>Microsoft
-                SDKs\Windows\v6.0\Bin\SetEnv.Cmd</para>
               </entry>
               <entry>
                 <para>vcredist_x86.exe
