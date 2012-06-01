@@ -272,6 +272,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-m3ap.c
 	dissectors/packet-nbap.c
 	dissectors/packet-p1.c
+	dissectors/packet-parlay.c
 	dissectors/packet-pcap.c
 	dissectors/packet-pkcs12.c
 	dissectors/packet-pres.c
