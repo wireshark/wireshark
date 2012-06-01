@@ -5424,7 +5424,7 @@ proto_register_ppp(void)
             { "Magic Number", "ppp.magic_number", FT_UINT32, BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ppp_oui,
-            { "OUI", "ppp.oui", FT_BYTES, BASE_NONE,
+            { "OUI", "ppp.oui", FT_UINT24, BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ppp_kind,
             { "Kind", "ppp.kind", FT_UINT8, BASE_DEC_HEX,
