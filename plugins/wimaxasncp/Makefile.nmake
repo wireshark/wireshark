@@ -85,11 +85,11 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 # All subsequent arguments are the files to scan.
 #
 !IFDEF PYTHON
-plugin.c: $(DISSECTOR_SRC) moduleinfo.h ../../tools/make-dissector-reg.py
+plugin.c: $(DISSECTOR_SRC) moduleinfo.h Makefile.common ../../tools/make-dissector-reg.py
 	@echo Making plugin.c (using python)
 	@$(PYTHON) "../../tools/make-dissector-reg.py" . plugin $(DISSECTOR_SRC)
 !ELSE
-plugin.c: $(DISSECTOR_SRC) moduleinfo.h ../../tools/make-dissector-reg
+plugin.c: $(DISSECTOR_SRC) moduleinfo.h Makefile.common ../../tools/make-dissector-reg
 	@echo Making plugin.c (using sh)
 	@$(SH) ../../tools/make-dissector-reg . plugin $(DISSECTOR_SRC)
 !ENDIF
