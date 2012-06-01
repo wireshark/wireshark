@@ -10,7 +10,6 @@ PLUGIN_LIST = \
 	asn1        \
 	docsis      \
 	ethercat    \
-	giop        \
 	gryphon     \
 	irda        \
 	m2m         \

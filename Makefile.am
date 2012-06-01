@@ -307,7 +307,6 @@ plugin_ldadd = $(_CUSTOM_plugin_ldadd_) \
 	-dlopen plugins/asn1/asn1.la \
 	-dlopen plugins/docsis/docsis.la \
 	-dlopen plugins/ethercat/ethercat.la \
-	-dlopen plugins/giop/giop.la \
 	-dlopen plugins/gryphon/gryphon.la \
 	-dlopen plugins/irda/irda.la \
 	-dlopen plugins/m2m/m2m.la \

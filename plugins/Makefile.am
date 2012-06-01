@@ -26,7 +26,6 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	asn1 \
 	docsis \
 	ethercat \
-	giop \
 	gryphon \
 	irda \
 	m2m \
