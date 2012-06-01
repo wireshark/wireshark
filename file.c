@@ -3984,7 +3984,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
                     file_rename_error_message(errno), fname);
 #ifdef _WIN32
       /* Attempt to reopen the file descriptors using fname. */
-      if (!wtap_fdreopen(cf->wth, fname, &err)) {
+      if (!wtap_fdreopen(cf->wth, fname, &err, compressed)) {
         /* Oh, well, we're screwed. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       file_open_error_message(err, FALSE), fname);
