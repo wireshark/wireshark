@@ -57,7 +57,7 @@ DUMPCAP=$WS_BIN_PATH/dumpcap
 if [ "$WS_SYSTEM" = "Windows" -a -z "$TRAFFIC_CAPTURE_IFACE" ] ; then
         # Try to fetch the first Ethernet interface.
         TRAFFIC_CAPTURE_IFACE=`$TSHARK -D 2>&1 | \
-                egrep 'Ethernet|Network Connection|VMware' | \
+                egrep 'Ethernet|Network Connection|VMware|Intel|Realtek' | \
                 head -1 | cut -c 1`
 fi
 TRAFFIC_CAPTURE_IFACE=${TRAFFIC_CAPTURE_IFACE:-1}
