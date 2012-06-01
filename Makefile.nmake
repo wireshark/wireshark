@@ -252,7 +252,6 @@ wireshark.bsc: \
 	plugins\asn1\*.sbr		\
 	plugins\docsis\*.sbr		\
 	plugins\ethercat\*.sbr		\
-	plugins\giop\*.sbr		\
 	plugins\gryphon\*.sbr		\
 	plugins\irda\*.sbr		\
 	plugins\m2m\*.sbr		\
