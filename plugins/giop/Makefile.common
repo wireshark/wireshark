@@ -30,8 +30,7 @@ PLUGIN_NAME = giop
 # the dissector sources (without any helpers)
 DISSECTOR_SRC = \
 	packet-coseventcomm.c \
-	packet-cosnaming.c	\
-	packet-tango.c
+	packet-cosnaming.c
 
 # corresponding headers
 DISSECTOR_INCLUDES =

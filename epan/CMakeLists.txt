@@ -282,6 +282,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-snmp.c
 	dissectors/packet-t124.c
 	dissectors/packet-t125.c
+	dissectors/packet-tango.c
 	dissectors/packet-tcap.c
 	dissectors/packet-tetra.c
 )

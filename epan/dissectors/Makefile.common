@@ -198,6 +198,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-snmp.c \
 	packet-t124.c \
 	packet-t125.c \
+	packet-tango.c \
 	packet-tcap.c \
 	packet-tetra.c \
 	$(CUSTOM_DIRTY_ASN1_DISSECTOR_SRC)
