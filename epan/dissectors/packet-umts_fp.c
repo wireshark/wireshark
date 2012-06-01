@@ -560,12 +560,14 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, struct fp_info *p_fp_info,
                            dissector_handle_t *data_handle)
 {
-    int         chan, num_tbs = 0;
-    int         bit_offset    = 0;
-    guint       data_bits     = 0;
-    proto_item *tree_ti       = NULL;
-    proto_tree *data_tree     = NULL;
-    gboolean    dissected     = FALSE;
+    int         chan, num_tbs   = 0;
+    int         bit_offset      = 0;
+    int         crci_bit_offset = (offset+1)<<3; /* Current offset + Quality estimate of 1 byte at the end*/
+    guint       data_bits       = 0;
+    guint8      crci_bit        = 0;
+    proto_item *tree_ti         = NULL;
+    proto_tree *data_tree       = NULL;
+    gboolean    dissected       = FALSE;
 
     if (tree) {
         /* Add data subtree */
@@ -574,6 +576,18 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         data_tree = proto_item_add_subtree(tree_ti, ett_fp_data);
     }
 
+    /* Calculate offset to CRCI bits */
+    for (chan=0; chan < p_fp_info->num_chans; chan++) {
+        int n;
+        for (n=0; n < p_fp_info->chan_num_tbs[chan]; n++) {
+            /* Advance bit offset */
+            crci_bit_offset += p_fp_info->chan_tf_size[chan];
+            /* Pad out to next byte */
+            if (crci_bit_offset % 8) {
+                crci_bit_offset += (8 - (crci_bit_offset % 8));
+            }
+        }
+    }
     /* Now for the TB data */
     for (chan=0; chan < p_fp_info->num_chans; chan++) {
         int n;
@@ -603,11 +617,23 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (preferences_call_mac_dissectors && data_handle &&
                 (p_fp_info->chan_tf_size[chan] > 0)) {
                 tvbuff_t *next_tvb;
-                next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
-                                          ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8, -1);
-                /* TODO: maybe this decision can be based only on info available in fp_info */
-                call_dissector(*data_handle, next_tvb, pinfo, top_level_tree);
-                dissected = TRUE;
+                proto_item *item;
+
+                item = proto_tree_add_item(data_tree, hf_fp_crci[n%8], tvb, (crci_bit_offset/8)+(n/8), 1, ENC_BIG_ENDIAN);
+                PROTO_ITEM_SET_GENERATED(item);
+                crci_bit = tvb_get_bits8(tvb,crci_bit_offset+(n/8),1);
+
+				if(crci_bit == 0){
+					next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
+											  ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8, -1);
+					/* TODO: maybe this decision can be based only on info available in fp_info */
+					call_dissector(*data_handle, next_tvb, pinfo, top_level_tree);
+					dissected = TRUE;
+				}else{
+					item = proto_tree_add_text(tree, tvb, offset + bit_offset/8, ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8,
+						"Not sent to subdissector as CRCI is set");
+					PROTO_ITEM_SET_GENERATED(item);
+				}
             }
             num_tbs++;
 
