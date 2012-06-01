@@ -1305,19 +1305,18 @@ decode_add_ppid_combo_box (GtkWidget *page)
 
     combo_box = ws_combo_box_new_text_and_pointer();
 
-    g_snprintf(tmp, sizeof(tmp), "PPID (%u)", 0);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
-                                         tmp, GINT_TO_POINTER(E_DECODE_PPID));
-    ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);  /* default */
-
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
-      if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
-          g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
-          ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
-                                               tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-      } else
-          break;
+        if (cfile.edt->pi.ppids[number_of_ppid] != LAST_PPID) {
+            g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
+            ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
+                                                 tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        } else
+            break;
     }
+
+    if (number_of_ppid)
+        ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);  /* default */
+
     g_object_set_data(G_OBJECT(page), E_COMBO_BOX_SRCDST, combo_box);
     return(combo_box);
 }
@@ -1703,17 +1702,17 @@ decode_sctp_update_ppid_combo_box(GtkWidget *w _U_, GtkWidget *page)
     sctp_combo_box = g_object_get_data(G_OBJECT(page), E_COMBO_BOX_SRCDST);
     ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box));
 
-    g_snprintf(tmp, sizeof(tmp), "PPID (%u)", 0);
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box), tmp, GINT_TO_POINTER(E_DECODE_PPID));
-    ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0); /* default */
-
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
-      if (cfile.edt->pi.ppids[number_of_ppid] != 0) {
-        g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
-        ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box),
-                                             tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-      }
+        if (cfile.edt->pi.ppids[number_of_ppid] != LAST_PPID) {
+            g_snprintf(tmp, sizeof(tmp), "PPID (%u)", cfile.edt->pi.ppids[number_of_ppid]);
+            ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(sctp_combo_box),
+                                                 tmp, GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        } else
+            break;
     }
+
+    if (number_of_ppid)
+        ws_combo_box_set_active(GTK_COMBO_BOX(sctp_combo_box), 0); /* default */
 
     g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, "sctp.ppi");
 
@@ -1977,7 +1976,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
-	gtk_widget_set_tooltip_text(button, "Open a dialog showing the current settings.\n" 
+	gtk_widget_set_tooltip_text(button, "Open a dialog showing the current settings.\n"
 		"Note you need to select and press apply first to be able to save the current setting");
 
     button = gtk_button_new_from_stock(GTK_STOCK_CLEAR);

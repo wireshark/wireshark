@@ -2414,7 +2414,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
 
-	  mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+          mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
         }
 
         for (frag_i = msg->fragments;
@@ -2426,7 +2426,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
 
-	  mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+          mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
         }
       } else {
         for (frag_i = find_fragment(message->begin, stream_id, stream_seq_num);
@@ -2438,7 +2438,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
 
-	  mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+          mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
         }
       }
 
@@ -2760,14 +2760,12 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 
   payload_proto_id  = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_PAYLOAD_PROTOCOL_ID_OFFSET);
 
-  /* insert the PPID in the pinfo structure if it is non-zero, not already there and there is still room */
-  if (payload_proto_id) {
-    for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
-      if ((pinfo->ppids[number_of_ppid] == 0) || (pinfo->ppids[number_of_ppid] == payload_proto_id))
-        break;
-    if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (pinfo->ppids[number_of_ppid] == 0))
-      pinfo->ppids[number_of_ppid] = payload_proto_id;
-  }
+  /* insert the PPID in the pinfo structure if it is not already there and there is still room */
+  for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
+    if ((pinfo->ppids[number_of_ppid] == LAST_PPID) || (pinfo->ppids[number_of_ppid] == payload_proto_id))
+      break;
+  if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (pinfo->ppids[number_of_ppid] == LAST_PPID))
+    pinfo->ppids[number_of_ppid] = payload_proto_id;
 
   e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
   b_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_B_BIT;
@@ -4019,6 +4017,7 @@ static void
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint16 source_port, destination_port;
+  guint      number_of_ppid;
 
   /* Extract the common header */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
@@ -4035,7 +4034,10 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Clear entries in Info column on summary display */
   col_set_str(pinfo->cinfo, COL_INFO, "");
 
-  memset(&pinfo->ppids, 0, sizeof(pinfo->ppids));
+
+  for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++) {
+    pinfo->ppids[number_of_ppid] = LAST_PPID;
+  }
 
   /*  The tvb array in struct _sctp_info is huge: currently 2k pointers.
    *  We know (by the value of 'number_of_tvbs') which of these entries have

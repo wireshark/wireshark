@@ -174,9 +174,11 @@ typedef struct _packet_info {
   gboolean gssapi_data_encrypted;
 
   guint32 ppid;  /* SCTP PPI of current DATA chunk */
+/* This is a valid PPID, but we use it to mark the end of the list */
+#define LAST_PPID 0xffffffff
   guint32 ppids[MAX_NUMBER_OF_PPIDS]; /* The first NUMBER_OF_PPIDS PPIDS which are present
-                                      * in the SCTP packet
-                                      */
+                                       * in the SCTP packet
+                                       */
   void    *private_data;	/* pointer to data passed from one dissector to another */
   GHashTable *private_table;	/* a hash table passed from one dissector to another */
   /* TODO: Use emem_strbuf_t instead */
