@@ -15,6 +15,14 @@ buffer_free
 buffer_init
 buffer_remove_start
 
+file_eof
+file_error
+file_getc
+file_gets
+file_seek
+file_read
+file_tell
+
 wtap_buf_ptr
 wtap_cleareof
 wtap_close
