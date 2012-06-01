@@ -411,47 +411,40 @@ success:
  * stream and, if do_random is TRUE, to the random stream.  Used on Windows
  * after the rename of a file we had open was done or if the rename of a
  * file on top of a file we had open failed.
+ *
+ * This is only required by Wireshark, not TShark, and, at the point that
+ * Wireshark is doing this, the sequential stream is closed, and the
+ * random stream is open, so this refuses to open pipes, and only
+ * reopens the random stream.
  */
 gboolean
-wtap_fdreopen(wtap *wth, const char *filename, int *err, gboolean do_random)
+wtap_fdreopen(wtap *wth, const char *filename, int *err)
 {
-	int	fd;
 	ws_statb64 statb;
-	gboolean use_stdin = FALSE;
 
-	/* open standard input if filename is '-' */
-	if (strcmp(filename, "-") == 0)
-		use_stdin = TRUE;
+	/*
+	 * We need two independent descriptors for random access, so
+	 * they have different file positions.  If we're opening the
+	 * standard input, we can only dup it to get additional
+	 * descriptors, so we can't have two independent descriptors,
+	 * and thus can't do random access.
+	 */
+	if (strcmp(filename, "-") == 0) {
+		*err = WTAP_ERR_RANDOM_OPEN_STDIN;
+		return FALSE;
+	}
 
 	/* First, make sure the file is valid */
-	if (use_stdin) {
-		if (ws_fstat64(0, &statb) < 0) {
-			*err = errno;
-			return FALSE;
-		}
-	} else {
-		if (ws_stat64(filename, &statb) < 0) {
-			*err = errno;
-			return FALSE;
-		}
+	if (ws_stat64(filename, &statb) < 0) {
+		*err = errno;
+		return FALSE;
 	}
 	if (S_ISFIFO(statb.st_mode)) {
 		/*
-		 * Opens of FIFOs are allowed only when not opening
-		 * for random access.
-		 *
-		 * XXX - currently, we do seeking when trying to find
-		 * out the file type, so we don't actually support
-		 * opening FIFOs.  However, we may eventually
-		 * do buffering that allows us to do at least some
-		 * file type determination even on pipes, so we
-		 * allow FIFO opens and let things fail later when
-		 * we try to seek.
+		 * Opens of FIFOs are not allowed; see above.
 		 */
-		if (do_random) {
-			*err = WTAP_ERR_RANDOM_OPEN_PIPE;
-			return FALSE;
-		}
+		*err = WTAP_ERR_RANDOM_OPEN_PIPE;
+		return FALSE;
 	} else if (S_ISDIR(statb.st_mode)) {
 		/*
 		 * Return different errors for "this is a directory"
@@ -465,56 +458,11 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err, gboolean do_random)
 		return FALSE;
 	}
 
-	/*
-	 * We need two independent descriptors for random access, so
-	 * they have different file positions.  If we're opening the
-	 * standard input, we can only dup it to get additional
-	 * descriptors, so we can't have two independent descriptors,
-	 * and thus can't do random access.
-	 */
-	if (use_stdin && do_random) {
-		*err = WTAP_ERR_RANDOM_OPEN_STDIN;
-		return FALSE;
-	}
-
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
-	if (use_stdin) {
-		/*
-		 * We dup FD 0, so that we don't have to worry about
-		 * a file_close of wth->fh closing the standard
-		 * input of the process.
-		 */
-		fd = ws_dup(0);
-		if (fd < 0) {
-			*err = errno;
-			return FALSE;
-		}
-#ifdef _WIN32
-		if (_setmode(fd, O_BINARY) == -1) {
-			/* "Shouldn't happen" */
-			*err = errno;
-			return FALSE;
-		}
-#endif
-		if (!(wth->fh = file_fdopen(fd))) {
-			*err = errno;
-			ws_close(fd);
-			return FALSE;
-		}
-	} else {
-		if (!file_fdreopen(wth->fh, filename)) {
-			*err = errno;
-			return FALSE;
-		}
-	}
-
-	if (do_random) {
-		if (!file_fdreopen(wth->random_fh, filename)) {
-			*err = errno;
-			file_fdclose(wth->fh);
-			return FALSE;
-		}
+	if (!file_fdreopen(wth->random_fh, filename)) {
+		*err = errno;
+		return FALSE;
 	}
 	return TRUE;
 }

@@ -1086,9 +1086,8 @@ void wtap_write_shb_comment(wtap *wth, gchar *comment);
 /*** close the file descriptors for the current file ***/
 void wtap_fdclose(wtap *wth);
 
-/*** reopen the file descriptors for the current file ***/
-gboolean wtap_fdreopen(wtap *wth, const char *filename, int *err,
-	gboolean do_random);
+/*** reopen the random file descriptor for the current file ***/
+gboolean wtap_fdreopen(wtap *wth, const char *filename, int *err);
 
 /*** close the current file ***/
 void wtap_sequential_close(wtap *wth);
