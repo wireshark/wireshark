@@ -71,16 +71,11 @@ static enum nas_sys_info_gsm_map rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INF
 
 /* Forward declarations */
 static int dissect_UE_RadioAccessCapabilityInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_MasterInformationBlock_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SysInfoTypeSB1_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SysInfoTypeSB2_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_SysInfoType1_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_SysInfoType3_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SysInfoType5_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_SysInfoType7_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SysInfoType11_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SysInfoType11bis_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_SysInfoType12_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Include constants */
 #include "packet-rrc-val.h"
