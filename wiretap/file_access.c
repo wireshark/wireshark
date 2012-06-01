@@ -405,6 +405,120 @@ success:
 	return wth;
 }
 
+/*
+ * Given the pathname of the file we just closed with wtap_fdclose(), attempt
+ * to reopen that file and assign the new file descriptor(s) to the sequential
+ * stream and, if do_random is TRUE, to the random stream.  Used on Windows
+ * after the rename of a file we had open was done or if the rename of a
+ * file on top of a file we had open failed.
+ */
+gboolean
+wtap_fdreopen(wtap *wth, const char *filename, int *err, gboolean do_random)
+{
+	int	fd;
+	ws_statb64 statb;
+	gboolean use_stdin = FALSE;
+
+	/* open standard input if filename is '-' */
+	if (strcmp(filename, "-") == 0)
+		use_stdin = TRUE;
+
+	/* First, make sure the file is valid */
+	if (use_stdin) {
+		if (ws_fstat64(0, &statb) < 0) {
+			*err = errno;
+			return FALSE;
+		}
+	} else {
+		if (ws_stat64(filename, &statb) < 0) {
+			*err = errno;
+			return FALSE;
+		}
+	}
+	if (S_ISFIFO(statb.st_mode)) {
+		/*
+		 * Opens of FIFOs are allowed only when not opening
+		 * for random access.
+		 *
+		 * XXX - currently, we do seeking when trying to find
+		 * out the file type, so we don't actually support
+		 * opening FIFOs.  However, we may eventually
+		 * do buffering that allows us to do at least some
+		 * file type determination even on pipes, so we
+		 * allow FIFO opens and let things fail later when
+		 * we try to seek.
+		 */
+		if (do_random) {
+			*err = WTAP_ERR_RANDOM_OPEN_PIPE;
+			return FALSE;
+		}
+	} else if (S_ISDIR(statb.st_mode)) {
+		/*
+		 * Return different errors for "this is a directory"
+		 * and "this is some random special file type", so
+		 * the user can get a potentially more helpful error.
+		 */
+		*err = EISDIR;
+		return FALSE;
+	} else if (! S_ISREG(statb.st_mode)) {
+		*err = WTAP_ERR_NOT_REGULAR_FILE;
+		return FALSE;
+	}
+
+	/*
+	 * We need two independent descriptors for random access, so
+	 * they have different file positions.  If we're opening the
+	 * standard input, we can only dup it to get additional
+	 * descriptors, so we can't have two independent descriptors,
+	 * and thus can't do random access.
+	 */
+	if (use_stdin && do_random) {
+		*err = WTAP_ERR_RANDOM_OPEN_STDIN;
+		return FALSE;
+	}
+
+	/* Open the file */
+	errno = WTAP_ERR_CANT_OPEN;
+	if (use_stdin) {
+		/*
+		 * We dup FD 0, so that we don't have to worry about
+		 * a file_close of wth->fh closing the standard
+		 * input of the process.
+		 */
+		fd = ws_dup(0);
+		if (fd < 0) {
+			*err = errno;
+			return FALSE;
+		}
+#ifdef _WIN32
+		if (_setmode(fd, O_BINARY) == -1) {
+			/* "Shouldn't happen" */
+			*err = errno;
+			return FALSE;
+		}
+#endif
+		if (!(wth->fh = file_fdopen(fd))) {
+			*err = errno;
+			ws_close(fd);
+			return FALSE;
+		}
+	} else {
+		if (!file_fdreopen(wth->fh, filename)) {
+			*err = errno;
+			return FALSE;
+		}
+	}
+
+	if (do_random) {
+		if (!file_fdreopen(wth->random_fh, filename)) {
+			*err = errno;
+			file_fdclose(wth->fh);
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
 /* Table of the file types we know about.
    Entries must be sorted by WTAP_FILE_xxx values in ascending order */
 static const struct file_type_info dump_open_table_base[] = {
