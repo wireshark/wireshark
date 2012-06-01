@@ -73,24 +73,46 @@ static GtkWidget *tree;
 static void
 proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, guint callback_action)
 {
-    char *str = NULL;
+    gchar *str = NULL;
+    gchar *strtmp = NULL;
     const char *filter = NULL;
     GtkTreeSelection *sel;
     GtkTreeModel *model;
     GtkTreeIter iter;
+    GtkTreePath *path;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(tree));
     gtk_tree_selection_get_selected (sel, &model, &iter);
+    path = gtk_tree_model_get_path(model,&iter);
+
     gtk_tree_model_get (model, &iter, FILTER_NAME, &filter, -1);
-    if (filter && 0 != strlen(filter)) {
+    if (filter && strlen(filter) > 0) {
         str = g_strdup_printf("%s", filter);
     } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
         return;
     }
 
-    apply_selected_filter (callback_action, str);
+    while (gtk_tree_path_up(path) && gtk_tree_path_get_depth(path) > 0)
+    {
+        strtmp = g_strdup_printf("%s", str);
+        g_free(str);
 
+        gtk_tree_model_get_iter(model, &iter, path);
+        gtk_tree_model_get(model, &iter, FILTER_NAME, &filter, -1);
+        if (filter && strlen(filter) > 0) {
+            str = g_strdup_printf("%s and %s", strtmp, filter);
+        } else {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
+            return;
+        }
+
+        g_free(strtmp);
+    }
+
+    apply_selected_filter (callback_action, str);
+    
+    gtk_tree_path_free(path);
     g_free (str);
 }
 
