@@ -1341,14 +1341,14 @@ tcp_sequence_number_analysis_print_lost(packet_info * pinfo,
         flags_item=proto_tree_add_none_format(flags_tree,
                                               hf_tcp_analysis_lost_packet,
                                               tvb, 0, 0,
-                                              "A segment before this frame was "
-                                              "lost"
+                                              "A segment before this frame "
+                                              "wasn't captured"
             );
         PROTO_ITEM_SET_GENERATED(flags_item);
         expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN,
-                               "Previous segment lost (common at capture start)");
+                               "Previous segment not captured (common at capture start)");
         col_prepend_fence_fstr(pinfo->cinfo, COL_INFO,
-                               "[TCP Previous segment lost] ");
+                               "[TCP Previous segment not captured] ");
     }
     /* TCP Ack lost segment */
     if (ta->flags & TCP_A_ACK_LOST_PACKET) {
@@ -1356,13 +1356,13 @@ tcp_sequence_number_analysis_print_lost(packet_info * pinfo,
                                               hf_tcp_analysis_ack_lost_packet,
                                               tvb, 0, 0,
                                               "This frame ACKs a segment we have "
-                                              "not seen (lost?)"
+                                              "not seen"
             );
         PROTO_ITEM_SET_GENERATED(flags_item);
         expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_WARN,
-                               "ACKed lost segment (common at capture start)");
+                               "ACKed segment that wasn't captured (common at capture start)");
         col_prepend_fence_fstr(pinfo->cinfo, COL_INFO,
-                               "[TCP ACKed lost segment] ");
+                               "[TCP ACKed unseen segment] ");
     }
 }
 
@@ -4893,12 +4893,12 @@ proto_register_tcp(void)
             "A new tcp session has started with previously used port numbers", HFILL }},
 
         { &hf_tcp_analysis_lost_packet,
-        { "Previous Segment Lost",      "tcp.analysis.lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
-            "A segment before this one was lost from the capture", HFILL }},
+        { "Previous Segment Unseen",      "tcp.analysis.lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
+            "We may not have captured a segment before this one", HFILL }},
 
         { &hf_tcp_analysis_ack_lost_packet,
-        { "ACKed Lost Packet",      "tcp.analysis.ack_lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
-            "This frame ACKs a lost segment", HFILL }},
+        { "ACKed Unseen Packet",      "tcp.analysis.ack_lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
+            "This frame ACKs a segment that may not have been captured", HFILL }},
 
         { &hf_tcp_analysis_window_update,
         { "Window update",      "tcp.analysis.window_update", FT_NONE, BASE_NONE, NULL, 0x0,
