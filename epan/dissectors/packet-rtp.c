@@ -373,42 +373,42 @@ static const value_string rtp_payload_type_vals[] =
 /* 93 */	{ 93,				"Unassigned" },
 /* 94 */	{ 94,				"Unassigned" },
 /* 95 */	{ 95,				"Unassigned" },
- 	/* Alex Lindberg - Added to support addtional RTP payload types
- 	See epan/rtp_pt.h */
-	{ PT_UNDF_96,	"DynamicRTP-Type-96" },
-	{ PT_UNDF_97,	"DynamicRTP-Type-97" },
-	{ PT_UNDF_98,	"DynamicRTP-Type-98" },
-	{ PT_UNDF_99,	"DynamicRTP-Type-99" },
-	{ PT_UNDF_100,	"DynamicRTP-Type-100" },
-	{ PT_UNDF_101,	"DynamicRTP-Type-101" },
-	{ PT_UNDF_102,	"DynamicRTP-Type-102" },
-	{ PT_UNDF_103,	"DynamicRTP-Type-103" },
-	{ PT_UNDF_104,	"DynamicRTP-Type-104" },
-	{ PT_UNDF_105,	"DynamicRTP-Type-105" },
-	{ PT_UNDF_106,	"DynamicRTP-Type-106" },
-	{ PT_UNDF_107,	"DynamicRTP-Type-107" },
-	{ PT_UNDF_108,	"DynamicRTP-Type-108" },
-	{ PT_UNDF_109,	"DynamicRTP-Type-109" },
-	{ PT_UNDF_110,	"DynamicRTP-Type-110" },
-	{ PT_UNDF_111,	"DynamicRTP-Type-111" },
-	{ PT_UNDF_112,	"DynamicRTP-Type-112" },
-	{ PT_UNDF_113,	"DynamicRTP-Type-113" },
-	{ PT_UNDF_114,	"DynamicRTP-Type-114" },
-	{ PT_UNDF_115,	"DynamicRTP-Type-115" },
-	{ PT_UNDF_116,	"DynamicRTP-Type-116" },
-	{ PT_UNDF_117,	"DynamicRTP-Type-117" },
-	{ PT_UNDF_118,	"DynamicRTP-Type-118" },
-	{ PT_UNDF_119,	"DynamicRTP-Type-119" },
-	{ PT_UNDF_120,	"DynamicRTP-Type-120" },
-	{ PT_UNDF_121,	"DynamicRTP-Type-121" },
-	{ PT_UNDF_122,	"DynamicRTP-Type-122" },
-	{ PT_UNDF_123,	"DynamicRTP-Type-123" },
-	{ PT_UNDF_124,	"DynamicRTP-Type-124" },
-	{ PT_UNDF_125,	"DynamicRTP-Type-125" },
-	{ PT_UNDF_126,	"DynamicRTP-Type-126" },
-	{ PT_UNDF_127,	"DynamicRTP-Type-127" },
+		/* Added to support addtional RTP payload types
+		 * See epan/rtp_pt.h */
+		{ PT_UNDF_96,	"DynamicRTP-Type-96" },
+		{ PT_UNDF_97,	"DynamicRTP-Type-97" },
+		{ PT_UNDF_98,	"DynamicRTP-Type-98" },
+		{ PT_UNDF_99,	"DynamicRTP-Type-99" },
+		{ PT_UNDF_100,	"DynamicRTP-Type-100" },
+		{ PT_UNDF_101,	"DynamicRTP-Type-101" },
+		{ PT_UNDF_102,	"DynamicRTP-Type-102" },
+		{ PT_UNDF_103,	"DynamicRTP-Type-103" },
+		{ PT_UNDF_104,	"DynamicRTP-Type-104" },
+		{ PT_UNDF_105,	"DynamicRTP-Type-105" },
+		{ PT_UNDF_106,	"DynamicRTP-Type-106" },
+		{ PT_UNDF_107,	"DynamicRTP-Type-107" },
+		{ PT_UNDF_108,	"DynamicRTP-Type-108" },
+		{ PT_UNDF_109,	"DynamicRTP-Type-109" },
+		{ PT_UNDF_110,	"DynamicRTP-Type-110" },
+		{ PT_UNDF_111,	"DynamicRTP-Type-111" },
+		{ PT_UNDF_112,	"DynamicRTP-Type-112" },
+		{ PT_UNDF_113,	"DynamicRTP-Type-113" },
+		{ PT_UNDF_114,	"DynamicRTP-Type-114" },
+		{ PT_UNDF_115,	"DynamicRTP-Type-115" },
+		{ PT_UNDF_116,	"DynamicRTP-Type-116" },
+		{ PT_UNDF_117,	"DynamicRTP-Type-117" },
+		{ PT_UNDF_118,	"DynamicRTP-Type-118" },
+		{ PT_UNDF_119,	"DynamicRTP-Type-119" },
+		{ PT_UNDF_120,	"DynamicRTP-Type-120" },
+		{ PT_UNDF_121,	"DynamicRTP-Type-121" },
+		{ PT_UNDF_122,	"DynamicRTP-Type-122" },
+		{ PT_UNDF_123,	"DynamicRTP-Type-123" },
+		{ PT_UNDF_124,	"DynamicRTP-Type-124" },
+		{ PT_UNDF_125,	"DynamicRTP-Type-125" },
+		{ PT_UNDF_126,	"DynamicRTP-Type-126" },
+		{ PT_UNDF_127,	"DynamicRTP-Type-127" },
 
-	{ 0,		NULL },
+		{ 0,		NULL },
 };
 
 value_string_ext rtp_payload_type_vals_ext = VALUE_STRING_EXT_INIT(rtp_payload_type_vals);
@@ -435,86 +435,86 @@ static const value_string rtp_payload_type_short_vals[] =
 	{ PT_DVI4_22050, "DVI4 22k" },
 	{ PT_G729,      "g729" },
 	{ PT_CN_OLD,    "CN(old)" },
-/* 20 */	{ 20,				"Unassigned" },
-/* 21 */	{ 21,				"Unassigned" },
-/* 22 */	{ 22,				"Unassigned" },
-/* 23 */	{ 23,				"Unassigned" },
-/* 24 */	{ 24,				"Unassigned" },
+	{ 20,				"Unassigned" },
+	{ 21,				"Unassigned" },
+	{ 22,				"Unassigned" },
+	{ 23,				"Unassigned" },
+	{ 24,				"Unassigned" },
 	{ PT_CELB,      "CellB" },
 	{ PT_JPEG,      "JPEG" },
-/* 27 */	{ 27,				"Unassigned" },
+	{ 27,				"Unassigned" },
 	{ PT_NV,        "NV" },
-/* 29 */	{ 29,				"Unassigned" },
-/* 30 */	{ 30,				"Unassigned" },
+	{ 29,				"Unassigned" },
+	{ 30,				"Unassigned" },
 	{ PT_H261,      "h261" },
 	{ PT_MPV,       "MPEG-I/II Video"},
 	{ PT_MP2T,      "MPEG-II streams"},
 	{ PT_H263,      "h263" },
 /* 35-71     Unassigned  */
-/* 35 */	{ 35,				"Unassigned" },
-/* 36 */	{ 36,				"Unassigned" },
-/* 37 */	{ 37,				"Unassigned" },
-/* 38 */	{ 38,				"Unassigned" },
-/* 39 */	{ 39,				"Unassigned" },
-/* 40 */	{ 40,				"Unassigned" },
-/* 41 */	{ 41,				"Unassigned" },
-/* 42 */	{ 42,				"Unassigned" },
-/* 43 */	{ 43,				"Unassigned" },
-/* 44 */	{ 44,				"Unassigned" },
-/* 45 */	{ 45,				"Unassigned" },
-/* 46 */	{ 46,				"Unassigned" },
-/* 47 */	{ 47,				"Unassigned" },
-/* 48 */	{ 48,				"Unassigned" },
-/* 49 */	{ 49,				"Unassigned" },
-/* 50 */	{ 50,				"Unassigned" },
-/* 51 */	{ 51,				"Unassigned" },
-/* 52 */	{ 52,				"Unassigned" },
-/* 53 */	{ 53,				"Unassigned" },
-/* 54 */	{ 54,				"Unassigned" },
-/* 55 */	{ 55,				"Unassigned" },
-/* 56 */	{ 56,				"Unassigned" },
-/* 57 */	{ 57,				"Unassigned" },
-/* 58 */	{ 58,				"Unassigned" },
-/* 59 */	{ 59,				"Unassigned" },
-/* 60 */	{ 60,				"Unassigned" },
-/* 61 */	{ 61,				"Unassigned" },
-/* 62 */	{ 62,				"Unassigned" },
-/* 63 */	{ 63,				"Unassigned" },
-/* 64 */	{ 64,				"Unassigned" },
-/* 65 */	{ 65,				"Unassigned" },
-/* 66 */	{ 66,				"Unassigned" },
-/* 67 */	{ 67,				"Unassigned" },
-/* 68 */	{ 68,				"Unassigned" },
-/* 69 */	{ 69,				"Unassigned" },
-/* 70 */	{ 70,				"Unassigned" },
-/* 71 */	{ 71,				"Unassigned" },
-/* 72-76     Reserved for RTCP conflict avoidance                                  [RFC3551] */
-/* 72 */	{ 72,				"Reserved for RTCP conflict avoidance" },
-/* 73 */	{ 73,				"Reserved for RTCP conflict avoidance" },
-/* 74 */	{ 74,				"Reserved for RTCP conflict avoidance" },
-/* 75 */	{ 75,				"Reserved for RTCP conflict avoidance" },
-/* 76 */	{ 76,				"Reserved for RTCP conflict avoidance" },
+	{ 35,				"Unassigned" },
+	{ 36,				"Unassigned" },
+	{ 37,				"Unassigned" },
+	{ 38,				"Unassigned" },
+	{ 39,				"Unassigned" },
+	{ 40,				"Unassigned" },
+	{ 41,				"Unassigned" },
+	{ 42,				"Unassigned" },
+	{ 43,				"Unassigned" },
+	{ 44,				"Unassigned" },
+	{ 45,				"Unassigned" },
+	{ 46,				"Unassigned" },
+	{ 47,				"Unassigned" },
+	{ 48,				"Unassigned" },
+	{ 49,				"Unassigned" },
+	{ 50,				"Unassigned" },
+	{ 51,				"Unassigned" },
+	{ 52,				"Unassigned" },
+	{ 53,				"Unassigned" },
+	{ 54,				"Unassigned" },
+	{ 55,				"Unassigned" },
+	{ 56,				"Unassigned" },
+	{ 57,				"Unassigned" },
+	{ 58,				"Unassigned" },
+	{ 59,				"Unassigned" },
+	{ 60,				"Unassigned" },
+	{ 61,				"Unassigned" },
+	{ 62,				"Unassigned" },
+	{ 63,				"Unassigned" },
+	{ 64,				"Unassigned" },
+	{ 65,				"Unassigned" },
+	{ 66,				"Unassigned" },
+	{ 67,				"Unassigned" },
+	{ 68,				"Unassigned" },
+	{ 69,				"Unassigned" },
+	{ 70,				"Unassigned" },
+	{ 71,				"Unassigned" },
+/* 72-76     Reserved for RTCP conflict avoidance  - [RFC3551] */
+	{ 72,				"Reserved for RTCP conflict avoidance" },
+	{ 73,				"Reserved for RTCP conflict avoidance" },
+	{ 74,				"Reserved for RTCP conflict avoidance" },
+	{ 75,				"Reserved for RTCP conflict avoidance" },
+	{ 76,				"Reserved for RTCP conflict avoidance" },
 /* 77-95     Unassigned      ? */
-/* 77 */	{ 77,				"Unassigned" },
-/* 78 */	{ 78,				"Unassigned" },
-/* 79 */	{ 79,				"Unassigned" },
-/* 80 */	{ 80,				"Unassigned" },
-/* 81 */	{ 81,				"Unassigned" },
-/* 82 */	{ 82,				"Unassigned" },
-/* 83 */	{ 83,				"Unassigned" },
-/* 84 */	{ 84,				"Unassigned" },
-/* 85 */	{ 85,				"Unassigned" },
-/* 86 */	{ 86,				"Unassigned" },
-/* 87 */	{ 87,				"Unassigned" },
-/* 88 */	{ 88,				"Unassigned" },
-/* 89 */	{ 89,				"Unassigned" },
-/* 90 */	{ 90,				"Unassigned" },
-/* 91 */	{ 91,				"Unassigned" },
-/* 92 */	{ 92,				"Unassigned" },
-/* 93 */	{ 93,				"Unassigned" },
-/* 94 */	{ 94,				"Unassigned" },
-/* 95 */	{ 95,				"Unassigned" },
- 	/* Alex Lindberg - Short RTP types */
+	{ 77,				"Unassigned" },
+	{ 78,				"Unassigned" },
+	{ 79,				"Unassigned" },
+	{ 80,				"Unassigned" },
+	{ 81,				"Unassigned" },
+	{ 82,				"Unassigned" },
+	{ 83,				"Unassigned" },
+	{ 84,				"Unassigned" },
+	{ 85,				"Unassigned" },
+	{ 86,				"Unassigned" },
+	{ 87,				"Unassigned" },
+	{ 88,				"Unassigned" },
+	{ 89,				"Unassigned" },
+	{ 90,				"Unassigned" },
+	{ 91,				"Unassigned" },
+	{ 92,				"Unassigned" },
+	{ 93,				"Unassigned" },
+	{ 94,				"Unassigned" },
+	{ 95,				"Unassigned" },
+ 	/* Short RTP types */
 	{ PT_UNDF_96,	"RTPType-96" },
 	{ PT_UNDF_97,	"RTPType-97" },
 	{ PT_UNDF_98,	"RTPType-98" },
@@ -556,7 +556,7 @@ value_string_ext rtp_payload_type_short_vals_ext = VALUE_STRING_EXT_INIT(rtp_pay
 static const value_string srtp_encryption_alg_vals[] =
 {
 	{ SRTP_ENC_ALG_NULL,	"Null Encryption" },
-	{ SRTP_ENC_ALG_AES_CM, "AES-128 Counter Mode" },
+	{ SRTP_ENC_ALG_AES_CM,	"AES-128 Counter Mode" },
 	{ SRTP_ENC_ALG_AES_F8,	"AES-128 F8 Mode" },
 	{ 0, NULL },
 };
@@ -570,7 +570,8 @@ static const value_string srtp_auth_alg_vals[] =
 #endif
 
 /* initialisation routine */
-static void rtp_fragment_init(void)
+static void
+rtp_fragment_init(void)
 {
 	fragment_table_init(&fragment_table);
 }
@@ -584,11 +585,11 @@ rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload)
 }
 
 /* Set up an SRTP conversation */
-void srtp_add_address(packet_info *pinfo,
-                     address *addr, int port,
-                     int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number, gboolean is_video _U_, GHashTable *rtp_dyn_payload,
-                     struct srtp_info *srtp_info)
+void
+srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
+		 const gchar *setup_method, guint32 setup_frame_number,
+		 gboolean is_video _U_, GHashTable *rtp_dyn_payload,
+                 struct srtp_info *srtp_info)
 {
 	address null_addr;
 	conversation_t* p_conv;
@@ -605,7 +606,9 @@ void srtp_add_address(packet_info *pinfo,
 	}
 
 #ifdef DEBUG
-	printf("#%u: %srtp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtp_info)?"s":"", ep_address_to_str(addr), port, other_port, setup_method, setup_frame_number);
+	printf("#%u: %srtp_add_address(%s, %u, %u, %s, %u\n",
+		pinfo->fd->num, (srtp_info)?"s":"", ep_address_to_str(addr), port,
+		other_port, setup_method, setup_frame_number);
 #endif
 
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
@@ -614,16 +617,16 @@ void srtp_add_address(packet_info *pinfo,
 	 * Check if the ip address and port combination is not
 	 * already registered as a conversation.
 	 */
-	p_conv = find_conversation( setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
-                                NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
+	p_conv = find_conversation(setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
+				   NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
 	/*
 	 * If not, create a new conversation.
 	 */
-	if ( !p_conv || p_conv->setup_frame != setup_frame_number) {
-		p_conv = conversation_new( setup_frame_number, addr, &null_addr, PT_UDP,
-		                           (guint32)port, (guint32)other_port,
-								   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
+	if (!p_conv || p_conv->setup_frame != setup_frame_number) {
+		p_conv = conversation_new(setup_frame_number, addr, &null_addr, PT_UDP,
+		                          (guint32)port, (guint32)other_port,
+					  NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
 	}
 
 	/* Set dissector */
@@ -637,7 +640,7 @@ void srtp_add_address(packet_info *pinfo,
 	/*
 	 * If not, add a new data item.
 	 */
-	if ( ! p_conv_data ) {
+	if (! p_conv_data) {
 		/* Create conversation data */
 		p_conv_data = se_alloc(sizeof(struct _rtp_conversation_info));
 		p_conv_data->rtp_dyn_payload = NULL;
@@ -665,16 +668,16 @@ void srtp_add_address(packet_info *pinfo,
 }
 
 /* Set up an RTP conversation */
-void rtp_add_address(packet_info *pinfo,
-                     address *addr, int port,
-                     int other_port,
-                     const gchar *setup_method, guint32 setup_frame_number, gboolean is_video , GHashTable *rtp_dyn_payload)
+void
+rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
+		const gchar *setup_method, guint32 setup_frame_number,
+		gboolean is_video , GHashTable *rtp_dyn_payload)
 {
 	srtp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, is_video, rtp_dyn_payload, NULL);
 }
 
 static gboolean
-dissect_rtp_heur_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean check_destport )
+dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean check_destport)
 {
 	guint8       octet1;
  	unsigned int version;
@@ -832,10 +835,10 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
  * datagram, and make out that a new one starts on C.
  */
 static void
-dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  proto_tree *rtp_tree, int offset, unsigned int data_len,
-		  unsigned int data_reported_len,
-		  unsigned int payload_type )
+dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		 proto_tree *rtp_tree, int offset, unsigned int data_len,
+		 unsigned int data_reported_len,
+		 unsigned int payload_type)
 {
 	tvbuff_t *newtvb;
 	struct _rtp_conversation_info *p_conv_data= NULL;
@@ -1020,8 +1023,6 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-
-
 	pinfo->can_desegment = 0;
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
@@ -1030,7 +1031,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static void
-dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	guint8 octet1;
@@ -1121,7 +1122,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 }
 
 static void
-dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti            = NULL;
 	proto_tree *rtp_tree      = NULL;
@@ -1507,7 +1508,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 /* calculate the extended sequence number - top 16 bits of the previous sequence number,
  * plus our own; then correct for wrapping */
-static guint32 calculate_extended_seqno(guint32 previous_seqno, guint16 raw_seqno)
+static guint32
+calculate_extended_seqno(guint32 previous_seqno, guint16 raw_seqno)
 {
 	guint32 seqno = (previous_seqno & 0xffff0000) | raw_seqno;
 	if(seqno + 0x8000 < previous_seqno) {
@@ -1521,7 +1523,8 @@ static guint32 calculate_extended_seqno(guint32 previous_seqno, guint16 raw_seqn
 }
 
 /* Look for conversation info */
-static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
+static void
+get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 {
 	/* Conversation and current data */
 	conversation_t *p_conv = NULL;
@@ -1569,7 +1572,8 @@ static void get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 
 
 /* Display setup info */
-static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Conversation and current data */
 	struct _rtp_conversation_info *p_conv_data = NULL;
@@ -1583,10 +1587,9 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Create setup info subtree with summary info. */
 	ti =  proto_tree_add_string_format(tree, hf_rtp_setup, tvb, 0, 0,
-		                                               "",
-		                                               "Stream setup by %s (frame %u)",
-		                                               p_conv_data->method,
-		                                               p_conv_data->frame_number);
+					   "", "Stream setup by %s (frame %u)",
+					   p_conv_data->method,
+					   p_conv_data->frame_number);
 		PROTO_ITEM_SET_GENERATED(ti);
 		rtp_setup_tree = proto_item_add_subtree(ti, ett_rtp_setup);
 		if (rtp_setup_tree)
