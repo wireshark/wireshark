@@ -2354,7 +2354,10 @@ static void mgcpDialedDigits(gchar *signalStr, gchar **dialedDigits)
 	}
 	resultStr[j] = '\0';
 
-	if (*resultStr == '\0') return;
+	if (*resultStr == '\0') {
+		g_free(tmpStr);
+		return;
+	}
 
 	g_free(*dialedDigits);
 	*dialedDigits = g_strdup(resultStr);
