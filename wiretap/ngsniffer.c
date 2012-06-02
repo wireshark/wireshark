@@ -2484,7 +2484,7 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 
 	/* Allocate the stream buffer if it hasn't already been allocated. */
 	if (comp_stream->buf == NULL) {
-		comp_stream->buf = g_malloc(OUTBUF_SIZE);
+		comp_stream->buf = (unsigned char *)g_malloc(OUTBUF_SIZE);
 
 		if (is_random) {
 			/* This is the first read of the random file, so we're at
@@ -2499,7 +2499,7 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 			   list of blobs, and make it the last element as well. */
 			if (wth->random_fh != NULL) {
 				g_assert(ngsniffer->first_blob == NULL);
-				blob = g_malloc(sizeof (blob_info_t));
+				blob = g_new(blob_info_t,1);
 				blob->blob_comp_offset = comp_stream->comp_offset;
 				blob->blob_uncomp_offset = comp_stream->uncomp_offset;
 				ngsniffer->first_blob = g_list_append(ngsniffer->first_blob,
@@ -2537,7 +2537,7 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 				   read, so we just add the new element at the end, and
 				   adjust the pointer to the last element to refer to it. */
 				if (wth->random_fh != NULL) {
-					blob = g_malloc(sizeof (blob_info_t));
+					blob = g_new(blob_info_t,1);
 					blob->blob_comp_offset = comp_stream->comp_offset;
 					blob->blob_uncomp_offset = comp_stream->uncomp_offset;
 					ngsniffer->last_blob = g_list_append(ngsniffer->last_blob,
@@ -2598,7 +2598,7 @@ read_blob(FILE_T infile, ngsniffer_comp_stream_t *comp_stream, int *err,
 		uncompressed = FALSE;
 	}
 
-	file_inbuf = g_malloc(INBUF_SIZE);
+	file_inbuf = (unsigned char *)g_malloc(INBUF_SIZE);
 
 	/* Read the blob */
 	errno = WTAP_ERR_CANT_READ;
@@ -2649,7 +2649,7 @@ ng_file_skip_seq(wtap *wth, gint64 delta, int *err, gchar **err_info)
 	g_assert(delta >= 0);
 
 	/* Ok, now read and discard "delta" bytes. */
-	buf = g_malloc(INBUF_SIZE);
+	buf = (char *)g_malloc(INBUF_SIZE);
 	while (delta != 0) {
 		if (delta > INBUF_SIZE)
 			amount_to_read = INBUF_SIZE;
@@ -2681,7 +2681,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 {
 	ngsniffer_t *ngsniffer;
 	gint64 delta;
-	GList *new, *next;
+	GList *new_list, *next_list;
 	blob_info_t *next_blob, *new_blob;
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
@@ -2696,7 +2696,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 
 	/* Is the place to which we're seeking within the current buffer, or
 	   will we have to read a different blob into the buffer? */
-	new = NULL;
+	new_list = NULL;
 	if (delta > 0) {
 		/* We're going forwards.
 		   Is the place to which we're seeking within the current buffer? */
@@ -2704,21 +2704,21 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 			/* No.  Search for a blob that contains the target offset in
 			   the uncompressed byte stream, starting with the blob
 			   following the current blob. */
-			new = g_list_next(ngsniffer->current_blob);
-			while (new) {
-				next = g_list_next(new);
-				if (next == NULL) {
+			new_list = g_list_next(ngsniffer->current_blob);
+			while (new_list) {
+				next_list = g_list_next(new_list);
+				if (next_list == NULL) {
 					/* No more blobs; the current one is it. */
 					break;
 				}
 
-				next_blob = next->data;
+				next_blob = next_list->data;
 				/* Does the next blob start after the target offset?
 				   If so, the current blob is the one we want. */
 				if (next_blob->blob_uncomp_offset > offset)
 					break;
 
-				new = next;
+				new_list = next_list;
 			}
 		}
 	} else if (delta < 0) {
@@ -2728,24 +2728,24 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 			/* No.  Search for a blob that contains the target offset in
 			   the uncompressed byte stream, starting with the blob
 			   preceding the current blob. */
-			new = g_list_previous(ngsniffer->current_blob);
-			while (new) {
+			new_list = g_list_previous(ngsniffer->current_blob);
+			while (new_list) {
 				/* Does this blob start at or before the target offset?
 				   If so, the current blob is the one we want. */
-				new_blob = new->data;
+				new_blob = new_list->data;
 				if (new_blob->blob_uncomp_offset <= offset)
 					break;
 
 				/* It doesn't - skip to the previous blob. */
-				new = g_list_previous(new);
+				new_list = g_list_previous(new_list);
 			}
 		}
 	}
 
-	if (new != NULL) {
+	if (new_list != NULL) {
 		/* The place to which we're seeking isn't in the current buffer;
 		   move to a new blob. */
-		new_blob = new->data;
+		new_blob = new_list->data;
 
 		/* Seek in the compressed file to the offset in the compressed file
 		   of the beginning of that blob. */
@@ -2753,7 +2753,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 			return FALSE;
 
 		/* Make the blob we found the current one. */
-		ngsniffer->current_blob = new;
+		ngsniffer->current_blob = new_list;
 
 		/* Now set the current offsets to the offsets of the beginning
 		   of the blob. */
