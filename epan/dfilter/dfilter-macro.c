@@ -60,7 +60,7 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 #endif
 
 static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
-	fvt_cache_entry_t* e = v;
+	fvt_cache_entry_t* e = (fvt_cache_entry_t*)v;
 	g_free(e->repr);
 	g_free(e);
 	return TRUE;
@@ -72,7 +72,7 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 
 	if (!finfo) return FALSE;
 
-	if ((e = g_hash_table_lookup(fvt_cache,finfo->hfinfo->abbrev))) {
+	if ((e = (fvt_cache_entry_t*)g_hash_table_lookup(fvt_cache,finfo->hfinfo->abbrev))) {
 		e->usable = FALSE;
 	} else if (finfo->value.ftype->val_to_string_repr) {
 		switch (finfo->hfinfo->type) {
@@ -82,7 +82,7 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 			default:
 				break;
 		}
-		e = g_malloc(sizeof(fvt_cache_entry_t));
+		e = g_new(fvt_cache_entry_t,1);
 		e->name = finfo->hfinfo->abbrev,
 		e->repr = fvalue_to_string_repr(&(finfo->value), FTREPR_DFILTER, NULL);
 		e->usable = TRUE;
@@ -93,7 +93,7 @@ static gboolean fvt_cache_cb(proto_node * node, gpointer data _U_) {
 
 void dfilter_macro_build_ftv_cache(void* tree_root) {
 	g_hash_table_foreach_remove(fvt_cache,free_value,NULL);
-	proto_tree_traverse_post_order(tree_root, fvt_cache_cb, NULL);
+	proto_tree_traverse_post_order((proto_tree *)tree_root, fvt_cache_cb, NULL);
 }
 
 void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {
@@ -106,7 +106,7 @@ void dfilter_macro_foreach(dfilter_macro_cb_t cb, void* data) {
 }
 
 static void macro_fprint(dfilter_macro_t* m, void* ud) {
-	FILE* f = ud;
+	FILE* f = (FILE*)ud;
 
 	fprintf(f,"%s\t%s\n",m->name,m->text);
 }
@@ -171,7 +171,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 
 	if (!m) {
 		if (fvt_cache &&
-		    (e = g_hash_table_lookup(fvt_cache,name)) != NULL) {
+		    (e = (fvt_cache_entry_t  *)g_hash_table_lookup(fvt_cache,name)) != NULL) {
 			if(e->usable) {
 				return e->repr;
 			} else {
@@ -394,7 +394,7 @@ gchar* dfilter_macro_apply(const gchar* text, const gchar** error) {
 }
 
 static void macro_update(void* mp, const gchar** error) {
-	dfilter_macro_t* m = mp;
+	dfilter_macro_t* m = (dfilter_macro_t*)mp;
 	GPtrArray* parts;
 	GArray* args_pos;
 	const gchar* r;
@@ -497,7 +497,7 @@ done:
 }
 
 static void macro_free(void* r) {
-	dfilter_macro_t* m = r;
+	dfilter_macro_t* m = (dfilter_macro_t*)r;
 
 	DUMP_MACRO(r);
 
@@ -509,8 +509,8 @@ static void macro_free(void* r) {
 }
 
 static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
-	dfilter_macro_t* d = dest;
-	const dfilter_macro_t* m = orig;
+	dfilter_macro_t* d = (dfilter_macro_t*)dest;
+	const dfilter_macro_t* m = (dfilter_macro_t*)orig;
 
 	DUMP_MACRO(m);
 
@@ -536,8 +536,8 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 		d->priv = g_strdup(m->text);
 		{
 			const gchar* oldText = m->text;
-			const gchar* oldPriv = m->priv;
-			gchar* newPriv = d->priv;
+			const gchar* oldPriv = (const gchar*)m->priv;
+			gchar* newPriv = (gchar*)d->priv;
 			while(oldText && *oldText) {
 				*(newPriv++) = *(oldPriv++);
 				oldText++;
@@ -558,13 +558,13 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
                  */
 
 		do nparts++; while (m->parts[nparts]);
-		d->parts = g_memdup(m->parts,(nparts+1)*(guint)sizeof(void*));
+		d->parts = (gchar **)g_memdup(m->parts,(nparts+1)*(guint)sizeof(void*));
 		nparts = 0;
 		while(m->parts[nparts]) {
 			if(nparts) {
 				d->parts[nparts] = d->parts[nparts - 1] + (m->parts[nparts] - m->parts[nparts - 1]);
 			} else {
-				d->parts[nparts] = d->priv;
+				d->parts[nparts] = (gchar *)d->priv;
 			}
 			nparts++;
 		}
@@ -573,7 +573,7 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 		 * Clone the contents of m->args_pos into d->args_pos.
 		 */
 
-		d->args_pos = g_memdup(m->args_pos,(--nparts)*(guint)sizeof(int));
+		d->args_pos = (int *)g_memdup(m->args_pos,(--nparts)*(guint)sizeof(int));
 	}
 
 	DUMP_MACRO(d);

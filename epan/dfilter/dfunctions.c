@@ -63,10 +63,10 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
 
     arg1 = arg1list;
     while (arg1) {
-        arg_fvalue = arg1->data; 
+        arg_fvalue = (fvalue_t *)arg1->data; 
         switch (fvalue_ftype(arg_fvalue)->ftype) {
             case FT_STRING:
-                s = ep_strdup(fvalue_get(arg1->data));
+                s = (char *)ep_strdup(fvalue_get(arg1->data));
                 for (c = s; *c; c++) {
                         /**c = string_ascii_to_lower(*c);*/
                         *c = conv_func(*c);
@@ -116,7 +116,7 @@ ul_semcheck_params(int param_num, stnode_t *st_node)
     if (param_num == 0) {
         switch(type) {
             case STTYPE_FIELD:
-                hfinfo = stnode_data(st_node);
+                hfinfo = (header_field_info *)stnode_data(st_node);
                 ftype = hfinfo->type;
                 if (ftype != FT_STRING && ftype != FT_STRINGZ
                         && ftype != FT_UINT_STRING) {
