@@ -53,7 +53,7 @@ string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 	/* Free up the old value, if we have one */
 	string_fvalue_free(fv);
 
-	fv->value.string = g_strdup(value);
+	fv->value.string = (gchar *)g_strdup(value);
 }
 
 static int
@@ -163,7 +163,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		 * in the middle of the byte string? */
 		int num_bytes = fv_bytes->value.bytes->len;
 
-		fv->value.string = g_malloc(num_bytes + 1);
+		fv->value.string = (gchar *)g_malloc(num_bytes + 1);
 		memcpy(fv->value.string, fv_bytes->value.bytes->data, num_bytes);
 		fv->value.string[num_bytes] = '\0';
 

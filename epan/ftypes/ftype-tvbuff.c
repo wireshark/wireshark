@@ -55,7 +55,7 @@ value_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 	/* Free up the old value, if we have one */
 	value_free(fv);
 
-	fv->value.tvb = value;
+	fv->value.tvb = (tvbuff_t *)value;
 }
 
 static void
@@ -75,7 +75,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 
 	/* Make a tvbuff from the string. We can drop the
 	 * terminating NUL. */
-	private_data = g_memdup(s, (guint)strlen(s));
+	private_data = (guint8 *)g_memdup(s, (guint)strlen(s));
 	new_tvb = tvb_new_real_data(private_data,
 			(guint)strlen(s), (gint)strlen(s));
 
@@ -102,7 +102,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);
 	if (fv_bytes) {
 		/* Make a tvbuff from the bytes */
-		private_data = g_memdup(fv_bytes->value.bytes->data,
+		private_data = (guint8 *)g_memdup(fv_bytes->value.bytes->data,
 				fv_bytes->value.bytes->len);
 		new_tvb = tvb_new_real_data(private_data,
 				fv_bytes->value.bytes->len,

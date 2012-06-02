@@ -636,7 +636,7 @@ eui64_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
 static void
 eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 {
-  	guint8 *p_eui64 = ep_alloc(8);
+  	guint8 *p_eui64 = (guint8 *)ep_alloc(8);
 
   	/* Copy and convert the address to network byte order. */
   	*(guint64 *)(void *)(p_eui64) = pntoh64(&(fv->value.integer64));

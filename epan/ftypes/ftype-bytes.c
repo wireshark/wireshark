@@ -58,7 +58,7 @@ bytes_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
 
-	fv->value.bytes = value;
+	fv->value.bytes = (GByteArray *)value;
 }
 
 static int
@@ -147,7 +147,7 @@ static void
 ether_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
-	common_fvalue_set(fv, value, FT_ETHER_LEN);
+	common_fvalue_set(fv, (guint8*)value, FT_ETHER_LEN);
 }
 
 static void
@@ -158,7 +158,7 @@ oid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
 
-	fv->value.bytes = value;
+	fv->value.bytes = (GByteArray *)value;
 }
 
 
@@ -445,13 +445,13 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 		return FALSE;
 	}
 	return g_regex_match_full(
-		regex,		/* Compiled PCRE */
-		a->data,	/* The data to check for the pattern... */
+		regex,			/* Compiled PCRE */
+		a->data,		/* The data to check for the pattern... */
 		(int)a->len,	/* ... and its length */
-		0,		/* Start offset within data */
-		0,		/* GRegexMatchFlags */
-		NULL,		/* We are not interested in the match information */
-		NULL		/* We don't want error information */
+		0,				/* Start offset within data */
+		0,				/* GRegexMatchFlags */
+		NULL,			/* We are not interested in the match information */
+		NULL			/* We don't want error information */
 		);
 	/* NOTE - DO NOT g_free(data) */
 }
@@ -461,28 +461,28 @@ ftype_register_bytes(void)
 {
 
 	static ftype_t bytes_type = {
-		FT_BYTES,			/* ftype */
-		"FT_BYTES",			/* name */
+		FT_BYTES,					/* ftype */
+		"FT_BYTES",					/* name */
 		"Sequence of bytes",		/* pretty_name */
-		0,				/* wire_size */
-		bytes_fvalue_new,		/* new_value */
-		bytes_fvalue_free,		/* free_value */
+		0,							/* wire_size */
+		bytes_fvalue_new,			/* new_value */
+		bytes_fvalue_free,			/* free_value */
 		bytes_from_unparsed,		/* val_from_unparsed */
-		bytes_from_string,		/* val_from_string */
-		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
+		bytes_from_string,			/* val_from_string */
+		bytes_to_repr,				/* val_to_string_repr */
+		bytes_repr_len,				/* len_string_repr */
 
-		bytes_fvalue_set,		/* set_value */
-		NULL,				/* set_value_uinteger */
-		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
-		NULL,				/* set_value_floating */
+		bytes_fvalue_set,			/* set_value */
+		NULL,						/* set_value_uinteger */
+		NULL,						/* set_value_sinteger */
+		NULL,						/* set_value_integer64 */
+		NULL,						/* set_value_floating */
 
-		value_get,			/* get_value */
-		NULL,				/* get_value_uinteger */
-		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
-		NULL,				/* get_value_floating */
+		value_get,					/* get_value */
+		NULL,						/* get_value_uinteger */
+		NULL,						/* get_value_sinteger */
+		NULL,						/* get_value_integer64 */
+		NULL,						/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

@@ -205,7 +205,7 @@ fvalue_new(ftenum_t ftype)
 	ftype_t			*ft;
 	FvalueNewFunc		new_value;
 
-	fv = sl_alloc(&fvalue_t_slab);
+	fv = (fvalue_t *)sl_alloc(&fvalue_t_slab);
 
 	FTYPE_LOOKUP(ftype, ft);
 	fv->ftype = ft;
@@ -307,7 +307,7 @@ fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 	if (!buf) {
 		int len;
 		if ((len = fvalue_string_repr_len(fv, rtype)) >= 0) {
-			buf = g_malloc0(len + 1);
+			buf = (char *)g_malloc0(len + 1);
 		} else {
 			/* the value cannot be represented in the given representation type (rtype) */
 			return NULL;
@@ -326,8 +326,8 @@ typedef struct {
 static void
 slice_func(gpointer data, gpointer user_data)
 {
-	drange_node	*drnode = data;
-	slice_data_t	*slice_data = user_data;
+	drange_node	*drnode = (drange_node	*)data;
+	slice_data_t	*slice_data = (slice_data_t *)user_data;
 	gint		start_offset;
 	gint		length = 0;
 	gint		end_offset = 0;

@@ -145,7 +145,7 @@ gregex_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
     /* Free up the old value, if we have one */
     gregex_fvalue_free(fv);
     g_assert(! already_copied);
-    val_from_unparsed(fv, value, FALSE, NULL);
+    val_from_unparsed(fv, (char *)value, FALSE, NULL);
 }
 
 static gpointer
