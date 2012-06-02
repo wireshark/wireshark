@@ -882,7 +882,7 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   /* If there's unsaved data, let the user save it first.
      If they cancel out of it, don't merge. */
   GtkWidget *msg_dialog;
-  gchar     *vmessage, *message;
+  gchar     *display_basename;
   gint       response;
 
   if (prefs.gui_ask_unsaved) {
@@ -901,24 +901,16 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
       } else {
         /*
          * Format the message.
-         *
-         * XXX - is this because cf_name is in the locale, rather than being
-         * guaranteed to be in UTF-8?
          */
-        vmessage = g_strdup_printf("Do you want to save the changes you've made "
-                                   "to the capture file \"%s\" before merging another capture file into it?",
-                                   cfile.filename);
-
-        /* convert character encoding from locale to UTF8 (using iconv) */
-        message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
-        g_free(vmessage);
-  
+        display_basename = g_filename_display_basename(cfile.filename);
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
                                             GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
-                                            "%s", message);
-        g_free(message);
+                                            "Do you want to save the changes you've made "
+                                            "to the capture file \"%s\" before merging another capture file into it?",
+                                            display_basename);
+        g_free(display_basename);
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
              "The changes must be saved before the files are merged.");
       }
@@ -1098,7 +1090,7 @@ gboolean
 do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
 {
   GtkWidget *msg_dialog;
-  gchar     *vmessage, *message;
+  gchar     *display_basename;
   gint       response;
 
   if (cf->state == FILE_CLOSED)
@@ -1121,24 +1113,16 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       } else {
         /*
          * Format the message.
-         *
-         * XXX - is this because cf_name is in the locale, rather than being
-         * guaranteed to be in UTF-8?
          */
-        vmessage = g_strdup_printf("Do you want to save the changes you've made "
-                                   "to the capture file \"%s\"%s?",
-                                   cf->filename, before_what);
-
-        /* convert character encoding from locale to UTF8 (using iconv) */
-        message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
-        g_free(vmessage);
-  
+        display_basename = g_filename_display_basename(cf->filename);
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
                                             GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
-                                            "%s", message);
-        g_free(message);
+                                            "Do you want to save the changes you've made "
+                                            "to the capture file \"%s\"%s?",
+                                            display_basename, before_what);
+        g_free(display_basename);
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
              "Your changes will be lost if you don't save them.");
       }
@@ -1305,7 +1289,7 @@ do_file_save_as(capture_file *cf)
 #else /* _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
   GtkWidget     *msg_dialog;
-  gchar         *vmessage, *message;
+  gchar         *display_basename;
   gint           response;
   char          *cf_name;
 
@@ -1417,23 +1401,15 @@ do_file_save_as(capture_file *cf)
 
     /*
      * Format the message.
-     *
-     * XXX - is this because cf_name is in the locale, rather than being
-     * guaranteed to be in UTF-8?
      */
-    vmessage = g_strdup_printf("A file named \"%s\" already exists. Do you want to replace it?",
-                               cf_name);
-
-    /* convert character encoding from locale to UTF8 (using iconv) */
-    message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
-    g_free(vmessage);
-  
+    display_basename = g_filename_display_basename(cf_name);
     msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
                                         GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
                                         GTK_MESSAGE_QUESTION,
                                         GTK_BUTTONS_NONE,
-                                        "%s", message);
-    g_free(message);
+                                        "A file named \"%s\" already exists. Do you want to replace it?",
+                                        display_basename);
+    g_free(display_basename);
     gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
         "A file or folder with the same name already exists in that folder. "
         "Replacing it will overwrite its current contents.");
