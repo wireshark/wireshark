@@ -400,11 +400,40 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementReport ");
 actx->pinfo->link_dir=P2P_DIR_UL;
 
 # CommonMeasurementTerminationRequest
+#.FN_HDR CommonMeasurementTerminationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementTerminationRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # CommonMeasurementFailureIndication
+#.FN_HDR CommonMeasurementFailureIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CommonMeasurementFailureIndication ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # RadioLinkReconfigurationCommit
+#.FN_HDR RadioLinkReconfigurationCommit
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationCommit ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # RadioLinkReconfigurationCancel
+#.FN_HDR RadioLinkReconfigurationCancel
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkReconfigurationCancel ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # RadioLinkFailureIndication
+#.FN_HDR RadioLinkFailureIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkFailureIndication ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # RadioLinkPreemptionRequiredIndication
+#.FN_HDR RadioLinkPreemptionRequiredIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"RadioLinkPreemptionRequiredIndication ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
 
 # RadioLinkRestoreIndication
 #.FN_HDR RadioLinkRestoreIndication
@@ -419,18 +448,53 @@ col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementReport ");
 actx->pinfo->link_dir=P2P_DIR_UL;
 
 # DedicatedMeasurementTerminationRequest
+#.FN_HDR DedicatedMeasurementTerminationRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementTerminationRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # DedicatedMeasurementFailureIndication
+#.FN_HDR DedicatedMeasurementFailureIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DedicatedMeasurementFailureIndication ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # DL-PowerControlRequest
+#.FN_HDR  DL-PowerControlRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DL-PowerControlRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # DL-PowerTimeslotControlRequest
+#.FN_HDR  DL-PowerTimeslotControlRequest
+col_set_str(actx->pinfo->cinfo, COL_INFO,"DL-PowerTimeslotControlRequest ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # CompressedModeCommand
+#.FN_HDR  CompressedModeCommand
+col_set_str(actx->pinfo->cinfo, COL_INFO,"CompressedModeCommand ");
+/* CRNC -> Node B */
+actx->pinfo->link_dir=P2P_DIR_DL;
+
 # UnblockResourceIndication
+#.FN_HDR UnblockResourceIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"UnblockResourceIndication ");
+/* Node B -> CRNC */
+actx->pinfo->link_dir=P2P_DIR_UL;
+
 # ErrorIndication
-# ErrorIndication
+#.FN_HDR ErrorIndication
+col_set_str(actx->pinfo->cinfo, COL_INFO,"ErrorIndication ");
+
 # CellSynchronisationReportTDD
 # CellSynchronisationTerminationRequestTDD
 # CellSynchronisationFailureIndicationTDD
+
 # PrivateMessage
-# PrivateMessage
+#.FN_HDR PrivateMessage
+col_set_str(actx->pinfo->cinfo, COL_INFO,"PrivateMessage ");
+
 # InformationReport
 # InformationExchangeTerminationRequest
 # InformationExchangeFailureIndication
@@ -1150,7 +1214,7 @@ guint32 no_ddi_entries, i;
 	if(!p_conv)
 		return offset;
 
-	p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
+	p_conv_data = conversation_get_proto_data(p_conv, proto_fp);
 
 	if(!p_conv_data)
 		return offset;
