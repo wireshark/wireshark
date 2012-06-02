@@ -457,7 +457,7 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 
 		ti=proto_tree_add_text(tree,tvb,offset,-1, "%s", title->str);
 		ssh2_tree = proto_item_add_subtree(ti ,ett_ssh2);
-		if (title) g_string_free(title,TRUE);
+		g_string_free(title,TRUE);
 	}
 
 	if((is_response && this_number > 3) || (!is_response && this_number>4)) {
