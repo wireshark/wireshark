@@ -2454,9 +2454,9 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 	ngsniffer_t *ngsniffer;
 	FILE_T infile;
 	ngsniffer_comp_stream_t *comp_stream;
-	unsigned int copybytes = nbytes; /* bytes left to be copied */
-	gint64 copied_bytes = 0; /* bytes already copied */
-	unsigned char *outbuffer = buffer; /* where to write next decompressed data */
+	unsigned int copybytes = nbytes;					/* bytes left to be copied */
+	gint64 copied_bytes = 0;							/* bytes already copied */
+	unsigned char *outbuffer = (unsigned char *)buffer; /* where to write next decompressed data */
 	blob_info_t *blob;
 	unsigned int bytes_to_copy;
 	unsigned int bytes_left;
@@ -2529,7 +2529,7 @@ ng_file_read(void *buffer, unsigned int nbytes, wtap *wth, gboolean is_random,
 					*err = WTAP_ERR_CANT_SEEK;
 					return -1;
 				}
-				blob = ngsniffer->current_blob->data;
+				blob = (blob_info_t *)ngsniffer->current_blob->data;
 			} else {
 				/* If we also have a random stream open, add a new element,
 				   for this blob, to the list of blobs; we know the list is
@@ -2712,7 +2712,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 					break;
 				}
 
-				next_blob = next_list->data;
+				next_blob = (blob_info_t *)next_list->data;
 				/* Does the next blob start after the target offset?
 				   If so, the current blob is the one we want. */
 				if (next_blob->blob_uncomp_offset > offset)
@@ -2732,7 +2732,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 			while (new_list) {
 				/* Does this blob start at or before the target offset?
 				   If so, the current blob is the one we want. */
-				new_blob = new_list->data;
+				new_blob = (blob_info_t *)new_list->data;
 				if (new_blob->blob_uncomp_offset <= offset)
 					break;
 
@@ -2745,7 +2745,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 	if (new_list != NULL) {
 		/* The place to which we're seeking isn't in the current buffer;
 		   move to a new blob. */
-		new_blob = new_list->data;
+		new_blob = (blob_info_t *)new_list->data;
 
 		/* Seek in the compressed file to the offset in the compressed file
 		   of the beginning of that blob. */

@@ -394,7 +394,7 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
-	buf = g_malloc(K12BUF_SIZE);
+	buf = (char *)g_malloc(K12BUF_SIZE);
 	p = buf;
 
 	ms = phdr->ts.nsecs / 1000000;

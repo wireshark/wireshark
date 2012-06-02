@@ -243,7 +243,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
        */
       return 0;
     }
-    buffer=g_malloc(packet_size);
+    buffer=(gchar *)g_malloc(packet_size);
     r = file_read(buffer, packet_size, wth->fh);
     g_free(buffer);
 

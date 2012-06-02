@@ -699,7 +699,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
 {
-    struct visual_write_info * visual = wdh->priv;
+    struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     struct visual_pkt_hdr vpkt_hdr;
     size_t hdr_size = sizeof vpkt_hdr;
     unsigned delta_msec;
@@ -723,7 +723,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         visual->start_time = (guint32) phdr->ts.secs;
 
         /* Initialize the index table */
-        visual->index_table = g_malloc(1024 * sizeof *visual->index_table);
+        visual->index_table = (guint32 *)g_malloc(1024 * sizeof *visual->index_table);
         visual->index_table_size = 1024;
     }
 
@@ -793,7 +793,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     {
         /* End of table reached.  Reallocate with a larger size */
         visual->index_table_size *= 2;
-        visual->index_table = g_realloc(visual->index_table,
+        visual->index_table = (guint32 *)g_realloc(visual->index_table,
             visual->index_table_size * sizeof *visual->index_table);
     }
     visual->index_table[visual->index_table_index] = htolel(visual->next_offset);
@@ -810,7 +810,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
    Returns TRUE on success, FALSE on failure. */
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 {
-    struct visual_write_info * visual = wdh->priv;
+    struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     size_t n_to_write;
     struct visual_file_hdr vfile_hdr;
     const char *magicp;
@@ -894,7 +894,7 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 /* Free the memory allocated by a visual file writer. */
 static void visual_dump_free(wtap_dumper *wdh)
 {
-    struct visual_write_info * visual = wdh->priv;
+    struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
 
     if (visual)
     {

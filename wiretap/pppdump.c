@@ -299,7 +299,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_close = pppdump_close;
 	wth->tsprecision = WTAP_FILE_TSPREC_DSEC;
 
-	state->seek_state = g_malloc(sizeof(pppdump_t));
+	state->seek_state = g_new(pppdump_t,1);
 
 	/* If we have a random stream open, we're going to be reading
 	   the file randomly; set up a GPtrArray of pointers to

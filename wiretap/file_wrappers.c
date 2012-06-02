@@ -807,8 +807,8 @@ file_fdopen(int fd)
 #endif
 
 	/* allocate buffers */
-	state->in = g_try_malloc(want);
-	state->out = g_try_malloc(want << 1);
+	state->in = (unsigned char *)g_try_malloc(want);
+	state->out = (unsigned char *)g_try_malloc(want << 1);
 	state->size = want;
 	if (state->in == NULL || state->out == NULL) {
 		g_free(state->out);
@@ -1225,7 +1225,7 @@ file_gets(char *buf, int len, FILE_T file)
 
 		/* look for end-of-line in current output buffer */
 		n = file->have > left ? left : file->have;
-		eol = memchr(file->next, '\n', n);
+		eol = (unsigned char *)memchr(file->next, '\n', n);
 		if (eol != NULL)
 			n = (unsigned)(eol - file->next) + 1;
 
@@ -1389,8 +1389,8 @@ gz_init(GZWFILE_T state)
     z_streamp strm = &(state->strm);
 
     /* allocate input and output buffers */
-    state->in = g_try_malloc(state->want);
-    state->out = g_try_malloc(state->want);
+    state->in = (unsigned char *)g_try_malloc(state->want);
+    state->out = (unsigned char *)g_try_malloc(state->want);
     if (state->in == NULL || state->out == NULL) {
         g_free(state->out);
         g_free(state->in);

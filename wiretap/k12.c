@@ -796,8 +796,8 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
 	       Obviously not, as a corrupt file could contain anything
 	       here; the Tektronix document says the strings "must end
 	       with \0", but a bad file could fail to add the \0. */
-            rec->input_name = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
-            rec->stack_file = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
+            rec->input_name = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
+            rec->stack_file = (gchar *)g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
 
             ascii_strdown_inplace (rec->stack_file);
 
@@ -999,7 +999,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     } obj;
 
     if (k12->num_of_records == 0) {
-        k12_t* file_data = pseudo_header->k12.stuff;
+        k12_t* file_data = (k12_t*)pseudo_header->k12.stuff;
         /* XXX: We'll assume that any fwrite errors in k12_dump_src_setting will    */
         /*      repeat during the final k12_dump_record at the end of k12_dump      */
         /*      (and thus cause an error return from k12_dump).                     */
