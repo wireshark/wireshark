@@ -200,7 +200,7 @@ capture_options *capture_opts)
   g_free(cap_w_title);
 
   /* Container for capture display widgets */
-  main_vb = gtk_vbox_new(FALSE, 1);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(info->cap_w), main_vb);
   gtk_widget_show(main_vb);

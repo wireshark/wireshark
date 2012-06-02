@@ -336,7 +336,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
 
     /* Main vertical box */
-    main_vb = gtk_vbox_new(FALSE, 5);
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(frame), main_vb);
 
@@ -450,13 +450,13 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
    */
 
   /* Container for each row of widgets */
-  cts.main_vb = gtk_vbox_new(FALSE, 5);
+  cts.main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(cts.main_vb), 5);
   gtk_container_add(GTK_CONTAINER(prefs_w), cts.main_vb);
   gtk_widget_show(cts.main_vb);
 
   /* Top row: Preferences tree and notebook */
-  top_hb = gtk_hbox_new(FALSE, 10);
+  top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
   gtk_container_add(GTK_CONTAINER(cts.main_vb), top_hb);
   gtk_widget_show(top_hb);
 
@@ -705,7 +705,7 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 
   set_option_label(main_tb, table_position, label_text, tooltip_text);
 
-  radio_button_hbox = gtk_hbox_new(FALSE, 0);
+  radio_button_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   rb_group = NULL;
   for (enum_valp = enumvals, idx = 0; enum_valp->name != NULL;
        enum_valp++, idx++) {
@@ -815,7 +815,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
    * as the widest entry, rather than being as wide as the table
    * space.
    */
-  menu_box = gtk_hbox_new(FALSE, 0);
+  menu_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start(GTK_BOX(menu_box), combo_box, FALSE, FALSE, 0);
 
   event_box = gtk_event_box_new();

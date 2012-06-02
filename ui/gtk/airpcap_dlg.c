@@ -998,7 +998,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_container_set_border_width (GTK_CONTAINER (add_key_window), 5);
     gtk_window_set_resizable (GTK_WINDOW (add_key_window), FALSE);
 
-    main_v_box = gtk_vbox_new (FALSE, 0);
+    main_v_box = ws_gtk_box_new (GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_widget_set_name (main_v_box, "main_v_box");
     gtk_widget_show (main_v_box);
     gtk_container_add (GTK_CONTAINER (add_key_window), main_v_box);
@@ -1074,7 +1074,7 @@ on_add_new_key_bt_clicked(GtkWidget *button _U_, gpointer data)
                       (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_justify (GTK_LABEL (add_ssid_lb), GTK_JUSTIFY_CENTER);
 
-    low_h_button_box = gtk_hbutton_box_new ();
+    low_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");
     gtk_container_set_border_width (GTK_CONTAINER (low_h_button_box), 5);
     gtk_widget_show (low_h_button_box);
@@ -1226,7 +1226,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
     gtk_container_set_border_width (GTK_CONTAINER (edit_key_window), 5);
     gtk_window_set_resizable (GTK_WINDOW (edit_key_window), FALSE);
 
-    main_v_box = gtk_vbox_new (FALSE, 0);
+    main_v_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_widget_set_name (main_v_box, "main_v_box");
     gtk_widget_show (main_v_box);
     gtk_container_add (GTK_CONTAINER (edit_key_window), main_v_box);
@@ -1320,7 +1320,7 @@ on_edit_key_bt_clicked(GtkWidget *button _U_, gpointer data)
                       (GtkAttachOptions) (0), 0, 0);
     gtk_label_set_justify (GTK_LABEL (edit_ssid_lb), GTK_JUSTIFY_CENTER);
 
-    low_h_button_box = gtk_hbutton_box_new ();
+    low_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");
     gtk_container_set_border_width (GTK_CONTAINER (low_h_button_box), 5);
     gtk_widget_show (low_h_button_box);
@@ -1696,12 +1696,12 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_window_set_resizable (GTK_WINDOW (airpcap_advanced_w), FALSE);
     gtk_window_set_type_hint (GTK_WINDOW (airpcap_advanced_w), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-    main_box = gtk_vbox_new (FALSE, 0);
+    main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_widget_set_name (main_box, "main_box");
     gtk_widget_show (main_box);
     gtk_container_add (GTK_CONTAINER (airpcap_advanced_w), main_box);
 
-    settings_sub_box = gtk_vbox_new (FALSE, 0);
+    settings_sub_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_widget_set_name (settings_sub_box, "settings_sub_box");
     gtk_widget_show (settings_sub_box);
     gtk_box_pack_start (GTK_BOX (main_box), settings_sub_box, FALSE, TRUE, 0);
@@ -1719,7 +1719,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_container_add (GTK_CONTAINER (interface_fr), interface_al);
     gtk_alignment_set_padding (GTK_ALIGNMENT (interface_al), 5, 5, 0, 0);
 
-    interface_sub_h_box = gtk_hbox_new (FALSE, 0);
+    interface_sub_h_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_widget_set_name (interface_sub_h_box, "interface_sub_h_box");
     gtk_widget_show (interface_sub_h_box);
     gtk_container_add (GTK_CONTAINER (interface_al), interface_sub_h_box);
@@ -1872,7 +1872,7 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
 
-    basic_parameters_fcs_h_box = gtk_hbox_new (FALSE, 1);
+    basic_parameters_fcs_h_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
     gtk_widget_set_name (basic_parameters_fcs_h_box,
                          "basic_parameters_fcs_h_box");
     gtk_widget_show (basic_parameters_fcs_h_box);
@@ -1912,12 +1912,12 @@ display_airpcap_advanced_cb(GtkWidget *w _U_, gpointer data)
     gtk_frame_set_label_widget (GTK_FRAME (basic_parameters_fr),basic_parameters_frame_lb);
     gtk_label_set_use_markup (GTK_LABEL (basic_parameters_frame_lb), TRUE);
 
-    low_buttons_h_box = gtk_hbox_new (FALSE, 0);
+    low_buttons_h_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_widget_set_name (low_buttons_h_box, "low_buttons_h_box");
     gtk_widget_show (low_buttons_h_box);
     gtk_box_pack_end (GTK_BOX (main_box), low_buttons_h_box, FALSE, FALSE, 0);
 
-    left_h_button_box = gtk_hbutton_box_new ();
+    left_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (left_h_button_box, "left_h_button_box");
     gtk_widget_show (left_h_button_box);
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
@@ -2086,7 +2086,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_window_set_resizable (GTK_WINDOW (key_management_w), FALSE);
     gtk_window_set_type_hint (GTK_WINDOW (key_management_w), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-    main_box = gtk_vbox_new (FALSE, 0);
+    main_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_widget_set_name (main_box, "main_box");
     gtk_widget_show (main_box);
     gtk_container_add (GTK_CONTAINER (key_management_w), main_box);
@@ -2105,7 +2105,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
 
     gtk_alignment_set_padding (GTK_ALIGNMENT (keys_al), 0, 0, 12, 0);
 
-    keys_h_sub_box = gtk_vbox_new (FALSE, 0);
+    keys_h_sub_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_widget_set_name (keys_h_sub_box, "keys_h_sub_box");
     gtk_widget_show (keys_h_sub_box);
     gtk_container_add (GTK_CONTAINER (keys_al), keys_h_sub_box);
@@ -2137,7 +2137,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     /* Set correct decryption mode!!!! */
     update_decryption_mode(decryption_mode_cb);
 
-    keys_v_sub_box = gtk_hbox_new (FALSE, 0);
+    keys_v_sub_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_widget_set_name (keys_v_sub_box, "keys_v_sub_box");
     gtk_widget_show (keys_v_sub_box);
     gtk_box_pack_start (GTK_BOX (keys_h_sub_box), keys_v_sub_box, TRUE, TRUE, 0);
@@ -2220,7 +2220,7 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
 
     gtk_container_add (GTK_CONTAINER (keys_scrolled_w), key_list);
 
-    key_v_button_box = gtk_vbutton_box_new ();
+    key_v_button_box = gtk_button_box_new (GTK_ORIENTATION_VERTICAL);
     gtk_widget_set_name (key_v_button_box, "key_v_button_box");
     gtk_widget_show (key_v_button_box);
     gtk_box_pack_start (GTK_BOX (keys_v_sub_box), key_v_button_box, FALSE, TRUE,
@@ -2283,12 +2283,12 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_frame_set_label_widget (GTK_FRAME (keys_fr), keys_frame_lb);
     gtk_label_set_use_markup (GTK_LABEL (keys_frame_lb), TRUE);
 
-    low_buttons_h_box = gtk_hbox_new (FALSE, 0);
+    low_buttons_h_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_widget_set_name (low_buttons_h_box, "low_buttons_h_box");
     gtk_widget_show (low_buttons_h_box);
     gtk_box_pack_end (GTK_BOX (main_box), low_buttons_h_box, FALSE, FALSE, 0);
 
-    left_h_button_box = gtk_hbutton_box_new ();
+    left_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (left_h_button_box, "left_h_button_box");
     gtk_widget_show (left_h_button_box);
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
@@ -2676,7 +2676,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_widget_set_name (keys_check_w, "keys_check_w");
     gtk_window_set_resizable (GTK_WINDOW (keys_check_w), FALSE);
 
-    main_v_box = gtk_vbox_new (FALSE, 0);
+    main_v_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_widget_set_name (main_v_box, "main_v_box");
     gtk_widget_show (main_v_box);
     gtk_container_add (GTK_CONTAINER (keys_check_w), main_v_box);
@@ -2771,7 +2771,7 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
     gtk_label_set_line_wrap (GTK_LABEL (ignore_lb), TRUE);
     gtk_misc_set_alignment (GTK_MISC (ignore_lb), 0, 0.5);
 
-    low_h_button_box = gtk_hbutton_box_new ();
+    low_h_button_box = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_set_name (low_h_button_box, "low_h_button_box");
     gtk_widget_show (low_h_button_box);
     gtk_box_pack_start (GTK_BOX (main_v_box), low_h_button_box, FALSE, FALSE,

@@ -687,7 +687,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(cap_if_w), main_sw);
 
-  main_vb = gtk_vbox_new(FALSE, 0);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), main_vb);
 

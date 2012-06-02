@@ -1201,7 +1201,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
   g_object_set_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY, remote_w);
   g_free(title);
 
-  main_vb = gtk_vbox_new(FALSE, 0);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(remote_w), main_vb);
 
@@ -1231,7 +1231,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
   auth_fr = gtk_frame_new("Authentication");
   gtk_container_add(GTK_CONTAINER(main_vb), auth_fr);
 
-  auth_vb = gtk_vbox_new(FALSE, 3);
+  auth_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(auth_vb), 5);
   gtk_container_add(GTK_CONTAINER(auth_fr), auth_vb);
 
@@ -1424,7 +1424,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(opt_remote_w), E_OPT_REMOTE_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_REMOTE_DIALOG_PTR_KEY, opt_remote_w);
 
-  main_vb = gtk_vbox_new(FALSE, 0);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(opt_remote_w), main_vb);
 
@@ -1432,7 +1432,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   capture_fr = gtk_frame_new("Capture Options");
   gtk_container_add(GTK_CONTAINER(main_vb), capture_fr);
 
-  capture_vb = gtk_vbox_new(FALSE, 0);
+  capture_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), 5);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
 
@@ -1451,7 +1451,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   sampling_fr = gtk_frame_new("Sampling Options");
   gtk_container_add(GTK_CONTAINER(main_vb), sampling_fr);
 
-  sampling_vb = gtk_vbox_new(FALSE, 0);
+  sampling_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(sampling_vb), 5);
   gtk_container_add(GTK_CONTAINER(sampling_fr), sampling_vb);
 
@@ -1956,7 +1956,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_EDIT_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY, opt_edit_w);
 
-  main_vb = gtk_vbox_new(FALSE, 0);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(opt_edit_w), main_vb);
 
@@ -1964,12 +1964,12 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   capture_fr = gtk_frame_new("Capture");
   gtk_container_add(GTK_CONTAINER(main_vb), capture_fr);
 
-  capture_vb = gtk_vbox_new(FALSE, 3);
+  capture_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), 5);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
 
   /* Interface row */
-  if_hb = gtk_hbox_new(FALSE, 3);
+  if_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(capture_vb), if_hb, FALSE, FALSE, 3);
 
   if_lb = gtk_label_new("Interface:  ");
@@ -1979,13 +1979,13 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb_name, FALSE, FALSE, 3);
 
   /* IP addresses row */
-  if_ip_hb = gtk_hbox_new(FALSE, 3);
+  if_ip_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 
   gtk_widget_set_tooltip_text(if_ip_hb, "Lists the IP address(es) "
                        "assigned to the selected interface. ");
-  if_vb_left = gtk_vbox_new(FALSE, 3);
+  if_vb_left = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_left, FALSE, FALSE, 3);
-  if_vb_right = gtk_vbox_new(FALSE, 3);
+  if_vb_right = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 
   if_ip_lb = gtk_label_new("IP address:");
   gtk_misc_set_alignment(GTK_MISC(if_ip_lb), 0, 0); /* Left justified */
@@ -2022,23 +2022,23 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
     gtk_misc_set_alignment(GTK_MISC(if_ip_name), 0, 0); /* Left justified */
     gtk_box_pack_start(GTK_BOX(if_vb_right), if_ip_name, FALSE, FALSE, 0);
   }
-  main_hb = gtk_hbox_new(FALSE, 5);
+  main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 0);
   gtk_box_pack_start(GTK_BOX(capture_vb), main_hb, FALSE, FALSE, 3);
 
-  left_vb = gtk_vbox_new(FALSE, 0);
+  left_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), left_vb, TRUE, TRUE, 0);
 
 #if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
   /* Avoid adding the right vbox if not needed, because it steals 3 pixels */
-  right_vb = gtk_vbox_new(FALSE, 3);
+  right_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 3);
 #endif
 
   /* Linktype row */
-  linktype_hb = gtk_hbox_new(FALSE, 3);
+  linktype_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(left_vb), linktype_hb, FALSE, FALSE, 0);
 
   linktype_lb = gtk_label_new("Link-layer header type:");
@@ -2151,7 +2151,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
    */
 
   /* Capture length row */
-  snap_hb = gtk_hbox_new(FALSE, 3);
+  snap_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start (GTK_BOX(left_vb), snap_hb, FALSE, FALSE, 0);
 
   snap_cb = gtk_check_button_new_with_mnemonic("_Limit each packet to");
@@ -2178,7 +2178,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_widget_set_sensitive(GTK_WIDGET(snap_sb), device.has_snaplen);
 
   /* Filter row */
-  filter_hb = gtk_hbox_new(FALSE, 3);
+  filter_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(capture_vb), filter_hb, FALSE, FALSE, 0);
 
   filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
@@ -2234,7 +2234,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 #endif
 
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  buffer_size_hb = gtk_hbox_new(FALSE, 3);
+  buffer_size_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   buffer_size_lb = gtk_label_new("Buffer size:");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 0);
 
@@ -3199,7 +3199,7 @@ show_add_interfaces_dialog(void)
   gtk_window_set_destroy_with_parent (GTK_WINDOW(new_interfaces_w), TRUE);
   gtk_window_set_default_size(GTK_WINDOW(new_interfaces_w), 550, 200);
 
-  vbox=gtk_vbox_new(FALSE, 3);
+  vbox=ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(new_interfaces_w), vbox);
   gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
@@ -3207,27 +3207,27 @@ show_add_interfaces_dialog(void)
   gtk_box_pack_start(GTK_BOX(vbox), main_nb, TRUE, TRUE, 0);
 
   /* Pipes */
-  temp_page = gtk_vbox_new(FALSE, 6);
+  temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   tmp = gtk_label_new("Pipes");
   gtk_widget_show(tmp);
-  hbox = gtk_hbox_new(FALSE, 3);
+  hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(hbox), tmp);
 
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
   /* Pipe row */
-  pipe_hb = gtk_hbox_new(FALSE, 20);
+  pipe_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(pipe_hb), 5);
   gtk_box_pack_start(GTK_BOX(temp_page), pipe_hb, FALSE, FALSE, 0);
 
   /* Container for each row of widgets */
-  pipe_vb = gtk_vbox_new(FALSE, 0);
+  pipe_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(pipe_vb), 0);
   gtk_container_add(GTK_CONTAINER(pipe_hb), pipe_vb);
   gtk_widget_show(pipe_vb);
 
   /* Top row: Buttons and pipe list */
-  top_hb = gtk_hbox_new(FALSE, 0);
+  top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_container_add(GTK_CONTAINER(pipe_vb), top_hb);
   gtk_widget_show(top_hb);
 
@@ -3235,7 +3235,7 @@ show_add_interfaces_dialog(void)
   gtk_box_pack_start(GTK_BOX(top_hb), edit_fr, FALSE, FALSE, 0);
   gtk_widget_show(edit_fr);
 
-  list_bb = gtk_vbox_new(TRUE, 0);
+  list_bb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, TRUE);
   gtk_container_set_border_width(GTK_CONTAINER(list_bb), 5);
   gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
   gtk_widget_show(list_bb);
@@ -3292,12 +3292,12 @@ show_add_interfaces_dialog(void)
   gtk_box_pack_start(GTK_BOX(pipe_vb), props_fr, FALSE, FALSE, 0);
   gtk_widget_show(props_fr);
 
-  props_vb = gtk_vbox_new(FALSE, 3);
+  props_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(props_vb), 5);
   gtk_container_add(GTK_CONTAINER(props_fr), props_vb);
   gtk_widget_show(props_vb);
 
-  middle_hb = gtk_hbox_new(FALSE, 3);
+  middle_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
   gtk_widget_show(middle_hb);
 
@@ -3335,14 +3335,14 @@ show_add_interfaces_dialog(void)
   g_object_set_data(G_OBJECT(new_interfaces_w), E_CAP_PIPE_TE_KEY,  pipe_te);
 
   /* Local interfaces */
-  temp_page = gtk_vbox_new(FALSE, 6);
+  temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   tmp = gtk_label_new("Local Interfaces");
   gtk_widget_show(tmp);
-  hbox = gtk_hbox_new(FALSE, 3);
+  hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(hbox), tmp);
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
-  local_vb = gtk_vbox_new(FALSE, 0);
+  local_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(local_vb), 0);
   gtk_container_add(GTK_CONTAINER(temp_page), local_vb);
   gtk_widget_show(local_vb);
@@ -3401,14 +3401,14 @@ show_add_interfaces_dialog(void)
 
 #if defined (HAVE_PCAP_REMOTE)
   /* remote interfaces */
-  temp_page = gtk_vbox_new(FALSE, 6);
+  temp_page = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
   tmp = gtk_label_new("Remote Interfaces");
   gtk_widget_show(tmp);
-  hbox = gtk_hbox_new(FALSE, 3);
+  hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(hbox), tmp);
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
-  remote_vb = gtk_vbox_new(FALSE, 0);
+  remote_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(remote_vb), 0);
   gtk_container_add(GTK_CONTAINER(temp_page), remote_vb);
   gtk_widget_show(remote_vb);
@@ -3461,7 +3461,7 @@ show_add_interfaces_dialog(void)
 
   fill_remote_list();
 
-  bbox = gtk_hbox_new(FALSE, 0);
+  bbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start(GTK_BOX(temp_page), bbox, TRUE, FALSE, 5);
   gtk_widget_show(bbox);
 
@@ -3623,7 +3623,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
 #endif
 
-  main_vb = gtk_vbox_new(FALSE, 0);
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(cap_open_w), main_vb);
 
@@ -3631,7 +3631,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   capture_fr = gtk_frame_new("Capture");
   gtk_container_add(GTK_CONTAINER(main_vb), capture_fr);
 
-  capture_vb = gtk_vbox_new(FALSE, 3);
+  capture_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), 5);
   gtk_container_add(GTK_CONTAINER(capture_fr), capture_vb);
 
@@ -3714,18 +3714,18 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, view);
 
-  main_hb = gtk_hbox_new(FALSE, 5);
+  main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), main_hb, FALSE, FALSE, 0);
-  all_hb = gtk_hbox_new(FALSE, 5);
+  all_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(all_hb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), all_hb, TRUE, TRUE, 0);
 
-  left_vb = gtk_vbox_new(FALSE, 0);
+  left_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(all_hb), left_vb, TRUE, TRUE, 0);
 
-  right_vb = gtk_vbox_new(FALSE, 3);
+  right_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(all_hb), right_vb, FALSE, FALSE, 3);
 
@@ -3763,15 +3763,15 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(iftype_cbx, "clicked", G_CALLBACK(show_add_interfaces_dialog), iftype_cbx);
   gtk_widget_show(iftype_cbx);
 
-  main_hb = gtk_hbox_new(FALSE, 5);
+  main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 0);
   gtk_box_pack_start(GTK_BOX(main_vb), main_hb, FALSE, FALSE, 0);
 
-  left_vb = gtk_vbox_new(FALSE, 0);
+  left_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), left_vb, TRUE, TRUE, 0);
 
-  right_vb = gtk_vbox_new(FALSE, 0);
+  right_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 0);
 
@@ -3779,12 +3779,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   file_fr = gtk_frame_new("Capture File(s)");
   gtk_container_add(GTK_CONTAINER(left_vb), file_fr);
 
-  file_vb = gtk_vbox_new(FALSE, 3);
+  file_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(file_vb), 5);
   gtk_container_add(GTK_CONTAINER(file_fr), file_vb);
 
   /* File row */
-  file_hb = gtk_hbox_new(FALSE, 3);
+  file_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(file_vb), file_hb, FALSE, FALSE, 0);
 
   file_lb = gtk_label_new("File:");
@@ -3930,7 +3930,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   limit_fr = gtk_frame_new("Stop Capture ...");
   gtk_container_add(GTK_CONTAINER(left_vb), limit_fr);
 
-  limit_vb = gtk_vbox_new(FALSE, 3);
+  limit_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(limit_vb), 5);
   gtk_container_add(GTK_CONTAINER(limit_fr), limit_vb);
 
@@ -4010,7 +4010,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   display_fr = gtk_frame_new("Display Options");
   gtk_container_add(GTK_CONTAINER(right_vb), display_fr);
 
-  display_vb = gtk_vbox_new(FALSE, 0);
+  display_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(display_vb), 5);
   gtk_container_add(GTK_CONTAINER(display_fr), display_vb);
 
@@ -4043,7 +4043,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   resolv_fr = gtk_frame_new("Name Resolution");
   gtk_container_add(GTK_CONTAINER(right_vb), resolv_fr);
 
-  resolv_vb = gtk_vbox_new(FALSE, 0);
+  resolv_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(resolv_vb), 5);
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
 

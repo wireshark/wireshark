@@ -3597,7 +3597,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
                          G_CALLBACK(top_level_key_pressed_cb), NULL );
 
     /* Vertical container for menu bar, toolbar(s), paned windows and progress/info box */
-    main_vbox = gtk_vbox_new(FALSE, 1);
+    main_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 0);
     gtk_container_add(GTK_CONTAINER(top_level), main_vbox);
     gtk_widget_show(main_vbox);
@@ -3647,13 +3647,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY));
 
     /* Panes for the packet list, tree, and byte view */
-    main_pane_v1 = gtk_vpaned_new();
+    main_pane_v1 = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     gtk_widget_show(main_pane_v1);
-    main_pane_v2 = gtk_vpaned_new();
+    main_pane_v2 = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     gtk_widget_show(main_pane_v2);
-    main_pane_h1 = gtk_hpaned_new();
+    main_pane_h1 = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_show(main_pane_h1);
-    main_pane_h2 = gtk_hpaned_new();
+    main_pane_h2 = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_show(main_pane_h2);
 #ifdef HAVE_AIRPCAP
     airpcap_tb = airpcap_toolbar_new();

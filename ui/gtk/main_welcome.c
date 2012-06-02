@@ -140,7 +140,7 @@ scroll_box_dynamic_new(GtkWidget *child_box, guint max_childs, guint scrollw_y_s
     GtkWidget * parent_box;
 
 
-    parent_box = gtk_vbox_new(FALSE, 0);
+    parent_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(parent_box), GTK_WIDGET(child_box), TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX, child_box);
     g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_MAX_CHILDS, GINT_TO_POINTER(max_childs));
@@ -252,7 +252,7 @@ welcome_button(const gchar *stock_item,
     GtkWidget *eb, *w, *item_hb, *text_vb;
     gchar *formatted_text;
 
-    item_hb = gtk_hbox_new(FALSE, 1);
+    item_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
 
     /* event box (for background color and events) */
     eb = gtk_event_box_new();
@@ -274,7 +274,7 @@ welcome_button(const gchar *stock_item,
     w = gtk_image_new_from_stock(stock_item, GTK_ICON_SIZE_LARGE_TOOLBAR);
     gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 5);
 
-    text_vb = gtk_vbox_new(FALSE, 3);
+    text_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
 
     /* title */
     w = gtk_label_new(title);
@@ -350,7 +350,7 @@ welcome_header_new(void)
     GtkWidget *eb;
     GtkWidget *icon;
 
-    item_vb = gtk_vbox_new(FALSE, 0);
+    item_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 
     /* colorize vbox */
     eb = gtk_event_box_new();
@@ -360,7 +360,7 @@ welcome_header_new(void)
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &header_bar_bg);
 #endif
-    item_hb = gtk_hbox_new(FALSE, 0);
+    item_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
     gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
 
     /*icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);*/
@@ -448,12 +448,12 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
     GtkWidget *topic_header;
 
 
-    topic_vb = gtk_vbox_new(FALSE, 0);
+    topic_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 
     topic_header = welcome_topic_header_new(header);
     gtk_box_pack_start(GTK_BOX(topic_vb), topic_header, FALSE, FALSE, 0);
 
-    layout_vb = gtk_vbox_new(FALSE, 5);
+    layout_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(layout_vb), 10);
     gtk_box_pack_start(GTK_BOX(topic_vb), layout_vb, FALSE, FALSE, 0);
 
@@ -1245,7 +1245,7 @@ welcome_new(void)
 #endif
     welcome_scrollw = scrolled_window_new(NULL, NULL);
 
-    welcome_vb = gtk_vbox_new(FALSE, 0);
+    welcome_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
 
     welcome_eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(welcome_eb), welcome_vb);
@@ -1259,13 +1259,13 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(welcome_vb), header, FALSE, FALSE, 0);
 
     /* content */
-    welcome_hb = gtk_hbox_new(FALSE, 10);
+    welcome_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(welcome_hb), 10);
     gtk_box_pack_start(GTK_BOX(welcome_vb), welcome_hb, TRUE, TRUE, 0);
 
 
     /* column capture */
-    column_vb = gtk_vbox_new(FALSE, 10);
+    column_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
 #if GTK_CHECK_VERSION(3,0,0)
     gtk_widget_override_background_color(column_vb, GTK_STATE_NORMAL, &rgba_welcome_bg);
 #else
@@ -1335,7 +1335,7 @@ welcome_new(void)
     gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
-    file_child_box = gtk_vbox_new(FALSE, 1);
+    file_child_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
     /* 17 file items or 300 pixels height is about the size */
     /* that still fits on a screen of about 1000*700 */
     welcome_file_panel_vb = scroll_box_dynamic_new(GTK_WIDGET(file_child_box), 17, 300);
@@ -1354,7 +1354,7 @@ welcome_new(void)
 
 
     /* column online */
-    column_vb = gtk_vbox_new(FALSE, 10);
+    column_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
     gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
 
     /* topic online */
