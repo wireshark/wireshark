@@ -337,6 +337,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_VENDOR_DEFINED:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
                                length, ENC_NA);
+          break;
         case BPKM_DNLD_PARAMS:
           dnld_it =
             proto_tree_add_text (tree, tvb, pos, length,
