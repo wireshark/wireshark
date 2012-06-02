@@ -625,12 +625,12 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
   if (test_for_directory(cf_name) == EISDIR) {
-	/* It's a directory - set the file selection box to display that
-	   directory, don't try to open the directory as a capture file. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
-        file_selection_set_current_folder(fs, get_last_open_dir());
-    	return;
+    /* It's a directory - set the file selection box to display that
+       directory, don't try to open the directory as a capture file. */
+    set_last_open_dir(cf_name);
+    g_free(cf_name);
+    file_selection_set_current_folder(fs, get_last_open_dir());
+    return;
   }
 
   /* Try to open the capture file. */
