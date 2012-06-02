@@ -3983,12 +3983,13 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                     file_rename_error_message(errno), fname);
 #ifdef _WIN32
-      /* Attempt to reopen the random file descriptor using fname.
-         (At this point, the sequential file descriptor is closed.) */
-      if (!wtap_fdreopen(cf->wth, fname, &err)) {
+      /* Attempt to reopen the random file descriptor using the
+         current file's filename.  (At this point, the sequential
+         file descriptor is closed.) */
+      if (!wtap_fdreopen(cf->wth, cf->filename, &err)) {
         /* Oh, well, we're screwed. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      file_open_error_message(err, FALSE), fname);
+                      file_open_error_message(err, FALSE), cf->filename);
       }
 #endif
       goto fail;
