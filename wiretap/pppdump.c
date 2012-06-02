@@ -326,7 +326,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
 	buf = buffer_start_ptr(wth->frame_buffer);
 
-	state = wth->priv;
+	state = (pppdump_t *)wth->priv;
 
 	/* If we have a random stream open, allocate a structure to hold
 	   the information needed to read this packet's data again. */
@@ -721,9 +721,9 @@ pppdump_seek_read(wtap *wth,
 	pkt_id		*pid;
 	gint64		num_bytes_to_skip;
 
-	state = wth->priv;
+	state = (pppdump_t *)wth->priv;
 
-	pid = g_ptr_array_index(state->pids, seek_off);
+	pid = (pkt_id *)g_ptr_array_index(state->pids, seek_off);
 	if (!pid) {
 		*err = WTAP_ERR_BAD_FILE;	/* XXX - better error? */
 		*err_info = g_strdup("pppdump: PID not found for record");

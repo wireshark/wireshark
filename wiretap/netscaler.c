@@ -499,7 +499,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 	if ((file_size = wtap_file_size(wth, err)) == -1)
 		return 0;
 
-	nstrace_buf = g_malloc(NSPR_PAGESIZE);
+	nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE);
 	page_size = GET_READ_PAGE_SIZE(file_size);
 
 	switch ((wth->file_type = nspm_signature_version(wth, nstrace_buf, page_size)))

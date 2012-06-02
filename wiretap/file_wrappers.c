@@ -225,7 +225,7 @@ fast_seek_find(FILE_T file, gint64 pos)
 
 	for (low = 0, max = file->fast_seek->len; low < max; ) {
 		i = (low + max) / 2;
-		item = file->fast_seek->pdata[i];
+		item = (struct fast_seek_point *)file->fast_seek->pdata[i];
 
 		if (pos < item->out)
 			max = i;
@@ -245,10 +245,10 @@ fast_seek_header(FILE_T file, gint64 in_pos, gint64 out_pos, int compression)
 	struct fast_seek_point *item = NULL;
 
 	if (file->fast_seek->len != 0)
-		item = file->fast_seek->pdata[file->fast_seek->len - 1];
+		item = (struct fast_seek_point *)file->fast_seek->pdata[file->fast_seek->len - 1];
 
 	if (!item || item->out < out_pos) {
-		struct fast_seek_point *val = g_malloc(sizeof(struct fast_seek_point));
+		struct fast_seek_point *val = g_new(struct fast_seek_point,1);
 		val->in = in_pos;
 		val->out = out_pos;
 		val->compression = compression;
@@ -402,7 +402,7 @@ static void
 zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gint64 in_pos, gint64 out_pos)
 {
 	/* it's for sure after gzip header, so file->fast_seek->len != 0 */
-	struct fast_seek_point *item = file->fast_seek->pdata[file->fast_seek->len - 1];
+	struct fast_seek_point *item = (struct fast_seek_point *)file->fast_seek->pdata[file->fast_seek->len - 1];
 
 #ifndef HAVE_INFLATEPRIME
 	if (bits)
@@ -414,7 +414,7 @@ zlib_fast_seek_add(FILE_T file, struct zlib_cur_seek_point *point, int bits, gin
 	 *      It's not big deal, cause first-read don't usually invoke seeking
 	 */
 	if (item->out + SPAN < out_pos) {
-		struct fast_seek_point *val = g_malloc(sizeof(struct fast_seek_point));
+		struct fast_seek_point *val = g_new(struct fast_seek_point,1);
 		val->in = in_pos;
 		val->out = out_pos;
 		val->compression = ZLIB;
@@ -655,7 +655,7 @@ gz_head(FILE_T state)
 			state->is_compressed = TRUE;
 #ifdef Z_BLOCK
 			if (state->fast_seek) {
-				struct zlib_cur_seek_point *cur = g_malloc(sizeof(struct zlib_cur_seek_point));
+				struct zlib_cur_seek_point *cur = g_new(struct zlib_cur_seek_point,1);
 
 				cur->pos = cur->have = 0;
 				g_free(state->fast_seek_cur);
@@ -778,7 +778,7 @@ file_fdopen(int fd)
 		return NULL;
 
 	/* allocate FILE_T structure to return */
-	state = g_try_malloc(sizeof *state);
+	state = (FILE_T)g_try_malloc(sizeof *state);
 	if (state == NULL)
 		return NULL;
 
@@ -1360,7 +1360,7 @@ gzwfile_fdopen(int fd)
     GZWFILE_T state;
 
     /* allocate wtap_writer structure to return */
-    state = g_try_malloc(sizeof *state);
+    state = (GZWFILE_T)g_try_malloc(sizeof *state);
     if (state == NULL)
         return NULL;
     state->fd = fd;

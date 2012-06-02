@@ -575,7 +575,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         to_read = bh->block_total_length - MIN_SHB_SIZE;
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_malloc(opt_cont_buf_len);
         pcapng_debug1("pcapng_read_section_header_block: Options %u bytes", to_read);
         while (to_read > 0) {
                 /* read option */
@@ -729,7 +729,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_malloc(opt_cont_buf_len);
 
         while (to_read > 0) {
                 /* read option */
@@ -838,7 +838,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                                         pcapng_debug2("pcapng_read_if_descr_block: if_filter_str %s oh.option_length %u", wblock->data.if_descr.if_filter_str, oh.option_length);
                                 } else if (option_content[0] == 1) {
                                         wblock->data.if_descr.bpf_filter_len = oh.option_length-1;
-                                        wblock->data.if_descr.if_filter_bpf_bytes = g_malloc(oh.option_length-1);
+                                        wblock->data.if_descr.if_filter_bpf_bytes = (gchar *)g_malloc(oh.option_length-1);
                                         memcpy(&wblock->data.if_descr.if_filter_bpf_bytes, option_content+1, oh.option_length-1);
                                 }
                         } else {
@@ -1688,7 +1688,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
         /* Allocate enough memory to hold all options */
         opt_cont_buf_len = to_read;
-        option_content = g_malloc(opt_cont_buf_len);
+        option_content = (char *)g_malloc(opt_cont_buf_len);
 
         while (to_read > 0) {
                 /* read option */
@@ -3266,7 +3266,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
         rec_off = 8; /* block type + block total length */
         bh.block_type = BLOCK_TYPE_NRB;
         bh.block_total_length = rec_off + 8; /* end-of-record + block total length */
-        rec_data = g_malloc(NRES_REC_MAX_SIZE);
+        rec_data = (guint8 *)g_malloc(NRES_REC_MAX_SIZE);
 
         for (; pcapng->addrinfo_list_last && pcapng->addrinfo_list_last->ai_next; pcapng->addrinfo_list_last = pcapng->addrinfo_list_last->ai_next ) {
                 ai = pcapng->addrinfo_list_last->ai_next; /* Skips over the first (dummy) entry */

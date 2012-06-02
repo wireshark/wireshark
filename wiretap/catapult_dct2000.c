@@ -211,7 +211,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     /* Need entry in file_externals table                                */
 
     /* Allocate a new file_externals structure for this file */
-    file_externals = g_malloc(sizeof(dct2000_file_externals_t));
+    file_externals = g_new(dct2000_file_externals_t,1);
     memset((void*)file_externals, '\0', sizeof(dct2000_file_externals_t));
 
     /* Copy this first line into buffer so could write out later */
@@ -403,7 +403,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             }
 
             /* Store the packet prefix in the hash table */
-            line_prefix_info = g_malloc(sizeof(line_prefix_info_t));
+            line_prefix_info = g_new(line_prefix_info_t,1);
 
             /* Create and use buffer for contents before time */
             line_prefix_info->before_time = g_malloc(before_time_offset+2);

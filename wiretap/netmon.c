@@ -362,7 +362,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		g_free(netmon);
 		return -1;
 	}
-	frame_table = g_malloc(frame_table_length);
+	frame_table = (guint32 *)g_malloc(frame_table_length);
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(frame_table, frame_table_length, wth->fh);
 	if ((guint32)bytes_read != frame_table_length) {
@@ -1167,7 +1167,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		/*
 		 * Haven't yet allocated the buffer for the frame table.
 		 */
-		netmon->frame_table = g_malloc(1024 * sizeof *netmon->frame_table);
+		netmon->frame_table = (guint32 *)g_malloc(1024 * sizeof *netmon->frame_table);
 		netmon->frame_table_size = 1024;
 	} else {
 		/*
@@ -1178,7 +1178,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			 * Yes - double the size of the frame table.
 			 */
 			netmon->frame_table_size *= 2;
-			netmon->frame_table = g_realloc(netmon->frame_table,
+			netmon->frame_table = (guint32 *)g_realloc(netmon->frame_table,
 			    netmon->frame_table_size * sizeof *netmon->frame_table);
 		}
 	}

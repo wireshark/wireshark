@@ -322,7 +322,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 	if (record_length != 0) {
 		/* Read the rest of the record as a comment. */
-		comment = g_malloc(record_length + 1);
+		comment = (char *)g_malloc(record_length + 1);
 		bytes_read = file_read(comment, record_length, wth->fh);
 		if (bytes_read != record_length) {
 			*err = file_error(wth->fh, err_info);

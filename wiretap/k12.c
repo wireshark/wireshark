@@ -286,7 +286,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
 
     /* no buffer is given, lets create it */
     if (buffer == NULL) {
-        buffer = g_malloc(0x2000);
+        buffer = (guint8*)g_malloc(0x2000);
         buffer_len = 0x2000;
     }
 
@@ -342,7 +342,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
         return -1;
     }
 
-    while (left > buffer_len) *bufferp = buffer = g_realloc(buffer,buffer_len*=2);
+    while (left > buffer_len) *bufferp = buffer = (guint8*)g_realloc(buffer,buffer_len*=2);
 
     writep = buffer + 4;
     left -= 4;
@@ -431,7 +431,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
         src_id = pntohl(buffer + K12_RECORD_SRC_ID);
 
 
-        if ( ! (src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
+        if ( ! (src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id))) ) {
             /*
              * Some records from K15 files have a port ID of an undeclared
              * interface which happens to be the only one with the first byte changed.
@@ -439,7 +439,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
              * If the lookup of the interface record fails we'll mask it
              * and retry.
              */
-            src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id&K12_RECORD_SRC_ID_MASK));
+            src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(src_id&K12_RECORD_SRC_ID_MASK));
         }
 
         K12_DBG(5,("k12_read: record type=%x src_id=%x",type,src_id));
@@ -542,7 +542,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
     input = pntohl(buffer + K12_RECORD_SRC_ID);
     K12_DBG(5,("k12_seek_read: input=%.8x",input));
 
-    if ( ! (src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input))) ) {
+    if ( ! (src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input))) ) {
         /*
          * Some records from K15 files have a port ID of an undeclared
          * interface which happens to be the only one with the first byte changed.
@@ -550,7 +550,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
          * If the lookup of the interface record fails we'll mask it
          * and retry.
          */
-        src_desc = g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input&K12_RECORD_SRC_ID_MASK));
+        src_desc = (k12_src_desc_t*)g_hash_table_lookup(k12->src_by_id,GUINT_TO_POINTER(input&K12_RECORD_SRC_ID_MASK));
     }
 
     if (src_desc) {
@@ -623,7 +623,7 @@ static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_head
 
 
 static k12_t* new_k12_file_data(void) {
-    k12_t* fd = g_malloc(sizeof(k12_t));
+    k12_t* fd = g_new(k12_t,1);
 
     fd->file_len = 0;
     fd->num_of_records = 0;
@@ -636,7 +636,7 @@ static k12_t* new_k12_file_data(void) {
 }
 
 static gboolean destroy_srcdsc(gpointer k _U_, gpointer v, gpointer p _U_) {
-    k12_src_desc_t* rec = v;
+    k12_src_desc_t* rec = (k12_src_desc_t*)v;
 
     g_free(rec->input_name);
     g_free(rec->stack_file);
@@ -744,7 +744,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info) {
             K12_DBG(5,("k12_open: FIRST PACKET offset=%x",offset));
             break;
         } else if (type == K12_REC_SRCDSC || type == K12_REC_SRCDSC2 ) {
-            rec = g_malloc0(sizeof(k12_src_desc_t));
+            rec = g_new0(k12_src_desc_t,1);
 
             rec_len = pntohl( read_buffer + K12_RECORD_LEN );
             extra_len = pntohs( read_buffer + K12_SRCDESC_EXTRALEN );
@@ -870,8 +870,8 @@ static gboolean k12_dump_record(wtap_dumper *wdh, guint32 len,  guint8* buffer, 
 }
 
 static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
-    k12_src_desc_t* src_desc = v;
-    wtap_dumper *wdh = p;
+    k12_src_desc_t* src_desc = (k12_src_desc_t*)v;
+    wtap_dumper *wdh = (wtap_dumper *)p;
     guint32 len;
     guint offset;
     guint i;

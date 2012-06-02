@@ -229,7 +229,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
 
     /* This is an nettl file */
     wth->file_type = WTAP_FILE_NETTL;
-    nettl = g_malloc(sizeof(nettl_t));
+    nettl = g_new(nettl_t,1);
     wth->priv = (void *)nettl;
     if (file_hdr.os_vers[2] == '1' && file_hdr.os_vers[3] == '1')
 	nettl->is_hpux_11 = TRUE;
