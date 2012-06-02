@@ -543,7 +543,6 @@ DISSECTOR_SRC = \
 	packet-giop.c		\
 	packet-git.c		\
 	packet-glbp.c		\
-	packet-glusterd.c	\
 	packet-glusterfs.c	\
 	packet-gmhdr.c		\
 	packet-gmrp.c		\
