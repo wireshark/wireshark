@@ -1292,6 +1292,7 @@ do_file_save_as(capture_file *cf)
   gchar         *display_basename;
   gint           response;
   char          *cf_name;
+  ws_statb64     statbuf;
 
   if (file_save_as_w != NULL) {
     /* There's already an "Save Capture File As" dialog box; reactivate it. */
@@ -1398,10 +1399,6 @@ do_file_save_as(capture_file *cf)
     }
 
     /* The file exists.  Ask the user if they want to overwrite it. */
-
-    /*
-     * Format the message.
-     */
     display_basename = g_filename_display_basename(cf_name);
     msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
                                         GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -1433,6 +1430,91 @@ do_file_save_as(capture_file *cf)
          another one */
       g_free(cf_name);
       continue;
+    }
+
+    /* Check whether the file has all the write permission bits clear
+       and, on systems that have the 4.4-Lite file flags, whether it
+       has the "user immutable" flag set.  Treat both of those as an
+       indication that the user wants to protect the file from
+       casual overwriting, and ask the user if they want to override
+       that.
+
+       (Linux's "immutable" flag, as fetched and set by the appropriate
+       ioctls (FS_IOC_GETFLAGS/FS_IOC_SETFLAGS in newer kernels,
+       EXT2_IOC_GETFLAGS/EXT2_IOC_SETFLAGS in older kernels - non-ext2
+       file systems that support those ioctls use the same values as ext2
+       does), appears to be more like the *BSD/OS X "system immutable"
+       flag, as it can be set only by the superuser or by processes with
+       CAP_LINUX_IMMUTABLE, so it sounds as if it's not intended for
+       arbitrary users to set or clear. */
+    if (ws_stat64(cf_name, &statbuf) != -1) {
+      /* OK, we have the permission bits and, if HAVE_ST_FLAGS is defined,
+         the flags.  (If we don't, we don't worry about it.) */
+#ifdef HAVE_ST_FLAGS
+      if (statbuf.st_flags & UF_IMMUTABLE) {
+        display_basename = g_filename_display_basename(cf_name);
+        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
+                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            GTK_MESSAGE_QUESTION,
+                                            GTK_BUTTONS_NONE,
+#ifdef __APPLE__
+        /* Stuff in the OS X UI calls files with the "user immutable" bit
+           "locked"; pre-OS X Mac software might have had that notion and
+           called it "locked". */
+                                            "The file \"%s\" is locked.",
+#else /* __APPLE__ */
+        /* Just call it "immutable" in *BSD. */
+                                            "The file \"%s\" is immutable.",
+#endif /* __APPLE__ */
+                                            display_basename);
+        g_free(display_basename);
+      } else
+#endif /* HAVE_ST_FLAGS */
+      if ((statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0) {
+        display_basename = g_filename_display_basename(cf_name);
+        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
+                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                            GTK_MESSAGE_QUESTION,
+                                            GTK_BUTTONS_NONE,
+                                            "The file \"%s\" is not writable.",
+                                            display_basename);
+        g_free(display_basename);
+      } else {
+        /* No problem, just drive on. */
+        msg_dialog = NULL;
+      }
+      if (msg_dialog != NULL) {
+        /* OK, ask the user if they want to overwrite the file. */
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+            "Do you want to overwrite it anyway?");
+
+        gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
+                               "Overwrite", GTK_RESPONSE_ACCEPT,
+                               "Don't overwrite", GTK_RESPONSE_REJECT,
+                               NULL);
+        gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_REJECT);
+
+        response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
+        gtk_widget_destroy(msg_dialog);
+
+        if (response != GTK_RESPONSE_ACCEPT) {
+          /* The user doesn't want to overwrite this file; let them choose
+             another one */
+          g_free(cf_name);
+          continue;
+        }
+
+#ifdef HAVE_ST_FLAGS
+        /* OK, they want to overwrite the file.  If it has the "user
+           immutable" flag, we have to turn that off first, so we
+           can move the file. */
+        if (statbuf.st_flags & UF_IMMUTABLE) {
+          /* If this fails, the attempt to save will fail, so just
+             let that happen and pop up a "you lose" dialog. */
+          chflags(cf_name, statbuf.st_flags & ~UF_IMMUTABLE);
+        }
+#endif
+      }
     }
 
     /* save file */

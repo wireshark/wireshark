@@ -1755,6 +1755,11 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 # Check how we can get the time zone abbreviation
 AC_WIRESHARK_TIMEZONE_ABBREV
 
+# We need to know whether "struct stat" has an "st_flags" member
+# for file_user_immutable().
+
+AC_WIRESHARK_STRUCT_ST_FLAGS
+
 # We need to know whether "struct sockaddr" has an "sa_len" member
 # for get_interface_list().
 
