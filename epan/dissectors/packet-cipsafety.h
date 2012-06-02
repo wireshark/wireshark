@@ -25,6 +25,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#ifndef PACKET_CIPSAFETY_H
+#define PACKET_CIPSAFETY_H
+
+#include "packet-enip.h"
 
 /* Classes that have class-specfic dissectors */
 #define CI_CLS_SAFETY_SUPERVISOR   0x39    /* Safety Supervisor */
@@ -63,3 +67,5 @@ extern void dissect_cipsafety_ssn(proto_tree *tree, tvbuff_t *tvb, packet_info *
 */
 extern const value_string cipsafety_ssn_date_vals[8];
 extern attribute_info_t cip_safety_attribute_vals[52];
+
+#endif /* PACKET_CIPSAFETY_H */

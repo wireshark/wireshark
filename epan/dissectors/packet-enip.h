@@ -27,6 +27,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef PACKET_ENIP_H
+#define PACKET_ENIP_H
+
 /* Offsets of fields within the DLR Common Frame Header */
 #define DLR_CFH_SUB_TYPE       0
 #define DLR_CFH_PROTO_VERSION  1
@@ -89,3 +92,5 @@ enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
 void enip_close_cip_connection( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
 
 extern attribute_info_t enip_attribute_vals[29];
+
+#endif /* PACKET_ENIP_H */

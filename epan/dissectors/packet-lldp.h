@@ -29,6 +29,8 @@
 #ifndef PACKET_LLDP_H__
 #define PACKET_LLDP_H__
 
+#include "oui.h"
+
 static const value_string tlv_oui_subtype_vals[] = {
 	/* Currently, the manuf file calls this "Ieee8021"; "IEEE 802.1" looks better */
 	{ OUI_IEEE_802_1,	"IEEE 802.1" },
