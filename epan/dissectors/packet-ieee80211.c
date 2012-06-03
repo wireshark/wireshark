@@ -2004,6 +2004,7 @@ static int hf_ieee80211_ampduparam_reserved = -1;
 
 static int hf_ieee80211_mcsset = -1;
 static int hf_ieee80211_mcsset_vs = -1;
+static int hf_ieee80211_mcsset_rx_bitmask = -1;
 static int hf_ieee80211_mcsset_rx_bitmask_0to7 = -1;
 static int hf_ieee80211_mcsset_rx_bitmask_8to15 = -1;
 static int hf_ieee80211_mcsset_rx_bitmask_16to23 = -1;
@@ -2302,6 +2303,7 @@ static int hf_ieee80211_tag_roaming_consortium_oi2 = -1;
 static int hf_ieee80211_tag_roaming_consortium_oi3 = -1;
 
 /* 802.11n 7.3.2.48 */
+static int hf_ieee80211_hta_cc = -1;
 static int hf_ieee80211_hta_cap = -1;
 static int hf_ieee80211_hta_ext_chan_offset = -1;
 static int hf_ieee80211_hta_rec_tx_width = -1;
@@ -6859,11 +6861,10 @@ dissect_timeout_interval(proto_tree *tree, tvbuff_t *tvb, int offset,
                       offset + 1, 4, ENC_LITTLE_ENDIAN);
 }
 
-static void
+static int
 dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gboolean vs) {
   proto_item *ti;
   proto_tree *mcs_tree, *bit_tree;
-  guint16 capability;
 
   /* 16 byte Supported MCS set */
   if(vs)
@@ -6878,8 +6879,7 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   mcs_tree = proto_item_add_subtree(ti, ett_mcsset_tree);
 
   /* Rx MCS Bitmask */
-  ti = proto_tree_add_string(mcs_tree, hf_ieee80211_tag_interpretation, tvb, offset,
-      10, "Rx Modulation and Coding Scheme (One bit per modulation)");
+  ti = proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_rx_bitmask, tvb, offset, 10, ENC_NA);
   bit_tree = proto_item_add_subtree(ti, ett_mcsbit_tree);
 
   /* Bits 0 - 31 */
@@ -6887,27 +6887,33 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_8to15, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_16to23, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_24to31, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
 
   /* Bits 32 - 52 */
-  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_32, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_33to38, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_39to52, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_32, tvb, offset , 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_33to38, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_39to52, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 2;
 
   /* Bits 53 - 76 */
-  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_53to76, tvb, offset + 6, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bit_tree, hf_ieee80211_mcsset_rx_bitmask_53to76, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
 
-  capability = tvb_get_letohs (tvb, offset+10);
-  proto_tree_add_uint_format(mcs_tree, hf_ieee80211_mcsset_highest_data_rate, tvb, offset + 10, 2,
-      capability, "Highest Supported Data Rate: 0x%04X", capability);
-  capability = tvb_get_letohs (tvb, offset+12);
-  proto_tree_add_boolean(mcs_tree, hf_ieee80211_mcsset_tx_mcs_set_defined, tvb, offset + 12, 1,
-      capability);
-  proto_tree_add_boolean(mcs_tree, hf_ieee80211_mcsset_tx_rx_mcs_set_not_equal, tvb, offset + 12, 1,
-      capability);
-  proto_tree_add_uint(mcs_tree, hf_ieee80211_mcsset_tx_max_spatial_streams, tvb, offset + 12, 1,
-      capability);
-  proto_tree_add_boolean(mcs_tree, hf_ieee80211_mcsset_tx_unequal_modulation, tvb, offset + 12, 1,
-      capability);
+  proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_highest_data_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_mcs_set_defined, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_rx_mcs_set_not_equal, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_max_spatial_streams, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(mcs_tree, hf_ieee80211_mcsset_tx_unequal_modulation, tvb, offset, 1,
+      ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  offset += 3;
+  return offset;
 }
 
 /*  802.11n D1.10 - HT Information IE  */
@@ -7321,99 +7327,78 @@ dissect_ht_capability_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
   tag_val_off += 1;
 }
 
-static void
-dissect_ht_info_ie_1_0(proto_tree * tree, tvbuff_t * tvb, int offset,
-         guint32 tag_len)
+static int
+dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+         guint32 tag_len, proto_item *ti_len)
 {
   proto_item *cap_item;
   proto_tree *cap_tree;
-  guint16 capability;
-  guint32 tag_val_off = 0;
-  gchar out_buff[SHORT_STR];
 
-  if (tag_val_off + 2 > tag_len) {
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset, tag_len,
-        "Not interpreted");
-    return;
-  }
-
-  if (tag_len < 22) {
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset, tag_len,
-              "HT Additional Capabilities IE content length must be 22");
-    return;
+  if (tag_len != 22) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u wrong, must be = 22", tag_len);
+    return offset;
   }
 
   if (wlan_ignore_draft_ht)
-    return;
+    return offset;
 
-  g_snprintf(out_buff, SHORT_STR, "Control Channel %d",
-             tvb_get_guint8(tvb, offset));
-  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset, 1, out_buff);
+  /* 1 HT Control Channel */
+  proto_tree_add_item(tree, hf_ieee80211_hta_cc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
-  tag_val_off += 1;
 
   /* 1 byte HT additional capabilities */
-  capability = tvb_get_guint8 (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, hf_ieee80211_hta_cap, tvb,
-                    offset, 1, capability,
-                    "HT Additional Capabilities: 0x%04X", capability);
+  cap_item = proto_tree_add_item(tree, hf_ieee80211_hta_cap, tvb, offset, 1,
+             ENC_LITTLE_ENDIAN);
   cap_tree = proto_item_add_subtree(cap_item, ett_hta_cap_tree);
-  proto_tree_add_uint(cap_tree, hf_ieee80211_hta_ext_chan_offset, tvb, offset, 1,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_rec_tx_width, tvb, offset, 1,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_rifs_mode, tvb, offset, 1,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_controlled_access, tvb, offset, 1,
-             capability);
-  proto_tree_add_uint(cap_tree, hf_ieee80211_hta_service_interval, tvb, offset, 1,
-             capability);
+
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_ext_chan_offset, tvb, offset, 1,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_rec_tx_width, tvb, offset, 1,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_rifs_mode, tvb, offset, 1,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_controlled_access, tvb, offset, 1,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_service_interval, tvb, offset, 1,
+             ENC_LITTLE_ENDIAN);
   offset += 1;
-  tag_val_off += 1;
 
   /* 2 byte HT additional capabilities */
-  capability = tvb_get_letohs (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, hf_ieee80211_hta_cap, tvb,
-                    offset, 2, capability,
-                    "HT Additional Capabilities: 0x%04X", capability);
+  cap_item = proto_tree_add_item(tree, hf_ieee80211_hta_cap, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
   cap_tree = proto_item_add_subtree(cap_item, ett_hta_cap1_tree);
-  proto_tree_add_uint(cap_tree, hf_ieee80211_hta_operating_mode, tvb, offset, 2,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_non_gf_devices, tvb, offset, 2,
-             capability);
+
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_operating_mode, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_non_gf_devices, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
 
   offset += 2;
-  tag_val_off += 2;
 
   /* 2 byte HT additional capabilities */
-  capability = tvb_get_letohs (tvb, offset);
-  cap_item = proto_tree_add_uint_format(tree, hf_ieee80211_hta_cap, tvb,
-                    offset, 2, capability,
-                    "HT Additional Capabilities: 0x%04X", capability);
+  cap_item = proto_tree_add_item(tree, hf_ieee80211_hta_cap, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
   cap_tree = proto_item_add_subtree(cap_item, ett_hta_cap2_tree);
-  proto_tree_add_uint(cap_tree, hf_ieee80211_hta_basic_stbc_mcs, tvb, offset, 2,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_dual_stbc_protection, tvb, offset, 2,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_secondary_beacon, tvb, offset, 2,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_lsig_txop_protection, tvb, offset, 2,
-             capability);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_pco_active, tvb, offset, 2,
-             capability);
+
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_basic_stbc_mcs, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_dual_stbc_protection, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_secondary_beacon, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_lsig_txop_protection, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_pco_active, tvb, offset, 2,
+             ENC_LITTLE_ENDIAN);
   proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_pco_phase, tvb, offset, 2,
-             capability);
+             ENC_LITTLE_ENDIAN);
   offset += 2;
-  tag_val_off += 2;
 
   /* 16 byte Supported MCS set */
-  dissect_mcs_set(tree, tvb, offset, FALSE, TRUE);
-  offset += 16;
-  tag_val_off += 16;
+  offset = dissect_mcs_set(tree, tvb, offset, FALSE, TRUE);
 
-   if (tag_val_off < tag_len)
-     proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset,
-               tag_len - tag_val_off, "Not interpreted");
+  return offset;
 }
 
 /* 802.11n-D1.10 and 802.11n-D2.0, 7.1.3.5a */
@@ -7550,29 +7535,29 @@ dissect_frame_control(proto_tree * tree, tvbuff_t * tvb, gboolean wlan_broken_fc
 }
 
 static void
-dissect_vendor_ie_ht(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
+dissect_vendor_ie_ht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
+                    guint offset, proto_item *item, proto_item *ti_len, gint tag_len)
 {
-  gint tag_len = tvb_length(tag_tvb);
 
-  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, 0, 3, "802.11n (Pre) OUI");
+  proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, offset, 3, "802.11n (Pre) OUI");
   /* 802.11n OUI  Information Element */
-  if (4 <= tag_len && !tvb_memeql(tag_tvb, 0, PRE_11N_OUI"\x33", 4)) {
-    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, 3, 1,"802.11n (Pre) HT information" );
+  if (4 <= tag_len && !tvb_memeql(tvb, offset, PRE_11N_OUI"\x33", 4)) {
+    proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 3, 1,"802.11n (Pre) HT information" );
 
-    dissect_ht_capability_ie(tree, tag_tvb, 4, tag_len - 4, TRUE);
+    dissect_ht_capability_ie(tree, tvb, offset+4, tag_len - 4, TRUE);
     proto_item_append_text(item, ": HT Capabilities (802.11n D1.10)");
   }
   else {
-    if (4 <= tag_len && !tvb_memeql(tag_tvb, 0, PRE_11N_OUI"\x34", 4)) {
-      proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, 3, 1, "HT additional information (802.11n D1.00)");
+    if (4 <= tag_len && !tvb_memeql(tvb, offset, PRE_11N_OUI"\x34", 4)) {
+      proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 3, 1, "HT additional information (802.11n D1.00)");
 
-      dissect_ht_info_ie_1_0(tree, tag_tvb, 4, tag_len - 4);
+      dissect_ht_info_ie_1_0(tvb, pinfo, tree, offset+4, tag_len - 4, ti_len);
       proto_item_append_text(item, ": HT Additional Capabilities (802.11n D1.00)");
     }
     else {
-        proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, 3, 1, "Unknown type");
+        proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 3, 1, "Unknown type");
         proto_item_append_text(item, ": 802.11n (pre) Unknown type");
-        proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tag_tvb, 4,
+        proto_tree_add_string(tree, hf_ieee80211_tag_interpretation, tvb, 4,
                   tag_len - 4, "Not interpreted");
     }
   }
@@ -9197,7 +9182,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
           dissect_vendor_ie_rsn(ti, tree, tag_tvb);
           break;
         case PRE11N_OUI:
-          dissect_vendor_ie_ht(ti, tree, tag_tvb);
+          dissect_vendor_ie_ht(tvb, pinfo, tree, offset, ti, ti_len, tag_len);
           break;
         case OUI_WFA:
           dissect_vendor_ie_wfa(pinfo, ti, tag_tvb);
@@ -14532,6 +14517,10 @@ proto_register_ieee80211 (void)
      {"Rx Supported Modulation and Coding Scheme Set (VS)", "wlan_mgt.vs.ht.mcsset",
       FT_STRING, BASE_NONE, NULL, 0, "Vendor Specific Rx Supported Modulation and Coding Scheme Set", HFILL }},
 
+    {&hf_ieee80211_mcsset_rx_bitmask,
+     {"Rx Modulation and Coding Scheme (One bit per modulation)", "wlan_mgt.ht.mcsset.rxbitmask",
+      FT_NONE, BASE_NONE, NULL, 0, "One bit per modulation", HFILL }},
+
     {&hf_ieee80211_mcsset_rx_bitmask_0to7,
      {"Rx Bitmask Bits 0-7", "wlan_mgt.ht.mcsset.rxbitmask.0to7",
       FT_UINT32, BASE_HEX, 0, 0x000000ff, NULL, HFILL }},
@@ -14728,6 +14717,10 @@ proto_register_ieee80211 (void)
      {"Reserved", "wlan_mgt.txbf.reserved",
       FT_UINT32, BASE_HEX, NULL, 0xe0000000,
       NULL, HFILL }},
+
+    {&hf_ieee80211_hta_cc,
+     {"HT Control Channel", "wlan_mgt.hta.control_channel", FT_UINT8, BASE_DEC,
+      NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_hta_cap,
      {"HT Additional Capabilities", "wlan_mgt.hta.capabilities", FT_UINT16, BASE_HEX,
