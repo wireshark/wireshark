@@ -90,7 +90,7 @@ any "error" symbols are shifted, if possible. */
 				stnode_value(TOKEN));
 			break;
 		case STTYPE_FIELD:
-			hfinfo = stnode_data(TOKEN);
+			hfinfo = (header_field_info *)stnode_data(TOKEN);
 			dfilter_fail("Syntax error near \"%s\".", hfinfo->abbrev);
 			break;
 		case STTYPE_FUNCTION:

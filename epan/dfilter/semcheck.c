@@ -691,7 +691,7 @@ check_relation_LHS_STRING(const char* relation_string,
 			THROW(TypeError);
 		}
 
-		s = stnode_data(st_arg1);
+		s = (char*)stnode_data(st_arg1);
 		fvalue = fvalue_from_string(ftype2, s, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
