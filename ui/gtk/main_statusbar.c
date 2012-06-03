@@ -740,14 +740,14 @@ statusbar_cf_file_closed_cb(capture_file *cf _U_)
 static void
 statusbar_cf_file_read_started_cb(capture_file *cf, const char *action)
 {
-    const gchar *name_ptr;
+    gchar *name_ptr;
 
     /* Ensure we pop any previous loaded filename */
     statusbar_pop_file_msg();
 
     name_ptr = g_filename_display_basename(cf->filename);
-
     statusbar_push_file_msg(" %s: %s", action, name_ptr);
+    g_free(name_ptr);
 }
 
 

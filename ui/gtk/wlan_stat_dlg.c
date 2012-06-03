@@ -159,14 +159,17 @@ wlanstat_reset (void *phs)
 	wlanstat_t* wlan_stat = (wlanstat_t *)phs;
 	wlan_ep_t* list = wlan_stat->ep_list;
 	wlan_ep_t* tmp = NULL;
+	char *display_name;
 	char title[256];
 	GString *error_string;
 	GtkListStore *store;
 	const char *filter = NULL;
 
 	if (wlanstat_dlg_w != NULL) {
-            g_snprintf (title, sizeof(title), "Wireshark: WLAN Traffic Statistics: %s",
-			    cf_get_display_name(&cfile));
+		display_name = cf_get_display_name(&cfile);
+		g_snprintf (title, sizeof(title), "Wireshark: WLAN Traffic Statistics: %s",
+			    display_name);
+		g_free(display_name);
 		gtk_window_set_title(GTK_WINDOW(wlanstat_dlg_w), title);
 	}
 
@@ -1739,6 +1742,7 @@ wlanstat_dlg_create (void)
 	GtkCellRenderer   *renderer;
 	GtkTreeViewColumn *column;
 	GtkTreeSelection  *sel;
+	char *display_name;
 	char title[256];
 	gint i;
 
@@ -1750,8 +1754,10 @@ wlanstat_dlg_create (void)
 	hs->use_dfilter = FALSE;
 	hs->show_only_existing = FALSE;
 
+	display_name = cf_get_display_name(&cfile);
 	g_snprintf (title, sizeof(title), "Wireshark: WLAN Traffic Statistics: %s",
-		    cf_get_display_name(&cfile));
+		    display_name);
+	g_free(display_name);
 	wlanstat_dlg_w = window_new_with_geom (GTK_WINDOW_TOPLEVEL, title, "WLAN Statistics");
 	gtk_window_set_default_size (GTK_WINDOW(wlanstat_dlg_w), 750, 400);
 

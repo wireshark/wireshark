@@ -649,11 +649,12 @@ mcaststream_dlg_create(void)
 	GtkWidget *bt_params;
 	GtkWidget *bt_close;
 
-	const gchar *title_name_ptr;
+	gchar *title_name_ptr;
 	gchar *win_name;
 
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - UDP Multicast Streams", title_name_ptr);
+        g_free(title_name_ptr);
 	mcaststream_dlg_w = dlg_window_new(win_name);
 
 	gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);

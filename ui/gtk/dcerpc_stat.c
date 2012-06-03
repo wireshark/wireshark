@@ -94,8 +94,11 @@ static char *
 dcerpcstat_gen_title(dcerpcstat_t *rs)
 {
 	char *title;
+	char *display_name;
 
-	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s major version %u: %s", rs->prog, rs->ver, cf_get_display_name(&cfile));
+	display_name = cf_get_display_name(&cfile);
+	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s major version %u: %s", rs->prog, rs->ver, display_name);
+	g_free(display_name);
 	return title;
 }
 

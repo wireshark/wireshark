@@ -486,7 +486,7 @@ cf_read(capture_file *cf, gboolean reloading)
 {
   int         err;
   gchar       *err_info;
-  const gchar *name_ptr;
+  gchar       *name_ptr;
   const char  *errmsg;
   char         errmsg_errno[1024+1];
   gint64       data_offset;
@@ -630,6 +630,9 @@ cf_read(capture_file *cf, gboolean reloading)
     }
     ENDTRY;
   }
+
+  /* Free the display name */
+  g_free(name_ptr);
 
   /* Cleanup and release all dfilter resources */
   if (dfcode != NULL){
@@ -969,10 +972,10 @@ cf_finish_tail(capture_file *cf, int *err)
 }
 #endif /* HAVE_LIBPCAP */
 
-const gchar *
+gchar *
 cf_get_display_name(capture_file *cf)
 {
-  const gchar *displayname;
+  gchar *displayname;
 
   /* Return a name to use in displays */
   if (!cf->is_tempfile) {
@@ -980,16 +983,16 @@ cf_get_display_name(capture_file *cf)
     if (cf->filename){
       displayname = g_filename_display_basename(cf->filename);
     } else {
-      displayname="(No file)";
+      displayname=g_strdup("(No file)");
     }
   } else {
     /* The file we read is a temporary file from a live capture or
        a merge operation; we don't mention its name, but, if it's
        from a capture, give the source of the capture. */
     if (cf->source) {
-      displayname = cf->source;
+      displayname = g_strdup(cf->source);
     } else {
-      displayname = "(Untitled)";
+      displayname = g_strdup("(Untitled)");
     }
   }
   return displayname;

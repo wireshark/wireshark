@@ -216,15 +216,18 @@ static void mac_lte_stat_reset(void *phs)
 {
     mac_lte_stat_t* mac_lte_stat = (mac_lte_stat_t *)phs;
     mac_lte_ep_t* list = mac_lte_stat->ep_list;
+    char *display_name;
     gchar title[256];
     GtkListStore *store;
     gint i, n;
 
     /* Set the title */
     if (mac_lte_stat->mac_lte_stat_dlg_w != NULL) {
+        display_name = cf_get_display_name(&cfile);
         g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s (filter=\"%s\")",
-                   cf_get_display_name(&cfile),
+                   display_name,
                    strlen(mac_lte_stat->filter) ? mac_lte_stat->filter : "none");
+        g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(mac_lte_stat->mac_lte_stat_dlg_w), title);
     }
 
@@ -638,6 +641,7 @@ static void mac_lte_stat_draw(void *phs)
 {
     gchar   buff[32];
     guint16 number_of_ues = 0;
+    char *display_name;
     gchar title[256];
 
     /* Look up the statistics window */
@@ -680,11 +684,13 @@ static void mac_lte_stat_draw(void *phs)
     gtk_frame_set_label(GTK_FRAME(hs->mac_lte_stat_ues_lb), title);
 
     /* Update title to include number of UEs and frames */
+    display_name = cf_get_display_name(&cfile);
     g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Traffic Statistics: %s (%u UEs, %u frames) (filter=\"%s\")",
-               cf_get_display_name(&cfile),
+               display_name,
                number_of_ues,
                hs->common_stats.all_frames,
                strlen(hs->filter) ? hs->filter : "none");
+    g_free(display_name);
     gtk_window_set_title(GTK_WINDOW(hs->mac_lte_stat_dlg_w), title);
 
 
@@ -1007,6 +1013,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
+    gchar *display_name;
     gchar title[256];
     gint i, n;
 
@@ -1034,8 +1041,10 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     }
 
     /* Set title */
+    display_name = cf_get_display_name(&cfile);
     g_snprintf(title, sizeof(title), "Wireshark: LTE MAC Statistics: %s",
-               cf_get_display_name(&cfile));
+               display_name);
+    g_free(display_name);
 
     /* Create top-level window */
     hs->mac_lte_stat_dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE MAC Statistics");

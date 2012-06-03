@@ -76,11 +76,7 @@ void register_tap_listener_gtk_camelsrt(void);
  */
 static void camelsrt_set_title(struct camelsrt_t * p_camelsrt)
 {
-  char * title;
-  title = g_strdup_printf("CAMEL Service Response Time statistics: %s",
-			  cf_get_display_name(&cfile));
-  gtk_window_set_title(GTK_WINDOW(p_camelsrt->win), title);
-  g_free(title);
+  set_window_title(p_camelsrt->win, "CAMEL Service Response Time statistics");
 }
 
 static void camelsrt_reset(void *phs)

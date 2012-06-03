@@ -181,6 +181,7 @@ static void
 reset_hostlist_table_data(hostlist_table *hosts)
 {
     guint32 i;
+    char *display_name;
     char title[256];
     GString *error_string;
     const char *filter;
@@ -200,7 +201,9 @@ reset_hostlist_table_data(hostlist_table *hosts)
 
 
     if(hosts->page_lb) {
-        g_snprintf(title, sizeof(title), "Endpoints: %s", cf_get_display_name(&cfile));
+        display_name = cf_get_display_name(&cfile);
+        g_snprintf(title, sizeof(title), "Endpoints: %s", display_name);
+        g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(hosts->win), title);
         g_snprintf(title, sizeof(title), "%s", hosts->name);
         gtk_label_set_text(GTK_LABEL(hosts->page_lb), title);
@@ -217,7 +220,9 @@ reset_hostlist_table_data(hostlist_table *hosts)
         }
         gtk_label_set_text(GTK_LABEL(hosts->name_lb), title);
     } else {
-        g_snprintf(title, sizeof(title), "%s Endpoints: %s", hosts->name, cf_get_display_name(&cfile));
+        display_name = cf_get_display_name(&cfile);
+        g_snprintf(title, sizeof(title), "%s Endpoints: %s", hosts->name, display_name);
+        g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(hosts->win), title);
     }
 
@@ -1373,6 +1378,7 @@ void
 init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     hostlist_table *hosttable;
+    char *display_name;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *bbox;
@@ -1388,7 +1394,9 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     hosttable->name=table_name;
     hosttable->filter=filter;
     hosttable->use_dfilter=FALSE;
-    g_snprintf(title, sizeof(title), "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
+    display_name = cf_get_display_name(&cfile);
+    g_snprintf(title, sizeof(title), "%s Endpoints: %s", table_name, display_name);
+    g_free(display_name);
     hosttable->win = dlg_window_new(title);  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(hosttable->win), TRUE);
 
@@ -1601,6 +1609,7 @@ void
 init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     hostlist_table *hosttable;
+    char *display_name;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *hbox;
@@ -1626,7 +1635,9 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     win = dlg_window_new("hostlist");  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(win), TRUE);
 
-    g_snprintf(title, sizeof(title), "Endpoints: %s", cf_get_display_name(&cfile));
+    display_name = cf_get_display_name(&cfile);
+    g_snprintf(title, sizeof(title), "Endpoints: %s", display_name);
+    g_free(display_name);
     gtk_window_set_title(GTK_WINDOW(win), title);
     gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
 

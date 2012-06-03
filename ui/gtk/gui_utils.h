@@ -297,6 +297,14 @@ extern void copy_binary_to_clipboard(const guint8* data_p, int len);
  */
 extern gchar *create_user_window_title(const gchar *caption);
 
+/** Set the title of a window based on a supplied caption and the
+ * display name for the capture file.
+ *
+ * @param win the window whose title is to be set
+ * @param caption caption string for the window
+ */
+extern void set_window_title(GtkWidget *win, const gchar *caption);
+
 /** Renders a float with two decimals precission, called from gtk_tree_view_column_set_cell_data_func().
  * the user data must be the colum number.
  * Present floats with two decimals 

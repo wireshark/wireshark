@@ -1731,14 +1731,17 @@ init_sctp_graph_window(struct sctp_udata *u_data)
 static void
 sctp_graph_set_title(struct sctp_udata *u_data)
 {
+	char *display_name;
 	char *title;
 
 	if(!u_data->io->window)
 	{
 		return;
 	}
+	display_name = cf_get_display_name(&cfile);
 	title = g_strdup_printf("SCTP TSNs and Sacks over Time: %s Port1 %u Port2 %u Endpoint %u",
-	                        cf_get_display_name(&cfile), u_data->parent->assoc->port1, u_data->parent->assoc->port2, u_data->dir);
+	                        display_name, u_data->parent->assoc->port1, u_data->parent->assoc->port2, u_data->dir);
+	g_free(display_name);
 	gtk_window_set_title(GTK_WINDOW(u_data->io->window), title);
 	g_free(title);
 }

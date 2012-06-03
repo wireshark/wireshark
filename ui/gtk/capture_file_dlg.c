@@ -147,6 +147,7 @@ static wtap *
 preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 {
     GtkWidget  *label;
+    gchar      *display_basename;
     wtap       *wth;
     int         err = 0;
     gchar      *err_info;
@@ -173,7 +174,9 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
-    gtk_label_set_text(GTK_LABEL(label), g_filename_display_basename(cf_name));
+    display_basename = g_filename_display_basename(cf_name);
+    gtk_label_set_text(GTK_LABEL(label), display_basename);
+    g_free(display_basename);
 
     if (test_for_directory(cf_name) == EISDIR) {
         label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);

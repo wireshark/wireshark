@@ -60,12 +60,7 @@ typedef struct _gtpstat_t {
 static void
 gtpstat_set_title(gtpstat_t *gtp)
 {
-	char		*title;
-
-	title = g_strdup_printf("GTP Control Plane  Response Time statistics: %s",
-	    cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(gtp->win), title);
-	g_free(title);
+	set_window_title(gtp->win, "GTP Control Plane  Response Time statistics");
 }
 
 static void

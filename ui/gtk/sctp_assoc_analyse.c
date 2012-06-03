@@ -449,12 +449,15 @@ sctp_set_filter (GtkButton *button _U_, struct sctp_analyse* u_data)
 
 static void analyse_window_set_title(struct sctp_analyse *u_data)
 {
+	char *display_name;
 	char *title;
 
 	if(!u_data->window){
 		return;
 	}
-	title = g_strdup_printf("SCTP Analyse Association: %s Port1 %u  Port2 %u", cf_get_display_name(&cfile), u_data->assoc->port1, u_data->assoc->port2);
+	display_name = cf_get_display_name(&cfile);
+	title = g_strdup_printf("SCTP Analyse Association: %s Port1 %u  Port2 %u", display_name, u_data->assoc->port1, u_data->assoc->port2);
+	g_free(display_name);
 	gtk_window_set_title(GTK_WINDOW(u_data->window), title);
 	g_free(title);
 }

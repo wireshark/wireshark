@@ -580,12 +580,16 @@ on_close_dlg (GtkButton *button _U_, gpointer user_data)
 static void
 path_window_set_title(struct sctp_udata *u_data, unsigned int direction)
 {
+    char *display_name;
     char *title;
+
     if(!u_data->io->window){
         return;
     }
+    display_name = cf_get_display_name(&cfile);
     title = g_strdup_printf("SCTP Path Chunk Statistics for Endpoint %u: %s Port1 %u  Port2 %u",direction,
-                            cf_get_display_name(&cfile), u_data->assoc->port1, u_data->assoc->port2);
+                            display_name, u_data->assoc->port1, u_data->assoc->port2);
+    g_free(display_name);
     gtk_window_set_title(GTK_WINDOW(u_data->io->window), title);
     g_free(title);
 }
@@ -646,12 +650,16 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 static void
 chunk_window_set_title(struct sctp_udata *u_data)
 {
+    char *display_name;
     char *title;
+
     if(!u_data->io->window){
         return;
     }
+    display_name = cf_get_display_name(&cfile);
     title = g_strdup_printf("SCTP Association Chunk Statistics: %s Port1 %u  Port2 %u",
-                            cf_get_display_name(&cfile), u_data->assoc->port1, u_data->assoc->port2);
+                            display_name, u_data->assoc->port1, u_data->assoc->port2);
+    g_free(display_name);
     gtk_window_set_title(GTK_WINDOW(u_data->io->window), title);
     g_free(title);
 }

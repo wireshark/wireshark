@@ -60,12 +60,7 @@ typedef struct _afpstat_t {
 static void
 afpstat_set_title(afpstat_t *ss)
 {
-	char *title;
-
-	title = g_strdup_printf("AFP Service Response Time statistics: %s",
-	    cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(ss->win), title);
-	g_free(title);
+	set_window_title(ss->win, "AFP Service Response Time statistics");
 }
 
 static void

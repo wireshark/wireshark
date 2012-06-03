@@ -237,9 +237,9 @@ cf_status_t cf_export_specified_packets(capture_file *cf, const char *fname,
  * Get a displayable name of the capture file.
  *
  * @param cf the capture file
- * @return the displayable name (don't have to be g_free'd)
+ * @return the displayable name (must be g_free'd)
  */
-const gchar *cf_get_display_name(capture_file *cf);
+gchar *cf_get_display_name(capture_file *cf);
 
 /**
  * Set the source of the capture data for temporary files, e.g.

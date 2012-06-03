@@ -59,12 +59,7 @@ typedef struct _ldapstat_t {
 static void
 ldapstat_set_title(ldapstat_t *ldap)
 {
-	char		*title;
-
-	title = g_strdup_printf("LDAP Service Response Time statistics: %s",
-	    cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(ldap->win), title);
-	g_free(title);
+	set_window_title(ldap->win, "LDAP Service Response Time statistics");
 }
 
 static void

@@ -1334,10 +1334,13 @@ resolv_update_cb(gpointer data _U_)
 static void
 set_display_filename(capture_file *cf)
 {
+  gchar *display_name;
   gchar *window_name;
 
   if (cf->filename) {
-    window_name = g_strdup_printf("%s", cf_get_display_name(cf));
+    display_name = cf_get_display_name(cf);
+    window_name = g_strdup_printf("%s", display_name);
+    g_free(display_name);
     main_set_window_name(window_name);
     g_free(window_name);
   } else {

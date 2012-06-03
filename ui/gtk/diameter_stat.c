@@ -64,12 +64,7 @@ static GHashTable* cmd_str_hash;
 static void
 diameterstat_set_title(diameterstat_t *diameter)
 {
-	char		*title;
-
-	title = g_strdup_printf("Diameter Service Response Time statistics: %s",
-	    cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(diameter->win), title);
-	g_free(title);
+	set_window_title(diameter->win, "Diameter Service Response Time statistics");
 }
 
 static void

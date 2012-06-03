@@ -42,6 +42,8 @@
 
 #include <epan/packet_info.h>
 
+#include "../../globals.h"
+
 #include "ui/recent.h"
 #include "ui/ui_util.h"
 
@@ -1155,6 +1157,25 @@ create_user_window_title(const gchar *caption)
         return g_strdup(caption);
 
     return g_strdup_printf("%s   [%s]", caption, prefs.gui_window_title);
+}
+
+/*
+ * Set the title of a window based on a supplied caption and the
+ * display name for the capture file.
+ *
+ * XXX - should this include the user preference as well?
+ */
+void
+set_window_title(GtkWidget *win, const gchar *caption)
+{
+    char *title;
+    char *display_name;
+
+    display_name = cf_get_display_name(&cfile);
+    title = g_strdup_printf("%s: %s", caption, display_name);
+    g_free(display_name);
+    gtk_window_set_title(GTK_WINDOW(win), title);
+    g_free(title);
 }
 
 /*

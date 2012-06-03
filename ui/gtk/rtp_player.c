@@ -2325,11 +2325,12 @@ rtp_player_dlg_create(void)
 	GtkWidget *bt_close;
 	GtkAdjustment *jitter_spinner_adj;
 	GtkWidget *label;
-	const gchar *title_name_ptr;
+	gchar *title_name_ptr;
 	gchar   *win_name;
 
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - VoIP - RTP Player", title_name_ptr);
+	g_free(title_name_ptr);
 
 	rtp_player_dlg_w = dlg_window_new(win_name);  /* transient_for top_level */
 	gtk_window_set_destroy_with_parent (GTK_WINDOW(rtp_player_dlg_w), TRUE);

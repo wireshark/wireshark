@@ -284,6 +284,7 @@ static void
 reset_ct_table_data(conversations_table *ct)
 {
     guint32 i;
+    char *display_name;
     char title[256];
     GString *error_string;
     const char *filter;
@@ -303,7 +304,9 @@ reset_ct_table_data(conversations_table *ct)
     }
 
     if(ct->page_lb) {
-        g_snprintf(title, sizeof(title), "Conversations: %s", cf_get_display_name(&cfile));
+    	display_name = cf_get_display_name(&cfile);
+        g_snprintf(title, sizeof(title), "Conversations: %s", display_name);
+        g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(ct->win), title);
         g_snprintf(title, sizeof(title), "%s", ct->name);
         gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
@@ -320,7 +323,9 @@ reset_ct_table_data(conversations_table *ct)
         }
         gtk_label_set_text(GTK_LABEL(ct->name_lb), title);
     } else {
-        g_snprintf(title, sizeof(title), "%s Conversations: %s", ct->name, cf_get_display_name(&cfile));
+    	display_name = cf_get_display_name(&cfile);
+        g_snprintf(title, sizeof(title), "%s Conversations: %s", ct->name, display_name);
+        g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(ct->win), title);
     }
 
@@ -2529,6 +2534,7 @@ void
 init_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
 {
     conversations_table *conversations;
+    char *display_name;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *bbox;
@@ -2542,7 +2548,9 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     conversations->name=table_name;
     conversations->filter=filter;
     conversations->use_dfilter=FALSE;
-    g_snprintf(title, sizeof(title), "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
+    display_name = cf_get_display_name(&cfile);
+    g_snprintf(title, sizeof(title), "%s Conversations: %s", table_name, display_name);
+    g_free(display_name);
     conversations->win = dlg_window_new(title);  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(conversations->win), TRUE);
 
@@ -2744,6 +2752,7 @@ void
 init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     conversations_table *conversations;
+    char *display_name;
     char title[256];
     GtkWidget *vbox;
     GtkWidget *hbox;
@@ -2763,7 +2772,9 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
-    g_snprintf(title, sizeof(title), "Conversations: %s", cf_get_display_name(&cfile));
+    display_name = cf_get_display_name(&cfile);
+    g_snprintf(title, sizeof(title), "Conversations: %s", display_name);
+    g_free(display_name);
     win = dlg_window_new(title);  /* transient_for top_level */
     gtk_window_set_destroy_with_parent (GTK_WINDOW(win), TRUE);
 

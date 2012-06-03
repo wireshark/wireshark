@@ -61,12 +61,7 @@ typedef struct _fcstat_t {
 static void
 fcstat_set_title(fcstat_t *fc)
 {
-	char		*title;
-
-	title = g_strdup_printf("Fibre Channel Service Response Time statistics: %s",
-	    cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(fc->win), title);
-	g_free(title);
+	set_window_title(fc->win, "Fibre Channel Service Response Time statistics");
 }
 
 static void

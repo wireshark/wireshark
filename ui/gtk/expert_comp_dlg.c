@@ -213,12 +213,7 @@ expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
 static void
 error_set_title(expert_comp_dlg_t *ss)
 {
-    char *title;
-
-    title = g_strdup_printf("Expert Info: %s",
-        cf_get_display_name(&cfile));
-    gtk_window_set_title(GTK_WINDOW(ss->win), title);
-    g_free(title);
+    set_window_title(ss->win, "Expert Info");
 }
 
 static void

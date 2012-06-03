@@ -159,11 +159,7 @@ static GtkWidget *radio_TTL, *radio_ON;
 static void
 comparestat_set_title(compstat_t *cs)
 {
-	char *title;
-
-	title=g_strdup_printf("Compare two capture files: %s", cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(cs->win), title);
-	g_free(title);
+	set_window_title(cs->win, "Compare two capture files");
 }
 
 /* called when new capture starts, when it rescans the packetlist after some prefs have
@@ -702,6 +698,7 @@ static void
 gtk_comparestat_init(const char *optarg, void* userdata _U_)
 {
 	compstat_t *cs;
+	char *display_name;
 	char *title_string;
 	char *filter_string;
 	GtkWidget *stat_label;
@@ -764,7 +761,9 @@ gtk_comparestat_init(const char *optarg, void* userdata _U_)
 	gtk_container_add(GTK_CONTAINER(cs->win), vbox);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
-	title_string = g_strdup_printf("Compare two capture files: %s", cf_get_display_name(&cfile));
+	display_name = cf_get_display_name(&cfile);
+	title_string = g_strdup_printf("Compare two capture files: %s", display_name);
+	g_free(display_name);
 	stat_label=gtk_label_new(title_string);
 	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);

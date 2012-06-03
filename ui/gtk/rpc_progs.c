@@ -92,10 +92,13 @@ static rpc_program_t *prog_list=NULL;
 static char *
 rpcprogs_gen_title(void)
 {
+	char *display_name;
 	char *title;
 
+	display_name = cf_get_display_name(&cfile);
 	title = g_strdup_printf("ONC-RPC Program Statistics: %s",
-	    cf_get_display_name(&cfile));
+	    display_name);
+	g_free(display_name);
 	return title;
 }
 

@@ -1927,11 +1927,12 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	GtkWidget *hbuttonbox;
 	GtkWidget *bt_close;
 	GtkWidget *bt_save;
-	const gchar *title_name_ptr;
+	gchar   *title_name_ptr;
 	gchar   *win_name;
 
 	title_name_ptr = cf_get_display_name(&cfile);
 	win_name = g_strdup_printf("%s - Graph Analysis", title_name_ptr);
+	g_free(title_name_ptr);
 
 	/* create the main window */
 	user_data->dlg.window=dlg_window_new((user_data->dlg.title)?user_data->dlg.title:win_name);

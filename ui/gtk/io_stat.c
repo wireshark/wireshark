@@ -198,14 +198,10 @@ static void filter_callback(GtkWidget *widget _U_, gpointer user_data);
 static void
 io_stat_set_title(io_stat_t *io)
 {
-	char		*title;
-
 	if(!io->window){
 		return;
 	}
-	title = g_strdup_printf("Wireshark IO Graphs: %s", cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(io->window), title);
-	g_free(title);
+	set_window_title(io->window, "Wireshark IO Graphs");
 }
 
 static void

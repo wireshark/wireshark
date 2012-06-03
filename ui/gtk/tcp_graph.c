@@ -694,6 +694,7 @@ static void create_drawing_area (struct graph *g)
 	GdkColormap *colormap;
 	GdkColor color;
 #endif
+	char *display_name;
 	char window_title[WINDOW_TITLE_LENGTH];
 	struct segment current;
 	struct tcpheader *thdr;
@@ -706,14 +707,16 @@ static void create_drawing_area (struct graph *g)
 #endif
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
 	thdr=select_tcpip_session (&cfile, &current);
+	display_name = cf_get_display_name(&cfile);
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
 			refnum,
-			cf_get_display_name(&cfile),
+			display_name,
 			ep_address_to_str(&(thdr->ip_src)),
 			thdr->th_sport,
 			ep_address_to_str(&(thdr->ip_dst)),
 			thdr->th_dport
 	);
+	g_free(display_name);
 	g->toplevel = dlg_window_new ("Tcp Graph");
 	gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");

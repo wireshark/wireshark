@@ -277,14 +277,17 @@ static void rlc_lte_stat_reset(void *phs)
 {
     rlc_lte_stat_t* rlc_lte_stat = (rlc_lte_stat_t *)phs;
     rlc_lte_ep_t* list = rlc_lte_stat->ep_list;
+    gchar *display_name;
     gchar title[256];
     GtkListStore *store;
 
     /* Set the title */
     if (rlc_lte_stat->dlg_w != NULL) {
+        display_name = cf_get_display_name(&cfile);
         g_snprintf(title, sizeof(title), "Wireshark: LTE RLC Traffic Statistics: %s (filter=\"%s\")",
-                   cf_get_display_name(&cfile),
+                   display_name,
                    strlen(rlc_lte_stat->filter) ? rlc_lte_stat->filter : "none");
+        g_free(display_name);
         gtk_window_set_title(GTK_WINDOW(rlc_lte_stat->dlg_w), title);
     }
 
@@ -720,6 +723,7 @@ static void rlc_lte_stat_draw(void *phs)
 {
     gchar   buff[32];
     guint16 number_of_ues = 0;
+    gchar *display_name;
     gchar title[256];
 
     /* Look up the statistics window */
@@ -751,11 +755,13 @@ static void rlc_lte_stat_draw(void *phs)
     gtk_frame_set_label(GTK_FRAME(hs->ues_lb), title);
 
     /* Update title to include number of UEs and frames */
+    display_name = cf_get_display_name(&cfile);
     g_snprintf(title, sizeof(title), "Wireshark: LTE RLC Traffic Statistics: %s (%u UEs, %u frames) (filter=\"%s\")",
-               cf_get_display_name(&cfile),
+               display_name,
                number_of_ues,
                hs->total_frames,
                strlen(hs->filter) ? hs->filter : "none");
+    g_free(display_name);
     gtk_window_set_title(GTK_WINDOW(hs->dlg_w), title);
 
 
@@ -1243,6 +1249,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
+    gchar *display_name;
     gchar title[256];
     gint i;
 
@@ -1271,8 +1278,10 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
 
     /* Set title */
+    display_name = cf_get_display_name(&cfile);
     g_snprintf(title, sizeof(title), "Wireshark: LTE RLC Statistics: %s",
-               cf_get_display_name(&cfile));
+               display_name);
+    g_free(display_name);
     hs->dlg_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, title, "LTE RLC Statistics");
 
     /* Window size */

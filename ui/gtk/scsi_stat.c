@@ -82,10 +82,13 @@ enum
 static char *
 scsistat_gen_title(scsistat_t *rs)
 {
+	char *display_name;
 	char *title;
 
+	display_name = cf_get_display_name(&cfile);
 	title = g_strdup_printf("SCSI Service Response Time statistics for %s: %s",
-	    rs->prog, cf_get_display_name(&cfile));
+	    rs->prog, display_name);
+	g_free(display_name);
 	return title;
 }
 

@@ -60,12 +60,7 @@ typedef struct _smb2stat_t {
 static void
 smb2stat_set_title(smb2stat_t *ss)
 {
-	char *title;
-
-	title = g_strdup_printf("SMB2 Service Response Time statistics: %s",
-	    cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(ss->win), title);
-	g_free(title);
+	set_window_title(ss->win, "SMB2 Service Response Time statistics");
 }
 
 static void
