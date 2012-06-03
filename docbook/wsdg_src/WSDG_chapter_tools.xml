@@ -843,26 +843,48 @@ Stop.]]>
         </para>
       </section>
       <section>
-        <title>msvcr90.dll / vcredist_x86.exe - Version 9.0 (2008)</title>
+        <title>msvcr90.dll / vcredist_x86.exe / vcredist_x64.exe - Version 9.0 (2008)</title>
         <para>
-          For Microsoft Visual C++ 2008 (MSVC 9), only method 3 is used.
+          For Microsoft Visual C++ 2008 (MSVC 9), only method 3 is
+          used.  There are both 32-bit and 64-bit versions of the
+          redistributables.
         </para>
         <para>
           <itemizedlist>
             <listitem>
               <para>
-                For Microsoft Visual C++ 2008 without Service Pack 1,
-                you need <command>9.0.21022.8</command>, from:
+                For 32-bit builds using Microsoft Visual C++ 2008
+                without Service Pack 1, you need
+                <command>9.0.21022.8</command>, from:
                 "Microsoft Visual C++ 2008 Redistributable Package (x86)":
                 <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF" />.
               </para>
             </listitem>
             <listitem>
               <para>
-                For Microsoft Visual C++ 2008 with Service Pack 1,
-                you need <command>9.0.30729.17</command>, from:
+                For 64-bit builds using Microsoft Visual C++ 2008
+                without Service Pack 1, you need
+                <command>9.0.21022.8</command>, from:
+                "Microsoft Visual C++ 2008 Redistributable Package (x64)":
+                <ulink url="http://www.microsoft.com/download/details.aspx?id=15336" />.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                For 32-bit builds with Microsoft Visual C++ 2008
+                with Service Pack 1, you need
+                <command>9.0.30729.17</command>, from:
                 "Microsoft Visual C++ 2008 SP1 Redistributable Package (x86)":
                 <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2" />.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                For 64-bit builds with Microsoft Visual C++ 2008
+                with Service Pack 1, you need
+                <command>9.0.30729.17</command>, from:
+                "Microsoft Visual C++ 2008 SP1 Redistributable Package (x64)":
+                <ulink url="http://www.microsoft.com/download/details.aspx?id=2092" />.
               </para>
             </listitem>
           </itemizedlist>
@@ -894,7 +916,7 @@ Stop.]]>
               <para>
                 For 64-bit builds using Microsoft Visual C++ 2010
                 without Service Pack 1, you need
-                <command>{fill this in}</command>, from: "Microsoft Visual
+                <command>10.0.30319.1</command>, from: "Microsoft Visual
                 C++ 2010 Redistributable Package (x64)":
                 <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=14632" />.
               </para>
@@ -912,7 +934,7 @@ Stop.]]>
               <para>
                 For 64-bit builds using Microsoft Visual C++ 2010 with
                 Service Pack 1, you need
-                <command>{fill this in}</command>, from: "Microsoft Visual
+                <command>10.0.40219.1</command>, from: "Microsoft Visual
                 C++ 2010 SP1 Redistributable Package (x64)":
                 <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=13523" />.
               </para>
