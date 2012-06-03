@@ -1511,14 +1511,6 @@ static int hf_ieee80211_reassembled_length = -1;
 
 static int proto_wlan_mgt = -1;
 
-static int hf_ieee80211_chan_noc =        -1;
-static int hf_ieee80211_chan_length =     -1;
-static int hf_ieee80211_chan_content =    -1;
-static int hf_ieee80211_chan_channel =    -1;
-static int hf_ieee80211_chan_adapt   =    -1;
-static int hf_ieee80211_chan_rate    =    -1;
-static int hf_ieee80211_chan_tx_pow  =    -1;
-
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
@@ -12352,34 +12344,6 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_wep_icv,
      {"WEP ICV", "wlan.wep.icv", FT_UINT32, BASE_HEX, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_chan_noc,
-     {"Number of Channels", "chan.num_chans", FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_chan_length,
-     {"Length", "chan.chan_length", FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_chan_content,
-     {"Contents", "chan.chan_content", FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_chan_channel,
-     {"channel", "chan.chan_channel", FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_chan_adapt,
-     {"Adaptable", "chan.chan_adapt", FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_chan_rate,
-     {"Rate", "chan.chan_rate", FT_UINT8, BASE_DEC, NULL, 0,
-      NULL, HFILL }},
-
-    {&hf_ieee80211_chan_tx_pow,
-     {"Tx Power", "chan.chan_tx_pow", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_block_ack_request_control,
