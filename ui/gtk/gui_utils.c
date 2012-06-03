@@ -58,8 +58,6 @@
 #include "image/wsicon48.xpm"
 #include "image/wsicon64.xpm"
 
-#include "../version_info.h"
-
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -578,56 +576,6 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
     return gtk_image_new_from_pixbuf(pixbuf);
 }
 
-/*
- * Key to attach the "un-decorated" title to the window, so that if the
- * user-specified decoration changes, we can correctly update the
- * window title.
- */
-#define MAIN_WINDOW_NAME_KEY  "main_window_name"
-
-/* Set the name of the top level main_window_name with the specified string and call
-   update_main_window_title() to construct the full title and display it in the main window
-   and its icon title. */
-void
-set_main_window_name(const gchar *window_name)
-{
-    gchar *old_window_name;
-
-    /* Attach the new un-decorated window name to the window. */
-    old_window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
-    g_free(old_window_name);
-    g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
-
-    update_main_window_title();
-}
-
-/* Construct the main window's title with the current main_window_name, optionally appended
-   with the user-specified title and/or wireshark version. Display the result in the main
-   window title bar and in its icon title.
-   NOTE: The name was changed from '_name' to '_title' because main_window_name is actually
-         set in set_main_window_name() and is only one of the components of the title. */
-void
-update_main_window_title(void)
-{
-    gchar *window_name;
-    gchar *title;
-
-    /* Get the current filename or other title set in set_main_window_name */
-    window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
-    if (window_name != NULL) {
-        /* Optionally append the user-defined window title */
-        title = create_user_window_title(window_name);
-
-        /* Optionally append the version */
-        if (prefs.gui_version_in_start_page) {
-            gchar *old_title = title;
-            title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_svnversion);
-            g_free(old_title);
-        }
-        gtk_window_set_title(GTK_WINDOW(top_level), title);
-        g_free(title);
-    }
-}
 
 /* update the main window */
 void main_window_update(void)

@@ -39,6 +39,7 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/supported_protos_dlg.h"
 #include "ui/gtk/prefs_dlg.h"
+#include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"
@@ -543,7 +544,7 @@ gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 	}
 
 	/* Redisplay the main window's title */
-	update_main_window_title();
+	main_titlebar_update();
 
 	/* Redisplay the default welcome header message in case the "show 
 	 * version" option was changed. */

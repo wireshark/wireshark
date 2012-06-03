@@ -76,6 +76,7 @@ set(WIRESHARK_GTK_SRC
 	main_menubar.c
 	main_proto_draw.c
 	main_statusbar.c
+	main_titlebar.c
 	main_toolbar.c
 	main_welcome.c
 	manual_addr_resolv.c

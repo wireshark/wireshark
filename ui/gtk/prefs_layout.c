@@ -35,6 +35,7 @@
 #include "ui/gtk/prefs_layout.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/prefs_dlg.h"
+#include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/dlg_utils.h"
@@ -480,7 +481,7 @@ layout_prefs_fetch(GtkWidget *w)
 void
 layout_prefs_apply(GtkWidget *w _U_)
 {
-    update_main_window_title();
+    main_titlebar_update();
     main_widgets_rearrange();
 }
 

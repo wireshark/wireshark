@@ -297,12 +297,6 @@ extern void copy_binary_to_clipboard(const guint8* data_p, int len);
  */
 extern gchar *create_user_window_title(const gchar *caption);
 
-/** Construct the main window's title with the current main_window_name optionally appended
- *  with the user-specified title and/or wireshark version. 
- *  Display the result in the main window's title bar and in its icon title
- */
-extern void update_main_window_title(void);
-
 /** Renders a float with two decimals precission, called from gtk_tree_view_column_set_cell_data_func().
  * the user data must be the colum number.
  * Present floats with two decimals 
@@ -523,4 +517,5 @@ GtkWidget * gtk_scrollbar_new(GtkOrientation orientation, GtkAdjustment *adjustm
 GtkWidget * gtk_paned_new(GtkOrientation orientation);
 GtkWidget * gtk_separator_new (GtkOrientation orientation);
 #endif /* GTK_CHECK_VERSION(3,0,0) */
-#endif /* __GUI_UTIL__H__ */
+
+#endif /* __GUI_UTIL_H__ */

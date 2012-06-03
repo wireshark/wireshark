@@ -141,6 +141,7 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 #include "ui/gtk/main.h"
 #include "ui/gtk/main_airpcap_toolbar.h"
 #include "ui/gtk/main_filter_toolbar.h"
+#include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/macros_dlg.h"
 #include "ui/gtk/main_statusbar_private.h"
@@ -1337,10 +1338,10 @@ set_display_filename(capture_file *cf)
 
   if (cf->filename) {
     window_name = g_strdup_printf("%s", cf_get_display_name(cf));
-    set_main_window_name(window_name);
+    main_set_window_name(window_name);
     g_free(window_name);
   } else {
-    set_main_window_name("The Wireshark Network Analyzer");
+    main_set_window_name("The Wireshark Network Analyzer");
   }
 }
 
@@ -1382,7 +1383,7 @@ main_cf_cb_file_closing(capture_file *cf)
     file_export_specified_packets_destroy();
 
     /* Restore the standard title bar message. */
-    set_main_window_name("The Wireshark Network Analyzer");
+    main_set_window_name("The Wireshark Network Analyzer");
 
     /* Disable all menu items that make sense only if you have a capture. */
     set_menus_for_capture_file(NULL);
@@ -1489,7 +1490,7 @@ main_capture_set_main_window_title(capture_options *capture_opts)
 
     g_string_append(title, "Capturing ");
     g_string_append_printf(title, "from %s ", cf_get_tempfile_source(capture_opts->cf));
-    set_main_window_name(title->str);
+    main_set_window_name(title->str);
     g_string_free(title, TRUE);
 }
 
@@ -1592,7 +1593,7 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 
     /* Restore the standard title bar message */
     /* (just in case we have trouble opening the capture file). */
-    set_main_window_name("The Wireshark Network Analyzer");
+    main_set_window_name("The Wireshark Network Analyzer");
 
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
@@ -1617,7 +1618,7 @@ main_capture_cb_capture_failed(capture_options *capture_opts _U_)
     /* the capture failed before the first packet was captured
        reset title, menus and icon */
 
-    set_main_window_name("The Wireshark Network Analyzer");
+    main_set_window_name("The Wireshark Network Analyzer");
 
     set_menus_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
@@ -3586,7 +3587,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
 
     /* Main window */
     top_level = window_new(GTK_WINDOW_TOPLEVEL, "");
-    set_main_window_name("The Wireshark Network Analyzer");
+    main_set_window_name("The Wireshark Network Analyzer");
 
     gtk_widget_set_name(top_level, "main window");
     g_signal_connect(top_level, "delete_event", G_CALLBACK(main_window_delete_event_cb),
@@ -3796,7 +3797,7 @@ void change_configuration_profile (const gchar *profile_name)
     macros_post_update();
 
     /* Update window view and redraw the toolbar */
-    update_main_window_title();
+    main_titlebar_update();
     filter_expression_reinit(FILTER_EXPRESSION_REINIT_CREATE);
     toolbar_redraw_all();
 

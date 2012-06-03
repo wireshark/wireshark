@@ -101,7 +101,8 @@ WIRESHARK_GTK_SRC = \
 	main_menubar.c	\
 	manual_addr_resolv.c	\
 	main_proto_draw.c	\
-	main_statusbar.c		\
+	main_statusbar.c	\
+	main_titlebar.c	\
 	main_toolbar.c	\
 	main_welcome.c		\
 	mcast_stream.c	\
@@ -294,6 +295,7 @@ noinst_HEADERS = \
 	menus.h		\
 	main_proto_draw.h	\
 	main_statusbar_private.h	\
+	main_titlebar.h	\
 	main_toolbar.h	\
 	main_welcome.h		\
 	manual_addr_resolv.h	\
