@@ -348,8 +348,10 @@ PARTICULAR PURPOSE.]]>
                 8\VC\bin\vcvars32.bat</para>
               </entry>
               <entry>
-                <para>vcredist_x86.exe
-                <superscript>3</superscript></para>
+                <para>
+                  <filename>vcredist_x86.exe</filename>
+                  <superscript>3</superscript>
+                </para>
               </entry>
             </row>
             <row>
@@ -401,8 +403,10 @@ PARTICULAR PURPOSE.]]>
                 9.0\VC\bin\vcvars32.bat</para>
               </entry>
               <entry>
-                <para>vcredist_x86.exe
-                <superscript>3</superscript></para>
+                <para>
+                  <filename>vcredist_x86.exe</filename>
+                  <superscript>3</superscript>
+                </para>
               </entry>
             </row>
             <row>
@@ -455,8 +459,11 @@ PARTICULAR PURPOSE.]]>
                 10.0\VC\vcvarsall.bat"" x86</para>
               </entry>
               <entry>
-                <para>vcredist_x86.exe
-                <superscript>3</superscript></para>
+                <para>
+                  <filename>vcredist_x86.exe</filename>,
+                  <filename>vcredist_x64.exe</filename>
+                  <superscript>3</superscript>
+                </para>
               </entry>
             </row>
             <row>
@@ -484,8 +491,10 @@ PARTICULAR PURPOSE.]]>
                 <para>Microsoft.NET\SDK\v2.0\Bin\sdkvars.bat</para>
               </entry>
               <entry>
-                <para>vcredist_x86.exe
-                <superscript>3</superscript></para>
+                <para>
+                  <filename>vcredist_x86.exe</filename>
+                  <superscript>3</superscript>
+                </para>
               </entry>
             </row>
           </tbody>
@@ -775,31 +784,35 @@ Stop.]]>
         <ulink url="http://msdn2.microsoft.com/en-us/library/ms235316%28VS.80%29.aspx">
         Choosing a Deployment Method</ulink>"):</para>
         <para>
-        <orderedlist>
-          <listitem>
-            <para>"Redistributable Merge Modules" (kind of loadable
-            modules for building msi installers - not suitable for
-            Wireshark's NSIS based installer)</para>
-          </listitem>
-          <listitem>
-            <para>copy the folder content of Microsoft.VC80.CRT to
-            the target directory (e.g. "C:\program
-            files\Wireshark")</para>
-          </listitem>
-          <listitem>
-            <para>vcredist_x86.exe (needs to be executed on the
-            target machine - MSDN recommends this for the 2005
-            Express Editions)</para>
-          </listitem>
-        </orderedlist>To save installer size, MSVC2005 uses the
-        content of Microsoft.VC80.CRT (method 2 - this is the
-        smallest package). As MSVC2005EE and DOTNET20 doesn't
-        provide the folder "Microsoft.VC80.CRT" they use method 3.
-        You'll have to download a <filename>vcredist_x86.exe</filename>
-        from Microsoft that matches your compiler version. The best way
-        to determine this version is to open one of the generated
-        manifest files (e.g. wireshark.exe.manifest) and look for
-        the version of the Microsoft.VC80.CRT entry.</para>
+          <orderedlist>
+            <listitem>
+              <para>"Redistributable Merge Modules" (kind of loadable
+              modules for building msi installers - not suitable for
+              Wireshark's NSIS based installer)</para>
+            </listitem>
+            <listitem>
+              <para>copy the folder content of Microsoft.VC80.CRT to
+              the target directory (e.g. <filename>C:\Program
+              Files\Wireshark</filename)</para>
+            </listitem>
+            <listitem>
+              <para>
+                <filename>vcredist_x86.exe</filename> (needs to be
+                executed on the target machine - MSDN recommends this
+                for the 2005 Express Editions)
+              </para>
+            </listitem>
+          </orderedlist>To save installer size, MSVC2005 uses the
+          content of Microsoft.VC80.CRT (method 2 - this is the
+          smallest package). As MSVC2005EE and DOTNET20 doesn't
+          provide the folder "Microsoft.VC80.CRT" they use method 3.
+          You'll have to download a <filename>vcredist_x86.exe</filename>
+          from Microsoft that matches your compiler version. The best way
+          to determine this version is to open one of the generated
+          manifest files (e.g.
+          <filename>wireshark.exe.manifest</filename>)
+          and look for the version of the Microsoft.VC80.CRT entry.
+        </para>
         <para>
           <itemizedlist>
             <listitem>
