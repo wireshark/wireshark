@@ -1476,7 +1476,7 @@ do_file_save_as(capture_file *cf)
                                             GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
-                                            "The file \"%s\" is not writable.",
+                                            "The file \"%s\" is read-only.",
                                             display_basename);
         g_free(display_basename);
       } else {
