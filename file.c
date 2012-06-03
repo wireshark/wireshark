@@ -838,6 +838,10 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     to_read--;
   }
 
+  /* Update the file encapsulation; it might have changed based on the
+     packets we've read. */
+  cf->lnk_t = wtap_file_encap(cf->wth);
+
   /* Cleanup and release all dfilter resources */
   if (dfcode != NULL){
     dfilter_free(dfcode);
@@ -956,10 +960,8 @@ cf_finish_tail(capture_file *cf, int *err)
    * don't need after the sequential run-through of the packets. */
   postseq_cleanup_all_protocols();
 
-  /* Set the file encapsulation type now; we don't know what it is until
-     we've looked at all the packets, as we don't know until then whether
-     there's more than one type (and thus whether it's
-     WTAP_ENCAP_PER_PACKET). */
+  /* Update the file encapsulation; it might have changed based on the
+     packets we've read. */
   cf->lnk_t = wtap_file_encap(cf->wth);
 
   if (*err != 0) {
