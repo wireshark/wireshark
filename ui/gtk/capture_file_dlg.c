@@ -1398,7 +1398,15 @@ do_file_save_as(capture_file *cf)
       return;
     }
 
-    /* The file exists.  Ask the user if they want to overwrite it. */
+    /*
+     * The file exists.  Ask the user if they want to overwrite it.
+     *
+     * XXX - what if it's a symlink?  TextEdit just blindly replaces
+     * symlinks with files if you save over them, but gedit appears
+     * to replace the *target* of the symlink.  (To find the target,
+     * use realpath() - it dates back to the SUSv2 and may be even
+     * older.)
+     */
     display_basename = g_filename_display_basename(cf_name);
     msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
                                         GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
