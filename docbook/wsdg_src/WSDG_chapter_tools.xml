@@ -793,7 +793,7 @@ Stop.]]>
             <listitem>
               <para>copy the folder content of Microsoft.VC80.CRT to
               the target directory (e.g. <filename>C:\Program
-              Files\Wireshark</filename)</para>
+              Files\Wireshark</filename></para>
             </listitem>
             <listitem>
               <para>
