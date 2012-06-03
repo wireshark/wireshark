@@ -2075,6 +2075,9 @@ static int hf_ieee80211_ht_info_pco_phase = -1;
 static int hf_ieee80211_ht_info_reserved_3 = -1;
 /*** End: 802.11n D1.10 - HT Information IE  ***/
 
+static int hf_ieee80211_tag_ap_channel_report_regulatory_class = -1;
+static int hf_ieee80211_tag_ap_channel_report_channel_list = -1;
+
 static int hf_ieee80211_tag_secondary_channel_offset = -1;
 
 static int hf_ieee80211_tag_power_constraint_local = -1;
@@ -7092,6 +7095,29 @@ static int dissect_time_zone(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static int
+dissect_ap_channel_report(tvbuff_t *tvb, packet_info *pinfo,
+         proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len, int tag_end, proto_item *ti)
+{
+  if (tag_len < 1) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "AP Channel Report length %u wrong, must be > 1", tag_len);
+    return offset;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_ap_channel_report_regulatory_class, tvb,
+                      offset, 1, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(ti, ": Regulatory Class %u, Channel List :", tvb_get_guint8(tvb, offset) );
+  offset += 1;
+
+  while(offset < tag_end)
+  {
+    proto_tree_add_item(tree, hf_ieee80211_tag_ap_channel_report_channel_list, tvb, offset, 1, ENC_NA);
+    proto_item_append_text(ti, " %u,", tvb_get_guint8(tvb, offset) );
+    offset += 1;
+  }
+  return offset;
+}
+static int
 dissect_secondary_channel_offset_ie(tvbuff_t *tvb, packet_info *pinfo,
          proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
 {
@@ -7721,7 +7747,7 @@ static int ieee80211_tag_ds_parameter(packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(tree, hf_ieee80211_tag_ds_param_channel,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  proto_item_append_text(ti, " : Current Channel: %u",
+  proto_item_append_text(ti, ": Current Channel: %u",
                          tvb_get_guint8(tvb, offset));
 
   wlan_stats.channel = tvb_get_guint8(tvb, offset);
@@ -9389,7 +9415,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
     case TAG_ROAMING_CONSORTIUM:
       dissect_roaming_consortium(pinfo, tree, ti, tvb, offset);
       break;
-
+    case TAG_AP_CHANNEL_REPORT: /* 7.3.2.36 AP Channel Report element */
+      dissect_ap_channel_report(tvb, pinfo, tree, offset + 2, tag_len, ti_len, tag_end, ti);
+      break;
     case TAG_NEIGHBOR_REPORT:
     {
       #define SUB_TAG_TSF_INFO                 0x01
@@ -14842,6 +14870,16 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ht_info_reserved_3,
      {"Reserved", "wlan_mgt.ht.info.reserved3",
       FT_UINT16, BASE_HEX, NULL, 0xf000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ap_channel_report_regulatory_class,
+     {"Regulatory Class", "wlan_mgt.ap_channel_report.regulatory_class",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ap_channel_report_channel_list,
+     {"Channel List", "wlan_mgt.ap_channel_report.channel_list",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tag_secondary_channel_offset,
      {"Secondary Channel Offset", "wlan_mgt.secchanoffset",
