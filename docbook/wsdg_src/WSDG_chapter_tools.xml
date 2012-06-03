@@ -518,7 +518,7 @@ PARTICULAR PURPOSE.]]>
       and <filename>vcredist_x64.exe</filename> is required to build
       <filename>Wireshark-win64-&WiresharkCurrentVersion;.x.exe</filename>,
       The version of <filename>vcredist_x86.exe</filename> or
-      <filename>vcredist_x64.exe</filename <emphasis>must</emphasis>
+      <filename>vcredist_x64.exe</filename> <emphasis>must</emphasis>
       match the version for your compiler, including any service packs
       installed for the compiler.
       </para>
