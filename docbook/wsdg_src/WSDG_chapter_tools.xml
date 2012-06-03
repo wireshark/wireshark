@@ -494,24 +494,32 @@ PARTICULAR PURPOSE.]]>
       <para>
       <superscript>1</superscript>no longer officially available,
       might still be available through the MSDN
-      subscriptions</para>
+      subscriptions
+      </para>
       <para>
       <superscript>2</superscript>as the Platform SDK is already
       integrated in the package, you obviously don't need to
       install it and don't even need to call a separate environment
-      setting batch file for the Platform SDK!</para>
+      setting batch file for the Platform SDK!
+      </para>
       <para>
       <superscript>3</superscript><filename>vcredist_x86.exe</filename>
       (3MB free download) is required to build
-      <filename>Wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>.
-      The version of <filename>vcredist_x86.exe</filename> MUST match
-      the version for your compiler.</para>
+      <filename>Wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>,
+      and <filename>vcredist_x64.exe</filename> is required to build
+      <filename>Wireshark-win64-&WiresharkCurrentVersion;.x.exe</filename>,
+      The version of <filename>vcredist_x86.exe</filename> or
+      <filename>vcredist_x64.exe</filename <emphasis>must</emphasis>
+      match the version for your compiler, including any service packs
+      installed for the compiler.
+      </para>
       <para>
       <superscript>4</superscript>MSDN remarks that the
       corresponding .NET runtime is required. It's currently
       unclear if the runtime needs to be installed for the C
       compiler to work - or is this only needed to compile / run
-      .NET programs?!?</para>
+      .NET programs?!?
+      </para>
     </section>
     <section>
       <title>Legal issues with MSVC &gt; V6?</title>
@@ -750,10 +758,11 @@ Stop.]]>
         </itemizedlist>
       </para>
       <para>
-        In all cases where vcredist_x86.exe is downloaded, it should be
-        downloaded to the directory into which the support libraries for
-        Wireshark have been downloaded and installed. This directory is
-        specified by the WIRESHARK_LIB_DIR setting in the
+        In all cases where <filename>vcredist_x86.exe</filename> or
+        <filename>vcredist_x64.exe</filename> is downloaded, it should
+        be downloaded to the directory into which the support libraries
+        for Wireshark have been downloaded and installed. This directory
+        is specified by the WIRESHARK_LIB_DIR setting in the
         <filename>config.nmake</filename> file; by default it is
 	<filename>C:\wireshark-win32-libs</filename>.  It need not, and
         should not, be run after being downloaded.
@@ -786,9 +795,9 @@ Stop.]]>
         content of Microsoft.VC80.CRT (method 2 - this is the
         smallest package). As MSVC2005EE and DOTNET20 doesn't
         provide the folder "Microsoft.VC80.CRT" they use method 3.
-        You'll have to download a vcredist_x86.exe from Microsoft
-        that matches your compiler version. The best way to
-        determine this version is to open one of the generated
+        You'll have to download a <filename>vcredist_x86.exe</filename>
+        from Microsoft that matches your compiler version. The best way
+        to determine this version is to open one of the generated
         manifest files (e.g. wireshark.exe.manifest) and look for
         the version of the Microsoft.VC80.CRT entry.</para>
         <para>
@@ -829,8 +838,9 @@ Stop.]]>
             <listitem>
               <para>
                 for Microsoft Visual C++ 2008 without Service Pack 1,
-                use <command>9.0.21022.8</command>, from:
-                "Microsoft Visual C++ 2008 Redistributable Package (x86)":
+                when doing 32-bit builds, use
+                <command>9.0.21022.8</command>, from: "Microsoft Visual
+                C++ 2008 Redistributable Package (x86)":
                 <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF" />
               </para>
             </listitem>
@@ -850,16 +860,18 @@ Stop.]]>
         </para>
       </section>
       <section>
-        <title>msvcr100.dll / vcredist_x86.exe - Version 10.0 (2010)</title>
+        <title>msvcr100.dll / vcredist_x86.exe / vcredist_x64.exe - Version 10.0 (2010)</title>
         <para>
           For Microsoft Visual C++ 2010 (MSVC 10), only method 3 is
-          used.
+          used.  There are both 32-bit and 64-bit versions of the
+          redistributables.
         </para>
         <para>
           <itemizedlist>
             <listitem>
               <para>
-                for Microsoft Visual C++ 2010 without Service Pack 1, use
+                for 32-bit builds using Microsoft Visual C++ 2010
+                without Service Pack 1, use
                 <command>10.0.30319.1</command>, from: "Microsoft Visual
                 C++ 2010 Redistributable Package (x86)":
                 <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=5555" />
@@ -867,10 +879,29 @@ Stop.]]>
             </listitem>
             <listitem>
               <para>
-                for Microsoft Visual C++ 2010 with Service Pack 1, use
+                for 64-bit builds using Microsoft Visual C++ 2010
+                without Service Pack 1,, use
+                <command>{fill this in}</command>, from: "Microsoft Visual
+                C++ 2010 Redistributable Package (x64)":
+                <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=14632" />
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                for 32-bit builds using Microsoft Visual C++ 2010 with
+                Service Pack 1, use
                 <command>10.0.40219.1</command>, from: "Microsoft Visual
                 C++ 2010 SP1 Redistributable Package (x86)":
                 <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=8328" />
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                for 64-bit builds using Microsoft Visual C++ 2010 with
+                Service Pack 1, use
+                <command>10.0.40219.1</command>, from: "Microsoft Visual
+                C++ 2010 SP1 Redistributable Package (x64)":
+                <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=13523" />
               </para>
             </listitem>
           </itemizedlist>
