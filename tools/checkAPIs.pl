@@ -575,8 +575,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_font_selection_get_font',                  'E', # gtk_font_selection_get_font_name() [!=]
                 'GTK_FUNDAMENTAL_TYPE',                         'E',
                 'gtk_gamma_curve_new',                          'E', # since 2.20
+				'gtk_hbox_new',                                 'W', # gtk_box_new
                 'gtk_hbutton_box_get_layout_default',           'E',
                 'gtk_hbutton_box_get_spacing_default',          'E',
+				'gtk_hbutton_box_new',                          'W', # gtk_button_box_new
                 'gtk_hbutton_box_set_layout_default',           'E',
                 'gtk_hbutton_box_set_spacing_default',          'E',
                 'gtk_hruler_new',                               'E', # since 2.24
@@ -961,6 +963,7 @@ my %deprecatedGtkFunctions = (
                 'GTK_VALUE_UCHAR',                              'E',
                 'GTK_VALUE_UINT',                               'E',
                 'GTK_VALUE_ULONG',                              'E',
+				'gtk_vbox_new',                                 'W', # ws_gtk_box_new
                 'gtk_vbutton_box_get_layout_default',           'E',
                 'gtk_vbutton_box_get_spacing_default',          'E',
                 'gtk_vbutton_box_set_layout_default',           'E',
