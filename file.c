@@ -523,7 +523,7 @@ cf_read(capture_file *cf, gboolean reloading)
 
   reset_tap_listeners();
 
-  name_ptr = get_basename(cf->filename);
+  name_ptr = g_filename_display_basename(cf->filename);
 
   if (reloading)
     cf_callback_invoke(cf_cb_file_reload_started, cf);
@@ -978,7 +978,7 @@ cf_get_display_name(capture_file *cf)
   if (!cf->is_tempfile) {
     /* Get the last component of the file name, and use that. */
     if (cf->filename){
-      displayname = get_basename(cf->filename);
+      displayname = g_filename_display_basename(cf->filename);
     } else {
       displayname="(No file)";
     }

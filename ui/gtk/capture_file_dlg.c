@@ -173,7 +173,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
-    gtk_label_set_text(GTK_LABEL(label), get_basename(cf_name));
+    gtk_label_set_text(GTK_LABEL(label), g_filename_display_basename(cf_name));
 
     if (test_for_directory(cf_name) == EISDIR) {
         label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);

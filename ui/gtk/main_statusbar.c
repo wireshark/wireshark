@@ -745,7 +745,7 @@ statusbar_cf_file_read_started_cb(capture_file *cf, const char *action)
     /* Ensure we pop any previous loaded filename */
     statusbar_pop_file_msg();
 
-    name_ptr = get_basename(cf->filename);
+    name_ptr = g_filename_display_basename(cf->filename);
 
     statusbar_push_file_msg(" %s: %s", action, name_ptr);
 }
@@ -926,7 +926,7 @@ static void
 statusbar_cf_file_save_started_cb(gchar *filename)
 {
     statusbar_pop_file_msg();
-    statusbar_push_file_msg(" Saving: %s...", get_basename(filename));
+    statusbar_push_file_msg(" Saving: %s...", g_filename_display_basename(filename));
 }
 
 static void
