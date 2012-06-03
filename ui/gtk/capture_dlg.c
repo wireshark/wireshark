@@ -3465,12 +3465,12 @@ show_add_interfaces_dialog(void)
   gtk_box_pack_start(GTK_BOX(temp_page), bbox, TRUE, FALSE, 5);
   gtk_widget_show(bbox);
 
-  button_hbox = gtk_hbutton_box_new();
+  button_hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
   gtk_box_pack_end(GTK_BOX(bbox), button_hbox, FALSE, FALSE, 0);
   gtk_widget_show(button_hbox);
   gtk_box_set_spacing(GTK_BOX(button_hbox), 5);
 
-  help_hbox = gtk_hbutton_box_new();
+  help_hbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
   gtk_box_pack_start(GTK_BOX(bbox), help_hbox, FALSE, FALSE, 0);
   gtk_widget_show(help_hbox);
   gtk_box_set_spacing(GTK_BOX(help_hbox), 5);
