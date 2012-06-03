@@ -546,6 +546,7 @@ DISSECTOR_SRC = \
 	packet-gluster_pmap.c	\
 	packet-glusterd.c	\
 	packet-glusterfs.c	\
+	packet-glusterfs_hndsk.c \
 	packet-gmhdr.c		\
 	packet-gmrp.c		\
 	packet-gmr1_bcch.c	\
