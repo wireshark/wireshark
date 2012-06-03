@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-05-25
+# 2012-06-01
 # 
 # Note
 # 
@@ -4694,10 +4694,9 @@ infowave	2082/tcp	# Infowave Mobility Server     [Kaz_Kylheku]                  
 infowave	2082/udp	# Infowave Mobility Server     [Kaz_Kylheku]                                      [Kaz_Kylheku]
 # The TCP port 2083 was already previously assigned by IANA for
 # "RadSec", an early implementation of RADIUS/TLS, prior to
-radsec	2083/tcp	# Secure Radius Service        [IESG]                                             [IETF_Chair]                                              2005-05                   [RFC-ietf-radext-radsec-12]                                                   issuance of this RFC. This early implementation can be
+radsec	2083/tcp	# Secure Radius Service        [IESG]                                             [IETF_Chair]                                              2005-05                   [RFC6614]                                                                     issuance of this RFC. This early implementation can be
 # configured to be compatible to RADIUS/TLS as specified by the
-# IETF. See [RFC-ietf-radext-radsec-12], Appendix A for
-# details.
+# IETF. See [RFC6614], Appendix A for details.
 radsec	2083/udp	# Secure Radius Service        [Mike_McCauley]                                    [Mike_McCauley]                                           2005-05
 sunclustergeo	2084/tcp	# SunCluster Geographic        [Steve_McKinty]                                    [Steve_McKinty]                                           2005-11
 sunclustergeo	2084/udp	# SunCluster Geographic        [Steve_McKinty]                                    [Steve_McKinty]                                           2005-11
@@ -11411,7 +11410,12 @@ sdt	5568/tcp	# Session Data Transport       [Daniel_W_Antonuk]                  
 # Multicast
 sdt	5568/udp	# Session Data Transport       [Daniel_W_Antonuk]                                 [Daniel_W_Antonuk]                                        2006-05
 # Multicast
-# 5569-5572            Unassigned
+# PLASA E1.33, Remote Device
+rdmnet-ctrl	5569/tcp	# Management (RDM) controller  [PLASA]                                            [Simon_Newton]                                            2012-06-01
+# status notifications
+rdmnet-device	5569/udp	# PLASA E1.33, Remote Device   [PLASA]                                            [Simon_Newton]                                            2012-06-01
+# Management (RDM) messages
+# 5570-5572            Unassigned
 sdmmp	5573/tcp	# SAS Domain Management        [Ron_Zuckerman]                                    [Ron_Zuckerman]                                           2007-08-30
 # Messaging Protocol
 sdmmp	5573/udp	# SAS Domain Management        [Ron_Zuckerman]                                    [Ron_Zuckerman]                                           2007-08-30
@@ -13049,7 +13053,7 @@ rbt-smc	7870/tcp	# Riverbed Steelhead Mobile    [Gabriel_Levy]                  
 mdm	7871/tcp	# Mobile Device Management     [Dan_Harkins]                                      [Dan_Harkins]                                             2011-08-15
 # 7871        udp    Reserved
 # 7872        tcp    Reserved
-mipv6tls	7872/udp	# TLS-based Mobile IPv6        [IESG]                                             [IETF_Chair]                                              2012-04-12                [RFC-mext-mip6-tls]
+mipv6tls	7872/udp	# TLS-based Mobile IPv6        [IESG]                                             [IETF_Chair]                                              2012-04-12                [RFC6618]
 # Security
 # 7873-7879            Unassigned
 pss	7880/tcp	# Pearson                      [Pearson]                                          [Pearson]                                                 2008-01-17
@@ -14955,7 +14959,10 @@ aequus	23456/tcp	# Aequus Service               [James_Anson]                   
 # 23456       udp    Reserved
 aequus-alt	23457/tcp	# Aequus Service Mgmt          [James_Anson]                                      [James_Anson]                                             2009-02-12
 # 23457       udp    Reserved
-# 23458-23999           Unassigned
+# 23458-23545           Unassigned
+areaguard-neo	23546/tcp	# AreaGuard Neo - WebServer    [SODATSW_spol]                                     [Roman_Stepanek]                                          2012-05-31
+# 23546       udp    Reserved
+# 23547-23999           Unassigned
 med-ltp	24000/tcp	# med-ltp                      [Juergen_Fischbach]                                [Juergen_Fischbach]
 med-ltp	24000/udp	# med-ltp                      [Juergen_Fischbach]                                [Juergen_Fischbach]
 med-fsp-rx	24001/tcp	# med-fsp-rx                   [Juergen_Fischbach]                                [Juergen_Fischbach]
@@ -15730,6 +15737,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # aeroflex                              software                     [David_Hagood]                                     [David_Hagood]                                                                                                                                                    (optional) ID of licensed product
 # txtvers="*IDN?=<identifier>" (optional) as per LXI
 # specification (for not yet LXI compatible instruments)
+# aerohive-proxy                 tcp    Aerohive Proxy Configuration [Aerohive_Networks]                                [Matthew_Gast]                                            2012-05-31                                                                                              Defined TXT keys: name, port, username
+# Service
 # airdrop                        tcp    Airdrop                      [Apple_Inc]                                        [Marc_Krochmal_2]                                         2012-03-02                                                                                              Defined TXT keys: flags, phash, ehash, cname
 # airport                               AirPort Base Station         [Bob_Bradley_2]                                    [Bob_Bradley_2]                                                                                                                                                   Defined TXT keys: waMA;
 # Defined TXT keys: mac=<MAC address> ip=<IP address>
@@ -16832,6 +16841,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Adrian_Popescu]                                          Adrian Popescu                                  mailto:Adrian_Popescu&groove.net                              2002-09
 # [Adrien_de_Croy]                                          Adrien de Croy                                  mailto:adrien&qbik.com
 # [Adwait_Sathe]                                            Adwait Sathe                                    mailto:asathe&sonusnet.com                                    2005-08
+# [Aerohive_Networks]                                                                 Aerohive Networks     mailto:info365&aerohive.com                                   2012-05-31
 # [Afkham_Azeez]                                            Afkham Azeez                                    mailto:azeez&wso2.com                                         2006-06
 # [Agri_Datalog]                                            Agri Datalog                                    mailto:contact&agri-datalog.com
 # [Ahmad_Tajuddin_Samsu]                                    Ahmad Tajuddin Samsudin                         mailto:tajuddin&tmrnd.com.my                                  2007-02
@@ -19581,6 +19591,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Matthew_Baker]                                           Matthew Baker                                   mailto:matt.baker&intermec.com
 # [Matthew_Darwin]                                          Matthew Darwin                                  mailto:matthew.darwin&hp.com                                  2005-08
 # [Matthew_Ford]                                            Matthew Ford                                    mailto:Matthew.Ford&forward.com.au                            2003-03
+# [Matthew_Gast]                                            Matthew Gast              Aerohive Networks     mailto:mgast&aerohive.com                                     2012-05-31
 # [Matthew_Horoschun]                                       Matthew Horoschun                               mailto:mhoroschun&canprint.com.au
 # [Matthew_Lloyd]                                           Matthew Lloyd                                   mailto:mlloyd&google.com                                      2010-04-26
 # [Matthew_MacKenzie]                                       Matthew MacKenzie                               mailto:mattm&adobe.com
@@ -20184,6 +20195,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Piotr_Parlewicz]                                         Piotr Parlewicz                                 mailto:pparlewicz&queryobject.com
 # [Pisharath_Krishnan]                                      Pisharath Krishnan                              mailto:krishnan&axis-inc.com
 # [Pit_Vetterick]                                           Pit Vetterick                                   mailto:pit&3dgo.com                                           2002-05
+# [PLASA]                                                                             PLASA                 mailto:standards.na&plasa.org                                 2012-06-01
 # [Portnoy_Boxman]                                          Portnoy Boxman                                  mailto:portnoy_boxman&bmc.com                                 2005-01
 # [Portnoy_Boxman_2]                                        Portnoy Boxman                                  mailto:Portnoy_Boxman&bmc.com                                 2006-09
 # [POWERSOFT_SRL]                                                                     POWERSOFT S.R.L.      mailto:claudio.lastrucci&powersoft.it                         2012-01-03
@@ -20483,6 +20495,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Roman_Kriis]                                             Roman Kriis                                     mailto:roman&previo.ee
 # [Roman_Oliynyk]                                           Roman Oliynyk                                   mailto:romano&netinst.com
 # [Roman_Oliynyk_2]                                         Roman Oliynyk                                   mailto:roman&netinst.com                                      2007-08-30
+# [Roman_Stepanek]                                          Roman Stepanek            SODATSW spol. s r.o.  mailto:roman.stepanek&sodatsw.cz                              2012-05-31
 # [Romeo_Kasanwidjojo]                                      Romeo Kasanwidjojo                              mailto:romeo&microcomgroup.com
 # [Ron_Achin]                                               Ron Achin                                       mailto:RAchin&genscan.com
 # [Ron_Barber]                                              Ron Barber                                      mailto:ron.barber&amx.com                                     2003-11
@@ -20718,6 +20731,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Simon_Hovell]                                            Simon Hovell                                    mailto:simonh&brandcomms.com
 # [Simon_J_Gerraty]                                         Simon J. Gerraty                                mailto:sjg&quick.com.au
 # [Simon_Jolly]                                             Simon Jolly                                     mailto:simon.jolly&origin-data.co.uk                          2002-07
+# [Simon_Newton]                                            Simon Newton                                    mailto:simon&nomis52.net                                      2012-06-01
 # [Simon_P_Jackson]                                         Simon P Jackson                                 mailto:jacko&kring.co.uk
 # [Simon_Parker]                                            Simon Parker                                    mailto:simon.j.parker&philips.com
 # [Simon_Phipps]                                            Simon Phipps                                    mailto:sphipps&vnet.ibm.com
@@ -20738,6 +20752,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Smith_Micro]                                             Smith Micro                                     mailto:cs&smithmicro.com
 # [Smith_Micro_Software_Inc]                                                          Smith Micro Software, mailto:dsperling&smithmicro.com                               2011-10-10
 # Inc.
+# [SODATSW_spol]                                                                      SODATSW spol. s r.o.  mailto:info&sodatsw.cz                                        2012-05-31
 # [softthere_com]                                                                     softthere.com         mailto:technical&softthere.com                                2011-10-17
 # [Software_Horizons_In]                                                              Software Horizons     mailto:oi2000&shorizons.com
 # Inc.
