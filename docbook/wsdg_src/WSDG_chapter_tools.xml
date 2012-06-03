@@ -817,21 +817,22 @@ Stop.]]>
           <itemizedlist>
             <listitem>
               <para>
-                for Microsoft Visual C++ 2005, and probably
+                For Microsoft Visual C++ 2005, and probably
                 Microsoft Visual C++ 2005 Express Edition without
-                Service Pack 1, use <command>8.0.50608.0</command>,
+                Service Pack 1, you need
+                <command>8.0.50608.0</command>,
                 from: "Microsoft Visual C++ 2005":
-                <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE" />
+                <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE" />.
               </para>
             </listitem>
             <listitem>
               <para>
-                for Microsoft Visual C++ 2005 Express Edition with
-                Service Pack 1, use
+                For Microsoft Visual C++ 2005 Express Edition with
+                Service Pack 1, you need
                 <command>8.0.50727.762</command>, from: "Microsoft
                 Visual C++ 2005 Express Edition - ENU Service Pack 1
                 (KB926748)":
-                <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647" />
+                <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=200B2FD9-AE1A-4A14-984D-389C36F85647" />.
               </para>
             </listitem>
           </itemizedlist>
@@ -850,19 +851,18 @@ Stop.]]>
           <itemizedlist>
             <listitem>
               <para>
-                for Microsoft Visual C++ 2008 without Service Pack 1,
-                when doing 32-bit builds, use
-                <command>9.0.21022.8</command>, from: "Microsoft Visual
-                C++ 2008 Redistributable Package (x86)":
-                <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF" />
+                For Microsoft Visual C++ 2008 without Service Pack 1,
+                you need <command>9.0.21022.8</command>, from:
+                "Microsoft Visual C++ 2008 Redistributable Package (x86)":
+                <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=9B2DA534-3E03-4391-8A4D-074B9F2BC1BF" />.
               </para>
             </listitem>
             <listitem>
               <para>
-                for Microsoft Visual C++ 2008 with Service Pack 1, use
-                <command>9.0.30729.17</command>, from: "Microsoft Visual C++
-                2008 SP1 Redistributable Package (x86)":
-                <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2" />
+                For Microsoft Visual C++ 2008 with Service Pack 1,
+                you need <command>9.0.30729.17</command>, from:
+                "Microsoft Visual C++ 2008 SP1 Redistributable Package (x86)":
+                <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyID=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2" />.
               </para>
             </listitem>
           </itemizedlist>
@@ -883,38 +883,38 @@ Stop.]]>
           <itemizedlist>
             <listitem>
               <para>
-                for 32-bit builds using Microsoft Visual C++ 2010
-                without Service Pack 1, use
+                For 32-bit builds using Microsoft Visual C++ 2010
+                without Service Pack 1, you need
                 <command>10.0.30319.1</command>, from: "Microsoft Visual
                 C++ 2010 Redistributable Package (x86)":
-                <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=5555" />
+                <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=5555" />.
               </para>
             </listitem>
             <listitem>
               <para>
-                for 64-bit builds using Microsoft Visual C++ 2010
-                without Service Pack 1,, use
+                For 64-bit builds using Microsoft Visual C++ 2010
+                without Service Pack 1, you need
                 <command>{fill this in}</command>, from: "Microsoft Visual
                 C++ 2010 Redistributable Package (x64)":
-                <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=14632" />
+                <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=14632" />.
               </para>
             </listitem>
             <listitem>
               <para>
-                for 32-bit builds using Microsoft Visual C++ 2010 with
-                Service Pack 1, use
+                For 32-bit builds using Microsoft Visual C++ 2010 with
+                Service Pack 1, you need
                 <command>10.0.40219.1</command>, from: "Microsoft Visual
                 C++ 2010 SP1 Redistributable Package (x86)":
-                <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=8328" />
+                <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=8328" />.
               </para>
             </listitem>
             <listitem>
               <para>
-                for 64-bit builds using Microsoft Visual C++ 2010 with
-                Service Pack 1, use
+                For 64-bit builds using Microsoft Visual C++ 2010 with
+                Service Pack 1, you need
                 <command>{fill this in}</command>, from: "Microsoft Visual
                 C++ 2010 SP1 Redistributable Package (x64)":
-                <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=13523" />
+                <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=13523" />.
               </para>
             </listitem>
           </itemizedlist>
