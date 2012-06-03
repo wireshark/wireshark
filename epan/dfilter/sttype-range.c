@@ -62,7 +62,7 @@ range_new(gpointer junk)
 static void
 range_free(gpointer value)
 {
-	range_t	*range = value;
+	range_t	*range = (range_t*)value;
 	assert_magic(range, RANGE_MAGIC);
 
 	if (range->drange)
@@ -76,7 +76,7 @@ sttype_range_remove_drange(stnode_t *node)
 {
 	range_t		*range;
 
-	range = stnode_data(node);
+	range = (range_t*)stnode_data(node);
 	assert_magic(range, RANGE_MAGIC);
 
 	range->drange = NULL;
@@ -89,10 +89,10 @@ sttype_range_set(stnode_t *node, stnode_t *field, GSList* drange_list)
 {
 	range_t		*range;
 
-	range = stnode_data(node);
+	range = (range_t*)stnode_data(node);
 	assert_magic(range, RANGE_MAGIC);
 
-	range->hfinfo = stnode_data(field);
+	range->hfinfo = (header_field_info *)stnode_data(field);
 	stnode_free(field);
 
 	range->drange = drange_new_from_list(drange_list);

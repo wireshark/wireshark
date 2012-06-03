@@ -182,7 +182,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
     /* Array to hold the instructions that need to jump to
      * an instruction if they fail. */
-    jmps = g_malloc(num_params * sizeof(dfvm_value_t*));
+    jmps = (dfvm_value_t **)g_malloc(num_params * sizeof(dfvm_value_t*));
 
     /* Create the new DFVM instruction */
     insn = dfvm_insn_new(CALL_FUNCTION);
@@ -199,7 +199,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
     i = 0;
     while (params) {
         jmps[i] = NULL;
-        reg = gen_entity(dfw, params->data, &jmps[i]);
+        reg = gen_entity(dfw, (stnode_t *)params->data, &jmps[i]);
 
         val = dfvm_value_new(REGISTER);
         val->value.numeric = reg;
@@ -293,7 +293,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 	e_type = stnode_type_id(st_arg);
 
 	if (e_type == STTYPE_FIELD) {
-		hfinfo = stnode_data(st_arg);
+		hfinfo = (header_field_info*)stnode_data(st_arg);
 		reg = dfw_append_read_tree(dfw, hfinfo);
 
 		insn = dfvm_insn_new(IF_FALSE_GOTO);
@@ -303,7 +303,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		dfw_append_insn(dfw, insn);
 	}
 	else if (e_type == STTYPE_FVALUE) {
-		reg = dfw_append_put_fvalue(dfw, stnode_data(st_arg));
+		reg = dfw_append_put_fvalue(dfw, (fvalue_t *)stnode_data(st_arg));
 	}
 	else if (e_type == STTYPE_RANGE) {
 		reg = dfw_append_mk_range(dfw, st_arg);
@@ -338,7 +338,7 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 		case TEST_OP_EXISTS:
 			val1 = dfvm_value_new(HFINFO);
-			hfinfo = stnode_data(st_arg1);
+			hfinfo = (header_field_info*)stnode_data(st_arg1);
 
 			/* Rewind to find the first field of this name. */
 			while (hfinfo->same_name_prev) {
@@ -462,13 +462,13 @@ dfw_gencode(dfwork_t *dfw)
 	length = dfw->insns->len;
 
 	for (id = 0, prev = NULL; id < length; prev = insn, id++) {
-		insn = g_ptr_array_index(dfw->insns, id);
+		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->insns, id);
                 arg1 = insn->arg1;
                 if (insn->op == IF_TRUE_GOTO || insn->op == IF_FALSE_GOTO) {
                     dfvm_opcode_t revert = (insn->op == IF_FALSE_GOTO)?IF_TRUE_GOTO:IF_FALSE_GOTO;
                     id1 = arg1->value.numeric;
                     do {
-                      insn1 = g_ptr_array_index(dfw->insns, id1);
+                      insn1 = (dfvm_insn_t*)g_ptr_array_index(dfw->insns, id1);
                       if (insn1->op == revert) {
                         /* this one is always false and the branch is not taken*/
                         id1 = id1 +1;
@@ -507,14 +507,14 @@ dfw_gencode(dfwork_t *dfw)
 
         length = dfw->consts->len;
 	for (id = 0; id < length; id++) {
-		insn = g_ptr_array_index(dfw->consts, id);
+		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->consts, id);
 		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )
 		  insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
 	}
 
         length = dfw->insns->len;
 	for (id = 0; id < length; id++) {
-		insn = g_ptr_array_index(dfw->insns, id);
+		insn = (dfvm_insn_t	*)g_ptr_array_index(dfw->insns, id);
 		if (insn->arg1 && insn->arg1->type == REGISTER && (int)insn->arg1->value.numeric < 0 )
 		  insn->arg1->value.numeric = dfw->first_constant - insn->arg1->value.numeric -1;
 
@@ -542,7 +542,7 @@ static void
 get_hash_key(gpointer key, gpointer value _U_, gpointer user_data)
 {
     int field_id = GPOINTER_TO_INT(key);
-    hash_key_iterator *hki = user_data;
+    hash_key_iterator *hki = (hash_key_iterator *)user_data;
 
     hki->fields[hki->i] = field_id;
     hki->i++;

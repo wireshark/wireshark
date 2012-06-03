@@ -198,7 +198,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 	/* TRUE/FALSE *always* exist for FT_BOOLEAN. */
 	if (hfinfo->type == FT_BOOLEAN) {
 		if (hfinfo->strings) {
-			tf = hfinfo->strings;
+			tf = (true_false_string *)hfinfo->strings;
 		}
 
 		if (g_ascii_strcasecmp(s, tf->true_string) == 0) {
@@ -242,7 +242,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 				hfinfo->abbrev);
 	}
 	else {
-		const value_string *vals = hfinfo->strings;
+		const value_string *vals = (const value_string *)hfinfo->strings;
 		if (hfinfo->display & BASE_EXT_STRING)
 			vals = VALUE_STRING_EXT_VS_P((const value_string_ext *) vals);
 
@@ -370,8 +370,8 @@ struct check_drange_sanity_args {
 static void
 check_drange_node_sanity(gpointer data, gpointer user_data)
 {
-	drange_node*		drnode = data;
-	struct check_drange_sanity_args *args = user_data;
+	drange_node*		drnode = (drange_node*)data;
+	struct check_drange_sanity_args *args = (struct check_drange_sanity_args*)user_data;
 	gint			start_offset, end_offset, length;
 	header_field_info	*hfinfo;
 
@@ -468,8 +468,8 @@ check_function(stnode_t *st_node)
 
 	iparam = 0;
 	while (params) {
-		params->data = check_param_entity(params->data);
-		funcdef->semcheck_param_function(iparam, params->data);
+		params->data = check_param_entity((stnode_t *)params->data);
+		funcdef->semcheck_param_function(iparam, (stnode_t *)params->data);
 		params = params->next;
 		iparam++;
 	}
@@ -493,7 +493,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 
 	type2 = stnode_type_id(st_arg2);
 
-	hfinfo1 = stnode_data(st_arg1);
+	hfinfo1 = (header_field_info*)stnode_data(st_arg1);
 	ftype1 = hfinfo1->type;
 
 	DebugLog(("    5 check_relation_LHS_FIELD(%s)\n", relation_string));
@@ -506,7 +506,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 	}
 
 	if (type2 == STTYPE_FIELD) {
-		hfinfo2 = stnode_data(st_arg2);
+		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
@@ -523,7 +523,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
-		s = stnode_data(st_arg2);
+		s = (char *)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
@@ -543,7 +543,7 @@ check_relation_LHS_FIELD(const char *relation_string, FtypeCanFunc can_func,
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		s = stnode_data(st_arg2);
+		s = (char *)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
@@ -638,7 +638,7 @@ check_relation_LHS_STRING(const char* relation_string,
 	DebugLog(("    5 check_relation_LHS_STRING()\n"));
 
 	if (type2 == STTYPE_FIELD) {
-		hfinfo2 = stnode_data(st_arg2);
+		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
 		if (!can_func(ftype2)) {
@@ -648,7 +648,7 @@ check_relation_LHS_STRING(const char* relation_string,
 			THROW(TypeError);
 		}
 
-		s = stnode_data(st_arg1);
+		s = (char*)stnode_data(st_arg1);
 		fvalue = fvalue_from_string(ftype2, s, dfilter_fail);
 		if (!fvalue) {
 			/* check value_string */
@@ -671,7 +671,7 @@ check_relation_LHS_STRING(const char* relation_string,
 	}
 	else if (type2 == STTYPE_RANGE) {
 		check_drange_sanity(st_arg2);
-		s = stnode_data(st_arg1);
+		s = (char*)stnode_data(st_arg1);
 		fvalue = fvalue_from_string(FT_BYTES, s, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
@@ -727,7 +727,7 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 	DebugLog(("    5 check_relation_LHS_UNPARSED()\n"));
 
 	if (type2 == STTYPE_FIELD) {
-		hfinfo2 = stnode_data(st_arg2);
+		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
 		if (!can_func(ftype2)) {
@@ -737,7 +737,7 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 			THROW(TypeError);
 		}
 
-		s = stnode_data(st_arg1);
+		s = (char*)stnode_data(st_arg1);
 		fvalue = fvalue_from_unparsed(ftype2, s, allow_partial_value, dfilter_fail);
 		if (!fvalue) {
 			/* check value_string */
@@ -760,7 +760,7 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 	}
 	else if (type2 == STTYPE_RANGE) {
 		check_drange_sanity(st_arg2);
-		s = stnode_data(st_arg1);
+		s = (char*)stnode_data(st_arg1);
 		fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
@@ -779,7 +779,7 @@ check_relation_LHS_UNPARSED(const char* relation_string,
 			THROW(TypeError);
 		}
 
-		s =  stnode_data(st_arg1);
+		s =  (char*)stnode_data(st_arg1);
 		fvalue = fvalue_from_unparsed(ftype2, s, allow_partial_value, dfilter_fail);
 
 		if (!fvalue) {
@@ -829,7 +829,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 
 	if (type2 == STTYPE_FIELD) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_FIELD)\n"));
-		hfinfo2 = stnode_data(st_arg2);
+		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
 		if (!is_bytes_type(ftype2)) {
@@ -854,7 +854,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	}
 	else if (type2 == STTYPE_STRING) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_STRING)\n"));
-		s = stnode_data(st_arg2);
+		s = (char*)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
@@ -871,7 +871,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	}
 	else if (type2 == STTYPE_UNPARSED) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)\n"));
-		s = stnode_data(st_arg2);
+		s = (char*)stnode_data(st_arg2);
                 len_range = drange_get_total_length(sttype_range_drange(st_arg1));
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
@@ -944,7 +944,7 @@ check_param_entity(stnode_t *st_node)
 	e_type = stnode_type_id(st_node);
 	/* If there's an unparsed string, change it to an FT_STRING */
 	if (e_type == STTYPE_UNPARSED) {
-		s = stnode_data(st_node);
+		s = (char*)stnode_data(st_node);
 		fvalue = fvalue_from_unparsed(FT_STRING, s, FALSE, dfilter_fail);
 		if (!fvalue) {
 			THROW(TypeError);
@@ -994,7 +994,7 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 	}
 
 	if (type2 == STTYPE_FIELD) {
-		hfinfo2 = stnode_data(st_arg2);
+		hfinfo2 = (header_field_info*)stnode_data(st_arg2);
 		ftype2 = hfinfo2->type;
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
@@ -1011,7 +1011,7 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
-		s = stnode_data(st_arg2);
+		s = (char*)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = fvalue_from_string(FT_PCRE, s, dfilter_fail);
@@ -1027,7 +1027,7 @@ check_relation_LHS_FUNCTION(const char *relation_string, FtypeCanFunc can_func,
 		stnode_free(st_arg2);
 	}
 	else if (type2 == STTYPE_UNPARSED) {
-		s = stnode_data(st_arg2);
+		s = (char*)stnode_data(st_arg2);
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
@@ -1110,7 +1110,7 @@ header_field_info   *hfinfo;
 	 */
 
 	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
-		hfinfo = stnode_data(st_arg2);
+		hfinfo = (header_field_info*)stnode_data(st_arg2);
 		if (hfinfo->type == FT_PROTOCOL)
 			dfilter_fail("Protocol (\"%s\") cannot appear on right-hand side of comparison.", hfinfo->abbrev);
 			THROW(TypeError);

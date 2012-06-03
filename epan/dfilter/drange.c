@@ -35,7 +35,7 @@ drange_node_new(void)
 {
   drange_node* new_range_node;
 
-  new_range_node = g_malloc(sizeof(drange_node));
+  new_range_node = g_new(drange_node,1);
   new_range_node->start_offset = 0;
   new_range_node->length = 0;
   new_range_node->end_offset = 0;
@@ -112,7 +112,7 @@ drange*
 drange_new(void)
 {
   drange* new_drange;
-  new_drange = g_malloc(sizeof(drange));
+  new_drange = g_new(drange,1);
   new_drange->range_list = NULL;
   new_drange->has_total_length = TRUE;
   new_drange->total_length = 0;
@@ -124,8 +124,8 @@ drange_new(void)
 static void
 drange_append_wrapper(gpointer data, gpointer user_data)
 {
-	drange_node *drnode = data;
-	drange		*dr = user_data;
+	drange_node *drnode = (drange_node *)data;
+	drange		*dr		= (drange *)user_data;
 
 	drange_append_drange_node(dr, drnode);
 }

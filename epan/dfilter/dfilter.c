@@ -129,7 +129,7 @@ free_insns(GPtrArray *insns)
 	dfvm_insn_t	*insn;
 
 	for (i = 0; i < insns->len; i++) {
-		insn = g_ptr_array_index(insns, i);
+		insn = (dfvm_insn_t	*)g_ptr_array_index(insns, i);
 		dfvm_insn_free(insn);
 	}
 	g_ptr_array_free(insns, TRUE);
@@ -161,7 +161,7 @@ dfilter_free(dfilter_t *df)
 
 	if (df->deprecated) {
 		for (i = 0; i < df->deprecated->len; ++i) {
-			gchar *depr = g_ptr_array_index(df->deprecated, i);
+			gchar *depr = (gchar *)g_ptr_array_index(df->deprecated, i);
 			g_free(depr);
 		}
 		g_ptr_array_free(df->deprecated, TRUE);
@@ -260,7 +260,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 
 		if (depr_test) {
 			for (i = 0; i < deprecated->len; i++) {
-				if (g_ascii_strcasecmp(depr_test, g_ptr_array_index(deprecated, i)) == 0) {
+				if (g_ascii_strcasecmp(depr_test, (const gchar *)g_ptr_array_index(deprecated, i)) == 0) {
 					/* It's already in our list */
 					depr_test = NULL;
 				}
@@ -313,7 +313,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	if (dfw->st_root == NULL) {
 		*dfp = NULL;
 		for (i = 0; i < deprecated->len; ++i) {
-			gchar* depr = g_ptr_array_index(deprecated,i);
+			gchar* depr = (gchar*)g_ptr_array_index(deprecated,i);
 			g_free(depr);
 		}
 		g_ptr_array_free(deprecated, TRUE);
@@ -361,7 +361,7 @@ FAILURE:
 		dfwork_free(dfw);
 	}
 	for (i = 0; i < deprecated->len; ++i) {
-		gchar* depr = g_ptr_array_index(deprecated,i);
+		gchar* depr = (gchar*)g_ptr_array_index(deprecated,i);
 		g_free(depr);
 	}
 	g_ptr_array_free(deprecated, TRUE);

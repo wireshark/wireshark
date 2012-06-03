@@ -510,7 +510,7 @@ static void macro_free(void* r) {
 
 static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 	dfilter_macro_t* d = (dfilter_macro_t*)dest;
-	const dfilter_macro_t* m = (dfilter_macro_t*)orig;
+	const dfilter_macro_t* m = (const dfilter_macro_t*)orig;
 
 	DUMP_MACRO(m);
 
