@@ -116,6 +116,9 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_SAVE_ALL,              "Save A_ll",             0, 0, NULL },
         { WIRESHARK_STOCK_DONT_SAVE,             "Continue _without Saving",             0, 0, NULL },
         { WIRESHARK_STOCK_QUIT_DONT_SAVE,        "Quit _without Saving",             0, 0, NULL },
+        { WIRESHARK_STOCK_STOP_DONT_SAVE,        "Stop and Continue _without Saving",             0, 0, NULL },
+        { WIRESHARK_STOCK_STOP_QUIT_DONT_SAVE,   "Stop and Quit _without Saving",             0, 0, NULL },
+        { WIRESHARK_STOCK_STOP_SAVE,             "Stop and Save",             0, 0, NULL },
         { WIRESHARK_STOCK_ABOUT,                 "_About",                 0, 0, NULL },
         { WIRESHARK_STOCK_COLORIZE,              "_Colorize",              0, 0, NULL },
         { WIRESHARK_STOCK_AUTOSCROLL,            "_Auto Scroll",            0, 0, NULL },
@@ -255,7 +258,10 @@ void stock_icons_init(void) {
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_CLEAR);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_DONT_SAVE, icon_set);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_QUIT_DONT_SAVE, icon_set);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_STOP_DONT_SAVE, icon_set);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_STOP_QUIT_DONT_SAVE, icon_set);
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_SAVE);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_STOP_SAVE, icon_set);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_SAVE_ALL, icon_set);  /* XXX: needs a better icon */
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_CLOSE);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_DISABLE, icon_set);

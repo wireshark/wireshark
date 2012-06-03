@@ -1092,20 +1092,36 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
   GtkWidget *msg_dialog;
   gchar     *display_basename;
   gint       response;
+  gboolean   capture_in_progress;
 
   if (cf->state == FILE_CLOSED)
     return TRUE; /* already closed, nothing to do */
 
+#ifdef HAVE_LIBPCAP
+  if (cf->state == FILE_READ_IN_PROGRESS) {
+    /* This is true if we're reading a capture file *or* if we're doing
+       a live capture.  If we're reading a capture file, the main loop
+       is busy reading packets, and only accepting input from the
+       progress dialog, so we can't get here, so this means we're
+       doing a capture. */
+    capture_in_progress = TRUE;
+  } else
+#endif
+    capture_in_progress = FALSE;
+       
   if (prefs.gui_ask_unsaved) {
-    if (cf->is_tempfile || cf->unsaved_changes) {
-      /* This is a temporary capture file or has unsaved changes; ask the
-         user whether to save the capture. */
+    if (cf->is_tempfile || capture_in_progress || cf->unsaved_changes) {
+      /* This is a temporary capture file, or there's a capture in
+         progress, or the file has unsaved changes; ask the user whether
+         to save the data. */
       if (cf->is_tempfile) {
         msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
                                             GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
-                                            "Do you want to save the captured packets%s?",
+                                            capture_in_progress ? 
+                                                "Do you want to stop the capture and save the captured packets%s?" :
+                                                "Do you want to save the captured packets%s?",
                                             before_what);
 
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
@@ -1115,15 +1131,26 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
          * Format the message.
          */
         display_basename = g_filename_display_basename(cf->filename);
-        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
-                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-                                            GTK_MESSAGE_QUESTION,
-                                            GTK_BUTTONS_NONE,
-                                            "Do you want to save the changes you've made "
-                                            "to the capture file \"%s\"%s?",
-                                            display_basename, before_what);
+        if (capture_in_progress) {
+          msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                              GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                              GTK_MESSAGE_QUESTION,
+                                              GTK_BUTTONS_NONE,
+                                              "Do you want to stop the capture and save the captured packets%s?",
+                                              before_what);
+        } else {
+          msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                              GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                              GTK_MESSAGE_QUESTION,
+                                              GTK_BUTTONS_NONE,
+                                              "Do you want to save the changes you've made "
+                                              "to the capture file \"%s\"%s?",
+                                              display_basename, before_what);
+        }
         g_free(display_basename);
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+                                                 capture_in_progress ?
+             "Your captured packets will be lost if you don't save them." :
              "Your changes will be lost if you don't save them.");
       }
 
@@ -1131,25 +1158,37 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       /* If this is from a Quit operation, use "quit and don't save"
          rather than just "don't save". */
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            (from_quit ? WIRESHARK_STOCK_QUIT_DONT_SAVE :
-                                         WIRESHARK_STOCK_DONT_SAVE),
+                            (from_quit ?
+                                (cf->state == FILE_READ_IN_PROGRESS ?
+                                    WIRESHARK_STOCK_STOP_QUIT_DONT_SAVE :
+                                    WIRESHARK_STOCK_QUIT_DONT_SAVE) :
+                                (capture_in_progress ?
+                                    WIRESHARK_STOCK_STOP_DONT_SAVE :
+                                    WIRESHARK_STOCK_DONT_SAVE)),
                             GTK_RESPONSE_REJECT);
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-      /* If there's a read in progress, we can't save. */
-      if (cf->state != FILE_READ_IN_PROGRESS)
-          gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                                GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            (capture_in_progress ?
+                                WIRESHARK_STOCK_STOP_SAVE :
+                                GTK_STOCK_SAVE),
+                            GTK_RESPONSE_ACCEPT);
 #else
-      /* If there's a read in progress, we can't save. */
-      if (cf->state != FILE_READ_IN_PROGRESS)
-          gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                                GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT);
+      gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
+                            (capture_in_progress ?
+                                WIRESHARK_STOCK_STOP_SAVE :
+                                GTK_STOCK_SAVE),
+                            GTK_RESPONSE_ACCEPT);
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
                             GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
       gtk_dialog_add_button(GTK_DIALOG(msg_dialog),
-                            (from_quit ? WIRESHARK_STOCK_QUIT_DONT_SAVE :
-                                         WIRESHARK_STOCK_DONT_SAVE),
+                            (from_quit ?
+                                (capture_in_progress ?
+                                    WIRESHARK_STOCK_STOP_QUIT_DONT_SAVE :
+                                    WIRESHARK_STOCK_QUIT_DONT_SAVE) :
+                                (capture_in_progress ?
+                                    WIRESHARK_STOCK_STOP_DONT_SAVE :
+                                    WIRESHARK_STOCK_DONT_SAVE)),
                             GTK_RESPONSE_REJECT);
 #endif
       gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_ACCEPT);
@@ -1160,11 +1199,23 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       switch (response) {
 
       case GTK_RESPONSE_ACCEPT:
+#ifdef HAVE_LIBPCAP
+        /* If there's a capture in progress, we have to stop the capture
+           and then do the save. */
+        if (capture_in_progress)
+          capture_stop_cb(NULL, NULL);
+#endif
         /* Save the file and close it */
         do_file_save(cf, TRUE);
         break;
 
       case GTK_RESPONSE_REJECT:
+#ifdef HAVE_LIBPCAP
+        /* If there's a capture in progress; we have to stop the capture
+           and then do the close. */
+        if (capture_in_progress)
+          capture_stop_cb(NULL, NULL);
+#endif
         /* Just close the file, discarding changes */
         cf_close(cf);
         break;
@@ -1173,17 +1224,23 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       case GTK_RESPONSE_NONE:
       case GTK_RESPONSE_DELETE_EVENT:
       default:
-        /* Don't close the file. */
+        /* Don't close the file (and don't stop any capture in progress). */
         return FALSE; /* file not closed */
         break;
       }
     } else {
-      /* User asked not to be bothered by those prompts, just close it.
-         XXX - should that apply only to saving temporary files? */
+      /* unchanged file, just close it */
       cf_close(cf);
     }
   } else {
-    /* unchanged file, just close it */
+    /* User asked not to be bothered by those prompts, just close it.
+       XXX - should that apply only to saving temporary files? */
+#ifdef HAVE_LIBPCAP
+      /* If there's a capture in progress, we have to stop the capture
+         and then do the close. */
+    if (capture_in_progress)
+      capture_stop_cb(NULL, NULL);
+#endif
     cf_close(cf);
   }
   return TRUE; /* file closed */
