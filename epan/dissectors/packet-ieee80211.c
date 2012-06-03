@@ -7091,25 +7091,23 @@ static int dissect_time_zone(proto_tree *tree, tvbuff_t *tvb, int offset,
   return offset + tag_len;
 }
 
-static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
+static int
+dissect_secondary_channel_offset_ie(tvbuff_t *tvb, packet_info *pinfo,
+         proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
 {
-  int tag_offset;
 
-  if (tag_len != 1)
-  {
-    proto_tree_add_text (tree, tvb, offset, tag_len, "Secondary Channel Offset: Error: Tag length must be at least 1 byte long");
-    return;
+  if (tag_len != 1) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Secondary Channel Offset length %u wrong, must be = 1", tag_len);
+    return offset;
   }
 
-  tag_offset = offset;
-  proto_tree_add_uint(tree, hf_ieee80211_tag_secondary_channel_offset, tvb, offset, 1, tvb_get_guint8 (tvb, offset));
+  proto_tree_add_item(tree, hf_ieee80211_tag_secondary_channel_offset, tvb,
+                      offset, 1, ENC_LITTLE_ENDIAN);
 
-  offset++;
-  if ((tag_len - (offset-tag_offset)) > 0)
-  {
-    proto_tree_add_text (tree, tvb, offset, tag_len - (offset-tag_offset), "Unknown Data");
-    return;
-  }
+  offset += 1;
+
+  return offset;
 }
 
 static int
@@ -9181,7 +9179,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       break;
 
     case TAG_SECONDARY_CHANNEL_OFFSET:
-      secondary_channel_offset_ie(tree, tvb, offset + 2, tag_len);
+      dissect_secondary_channel_offset_ie(tvb, pinfo, tree, offset + 2, tag_len, ti_len);
       break;
 
     case TAG_TIME_ADV:
@@ -9480,7 +9478,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         case SUB_TAG_SEC_CHANNEL_OFFSET:
           parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "Secondary Channel Offset");
           sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
-          secondary_channel_offset_ie(sub_tag_tree, sub_tag_tvb, 0, sub_tag_length);
+          dissect_secondary_channel_offset_ie(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len);
           break;
         case SUB_TAG_VENDOR_SPECIFIC:
         default:
