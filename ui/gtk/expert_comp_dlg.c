@@ -144,6 +144,7 @@ static void expert_dlg_display_reset(expert_tapdata_t * etd)
 {
     etd->disp_events = 0;
     gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(etd->tree_view))));
+    gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(etd->tree_view_comments))));
 
     gtk_window_set_title(GTK_WINDOW(etd->win), "Wireshark: ? Expert Infos");
     if(etd->label) {
