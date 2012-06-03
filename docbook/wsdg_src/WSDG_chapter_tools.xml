@@ -899,7 +899,7 @@ Stop.]]>
               <para>
                 for 64-bit builds using Microsoft Visual C++ 2010 with
                 Service Pack 1, use
-                <command>10.0.40219.1</command>, from: "Microsoft Visual
+                <command>{fill this in}</command>, from: "Microsoft Visual
                 C++ 2010 SP1 Redistributable Package (x64)":
                 <ulink url="http://www.microsoft.com/en-us/download/details.aspx?id=13523" />
               </para>
