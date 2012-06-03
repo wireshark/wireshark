@@ -95,7 +95,7 @@ static void file_color_import_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_export_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
-static void set_file_type_list(GtkWidget *combo_box, int default_file_type);
+static void set_file_type_list(GtkWidget *combo_box, capture_file *cf);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
@@ -802,7 +802,7 @@ file_merge_cmd(GtkWidget *w)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, cfile.cd_t);
+  set_file_type_list(ft_combo_box, &cfile);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_merge_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
@@ -1296,13 +1296,13 @@ file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
    in the list.
  */
 static void
-set_file_type_list(GtkWidget *combo_box, int default_file_type)
+set_file_type_list(GtkWidget *combo_box, capture_file *cf)
 {
   GArray *savable_file_types;
   guint i;
   int ft;
 
-  savable_file_types = wtap_get_savable_file_types(default_file_type, cfile.lnk_t);
+  savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->lnk_t);
 
   if (savable_file_types != NULL) {
     /* OK, we have at least one file type we can save this file as.
@@ -1386,7 +1386,7 @@ do_file_save_as(capture_file *cf)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, cf->cd_t);
+  set_file_type_list(ft_combo_box, cf);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_save_as_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
@@ -1731,7 +1731,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, cfile.cd_t);
+  set_file_type_list(ft_combo_box, &cfile);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
