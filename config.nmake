@@ -111,9 +111,10 @@ PROCESSOR_ARCHITECTURE=amd64
 #MSVC_VARIANT=MSVC2010EE
 
 # The default if we haven't set a system environment variable or
-# uncommented an entry above.
+# uncommented an entry above.  We default to the version recommended
+# in the Developer's Guide, namely MSVC++ 2010 Express Edition.
 !IFNDEF MSVC_VARIANT
-MSVC_VARIANT=MSVC2008
+MSVC_VARIANT=MSVC2010EE
 !ENDIF
 
 #
