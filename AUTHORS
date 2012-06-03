@@ -3407,7 +3407,7 @@ Gaurav Tungatkar	<gauravstt [AT] gmail.com> {
 	and Extension for Interface and Next-Hop
 }
 
-Paul Erkkila 		<pee [AT] erkkila.org> {
+Paul Erkkila		<pee [AT] erkkila.org> {
 	Hazelcast Dissector
 }
 
@@ -3415,11 +3415,11 @@ Bill Schiller		<bill.schiller [AT] emerson.com> {
 	HART/IP dissector
 }
 
-Aditya Ambadkar     <arambadk [AT] ncsu.edu> {
+Aditya Ambadkar		<arambadk [AT] ncsu.edu> {
     Support for flow label sub-tlv according to RFC 6391
 }
 
-Diana Chris         <dvchris [AT] ncsu.edu> {
+Diana Chris		<dvchris [AT] ncsu.edu> {
     Support for flow label sub-tlv according to RFC 6391
 }
 
@@ -3438,9 +3438,13 @@ Guy Martin		<gmsoft [AT] tuxicoman.be> {
 	MPEG2 Section dissector
 }
 
-Deepti Ragha	<dlragha [AT] ncsu.edu> {
+Deepti Ragha		<dlragha [AT] ncsu.edu> {
 	Additions to ARP dissector to support opcodes as specified by IANA in
 http://www.iana.org/assignments/arp-parameters/arp-parameters.xml	
+}
+
+Niels de Vos		<ndevos [AT] redhat.com> {
+	Gluster dissectors
 }
 
 and by:
