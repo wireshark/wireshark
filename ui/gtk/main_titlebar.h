@@ -31,4 +31,7 @@
  */
 extern void main_titlebar_update(void);
 
+/* Set the name of the top-level window. */
+extern void main_set_window_name(const gchar *);
+
 #endif /* __MAIN_TITLEBAR_H__ */
