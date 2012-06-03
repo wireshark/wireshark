@@ -983,8 +983,9 @@ cf_get_display_name(capture_file *cf)
       displayname="(No file)";
     }
   } else {
-    /* The file we read is a temporary file from a live capture;
-       we don't mention its name. */
+    /* The file we read is a temporary file from a live capture or
+       a merge operation; we don't mention its name, but, if it's
+       from a capture, give the source of the capture. */
     if (cf->source) {
       displayname = cf->source;
     } else {
