@@ -1552,8 +1552,8 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle))) {
 		int x, y;
 		g->cross.draw = TRUE;
-//		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
-//		cross_draw (g, x, y);
+		/*gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
+		cross_draw (g, x, y);*/
 	} else {
 		g->cross.draw = FALSE;
 		cross_erase (g);
