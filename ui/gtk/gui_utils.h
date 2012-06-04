@@ -167,6 +167,7 @@ extern gboolean window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpoi
  * @todo if main uses the window_new_with_geom() to save size and such, make this function static
  */
 extern void window_get_geometry(GtkWidget *win, window_geometry_t *geom);
+
 /** Set the geometry of a window.
  *
  * @param win the window from window_new()
@@ -186,6 +187,15 @@ extern void window_set_geometry(GtkWidget *win, window_geometry_t *geom);
 extern void reactivate_window(GtkWidget *win);
 
 /** @} */
+
+/** Alert box for an invalid display filter expression.
+ * Assumes "dfilter_error_msg" has been set by "dfilter_compile()" to the
+ * error message for the filter.
+ *
+ * @param parent parent window from which the display filter came
+ * @param dftext text of the display filter
+ */
+extern void bad_dfilter_alert_box_modal(GtkWidget *parent, const char *dftext);
 
 /** Create a GtkScrolledWindow, set its scrollbar placement appropriately,
  *  and remember it.

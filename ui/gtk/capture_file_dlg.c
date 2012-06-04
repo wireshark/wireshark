@@ -76,9 +76,6 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
-
-static void file_open_ok_cb(GtkWidget *w, gpointer fs);
-static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_merge_ok_cb(GtkWidget *w, gpointer fs);
 static void file_merge_destroy_cb(GtkWidget *win, gpointer user_data);
 static void do_file_save(capture_file *cf, gboolean dont_reopen);
@@ -94,10 +91,6 @@ static void set_file_type_list(GtkWidget *combo_box, capture_file *cf);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
-
-#define E_FILE_M_RESOLVE_KEY	  "file_dlg_mac_resolve_key"
-#define E_FILE_N_RESOLVE_KEY	  "file_dlg_network_resolve_key"
-#define E_FILE_T_RESOLVE_KEY	  "file_dlg_transport_resolve_key"
 
 #define E_MERGE_PREPEND_KEY 	  "merge_dlg_prepend_key"
 #define E_MERGE_CHRONO_KEY 	      "merge_dlg_chrono_key"
@@ -432,14 +425,6 @@ preview_new(void)
     return table;
 }
 
-/*
- * Keep a static pointer to the current "Open Capture File" window, if
- * any, so that if somebody tries to do "File:Open" while there's already
- * an "Open Capture File" window up, we just pop up the existing one,
- * rather than creating a new one.
- */
-static GtkWidget *file_open_w;
-
 /* Open a file */
 static void
 file_open_cmd(GtkWidget *w)
@@ -447,6 +432,7 @@ file_open_cmd(GtkWidget *w)
 #if _WIN32
   win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 #else /* _WIN32 */
+  GtkWidget     *file_open_w;
   GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
@@ -457,12 +443,10 @@ file_open_cmd(GtkWidget *w)
   	FALSE,
     TRUE
   };
-
-  if (file_open_w != NULL) {
-    /* There's already an "Open Capture File" dialog box; reactivate it. */
-    reactivate_window(file_open_w);
-    return;
-  }
+  gchar         *cf_name, *s;
+  const gchar   *rfilter;
+  dfilter_t     *rfcode = NULL;
+  int            err;
 
   file_open_w = file_selection_new("Wireshark: Open Capture File",
                                    FILE_SELECTION_OPEN);
@@ -489,7 +473,6 @@ file_open_cmd(GtkWidget *w)
       file_selection_set_current_folder(file_open_w, prefs.gui_fileopen_dir);
     break;
   }
-
 
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   file_selection_set_extra_widget(file_open_w, main_hb);
@@ -535,8 +518,6 @@ file_open_cmd(GtkWidget *w)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
 	gbl_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
-  g_object_set_data(G_OBJECT(file_open_w),
-                  E_FILE_M_RESOLVE_KEY, m_resolv_cb);
   gtk_widget_show(m_resolv_cb);
 
   n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
@@ -544,16 +525,11 @@ file_open_cmd(GtkWidget *w)
 	gbl_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
-  g_object_set_data(G_OBJECT(file_open_w), E_FILE_N_RESOLVE_KEY, n_resolv_cb);
   t_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
 	gbl_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
-  g_object_set_data(G_OBJECT(file_open_w), E_FILE_T_RESOLVE_KEY, t_resolv_cb);
-
-  g_signal_connect(file_open_w, "destroy",
-                   G_CALLBACK(file_open_destroy_cb), NULL);
 
   /* preview widget */
   prev = preview_new();
@@ -567,11 +543,103 @@ file_open_cmd(GtkWidget *w)
 
   g_object_set_data(G_OBJECT(file_open_w), E_DFILTER_TE_KEY,
                     g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
-  if (gtk_dialog_run(GTK_DIALOG(file_open_w)) == GTK_RESPONSE_ACCEPT)
-  {
-    file_open_ok_cb(file_open_w, file_open_w);
+
+  /*
+   * Loop until the user either selects a file or gives up.
+   */
+  for (;;) {
+    if (gtk_dialog_run(GTK_DIALOG(file_open_w)) != GTK_RESPONSE_ACCEPT) {
+      /* They clicked "Cancel" or closed the dialog or.... */
+      window_destroy(file_open_w);
+      return;
+    }
+
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_open_w));
+
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(cf_name) == EISDIR) {
+      /* It's a directory - set the file selection box to display that
+         directory, and go back and re-run it; don't try to open the
+         directory as a capture file. */
+      set_last_open_dir(cf_name);
+      g_free(cf_name);
+      file_selection_set_current_folder(file_open_w, get_last_open_dir());
+      continue;
+    }
+
+    /* Get the specified read filter and try to compile it. */
+    rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
+    if (!dfilter_compile(rfilter, &rfcode)) {
+      /* Not valid.  Tell the user, and go back and run the file
+         selection box again once they dismiss the alert. */
+      bad_dfilter_alert_box_modal(file_open_w, rfilter);
+      g_free(cf_name);
+      continue;
+    }
+
+    /* Try to open the capture file. */
+    if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
+      /* We couldn't open it; don't dismiss the open dialog box,
+         just leave it around so that the user can, after they
+         dismiss the alert box popped up for the open error,
+         try again. */
+      if (rfcode != NULL)
+        dfilter_free(rfcode);
+      g_free(cf_name);
+      continue;
+    }
+
+    /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
+       it closed the previous capture file, and thus destroyed any
+       previous read filter attached to "cf"). */
+    cfile.rfcode = rfcode;
+
+    /* Set the global resolving variable */
+    gbl_resolv_flags = prefs.name_resolve;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)))
+      gbl_resolv_flags |= RESOLV_MAC;
+    else
+      gbl_resolv_flags &= ~RESOLV_MAC;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)))
+     gbl_resolv_flags |= RESOLV_NETWORK;
+    else
+     gbl_resolv_flags &= ~RESOLV_NETWORK;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)))
+      gbl_resolv_flags |= RESOLV_TRANSPORT;
+    else
+      gbl_resolv_flags &= ~RESOLV_TRANSPORT;
+
+    /* We've crossed the Rubicon; get rid of the file selection box. */
+    window_destroy(GTK_WIDGET(file_open_w));
+
+    switch (cf_read(&cfile, FALSE)) {
+
+    case CF_READ_OK:
+    case CF_READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
+
+    case CF_READ_ABORTED:
+      /* The user bailed out of re-reading the capture file; the
+         capture file has been closed - just free the capture file name
+         string and return (without changing the last containing
+         directory). */
+      g_free(cf_name);
+      return;
+    }
+
+    /* Save the name of the containing directory specified in the path name,
+       if any; we can write over cf_name, which is a good thing, given that
+       "get_dirname()" does write over its argument. */
+    s = get_dirname(cf_name);
+    set_last_open_dir(s);
+
+    g_free(cf_name);
+    return;
   }
-  else window_destroy(file_open_w);
 #endif /* _WIN32 */
 }
 
@@ -581,114 +649,6 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
      If they cancel out of it, don't quit. */
   if (do_file_close(&cfile, FALSE, " before opening a new capture file"))
     file_open_cmd(widget);
-}
-
-/* user pressed "open" button */
-static void
-file_open_ok_cb(GtkWidget *w, gpointer fs) {
-  gchar       *cf_name, *s;
-  const gchar *rfilter;
-  GtkWidget   *filter_te, *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
-  dfilter_t   *rfcode = NULL;
-  int          err;
-
-  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-  filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
-  rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  if (!dfilter_compile(rfilter, &rfcode)) {
-    bad_dfilter_alert_box(rfilter);
-    g_free(cf_name);
-    return;
-  }
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-    /* It's a directory - set the file selection box to display that
-       directory, don't try to open the directory as a capture file. */
-    set_last_open_dir(cf_name);
-    g_free(cf_name);
-    file_selection_set_current_folder(fs, get_last_open_dir());
-    return;
-  }
-
-  /* Try to open the capture file. */
-  if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
-    /* We couldn't open it; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the open error,
-       try again. */
-    if (rfcode != NULL)
-      dfilter_free(rfcode);
-    g_free(cf_name);
-
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-    if (file_open_w)
-      window_destroy(file_open_w);
-
-    return;
-  }
-
-  /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
-     it closed the previous capture file, and thus destroyed any
-     previous read filter attached to "cf"). */
-  cfile.rfcode = rfcode;
-
-  /* Set the global resolving variable */
-  gbl_resolv_flags = prefs.name_resolve;
-  m_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_M_RESOLVE_KEY);
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)))
-    gbl_resolv_flags |= RESOLV_MAC;
-  else
-    gbl_resolv_flags &= ~RESOLV_MAC;
-  n_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_N_RESOLVE_KEY);
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)))
-    gbl_resolv_flags |= RESOLV_NETWORK;
-  else
-    gbl_resolv_flags &= ~RESOLV_NETWORK;
-  t_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_T_RESOLVE_KEY);
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)))
-    gbl_resolv_flags |= RESOLV_TRANSPORT;
-  else
-    gbl_resolv_flags &= ~RESOLV_TRANSPORT;
-
-  /* We've crossed the Rubicon; get rid of the file selection box. */
-  window_destroy(GTK_WIDGET (fs));
-
-  switch (cf_read(&cfile, FALSE)) {
-
-  case CF_READ_OK:
-  case CF_READ_ERROR:
-    /* Just because we got an error, that doesn't mean we were unable
-       to read any of the file; we handle what we could get from the
-       file. */
-    break;
-
-  case CF_READ_ABORTED:
-    /* The user bailed out of re-reading the capture file; the
-       capture file has been closed - just free the capture file name
-       string and return (without changing the last containing
-       directory). */
-    g_free(cf_name);
-    return;
-  }
-
-  /* Save the name of the containing directory specified in the path name,
-     if any; we can write over cf_name, which is a good thing, given that
-     "get_dirname()" does write over its argument. */
-  s = get_dirname(cf_name);
-  set_last_open_dir(s);
-
-  g_free(cf_name);
-}
-
-static void
-file_open_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  /* Note that we no longer have a "Open Capture File" dialog box. */
-  file_open_w = NULL;
 }
 
 /*
@@ -1022,8 +982,8 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
-    if (file_open_w)
-      window_destroy(file_open_w);
+    if (file_merge_w)
+      window_destroy(file_merge_w);
     return;
   }
   g_free(tmpname);
@@ -1382,7 +1342,8 @@ do_file_save_as(capture_file *cf)
        Check whether they did. */
     if (test_for_directory(cf_name) == EISDIR) {
       /* It's a directory - set the file selection box to display that
-         directory, and go back and re-run it. */
+         directory, and go back and re-run it; don't try to write onto
+         the directory (which won't work anyway). */
       set_last_open_dir(cf_name);
       g_free(cf_name);
       file_selection_set_current_folder(file_save_as_w, get_last_open_dir());

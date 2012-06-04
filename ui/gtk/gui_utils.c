@@ -578,6 +578,30 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
     return gtk_image_new_from_pixbuf(pixbuf);
 }
 
+/*
+ * Alert box for an invalid display filter expression.
+ * Assumes "dfilter_error_msg" has been set by "dfilter_compile()" to the
+ * error message for the filter.
+ *
+ * XXX - should this have a "Help" button that pops up the display filter
+ * help?
+ */
+void
+bad_dfilter_alert_box_modal(GtkWidget *parent, const char *dftext)
+{
+    GtkWidget *msg_dialog;
+
+    msg_dialog = gtk_message_dialog_new(GTK_WINDOW(parent),
+                                        GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_MESSAGE_ERROR,
+                                        GTK_BUTTONS_OK,
+            "The filter expression \"%s\" isn't a valid display filter. (%s)",
+                                        dftext, dfilter_error_msg);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+         "See the help for a description of the display filter syntax.");
+    gtk_dialog_run(GTK_DIALOG(msg_dialog));
+    gtk_widget_destroy(msg_dialog);
+}
 
 /* update the main window */
 void main_window_update(void)
