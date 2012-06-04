@@ -41,10 +41,9 @@
 #include "../capture-pcap-util.h"
 #ifdef HAVE_LIBPCAP
 #include "../capture.h"
-#include "ui/gtk/main.h"
 #include "ui/gtk/capture_globals.h"
 #endif
-
+#include "ui/gtk/main.h"
 #include "ui/gtk/summary_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
