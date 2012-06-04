@@ -76,8 +76,6 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
-static void file_merge_ok_cb(GtkWidget *w, gpointer fs);
-static void file_merge_destroy_cb(GtkWidget *win, gpointer user_data);
 static void do_file_save(capture_file *cf, gboolean dont_reopen);
 static void do_file_save_as(capture_file *cf);
 static void file_save_as_cb(GtkWidget *fs);
@@ -91,11 +89,6 @@ static void set_file_type_list(GtkWidget *combo_box, capture_file *cf);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
-
-#define E_MERGE_PREPEND_KEY 	  "merge_dlg_prepend_key"
-#define E_MERGE_CHRONO_KEY 	      "merge_dlg_chrono_key"
-#define E_MERGE_APPEND_KEY 	      "merge_dlg_append_key"
-
 
 #define PREVIEW_TABLE_KEY       "preview_table_key"
 #define PREVIEW_FILENAME_KEY    "preview_filename_key"
@@ -651,14 +644,6 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
     file_open_cmd(widget);
 }
 
-/*
- * Keep a static pointer to the current "Merge Capture File" window, if
- * any, so that if somebody tries to do "File:Merge" while there's already
- * an "Merge Capture File" window up, we just pop up the existing one,
- * rather than creating a new one.
- */
-static GtkWidget *file_merge_w;
-
 /* Merge existing with another file */
 static void
 file_merge_cmd(GtkWidget *w)
@@ -668,6 +653,7 @@ file_merge_cmd(GtkWidget *w)
   new_packet_list_freeze();
   new_packet_list_thaw();
 #else /* _WIN32 */
+  GtkWidget     *file_merge_w;
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *filter_hbox,
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
 		*append_rb, *prev;
@@ -680,12 +666,15 @@ file_merge_cmd(GtkWidget *w)
     FALSE,
     TRUE
   };
-
-  if (file_merge_w != NULL) {
-    /* There's already an "Merge Capture File" dialog box; reactivate it. */
-    reactivate_window(file_merge_w);
-    return;
-  }
+  gchar       *cf_name, *s;
+  const gchar *rfilter;
+  dfilter_t   *rfcode = NULL;
+  gpointer     ptr;
+  int          file_type;
+  int          err;
+  cf_status_t  merge_status;
+  char        *in_filenames[2];
+  char        *tmpname;
 
   /* Default to saving all packets, in the file's current format. */
 
@@ -775,8 +764,6 @@ file_merge_cmd(GtkWidget *w)
       "Prepend packets to existing file");
   gtk_widget_set_tooltip_text(prepend_rb, "The resulting file contains the packets from the selected, followed by the packets from the currently loaded file, the packet timestamps will be ignored.");
   gtk_box_pack_start(GTK_BOX(main_vb), prepend_rb, FALSE, FALSE, 0);
-  g_object_set_data(G_OBJECT(file_merge_w),
-                  E_MERGE_PREPEND_KEY, prepend_rb);
   gtk_widget_show(prepend_rb);
 
   chrono_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(prepend_rb), "Merge packets chronologically");
@@ -784,16 +771,11 @@ file_merge_cmd(GtkWidget *w)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chrono_rb), TRUE);
   gtk_box_pack_start(GTK_BOX(main_vb), chrono_rb, FALSE, FALSE, 0);
   gtk_widget_show(chrono_rb);
-  g_object_set_data(G_OBJECT(file_merge_w), E_MERGE_CHRONO_KEY, chrono_rb);
 
   append_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(prepend_rb), "Append packets to existing file");
   gtk_widget_set_tooltip_text(append_rb, "The resulting file contains the packets from the currently loaded, followed by the packets from the selected file, the packet timestamps will be ignored.");
   gtk_box_pack_start(GTK_BOX(main_vb), append_rb, FALSE, FALSE, 0);
   gtk_widget_show(append_rb);
-  g_object_set_data(G_OBJECT(file_merge_w), E_MERGE_APPEND_KEY, append_rb);
-
-  g_signal_connect(file_merge_w, "destroy",
-                   G_CALLBACK(file_merge_destroy_cb), NULL);
 
   /* preview widget */
   prev = preview_new();
@@ -807,11 +789,120 @@ file_merge_cmd(GtkWidget *w)
 
   g_object_set_data(G_OBJECT(file_merge_w), E_DFILTER_TE_KEY,
                     g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
-  if (gtk_dialog_run(GTK_DIALOG(file_merge_w)) == GTK_RESPONSE_ACCEPT)
-  {
-    file_merge_ok_cb(file_merge_w, file_merge_w);
+
+  /*
+   * Loop until the user either selects a file or gives up.
+   */
+  for (;;) {
+    if (gtk_dialog_run(GTK_DIALOG(file_merge_w)) != GTK_RESPONSE_ACCEPT) {
+      /* They clicked "Cancel" or closed the dialog or.... */
+      window_destroy(file_merge_w);
+      return;
+    }
+
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_merge_w));
+
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(cf_name) == EISDIR) {
+      /* It's a directory - set the file selection box to display that
+         directory, and go back and re-run it; don't try to open the
+         directory as a capture file. */
+      set_last_open_dir(cf_name);
+      g_free(cf_name);
+      file_selection_set_current_folder(file_merge_w, get_last_open_dir());
+      continue;
+    }
+
+    /* Get the specified read filter and try to compile it. */
+    rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
+    if (!dfilter_compile(rfilter, &rfcode)) {
+      /* Not valid.  Tell the user, and go back and run the file
+         selection box again once they dismiss the alert. */
+      bad_dfilter_alert_box_modal(file_merge_w, rfilter);
+      g_free(cf_name);
+      continue;
+    }
+
+    if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(ft_combo_box), &ptr)) {
+        g_assert_not_reached();  /* Programming error: somehow nothing is active */
+    }
+    file_type = GPOINTER_TO_INT(ptr);
+
+    /* Try to merge or append the two files */
+    tmpname = NULL;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chrono_rb))) {
+      /* chronological order */
+      in_filenames[0] = cfile.filename;
+      in_filenames[1] = cf_name;
+      merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
+    } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(prepend_rb))) {
+      /* prepend file */
+      in_filenames[0] = cf_name;
+      in_filenames[1] = cfile.filename;
+      merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type,
+                                    TRUE);
+    } else {
+      /* append file */
+      in_filenames[0] = cfile.filename;
+      in_filenames[1] = cf_name;
+      merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type,
+                                    TRUE);
+    }
+
+    g_free(cf_name);
+
+    if (merge_status != CF_OK) {
+      if (rfcode != NULL)
+        dfilter_free(rfcode);
+      g_free(tmpname);
+      continue;
+    }
+
+    cf_close(&cfile);
+
+    /* We've crossed the Rubicon; get rid of the file selection box. */
+    window_destroy(GTK_WIDGET(file_merge_w));
+
+    /* Try to open the merged capture file. */
+    if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
+      /* We couldn't open it; fail. */
+      if (rfcode != NULL)
+        dfilter_free(rfcode);
+      g_free(tmpname);
+      return;
+    }
+    g_free(tmpname);
+
+    /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
+       it closed the previous capture file, and thus destroyed any
+       previous read filter attached to "cf"). */
+    cfile.rfcode = rfcode;
+
+    switch (cf_read(&cfile, FALSE)) {
+
+    case CF_READ_OK:
+    case CF_READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
+
+    case CF_READ_ABORTED:
+      /* The user bailed out of re-reading the capture file; the
+         capture file has been closed - just free the capture file name
+         string and return (without changing the last containing
+         directory). */
+      return;
+    }
+
+    /* Save the name of the containing directory specified in the path name,
+       if any; we can write over cf_merged_name, which is a good thing, given that
+       "get_dirname()" does write over its argument. */
+    s = get_dirname(tmpname);
+    set_last_open_dir(s);
+    return;
   }
-  else window_destroy(file_merge_w);
 #endif /* _WIN32 */
 }
 
@@ -888,140 +979,6 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 
   /* Do the merge. */
   file_merge_cmd(widget);
-}
-
-
-static void
-file_merge_ok_cb(GtkWidget *w, gpointer fs) {
-  gchar       *cf_name, *s;
-  const gchar *rfilter;
-  GtkWidget   *ft_combo_box, *filter_te, *rb;
-  dfilter_t   *rfcode = NULL;
-  int          err;
-  cf_status_t  merge_status;
-  char        *in_filenames[2];
-  char        *tmpname;
-  gpointer     ptr;
-  int          file_type;
-
-
-  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-  filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
-  rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  if (!dfilter_compile(rfilter, &rfcode)) {
-    bad_dfilter_alert_box(rfilter);
-    g_free(cf_name);
-    return;
-  }
-
-  ft_combo_box  = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_TYPE_COMBO_BOX_KEY);
-  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(ft_combo_box), &ptr)) {
-      g_assert_not_reached();  /* Programming error: somehow nothing is active */
-  }
-  file_type = GPOINTER_TO_INT(ptr);
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-    /* It's a directory - set the file selection box to display that
-       directory, don't try to open the directory as a capture file. */
-    set_last_open_dir(cf_name);
-    g_free(cf_name);
-    file_selection_set_current_folder(fs, get_last_open_dir());
-    return;
-  }
-
-  /* merge or append the two files */
-  rb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_MERGE_CHRONO_KEY);
-  tmpname = NULL;
-  if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
-      /* chronological order */
-      in_filenames[0] = cfile.filename;
-      in_filenames[1] = cf_name;
-      merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
-  } else {
-      rb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_MERGE_PREPEND_KEY);
-      if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
-          /* prepend file */
-          in_filenames[0] = cf_name;
-          in_filenames[1] = cfile.filename;
-          merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type,
-                                        TRUE);
-      } else {
-          /* append file */
-          in_filenames[0] = cfile.filename;
-          in_filenames[1] = cf_name;
-          merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type,
-                                        TRUE);
-      }
-  }
-
-  g_free(cf_name);
-
-  if (merge_status != CF_OK) {
-    if (rfcode != NULL)
-      dfilter_free(rfcode);
-    g_free(tmpname);
-    return;
-  }
-
-  cf_close(&cfile);
-
-  /* We've crossed the Rubicon; get rid of the file selection box. */
-  window_destroy(GTK_WIDGET (fs));
-
-  /* Try to open the merged capture file. */
-  if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
-    /* We couldn't open it; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the open error,
-       try again. */
-    if (rfcode != NULL)
-      dfilter_free(rfcode);
-    g_free(tmpname);
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-    if (file_merge_w)
-      window_destroy(file_merge_w);
-    return;
-  }
-  g_free(tmpname);
-
-  /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
-     it closed the previous capture file, and thus destroyed any
-     previous read filter attached to "cf"). */
-  cfile.rfcode = rfcode;
-
-  switch (cf_read(&cfile, FALSE)) {
-
-  case CF_READ_OK:
-  case CF_READ_ERROR:
-    /* Just because we got an error, that doesn't mean we were unable
-       to read any of the file; we handle what we could get from the
-       file. */
-    break;
-
-  case CF_READ_ABORTED:
-    /* The user bailed out of re-reading the capture file; the
-       capture file has been closed - just free the capture file name
-       string and return (without changing the last containing
-       directory). */
-    return;
-  }
-
-  /* Save the name of the containing directory specified in the path name,
-     if any; we can write over cf_merged_name, which is a good thing, given that
-     "get_dirname()" does write over its argument. */
-  s = get_dirname(tmpname);
-  set_last_open_dir(s);
-}
-
-static void
-file_merge_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  /* Note that we no longer have a "Merge Capture File" dialog box. */
-  file_merge_w = NULL;
 }
 
 gboolean
