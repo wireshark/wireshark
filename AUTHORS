@@ -3447,6 +3447,10 @@ Niels de Vos		<ndevos [AT] redhat.com> {
 	Gluster dissectors
 }
 
+Clement MARRAST 	clement.marrast [AT] molex.com {
+	WSE Remote Ethernet protocol
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

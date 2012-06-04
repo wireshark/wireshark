@@ -1194,6 +1194,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-wol.c
 	dissectors/packet-wow.c
 	dissectors/packet-wps.c
+	dissectors/packet-wreth.c
 	dissectors/packet-wsmp.c
 	dissectors/packet-wsp.c
 	dissectors/packet-wtls.c
