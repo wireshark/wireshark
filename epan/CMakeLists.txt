@@ -622,6 +622,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-giop.c
 	dissectors/packet-git.c
 	dissectors/packet-glbp.c
+	dissectors/packet-gluster_cli.c
 	dissectors/packet-gluster_pmap.c
 	dissectors/packet-glusterd.c
 	dissectors/packet-glusterfs.c
