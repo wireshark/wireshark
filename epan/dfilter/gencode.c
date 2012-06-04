@@ -497,7 +497,7 @@ dfw_gencode(dfwork_t *dfw)
 	/* move constants after registers*/
         if (dfw->first_constant == -1) {
             /* NONE */
-            dfw->first_constant = 0;
+            dfw->first_constant = dfw->next_register;
             return;
         }
 

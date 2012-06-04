@@ -1111,9 +1111,10 @@ header_field_info   *hfinfo;
 
 	if (stnode_type_id(st_arg2) == STTYPE_FIELD) {
 		hfinfo = (header_field_info*)stnode_data(st_arg2);
-		if (hfinfo->type == FT_PROTOCOL)
+		if (hfinfo->type == FT_PROTOCOL) {
 			dfilter_fail("Protocol (\"%s\") cannot appear on right-hand side of comparison.", hfinfo->abbrev);
 			THROW(TypeError);
+		}
 	}
 
 	switch (stnode_type_id(st_arg1)) {
