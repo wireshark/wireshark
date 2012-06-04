@@ -439,18 +439,20 @@ static void dissect_bind(tvbuff_t *tvb, int offset,
 
 
 
-static void dissect_auth(tvbuff_t *tvb, int offset,
+static int dissect_auth(tvbuff_t *tvb, int offset,
 	proto_tree *tree) {
 
 /* decode the authorization request  */
 
-	if ( tree) {
-		offset += 134;
 
+	offset += 134;
+	if ( tree) {
 		proto_tree_add_text( tree, tvb, offset, 7, "NTLMSSP signature: %.7s",
 			tvb_get_ephemeral_string( tvb, offset, 7));
-		offset += 7;
 	}
+	offset += 7;
+
+	return offset;
 }
 
 
@@ -736,7 +738,7 @@ static void dissect_msproxy_request(tvbuff_t *tvb,
 
 
 
-static void dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
+static int dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 /* decode the hello acknowledge packet  */
 
@@ -745,18 +747,21 @@ static void dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 	if ( tree) {
 		proto_tree_add_item( tree, hf_msproxy_serverport, tvb, offset, 2,
 			 ENC_BIG_ENDIAN);
-		offset += 2;
-
+	}
+	offset += 2;
+	if ( tree) {
 		proto_tree_add_item( tree, hf_msproxy_serveraddr, tvb, offset, 4,
 			ENC_BIG_ENDIAN);
-		offset += 4;
 	}
+	offset += 4;
+
+	return offset;
 }
 
 
 
 /* XXX - implement me */
-static void dissect_user_info_ack(tvbuff_t *tvb _U_, int offset,
+static int dissect_user_info_ack(tvbuff_t *tvb _U_, int offset,
 	proto_tree *tree _U_) {
 
 /* decode the  response _2 structure  */
@@ -765,6 +770,7 @@ static void dissect_user_info_ack(tvbuff_t *tvb _U_, int offset,
 
 	offset += 2;
 
+	return offset;
 }
 
 
@@ -811,12 +817,14 @@ static void dissect_auth_1_ack(tvbuff_t *tvb, int offset,
 
 
 /* XXX - implement me */
-static void dissect_msproxy_response_4( tvbuff_t *tvb _U_, int offset,
+static int dissect_msproxy_response_4( tvbuff_t *tvb _U_, int offset,
 	proto_tree *tree _U_) {
 
 /* decode the response _4 structure  */
 
 	offset += 134;
+
+	return offset;
 }
 
 

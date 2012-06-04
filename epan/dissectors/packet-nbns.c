@@ -450,7 +450,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 		proto_tree_add_text(q_tree, tvb, offset, 2, "Class: %s",
 		    dns_class_name(class));
-		offset += 2;
+		/*offset += 2;*/
 	}
 
 	return data_offset - data_start;
@@ -956,7 +956,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		    "Session data packet size: %u",
 		    tvb_get_ntohs(tvb, cur_offset));
 		cur_offset += 2;
-		data_len -= 2;
+		/*data_len -= 2;*/
 	out:
 		break;
 
@@ -1127,7 +1127,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"Authoritative nameservers");
 
 		if (add > 0)
-			cur_off += dissect_answer_records(tvb, cur_off,
+			/*cur_off += */dissect_answer_records(tvb, cur_off,
 					nbns_data_offset,
 					add, NULL, nbns_tree, opcode,
 					"Additional records");
@@ -1192,7 +1192,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item		*ti = NULL;
 	struct nbdgm_header	header;
 	int			flags;
-	int			message_index;
 	tvbuff_t		*next_tvb;
 
 	static const value_string error_codes[] = {
@@ -1238,11 +1237,6 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBDS_ERROR:
 		header.error_code = tvb_get_guint8(tvb, offset+10);
 		break;
-	}
-
-	message_index = header.msg_type - 0x0f;
-	if (message_index < 1 || message_index > 8) {
-		message_index = 0;
 	}
 
 	col_add_str(pinfo->cinfo, COL_INFO,
