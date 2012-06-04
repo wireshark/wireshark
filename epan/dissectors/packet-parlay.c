@@ -92426,7 +92426,7 @@ static void decode_org_csapi_fw_TpMigrationAdditionalInfo_un(tvbuff_t *tvb _U_, 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gint32    disc_s_TpMigrationAdditionalInfo;
+    /*Manual Fix Clang Warning gint32    disc_s_TpMigrationAdditionalInfo;*/
     gint16    s_octet2;
     
     /* Operation specific Variable declarations End */
@@ -92445,7 +92445,7 @@ static void decode_org_csapi_fw_TpMigrationAdditionalInfo_un(tvbuff_t *tvb _U_, 
      * IDL Union - Discriminant - IDL:org/csapi/fw/TpMigrationAdditionalInfoType:1.0
      */
      
-    disc_s_TpMigrationAdditionalInfo = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+    /*Manual Fix Clang Warning disc_s_TpMigrationAdditionalInfo = (gint32) u_octet4;*/     /* save Enum Value  discriminant and cast to gint32 */
 
     
     /* Default Union Case Start */
