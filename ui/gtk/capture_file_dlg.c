@@ -81,10 +81,6 @@ static void do_file_save_as(capture_file *cf);
 static void file_save_as_cb(GtkWidget *fs);
 static void file_select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
-static void file_color_import_ok_cb(GtkWidget *w, gpointer filter_list);
-static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
-static void file_color_export_ok_cb(GtkWidget *w, gpointer filter_list);
-static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
 static void set_file_type_list(GtkWidget *combo_box, capture_file *cf);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
@@ -590,15 +586,15 @@ file_open_cmd(GtkWidget *w)
 
     /* Set the global resolving variable */
     gbl_resolv_flags = prefs.name_resolve;
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)))
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
       gbl_resolv_flags |= RESOLV_MAC;
     else
       gbl_resolv_flags &= ~RESOLV_MAC;
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)))
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
      gbl_resolv_flags |= RESOLV_NETWORK;
     else
      gbl_resolv_flags &= ~RESOLV_NETWORK;
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)))
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_resolv_cb)))
       gbl_resolv_flags |= RESOLV_TRANSPORT;
     else
       gbl_resolv_flags &= ~RESOLV_TRANSPORT;
@@ -1307,16 +1303,9 @@ do_file_save_as(capture_file *cf)
       continue;
     }
 
-    /* it the file doesn't exist, simply try to save it */
-    if (!file_exists(cf_name)) {
-      g_free(cf_name);
-      file_save_as_cb(file_save_as_w);
-      return;
-    }
-
-    /* Ask the user whether they want to overwrite it and, if so and
-       it's user-immutable or not writable, whether they want to
-       override that. */
+    /* If the file exists, ask the user whether they want to overwrite it
+       and, if so and it's user-immutable or not writable, whether they
+       want to override that. */
     if (!file_target_exist_ui(file_save_as_w, cf_name)) {
       /* They don't.  Let them try another file name or cancel. */
       g_free(cf_name);
@@ -1474,7 +1463,8 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
        Check whether they did. */
     if (test_for_directory(cf_name) == EISDIR) {
       /* It's a directory - set the file selection box to display that
-         directory, and leave the selection box displayed. */
+         directory, and go back and re-run it; don't try to write onto
+         the directory (which won't work anyway). */
       set_last_open_dir(cf_name);
       g_free(cf_name);
       file_selection_set_current_folder(file_export_specified_packets_w, get_last_open_dir());
@@ -1515,16 +1505,9 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       continue;
     }
 
-    /* it the file doesn't exist, simply try to write the packets to it */
-    if (!file_exists(cf_name)) {
-      g_free(cf_name);
-      file_export_specified_packets_cb(file_export_specified_packets_w, &range);
-      return;
-    }
-
-    /* Ask the user whether they want to overwrite it and, if so and
-       it's user-immutable or not writable, whether they want to
-       override that. */
+    /* If the file exists, ask the user whether they want to overwrite it
+       and, if so and it's user-immutable or not writable, whether they
+       want to override that. */
     if (!file_target_exist_ui(file_export_specified_packets_w, cf_name)) {
       /* They don't.  Let them try another file name or cancel. */
       g_free(cf_name);
@@ -1631,15 +1614,10 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
   win32_import_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), color_filters);
 #else /* _WIN32 */
   GtkWidget	*main_vb, *cfglobal_but;
+  gchar         *cf_name, *s;
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
-
-  if (file_color_import_w != NULL) {
-    /* There's already an "Import Color Filters" dialog box; reactivate it. */
-    reactivate_window(file_color_import_w);
-    return;
-  }
 
   file_color_import_w = file_selection_new("Wireshark: Import Color Filters",
                                            FILE_SELECTION_OPEN);
@@ -1650,79 +1628,61 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
   file_selection_set_extra_widget(file_color_import_w, main_vb);
   gtk_widget_show(main_vb);
 
-
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
   gtk_container_add(GTK_CONTAINER(main_vb), cfglobal_but);
   g_signal_connect(cfglobal_but, "clicked",
                    G_CALLBACK(color_global_cb), file_color_import_w);
   gtk_widget_show(cfglobal_but);
 
-  g_signal_connect(file_color_import_w, "destroy",
-                   G_CALLBACK(file_color_import_destroy_cb), NULL);
+  /*
+   * Loop until the user either selects a file or gives up.
+   */
+  for (;;) {
+    if (gtk_dialog_run(GTK_DIALOG(file_color_import_w)) != GTK_RESPONSE_ACCEPT) {
+      /* They clicked "Cancel" or closed the dialog or.... */
+      window_destroy(file_color_import_w);
+      return;
+    }
 
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_color_import_w));
 
-  if (gtk_dialog_run(GTK_DIALOG(file_color_import_w)) == GTK_RESPONSE_ACCEPT)
-  {
-      file_color_import_ok_cb(file_color_import_w, color_filters);
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(cf_name) == EISDIR) {
+      /* It's a directory - set the file selection box to display that
+         directory, and go back and re-run it; don't try to open the
+         directory as a color filter file. */
+      set_last_open_dir(cf_name);
+      g_free(cf_name);
+      file_selection_set_current_folder(file_color_import_w, get_last_open_dir());
+      continue;
+    }
+
+    /* Try to open the color filter file. */
+    if (!color_filters_import(cf_name, color_filters)) {
+      /* We couldn't open it; don't dismiss the open dialog box,
+         just leave it around so that the user can, after they
+         dismiss the alert box popped up for the open error,
+         try again. */
+      g_free(cf_name);
+      continue;
+    }
+
+    /* We've crossed the Rubicon; get rid of the file selection box. */
+    window_destroy(GTK_WIDGET(file_color_import_w));
+
+    /* Save the name of the containing directory specified in the path name,
+       if any; we can write over cf_name, which is a good thing, given that
+       "get_dirname()" does write over its argument. */
+    s = get_dirname(cf_name);
+    set_last_open_dir(s);
+
+    g_free(cf_name);
+    return;
   }
-  else window_destroy(file_color_import_w);
 #endif /* _WIN32 */
 }
 
-static void
-file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
-  gchar     *cf_name, *s;
-  GtkWidget *fs = gtk_widget_get_toplevel(w);
-
-  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-    /* It's a directory - set the file selection box to display that
-       directory, don't try to open the directory as a color filter file. */
-    set_last_open_dir(cf_name);
-    g_free(cf_name);
-    file_selection_set_current_folder(fs, get_last_open_dir());
-    return;
-  }
-
-  /* Try to open the color filter file. */
-
-  if (!color_filters_import(cf_name, color_filters)) {
-    /* We couldn't open it; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the open error,
-       try again. */
-    g_free(cf_name);
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-    window_destroy(GTK_WIDGET (fs));
-
-    return;
-  }
-
-  /* We've crossed the Rubicon; get rid of the file selection box. */
-  window_destroy(GTK_WIDGET (fs));
-
-  /* Save the name of the containing directory specified in the path name,
-     if any; we can write over cf_name, which is a good thing, given that
-     "get_dirname()" does write over its argument. */
-  s = get_dirname(cf_name);
-  set_last_open_dir(s);
-
-  g_free(cf_name);
-}
-
-static void
-file_color_import_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  /* Note that we no longer have a "Open Capture File" dialog box. */
-  file_color_import_w = NULL;
-}
-
-static GtkWidget *file_color_export_w;
 /*
  * Set the "Export only selected filters" toggle button as appropriate for
  * the current output file type and count of selected filters.
@@ -1733,11 +1693,6 @@ static GtkWidget *file_color_export_w;
 static void
 color_set_export_selected_sensitive(GtkWidget * cfselect_cb)
 {
-  if (file_color_export_w == NULL) {
-    /* We don't currently have an "Export" dialog box up. */
-    return;
-  }
-
   /* We can request that only the selected filters be saved only if
         there *are* selected filters. */
   if (color_selected_count() != 0)
@@ -1763,14 +1718,11 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 #if _WIN32
   win32_export_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), filter_list);
 #else /* _WIN32 */
+  GtkWidget *file_color_export_w;
   GtkWidget *main_vb, *cfglobal_but;
   GtkWidget *cfselect_cb;
-
-  if (file_color_export_w != NULL) {
-    /* There's already an "Color Filter Export" dialog box; reactivate it. */
-    reactivate_window(file_color_export_w);
-    return;
-  }
+  gchar     *cf_name;
+  gchar     *dirname;
 
   color_selected   = FALSE;
 
@@ -1797,65 +1749,56 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
                    G_CALLBACK(color_global_cb), file_color_export_w);
   gtk_widget_show(cfglobal_but);
 
-  g_signal_connect(file_color_export_w, "destroy",
-                   G_CALLBACK(file_color_export_destroy_cb), NULL);
+  /*
+   * Loop until the user either selects a file or gives up.
+   */
+  for (;;) {
+    if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) != GTK_RESPONSE_ACCEPT) {
+      /* They clicked "Cancel" or closed the dialog or.... */
+      window_destroy(file_color_export_w);
+      return;
+    }
 
-  if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) == GTK_RESPONSE_ACCEPT)
-  {
-    file_color_export_ok_cb(file_color_export_w, filter_list);
-  }
-  else window_destroy(file_color_export_w);
-#endif /* _WIN32 */
-}
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_color_export_w));
 
-static void
-file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
-  gchar	*cf_name;
-  gchar	*dirname;
-  GtkWidget *fs = gtk_widget_get_toplevel(w);
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(cf_name) == EISDIR) {
+      /* It's a directory - set the file selection box to display that
+         directory, and go back and re-run it; don't try to write onto
+         the directory (which wn't work anyway). */
+      set_last_open_dir(cf_name);
+      g_free(cf_name);
+      file_selection_set_current_folder(file_color_export_w, get_last_open_dir());
+      continue;
+    }
 
-  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
+    /* If the file exists, ask the user whether they want to overwrite it
+       and, if so and it's user-immutable or not writable, whether they
+       want to override that. */
+    if (!file_target_exist_ui(file_color_export_w, cf_name)) {
+      /* They don't.  Let them try another file name or cancel. */
+      g_free(cf_name);
+      continue;
+    }
 
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-    /* It's a directory - set the file selection box to display that
-       directory, and leave the selection box displayed. */
-    set_last_open_dir(cf_name);
+    /* Write out the filters (all, or only the ones that are currently
+       displayed or selected) to the file with the specified name. */
+    if (!color_filters_export(cf_name, filter_list, color_selected)) {
+      /* The write failed; don't dismiss the open dialog box,
+         just leave it around so that the user can, after they
+         dismiss the alert box popped up for the error, try again. */
+      g_free(cf_name);
+      continue;
+    }
+
+    /* The write succeeded; get rid of the file selection box. */
+    window_destroy(GTK_WIDGET(file_color_export_w));
+
+    /* Save the directory name for future file dialogs. */
+    dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+    set_last_open_dir(dirname);
     g_free(cf_name);
-    file_selection_set_current_folder(fs, get_last_open_dir());
-    return;
   }
-
-  /* Write out the filters (all, or only the ones that are currently
-     displayed or selected) to the file with the specified name. */
-
-   if (!color_filters_export(cf_name, filter_list, color_selected))
-   {
-    /* The write failed; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the error, try again. */
-       g_free(cf_name);
-
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-     window_destroy(GTK_WIDGET (fs));
-
-     return;
-   }
-
-  /* The write succeeded; get rid of the file selection box. */
-  window_destroy(GTK_WIDGET (fs));
-
-  /* Save the directory name for future file dialogs. */
-  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
-  set_last_open_dir(dirname);
-  g_free(cf_name);
-}
-
-static void
-file_color_export_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  file_color_export_w = NULL;
+#endif /* _WIN32 */
 }

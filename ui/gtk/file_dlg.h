@@ -86,9 +86,11 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
 extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
 
 #ifndef _WIN32
-/* Pop up and run the UI asking the user whether they want to
- * overwrite a file and, if it's user-immutable or not writable,
- * whether they want to overwrite it anyway.
+/** If the specified file doesn't exist, return TRUE.
+ * If it does exist, pop up and run the UI asking the user whether
+ *  they want to overwrite a file and, if it's user-immutable or not
+ *  writable, whether they want to overwrite it anyway, and return
+ * TRUE if the file should be overwritten and FALSE otherwise.
  *
  * @param chooser_w the GtkFileChooser used to select the file in question
  * @param cf_name the current name chosen
