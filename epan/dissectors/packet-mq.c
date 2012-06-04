@@ -1999,7 +1999,6 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     offset += iSizeORRR;
                             }
                         }
-                        structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
                     }
                     if ((opcode == MQ_TST_MQOPEN || opcode == MQ_TST_MQCLOSE
                         || opcode == MQ_TST_MQOPEN_REPLY || opcode == MQ_TST_MQCLOSE_REPLY)
@@ -2012,7 +2011,6 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             proto_tree_add_item(mq_tree, hf_mq_open_options, tvb, offset, 4, int_rep);
                         }
                         offset += 4;
-                        structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
                     }
                     if ((iSizeMD_gbl = dissect_mq_md(tvb, mqroot_tree, int_rep, string_rep, offset, &tMsgProps)) != 0)
                     {
@@ -2239,7 +2237,6 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         }
                                         offset += iSizeHeader;
                                         iHeadersLength += iSizeHeader;
-                                        structId = (tvb_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
                                     }
                                 }
                             }

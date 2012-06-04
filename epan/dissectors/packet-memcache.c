@@ -595,10 +595,10 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += key_len;
 
     dissect_value (tvb, pinfo, memcache_tree, offset, value_len, opcode, request);
-    offset += value_len;
+    /*offset += value_len;*/
   } else if (body_len) {
     proto_tree_add_item (memcache_tree, hf_value, tvb, offset, body_len, ENC_ASCII|ENC_NA);
-    offset += body_len;
+    /*offset += body_len;*/
 
     col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
                      val_to_str (status, status_vals, "Unknown status: %d"));
@@ -1031,8 +1031,6 @@ incr_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
     }
 
     proto_tree_add_item (tree, hf_uint64_response, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
-    offset += (int) (next_token - line);
-    line = next_token;
 
     /* CRLF */
     tokenlen = get_token_len (line, lineend, &next_token);
@@ -1149,11 +1147,8 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
       return -1; /* invalid token */
     }
     proto_tree_add_item (tree, hf_name_value, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-    offset += (int) (next_token - line);
-    line = next_token;
 
     offset = next_offset;
-    occurrences = 0;
   }
 
   return offset;
@@ -1264,9 +1259,6 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
       cas = (guint64) strtoul (response_chars, NULL, 10);
       proto_tree_add_uint64 (tree, hf_cas, tvb, offset, tokenlen, cas);
 
-      offset += (int) (next_token - line);
-      line = next_token;
-
       /* CRLF */
       tokenlen = get_token_len (line, lineend, &next_token);
       if (tokenlen != 0) {
@@ -1360,7 +1352,6 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   {
     proto_tree_add_item (tree, hf_response, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
     offset += (int) (next_token - line);
-    line = next_token;
     return offset;
   }
 
@@ -1487,7 +1478,6 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
       }
       offset += (int) (next_token - line);
-      line = next_token;
     }
 
     offset += 2 ; /* go past /r/n*/
@@ -1655,7 +1645,6 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       /* noreply */
       proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
       offset += (int) (next_token - line);
-      line = next_token;
     } else {
       return -1; /* expecting CRLF and if not noreply*/
     }
