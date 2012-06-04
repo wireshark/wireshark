@@ -438,9 +438,9 @@ file_open_cmd(GtkWidget *w)
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
-  	"Wireshark: Read Filter",
-  	FALSE,
-  	FALSE,
+      "Wireshark: Read Filter",
+      FALSE,
+      FALSE,
     TRUE
   };
   gchar         *cf_name, *s;
