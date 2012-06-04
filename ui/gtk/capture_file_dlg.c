@@ -987,12 +987,12 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
   if (test_for_directory(cf_name) == EISDIR) {
-	/* It's a directory - set the file selection box to display that
-	   directory, don't try to open the directory as a capture file. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
-        file_selection_set_current_folder(fs, get_last_open_dir());
-    	return;
+    /* It's a directory - set the file selection box to display that
+       directory, don't try to open the directory as a capture file. */
+    set_last_open_dir(cf_name);
+    g_free(cf_name);
+    file_selection_set_current_folder(fs, get_last_open_dir());
+    return;
   }
 
   /* merge or append the two files */
@@ -1417,13 +1417,12 @@ do_file_save_as(capture_file *cf)
     /* Perhaps the user specified a directory instead of a file.
        Check whether they did. */
     if (test_for_directory(cf_name) == EISDIR) {
-          /* It's a directory - set the file selection box to display that
-             directory, and go back and re-run it. */
-          set_last_open_dir(cf_name);
-          g_free(cf_name);
-          file_selection_set_current_folder(file_save_as_w,
-                                            get_last_open_dir());
-          continue;
+      /* It's a directory - set the file selection box to display that
+         directory, and go back and re-run it. */
+      set_last_open_dir(cf_name);
+      g_free(cf_name);
+      file_selection_set_current_folder(file_save_as_w, get_last_open_dir());
+      continue;
     }
 
     /*
@@ -2038,12 +2037,12 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
   if (test_for_directory(cf_name) == EISDIR) {
-	/* It's a directory - set the file selection box to display that
-	   directory, don't try to open the directory as a color filter file. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
-        file_selection_set_current_folder(fs, get_last_open_dir());
-    	return;
+    /* It's a directory - set the file selection box to display that
+       directory, don't try to open the directory as a color filter file. */
+    set_last_open_dir(cf_name);
+    g_free(cf_name);
+    file_selection_set_current_folder(fs, get_last_open_dir());
+    return;
   }
 
   /* Try to open the color filter file. */
@@ -2161,7 +2160,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 
   if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) == GTK_RESPONSE_ACCEPT)
   {
-      file_color_export_ok_cb(file_color_export_w, filter_list);
+    file_color_export_ok_cb(file_color_export_w, filter_list);
   }
   else window_destroy(file_color_export_w);
 #endif /* _WIN32 */
@@ -2178,12 +2177,12 @@ file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
   /* Perhaps the user specified a directory instead of a file.
      Check whether they did. */
   if (test_for_directory(cf_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display that
-           directory, and leave the selection box displayed. */
-        set_last_open_dir(cf_name);
-        g_free(cf_name);
-        file_selection_set_current_folder(fs, get_last_open_dir());
-        return;
+    /* It's a directory - set the file selection box to display that
+       directory, and leave the selection box displayed. */
+    set_last_open_dir(cf_name);
+    g_free(cf_name);
+    file_selection_set_current_folder(fs, get_last_open_dir());
+    return;
   }
 
   /* Write out the filters (all, or only the ones that are currently
@@ -2196,12 +2195,12 @@ file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
        dismiss the alert box popped up for the error, try again. */
        g_free(cf_name);
 
-      /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-       * as this will prevent the user from closing the now existing error
-       * message, simply close the dialog (this is the best we can do here). */
-       window_destroy(GTK_WIDGET (fs));
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */
+     window_destroy(GTK_WIDGET (fs));
 
-       return;
+     return;
    }
 
   /* The write succeeded; get rid of the file selection box. */
