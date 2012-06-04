@@ -3236,7 +3236,7 @@ dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
-	actx->value_ptr = parameter_tvb;
+	(tvbuff_t*)actx->value_ptr = parameter_tvb;
 
 
 
@@ -3283,54 +3283,54 @@ if (!actx->value_ptr)
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8(actx->value_ptr,0);
-		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		 octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8(actx->value_ptr,1);
-		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+		 length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */
-			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
+			de_bearer_cap((tvbuff_t*)actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
+			proto_tree_add_text(subtree, (tvbuff_t*)actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
 			break;
 		}/* switch(octet) */
 		break;
 	case 2:
  		/* gsm-0806 */
-		octet = tvb_get_guint8(actx->value_ptr,0);
+		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		/* Discrimination parameter */
-		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
+			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
-			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
 		break;
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
-		octet = tvb_get_guint8(actx->value_ptr,0);
+		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
+			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8(actx->value_ptr,0);
-		length = tvb_get_guint8(actx->value_ptr,1);
+		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
 		if ( octet == 4 )
-			dissect_q931_bearer_capability_ie(actx->value_ptr, 2, length, subtree);
+			dissect_q931_bearer_capability_ie((tvbuff_t*)actx->value_ptr, 2, length, subtree);
 		break;
 	default:
 		break;
@@ -5064,7 +5064,7 @@ dissect_gsm_map_er_SM_DeliveryFailureCause(gboolean implicit_tag _U_, tvbuff_t *
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6089,7 +6089,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6114,7 +6114,7 @@ dissect_gsm_map_sm_MO_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6144,7 +6144,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6169,7 +6169,7 @@ dissect_gsm_map_sm_MT_ForwardSM_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6352,7 +6352,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Arg(gboolean implicit_tag _U_, tvbuff_t *tv
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -6392,7 +6392,7 @@ dissect_gsm_map_sm_MT_ForwardSM_VGCS_Res(gboolean implicit_tag _U_, tvbuff_t *tv
 
         if (!actx->value_ptr)
                 return offset;
-        dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+        dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -16320,54 +16320,54 @@ if (!actx->value_ptr)
 		 * function
 		 */
 		 /* Get tag */
-		 octet = tvb_get_guint8(actx->value_ptr,0);
-		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		 octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		 proto_tree_add_item(subtree, hf_gsm_map_ie_tag, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		 /* get length */
-		 length = tvb_get_guint8(actx->value_ptr,1);
-		 proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+		 length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
+		 proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
 		 /* Branch on tag */
 		 switch(octet){
 		 case 4:
 			/* Dissect the data part */
-			de_bearer_cap(actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
+			de_bearer_cap((tvbuff_t*)actx->value_ptr, subtree, actx->pinfo, 2, length, NULL, 0);
 			/* TODO: There may be more than one IE */
 			break;
 		 default:
-			proto_tree_add_text(subtree, actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
+			proto_tree_add_text(subtree, (tvbuff_t*)actx->value_ptr, 0, length, "If you want this decoded send the packet to Wireshark-dev");
 			break;
 		}/* switch(octet) */
 		break;
 	case 2:
  		/* gsm-0806 */
-		octet = tvb_get_guint8(actx->value_ptr,0);
+		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		/* Discrimination parameter */
-		proto_tree_add_item(subtree, hf_gsm_map_disc_par, actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_gsm_map_disc_par, (tvbuff_t*)actx->value_ptr, 0,1,ENC_BIG_ENDIAN);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
+			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
-			proto_tree_add_item(subtree, hf_gsm_map_dlci, actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtree, hf_gsm_map_len, actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
-			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 3);
+			proto_tree_add_item(subtree, hf_gsm_map_dlci, (tvbuff_t*)actx->value_ptr, 1,1,ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_gsm_map_len, (tvbuff_t*)actx->value_ptr, 2,1,ENC_BIG_ENDIAN);
+			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
 		break;
 	case 3:
 	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/
-		octet = tvb_get_guint8(actx->value_ptr,0);
+		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
-			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
+			next_tvb = tvb_new_subset_remaining((tvbuff_t*)actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}
 		break;
 	/* ets-300102-1 (~Q.931 ) */
 	case 4:
-		octet = tvb_get_guint8(actx->value_ptr,0);
-		length = tvb_get_guint8(actx->value_ptr,1);
+		octet = tvb_get_guint8((tvbuff_t*)actx->value_ptr,0);
+		length = tvb_get_guint8((tvbuff_t*)actx->value_ptr,1);
 		if ( octet == 4 )
-			dissect_q931_bearer_capability_ie(actx->value_ptr, 2, length, subtree);
+			dissect_q931_bearer_capability_ie((tvbuff_t*)actx->value_ptr, 2, length, subtree);
 		break;
 	default:
 		break;
@@ -17012,7 +17012,7 @@ dissect_gsm_old_ForwardSM_Arg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 	if (!actx->value_ptr)
 		return offset;
-	dissector_try_uint(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+	dissector_try_uint(sms_dissector_table, 0, (tvbuff_t*)actx->value_ptr, actx->pinfo, top_tree);
 
 
 
@@ -19253,9 +19253,9 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   opcode = 0;
   application_context_version = 0;
   if (actx->pinfo->private_data != NULL){
-    p_private_tcap=actx->pinfo->private_data;
+    p_private_tcap = (struct tcap_private_t *)actx->pinfo->private_data;
     if (p_private_tcap->acv==TRUE ){
-      version_ptr = strrchr(p_private_tcap->oid,'.');
+      version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
       if (version_ptr){
 		  application_context_version = atoi(version_ptr+1);
 	  }

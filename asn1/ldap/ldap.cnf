@@ -168,7 +168,7 @@ ldap_conv_info_t *ldap_info;
 
 %(DEFAULT_BODY)s
 
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
 	ldap_info->auth_type = LDAP_AUTH_SIMPLE;
 
 	actx->pinfo->private_data = ldap_info;
@@ -179,7 +179,7 @@ ldap_conv_info_t *ldap_info;
 tvbuff_t	*parameter_tvb;
 char *mechanism = NULL;
 %(DEFAULT_BODY)s
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
 	ldap_info->auth_type = LDAP_AUTH_SASL;
 
 	if (!parameter_tvb)
@@ -221,7 +221,7 @@ gint32 tag;
 	if (!parameter_tvb)
 		return offset;
 
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
 	get_ber_identifier(parameter_tvb, 0, &ber_class, &pc, &tag);
 
 	/*if ((ldap_info->auth_mech != NULL) && (strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) && (ber_class==BER_CLASS_CON)) {*/

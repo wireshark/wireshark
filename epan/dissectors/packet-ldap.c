@@ -621,7 +621,7 @@ static GHashTable* attribute_types_hash = NULL;
 static void
 attribute_types_update_cb(void *r, const char **err)
 {
-  attribute_type_t *rec = r;
+  attribute_type_t *rec = (attribute_type_t *)r;
   char c;
 
   if (rec->attribute_type == NULL) {
@@ -650,8 +650,8 @@ attribute_types_update_cb(void *r, const char **err)
 static void *
 attribute_types_copy_cb(void* n, const void* o, size_t siz _U_)
 {
-  attribute_type_t* new_rec = n;
-  const attribute_type_t* old_rec = o;
+  attribute_type_t* new_rec = (attribute_type_t*)n;
+  const attribute_type_t* old_rec = (attribute_type_t*)o;
 
   new_rec->attribute_type = g_strdup(old_rec->attribute_type);
   new_rec->attribute_desc = g_strdup(old_rec->attribute_desc);
@@ -662,7 +662,7 @@ attribute_types_copy_cb(void* n, const void* o, size_t siz _U_)
 static void
 attribute_types_free_cb(void*r)
 {
-  attribute_type_t* rec = r;
+  attribute_type_t* rec = (attribute_type_t*)r;
 
   if (rec->attribute_type) g_free(rec->attribute_type);
   if (rec->attribute_desc) g_free(rec->attribute_desc);
@@ -717,10 +717,10 @@ attribute_types_initialize_cb(void)
 
   if (num_attribute_types) {
     attribute_types_hash = g_hash_table_new(g_str_hash, g_str_equal);
-    hf = g_malloc0(sizeof(hf_register_info) * num_attribute_types);
+    hf = g_new0(hf_register_info,num_attribute_types);
 
     for (i = 0; i < num_attribute_types; i++) {
-      hf_id = g_malloc(sizeof(gint));
+      hf_id = g_new(gint,1);
       *hf_id = -1;
       attribute_type = g_strdup(attribute_types[i].attribute_type);
 
@@ -1030,7 +1030,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         }
         /* if we cant reuse the old one, grab a new chunk */
         if(!lcrp){
-          lcrp=se_alloc(sizeof(ldap_call_response_t));
+          lcrp=se_new(ldap_call_response_t);
         }
         lcrp->messageId=messageId;
         lcrp->req_frame=pinfo->fd->num;
@@ -1250,7 +1250,7 @@ ldap_conv_info_t *ldap_info;
                                        NULL);
 
 
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
 	ldap_info->auth_type = LDAP_AUTH_SIMPLE;
 
 	actx->pinfo->private_data = ldap_info;
@@ -1272,7 +1272,7 @@ char *mechanism = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
 	ldap_info->auth_type = LDAP_AUTH_SASL;
 
 	if (!parameter_tvb)
@@ -1325,7 +1325,7 @@ gint32 tag;
 	if (!parameter_tvb)
 		return offset;
 
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
 	get_ber_identifier(parameter_tvb, 0, &ber_class, &pc, &tag);
 
 	/*if ((ldap_info->auth_mech != NULL) && (strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) && (ber_class==BER_CLASS_CON)) {*/
@@ -3970,272 +3970,272 @@ ldap_frame_end(void)
 }
 
 static void
-dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_mscldap)
+	dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_mscldap)
 {
-  int offset = 0;
-  conversation_t *conversation;
-  gboolean doing_sasl_security = FALSE;
-  guint length_remaining;
-  ldap_conv_info_t *ldap_info = NULL;
-  proto_item *ldap_item = NULL;
-  proto_tree *ldap_tree = NULL;
+	int offset = 0;
+	conversation_t *conversation;
+	gboolean doing_sasl_security = FALSE;
+	guint length_remaining;
+	ldap_conv_info_t *ldap_info = NULL;
+	proto_item *ldap_item = NULL;
+	proto_tree *ldap_tree = NULL;
 
-  ldm_tree = NULL;
+	ldm_tree = NULL;
 
-  conversation = find_or_create_conversation(pinfo);
+	conversation = find_or_create_conversation(pinfo);
 
-  /*
-   * Do we already have a type and mechanism?
-   */
-  ldap_info = (ldap_conv_info_t *)conversation_get_proto_data(conversation, proto_ldap);
-  if (ldap_info == NULL) {
-    /* No.  Attach that information to the conversation, and add
-     * it to the list of information structures.
-     */
-    ldap_info = g_malloc0(sizeof(ldap_conv_info_t));
-    ldap_info->matched=g_hash_table_new(ldap_info_hash_matched, ldap_info_equal_matched);
-    ldap_info->unmatched=g_hash_table_new(ldap_info_hash_unmatched, ldap_info_equal_unmatched);
+	/*
+	* Do we already have a type and mechanism?
+	*/
+	ldap_info = (ldap_conv_info_t *)conversation_get_proto_data(conversation, proto_ldap);
+	if (ldap_info == NULL) {
+		/* No.  Attach that information to the conversation, and add
+		* it to the list of information structures.
+		*/
+		ldap_info = g_new0(ldap_conv_info_t,1);
+		ldap_info->matched=g_hash_table_new(ldap_info_hash_matched, ldap_info_equal_matched);
+		ldap_info->unmatched=g_hash_table_new(ldap_info_hash_unmatched, ldap_info_equal_unmatched);
 
-    conversation_add_proto_data(conversation, proto_ldap, ldap_info);
+		conversation_add_proto_data(conversation, proto_ldap, ldap_info);
 
-    ldap_info->next = ldap_info_items;
-    ldap_info_items = ldap_info;
+		ldap_info->next = ldap_info_items;
+		ldap_info_items = ldap_info;
 
-  }
+	}
 
-  switch (ldap_info->auth_type) {
-    case LDAP_AUTH_SASL:
-    /*
-     * It's SASL; are we using a security layer?
-     */
-    if (ldap_info->first_auth_frame != 0 &&
-       pinfo->fd->num >= ldap_info->first_auth_frame) {
-	doing_sasl_security = TRUE;	/* yes */
-    }
-  }
+	switch (ldap_info->auth_type) {
+	case LDAP_AUTH_SASL:
+		/*
+		* It's SASL; are we using a security layer?
+		*/
+		if (ldap_info->first_auth_frame != 0 &&
+			pinfo->fd->num >= ldap_info->first_auth_frame) {
+				doing_sasl_security = TRUE;	/* yes */
+		}
+	}
 
-    length_remaining = tvb_ensure_length_remaining(tvb, offset);
+	length_remaining = tvb_ensure_length_remaining(tvb, offset);
 
-    /* It might still be a packet containing a SASL security layer
-     * but its just that we never saw the BIND packet.
-     * check if it looks like it could be a SASL blob here
-     * and in that case just assume it is GSS-SPNEGO
-     */
-    if(!doing_sasl_security && (tvb_bytes_exist(tvb, offset, 5))
-      &&(tvb_get_ntohl(tvb, offset)<=(guint)(tvb_reported_length_remaining(tvb, offset)-4))
-      &&(tvb_get_guint8(tvb, offset+4)==0x60) ){
-        ldap_info->auth_type=LDAP_AUTH_SASL;
-        ldap_info->first_auth_frame=pinfo->fd->num;
-        ldap_info->auth_mech=g_strdup("GSS-SPNEGO");
-        doing_sasl_security=TRUE;
-    }
+	/* It might still be a packet containing a SASL security layer
+	* but its just that we never saw the BIND packet.
+	* check if it looks like it could be a SASL blob here
+	* and in that case just assume it is GSS-SPNEGO
+	*/
+	if(!doing_sasl_security && (tvb_bytes_exist(tvb, offset, 5))
+		&&(tvb_get_ntohl(tvb, offset)<=(guint)(tvb_reported_length_remaining(tvb, offset)-4))
+		&&(tvb_get_guint8(tvb, offset+4)==0x60) ){
+			ldap_info->auth_type=LDAP_AUTH_SASL;
+			ldap_info->first_auth_frame=pinfo->fd->num;
+			ldap_info->auth_mech=g_strdup("GSS-SPNEGO");
+			doing_sasl_security=TRUE;
+	}
 
-    /*
-     * This is the first PDU, set the Protocol column and clear the
-     * Info column.
-     */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
+	/*
+	* This is the first PDU, set the Protocol column and clear the
+	* Info column.
+	*/
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
 
-    if(ldap_found_in_frame) {
-      /* we have already dissected an ldap PDU in this frame - add a separator and set a fence */
-      col_append_str(pinfo->cinfo, COL_INFO, " | ");
-      col_set_fence(pinfo->cinfo, COL_INFO);
-    } else {
-      col_clear(pinfo->cinfo, COL_INFO);
-      register_frame_end_routine (ldap_frame_end);
-      ldap_found_in_frame = TRUE;
-    }
+	if(ldap_found_in_frame) {
+		/* we have already dissected an ldap PDU in this frame - add a separator and set a fence */
+		col_append_str(pinfo->cinfo, COL_INFO, " | ");
+		col_set_fence(pinfo->cinfo, COL_INFO);
+	} else {
+		col_clear(pinfo->cinfo, COL_INFO);
+		register_frame_end_routine (ldap_frame_end);
+		ldap_found_in_frame = TRUE;
+	}
 
-    ldap_item = proto_tree_add_item(tree, is_mscldap?proto_cldap:proto_ldap, tvb, 0, -1, ENC_NA);
-    ldap_tree = proto_item_add_subtree(ldap_item, ett_ldap);
+	ldap_item = proto_tree_add_item(tree, is_mscldap?proto_cldap:proto_ldap, tvb, 0, -1, ENC_NA);
+	ldap_tree = proto_item_add_subtree(ldap_item, ett_ldap);
 
-    /*
-     * Might we be doing a SASL security layer and, if so, *are* we doing
-     * one?
-     *
-     * Just because we've seen a bind reply for SASL, that doesn't mean
-     * that we're using a SASL security layer; I've seen captures in
-     * which some SASL negotiations lead to a security layer being used
-     * and other negotiations don't, and it's not obvious what's different
-     * in the two negotiations.  Therefore, we assume that if the first
-     * byte is 0, it's a length for a SASL security layer (that way, we
-     * never reassemble more than 16 megabytes, protecting us from
-     * chewing up *too* much memory), and otherwise that it's an LDAP
-     * message (actually, if it's an LDAP message it should begin with 0x30,
-     * but we want to parse garbage as LDAP messages rather than really
-     * huge lengths).
-     */
+	/*
+	* Might we be doing a SASL security layer and, if so, *are* we doing
+	* one?
+	*
+	* Just because we've seen a bind reply for SASL, that doesn't mean
+	* that we're using a SASL security layer; I've seen captures in
+	* which some SASL negotiations lead to a security layer being used
+	* and other negotiations don't, and it's not obvious what's different
+	* in the two negotiations.  Therefore, we assume that if the first
+	* byte is 0, it's a length for a SASL security layer (that way, we
+	* never reassemble more than 16 megabytes, protecting us from
+	* chewing up *too* much memory), and otherwise that it's an LDAP
+	* message (actually, if it's an LDAP message it should begin with 0x30,
+	* but we want to parse garbage as LDAP messages rather than really
+	* huge lengths).
+	*/
 
-    if (doing_sasl_security && tvb_get_guint8(tvb, offset) == 0) {
-      proto_item *sasl_item = NULL;
-      proto_tree *sasl_tree = NULL;
-      tvbuff_t *sasl_tvb;
-      guint sasl_len, sasl_msg_len, length;
-      /*
-       * Yes.  The frame begins with a 4-byte big-endian length.
-       * And we know we have at least 6 bytes
-       */
+	if (doing_sasl_security && tvb_get_guint8(tvb, offset) == 0) {
+		proto_item *sasl_item = NULL;
+		proto_tree *sasl_tree = NULL;
+		tvbuff_t *sasl_tvb;
+		guint sasl_len, sasl_msg_len, length;
+		/*
+		* Yes.  The frame begins with a 4-byte big-endian length.
+		* And we know we have at least 6 bytes
+		*/
 
-      /*
-       * Get the SASL length, which is the length of data in the buffer
-       * following the length (i.e., it's 4 less than the total length).
-       *
-       * XXX - do we need to reassemble buffers?  For now, we
-       * assume that each LDAP message is entirely contained within
-       * a buffer.
-       */
-      sasl_len = tvb_get_ntohl(tvb, offset);
-      sasl_msg_len = sasl_len + 4;
-      if (sasl_msg_len < 4) {
-        /*
-         * The message length was probably so large that the total length
-	 * overflowed.
-         *
-         * Report this as an error.
-         */
-        show_reported_bounds_error(tvb, pinfo, tree);
-        return;
-      }
+		/*
+		* Get the SASL length, which is the length of data in the buffer
+		* following the length (i.e., it's 4 less than the total length).
+		*
+		* XXX - do we need to reassemble buffers?  For now, we
+		* assume that each LDAP message is entirely contained within
+		* a buffer.
+		*/
+		sasl_len = tvb_get_ntohl(tvb, offset);
+		sasl_msg_len = sasl_len + 4;
+		if (sasl_msg_len < 4) {
+			/*
+			* The message length was probably so large that the total length
+			* overflowed.
+			*
+			* Report this as an error.
+			*/
+			show_reported_bounds_error(tvb, pinfo, tree);
+			return;
+		}
 
-      /*
-       * Construct a tvbuff containing the amount of the payload we have
-       * available.  Make its reported length the amount of data in the PDU.
-       *
-       * XXX - if reassembly isn't enabled. the subdissector will throw a
-       * BoundsError exception, rather than a ReportedBoundsError exception.
-       * We really want a tvbuff where the length is "length", the reported
-       * length is "plen", and the "if the snapshot length were infinite"
-       * length is the minimum of the reported length of the tvbuff handed
-       * to us and "plen", with a new type of exception thrown if the offset
-       * is within the reported length but beyond that third length, with
-       * that exception getting the "Unreassembled Packet" error.
-       */
-      length = length_remaining;
-      if (length > sasl_msg_len) length = sasl_msg_len;
-      sasl_tvb = tvb_new_subset(tvb, offset, length, sasl_msg_len);
+		/*
+		* Construct a tvbuff containing the amount of the payload we have
+		* available.  Make its reported length the amount of data in the PDU.
+		*
+		* XXX - if reassembly isn't enabled. the subdissector will throw a
+		* BoundsError exception, rather than a ReportedBoundsError exception.
+		* We really want a tvbuff where the length is "length", the reported
+		* length is "plen", and the "if the snapshot length were infinite"
+		* length is the minimum of the reported length of the tvbuff handed
+		* to us and "plen", with a new type of exception thrown if the offset
+		* is within the reported length but beyond that third length, with
+		* that exception getting the "Unreassembled Packet" error.
+		*/
+		length = length_remaining;
+		if (length > sasl_msg_len) length = sasl_msg_len;
+		sasl_tvb = tvb_new_subset(tvb, offset, length, sasl_msg_len);
 
-      if (ldap_tree) {
-        proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, sasl_tvb, 0, 4,
-                            sasl_len);
+		if (ldap_tree) {
+			proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, sasl_tvb, 0, 4,
+				sasl_len);
 
-        sasl_item = proto_tree_add_text(ldap_tree, sasl_tvb, 0,  sasl_msg_len, "SASL Buffer");
-        sasl_tree = proto_item_add_subtree(sasl_item, ett_ldap_sasl_blob);
-      }
+			sasl_item = proto_tree_add_text(ldap_tree, sasl_tvb, 0,  sasl_msg_len, "SASL Buffer");
+			sasl_tree = proto_item_add_subtree(sasl_item, ett_ldap_sasl_blob);
+		}
 
-      if (ldap_info->auth_mech != NULL &&
-          ((strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) ||
-	   /* auth_mech may have been set from the bind */
-	   (strcmp(ldap_info->auth_mech, "GSSAPI") == 0))) {
-	  tvbuff_t *gssapi_tvb, *plain_tvb = NULL, *decr_tvb= NULL;
-	  int ver_len;
-	  int length;
+		if (ldap_info->auth_mech != NULL &&
+			((strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) ||
+			/* auth_mech may have been set from the bind */
+			(strcmp(ldap_info->auth_mech, "GSSAPI") == 0))) {
+				tvbuff_t *gssapi_tvb, *plain_tvb = NULL, *decr_tvb= NULL;
+				int ver_len;
+				int tmp_length;
 
-          /*
-           * This is GSS-API (using SPNEGO, but we should be done with
-           * the negotiation by now).
-           *
-           * Dissect the GSS_Wrap() token; it'll return the length of
-           * the token, from which we compute the offset in the tvbuff at
-           * which the plaintext data, i.e. the LDAP message, begins.
-           */
-          length = tvb_length_remaining(sasl_tvb, 4);
-          if ((guint)length > sasl_len)
-              length = sasl_len;
-	  gssapi_tvb = tvb_new_subset(sasl_tvb, 4, length, sasl_len);
+				/*
+				* This is GSS-API (using SPNEGO, but we should be done with
+				* the negotiation by now).
+				*
+				* Dissect the GSS_Wrap() token; it'll return the length of
+				* the token, from which we compute the offset in the tvbuff at
+				* which the plaintext data, i.e. the LDAP message, begins.
+				*/
+				tmp_length = tvb_length_remaining(sasl_tvb, 4);
+				if ((guint)tmp_length > sasl_len)
+					tmp_length = sasl_len;
+				gssapi_tvb = tvb_new_subset(sasl_tvb, 4, tmp_length, sasl_len);
 
-	  /* Attempt decryption of the GSSAPI wrapped data if possible */
-	  pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
-	  pinfo->gssapi_wrap_tvb=NULL;
-	  pinfo->gssapi_encrypted_tvb=NULL;
-	  pinfo->gssapi_decrypted_tvb=NULL;
-          ver_len = call_dissector(gssapi_wrap_handle, gssapi_tvb, pinfo, sasl_tree);
-	  /* if we could unwrap, do a tvb shuffle */
-	  if(pinfo->gssapi_decrypted_tvb){
-		decr_tvb=pinfo->gssapi_decrypted_tvb;
-	  }
-	  /* tidy up */
-	  pinfo->decrypt_gssapi_tvb=0;
-	  pinfo->gssapi_wrap_tvb=NULL;
-	  pinfo->gssapi_encrypted_tvb=NULL;
-	  pinfo->gssapi_decrypted_tvb=NULL;
+				/* Attempt decryption of the GSSAPI wrapped data if possible */
+				pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
+				pinfo->gssapi_wrap_tvb=NULL;
+				pinfo->gssapi_encrypted_tvb=NULL;
+				pinfo->gssapi_decrypted_tvb=NULL;
+				ver_len = call_dissector(gssapi_wrap_handle, gssapi_tvb, pinfo, sasl_tree);
+				/* if we could unwrap, do a tvb shuffle */
+				if(pinfo->gssapi_decrypted_tvb){
+					decr_tvb=pinfo->gssapi_decrypted_tvb;
+				}
+				/* tidy up */
+				pinfo->decrypt_gssapi_tvb=0;
+				pinfo->gssapi_wrap_tvb=NULL;
+				pinfo->gssapi_encrypted_tvb=NULL;
+				pinfo->gssapi_decrypted_tvb=NULL;
 
-          /*
-           * if len is 0 it probably mean that we got a PDU that is not
-           * aligned to the start of the segment.
-           */
-          if(ver_len==0){
-             return;
-          }
+				/*
+				* if len is 0 it probably mean that we got a PDU that is not
+				* aligned to the start of the segment.
+				*/
+				if(ver_len==0){
+					return;
+				}
 
-	  /*
-	   * if we don't have unwrapped data,
-	   * see if the wrapping involved encryption of the
-	   * data; if not, just use the plaintext data.
-	   */
-	  if (!decr_tvb) {
-	    if(!pinfo->gssapi_data_encrypted){
-	      plain_tvb = tvb_new_subset_remaining(gssapi_tvb,  ver_len);
-	    }
-	  }
+				/*
+				* if we don't have unwrapped data,
+				* see if the wrapping involved encryption of the
+				* data; if not, just use the plaintext data.
+				*/
+				if (!decr_tvb) {
+					if(!pinfo->gssapi_data_encrypted){
+						plain_tvb = tvb_new_subset_remaining(gssapi_tvb,  ver_len);
+					}
+				}
 
-          if (decr_tvb) {
-	    proto_item *enc_item = NULL;
-	    proto_tree *enc_tree = NULL;
+				if (decr_tvb) {
+					proto_item *enc_item = NULL;
+					proto_tree *enc_tree = NULL;
 
-            /*
-             * The LDAP message was encrypted in the packet, and has
-             * been decrypted; dissect the decrypted LDAP message.
-             */
-	    col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
+					/*
+					* The LDAP message was encrypted in the packet, and has
+					* been decrypted; dissect the decrypted LDAP message.
+					*/
+					col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy (decrypted): ");
 
-            if (sasl_tree) {
-	      enc_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
-                                "GSS-API Encrypted payload (%d byte%s)",
-                                sasl_len - ver_len,
-                                plurality(sasl_len - ver_len, "", "s"));
-	      enc_tree = proto_item_add_subtree(enc_item, ett_ldap_payload);
-            }
-	    dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
-          } else if (plain_tvb) {
-	    proto_item *plain_item = NULL;
-	    proto_tree *plain_tree = NULL;
+					if (sasl_tree) {
+						enc_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
+							"GSS-API Encrypted payload (%d byte%s)",
+							sasl_len - ver_len,
+							plurality(sasl_len - ver_len, "", "s"));
+						enc_tree = proto_item_add_subtree(enc_item, ett_ldap_payload);
+					}
+					dissect_ldap_payload(decr_tvb, pinfo, enc_tree, ldap_info, is_mscldap);
+				} else if (plain_tvb) {
+					proto_item *plain_item = NULL;
+					proto_tree *plain_tree = NULL;
 
-	    /*
-	     * The LDAP message wasn't encrypted in the packet;
-	     * dissect the plain LDAP message.
-             */
-	    col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
+					/*
+					* The LDAP message wasn't encrypted in the packet;
+					* dissect the plain LDAP message.
+					*/
+					col_set_str(pinfo->cinfo, COL_INFO, "SASL GSS-API Integrity: ");
 
-	    if (sasl_tree) {
-              plain_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
-                                "GSS-API payload (%d byte%s)",
-                                sasl_len - ver_len,
-                                plurality(sasl_len - ver_len, "", "s"));
-	      plain_tree = proto_item_add_subtree(plain_item, ett_ldap_payload);
-            }
+					if (sasl_tree) {
+						plain_item = proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
+							"GSS-API payload (%d byte%s)",
+							sasl_len - ver_len,
+							plurality(sasl_len - ver_len, "", "s"));
+						plain_tree = proto_item_add_subtree(plain_item, ett_ldap_payload);
+					}
 
-           dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, is_mscldap);
-	  } else {
-            /*
-             * The LDAP message was encrypted in the packet, and was
-             * not decrypted; just show it as encrypted data.
-             */
-	    col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
-			 sasl_len - ver_len,
-			 plurality(sasl_len - ver_len, "", "s"));
+					dissect_ldap_payload(plain_tvb, pinfo, plain_tree, ldap_info, is_mscldap);
+				} else {
+					/*
+					* The LDAP message was encrypted in the packet, and was
+					* not decrypted; just show it as encrypted data.
+					*/
+					col_add_fstr(pinfo->cinfo, COL_INFO, "SASL GSS-API Privacy: payload (%d byte%s)",
+						sasl_len - ver_len,
+						plurality(sasl_len - ver_len, "", "s"));
 
-	    if (sasl_tree) {
-              proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
-                                "GSS-API Encrypted payload (%d byte%s)",
-                                sasl_len - ver_len,
-                                plurality(sasl_len - ver_len, "", "s"));
-	    }
-          }
-      }
-    } else {
-	/* plain LDAP, so dissect the payload */
-	dissect_ldap_payload(tvb, pinfo, ldap_tree, ldap_info, is_mscldap);
-    }
+					if (sasl_tree) {
+						proto_tree_add_text(sasl_tree, gssapi_tvb, ver_len, -1,
+							"GSS-API Encrypted payload (%d byte%s)",
+							sasl_len - ver_len,
+							plurality(sasl_len - ver_len, "", "s"));
+					}
+				}
+		}
+	} else {
+		/* plain LDAP, so dissect the payload */
+		dissect_ldap_payload(tvb, pinfo, ldap_tree, ldap_info, is_mscldap);
+	}
 }
 
 /*
@@ -4889,7 +4889,7 @@ this_was_not_normal_ldap:
 	 * It has been seen with Exchange setup to MS AD
 	 * when Exchange pretend that there is SASL but in fact data are still
 	 * in clear*/
-	if ((sasl_len + 4) == tvb_length_remaining(tvb, 0))
+	if ((sasl_len + 4) == (guint32)tvb_length_remaining(tvb, 0))
 		tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_sasl_ldap_pdu_len, dissect_sasl_ldap_pdu);
  end:
 	return;
@@ -5772,7 +5772,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2226 "../../asn1/ldap/packet-ldap-template.c"
+#line 2232 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5847,7 +5847,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2239 "../../asn1/ldap/packet-ldap-template.c"
+#line 2245 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -6004,7 +6004,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2379 "../../asn1/ldap/packet-ldap-template.c"
+#line 2385 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
