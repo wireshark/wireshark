@@ -85,6 +85,7 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
  */
 extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
 
+#ifndef _WIN32
 /* Pop up and run the UI asking the user whether they want to
  * overwrite a file and, if it's user-immutable or not writable,
  * whether they want to overwrite it anyway.
@@ -93,6 +94,7 @@ extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
  * @param cf_name the current name chosen
  */
 extern gboolean file_target_exist_ui(GtkWidget *chooser_w, char *cf_name);
+#endif
 
 /** The function file_selection_browse() will g_object_set_data() itself on it's parent window.
  *  When destroying the parent window, it can close the corresponding file selection. */

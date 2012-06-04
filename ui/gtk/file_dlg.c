@@ -153,6 +153,7 @@ file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
   gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(fs), extra);
 }
 
+#ifndef _WIN32
 /* Pop up and run the UI asking the user whether they want to
    overwrite a file and, if it's user-immutable or not writable,
    whether they want to overwrite it anyway. */
@@ -288,6 +289,7 @@ file_target_exist_ui(GtkWidget *chooser_w, char *cf_name)
   }
   return TRUE;
 }
+#endif
 
 /*
  * A generic select_file routine that is intended to be connected to
