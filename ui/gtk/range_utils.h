@@ -39,6 +39,15 @@
  */
 extern gboolean range_check_validity(packet_range_t *range);
 
+/** Check the validity of a packet_range_t, and put up a modal alert box if
+ ** it's not valid.
+ *
+ * @param parent the widget for the window that contained the range specification
+ * @param range the range to check
+ * @return a Boolean that's TRUE if it's valid and FALSE if it isn't
+ */
+extern gboolean range_check_validity_modal(GtkWidget *parent, packet_range_t *range);
+
 /** Create a new range widget.
  *
  * @param range the range to set

@@ -43,14 +43,6 @@
  */
 gboolean do_file_close(capture_file *cf, gboolean from_quit, const char *before_what);
 
-/** Destroy the "Save As" dialog.
- */
-void file_save_as_destroy(void);
-
-/** Destroy the "Export Specified Packets" dialog.
- */
-void file_export_specified_packets_destroy(void);
-
 /** User requested the "Open" dialog box.
  *
  * @param widget parent widget
@@ -92,14 +84,6 @@ void file_close_cmd_cb(GtkWidget *widget, gpointer data);
  * @param data unused
  */
 void file_export_specified_packets_cmd_cb(GtkWidget *widget, gpointer data);
-
-/*
- * Set the "Save only marked packets" toggle button as appropriate for
- * the current output file type and count of marked packets.
- * Called when the "Export Specified Packets..." dialog box is created
- * and when either the file type or the marked count changes.
- */
-void file_export_specified_packets_update_dynamics(void);
 
 /** User requested "Reload".
  *

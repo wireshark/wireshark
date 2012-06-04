@@ -1425,8 +1425,6 @@ main_cf_cb_file_closing(capture_file *cf)
     /* Destroy all windows that refer to the
        capture file we're closing. */
     destroy_packet_wins();
-    file_save_as_destroy();
-    file_export_specified_packets_destroy();
 
     /* Restore the standard title bar message. */
     main_set_window_name("The Wireshark Network Analyzer");

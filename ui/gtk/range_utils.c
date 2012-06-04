@@ -88,6 +88,42 @@ range_check_validity(packet_range_t *range)
   }
 }
 
+gboolean
+range_check_validity_modal(GtkWidget *parent, packet_range_t *range)
+{
+  GtkWidget *dialog;
+
+  switch (packet_range_check(range)) {
+
+  case CVT_NO_ERROR:
+    return TRUE;
+
+  case CVT_SYNTAX_ERROR:
+    dialog = gtk_message_dialog_new(GTK_WINDOW(parent),
+                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_ERROR,
+                                    GTK_BUTTONS_OK,
+                    "The specified range of packets isn't a valid range.");
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    return FALSE;
+
+  case CVT_NUMBER_TOO_BIG:
+    dialog = gtk_message_dialog_new(GTK_WINDOW(parent),
+                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_ERROR,
+                                    GTK_BUTTONS_OK,
+      "The specified range of packets has a packet number that's too large.");
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    return FALSE;
+
+  default:
+    g_assert_not_reached();
+    return FALSE;
+  }
+}
+
 /* update all "dynamic" things */
 void
 range_update_dynamics(gpointer data)

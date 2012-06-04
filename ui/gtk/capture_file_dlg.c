@@ -84,12 +84,8 @@ static void file_merge_destroy_cb(GtkWidget *win, gpointer user_data);
 static void do_file_save(capture_file *cf, gboolean dont_reopen);
 static void do_file_save_as(capture_file *cf);
 static void file_save_as_cb(GtkWidget *fs);
-static void file_save_as_select_file_type_cb(GtkWidget *w, gpointer data);
-static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
-static void file_export_specified_packets_cb(GtkWidget *w, gpointer fs);
-static void file_export_specified_packets_select_file_type_cb(GtkWidget *w, gpointer data);
-static void file_export_specified_packets_ok_cb(GtkWidget *w, gpointer fs);
-static void file_export_specified_packets_destroy_cb(GtkWidget *win, gpointer user_data);
+static void file_select_file_type_cb(GtkWidget *w, gpointer data);
+static void file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
 static void file_color_import_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_export_ok_cb(GtkWidget *w, gpointer filter_list);
@@ -116,27 +112,8 @@ static void set_file_type_list(GtkWidget *combo_box, capture_file *cf);
 #define PREVIEW_PACKETS_KEY     "preview_packets_key"
 #define PREVIEW_FIRST_KEY       "preview_first_key"
 
-
-/*
- * Keep a static pointer to the current "Save Capture File As" window, if
- * any, so that if somebody tries to do "File:Save" or "File:Save As"
- * while there's already a "Save Capture File As" window up, we just pop
- * up the existing one, rather than creating a new one.
- */
-static GtkWidget *file_save_as_w;
-
-/*
- * Keep a static pointer to the current "Export Specified Packets" window, if
- * any, so that if somebody tries to do "File:Export Specified Packets"
- * while there's already a "Export Specified Packets" window up, we just pop
- * up the existing one, rather than creating a new one.
- */
-static GtkWidget *file_export_specified_packets_w;
-
 /* XXX - can we make these not be static? */
-static packet_range_t  range;
 static gboolean        color_selected;
-static GtkWidget      *range_tb;
 
 #define PREVIEW_STR_MAX         200
 
@@ -789,7 +766,6 @@ file_merge_cmd(GtkWidget *w)
   gtk_widget_show(main_vb);
 
   /* File type row */
-  range_tb = NULL;
   ft_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), ft_hb);
   gtk_widget_show(ft_hb);
@@ -1318,8 +1294,9 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf)
 }
 
 static void
-file_save_as_select_file_type_cb(GtkWidget *w, gpointer data _U_)
+file_select_file_type_cb(GtkWidget *w, gpointer parent_arg)
 {
+  GtkWidget *parent = parent_arg;
   int new_file_type;
   gpointer ptr;
   GtkWidget *compressed_cb;
@@ -1329,7 +1306,7 @@ file_save_as_select_file_type_cb(GtkWidget *w, gpointer data _U_)
   }
   new_file_type = GPOINTER_TO_INT(ptr);
 
-  compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY);
+  compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent), E_COMPRESSED_CB_KEY);
   if (!wtap_dump_can_compress(new_file_type)) {
     /* Can't compress this file type; turn off compression and make
        the compression checkbox insensitive. */
@@ -1346,18 +1323,9 @@ do_file_save_as(capture_file *cf)
 #if _WIN32
   win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 #else /* _WIN32 */
+  GtkWidget     *file_save_as_w;
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
-  GtkWidget     *msg_dialog;
-  gchar         *display_basename;
-  gint           response;
   char          *cf_name;
-  ws_statb64     statbuf;
-
-  if (file_save_as_w != NULL) {
-    /* There's already an "Save Capture File As" dialog box; reactivate it. */
-    reactivate_window(file_save_as_w);
-    return;
-  }
 
   /* Default to saving in the file's current format. */
 
@@ -1373,7 +1341,6 @@ do_file_save_as(capture_file *cf)
   gtk_widget_show(main_vb);
 
   /* File type row */
-  range_tb = NULL;
   ft_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_container_add(GTK_CONTAINER(main_vb), ft_hb);
   gtk_widget_show(ft_hb);
@@ -1395,12 +1362,9 @@ do_file_save_as(capture_file *cf)
   gtk_container_add(GTK_CONTAINER(ft_hb), compressed_cb);
   gtk_widget_show(compressed_cb);
   g_object_set_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY, compressed_cb);
-  /* Ok: now "select" the default filetype which invokes file_save_as_select_file_type_cb */
-  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_save_as_select_file_type_cb), NULL);
+  /* Ok: now "select" the default filetype which invokes file_select_file_type_cb */
+  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_select_file_type_cb), file_save_as_w);
   ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), 0);
-
-  g_signal_connect(file_save_as_w, "destroy",
-                   G_CALLBACK(file_save_as_destroy_cb), NULL);
 
   /*
    * Loop until the user either selects a file or gives up.
@@ -1425,166 +1389,24 @@ do_file_save_as(capture_file *cf)
       continue;
     }
 
-    /*
-     * Check that the from file is not the same as to file
-     * We do it here so we catch all cases ...
-     * Unfortunately, the file requester gives us an absolute file
-     * name and the read file name may be relative (if supplied on
-     * the command line). From Joerg Mayer.
-     */
-    if (files_identical(cf->filename, cf_name)) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "%sCapture file: \"%s\" identical to loaded file!%s\n\n"
-        "Please choose a different filename.",
-        simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
-      g_free(cf_name);
-
-      /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-       * as this will prevent the user from closing the now existing error
-       * message, simply close the dialog (this is the best we can do here). */
-      if (file_save_as_w)
-        window_destroy(GTK_WIDGET(file_save_as_w));
-
-      return;
-    }
-
     /* it the file doesn't exist, simply try to save it */
     if (!file_exists(cf_name)) {
-      gtk_widget_hide(GTK_WIDGET(file_save_as_w));
       g_free(cf_name);
       file_save_as_cb(file_save_as_w);
       return;
     }
 
-    /*
-     * The file exists.  Ask the user if they want to overwrite it.
-     *
-     * XXX - what if it's a symlink?  TextEdit just blindly replaces
-     * symlinks with files if you save over them, but gedit appears
-     * to replace the *target* of the symlink.  (To find the target,
-     * use realpath() - it dates back to the SUSv2 and may be even
-     * older.)
-     */
-    display_basename = g_filename_display_basename(cf_name);
-    msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
-                                        GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-                                        GTK_MESSAGE_QUESTION,
-                                        GTK_BUTTONS_NONE,
-                                        "A file named \"%s\" already exists. Do you want to replace it?",
-                                        display_basename);
-    g_free(display_basename);
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
-        "A file or folder with the same name already exists in that folder. "
-        "Replacing it will overwrite its current contents.");
-
-    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
-#ifndef _WIN32
-                           GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                           "Replace", GTK_RESPONSE_ACCEPT,
-#else
-                           "Replace", GTK_RESPONSE_ACCEPT,
-                           GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-#endif
-                           NULL);
-    gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_CANCEL);
-
-    response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
-    gtk_widget_destroy(msg_dialog);
-
-    if (response != GTK_RESPONSE_ACCEPT) {
-      /* The user doesn't want to overwrite this file; let them choose
-         another one */
+    /* Ask the user whether they want to overwrite it and, if so and
+       it's user-immutable or not writable, whether they want to
+       override that. */
+    if (!file_target_exist_ui(file_save_as_w, cf_name)) {
+      /* They don't.  Let them try another file name or cancel. */
       g_free(cf_name);
       continue;
     }
 
-    /* Check whether the file has all the write permission bits clear
-       and, on systems that have the 4.4-Lite file flags, whether it
-       has the "user immutable" flag set.  Treat both of those as an
-       indication that the user wants to protect the file from
-       casual overwriting, and ask the user if they want to override
-       that.
-
-       (Linux's "immutable" flag, as fetched and set by the appropriate
-       ioctls (FS_IOC_GETFLAGS/FS_IOC_SETFLAGS in newer kernels,
-       EXT2_IOC_GETFLAGS/EXT2_IOC_SETFLAGS in older kernels - non-ext2
-       file systems that support those ioctls use the same values as ext2
-       does), appears to be more like the *BSD/OS X "system immutable"
-       flag, as it can be set only by the superuser or by processes with
-       CAP_LINUX_IMMUTABLE, so it sounds as if it's not intended for
-       arbitrary users to set or clear. */
-    if (ws_stat64(cf_name, &statbuf) != -1) {
-      /* OK, we have the permission bits and, if HAVE_ST_FLAGS is defined,
-         the flags.  (If we don't, we don't worry about it.) */
-#ifdef HAVE_ST_FLAGS
-      if (statbuf.st_flags & UF_IMMUTABLE) {
-        display_basename = g_filename_display_basename(cf_name);
-        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
-                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-                                            GTK_MESSAGE_QUESTION,
-                                            GTK_BUTTONS_NONE,
-#ifdef __APPLE__
-        /* Stuff in the OS X UI calls files with the "user immutable" bit
-           "locked"; pre-OS X Mac software might have had that notion and
-           called it "locked". */
-                                            "The file \"%s\" is locked.",
-#else /* __APPLE__ */
-        /* Just call it "immutable" in *BSD. */
-                                            "The file \"%s\" is immutable.",
-#endif /* __APPLE__ */
-                                            display_basename);
-        g_free(display_basename);
-      } else
-#endif /* HAVE_ST_FLAGS */
-      if ((statbuf.st_mode & (S_IWUSR|S_IWGRP|S_IWOTH)) == 0) {
-        display_basename = g_filename_display_basename(cf_name);
-        msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_save_as_w),
-                                            GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-                                            GTK_MESSAGE_QUESTION,
-                                            GTK_BUTTONS_NONE,
-                                            "The file \"%s\" is read-only.",
-                                            display_basename);
-        g_free(display_basename);
-      } else {
-        /* No problem, just drive on. */
-        msg_dialog = NULL;
-      }
-      if (msg_dialog != NULL) {
-        /* OK, ask the user if they want to overwrite the file. */
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
-            "Do you want to overwrite it anyway?");
-
-        gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
-                               "Overwrite", GTK_RESPONSE_ACCEPT,
-                               "Don't overwrite", GTK_RESPONSE_REJECT,
-                               NULL);
-        gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog), GTK_RESPONSE_REJECT);
-
-        response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
-        gtk_widget_destroy(msg_dialog);
-
-        if (response != GTK_RESPONSE_ACCEPT) {
-          /* The user doesn't want to overwrite this file; let them choose
-             another one */
-          g_free(cf_name);
-          continue;
-        }
-
-#ifdef HAVE_ST_FLAGS
-        /* OK, they want to overwrite the file.  If it has the "user
-           immutable" flag, we have to turn that off first, so we
-           can move the file. */
-        if (statbuf.st_flags & UF_IMMUTABLE) {
-          /* If this fails, the attempt to save will fail, so just
-             let that happen and pop up a "you lose" dialog. */
-          chflags(cf_name, statbuf.st_flags & ~UF_IMMUTABLE);
-        }
-#endif
-      }
-    }
-
     /* save file */
-    gtk_widget_hide(GTK_WIDGET(file_save_as_w));
+    g_free(cf_name);
     file_save_as_cb(file_save_as_w);
     return;
   }
@@ -1609,6 +1431,9 @@ file_save_as_cb(GtkWidget *fs) {
   int        file_type;
   gboolean   compressed;
 
+  /* Hide the file chooser while doing the save. */
+  gtk_widget_hide(fs);
+
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
   compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(fs), E_COMPRESSED_CB_KEY);
@@ -1629,50 +1454,18 @@ file_save_as_cb(GtkWidget *fs) {
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
-    if (file_save_as_w)
-      window_destroy(GTK_WIDGET (fs));
+    window_destroy(fs);
     return;
   }
 
   /* The write succeeded; get rid of the file selection box. */
   /* cf_save_packets() might already closed our dialog! */
-  if (file_save_as_w)
-    window_destroy(GTK_WIDGET (fs));
+  window_destroy(fs);
 
   /* Save the directory name for future file dialogs. */
   dirname = get_dirname(cf_name);  /* Overwrites cf_name */
   set_last_open_dir(dirname);
   g_free(cf_name);
-}
-
-
-void
-file_save_as_destroy(void)
-{
-  if (file_save_as_w)
-    window_destroy(file_save_as_w);
-}
-
-static void
-file_save_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  /* Note that we no longer have a "Save Capture File As" dialog box. */
-  file_save_as_w = NULL;
-}
-
-/*
- * Update various dynamic parts of the range controls; called from outside
- * the file dialog code whenever the packet counts change.
- */
-void
-file_export_specified_packets_update_dynamics(void)
-{
-  if (file_export_specified_packets_w == NULL) {
-    /* We don't currently have a "Export Specified Packets..." dialog box up. */
-    return;
-  }
-
-  range_update_dynamics(range_tb);
 }
 
 void
@@ -1681,13 +1474,13 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 #if _WIN32
   win32_export_specified_packets_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 #else /* _WIN32 */
-  GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *compressed_cb;
-
-  if (file_export_specified_packets_w != NULL) {
-    /* There's already an "Export Specified Packets" dialog box; reactivate it. */
-    reactivate_window(file_export_specified_packets_w);
-    return;
-  }
+  GtkWidget     *file_export_specified_packets_w;
+  GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *range_tb,
+                *compressed_cb;
+  packet_range_t range;
+  char          *cf_name;
+  gchar         *display_basename;
+  GtkWidget     *msg_dialog;
 
   /* Default to writing out all displayed packets, in the file's current format. */
 
@@ -1743,151 +1536,95 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_widget_show(compressed_cb);
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY, compressed_cb);
 
-  /* Ok: now "select" the default filetype which invokes file_export_specified_packets_select_file_type_cb */
-  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_export_specified_packets_select_file_type_cb), NULL);
+  /* Ok: now "select" the default filetype which invokes file_select_file_type_cb */
+  g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_select_file_type_cb), file_export_specified_packets_w);
   ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), 0);
 
-  g_signal_connect(file_export_specified_packets_w, "destroy",
-                   G_CALLBACK(file_export_specified_packets_destroy_cb), NULL);
+  /*
+   * Loop until the user either selects a file or gives up.
+   */
+  for (;;) {
+    if (gtk_dialog_run(GTK_DIALOG(file_export_specified_packets_w)) != GTK_RESPONSE_ACCEPT) {
+      /* They clicked "Cancel" or closed the dialog or.... */
+      window_destroy(file_export_specified_packets_w);
+      return;
+    }
 
-  if (gtk_dialog_run(GTK_DIALOG(file_export_specified_packets_w)) == GTK_RESPONSE_ACCEPT) {
-    file_export_specified_packets_ok_cb(file_export_specified_packets_w, file_export_specified_packets_w);
-  } else {
-    window_destroy(file_export_specified_packets_w);
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_export_specified_packets_w));
+
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(cf_name) == EISDIR) {
+      /* It's a directory - set the file selection box to display that
+         directory, and leave the selection box displayed. */
+      set_last_open_dir(cf_name);
+      g_free(cf_name);
+      file_selection_set_current_folder(file_export_specified_packets_w, get_last_open_dir());
+      continue;
+    }
+
+    /* Check whether the range is valid. */
+    if (!range_check_validity_modal(file_export_specified_packets_w, &range)) {
+      /* The range isn't valid; the user was told that, and dismissed
+         the dialog telling them that, so let them fix the range
+         and try again, or cancel. */
+      g_free(cf_name);
+      continue;
+    }
+
+    /*
+     * Check that we're not going to save on top of the current
+     * capture file.
+     * We do it here so we catch all cases ...
+     * Unfortunately, the file requester gives us an absolute file
+     * name and the read file name may be relative (if supplied on
+     * the command line). From Joerg Mayer.
+     */
+    if (files_identical(cfile.filename, cf_name)) {
+      display_basename = g_filename_display_basename(cf_name);
+      msg_dialog = gtk_message_dialog_new(GTK_WINDOW(file_export_specified_packets_w),
+                                          GTK_DIALOG_DESTROY_WITH_PARENT,
+                                          GTK_MESSAGE_ERROR,
+                                          GTK_BUTTONS_OK,
+  "The file \"%s\" is the capture file from which you're exporting the packets.",
+                                          display_basename);
+      g_free(display_basename);
+      gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+           "You cannot export packets on top of the current capture file.");
+      gtk_dialog_run(GTK_DIALOG(msg_dialog));
+      gtk_widget_destroy(msg_dialog);
+      g_free(cf_name);
+      continue;
+    }
+
+    /* it the file doesn't exist, simply try to write the packets to it */
+    if (!file_exists(cf_name)) {
+      g_free(cf_name);
+      file_export_specified_packets_cb(file_export_specified_packets_w, &range);
+      return;
+    }
+
+    /* Ask the user whether they want to overwrite it and, if so and
+       it's user-immutable or not writable, whether they want to
+       override that. */
+    if (!file_target_exist_ui(file_export_specified_packets_w, cf_name)) {
+      /* They don't.  Let them try another file name or cancel. */
+      g_free(cf_name);
+      continue;
+    }
+
+    /* export packets */
+    g_free(cf_name);
+    file_export_specified_packets_cb(file_export_specified_packets_w, &range);
+    return;
   }
 #endif /* _WIN32 */
-}
-
-static void
-file_export_specified_packets_select_file_type_cb(GtkWidget *w, gpointer data _U_)
-{
-  int new_file_type;
-  gpointer ptr;
-  GtkWidget *compressed_cb;
-
-  if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(w), &ptr)) {
-      g_assert_not_reached();  /* Programming error: somehow nothing is active */
-  }
-  new_file_type = GPOINTER_TO_INT(ptr);
-
-  compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(file_export_specified_packets_w), E_COMPRESSED_CB_KEY);
-  if (!wtap_dump_can_compress(new_file_type)) {
-    /* Can't compress this file type; turn off compression and make
-       the compression checkbox insensitive. */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(compressed_cb), FALSE);
-    gtk_widget_set_sensitive(compressed_cb, FALSE);
-  } else
-    gtk_widget_set_sensitive(compressed_cb, TRUE);
-}
-
-static void
-file_export_specified_packets_exists_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
-{
-    gchar	*cf_name;
-
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data));
-
-    switch(btn) {
-    case(ESD_BTN_OK):
-        /* save file */
-        file_export_specified_packets_cb(NULL, data);
-        break;
-    case(ESD_BTN_CANCEL):
-        /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-         * as this will prevent the user from closing the now existing error
-         * message, simply close the dialog (this is the best we can do here). */
-        if (file_export_specified_packets_w)
-            window_destroy(file_export_specified_packets_w);
-        break;
-    default:
-        g_assert_not_reached();
-    }
-    g_free(cf_name);
-}
-
-/* user pressed "Export Specified Packets" dialog "Ok" button */
-static void
-file_export_specified_packets_ok_cb(GtkWidget *w _U_, gpointer fs) {
-  gchar	*cf_name;
-  gpointer  dialog;
-
-  cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(cf_name) == EISDIR) {
-    /* It's a directory - set the file selection box to display that
-       directory, and leave the selection box displayed. */
-    set_last_open_dir(cf_name);
-    g_free(cf_name);
-    file_selection_set_current_folder(fs, get_last_open_dir());
-    return;
-  }
-
-  /* Check whether the range is valid. */
-  if (!range_check_validity(&range)) {
-    /* The range isn't valid; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the error, try again. */
-    g_free(cf_name);
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-    if (file_save_as_w)
-      window_destroy(GTK_WIDGET (fs));
-
-    return;
-  }
-
-  /*
-   * Check that the from file is not the same as to file
-   * We do it here so we catch all cases ...
-   * Unfortunately, the file requester gives us an absolute file
-   * name and the read file name may be relative (if supplied on
-   * the command line). From Joerg Mayer.
-   */
-  if (files_identical(cfile.filename, cf_name)) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "%sCapture file: \"%s\" identical to loaded file!%s\n\n"
-      "Please choose a different filename.",
-      simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
-    g_free(cf_name);
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
-    if (file_export_specified_packets_w)
-      window_destroy(GTK_WIDGET (fs));
-
-    return;
-  }
-
-  /* don't show the dialog while saving (or asking) */
-  gtk_widget_hide(GTK_WIDGET (fs));
-
-  /* it the file doesn't exist, simply try to write the packets to it */
-  if (!file_exists(cf_name)) {
-    file_export_specified_packets_cb(NULL, fs);
-    g_free(cf_name);
-    return;
-  }
-
-  /* The file exists.  Ask the user if they want to overwrite it. */
-  dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-      "%s"
-      "A file named \"%s\" already exists. Do you want to replace it?"
-      "%s\n\n"
-      "A file or folder with the same name already exists in that folder. "
-      "Replacing it will overwrite its current contents.",
-      simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
-  simple_dialog_set_cb(dialog, file_export_specified_packets_exists_answered_cb, fs);
-
-  g_free(cf_name);
 }
 
 /* all tests ok, we only have to write out the packets */
 /* (and probably continue with a pending operation) */
 static void
-file_export_specified_packets_cb(GtkWidget *w _U_, gpointer fs) {
+file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range) {
   GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
   gchar	    *cf_name;
@@ -1895,6 +1632,9 @@ file_export_specified_packets_cb(GtkWidget *w _U_, gpointer fs) {
   gpointer   ptr;
   int        file_type;
   gboolean   compressed;
+
+  /* Hide the file chooser while we're doing the export. */
+  gtk_widget_hide(fs);
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
@@ -1908,7 +1648,7 @@ file_export_specified_packets_cb(GtkWidget *w _U_, gpointer fs) {
   compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
 
   /* Write out the specified packets to the file with the specified name. */
-  if (cf_export_specified_packets(&cfile, cf_name, &range, file_type,
+  if (cf_export_specified_packets(&cfile, cf_name, range, file_type,
                                   compressed) != CF_OK) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
@@ -1917,15 +1657,13 @@ file_export_specified_packets_cb(GtkWidget *w _U_, gpointer fs) {
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
-    if (file_export_specified_packets_w)
-      window_destroy(GTK_WIDGET (fs));
+    window_destroy(GTK_WIDGET(fs));
     return;
   }
 
   /* The write succeeded; get rid of the file selection box. */
   /* cf_export_specified_packets() might already closed our dialog! */
-  if (file_export_specified_packets_w)
-    window_destroy(GTK_WIDGET (fs));
+  window_destroy(GTK_WIDGET(fs));
 
   /* Save the directory name for future file dialogs.
      XXX - should there be separate ones for "Save As" and
@@ -1933,20 +1671,6 @@ file_export_specified_packets_cb(GtkWidget *w _U_, gpointer fs) {
   dirname = get_dirname(cf_name);  /* Overwrites cf_name */
   set_last_open_dir(dirname);
   g_free(cf_name);
-}
-
-void
-file_export_specified_packets_destroy(void)
-{
-  if (file_export_specified_packets_w)
-    window_destroy(file_export_specified_packets_w);
-}
-
-static void
-file_export_specified_packets_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  /* Note that we no longer have a "Export Specified Packets" dialog box. */
-  file_export_specified_packets_w = NULL;
 }
 
 /* Reload a file using the current read and display filters */
