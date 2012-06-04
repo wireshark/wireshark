@@ -98,7 +98,7 @@ static const char* ErrCodes[] =
 };
 
 static gint16
-ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, unsigned char* sz, gint16 err, const CSN_DESCR* pDescr)
+ProcessError(proto_tree *tree, tvbuff_t *tvb, gint bit_offset, const unsigned char* sz, gint16 err, const CSN_DESCR* pDescr)
 {
   gint16 i = MIN(-err, ((gint16) ElementsOf(ErrCodes)-1));
   if (i >= 0)
