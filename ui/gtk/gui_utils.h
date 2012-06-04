@@ -195,7 +195,7 @@ extern void reactivate_window(GtkWidget *win);
  * @param parent parent window from which the display filter came
  * @param dftext text of the display filter
  */
-extern void bad_dfilter_alert_box_modal(GtkWidget *parent, const char *dftext);
+extern void bad_dfilter_alert_box(GtkWidget *parent, const char *dftext);
 
 /** Create a GtkScrolledWindow, set its scrollbar placement appropriately,
  *  and remember it.

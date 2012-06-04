@@ -562,7 +562,7 @@ file_open_cmd(GtkWidget *w)
     if (!dfilter_compile(rfilter, &rfcode)) {
       /* Not valid.  Tell the user, and go back and run the file
          selection box again once they dismiss the alert. */
-      bad_dfilter_alert_box_modal(file_open_w, rfilter);
+      bad_dfilter_alert_box(file_open_w, rfilter);
       g_free(cf_name);
       continue;
     }
@@ -815,7 +815,7 @@ file_merge_cmd(GtkWidget *w)
     if (!dfilter_compile(rfilter, &rfcode)) {
       /* Not valid.  Tell the user, and go back and run the file
          selection box again once they dismiss the alert. */
-      bad_dfilter_alert_box_modal(file_merge_w, rfilter);
+      bad_dfilter_alert_box(file_merge_w, rfilter);
       g_free(cf_name);
       continue;
     }

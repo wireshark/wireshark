@@ -629,7 +629,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
      */
     if (!dfilter_compile(filter_text, &sfcode)) {
       /* The attempt failed; report an error. */
-      bad_dfilter_alert_box_modal(GTK_WIDGET(parent_w), filter_text);
+      bad_dfilter_alert_box(GTK_WIDGET(parent_w), filter_text);
       return;
     }
 

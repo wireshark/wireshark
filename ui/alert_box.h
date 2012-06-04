@@ -56,13 +56,6 @@ extern void read_failure_alert_box(const char *filename, int err);
  */
 extern void write_failure_alert_box(const char *filename, int err);
 
-/*
- * Alert box for an invalid display filter expression.
- * Assumes "dfilter_error_msg" has been set by "dfilter_compile()" to the
- * error message for the filter.
- */
-extern void bad_dfilter_alert_box(const char *dftext);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -112,23 +112,3 @@ write_failure_alert_box(const char *filename, int err)
                   file_write_error_message(err), filename);
   }
 }
-
-/*
- * Alert box for an invalid display filter expression.
- * Assumes "dfilter_error_msg" has been set by "dfilter_compile()" to the
- * error message for the filter.
- *
- * XXX - should this have a "Help" button that pops up the display filter
- * help?
- */
-void
-bad_dfilter_alert_box(const char *dftext)
-{
-  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, 
-                "%s%s%s\n"
-                "\n"
-                "The filter expression \"%s\" isn't a valid display filter.\n"
-                "See the help for a description of the display filter syntax.",
-                simple_dialog_primary_start(), dfilter_error_msg,
-                simple_dialog_primary_end(), dftext);
-}

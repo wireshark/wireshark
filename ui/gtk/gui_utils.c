@@ -587,7 +587,7 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
  * help?
  */
 void
-bad_dfilter_alert_box_modal(GtkWidget *parent, const char *dftext)
+bad_dfilter_alert_box(GtkWidget *parent, const char *dftext)
 {
     GtkWidget *msg_dialog;
 

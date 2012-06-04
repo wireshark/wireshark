@@ -1989,7 +1989,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 }
 
 static void
-filter_callback(GtkWidget *widget _U_, gpointer user_data)
+filter_callback(GtkWidget *widget, gpointer user_data)
 {
 	io_stat_graph_t *gio = user_data;
 	const char *filter;
@@ -2100,7 +2100,8 @@ filter_callback(GtkWidget *widget _U_, gpointer user_data)
 	/* first check if the filter string is valid. */
 	filter=gtk_entry_get_text(GTK_ENTRY(gio->filter_field));
 	if(!dfilter_compile(filter, &dfilter)) {
-		bad_dfilter_alert_box(filter);
+		bad_dfilter_alert_box(gtk_widget_get_toplevel(widget),
+		    filter);
 		disable_graph(gio);
 		io_stat_redraw(gio->io);
 		return;

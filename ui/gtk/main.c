@@ -2956,7 +2956,7 @@ main(int argc, char *argv[])
     check_and_warn_user_startup(cf_name);
     if (rfilter != NULL) {
       if (!dfilter_compile(rfilter, &rfcode)) {
-        bad_dfilter_alert_box_modal(top_level, rfilter);
+        bad_dfilter_alert_box(top_level, rfilter);
         rfilter_parse_failed = TRUE;
       }
     }
@@ -2992,7 +2992,7 @@ main(int argc, char *argv[])
           } else if (jfilter != NULL) {
             /* try to compile given filter */
             if (!dfilter_compile(jfilter, &jump_to_filter)) {
-              bad_dfilter_alert_box_modal(top_level, jfilter);
+              bad_dfilter_alert_box(top_level, jfilter);
             } else {
               /* Filter ok, jump to the first packet matching the filter
                  conditions. Default search direction is forward, but if
