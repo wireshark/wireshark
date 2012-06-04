@@ -1584,10 +1584,10 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	opcode = 0;
 	if(!pinfo->fd->flags.visited){
 		if ( !request_val && !reply) {
-			new_request_key = se_alloc(sizeof(struct afs_request_key));
+			new_request_key = se_new(struct afs_request_key);
 			*new_request_key = request_key;
 
-			request_val = se_alloc(sizeof(struct afs_request_val));
+			request_val = se_new(struct afs_request_val);
 			request_val -> opcode = tvb_get_ntohl(tvb, offset);
 			request_val -> req_num = pinfo->fd->num;
 			request_val -> rep_num = 0;

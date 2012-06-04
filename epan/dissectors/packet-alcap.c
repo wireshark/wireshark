@@ -536,7 +536,7 @@ static const gchar* dissect_fields_desea(packet_info* pinfo _U_, tvbuff_t *tvb, 
         return NULL;
     }
 
-    e164 = ep_alloc(sizeof(e164_info_t));
+    e164 = ep_new(e164_info_t);
 
     e164->e164_number_type = CALLED_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
@@ -563,7 +563,7 @@ static const gchar* dissect_fields_oesea(packet_info* pinfo _U_, tvbuff_t *tvb, 
         return NULL;
     }
 
-    e164 = ep_alloc(sizeof(e164_info_t));
+    e164 = ep_new(e164_info_t);
 
     e164->e164_number_type = CALLING_PARTY_NUMBER;
     e164->nature_of_address = tvb_get_guint8(tvb,offset) & 0x7f;
@@ -1353,7 +1353,7 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info
 
 
 extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  gchar* key) {
-    alcap_leg_info_t* leg = se_tree_lookup_string(legs_by_bearer,key,0);
+    alcap_leg_info_t* leg = (alcap_leg_info_t*)se_tree_lookup_string(legs_by_bearer,key,0);
 
     if (leg) {
         alcap_leg_tree(tree,tvb,leg);
@@ -1364,7 +1364,7 @@ extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  g
 
 static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree *alcap_tree = NULL;
-    alcap_message_info_t* msg_info = ep_alloc0(sizeof(alcap_message_info_t));
+    alcap_message_info_t* msg_info = ep_new0(alcap_message_info_t);
     int len = tvb_length(tvb);
     int offset;
     proto_item* pi;
@@ -1432,8 +1432,8 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         alcap_leg_info_t* leg = NULL;
         switch (msg_info->msg_type) {
             case 5: /* ERQ */
-                if( ! ( leg = se_tree_lookup32(legs_by_osaid,msg_info->osaid) )) {
-                    leg = se_alloc(sizeof(alcap_leg_info_t));
+                if( ! ( leg = (alcap_leg_info_t*)se_tree_lookup32(legs_by_osaid,msg_info->osaid) )) {
+                    leg = se_new(alcap_leg_info_t);
 
                     leg->dsaid = 0;
                     leg->osaid = msg_info->osaid;
@@ -1472,7 +1472,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 }
                 break;
             case 4: /* ECF */
-                if(( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) {
+                if(( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )) {
                     leg->dsaid = msg_info->osaid;
                     se_tree_insert32(legs_by_dsaid,leg->dsaid,leg);
                 }
@@ -1481,8 +1481,8 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             case 12:  /* MOA */
             case 13: /* MOR */
             case 14: /* MOD */
-                if( ( leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )
-                    || ( leg = se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) {
+                if( ( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_osaid,msg_info->dsaid) )
+                    || ( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) ) ) {
 
                     if(msg_info->release_cause)
                         leg->release_cause =  msg_info->release_cause;
@@ -1490,11 +1490,11 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 }
                 break;
             case 7: /* REL */
-                leg = se_tree_lookup32(legs_by_osaid,msg_info->dsaid);
+                leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_osaid,msg_info->dsaid);
 
                 if(leg) {
                     leg->release_cause =  msg_info->release_cause;
-                } else if (( leg = se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) )) {
+                } else if (( leg = (alcap_leg_info_t *)se_tree_lookup32(legs_by_dsaid,msg_info->dsaid) )) {
                     leg->release_cause =  msg_info->release_cause;
                 }
                     break;
@@ -1503,7 +1503,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         }
 
         if (leg != NULL && ( (! leg->msgs) || leg->msgs->last->framenum < pinfo->fd->num ) ) {
-            alcap_msg_data_t* msg = se_alloc(sizeof(alcap_msg_data_t));
+            alcap_msg_data_t* msg = se_new(alcap_msg_data_t);
             msg->msg_type = msg_info->msg_type;
             msg->framenum = pinfo->fd->num;
             msg->next = NULL;

@@ -637,7 +637,7 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 
 	if (frame_label != NULL) {
 		/* Initialise packet info for passing to tap */
-		actrace_pi = ep_alloc(sizeof(actrace_info_t));
+		actrace_pi = ep_new(actrace_info_t);
 
 		actrace_pi->type = ACTRACE_CAS;
 		actrace_pi->direction = direction;
@@ -675,7 +675,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* if it is a q931 packet (we don't want LAPD packets for Voip Graph) add tap info */
 	if (len > 4) {
 		/* Initialise packet info for passing to tap */
-		actrace_pi = ep_alloc(sizeof(actrace_info_t));
+		actrace_pi = ep_new(actrace_info_t);
 
 		actrace_pi->type = ACTRACE_ISDN;
 		actrace_pi->direction = (value==PSTN_TO_BLADE?1:0);

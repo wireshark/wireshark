@@ -107,7 +107,7 @@ tvb_atalkid_to_str(tvbuff_t *tvb, gint offset)
   gint node;
   gchar *cur;
 
-  cur=ep_alloc(16);
+  cur=(gchar *)ep_alloc(16);
   node=tvb_get_guint8(tvb, offset)<<8|tvb_get_guint8(tvb, offset+1);
   g_snprintf(cur, 16, "%d.%d",node,tvb_get_guint8(tvb, offset+2));
   return cur;

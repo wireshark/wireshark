@@ -4779,7 +4779,7 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct aspinfo	*aspinfo = pinfo->private_data;
+	struct aspinfo	*aspinfo = (struct aspinfo*)pinfo->private_data;
 	proto_tree	*afp_tree = NULL;
 	proto_item	*ti;
 	conversation_t	*conversation;
@@ -4804,10 +4804,10 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!request_val && !aspinfo->reply)  {
 		afp_command = tvb_get_guint8(tvb, offset);
-		new_request_key = se_alloc(sizeof(afp_request_key));
+		new_request_key = se_new(afp_request_key);
 		*new_request_key = request_key;
 
-		request_val = se_alloc(sizeof(afp_request_val));
+		request_val = se_new(afp_request_val);
 		request_val->command = afp_command;
 
 		if (afp_command == AFP_SPOTLIGHTRPC)

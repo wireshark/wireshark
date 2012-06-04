@@ -469,7 +469,7 @@ const aim_subtype
 {
 	GList *gl = families;
 	while(gl) {
-		aim_family *fam = gl->data;
+		aim_family *fam = (aim_family *)gl->data;
 		if(fam->family == famnum) {
 			int i;
 			for(i = 0; fam->subtypes[i].name; i++) {
@@ -488,7 +488,7 @@ const aim_family
 {
 	GList *gl = families;
 	while(gl) {
-		aim_family *fam = gl->data;
+		aim_family *fam = (aim_family *)gl->data;
 		if(fam->family == famnum) return fam;
 		gl = gl->next;
 	}
@@ -739,7 +739,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	subtvb = tvb_new_subset_remaining(tvb, offset);
-	aiminfo.tcpinfo = pinfo->private_data;
+	aiminfo.tcpinfo = (tcpinfo *)pinfo->private_data;
 	aiminfo.family = family_id;
 	aiminfo.subtype = subtype_id;
 	pd_save = pinfo->private_data;

@@ -569,11 +569,11 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 			}
 		}
 	} else {
-		adwin_trans = se_tree_lookup32(adwin_info->pdus, seq_num);
+		adwin_trans = (adwin_transaction_t *)se_tree_lookup32(adwin_info->pdus, seq_num);
 	}
 	if (!adwin_trans) {
 		/* create a "fake" adwin_trans structure */
-		adwin_trans = ep_alloc(sizeof(adwin_transaction_t));
+		adwin_trans = ep_new(adwin_transaction_t);
 		adwin_trans->req_frame = 0;
 		adwin_trans->rep_frame = 0;
 		adwin_trans->req_time = pinfo->fd->abs_ts;

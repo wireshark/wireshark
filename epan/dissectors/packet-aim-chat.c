@@ -86,8 +86,8 @@ static int dissect_aim_chat_outgoing_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	guchar *msg;
 	int buddyname_length;
 
-	buddyname=ep_alloc(MAX_BUDDYNAME_LENGTH+1);
-	msg=ep_alloc(1000);
+	buddyname=(guchar *)ep_alloc(MAX_BUDDYNAME_LENGTH+1);
+	msg=(guchar *)ep_alloc(1000);
 	buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
 
 	/* channel message from client */
@@ -107,8 +107,8 @@ static int dissect_aim_chat_incoming_msg(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* channel message to client */
 	int buddyname_length;
 
-	buddyname=ep_alloc(MAX_BUDDYNAME_LENGTH+1);
-	msg=ep_alloc(1000);
+	buddyname=(guchar *)ep_alloc(MAX_BUDDYNAME_LENGTH+1);
+	msg=(guchar *)ep_alloc(1000);
 	buddyname_length = aim_get_buddyname( buddyname, tvb, 30, 31 );
 
 	aim_get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb)
