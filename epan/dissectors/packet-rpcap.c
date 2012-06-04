@@ -632,7 +632,7 @@ dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static void
+static int
 dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 			    proto_tree *parent_tree, gint offset)
 {
@@ -673,6 +673,7 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_item_append_text (ti, " (%s/%s)", username, password);
   }
+  return offset;
 }
 
 
@@ -834,6 +835,7 @@ dissect_rpcap_sampling_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   default:
     break;
   }
+  return offset;
 }
 
 

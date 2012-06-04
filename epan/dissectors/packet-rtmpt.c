@@ -1400,7 +1400,6 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                         id = tf->saved.d[0];
                                         header_type = (id>>6) & 3;
                                         basic_hlen = rtmpt_basic_header_length(id);
-                                        message_hlen = rtmpt_message_header_length(id);
 
                                         if (header_type<3 && tf->have<basic_hlen+3 && tf->have+want>=basic_hlen+3) {
                                                 if (pntoh24(tf->saved.d+basic_hlen)==0xffffff) {

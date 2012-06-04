@@ -1576,7 +1576,7 @@ dissect_pvfs2_io_request(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/* */
 	offset += 4;
 
-	offset = dissect_pvfs_pint_request(tvb, tree, offset);
+	/*offset = */dissect_pvfs_pint_request(tvb, tree, offset);
 
 	/* TODO: remove this!!! */
 	offset = tvb_length(tvb) - 16;
@@ -3205,7 +3205,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (mode == TCP_MODE_UNEXP)
 	{
 		/* Request */
-		offset = dissect_pvfs2_request(tvb, pvfs_tree, offset, pinfo, server_op);
+		/*offset = */dissect_pvfs2_request(tvb, pvfs_tree, offset, pinfo, server_op);
 	}
 	else
 	{
@@ -3224,7 +3224,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 #endif
 		{
 			/* Response */
-			offset = dissect_pvfs2_response(tvb, pvfs_tree, offset, pinfo,
+			/*offset = */dissect_pvfs2_response(tvb, pvfs_tree, offset, pinfo,
 					server_op);
 		}
 	}

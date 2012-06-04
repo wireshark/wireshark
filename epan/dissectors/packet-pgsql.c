@@ -385,7 +385,6 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Describe, Close */
     case 'D':
     case 'C':
-        i = 0;
         c = tvb_get_guint8(tvb, n);
         if (c == 'P')
             i = hf_portal;
