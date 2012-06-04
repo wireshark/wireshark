@@ -98,7 +98,7 @@ static const char list_str[] = "list...";
  */
 
 static int
-dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, char **result, gboolean tohex, char *label )
+dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, char **result, gboolean tohex, const char *label )
 {
   guint string_len_start;
   guint string_len;
@@ -128,7 +128,7 @@ dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, 
  * *result will be the decoded value
  */
 static int
-dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, char **result, char *label )
+dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, char **result, const char *label )
 {
   guint start_offset;
 
@@ -153,7 +153,7 @@ static int dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /* dissect a bencoded list from tvb, start at offset. it's like "lXXXe", "X" is any bencoded thing */
 static int
-dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char *label  )
+dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char *label  )
 {
   proto_item *ti;
   proto_tree *sub_tree;
@@ -194,7 +194,7 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
 /* dissect a bt dht error from tvb, start at offset. it's like "li201e9:error msge" */
 static int
-dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, char *label )
+dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, const char *label )
 {
   proto_item *ti;
   proto_tree *sub_tree;
@@ -222,7 +222,7 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
 /* dissect a bt dht values list from tvb, start at offset. it's like "l6:....6:....e" */
 static int
-dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, char *label )
+dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, const char *label )
 {
   proto_item *ti;
   proto_tree *sub_tree;

@@ -471,7 +471,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	pt_name = proto_item_add_subtree(pi_name,ett_name);
 
 	/* fetch ObjectName and its relative oid_info */
-	oid_bytes = ep_tvb_memdup(tvb, name_offset, name_len);
+	oid_bytes = (guint8*)ep_tvb_memdup(tvb, name_offset, name_len);
 	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
 
 	add_oid_debug_subtree(oid_info,pt_name);
@@ -671,7 +671,7 @@ show_oid_index:
 									goto indexing_done;
 								}
 
-								buf = ep_alloc(buf_len+1);
+								buf = (guint8*)ep_alloc(buf_len+1);
 								for (i = 0; i < buf_len; i++)
 									buf[i] = (guint8)suboid[i];
 								buf[i] = '\0';
@@ -919,16 +919,16 @@ set_label:
 
 	switch (format_error) {
 		case BER_WRONG_LENGTH: {
-			proto_tree* pt = proto_item_add_subtree(pi_value,ett_decoding_error);
-			proto_item* pi = proto_tree_add_text(pt,tvb,0,0,"Wrong value length: %u  expecting: %u <= len <= %u",
+			proto_tree* p_tree = proto_item_add_subtree(pi_value,ett_decoding_error);
+			proto_item* pi = proto_tree_add_text(p_tree,tvb,0,0,"Wrong value length: %u  expecting: %u <= len <= %u",
 							     value_len, min_len, max_len == -1 ? 0xFFFFFF : max_len);
 			pt = proto_item_add_subtree(pi,ett_decoding_error);
 			expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for SNMP VarBind/value");
 			return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
 		}
 		case BER_WRONG_TAG: {
-			proto_tree* pt = proto_item_add_subtree(pi_value,ett_decoding_error);
-			proto_item* pi = proto_tree_add_text(pt,tvb,0,0,"Wrong class/tag for Value expected: %d,%d got: %d,%d",
+			proto_tree* p_tree = proto_item_add_subtree(pi_value,ett_decoding_error);
+			proto_item* pi = proto_tree_add_text(p_tree,tvb,0,0,"Wrong class/tag for Value expected: %d,%d got: %d,%d",
 							     oid_info->value_type->ber_class, oid_info->value_type->ber_tag,
 							     ber_class, tag);
 			pt = proto_item_add_subtree(pi,ett_decoding_error);
@@ -1109,7 +1109,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 static void set_ue_keys(snmp_ue_assoc_t* n ) {
 	guint key_size = n->user.authModel->key_size;
 
-	n->user.authKey.data = se_alloc(key_size);
+	n->user.authKey.data = (guint8 *)se_alloc(key_size);
 	n->user.authKey.len = key_size;
 	n->user.authModel->pass2key(n->user.authPassword.data,
 				    n->user.authPassword.len,
@@ -1117,7 +1117,7 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 				    n->engine.len,
 				    n->user.authKey.data);
 
-	n->user.privKey.data = se_alloc(key_size);
+	n->user.privKey.data = (guint8 *)se_alloc(key_size);
 	n->user.privKey.len = key_size;
 	n->user.authModel->pass2key(n->user.privPassword.data,
 				    n->user.privPassword.len,
@@ -1129,25 +1129,25 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 static snmp_ue_assoc_t*
 ue_se_dup(snmp_ue_assoc_t* o)
 {
-	snmp_ue_assoc_t* d = se_memdup(o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)se_memdup(o,sizeof(snmp_ue_assoc_t));
 
 	d->user.authModel = o->user.authModel;
 
 	d->user.privProtocol = o->user.privProtocol;
 
-	d->user.userName.data = se_memdup(o->user.userName.data,o->user.userName.len);
+	d->user.userName.data = (guint8 *)se_memdup(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
 
-	d->user.authPassword.data = o->user.authPassword.data ? se_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
+	d->user.authPassword.data = o->user.authPassword.data ? (guint8 *)se_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
 
-	d->user.privPassword.data = o->user.privPassword.data ? se_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
+	d->user.privPassword.data = o->user.privPassword.data ? (guint8 *)se_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
 
 	d->engine.len = o->engine.len;
 
 	if (d->engine.len) {
-		d->engine.data = se_memdup(o->engine.data,o->engine.len);
+		d->engine.data = (guint8 *)se_memdup(o->engine.data,o->engine.len);
 		set_ue_keys(d);
 	}
 
@@ -1185,9 +1185,9 @@ renew_ue_cache(void)
 static snmp_ue_assoc_t*
 localize_ue( snmp_ue_assoc_t* o, const guint8* engine, guint engine_len )
 {
-	snmp_ue_assoc_t* n = se_memdup(o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* n = (snmp_ue_assoc_t*)se_memdup(o,sizeof(snmp_ue_assoc_t));
 
-	n->engine.data = se_memdup(engine,engine_len);
+	n->engine.data = (guint8*)se_memdup(engine,engine_len);
 	n->engine.len = engine_len;
 
 	set_ue_keys(n);
@@ -1219,9 +1219,9 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 	if (! ( user_tvb && engine_tvb ) ) return NULL;
 
 	given_username_len = tvb_ensure_length_remaining(user_tvb,0);
-	given_username = ep_tvb_memdup(user_tvb,0,-1);
+	given_username = (guint8*)ep_tvb_memdup(user_tvb,0,-1);
 	given_engine_len = tvb_ensure_length_remaining(engine_tvb,0);
-	given_engine = ep_tvb_memdup(engine_tvb,0,-1);
+	given_engine = (guint8*)ep_tvb_memdup(engine_tvb,0,-1);
 
 	for (a = localized_ues; a; a = a->next) {
 		if ( localized_match(a, given_username, given_username_len, given_engine, given_engine_len) ) {
@@ -1280,10 +1280,10 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 		*error = "Not enough data remaining";
 		return FALSE;
 	}
-	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
+	msg = (guint8*)ep_tvb_memdup(p->msg_tvb,0,msg_len);
 
 
-	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
+	auth = (guint8*)ep_tvb_memdup(p->auth_tvb,0,auth_len);
 
 	start = p->auth_offset - p->start_offset;
 	end = 	start + auth_len;
@@ -1293,7 +1293,7 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 		msg[i] = '\0';
 	}
 
-	calc_auth = ep_alloc(16);
+	calc_auth = (guint8*)ep_alloc(16);
 
 	md5_hmac(msg, msg_len, key, key_len, calc_auth);
 
@@ -1345,9 +1345,9 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		*error = "Not enough data remaining";
 		return FALSE;
 	}
-	msg = ep_tvb_memdup(p->msg_tvb,0,msg_len);
+	msg = (guint8*)ep_tvb_memdup(p->msg_tvb,0,msg_len);
 
-	auth = ep_tvb_memdup(p->auth_tvb,0,auth_len);
+	auth = (guint8*)ep_tvb_memdup(p->auth_tvb,0,auth_len);
 
 	start = p->auth_offset - p->start_offset;
 	end = 	start + auth_len;
@@ -1357,7 +1357,7 @@ snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_a
 		msg[i] = '\0';
 	}
 
-	calc_auth = ep_alloc(20);
+	calc_auth = (guint8*)ep_alloc(20);
 
 	sha1_hmac(key, key_len, msg, msg_len, calc_auth);
 
@@ -1393,7 +1393,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 		return NULL;
 	}
 
-	salt = ep_tvb_memdup(p->priv_tvb,0,salt_len);
+	salt = (guint8*)ep_tvb_memdup(p->priv_tvb,0,salt_len);
 
 	/*
 	 The resulting "salt" is XOR-ed with the pre-IV to obtain the IV.
@@ -1409,9 +1409,9 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 		return NULL;
 	}
 
-	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
+	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = ep_alloc(cryptgrm_len);
+	cleartext = (guint8*)ep_alloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_DES, GCRY_CIPHER_MODE_CBC, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1478,9 +1478,9 @@ snmp_usm_priv_aes(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 		*error = "Not enough data remaining";
 		return NULL;
 	}
-	cryptgrm = ep_tvb_memdup(encryptedData,0,-1);
+	cryptgrm = (guint8*)ep_tvb_memdup(encryptedData,0,-1);
 
-	cleartext = ep_alloc(cryptgrm_len);
+	cleartext = (guint8*)ep_alloc(cryptgrm_len);
 
 	err = gcry_cipher_open(&hd, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CFB, 0);
 	if (err != GPG_ERR_NO_ERROR) goto on_gcry_error;
@@ -1963,24 +1963,24 @@ snmp_users_copy_cb(void* dest, const void* orig, size_t len _U_)
 	d->priv_proto = o->priv_proto;
 	d->user.privProtocol = priv_protos[o->priv_proto];
 
-	d->user.userName.data = g_memdup(o->user.userName.data,o->user.userName.len);
+	d->user.userName.data = (guint8*)g_memdup(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
 
-	d->user.authPassword.data = o->user.authPassword.data ? g_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
+	d->user.authPassword.data = o->user.authPassword.data ? (guint8*)g_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
 
-	d->user.privPassword.data = o->user.privPassword.data ? g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
+	d->user.privPassword.data = o->user.privPassword.data ? (guint8*)g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
 
 	d->engine.len = o->engine.len;
 	if (o->engine.data) {
-		d->engine.data = g_memdup(o->engine.data,o->engine.len);
+		d->engine.data = (guint8*)g_memdup(o->engine.data,o->engine.len);
 	}
 
-	d->user.authKey.data = o->user.authKey.data ? g_memdup(o->user.authKey.data,o->user.authKey.len) : NULL;
+	d->user.authKey.data = o->user.authKey.data ? (guint8*)g_memdup(o->user.authKey.data,o->user.authKey.len) : NULL;
 	d->user.authKey.len = o->user.authKey.len;
 
-	d->user.privKey.data = o->user.privKey.data ? g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
+	d->user.privKey.data = o->user.privKey.data ? (guint8*)g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
 	d->user.privKey.len = o->user.privKey.len;
 
 	return d;
