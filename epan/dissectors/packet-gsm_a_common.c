@@ -1225,7 +1225,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
             {
                 gchar *a_add_string;
 
-                a_add_string = ep_alloc(1024);
+                a_add_string = (gchar *)ep_alloc(1024);
                 a_add_string[0] = '\0';
                 consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 2,
@@ -1314,7 +1314,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
             {
                 gchar *a_add_string;
 
-                a_add_string = ep_alloc(1024);
+                a_add_string = (gchar*)ep_alloc(1024);
                 a_add_string[0] = '\0';
                 consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1 + lengt_length,
@@ -1389,7 +1389,7 @@ guint16 elem_tlv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 i
             {
                 gchar *a_add_string;
 
-                a_add_string = ep_alloc(1024);
+                a_add_string = (gchar*)ep_alloc(1024);
                 a_add_string[0] = '\0';
                 consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1 + 2,
@@ -1461,7 +1461,7 @@ guint16 elem_tv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei,
         {
             gchar *a_add_string;
 
-            a_add_string = ep_alloc(1024);
+            a_add_string = (gchar*)ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1, -1, a_add_string, 1024);
 
@@ -1536,7 +1536,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         {
             gchar *a_add_string;
 
-            a_add_string = ep_alloc(1024);
+            a_add_string = (gchar*)ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset, RIGHT_NIBBLE, a_add_string, 1024);
 
@@ -1634,7 +1634,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int 
         {
             gchar *a_add_string;
 
-            a_add_string = ep_alloc(1024);
+            a_add_string = (gchar*)ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 1,
@@ -1695,7 +1695,7 @@ guint16 elem_lv_e(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_
         {
             gchar *a_add_string;
 
-            a_add_string = ep_alloc(1024);
+            a_add_string = (gchar*)ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed =
                 (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset + 2,
@@ -1754,7 +1754,7 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
 
         subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
-        a_add_string= ep_alloc(1024);
+        a_add_string= (gchar*)ep_alloc(1024);
         a_add_string[0] = '\0';
         consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset, -1, a_add_string, 1024);
         if (a_add_string[0] != '\0')
@@ -1797,7 +1797,7 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
 
     subtree = proto_item_add_subtree(item, elem_ett[idx]);
 
-    a_add_string= ep_alloc(1024);
+    a_add_string= (gchar*)ep_alloc(1024);
     a_add_string[0] = '\0';
 
     if (elem_funcs[idx] == NULL)
@@ -2009,7 +2009,7 @@ static const value_string gsm_a_key_seq_vals[] = {
     { 0,    NULL }
 };
 
-guint16
+static guint16
 de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
@@ -3375,7 +3375,8 @@ static const value_string gsm_a_pld_xid_vals[] = {
     { 0x01, "The MS shall perform a Reset of LLC and SNDCP with old XID indicator" },
     { 0,            NULL }
 };
-guint16
+
+static guint16
 de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;

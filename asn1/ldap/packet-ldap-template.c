@@ -432,7 +432,7 @@ static void *
 attribute_types_copy_cb(void* n, const void* o, size_t siz _U_)
 {
   attribute_type_t* new_rec = (attribute_type_t*)n;
-  const attribute_type_t* old_rec = (attribute_type_t*)o;
+  const attribute_type_t* old_rec = (const attribute_type_t*)o;
 
   new_rec->attribute_type = g_strdup(old_rec->attribute_type);
   new_rec->attribute_desc = g_strdup(old_rec->attribute_desc);
@@ -632,7 +632,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		/* This octet string contained a GUID */
 		dissect_dcerpc_uuid_t(tvb, offset, actx->pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-		ldapvalue_string=ep_alloc(1024);
+		ldapvalue_string=(char*)ep_alloc(1024);
 		g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                           uuid.Data1, uuid.Data2, uuid.Data3,
                           uuid.Data4[0], uuid.Data4[1],
@@ -648,7 +648,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 		/* get flag value to populate ldapvalue_string */
 		flags=tvb_get_letohl(tvb, offset);
 
-		ldapvalue_string=ep_alloc(1024);
+		ldapvalue_string=(char*)ep_alloc(1024);
 		g_snprintf(ldapvalue_string, 1023, "0x%08x",flags);
 
 		/* populate bitmask subtree */
@@ -684,7 +684,7 @@ dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, as
 	if(is_ascii){
 		ldapvalue_string=ep_strndup(str, len);
 	} else {
-		ldapvalue_string=ep_alloc(3*len);
+		ldapvalue_string=(char*)ep_alloc(3*len);
 		for(i=0;i<len;i++){
 			g_snprintf(ldapvalue_string+i*3,3,"%02x",str[i]&0xff);
 			ldapvalue_string[3*i+2]=':';
@@ -1776,7 +1776,7 @@ dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* This octet string contained a GUID */
 	dissect_dcerpc_uuid_t(tvb, 0, pinfo, tree, drep, hf_ldap_guid, &uuid);
 
-	ldapvalue_string=ep_alloc(1024);
+	ldapvalue_string=(char*)ep_alloc(1024);
 	g_snprintf(ldapvalue_string, 1023, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                    uuid.Data1, uuid.Data2, uuid.Data3,
                    uuid.Data4[0], uuid.Data4[1],
