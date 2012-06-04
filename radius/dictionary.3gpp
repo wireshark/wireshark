@@ -43,8 +43,7 @@ ATTRIBUTE	3GPP-IPv6-DNS-Servers			17	octets
 
 ATTRIBUTE	3GPP-SGSN-MCC-MNC			18	string
 ATTRIBUTE	3GPP-Teardown-Indicator			19	octets
-
-ATTRIBUTE	3GGP-IMEISV				20	octets
+ATTRIBUTE	3GPP-IMEISV				20	string
 ATTRIBUTE	3GPP-RAT-Type				21	integer
 ATTRIBUTE	3GPP-User-Location-Info			22	octets
 ATTRIBUTE	3GPP-MS-TimeZone			23	octets
