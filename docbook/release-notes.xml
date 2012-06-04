@@ -163,11 +163,11 @@ CANopen,
 CIP Motion,
 CIP Safety,
 Cisco FabricPath MiM,
-DMX,
 DMX Channel Data,
 DMX SIP,
 DMX Test,
 DMX Text,
+DMX,
 DVB Application Information Table,
 DVB Bouquet Association Table,
 DVB Event Information Table,
@@ -265,7 +265,9 @@ VSS-Monitoring,
 Vuze DHT,
 WaveAgent,
 WebSocket,
+WSE Remote Ethernet,
 XMCP
+
 
     </para>
     </section>
