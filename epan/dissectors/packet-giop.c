@@ -702,7 +702,7 @@ GHashTable *giop_complete_reply_hash = NULL; /* hash */
 
 
 struct giop_module_key {
-  gchar *module;                /* module (interface?) name  */
+  const gchar *module;                /* module (interface?) name  */
 };
 
 struct giop_module_val {
@@ -1063,7 +1063,7 @@ static guint32 giop_hash_module_hash(gconstpointer v) {
  *
  */
 
-void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name, gchar *module, int sub_proto) {
+void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name, const gchar *module, int sub_proto) {
 
   struct giop_module_key module_key, *new_module_key;
   struct giop_module_val *module_val = NULL;

@@ -136,8 +136,8 @@ extern void delete_giop_user(giop_sub_dissector_t *sub, gchar *name);
  * This is for explicit dissection.
  */
 
-extern void register_giop_user_module(giop_sub_dissector_t *sub, gchar *name,
-    gchar *module, int sub_proto);
+extern void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name,
+    const gchar *module, int sub_proto);
 
 /*
  * GIOP Users remove their module and interface names via this function.
