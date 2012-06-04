@@ -125,12 +125,6 @@ extern GtkWidget *menus_get_profiles_change_menu (void);
 void set_menus_for_selected_tree_row(capture_file *cf);
 
 
-/* Enable or disable menu items based on whether you have a capture file
-   you've finished reading and, if you have one, whether it's been saved
-   and whether it could be saved except by copying the raw packet data. */
-void set_menus_for_capture_file(capture_file *);
-
-
 /* Enable or disable menu items based on whether there's a capture in
    progress. */
 void set_menus_for_capture_in_progress(gboolean);

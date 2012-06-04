@@ -307,6 +307,13 @@ extern void find_prev_mark_cb(GtkWidget *widget, gpointer data, int action);
 extern void dfilter_combo_add_empty(void);
 #endif
 
+/** Update various parts of the main window for a capture file "unsaved
+ *  changes" change.
+ *
+ * @param cf capture_file structure for the capture file.
+ */
+extern void main_update_for_unsaved_changes(capture_file *cf);
+
 /** Quit the program.
  *
  * @return TRUE, if a file read is in progress

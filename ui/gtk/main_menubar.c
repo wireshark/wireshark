@@ -97,6 +97,7 @@
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
+#include "ui/gtk/main_menubar_private.h"
 #include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/uat_gui.h"
@@ -4650,7 +4651,6 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
     }
-    set_toolbar_for_capture_file(cf);
 }
 
 /* Enable or disable menu items based on whether there's a capture in

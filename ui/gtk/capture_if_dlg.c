@@ -68,7 +68,6 @@
 #include "ui/gtk/network_icons.h"
 #include "ui/gtk/pipe_icon.h"
 #include "ui/gtk/main_welcome.h"
-#include "ui/gtk/menus.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

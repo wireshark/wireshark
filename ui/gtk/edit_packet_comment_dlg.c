@@ -43,7 +43,6 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/menus.h"
 #include "ui/gtk/new_packet_list.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
@@ -91,8 +90,8 @@ capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   /*g_warning("The new comment is '%s'",new_capture_comment);*/
   cf_update_capture_comment(&cfile, new_capture_comment);
 
-  /* Update the menus in case the file might need to be saved */
-  set_menus_for_capture_file(&cfile);
+  /* Update the main window as appropriate */
+  main_update_for_unsaved_changes(&cfile);
 
   window_destroy(edit_or_add_capture_comment_dlg);
 

@@ -73,7 +73,6 @@
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/menus.h"
 #include "ui/gtk/export_sslkeys.h"
 
 #ifdef _WIN32

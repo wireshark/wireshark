@@ -143,6 +143,7 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 #include "ui/gtk/main_filter_toolbar.h"
 #include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/menus.h"
+#include "ui/gtk/main_menubar_private.h"
 #include "ui/gtk/macros_dlg.h"
 #include "ui/gtk/main_statusbar_private.h"
 #include "ui/gtk/main_toolbar.h"
@@ -1339,13 +1340,26 @@ set_display_filename(capture_file *cf)
 
   if (cf->filename) {
     display_name = cf_get_display_name(cf);
-    window_name = g_strdup_printf("%s", display_name);
+    window_name = g_strdup_printf("%s%s", cf->unsaved_changes ? "*" : "",
+                                  display_name);
     g_free(display_name);
     main_set_window_name(window_name);
     g_free(window_name);
   } else {
     main_set_window_name("The Wireshark Network Analyzer");
   }
+}
+
+/* Update various parts of the main window for a capture file "unsaved
+   changes" change - update the title to reflect whether there are
+   unsaved changes or not, and update the menus and toolbar to
+   enable or disable the "Save" operation. */
+void
+main_update_for_unsaved_changes(capture_file *cf)
+{
+  set_display_filename(cf);
+  set_menus_for_capture_file(cf);
+  set_toolbar_for_capture_file(cf);
 }
 
 static GtkWidget           *close_dlg = NULL;
@@ -1390,6 +1404,7 @@ main_cf_cb_file_closing(capture_file *cf)
 
     /* Disable all menu items that make sense only if you have a capture. */
     set_menus_for_capture_file(NULL);
+    set_toolbar_for_capture_file(NULL);
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(cf);
     set_menus_for_capture_in_progress(FALSE);
@@ -1435,11 +1450,9 @@ main_cf_cb_file_read_finished(capture_file *cf)
         set_last_open_dir(dir_path);
         g_free(dir_path);
     }
-    set_display_filename(cf);
 
-    /* Enable menu items that make sense if you have a capture file you've
-       finished reading. */
-    set_menus_for_capture_file(cf);
+    /* Update the appropriate parts of the main window. */
+    main_update_for_unsaved_changes(cf);
 
     /* Enable menu items that make sense if you have some captured packets. */
     set_menus_for_captured_packets(TRUE);
@@ -1546,16 +1559,14 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
         /* Add this filename to the list of recent files in the "Recent Files" submenu */
         add_menu_recent_capture_file(cf->filename);
     }
-    set_display_filename(cf);
+
+    /* Update the main window as appropriate */
+    main_update_for_unsaved_changes(cf);
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     set_menus_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
-
-    /* Enable menu items that make sense if you have a capture file
-       you've finished reading. */
-    set_menus_for_capture_file(cf);
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);

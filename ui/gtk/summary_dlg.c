@@ -49,7 +49,6 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
-#include "ui/gtk/menus.h"
 
 #define SUM_STR_MAX     1024
 #define FILTER_SNIP_LEN 50
@@ -144,8 +143,8 @@ summary_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 
   cf_update_capture_comment(&cfile, new_comment);
 
-  /* Update the menus in case the file might need to be saved */
-  set_menus_for_capture_file(&cfile);
+  /* Update the main window */
+  main_update_for_unsaved_changes(&cfile);
 
   window_destroy(summary_dlg);
 }
