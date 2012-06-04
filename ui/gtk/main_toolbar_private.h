@@ -1,4 +1,4 @@
-/* main_menubar_private.h
+/* main_toolbar_private.h
  *
  * $Id$
  *
@@ -21,22 +21,26 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __MAIN_MENUBAR_PRIVATE_H__
-#define __MAIN_MENUBAR_PRIVATE_H__
+#ifndef __MAIN_TOLBAR_PRIVATE_H__
+#define __MAIN_TOLBAR_PRIVATE_H__
 
-/*** PRIVATE INTERFACE BETWEEN main.c AND main_menubar.c DON'T USE OR TOUCH :-)*/
+/*** PRIVATE INTERFACE BETWEEN main.c AND main_toolbar.c DON'T USE OR TOUCH :-)*/
 
-/* Enable or disable menu items based on whether you have a capture file
-   you've finished reading and, if you have one, whether it's been saved
-   and whether it could be saved except by copying the raw packet data. */
-void set_menus_for_capture_file(capture_file *);
+/** The "Colorize Packet List" option has changed.
+ */
+void toolbar_colorize_changed(gboolean packet_list_colorize);
 
 #ifdef HAVE_LIBPCAP
-/** The "Auto Scroll Packet List in Live Capture" option changed. */
-extern void menu_auto_scroll_live_changed(gboolean auto_scroll_in);
+/** The "Auto Scroll in Live Capture" option has changed.
+ */
+void toolbar_auto_scroll_live_changed(gboolean auto_scroll_live);
 #endif
 
-/** The "Colorize Packet List" option changed. */
-extern void menu_colorize_changed(gboolean packet_list_colorize);
+/* Enable or disable toolbar items based on whether you have a capture file
+ * and, if so, whether you've finished reading it and whether there's stuff
+ * in it that hasn't yet been saved to a permanent file.
+ * @param cf cfile_t for the capture file in question
+ */
+void set_toolbar_for_capture_file(capture_file *cf);
 
-#endif /* __MAIN_MENUBAR_PRIVATE_H__ */
+#endif /* __MAIN_TOOLBAR_PRIVATE_H__ */

@@ -52,8 +52,8 @@
 #include "ui/gtk/color_dlg.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/menus.h"
 #include "ui/gtk/main_toolbar.h"
+#include "ui/gtk/main_toolbar_private.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/stock_icons.h"
@@ -257,7 +257,7 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 
 static void
 colorize_toggle_cb(GtkWidget *toggle_button, gpointer user_data _U_)  {
-    menu_colorize_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(toggle_button)));
+    main_colorize_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(toggle_button)));
 }
 
 void
@@ -270,7 +270,7 @@ toolbar_colorize_changed(gboolean packet_list_colorize) {
 #ifdef HAVE_LIBPCAP
 static void
 auto_scroll_live_toggle_cb(GtkWidget *autoscroll_button_lcl, gpointer user_data _U_) {
-    menu_auto_scroll_live_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button_lcl)));
+    main_auto_scroll_live_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button_lcl)));
 }
 
 void

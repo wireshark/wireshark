@@ -314,6 +314,18 @@ extern void dfilter_combo_add_empty(void);
  */
 extern void main_update_for_unsaved_changes(capture_file *cf);
 
+#ifdef HAVE_LIBPCAP
+/** Update various parts of the main window for a change in whether
+ * "auto scroll in live capture" is on or off.
+ *
+ * @param auto_scroll_live_in new state of "auto scroll in live capture"
+ */
+void main_auto_scroll_live_changed(gboolean auto_scroll_live_in);
+#endif
+
+/** Update parts of the main window for a change in colorization. */
+extern void main_colorize_changed(gboolean packet_list_colorize);
+
 /** Quit the program.
  *
  * @return TRUE, if a file read is in progress

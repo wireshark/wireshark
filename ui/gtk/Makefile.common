@@ -298,6 +298,7 @@ noinst_HEADERS = \
 	main_statusbar_private.h	\
 	main_titlebar.h	\
 	main_toolbar.h	\
+	main_toolbar_private.h	\
 	main_welcome.h		\
 	manual_addr_resolv.h	\
 	mcast_stream.h  \

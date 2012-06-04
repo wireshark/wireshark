@@ -50,7 +50,6 @@
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
-#include "ui/gtk/menus.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/filter_dlg.h"
@@ -4169,7 +4168,7 @@ capture_start_confirmed(void)
   }
 
   /* XXX - we might need to init other pref data as well... */
-  menu_auto_scroll_live_changed(auto_scroll_live);
+  main_auto_scroll_live_changed(auto_scroll_live);
 
   /* XXX - can this ever happen? */
   if (global_capture_opts.state != CAPTURE_STOPPED)

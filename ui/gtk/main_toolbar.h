@@ -40,23 +40,6 @@ GtkWidget *toolbar_new(void);
 /** Redraw the main toolbar. Used, when user changes preferences. */
 void toolbar_redraw_all(void);
 
-/** The "Colorize Packet List" option has changed.
- */
-void toolbar_colorize_changed(gboolean packet_list_colorize);
-
-#ifdef HAVE_LIBPCAP
-/** The "Auto Scroll in Live Capture" option has changed.
- */
-void toolbar_auto_scroll_live_changed(gboolean auto_scroll_live);
-#endif
-
-/* Enable or disable toolbar items based on whether you have a capture file
- * and, if so, whether you've finished reading it and whether there's stuff
- * in it that hasn't yet been saved to a permanent file.
- * @param cf cfile_t for the capture file in question
- */
-void set_toolbar_for_capture_file(capture_file *cf);
-
 /** We have (or don't have) a capture in progress now.
  *
  * @param have_capture_file TRUE, if we have a capture in progress file

@@ -147,6 +147,7 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 #include "ui/gtk/macros_dlg.h"
 #include "ui/gtk/main_statusbar_private.h"
 #include "ui/gtk/main_toolbar.h"
+#include "ui/gtk/main_toolbar_private.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/capture_file_dlg.h"
@@ -1360,6 +1361,34 @@ main_update_for_unsaved_changes(capture_file *cf)
   set_display_filename(cf);
   set_menus_for_capture_file(cf);
   set_toolbar_for_capture_file(cf);
+}
+
+#ifdef HAVE_LIBPCAP
+void
+main_auto_scroll_live_changed(gboolean auto_scroll_live_in)
+{
+  /* Update menubar and toolbar */
+  menu_auto_scroll_live_changed(auto_scroll_live_in);
+  toolbar_auto_scroll_live_changed(auto_scroll_live_in);
+
+  /* change auto scroll state */
+  auto_scroll_live  = auto_scroll_live_in;
+}
+#endif
+
+void
+main_colorize_changed(gboolean packet_list_colorize)
+{
+  /* Update menubar and toolbar */
+  menu_colorize_changed(packet_list_colorize);
+  toolbar_colorize_changed(packet_list_colorize);
+
+  /* change colorization */
+  if(packet_list_colorize != recent.packet_list_colorize) {
+      recent.packet_list_colorize = packet_list_colorize;
+      color_filters_enable(packet_list_colorize);
+      new_packet_list_colorize_packets();
+  }
 }
 
 static GtkWidget           *close_dlg = NULL;
@@ -2874,7 +2903,7 @@ main(int argc, char *argv[])
 
   menu_recent_read_finished();
 #ifdef HAVE_LIBPCAP
-  menu_auto_scroll_live_changed(auto_scroll_live);
+  main_auto_scroll_live_changed(auto_scroll_live);
 #endif
 
   switch (user_font_apply()) {

@@ -783,7 +783,7 @@ view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
     if (!widget){
         g_warning("view_menu_auto_scroll_live_cb: No widget found");
     }else{
-        menu_auto_scroll_live_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
+        main_auto_scroll_live_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
     }
 #endif
 }
@@ -4344,6 +4344,7 @@ name_resolution_cb(GtkWidget *w, gpointer d _U_, gint action)
     }
 }
 
+#ifdef HAVE_LIBPCAP
 void
 menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
     GtkWidget *menu;
@@ -4357,17 +4358,8 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
     if( ((gboolean) gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu)) != auto_scroll_live_in) ) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live_in);
     }
-
-#ifdef HAVE_LIBPCAP
-    /* tell toolbar about it */
-    toolbar_auto_scroll_live_changed(auto_scroll_live_in);
-
-    /* change auto scroll */
-    if(auto_scroll_live_in != auto_scroll_live) {
-        auto_scroll_live  = auto_scroll_live_in;
-    }
-#endif /*HAVE_LIBPCAP */
 }
+#endif /*HAVE_LIBPCAP */
 
 
 
@@ -4385,22 +4377,12 @@ menu_colorize_changed(gboolean packet_list_colorize) {
     if( (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menu)) != packet_list_colorize) ) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), packet_list_colorize);
     }
-
-    /* tell toolbar about it */
-    toolbar_colorize_changed(packet_list_colorize);
-
-    /* change colorization */
-    if(packet_list_colorize != recent.packet_list_colorize) {
-        recent.packet_list_colorize = packet_list_colorize;
-        color_filters_enable(packet_list_colorize);
-        new_packet_list_colorize_packets();
-    }
 }
 
 static void
 colorize_cb(GtkWidget *w, gpointer d _U_)
 {
-    menu_colorize_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)));
+    main_colorize_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w)));
 }
 
 
@@ -4524,7 +4506,7 @@ menu_recent_read_finished(void) {
         g_assert_not_reached();
     }
 
-    menu_colorize_changed(recent.packet_list_colorize);
+    main_colorize_changed(recent.packet_list_colorize);
 }
 
 

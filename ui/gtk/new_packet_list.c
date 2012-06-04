@@ -1118,7 +1118,7 @@ new_packet_list_check_end(void)
 	}
 #ifdef HAVE_LIBPCAP
 	if (gtk_adjustment_get_value(adj) > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
-		menu_auto_scroll_live_changed(at_end);
+		main_auto_scroll_live_changed(at_end);
 	}
 #endif
 	last_at_end = at_end;
