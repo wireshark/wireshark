@@ -327,7 +327,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
  tvbuff_t	*parameter_tvb;
 
  %(DEFAULT_BODY)s
-	(tvbuff_t*)actx->value_ptr = parameter_tvb;
+	actx->value_ptr = (void*)parameter_tvb;
 
 
 #.FN_BODY SM-DeliveryFailureCause

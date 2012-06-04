@@ -3236,7 +3236,7 @@ dissect_gsm_map_SignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
-	(tvbuff_t*)actx->value_ptr = parameter_tvb;
+	actx->value_ptr = (void*)parameter_tvb;
 
 
 
