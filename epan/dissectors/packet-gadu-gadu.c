@@ -1269,7 +1269,7 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case GG_SEND_MSG_ACK:
-				/* GG_SEND_MSG_ACK is actually received by client */
+				/* GG_SEND_MSG_ACK is received by client */
 				offset = dissect_gadu_gadu_send_msg_ack(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
@@ -1296,6 +1296,17 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case GG_USERLIST_REPLY80:
 				offset = dissect_gadu_gadu_userlist_reply80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
+
+			default:
+			{
+				const char *pkt_name = match_strval(pkt_type, gadu_gadu_packets_type_recv);
+
+				if (pkt_name)
+					col_set_str(pinfo->cinfo, COL_INFO, pkt_name);
+				else
+					col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown recv packet: %.2x", pkt_type);
+				break;
+			}
 		}
 
 	} else {
@@ -1355,6 +1366,17 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case GG_USERLIST_REQUEST80:
 				offset = dissect_gadu_gadu_userlist_request80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
+
+			default:
+			{
+				const char *pkt_name = match_strval(pkt_type, gadu_gadu_packets_type_send);
+
+				if (pkt_name)
+					col_set_str(pinfo->cinfo, COL_INFO, pkt_name);
+				else
+					col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown send packet: %.2x", pkt_type);
+				break;
+			}
 		}
 	}
 
