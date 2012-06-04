@@ -1086,13 +1086,31 @@ install-generated-files:
 install-all: install-generated-files
 	set copycmd=/y
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
+!IF "$(GTK_INST_VERSION)" == "3.4"
+	xcopy $(GTK_DIR)\bin\libgdk-3-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libgtk-3-0.dll $(INSTALL_DIR) /d
+!ELSE
 	xcopy $(GTK_DIR)\bin\libgdk-win32-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GTK_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libgtk-win32-2.0-0.dll $(INSTALL_DIR) /d
+!ENDIF
+	xcopy $(GTK_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libatk-1.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libpango-1.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libpangowin32-1.0-0.dll $(INSTALL_DIR) /d
 	if not exist $(INSTALL_DIR)\etc mkdir $(INSTALL_DIR)\etc
+!IF "$(GTK_INST_VERSION)" == "3.4"
+	if not exist $(INSTALL_DIR)\etc\gtk-3.0 mkdir $(INSTALL_DIR)\etc\gtk-3.0
+	if not exist $(INSTALL_DIR)\etc\pango mkdir $(INSTALL_DIR)\etc\pango
+	if not exist $(INSTALL_DIR)\lib mkdir $(INSTALL_DIR)\lib
+	if not exist $(INSTALL_DIR)\lib\gtk-3.0 mkdir $(INSTALL_DIR)\lib\gtk-3.0
+	if not exist $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR)
+	xcopy $(GTK_DIR)\etc\gtk-3.0\*.* $(INSTALL_DIR)\etc\gtk-3.0 /d
+!IFDEF NEED_CAIRO_DLL
+	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
+	xcopy $(GTK_DIR)\bin\libcairo-gobject-2.dll $(INSTALL_DIR)  /d
+	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
+!ENDIF
+!ELSE
 	if not exist $(INSTALL_DIR)\etc\gtk-2.0 mkdir $(INSTALL_DIR)\etc\gtk-2.0
 	if not exist $(INSTALL_DIR)\etc\pango mkdir $(INSTALL_DIR)\etc\pango
 	if not exist $(INSTALL_DIR)\lib mkdir $(INSTALL_DIR)\lib
@@ -1109,6 +1127,7 @@ install-all: install-generated-files
 !IFDEF NEED_CAIRO_DLL
 	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
 	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
+!ENDIF
 !ENDIF
 !IFDEF NEED_EXPAT_DLL
 	xcopy $(GTK_DIR)\bin\$(EXPAT_DLL) $(INSTALL_DIR) /d
@@ -1144,10 +1163,13 @@ install-all: install-generated-files
 !IFDEF NEED_XML_DLL
 	xcopy $(GTK_DIR)\bin\$(XML_DLL) $(INSTALL_DIR) /d
 !ENDIF
+!IF "$(GTK_INST_VERSION)" == "3.4"
+!ELSE
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
 	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR)
 	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) /d
+!ENDIF
 	xcopy $(GTK_DIR)\bin\libgio-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d

@@ -242,7 +242,7 @@ GTK_PKG=2.24.10-2.7
 PKG_SUFIX=ws
 !ELSE
 PKG_SUFIX=ws
-GTK_PKG=3.4.2-2.4
+GTK_PKG=3.4.2-3.5
 !ENDIF
 
 #
@@ -452,7 +452,7 @@ GTK_PKG=2.24.10-2.7
 PKG_SUFIX=ws
 !ELSE
 PKG_SUFIX=ws
-GTK_PKG=3.4.0-3.13
+GTK_PKG=3.4.2-3.5
 !ENDIF
 
 #
@@ -1012,6 +1012,10 @@ GLIB_LIBS=$(GTK_DIR)\lib\glib-$(GLIB_VERSION).lib \
 	$(GTK_DIR)\lib\gobject-$(GLIB_VERSION).lib
 GTHREAD_LIBS=$(GTK_DIR)\lib\gthread-$(GLIB_VERSION).lib
 
+
+# 2.18 was no good(Theming problem)
+!IF "$(GTK_INST_VERSION)" == "2.24" || "$(GTK_INST_VERSION)" == "2.22" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
+
 # GTK+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
 	/I$(GTK_DIR)\include\gdk-pixbuf-2.0 \
@@ -1030,8 +1034,6 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK_DIR)\lib\pangocairo-1.0.lib \
 	$(GLIB_LIBS)
 
-# 2.18 was no good(Theming problem)
-!IF "$(GTK_INST_VERSION)" == "2.24" || "$(GTK_INST_VERSION)" == "2.22" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
 GTK_LIB_DIR=2.10.0
 
 !IFDEF PNG_DLL
@@ -1074,8 +1076,8 @@ GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-3.0 \
 	/I$(GTK_DIR)\include\pango-1.0 \
 	-DGTK_DISABLE_SINGLE_INCLUDES \
 	-DGSEAL_ENABLE
-GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
-	$(GTK_DIR)\lib\gdk-win32-2.0.lib \
+GTK_LIBS=$(GTK_DIR)\lib\gtk-3.lib \
+	$(GTK_DIR)\lib\gdk-3.lib \
 	$(GTK_DIR)\lib\gdk_pixbuf-2.0.lib \
 	$(GTK_DIR)\lib\cairo.lib \
 	$(GTK_DIR)\lib\pango-1.0.lib \

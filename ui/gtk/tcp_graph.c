@@ -1552,8 +1552,8 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle))) {
 		int x, y;
 		g->cross.draw = TRUE;
-		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
-		cross_draw (g, x, y);
+//		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
+//		cross_draw (g, x, y);
 	} else {
 		g->cross.draw = FALSE;
 		cross_erase (g);
@@ -3305,8 +3305,16 @@ static void do_zoom_keyboard (struct graph *g)
 	struct { double x, y; } factor;
 	int pointer_x, pointer_y;
 
-	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
+#if GTK_CHECK_VERSION(3,0,0)
+	gdk_window_get_device_position (gtk_widget_get_window(g->drawing_area),
+                                  gdk_device_manager_get_client_pointer (
+                                    gdk_display_get_device_manager (
+                                      gtk_widget_get_display (GTK_WIDGET (g->drawing_area)))),
+                                  &pointer_x, &pointer_y, NULL);
 
+#else
+	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
+#endif
 	if (g->zoom.flags & ZOOM_OUT) {
 		if (g->zoom.flags & ZOOM_HLOCK)
 			factor.x = 1.0;
@@ -3386,8 +3394,18 @@ static void do_select_segment (struct graph *g)
 {
 	int pointer_x, pointer_y;
 
+#if GTK_CHECK_VERSION(3,0,0)
+	gdk_window_get_device_position (gtk_widget_get_window(g->drawing_area),
+                                  gdk_device_manager_get_client_pointer (
+                                    gdk_display_get_device_manager (
+                                      gtk_widget_get_display (GTK_WIDGET (g->drawing_area)))),
+                                  &pointer_x, &pointer_y, NULL);
+
+#else
 	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
+#endif
 	graph_select_segment (g, pointer_x, pointer_y);
+
 }
 
 static void do_wscale_graph (struct graph *g)
@@ -3419,8 +3437,16 @@ static void do_magnify_create (struct graph *g)
 {
 	int pointer_x, pointer_y;
 
-	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
+#if GTK_CHECK_VERSION(3,0,0)
+	gdk_window_get_device_position (gtk_widget_get_window(g->drawing_area),
+                                  gdk_device_manager_get_client_pointer (
+                                    gdk_display_get_device_manager (
+                                      gtk_widget_get_display (GTK_WIDGET (g->drawing_area)))),
+                                  &pointer_x, &pointer_y, NULL);
 
+#else
+	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
+#endif
 	magnify_create (g, (int )rint (pointer_x), (int )rint (pointer_y));
 }
 
