@@ -506,7 +506,10 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
 
          offset+=(msg_len-2);
    }
-
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
+   }
    return offset;
 }
 
@@ -594,6 +597,11 @@ dissect_basic_phone(proto_tree *msg_tree,
          offset+=msg_len;
    }
 
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
+   }
+
    return offset;
 }
    /*DONE*/
@@ -664,6 +672,11 @@ dissect_basic_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
 
+   }
+
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
    return offset;
@@ -737,6 +750,11 @@ dissect_broadcast_switch(proto_tree *msg_tree,
       default:
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
+   }
+
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
    return offset;
@@ -1382,6 +1400,11 @@ dissect_display_switch(proto_tree *msg_tree,
          offset+=msg_len;
    }
 
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
+   }
+
    return offset;
 }
    /*DONE*/
@@ -1486,6 +1509,11 @@ dissect_display_phone(proto_tree *msg_tree,
       default:
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
+   }
+
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
    return offset;
@@ -1601,6 +1629,11 @@ dissect_key_indicator_switch(proto_tree *msg_tree,
          offset+=msg_len;
    }
 
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
+   }
+
    return offset;
 }
 
@@ -1688,6 +1721,11 @@ dissect_key_indicator_phone(proto_tree *msg_tree,
       default:
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
+   }
+
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
    return offset;
@@ -1827,6 +1865,11 @@ dissect_network_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
 
+   }
+
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
    return offset;
@@ -2005,6 +2048,11 @@ dissect_network_phone(proto_tree *msg_tree,
       default:
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
+   }
+
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
    return offset;
@@ -2436,6 +2484,11 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          offset+=msg_len;
    }
 
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
+   }
+
    return offset;
 }
 
@@ -2653,6 +2706,11 @@ dissect_audio_phone(proto_tree *msg_tree,
       default:
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
+   }
+
+   if(msg_len){
+    /* TODO: add Expert info to indicate there is unknown data ! 
+      For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
    return offset;
