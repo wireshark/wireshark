@@ -72,7 +72,7 @@ typedef struct _xmpp_element_t{
 
 /*informations about attributes that are displayed in proto tree*/
 typedef struct _xmpp_attr_info{
-    gchar *name;
+    const gchar *name;
     gint hf;
     gboolean is_required;
     gboolean in_short_list;
