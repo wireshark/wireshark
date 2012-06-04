@@ -762,7 +762,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*********************************************************************
     **********************************************************************/
     case EAP_TYPE_MD5:
-    if (tree) {
+    {
       guint8 value_size = tvb_get_guint8(tvb, offset);
       gint extra_len = size - 1 - value_size;
       proto_item *item;
@@ -1130,8 +1130,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             EAP-MSCHAPv2 - draft-kamath-pppext-eap-mschapv2-00.txt
     **********************************************************************/
     case EAP_TYPE_MSCHAPV2:
-    if (tree)
-      dissect_eap_mschapv2(eap_tree, tvb, pinfo, offset, size);
+    dissect_eap_mschapv2(eap_tree, tvb, pinfo, offset, size);
     break; /* EAP_TYPE_MSCHAPV2 */
 
     /*********************************************************************
@@ -1155,7 +1154,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             EAP Expanded Type
     **********************************************************************/
     case EAP_TYPE_EXT:
-    if (tree) {
+    {
       proto_item *expti = NULL;
       proto_tree *exptree = NULL;
 
