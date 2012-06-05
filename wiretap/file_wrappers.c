@@ -921,7 +921,12 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 	file->seek = 0;
 
 	if (offset < 0 && file->next) {
-		ptrdiff_t had = file->next - file->out;
+		/*
+		 * This is guaranteed to fit in an unsigned int.
+		 * To squelch compiler warnings, we cast the
+		 * result.
+		 */
+		unsigned had = (unsigned)(file->next - file->out);
 		if (-offset <= had) {
 			file->have -= offset;
 			file->next += offset;
