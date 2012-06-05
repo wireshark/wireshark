@@ -1229,7 +1229,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = srtp_show_machine_info(vines_rtp_tree,
 				    tvb, offset, "Preferred Gateway");
 				offset += 1;
-				offset = rtp_show_gateway_info(vines_rtp_tree,
+				rtp_show_gateway_info(vines_rtp_tree,
 				    tvb,offset, link_addr_length,
 				    source_route_length);
 				break;
@@ -1490,7 +1490,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Preferred Gateway Sequence Number: %u",
 					    tvb_get_ntohl(tvb, offset));
 				offset += 4;
-				offset = rtp_show_gateway_info(vines_rtp_tree,
+				rtp_show_gateway_info(vines_rtp_tree,
 				    tvb,offset, link_addr_length,
 				    source_route_length);
 				break;
