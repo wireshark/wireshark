@@ -243,16 +243,10 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
             lua_remove(L,1);
         }
 
-    } else if (tvbr) {
-        if (lua_gettop(L)) {
-            const gchar* s = lua_tostring(L,1);
-            item = proto_tree_add_text(tree_item->tree, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,"%s",s);
-            lua_remove(L,1);
-        }
     } else {
         if (lua_gettop(L)) {
             const gchar* s = lua_tostring(L,1);
-            item = proto_tree_add_text(tree_item->tree, lua_tvb, 0, 0,"%s",s);
+            item = proto_tree_add_text(tree_item->tree, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,"%s",s);
             lua_remove(L,1);
         }
     }
