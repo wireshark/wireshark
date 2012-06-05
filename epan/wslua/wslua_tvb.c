@@ -1238,9 +1238,12 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
 
     TvbRange tvbr = checkTvbRange(L,1);
     int offset = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_OFFSET,0);
-    int len = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);
-
+    int len;
+    
     if (!(tvbr && tvbr->tvb)) return 0;
+
+    len = luaL_optint(L,WSLUA_OPTARG_TvbRange_range_LENGTH,tvbr->len-offset);
+
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
         return 0;
