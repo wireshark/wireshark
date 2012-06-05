@@ -3660,6 +3660,8 @@ static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
     return TRUE;
 }
 
+static const unsigned int kRSAMasterSecretLength = 48; /* RFC5246 8.1 */
+
 /* ssl_keylog_parse_session_id parses, from |line|, a string that looks like:
  *   RSA Session-ID:<hex session id> Master-Key:<hex TLS master secret>.
  *
@@ -3669,7 +3671,6 @@ static gboolean
 ssl_keylog_parse_session_id(const char* line,
                             SslDecryptSession* ssl_session)
 {
-    static const unsigned int kRSAMasterSecretLength = 48; /* RFC5246 8.1 */
     gsize len = strlen(line);
     unsigned int i;
 
@@ -3701,6 +3702,53 @@ ssl_keylog_parse_session_id(const char* line,
     }
     line += 12;
     len -= 12;
+
+    if (!from_hex(&ssl_session->master_secret, line, len))
+        return FALSE;
+    ssl_session->state &= ~(SSL_PRE_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
+    ssl_session->state |= SSL_MASTER_SECRET;
+    ssl_debug_printf("found master secret in key log\n");
+    return TRUE;
+}
+
+/* ssl_keylog_parse_client_random parses, from |line|, a string that looks like:
+ *   CLIENT_RANDOM <hex client_random> <hex TLS master secret>.
+ *
+ * It returns TRUE iff the client_random matches |ssl_session| and the master
+ * secret is correctly extracted. */
+static gboolean
+ssl_keylog_parse_client_random(const char* line,
+                               SslDecryptSession* ssl_session)
+{
+    static const unsigned int kTLSRandomSize = 32; /* RFC5246 A.6 */
+    gsize len = strlen(line);
+    unsigned int i;
+
+    if (len < 14 || memcmp(line, "CLIENT_RANDOM ", 14) != 0)
+        return FALSE;
+    line += 14;
+    len -= 14;
+
+    if (len < kTLSRandomSize*2 ||
+        ssl_session->client_random.data_len != kTLSRandomSize) {
+        return FALSE;
+    }
+
+    for (i = 0; i < kTLSRandomSize; i++) {
+        if (from_hex_char(line[2*i]) != (ssl_session->client_random.data[i] >> 4) ||
+            from_hex_char(line[2*i+1]) != (ssl_session->client_random.data[i] & 15)) {
+            ssl_debug_printf("    line does not match client random\n");
+            return FALSE;
+        }
+    }
+
+    line += 2*kTLSRandomSize;
+    len -= 2*kTLSRandomSize;
+
+    if (len != 1 + kRSAMasterSecretLength*2 || line[0] != ' ')
+        return FALSE;
+    line++;
+    len--;
 
     if (!from_hex(&ssl_session->master_secret, line, len))
         return FALSE;
@@ -3790,6 +3838,12 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
      *     (added to support openssl s_client Master-Key output)
      *     This is somewhat is a misnomer because there's nothing RSA specific
      *     about this.
+     *
+     *   - "CLIENT_RANDOM xxxx yyyy"
+     *     Where xxxx is the client_random from the ClientHello (hex-encoded)
+     *     Where yyy is the cleartext master secret (hex-encoded)
+     *     (This format allows non-RSA SSL connections to be decrypted, i.e.
+     *     ECDHE-RSA.)
      */
     for (;;) {
         char buf[512], *line;
@@ -3810,7 +3864,8 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
 
         if (ssl_keylog_parse_session_id(line, ssl_session) ||
             ssl_keylog_parse_rsa_premaster(line, ssl_session,
-                                           encrypted_pre_master)) {
+                                           encrypted_pre_master) ||
+            ssl_keylog_parse_client_random(line, ssl_session)) {
             ret = 1;
             break;
         } else {
