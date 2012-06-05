@@ -549,7 +549,7 @@ cf_read(capture_file *cf, gboolean reloading)
   /* Progress so far. */
   progbar_val = 0.0f;
 
-  /* The packet list window will be empty untill the file is completly loaded */
+  /* The packet list window will be empty until the file is completly loaded */
   new_packet_list_freeze();
 
   stop_flag = FALSE;
@@ -1199,7 +1199,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   int           row = -1;
 
   /* The frame number of this packet is one more than the count of
-     frames in this packet. */
+     frames in the file so far. */
   framenum = cf->count + 1;
 
   frame_data_init(&fdlocal, framenum, phdr, offset, cum_bytes);
