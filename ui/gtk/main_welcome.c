@@ -62,7 +62,7 @@
 #include "ui/gtk/webbrowser.h"
 #endif
 #endif /* HAVE_LIBPCAP */
-#include "../../image/wssplash-dev.xpm"
+#include "../../image/wssplash.xpm"
 #include "../version_info.h"
 
 #ifdef _WIN32
