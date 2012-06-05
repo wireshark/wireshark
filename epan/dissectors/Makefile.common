@@ -1137,6 +1137,7 @@ DISSECTOR_SRC = \
 	packet-xot.c		\
 	packet-xtp.c		\
 	packet-xyplex.c		\
+	packet-yami.c		\
 	packet-yhoo.c		\
 	packet-ymsg.c		\
 	packet-ypbind.c		\

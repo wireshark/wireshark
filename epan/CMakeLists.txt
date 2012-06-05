@@ -1216,6 +1216,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-xot.c
 	dissectors/packet-xtp.c
 	dissectors/packet-xyplex.c
+	dissectors/packet-yami.c
 	dissectors/packet-yhoo.c
 	dissectors/packet-ymsg.c
 	dissectors/packet-ypbind.c
