@@ -1053,6 +1053,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-scsi-smc.c
 	dissectors/packet-scsi-ssc.c
 	dissectors/packet-sctp.c
+	dissectors/packet-sdh.c
 	dissectors/packet-sdlc.c
 	dissectors/packet-sdp.c
 	dissectors/packet-sebek.c

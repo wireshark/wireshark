@@ -299,6 +299,8 @@ static dissector_handle_t atm_untruncated_handle;
 static gboolean erf_ethfcs = TRUE;
 static dissector_handle_t ethwithfcs_handle, ethwithoutfcs_handle;
 
+static dissector_handle_t sdh_handle;
+
 /* ERF Header */
 #define ERF_HDR_TYPES_MASK 0xff
 #define ERF_HDR_TYPE_MASK 0x7f
@@ -1229,7 +1231,12 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (erf_type) {
 
   case ERF_TYPE_RAW_LINK:
-    call_dissector(data_handle, tvb, pinfo, erf_tree);
+    if(sdh_handle){
+      call_dissector(sdh_handle, tvb, pinfo, tree);
+    }
+    else{
+      call_dissector(data_handle, tvb, pinfo, erf_tree);
+    }
     break;
 
   case ERF_TYPE_IPV4:
@@ -1944,4 +1951,6 @@ proto_reg_handoff_erf(void)
   /* Get handles for Ethernet dissectors */
   ethwithfcs_handle    = find_dissector("eth_withfcs");
   ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
+  
+  sdh_handle = find_dissector("sdh");
 }

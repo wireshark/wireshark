@@ -235,6 +235,7 @@ extern "C" {
 #define WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR       143
 #define WTAP_ENCAP_IXVERIWAVE                   144
 #define WTAP_ENCAP_IEEE_802_11_AIROPEEK         145
+#define WTAP_ENCAP_SDH                          146
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

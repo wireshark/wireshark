@@ -974,6 +974,7 @@ DISSECTOR_SRC = \
 	packet-scsi-smc.c	\
 	packet-scsi-ssc.c	\
 	packet-sctp.c		\
+  packet-sdh.c  \
 	packet-sdlc.c		\
 	packet-sdp.c		\
 	packet-sebek.c		\
