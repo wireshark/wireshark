@@ -311,11 +311,16 @@ extern void avp_init(void) {
 extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 	AVP*   new = (AVP*)g_slice_new(any_avp_type);
 	gchar* value;
+	gchar* repr = NULL;
 
 	new->n = scs_subscribe(avp_strings, name);
 
 	if (finfo->value.ftype->val_to_string_repr) {
-		value = scs_subscribe(avp_strings, fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL));
+		repr = fvalue_to_string_repr(&finfo->value,FTREPR_DISPLAY,NULL);
+	}
+
+	if (repr) {
+		value = scs_subscribe(avp_strings, repr);
 #ifdef _AVP_DEBUGGING
 		dbg_print (dbg_avp,2,dbg_fp,"new_avp_from_finfo: from string: %s",value);
 #endif
