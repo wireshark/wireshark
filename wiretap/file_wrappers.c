@@ -928,9 +928,22 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		 */
 		unsigned had = (unsigned)(file->next - file->out);
 		if (-offset <= had) {
-			file->have -= (unsigned)offset;
-			file->next += offset;
-			file->pos += offset;
+			/*
+			 * Offset is negative, so -offset is
+			 * non-negative, and -offset is
+			 * <= an unsigned and thus fits in an
+			 * unsigned.  Get that value and
+			 * adjust appropriately.
+			 *
+			 * (Casting offset to unsigned makes
+			 * it positive, which is not what we
+			 * would want, so we cast -offset
+			 * instead.)
+			 */
+			unsigned adjustment = (unsigned)(-offset);
+			file->have += adjustment;
+			file->next -= adjustment;
+			file->pos -= adjustment;
 			return file->pos;
 		}
 	}
