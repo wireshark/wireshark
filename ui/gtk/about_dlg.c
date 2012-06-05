@@ -55,7 +55,7 @@
 #include "ui/gtk/plugins_dlg.h"
 #include "ui/gtk/gui_utils.h"
 
-#include "../../image/wssplash-dev.xpm"
+#include "../../image/wssplash.xpm"
 #include "webbrowser.h"
 
 /*
