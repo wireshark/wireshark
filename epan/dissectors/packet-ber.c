@@ -157,6 +157,7 @@ static gboolean show_internal_ber_fields = FALSE;
 static gboolean decode_octetstring_as_ber = FALSE;
 static gboolean decode_primitive_as_ber = FALSE;
 static gboolean decode_unexpected = FALSE;
+static gboolean decode_warning_leading_zero_bits = FALSE;
 
 static gchar *decode_as_syntax = NULL;
 static gchar *ber_filename = NULL;
@@ -1550,7 +1551,6 @@ dissect_ber_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree,
     gint64 val;
     guint32 i;
     gboolean used_too_many_bytes = FALSE;
-
 #ifdef DEBUG_BER
 {
 const char *name;
@@ -1609,7 +1609,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
         if(first & 0x80){
             val=-1;
         }
-        if(len > 1) {
+        if(len > 1 && decode_warning_leading_zero_bits) {
             guint8 second = tvb_get_guint8(tvb, offset+1);
             if((first == 0x00 && (second & 0x80) == 0) ||
                (first == 0xff && (second & 0x80)))
@@ -4972,6 +4972,11 @@ proto_register_ber(void)
                                    "Decode Primitive as BER encoded data",
                                    "Whether the dissector should try decoding unknown primitive as"
                                    " constructed ASN.1 BER encoded data", &decode_primitive_as_ber);
+
+    prefs_register_bool_preference(ber_module, "warn_too_many_bytes",
+                                   "Warn if too many leading zero bits in encoded data",
+                                   "Whether the dissector should warn if excessive leading zero (0) bits",
+                                   &decode_warning_leading_zero_bits);
 
     prefs_register_uat_preference(ber_module, "oid_table", "Object Identifiers",
                                   "A table that provides names for object identifiers"
