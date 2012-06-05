@@ -40,7 +40,7 @@ WTAP_VERSION_MICRO=0
 # This can be defined in the system environment.
 #
 !IFNDEF WIRESHARK_LIB_DIR
-WIRESHARK_LIB_DIR=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs
+WIRESHARK_LIB_DIR=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs-1.8
 !ENDIF
 
 #
@@ -825,7 +825,7 @@ STANDARD_CFLAGS= $(STANDARD_CFLAGS) /FR
 !ENDIF
 
 #Comment out the following if warnings are not to be treated as errors
-WARNINGS_ARE_ERRORS=-WX
+#WARNINGS_ARE_ERRORS=-WX
 
 # Linker flags:
 # /DEBUG  generate debug info
