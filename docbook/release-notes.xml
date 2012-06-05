@@ -250,6 +250,7 @@ PPI Sensor,
 RDP,
 RTP-MIDI,
 SBc Application Part (SBc-AP),
+SDH/SONET,
 Solaris IP over InfiniBand,
 Sony FeliCa,
 T.124,
@@ -266,7 +267,8 @@ Vuze DHT,
 WaveAgent,
 WebSocket,
 WSE Remote Ethernet,
-XMCP
+XMCP,
+YAMI
 
 
     </para>
