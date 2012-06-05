@@ -266,6 +266,7 @@ win32 {
         $${GNUTLS_DIR}/bin/libgpg-error-0.dll $${GNUTLS_DIR}/bin/ $${GNUTLS_DIR}/bin/libtasn1-3.dll \
         $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
         $${LUA_DIR}/lua5.1.dll \
+        $${GEOIP_DIR}/bin/libGeoIP-1.dll \
         ../../colorfilters ../../dfilters ../../cfilters
 
     wireshark_use_kfw {
