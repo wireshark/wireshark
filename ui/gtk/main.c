@@ -1765,6 +1765,21 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_save_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");
         break;
+    case(cf_cb_file_save_stopped):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save stopped");
+        break;
+    case(cf_cb_file_export_specified_packets_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Export specified packets started");
+        break;
+    case(cf_cb_file_export_specified_packets_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Export specified packets finished");
+        break;
+    case(cf_cb_file_export_specified_packets_failed):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Export specified packets failed");
+        break;
+    case(cf_cb_file_export_specified_packets_stopped):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Export specified packets stopped");
+        break;
     default:
         g_warning("main_cf_callback: event %u unknown", event);
         g_assert_not_reached();

@@ -51,6 +51,13 @@ typedef enum {
     CF_READ_ABORTED  /**< operation aborted by user */
 } cf_read_status_t;
 
+/** Return values from functions that write out packets. */
+typedef enum {
+    CF_WRITE_OK,      /**< operation succeeded */
+    CF_WRITE_ERROR,   /**< operation got an error (function may provide err with details) */
+    CF_WRITE_ABORTED, /**< operation aborted by user */
+} cf_write_status_t;
+
 /** Return values from functions that print sets of packets. */
 typedef enum {
 	CF_PRINT_OK,            /**< print operation succeeded */
@@ -70,7 +77,12 @@ typedef enum {
     cf_cb_field_unselected,
     cf_cb_file_save_started,
     cf_cb_file_save_finished,
-    cf_cb_file_save_failed
+    cf_cb_file_save_failed,
+    cf_cb_file_save_stopped,
+    cf_cb_file_export_specified_packets_started,
+    cf_cb_file_export_specified_packets_finished,
+    cf_cb_file_export_specified_packets_failed,
+    cf_cb_file_export_specified_packets_stopped
 } cf_cbs;
 
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
@@ -208,11 +220,11 @@ gboolean cf_can_save_as(capture_file *cf);
  * @param compressed whether to gzip compress the file
  * @param dont_reopen TRUE if it shouldn't reopen and make that file the
  * current capture file
- * @return one of cf_status_t
+ * @return one of cf_write_status_t
  */
-cf_status_t cf_save_packets(capture_file * cf, const char *fname,
-                            guint save_format, gboolean compressed,
-                            gboolean dont_reopen);
+cf_write_status_t cf_save_packets(capture_file * cf, const char *fname,
+                                  guint save_format, gboolean compressed,
+                                  gboolean dont_reopen);
 
 /**
  * Export some or all packets from a capture file to a new file.  If there's
@@ -226,12 +238,13 @@ cf_status_t cf_save_packets(capture_file * cf, const char *fname,
  * @param range the range of packets to write
  * @param save_format the format of the file to write (libpcap, ...)
  * @param compressed whether to gzip compress the file
- * @return one of cf_status_t
+ * @return one of cf_write_status_t
  */
-cf_status_t cf_export_specified_packets(capture_file *cf, const char *fname,
-                                        packet_range_t *range,
-                                        guint save_format,
-                                        gboolean compressed);
+cf_write_status_t cf_export_specified_packets(capture_file *cf,
+                                              const char *fname,
+                                              packet_range_t *range,
+                                              guint save_format,
+                                              gboolean compressed);
 
 /**
  * Get a displayable name of the capture file.

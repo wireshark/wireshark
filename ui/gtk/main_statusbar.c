@@ -943,6 +943,41 @@ statusbar_cf_file_save_failed_cb(gpointer data _U_)
     statusbar_pop_file_msg();
 }
 
+static void
+statusbar_cf_file_save_stopped_cb(gpointer data _U_)
+{
+    /* Pop the "Saving:" message off the status bar. */
+    statusbar_pop_file_msg();
+}
+
+static void
+statusbar_cf_file_export_specified_packets_started_cb(gchar *filename)
+{
+    statusbar_pop_file_msg();
+    statusbar_push_file_msg(" Exporting to: %s...", g_filename_display_basename(filename));
+}
+
+static void
+statusbar_cf_file_export_specified_packets_finished_cb(gpointer data _U_)
+{
+    /* Pop the "Exporting to:" message off the status bar. */
+    statusbar_pop_file_msg();
+}
+
+static void
+statusbar_cf_file_export_specified_packets_failed_cb(gpointer data _U_)
+{
+    /* Pop the "Exporting to:" message off the status bar. */
+    statusbar_pop_file_msg();
+}
+
+static void
+statusbar_cf_file_export_specified_packets_stopped_cb(gpointer data _U_)
+{
+    /* Pop the "Saving:" message off the status bar. */
+    statusbar_pop_file_msg();
+}
+
 
 
 void
@@ -982,6 +1017,21 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_file_save_failed):
         statusbar_cf_file_save_failed_cb(data);
+        break;
+    case(cf_cb_file_save_stopped):
+        statusbar_cf_file_save_stopped_cb(data);
+        break;
+    case(cf_cb_file_export_specified_packets_started):
+        statusbar_cf_file_export_specified_packets_started_cb(data);
+        break;
+    case(cf_cb_file_export_specified_packets_finished):
+        statusbar_cf_file_export_specified_packets_finished_cb(data);
+        break;
+    case(cf_cb_file_export_specified_packets_failed):
+        statusbar_cf_file_export_specified_packets_failed_cb(data);
+        break;
+    case(cf_cb_file_export_specified_packets_stopped):
+        statusbar_cf_file_export_specified_packets_stopped_cb(data);
         break;
     default:
         g_warning("statusbar_cf_callback: event %u unknown", event);

@@ -2087,7 +2087,8 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
   progbar_stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);
 
-  packet_range_process_init(range);
+  if (range != NULL)
+    packet_range_process_init(range);
 
   /* Iterate through all the packets, printing the packets that
      were selected by the current display filter.  */
@@ -2137,14 +2138,16 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
 
     progbar_count++;
 
-    /* do we have to process this packet? */
-    process_this = packet_range_process_packet(range, fdata);
-    if (process_this == range_process_next) {
+    if (range != NULL) {
+      /* do we have to process this packet? */
+      process_this = packet_range_process_packet(range, fdata);
+      if (process_this == range_process_next) {
         /* this packet uninteresting, continue with next one */
         continue;
-    } else if (process_this == range_processing_finished) {
+      } else if (process_this == range_processing_finished) {
         /* all interesting packets processed, stop the loop */
         break;
+      }
     }
 
     /* Get the packet */
@@ -3817,7 +3820,7 @@ cf_can_save_as(capture_file *cf)
   return FALSE;
 }
 
-cf_status_t
+cf_write_status_t
 cf_save_packets(capture_file *cf, const char *fname, guint save_format,
                 gboolean compressed, gboolean dont_reopen)
 {
@@ -3825,7 +3828,6 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
   int           err;
   gboolean      do_copy;
   wtap_dumper  *pdh;
-  packet_range_t range;
   save_callback_args_t callback_args;
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
@@ -3943,15 +3945,11 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
     /* Add address resolution */
     wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list());
 
-    /* Create a packet range that's set to the default "save everything"
-       state. */
-    packet_range_init(&range);
-
     /* Iterate through the list of packets, processing all the packets. */
     callback_args.pdh = pdh;
     callback_args.fname = fname;
     callback_args.file_type = save_format;
-    switch (process_specified_packets(cf, &range, "Saving", "selected packets",
+    switch (process_specified_packets(cf, NULL, "Saving", "packets",
                                       TRUE, save_packet, &callback_args)) {
 
     case PSP_FINISHED:
@@ -3960,11 +3958,20 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
 
     case PSP_STOPPED:
       /* The user decided to abort the saving.
-         XXX - remove the output file? */
-      break;
+         If we're writing to a temporary file, remove it.
+         XXX - should we do so even if we're not writing to a
+         temporary file? */
+      wtap_dump_close(pdh, &err);
+      if (fname_new != NULL)
+        ws_unlink(fname_new);
+      cf_callback_invoke(cf_cb_file_save_stopped, NULL);
+      return CF_WRITE_ABORTED;
 
     case PSP_FAILED:
-      /* Error while saving. */
+      /* Error while saving.
+         If we're writing to a temporary file, remove it. */
+      if (fname_new != NULL)
+        ws_unlink(fname_new);
       wtap_dump_close(pdh, &err);
       goto fail;
     }
@@ -4043,7 +4050,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
       }
     }
   }
-  return CF_OK;
+  return CF_WRITE_OK;
 
 fail:
   if (fname_new != NULL) {
@@ -4057,10 +4064,10 @@ fail:
     g_free(fname_new);
   }
   cf_callback_invoke(cf_cb_file_save_failed, NULL);
-  return CF_ERROR;
+  return CF_WRITE_ERROR;
 }
 
-cf_status_t
+cf_write_status_t
 cf_export_specified_packets(capture_file *cf, const char *fname,
                             packet_range_t *range, guint save_format,
                             gboolean compressed)
@@ -4072,7 +4079,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   wtapng_section_t *shb_hdr = NULL;
   wtapng_iface_descriptions_t *idb_inf = NULL;
 
-  cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
+  cf_callback_invoke(cf_cb_file_export_specified_packets_started, (gpointer)fname);
 
   packet_range_process_init(range);
 
@@ -4128,12 +4135,22 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     break;
 
   case PSP_STOPPED:
-    /* The user decided to abort the writing.
-       XXX - remove the output file? */
+      /* The user decided to abort the saving.
+         If we're writing to a temporary file, remove it.
+         XXX - should we do so even if we're not writing to a
+         temporary file? */
+      wtap_dump_close(pdh, &err);
+      if (fname_new != NULL)
+        ws_unlink(fname_new);
+      cf_callback_invoke(cf_cb_file_export_specified_packets_stopped, NULL);
+      return CF_WRITE_ABORTED;
     break;
 
   case PSP_FAILED:
-    /* Error while writing. */
+    /* Error while saving.
+       If we're writing to a temporary file, remove it. */
+    if (fname_new != NULL)
+      ws_unlink(fname_new);
     wtap_dump_close(pdh, &err);
     goto fail;
   }
@@ -4155,8 +4172,8 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
     }
   }
 
-  cf_callback_invoke(cf_cb_file_save_finished, NULL);
-  return CF_OK;
+  cf_callback_invoke(cf_cb_file_export_specified_packets_finished, NULL);
+  return CF_WRITE_OK;
 
 fail:
   if (fname_new != NULL) {
@@ -4169,8 +4186,8 @@ fail:
     ws_unlink(fname_new);
     g_free(fname_new);
   }
-  cf_callback_invoke(cf_cb_file_save_failed, NULL);
-  return CF_ERROR;
+  cf_callback_invoke(cf_cb_file_export_specified_packets_failed, NULL);
+  return CF_WRITE_ERROR;
 }
 
 static void

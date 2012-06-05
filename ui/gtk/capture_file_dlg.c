@@ -78,9 +78,9 @@
 
 static void do_file_save(capture_file *cf, gboolean dont_reopen);
 static void do_file_save_as(capture_file *cf);
-static void file_save_as_cb(GtkWidget *fs);
+static cf_write_status_t file_save_as_cb(GtkWidget *fs);
 static void file_select_file_type_cb(GtkWidget *w, gpointer data);
-static void file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
+static cf_write_status_t file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
 static void set_file_type_list(GtkWidget *combo_box, capture_file *cf);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
@@ -1312,10 +1312,22 @@ do_file_save_as(capture_file *cf)
       continue;
     }
 
-    /* save file */
+    /* Attempt to save the file */
     g_free(cf_name);
-    file_save_as_cb(file_save_as_w);
-    return;
+    switch (file_save_as_cb(file_save_as_w)) {
+
+    case CF_WRITE_OK:
+      /* The save succeeded; we're done. */
+      return;
+
+    case CF_WRITE_ERROR:
+      /* The save failed; let the user try again */
+      continue;
+
+    case CF_WRITE_ABORTED:
+      /* The user aborted the save; just return. */
+      return;
+    }
   }
 #endif /* _WIN32 */
 }
@@ -1328,8 +1340,9 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 
 /* all tests ok, we only have to save the file */
 /* (and probably continue with a pending operation) */
-static void
-file_save_as_cb(GtkWidget *fs) {
+static cf_write_status_t
+file_save_as_cb(GtkWidget *fs)
+{
   GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
   gchar	    *cf_name;
@@ -1337,6 +1350,7 @@ file_save_as_cb(GtkWidget *fs) {
   gpointer   ptr;
   int        file_type;
   gboolean   compressed;
+  cf_write_status_t status;
 
   /* Hide the file chooser while doing the save. */
   gtk_widget_hide(fs);
@@ -1353,26 +1367,34 @@ file_save_as_cb(GtkWidget *fs) {
   compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
 
   /* Write out all the packets to the file with the specified name. */
-  if (cf_save_packets(&cfile, cf_name, file_type, compressed, FALSE) != CF_OK) {
-    /* The write failed; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the error, try again. */
-    g_free(cf_name);
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
+  status = cf_save_packets(&cfile, cf_name, file_type, compressed, FALSE);
+  switch (status) {
+
+  case CF_WRITE_OK:
+    /* The write succeeded; get rid of the file selection box. */
+    /* cf_save_packets() might already closed our dialog! */
     window_destroy(fs);
-    return;
+
+    /* Save the directory name for future file dialogs. */
+    dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+    set_last_open_dir(dirname);
+    break;
+
+  case CF_WRITE_ERROR:
+    /* The write failed.
+       just leave the file selection box around so that the user can,
+       after they dismiss the alert box popped up for the error, try
+       again. */
+    break;
+
+  case CF_WRITE_ABORTED:
+    /* The write was aborted; just get rid of the file selection
+       box and return. */
+    window_destroy(fs);
+    break;
   }
-
-  /* The write succeeded; get rid of the file selection box. */
-  /* cf_save_packets() might already closed our dialog! */
-  window_destroy(fs);
-
-  /* Save the directory name for future file dialogs. */
-  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
-  set_last_open_dir(dirname);
   g_free(cf_name);
+  return status;
 }
 
 void
@@ -1514,18 +1536,32 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       continue;
     }
 
-    /* export packets */
+    /* attempt to export the packets */
     g_free(cf_name);
-    file_export_specified_packets_cb(file_export_specified_packets_w, &range);
-    return;
+    switch (file_export_specified_packets_cb(file_export_specified_packets_w,
+                                             &range)) {
+
+    case CF_WRITE_OK:
+      /* The save succeeded; we're done. */
+      return;
+
+    case CF_WRITE_ERROR:
+      /* The save failed; let the user try again */
+      continue;
+
+    case CF_WRITE_ABORTED:
+      /* The user aborted the save; just return. */
+      return;
+    }
   }
 #endif /* _WIN32 */
 }
 
 /* all tests ok, we only have to write out the packets */
 /* (and probably continue with a pending operation) */
-static void
-file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range) {
+static cf_write_status_t
+file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range)
+{
   GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
   gchar	    *cf_name;
@@ -1533,6 +1569,7 @@ file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range) {
   gpointer   ptr;
   int        file_type;
   gboolean   compressed;
+  cf_write_status_t status;
 
   /* Hide the file chooser while we're doing the export. */
   gtk_widget_hide(fs);
@@ -1549,29 +1586,37 @@ file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range) {
   compressed = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(compressed_cb));
 
   /* Write out the specified packets to the file with the specified name. */
-  if (cf_export_specified_packets(&cfile, cf_name, range, file_type,
-                                  compressed) != CF_OK) {
-    /* The write failed; don't dismiss the open dialog box,
-       just leave it around so that the user can, after they
-       dismiss the alert box popped up for the error, try again. */
-    g_free(cf_name);
-    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
-     * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */
+  status = cf_export_specified_packets(&cfile, cf_name, range, file_type,
+                                       compressed);
+  switch (status) {
+
+  case CF_WRITE_OK:
+    /* The write succeeded; get rid of the file selection box. */
+    /* cf_export_specified_packets() might already closed our dialog! */
     window_destroy(GTK_WIDGET(fs));
-    return;
+
+    /* Save the directory name for future file dialogs.
+       XXX - should there be separate ones for "Save As" and
+       "Export Specified Packets"? */
+    dirname = get_dirname(cf_name);  /* Overwrites cf_name */
+    set_last_open_dir(dirname);
+    break;
+
+  case CF_WRITE_ERROR:
+    /* The write failed.
+       just leave the file selection box around so that the user can,
+       after they dismiss the alert box popped up for the error, try
+       again. */
+    break;
+
+  case CF_WRITE_ABORTED:
+    /* The write was aborted; just get rid of the file selection
+       box and return. */
+    window_destroy(fs);
+    break;
   }
-
-  /* The write succeeded; get rid of the file selection box. */
-  /* cf_export_specified_packets() might already closed our dialog! */
-  window_destroy(GTK_WIDGET(fs));
-
-  /* Save the directory name for future file dialogs.
-     XXX - should there be separate ones for "Save As" and
-     "Export Specified Packets"? */
-  dirname = get_dirname(cf_name);  /* Overwrites cf_name */
-  set_last_open_dir(dirname);
   g_free(cf_name);
+  return status;
 }
 
 /* Reload a file using the current read and display filters */
