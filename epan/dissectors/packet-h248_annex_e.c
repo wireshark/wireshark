@@ -29,6 +29,14 @@
 # include "config.h"
 #endif
 
+
+/*****/
+#include <epan/proto.h>
+#include <epan/tvbuff.h>
+#include <epan/tvbuff-int.h>
+#include <epan/tvbparse.h>
+/*****/
+
 #include "packet-h248.h"
 #define PNAME  "H.248 Annex E"
 #define PSNAME "H248E"
@@ -197,7 +205,7 @@ static const value_string h248_pkg_tonegen_props_vals[] = {
 };
 
 static const value_string h248_pkg_tonegen_sigs_vals[] = {
-	{ 0x0001, "Play Tone (pt)1" },
+	{ 0x0001, "Play Tone (pt)" },
 	{ 0, NULL }
 };
 
@@ -534,7 +542,7 @@ static h248_pkg_param_t h248_pkg_dd_ds_events[] = {
 };
 
 static const h248_pkg_param_t h248_pkg_dd_event_params[] = {
-	{ 0x0001, &hf_h248_pkg_dd_evt_tl_param, h248_param_uint_item, &implicit },
+	{ 0x0001, &hf_h248_pkg_dd_evt_tl_param, h248_param_ber_integer, &implicit },
 	{ 0x0002, &hf_h248_pkg_dd_evt_dur_param, h248_param_ber_integer, &implicit },
 	{ 0x0003, &hf_h248_pkg_dd_evt_tid_param, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL }
@@ -624,7 +632,7 @@ static const value_string h248_pkg_cg_pt_btd_param_vals[] = {
 };
 
 static const h248_pkg_param_t h248_pkg_cg_sig_pt_params[] = {
-	{ 0x0001, &hf_h248_pkg_cg_sig_pt_tl,  h248_param_ber_integer, &implicit },
+	{ 0x0001, &hf_h248_pkg_cg_sig_pt_tl, h248_param_ber_integer, &implicit },
 	{ 0x0002, &hf_h248_pkg_cg_sig_pt_ind, h248_param_ber_integer, &implicit },
 	{ 0x0003, &hf_h248_pkg_cg_sig_pt_btd, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
@@ -682,6 +690,9 @@ static h248_package_t h248_pkg_cd = {
 
 /* H.248.1 E.9 Analog Line Supervision Package */
 static int hf_h248_pkg_al = -1;
+static int hf_h248_pkg_al_sig_cadence = -1;
+static int hf_h248_pkg_al_sig_cadence_on_off = -1;
+static int hf_h248_pkg_al_sig_freq = -1;
 static int hf_h248_pkg_al_evt_onhook = -1;
 static int hf_h248_pkg_al_evt_offhook = -1;
 static int hf_h248_pkg_al_evt_flashhook = -1;
@@ -692,12 +703,22 @@ static int hf_h248_pkg_al_evt_offhook_par_init = -1;
 static int hf_h248_pkg_al_evt_flashhook_par_mindur = -1;
 
 static gint ett_h248_pkg_al = -1;
+static gint ett_h248_pkg_al_sig_cadence = -1;
+static gint ett_h248_pkg_al_sig_freq = -1;
 static gint ett_h248_pkg_al_evt_onhook = -1;
 static gint ett_h248_pkg_al_evt_offhook = -1;
 static gint ett_h248_pkg_al_evt_flashhook = -1;
 
 static const value_string h248_pkg_al_props_vals[] = {
 	{ 0x0000, "Analog Line Supervision Package - Annex E (al)" },
+	{ 0, NULL }
+};
+
+static const value_string h248_pkg_al_sig_params_vals[] = {
+	{ 1, "One" },
+	{ 2, "Two" },
+	{ 0x0006, "Cadence" },
+	{ 0x0007, "Frequency (Hz)" },
 	{ 0, NULL }
 };
 
@@ -712,14 +733,16 @@ static const value_string  h248_pkg_al_evt_flashhook_params_vals[] = {
 	{ 0, NULL}
 };
 
-static const value_string  h248_pkg_al_evts_vals[] = {
-	{ 0x0004, "onhook"},
-	{ 0x0005, "offhook"},
-	{ 0x0006, "flashhook"},
-	{ 0, NULL}
+/* Packet defenitions */
+static const value_string h248_pkg_al_sig_evts_vals[] _U_ = {
+	/* Signals */
+	{   0x0002, "ri (Ring)" },
+	/* Events */
+	{   0x0004, "on (On-hook)" },
+	{   0x0005, "off (Off-hook)" },
+	{   0x0006, "fl (Flashhook)" },
+	{0,     NULL},
 };
-
-
 
 /* Events defenitions */
 static const value_string h248_pkg_al_evt_onhook_strict_vals[] = {
@@ -739,6 +762,12 @@ static const true_false_string h248_pkg_al_evt_offhook_par_init_vals = {
 	"actual state transition to off-hook"
 };
 
+
+static h248_pkg_param_t h248_pkg_al_sig_cadence[] = {
+	{ 0x0006, &hf_h248_pkg_al_sig_cadence_on_off, h248_param_ber_octetstring, &h248_e_implicit },
+	{ 0, NULL, NULL, NULL }
+};
+
 static h248_pkg_param_t  h248_pkg_al_evt_onhook_params[] = {
 	{ 0x0001, &hf_h248_pkg_al_evt_onhook_par_strict, h248_param_ber_integer, &h248_e_implicit },
 	{ 0x0002, &hf_h248_pkg_al_evt_onhook_par_init, h248_param_ber_boolean, &h248_e_implicit },
@@ -756,6 +785,11 @@ static h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
+static h248_pkg_sig_t h248_pkg_al_sig[] = {
+	{ 0x0002, &hf_h248_pkg_al_sig_cadence, &ett_h248_pkg_al_sig_cadence, h248_pkg_al_sig_cadence, h248_pkg_al_sig_params_vals},
+	{ 0, NULL, NULL, NULL, NULL }
+};
+
 static h248_pkg_evt_t h248_pkg_al_evts[] = {
 	{ 0x0004, &hf_h248_pkg_al_evt_onhook, &ett_h248_pkg_al_evt_onhook, h248_pkg_al_evt_onhook_params, h248_pkg_al_evt_onhook_params_vals},
 	{ 0x0005, &hf_h248_pkg_al_evt_offhook, &ett_h248_pkg_al_evt_offhook, h248_pkg_al_evt_offhook_params, h248_pkg_al_evt_onhook_params_vals },
@@ -764,28 +798,16 @@ static h248_pkg_evt_t h248_pkg_al_evts[] = {
 	{ 0, NULL, NULL, NULL, NULL}
 };
 
-/* Packet defenitions */
-static const value_string h248_pkg_al_parameters[] _U_ = {
-	/* Signals */
-	{   0x0002, "ri (Ring)" },
-	/* Events */
-	{   0x0004, "on (On-hook)" },
-	{   0x0005, "off (Off-hook)" },
-	{   0x0006, "fl (Flashhook)" },
-
-	{0,     NULL},
-};
-
 static h248_package_t h248_pkg_al = {
 	0x0009,
 	&hf_h248_pkg_al,
 	&ett_h248_pkg_al,
 	h248_pkg_al_props_vals,
-	NULL,
-	h248_pkg_al_evts_vals,
+	h248_pkg_al_sig_evts_vals,
+	h248_pkg_al_sig_evts_vals,
 	NULL,
 	NULL,						/* Properties */
-	NULL,						/* signals */
+	h248_pkg_al_sig,			/* signals */
 	h248_pkg_al_evts,			/* events */
 	NULL						/* statistics */
 };
@@ -942,7 +964,7 @@ void proto_register_h248_annex_e(void) {
 		/* H.248.1.E 3 Tone Generator (tonegeg) */
 		{ &hf_h248_pkg_tonegen, { "Tone Generator (tonegen)", "h248.pkg.tonegen", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_tonegen_sig_pt, { "Play Tone (pt)", "h248.pkg.tonegen.pg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonegen_sig_pt_tl, { "Tone List ID (tl)2", "h248.pkg.tonegen.pt.tl", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonegen_sig_pt_tl, { "Tone List ID (tl)", "h248.pkg.tonegen.pt.tl", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_tonegen_sig_pt_ind, { "Inter-signal Duration (ind)", "h248.pkg.tonegem.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_tonegen_sig_pg_btd, { "Tone Direction (btd)", "h248.pkg.tonegen.pt.btd", FT_UINT32, BASE_NONE, VALS(h248_pkg_tonegen_pt_btd_param_vals), 0, NULL, HFILL }},
 
@@ -988,7 +1010,7 @@ void proto_register_h248_annex_e(void) {
 		/* H.248.1.E.7 Call Progress Tones Generator package */
 		{ &hf_h248_pkg_cg, { "Call Progress Tones Generator", "h248.pkg.cg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_cg_sig_pt, { "Play Tone (pt)", "h248.pkg.cg.pt", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }},
-		{ &hf_h248_pkg_cg_sig_pt_tl, {"Tone List", "h248.pkg.cg.pt.tl", FT_UINT16, BASE_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }}, 
+		{ &hf_h248_pkg_cg_sig_pt_tl, {"Tone List", "h248.pkg.cg.pt.tl", FT_UINT16, BASE_DEC_HEX, VALS(h248_pkg_cg_sig_cd_evt_vals), 0, NULL, HFILL }}, 
 		{ &hf_h248_pkg_cg_sig_pt_ind, { "Inter-Signal Duration (ind)", "h248.pkg-cg.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_cg_sig_pt_btd, { "Tone Direction (btd)", "h248.pkg.cg.pt.btd", FT_UINT8, BASE_DEC, VALS(h248_pkg_cg_pt_btd_param_vals), 0, NULL, HFILL }}, 
 
@@ -1007,6 +1029,9 @@ void proto_register_h248_annex_e(void) {
 		
 		/* H.248.1 E.9 Analog Line Supervision Package */
 		{ &hf_h248_pkg_al, { "Analog Line Supervision Package", "h248.pkg.al", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_sig_cadence, { "Cadence", "h248.pkg.al.sig.cadence", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_sig_cadence_on_off, { "On/Off Cadence", "h248.pkg.al.sig.cadence_on_off", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+		{ &hf_h248_pkg_al_sig_freq, { "Ring Frequency", "h248.pkg.al.sig.freq", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_al_evt_onhook, { "onhook", "h248.pkg.al.onhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_al_evt_offhook, { "offhook", "h248.pkg.al.offhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_al_evt_flashhook, { "flashhook", "h248.pkg.al.flashhook", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1086,6 +1111,8 @@ void proto_register_h248_annex_e(void) {
 		
 		/* al 0x0009 */
 		&ett_h248_pkg_al,
+		&ett_h248_pkg_al_sig_cadence,
+		&ett_h248_pkg_al_sig_freq,
 		&ett_h248_pkg_al_evt_flashhook,
 		&ett_h248_pkg_al_evt_offhook,
 		&ett_h248_pkg_al_evt_onhook,
@@ -1109,19 +1136,21 @@ void proto_register_h248_annex_e(void) {
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	h248_register_package(&h248_pkg_generic);	/* 0x0001 */
-	h248_register_package(&h248_pkg_root);		/* 0x0002 */
-	h248_register_package(&h248_pkg_tonegen);	/* 0x0003 */
-	h248_register_package(&h248_pkg_tonedet);	/* 0x0004 */
-	h248_register_package(&h248_pkg_dg);		/* 0X0005 */
-	h248_register_package(&h248_pkg_dd);		/* 0x0006 */
-	h248_register_package(&h248_pkg_cg);		/* 0x0007 */
-	h248_register_package(&h248_pkg_cd);		/* 0x0008 */
-	h248_register_package(&h248_pkg_al);		/* 0x0009 */
-	h248_register_package(&h248_pkg_ct);		/* 0x000a */
-	h248_register_package(&h248_pkg_nt);		/* 0x000b */
-	h248_register_package(&h248_pkg_rtp);		/* 0x000c */
-	h248_register_package(&h248_pkg_tdmc);		/* 0x000d */
+	/* MERGE_PKG_LOW is use to allow other custom version of these 
+	 *H248 package to take presidence if already loaded */
+	h248_register_package(&h248_pkg_generic,MERGE_PKG_LOW);	/* 0x0001 */
+	h248_register_package(&h248_pkg_root,MERGE_PKG_LOW);	/* 0x0002 */
+	h248_register_package(&h248_pkg_tonegen,MERGE_PKG_LOW);	/* 0x0003 */
+	h248_register_package(&h248_pkg_tonedet,MERGE_PKG_LOW);	/* 0x0004 */
+	h248_register_package(&h248_pkg_dg,MERGE_PKG_LOW);		/* 0X0005 */
+	h248_register_package(&h248_pkg_dd,MERGE_PKG_LOW);		/* 0x0006 */
+	h248_register_package(&h248_pkg_cg,MERGE_PKG_LOW);		/* 0x0007 */
+	h248_register_package(&h248_pkg_cd, MERGE_PKG_LOW);		/* 0x0008 */
+	h248_register_package(&h248_pkg_al,MERGE_PKG_LOW);		/* 0x0009 */
+	h248_register_package(&h248_pkg_ct, MERGE_PKG_LOW);		/* 0x000a */
+	h248_register_package(&h248_pkg_nt, MERGE_PKG_LOW);		/* 0x000b */
+	h248_register_package(&h248_pkg_rtp,MERGE_PKG_LOW);		/* 0x000c */
+	h248_register_package(&h248_pkg_tdmc,MERGE_PKG_LOW);	/* 0x000d */
 }
 
 

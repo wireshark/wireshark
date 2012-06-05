@@ -28,7 +28,6 @@
 #ifndef PACKET_H248_H
 
 #include <epan/gcp.h>
-
 /*#include "packet-h248-exp.h"*/
 
 typedef struct _h248_curr_info_t h248_curr_info_t;
@@ -42,6 +41,13 @@ extern void h248_param_ber_octetstring(proto_tree*, tvbuff_t*, packet_info* , in
 extern void h248_param_ber_boolean(proto_tree*, tvbuff_t*, packet_info* , int, h248_curr_info_t*,void* ignored);
 extern void external_dissector(proto_tree*, tvbuff_t*, packet_info* , int, h248_curr_info_t*,void* dissector_handle);
 extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u _U_, void* dissector_hdl);
+
+typedef enum {
+	ADD_PKG,	/* add package at registration ONLY if no matching package ID */
+	REPLACE_PKG,	/* replace/add package at registration */
+	MERGE_PKG_HIGH,		/* merge h248_package_t at registration favor new package */
+	MERGE_PKG_LOW		/* merge h248_package_t at registration favor current package */
+} pkg_reg_action;
 
 typedef struct _h248_pkg_param_t {
 	guint32 id;
@@ -88,6 +94,11 @@ typedef struct _h248_package_t {
 	const h248_pkg_stat_t* statistics;
 } h248_package_t;
 
+typedef struct _save_h248_package_t {
+	h248_package_t *pkg;
+	gboolean is_default;
+} s_h248_package_t;
+
 struct _h248_curr_info_t {
 	gcp_ctx_t* ctx;
 	gcp_trx_t* trx;
@@ -101,6 +112,6 @@ struct _h248_curr_info_t {
 	const h248_pkg_param_t* par;
 };
 
-void h248_register_package(const h248_package_t*);
+void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action);
 
 #endif  /* PACKET_H248_H */

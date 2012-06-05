@@ -1510,6 +1510,6 @@ void proto_register_h248_annex_c(void) {
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	h248_register_package(&h248_annexc_package);
+	h248_register_package(&h248_annexc_package,MERGE_PKG_HIGH);
 
 }

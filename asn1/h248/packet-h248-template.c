@@ -41,6 +41,7 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_h248                   = -1;
+static int hf_248_magic_num             = -1;
 static int hf_h248_mtpaddress_ni        = -1;
 static int hf_h248_mtpaddress_pc        = -1;
 static int hf_h248_pkg_name             = -1;
@@ -89,6 +90,7 @@ static gcp_hf_ett_t h248_arrel = {{-1,-1,-1,-1,-1,-1},{-1,-1,-1,-1}};
 #include "packet-h248-ett.c"
 
 static dissector_handle_t h248_term_handle;
+static dissector_table_t subdissector_table;
 
 static emem_tree_t* msgs = NULL;
 static emem_tree_t* trxs = NULL;
@@ -114,13 +116,25 @@ static int dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *
 
 /* h248v1 support */
 static int dissect_h248_AuditReplyV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_h248_ValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_h248_EventParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_h248_PropertyParmV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
-static int dissect_h248_SigParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
-/* 2010-11-15: New entries added based on: http://www.iana.org/assignments/megaco-h248 last updated 2010-10-01 */
-static const value_string package_name_vals[] = {
+static int dissect_h248_EventParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_SigParameterV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_SigParamValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+static int dissect_h248_ValueV1(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+#if 0
+static const value_string context_id_type[] = {
+    {NULL_CONTEXT,"0 (Null Context)"},
+    {CHOOSE_CONTEXT,"$ (Choose Context)"},
+    {ALL_CONTEXTS,"* (All Contexts)"},
+    {0,NULL}
+};
+#endif
+
+/* the following value_strings are used to build defalut packages.
+   To add additional detail to a package, build a register a h248_package_t structure
+ */
+
+static const value_string base_package_name_vals[] = {
     {   0x0000, "Media stream properties H.248.1 Annex C" },
     {   0x0001, "Generic H.248.1 Annex E" },
     {   0x0002, "root H.248.1 Annex E" },
@@ -325,7 +339,6 @@ static const value_string package_name_vals[] = {
     {   0x00cd, "Resource Management Rules Package" },                        /* H.248.63 */
     {   0x00ce, "Resource Management Configuration Package" },                /* H.248.63 */
     {   0x00cf, "Abstract Resource Management Packages" },                    /* H.248.63 */
-
     {   0x00d0, "IP layer octets count statistics Package" },                 /* H.248.61 */
     {   0x00d1, "Content of Communication Identity Package" },                /* H.248.60 */
     {   0x00d2, "RSVP extension package" },                                   /* H.248.65 */
@@ -385,7 +398,6 @@ static const value_string package_name_vals[] = {
     {   0x0108, "MGC Controlled Bearer Level ALG Package" },                  /* H.248.78 */
     {   0x0109, "Enhanced Revised Offer/Answer SDP Support Package" },        /* H.248.80 */
     {   0x010a, "Enhanced SDP Media Capabilities Negotiation Support Package" }, /* H.248.80 */
-
     {   0x8000, "Ericsson IU" },
     {   0x8001, "Ericsson UMTS and GSM Circuit" },
     {   0x8002, "Ericsson Tone Generator Package" },
@@ -403,16 +415,14 @@ static const value_string package_name_vals[] = {
     {   0x800e, "Ericsson Tracing Enhancements Package" },
     {   0x800f, "Ericsson Partially Wildcarded TerminationID Package" },
     {   0x8010, "SCTP Stream Handling Package" },
-
     {0,     NULL}
 };
-static value_string_ext package_name_vals_ext = VALUE_STRING_EXT_INIT(package_name_vals);
 
 /*
  * This table consist of PackageName + EventName and its's corresponding string
  *
  */
-static const value_string event_name_vals[] = {
+static const value_string base_event_name_vals[] = {
     {   0x00000000, "Media stream properties H.248.1 Annex C" },
     {   0x00010000, "g H.248.1 Annex E" },
     {   0x00010001, "g/Cause" },
@@ -473,12 +483,11 @@ static const value_string event_name_vals[] = {
     {   0x800a0000, "Nokia Bearer Characteristics Package" },
     {0,     NULL}
 };
-static value_string_ext event_name_vals_ext = VALUE_STRING_EXT_INIT(event_name_vals);
 
 /*
  * This table consist of PackageName + SignalName and its's corresponding string
  */
-static const value_string signal_name_vals[] = {
+static const value_string base_signal_name_vals[] = {
     {   0x00000000, "Media stream properties H.248.1 Annex C" },
     {   0x00010000, "g H.248.1 Annex E" },
     {   0x00030001, "tonegen/pt(Play tone)" },
@@ -515,31 +524,17 @@ static const value_string signal_name_vals[] = {
     {   0x00210001, "GB/EstBNC(Establish BNC)" },
     {   0x00210002, "GB/ModBNC (Modify BNC)" },
     {   0x00210003, "GB/RelBNC(Release BNC)" },
-
     {   0x002a0001, "H.245/cs (channel state)" },
     {   0x002a0002, "H.245/termtype (Terminal Type)" },
-
     {   0x002c0001, "H.324/cmod (Communication mode)" },
     {   0x002c0002, "H.324/muxlv (Highest Multiplexing level)" },
     {   0x002c0003, "H.324/demux (Demultiplex)" },
     {   0x002c0004, "H.324/h223capr (Remote H.223 capability)" },
     {   0x002c0005, "H.324/muxtbl_in (Incoming Multiplex Table)" },
     {   0x002c0006, "H.324/muxtbl_out (Outgoing Multiplex Table)" },
-
     {   0x800a0000, "Nokia Bearer Characteristics Package" },
     {0,     NULL}
 };
-static value_string_ext signal_name_vals_ext = VALUE_STRING_EXT_INIT(signal_name_vals);
-
-#if 0
-static const value_string context_id_type[] = {
-    {NULL_CONTEXT,"0 (Null Context)"},
-    {CHOOSE_CONTEXT,"$ (Choose Context)"},
-    {ALL_CONTEXTS,"* (All Contexts)"},
-    {0,NULL}
-};
-#endif
-
 
 
 static const value_string h248_reasons[] = {
@@ -708,13 +703,13 @@ extern void h248_param_ber_integer(proto_tree* tree, tvbuff_t* tvb, packet_info*
 extern void h248_param_ber_octetstring(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    dissect_ber_octet_string(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
+	dissect_ber_octet_string(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
 }
 
 extern void h248_param_ber_boolean(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* u _U_, void* implicit) {
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-    dissect_ber_boolean(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
+	dissect_ber_boolean(implicit ? *((gboolean*)implicit) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, NULL);
 }
 
 extern void h248_param_bytes_item(proto_tree* tree,
@@ -747,14 +742,14 @@ static const h248_pkg_sig_t no_signal = { 0, &hf_h248_no_sig, &ett_h248_no_sig, 
 static const h248_pkg_param_t no_param = { 0, &hf_h248_param, h248_param_uint_item,  NULL };
 static const h248_pkg_evt_t no_event = { 0, &hf_h248_no_evt, &ett_h248_no_evt, NULL, NULL };
 
-static GPtrArray* packages = NULL;
+const h248_package_t *find_package_id(guint16 pkgid);
+static GTree* packages = NULL;
 
 extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo , int hfid _U_, h248_curr_info_t* u1 _U_, void* u2 _U_) {
     tvbuff_t *new_tvb = NULL;
     proto_tree *package_tree=NULL;
     guint16 name_major, name_minor;
     const h248_package_t* pkg = NULL;
-    guint i;
     int offset = 0;
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -765,10 +760,10 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
         /* this field is always 4 bytes  so just read it into two integers */
         name_major=tvb_get_ntohs(new_tvb, 0);
         name_minor=tvb_get_ntohs(new_tvb, 2);
-
+		pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(asn1_ctx.created_item, "  %s (%04x)",
-                               val_to_str_ext_const(name_major, &package_name_vals_ext, "Unknown Package"),
+                               val_to_str(0, pkg->param_names, "Unknown Package"),
                                name_major);
 
         if(tree){
@@ -776,20 +771,8 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
             const gchar* strval;
 
             package_tree = proto_item_add_subtree(asn1_ctx.created_item, ett_packagename);
-            proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
-
-            for(i=0; i < packages->len; i++) {
-                pkg = g_ptr_array_index(packages,i);
-
-                if (name_major == pkg->id) {
-                    break;
-                } else {
-                    pkg = NULL;
-                }
-            }
-
-            if (! pkg ) pkg = &no_package;
-
+			proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
+				"%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
 
             pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
 
@@ -893,11 +876,130 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
     return offset;
 }
 
-void h248_register_package(const h248_package_t* pkg) {
-    if (! packages) packages = g_ptr_array_new();
-
-    g_ptr_array_add(packages,(void*)pkg);
+s_h248_package_t *s_find_package_id(guint16 pkgid) {
+	s_h248_package_t *s_pkg = NULL;
+	s_pkg = g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+	return s_pkg;
 }
+
+const h248_package_t *find_package_id(guint16 pkgid) {
+	s_h248_package_t *s_pkg = NULL;
+	s_pkg = s_find_package_id(pkgid); /*(packages, GUINT_TO_POINTER((guint32)(pkgid))); */
+	if (! s_pkg ) return &no_package;
+	return s_pkg->pkg;
+}
+
+static gint32 comparePkgID(gconstpointer a, gconstpointer b) {
+	return GPOINTER_TO_UINT(b) - GPOINTER_TO_UINT(a);
+}
+
+gboolean is_pkg_default(guint16 pkgid) {
+	s_h248_package_t *s_pkg = NULL;
+	s_pkg = g_tree_lookup(packages, GUINT_TO_POINTER((guint32)(pkgid)));
+	if(! s_pkg ) return TRUE;
+	return s_pkg->is_default;
+}
+
+void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action) {
+	h248_package_t *pkg_found = NULL, *pkg_high = NULL, *pkg_low = NULL;
+	s_h248_package_t *s_pkg = NULL;
+	value_string *vst; 
+	gboolean pkg_default = FALSE;
+	gint j = 0, idx = 0, i = 0, k = 0;
+    if (! packages) {
+		/* no packaegs are yet registerd so create tree and add default packages to tree
+		 */
+		packages = g_tree_new(comparePkgID); /* init tree if no entries */
+		while (base_package_name_vals[i].strptr != NULL) {
+			pkg_found = g_new0(h248_package_t, 1); /* create a h248 package structure */
+			pkg_found->id = base_package_name_vals[i].value;
+			vst = g_new0(value_string,2);
+			vst[0].strptr = base_package_name_vals[i].strptr;
+			pkg_found->param_names = vst;
+			pkg_found->hfid = &hf_h248_pkg_name;
+			pkg_found->ett = &ett_packagename;
+			match_strval_idx((pkg_found->id)<<16,base_event_name_vals, &j);
+			/* now look for events and signals that may be defined for package.  If found, create value_strings */
+			if (j != -1) {
+				j++; idx=j;
+				while((base_event_name_vals[j].strptr!=NULL) && (((base_event_name_vals[j].value)>>16) == (pkg_found->id))) {
+					j++; 
+				};
+				if (idx < j) {
+					vst = g_new0(value_string,j-idx+1);
+					for (k=0;idx<j;k++) {
+						vst[k].strptr = base_event_name_vals[idx].strptr;
+						vst[k].value = (base_event_name_vals[idx].value & 0xffff);
+						idx++;
+					};
+					pkg_found->event_names = vst;
+				}
+			}
+			/* now look at signals */
+			if (!match_strval_idx((pkg_found->id)<<16, base_signal_name_vals, &j)) {
+				j++; idx=j;
+				while((base_signal_name_vals[j].strptr != NULL) && ((base_signal_name_vals[j].value>>16) == (pkg_found->id))) {
+				};
+				if (idx < j) {
+					vst = g_new0(value_string,j-idx+1);
+					for (k=0;idx<i;k++) {
+						vst[k].strptr = base_signal_name_vals[idx].strptr;
+						vst[k].value = (base_signal_name_vals[idx].value &0xffff);
+						idx++;
+					};
+					pkg_found->signal_names = vst;
+				}
+			};
+			s_pkg = g_new0(s_h248_package_t,1);
+			s_pkg->is_default = TRUE;
+			s_pkg->pkg = pkg_found;
+			g_tree_insert(packages, GINT_TO_POINTER(pkg_found->id), (gpointer)s_pkg);
+			i++;
+		};
+		pkg_found = NULL; /* reset pointer */
+	};
+	pkg_default = is_pkg_default(pkg->id);
+	if (((reg_action==REPLACE_PKG) || (reg_action==ADD_PKG)) && pkg_default) {
+		/* add/replace in tree */
+		s_pkg = g_new0(s_h248_package_t,1);
+		s_pkg->is_default = FALSE;
+		s_pkg->pkg = (h248_package_t *)pkg;
+		g_tree_replace(packages, GINT_TO_POINTER(pkg->id), (gpointer)s_pkg);
+		return;
+	};
+	if(pkg_default) reg_action = MERGE_PKG_HIGH; /* always make new package overide default */
+	s_pkg = s_find_package_id(pkg->id);
+	if (s_pkg == NULL) { /* no need to merge - package not in tree */
+		s_pkg = g_new0(s_h248_package_t,1);
+		s_pkg->is_default = FALSE;
+		s_pkg->pkg = (h248_package_t *)pkg;
+		g_tree_insert(packages, GINT_TO_POINTER(pkg->id), (gpointer)s_pkg);
+		return;
+	}
+	pkg_found = s_pkg->pkg;
+	if (reg_action==MERGE_PKG_HIGH) {
+			pkg_high = (h248_package_t *)pkg;
+			pkg_low = pkg_found;
+	};
+	if (reg_action==MERGE_PKG_LOW) {
+			pkg_high = pkg_found;
+			pkg_low = (h248_package_t *)pkg;
+	};
+	/* if h248_package_t High Priority value !NULL, replace it in the found tree entry else use current entry */
+	(pkg_high->hfid ? (pkg_found->hfid=pkg_high->hfid) : (pkg_found->hfid=pkg_low->hfid));
+	(pkg_high->ett ? (pkg_found->ett=pkg_high->ett ):( pkg_found->ett=pkg_low->ett));
+	(pkg_high->param_names ? (pkg_found->param_names=pkg_high->param_names ):( pkg_found->param_names=pkg_low->param_names));
+	(pkg_high->signal_names ? (pkg_found->signal_names=pkg_high->signal_names ):( pkg_found->signal_names=pkg_low->signal_names));
+	(pkg_high->event_names ? (pkg_found->event_names=pkg_high->event_names ):( pkg_found->event_names=pkg_low->event_names));
+	(pkg_high->stats_names ? (pkg_found->stats_names=pkg_high->stats_names ):( pkg_found->stats_names=pkg_low->stats_names));
+	(pkg_high->properties ? (pkg_found->properties=pkg_high->properties ):( pkg_found->properties=pkg_low->properties));
+	(pkg_high->signals ? (pkg_found->signals=pkg_high->signals ):( pkg_found->signals=pkg_low->signals));
+	(pkg_high->events ? (pkg_found->events=pkg_high->events ):( pkg_found->events=pkg_low->events));
+	(pkg_high->statistics ? (pkg_found->statistics=pkg_high->statistics ):( pkg_found->statistics=pkg_low->statistics));
+	s_pkg->pkg = pkg_found;
+	s_pkg->is_default = FALSE;
+}
+
 
 static guint32 packageandid;
 
@@ -906,8 +1008,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
     proto_tree *package_tree=NULL;
     guint16 name_major, name_minor;
     const h248_package_t* pkg = NULL;
-    guint i;
-
+    
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
     if (new_tvb) {
@@ -916,27 +1017,17 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
         name_minor=tvb_get_ntohs(new_tvb, 2);
         packageandid=(name_major<<16)|name_minor;
 
+		pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(actx->created_item, "  %s (%04x)",
-                               val_to_str_ext_const(name_major, &package_name_vals_ext, "Unknown Package"),
+                               val_to_str(0, pkg->param_names, "Unknown Package"),
                                name_major);
 
         if(tree){
             package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
-            proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
+			proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
+				"PkgName%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
         }
-
-        for(i=0; i < packages->len; i++) {
-            pkg = g_ptr_array_index(packages,i);
-
-            if (name_major == pkg->id) {
-                break;
-            } else {
-                pkg = NULL;
-            }
-        }
-
-        if (! pkg ) pkg = &no_package;
 
         {
             proto_item* pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
@@ -965,7 +1056,6 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
     guint16 name_major, name_minor;
     const h248_package_t* pkg = NULL;
     const h248_pkg_evt_t* evt = NULL;
-    guint i;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
@@ -975,27 +1065,16 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
         name_minor=tvb_get_ntohs(new_tvb, 2);
         packageandid=(name_major<<16)|name_minor;
 
+		pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(actx->created_item, "  %s (%04x)",
-                               val_to_str_ext_const(name_major, &package_name_vals_ext, "Unknown Package"),
+                               val_to_str(0, pkg->param_names, "Unknown Package"),
                                name_major);
         if(tree){
             package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
         }
-        proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
-
-
-        for(i=0; i < packages->len; i++) {
-            pkg = g_ptr_array_index(packages,i);
-
-            if (name_major == pkg->id) {
-                break;
-            } else {
-                pkg = NULL;
-            }
-        }
-
-        if (! pkg ) pkg = &no_package;
+		proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
+			"%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
 
         curr_info.pkg = pkg;
 
@@ -1042,7 +1121,6 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
     guint16 name_major, name_minor;
     const h248_package_t* pkg = NULL;
     const h248_pkg_sig_t* sig;
-    guint i;
 
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
@@ -1052,26 +1130,16 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
         name_minor=tvb_get_ntohs(new_tvb, 2);
         packageandid=(name_major<<16)|name_minor;
 
+		pkg = find_package_id(name_major);
         /* do the prettification */
         proto_item_append_text(actx->created_item, "  %s (%04x)",
-                               val_to_str_ext_const(name_major, &package_name_vals_ext, "Unknown Package"),
+                               val_to_str(0, pkg->param_names, "Unknown Package"),
                                name_major);
         if(tree){
             package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
         }
-        proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
-
-        for(i=0; i < packages->len; i++) {
-            pkg = g_ptr_array_index(packages,i);
-
-            if (name_major == pkg->id) {
-                break;
-            } else {
-                pkg = NULL;
-            }
-        }
-
-        if (! pkg ) pkg = &no_package;
+		proto_tree_add_uint_format(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major,
+			"%s (0x%04x)", val_to_str(0, pkg->param_names, "Unknown Package"), name_major);
 
         if (pkg->signals) {
             for (sig = pkg->signals; sig->hfid; sig++) {
@@ -1116,10 +1184,8 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     gboolean pc, ind;
     gint32 tag;
     guint32 len;
-    /*guint16 name_major;*/
     guint16 name_minor;
     int end_offset;
-    tvbuff_t *next_tvb;
     const h248_package_t* pkg;
     const h248_pkg_param_t* prop;
 
@@ -1134,8 +1200,6 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     }
 
 
-    next_tvb = tvb_new_subset(tvb, offset , len , len );
-    /*name_major = packageandid >> 16;*/
     name_minor = packageandid & 0xffff;
 
     pkg = (curr_info.pkg) ? curr_info.pkg : &no_package;
@@ -1149,14 +1213,14 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     } else {
         prop = &no_param;
     }
-
     if (prop && prop->hfid ) {
         if (!prop->dissector) prop = &no_param;
-        prop->dissector(tree, next_tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
+        prop->dissector(tree, tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
     }
 
     return end_offset;
 }
+
 
 
 static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
@@ -1200,7 +1264,6 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 }
 
 static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-    tvbuff_t *next_tvb;
     int end_offset;
     gint8 class;
     gboolean pc, ind;
@@ -1218,14 +1281,17 @@ static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, 
     }
 
 
-    next_tvb = tvb_new_subset(tvb,offset,len,len);
-
     if ( curr_info.par && curr_info.par->dissector) {
-        curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
+        curr_info.par->dissector(tree, tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
     }
 
     return end_offset;
 }
+
+static int dissect_h248_SigParamValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset _U_,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+	return dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+}
+
 
 static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     tvbuff_t *next_tvb;
@@ -1275,59 +1341,33 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 
 static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     tvbuff_t *next_tvb;
-    int end_offset;
-    gint8 class;
-    gboolean pc, ind;
-    gint32 tag;
-    guint32 len;
-
-    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-    offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-    end_offset=offset+len;
-
-    if( (class!=BER_CLASS_UNI)
-        ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+    int old_offset, end_offset;
+    gint8 class1;
+    gboolean pc1, ind1;
+    gint32 tag1;
+    guint32 len1;
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class1, &pc1, &tag1);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len1, &ind1);
+	end_offset=offset+len1;
+	/* check to see if 1) is octet string and 2) if another OS is embedded */
+	if( !(tag1==BER_UNI_TAG_OCTETSTRING || tag1==BER_UNI_TAG_BOOLEAN || BER_UNI_TAG_ENUMERATED)) { /* allow octet string and boolean constructs */
+		proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class1, pc1, tag1);
         return end_offset;
-    }
-
-
-    next_tvb = tvb_new_subset(tvb,offset,len,len);
-
-    if ( curr_info.par && curr_info.par->dissector) {
+	}
+    next_tvb = tvb_new_subset(tvb,offset,len1,len1);
+	old_offset=offset;
+	offset = old_offset; /* restore initial offset before calling dissector functions */
+	if ( curr_info.par && curr_info.par->dissector) {
         curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
     }
 
     return end_offset;
 }
 
-static int dissect_h248_EventParamValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
-    tvbuff_t *next_tvb;
-    int end_offset;
-    gint8 class;
-    gboolean pc, ind;
-    gint32 tag;
-    guint32 len;
-
-    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-    offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
-    end_offset=offset+len;
-
-    if( (class!=BER_CLASS_UNI)
-        ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
-        return end_offset;
-    }
-
-
-    next_tvb = tvb_new_subset(tvb,offset,len,len);
-
-    if ( curr_info.par && curr_info.par->dissector) {
-        curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
-    }
-
-    return end_offset;
+static int dissect_h248_EventParamValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset _U_,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+	return dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &tvb);
 }
+
 
 static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
     tvbuff_t *new_tvb;
@@ -1402,6 +1442,16 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
             }
         }
+        {
+			proto_item *hidden_item = NULL;
+			guint32 magic_num = 0, offset = 0;
+			magic_num = tvb_get_ntohl(tvb, offset);
+			hidden_item = proto_tree_add_uint(tree, hf_248_magic_num, tvb, offset, 4, magic_num);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			if( dissector_try_uint(subdissector_table, magic_num, tvb, pinfo, tree) ) {
+				return;
+			}
+		}
     }
 
     /* Make entry in the Protocol column on summary display */
@@ -1423,15 +1473,17 @@ void proto_register_h248(void) {
 
     /* List of fields */
     static hf_register_info hf[] = {
+		{ &hf_248_magic_num, {
+			"Magic Number for Avaya H248", "h248.magic_num", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
         { &hf_h248_mtpaddress_ni, {
                 "NI", "h248.mtpaddress.ni", FT_UINT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
         { &hf_h248_mtpaddress_pc, {
                 "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
-        { &hf_h248_pkg_name, {
+		{ &hf_h248_pkg_name, {
                 "Package", "h248.package_name", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
-                &package_name_vals_ext, 0, NULL, HFILL }},
+                NULL, 0, NULL, HFILL }},
         { &hf_248_pkg_param, {
                 "Parameter ID", "h248.package_paramid", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
@@ -1443,10 +1495,10 @@ void proto_register_h248(void) {
                 NULL, 0, "Parameter ID", HFILL }},
         { &hf_h248_event_name, {
                 "Package and Event name", "h248.event_name", FT_UINT32, BASE_HEX|BASE_EXT_STRING,
-                &event_name_vals_ext, 0, "Package", HFILL }},
+                NULL, 0, "Package", HFILL }},
         { &hf_h248_signal_name, {
                 "Package and Signal name", "h248.signal_name", FT_UINT32, BASE_HEX|BASE_EXT_STRING,
-                &signal_name_vals_ext, 0, "Package", HFILL }},
+                NULL, 0, "Package", HFILL }},
         { &hf_h248_pkg_bcp_BNCChar_PDU,
           { "BNCChar", "h248.package_bcp.BNCChar",
             FT_UINT32, BASE_DEC, VALS(gcp_term_types), 0,
@@ -1532,6 +1584,8 @@ void proto_register_h248(void) {
     /* Register fields and subtrees */
     proto_register_field_array(proto_h248, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+	
+	subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", FT_UINT32, BASE_HEX);
 
     h248_module = prefs_register_protocol(proto_h248, proto_reg_handoff_h248);
     prefs_register_bool_preference(h248_module, "ctx_info",

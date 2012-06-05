@@ -57,36 +57,41 @@ static gint ett_h248_an = -1;
 static gint ett_h248_an_apf = -1;
 static gint ett_h248_an_apv = -1;
 
+static const value_string h248_an_prop_vals[] = {
+	{ 0, "Generic Announcment Package (an) (H.248.7)" },
+	{ 0, NULL }
+};
+
 static const value_string  h248_an_signals_vals[] = {
-	{ 0x0001, "apf"},
-	{ 0x0002, "apv"},
+	{ 0x0001, "Annoumcement Play Fixed (apf)"},
+	{ 0x0002, "Announcement Play Variable (apv)"},
 	{0,NULL}
 };
 
 
 static const value_string  h248_an_apf_params_vals[] = {
-	{ 0x0001, "an"},
-	{ 0x0002, "noc"},
-	{ 0x0003, "av"},
-	{ 0x0004, "di"},
+	{ 0x0001, "Name (an)"},
+	{ 0x0002, "Number of Cycles (noc)"},
+	{ 0x0003, "Variant (av)"},
+	{ 0x0004, "Direction (di)"},
 	{0,NULL}
 };
 
 static const value_string  h248_an_apv_params_vals[] = {
-	{ 0x0001, "an"},
-	{ 0x0002, "noc"},
-	{ 0x0003, "av"},
-	{ 0x0004, "num"},
-	{ 0x0005, "spi"},
-	{ 0x0006, "sp"},
-	{ 0x0007, "di"},
+	{ 0x0001, "Name (an)"},
+	{ 0x0002, "Number of Cycles (noc)"},
+	{ 0x0003, "Variant (av)"},
+	{ 0x0004, "Number (num)"},
+	{ 0x0005, "Specific Parameters Interpretation (spi)"},
+	{ 0x0006, "Specific Parameters (sp)"},
+	{ 0x0007, "Direction (di)"},
 	{0,NULL}
 };
 
 static const value_string  h248_an_di_vals[] = {
-	{ 0x0001, "ext"},
-	{ 0x0002, "int"},
-	{ 0x0003, "both"},
+	{ 0x0001, "External (ext)"},
+	{ 0x0002, "Internal (int)"},
+	{ 0x0003, "Both (both)"},
 	{0,NULL}
 };
 
@@ -122,7 +127,7 @@ static const h248_package_t h248_pkg_an = {
 	0x001d,
 	&proto_h248_an,
 	&ett_h248_an,
-	NULL,
+	h248_an_prop_vals,
 	h248_an_signals_vals,
 	NULL,
 	NULL,
@@ -168,7 +173,7 @@ void proto_register_h248_7(void) {
 
 	proto_register_subtree_array(ett, array_length(ett));
 	
-	h248_register_package(&h248_pkg_an);
+	h248_register_package(&h248_pkg_an,REPLACE_PKG);
 }
 
 

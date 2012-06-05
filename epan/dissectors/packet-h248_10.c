@@ -77,10 +77,12 @@ static const h248_package_t h248_pkg_CHP = {
 	0x0029,
 	&proto_h248_CHP,
 	&ett_h248_CHP,
+	
 	h248_CHP_prop_vals,
 	NULL,
 	h248_CHP_events_vals,
 	NULL,
+	
 	NULL,
 	NULL,
 	h248_CHP_mgcon_events,
@@ -105,7 +107,7 @@ void proto_register_h248_dot10(void) {
 
 	proto_register_subtree_array(ett, array_length(ett));
 	
-	h248_register_package(&h248_pkg_CHP);
+	h248_register_package(&h248_pkg_CHP,REPLACE_PKG);
 }
 
 

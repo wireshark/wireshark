@@ -55,7 +55,6 @@ static const value_string h248_pkg_BCP_parameters[] _U_ = {
 static const value_string h248_pkg_BCP_props_vals[] = {
 	{0, "Bearer Characteristics Q.1950 Annex A (bcp)" },
 	{1, "BNC Characteristics (BNCChar)"},
-	{1,"BNCChar"},
 	{0,NULL}
 };
 
@@ -623,11 +622,11 @@ void proto_register_q1950(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the packages */
-	h248_register_package(&h248_pkg_BCP);
-	h248_register_package(&h248_pkg_BNCCT);
-	h248_register_package(&h248_pkg_RI);
-	h248_register_package(&h248_pkg_GB);
-	h248_register_package(&h248_pkg_bcg);
-	h248_register_package(&h248_pkg_bct);
+	h248_register_package(&h248_pkg_BCP,REPLACE_PKG);
+	h248_register_package(&h248_pkg_BNCCT,REPLACE_PKG);
+	h248_register_package(&h248_pkg_RI,REPLACE_PKG);
+	h248_register_package(&h248_pkg_GB,REPLACE_PKG);
+	h248_register_package(&h248_pkg_bcg,REPLACE_PKG);
+	h248_register_package(&h248_pkg_bct,REPLACE_PKG);
 
 }

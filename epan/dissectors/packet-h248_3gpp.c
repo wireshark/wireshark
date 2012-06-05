@@ -578,8 +578,8 @@ void proto_register_h248_3gpp(void) {
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	h248_register_package(&h248_package_3GUP);
-	h248_register_package(&h248_package_3GCSD);
-	h248_register_package(&h248_package_3GTFO);
+	h248_register_package(&h248_package_3GUP,REPLACE_PKG);
+	h248_register_package(&h248_package_3GCSD, REPLACE_PKG);
+	h248_register_package(&h248_package_3GTFO, REPLACE_PKG);
 }
 

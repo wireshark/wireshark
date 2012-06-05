@@ -151,7 +151,7 @@ void proto_register_h248_dot2(void) {
 
 	proto_register_subtree_array(ett, array_length(ett));
 	
-	h248_register_package(&h248_pkg_ctype);
+	h248_register_package(&h248_pkg_ctype,MERGE_PKG_HIGH);
 }
 
 

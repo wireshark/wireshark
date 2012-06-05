@@ -31,24 +31,13 @@ BEGIN
 	}
 		
 	-- V1
-	PropertyParmV1 ::= SEQUENCE
-	{
-		name				[0] PkgdName,
-		value				[1] SEQUENCE OF OCTET STRING,
-		extraInfo			[2] CHOICE
-		{
-			relation		[0] Relation,
-			range			[1] BOOLEAN,
-			sublist			[2] BOOLEAN
-		} OPTIONAL,
-			...
-	}
-	
-	-- V1
+
 	SigParameterV1 ::= SEQUENCE
 	{
 		sigParameterName	[0] SigParameterName,
 		value				[1] SigParamValueV1
+--		value				[1] ValueV1
+		
 	}
 	
 	ValueV1 ::= OCTET STRING
