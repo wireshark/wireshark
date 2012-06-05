@@ -157,9 +157,9 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     }
 
     if (macinf->ctmux[fpinf->cur_tb]) {
-		if(rlcinf){
-			rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4);
-		}
+        if(rlcinf){
+            rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4);
+        }
         proto_tree_add_bits_item(tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
         bitoffs += 4;
     }
@@ -195,7 +195,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_item    *channel_type;
     umts_mac_info *macinf;
     fp_info       *fpinf;
-	rlc_info      *rlcinf;
+    rlc_info      *rlcinf;
     proto_item    *ti        = NULL;
 
     /* RACH TCTF is always 2 bit */
@@ -276,7 +276,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_item    *channel_type;
     umts_mac_info *macinf;
     fp_info       *fpinf;
-	rlc_info      *rlcinf;
+    rlc_info      *rlcinf;
     proto_item    *ti        = NULL;
 
     hdr = tvb_get_guint8(tvb, 0);
@@ -295,7 +295,8 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-	rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+    rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+
     if (!macinf || !fpinf) {
         proto_tree_add_text(fach_tree, tvb, 0, -1,
             "Cannot dissect MAC frame because per-frame info is missing");
@@ -364,7 +365,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     guint8         bitoffs  = 0;
     umts_mac_info *macinf;
     fp_info       *fpinf;
-	rlc_info      *rlcinf;
+    rlc_info      *rlcinf;
     proto_tree    *dch_tree = NULL;
     proto_item    *channel_type;
     tvbuff_t      *next_tvb;
@@ -385,9 +386,9 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     pos = fpinf->cur_tb;
     if (macinf->ctmux[pos]) {
-		if(rlcinf){
-			rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4);
-		}
+        if(rlcinf){
+            rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4);
+        }
         proto_tree_add_bits_item(dch_tree, hf_mac_ct, tvb, 0, 4, ENC_BIG_ENDIAN);
         bitoffs = 4;
     }
@@ -436,12 +437,13 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
-    pos = fpinf->cur_tb;
     if (!macinf|| !fpinf) {
         proto_tree_add_text(edch_tree, tvb, 0, -1,
             "Cannot dissect MAC frame because per-frame info is missing");
         return;
     }
+
+    pos = fpinf->cur_tb;
 
     switch (macinf->content[pos]) {
         case MAC_CONTENT_DCCH:
