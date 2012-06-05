@@ -920,6 +920,16 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		offset += file->skip;
 	file->seek = 0;
 
+	if (offset < 0 && file->next) {
+		ptrdiff_t had = file->next - file->out;
+		if (-offset <= had) {
+			file->have -= offset;
+			file->next += offset;
+			file->pos += offset;
+			return file->pos;
+		}
+	}
+
 	/* XXX, profile */
 	if ((here = fast_seek_find(file, file->pos + offset)) && (offset < 0 || offset > SPAN || here->compression == UNCOMPRESSED)) {
 		gint64 off, off2;
@@ -1003,7 +1013,9 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 	}
 
 	/* if within raw area while reading, just go there */
-	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw) {
+	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw 
+			&& (offset < 0 || offset >= file->have) /* seek only when we don't have that offset in buffer */)
+	{
 		if (ws_lseek64(file->fd, offset - file->have, SEEK_CUR) == -1) {
 			*err = errno;
 			return -1;
