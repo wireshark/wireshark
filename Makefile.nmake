@@ -425,6 +425,7 @@ ui\qt\config.pri: config.nmake Makefile.nmake
 # qmake apparently requires a three-part numeric VERSION.
 VERSION = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
 VERSION_FULL = $(VERSION)
+WTAP_VERSION = $(WTAP_VERSION)
 !IFDEF MANIFEST_INFO_REQUIRED
 CONFIG += wireshark_manifest_info_required
 !ENDIF

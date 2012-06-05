@@ -253,12 +253,12 @@ win32 {
     LIBS += $$PA_OBJECTS
     LIBS += \
         wsock32.lib user32.lib shell32.lib comctl32.lib \
-        -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-1.7.0 \
+        -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
 
     EXTRA_BINFILES = \
         ../../dumpcap.exe \
-        ../../epan/libwireshark.dll ../../wiretap/wiretap-1.7.0.dll ../../wsutil/libwsutil.dll \
+        ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/libwsutil.dll \
         $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
         $${GLIB_DIR}/bin/libgthread-2.0-0.dll $${GLIB_DIR}/bin/$${INTL_DLL} \
         $${C_ARES_DIR}/bin/libcares-2.dll $${ZLIB_DIR}/zlib1.dll \
