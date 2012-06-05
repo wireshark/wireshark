@@ -3639,15 +3639,136 @@ from_hex_char(gchar c) {
     return 16;
 }
 
+/* from_hex converts |hex_len| bytes of hex data from |in| and sets |*out| to
+ * the result. |out->data| will be allocated using se_alloc. Returns TRUE on
+ * success. */
+static gboolean from_hex(StringInfo* out, const char* in, gsize hex_len) {
+    gsize i;
+
+    if (hex_len & 1)
+        return FALSE;
+
+    out->data_len = (guint)hex_len/2;
+    out->data = se_alloc(out->data_len);
+    for (i = 0; i < out->data_len; i++) {
+        guint8 a = from_hex_char(in[i*2]);
+        guint8 b = from_hex_char(in[i*2 + 1]);
+        if (a == 16 || b == 16)
+            return FALSE;
+        out->data[i] = a << 4 | b;
+    }
+    return TRUE;
+}
+
+/* ssl_keylog_parse_session_id parses, from |line|, a string that looks like:
+ *   RSA Session-ID:<hex session id> Master-Key:<hex TLS master secret>.
+ *
+ * It returns TRUE iff the session id matches |ssl_session| and the master
+ * secret is correctly extracted. */
+static gboolean
+ssl_keylog_parse_session_id(const char* line,
+                            SslDecryptSession* ssl_session)
+{
+    static const unsigned int kRSAMasterSecretLength = 48; /* RFC5246 8.1 */
+    gsize len = strlen(line);
+    unsigned int i;
+
+    if (ssl_session->session_id.data_len == 0)
+        return FALSE;
+
+    if (len < 14 || memcmp(line, "RSA Session-ID:", 14) != 0)
+        return FALSE;
+    line += 14;
+    len -= 14;
+
+    if (len < ssl_session->session_id.data_len*2)
+        return FALSE;
+
+    for (i = 0; i < ssl_session->session_id.data_len; i++) {
+        if (from_hex_char(line[2*i]) != (ssl_session->session_id.data[i] >> 4) ||
+            from_hex_char(line[2*i+1]) != (ssl_session->session_id.data[i] & 15)) {
+            ssl_debug_printf("    line does not match session id\n");
+            return FALSE;
+        }
+    }
+
+    line += 2*i;
+    len -= 2*i;
+
+    if (len != 12 + kRSAMasterSecretLength*2 ||
+        memcmp(line, " Master-Key:", 12) != 0) {
+        return FALSE;
+    }
+    line += 12;
+    len -= 12;
+
+    if (!from_hex(&ssl_session->master_secret, line, len))
+        return FALSE;
+    ssl_session->state &= ~(SSL_PRE_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
+    ssl_session->state |= SSL_MASTER_SECRET;
+    ssl_debug_printf("found master secret in key log\n");
+    return TRUE;
+}
+
+/* ssl_keylog_parse_session_id parses, from |line|, a string that looks like:
+ *   RSA <hex, 8-bytes of encrypted pre-master secret> <hex pre-master secret>.
+ *
+ * It returns TRUE iff the session id matches |ssl_session| and the master
+ * secret is correctly extracted. */
+static gboolean
+ssl_keylog_parse_rsa_premaster(const char* line,
+                               SslDecryptSession* ssl_session,
+                               StringInfo* encrypted_pre_master)
+{
+    static const unsigned int kRSAPremasterLength = 48; /* RFC5246 7.4.7.1 */
+    gsize len = strlen(line);
+    unsigned int i;
+
+    if (encrypted_pre_master == NULL)
+        return FALSE;
+
+    if (encrypted_pre_master->data_len < 8)
+        return FALSE;
+
+    if (len < 4 || memcmp(line, "RSA ", 4) != 0)
+        return FALSE;
+    line += 4;
+    len -= 4;
+
+    if (len < 16)
+        return FALSE;
+
+    for (i = 0; i < 8; i++) {
+        if (from_hex_char(line[2*i]) != (encrypted_pre_master->data[i] >> 4) ||
+            from_hex_char(line[2*i+1]) != (encrypted_pre_master->data[i] & 15)) {
+            ssl_debug_printf("    line does not match encrypted pre-master secret");
+            return FALSE;
+        }
+    }
+
+    line += 16;
+    len -= 16;
+
+    if (len != 1 + kRSAPremasterLength*2 || line[0] != ' ')
+        return FALSE;
+    line++;
+    len--;
+
+    if (!from_hex(&ssl_session->pre_master_secret, line, len))
+        return FALSE;
+    ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
+    ssl_session->state |= SSL_PRE_MASTER_SECRET;
+    ssl_debug_printf("found pre-master secret in key log\n");
+
+    return TRUE;
+}
+
 int
 ssl_keylog_lookup(SslDecryptSession* ssl_session,
                   const gchar* ssl_keylog_filename,
                   StringInfo* encrypted_pre_master) {
-
-    static const unsigned int kRSAPremasterLength = 48; /* RFC5246 7.4.7.1 */
     FILE* ssl_keylog;
-    gsize bytes_read;
-    int   ret = -1;
+    int ret = -1;
 
     ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
 
@@ -3663,19 +3784,20 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
      *     Where yyyy is the cleartext pre-master secret (hex-encoded)
      *     (this is the original format introduced with bug 4349)
      *
-     *   - "RSA Sesion-ID:xxxx Master-Key:yyyy"
+     *   - "RSA Session-ID:xxxx Master-Key:yyyy"
      *     Where xxxx is the SSL session ID (hex-encoded)
      *     Where yyyy is the cleartext master secret (hex-encoded)
      *     (added to support openssl s_client Master-Key output)
+     *     This is somewhat is a misnomer because there's nothing RSA specific
+     *     about this.
      */
     for (;;) {
         char buf[512], *line;
-        unsigned int i;
-        unsigned int offset;
+        gsize bytes_read;
 
         line = fgets(buf, sizeof(buf), ssl_keylog);
         if (!line)
-                break;
+            break;
 
         bytes_read = strlen(line);
         /* fgets includes the \n at the end of the line. */
@@ -3686,104 +3808,13 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
 
         ssl_debug_printf("  checking keylog line: %s\n", line);
 
-        if ( memcmp(line, "RSA ", 4) != 0) {
-            ssl_debug_printf("    rejecting line due to bad format\n");
-            continue;
-        }
-
-        offset = 4;
-
-        if ( (ssl_session->session_id.data_len > 0) && (memcmp(line+offset,"Session-ID:",11) == 0) ) {
-            offset += 11;
-            for (i = 0; i < ssl_session->session_id.data_len; i++) {
-                if (from_hex_char(line[offset + i*2]) != (ssl_session->session_id.data[i] >> 4) ||
-                    from_hex_char(line[offset + i*2 + 1]) != (ssl_session->session_id.data[i] & 15)) {
-                    line = NULL;
-                    break;
-                }
-            }
-
-            if (line == NULL) {
-                ssl_debug_printf("    line does not match SSL-ID\n");
-                continue;
-            }
-
-            offset += 2*ssl_session->session_id.data_len;
-            offset++;
-
-        } else if( line[offset+16] == ' ' ) {
-            for (i = 0; i < 8; i++) {
-                if (from_hex_char(line[offset + i*2]) != (encrypted_pre_master->data[i] >> 4) ||
-                    from_hex_char(line[offset + i*2 + 1]) != (encrypted_pre_master->data[i] & 15)) {
-                    line = NULL;
-                    break;
-                }
-            }
-
-            if (line == NULL) {
-                ssl_debug_printf("    line does not match encrypted pre-master secret\n");
-                continue;
-            }
-
-            offset += 17;
-
-        } else {
-            ssl_debug_printf("    rejecting line due to bad format\n");
-            continue;
-        }
-
-
-        /* This record seems to match. */
-        if (memcmp(line+offset, "Master-Key:", 11) == 0) {
-            /* Key is a MasterSecret */
-            offset += 11;
-            ssl_session->master_secret.data = se_alloc(kRSAPremasterLength);
-            for (i = 0; i < kRSAPremasterLength; i++) {
-                guint8 a = from_hex_char(line[offset + i*2]);
-                guint8 b = from_hex_char(line[offset + i*2 + 1]);
-                if (a == 16 || b == 16) {
-                    line = NULL;
-                    break;
-                }
-                ssl_session->master_secret.data[i] = a << 4 | b;
-            }
-
-            if (line == NULL) {
-                ssl_debug_printf("    line contains non-hex chars in master secret\n");
-                continue;
-            }
-
-            ssl_session->master_secret.data_len = kRSAPremasterLength;
-            ssl_session->state &= ~(SSL_PRE_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
-            ssl_session->state |= SSL_MASTER_SECRET;
-            ssl_debug_printf("found master secret in key log\n");
-            ret = 0;
+        if (ssl_keylog_parse_session_id(line, ssl_session) ||
+            ssl_keylog_parse_rsa_premaster(line, ssl_session,
+                                           encrypted_pre_master)) {
+            ret = 1;
             break;
-
         } else {
-            /* Key is a PreMasterSecret */
-            ssl_session->pre_master_secret.data = se_alloc(kRSAPremasterLength);
-            for (i = 0; i < kRSAPremasterLength; i++) {
-                guint8 a = from_hex_char(line[offset + i*2]);
-                guint8 b = from_hex_char(line[offset + i*2 + 1]);
-                if (a == 16 || b == 16) {
-                    line = NULL;
-                    break;
-                }
-                ssl_session->pre_master_secret.data[i] = a << 4 | b;
-            }
-
-            if (line == NULL) {
-                ssl_debug_printf("    line contains non-hex chars in pre-master secret\n");
-                continue;
-            }
-
-            ssl_session->pre_master_secret.data_len = kRSAPremasterLength;
-            ssl_session->state &= ~(SSL_MASTER_SECRET|SSL_HAVE_SESSION_KEY);
-            ssl_session->state |= SSL_PRE_MASTER_SECRET;
-            ssl_debug_printf("found pre-master secret in key log\n");
-            ret = 0;
-            break;
+            ssl_debug_printf("    line does not match\n");
         }
     }
 
