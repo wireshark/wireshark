@@ -928,7 +928,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 		 */
 		unsigned had = (unsigned)(file->next - file->out);
 		if (-offset <= had) {
-			file->have -= offset;
+			file->have -= (unsigned)offset;
 			file->next += offset;
 			file->pos += offset;
 			return file->pos;
