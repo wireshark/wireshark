@@ -1,6 +1,6 @@
 /* packet-yami.c
  * Routines for YAMI dissection
- * Copyright 2010, Pawe³ Korbut
+ * Copyright 2010, Pawel Korbut
  * Copyright 2012, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
  * $Id$
@@ -55,7 +55,8 @@ static int hf_yami_param_value_double = -1;
 static int hf_yami_param_value_str = -1;
 static int hf_yami_param_value_bin = -1;
 
-static int hf_yami_param_value_arr_count = -1;
+static int hf_yami_params_count = -1;
+static int hf_yami_items_count = -1;
 
 static int ett_yami = -1;
 static int ett_yami_param = -1;
@@ -205,7 +206,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset)
 			int j;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_param_value_arr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: boolean[], Count: %u, Values: {", count);
@@ -245,7 +246,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset)
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_param_value_arr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: integer[], Count: %u, Values: {", count);
@@ -266,7 +267,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset)
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_param_value_arr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: long long[], Count: %u, Values: {", count);
@@ -288,7 +289,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset)
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_param_value_arr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: double[], Count: %u, Values: {", count);
@@ -310,7 +311,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset)
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_param_value_arr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: string[], Count: %u, Values: {", count);
@@ -339,7 +340,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset)
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(yami_param, hf_yami_param_value_arr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(yami_param, hf_yami_items_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: binary[], Count: %u, Values: {", count);
@@ -370,6 +371,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset)
 			guint i;
 
 			count = tvb_get_letohl(tvb, offset);
+			proto_tree_add_item(yami_param, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			proto_item_append_text(ti, ", Type: nested, Count: %u", count);
@@ -444,6 +446,7 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += message_header_size;
 
 			count = tvb_get_letohl(tvb, offset);
+			proto_tree_add_item(yami_tree, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			for (i = 0; i < count; i++) {
@@ -518,9 +521,11 @@ proto_register_yami(void)
 		{ &hf_yami_param_value_bin,
 			{ "Value", "yami.param.value_bin", FT_BYTES, BASE_NONE, NULL, 0x00, "Parameter value (binary)", HFILL }
 		},
-	/* Parameter[] */
-		{ &hf_yami_param_value_arr_count,
-			{ "Items count", "yami.param.value_arr.count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		{ &hf_yami_params_count,
+			{ "Parameters count", "yami.params_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_yami_items_count,
+			{ "Items count", "yami.items_count", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		}
 	};
 
