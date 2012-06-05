@@ -18,8 +18,8 @@ SVN_REVISION=0
 # The current Wireshark version. Recommended: Leave unchanged.
 # Updated by make-version.pl
 VERSION_MAJOR=1
-VERSION_MINOR=7
-VERSION_MICRO=2
+VERSION_MINOR=8
+VERSION_MICRO=0
 VERSION_BUILD=$(SVN_REVISION)
 
 # Local build information. Recommended: Unique string for your

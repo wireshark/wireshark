@@ -78,7 +78,7 @@ endif
 
 lib_LTLIBRARIES = libwsutil.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwsutil_la_LDFLAGS = -version-info 0:0:0 -export-symbols libwsutil.sym @LDFLAGS_SHAREDLIB@
+libwsutil_la_LDFLAGS = -version-info 2:0:0 -export-symbols libwsutil.sym @LDFLAGS_SHAREDLIB@
 
 INCLUDES = -I$(srcdir)/..
 
