@@ -29,22 +29,20 @@
 
 #define WRETH_PORT 0xAAAA
 
-void proto_register_wreth(void);
-void proto_reg_handoff_wreth(void);
 static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethDisconnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethBlinkyPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethGetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethSetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethBoostPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethAckPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethNackPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethMailPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
-gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree, guint8 fragmented);
-gint WrethCodefMasterInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
-gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
+static gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethDisconnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethBlinkyPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethGetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethSetValuePacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethBoostPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethAckPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethNackPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethMailPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
+static gint WrethMailDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree, guint8 fragmented);
+static gint WrethCodefMasterInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
+static gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethMailboxTree);
 
 /* Remote ethernet sub packet type */
 #define WSE_RETH_SUBTYPE    0x0200
@@ -73,9 +71,9 @@ gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info
 #define WRETH_TASK_REGISTERED           9
 
 /* Initialize the protocol and registered fields */
-gint wreth_proto = -1;
+static gint wreth_proto = -1;
 
-gint wreth_mail_proto = -1;
+/* static gint wreth_mail_proto = -1; */
 static int hf_Wreth_Subtype = -1;
 static int hf_Wreth_Size = -1;
 static int hf_Wreth_FunctionCode = -1;
@@ -117,7 +115,7 @@ static int hf_Wreth_Mail_User_ThreadID = -1;
 static int hf_Wreth_Mail_DispCyc_Version = -1;
 static int hf_Wreth_Mail_DifUserParam = -1;
 static int hf_Wreth_Mail_Filler = -1;
-static int hf_Wreth_Mail_Data = -1;
+/* static int hf_Wreth_Mail_Data = -1; */
 static int hf_Wreth_Mail_Mastinf_Version = -1;
 static int hf_Wreth_Mail_Mastinf_Release = -1;
 static int hf_Wreth_Mail_Mastinf_Protocol = -1;
@@ -186,7 +184,7 @@ static int hf_Wreth_Mail_Equinf_BreakIBit = -1;
 /* Initialize the subtree pointers */
 static gint ett_wreth = -1;
 
-const value_string tabStatus[] = 
+static const value_string tabStatus[] = 
 {
     { -11, "index not updated" },
     { -10, "stat_handshake" },
@@ -301,7 +299,7 @@ const value_string tabStatus[] =
 };
 
 
-const value_string tabCodef[] = 
+static const value_string tabCodef[] = 
 {
     { -11     , "index not updated" },
     /* Code for monitor */
@@ -1430,7 +1428,6 @@ gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info
 
 void proto_register_wreth(void)
 {
-    /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = 
     {
         /* Wreth header fields */
@@ -1639,11 +1636,13 @@ void proto_register_wreth(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+/*
         { &hf_Wreth_Mail_Data,
             { "Data", "wreth.Mail.Data",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+*/
         { &hf_Wreth_Mail_Mastinf_Version,
             { "Version", "wreth.Mail.Mastinf.Version",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -1967,7 +1966,6 @@ void proto_register_wreth(void)
         }
     };
 
-    /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_wreth
     };
