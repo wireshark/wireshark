@@ -1002,6 +1002,14 @@ statusbar_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_reload_finished):
         statusbar_cf_file_read_finished_cb(data);
         break;
+    case(cf_cb_file_rescan_started):
+        statusbar_cf_file_read_started_cb(data, "Rescanning");
+        break;
+    case(cf_cb_file_rescan_finished):
+        statusbar_cf_file_read_finished_cb(data);
+        break;
+    case(cf_cb_file_fast_save_finished):
+        break;
     case(cf_cb_packet_selected):
         break;
     case(cf_cb_packet_unselected):

@@ -1485,6 +1485,25 @@ main_cf_cb_file_read_finished(capture_file *cf)
     set_menus_for_captured_packets(TRUE);
 }
 
+static void
+main_cf_cb_file_rescan_finished(capture_file *cf)
+{
+    gchar *dir_path;
+
+    if (!cf->is_tempfile && cf->filename) {
+        /* Add this filename to the list of recent files in the "Recent Files" submenu */
+        add_menu_recent_capture_file(cf->filename);
+
+        /* Remember folder for next Open dialog and save it in recent */
+        dir_path = get_dirname(g_strdup(cf->filename));
+        set_last_open_dir(dir_path);
+        g_free(dir_path);
+    }
+
+    /* Update the appropriate parts of the main window. */
+    main_update_for_unsaved_changes(cf);
+}
+
 #ifdef HAVE_LIBPCAP
 static GList *icon_list_create(
     const char **icon16_xpm,
@@ -1746,6 +1765,17 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
     case(cf_cb_file_reload_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
         main_cf_cb_file_read_finished(data);
+        break;
+    case(cf_cb_file_rescan_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan started");
+        break;
+    case(cf_cb_file_rescan_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Rescan finished");
+        main_cf_cb_file_rescan_finished(data);
+        break;
+    case(cf_cb_file_fast_save_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Fast save finished");
+        main_cf_cb_file_rescan_finished(data);
         break;
     case(cf_cb_packet_selected):
         main_cf_cb_packet_selected(data);
