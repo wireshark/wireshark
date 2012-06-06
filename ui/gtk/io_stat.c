@@ -121,11 +121,11 @@ typedef struct _io_stat_calc_type_t {
 #define NUM_IO_ITEMS 100000
 typedef struct _io_item_t {
 	guint32 frames; /* always calculated, will hold number of frames*/
-	guint32 bytes;  /* always calculated, will hold number of bytes*/
-	guint32 fields;
-	gint32 int_max;
-	gint32 int_min;
-	gint32 int_tot;
+	guint64 bytes;  /* always calculated, will hold number of bytes*/
+	guint64 fields;
+	gint64 int_max;
+	gint64 int_min;
+	gint64 int_tot;
 	gfloat float_max;
 	gfloat float_min;
 	gfloat float_tot;
@@ -164,7 +164,7 @@ typedef struct _io_stat_t {
 	guint32 interval;      /* measurement interval in ms */
 	guint32 last_interval; /* the last *displayed* interval */
 	guint32 max_interval;  /* the maximum interval based on the capture duration */
-	guint32 num_items;     /* total number of items in all intervals (zero relative) */  
+	guint32 num_items;     /* total number of items in all intervals (zero relative) */
 	guint32 left_x_border;
 	guint32 right_x_border;
 	gboolean view_as_time;
@@ -321,6 +321,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 		 *  value so set any min/max values accordingly. */
 		for(i=0; i<gp->len; i++) {
 			int new_int;
+			gint64 new_int64;
 			float new_float;
 			double new_double;
 			nstime_t *new_time;
@@ -346,21 +347,33 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 			case FT_INT24:
 			case FT_INT32:
 				new_int = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-				if((new_int>it->int_max) || (it->fields==0)){
+				if((new_int > it->int_max) || (it->fields==0)){
 					it->int_max = new_int;
 				}
-				if((new_int<it->int_min) || (it->fields==0)){
+				if((new_int < it->int_min) || (it->fields==0)){
 					it->int_min = new_int;
 				}
 				it->int_tot += new_int;
 				it->fields++;
 				break;
+			case FT_UINT64:
+			case FT_INT64:
+				new_int64 = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
+				if((new_int64 > it->int_max) || (it->fields==0)){
+					it->int_max = new_int64;
+				}
+				if((new_int64 < it->int_min) || (it->fields==0)){
+					it->int_min = new_int64;
+				}
+				it->int_tot += new_int64;
+				it->fields++;
+				break;
 			case FT_FLOAT:
 				new_float = (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-				if((new_float>it->float_max) || (it->fields==0)){
+				if((new_float > it->float_max) || (it->fields==0)){
 					it->float_max = new_float;
 				}
-				if((new_float<it->float_min) || (it->fields==0)){
+				if((new_float < it->float_min) || (it->fields==0)){
 					it->float_min = new_float;
 				}
 				it->float_tot += new_float;
@@ -384,14 +397,14 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					guint64 t, pt; /* time in us */
 					int j;
 				case CALC_TYPE_LOAD:
-					/* 
+					/*
 					* Add the time this call spanned each interval according to its contribution
 					* to that interval.
 					*/
 					t = new_time->secs;
 					t = t * 1000000 + new_time->nsecs / 1000;
 					j = idx;
-					/* 
+					/*
 					 * Handle current interval */
 					pt = pinfo->fd->rel_ts.secs * 1000000 + pinfo->fd->rel_ts.nsecs / 1000;
 					pt = pt % (io->interval * 1000);
@@ -452,7 +465,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	return TRUE;
 }
 
-static guint32
+static guint64
 get_it_value(io_stat_t *io, int graph, int idx)
 {
 	double value=0;
@@ -487,10 +500,12 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
+	case FT_UINT64:
 	case FT_INT8:
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
+	case FT_INT64:
 		switch(io->graphs[graph].calc_type){
 		case CALC_TYPE_SUM:
 			value=it->int_tot;
@@ -593,7 +608,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		case CALC_TYPE_LOAD:
 			if (idx==(int)io->num_items) {
 				interval = (guint32)((cfile.elapsed_time.secs*1000) +
-				           ((cfile.elapsed_time.nsecs+500000)/1000000));
+					   ((cfile.elapsed_time.nsecs+500000)/1000000));
 				interval -= (io->interval * idx);
 			} else {
 				interval = io->interval;
@@ -685,19 +700,19 @@ io_stat_draw(io_stat_t *io)
 	guint32 max_y;			/* max value of the Y scale */
 	gboolean draw_y_as_time;
 	cairo_t *cr;
-    
+
 	if(!io->needs_redraw){
 		return;
 	}
 	io->needs_redraw=FALSE;
-	/*  
-	 * Set max_interval to duration rounded to the nearest ms. Add the Tick Interval so the last 
-	 * interval will be displayed. For example, if duration = 11.844 secs and 'Tick Interval'== 1, 
-	 * max_interval=12000; if 0.1, 11900; if 0.01, 11850; and if 0.001, 11845. 
+	/*
+	 * Set max_interval to duration rounded to the nearest ms. Add the Tick Interval so the last
+	 * interval will be displayed. For example, if duration = 11.844 secs and 'Tick Interval'== 1,
+	 * max_interval=12000; if 0.1, 11900; if 0.01, 11850; and if 0.001, 11845.
 	 */
-	io->max_interval = (guint32)((cfile.elapsed_time.secs*1000) + 
-	                             ((cfile.elapsed_time.nsecs+500000)/1000000) + 
-	                             io->interval);
+	io->max_interval = (guint32)((cfile.elapsed_time.secs*1000) +
+				     ((cfile.elapsed_time.nsecs+500000)/1000000) +
+				     io->interval);
 	io->max_interval = (io->max_interval / io->interval) * io->interval;
 	/*
 	 * Find the length of the intervals we have data for
@@ -722,7 +737,7 @@ io_stat_draw(io_stat_t *io)
 			continue;
 		}
 		for(idx=0; (guint32)(idx) < num_time_intervals; idx++){
-			guint32 val;
+			guint64 val;
 
 			val=get_it_value(io, i, idx);
 
@@ -1059,10 +1074,10 @@ io_stat_draw(io_stat_t *io)
 
 		if(io->filter_type == MOVING_AVERAGE_FILTER){
 			/* "Warm-up phase" - calculate average on some data not displayed;
-			   just to make sure average on leftmost and rightmost displayed 
-			   values is as reliable as possible 
+			   just to make sure average on leftmost and rightmost displayed
+			   values is as reliable as possible
 			*/
-			guint32 warmup_interval;
+			guint64 warmup_interval;
 
 			if(first_interval/io->interval > io->filter_order/2){
 				warmup_interval = first_interval/io->interval - io->filter_order/2;
@@ -1092,8 +1107,8 @@ io_stat_draw(io_stat_t *io)
 
 		/* initialize prev x/y to the value of the first interval */
 		prev_x_pos = draw_width-1 -
-		             io->pixels_per_tick * ((last_interval - first_interval) / io->interval) +
-		             io->left_x_border;
+			     io->pixels_per_tick * ((last_interval - first_interval) / io->interval) +
+			     io->left_x_border;
 		val = get_it_value(io, i, first_interval / io->interval);
 
 		if(io->filter_type==MOVING_AVERAGE_FILTER
@@ -1108,10 +1123,10 @@ io_stat_draw(io_stat_t *io)
 				prev_y_pos = (guint32)(draw_height - 1 + top_y_border);
 			} else {
 				prev_y_pos = (guint32) (
-				                        (draw_height - ystart)-1 -
-				                        ((log10((double)((gint64)val)) * (draw_height - ystart)) / log10((double)max_y)) +
-				                        top_y_border
-				                       );
+							(draw_height - ystart)-1 -
+							((log10((double)((gint64)val)) * (draw_height - ystart)) / log10((double)max_y)) +
+							top_y_border
+						       );
 			}
 		} else {
 			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
@@ -1153,15 +1168,15 @@ io_stat_draw(io_stat_t *io)
 					y_pos=(guint32)(draw_height-1+top_y_border);
 				} else {
 					y_pos = (guint32) (
-					                   (draw_height - ystart) - 1 -
-					                   (log10((double)(gint64)val) * (draw_height - ystart)) / log10((double)max_y) + 
-					                   top_y_border
-					                  );
+							   (draw_height - ystart) - 1 -
+							   (log10((double)(gint64)val) * (draw_height - ystart)) / log10((double)max_y) +
+							   top_y_border
+							  );
 				}
 			} else {
 				y_pos = (guint32)(draw_height - 1 -
-				                  ((val * draw_height) / max_y) +
-				                  top_y_border);
+						  ((val * draw_height) / max_y) +
+						  top_y_border);
 			}
 
 			switch(io->graphs[i].plot_style){
@@ -1242,7 +1257,7 @@ io_stat_draw(io_stat_t *io)
 	cr = gdk_cairo_create (gtk_widget_get_window(io->draw_area));
 
 #if GTK_CHECK_VERSION(2,22,0)
-	cairo_set_source_surface (cr, io->surface, 0, 0); 
+	cairo_set_source_surface (cr, io->surface, 0, 0);
 #else
 	gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
 #endif
@@ -1490,7 +1505,7 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 	guint32 draw_width, interval, last_interval, frame_num=0;
 	int i;
 	gboolean load=FALSE, outstanding_call=FALSE;
-	
+
 	draw_width = io->pixmap_width - io->right_x_border - io->left_x_border;
 
 	if ((event->x <= (draw_width+io->left_x_border+1-(draw_width/io->pixels_per_tick)*io->pixels_per_tick)) ||
@@ -1499,9 +1514,9 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 	      return FALSE;
 	}
 
-	/* 
+	/*
 	 * An interval in the IO Graph drawing area has been clicked. If left-clicked (button 1), the frame
-	 * with the first response in that interval or if left-clicked (button 3) the last is highlighted.    
+	 * with the first response in that interval or if left-clicked (button 3) the last is highlighted.
 	 */
 #if GTK_CHECK_VERSION(2,22,0)
 	if ((event->button==1 || event->button==3) && io->surface!=NULL) {
@@ -1515,7 +1530,7 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 
 		/* Get the interval that was clicked */
 		interval = (guint32) (
-				      (last_interval / io->interval) - 
+				      (last_interval / io->interval) -
 				      ((draw_width + io->left_x_border - event->x-io->pixels_per_tick / 2 - 1) / io->pixels_per_tick)
 				     );
 
@@ -1541,15 +1556,15 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 		}
 
 		/* XXX - If the frame numbers of *calls* can somehow be determined, the first call or
-		 *        response, whichever is first, and the last call or response, whichever is last,
-		 *       could be highlighted. */
+		 * response, whichever is first, and the last call or response, whichever is last,
+		 * could be highlighted. */
 		if(frame_num==0 && load && outstanding_call) {
 			statusbar_push_temporary_msg(
 			    "There is no response but at least one call is outstanding in this interval.");
 			return FALSE;
 		}
-	
-		if (frame_num != 0) 
+
+		if (frame_num != 0)
 			cf_goto_frame(&cfile, frame_num);
 	}
 	return TRUE;
@@ -1643,7 +1658,7 @@ draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 	GtkAllocation allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);
-	cairo_set_source_surface (cr, io->surface, 0, 0); 
+	cairo_set_source_surface (cr, io->surface, 0, 0);
 	cairo_rectangle (cr, 0, 0, allocation.width, allocation.width);
 	cairo_fill (cr);
 
@@ -1658,7 +1673,7 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_d
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 #if GTK_CHECK_VERSION(2,22,0)
-	cairo_set_source_surface (cr, io->surface, 0, 0); 
+	cairo_set_source_surface (cr, io->surface, 0, 0);
 #else
 	gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
 #endif
@@ -2030,10 +2045,12 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
+		case FT_UINT64:
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+		case FT_INT64:
 		case FT_FLOAT:
 		case FT_DOUBLE:
 			/* these values support all calculations except LOAD */
@@ -2060,22 +2077,6 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 			default:
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "%s is a relative-time field, so %s calculations are not supported on it.",
-				    field,
-				    calc_type_names[gio->calc_type]);
-				disable_graph(gio);
-				io_stat_redraw(gio->io);
-				return;
-			}
-			break;
-		case FT_UINT64:
-		case FT_INT64:
-			/*
-			 * XXX - support this if gint64/guint64 are
-			 * available?
-			 */
-			if(gio->calc_type!=CALC_TYPE_COUNT){
-				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				    "%s is a 64-bit integer, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
 				disable_graph(gio);
@@ -2335,14 +2336,15 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 static void
 copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer user_data)
 {
-	guint32         i, interval, val;
-	char            string[15];
-	GtkClipboard    *cb;
-	GString         *CSV_str=g_string_new("");
-	io_stat_t       *io = user_data;
+	guint32		i, interval;
+	guint64		val;
+	char		string[15];
+	GtkClipboard	*cb;
+	GString		*CSV_str=g_string_new("");
+	io_stat_t	*io = user_data;
 
 	g_string_append(CSV_str, "\"Interval start\"");
-	for(i=0;i<MAX_GRAPHS;i++) {
+	for(i=0; i<MAX_GRAPHS; i++) {
 		if (io->graphs[i].display) {
 			g_string_append_printf(CSV_str, ",\"Graph %d\"", i+1);
 		}
@@ -2355,7 +2357,7 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer user_data)
 		for(i=0;i<MAX_GRAPHS;i++) {
 			if (io->graphs[i].display) {
 				val=get_it_value(io, i, interval/io->interval);
-				g_string_append_printf(CSV_str, ",\"%d\"", val);
+				g_string_append_printf(CSV_str, ",\"%" G_GINT64_MODIFIER "d\"", val);
 			}
 		}
 		g_string_append(CSV_str,"\n");
@@ -2363,8 +2365,8 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer user_data)
 
 	/* Now that we have the CSV data, copy it into the default clipboard */
 	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);    /* Get the default clipboard */
-	gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
-	g_string_free(CSV_str, TRUE);                       /* Free the memory */
+	gtk_clipboard_set_text(cb, CSV_str->str, -1);	    /* Copy the CSV data into the clipboard */
+	g_string_free(CSV_str, TRUE);			    /* Free the memory */
 }
 
 static void
