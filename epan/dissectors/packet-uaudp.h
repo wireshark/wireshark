@@ -26,8 +26,6 @@
 #ifndef _PACKET_UAUDP_H_
 #define _PACKET_UAUDP_H_
 
-#include <gmodule.h>
-
 #define UAUDP_CONNECT           0
 #define UAUDP_CONNECT_ACK       1
 #define UAUDP_RELEASE           2
@@ -36,6 +34,21 @@
 #define UAUDP_KEEPALIVE_ACK     5
 #define UAUDP_NACK              6
 #define UAUDP_DATA              7
+
+#define UAUDP_CONNECT_VERSION           0x00
+#define UAUDP_CONNECT_WINDOW_SIZE       0x01
+#define UAUDP_CONNECT_MTU               0x02
+#define UAUDP_CONNECT_UDP_LOST          0x03
+#define UAUDP_CONNECT_UDP_LOST_REINIT   0x04
+#define UAUDP_CONNECT_KEEPALIVE         0x05
+#define UAUDP_CONNECT_QOS_IP_TOS        0x06
+#define UAUDP_CONNECT_QOS_8021_VLID     0x07
+#define UAUDP_CONNECT_QOS_8021_PRI      0x08
+
+extern value_string_ext uaudp_opcode_str_ext;
+#if 0
+extern value_string_ext uaudp_connect_vals_ext;
+#endif
 
 typedef enum _e_ua_direction {
 	SYS_TO_TERM,  /* system -> terminal */
