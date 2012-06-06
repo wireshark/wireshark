@@ -178,6 +178,14 @@ static gint hf_glusterfs_mnt_flag_relatime = -1;
 static gint hf_glusterfs_namemax = -1;
 
 static gint hf_glusterfs_setattr_valid = -1;
+/* flags for setattr.valid */
+static gint hf_glusterfs_setattr_set_mode = -1;
+static gint hf_glusterfs_setattr_set_uid = -1;
+static gint hf_glusterfs_setattr_set_gid = -1;
+static gint hf_glusterfs_setattr_set_size = -1;
+static gint hf_glusterfs_setattr_set_atime = -1;
+static gint hf_glusterfs_setattr_set_mtime = -1;
+static gint hf_glusterfs_setattr_set_reserved = -1;
 
 /* Rename */
 static gint hf_glusterfs_oldbname = -1;
@@ -194,6 +202,7 @@ static gint ett_glusterfs = -1;
 static gint ett_glusterfs_flags = -1;
 static gint ett_glusterfs_mnt_flags = -1;
 static gint ett_glusterfs_mode = -1;
+static gint ett_glusterfs_setattr_valid = -1;
 static gint ett_glusterfs_parent_iatt = -1;
 static gint ett_glusterfs_iatt = -1;
 static gint ett_glusterfs_entry = -1;
@@ -808,6 +817,29 @@ glusterfs_gfs3_op_setattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
+glusterfs_rpc_dissect_setattr(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	static const int *flag_bits[] = {
+		&hf_glusterfs_setattr_set_mode,
+		&hf_glusterfs_setattr_set_uid,
+		&hf_glusterfs_setattr_set_gid,
+		&hf_glusterfs_setattr_set_size,
+		&hf_glusterfs_setattr_set_atime,
+		&hf_glusterfs_setattr_set_mtime,
+		&hf_glusterfs_setattr_set_reserved,
+		NULL
+	};
+
+	if (tree)
+		proto_tree_add_bitmask(tree, tvb, offset,
+			hf_glusterfs_setattr_valid,
+			ett_glusterfs_setattr_valid, flag_bits, ENC_NA);
+	offset += 4;
+
+	return offset;
+}
+
+static int
 glusterfs_gfs3_op_setattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
 	gchar *path = NULL;
@@ -816,11 +848,7 @@ glusterfs_gfs3_op_setattr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 								offset);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
-
-	/* FIXME: hf_glusterfs_setattr_valid is a flag
-	 * see libglusterfs/src/xlator.h, #defines for GF_SET_ATTR_*
-	 */
-	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_setattr_valid, offset);
+	offset = glusterfs_rpc_dissect_setattr(tree, tvb, offset);
 	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_path, offset, &path);
 
 	return offset;
@@ -1556,11 +1584,7 @@ glusterfs_gfs3_3_op_setattr_call(tvbuff_t *tvb, int offset,
 								offset);
 	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb, hf_glusterfs_iatt,
 								offset);
-
-	/* FIXME: hf_glusterfs_setattr_valid is a flag
-	 * see libglusterfs/src/xlator.h, #defines for GF_SET_ATTR_*
-	 */
-	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_setattr_valid, offset);
+	offset = glusterfs_rpc_dissect_setattr(tree, tvb, offset);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
 	return offset;
@@ -2468,8 +2492,44 @@ proto_register_glusterfs(void)
 				BASE_DEC, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_setattr_valid,
-			{ "valid", "glusterfs.setattr.valid", FT_UINT32, BASE_HEX,
-				NULL, 0, NULL, HFILL }
+			{ "Set attributes", "glusterfs.setattr.valid",
+				FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+		},
+		/* setattr.valid flags from libglusterfs/src/xlator.h */
+		{ &hf_glusterfs_setattr_set_mode,
+			{ "SET_ATTR_MODE", "glusterfs.setattr.set_mode",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x1,
+				NULL, HFILL }
+		},
+		{ &hf_glusterfs_setattr_set_uid,
+			{ "SET_ATTR_UID", "glusterfs.setattr.set_uid",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x2,
+				NULL, HFILL }
+		},
+		{ &hf_glusterfs_setattr_set_gid,
+			{ "SET_ATTR_GID", "glusterfs.setattr.set_gid",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x4,
+				NULL, HFILL }
+		},
+		{ &hf_glusterfs_setattr_set_size,
+			{ "SET_ATTR_SIZE", "glusterfs.setattr.set_size",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x8,
+				NULL, HFILL }
+		},
+		{ &hf_glusterfs_setattr_set_atime,
+			{ "SET_ATTR_ATIME", "glusterfs.setattr.set_atime",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x10,
+				NULL, HFILL }
+		},
+		{ &hf_glusterfs_setattr_set_mtime,
+			{ "SET_ATTR_MTIME", "glusterfs.setattr.set_mtime",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x20,
+				NULL, HFILL }
+		},
+		{ &hf_glusterfs_setattr_set_reserved,
+			{ "Reserved", "glusterfs.setattr.set_reserved",
+				FT_BOOLEAN, 32, TFS(&tfs_set_notset), ~0x3f,
+				NULL, HFILL }
 		},
 		{ &hf_glusterfs_xflags,
 			{ "XFlags", "glusterfs.xflags", FT_UINT32, BASE_OCT,
@@ -2505,6 +2565,7 @@ proto_register_glusterfs(void)
 		&ett_glusterfs_mnt_flags,
 		&ett_glusterfs_mode,
 		&ett_glusterfs_entry,
+		&ett_glusterfs_setattr_valid,
 		&ett_glusterfs_parent_iatt,
 		&ett_glusterfs_iatt,
 		&ett_glusterfs_flock,
