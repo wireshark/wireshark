@@ -507,15 +507,11 @@
 	</para>
 	<para>
 	  The <command>save</command> button will save the currently displayed
-	  portion of the graph as one of various file formats.  The save feature
-	  is only available when using GTK version 2.6 or higher (the latest
-	  Windows versions comply with this requirement) and Wireshark version
-	  0.99.7 or higher.
+	  portion of the graph as one of various file formats.
 	</para>
 	<para>
 	  The <command>copy</command> button will copy values from selected
 	  graphs to the clipboard in CSV (Comma Separated Values) format.
-	  The copy feature is only available in Wireshark version 0.99.8 or higher.
 	</para>
 	<tip><title>Tip!</title>
 	<para>
