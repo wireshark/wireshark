@@ -102,15 +102,16 @@ static const char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/T
 #define DEFAULT_TICK_VALUE_INDEX 3
 static const guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000, 60000, 600000 };
 
-#define CALC_TYPE_SUM	0
-#define CALC_TYPE_COUNT	1
-#define CALC_TYPE_MAX	2
-#define CALC_TYPE_MIN	3
-#define CALC_TYPE_AVG	4
-#define CALC_TYPE_LOAD	5
-#define MAX_CALC_TYPES  6
-#define DEFAULT_CALC_TYPE 0
-static const char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)", "LOAD(*)"};
+#define CALC_TYPE_SUM		0
+#define CALC_TYPE_COUNT_FRAMES	1
+#define CALC_TYPE_COUNT_FIELDS	2
+#define CALC_TYPE_MAX		3
+#define CALC_TYPE_MIN		4
+#define CALC_TYPE_AVG		5
+#define CALC_TYPE_LOAD		6
+#define MAX_CALC_TYPES 		7
+#define DEFAULT_CALC_TYPE	0
+static const char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT FRAMES(*)", "COUNT FIELDS(*)", "MAX(*)", "MIN(*)", "AVG(*)", "LOAD(*)"};
 
 
 typedef struct _io_stat_calc_type_t {
@@ -489,8 +490,11 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	switch(adv_type){
 	case FT_NONE:
 		switch(io->graphs[graph].calc_type){
-		case CALC_TYPE_COUNT:
+		case CALC_TYPE_COUNT_FRAMES:
 			value=it->frames;
+			break;
+		case CALC_TYPE_COUNT_FIELDS:
+			value=it->fields;
 			break;
 		default:
 			break;
@@ -510,8 +514,11 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		case CALC_TYPE_SUM:
 			value=it->int_tot;
 			break;
-		case CALC_TYPE_COUNT:
+		case CALC_TYPE_COUNT_FRAMES:
 			value=it->frames;
+			break;
+		case CALC_TYPE_COUNT_FIELDS:
+			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
 			value=it->int_max;
@@ -535,8 +542,11 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		case CALC_TYPE_SUM:
 			value=it->float_tot;
 			break;
-		case CALC_TYPE_COUNT:
+		case CALC_TYPE_COUNT_FRAMES:
 			value=it->frames;
+			break;
+		case CALC_TYPE_COUNT_FIELDS:
+			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
 			value=it->float_max;
@@ -560,8 +570,11 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		case CALC_TYPE_SUM:
 			value=it->double_tot;
 			break;
-		case CALC_TYPE_COUNT:
+		case CALC_TYPE_COUNT_FRAMES:
 			value=it->frames;
+			break;
+		case CALC_TYPE_COUNT_FIELDS:
+			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
 			value=it->double_max;
@@ -582,8 +595,11 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		break;
 	case FT_RELATIVE_TIME:
 		switch(io->graphs[graph].calc_type){
-		case CALC_TYPE_COUNT:
+		case CALC_TYPE_COUNT_FRAMES:
 			value=it->frames;
+			break;
+		case CALC_TYPE_COUNT_FIELDS:
+			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
 			value=(guint32) (it->time_max.secs*1000000 + it->time_max.nsecs/1000);
@@ -622,7 +638,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	default:
 		break;
 	}
-	return (guint32)value; /* FIXME: loss of precision, visible on the graph for small values */
+	return (guint64)value; /* FIXME: loss of precision, visible on the graph for small values */
 }
 
 static void
@@ -2068,7 +2084,8 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 			/* this type only supports COUNT, MAX, MIN, AVG */
 			switch(gio->calc_type){
 			case CALC_TYPE_SUM:
-			case CALC_TYPE_COUNT:
+			case CALC_TYPE_COUNT_FRAMES:
+			case CALC_TYPE_COUNT_FIELDS:
 			case CALC_TYPE_MAX:
 			case CALC_TYPE_MIN:
 			case CALC_TYPE_AVG:
@@ -2085,7 +2102,8 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 			}
 			break;
 		default:
-			if(gio->calc_type!=CALC_TYPE_COUNT){
+			if(gio->calc_type!=CALC_TYPE_COUNT_FRAMES &&
+			   gio->calc_type!=CALC_TYPE_COUNT_FIELDS){
 				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "%s doesn't have integral or float values, so %s calculations are not supported on it.",
 				    field,
