@@ -126,7 +126,7 @@ static prefs_uaudp_t ports[] =
     {"port8", "Terminal UDP port (setting 8)",  0,  0}
 #endif
 };
-#define MAX_TERMINAL_PORTS array_length(ports)
+#define MAX_TERMINAL_PORTS (signed)(array_length(ports))
 
 static gboolean find_terminal_port(guint port)
 {
