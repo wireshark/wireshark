@@ -4025,6 +4025,8 @@ dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 #define SQ_CPX_TYPE_CNIDS    		0x1a00
 #define SQ_CPX_TYPE_FILEMETA 		0x1b00
 
+#define SUBQ_SAFETY_LIM 20
+
 static gint
 spotlight_int64(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 {
@@ -4039,6 +4041,35 @@ spotlight_int64(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
 	while (i++ < count) {
 		query_data64 = spotlight_ntoh64(tvb, offset, encoding);
 		proto_tree_add_text(tree, tvb, offset, 8, "int64: 0x%016" G_GINT64_MODIFIER "x", query_data64);
+		offset += 8;
+	}
+
+	return count;
+}
+
+static gint
+spotlight_date(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint encoding)
+{
+	gint count, i;
+	guint64 query_data64;
+	nstime_t t;
+
+	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
+	count = query_data64 >> 32;
+	offset += 8;
+
+	if (count > SUBQ_SAFETY_LIM) {
+		expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR,
+							   "Subquery count (%d) > safety limit (%d)", count, SUBQ_SAFETY_LIM);
+		return -1;
+	}
+
+	i = 0;
+	while (i++ < count) {
+		query_data64 = spotlight_ntoh64(tvb, offset, encoding) >> 24;
+		t.secs = query_data64 - SPOTLIGHT_TIME_DELTA;
+		t.nsecs = 0;
+		proto_tree_add_time(tree, hf_afp_spotlight_date, tvb, offset, 8, &t);
 		offset += 8;
 	}
 
@@ -4168,7 +4199,6 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	gint query_length;
 	guint64 query_type;
 	guint64 complex_query_type;
-	nstime_t t;
 	guint unicode_encoding;
 	guint8 mark_exists;
 
@@ -4346,11 +4376,9 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += query_length;
 			break;
 		case SQ_TYPE_DATE:
-			query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding) >> 24;
-			t.secs = query_data64 - SPOTLIGHT_TIME_DELTA;
-			t.nsecs = 0;
-			proto_tree_add_time(tree, hf_afp_spotlight_date, tvb, offset, query_length, &t);
-			count--;
+			if ((j = spotlight_date(tvb, pinfo, tree, offset, encoding)) == -1)
+				return offset;
+			count -= j;
 			offset += query_length;
 			break;
 		default:
