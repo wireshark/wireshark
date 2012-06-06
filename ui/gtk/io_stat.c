@@ -469,7 +469,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 static guint64
 get_it_value(io_stat_t *io, int graph, int idx)
 {
-	double value=0;
+	guint64 value=0; /* FIXME: loss of precision, visible on the graph for small values */
 	int adv_type;
 	io_item_t *it;
 	guint32 interval;
@@ -540,7 +540,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	case FT_FLOAT:
 		switch(io->graphs[graph].calc_type){
 		case CALC_TYPE_SUM:
-			value=it->float_tot;
+			value=(guint64)it->float_tot;
 			break;
 		case CALC_TYPE_COUNT_FRAMES:
 			value=it->frames;
@@ -549,14 +549,14 @@ get_it_value(io_stat_t *io, int graph, int idx)
 			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
-			value=it->float_max;
+			value=(guint64)it->float_max;
 			break;
 		case CALC_TYPE_MIN:
-			value=it->float_min;
+			value=(guint64)it->float_min;
 			break;
 		case CALC_TYPE_AVG:
 			if(it->fields){
-				value=it->float_tot/it->fields;
+				value=(guint64)it->float_tot/it->fields;
 			} else {
 				value=0;
 			}
@@ -568,7 +568,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	case FT_DOUBLE:
 		switch(io->graphs[graph].calc_type){
 		case CALC_TYPE_SUM:
-			value=it->double_tot;
+			value=(guint64)it->double_tot;
 			break;
 		case CALC_TYPE_COUNT_FRAMES:
 			value=it->frames;
@@ -577,14 +577,14 @@ get_it_value(io_stat_t *io, int graph, int idx)
 			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
-			value=it->double_max;
+			value=(guint64)it->double_max;
 			break;
 		case CALC_TYPE_MIN:
-			value=it->double_min;
+			value=(guint64)it->double_min;
 			break;
 		case CALC_TYPE_AVG:
 			if(it->fields){
-				value=it->double_tot/it->fields;
+				value=(guint64)it->double_tot/it->fields;
 			} else {
 				value=0;
 			}
@@ -602,13 +602,13 @@ get_it_value(io_stat_t *io, int graph, int idx)
 			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
-			value=(guint32) (it->time_max.secs*1000000 + it->time_max.nsecs/1000);
+			value=(guint64) (it->time_max.secs*1000000 + it->time_max.nsecs/1000);
 			break;
 		case CALC_TYPE_MIN:
-			value=(guint32) (it->time_min.secs*1000000 + it->time_min.nsecs/1000);
+			value=(guint64) (it->time_min.secs*1000000 + it->time_min.nsecs/1000);
 			break;
 		case CALC_TYPE_SUM:
-			value=(guint32) (it->time_tot.secs*1000000 + it->time_tot.nsecs/1000);
+			value=(guint64) (it->time_tot.secs*1000000 + it->time_tot.nsecs/1000);
 			break;
 		case CALC_TYPE_AVG:
 			if(it->fields){
@@ -616,7 +616,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 
 				t=it->time_tot.secs;
 				t=t*1000000+it->time_tot.nsecs/1000;
-				value=(guint32) (t/it->fields);
+				value=(guint64) (t/it->fields);
 			} else {
 				value=0;
 			}
@@ -629,7 +629,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 			} else {
 				interval = io->interval;
 			}
-			value = (guint32) ((it->time_tot.secs*1000000 + it->time_tot.nsecs/1000) / interval);
+			value = (guint64) ((it->time_tot.secs*1000000 + it->time_tot.nsecs/1000) / interval);
 			break;
 		default:
 			break;
@@ -638,7 +638,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	default:
 		break;
 	}
-	return (guint64)value; /* FIXME: loss of precision, visible on the graph for small values */
+	return value;
 }
 
 static void
@@ -712,7 +712,7 @@ io_stat_draw(io_stat_t *io)
 	GtkAllocation widget_alloc;
 	/* new variables */
 	guint32 num_time_intervals; /* number of intervals relative to 1 */
-	guint32 max_value;		/* max value of seen data */
+	guint64 max_value;		/* max value of seen data */
 	guint32 max_y;			/* max value of the Y scale */
 	gboolean draw_y_as_time;
 	cairo_t *cr;
@@ -1082,7 +1082,7 @@ io_stat_draw(io_stat_t *io)
 		/* Moving average variables */
 		guint32 mavg_in_average_count = 0, mavg_left = 0, mavg_right = 0;
 		guint64 mavg_cumulated = 0;
-		guint32 mavg_to_remove = 0, mavg_to_add = 0;
+		guint64 mavg_to_remove = 0, mavg_to_add = 0;
 
 		if(!io->graphs[i].display){
 			continue;
@@ -1097,24 +1097,24 @@ io_stat_draw(io_stat_t *io)
 
 			if(first_interval/io->interval > io->filter_order/2){
 				warmup_interval = first_interval/io->interval - io->filter_order/2;
-				warmup_interval*= io->interval;
+				warmup_interval *= io->interval;
 			} else {
 				warmup_interval = 0;
 			}
 			mavg_to_remove = warmup_interval;
 			for(;warmup_interval<first_interval;warmup_interval+=io->interval){
-				mavg_cumulated += get_it_value(io, i, warmup_interval/io->interval);
+				mavg_cumulated += get_it_value(io, i, (int)warmup_interval/io->interval);
 				mavg_in_average_count++;
 				mavg_left++;
 			}
-			mavg_cumulated += get_it_value(io, i, warmup_interval/io->interval);
+			mavg_cumulated += get_it_value(io, i, (int)warmup_interval/io->interval);
 			mavg_in_average_count++;
 			for(warmup_interval += io->interval;
 			    ((warmup_interval < (first_interval + (io->filter_order/2) * io->interval)) &&
 			    (warmup_interval <= (io->num_items * io->interval)));
 			    warmup_interval += io->interval) {
 
-				mavg_cumulated += get_it_value(io, i, warmup_interval / io->interval);
+				mavg_cumulated += get_it_value(io, i, (int)warmup_interval / io->interval);
 				mavg_in_average_count++;
 				mavg_right++;
 			}
@@ -1161,12 +1161,12 @@ io_stat_draw(io_stat_t *io)
 					if (mavg_left > io->filter_order/2) {
 						mavg_left--;
 						mavg_in_average_count--;
-						mavg_cumulated -= get_it_value(io, i, mavg_to_remove/io->interval);
+						mavg_cumulated -= get_it_value(io, i, (int)mavg_to_remove/io->interval);
 						mavg_to_remove += io->interval;
 					}
 					if (mavg_to_add<=io->num_items*io->interval){
 						mavg_in_average_count++;
-						mavg_cumulated += get_it_value(io, i, mavg_to_add/io->interval);
+						mavg_cumulated += get_it_value(io, i, (int)mavg_to_add/io->interval);
 						mavg_to_add += io->interval;
 					} else {
 						mavg_right--;
