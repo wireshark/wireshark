@@ -571,7 +571,7 @@ GNUTLS_PKG=2.12.18-1.2-1
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-LUA_DIST=5_1_4_Win64_dll9
+LUA_DIST=-5.1.4_Win64_dll10
 LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.1.4
 
 #
