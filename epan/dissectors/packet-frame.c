@@ -686,21 +686,39 @@ proto_register_frame(void)
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
-		{ &hf_frame_wtap_encap,
-		  { "WTAP_ENCAP", "frame.dlt",
-		    FT_INT16, BASE_DEC, NULL, 0x0,
-		    NULL, HFILL }},
-
 		{ &hf_comments_text,
 		  { "Comment", "comment",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 	};
-	static gint *ett[] = {
+	
+	static hf_register_info hf_encap =
+		{ &hf_frame_wtap_encap,
+		  { "Encapsulation type", "frame.encap_type",
+		    FT_INT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }};
+	
+ 	static gint *ett[] = {
 		&ett_frame,
 		&ett_comments
 	};
+
 	module_t *frame_module;
+
+	if (hf_encap.hfinfo.strings == NULL) {
+		int encap_count = wtap_get_num_encap_types();
+		value_string *arr;
+		int i;
+		
+		hf_encap.hfinfo.strings = arr = g_new(value_string, encap_count+1); 
+		
+		for (i = 0; i < encap_count; i++) {
+			arr[i].value = i;
+			arr[i].strptr = wtap_encap_string(i);
+		}
+		arr[encap_count].value = 0;
+		arr[encap_count].strptr = NULL;
+	}
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap",
 	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC);
@@ -708,6 +726,7 @@ proto_register_frame(void)
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_pkt_comment = proto_register_protocol("Packet comments", "Pkt_Comment", "pkt_comment");
 	proto_register_field_array(proto_frame, hf, array_length(hf));
+	proto_register_field_array(proto_frame, &hf_encap, 1);
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("frame",dissect_frame,proto_frame);
 

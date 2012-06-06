@@ -444,7 +444,7 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Per-Packet Information header", "ppi" },
 
 	/* WTAP_ENCAP_ERF */
-	{ "Endace Record File", "erf" },
+	{ "Extensible Record Format", "erf" },
 
 	/* WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
 	{ "Bluetooth H4 with linux header", "bluetooth-h4-linux" },
