@@ -38,7 +38,6 @@
 #include "packet-uaudp.h"
 
 void proto_reg_handoff_uasip(void);
-gboolean str_to_ipaddr(const gchar *addr, guint8 *ad);
 
 static tap_struct_uaudp ua_tap_info;
 #if 0
