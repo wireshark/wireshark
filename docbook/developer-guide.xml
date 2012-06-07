@@ -32,7 +32,7 @@ DOCUMENT SECTION
   <!ENTITY DocumentTitleAbbreviation "WSDG">
 
   <!ENTITY DocumentCopyrightHolder "Ulf Lamping">
-  <!ENTITY DocumentCopyrightYear "2004-2010">
+  <!ENTITY DocumentCopyrightYear "2004-2012">
 
   <!ENTITY DocumentEdition "Draft">
   <!ENTITY DocumentVersion "Draft 0.0.3">
@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.7">
+  <!ENTITY WiresharkCurrentVersion "1.9">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
   <!ENTITY WiresharkAuthorsPage "&WiresharkRepositorySite;/wireshark/trunk/AUTHORS">
