@@ -183,7 +183,8 @@ WSDG_GRAPHICS =	\
 	wsdg_graphics/ws-logo.png		\
 	wsdg_graphics/note.png			\
 	wsdg_graphics/tip.png			\
-	wsdg_graphics/warning.png
+	wsdg_graphics/warning.png		\
+	wsdg_graphics/toolbar/dummy.dummy
 
 # user-guide.xml must be first in the list (to match $<)
 WSUG_SOURCE =	\
