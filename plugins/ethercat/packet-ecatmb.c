@@ -1144,11 +1144,18 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                   proto_tree *ecat_eoe_macfilter_filtermask_tree;
 
                   ecat_eoe_macfilter_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter);
-                  proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_macfiltercount, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                  proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_maskcount, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                  proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_nobroadcasts, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+                  /* XXX: Is the field containing EoeMacFilterOptionsUnion 4 bytes or 2 bytes ? */
+                  /*      sizeof EoeMacFilterOptionsUnion = 2 bytes but the code below  */
+                  /*      originally used a field width of 4 bytes.                     */
+                  /*      Given the size of the union, the code below was changed to    */
+                  /*       use a field width of 2 bytes.                                */
+                  /*      The hf[] entries were also changed to match the union struct  */
+                  proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_macfiltercount, tvb, offset, /*4*/ 2, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_maskcount, tvb, offset, /*4*/ 2, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_nobroadcasts, tvb, offset, /*4*/ 2, ENC_LITTLE_ENDIAN);
                   options.Options = tvb_get_letohs(tvb, offset);
-                  offset+=4;
+                  offset+=/*4*/ 2;
 
                   anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filter, tvb, offset, 16*ETHERNET_ADDRESS_LEN, ENC_NA);
                   ecat_eoe_macfilter_filter_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter_filter);
@@ -1489,18 +1496,23 @@ void proto_register_ecat_mailbox(void)
       { "Mac Filter", "ecat_mailbox.eoe.macfilter",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
+
+      /* XXX: The following 3 fields may not be specified correctly */
+      /*      See related comment above                             */
       { &hf_ecat_mailbox_eoe_macfilter_macfiltercount,
       { "Mac Filter Count", "ecat_mailbox.eoe.macfilter.macfiltercount",
-      FT_UINT8, 16, NULL, 0x0, NULL, HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0xF000, NULL, HFILL }
       },
       { &hf_ecat_mailbox_eoe_macfilter_maskcount,
       { "Mac Filter Mask Count", "ecat_mailbox.eoe.macfilter.maskcount",
-      FT_UINT8, 16, NULL, 0x0, NULL, HFILL }
+        FT_UINT16, BASE_DEC, NULL, 0x0C00, NULL, HFILL }
       },
       { &hf_ecat_mailbox_eoe_macfilter_nobroadcasts,
       { "No Broadcasts", "ecat_mailbox.eoe.macfilter.nobroadcasts",
-      FT_BOOLEAN, BASE_NONE,  TFS(&flags_set_truth), 0x0, NULL, HFILL }
+      FT_BOOLEAN, 16,  TFS(&flags_set_truth), 0x0100, NULL, HFILL }
       },
+      /* ... */
+
       { &hf_ecat_mailbox_eoe_macfilter_filter,
       { "Filter", "ecat_mailbox.eoe.macfilter.filter",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
