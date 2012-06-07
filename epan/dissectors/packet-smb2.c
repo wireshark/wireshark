@@ -7567,7 +7567,7 @@ proto_register_smb2(void)
 		NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb2_APP_INSTANCE_buffer_struct_size,
-		{ "Struct Size", "smb2.app_instance.struct_size", FT_UINT16, 16,
+		{ "Struct Size", "smb2.app_instance.struct_size", FT_UINT16, BASE_DEC,
 		NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb2_APP_INSTANCE_buffer_reserved,
