@@ -6434,28 +6434,30 @@ proto_registrar_dump_values(void)
 			range = NULL;
 			tfs   = NULL;
 
-			if ((hfinfo->display & BASE_DISPLAY_E_MASK) != BASE_CUSTOM &&
-				(hfinfo->type == FT_UINT8  ||
-				 hfinfo->type == FT_UINT16 ||
-				 hfinfo->type == FT_UINT24 ||
-				 hfinfo->type == FT_UINT32 ||
-				 hfinfo->type == FT_UINT64 ||
-				 hfinfo->type == FT_INT8   ||
-				 hfinfo->type == FT_INT16  ||
-				 hfinfo->type == FT_INT24  ||
-				 hfinfo->type == FT_INT32  ||
-				 hfinfo->type == FT_INT64)) {
+			if (hfinfo->strings != NULL) {
+				if ((hfinfo->display & BASE_DISPLAY_E_MASK) != BASE_CUSTOM &&
+				    (hfinfo->type == FT_UINT8  ||
+				     hfinfo->type == FT_UINT16 ||
+				     hfinfo->type == FT_UINT24 ||
+				     hfinfo->type == FT_UINT32 ||
+				     hfinfo->type == FT_UINT64 ||
+				     hfinfo->type == FT_INT8   ||
+				     hfinfo->type == FT_INT16  ||
+				     hfinfo->type == FT_INT24  ||
+				     hfinfo->type == FT_INT32  ||
+				     hfinfo->type == FT_INT64)) {
 
-				if (hfinfo->display & BASE_EXT_STRING) {
-					vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
-				} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
-					vals = hfinfo->strings;
-				} else {
-					range = hfinfo->strings;
+					if (hfinfo->display & BASE_EXT_STRING) {
+						vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
+					} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
+						vals = hfinfo->strings;
+					} else {
+						range = hfinfo->strings;
+					}
 				}
-			}
-			else if (hfinfo->type == FT_BOOLEAN) {
-				tfs = hfinfo->strings;
+				else if (hfinfo->type == FT_BOOLEAN) {
+					tfs = hfinfo->strings;
+				}
 			}
 
 			/* Print value strings? */
