@@ -3858,10 +3858,13 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
         } else {
           next_tvb = tvb_new_subset(parameter_tvb, offset, sdp_length, sdp_length);
         }
-        call_dissector(sdp_handle, next_tvb, pinfo, bat_ase_element_tree);
-        offset = offset + sdp_length;
-
-
+		if(BCTP_Indicator_field_2==0x20){
+			/* IPBCP (text encoded) */
+	        call_dissector(sdp_handle, next_tvb, pinfo, bat_ase_element_tree);
+		}else{
+			proto_tree_add_text(bat_ase_element_tree, next_tvb, 0, -1, "Tunnelled Protocol Data");
+		}
+	    offset = offset + sdp_length;
         break;
       case BEARER_CONTROL_TUNNELLING :
 
