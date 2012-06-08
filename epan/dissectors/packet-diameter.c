@@ -900,7 +900,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 		}
 		case DIAMETER_RFC: {
 			/* Store the application id to be used by subdissectors */
-			pinfo->private_data = &fourth; /* XXX - bug: pointer to a function-local variable?!? */
+			pinfo->private_data = &fourth;
 
 			cmd_vs = (value_string*)(void*)all_cmds->data;
 
