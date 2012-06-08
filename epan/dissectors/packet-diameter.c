@@ -837,11 +837,11 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	guint32 flags_bits = (tvb_get_ntohl(tvb,4) & 0xff000000) >> 24;
 	int packet_len = first_word & 0x00ffffff;
 	proto_item *pi, *cmd_item, *app_item, *version_item;
-	proto_tree* diam_tree;
-	diam_ctx_t* c = ep_alloc0(sizeof(diam_ctx_t));
+	proto_tree *diam_tree;
+	diam_ctx_t *c = ep_alloc0(sizeof(diam_ctx_t));
 	int offset;
-	value_string* cmd_vs;
-	const char* cmd_str;
+	value_string *cmd_vs;
+	const char *cmd_str;
 	guint32 cmd = tvb_get_ntoh24(tvb,5);
 	guint32 fourth = tvb_get_ntohl(tvb,8);
 	guint32 hop_by_hop_id = 0;
@@ -850,7 +850,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	diameter_req_ans_pair_t *diameter_pair;
 	proto_item *it;
 	nstime_t ns;
-	void* pd_save;
+	void *pd_save;
 
 	pd_save = pinfo->private_data;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
@@ -899,23 +899,20 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			break;
 		}
 		case DIAMETER_RFC: {
-			guint32 application_id;
-			application_id = tvb_get_ntohl(tvb,8);
-			cmd_vs = (value_string*)(void*)all_cmds->data;
 			/* Store the application id to be used by subdissectors */
-			pinfo->private_data = &application_id;
-			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id,tvb,8,4,ENC_BIG_ENDIAN);
-			if (strcmp(val_to_str(tvb_get_ntohl(tvb, 8), dictionary.applications,
-				                  "Unknown"), "Unknown") == 0) {
-				proto_tree* tu = proto_item_add_subtree(app_item,ett_unknown);
-				proto_item* iu = proto_tree_add_text(tu,tvb, 8 ,4,"Unknown Application Id, "
+			pinfo->private_data = &fourth;
+
+			cmd_vs = (value_string*)(void*)all_cmds->data;
+
+			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id, tvb, 8, 4, ENC_BIG_ENDIAN);
+			if (match_strval(fourth, dictionary.applications) == NULL) {
+				proto_tree *tu = proto_item_add_subtree(app_item,ett_unknown);
+				proto_item *iu = proto_tree_add_text(tu, tvb, 8, 4, "Unknown Application Id, "
 				                                     "if you know what this is you can add it to dictionary.xml");
 				expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN,
-				                       "Unknown Application Id (%u)",
-				                       tvb_get_ntohl(tvb, 8));
+				                       "Unknown Application Id (%u)", fourth);
 				PROTO_ITEM_SET_GENERATED(iu);
 			}
-
 
 			c->version_rfc = TRUE;
 			break;
@@ -1231,15 +1228,15 @@ RFC3588
 		NULL, FT_UINT16, BASE_DEC|BASE_EXT_STRING, &diameter_avp_data_addrfamily_vals_ext, 0);
 
 	reginfo(&(t->hf_ipv4), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s",name)),
+		alnumerize(ep_strdup_printf("diameter.%s.IPv4",name)),
 		NULL, FT_IPv4, BASE_NONE, NULL, 0);
 
 	reginfo(&(t->hf_ipv6), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s",name)),
+		alnumerize(ep_strdup_printf("diameter.%s.IPv6",name)),
 		NULL, FT_IPv6, BASE_NONE, NULL, 0);
 
 	reginfo(&(t->hf_other), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s",name)),
+		alnumerize(ep_strdup_printf("diameter.%s.Bytes",name)),
 		NULL, FT_BYTES, BASE_NONE, NULL, 0);
 
 	g_ptr_array_add(build_dict.ett,ettp);
