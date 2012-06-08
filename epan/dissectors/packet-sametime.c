@@ -254,7 +254,7 @@ dissect_set_user_status(tvbuff_t *tvb, proto_tree *tree, int offset)
 	offset += 2;
 	proto_tree_add_item(tree, hf_sametime_time, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+	add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
 	return user_status;
 }
@@ -294,7 +294,7 @@ dissect_handshake_ack(tvbuff_t *tvb, proto_tree *tree, int offset)
 	offset += 4;
 	offset += 4;
 	offset += 4;
-	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+	add_text_item(tvb, tree, offset, hf_sametime_field_text);
 }
 
 
@@ -302,7 +302,7 @@ static void
 dissect_login(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	offset += 2;
-	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+	add_text_item(tvb, tree, offset, hf_sametime_field_text);
 }
 
 
@@ -310,7 +310,7 @@ static void
 dissect_login_redirect(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	offset += 2;
-	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+	add_text_item(tvb, tree, offset, hf_sametime_field_text);
 }
 
 
@@ -329,7 +329,7 @@ dissect_login_ack(tvbuff_t *tvb, proto_tree *tree, int offset)
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 	offset += 21;
 	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+	add_text_item(tvb, tree, offset, hf_sametime_field_text);
 }
 
 
@@ -343,7 +343,7 @@ dissect_channel_create(tvbuff_t *tvb, proto_tree *tree, int offset)
 	proto_tree_add_item(tree, hf_sametime_channel_service, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += 8;
-	offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+	add_text_item(tvb, tree, offset, hf_sametime_field_text);
 }
 
 
@@ -365,7 +365,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
 		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+		add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
 		break;
 
@@ -381,9 +381,9 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 			offset += add_text_item(tvb, tree, offset, hf_sametime_location_phone);
 			offset += 1;
 			offset += add_text_item(tvb, tree, offset, hf_sametime_location_name);
-			offset += add_text_item(tvb, tree, offset, hf_sametime_location_timezone);
+			add_text_item(tvb, tree, offset, hf_sametime_location_timezone);
 		} else	{
-			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+			add_text_item(tvb, tree, offset, hf_sametime_field_text);
 		}
 
 		break;
@@ -407,7 +407,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		proto_item_append_text(tree, ", %s", val_to_str(awareness, awarenessnames, "0x%04x"));
 		proto_tree_add_item(tree, hf_sametime_channel_awareness, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+		add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
 		break;
 
@@ -430,7 +430,7 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 	case 0x0000:
 		offset += 14;
-		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+		add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
 		break;
 
@@ -438,14 +438,14 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 		offset += 8;
 		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 		offset += 3;
-		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+		add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
 		break;
 
 	case 0x0005:	/* XML */
 		if (26 <= tvb_reported_length_remaining(tvb, offset + 2))	{
 			offset += 26;
-			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+			add_text_item(tvb, tree, offset, hf_sametime_field_text);
 		}
 
 		break;
@@ -457,14 +457,14 @@ dissect_channel_send(tvbuff_t *tvb, proto_tree *tree, int offset)
 			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
 			offset += 3;
 			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
-			offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+			add_text_item(tvb, tree, offset, hf_sametime_field_text);
 		}
 
 		break;
 
 	case 0x025a:
 		offset += 10;
-		offset += add_text_item(tvb, tree, offset, hf_sametime_field_text);
+		add_text_item(tvb, tree, offset, hf_sametime_field_text);
 
 		break;
 
@@ -499,7 +499,6 @@ dissect_sense_service(tvbuff_t *tvb, proto_tree *tree, int offset)
 	code = tvb_get_ntohl(tvb, offset);
 	proto_item_append_text(tree, ", %s", val_to_str(code, codenames, "0x%04x"));
 	proto_tree_add_item(tree, hf_sametime_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-	offset += 4;
 }
 
 
@@ -934,4 +933,3 @@ proto_reg_handoff_sametime(void)
 	dissector_add_uint("tcp.port", global_sametime_port, sametime_handle);
 	saved_sametime_tcp_port = global_sametime_port;
 }
-

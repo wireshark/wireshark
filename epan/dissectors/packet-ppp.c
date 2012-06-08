@@ -3492,7 +3492,6 @@ dissect_vsncp_pdnid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     PDNID = tvb_get_guint8(tvb, offset + 2);
     proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%02x", optp->name,
         PDNID);
-    offset += 2;
 }
 
 static void
@@ -3512,7 +3511,6 @@ dissect_vsncp_attachtype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
             optp->name, val_to_str_const(attach , attach_vals, "Unknown"),
             attach);
     }
-    offset += 2;
 }
 
 static void
@@ -3533,7 +3531,6 @@ dissect_vsncp_pdntype_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
             optp->name, val_to_str_const(pdntype, pdntype_vals, "Unknown"),
             pdntype);
     }
-    offset += 2;
 }
 
 static void
@@ -3563,7 +3560,6 @@ dissect_vsncp_errorcode_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
             optp->name, val_to_str_const(pdntype, errorcode_vals, "Unknown"),
             pdntype);
     }
-    offset += 2;
 }
 
 static void
@@ -3625,7 +3621,6 @@ dissect_vsncp_pdnaddress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     default:
         break;
     }
-    offset += 2;
 }
 
 static void
@@ -3634,7 +3629,6 @@ dissect_vsncp_ipv4address_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
     proto_tree_add_text(tree, tvb, offset, length, "%s: %s", optp->name,
         tvb_ip_to_str(tvb, offset + 2));
-    offset += 2;
 }
 
 static void
@@ -3684,7 +3678,6 @@ dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
         proto_tree_add_text(tree, tvb, offset, length, "%s: %s (0x%02x)",
             optp->name, val_to_str_const(alloc, alloc_vals, "Unknown"), alloc);
     }
-    offset += 2;
 }
 
 static void
@@ -5213,7 +5206,6 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(data_tree, hf_pap_password, tvb, offset,
                 password_length, ENC_ASCII|ENC_NA);
             password = tvb_format_text(tvb, offset, password_length);
-            offset += password_length;
 
             col_append_fstr(pinfo->cinfo, COL_INFO,
                 " (Peer-ID='%s', Password='%s')", peer_id, password);
@@ -5229,7 +5221,6 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(data_tree, hf_pap_message, tvb, offset,
                 message_length, ENC_ASCII|ENC_NA);
             message = tvb_format_text(tvb, offset, message_length);
-            offset += message_length;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')",
                 message);
@@ -6794,4 +6785,3 @@ proto_reg_handoff_iphc_crtp(void)
  * vi: set shiftwidth=4 tabstop=4 expandtab:
  * :indentSize=4:tabSize=4:noTabs=true:
  */
-

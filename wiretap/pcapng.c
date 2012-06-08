@@ -3334,7 +3334,6 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
         rec_off += 4;
 
         memcpy(rec_data + rec_off, &bh.block_total_length, sizeof(bh.block_total_length));
-        rec_off += 4;
 
         pcapng_debug2("pcapng_write_name_resolution_block: Write bh.block_total_length bytes %d, rec_off %u", bh.block_total_length, rec_off);
 
