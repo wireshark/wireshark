@@ -308,21 +308,30 @@ endif		# HAVE_DOXYGEN
 # Checked using version 1.21.12
 dumpabi: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
-	mkdir abi-check-headers; cp ../color.h ../config.h ../register.h abi-check-headers/; \
-	mkdir abi-check-headers/epan; cp *.h abi-check-headers/epan; \
-	mkdir abi-check-headers/crypt; cp crypt/*.h abi-check-headers/crypt; \
-	mkdir abi-check-headers/dfilter; cp dfilter/*.h ../tools/lemon/cppmagic.h abi-check-headers/dfilter; \
-	mkdir abi-check-headers/dissectors; cp dissectors/*.h abi-check-headers/dissectors; \
-	rm abi-check-headers/dissectors/x11-extension-implementation.h \
-	abi-check-headers/dissectors/packet-rtps2.h \
-	abi-check-headers/dissectors/x11-glx-render-enum.h \
-	abi-check-headers/dissectors/x11-register-info.h \
-	abi-check-headers/dissectors/packet-idmp.h; \
-	mkdir abi-check-headers/ftypes; cp ftypes/*.h abi-check-headers/ftypes; \
+	mkdir abi-check-headers
+	cp ../color.h ../config.h ../register.h abi-check-headers/
+	mkdir abi-check-headers/epan
+	cp *.h abi-check-headers/epan
+	mkdir abi-check-headers/crypt
+	cp crypt/*.h abi-check-headers/crypt
+	mkdir abi-check-headers/dfilter
+	cp dfilter/*.h ../tools/lemon/cppmagic.h abi-check-headers/dfilter
+	mkdir abi-check-headers/dissectors
+	cp dissectors/*.h abi-check-headers/dissectors
+	rm \
+		abi-check-headers/dissectors/x11-extension-implementation.h \
+		abi-check-headers/dissectors/packet-rtps2.h \
+		abi-check-headers/dissectors/x11-glx-render-enum.h \
+		abi-check-headers/dissectors/x11-register-info.h \
+		abi-check-headers/dissectors/packet-idmp.h
+	mkdir abi-check-headers/ftypes
+	cp ftypes/*.h abi-check-headers/ftypes
 	abi-compliance-checker -l libwireshark -v1 `ls  .libs/libwireshark.so.?.?.?|sed 's/.*\.so\.//'` \
-		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
-	cp -f abi_dumps/libwireshark/libwireshark_* .libs/; \
-	cd .libs; ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
+		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
+		cat logs/libwireshark/[0-9]*/log.txt
+	cp -f abi_dumps/libwireshark/libwireshark_* .libs/
+	cd .libs
+	ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g termoutput $(LIBWIRESHARK_SRC)
