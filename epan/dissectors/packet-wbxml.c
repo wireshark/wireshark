@@ -2900,11 +2900,7 @@ static const wbxml_decoding decode_syncmlc_12 = {
 	NULL,
 	NULL
 };
-
-
-
-
-/* Microsoft ActiveSync 1.0 (Actual Version Unknown - either 1.0 or 2.0, taken from Z-Push)
+/* Microsoft ActiveSync 1.0 (Actual Version Unknown - either 1.0 or 2.0, taken from [MS-ASWBXML].pdf)
  *
  * ActiveSync Representation Protocol
  ***************************************/
@@ -2912,56 +2908,55 @@ static const wbxml_decoding decode_syncmlc_12 = {
 /*****   Global extension tokens   *****/
 
 /*****         Tag tokens          *****/
-static const value_string wbxml_mssyncc10_tags_cp0[] = { /* ActiveSync */
+static const value_string wbxml_mssyncc10_tags_cp0[] = { /* ActiveSync 'AirSync:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "Synchronize" },
-	{ 0x06, "Replies" },
+	{ 0x05, "Sync" },
+	{ 0x06, "Responses" },
 	{ 0x07, "Add" },
-	{ 0x08, "Modify" },
-	{ 0x09, "Remove" },
-	{ 0x0a, "Fetch" },
-	{ 0x0b, "SyncKey" },
-	{ 0x0c, "ClientEntryId" },
-	{ 0x0d, "ServerEntryId" },
-	{ 0x0e, "Error" },
-	{ 0x0f, "Folder" },
-	{ 0x10, "FolderType" },
-	{ 0x11, "Version" },
-	{ 0x12, "FolderId" },
+	{ 0x08, "Change" },
+	{ 0x09, "Delete" },
+	{ 0x0A, "Fetch" },
+	{ 0x0B, "SyncKey" },
+	{ 0x0C, "ClientId" },
+	{ 0x0D, "ServerId" },
+	{ 0x0E, "Status" },
+	{ 0x0F, "Collection" },
+	{ 0x10, "Class" },
+	{ 0x12, "CollectionId" },
 	{ 0x13, "GetChanges" },
 	{ 0x14, "MoreAvailable" },
-	{ 0x15, "MaxItems" },
-	{ 0x16, "Perform" },
+	{ 0x15, "WindowSize" },
+	{ 0x16, "Commands" },
 	{ 0x17, "Options" },
 	{ 0x18, "FilterType" },
-	{ 0x19, "Truncation" },
-	{ 0x1a, "RtfTruncation" },
-	{ 0x1b, "Conflict" },
-	{ 0x1c, "Folders" },
-	{ 0x1d, "Data" },
-	{ 0x1e, "DeletesAsMoves" },
-	{ 0x1f, "NotifyGUID" },
+	{ 0x1B, "Conflict" },
+	{ 0x1C, "Collections" },
+	{ 0x1D, "ApplicationData" },
+	{ 0x1E, "DeletesAsMoves" },
 	{ 0x20, "Supported" },
 	{ 0x21, "SoftDelete" },
 	{ 0x22, "MIMESupport" },
 	{ 0x23, "MIMETruncation" },
+	{ 0x24, "Wait" },
+	{ 0x25, "Limit" },
+	{ 0x26, "Partial" },
+	{ 0x27, "ConversationMode" },
+	{ 0x28, "MaxItems" },
+	{ 0x29, "HeartbeatInterval" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp1[] = { /* ActiveSync POOMCONTACTS Page */
+static const value_string wbxml_mssyncc10_tags_cp1[] = { /* ActiveSync 'Contacts:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "Anniversary" },
 	{ 0x06, "AssistantName" },
-	{ 0x07, "AssistnamePhoneNumber" },
+	{ 0x07, "AssistantTelephoneNumber" },
 	{ 0x08, "Birthday" },
-	{ 0x09, "Body" },
-	{ 0x0a, "BodySize" },
-	{ 0x0b, "BodyTruncated" },
-	{ 0x0c, "Business2PhoneNumber" },
-	{ 0x0d, "BusinessCity" },
-	{ 0x0e, "BusinessCountry" },
-	{ 0x0f, "BusinessPostalCode" },
+	{ 0x0C, "Business2PhoneNumber" },
+	{ 0x0D, "BusinessCity" },
+	{ 0x0E, "BusinessCountry" },
+	{ 0x0F, "BusinessPostalCode" },
 	{ 0x10, "BusinessState" },
 	{ 0x11, "BusinessStreet" },
 	{ 0x12, "BusinessFaxNumber" },
@@ -2972,12 +2967,12 @@ static const value_string wbxml_mssyncc10_tags_cp1[] = { /* ActiveSync POOMCONTA
 	{ 0x17, "Children" },
 	{ 0x18, "Child" },
 	{ 0x19, "CompanyName" },
-	{ 0x1a, "Department" },
-	{ 0x1b, "Email1Address" },
-	{ 0x1c, "Email2Address" },
-	{ 0x1d, "Email3Address" },
-	{ 0x1e, "FileAs" },
-	{ 0x1f, "FirstName" },
+	{ 0x1A, "Department" },
+	{ 0x1B, "Email1Address" },
+	{ 0x1C, "Email2Address" },
+	{ 0x1D, "Email3Address" },
+	{ 0x1E, "FileAs" },
+	{ 0x1F, "FirstName" },
 	{ 0x20, "Home2PhoneNumber" },
 	{ 0x21, "HomeCity" },
 	{ 0x22, "HomeCountry" },
@@ -2986,14 +2981,13 @@ static const value_string wbxml_mssyncc10_tags_cp1[] = { /* ActiveSync POOMCONTA
 	{ 0x25, "HomeStreet" },
 	{ 0x26, "HomeFaxNumber" },
 	{ 0x27, "HomePhoneNumber" },
-	{ 0x28, "JobTitle" },
-	{ 0x29, "LastName" },
-	{ 0x2a, "MiddleName" },
-	{ 0x2b, "MobilePhoneNumber" },
-	{ 0x2c, "OfficeLocation" },
-	{ 0x2d, "OtherCity" },
-	{ 0x2e, "OtherCountry" },
-	{ 0x2f, "OtherPostalCode" },
+	{ 0x29, "JobTitle" },
+	{ 0x2A, "MiddleName" },
+	{ 0x2B, "MobilePhoneNumber" },
+	{ 0x2C, "OfficeLocation" },
+	{ 0x2D, "OtherCity" },
+	{ 0x2E, "OtherCountry" },
+	{ 0x2F, "OtherPostalCode" },
 	{ 0x30, "OtherState" },
 	{ 0x31, "OtherStreet" },
 	{ 0x32, "PagerNumber" },
@@ -3001,186 +2995,158 @@ static const value_string wbxml_mssyncc10_tags_cp1[] = { /* ActiveSync POOMCONTA
 	{ 0x34, "Spouse" },
 	{ 0x35, "Suffix" },
 	{ 0x36, "Title" },
-	{ 0x37, "WebPage" },
+	{ 0x37, "Webpage" },
 	{ 0x38, "YomiCompanyName" },
 	{ 0x39, "YomiFirstName" },
-	{ 0x3a, "YomiLastName" },
-	{ 0x3b, "Rtf" },
-	{ 0x3c, "Picture" },
+	{ 0x3A, "YomiLastName" },
+	{ 0x3C, "Picture" },
+	{ 0x3D, "Alias" },
+	{ 0x3E, "WeightedRank" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp2[] = { /* ActiveSync POOMMAIL Page */
+static const value_string wbxml_mssyncc10_tags_cp2[] = { /* ActiveSync 'Email:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "Attachment" },
-	{ 0x06, "Attachments" },
-	{ 0x07, "AttName" },
-	{ 0x08, "AttSize" },
-	{ 0x09, "AttOid" },
-	{ 0x0a, "AttMethod" },
-	{ 0x0b, "AttRemoved" },
-	{ 0x0c, "Body" },
-	{ 0x0d, "BodySize" },
-	{ 0x0e, "BodyTruncated" },
-	{ 0x0f, "DateReceived" },
-	{ 0x10, "DisplayName" },
+	{ 0x0F, "DateReceived" },
 	{ 0x11, "DisplayTo" },
 	{ 0x12, "Importance" },
 	{ 0x13, "MessageClass" },
 	{ 0x14, "Subject" },
 	{ 0x15, "Read" },
 	{ 0x16, "To" },
-	{ 0x17, "Cc" },
+	{ 0x17, "CC" },
 	{ 0x18, "From" },
-	{ 0x19, "Reply-To" },
-	{ 0x1a, "AllDayEvent" },
-	{ 0x1b, "Categories" },
-	{ 0x1c, "Category" },
-	{ 0x1d, "DtStamp" },
-	{ 0x1e, "EndTime" },
-	{ 0x1f, "InstanceType" },
+	{ 0x19, "ReplyTo" },
+	{ 0x1A, "AllDayEvent" },
+	{ 0x1B, "Categories" },
+	{ 0x1C, "Category" },
+	{ 0x1D, "DTStamp" },
+	{ 0x1E, "EndTime" },
+	{ 0x1F, "InstanceType" },
 	{ 0x20, "BusyStatus" },
 	{ 0x21, "Location" },
 	{ 0x22, "MeetingRequest" },
 	{ 0x23, "Organizer" },
 	{ 0x24, "RecurrenceId" },
 	{ 0x25, "Reminder" },
-	{ 0x26, "ResponseRequested" },
+	{ 0x26, "ResponseRequest" },
 	{ 0x27, "Recurrences" },
 	{ 0x28, "Recurrence" },
-	{ 0x29, "Type" },
-	{ 0x2a, "Until" },
-	{ 0x2b, "Occurrences" },
-	{ 0x2c, "Interval" },
-	{ 0x2d, "DayOfWeek" },
-	{ 0x2e, "DayOfMonth" },
-	{ 0x2f, "WeekOfMonth" },
-	{ 0x30, "MonthOfYear" },
+	{ 0x29, "Recurrence_Type" },
+	{ 0x2A, "Recurrence_Until" },
+	{ 0x2B, "Recurrence_Occurrences" },
+	{ 0x2C, "Recurrence_Interval" },
+	{ 0x2D, "Recurrence_DayOfWeek" },
+	{ 0x2E, "Recurrence_DayOfMonth" },
+	{ 0x2F, "Recurrence_WeekOfMonth" },
+	{ 0x30, "Recurrence_MonthOfYear" },
 	{ 0x31, "StartTime" },
 	{ 0x32, "Sensitivity" },
 	{ 0x33, "TimeZone" },
 	{ 0x34, "GlobalObjId" },
 	{ 0x35, "ThreadTopic" },
-	{ 0x36, "MIMEData" },
-	{ 0x37, "MIMETruncated" },
-	{ 0x38, "MIMESize" },
 	{ 0x39, "InternetCPID" },
+	{ 0x3A, "Flag" },
+	{ 0x3B, "FlagStatus" },
+	{ 0x3C, "ContentClass" },
+	{ 0x3D, "FlagType" },
+	{ 0x3E, "CompleteTime" },
+	{ 0x3F, "DisallowNewTimeProposal" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp3[] = { /* ActiveSync AirNotify Page */
+static const value_string wbxml_mssyncc10_tags_cp4[] = { /* ActiveSync 'Calendar:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "Notify" },
-	{ 0x06, "Notification" },
-	{ 0x07, "Version" },
-	{ 0x08, "Lifetime" },
-	{ 0x09, "DeviceInfo" },
-	{ 0x0a, "Enable" },
-	{ 0x0b, "Folder" },
-	{ 0x0c, "ServerEntryId" },
-	{ 0x0d, "DeviceAddress" },
-	{ 0x0e, "ValidCarrierProfiles" },
-	{ 0x0f, "CarrierProfile" },
-	{ 0x10, "Error" },
-	{ 0x11, "Replies" },
-	/* Version 1.1 */
-	{ 0x12, "Devices" },
-	{ 0x13, "Device" },
-	{ 0x14, "Id" },
-	{ 0x15, "Expiry" },
-	{ 0x16, "NotifyGUID" },
-
-	{ 0x00, NULL }
-};
-
-static const value_string wbxml_mssyncc10_tags_cp4[] = { /* ActiveSync POOMCAL Page */
-	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "Timezone" },
-	{ 0x06, "AllDayEvent" },
+	{ 0x05, "TimeZone" },
+	{ 0x06, "AllDAyEvent" },
 	{ 0x07, "Attendees" },
 	{ 0x08, "Attendee" },
-	{ 0x09, "Email" },
-	{ 0x0a, "Name" },
-	{ 0x0b, "Body" },
-	{ 0x0c, "BodyTruncated" },
-	{ 0x0d, "BusyStatus" },
-	{ 0x0e, "Categories" },
-	{ 0x0f, "Category" },
-	{ 0x10, "Rtf" },
-	{ 0x11, "DtStamp" },
+	{ 0x09, "Attendee_Email" },
+	{ 0x0A, "Attendee_Name" },
+	{ 0x0D, "BusyStatus" },
+	{ 0x0E, "Categories" },
+	{ 0x0F, "Category" },
+	{ 0x11, "DTStamp" },
 	{ 0x12, "EndTime" },
 	{ 0x13, "Exception" },
 	{ 0x14, "Exceptions" },
-	{ 0x15, "Deleted" },
-	{ 0x16, "ExceptionStartTime" },
+	{ 0x15, "Exception_Deleted" },
+	{ 0x16, "Exception_StartTime" },
 	{ 0x17, "Location" },
 	{ 0x18, "MeetingStatus" },
-	{ 0x19, "OrganizerEmail" },
-	{ 0x1a, "OrganizerName" },
-	{ 0x1b, "Recurrence" },
-	{ 0x1c, "Type" },
-	{ 0x1d, "Until" },
-	{ 0x1e, "Occurrences" },
-	{ 0x1f, "Interval" },
-	{ 0x20, "DayOfWeek" },
-	{ 0x21, "DayOfMonth" },
-	{ 0x22, "WeekOfMonth" },
-	{ 0x23, "MonthOfYear" },
+	{ 0x19, "Organizer_Email" },
+	{ 0x1A, "Organizer_Name" },
+	{ 0x1B, "Recurrence" },
+	{ 0x1C, "Recurrence_Type" },
+	{ 0x1D, "Recurrence_Until" },
+	{ 0x1E, "Recurrence_Occurrences" },
+	{ 0x1F, "Recurrence_Interval" },
+	{ 0x20, "Recurrence_DayOfWeek" },
+	{ 0x21, "Recurrence_DayOfMonth" },
+	{ 0x22, "Recurrence_WeekOfMonth" },
+	{ 0x23, "Recurrence_MonthOfYear" },
 	{ 0x24, "Reminder" },
 	{ 0x25, "Sensitivity" },
 	{ 0x26, "Subject" },
 	{ 0x27, "StartTime" },
 	{ 0x28, "UID" },
+	{ 0x29, "Attendee_Status" },
+	{ 0x2A, "Attendee_Type" },
+	{ 0x33, "DisallowNewTimeProposal" },
+	{ 0x34, "ResponseRequested" },
+	{ 0x35, "AppointmentReplyTime" },
+	{ 0x36, "ResponseType" },
+	{ 0x37, "CalendarType" },
+	{ 0x38, "IsLeapMonth" },
+	{ 0x39, "FirstDayOfWeek" },
+	{ 0x3A, "OnlineMeetingConfLink" },
+	{ 0x3B, "OnlineMeetingExternalLink" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp5[] = { /* ActiveSync Move Page */
+static const value_string wbxml_mssyncc10_tags_cp5[] = { /* ActiveSync 'Move:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "Moves" },
+	{ 0x05, "MoveItems" },
 	{ 0x06, "Move" },
 	{ 0x07, "SrcMsgId" },
 	{ 0x08, "SrcFldId" },
 	{ 0x09, "DstFldId" },
-	{ 0x0a, "Response" },
-	{ 0x0b, "Error" },
-	{ 0x0c, "DstMsgId" },
+	{ 0x0A, "Response" },
+	{ 0x0B, "Status" },
+	{ 0x0C, "DstMsgId" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp6[] = { /* ActiveSync GetItemEstimate Page */
+static const value_string wbxml_mssyncc10_tags_cp6[] = { /* ActiveSync 'GetItemEstimate:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "GetItemEstimate" },
 	{ 0x06, "Version" },
-	{ 0x07, "Folders" },
-	{ 0x08, "Folder" },
-	{ 0x09, "FolderType" },
-	{ 0x0a, "FolderId" },
-	{ 0x0b, "DateTime" },
-	{ 0x0c, "Estimate" },
-	{ 0x0d, "Response" },
-	{ 0x0e, "Error" },
+	{ 0x07, "Collections" },
+	{ 0x08, "Collection" },
+	{ 0x09, "Class" },
+	{ 0x0A, "CollectionId" },
+	{ 0x0B, "DateTime" },
+	{ 0x0C, "Estimate" },
+	{ 0x0D, "Response" },
+	{ 0x0E, "Status" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp7[] = { /* ActiveSync FolderHierarchy Page */
+static const value_string wbxml_mssyncc10_tags_cp7[] = { /* ActiveSync 'FolderHierarchy:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "Folders" },
-	{ 0x06, "Folder" },
 	{ 0x07, "DisplayName" },
-	{ 0x08, "ServerEntryId" },
+	{ 0x08, "ServerId" },
 	{ 0x09, "ParentId" },
-	{ 0x0a, "Type" },
-	{ 0x0b, "Response" },
-	{ 0x0c, "Error" },
-	{ 0x0d, "ContentClass" },
-	{ 0x0e, "Changes" },
-	{ 0x0f, "Add" },
-	{ 0x10, "Remove" },
+	{ 0x0A, "Type" },
+	{ 0x0C, "Status" },
+	{ 0x0E, "Changes" },
+	{ 0x0F, "Add" },
+	{ 0x10, "Delete" },
 	{ 0x11, "Update" },
 	{ 0x12, "SyncKey" },
 	{ 0x13, "FolderCreate" },
@@ -3188,124 +3154,436 @@ static const value_string wbxml_mssyncc10_tags_cp7[] = { /* ActiveSync FolderHie
 	{ 0x15, "FolderUpdate" },
 	{ 0x16, "FolderSync" },
 	{ 0x17, "Count" },
-	{ 0x18, "Version" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp8[] = { /* ActiveSync MeetingResponse Page */
+static const value_string wbxml_mssyncc10_tags_cp8[] = { /* ActiveSync 'MeetingResponse:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "CalendarId" },
-	{ 0x06, "FolderId" },
+	{ 0x06, "CollectionId" },
 	{ 0x07, "MeetingResponse" },
 	{ 0x08, "RequestId" },
 	{ 0x09, "Request" },
-	{ 0x0a, "Result" },
-	{ 0x0b, "Error" },
-	{ 0x0c, "UserResponse" },
-	{ 0x0d, "Version" },
+	{ 0x0A, "Result" },
+	{ 0x0B, "Status" },
+	{ 0x0C, "UserResponse" },
+	{ 0x0E, "InstanceId" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp9[] = { /* ActiveSync POOMTASKS Page */
+static const value_string wbxml_mssyncc10_tags_cp9[] = { /* ActiveSync 'Tasks:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "Body" },
-	{ 0x06, "BodySize" },
-	{ 0x07, "BodyTruncated" },
 	{ 0x08, "Categories" },
 	{ 0x09, "Category" },
-	{ 0x0a, "Complete" },
-	{ 0x0b, "DateCompleted" },
-	{ 0x0c, "DueDate" },
-	{ 0x0d, "UtcDueDate" },
-	{ 0x0e, "Importance" },
-	{ 0x0f, "Recurrence" },
-	{ 0x10, "Type" },
-	{ 0x11, "Start" },
-	{ 0x12, "Until" },
-	{ 0x13, "Occurrences" },
-	{ 0x14, "Interval" },
-	{ 0x16, "DayOfWeek" },
-	{ 0x15, "DayOfMonth" },
-	{ 0x17, "WeekOfMonth" },
-	{ 0x18, "MonthOfYear" },
-	{ 0x19, "Regenerate" },
-	{ 0x1a, "DeadOccur" },
-	{ 0x1b, "ReminderSet" },
-	{ 0x1c, "ReminderTime" },
-	{ 0x1d, "Sensitivity" },
-	{ 0x1e, "StartDate" },
-	{ 0x1f, "UtcStartDate" },
+	{ 0x0A, "Complete" },
+	{ 0x0B, "DateCompleted" },
+	{ 0x0D, "DueDate" },
+	{ 0x0E, "Importance" },
+	{ 0x0F, "Recurrence" },
+	{ 0x10, "Recurrence_Type" },
+	{ 0x11, "Recurrence_Start" },
+	{ 0x12, "Recurrence_Until" },
+	{ 0x13, "Recurrence_Occurrences" },
+	{ 0x14, "Recurrence_Interval" },
+	{ 0x15, "Recurrence_DayOfMonth" },
+	{ 0x16, "Recurrence_DayOfWeek" },
+	{ 0x17, "Recurrence_WeekOfMonth" },
+	{ 0x18, "Recurrence_MonthOfYear" },
+	{ 0x19, "Recurrence_Regenerate" },
+	{ 0x1A, "Recurrence_DeadOccur" },
+	{ 0x1B, "ReminderSet" },
+	{ 0x1C, "ReminderTime" },
+	{ 0x1D, "Sensitivity" },
+	{ 0x1E, "StartDate" },
+	{ 0x1F, "UTCStartDate" },
 	{ 0x20, "Subject" },
-	{ 0x21, "Rtf" },
+	{ 0x22, "OrdinalDate" },
+	{ 0x23, "SubOrdinalDate" },
+	{ 0x24, "CalendarType" },
+	{ 0x25, "IsLeapMonth" },
+	{ 0x26, "FirstDayOfWeek" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp10[] = { /* ActiveSync ResolveRecipients Page */
+static const value_string wbxml_mssyncc10_tags_cp10[] = { /* ActiveSync 'ResolveRecipients:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "ResolveRecipients" },
 	{ 0x06, "Response" },
-	{ 0x07, "Error" },
+	{ 0x07, "Status" },
 	{ 0x08, "Type" },
 	{ 0x09, "Recipient" },
-	{ 0x0a, "DisplayName" },
-	{ 0x0b, "EmailAddress" },
-	{ 0x0c, "Certificates" },
-	{ 0x0d, "Certificate" },
-	{ 0x0e, "MiniCertificate" },
-	{ 0x0f, "Options" },
+	{ 0x0A, "DisplayName" },
+	{ 0x0B, "EmailAddress" },
+	{ 0x0C, "Certificates" },
+	{ 0x0D, "Certificate" },
+	{ 0x0E, "MiniCertificate" },
+	{ 0x0F, "Options" },
 	{ 0x10, "To" },
 	{ 0x11, "CertificateRetrieval" },
 	{ 0x12, "RecipientCount" },
 	{ 0x13, "MaxCertificates" },
 	{ 0x14, "MaxAmbiguousRecipients" },
 	{ 0x15, "CertificateCount" },
+	{ 0x16, "Availability" },
+	{ 0x17, "StartTime" },
+	{ 0x18, "EndTime" },
+	{ 0x19, "MergedFreeBusy" },
+	{ 0x1A, "Picture" },
+	{ 0x1B, "MaxSize" },
+	{ 0x1C, "Data" },
+	{ 0x1D, "MaxPictures" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp11[] = { /* ActiveSync ValidateCerts Page */
+static const value_string wbxml_mssyncc10_tags_cp11[] = { /* ActiveSync 'ValidateCert:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "ValidateCert" },
 	{ 0x06, "Certificates" },
 	{ 0x07, "Certificate" },
 	{ 0x08, "CertificateChain" },
 	{ 0x09, "CheckCRL" },
-	{ 0x0a, "Error" },
+	{ 0x0A, "Status" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp12[] = { /* ActiveSync POOMCONTACTS2 Page */
+static const value_string wbxml_mssyncc10_tags_cp12[] = { /* ActiveSync 'Contacts2:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "CustomerId" },
 	{ 0x06, "GovernmentId" },
 	{ 0x07, "IMAddress" },
 	{ 0x08, "IMAddress2" },
 	{ 0x09, "IMAddress3" },
-	{ 0x0a, "ManagerName" },
-	{ 0x0b, "CompanyMainPhone" },
-	{ 0x0c, "AccountName" },
-	{ 0x0d, "NickName" },
-	{ 0x0e, "MMS" },
+	{ 0x0A, "ManagerName" },
+	{ 0x0B, "CompanyMainPhone" },
+	{ 0x0C, "AccountName" },
+	{ 0x0D, "NickName" },
+	{ 0x0E, "MMS" },
 
 	{ 0x00, NULL }
 };
 
-static const value_string wbxml_mssyncc10_tags_cp13[] = { /* ActiveSync Ping Page */
+static const value_string wbxml_mssyncc10_tags_cp13[] = { /* ActiveSync 'Ping:' Page */
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "Ping" },
-	{ 0x07, "Error" },
-	{ 0x08, "LifeTime" },
+	{ 0x06, "AutdState" },
+	{ 0x07, "Status" },
+	{ 0x08, "HeartbeatInterval" },
 	{ 0x09, "Folders" },
-	{ 0x0a, "Folder" },
-	{ 0x0b, "ServerEntryId" },
-	{ 0x0c, "FolderType" },
+	{ 0x0A, "Folder" },
+	{ 0x0B, "Id" },
+	{ 0x0C, "Class" },
+	{ 0x0D, "MaxFolders" },
 
 	{ 0x00, NULL }
 };
+
+static const value_string wbxml_mssyncc10_tags_cp14[] = { /* ActiveSync 'Provision:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Provision" },
+	{ 0x06, "Policies" },
+	{ 0x07, "Policy" },
+	{ 0x08, "PolicyType" },
+	{ 0x09, "PolicyKey" },
+	{ 0x0A, "Data" },
+	{ 0x0B, "Status" },
+	{ 0x0C, "RemoteWipe" },
+	{ 0x0D, "EASProvisionDoc" },
+	{ 0x0E, "DevicePasswordEnabled" },
+	{ 0x0F, "AlphanumericDevicePasswordRequired" },
+	{ 0x10, "DeviceEncryptionEnabled" },
+	{ 0x11, "PasswordRecoveryEnabled" },
+	{ 0x13, "AttachmentsEnabled" },
+	{ 0x14, "MinDevicePasswordLength" },
+	{ 0x15, "MaxInactivityTimeDeviceLock" },
+	{ 0x16, "MaxDevicePasswordFailedAttempts" },
+	{ 0x17, "MaxAttachmentSize" },
+	{ 0x18, "AllowSimpleDevicePassword" },
+	{ 0x19, "DevicePasswordExpiration" },
+	{ 0x1A, "DevicePasswordHistory" },
+	{ 0x1B, "AllowStorageCard" },
+	{ 0x1C, "AllowCamera" },
+	{ 0x1D, "RequireDeviceEncryption" },
+	{ 0x1E, "AllowUnsignedApplications" },
+	{ 0x1F, "AllowUnsignedInstallationPackages" },
+	{ 0x20, "MinDevicePasswordComplexCharacters" },
+	{ 0x21, "AllowWiFi" },
+	{ 0x22, "AllowTextMessaging" },
+	{ 0x23, "AllowPOPIMAPEmail" },
+	{ 0x24, "AllowBluetooth" },
+	{ 0x25, "AllowIrDA" },
+	{ 0x26, "RequireManualSyncWhenRoaming" },
+	{ 0x27, "AllowDesktopSync" },
+	{ 0x28, "MaxCalendarAgeFilter" },
+	{ 0x29, "AllowHTMLEmail" },
+	{ 0x2A, "MaxEmailAgeFilter" },
+	{ 0x2B, "MaxEmailBodyTruncationSize" },
+	{ 0x2C, "MaxEmailHTMLBodyTruncationSize" },
+	{ 0x2D, "RequireSignedSMIMEMessages" },
+	{ 0x2E, "RequireEncryptedSMIMEMessages" },
+	{ 0x2F, "RequireSignedSMIMEAlgorithm" },
+	{ 0x30, "RequireEncryptionSMIMEAlgorithm" },
+	{ 0x31, "AllowSMIMEEncryptionAlgorithmNegotiation" },
+	{ 0x32, "AllowSMIMESoftCerts" },
+	{ 0x33, "AllowBrowser" },
+	{ 0x34, "AllowConsumerEmail" },
+	{ 0x35, "AllowRemoteDesktop" },
+	{ 0x36, "AllowInternetSharing" },
+	{ 0x37, "UnapprovedInROMApplicationList" },
+	{ 0x38, "ApplicationName" },
+	{ 0x39, "ApprovedApplicationList" },
+	{ 0x3A, "Hash" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp15[] = { /* ActiveSync 'Search:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Search" },
+	{ 0x07, "Store" },
+	{ 0x08, "Name" },
+	{ 0x09, "Query" },
+	{ 0x0A, "Options" },
+	{ 0x0B, "Range" },
+	{ 0x0C, "Status" },
+	{ 0x0D, "Response" },
+	{ 0x0E, "Result" },
+	{ 0x0F, "Properties" },
+	{ 0x10, "Total" },
+	{ 0x11, "EqualTo" },
+	{ 0x12, "Value" },
+	{ 0x13, "And" },
+	{ 0x14, "Or" },
+	{ 0x15, "FreeText" },
+	{ 0x17, "DeepTraversal" },
+	{ 0x18, "LongId" },
+	{ 0x19, "RebuildResults" },
+	{ 0x1A, "LessThan" },
+	{ 0x1B, "GreaterThan" },
+	{ 0x1E, "UserName" },
+	{ 0x1F, "Password" },
+	{ 0x20, "ConversationId" },
+	{ 0x21, "Picture" },
+	{ 0x22, "MaxSize" },
+	{ 0x23, "MaxPictures" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp16[] = { /* ActiveSync 'Gal:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "DisplayName" },
+	{ 0x06, "Phone" },
+	{ 0x07, "Office" },
+	{ 0x08, "Title" },
+	{ 0x09, "Company" },
+	{ 0x0A, "Alias" },
+	{ 0x0B, "FirstName" },
+	{ 0x0C, "LastName" },
+	{ 0x0D, "HomePhone" },
+	{ 0x0E, "MobilePhone" },
+	{ 0x0F, "EmailAddress" },
+	{ 0x10, "Picture" },
+	{ 0x11, "Status" },
+	{ 0x12, "Data" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp17[] = { /* ActiveSync 'AirSyncBase:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "BodyPreference" },
+	{ 0x06, "Type" },
+	{ 0x07, "TruncationSize" },
+	{ 0x08, "AllOrNone" },
+	{ 0x0A, "Body" },
+	{ 0x0B, "Data" },
+	{ 0x0C, "EstimatedDataSize" },
+	{ 0x0D, "Truncated" },
+	{ 0x0E, "Attachments" },
+	{ 0x0F, "Attachment" },
+	{ 0x10, "DisplayName" },
+	{ 0x11, "FileReference" },
+	{ 0x12, "Method" },
+	{ 0x13, "ContentId" },
+	{ 0x14, "ContentLocation" },
+	{ 0x15, "IsInline" },
+	{ 0x16, "NativeBodyType" },
+	{ 0x17, "ContentType" },
+	{ 0x18, "Preview" },
+	{ 0x19, "BodyPartReference" },
+	{ 0x1A, "BodyPart" },
+	{ 0x1B, "Status" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp18[] = { /* ActiveSync 'Settings:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Settings" },
+	{ 0x06, "Status" },
+	{ 0x07, "Get" },
+	{ 0x08, "Set" },
+	{ 0x09, "Oof" },
+	{ 0x0A, "OofState" },
+	{ 0x0B, "StartTime" },
+	{ 0x0C, "EndTime" },
+	{ 0x0D, "OofMessage" },
+	{ 0x0E, "AppliesToInteral" },
+	{ 0x0F, "AppliesToExternalKnown" },
+	{ 0x10, "AppliesToExternalUnknown" },
+	{ 0x11, "Enabled" },
+	{ 0x12, "ReplyMessage" },
+	{ 0x13, "BodyType" },
+	{ 0x14, "DevicePassword" },
+	{ 0x15, "Password" },
+	{ 0x16, "DeviceInformation" },
+	{ 0x17, "Model" },
+	{ 0x18, "IMEI" },
+	{ 0x19, "FriendlyName" },
+	{ 0x1A, "OS" },
+	{ 0x1B, "OSLanguage" },
+	{ 0x1C, "PhoneNumber" },
+	{ 0x1D, "UserInformation" },
+	{ 0x1E, "EmailAddresses" },
+	{ 0x1F, "SmtpAddress" },
+	{ 0x20, "UserAgent" },
+	{ 0x21, "EnableOutboundSMS" },
+	{ 0x22, "MobileOperator" },
+	{ 0x23, "PrimarySmtpAddress" },
+	{ 0x24, "Accounts" },
+	{ 0x25, "Account" },
+	{ 0x26, "AccountId" },
+	{ 0x27, "AccountName" },
+	{ 0x28, "UserDisplayName" },
+	{ 0x29, "SendDisabled" },
+	{ 0x2B, "RightsManagementInformation" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp19[] = { /* ActiveSync 'DocumentLibrary:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "LinkId" },
+	{ 0x06, "DisplayName" },
+	{ 0x07, "IsFolder" },
+	{ 0x09, "CreationDate" },
+	{ 0x0A, "LastModifiedDate" },
+	{ 0x0B, "ContentLength" },
+	{ 0x0C, "ContentType" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp20[] = { /* ActiveSync 'ItemOperations:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "ItemOperations" },
+	{ 0x06, "Fetch" },
+	{ 0x07, "Store" },
+	{ 0x08, "Options" },
+	{ 0x09, "Range" },
+	{ 0x0A, "Total" },
+	{ 0x0B, "Properties" },
+	{ 0x0C, "Data" },
+	{ 0x0D, "Status" },
+	{ 0x0E, "Response" },
+	{ 0x0F, "Version" },
+	{ 0x10, "Schema" },
+	{ 0x11, "Part" },
+	{ 0x12, "EmptyFolderContents" },
+	{ 0x13, "DeleteSubFolders" },
+	{ 0x14, "UserName" },
+	{ 0x15, "Password" },
+	{ 0x16, "Move" },
+	{ 0x17, "DstFldId" },
+	{ 0x18, "ConversationId" },
+	{ 0x19, "MoveAlways" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp21[] = { /* ActiveSync 'ComposeMail:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "SendMail" },
+	{ 0x06, "SmartForward" },
+	{ 0x07, "SmartReply" },
+	{ 0x08, "SaveInSentItems" },
+	{ 0x09, "ReplaceMime" },
+	{ 0x0B, "Source" },
+	{ 0x0C, "FolderId" },
+	{ 0x0D, "ItemId" },
+	{ 0x0E, "LongId" },
+	{ 0x0F, "InstanceId" },
+	{ 0x10, "MIME" },
+	{ 0x11, "ClientId" },
+	{ 0x12, "Status" },
+	{ 0x13, "AccountId" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp22[] = { /* ActiveSync 'Email2:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "UmCallerID" },
+	{ 0x06, "UmUserNotes" },
+	{ 0x07, "UmAttDuration" },
+	{ 0x08, "UmAttOrder" },
+	{ 0x09, "ConversationId" },
+	{ 0x0A, "ConversationIndex" },
+	{ 0x0B, "LastVerbExecuted" },
+	{ 0x0C, "LastVerbExecutionTime" },
+	{ 0x0D, "ReceivedAsBcc" },
+	{ 0x0E, "Sender" },
+	{ 0x0F, "CalendarType" },
+	{ 0x10, "IsLeapMonth" },
+	{ 0x11, "AccountId" },
+	{ 0x12, "FirstDayOfWeek" },
+	{ 0x13, "MeetingMessageType" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp23[] = { /* ActiveSync 'Notes:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "Subject" },
+	{ 0x06, "MessageClass" },
+	{ 0x07, "LastModifiedDate" },
+	{ 0x08, "Categories" },
+	{ 0x09, "Category" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string wbxml_mssyncc10_tags_cp24[] = { /* ActiveSync 'RightsManagement:' Page */
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "RightsManagementSupport" },
+	{ 0x06, "RightsManagementTemplates" },
+	{ 0x07, "RightsManagementTemplate" },
+	{ 0x08, "RightsManagementLicense" },
+	{ 0x09, "EditAllowed" },
+	{ 0x0A, "ReplyAllowed" },
+	{ 0x0B, "ReplyAllAllowed" },
+	{ 0x0C, "ForwardAllowed" },
+	{ 0x0D, "ModifyRecipientsAllowed" },
+	{ 0x0E, "ExtractAllowed" },
+	{ 0x0F, "PrintAllowed" },
+	{ 0x10, "ExportAllowed" },
+	{ 0x11, "ProgrammaticAccessAllowed" },
+	{ 0x12, "RMOwner" },
+	{ 0x13, "ContentExpiryDate" },
+	{ 0x14, "TemplateId" },
+	{ 0x15, "TemplateName" },
+	{ 0x16, "TemplateDescription" },
+	{ 0x17, "ContentOwner" },
+	{ 0x18, "RemoveRightsManagementDistribution" },
+
+	{ 0x00, NULL }
+};
+
 
 /*****    Attribute Start tokens   *****/
 
@@ -3313,21 +3591,32 @@ static const value_string wbxml_mssyncc10_tags_cp13[] = { /* ActiveSync Ping Pag
 
 /***** Token code page aggregation *****/
 static const value_valuestring wbxml_mssyncc10_tags[] = {
-	{ 0, wbxml_mssyncc10_tags_cp0 }, /* application/vnd.ms-sync.wbxml */
-	{ 1, wbxml_mssyncc10_tags_cp1 }, /* POOMCONTACTS */
-	{ 2, wbxml_mssyncc10_tags_cp2 }, /* POOMMAIL */
-	{ 3, wbxml_mssyncc10_tags_cp3 }, /* AirNotify */
-	{ 4, wbxml_mssyncc10_tags_cp4 }, /* POOMCAL */
-	{ 5, wbxml_mssyncc10_tags_cp5 }, /* Move */
-	{ 6, wbxml_mssyncc10_tags_cp6 }, /* GetItemEstimate */
-	{ 7, wbxml_mssyncc10_tags_cp7 }, /* FolderHierarchy */
-	{ 8, wbxml_mssyncc10_tags_cp8 }, /* MeetingResponse */
-	{ 9, wbxml_mssyncc10_tags_cp9 }, /* POOMTASKS */
-	{ 0x0a, wbxml_mssyncc10_tags_cp10 }, /* ResolveRecipients */
-	{ 0x0b, wbxml_mssyncc10_tags_cp11 }, /* ValidateCerts */
-	{ 0x0c, wbxml_mssyncc10_tags_cp12 }, /* POOMCONTACTS2 */
-	{ 0x0d, wbxml_mssyncc10_tags_cp13 }, /* Ping */
-	{ 0, NULL }
+	{ 0x00, wbxml_mssyncc10_tags_cp0 }, /* AirSync: */
+	{ 0x01, wbxml_mssyncc10_tags_cp1 }, /* Contacts: */
+	{ 0x02, wbxml_mssyncc10_tags_cp2 }, /* Email: */
+	{ 0x04, wbxml_mssyncc10_tags_cp4 }, /* Calendar: */
+	{ 0x05, wbxml_mssyncc10_tags_cp5 }, /* Move: */
+	{ 0x06, wbxml_mssyncc10_tags_cp6 }, /* GetItemEstimate: */
+	{ 0x07, wbxml_mssyncc10_tags_cp7 }, /* FolderHierarchy: */
+	{ 0x08, wbxml_mssyncc10_tags_cp8 }, /* MeetingResponse: */
+	{ 0x09, wbxml_mssyncc10_tags_cp9 }, /* Tasks: */
+	{ 0x0A, wbxml_mssyncc10_tags_cp10 }, /* ResolveRecipients: */
+	{ 0x0B, wbxml_mssyncc10_tags_cp11 }, /* ValidateCert: */
+	{ 0x0C, wbxml_mssyncc10_tags_cp12 }, /* Contacts2: */
+	{ 0x0D, wbxml_mssyncc10_tags_cp13 }, /* Ping: */
+	{ 0x0E, wbxml_mssyncc10_tags_cp14 }, /* Provision: */
+	{ 0x0F, wbxml_mssyncc10_tags_cp15 }, /* Search: */
+	{ 0x10, wbxml_mssyncc10_tags_cp16 }, /* Gal: */
+	{ 0x11, wbxml_mssyncc10_tags_cp17 }, /* AirSyncBase: */
+	{ 0x12, wbxml_mssyncc10_tags_cp18 }, /* Settings: */
+	{ 0x13, wbxml_mssyncc10_tags_cp19 }, /* DocumentLibrary: */
+	{ 0x14, wbxml_mssyncc10_tags_cp20 }, /* ItemOperations: */
+	{ 0x15, wbxml_mssyncc10_tags_cp21 }, /* ComposeMail: */
+	{ 0x16, wbxml_mssyncc10_tags_cp22 }, /* Email2: */
+	{ 0x17, wbxml_mssyncc10_tags_cp23 }, /* Notes: */
+	{ 0x18, wbxml_mssyncc10_tags_cp24 }, /* RightsManagement: */
+
+	{ 0x00, NULL }
 };
 
 static const wbxml_decoding decode_mssync_10 = {
