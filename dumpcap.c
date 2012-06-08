@@ -1657,7 +1657,7 @@ cap_pipe_read(int pipe_fd, char *buf, size_t sz, gboolean from_socket _U_)
 {
 #ifdef _WIN32
    if (from_socket) {
-      return recv(pipe_fd, buf, sz, 0);
+      return recv(pipe_fd, buf, (int)sz, 0);
    } else {
       return -1;
    }
