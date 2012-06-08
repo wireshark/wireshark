@@ -1824,7 +1824,7 @@ cap_open_socket(char *pipename, pcap_options *pcap_opts, char *errmsg, int errms
   sa.sin_family = AF_INET;
   sa.sin_port = htons((u_short)port);
 
-  if (((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) || 
+  if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) || 
       (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
       g_snprintf(errmsg, errmsgl,
       "The capture session could not be initiated due to\n"
