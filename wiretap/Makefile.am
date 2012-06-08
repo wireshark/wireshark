@@ -98,8 +98,7 @@ dumpabi: all abi-descriptor.xml
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwiretap/[0-9]*/log.txt
 	cp -f abi_dumps/libwiretap/libwiretap_* .libs/
-	cd .libs
-	ln -sf libwiretap_*.abi.tar.gz libwiretap.abi.tar.gz
+	cd .libs && ln -sf libwiretap_*.abi.tar.gz libwiretap.abi.tar.gz
 
 checkapi:
 ## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error

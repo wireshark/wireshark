@@ -330,8 +330,7 @@ dumpabi: all abi-descriptor.xml
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwireshark/[0-9]*/log.txt
 	cp -f abi_dumps/libwireshark/libwireshark_* .libs/
-	cd .libs
-	ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
+	cd .libs && ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g termoutput $(LIBWIRESHARK_SRC)

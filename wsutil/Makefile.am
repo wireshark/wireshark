@@ -134,8 +134,7 @@ dumpabi: all abi-descriptor.xml
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwsutil/[0-9]*/log.txt
 	cp -f abi_dumps/libwsutil/libwsutil_* .libs/
-	cd .libs
-	ln -sf libwsutil_*.abi.tar.gz libwsutil.abi.tar.gz
+	cd .libs && ln -sf libwsutil_*.abi.tar.gz libwsutil.abi.tar.gz
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
