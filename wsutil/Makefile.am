@@ -129,12 +129,14 @@ MAINTAINERCLEANFILES = \
 # http://ispras.linux-foundation.org/index.php/ABI_compliance_checker
 # Checked using version 1.21.12
 dumpabi: all abi-descriptor.xml
-	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz; \
-	mkdir abi-check-headers; cp ../config.h *.h abi-check-headers/; \
+	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
+	mkdir abi-check-headers
+	cp ../config.h *.h abi-check-headers/
 	abi-compliance-checker -l libwsutil -v1 `ls  .libs/libwsutil.so.?.?.?|sed 's/.*\.so\.//'` \
-		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
-	cp -f abi_dumps/libwsutil/libwsutil_* .libs/; \
-	cd .libs; ln -sf libwsutil_*.abi.tar.gz libwsutil.abi.tar.gz
+		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
+		cat logs/libwsutil/[0-9]*/log.txt
+	cp -f abi_dumps/libwsutil/libwsutil_* .libs/
+	cd .libs && ln -sf libwsutil_*.abi.tar.gz libwsutil.abi.tar.gz
 
 checkapi:
 #	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
