@@ -63,6 +63,16 @@ do
 		*.gz)
 			svn ps svn:mime-type application/x-gzip $file
 			;;
+		*.xml)
+			svn ps svn:keywords Id $file
+			svn ps svn:eol-style native $file
+			svn ps svn:mime-type application/xml $file
+			;;
+		*.dtd)
+			svn ps svn:keywords Id $file
+			svn ps svn:eol-style native $file
+			svn ps svn:mime-type application/xml-dtd $file
+			;;
 		*.pl|*.bat|*.py|*.sh|*.cmd)
 			svn ps svn:keywords Id $file
 			svn ps svn:executable '*' $file
