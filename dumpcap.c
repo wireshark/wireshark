@@ -427,7 +427,10 @@ print_usage(gboolean print_ver)
     fprintf(output, "\nUsage: dumpcap [options] ...\n");
     fprintf(output, "\n");
     fprintf(output, "Capture interface:\n");
-    fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback)\n");
+    fprintf(output, "  -i <interface>           name or idx of interface (def: first non-loopback),\n"
+                    "                           or for remote capturing, use one of these formats:\n"
+                    "                               rpcap://<host>/<interface>\n"
+                    "                               TCP@<host>:<port>\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
     fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
     fprintf(output, "  -p                       don't capture in promiscuous mode\n");
@@ -479,7 +482,7 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -h                       display this help and exit\n");
     fprintf(output, "\n");
     fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcapng\n");
-    fprintf(output, "\"Capture network packets from interface eth0 until 60s passed into output.pcapng\"\n");
+    fprintf(output, "\"Capture packets from interface eth0 until 60s passed into output.pcapng\"\n");
     fprintf(output, "\n");
     fprintf(output, "Use Ctrl-C to stop capturing at any time.\n");
 }
