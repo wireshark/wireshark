@@ -72,8 +72,8 @@ static int hf_uasip_expseq          = -1;
 static int hf_uasip_sntseq          = -1;
 static gint ett_uasip               = -1;
 
-static guint8  proxy_ipaddr[4];
-static char   *pref_proxy_ipaddr_s = NULL;
+static guint8      proxy_ipaddr[4];
+static const char *pref_proxy_ipaddr_s = NULL;
 
 static gboolean use_proxy_ipaddr = FALSE;
 static gboolean noesip_enabled   = FALSE;
