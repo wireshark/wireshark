@@ -88,11 +88,13 @@ static gint hf_sip_to_user                = -1;
 static gint hf_sip_to_host                = -1;
 static gint hf_sip_to_port                = -1;
 static gint hf_sip_to_param               = -1;
+static gint hf_sip_to_tag                 = -1;
 static gint hf_sip_from_addr              = -1;
 static gint hf_sip_from_user              = -1;
 static gint hf_sip_from_host              = -1;
 static gint hf_sip_from_port              = -1;
 static gint hf_sip_from_param             = -1;
+static gint hf_sip_from_tag               = -1;
 static gint hf_sip_tag                    = -1;
 static gint hf_sip_pai_addr               = -1;
 static gint hf_sip_pai_user               = -1;
@@ -2329,6 +2331,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 					case POS_TO :
 
 						if(hdr_tree) {
+							proto_item *item;
+
 							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
 							                   offset, next_offset - offset,
@@ -2366,8 +2370,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								if ( parameter_end_offset == -1)
 									parameter_end_offset = line_end_offset;
 								parameter_len = parameter_end_offset - parameter_offset;
-								proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
+								proto_tree_add_item(sip_element_tree, hf_sip_to_tag, tvb, parameter_offset,
 													parameter_len, ENC_ASCII|ENC_NA);
+								item = proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
+														   parameter_len, ENC_ASCII|ENC_NA);
+								PROTO_ITEM_SET_HIDDEN(item);
+
 								/* Tag indicates in-dialog messages, in case we have a INVITE, SUBSCRIBE or REFER, mark it */
 								switch (current_method_idx) {
 
@@ -2383,6 +2391,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 					case POS_FROM :
 						if(hdr_tree) {
+							proto_item *item;
+
 							sip_element_item = proto_tree_add_string_format(hdr_tree,
 							                   hf_header_array[hf_index], tvb,
 							                   offset, next_offset - offset,
@@ -2421,9 +2431,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								if ( parameter_end_offset == -1)
 									parameter_end_offset = line_end_offset;
 								parameter_len = parameter_end_offset - parameter_offset;
-								proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
+								proto_tree_add_item(sip_element_tree, hf_sip_from_tag, tvb, parameter_offset,
 													parameter_len, ENC_ASCII|ENC_NA);
-
+								item = proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
+														   parameter_len, ENC_ASCII|ENC_NA);
+								PROTO_ITEM_SET_HIDDEN(item);
 							}
 						}/* hdr_tree */
 					break;
@@ -4013,6 +4025,11 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			NULL, HFILL }
 		},
+		{ &hf_sip_to_tag,
+		       { "SIP to tag", 			"sip.to.tag",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: to tag", HFILL }
+		},
 		{ &hf_sip_from_addr,
 		       { "SIP from address", 		"sip.from.addr",
 		       FT_STRING, BASE_NONE,NULL,0x0,
@@ -4037,6 +4054,11 @@ void proto_register_sip(void)
 		       { "SIP From URI parameter", 		"sip.from.param",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			NULL, HFILL }
+		},
+		{ &hf_sip_from_tag,
+		       { "SIP from tag", 		"sip.from.tag",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: from tag", HFILL }
 		},
 /* etxrab */
 		{ &hf_sip_curi,
