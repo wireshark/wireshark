@@ -261,7 +261,7 @@ proto_register_bzr(void)
 {
     static hf_register_info hf[] = {
         { &hf_bzr_packet_kind,
-          { "Packet kind", "bzr.kind", FT_UINT8, BASE_NONE,
+          { "Packet kind", "bzr.kind", FT_UINT8, BASE_DEC,
             VALS(message_part_kind), 0x0, NULL, HFILL },
         },
         { &hf_bzr_packet_protocol_version,
