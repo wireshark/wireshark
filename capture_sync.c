@@ -225,8 +225,8 @@ win32strerror(DWORD error)
     size_t errlen;
     char *p;
 
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errbuf,
-                   ERRBUF_SIZE, NULL);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		   NULL, error, 0, errbuf, ERRBUF_SIZE, NULL);
 
     /*
      * "FormatMessage()" "helpfully" sticks CR/LF at the end of the
@@ -1637,7 +1637,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
                "standard output", as the capture file. */
             sync_pipe_stop(capture_opts);
             capture_input_closed(capture_opts, NULL);
-            return FALSE;
+            //return FALSE;
         }
         break;
     case SP_PACKET_COUNT:
