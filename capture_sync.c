@@ -1637,7 +1637,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
                "standard output", as the capture file. */
             sync_pipe_stop(capture_opts);
             capture_input_closed(capture_opts, NULL);
-            //return FALSE;
+            return FALSE;
         }
         break;
     case SP_PACKET_COUNT:
