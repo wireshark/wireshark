@@ -155,6 +155,8 @@ static gboolean infoprint;      /* if TRUE, print capture info after clearing in
 
 /** Stop a low-level capture (stops the capture child). */
 static void capture_loop_stop(void);
+/** Close a pipe, or socket if \a from_socket is TRUE */
+static void cap_pipe_close(int pipe_fd, gboolean from_socket _U_);
 
 #if !defined (__linux__)
 #ifndef HAVE_PCAP_BREAKLOOP
@@ -1827,16 +1829,32 @@ cap_open_socket(char *pipename, pcap_options *pcap_opts, char *errmsg, int errms
   sa.sin_family = AF_INET;
   sa.sin_port = htons((u_short)port);
 
-  if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) || 
+  if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
       (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
-      g_snprintf(errmsg, errmsgl,
-      "The capture session could not be initiated due to\n"
 #ifdef _WIN32
-      "the socket error: %d", WSAGetLastError());
+      LPTSTR errorText = NULL;
+      int lastError;
+
+      lastError = WSAGetLastError();
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | 
+                    FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                    FORMAT_MESSAGE_IGNORE_INSERTS,
+                    NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                    (LPTSTR)&errorText, 0, NULL);
+#endif
+      g_snprintf(errmsg, errmsgl,
+      "The capture session could not be initiated due to the socket error: \n"
+#ifdef _WIN32
+      "         %d: %S", lastError, errorText ? (char *)errorText : "Unknown");
+      if (errorText)
+          LocalFree(errorText);
 #else
-      "the socket error: %s", strerror(errno));
+      "         %d: %s", errno, strerror(errno));
 #endif
       pcap_opts->cap_pipe_err = PIPERR;
+
+      if (fd >= 0)
+          cap_pipe_close(fd, TRUE);
       return -1;
   }
 
@@ -2030,7 +2048,7 @@ cap_pipe_open_live(char *pipename,
                 break;
 
             if (GetLastError() != ERROR_PIPE_BUSY) {
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                               NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
                 g_snprintf(errmsg, errmsgl,
                            "The capture session on \"%s\" could not be started "
@@ -2042,7 +2060,7 @@ cap_pipe_open_live(char *pipename,
             }
 
             if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                               NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
                 g_snprintf(errmsg, errmsgl,
                            "The capture session on \"%s\" timed out during "
@@ -2417,7 +2435,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
 
     case PD_PIPE_ERR:
 #ifdef _WIN32
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                       NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
         g_snprintf(errmsg, errmsgl,
                    "Error reading from pipe: %s (error %d)",
