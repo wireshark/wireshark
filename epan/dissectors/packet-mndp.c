@@ -340,7 +340,7 @@ proto_register_mndp(void)
 				0x0, NULL, HFILL }},
 
 		{ &hf_mndp_unpack,
-		{ "Unpack", "mndp.unpack", FT_UINT8, BASE_NONE, VALS(mndp_unpack_vals),
+		{ "Unpack", "mndp.unpack", FT_UINT8, BASE_DEC, VALS(mndp_unpack_vals),
 				0x0, NULL, HFILL }},
 
 		{ &hf_mndp_ipv6address,
