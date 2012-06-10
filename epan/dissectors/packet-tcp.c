@@ -3867,7 +3867,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         low_port = src_port;
         high_port = dst_port;
     }
-    if (tcp_no_subdissector_on_error && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
+    if (tcp_no_subdissector_on_error && tcpd && tcpd->ta && tcpd->ta->flags & (TCP_A_RETRANSMISSION | TCP_A_OUT_OF_ORDER)) {
         /* Don't try to dissect a retransmission high chance that it will mess
          * subdissectors for protocols that require in-order delivery of the
 	 * PDUs. (i.e. DCE/RPCoverHTTP and encryption)
