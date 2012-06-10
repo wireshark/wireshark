@@ -2155,7 +2155,8 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
      */
     gtk_tree_store_clear(store);
 
-    proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, &info);
+    if (protocol_tree)
+        proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, &info);
 }
 
 
@@ -2248,9 +2249,8 @@ clear_tree_and_hex_views(void)
        displayed in the byte view notebook. */
     add_byte_tab(byte_nb_ptr_gbl, "", NULL, NULL, tree_view_gbl);
 
-    /* Clear the protocol tree by removing all nodes in the ctree.
-       This is how it's done in testgtk.c in GTK+ */
-    gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view_gbl))));
+    /* Clear the protocol tree */
+    proto_tree_draw(NULL, tree_view_gbl);
 }
 
 void

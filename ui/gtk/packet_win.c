@@ -684,6 +684,7 @@ edit_pkt_tree_row_activated_cb(GtkTreeView *tree_view, GtkTreePath *path, GtkTre
 			/* DataPtr->pseudo_header = data.pseudo_header; */
 			memcpy(DataPtr->pd, data.pd, DataPtr->frame->cap_len);
 
+			proto_tree_draw(NULL, DataPtr->tree_view);
 			epan_dissect_cleanup(&(DataPtr->edt));
 			epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
 			epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
@@ -806,6 +807,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 	/* redissect if changed */
 	if (data.val != -1) {
 		/* XXX, can be optimized? */
+		proto_tree_draw(NULL, DataPtr->tree_view);
 		epan_dissect_cleanup(&(DataPtr->edt));
 		epan_dissect_init(&(DataPtr->edt), TRUE, TRUE);
 		epan_dissect_run(&(DataPtr->edt), &DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame, NULL);
@@ -841,6 +843,7 @@ edit_pkt_destroy_new_window(GObject *object _U_, gpointer user_data)
 	struct PacketWinData *DataPtr = user_data;
 
 	detail_windows = g_list_remove(detail_windows, DataPtr);
+	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
 	g_free(DataPtr);
 
@@ -990,6 +993,7 @@ destroy_new_window(GObject *object _U_, gpointer user_data)
 	struct PacketWinData *DataPtr = user_data;
 
 	detail_windows = g_list_remove(detail_windows, DataPtr);
+	proto_tree_draw(NULL, DataPtr->tree_view);
 	epan_dissect_cleanup(&(DataPtr->edt));
 	g_free(DataPtr->pd);
 	g_free(DataPtr);

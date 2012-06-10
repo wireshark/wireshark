@@ -3522,6 +3522,7 @@ cf_goto_framenum(capture_file *cf)
 void
 cf_select_packet(capture_file *cf, int row)
 {
+  epan_dissect_t *old_edt;
   frame_data *fdata;
 
   /* Get the frame data struct pointer for this frame */
@@ -3572,10 +3573,8 @@ cf_select_packet(capture_file *cf, int row)
   cf->current_frame = fdata;
   cf->current_row = row;
 
+  old_edt = cf->edt;
   /* Create the logical protocol tree. */
-  if (cf->edt != NULL)
-    epan_dissect_free(cf->edt);
-
   /* We don't need the columns here. */
   cf->edt = epan_dissect_new(TRUE, TRUE);
 
@@ -3586,17 +3585,19 @@ cf_select_packet(capture_file *cf, int row)
   dfilter_macro_build_ftv_cache(cf->edt->tree);
 
   cf_callback_invoke(cf_cb_packet_selected, cf);
+
+  if (old_edt != NULL)
+    epan_dissect_free(old_edt);
+
 }
 
 /* Unselect the selected packet, if any. */
 void
 cf_unselect_packet(capture_file *cf)
 {
-  /* Destroy the epan_dissect_t for the unselected packet. */
-  if (cf->edt != NULL) {
-    epan_dissect_free(cf->edt);
-    cf->edt = NULL;
-  }
+  epan_dissect_t *old_edt = cf->edt;
+
+  cf->edt = NULL;
 
   /* No packet is selected. */
   cf->current_frame = NULL;
@@ -3606,6 +3607,10 @@ cf_unselect_packet(capture_file *cf)
 
   /* No protocol tree means no selected field. */
   cf_unselect_field(cf);
+
+  /* Destroy the epan_dissect_t for the unselected packet. */
+  if (old_edt != NULL)
+    epan_dissect_free(old_edt);
 }
 
 /* Unset the selected protocol tree field, if any. */
