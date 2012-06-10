@@ -3813,7 +3813,12 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_FRAMENUM:
 				u_integer = fvalue_get_uinteger(&finfo->value);
 				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
-					g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
+					gchar tmp[ITEM_LABEL_LENGTH];
+					custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+
+					DISSECTOR_ASSERT(fmtfunc);
+					fmtfunc(tmp, u_integer);
+					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
 				} else if (hfinfo->strings) {
 					if (hfinfo->display & BASE_RANGE_STRING) {
 						g_strlcpy(result+offset_r,
@@ -3851,6 +3856,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				break;
 
 			case FT_INT64:
+				/* XXX: Should handle BASE_CUSTOM ? */
 				g_snprintf(result+offset_r, size-offset_r,
 					   "%" G_GINT64_MODIFIER "d",
 					   fvalue_get_integer64(&finfo->value));
@@ -3858,6 +3864,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 				break;
 			case FT_UINT64:
 				g_snprintf(result+offset_r, size-offset_r,
+				/* XXX: Should handle BASE_CUSTOM ? */
 					   "%" G_GINT64_MODIFIER "u",
 					   fvalue_get_integer64(&finfo->value));
 				offset_r = (int)strlen(result);
@@ -3874,7 +3881,12 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_INT32:
 				integer = fvalue_get_sinteger(&finfo->value);
 				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
-						g_snprintf(result+offset_r, size-offset_r, "%d", integer);
+					gchar tmp[ITEM_LABEL_LENGTH];
+					custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+
+					DISSECTOR_ASSERT(fmtfunc);
+					fmtfunc(tmp, integer);
+					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
 				} else if (hfinfo->strings) {
 					if (hfinfo->display & BASE_RANGE_STRING) {
 						g_strlcpy(result+offset_r,
