@@ -3812,10 +3812,10 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_UINT32:
 			case FT_FRAMENUM:
 				u_integer = fvalue_get_uinteger(&finfo->value);
-				if (hfinfo->strings) {
-					if (hfinfo->display & BASE_CUSTOM) {
-						g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
-					} else if (hfinfo->display & BASE_RANGE_STRING) {
+				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
+					g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
+				} else if (hfinfo->strings) {
+					if (hfinfo->display & BASE_RANGE_STRING) {
 						g_strlcpy(result+offset_r,
 							  rval_to_str(u_integer, hfinfo->strings, "%u"),
 							  size-offset_r);
@@ -3873,10 +3873,10 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_INT24:
 			case FT_INT32:
 				integer = fvalue_get_sinteger(&finfo->value);
-				if (hfinfo->strings) {
-					if (hfinfo->display & BASE_CUSTOM) {
+				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
 						g_snprintf(result+offset_r, size-offset_r, "%d", integer);
-					} else if (hfinfo->display & BASE_RANGE_STRING) {
+				} else if (hfinfo->strings) {
+					if (hfinfo->display & BASE_RANGE_STRING) {
 						g_strlcpy(result+offset_r,
 							  rval_to_str(integer, hfinfo->strings, "%d"),
 							  size-offset_r);
@@ -4474,7 +4474,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	/* list will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
 
-	/* Here we do allocate a new header_field_info struct */
+	/* Here we allocate a new header_field_info struct */
 	hfinfo = g_slice_new(header_field_info);
 	hfinfo->name = name;
 	hfinfo->abbrev = filter_name;
@@ -4901,9 +4901,9 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 	/* Check for duplicate value_string values.
 	   There are lots that have the same value *and* string, so for now only
 	   report those that have same value but different string. */
-	if (hfinfo->strings != NULL &&
+	if ((hfinfo->strings != NULL) &&
 	    !(hfinfo->display & BASE_RANGE_STRING) &&
-	    !(hfinfo->display & BASE_CUSTOM) &&
+	    !((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) &&
 	    (
 		    (hfinfo->type == FT_UINT8)  ||
 		    (hfinfo->type == FT_UINT16) ||
@@ -4918,10 +4918,10 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 		int n, m;
 		const value_string *start_values;
 		const value_string *current;
-		
+
 	    if (hfinfo->display & BASE_EXT_STRING)
 			start_values = VALUE_STRING_EXT_VS_P(((const value_string_ext*)hfinfo->strings));
-		else 
+		else
 			start_values = (const value_string*)hfinfo->strings;
 		current = start_values;
 
