@@ -76,6 +76,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_proto_draw.h"
+#include "ui/gtk/proto_tree_model.h"
 
 #ifdef _WIN32
 #include <gdk/gdkwin32.h>
@@ -99,9 +100,6 @@
 static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
              proto_tree *tree, GtkWidget *tree_view);
-
-static void
-proto_tree_draw_node(proto_node *node, gpointer data);
 
 /* Get the current text window for the notebook. */
 GtkWidget *
@@ -2006,7 +2004,7 @@ GtkWidget *
 main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
 {
     GtkWidget *tv_scrollw, *tree_view;
-    GtkTreeStore *store;
+    ProtoTreeModel *store;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
     gint col_offset;
@@ -2016,7 +2014,7 @@ main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tv_scrollw),
                                         GTK_SHADOW_IN);
 
-    store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
+    store = proto_tree_model_new(NULL, prefs.display_hidden_proto_items);
     tree_view = tree_view_new(GTK_TREE_MODEL(store));
     g_object_unref(G_OBJECT(store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(tree_view), FALSE);
@@ -2068,11 +2066,6 @@ collapse_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
     gtk_tree_view_collapse_all(GTK_TREE_VIEW(tree_view));
 }
 
-
-struct proto_tree_draw_info {
-    GtkTreeView  *tree_view;
-    GtkTreeIter  *iter;
-};
 
 void
 main_proto_tree_draw(proto_tree *protocol_tree)
@@ -2136,103 +2129,37 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
     return TRUE;
 }
 
+static gboolean
+expand_finfos(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointer data)
+{
+    GtkTreeView *tree_view = (GtkTreeView *) data;
+    field_info *fi;
+
+    if (!gtk_tree_model_iter_has_child(model, iter))
+        return FALSE;
+
+    gtk_tree_model_get(model, iter, 1, &fi, -1);
+
+    g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
+
+    if (tree_is_expanded[fi->tree_type])
+        gtk_tree_view_expand_to_path(tree_view, path);
+    else
+        gtk_tree_view_collapse_row(tree_view, path);
+    return FALSE;
+}
+
 /* fill the whole protocol tree with the string values */
 void
 proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 {
-    GtkTreeStore *store;
-    struct proto_tree_draw_info info;
+    ProtoTreeModel *model;
 
-    info.tree_view = GTK_TREE_VIEW(tree_view);
-    info.iter = NULL;
+    model = proto_tree_model_new(protocol_tree, prefs.display_hidden_proto_items);
+    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model));
 
-    store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view)));
-
-    /*
-     * Clear out any crud left over in the display of the protocol
-     * tree, by removing all nodes from the tree.
-     * This is how it's done in testgtk.c in GTK+.
-     */
-    gtk_tree_store_clear(store);
-
-    if (protocol_tree)
-        proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, &info);
-}
-
-
-/* fill a single protocol tree item with the string value */
-static void
-proto_tree_draw_node(proto_node *node, gpointer data)
-{
-    struct proto_tree_draw_info  info;
-    struct proto_tree_draw_info *parent_info = (struct proto_tree_draw_info*) data;
-
-    field_info   *fi = PNODE_FINFO(node);
-    gchar         label_str[ITEM_LABEL_LENGTH];
-    gchar        *label_ptr;
-    gboolean      is_leaf, is_expanded;
-    GtkTreeStore *store;
-    GtkTreeIter   iter;
-    GtkTreePath  *path;
-
-    g_assert(fi && "dissection with an invisible proto tree?");
-
-    if (PROTO_ITEM_IS_HIDDEN(node) && !prefs.display_hidden_proto_items)
-        return;
-
-    /* was a free format label produced? */
-    if (fi->rep) {
-        label_ptr = fi->rep->representation;
-    }
-    else { /* no, make a generic label */
-        label_ptr = label_str;
-        proto_item_fill_label(fi, label_str);
-    }
-
-    if (node->first_child != NULL) {
-        is_leaf = FALSE;
-        g_assert(fi->tree_type >= 0 && fi->tree_type < num_tree_types);
-        if (tree_is_expanded[fi->tree_type]) {
-            is_expanded = TRUE;
-        }
-        else {
-            is_expanded = FALSE;
-        }
-    }
-    else {
-        is_leaf = TRUE;
-        is_expanded = FALSE;
-    }
-
-    if (PROTO_ITEM_IS_GENERATED(node)) {
-        if (PROTO_ITEM_IS_HIDDEN(node)) {
-            label_ptr = g_strdup_printf("<[%s]>", label_ptr);
-        } else {
-            label_ptr = g_strdup_printf("[%s]", label_ptr);
-        }
-    } else if (PROTO_ITEM_IS_HIDDEN(node)) {
-        label_ptr = g_strdup_printf("<%s>", label_ptr);
-    }
-
-    info.tree_view = parent_info->tree_view;
-    store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(info.tree_view)));
-    gtk_tree_store_append(store, &iter, parent_info->iter);
-    gtk_tree_store_set(store, &iter, 0, label_ptr, 1, fi, -1);
-
-    if (PROTO_ITEM_IS_GENERATED(node) || PROTO_ITEM_IS_HIDDEN(node)) {
-        g_free(label_ptr);
-    }
-
-    if (!is_leaf) {
-        info.iter = &iter;
-        proto_tree_children_foreach(node, proto_tree_draw_node, &info);
-        path = gtk_tree_model_get_path(GTK_TREE_MODEL(store), &iter);
-        if (is_expanded)
-            gtk_tree_view_expand_to_path(info.tree_view, path);
-        else
-            gtk_tree_view_collapse_row(info.tree_view, path);
-        gtk_tree_path_free(path);
-    }
+    gtk_tree_model_foreach(GTK_TREE_MODEL(model), expand_finfos, GTK_TREE_VIEW(tree_view));
+    g_object_unref(G_OBJECT(model));
 }
 
 /*
