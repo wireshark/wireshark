@@ -105,6 +105,7 @@ set(WIRESHARK_GTK_SRC
 	proto_help.c
 	proto_hier_stats_dlg.c
 	proto_hier_tree_model.c
+	proto_tree_model.c
 	range_utils.c
 	rtp_player.c
 	rtp_stream.c
