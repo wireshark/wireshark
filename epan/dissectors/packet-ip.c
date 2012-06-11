@@ -292,25 +292,25 @@ static dissector_handle_t tapa_handle;
 
 #define IPDSFIELD_DSCP_DEFAULT  0x00
 #define IPDSFIELD_DSCP_CS1      0x08
-#define IPDSFIELD_DSCP_CS2      0x10
-#define IPDSFIELD_DSCP_CS3      0x18
-#define IPDSFIELD_DSCP_CS4      0x20
-#define IPDSFIELD_DSCP_CS5      0x28
-#define IPDSFIELD_DSCP_CS6      0x30
-#define IPDSFIELD_DSCP_CS7      0x38
 #define IPDSFIELD_DSCP_AF11     0x0A
 #define IPDSFIELD_DSCP_AF12     0x0C
 #define IPDSFIELD_DSCP_AF13     0x0E
+#define IPDSFIELD_DSCP_CS2      0x10
 #define IPDSFIELD_DSCP_AF21     0x12
 #define IPDSFIELD_DSCP_AF22     0x14
 #define IPDSFIELD_DSCP_AF23     0x16
+#define IPDSFIELD_DSCP_CS3      0x18
 #define IPDSFIELD_DSCP_AF31     0x1A
 #define IPDSFIELD_DSCP_AF32     0x1C
 #define IPDSFIELD_DSCP_AF33     0x1E
+#define IPDSFIELD_DSCP_CS4      0x20
 #define IPDSFIELD_DSCP_AF41     0x22
 #define IPDSFIELD_DSCP_AF42     0x24
 #define IPDSFIELD_DSCP_AF43     0x26
+#define IPDSFIELD_DSCP_CS5      0x28
 #define IPDSFIELD_DSCP_EF       0x2E
+#define IPDSFIELD_DSCP_CS6      0x30
+#define IPDSFIELD_DSCP_CS7      0x38
 
 #define IPDSFIELD_ECT_NOT       0x00
 #define IPDSFIELD_ECT_1         0x01
@@ -1835,25 +1835,25 @@ local_network_control_block_addr_valid_ttl(guint32 addr)
 const value_string dscp_vals[] = {
   { IPDSFIELD_DSCP_DEFAULT, "Default"               },
   { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
-  { IPDSFIELD_DSCP_CS2,     "Class Selector 2"      },
-  { IPDSFIELD_DSCP_CS3,     "Class Selector 3"      },
-  { IPDSFIELD_DSCP_CS4,     "Class Selector 4"      },
-  { IPDSFIELD_DSCP_CS5,     "Class Selector 5"      },
-  { IPDSFIELD_DSCP_CS6,     "Class Selector 6"      },
-  { IPDSFIELD_DSCP_CS7,     "Class Selector 7"      },
   { IPDSFIELD_DSCP_AF11,    "Assured Forwarding 11" },
   { IPDSFIELD_DSCP_AF12,    "Assured Forwarding 12" },
   { IPDSFIELD_DSCP_AF13,    "Assured Forwarding 13" },
+  { IPDSFIELD_DSCP_CS2,     "Class Selector 2"      },
   { IPDSFIELD_DSCP_AF21,    "Assured Forwarding 21" },
   { IPDSFIELD_DSCP_AF22,    "Assured Forwarding 22" },
   { IPDSFIELD_DSCP_AF23,    "Assured Forwarding 23" },
+  { IPDSFIELD_DSCP_CS3,     "Class Selector 3"      },
   { IPDSFIELD_DSCP_AF31,    "Assured Forwarding 31" },
   { IPDSFIELD_DSCP_AF32,    "Assured Forwarding 32" },
   { IPDSFIELD_DSCP_AF33,    "Assured Forwarding 33" },
+  { IPDSFIELD_DSCP_CS4,     "Class Selector 4"      },
   { IPDSFIELD_DSCP_AF41,    "Assured Forwarding 41" },
   { IPDSFIELD_DSCP_AF42,    "Assured Forwarding 42" },
   { IPDSFIELD_DSCP_AF43,    "Assured Forwarding 43" },
+  { IPDSFIELD_DSCP_CS5,     "Class Selector 5"      },
   { IPDSFIELD_DSCP_EF,      "Expedited Forwarding"  },
+  { IPDSFIELD_DSCP_CS6,     "Class Selector 6"      },
+  { IPDSFIELD_DSCP_CS7,     "Class Selector 7"      },
   { 0,                      NULL                    }};
 value_string_ext dscp_vals_ext = VALUE_STRING_EXT_INIT(dscp_vals);
 

@@ -477,9 +477,11 @@ enum rsvp_classes {
     RSVP_CLASS_VENDOR_PRIVATE_12 = 255
 };
 
+/* XXX: are any/all of the "missing" values below supposed to have value-strings */
 static const value_string rsvp_class_vals[] = {
     { RSVP_CLASS_NULL,                  "NULL object"},
     { RSVP_CLASS_SESSION,               "SESSION object"},
+
     { RSVP_CLASS_HOP,                   "HOP object"},
     { RSVP_CLASS_INTEGRITY,             "INTEGRITY object"},
     { RSVP_CLASS_TIME_VALUES,           "TIME VALUES object"},
@@ -499,30 +501,42 @@ static const value_string rsvp_class_vals[] = {
     { RSVP_CLASS_LABEL_REQUEST,         "LABEL REQUEST object"},
     { RSVP_CLASS_EXPLICIT_ROUTE,        "EXPLICIT ROUTE object"},
     { RSVP_CLASS_RECORD_ROUTE,          "RECORD ROUTE object"},
-    { RSVP_CLASS_SESSION_ATTRIBUTE,     "SESSION ATTRIBUTE object"},
+
+    { RSVP_CLASS_HELLO,                 "HELLO object"},
+
     { RSVP_CLASS_MESSAGE_ID,            "MESSAGE-ID object"},
     { RSVP_CLASS_MESSAGE_ID_ACK,        "MESSAGE-ID ACK/NACK object"},
     { RSVP_CLASS_MESSAGE_ID_LIST,       "MESSAGE-ID LIST object"},
-    { RSVP_CLASS_HELLO,                 "HELLO object"},
+
+/*
+    RSVP_CLASS_DIAGNOSTIC
+    RSVP_CLASS_ROUTE,
+    RSVP_CLASS_DIAG_RESPONSE,
+    RSVP_CLASS_DIAG_SELECT,
+*/
+
     { RSVP_CLASS_RECOVERY_LABEL,        "RECOVERY-LABEL object"},
     { RSVP_CLASS_UPSTREAM_LABEL,        "UPSTREAM-LABEL object"},
     { RSVP_CLASS_LABEL_SET,             "LABEL-SET object"},
     { RSVP_CLASS_PROTECTION,            "PROTECTION object"},
+
+/*
+    RSVP_CLASS_DSBM_IP_ADDRESS
+    RSVP_CLASS_SBM_PRIORITY,
+    RSVP_CLASS_DSBM_TIMER_INTERVALS,
+    RSVP_CLASS_SBM_INFO,
+*/
+
+    { RSVP_CLASS_DETOUR,                "DETOUR object"},
+/*
+    RSVP_CLASS_CHALLENGE,
+*/
     { RSVP_CLASS_DIFFSERV,              "DIFFSERV object"},
     { RSVP_CLASS_CLASSTYPE,             "CLASSTYPE object"},
-    { RSVP_CLASS_SUGGESTED_LABEL,       "SUGGESTED-LABEL object"},
-    { RSVP_CLASS_ACCEPTABLE_LABEL_SET,  "ACCEPTABLE-LABEL-SET object"},
-    { RSVP_CLASS_RESTART_CAP,           "RESTART-CAPABILITY object"},
-    { RSVP_CLASS_DCLASS,                "DCLASS object"},
-    { RSVP_CLASS_LSP_TUNNEL_IF_ID,      "LSP-TUNNEL INTERFACE-ID object"},
-    { RSVP_CLASS_NOTIFY_REQUEST,        "NOTIFY-REQUEST object"},
-    { RSVP_CLASS_ADMIN_STATUS,          "ADMIN-STATUS object"},
-    { RSVP_CLASS_LSP_ATTRIBUTES,        "LSP ATTRIBUTES object"},
-    { RSVP_CLASS_ASSOCIATION,           "ASSOCIATION object"},
-    { RSVP_CLASS_GENERALIZED_UNI,       "GENERALIZED-UNI object"},
-    { RSVP_CLASS_CALL_ID,               "CALL-ID object"},
-    { RSVP_CLASS_DETOUR,                "DETOUR object"},
-    { RSVP_CLASS_FAST_REROUTE,          "FAST-REROUTE object"},
+/*
+    RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES,
+*/
+
     { RSVP_CLASS_VENDOR_PRIVATE_1,      "VENDOR PRIVATE object (0bbbbbbb: "
                                         "reject if unknown)"},
     { RSVP_CLASS_VENDOR_PRIVATE_2,      "VENDOR PRIVATE object (0bbbbbbb: "
@@ -531,6 +545,14 @@ static const value_string rsvp_class_vals[] = {
                                          "reject if unknown)"},
     { RSVP_CLASS_VENDOR_PRIVATE_4,      "VENDOR PRIVATE object (0bbbbbbb: "
                                          "reject if unknown)"},
+
+/*
+    RSVP_CLASS_NODE_CHAR
+*/
+    { RSVP_CLASS_SUGGESTED_LABEL,       "SUGGESTED-LABEL object"},
+    { RSVP_CLASS_ACCEPTABLE_LABEL_SET,  "ACCEPTABLE-LABEL-SET object"},
+    { RSVP_CLASS_RESTART_CAP,           "RESTART-CAPABILITY object"},
+
     { RSVP_CLASS_VENDOR_PRIVATE_5,      "VENDOR PRIVATE object (10bbbbbb: "
                                          "ignore if unknown)"},
     { RSVP_CLASS_VENDOR_PRIVATE_6,      "VENDOR PRIVATE object (10bbbbbb: "
@@ -539,6 +561,35 @@ static const value_string rsvp_class_vals[] = {
                                          "ignore if unknown)"},
     { RSVP_CLASS_VENDOR_PRIVATE_8,      "VENDOR PRIVATE object (10bbbbbb: "
                                          "ignore if unknown)"},
+/*
+    RSVP_CLASS_SESSION_ASSOC
+*/
+    { RSVP_CLASS_LSP_TUNNEL_IF_ID,      "LSP-TUNNEL INTERFACE-ID object"},
+
+    { RSVP_CLASS_NOTIFY_REQUEST,        "NOTIFY-REQUEST object"},
+    { RSVP_CLASS_ADMIN_STATUS,          "ADMIN-STATUS object"},
+    { RSVP_CLASS_LSP_ATTRIBUTES,        "LSP ATTRIBUTES object"},
+/*
+    RSVP_CLASS_ALARM_SPEC,
+*/
+    { RSVP_CLASS_ASSOCIATION,           "ASSOCIATION object"},
+
+    { RSVP_CLASS_FAST_REROUTE,          "FAST-REROUTE object"},
+
+    { RSVP_CLASS_SESSION_ATTRIBUTE,     "SESSION ATTRIBUTE object"},
+
+    { RSVP_CLASS_DCLASS,                "DCLASS object"},
+/*
+    RSVP_CLASS_PACKETCABLE_EXTENSIONS,
+    RSVP_CLASS_ATM_SERVICECLASS,
+    RSVP_CLASS_CALL_OPS,
+*/
+    { RSVP_CLASS_GENERALIZED_UNI,       "GENERALIZED-UNI object"},
+    { RSVP_CLASS_CALL_ID,               "CALL-ID object"},
+/*
+    RSVP_CLASS_3GPP2_OBJECT,
+*/
+
     { RSVP_CLASS_VENDOR_PRIVATE_9,      "VENDOR PRIVATE object (11bbbbbb: "
                                          "forward if unknown)"},
     { RSVP_CLASS_VENDOR_PRIVATE_10,     "VENDOR PRIVATE object (11bbbbbb: "
