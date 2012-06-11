@@ -2265,7 +2265,7 @@ dissect_rsvp_error_value(proto_tree *ti, tvbuff_t *tvb,
 {
     guint16           error_val;
     guint8            error_class, error_ctype;
-    value_string_ext *rsvp_error_vals_ext_p;
+    value_string_ext *rsvp_error_vals_ext_p = NULL;
 
     error_val = tvb_get_ntohs(tvb, offset);
     switch (error_code) {
@@ -2299,6 +2299,7 @@ dissect_rsvp_error_value(proto_tree *ti, tvbuff_t *tvb,
     case RSVP_ERROR_ADMISSION:
     case RSVP_ERROR_TRAFFIC:
         if ((error_val & 0xc0) == 0) {
+            DISSECTOR_ASSERT(rsvp_error_vals_ext_p != NULL);
             proto_tree_add_text(ti, tvb, offset, 2,
                 "Error value: %u - %s", error_val,
                                 val_to_str_ext(error_val, rsvp_error_vals_ext_p, "Unknown (%d)"));
@@ -2328,6 +2329,7 @@ dissect_rsvp_error_value(proto_tree *ti, tvbuff_t *tvb,
     case RSVP_ERROR_DIFFSERV:
     case RSVP_ERROR_DSTE:
     case RSVP_ERROR_CALL_MGMT:
+        DISSECTOR_ASSERT(rsvp_error_vals_ext_p != NULL);
         proto_tree_add_text(ti, tvb, offset, 2, "Error value: %u - %s", error_val,
                             val_to_str_ext(error_val, rsvp_error_vals_ext_p, "Unknown (%d)"));
         break;
