@@ -43,8 +43,7 @@ typedef struct _ws_ip
 void capture_ip(const guchar *, int, int, packet_counts *);
 guint16 ip_checksum(const guint8 *ptr, int len);
 
-/* Export the DSCP value-string table for other protocols */
-WS_VAR_IMPORT const value_string dscp_vals[];
+/* Export the DSCP extended value-string table for other protocols */
 WS_VAR_IMPORT value_string_ext dscp_vals_ext;
 
 proto_item *add_ip_version_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset);
