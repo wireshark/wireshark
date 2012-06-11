@@ -491,6 +491,7 @@ File "..\..\diameter\sip.xml"
 File "..\..\diameter\sunping.xml"
 File "..\..\diameter\TGPPGmb.xml"
 File "..\..\diameter\TGPPRx.xml"
+File "..\..\diameter\TGPPS9.xml"
 File "..\..\diameter\TGPPSh.xml"
 File "..\..\diameter\Vodafone.xml"
 SetOutPath $INSTDIR

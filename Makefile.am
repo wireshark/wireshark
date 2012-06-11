@@ -80,6 +80,7 @@ diameter_DATA = \
 	diameter/sunping.xml \
 	diameter/TGPPGmb.xml \
 	diameter/TGPPRx.xml \
+	diameter/TGPPS9.xml \
 	diameter/TGPPSh.xml	\
 	diameter/Vodafone.xml
 
