@@ -3060,13 +3060,16 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
         }
     case 0x06: /* Device Configuration */
         {
-            static const gchar *str_device[] = {
-                "Handset Device             ",
-                "Headset Device             ",
-                "Loudspeaker Device         ",
-                "Announce Loudspeaker Device",
-                "Handsfree Device           "
+            static const value_string str_device[] = {
+                { 0, "Handset Device             "},
+                { 1, "Headset Device             "},
+                { 2, "Loudspeaker Device         "},
+                { 3, "Announce Loudspeaker Device"},
+                { 4, "Handsfree Device           "},
+                { 0, NULL }
             };
+            static value_string_ext str_device_ext = VALUE_STRING_EXT_INIT(str_device);
+
             static const gchar *str_device_values[] = {
                 " Internal",
                 " Rj9 Plug",
@@ -3097,8 +3100,10 @@ decode_audio_config(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
                     ep_strbuf_append(strbuf, " None");
                 }
 
-                proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "%s:%s",
-                    str_device[device_index], strbuf->str);
+                proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
+                                    "%s:%s",
+                                    val_to_str_ext_const(device_index, &str_device_ext, "Unknown"),
+                                    strbuf->str);
                 offset++;
                 length--;
                 device_index++;
