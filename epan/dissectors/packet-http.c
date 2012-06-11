@@ -2419,7 +2419,6 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 	const char **header;
 	size_t hdrlen;
 	proto_tree *hdr_tree;
-	size_t len;
 
 	for (header = &basic_headers[0]; *header != NULL; header++) {
 		hdrlen = strlen(*header);
@@ -2431,7 +2430,7 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 				hdr_tree = NULL;
 			value += hdrlen;
 
-			len = epan_base64_decode(value);
+			epan_base64_decode(value);
 			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
 			    0, 0, value);
 
