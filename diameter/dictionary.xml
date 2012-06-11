@@ -5749,8 +5749,8 @@
 		32.299 [5]
 		Note: The AVP codes from 2118 to 2199 are reserved for TS 32.299
 
-		Note: The AVP codes from 2204 to 2299 are reserved for TS 29.215
-    Found in TGPPS9.xml
+		Note: The AVP codes from 2200 to 2299 are reserved for TS 29.215
+		Found in TGPPS9.xml
 		-->
 
 		<avp name="Reserved" code="2300" vendor-bit="must" vendor-id="TGPP">
@@ -5787,11 +5787,11 @@
 			<enum name="Authenticated" code="0"/>
 			<enum name="Unauthenticated" code="1"/>
 		</avp>
-    <avp name="Account-Expiration" code="2309" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="Time"/>
-    </avp>
+		<avp name="Account-Expiration" code="2309" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Time"/>
+		</avp>
 
-    <!--
+		<!--
 		2310	AoC-Format	Enumerated
 		2311	AoC-Service	Enumerated
 		2312	AoC-Service-Obligatory-Type	Grouped
@@ -5889,12 +5889,12 @@
 		<avp name="Age-Of-Location-Estimate" code="2514" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-    <avp name="Velocity-Estimate" code="2515" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
-    <avp name="EUTRAN-Positioning-Data" code="2516" vendor-bit="must" vendor-id="TGPP">
-      <type type-name="OctetString"/>
-    </avp>
+		<avp name="Velocity-Estimate" code="2515" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+		</avp>
+		<avp name="EUTRAN-Positioning-Data" code="2516" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+		</avp>
 		<avp name="ECGI" code="2517" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
