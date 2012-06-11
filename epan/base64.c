@@ -64,6 +64,7 @@ size_t epan_base64_decode(char *s)
 		s++; 
 	}
 
+    s[i*3/4] = 0;
 	return i*3/4;
 }
 

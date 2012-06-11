@@ -30,7 +30,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* In-place decoding of a base64 string. */
+/* In-place decoding of a base64 string. Resulting string is NULL terminated */
 size_t epan_base64_decode(char *s);
 
 extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);

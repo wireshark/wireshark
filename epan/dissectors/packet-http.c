@@ -2432,7 +2432,6 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 			value += hdrlen;
 
 			len = epan_base64_decode(value);
-			value[len] = '\0';
 			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
 			    0, 0, value);
 
