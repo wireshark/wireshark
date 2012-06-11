@@ -316,11 +316,7 @@ read_tree(dfilter_t *df, proto_tree *tree, header_field_info *hfinfo, int reg)
 
 	while (hfinfo) {
 		finfos = proto_get_finfo_ptr_array(tree, hfinfo->id);
-		if (!finfos) {
-			hfinfo = hfinfo->same_name_next;
-			continue;
-		}
-		else if (g_ptr_array_len(finfos) == 0) {
+		if ((finfos == NULL) || (g_ptr_array_len(finfos) == 0)) {
 			hfinfo = hfinfo->same_name_next;
 			continue;
 		}
