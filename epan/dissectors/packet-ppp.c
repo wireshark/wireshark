@@ -943,67 +943,62 @@ static void dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static const ip_tcp_opt lcp_opts[] = {
     {CI_VENDORSPECIFIC, "Vendor Specific", &ett_lcp_vendor_opt,
-        VARIABLE_LENGTH, 6, dissect_lcp_vendor_opt},
+        OPT_LEN_VARIABLE_LENGTH, 6, dissect_lcp_vendor_opt},
     {CI_MRU, "Maximum Receive Unit", &ett_lcp_mru_opt,
-        FIXED_LENGTH, 4, dissect_lcp_mru_opt},
+        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_mru_opt},
     {CI_ASYNCMAP, "Async Control Character Map", &ett_lcp_asyncmap_opt,
-        FIXED_LENGTH, 6, dissect_lcp_async_map_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_lcp_async_map_opt},
     {CI_AUTHPROT, "Authentication Protocol", &ett_lcp_authprot_opt,
-        VARIABLE_LENGTH, 4, dissect_lcp_authprot_opt},
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_lcp_authprot_opt},
     {CI_QUALITY, "Quality Protocol", &ett_lcp_qualprot_opt,
-        VARIABLE_LENGTH, 4, dissect_lcp_qualprot_opt},
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_lcp_qualprot_opt},
     {CI_MAGICNUMBER, "Magic Number", &ett_lcp_magicnumber_opt,
-        FIXED_LENGTH, 6, dissect_lcp_magicnumber_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_lcp_magicnumber_opt},
     {CI_LINKQUALMON, "Link Quality Monitoring", &ett_lcp_linkqualmon_opt,
-        FIXED_LENGTH, 6, dissect_lcp_linkqualmon_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_lcp_linkqualmon_opt},
     {CI_PCOMPRESSION, "Protocol Field Compression", &ett_lcp_pcomp_opt,
-        FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_ACCOMPRESSION, "Address and Control Field Compression",
-        &ett_lcp_acccomp_opt, FIXED_LENGTH, 2, dissect_lcp_simple_opt},
+        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
+    {CI_ACCOMPRESSION, "Address and Control Field Compression", &ett_lcp_acccomp_opt,
+        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
     {CI_FCS_ALTERNATIVES, "FCS Alternatives", &ett_lcp_fcs_alternatives_opt,
-        FIXED_LENGTH, 3, dissect_lcp_fcs_alternatives_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_fcs_alternatives_opt},
     {CI_SELF_DESCRIBING_PAD, "Self Describing Pad", &ett_lcp_self_desc_pad_opt,
-        FIXED_LENGTH, 3, dissect_lcp_self_describing_pad_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_self_describing_pad_opt},
     {CI_NUMBERED_MODE, "Numbered Mode", &ett_lcp_numbered_mode_opt,
-        VARIABLE_LENGTH, 4, dissect_lcp_numbered_mode_opt},
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_lcp_numbered_mode_opt},
     /* TODO? CI_MULTILINK_PROC */
     {CI_CALLBACK, "Callback", &ett_lcp_callback_opt,
-        VARIABLE_LENGTH, 3, dissect_lcp_callback_opt},
+        OPT_LEN_VARIABLE_LENGTH, 3, dissect_lcp_callback_opt},
     /* TODO? CI_CONNECTTIME */
-    {CI_COMPOUND_FRAMES, "Compound Frames (Deprecated)",
-        &ett_lcp_compound_frames_opt, FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_NOMDATAENCAP, "Nominal Data Encapsulation (Deprecated)",
-        &ett_lcp_nomdataencap_opt, FIXED_LENGTH, 2, dissect_lcp_simple_opt},
+    {CI_COMPOUND_FRAMES, "Compound Frames (Deprecated)", &ett_lcp_compound_frames_opt,
+        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
+    {CI_NOMDATAENCAP, "Nominal Data Encapsulation (Deprecated)", &ett_lcp_nomdataencap_opt,
+        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
     {CI_MULTILINK_MRRU, "Multilink MRRU", &ett_lcp_multilink_mrru_opt,
-        FIXED_LENGTH, 4, dissect_lcp_multilink_mrru_opt},
-    {CI_MULTILINK_SSNH, "Multilink Short Sequence Number Header",
-        &ett_lcp_multilink_ssnh_opt, FIXED_LENGTH, 2, dissect_lcp_simple_opt},
-    {CI_MULTILINK_EP_DISC, "Multilink Endpoint Discriminator",
-        &ett_lcp_multilink_ep_disc_opt, VARIABLE_LENGTH, 3,
-        dissect_lcp_multilink_ep_disc_opt},
+        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_multilink_mrru_opt},
+    {CI_MULTILINK_SSNH, "Multilink Short Sequence Number Header", &ett_lcp_multilink_ssnh_opt,
+        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt},
+    {CI_MULTILINK_EP_DISC, "Multilink Endpoint Discriminator", &ett_lcp_multilink_ep_disc_opt,
+        OPT_LEN_VARIABLE_LENGTH, 3, dissect_lcp_multilink_ep_disc_opt},
     /* TODO? CI_PROP_KEN: ken@funk.com: www.funk.com => www.juniper.net */
     {CI_DCE_IDENTIFIER, "DCE Identifier", &ett_lcp_dce_identifier_opt,
-        FIXED_LENGTH, 3, dissect_lcp_dce_identifier_opt},
-    {CI_MULTILINK_PLUS_PROC, "Multi Link Plus Procedure",
-        &ett_lcp_multilink_pp_opt, FIXED_LENGTH, 4,
-        dissect_lcp_multilink_pp_opt},
-    {CI_LINK_DISC_FOR_BACP, "Link Discriminator for BACP",
-        &ett_lcp_bacp_link_discrim_opt, FIXED_LENGTH, 4,
-        dissect_lcp_bacp_link_discriminator_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_dce_identifier_opt},
+    {CI_MULTILINK_PLUS_PROC, "Multi Link Plus Procedure", &ett_lcp_multilink_pp_opt,
+        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_multilink_pp_opt},
+    {CI_LINK_DISC_FOR_BACP, "Link Discriminator for BACP", &ett_lcp_bacp_link_discrim_opt,
+        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_bacp_link_discriminator_opt},
     {CI_LCP_AUTHENTICATION, "LCP Authentication Option", &ett_lcp_auth_opt,
-        VARIABLE_LENGTH, 3, dissect_lcp_auth_opt},
+        OPT_LEN_VARIABLE_LENGTH, 3, dissect_lcp_auth_opt},
     {CI_COBS, "Consistent Overhead Byte Stuffing (COBS)", &ett_lcp_cobs_opt,
-        FIXED_LENGTH, 3, dissect_lcp_cobs_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_lcp_cobs_opt},
     {CI_PREFIX_ELISION, "Prefix Elision", &ett_lcp_prefix_elision_opt,
-        VARIABLE_LENGTH, 2, dissect_lcp_prefix_elision_opt},
-    {CI_MULTILINK_HDR_FMT, "Multilink header format",
-        &ett_multilink_hdr_fmt_opt, FIXED_LENGTH, 4,
-        dissect_lcp_multilink_hdr_fmt_opt},
-    {CI_INTERNATIONALIZATION, "Internationalization",
-        &ett_lcp_internationalization_opt, VARIABLE_LENGTH, 7,
-        dissect_lcp_internationalization_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_lcp_prefix_elision_opt},
+    {CI_MULTILINK_HDR_FMT, "Multilink header format", &ett_multilink_hdr_fmt_opt,
+        OPT_LEN_FIXED_LENGTH, 4, dissect_lcp_multilink_hdr_fmt_opt},
+    {CI_INTERNATIONALIZATION, "Internationalization", &ett_lcp_internationalization_opt,
+        OPT_LEN_VARIABLE_LENGTH, 7, dissect_lcp_internationalization_opt},
     {CI_SDL_ON_SONET_SDH, "Simple Data Link on SONET/SDH", &ett_lcp_simple_opt,
-        FIXED_LENGTH, 2, dissect_lcp_simple_opt}
+        OPT_LEN_FIXED_LENGTH, 2, dissect_lcp_simple_opt}
     /* TODO? CI_UNASSIGNED */
 };
 
@@ -1045,25 +1040,25 @@ static void dissect_vsncp_addressalloc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb
 
 static const ip_tcp_opt vsncp_opts[] = {
     {CI_PDN_IDENTIFIER, "PDN Identifier", NULL,
-        FIXED_LENGTH, 3, dissect_vsncp_pdnid_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_pdnid_opt},
     {CI_ACCESS_POINT_NM, "Access Point Name", NULL,
-        VARIABLE_LENGTH, 2, dissect_vsncp_apname_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_vsncp_apname_opt},
     {CI_PDN_TYPE, "PDN Type", NULL,
-        FIXED_LENGTH, 3, dissect_vsncp_pdntype_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_pdntype_opt},
     {CI_PDN_ADDRESS, "PDN Address", NULL,
-        VARIABLE_LENGTH, 3, dissect_vsncp_pdnaddress_opt},
+        OPT_LEN_VARIABLE_LENGTH, 3, dissect_vsncp_pdnaddress_opt},
     {CI_PROTOCOL_CONFIG, "Protocol Configuration Options", NULL,
-        VARIABLE_LENGTH, 3, dissect_vsncp_pco_opt},
+        OPT_LEN_VARIABLE_LENGTH, 3, dissect_vsncp_pco_opt},
     {CI_ERROR_CODE, "Error Code", NULL,
-        FIXED_LENGTH, 3, dissect_vsncp_errorcode_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_errorcode_opt},
     {CI_ATTACH_TYPE, "Attach Type", NULL,
-        FIXED_LENGTH, 3, dissect_vsncp_attachtype_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_attachtype_opt},
     {CI_IPv4DEFAULT_ROUTER, "IPv4 Default Router Address", NULL,
-        FIXED_LENGTH, 6, dissect_vsncp_ipv4address_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_vsncp_ipv4address_opt},
     {CI_ADDRESS_ALLOC, "Address Allocation Cause", NULL,
-        FIXED_LENGTH, 3, dissect_vsncp_addressalloc_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_vsncp_addressalloc_opt},
     {CI_APN_AMBR, "APN-AMBR", NULL,
-        VARIABLE_LENGTH, 4, NULL}
+        OPT_LEN_VARIABLE_LENGTH, 4, NULL}
 };
 
 #define N_VSNCP_OPTS    (sizeof vsncp_opts / sizeof vsncp_opts[0])
@@ -1162,21 +1157,21 @@ static void dissect_ipcp_sec_nbns_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static const ip_tcp_opt ipcp_opts[] = {
     {CI_ADDRS, "IP Addresses (deprecated)", &ett_ipcp_ipaddrs_opt,
-        FIXED_LENGTH, 10, dissect_ipcp_addrs_opt},
+        OPT_LEN_FIXED_LENGTH, 10, dissect_ipcp_addrs_opt},
     {CI_COMPRESS_PROTO, "IP Compression Protocol", &ett_ipcp_compress_opt,
-        VARIABLE_LENGTH, 4, dissect_ipcp_compress_opt},
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_ipcp_compress_opt},
     {CI_ADDR, "IP address", &ett_ipcp_ipaddr_opt,
-        FIXED_LENGTH, 6, dissect_ipcp_addr_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_addr_opt},
     {CI_MOBILE_IPv4, "Mobile Node's Home IP Address", &ett_ipcp_mobileipv4_opt,
-        FIXED_LENGTH, 6, dissect_ipcp_mobileipv4_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_mobileipv4_opt},
     {CI_PRI_DNS, "Primary DNS Server IP Address", &ett_ipcp_pridns_opt,
-        FIXED_LENGTH, 6, dissect_ipcp_pri_dns_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_pri_dns_opt},
     {CI_PRI_NBNS, "Primary NBNS Server IP Address", &ett_ipcp_prinbns_opt,
-        FIXED_LENGTH, 6, dissect_ipcp_pri_nbns_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_pri_nbns_opt},
     {CI_SEC_DNS, "Secondary DNS Server IP Address", &ett_ipcp_secdns_opt,
-        FIXED_LENGTH, 6, dissect_ipcp_sec_dns_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_sec_dns_opt},
     {CI_SEC_NBNS, "Secondary NBNS Server IP Address", &ett_ipcp_secnbns_opt,
-        FIXED_LENGTH, 6, dissect_ipcp_sec_nbns_opt}
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ipcp_sec_nbns_opt}
 };
 
 #define N_IPCP_OPTS     (sizeof ipcp_opts / sizeof ipcp_opts[0])
@@ -1211,13 +1206,13 @@ static const value_string ipcp_iphc_parameter_vals[] = {
 
 static const ip_tcp_opt ipcp_iphc_subopts[] = {
     {IPCP_IPHC_CRTP, "RTP compression (RFC2508)",
-        &ett_ipcp_iphc_rtp_compress_opt, FIXED_LENGTH, 2,
+        &ett_ipcp_iphc_rtp_compress_opt, OPT_LEN_FIXED_LENGTH, 2,
         dissect_ipcp_iphc_simple_opt},
     {IPCP_IPHC_ECRTP, "Enhanced RTP compression (RFC3545)",
-        &ett_ipcp_iphc_enhanced_rtp_compress_opt, FIXED_LENGTH, 2,
+        &ett_ipcp_iphc_enhanced_rtp_compress_opt, OPT_LEN_FIXED_LENGTH, 2,
         dissect_ipcp_iphc_simple_opt},
     {IPCP_IPHC_NEGHC, "Negotiating header compression (RFC3545)",
-        &ett_ipcp_iphc_neghdrcomp_opt, FIXED_LENGTH, 3,
+        &ett_ipcp_iphc_neghdrcomp_opt, OPT_LEN_FIXED_LENGTH, 3,
         dissect_ipcp_iphc_neghdrcomp_opt}
 };
 
@@ -1237,7 +1232,7 @@ static const value_string ipcp_rohc_profile_vals[] = {
 
 static const ip_tcp_opt ipcp_rohc_subopts[] = {
     {IPCP_ROHC_PROFILES, "Profiles (RFC3241)", &ett_ipcp_rohc_profiles_opt,
-        VARIABLE_LENGTH, 2, dissect_ipcp_rohc_profiles_opt}
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ipcp_rohc_profiles_opt}
 };
 
 #define N_IPCP_ROHC_SUBOPTS (sizeof ipcp_rohc_subopts / sizeof ipcp_rohc_subopts[0])
@@ -1257,7 +1252,7 @@ static void dissect_osinlcp_align_npdu_opt(const ip_tcp_opt *optp,
 
 static const ip_tcp_opt osinlcp_opts[] = {
     {CI_OSINLCP_ALIGN_NPDU, "Align-NPDU", &ett_osinlcp_align_npdu_opt,
-        FIXED_LENGTH, 3, dissect_osinlcp_align_npdu_opt}
+        OPT_LEN_FIXED_LENGTH, 3, dissect_osinlcp_align_npdu_opt}
 };
 
 #define N_OSINLCP_OPTS   (sizeof osinlcp_opts / sizeof osinlcp_opts[0])
@@ -1349,39 +1344,40 @@ static void dissect_ccp_v44lzjh_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 static const ip_tcp_opt ccp_opts[] = {
 
     {CI_CCP_OUI, "OUI", &ett_ccp_oui_opt,
-    VARIABLE_LENGTH, 6, dissect_ccp_oui_opt},
+        OPT_LEN_VARIABLE_LENGTH, 6, dissect_ccp_oui_opt},
     {CI_CCP_PREDICT1, "Predictor type 1", &ett_ccp_predict1_opt,
-    VARIABLE_LENGTH, 2, dissect_ccp_predict1_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_predict1_opt},
     {CI_CCP_PREDICT2, "Predictor type 2", &ett_ccp_predict2_opt,
-    VARIABLE_LENGTH, 2, dissect_ccp_predict2_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_predict2_opt},
     {CI_CCP_PUDDLE, "Puddle Jumper", &ett_ccp_puddle_opt,
-    VARIABLE_LENGTH, 2, dissect_ccp_puddle_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_puddle_opt},
     {CI_CCP_HPPPC, "Hewlett-Packard PPC", &ett_ccp_hpppc_opt,
-    VARIABLE_LENGTH, 2, dissect_ccp_hpppc_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_hpppc_opt},
     {CI_CCP_STAC, "Stac Electronics LZS", &ett_ccp_stac_opt,
         /* In RFC 1974, this is a fixed-length field of size 5, but in
          * Ascend Proprietary STAC compression this field is 6 octets. */
-        VARIABLE_LENGTH, 5, dissect_ccp_stac_opt},
+        OPT_LEN_VARIABLE_LENGTH, 5, dissect_ccp_stac_opt},
     {CI_CCP_MPPE, "Microsoft PPE/PPC", &ett_ccp_mppe_opt,
-        FIXED_LENGTH, 6, dissect_ccp_mppe_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ccp_mppe_opt},
     {CI_CCP_GFZA, "Gandalf FZA", &ett_ccp_gfza_opt,
-    VARIABLE_LENGTH, 3, dissect_ccp_gfza_opt},
+        OPT_LEN_VARIABLE_LENGTH, 3, dissect_ccp_gfza_opt},
     {CI_CCP_V42BIS, "V.42bis compression", &ett_ccp_v42bis_opt,
-    VARIABLE_LENGTH, 2, dissect_ccp_v42bis_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_ccp_v42bis_opt},
     {CI_CCP_BSDLZW, "BSD LZW Compress", &ett_ccp_bsdcomp_opt,
-        FIXED_LENGTH, 3, dissect_ccp_bsdcomp_opt},
+        OPT_LEN_FIXED_LENGTH, 3, dissect_ccp_bsdcomp_opt},
     {CI_CCP_LZSDCP, "LZS-DCP", &ett_ccp_lzsdcp_opt,
-        FIXED_LENGTH, 6, dissect_ccp_lzsdcp_opt},
+        OPT_LEN_FIXED_LENGTH, 6, dissect_ccp_lzsdcp_opt},
     {CI_CCP_MVRCA, "MVRCA (Magnalink)", &ett_ccp_mvrca_opt,
-        FIXED_LENGTH, 4, dissect_ccp_mvrca_opt},
+        OPT_LEN_FIXED_LENGTH, 4, dissect_ccp_mvrca_opt},
     {CI_CCP_DCE,
         "PPP for Data Compression in Data Circuit-Terminating Equipment (DCE)",
-        &ett_ccp_dce_opt, FIXED_LENGTH, 3, dissect_ccp_dce_opt},
+        &ett_ccp_dce_opt,
+        OPT_LEN_FIXED_LENGTH, 3, dissect_ccp_dce_opt},
     {CI_CCP_DEFLATE, "Deflate", &ett_ccp_deflate_opt,
         /* RFC1979 says the length is 3 but it's actually 4. */
-        FIXED_LENGTH, 4, dissect_ccp_deflate_opt},
+        OPT_LEN_FIXED_LENGTH, 4, dissect_ccp_deflate_opt},
     {CI_CCP_V44LZJH, "V.44/LZJH compression", &ett_ccp_v44lzjh_opt,
-        VARIABLE_LENGTH, 4, dissect_ccp_v44lzjh_opt}
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_ccp_v44lzjh_opt}
 };
 
 #define N_CCP_OPTS      (sizeof ccp_opts / sizeof ccp_opts[0])
@@ -1403,14 +1399,13 @@ static void dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static const ip_tcp_opt cbcp_opts[] = {
     {CI_CBCP_NO_CALLBACK, "No callback", NULL,
-        FIXED_LENGTH, 2, dissect_cbcp_no_callback_opt},
-    {CI_CBCP_CB_USER, "Callback to a user-specified number",
-        &ett_cbcp_callback_opt, VARIABLE_LENGTH, 4,
-        dissect_cbcp_callback_opt},
-    {CI_CBCP_CB_PRE, "Callback to a pre-specified or admin-specified number",
-        &ett_cbcp_callback_opt, FIXED_LENGTH, 3, dissect_cbcp_callback_opt},
-    {CI_CBCP_CB_ANY, "Callback to any of a list of numbers",
-        &ett_cbcp_callback_opt, VARIABLE_LENGTH, 4, dissect_cbcp_callback_opt}
+        OPT_LEN_FIXED_LENGTH, 2, dissect_cbcp_no_callback_opt},
+    {CI_CBCP_CB_USER, "Callback to a user-specified number", &ett_cbcp_callback_opt,
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_cbcp_callback_opt},
+    {CI_CBCP_CB_PRE, "Callback to a pre-specified or admin-specified number", &ett_cbcp_callback_opt,
+        OPT_LEN_FIXED_LENGTH, 3, dissect_cbcp_callback_opt},
+    {CI_CBCP_CB_ANY, "Callback to any of a list of numbers", &ett_cbcp_callback_opt,
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_cbcp_callback_opt}
 };
 
 #define N_CBCP_OPTS     (sizeof cbcp_opts / sizeof cbcp_opts[0])
@@ -1426,7 +1421,7 @@ static void dissect_bacp_favored_peer_opt(const ip_tcp_opt *optp,
 
 static const ip_tcp_opt bacp_opts[] = {
     {CI_BACP_FAVORED_PEER, "Favored-Peer", &ett_bacp_favored_peer_opt,
-        FIXED_LENGTH, 6, dissect_bacp_favored_peer_opt}
+        OPT_LEN_FIXED_LENGTH, 6, dissect_bacp_favored_peer_opt}
 };
 
 #define N_BACP_OPTS     (sizeof bacp_opts / sizeof bacp_opts[0])
@@ -1454,17 +1449,17 @@ static void dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static const ip_tcp_opt bap_opts[] = {
     {CI_BAP_LINK_TYPE, "Link Type", &ett_bap_link_type_opt,
-        FIXED_LENGTH, 5, dissect_bap_link_type_opt},
+        OPT_LEN_FIXED_LENGTH, 5, dissect_bap_link_type_opt},
     {CI_BAP_PHONE_DELTA, "Phone Delta", &ett_bap_phone_delta_opt,
-        VARIABLE_LENGTH, 4, dissect_bap_phone_delta_opt},
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_bap_phone_delta_opt},
     {CI_BAP_NO_PHONE_NUM_NEEDED, "No Phone Number Needed", NULL,
-        FIXED_LENGTH, 2, NULL},
+        OPT_LEN_FIXED_LENGTH, 2, NULL},
     {CI_BAP_REASON, "Reason", NULL,
-        VARIABLE_LENGTH, 2, dissect_bap_reason_opt},
+        OPT_LEN_VARIABLE_LENGTH, 2, dissect_bap_reason_opt},
     {CI_BAP_LINK_DISC, "Link Discriminator", NULL,
-        FIXED_LENGTH, 4, dissect_bap_link_disc_opt},
+        OPT_LEN_FIXED_LENGTH, 4, dissect_bap_link_disc_opt},
     {CI_BAP_CALL_STATUS, "Call Status", &ett_bap_call_status_opt,
-        FIXED_LENGTH, 4, dissect_bap_call_status_opt}
+        OPT_LEN_FIXED_LENGTH, 4, dissect_bap_call_status_opt}
 };
 
 #define N_BAP_OPTS     (sizeof bap_opts / sizeof bap_opts[0])
@@ -1513,7 +1508,7 @@ static void dissect_pppmuxcp_def_pid_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static const ip_tcp_opt pppmuxcp_opts[] = {
     {CI_DEFAULT_PID, "Default Protocol ID", NULL,
-        FIXED_LENGTH, 4, dissect_pppmuxcp_def_pid_opt}
+        OPT_LEN_FIXED_LENGTH, 4, dissect_pppmuxcp_def_pid_opt}
 };
 
 #define N_PPPMUXCP_OPTS (sizeof pppmuxcp_opts / sizeof pppmuxcp_opts[0])
@@ -1529,9 +1524,9 @@ static void dissect_ipv6cp_if_id_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static const ip_tcp_opt ipv6cp_opts[] = {
     {CI_IPV6CP_IF_ID, "Interface Identifier", &ett_ipv6cp_if_id_opt,
-        FIXED_LENGTH, 10, dissect_ipv6cp_if_id_opt},
+        OPT_LEN_FIXED_LENGTH, 10, dissect_ipv6cp_if_id_opt},
     {CI_COMPRESS_PROTO, "IPv6 compression", &ett_ipv6cp_compress_opt,
-        VARIABLE_LENGTH, 4, dissect_ipcp_compress_opt}
+        OPT_LEN_VARIABLE_LENGTH, 4, dissect_ipcp_compress_opt}
 };
 
 #define N_IPV6CP_OPTS   (sizeof ipv6cp_opts / sizeof ipv6cp_opts[0])
