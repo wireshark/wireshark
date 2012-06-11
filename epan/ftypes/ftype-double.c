@@ -55,7 +55,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 {
 	char    *endptr = NULL;
 
-	fv->value.floating = strtod(s, &endptr);
+	fv->value.floating = g_ascii_strtod(s, &endptr);
 
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
