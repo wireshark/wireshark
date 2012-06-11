@@ -148,6 +148,7 @@ file_print_cmd(gboolean print_selected)
 
   /* init the printing range */
   packet_range_init(&args->range);
+  args->range.process_filtered = TRUE;
 
   if(print_selected) {
       args->range.process = range_process_selected;
@@ -215,6 +216,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* init the printing range */
   packet_range_init(&args->range);
+  args->range.process_filtered = TRUE;
 
   export_text_win = open_print_dialog("Wireshark: Export as \"Plain Text\" File", output_action_export_text, args);
   g_signal_connect(export_text_win, "destroy", G_CALLBACK(print_destroy_cb), &export_text_win);
@@ -268,6 +270,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* init the printing range */
   packet_range_init(&args->range);
+  args->range.process_filtered = TRUE;
 
   export_ps_win = open_print_dialog("Wireshark: Export as \"PostScript\" file", output_action_export_ps, args);
   g_signal_connect(export_ps_win, "destroy", G_CALLBACK(print_destroy_cb), &export_ps_win);
@@ -321,6 +324,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* init the printing range */
   packet_range_init(&args->range);
+  args->range.process_filtered = TRUE;
 
   export_psml_win = open_print_dialog("Wireshark: Export as \"PSML\" file", output_action_export_psml, args);
   g_signal_connect(export_psml_win, "destroy", G_CALLBACK(print_destroy_cb), &export_psml_win);
@@ -373,6 +377,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* init the printing range */
   packet_range_init(&args->range);
+  args->range.process_filtered = TRUE;
 
   export_pdml_win = open_print_dialog("Wireshark: Export as \"PDML\" file", output_action_export_pdml, args);
   g_signal_connect(export_pdml_win, "destroy", G_CALLBACK(print_destroy_cb), &export_pdml_win);
@@ -424,6 +429,7 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* init the printing range */
   packet_range_init(&args->range);
+  args->range.process_filtered = TRUE;
 
   export_csv_win = open_print_dialog("Wireshark: Export as \"Comma Separated Values\" File", output_action_export_csv, args);
   g_signal_connect(export_csv_win, "destroy", G_CALLBACK(print_destroy_cb), &export_csv_win);
@@ -475,6 +481,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   /* init the printing range */
   packet_range_init(&args->range);
+  args->range.process_filtered = TRUE;
 
   export_carrays_win = open_print_dialog("Wireshark: Export as \"C Arrays\" File",
 					 output_action_export_carrays, args);
