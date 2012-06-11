@@ -3656,8 +3656,10 @@ dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
 	    dlci_len = 10;
 	    min_dlci &= 0x3ff;
 	    max_dlci &= 0x3ff;
+	    break;
 	case 2:
 	    dlci_len = 23;
+	    break;
 	default:
 	    dlci_len = 0;
 	    min_dlci = 0;
