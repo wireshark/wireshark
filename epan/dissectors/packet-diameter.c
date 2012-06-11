@@ -1563,7 +1563,7 @@ dictionary_load(void)
 			if ( (strcase_equal(x->name,"avp-proto") && strcase_equal(x->key,a->name))
 				 || (a->type && strcase_equal(x->name,"type-proto") && strcase_equal(x->key,a->type))
 				 ) {
-				static avp_type_t proto_type = {"proto", proto_avp, proto_avp, FT_UINT32, BASE_NONE, build_proto_avp};
+				static avp_type_t proto_type = {"proto", proto_avp, proto_avp, FT_UINT32, BASE_HEX, build_proto_avp};
 				type =  &proto_type;
 
 				avp_data = x->value;

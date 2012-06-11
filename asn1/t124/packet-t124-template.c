@@ -201,7 +201,7 @@ void proto_register_t124(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   t124_ns_dissector_table = register_dissector_table("t124.ns", "T.124 H.221 Non Standard Dissectors", FT_STRING, BASE_NONE);
-  t124_sd_dissector_table = register_dissector_table("t124.sd", "T.124 H.221 Send Data Dissectors", FT_UINT32, BASE_NONE);
+  t124_sd_dissector_table = register_dissector_table("t124.sd", "T.124 H.221 Send Data Dissectors", FT_UINT32, BASE_HEX);
 
   new_register_dissector("t124", dissect_t124_new, proto_t124);
 

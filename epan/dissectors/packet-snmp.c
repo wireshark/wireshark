@@ -3338,7 +3338,7 @@ void proto_register_snmp(void) {
 		    "Engine ID Data: IPv6 address", "snmp.engineid.ipv6", FT_IPv6, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_cisco_type, {
-		    "Engine ID Data: Cisco type", "snmp.engineid.cisco.type", FT_UINT8, BASE_NONE,
+		    "Engine ID Data: Cisco type", "snmp.engineid.cisco.type", FT_UINT8, BASE_HEX,
 		    VALS(snmp_engineid_cisco_type_vals), 0, NULL, HFILL }},
 		{ &hf_snmp_engineid_mac, {
 		    "Engine ID Data: MAC address", "snmp.engineid.mac", FT_ETHER, BASE_NONE,

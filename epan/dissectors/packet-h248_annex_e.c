@@ -966,7 +966,7 @@ void proto_register_h248_annex_e(void) {
 		{ &hf_h248_pkg_tonegen_sig_pt, { "Play Tone (pt)", "h248.pkg.tonegen.pg", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_tonegen_sig_pt_tl, { "Tone List ID (tl)", "h248.pkg.tonegen.pt.tl", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_tonegen_sig_pt_ind, { "Inter-signal Duration (ind)", "h248.pkg.tonegem.pt.ind", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_h248_pkg_tonegen_sig_pg_btd, { "Tone Direction (btd)", "h248.pkg.tonegen.pt.btd", FT_UINT32, BASE_NONE, VALS(h248_pkg_tonegen_pt_btd_param_vals), 0, NULL, HFILL }},
+		{ &hf_h248_pkg_tonegen_sig_pg_btd, { "Tone Direction (btd)", "h248.pkg.tonegen.pt.btd", FT_UINT32, BASE_HEX, VALS(h248_pkg_tonegen_pt_btd_param_vals), 0, NULL, HFILL }},
 
 		/* H.248.1 E.4 Tone Detection (tonedet) */
 		{ &hf_h248_pkg_tonedet, { "Tone Detection Package", "h248.pkg.tonedet", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},

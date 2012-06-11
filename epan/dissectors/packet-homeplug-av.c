@@ -3368,7 +3368,7 @@ proto_register_homeplug_av(void)
 	},
 	{ &hf_homeplug_av_rs_dev_cnf_status,
 	  { "Status", "homeplug_av.rs_dev_cnf.status",
-	  FT_UINT8, BASE_NONE, VALS(homeplug_av_rs_dev_status_vals), 0x00, "Unknown", HFILL }
+	  FT_UINT8, BASE_HEX, VALS(homeplug_av_rs_dev_status_vals), 0x00, "Unknown", HFILL }
 	},
 	/* Shared memory related fields */
 	{ &hf_homeplug_av_mem_len_16bits,

@@ -340,7 +340,7 @@ proto_register_nflog(void)
 		},
 
 		{ &hf_nflog_encoding,
-			{ "Encoding", "nflog.encoding", FT_UINT32, BASE_NONE, VALS(_encoding_vals), 0x00, NULL, HFILL }
+			{ "Encoding", "nflog.encoding", FT_UINT32, BASE_HEX, VALS(_encoding_vals), 0x00, NULL, HFILL }
 		},
 
 	/* TLV */

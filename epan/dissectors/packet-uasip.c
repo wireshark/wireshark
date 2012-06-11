@@ -29,6 +29,19 @@
 
 #include <string.h>
 
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>         /* needed to define AF_ values on UNIX */
+#endif
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>           /* needed to define AF_ values on Windows */
+#endif
+#ifdef NEED_INET_V6DEFS_H
+# include "wsutil/inet_v6defs.h"
+#endif
+
 #include <glib.h>
 
 #include "epan/packet.h"
@@ -59,45 +72,14 @@ static int hf_uasip_expseq          = -1;
 static int hf_uasip_sntseq          = -1;
 static gint ett_uasip               = -1;
 
-static guint8 proxy_ipaddr[4];
-static const char* pref_proxy_ipaddr_s = NULL;
+static guint8      proxy_ipaddr[4];
+static const char *pref_proxy_ipaddr_s = NULL;
 
 static gboolean use_proxy_ipaddr = FALSE;
 static gboolean noesip_enabled   = FALSE;
 
 static dissector_handle_t ua_sys_to_term_handle;
 static dissector_handle_t ua_term_to_sys_handle;
-
-/* XXX: Presumably there's a util function for this */
-static gboolean str_to_ipaddr(const gchar *addr, guint8 *ad)
-{
-    int i = 0;
-    const gchar *p = addr;
-    guint32 value;
-
-    if (addr == NULL)
-    {
-        return FALSE;
-    }
-
-    for (i = 0; i < 4; i++)
-    {
-        value = 0;
-        while (*p != '.' && *p != '\0')
-        {
-            value = value * 10 + (*p - '0');
-            p++;
-        }
-        if (value > 255)
-        {
-            return FALSE;
-        }
-        ad[i] = value;
-        p++;
-    }
-
-    return TRUE;
-}
 
 static void rTLV(proto_tree *tree, int *V, tvbuff_t *tvb, gint offset, gint8 L)
 {
@@ -301,12 +283,12 @@ static void dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (use_proxy_ipaddr)
     {
-        if (memcmp((pinfo->src).data, proxy_ipaddr, 4*sizeof(guint8)) == 0)
+        if (memcmp((pinfo->src).data, proxy_ipaddr, sizeof(proxy_ipaddr)) == 0)
         {
             _dissect_uasip(tvb, pinfo, tree, SYS_TO_TERM);
             return;
         }
-        else if (memcmp((pinfo->dst).data, proxy_ipaddr, 4*sizeof(guint8)) == 0)
+        else if (memcmp((pinfo->dst).data, proxy_ipaddr, sizeof(proxy_ipaddr)) == 0)
         {
             _dissect_uasip(tvb, pinfo, tree, TERM_TO_SYS);
             return;
@@ -492,7 +474,8 @@ void proto_register_uasip(void)
     uasip_module = prefs_register_protocol(proto_uasip, proto_reg_handoff_uasip);
     prefs_register_bool_preference(uasip_module, "noesip", "Try to decode SIP NOE", "NOE SIP Protocol", &noesip_enabled);
     prefs_register_string_preference(uasip_module, "proxy_ipaddr", "Proxy IP Address",
-                                     "IPv4 address of the proxy", &pref_proxy_ipaddr_s);
+                                     "IPv4 address of the proxy (Invalid values will be ignored)",
+                                     &pref_proxy_ipaddr_s);
 #if 0
     uasip_tap = register_tap("uasip");
 #endif
@@ -512,14 +495,17 @@ void proto_reg_handoff_uasip(void)
         prefs_initialized = TRUE;
     }
 
-    if (str_to_ipaddr(pref_proxy_ipaddr_s, proxy_ipaddr))
-    {
-        use_proxy_ipaddr = TRUE;
-    }
-    else
-    {
-        use_proxy_ipaddr = FALSE;
-        pref_proxy_ipaddr_s = g_strdup("");
+    use_proxy_ipaddr = FALSE;
+    memset(proxy_ipaddr, 0, sizeof(proxy_ipaddr));
+
+    if (strcmp(pref_proxy_ipaddr_s, "") != 0) {
+        if (inet_pton(AF_INET, pref_proxy_ipaddr_s, proxy_ipaddr) == 1)
+        {
+            use_proxy_ipaddr = TRUE;
+        }
+        else
+        {
+            g_warning("uasip: Invalid 'Proxy IP Address': \"%s\"", pref_proxy_ipaddr_s);
+        }
     }
 }
-

@@ -1701,7 +1701,7 @@ proto_register_opensafety(void)
             FT_UINT8,   BASE_HEX, VALS(message_type_values),   0x0, NULL, HFILL } },
         { &hf_oss_msg_category,
           { "Type",  "opensafety.msg.type",
-            FT_UINT16,   BASE_NONE, VALS(message_id_values),   0x0, NULL, HFILL } },
+            FT_UINT16,   BASE_HEX, VALS(message_id_values),   0x0, NULL, HFILL } },
         { &hf_oss_msg_direction,
           { "Direction",  "opensafety.msg.direction",
             FT_BOOLEAN,   BASE_NONE, TFS(&opensafety_message_direction),   0x0, NULL, HFILL } },
