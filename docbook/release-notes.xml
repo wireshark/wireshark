@@ -108,8 +108,9 @@ Wireshark Info
 
         <listitem>
           <para>
-            When saving packets, the default choice is now to save
-            only the displayed packets rather than all packets.
+            When saving, exporting or printing packets, the default choice
+            is now to save, export or print only the displayed packets
+            rather than all packets.
           </para>
         </listitem>
 
