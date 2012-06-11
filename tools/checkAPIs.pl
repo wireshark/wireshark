@@ -95,6 +95,7 @@ my %APIs = (
                 # "I" isn't always the upper-case form of "i", and "i" isn't
                 # always the lower-case form of "I").  Use the g_ascii_* version
                 # instead.
+                'strtod',
                 'strcasecmp',
                 'strncasecmp',
                 'g_strcasecmp',
@@ -575,10 +576,10 @@ my %deprecatedGtkFunctions = (
                 'gtk_font_selection_get_font',                  'E', # gtk_font_selection_get_font_name() [!=]
                 'GTK_FUNDAMENTAL_TYPE',                         'E',
                 'gtk_gamma_curve_new',                          'E', # since 2.20
-				'gtk_hbox_new',                                 'W', # gtk_box_new
+                'gtk_hbox_new',                                 'W', # gtk_box_new
                 'gtk_hbutton_box_get_layout_default',           'E',
                 'gtk_hbutton_box_get_spacing_default',          'E',
-				'gtk_hbutton_box_new',                          'W', # gtk_button_box_new
+                'gtk_hbutton_box_new',                          'W', # gtk_button_box_new
                 'gtk_hbutton_box_set_layout_default',           'E',
                 'gtk_hbutton_box_set_spacing_default',          'E',
                 'gtk_hruler_new',                               'E', # since 2.24
@@ -963,7 +964,7 @@ my %deprecatedGtkFunctions = (
                 'GTK_VALUE_UCHAR',                              'E',
                 'GTK_VALUE_UINT',                               'E',
                 'GTK_VALUE_ULONG',                              'E',
-				'gtk_vbox_new',                                 'W', # ws_gtk_box_new
+                'gtk_vbox_new',                                 'W', # ws_gtk_box_new
                 'gtk_vbutton_box_get_layout_default',           'E',
                 'gtk_vbutton_box_get_spacing_default',          'E',
                 'gtk_vbutton_box_set_layout_default',           'E',
@@ -1312,39 +1313,39 @@ sub findAPIinFile($$$)
 
 sub checkAddTextCalls($$)
 {
-	my ($fileContentsRef, $filename) = @_;
-	my $add_text_count = 0;
-	my $okay_add_text_count = 0;
-	my $add_xxx_count = 0;
+        my ($fileContentsRef, $filename) = @_;
+        my $add_text_count = 0;
+        my $okay_add_text_count = 0;
+        my $add_xxx_count = 0;
 
-	# First count how many proto_tree_add_text() calls there are in total
-	while (${$fileContentsRef} =~ m/ \W* proto_tree_add_text \W* \( /gox) {
-		$add_text_count++;
-	}
-	# Then count how many of them are "okay" by virtue of their generate proto_item
-	# being used (e.g., to hang a subtree off of)
-	while (${$fileContentsRef} =~ m/ \W* [a-zA-Z0-9]+ \W* = \W* proto_tree_add_text \W* \( /gox) {
-		$okay_add_text_count++;
-	}
-	# Then count how many proto_tree_add_*() calls there are
-	while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z0-9]+ \W* \( /gox) {
-		$add_xxx_count++;
-	}
+        # First count how many proto_tree_add_text() calls there are in total
+        while (${$fileContentsRef} =~ m/ \W* proto_tree_add_text \W* \( /gox) {
+                $add_text_count++;
+        }
+        # Then count how many of them are "okay" by virtue of their generate proto_item
+        # being used (e.g., to hang a subtree off of)
+        while (${$fileContentsRef} =~ m/ \W* [a-zA-Z0-9]+ \W* = \W* proto_tree_add_text \W* \( /gox) {
+                $okay_add_text_count++;
+        }
+        # Then count how many proto_tree_add_*() calls there are
+        while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z0-9]+ \W* \( /gox) {
+                $add_xxx_count++;
+        }
 
-	#printf "add_text_count %d, okay_add_text_count %d\n", $add_text_count, $okay_add_text_count;
-	$add_xxx_count -= $add_text_count;
-	$add_text_count -= $okay_add_text_count;
+        #printf "add_text_count %d, okay_add_text_count %d\n", $add_text_count, $okay_add_text_count;
+        $add_xxx_count -= $add_text_count;
+        $add_text_count -= $okay_add_text_count;
 
-	# Don't bother with files with small counts
-	if ($add_xxx_count < 10 || $add_text_count < 10) {
-		return;
-	}
+        # Don't bother with files with small counts
+        if ($add_xxx_count < 10 || $add_text_count < 10) {
+                return;
+        }
 
-	my $percentage = 100*$add_text_count/$add_xxx_count;
-	if ($percentage > 50) {
-		printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
-			$filename, $add_text_count, $add_xxx_count, $percentage;
-	}
+        my $percentage = 100*$add_text_count/$add_xxx_count;
+        if ($percentage > 50) {
+                printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
+                        $filename, $add_text_count, $add_xxx_count, $percentage;
+        }
 }
 
 # APIs which (generally) should not be called with an argument of tvb_get_ptr()
@@ -1389,21 +1390,21 @@ sub checkAPIsCalledWithTvbGetPtr($$$)
 
 sub check_snprintf_plus_strlen($$)
 {
-	my ($fileContentsRef, $filename) = @_;
-	my @items;
+        my ($fileContentsRef, $filename) = @_;
+        my @items;
 
-	# This catches both snprintf() and g_snprint.
-	# If we need to do more APIs, we can make this function look more like
-	# checkAPIsCalledWithTvbGetPtr().
-	@items = (${$fileContentsRef} =~ m/ (snprintf [^;]* ; ) /xsg);
-	while (@items) {
-		my ($item) = @items;
-		shift @items;
-		if ($item =~ / strlen\s*\( /xos) {
-			print STDERR "Warning: ".$filename." uses snprintf + strlen to assemble strings.\n";
-			last;
-		}
-	}
+        # This catches both snprintf() and g_snprint.
+        # If we need to do more APIs, we can make this function look more like
+        # checkAPIsCalledWithTvbGetPtr().
+        @items = (${$fileContentsRef} =~ m/ (snprintf [^;]* ; ) /xsg);
+        while (@items) {
+                my ($item) = @items;
+                shift @items;
+                if ($item =~ / strlen\s*\( /xos) {
+                        print STDERR "Warning: ".$filename." uses snprintf + strlen to assemble strings.\n";
+                        last;
+                }
+        }
 }
 
 # Verify that all declared ett_ variables are registered.
@@ -1586,28 +1587,28 @@ sub check_hf_entries($$)
                         print STDERR "Error: abbreviation is the hf_variable_name in field $name ($abbrev) in $filename\n";
                         $errorCount++;
                 }
-		if ($ft ne "FT_BOOLEAN" && $convert =~ m/^TFS\(.*\)/) {
+                if ($ft ne "FT_BOOLEAN" && $convert =~ m/^TFS\(.*\)/) {
                         print STDERR "Error: $hf uses a true/false string but is an $ft instead of FT_BOOLEAN in $filename\n";
                         $errorCount++;
-		}
-		if ($ft eq "FT_BOOLEAN" && $convert =~ m/^VALS\(.*\)/) {
+                }
+                if ($ft eq "FT_BOOLEAN" && $convert =~ m/^VALS\(.*\)/) {
                         print STDERR "Error: $hf uses a value_string but is an FT_BOOLEAN in $filename\n";
                         $errorCount++;
-		}
-		if (($ft eq "FT_BOOLEAN") && ($bitmask !~ /^(0x)?0+$/) && ($display =~ /^BASE_/)) {
-			print STDERR "Error: $hf: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in $filename\n";
-			$errorCount++;
-		}
+                }
+                if (($ft eq "FT_BOOLEAN") && ($bitmask !~ /^(0x)?0+$/) && ($display =~ /^BASE_/)) {
+                        print STDERR "Error: $hf: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in $filename\n";
+                        $errorCount++;
+                }
                 if ($convert =~ m/RVALS/ && $display !~ m/BASE_RANGE_STRING/) {
                         print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
                         $errorCount++;
                 }
 ## Benign...
-##		if (($ft eq "FT_BOOLEAN") && ($bitmask =~ /^(0x)?0+$/) && ($display ne "BASE_NONE")) {
-##			print STDERR "Error: $abbrev: FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n";
-##			$errorCount++;
-##		}
-	}
+##              if (($ft eq "FT_BOOLEAN") && ($bitmask =~ /^(0x)?0+$/) && ($display ne "BASE_NONE")) {
+##                      print STDERR "Error: $abbrev: FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n";
+##                      $errorCount++;
+##              }
+        }
 
         return $errorCount;
 }
@@ -1667,7 +1668,7 @@ my $result = GetOptions(
                         'check-value-string-array-null-termination!' => \$check_value_string_array_null_termination,
                         'Machine-readable' => \$machine_readable_output,
                         'nohf' => \$check_hf,
-			'build' => \$buildbot_flag,
+                        'build' => \$buildbot_flag,
                         'debug' => \$debug_flag
                         );
 if (!$result) {
@@ -1758,11 +1759,11 @@ while ($_ = $ARGV[0])
         #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename.": ".join(',', @foundAPIs)."\n"
         #}
 
-	check_snprintf_plus_strlen(\$fileContents, $filename);
+        check_snprintf_plus_strlen(\$fileContents, $filename);
 
-	if (! $buildbot_flag) {
-		checkAddTextCalls(\$fileContents, $filename);
-	}
+        if (! $buildbot_flag) {
+                checkAddTextCalls(\$fileContents, $filename);
+        }
 
         # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {
