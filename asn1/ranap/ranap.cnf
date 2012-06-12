@@ -17,6 +17,7 @@ SourceRNC-ToTargetRNC-TransparentContainer_PDU
 TargetRNC-ToSourceRNC-TransparentContainer_PDU
 TargetRNC-ID
 TargetRNC-ID_PDU
+InterSystemInformation-TransparentContainer_PDU
 
 #.PDU_NEW
 RANAP-PDU

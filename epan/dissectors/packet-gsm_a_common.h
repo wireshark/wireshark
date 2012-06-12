@@ -726,6 +726,8 @@ void bssmap_perf_loc_abort(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 void bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 void bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
+void rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
+
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a
@@ -865,7 +867,7 @@ typedef enum
     BE_SRC_RNC_TO_TAR_RNC_UMTS,         /* Source RNC to target RNC transparent information (UMTS) */
     BE_SRC_RNC_TO_TAR_RNC_CDMA,         /* Source RNC to target RNC transparent information (cdma2000) */
     BE_GERAN_CLS_M,                     /* GERAN Classmark */
-    BE_GRAN_BSC_CONT,                   /* GERAN BSC Container */
+    BE_GERAN_BSC_CONT,                  /* GERAN BSC Container */
     BE_NEW_BSS_TO_OLD_BSS_INF,          /* New BSS to Old BSS Information */
     BE_INTER_SYS_INF,                   /* Inter-System Information */
     BE_SNA_ACC_INF,                     /* SNA Access Information */
@@ -898,6 +900,9 @@ typedef enum
     BE_SPEECH_CODEC,                    /* Speech Codec */
     BE_CALL_ID,                         /* Call Identifier */
     BE_CALL_ID_LST,                     /* Call Identifier List */
+    BE_A_ITF_SEL_FOR_RESET,             /* A-Interface Selector for RESET */
+    BE_KC128,                           /* Kc128 */
+    BE_CSG_ID,                          /* CSG Identifier */
     BE_NONE /* NONE */
 }
 bssmap_elem_idx_t;
