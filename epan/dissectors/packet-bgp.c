@@ -2366,6 +2366,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     guint8          encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
     guint8          encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
 
+    if (!tree)
+        return;
+
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
     junk_emstr = ep_strbuf_new_label(NULL);
@@ -3602,6 +3605,9 @@ example 2
     18            le = 24
     10 07 02      prefix = 7.2.0.0/16
 */
+    if (!tree)
+        return;
+
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     p = BGP_HEADER_SIZE;
     /* AFI */
@@ -3709,12 +3715,11 @@ static void
 dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
                 gboolean first)
 {
-    guint16       bgp_len;       /* Message length             */
-    guint8        bgp_type;      /* Message type               */
-    const char    *typ;          /* Message type (string)      */
-    proto_item    *ti;           /* tree item                  */
-    proto_item    *ti_len;       /* length item                */
-    proto_tree    *bgp_tree;     /* BGP packet tree            */
+    guint16       bgp_len;          /* Message length             */
+    guint8        bgp_type;         /* Message type               */
+    const char    *typ;             /* Message type (string)      */
+    proto_item    *ti_len = NULL;   /* length item                */
+    proto_tree    *bgp_tree = NULL; /* BGP packet tree            */
 
     bgp_len = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     bgp_type = tvb_get_guint8(tvb, BGP_MARKER_SIZE + 2);
@@ -3726,6 +3731,7 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
 
     if (tree) {
+        proto_item *ti;
         ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, ENC_NA);
         proto_item_append_text(ti, " - %s", typ);
 
@@ -3758,36 +3764,37 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(bgp_tree, hf_bgp_marker, tvb, 0, 16, ENC_NA);
 
         ti_len = proto_tree_add_item(bgp_tree, hf_bgp_length, tvb, 16, 2, ENC_BIG_ENDIAN);
-        if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
-            expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Length is invalid %u", bgp_len);
-            return;
-        }
+    }
 
-        proto_tree_add_item(bgp_tree, hf_bgp_type, tvb, 16 + 2, 1, ENC_BIG_ENDIAN);
+    if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Length is invalid %u", bgp_len);
+        return;
+    }
 
-        switch (bgp_type) {
-            case BGP_OPEN:
-                dissect_bgp_open(tvb, bgp_tree, pinfo);
-                break;
-            case BGP_UPDATE:
-                dissect_bgp_update(tvb, bgp_tree);
-                break;
-            case BGP_NOTIFICATION:
-                dissect_bgp_notification(tvb, bgp_tree, pinfo);
-                break;
-            case BGP_KEEPALIVE:
-                /* no data in KEEPALIVE messages */
-                break;
-            case BGP_ROUTE_REFRESH_CISCO:
-            case BGP_ROUTE_REFRESH:
-                dissect_bgp_route_refresh(tvb, bgp_tree);
-                break;
-            case BGP_CAPABILITY:
-                dissect_bgp_capability(tvb, bgp_tree, pinfo);
-                break;
-            default:
-                break;
-        }
+    proto_tree_add_item(bgp_tree, hf_bgp_type, tvb, 16 + 2, 1, ENC_BIG_ENDIAN);
+
+    switch (bgp_type) {
+    case BGP_OPEN:
+        dissect_bgp_open(tvb, bgp_tree, pinfo);
+        break;
+    case BGP_UPDATE:
+        dissect_bgp_update(tvb, bgp_tree);
+        break;
+    case BGP_NOTIFICATION:
+        dissect_bgp_notification(tvb, bgp_tree, pinfo);
+        break;
+    case BGP_KEEPALIVE:
+        /* no data in KEEPALIVE messages */
+        break;
+    case BGP_ROUTE_REFRESH_CISCO:
+    case BGP_ROUTE_REFRESH:
+        dissect_bgp_route_refresh(tvb, bgp_tree);
+        break;
+    case BGP_CAPABILITY:
+        dissect_bgp_capability(tvb, bgp_tree, pinfo);
+        break;
+    default:
+        break;
     }
 }
 

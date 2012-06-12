@@ -292,20 +292,16 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	/* If no dissector is registered, use the common one */
-	if (tree) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%02x", table_id);
 
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%02x", table_id);
+        ti = proto_tree_add_item(tree, proto_mpeg_sect, tvb, offset, -1, ENC_NA);
+        mpeg_sect_tree = proto_item_add_subtree(ti, ett_mpeg_sect);
 
-		ti = proto_tree_add_item(tree, proto_mpeg_sect, tvb, offset, -1, ENC_NA);
-		mpeg_sect_tree = proto_item_add_subtree(ti, ett_mpeg_sect);
+        proto_item_append_text(ti, " Table_ID=0x%02x", table_id);
 
-		proto_item_append_text(ti, " Table_ID=0x%02x", table_id);
-
-		packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
-								&section_length, &syntax_indicator);
-
-	}
+        packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
+                                &section_length, &syntax_indicator);
 
 	if (syntax_indicator)
 		packet_mpeg_sect_crc(tvb, pinfo, mpeg_sect_tree, 0, (section_length-1));

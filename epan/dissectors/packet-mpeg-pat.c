@@ -84,9 +84,6 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_mpeg_pat, tvb, offset, -1, ENC_NA);
 	mpeg_pat_tree = proto_item_add_subtree(ti, ett_mpeg_pat);
 
-	if (!tree)
-		return;
-
 	offset += packet_mpeg_sect_header(tvb, offset, mpeg_pat_tree, &length, NULL);
 	length -= 4;
 

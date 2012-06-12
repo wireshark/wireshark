@@ -4868,13 +4868,12 @@ static guint
 fTagHeaderTree (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint offset, guint8 *tag_no, guint8* tag_info, guint32 *lvt)
 {
+    proto_item *ti = NULL;
     guint8      tag;
     guint8      value;
     guint       tag_len = 1;
     guint       lvt_len = 1;    /* used for tree display of lvt */
     guint       lvt_offset;     /* used for tree display of lvt */
-    proto_item *ti;
-    proto_tree *subtree;
 
     lvt_offset = offset;
     tag        = tvb_get_guint8(tvb, offset);
@@ -4906,67 +4905,65 @@ fTagHeaderTree (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (tree) {
+        proto_tree *subtree;
         if (tag_is_opening(tag))
             ti = proto_tree_add_text(tree, tvb, offset, tag_len, "{[%u]", *tag_no );
         else if (tag_is_closing(tag))
             ti = proto_tree_add_text(tree, tvb, offset, tag_len, "}[%u]", *tag_no );
         else if (tag_is_context_specific(tag)) {
             ti = proto_tree_add_text(tree, tvb, offset, tag_len,
-                "Context Tag: %u, Length/Value/Type: %u",
-                *tag_no, *lvt);
+                                     "Context Tag: %u, Length/Value/Type: %u",
+                                     *tag_no, *lvt);
         } else
             ti = proto_tree_add_text(tree, tvb, offset, tag_len,
-                "Application Tag: %s, Length/Value/Type: %u",
-                val_to_str(*tag_no,
-                    BACnetApplicationTagNumber,
-                    ASHRAE_Reserved_Fmt),
-                    *lvt);
+                                     "Application Tag: %s, Length/Value/Type: %u",
+                                     val_to_str(*tag_no,
+                                                BACnetApplicationTagNumber,
+                                                ASHRAE_Reserved_Fmt),
+                                     *lvt);
 
-        subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
         /* details if needed */
+        subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
         proto_tree_add_item(subtree, hf_BACnetTagClass, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (tag_is_extended_tag_number(tag)) {
             proto_tree_add_uint_format(subtree,
-                    hf_BACnetContextTagNumber,
-                    tvb, offset, 1, tag,
-                    "Extended Tag Number");
+                                       hf_BACnetContextTagNumber,
+                                       tvb, offset, 1, tag,
+                                       "Extended Tag Number");
             proto_tree_add_item(subtree,
-                hf_BACnetExtendedTagNumber,
-                tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+                                hf_BACnetExtendedTagNumber,
+                                tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         } else {
             if (tag_is_context_specific(tag))
                 proto_tree_add_item(subtree,
-                    hf_BACnetContextTagNumber,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    hf_BACnetContextTagNumber,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN);
             else
                 proto_tree_add_item(subtree,
-                    hf_BACnetApplicationTagNumber,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    hf_BACnetApplicationTagNumber,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         if (tag_is_closing(tag) || tag_is_opening(tag))
             proto_tree_add_item(subtree,
-                hf_BACnetNamedTag,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
+                                hf_BACnetNamedTag,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
         else if (tag_is_extended_value(tag)) {
             proto_tree_add_item(subtree,
-                hf_BACnetNamedTag,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
+                                hf_BACnetNamedTag,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_uint(subtree, hf_bacapp_tag_lvt,
-                tvb, lvt_offset, lvt_len, *lvt);
+                                tvb, lvt_offset, lvt_len, *lvt);
         } else
             proto_tree_add_uint(subtree, hf_bacapp_tag_lvt,
-                tvb, lvt_offset, lvt_len, *lvt);
+                                tvb, lvt_offset, lvt_len, *lvt);
+    } /* if (tree) */
 
-        if (*lvt > tvb_length(tvb)) {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                    "LVT length too long: %d > %d", *lvt,
-                    tvb_length(tvb));
-            *lvt = 1;
-        }
-    }
-    else if (*lvt > tvb_length(tvb))
-        /* We can't add expert info, but we can still stop infinite loops */
+    if (*lvt > tvb_length(tvb)) {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "LVT length too long: %d > %d", *lvt,
+                               tvb_length(tvb));
         *lvt = 1;
+    }
 
     return tag_len;
 }

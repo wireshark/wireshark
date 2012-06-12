@@ -148,47 +148,44 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
         col_set_str(pinfo->cinfo, COL_INFO, "MoldUDP64 Messages");
 
-    if (tree)
+    /* create display subtree for the protocol */
+    ti = proto_tree_add_item(tree, proto_moldudp64,
+                             tvb, offset, -1, ENC_NA);
+
+    moldudp64_tree = proto_item_add_subtree(ti, ett_moldudp64);
+
+    proto_tree_add_item(moldudp64_tree, hf_moldudp64_session,
+                        tvb, offset, MOLDUDP64_SESSION_LEN, ENC_ASCII|ENC_NA);
+    offset += MOLDUDP64_SESSION_LEN;
+
+    proto_tree_add_item(moldudp64_tree, hf_moldudp64_sequence,
+                        tvb, offset, MOLDUDP64_SEQUENCE_LEN, ENC_BIG_ENDIAN);
+    offset += MOLDUDP64_SEQUENCE_LEN;
+
+    ti = proto_tree_add_item(moldudp64_tree, hf_moldudp64_count,
+                             tvb, offset, MOLDUDP64_COUNT_LEN, ENC_BIG_ENDIAN);
+    offset += MOLDUDP64_COUNT_LEN;
+
+    while (tvb_reported_length(tvb) >= offset + MOLDUDP64_MSGLEN_LEN)
     {
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_moldudp64,
-                tvb, offset, -1, ENC_NA);
+        offset += dissect_moldudp64_msgblk(tvb, pinfo, moldudp64_tree,
+                                           offset, sequence++);
+        real_count++;
+    }
 
-        moldudp64_tree = proto_item_add_subtree(ti, ett_moldudp64);
-
-        proto_tree_add_item(moldudp64_tree, hf_moldudp64_session,
-                tvb, offset, MOLDUDP64_SESSION_LEN, ENC_ASCII|ENC_NA);
-        offset += MOLDUDP64_SESSION_LEN;
-
-        proto_tree_add_item(moldudp64_tree, hf_moldudp64_sequence,
-                tvb, offset, MOLDUDP64_SEQUENCE_LEN, ENC_BIG_ENDIAN);
-        offset += MOLDUDP64_SEQUENCE_LEN;
-
-        ti = proto_tree_add_item(moldudp64_tree, hf_moldudp64_count,
-                tvb, offset, MOLDUDP64_COUNT_LEN, ENC_BIG_ENDIAN);
-        offset += MOLDUDP64_COUNT_LEN;
-
-        while (tvb_reported_length(tvb) >= offset + MOLDUDP64_MSGLEN_LEN)
-        {
-            offset += dissect_moldudp64_msgblk(tvb, pinfo, moldudp64_tree,
-                    offset, sequence++);
-            real_count++;
-        }
-
-        if (count == MOLDUDP64_ENDOFSESS)
-        {
-            if (real_count != 0)
-            {
-                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                        "End Of Session packet with extra data.");
-            }
-        }
-        else if (real_count != count)
+    if (count == MOLDUDP64_ENDOFSESS)
+    {
+        if (real_count != 0)
         {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                    "Invalid Message Count (claimed %u, found %u)",
-                    count, real_count);
+                                   "End Of Session packet with extra data.");
         }
+    }
+    else if (real_count != count)
+    {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Invalid Message Count (claimed %u, found %u)",
+                               count, real_count);
     }
 
     /* Return the amount of data this dissector was able to dissect */

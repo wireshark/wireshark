@@ -129,6 +129,9 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint8       primitive;
 	const gchar *str;
 	gint         bfcp_payload_length;
+	gint         read_attr = 0;
+	proto_tree  *bfcp_tree = NULL;
+
 
 	/* Size of smallest BFCP packet: 12 octets */
 	if (tvb_length(tvb) < 12)
@@ -158,77 +161,75 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	col_add_str(pinfo->cinfo, COL_INFO, str);
 
 	if (tree) {
-		gint        read_attr = 0;
-		proto_item *ti;
-		proto_tree *bfcp_tree;
-
+		proto_item	*ti;
 		ti = proto_tree_add_item(tree, proto_bfcp, tvb, 0, -1, ENC_NA);
 		bfcp_tree = proto_item_add_subtree(ti, ett_bfcp);
 
 		/* Add items to BFCP tree */
 		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_initiator, tvb,
-				BFCP_OFFSET_TRANSACTION_INITIATOR, 1, ENC_BIG_ENDIAN);
+				    BFCP_OFFSET_TRANSACTION_INITIATOR, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb,
-			BFCP_OFFSET_PRIMITIVE, 1, ENC_BIG_ENDIAN);
+				    BFCP_OFFSET_PRIMITIVE, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(bfcp_tree, hf_bfcp_payload_length, tvb,
-			BFCP_OFFSET_PAYLOAD_LENGTH, 2, ENC_BIG_ENDIAN);
+				    BFCP_OFFSET_PAYLOAD_LENGTH, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(bfcp_tree, hf_bfcp_conference_id, tvb,
-			BFCP_OFFSET_CONFERENCE_ID, 4, ENC_BIG_ENDIAN);
+				    BFCP_OFFSET_CONFERENCE_ID, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_id, tvb,
-			BFCP_OFFSET_TRANSACTION_ID, 2, ENC_BIG_ENDIAN);
+				    BFCP_OFFSET_TRANSACTION_ID, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb,
-			BFCP_OFFSET_USER_ID, 2, ENC_BIG_ENDIAN);
+				    BFCP_OFFSET_USER_ID, 2, ENC_BIG_ENDIAN);
+	}
 
-		bfcp_payload_length = tvb_get_ntohs(tvb,
-					BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
+	bfcp_payload_length = tvb_get_ntohs(tvb,
+					    BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
 
-		while ((tvb_reported_length_remaining(tvb, BFCP_OFFSET_PAYLOAD + read_attr) >= 2) &&
-		       ((bfcp_payload_length - read_attr) >= 2))
+	while ((tvb_reported_length_remaining(tvb, BFCP_OFFSET_PAYLOAD + read_attr) >= 2) &&
+	       ((bfcp_payload_length - read_attr) >= 2))
+	{
+		proto_item *ti;
+		gint        read = 0;
+		gint        length;
+		guint8      first_byte;
+		guint8      attribute_type;
+
+		first_byte = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD + read_attr);
+
+		/* Padding so continue to next attribute */
+		if (first_byte == 0)
 		{
-			gint   read = 0;
-			gint   length;
-			guint8 first_byte;
-			guint8 attribute_type;
-
-			first_byte = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD + read_attr);
-
-			/* Padding so continue to next attribute */
-			if (first_byte == 0)
-			{
-				read_attr++;
-				continue;
-			}
-
-			proto_tree_add_item(bfcp_tree, hf_bfcp_attribute_types, tvb,
-					BFCP_OFFSET_PAYLOAD + read_attr,1, ENC_BIG_ENDIAN);
-			attribute_type = (first_byte & 0xFE) >> 1;
-			read++;
-
-			ti = proto_tree_add_item(bfcp_tree, hf_bfcp_attribute_length, tvb,
-					BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
-			length = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD  + read_attr + read);
-			read++;
-
-			/* If RequestStatus then show what type of status it is... */
-			if (attribute_type == 5)
-			{
-				proto_tree_add_item(bfcp_tree, hf_bfcp_request_status, tvb,
-						BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
-				read++;
-			}
-			if (length >= read)
-			{
-				proto_tree_add_item(bfcp_tree, hf_bfcp_payload, tvb,
-						BFCP_OFFSET_PAYLOAD + read_attr + read, length-read, ENC_NA);
-			}
-			else
-			{
-				expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-					"Attribute length is too small (%d bytes)", length);
-				break;
-			}
-			read_attr = read_attr + length;
+			read_attr++;
+			continue;
 		}
+
+		proto_tree_add_item(bfcp_tree, hf_bfcp_attribute_types, tvb,
+				    BFCP_OFFSET_PAYLOAD + read_attr,1, ENC_BIG_ENDIAN);
+		attribute_type = (first_byte & 0xFE) >> 1;
+		read++;
+
+		ti = proto_tree_add_item(bfcp_tree, hf_bfcp_attribute_length, tvb,
+					 BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
+		length = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD  + read_attr + read);
+		read++;
+
+		/* If RequestStatus then show what type of status it is... */
+		if (attribute_type == 5)
+		{
+			proto_tree_add_item(bfcp_tree, hf_bfcp_request_status, tvb,
+					    BFCP_OFFSET_PAYLOAD + read_attr + read,1, ENC_BIG_ENDIAN);
+			read++;
+		}
+		if (length >= read)
+		{
+			proto_tree_add_item(bfcp_tree, hf_bfcp_payload, tvb,
+					    BFCP_OFFSET_PAYLOAD + read_attr + read, length-read, ENC_NA);
+		}
+		else
+		{
+			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+					       "Attribute length is too small (%d bytes)", length);
+			break;
+		}
+		read_attr = read_attr + length;
 	}
 	return TRUE;
 }

@@ -3401,14 +3401,11 @@ dissect_cip_class_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti;
    proto_tree *class_tree;
 
-   if( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_generic, tvb, 0, -1, ENC_NA);
-      class_tree = proto_item_add_subtree( ti, ett_cip_class_generic );
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip_class_generic, tvb, 0, -1, ENC_NA);
+   class_tree = proto_item_add_subtree( ti, ett_cip_class_generic );
 
-      dissect_cip_generic_data( class_tree, tvb, 0, tvb_length(tvb), pinfo, ti );
-   }
+   dissect_cip_generic_data( class_tree, tvb, 0, tvb_length(tvb), pinfo, ti );
 
    return tvb_length(tvb);
 }
@@ -4918,14 +4915,11 @@ dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti;
    proto_tree *class_tree;
 
-   if( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_mb, tvb, 0, -1, ENC_NA);
-      class_tree = proto_item_add_subtree( ti, ett_cip_class_mb );
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip_class_mb, tvb, 0, -1, ENC_NA);
+   class_tree = proto_item_add_subtree( ti, ett_cip_class_mb );
 
-      dissect_cip_mb_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
-   }
+   dissect_cip_mb_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
 
    return tvb_length(tvb);
 }
@@ -5274,14 +5268,11 @@ dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti;
    proto_tree *class_tree;
 
-   if( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_cco, tvb, 0, -1, ENC_NA);
-      class_tree = proto_item_add_subtree( ti, ett_cip_class_cco );
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip_class_cco, tvb, 0, -1, ENC_NA);
+   class_tree = proto_item_add_subtree( ti, ett_cip_class_cco );
 
-      dissect_cip_cco_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
-   }
+   dissect_cip_cco_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
 
    return tvb_length(tvb);
 }

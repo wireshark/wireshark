@@ -85,46 +85,43 @@ static void
 dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb = NULL;
+	unsigned offset = 0;
+	guint8 start_code;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree != NULL) {
-		unsigned offset = 0;
-		guint8 start_code;
+	start_code = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_dmx_start_code, tvb,
+			    offset, 1, ENC_BIG_ENDIAN);
+	offset++;
 
-		start_code = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tree, hf_dmx_start_code, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-
-		switch (start_code) {
-		case DMX_SC_DMX:
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_dissector(dmx_chan_handle, next_tvb, pinfo, tree);
-			break;
-		case DMX_SC_TEXT:
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_dissector(dmx_text_handle, next_tvb, pinfo, tree);
-			break;
-		case DMX_SC_TEST:
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_dissector(dmx_test_handle, next_tvb, pinfo, tree);
-			break;
-		case DMX_SC_RDM:
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_dissector(rdm_handle, next_tvb, pinfo, tree);
-			break;
-		case DMX_SC_SIP:
-			next_tvb = tvb_new_subset_remaining(tvb, offset);
-			call_dissector(dmx_sip_handle, next_tvb, pinfo, tree);
-			break;
-		default:
-			if (offset < tvb_length(tvb))
-				proto_tree_add_item(tree, hf_dmx_frame_data, tvb,
-						offset, -1, ENC_NA);
-			break;
-		}
+	switch (start_code) {
+	case DMX_SC_DMX:
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(dmx_chan_handle, next_tvb, pinfo, tree);
+		break;
+	case DMX_SC_TEXT:
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(dmx_text_handle, next_tvb, pinfo, tree);
+		break;
+	case DMX_SC_TEST:
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(dmx_test_handle, next_tvb, pinfo, tree);
+		break;
+	case DMX_SC_RDM:
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(rdm_handle, next_tvb, pinfo, tree);
+		break;
+	case DMX_SC_SIP:
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(dmx_sip_handle, next_tvb, pinfo, tree);
+		break;
+	default:
+		if (offset < tvb_length(tvb))
+			proto_tree_add_item(tree, hf_dmx_frame_data, tvb,
+					    offset, -1, ENC_NA);
+		break;
 	}
 }
 
