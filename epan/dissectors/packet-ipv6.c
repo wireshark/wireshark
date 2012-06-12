@@ -96,6 +96,8 @@
 static int ipv6_tap = -1;
 
 static int proto_ipv6                           = -1;
+static int hf_ipv6_version                      = -1;
+static int hf_ip_version                        = -1;
 static int hf_ipv6_class                        = -1;
 static int hf_ipv6_flow                         = -1;
 static int hf_ipv6_plen                         = -1;
@@ -254,6 +256,7 @@ static int hf_geoip_dst_lon             = -1;
 static gint ett_ipv6                    = -1;
 static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_opt_flag           = -1;
+static gint ett_ipv6_version            = -1;
 static gint ett_ipv6_shim6              = -1;
 static gint ett_ipv6_shim6_option       = -1;
 static gint ett_ipv6_shim6_locators     = -1;
@@ -1693,6 +1696,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_DST, 16));
 
   if (tree) {
+    proto_tree* pt;
+    proto_item* pi;
     proto_tree *ipv6_tc_tree;
     proto_item *ipv6_tc;
     const char *name;
@@ -1701,7 +1706,12 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
 
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
-    add_ip_version_to_tree(ipv6_tree, tvb, offset + offsetof(struct ip6_hdr, ip6_vfc));
+    pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
+                        offset + offsetof(struct ip6_hdr, ip6_vfc), 1, ENC_BIG_ENDIAN);
+    pt = proto_item_add_subtree(pi,ett_ipv6_version);
+    pi = proto_tree_add_item(pt, hf_ip_version, tvb,
+                        offset + offsetof(struct ip6_hdr, ip6_vfc), 1, ENC_BIG_ENDIAN);
+    PROTO_ITEM_SET_GENERATED(pi);
 
     ipv6_tc = proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
                         offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
@@ -2099,6 +2109,12 @@ void
 proto_register_ipv6(void)
 {
   static hf_register_info hf[] = {
+    { &hf_ipv6_version,
+      { "Version",              "ipv6.version",
+                                FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+    { &hf_ip_version,
+      { "This field makes the filter \"ip.version == 6\" possible",             "ip.version",
+                                FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
     { &hf_ipv6_class,
       { "Traffic class",        "ipv6.class",
                                 FT_UINT32, BASE_HEX, NULL, 0x0FF00000, NULL, HFILL }},
@@ -2751,6 +2767,7 @@ proto_register_ipv6(void)
     &ett_ipv6,
     &ett_ipv6_opt,
     &ett_ipv6_opt_flag,
+    &ett_ipv6_version,
     &ett_ipv6_shim6,
     &ett_ipv6_shim6_option,
     &ett_ipv6_shim6_locators,
