@@ -223,6 +223,7 @@ static int hf_ipv6_shim6_loc_weight     = -1;
 static int hf_ipv6_shim6_opt_locnum     = -1;
 static int hf_ipv6_shim6_opt_elemlen    = -1;
 static int hf_ipv6_shim6_opt_fii        = -1;
+static int hf_ipv6_traffic_class_dscp   = -1;
 static int hf_ipv6_traffic_class_ect    = -1;
 static int hf_ipv6_traffic_class_ce     = -1;
 
@@ -1707,9 +1708,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ipv6_tc_tree = proto_item_add_subtree(ipv6_tc, ett_ipv6_traffic_class);
 
-    /* Add DSCP using bit offset to be able to use the same hf field in IPv6 */
-    add_ip_dscp_to_tree(ipv6_tc_tree, tvb, ((offset + offsetof(struct ip6_hdr, ip6_flow))<<3)+4);
-
+    proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_dscp, tvb,
+                        offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_ect, tvb,
                         offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
 
@@ -2734,6 +2734,10 @@ proto_register_ipv6(void)
       { "Forked Instance Identifier", "ipv6.shim6.opt.fii",
                                 FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
                                 NULL, HFILL }},
+
+    { &hf_ipv6_traffic_class_dscp,
+      { "Differentiated Services Field", "ipv6.traffic_class.dscp",
+                                FT_UINT32, BASE_HEX, VALS(dscp_vals), 0x0FC00000, NULL, HFILL }},
 
     { &hf_ipv6_traffic_class_ect,
       { "ECN-Capable Transport (ECT)", "ipv6.traffic_class.ect",
