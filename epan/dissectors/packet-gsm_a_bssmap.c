@@ -4417,7 +4417,7 @@ bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /* LSA Access Control Suppression   3.2.2.61    MSC-BSS O (note 8)  2 */
     ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_LSA_ACC_CTRL].value, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_ACC_CTRL, NULL);
     /* Service Handover 3.2.2.75    MSC-BSS O (note 9)  3 */
-    ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_SERV_HO].value, GSM_A_PDU_TYPE_BSSMAP, BE_SERV_HO, NULL);
+    ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_SERV_HO].value, GSM_A_PDU_TYPE_BSSMAP, BE_SERV_HO, NULL);
     /* Encryption Information   3.2.2.10    MSC-BSS O (note 10) 3-n */
     ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_ENC_INFO].value, GSM_A_PDU_TYPE_BSSMAP, BE_ENC_INFO, NULL);
     /* Talker Priority  3.2.2.89    MSC-BSS O (note 11) 2 */
@@ -4641,7 +4641,7 @@ bssmap_ho_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     /* LSA Access Control Suppression   3.2.2.61    MSC-BSS O (note 15)     2 */
     ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_LSA_ACC_CTRL].value, GSM_A_PDU_TYPE_BSSMAP, BE_LSA_ACC_CTRL, NULL);
     /* Service Handover 3.2.2.75    MSC-BSS O (note 21) 3 */
-    ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_SERV_HO].value, GSM_A_PDU_TYPE_BSSMAP, BE_SERV_HO, NULL);
+    ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_SERV_HO].value, GSM_A_PDU_TYPE_BSSMAP, BE_SERV_HO, NULL);
     /* IMSI 3.2.2.6 MSC-BSC O (note 16) 3-10 */
     ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_IMSI].value, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
     /* Source RNC to target RNC transparent information (UMTS)  3.2.2.76    MSC-BSS O (note 18) n-m */
