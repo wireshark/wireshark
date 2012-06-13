@@ -6465,6 +6465,8 @@ static const value_string lte_rrc_Q_OffsetRange_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext lte_rrc_Q_OffsetRange_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_Q_OffsetRange_vals);
+
 
 static int
 dissect_lte_rrc_Q_OffsetRange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -7217,6 +7219,8 @@ static const value_string lte_rrc_BandclassCDMA2000_vals[] = {
   {  31, "spare1" },
   { 0, NULL }
 };
+
+static value_string_ext lte_rrc_BandclassCDMA2000_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_BandclassCDMA2000_vals);
 
 
 static int
@@ -9558,6 +9562,8 @@ static const value_string lte_rrc_T_PollRetransmit_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext lte_rrc_T_PollRetransmit_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_T_PollRetransmit_vals);
+
 
 static int
 dissect_lte_rrc_T_PollRetransmit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -9695,6 +9701,8 @@ static const value_string lte_rrc_T_Reordering_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext lte_rrc_T_Reordering_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_T_Reordering_vals);
+
 
 static int
 dissect_lte_rrc_T_Reordering(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -9772,6 +9780,8 @@ static const value_string lte_rrc_T_StatusProhibit_vals[] = {
   {  63, "spare1" },
   { 0, NULL }
 };
+
+static value_string_ext lte_rrc_T_StatusProhibit_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_T_StatusProhibit_vals);
 
 
 static int
@@ -10525,6 +10535,8 @@ static const value_string lte_rrc_T_drx_InactivityTimer_vals[] = {
   {  31, "spare1" },
   { 0, NULL }
 };
+
+static value_string_ext lte_rrc_T_drx_InactivityTimer_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_T_drx_InactivityTimer_vals);
 
 
 static int
@@ -24781,6 +24793,8 @@ static const value_string lte_rrc_SupportedBandUTRA_FDD_vals[] = {
   { 0, NULL }
 };
 
+static value_string_ext lte_rrc_SupportedBandUTRA_FDD_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_SupportedBandUTRA_FDD_vals);
+
 
 static int
 dissect_lte_rrc_SupportedBandUTRA_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -26724,6 +26738,8 @@ static const value_string lte_rrc_T_ue_InactiveTime_vals[] = {
   {  63, "dayMoreThan30" },
   { 0, NULL }
 };
+
+static value_string_ext lte_rrc_T_ue_InactiveTime_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_T_ue_InactiveTime_vals);
 
 
 static int
@@ -28926,7 +28942,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_bandClass,
       { "bandClass", "lte-rrc.bandClass",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_BandclassCDMA2000_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_BandclassCDMA2000_vals_ext, 0,
         "BandclassCDMA2000", HFILL }},
     { &hf_lte_rrc_BandClassPriorityList1XRTT_item,
       { "BandClassPriority1XRTT", "lte-rrc.BandClassPriority1XRTT",
@@ -29926,7 +29942,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_q_OffsetCell,
       { "q-OffsetCell", "lte-rrc.q_OffsetCell",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_Q_OffsetRange_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_Q_OffsetRange_vals_ext, 0,
         "Q_OffsetRange", HFILL }},
     { &hf_lte_rrc_IntraFreqBlackCellList_item,
       { "PhysCellIdRange", "lte-rrc.PhysCellIdRange",
@@ -29954,7 +29970,7 @@ void proto_register_lte_rrc(void) {
         "ReselectionThreshold", HFILL }},
     { &hf_lte_rrc_q_OffsetFreq,
       { "q-OffsetFreq", "lte-rrc.q_OffsetFreq",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_Q_OffsetRange_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_Q_OffsetRange_vals_ext, 0,
         "Q_OffsetRange", HFILL }},
     { &hf_lte_rrc_interFreqNeighCellList,
       { "interFreqNeighCellList", "lte-rrc.interFreqNeighCellList",
@@ -30730,7 +30746,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_drx_InactivityTimer,
       { "drx-InactivityTimer", "lte-rrc.drx_InactivityTimer",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_drx_InactivityTimer_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_drx_InactivityTimer_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_drx_RetransmissionTimer,
       { "drx-RetransmissionTimer", "lte-rrc.drx_RetransmissionTimer",
@@ -31610,7 +31626,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_t_PollRetransmit,
       { "t-PollRetransmit", "lte-rrc.t_PollRetransmit",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_PollRetransmit_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_PollRetransmit_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_pollPDU,
       { "pollPDU", "lte-rrc.pollPDU",
@@ -31626,11 +31642,11 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_t_Reordering,
       { "t-Reordering", "lte-rrc.t_Reordering",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_Reordering_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_Reordering_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_t_StatusProhibit,
       { "t-StatusProhibit", "lte-rrc.t_StatusProhibit",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_StatusProhibit_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_StatusProhibit_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_sn_FieldLength,
       { "sn-FieldLength", "lte-rrc.sn_FieldLength",
@@ -32558,7 +32574,7 @@ void proto_register_lte_rrc(void) {
         "PhysCellIdCDMA2000", HFILL }},
     { &hf_lte_rrc_offsetFreq_01,
       { "offsetFreq", "lte-rrc.offsetFreq",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_Q_OffsetRange_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_Q_OffsetRange_vals_ext, 0,
         "Q_OffsetRange", HFILL }},
     { &hf_lte_rrc_cellsToAddModList_01,
       { "cellsToAddModList", "lte-rrc.cellsToAddModList",
@@ -32590,7 +32606,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_cellIndividualOffset,
       { "cellIndividualOffset", "lte-rrc.cellIndividualOffset",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_Q_OffsetRange_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_Q_OffsetRange_vals_ext, 0,
         "Q_OffsetRange", HFILL }},
     { &hf_lte_rrc_BlackCellsToAddModList_item,
       { "BlackCellsToAddMod", "lte-rrc.BlackCellsToAddMod",
@@ -33606,7 +33622,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_SupportedBandListUTRA_FDD_item,
       { "SupportedBandUTRA-FDD", "lte-rrc.SupportedBandUTRA_FDD",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_SupportedBandUTRA_FDD_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_SupportedBandUTRA_FDD_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_supportedBandListUTRA_TDD128,
       { "supportedBandListUTRA-TDD128", "lte-rrc.supportedBandListUTRA_TDD128",
@@ -33670,7 +33686,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_SupportedBandListHRPD_item,
       { "BandclassCDMA2000", "lte-rrc.BandclassCDMA2000",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_BandclassCDMA2000_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_BandclassCDMA2000_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_supportedBandList1XRTT,
       { "supportedBandList1XRTT", "lte-rrc.supportedBandList1XRTT",
@@ -33698,7 +33714,7 @@ void proto_register_lte_rrc(void) {
         "T_e_CSFB_dual_1XRTT_r10", HFILL }},
     { &hf_lte_rrc_SupportedBandList1XRTT_item,
       { "BandclassCDMA2000", "lte-rrc.BandclassCDMA2000",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_BandclassCDMA2000_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_BandclassCDMA2000_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_intraFreqProximityIndication_r9,
       { "intraFreqProximityIndication-r9", "lte-rrc.intraFreqProximityIndication_r9",
@@ -34050,7 +34066,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_ue_InactiveTime,
       { "ue-InactiveTime", "lte-rrc.ue_InactiveTime",
-        FT_UINT32, BASE_DEC, VALS(lte_rrc_T_ue_InactiveTime_vals), 0,
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &lte_rrc_T_ue_InactiveTime_vals_ext, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_candidateCellInfoList_r10,
       { "candidateCellInfoList-r10", "lte-rrc.candidateCellInfoList_r10",

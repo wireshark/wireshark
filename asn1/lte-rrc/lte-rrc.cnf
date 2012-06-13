@@ -8,6 +8,16 @@ PER
 UNALIGNED
 #.END
 
+#.USE_VALS_EXT
+BandclassCDMA2000
+DRX-Config/setup/drx-InactivityTimer
+Q-OffsetRange
+RRM-Config/ue-InactiveTime
+SupportedBandUTRA-FDD
+T-PollRetransmit
+T-Reordering
+T-StatusProhibit
+
 #.EXPORTS
 HandoverCommand
 HandoverCommand_PDU
