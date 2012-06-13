@@ -237,7 +237,7 @@ packaging_zip: all
 
 !IFDEF WIRESHARK_GENERATE_BSC_FILE
 # FIXME: Add epan\wspython\*.sbr when we support Python embedding
-# Note: Certain .sbr files which cause bscmake warning "too many references... ignoring ..."
+# Note: Certain .sbr files cause bscmake warning "too many references... ignoring ..."
 wireshark.bsc: \
 	*.sbr				\
 	codecs\*.sbr			\
@@ -247,8 +247,6 @@ wireshark.bsc: \
 	epan\dissectors\*.sbr		\
 	epan\ftypes\*.sbr		\
 	epan\wslua\*.sbr		\
-	ui\*.sbr			\
-	ui\gtk\*.sbr			\
 	plugins\asn1\*.sbr		\
 	plugins\docsis\*.sbr		\
 	plugins\ethercat\*.sbr		\
@@ -258,10 +256,14 @@ wireshark.bsc: \
 	plugins\mate\*.sbr		\
 	plugins\opcua\*.sbr		\
 	plugins\profinet\*.sbr		\
-	lugins\stats_tree\*.sbr		\
+	plugins\stats_tree\*.sbr	\
 	plugins\unistim\*.sbr		\
 	plugins\wimax\*.sbr		\
 	plugins\wimaxasncp\*.sbr	\
+	ui\*.sbr			\
+	ui\cli\*.sbr			\
+	ui\gtk\*.sbr			\
+	ui\win32\*.sbr			\
 	wiretap\*.sbr			\
 	wsutil\*.sbr
 	$(BSCMAKE) @<<
