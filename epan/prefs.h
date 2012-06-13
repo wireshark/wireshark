@@ -348,6 +348,15 @@ extern void prefs_register_string_preference(module_t *module, const char *name,
     const char *title, const char *description, const char **var);
 
 /*
+ * Register a preference with a file name (string) value.
+ * File name preferences are basically like string preferences
+ * except that the GUI gives the user the ability to browse for the
+ * file.
+ */
+extern void prefs_register_filename_preference(module_t *module, const char *name,
+    const char *title, const char *description, const char **var);
+
+/*
  * Register a preference with a ranged value.
  */
 extern void prefs_register_range_preference(module_t *module, const char *name,

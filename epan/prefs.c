@@ -139,6 +139,7 @@ free_pref(gpointer data, gpointer user_data _U_)
 	case PREF_UAT:
 		break;
 	case PREF_STRING:
+	case PREF_FILENAME:
 		g_free((char *)*pref->varp.string);
 		*pref->varp.string = NULL;
 		g_free(pref->default_val.string);
@@ -734,19 +735,16 @@ prefs_register_enum_preference(module_t *module, const char *name,
 	preference->info.enum_info.radio_buttons = radio_buttons;
 }
 
-/*
- * Register a preference with a character-string value.
- */
-void
-prefs_register_string_preference(module_t *module, const char *name,
-				 const char *title, const char *description,
-				 const char **var)
+static void
+register_string_like_preference(module_t *module, const char *name,
+				const char *title, const char *description,
+				const char **var, pref_type_t type)
 {
 	pref_t *preference;
 	char *varcopy;
 
 	preference = register_preference(module, name, title, description,
-	    PREF_STRING);
+					 type);
 
 	/*
 	 * String preference values should be non-null (as you can't
@@ -767,6 +765,30 @@ prefs_register_string_preference(module_t *module, const char *name,
 	preference->varp.string = var;
 	preference->default_val.string = varcopy;
 	preference->saved_val.string = NULL;
+}
+
+/*
+ * Register a preference with a character-string value.
+ */
+void
+prefs_register_string_preference(module_t *module, const char *name,
+				 const char *title, const char *description,
+				 const char **var)
+{
+	register_string_like_preference(module, name, title, description, var,
+					PREF_STRING);
+}
+
+/*
+ * Register a preference with a file name (string) value.
+ */
+void
+prefs_register_filename_preference(module_t *module, const char *name,
+				 const char *title, const char *description,
+				 const char **var)
+{
+	register_string_like_preference(module, name, title, description, var,
+					PREF_FILENAME);
 }
 
 /*
@@ -1433,6 +1455,7 @@ reset_pref(gpointer data, gpointer user_data _U_)
 		break;
 
 	case PREF_STRING:
+	case PREF_FILENAME:
 		g_free((void *)*pref->varp.string);
 		*pref->varp.string = g_strdup(pref->default_val.string);
 		break;
@@ -2989,6 +3012,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
       break;
 
     case PREF_STRING:
+    case PREF_FILENAME:
       if (strcmp(*pref->varp.string, value) != 0) {
         module->prefs_changed = TRUE;
         g_free((void *)*pref->varp.string);
@@ -3141,6 +3165,7 @@ write_pref(gpointer data, gpointer user_data)
 		break;
 
 	case PREF_STRING:
+	case PREF_FILENAME:
 		fprintf(arg->pf, "# A string.\n");
 		if (!(strcmp(pref->default_val.string, *pref->varp.string)))
 		    fprintf(arg->pf, "#");
