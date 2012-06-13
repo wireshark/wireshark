@@ -59,7 +59,7 @@ nsis-bits:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm
 	cd ../u3/win32
 
-distribution.nmake:	makenmake.pl
+distribution.nmake:	makenmake.pl $(WSMANIFEST) ../../ws-manifest.pl
 	cd ../..
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake wireshark.manifest
 	cd u3/win32

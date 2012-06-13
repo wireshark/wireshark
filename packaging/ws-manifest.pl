@@ -43,6 +43,8 @@ while ($line = <>) {
 	if(scalar(@defines) == 0) {
 	    undef @defines;
 	}
+    } elsif ($line =~/^File.*uninstall/) {
+	next;
     } elsif ($line =~ /^File[^\"]+\"([^\"]+)\"/) {
 	$file = $1;
 	# make things relative to the root rather than the NSIS directory
