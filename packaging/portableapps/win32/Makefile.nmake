@@ -54,7 +54,7 @@ $(WSMANIFEST):
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake wireshark.manifest
 	cd portableapps/win32
 
-distribution.nmake:	$(WSMANIFEST) makenmake.pl
+distribution.nmake:	makenmake.pl $(WSMANIFEST) ../../ws-manifest.pl
 	$(PERL) makenmake.pl $(WSMANIFEST) > $@
 
 distribution:	distribution.nmake

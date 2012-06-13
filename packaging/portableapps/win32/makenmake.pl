@@ -3,7 +3,7 @@
 # $Id$
 #
 
-print "
+print q{
 include ../../../config.nmake
 include <win32.mak>
 
@@ -11,14 +11,15 @@ FILES 		= Files
 APP 		= App
 WIRESHARK 	= Wireshark
 
-TOPDIR	= ..\\..\\..
+TOPDIR	= ..\..\..
+STAGING_DIR = $(TOPDIR)\$(INSTALL_DIR)
 COPY	= xcopy
 MOVE    = mv
 MKDIR	= mkdir
 COPY_FLAGS	= /d /y 
 
 distribution:
-";
+};
 
 while($line = <>) {
     
