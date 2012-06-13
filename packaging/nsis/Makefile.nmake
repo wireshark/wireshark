@@ -12,6 +12,8 @@ include ../../config.nmake
 include Custom.nmake
 
 
+STAGING_DIR=..\..\$(INSTALL_DIR)
+
 EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK_DIR
 	../../wireshark.exe \
@@ -29,19 +31,19 @@ DOC=../../doc/ws.css				\
 	../../doc/tshark.html			\
 	../../doc/wireshark-filter.html		\
 	../../doc/wireshark.html		\
-	../../$(INSTALL_DIR)/COPYING.txt	\
-	../../$(INSTALL_DIR)/NEWS.txt		\
-	../../$(INSTALL_DIR)/README.txt		\
-	../../$(INSTALL_DIR)/README.windows.txt
+	$(STAGING_DIR)/COPYING.txt	\
+	$(STAGING_DIR)/NEWS.txt		\
+	$(STAGING_DIR)/README.txt		\
+	$(STAGING_DIR)/README.windows.txt
 
 GPL=../../COPYING
-HELP=../../$(INSTALL_DIR)/help/capture_filters.txt \
-	../../$(INSTALL_DIR)/help/capturing.txt \
-	../../$(INSTALL_DIR)/help/display_filters.txt \
-	../../$(INSTALL_DIR)/help/faq.txt \
-	../../$(INSTALL_DIR)/help/getting_started.txt \
-	../../$(INSTALL_DIR)/help/overview.txt \
-	../../$(INSTALL_DIR)/help/toc
+HELP=$(STAGING_DIR)/help/capture_filters.txt \
+	$(STAGING_DIR)/help/capturing.txt \
+	$(STAGING_DIR)/help/display_filters.txt \
+	$(STAGING_DIR)/help/faq.txt \
+	$(STAGING_DIR)/help/getting_started.txt \
+	$(STAGING_DIR)/help/overview.txt \
+	$(STAGING_DIR)/help/toc
 
 PLUGINS= \
 	../../plugins/asn1/asn1.dll \
@@ -88,6 +90,7 @@ user-guide.chm::
 
 NSIS_FLAGS=\
 	/DMAKEDIR=$(MAKEDIR) \
+	/DSTAGING_DIR=$(STAGING_DIR) \
 	/DWIRESHARK_TARGET_PLATFORM=$(WIRESHARK_TARGET_PLATFORM) \
 	/DMSVC_VARIANT=$(MSVC_VARIANT) \
 	/DWIRESHARK_LIB_DIR=$(WIRESHARK_LIB_DIR) \
