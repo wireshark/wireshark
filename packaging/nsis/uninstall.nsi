@@ -62,7 +62,7 @@ Function un.Disassociate
 un.Disassociate.doDeregister:
 		; The extension is associated with Wireshark so, we must destroy this!
 		DeleteRegKey HKCR $EXTENSION
-		DetailPrint "Deregistered extension $EXTENSION"
+		DetailPrint "Deregistered file type: $EXTENSION"
 un.Disassociate.end:
 		Pop $EXTENSION
 	${Loop}

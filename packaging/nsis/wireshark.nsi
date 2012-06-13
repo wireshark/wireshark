@@ -171,6 +171,7 @@ ShowInstDetails show
 ; ============================================================================
 
 Var EXTENSION
+; http://msdn.microsoft.com/en-us/library/windows/desktop/cc144148.aspx
 Function Associate
 	Push $R0
 !insertmacro PushFileExtensions
@@ -185,7 +186,7 @@ Function Associate
 Associate.doRegister:
 		;The extension is not associated to any program, we can do the link
 		WriteRegStr HKCR $EXTENSION "" ${WIRESHARK_ASSOC}
-		DetailPrint "Registered extension $EXTENSION"
+		DetailPrint "Registered file type: $EXTENSION"
 
 Associate.end:
 		Pop $EXTENSION
