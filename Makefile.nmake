@@ -238,6 +238,9 @@ packaging_zip: all
 !IFDEF WIRESHARK_GENERATE_BSC_FILE
 # FIXME: Add epan\wspython\*.sbr when we support Python embedding
 # Note: Certain .sbr files cause bscmake warning "too many references... ignoring ..."
+# XXX: It seems that using .bsc files with VS2010 doesn't work (isn't supported ?)
+#      Using .bsc files with VS2008 may work
+#      See: http://ask.wireshark.org/questions/8660/wireshark-building-and-debugging-on-visual-c-or-visual-studio
 wireshark.bsc: \
 	*.sbr				\
 	codecs\*.sbr			\
