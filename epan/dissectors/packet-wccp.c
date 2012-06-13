@@ -820,7 +820,7 @@ dissect_wccp2_web_cache_identity_element(tvbuff_t *tvb, int offset, packet_info 
 
 static gboolean
 dissect_wccp2_wc_identity_info(tvbuff_t *tvb, int offset, int length,
-    packet_info *pinfo, proto_tree *info_tree, proto_item *info_item)
+    packet_info *pinfo, proto_tree *info_tree, proto_item *info_item _U_)
 {
 	proto_item *te;
 	proto_tree *element_tree;
@@ -1085,7 +1085,7 @@ static const capability_flag packet_return_method_flags[] = {
 
 static gboolean
 dissect_wccp2_capability_info(tvbuff_t *tvb, int offset, int length,
-    packet_info *pinfo, proto_tree *info_tree, proto_item *info_item)
+    packet_info *pinfo, proto_tree *info_tree, proto_item *info_item _U_)
 {
 	guint16 capability_type;
 	guint16 capability_val_len;
