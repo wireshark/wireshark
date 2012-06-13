@@ -291,62 +291,61 @@ Section "-Required"
 SetShellVarContext all
 
 
-
 SetOutPath $INSTDIR
-File "..\..\wireshark-gtk2\uninstall.exe"
-File "..\..\wireshark-gtk2\wiretap-${WTAP_VERSION}.dll"
+File "${STAGING_DIR}\uninstall.exe"
+File "${STAGING_DIR}\wiretap-${WTAP_VERSION}.dll"
 !ifdef ENABLE_LIBWIRESHARK
-File "..\..\epan\libwireshark.dll"
+File "${STAGING_DIR}\libwireshark.dll"
 !endif
-File "..\..\wireshark-gtk2\libwsutil.dll"
-File "..\..\wireshark-gtk2\libgio-2.0-0.dll"
-File "..\..\wireshark-gtk2\libglib-2.0-0.dll"
-File "..\..\wireshark-gtk2\libgobject-2.0-0.dll"
-File "..\..\wireshark-gtk2\libgmodule-2.0-0.dll"
-File "..\..\wireshark-gtk2\libgthread-2.0-0.dll"
+File "${STAGING_DIR}\libwsutil.dll"
+File "${STAGING_DIR}\libgio-2.0-0.dll"
+File "${STAGING_DIR}\libglib-2.0-0.dll"
+File "${STAGING_DIR}\libgobject-2.0-0.dll"
+File "${STAGING_DIR}\libgmodule-2.0-0.dll"
+File "${STAGING_DIR}\libgthread-2.0-0.dll"
 !ifdef ICONV_DIR
-File "..\..\wireshark-gtk2\iconv.dll"
+File "${STAGING_DIR}\iconv.dll"
 !endif
-File "..\..\wireshark-gtk2\${INTL_DLL}"
+File "${STAGING_DIR}\${INTL_DLL}"
 !ifdef ZLIB_DIR
-File "..\..\wireshark-gtk2\zlib1.dll"
+File "${STAGING_DIR}\zlib1.dll"
 !endif
 !ifdef C_ARES_DIR
-File "..\..\wireshark-gtk2\libcares-2.dll"
+File "${STAGING_DIR}\libcares-2.dll"
 !endif
 !ifdef ADNS_DIR
-File "..\..\wireshark-gtk2\adns_dll.dll"
+File "${STAGING_DIR}\adns_dll.dll"
 !endif
 !ifdef KFW_DIR
-File "..\..\wireshark-gtk2\comerr32.dll"
-File "..\..\wireshark-gtk2\krb5_32.dll"
-File "..\..\wireshark-gtk2\k5sprt32.dll"
+File "${STAGING_DIR}\comerr32.dll"
+File "${STAGING_DIR}\krb5_32.dll"
+File "${STAGING_DIR}\k5sprt32.dll"
 !endif
 !ifdef GNUTLS_DIR
-File "..\..\wireshark-gtk2\libgcrypt-11.dll"
-File "..\..\wireshark-gtk2\libgnutls-26.dll"
-File "..\..\wireshark-gtk2\libgpg-error-0.dll"
-File "..\..\wireshark-gtk2\libtasn1-3.dll"
+File "${STAGING_DIR}\libgcrypt-11.dll"
+File "${STAGING_DIR}\libgnutls-26.dll"
+File "${STAGING_DIR}\libgpg-error-0.dll"
+File "${STAGING_DIR}\libtasn1-3.dll"
 StrCmp "${INTL_DLL}" "libintl-8.dll" SkipLibIntl8
-File "..\..\wireshark-gtk2\libintl-8.dll"
+File "${STAGING_DIR}\libintl-8.dll"
 SkipLibIntl8:
 !endif
 !ifdef LUA_DIR
-File "..\..\wireshark-gtk2\lua5.1.dll"
+File "${STAGING_DIR}\lua5.1.dll"
 File "..\..\epan\wslua\init.lua"
 File "..\..\epan\wslua\console.lua"
 File "..\..\epan\wslua\dtd_gen.lua"
 !endif
 !ifdef SMI_DIR
-File "..\..\wireshark-gtk2\libsmi-2.dll"
+File "${STAGING_DIR}\libsmi-2.dll"
 !endif
 !ifdef GEOIP_DIR
-File "..\..\wireshark-gtk2\libGeoIP-1.dll"
+File "${STAGING_DIR}\libGeoIP-1.dll"
 !endif
-File "..\..\wireshark-gtk2\COPYING.txt"
-File "..\..\wireshark-gtk2\NEWS.txt"
-File "..\..\wireshark-gtk2\README.txt"
-File "..\..\wireshark-gtk2\README.windows.txt"
+File "${STAGING_DIR}\COPYING.txt"
+File "${STAGING_DIR}\NEWS.txt"
+File "${STAGING_DIR}\README.txt"
+File "${STAGING_DIR}\README.windows.txt"
 File "..\..\doc\AUTHORS-SHORT"
 File "..\..\manuf"
 File "..\..\services"
@@ -354,7 +353,7 @@ File "..\..\pdml2html.xsl"
 File "..\..\doc\ws.css"
 File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
-File "..\..\dumpcap.exe"
+File "${STAGING_DIR}\dumpcap.exe"
 File "..\..\doc\dumpcap.html"
 File "..\..\ipmap.html"
 
@@ -614,13 +613,13 @@ File "..\..\wimaxasncp\dictionary.dtd"
 SetOutPath $INSTDIR
 
 SetOutPath $INSTDIR\help
-File "..\..\wireshark-gtk2\help\toc"
-File "..\..\wireshark-gtk2\help\overview.txt"
-File "..\..\wireshark-gtk2\help\getting_started.txt"
-File "..\..\wireshark-gtk2\help\capturing.txt"
-File "..\..\wireshark-gtk2\help\capture_filters.txt"
-File "..\..\wireshark-gtk2\help\display_filters.txt"
-File "..\..\wireshark-gtk2\help\faq.txt"
+File "${STAGING_DIR}\help\toc"
+File "${STAGING_DIR}\help\overview.txt"
+File "${STAGING_DIR}\help\getting_started.txt"
+File "${STAGING_DIR}\help\capturing.txt"
+File "${STAGING_DIR}\help\capture_filters.txt"
+File "${STAGING_DIR}\help\display_filters.txt"
+File "${STAGING_DIR}\help\faq.txt"
 
 ; Write the uninstall keys for Windows
 ; http://nsis.sourceforge.net/Add_uninstall_information_to_Add/Remove_Programs
@@ -741,50 +740,50 @@ SectionEnd ; "Required"
 Section "Wireshark" SecWireshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\wireshark.exe"
-File "..\..\wireshark-gtk2\libgdk-win32-2.0-0.dll"
-File "..\..\wireshark-gtk2\libgdk_pixbuf-2.0-0.dll"
-File "..\..\wireshark-gtk2\libgtk-win32-2.0-0.dll"
-File "..\..\wireshark-gtk2\libatk-1.0-0.dll"
-File "..\..\wireshark-gtk2\libpango-1.0-0.dll"
-File "..\..\wireshark-gtk2\libpangowin32-1.0-0.dll"
+File "${STAGING_DIR}\wireshark.exe"
+File "${STAGING_DIR}\libgdk-win32-2.0-0.dll"
+File "${STAGING_DIR}\libgdk_pixbuf-2.0-0.dll"
+File "${STAGING_DIR}\libgtk-win32-2.0-0.dll"
+File "${STAGING_DIR}\libatk-1.0-0.dll"
+File "${STAGING_DIR}\libpango-1.0-0.dll"
+File "${STAGING_DIR}\libpangowin32-1.0-0.dll"
 !ifdef NEED_CAIRO_DLL
-File "..\..\wireshark-gtk2\libcairo-2.dll"
-File "..\..\wireshark-gtk2\libpangocairo-1.0-0.dll"
+File "${STAGING_DIR}\libcairo-2.dll"
+File "${STAGING_DIR}\libpangocairo-1.0-0.dll"
 !endif
 !ifdef NEED_EXPAT_DLL
-File "..\..\wireshark-gtk2\${EXPAT_DLL}"
+File "${STAGING_DIR}\${EXPAT_DLL}"
 !endif
 !ifdef NEED_FFI_DLL
-File "..\..\wireshark-gtk2\${FFI_DLL}"
+File "${STAGING_DIR}\${FFI_DLL}"
 !endif
 !ifdef NEED_FONTCONFIG_DLL
-File "..\..\wireshark-gtk2\${FONTCONFIG_DLL}"
+File "${STAGING_DIR}\${FONTCONFIG_DLL}"
 !endif
 !ifdef NEED_FREETYPE_DLL
-File "..\..\wireshark-gtk2\libpangoft2-1.0-0.dll"
-File "..\..\wireshark-gtk2\${FREETYPE_DLL}"
+File "${STAGING_DIR}\libpangoft2-1.0-0.dll"
+File "${STAGING_DIR}\${FREETYPE_DLL}"
 !endif
 !ifdef NEED_JASPER_DLL
-File "..\..\wireshark-gtk2\${JASPER_DLL}"
+File "${STAGING_DIR}\${JASPER_DLL}"
 !endif
 !ifdef NEED_JPEG_DLL
-File "..\..\wireshark-gtk2\${JPEG_DLL}"
+File "${STAGING_DIR}\${JPEG_DLL}"
 !endif
 !ifdef NEED_LZMA_DLL
-File "..\..\wireshark-gtk2\${LZMA_DLL}"
+File "${STAGING_DIR}\${LZMA_DLL}"
 !endif
 !ifdef NEED_PIXMAN_DLL
-File "..\..\wireshark-gtk2\${PIXMAN_DLL}"
+File "${STAGING_DIR}\${PIXMAN_DLL}"
 !endif
 !ifdef NEED_PNG_DLL
-File "..\..\wireshark-gtk2\${PNG_DLL}"
+File "${STAGING_DIR}\${PNG_DLL}"
 !endif
 !ifdef NEED_TIFF_DLL
-File "..\..\wireshark-gtk2\${TIFF_DLL}"
+File "${STAGING_DIR}\${TIFF_DLL}"
 !endif
 !ifdef NEED_XML_DLL
-File "..\..\wireshark-gtk2\${XML_DLL}"
+File "${STAGING_DIR}\${XML_DLL}"
 !endif
 
 SetOutPath $INSTDIR\etc\gtk-2.0
@@ -796,13 +795,13 @@ File "${GTK_DIR}\etc\gtk-2.0\*.*"
 #!endif
 
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
-File "..\..\wireshark-gtk2\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
+File "${STAGING_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\modules
-File "..\..\wireshark-gtk2\lib\gtk-2.0\modules\libgail.dll"
+File "${STAGING_DIR}\lib\gtk-2.0\modules\libgail.dll"
 
 ; GTK MS-Windows Engine (GTK-Wimp)
 SetOutPath $INSTDIR\${GTK_WIMP_DLLDST_DIR}
-File "..\..\wireshark-gtk2\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libwimp.dll"
+File "${STAGING_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libwimp.dll"
 SetOutPath $INSTDIR\${GTK_WIMP_RCDST_DIR}
 File "${GTK_WIMP_RCSRC_DIR}\gtkrc"
 
@@ -813,7 +812,7 @@ SectionEnd ; "Wireshark"
 Section "TShark" SecTShark
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\tshark.exe"
+File "${STAGING_DIR}\tshark.exe"
 File "..\..\doc\tshark.html"
 SectionEnd
 
@@ -822,30 +821,30 @@ SectionGroup "Plugins / Extensions" SecPluginsGroup
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION}'
-File "..\..\plugins\asn1\asn1.dll"
-File "..\..\plugins\docsis\docsis.dll"
-File "..\..\plugins\ethercat\ethercat.dll"
-File "..\..\plugins\gryphon\gryphon.dll"
-File "..\..\plugins\irda\irda.dll"
-File "..\..\plugins\m2m\m2m.dll"
-File "..\..\plugins\opcua\opcua.dll"
-File "..\..\plugins\profinet\profinet.dll"
-File "..\..\plugins\unistim\unistim.dll"
-File "..\..\plugins\wimax\wimax.dll"
-File "..\..\plugins\wimaxasncp\wimaxasncp.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\asn1.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\docsis.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\ethercat.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\gryphon.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\irda.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\m2m.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\opcua.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\profinet.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\unistim.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\wimax.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\wimaxasncp.dll"
 !include "custom_plugins.txt"
 SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION}'
-File "..\..\plugins\stats_tree\stats_tree.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\stats_tree.dll"
 SectionEnd
 
 Section "Mate - Meta Analysis and Tracing Engine" SecMate
 ;-------------------------------------------
 SetOutPath '$INSTDIR\plugins\${VERSION}'
-File "..\..\plugins\mate\mate.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\mate.dll"
 SectionEnd
 
 
@@ -870,35 +869,35 @@ SectionGroup "Tools" SecToolsGroup
 Section "Editcap" SecEditcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\editcap.exe"
+File "${STAGING_DIR}\editcap.exe"
 File "..\..\doc\editcap.html"
 SectionEnd
 
 Section "Text2Pcap" SecText2Pcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\text2pcap.exe"
+File "${STAGING_DIR}\text2pcap.exe"
 File "..\..\doc\text2pcap.html"
 SectionEnd
 
 Section "Mergecap" SecMergecap
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\mergecap.exe"
+File "${STAGING_DIR}\mergecap.exe"
 File "..\..\doc\mergecap.html"
 SectionEnd
 
 Section "Capinfos" SecCapinfos
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\capinfos.exe"
+File "${STAGING_DIR}\capinfos.exe"
 File "..\..\doc\capinfos.html"
 SectionEnd
 
 Section "Rawshark" SecRawshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\rawshark.exe"
+File "${STAGING_DIR}\rawshark.exe"
 File "..\..\doc\rawshark.html"
 SectionEnd
 
