@@ -72,9 +72,10 @@ static gint ett_pop_data_fragments = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t imf_handle = NULL;
+static dissector_handle_t ssl_handle = NULL;
 
-#define TCP_PORT_POP			110
-#define TCP_PORT_SSL_POP		995
+#define TCP_PORT_POP            110
+#define TCP_PORT_SSL_POP        995
 
 /* desegmentation of POP command and response lines */
 static gboolean pop_data_desegment = TRUE;
@@ -112,6 +113,8 @@ struct pop_data_val {
   gboolean msg_request;
   guint32 msg_read_len;  /* Length of RETR message read so far */
   guint32 msg_tot_len;   /* Total length of RETR message */
+  gboolean stls_request;  /* Received STLS request */
+  guint32  last_nontls_frame; /* last non-TLS frame; 0 if not known or no TLS */
 };
 
 
@@ -140,24 +143,6 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
 
-  /*
-   * Find the end of the first line.
-   *
-   * Note that "tvb_find_line_end()" will return a value that is
-   * not longer than what's in the buffer, so the "tvb_get_ptr()"
-   * call won't throw an exception.
-   */
-  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-  line = tvb_get_ptr(tvb, offset, linelen);
-
-  if (pinfo->match_uint == pinfo->destport) {
-    is_request = TRUE;
-    is_continuation = FALSE;
-  } else {
-    is_request = FALSE;
-    is_continuation = response_is_continuation(line);
-  }
-
   frame_data_p = p_get_proto_data(pinfo->fd, proto_pop);
 
   if (!frame_data_p) {
@@ -175,6 +160,44 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       conversation_add_proto_data(conversation, proto_pop, data_val);
     }
+  }
+
+  /* Are we doing TLS? */
+  if (data_val->last_nontls_frame != 0 && pinfo->fd->num > data_val->last_nontls_frame) {
+    guint16 save_can_desegment;
+    guint32 save_last_nontls_frame;
+
+    /* This is TLS, not raw POP/IMF. TLS can desegment */
+    save_can_desegment = pinfo->can_desegment;
+    pinfo->can_desegment = pinfo->saved_can_desegment;
+
+    /* Make sure the SSL dissector will not be called again after decryption */
+    save_last_nontls_frame = data_val->last_nontls_frame;
+    data_val->last_nontls_frame = 0;
+
+    call_dissector(ssl_handle, tvb, pinfo, tree);
+
+    pinfo->can_desegment = save_can_desegment;
+    data_val->last_nontls_frame = save_last_nontls_frame;
+    return;
+  }
+
+  /*
+   * Find the end of the first line.
+   *
+   * Note that "tvb_find_line_end()" will return a value that is
+   * not longer than what's in the buffer, so the "tvb_get_ptr()"
+   * call won't throw an exception.
+   */
+  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+  line = tvb_get_ptr(tvb, offset, linelen);
+
+  if (pinfo->match_uint == pinfo->destport) {
+    is_request = TRUE;
+    is_continuation = FALSE;
+  } else {
+    is_request = FALSE;
+    is_continuation = response_is_continuation(line);
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -284,6 +307,10 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            g_ascii_strncasecmp(line, "TOP", 3) == 0)
           /* the next response will tell us how many bytes */
           data_val->msg_request = TRUE;
+
+        if (g_ascii_strncasecmp(line, "STLS", 4) == 0) {
+          data_val->stls_request = TRUE;
+        }
       } else {
         if (data_val->msg_request) {
           /* this is a response to a RETR or TOP command */
@@ -294,6 +321,14 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             data_val->msg_tot_len = atoi(line + 4);
           }
           data_val->msg_request = FALSE;
+        }
+
+        if (data_val->stls_request) {
+          if (g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
+              /* This is the last non-TLS frame. */
+              data_val->last_nontls_frame = pinfo->fd->num;
+          }
+          data_val->stls_request = FALSE;
         }
       }
     }
@@ -462,4 +497,6 @@ proto_reg_handoff_pop(void)
   /* find the IMF dissector */
   imf_handle = find_dissector("imf");
 
+  /* find the SSL dissector */
+  ssl_handle = find_dissector("ssl");
 }
