@@ -29,7 +29,7 @@ libgtkui_win32.lib	: ..\..\config.h $(WIRESHARK_WIN32_OBJECTS)
 	link /lib /out:libgtkui_win32.lib $(WIRESHARK_WIN32_OBJECTS) winmm.lib
 
 clean:
-	rm -f $(WIRESHARK_WIN32_OBJECTS) libgtkui_win32.lib *.pdb
+	rm -f $(WIRESHARK_WIN32_OBJECTS) libgtkui_win32.lib *.pdb *.sbr
 
 distclean: clean
 

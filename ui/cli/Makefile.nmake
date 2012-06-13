@@ -54,7 +54,8 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) ..\..\tools\make-tapreg-dotc
 	@$(SH) ../../tools/make-tapreg-dotc tshark-tap-register.c . $(TSHARK_TAP_SRC)
 
 clean:
-	rm -f $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj libcliui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
+	rm -f $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj libcliui.lib *.pdb *.sbr \
+		doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 
 distclean: clean
