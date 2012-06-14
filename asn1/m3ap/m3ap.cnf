@@ -201,6 +201,45 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   dissect_gtpv2_mbms_time_to_data_xfer(parameter_tvb, actx->pinfo, tree, actx->created_item, tvb_len, 0, 0);
 #.END
 
+#------ Pretify info column -----
+#.FN_HDR MBMSSessionStartRequest
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Start Request ");
+#.FN_HDR MBMSSessionStartResponse
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Start Response ");
+#.FN_HDR MBMSSessionStartFailure
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Start Failure ");
+#.FN_HDR MBMSSessionStopRequest
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Stop Request ");
+#.FN_HDR MBMSSessionStopResponse
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Stop Response ");
+#.FN_HDR MBMSSessionUpdateRequest
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Update Request ");
+#.FN_HDR MBMSSessionUpdateResponse
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Update Response ");
+#.FN_HDR MBMSSessionUpdateFailure
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MBMS Session Update Failure ");
+#.FN_HDR ErrorIndication
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"Error Indication ");
+#.FN_HDR Reset
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"Reset ");
+#.FN_HDR ResetAcknowledge
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"Reset Acknowledge ");
+#.FN_HDR PrivateMessage
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"Private Message ");
+#.FN_HDR MCEConfigurationUpdate
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MCE Configuration Update ");
+#.FN_HDR MCEConfigurationUpdateAcknowledge	
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MCE Configuration Update Acknowledge ");
+#.FN_HDR MCEConfigurationUpdateFailure
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"MCE Configuration Update Failure ");
+#.FN_HDR M3SetupRequest
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"M3 Setup Request ");
+#.FN_HDR M3SetupResponse
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"M3 Setup Response ");
+#.FN_HDR M3SetupFailure
+	col_set_str(actx->pinfo->cinfo, COL_INFO,"M3 Setup Failure ");
+
+
 #.ASSIGN_VALUE_TO_TYPE  # M3AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 id-mBMSsessionStart											ProcedureCode
