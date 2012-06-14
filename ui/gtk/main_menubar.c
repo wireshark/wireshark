@@ -4677,6 +4677,26 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 }
 
 
+/* Disable menu items while we're waiting for the capture child to
+   finish.  We disallow quitting until it finishes, and also disallow
+   stopping or restarting the capture. */
+void
+set_menus_for_capture_stopping(void)
+{
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Quit",
+                         FALSE);
+#ifdef HAVE_LIBPCAP
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Stop",
+                         FALSE);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
+                         FALSE);
+    set_toolbar_for_capture_stopping();
+
+    set_capture_if_dialog_for_capture_stopping();
+#endif /* HAVE_LIBPCAP */
+}
+
+
 void
 set_menus_for_captured_packets(gboolean have_captured_packets)
 {

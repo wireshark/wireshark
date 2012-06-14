@@ -1672,6 +1672,12 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 }
 
 static void
+main_capture_cb_capture_stopping(capture_options *capture_opts _U_)
+{
+    set_menus_for_capture_stopping();
+}
+
+static void
 main_capture_cb_capture_failed(capture_options *capture_opts _U_)
 {
     static GList *icon_list = NULL;
@@ -1863,6 +1869,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
         gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
 #endif
+        main_capture_cb_capture_stopping(capture_opts);
         break;
     case(capture_cb_capture_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");

@@ -121,6 +121,11 @@ void set_menus_for_selected_tree_row(capture_file *cf);
    progress. */
 void set_menus_for_capture_in_progress(gboolean);
 
+/* Disable menu items while we're waiting for the capture child to
+   finish.  We disallow quitting until it finishes, and also disallow
+   stopping or restarting the capture. */
+void set_menus_for_capture_stopping(void);
+
 /* Enable or disable menu items based on whether you have some captured
    packets. */
 void set_menus_for_captured_packets(gboolean);

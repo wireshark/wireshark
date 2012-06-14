@@ -368,6 +368,15 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
   }
 }
 
+/* a live capture is being stopped */
+void
+set_capture_if_dialog_for_capture_stopping(void)
+{
+  if (cap_if_w) {
+    gtk_widget_set_sensitive(stop_bt, FALSE);
+  }
+}
+
 
 /* the window was closed, cleanup things */
 static void
