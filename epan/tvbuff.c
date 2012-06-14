@@ -2473,6 +2473,7 @@ tvb_get_ephemeral_string(tvbuff_t *tvb, const gint offset, const gint length)
 gchar *
 tvb_get_ephemeral_unicode_string(tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
+	/* Longest UTF-8 character takes 6 bytes + 1 byte for NUL, round it to 8B */
 	gchar          tmpbuf[8];
 	gunichar2      uchar;
 	gint           i;       /* Byte counter for tvbuff */
@@ -2696,6 +2697,7 @@ tvb_get_ephemeral_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 gchar *
 tvb_get_ephemeral_unicode_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
+	/* Longest UTF-8 character takes 6 bytes + 1 byte for NUL, round it to 8B */
 	gchar          tmpbuf[8];
 	gunichar2      uchar;
 	gint           size;    /* Number of UTF-16 characters */
