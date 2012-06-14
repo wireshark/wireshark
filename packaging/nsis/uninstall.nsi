@@ -6,20 +6,29 @@
 ; Create an installer that only writes an uninstaller.
 ; http://nsis.sourceforge.net/Signing_an_Uninstaller
 
+!include "common.nsh"
+!include 'LogicLib.nsh'
+
 SetCompress off
-OutFile "..\..\wireshark-gtk2\uninstall_installer.exe"
+OutFile "${STAGING_DIR}\uninstall_installer.exe"
 RequestExecutionLevel user
 
 InstType "un.Default (keep Personal Settings and WinPcap)"
 InstType "un.All (remove all)"
 
-!include "common.nsh"
-!include 'LogicLib.nsh'
-
 ; Uninstaller icon
 UninstallIcon "..\..\image\wiresharkinst.ico"
 
 !include "MUI.nsh"
+
+!define MUI_UNICON "..\..\image\wiresharkinst.ico"
+
+; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
+!define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Wireshark installation will be removed. Click 'Next' to continue."
+; Uninstall stuff (this text isn't used with the MODERN_UI!)
+;UninstallText "This will uninstall Wireshark.\r\nBefore starting the uninstallation, make sure Wireshark is not running.\r\nClick 'Next' to continue."
+
+!define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
 !insertmacro MUI_UNPAGE_WELCOME
 !insertmacro MUI_UNPAGE_CONFIRM
@@ -44,7 +53,7 @@ ShowUninstDetails show
 ; ============================================================================
 
 Function .onInit
-  WriteUninstaller "${MAKEDIR}\..\..\wireshark-gtk2\uninstall.exe"
+  WriteUninstaller "${STAGING_DIR}\${UNINSTALLER_NAME}"
   SetErrorLevel 0
   Quit
 FunctionEnd

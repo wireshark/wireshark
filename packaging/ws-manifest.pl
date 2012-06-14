@@ -43,7 +43,7 @@ while ($line = <>) {
 	if(scalar(@defines) == 0) {
 	    undef @defines;
 	}
-    } elsif ($line =~/^File.*uninstall/) {
+    } elsif ($line =~/^File.*uninstall/i) {
 	next;
     } elsif ($line =~ /^File[^\"]+\"([^\"]+)\"/) {
 	$file = $1;

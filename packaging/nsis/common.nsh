@@ -13,6 +13,8 @@
 !define DISPLAY_NAME "${PROGRAM_NAME} ${VERSION} (${BITS}-bit)"
 Name "${DISPLAY_NAME}"
 
+!define UNINSTALLER_NAME "uninstall.exe"
+
 VIAddVersionKey "ProductName" "${PROGRAM_NAME}"
 VIAddVersionKey "Comments" "It's a great product with a great story to tell. I'm pumped!"
 VIAddVersionKey "CompanyName" "${PROGRAM_NAME} development team"
