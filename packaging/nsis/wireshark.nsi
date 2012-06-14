@@ -24,11 +24,6 @@ OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 ; Installer icon
 Icon "..\..\image\wiresharkinst.ico"
 
-; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
-!define MUI_UNCONFIRMPAGE_TEXT_TOP "The following Wireshark installation will be uninstalled. Click 'Next' to continue."
-; Uninstall stuff (this text isn't used with the MODERN_UI!)
-;UninstallText "This will uninstall Wireshark.\r\nBefore starting the uninstallation, make sure Wireshark is not running.\r\nClick 'Next' to continue."
-
 ; ============================================================================
 ; Modern UI
 ; ============================================================================
@@ -42,11 +37,9 @@ Icon "..\..\image\wiresharkinst.ico"
 ;!addplugindir ".\Plugins"
 
 !define MUI_ICON "..\..\image\wiresharkinst.ico"
-!define MUI_UNICON "..\..\image\wiresharkinst.ico"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
-!define MUI_UNFINISHPAGE_NOAUTOCLOSE
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Wireshark.\r\n\r\nBefore starting the installation, make sure Wireshark is not running.\r\n\r\nClick 'Next' to continue."
 ;!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
 ;!define MUI_FINISHPAGE_LINK_LOCATION "http://www.winpcap.org"
@@ -292,7 +285,7 @@ SetShellVarContext all
 
 
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\uninstall.exe"
+File "${STAGING_DIR}\${UNINSTALLER_NAME}"
 File "${STAGING_DIR}\wiretap-${WTAP_VERSION}.dll"
 !ifdef ENABLE_LIBWIRESHARK
 File "${STAGING_DIR}\libwireshark.dll"
@@ -642,8 +635,8 @@ WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "NoRepair" 1
 WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "VersionMajor" ${VERSION_MAJOR}
 WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "VersionMinor" ${VERSION_MINOR}
 
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "UninstallString" '"$INSTDIR\${UNINSTALLER_NAME}"'
+WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "QuietUninstallString" '"$INSTDIR\${UNINSTALLER_NAME}" /S'
 
 ; Write an entry for ShellExecute
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\App Paths\wireshark.exe" "" '$INSTDIR\wireshark.exe'
@@ -662,7 +655,6 @@ CreateShortCut "$SMPROGRAMS\Wireshark.lnk" "$INSTDIR\wireshark.exe" "" "$INSTDIR
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Manual.lnk" "$INSTDIR\wireshark.html"
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Display Filters Manual.lnk" "$INSTDIR\wireshark-filter.html"
 ;CreateShortCut "$SMPROGRAMS\Wireshark\Wireshark Program Directory.lnk" "$INSTDIR"
-;CreateShortCut "$SMPROGRAMS\Wireshark\Uninstall Wireshark.lnk" "$INSTDIR\uninstall.exe"
 SecRequired_skip_StartMenu:
 
 ; is command line option "/desktopicon" set?
