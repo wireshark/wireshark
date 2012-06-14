@@ -4445,9 +4445,9 @@ static void (*nas_msg_emm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     nas_emm_auth_req,           /* Authentication request */
     nas_emm_auth_resp,          /* Authentication response */
     NULL,                       /* Authentication reject (No IE:s)*/
-    nas_emm_attach_fail,        /* Authentication failure */
     nas_emm_id_req,             /* Identity request */
     nas_emm_id_res,             /* Identity response */
+    nas_emm_attach_fail,        /* Authentication failure */
     nas_emm_sec_mode_cmd,       /* Security mode command */
     nas_emm_sec_mode_comp,      /* Security mode complete */
     nas_emm_sec_mode_rej,       /* Security mode reject */
