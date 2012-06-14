@@ -3848,10 +3848,15 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         case FT_UINT32:
                         case FT_FRAMENUM:
                                 u_integer = fvalue_get_uinteger(&finfo->value);
-                                if (hfinfo->strings) {
-                                        if (hfinfo->display & BASE_CUSTOM) {
-                                                g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
-                                        } else if (hfinfo->display & BASE_RANGE_STRING) {
+				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
+					gchar tmp[ITEM_LABEL_LENGTH];
+					custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+
+					DISSECTOR_ASSERT(fmtfunc);
+					fmtfunc(tmp, u_integer);
+					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
+				} else if (hfinfo->strings) {
+					if (hfinfo->display & BASE_RANGE_STRING) {
                                                 g_strlcpy(result+offset_r, rval_to_str(u_integer, hfinfo->strings, "%u"), size-offset_r);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
                                                 g_strlcpy(result+offset_r, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size-offset_r);
@@ -3891,10 +3896,15 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         case FT_INT24:
                         case FT_INT32:
                                 integer = fvalue_get_sinteger(&finfo->value);
-                                if (hfinfo->strings) {
-                                        if (hfinfo->display & BASE_CUSTOM) {
-                                                g_snprintf(result+offset_r, size-offset_r, "%d", integer);
-                                        } else if (hfinfo->display & BASE_RANGE_STRING) {
+				if ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM) {
+					gchar tmp[ITEM_LABEL_LENGTH];
+					custom_fmt_func_t fmtfunc = (custom_fmt_func_t)hfinfo->strings;
+
+					DISSECTOR_ASSERT(fmtfunc);
+					fmtfunc(tmp, integer);
+					g_snprintf(result+offset_r, size-offset_r, "%s", tmp);
+				} else if (hfinfo->strings) {
+					if (hfinfo->display & BASE_RANGE_STRING) {
                                                 g_strlcpy(result+offset_r, rval_to_str(integer, hfinfo->strings, "%d"), size-offset_r);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
                                                 g_strlcpy(result+offset_r, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size-offset_r);
@@ -6374,28 +6384,30 @@ proto_registrar_dump_values(void)
 			range = NULL;
 			tfs   = NULL;
 
-			if ((hfinfo->display & BASE_DISPLAY_E_MASK) != BASE_CUSTOM &&
-				(hfinfo->type == FT_UINT8 ||
-				hfinfo->type == FT_UINT16 ||
-				hfinfo->type == FT_UINT24 ||
-				hfinfo->type == FT_UINT32 ||
-				hfinfo->type == FT_UINT64 ||
-				hfinfo->type == FT_INT8 ||
-				hfinfo->type == FT_INT16 ||
-				hfinfo->type == FT_INT24 ||
-				hfinfo->type == FT_INT32 ||
-				hfinfo->type == FT_INT64)) {
+			if (hfinfo->strings != NULL) {
+				if ((hfinfo->display & BASE_DISPLAY_E_MASK) != BASE_CUSTOM &&
+				    (hfinfo->type == FT_UINT8  ||
+				     hfinfo->type == FT_UINT16 ||
+				     hfinfo->type == FT_UINT24 ||
+				     hfinfo->type == FT_UINT32 ||
+				     hfinfo->type == FT_UINT64 ||
+				     hfinfo->type == FT_INT8   ||
+				     hfinfo->type == FT_INT16  ||
+				     hfinfo->type == FT_INT24  ||
+				     hfinfo->type == FT_INT32  ||
+				     hfinfo->type == FT_INT64)) {
 
-				if (hfinfo->display & BASE_EXT_STRING) {
-					vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
-				} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
-					vals = hfinfo->strings;
-				} else {
-					range = hfinfo->strings;
+					if (hfinfo->display & BASE_EXT_STRING) {
+						vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
+					} else if ((hfinfo->display & BASE_RANGE_STRING) == 0) {
+						vals = hfinfo->strings;
+					} else {
+						range = hfinfo->strings;
+					}
 				}
-			}
-			else if (hfinfo->type == FT_BOOLEAN) {
-				tfs = hfinfo->strings;
+				else if (hfinfo->type == FT_BOOLEAN) {
+					tfs = hfinfo->strings;
+				}
 			}
 
 			/* Print value strings? */
