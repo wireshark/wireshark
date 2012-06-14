@@ -501,7 +501,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           test_tree = proto_item_add_subtree(ti, ett_csn1);
 
           csnStreamInit(&arT, bit_offset, remaining_bits_len);
-          Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pui8, ett_csn1);
+          Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pui8, ett_csn1);
           if (Status >= 0)
           {
             pui8    += nSize;
@@ -566,7 +566,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         test_tree = proto_item_add_subtree(ti, ett_csn1);
 
         csnStreamInit(&arT, bit_offset, remaining_bits_len);
-        Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
+        Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
         if (Status >= 0)
         {
@@ -628,7 +628,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             }
 
             csnStreamInit(&arT, bit_offset, remaining_bits_len);
-            Status = csnStreamDissector(test_tree, &arT, descr, tvb, data, ett_csn1);
+            Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR*)descr, tvb, data, ett_csn1);
 
             if (Status >= 0)
             {
@@ -708,7 +708,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
       case CSN_UNION:
       {
         gint16           Bits;
-        guint8            index;
+        guint8           t_index;
         gint16           count      = pDescr->i;
         const CSN_DESCR* pDescrNext = pDescr;
 
@@ -723,19 +723,19 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         proto_tree_add_text(tree, tvb, bit_offset>>3, ((bit_offset+Bits-1)>>3)-(bit_offset>>3)+1, "%s Union:%s",
                                    decode_bits_in_field(bit_offset, Bits, tvb_get_bits8(tvb, bit_offset, Bits)),
                                    pDescr->sz);
-        index = 0;
+        t_index = 0;
 
         while (Bits > 0)
         {
-          index <<= 1;
+          t_index <<= 1;
 
           if (CSN_UNION_LH == pDescr->type)
           {
-            index |= tvb_get_masked_bits8(tvb, bit_offset, 1);
+            t_index |= tvb_get_masked_bits8(tvb, bit_offset, 1);
           }
           else
           {
-            index |= tvb_get_bits8(tvb, bit_offset, 1);
+            t_index |= tvb_get_bits8(tvb, bit_offset, 1);
           }
 
           remaining_bits_len--;
@@ -745,11 +745,11 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         /* Assign UnionType */
         pui8  = pui8DATA(data, pDescr->offset);
-        *pui8 = index;
+        *pui8 = t_index;
 
 
         /* script index to continue on, limited in case we do not have a power of 2 */
-        pDescr += (MIN(index + 1, count));
+        pDescr += (MIN(t_index + 1, count));
 
 
         switch (pDescr->type)
@@ -997,7 +997,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               test_tree = proto_item_add_subtree(ti, ett_csn1);
 
               csnStreamInit(&arT, bit_offset, remaining_bits_len);
-              Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pui8, ett_csn1);
+              Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pui8, ett_csn1);
               if (Status >= 0)
               {
                 pui8    += nSize;
@@ -1050,7 +1050,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             test_tree = proto_item_add_subtree(ti, ett_csn1);
 
             csnStreamInit(&arT, bit_offset, remaining_bits_len);
-            Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
+            Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
             if (Status >= 0)
             {
               proto_item_set_len(ti,((arT.bit_offset-1)>>3) - (bit_offset>>3)+1);
@@ -1220,12 +1220,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
 
           { /* extract bits */
-            guint8* pui8 = pui8DATA(data, pDescr->offset);
+            guint8* t_pui8 = pui8DATA(data, pDescr->offset);
             gint16 nB1  = no_of_bits & 0x07;/* no_of_bits Mod 8 */
 
             if (nB1 > 0)
             { /* take care of the first byte - it will be right aligned */
-              *pui8++ = tvb_get_bits8(tvb, bit_offset, nB1);
+              *t_pui8++ = tvb_get_bits8(tvb, bit_offset, nB1);
               no_of_bits  -= nB1;
               bit_offset += nB1; /* (nB1 is no_of_bits Mod 8) */
               remaining_bits_len -= nB1;
@@ -1234,7 +1234,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             /* remaining no_of_bits is a multiple of 8 or 0 */
             while (no_of_bits > 0)
             {
-              *pui8++ = tvb_get_bits8(tvb, bit_offset, 8);
+              *t_pui8++ = tvb_get_bits8(tvb, bit_offset, 8);
               no_of_bits -= 8;
               remaining_bits_len -= 8;
             }
@@ -1451,7 +1451,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             test_tree = proto_item_add_subtree(ti, ett_csn1);
 
             csnStreamInit(&arT, bit_offset, remaining_bits_len);
-            Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
+            Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
             if (Status >= 0)
             { /* successful completion */
@@ -1515,7 +1515,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           test_tree = proto_item_add_subtree(ti, ett_csn1);
 
           csnStreamInit(&arT, bit_offset, remaining_bits_len);
-          Status = csnStreamDissector(test_tree, &arT, pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
+          Status = csnStreamDissector(test_tree, &arT, (const CSN_DESCR *)pDescr->descr.ptr, tvb, pvDATA(data, pDescr->offset), ett_csn1);
 
           if (Status >= 0)
           { /* successful completion */
