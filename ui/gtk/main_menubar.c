@@ -4640,6 +4640,11 @@ set_menus_for_capture_file(capture_file *cf)
 void
 set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
+    /* Either a capture was started or stopped; in either case, it's not
+       in the process of stopping, so allow quitting. */
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Quit",
+                         TRUE);
+
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Open",
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/OpenRecent",
