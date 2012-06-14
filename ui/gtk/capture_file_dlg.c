@@ -977,6 +977,7 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   file_merge_cmd(widget);
 }
 
+#ifdef HAVE_LIBPCAP
 static void
 do_capture_stop(capture_file *cf)
 {
@@ -989,6 +990,7 @@ do_capture_stop(capture_file *cf)
   while (cf->state == FILE_READ_IN_PROGRESS)
     gtk_main_iteration();
 }
+#endif
 
 gboolean
 do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
