@@ -977,6 +977,19 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   file_merge_cmd(widget);
 }
 
+static void
+do_capture_stop(capture_file *cf)
+{
+  /* Stop the capture (complete with UI updates). */
+  capture_stop_cb(NULL, NULL);
+
+  /* Now run the main loop until the capture stops and we finish
+     reading it; we need to run the main loop so we respond to
+     messages on the sync pipe and the sync pipe being closed. */
+  while (cf->state == FILE_READ_IN_PROGRESS)
+    gtk_main_iteration();
+}
+
 gboolean
 do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
 {
@@ -1094,7 +1107,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
         /* If there's a capture in progress, we have to stop the capture
            and then do the save. */
         if (capture_in_progress)
-          capture_stop_cb(NULL, NULL);
+          do_capture_stop(cf);
 #endif
         /* Save the file and close it */
         do_file_save(cf, TRUE);
@@ -1105,7 +1118,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
         /* If there's a capture in progress; we have to stop the capture
            and then do the close. */
         if (capture_in_progress)
-          capture_stop_cb(NULL, NULL);
+          do_capture_stop(cf);
 #endif
         /* Just close the file, discarding changes */
         cf_close(cf);
@@ -1130,7 +1143,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
       /* If there's a capture in progress, we have to stop the capture
          and then do the close. */
     if (capture_in_progress)
-      capture_stop_cb(NULL, NULL);
+      do_capture_stop(cf);
 #endif
     cf_close(cf);
   }
