@@ -639,6 +639,12 @@ if(ue_eutra_cap_tvb){
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
     call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
 
+#.FN_BODY CellInfoUTRA-TDD-r10/utra-BCCH-Container-r10 VAL_PTR = &utra_bcch_cont_tvb
+  tvbuff_t *utra_bcch_cont_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+
 #.FN_BODY NeighCellConfig VAL_PTR = &neigh_cell_config_tvb
   tvbuff_t *neigh_cell_config_tvb = NULL;
 %(DEFAULT_BODY)s

@@ -523,7 +523,7 @@ static int hf_lte_rrc_utra_BCCH_Container_r9_01 = -1;  /* T_utra_BCCH_Container_
 static int hf_lte_rrc_CellInfoListUTRA_TDD_r10_item = -1;  /* CellInfoUTRA_TDD_r10 */
 static int hf_lte_rrc_physCellId_r10_01 = -1;     /* PhysCellIdUTRA_TDD */
 static int hf_lte_rrc_carrierFreq_r10_01 = -1;    /* ARFCN_ValueUTRA */
-static int hf_lte_rrc_utra_BCCH_Container_r10 = -1;  /* OCTET_STRING */
+static int hf_lte_rrc_utra_BCCH_Container_r10 = -1;  /* T_utra_BCCH_Container_r10 */
 static int hf_lte_rrc_criticalExtensions_22 = -1;  /* T_criticalExtensions_22 */
 static int hf_lte_rrc_rrcConnectionRequest_r8 = -1;  /* RRCConnectionRequest_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_22 = -1;  /* T_criticalExtensionsFuture_22 */
@@ -18904,10 +18904,25 @@ dissect_lte_rrc_CellInfoListUTRA_TDD_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+
+static int
+dissect_lte_rrc_T_utra_BCCH_Container_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *utra_bcch_cont_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &utra_bcch_cont_tvb);
+
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+
+
+  return offset;
+}
+
+
 static const per_sequence_t CellInfoUTRA_TDD_r10_sequence[] = {
   { &hf_lte_rrc_physCellId_r10_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysCellIdUTRA_TDD },
   { &hf_lte_rrc_carrierFreq_r10_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_ARFCN_ValueUTRA },
-  { &hf_lte_rrc_utra_BCCH_Container_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING },
+  { &hf_lte_rrc_utra_BCCH_Container_r10, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_utra_BCCH_Container_r10 },
   { NULL, 0, 0, NULL }
 };
 
@@ -29003,7 +29018,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_utra_BCCH_Container_r10,
       { "utra-BCCH-Container-r10", "lte-rrc.utra_BCCH_Container_r10",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_criticalExtensions_22,
       { "criticalExtensions", "lte-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_criticalExtensions_22_vals), 0,
