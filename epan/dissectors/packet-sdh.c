@@ -172,33 +172,33 @@ dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     j1 = tvb_get_guint8(tvb, au);
 
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_a1, tvb, 0, 3, a1, "A1 %x", a1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_a2, tvb, 3, 3, a2, "A2 %x", a2);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_j0, tvb, 6, 1, j0, "J0 %d", j0);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_b1, tvb, 0+(1*level*COLUMNS), 1, b1, "B1 %d", b1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_e1, tvb, 3+(1*level*COLUMNS), 1, e1, "E1 %d", e1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_f1, tvb, 6+(1*level*COLUMNS), 1, f1, "F1 %d", f1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d1, tvb, 0+(2*level*COLUMNS), 1, d1, "D1 %d", d1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d2, tvb, 3+(2*level*COLUMNS), 1, d2, "D2 %d", d2);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d3, tvb, 6+(2*level*COLUMNS), 1, d3, "D3 %d", d3);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_au, tvb, 0+(3*level*COLUMNS), 9, au, "AU pointer %d h1 %d, h2 %d", au, h1, h2);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_b2, tvb, 0+(4*level*COLUMNS), 1, b2, "B2 %d", b2);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_k1, tvb, 3+(4*level*COLUMNS), 1, k1, "K1 %d", k1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_k2, tvb, 6+(4*level*COLUMNS), 1, k2, "K2 %d", k2);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d4, tvb, 0+(5*level*COLUMNS), 1, d4, "D4 %d", d4);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d5, tvb, 3+(5*level*COLUMNS), 1, d5, "D5 %d", d5);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d6, tvb, 6+(5*level*COLUMNS), 1, d6, "D6 %d", d6);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d7, tvb, 0+(6*level*COLUMNS), 1, d7, "D7 %d", d7);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d8, tvb, 3+(6*level*COLUMNS), 1, d8, "D8 %d", d8);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d9, tvb, 6+(6*level*COLUMNS), 1, d9, "D9 %d", d9);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d10, tvb, 0+(7*level*COLUMNS), 1, d10, "D10 %d", d10);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d11, tvb, 3+(7*level*COLUMNS), 1, d11, "D11 %d", d11);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_d12, tvb, 6+(7*level*COLUMNS), 1, d12, "D12 %d", d12);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_s1, tvb, 0+(8*level*COLUMNS), 1, s1, "S1 %d", s1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_m1, tvb, 5+(8*level*COLUMNS), 1, m1, "M1 %d", m1);
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_e2, tvb, 6+(7*level*COLUMNS), 1, e2, "E2 %d", e2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_a1, tvb, 0, 3, a1, "A1 %x", a1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_a2, tvb, 3, 3, a2, "A2 %x", a2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_j0, tvb, 6, 1, j0, "J0 %d", j0);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_b1, tvb, 0+(1*level*COLUMNS), 1, b1, "B1 %d", b1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_e1, tvb, 3+(1*level*COLUMNS), 1, e1, "E1 %d", e1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_f1, tvb, 6+(1*level*COLUMNS), 1, f1, "F1 %d", f1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d1, tvb, 0+(2*level*COLUMNS), 1, d1, "D1 %d", d1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d2, tvb, 3+(2*level*COLUMNS), 1, d2, "D2 %d", d2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d3, tvb, 6+(2*level*COLUMNS), 1, d3, "D3 %d", d3);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_au, tvb, 0+(3*level*COLUMNS), 9, au, "AU pointer %d h1 %d, h2 %d", au, h1, h2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_b2, tvb, 0+(4*level*COLUMNS), 1, b2, "B2 %d", b2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_k1, tvb, 3+(4*level*COLUMNS), 1, k1, "K1 %d", k1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_k2, tvb, 6+(4*level*COLUMNS), 1, k2, "K2 %d", k2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d4, tvb, 0+(5*level*COLUMNS), 1, d4, "D4 %d", d4);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d5, tvb, 3+(5*level*COLUMNS), 1, d5, "D5 %d", d5);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d6, tvb, 6+(5*level*COLUMNS), 1, d6, "D6 %d", d6);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d7, tvb, 0+(6*level*COLUMNS), 1, d7, "D7 %d", d7);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d8, tvb, 3+(6*level*COLUMNS), 1, d8, "D8 %d", d8);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d9, tvb, 6+(6*level*COLUMNS), 1, d9, "D9 %d", d9);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d10, tvb, 0+(7*level*COLUMNS), 1, d10, "D10 %d", d10);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d11, tvb, 3+(7*level*COLUMNS), 1, d11, "D11 %d", d11);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d12, tvb, 6+(7*level*COLUMNS), 1, d12, "D12 %d", d12);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_s1, tvb, 0+(8*level*COLUMNS), 1, s1, "S1 %d", s1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_m1, tvb, 5+(8*level*COLUMNS), 1, m1, "M1 %d", m1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_e2, tvb, 6+(7*level*COLUMNS), 1, e2, "E2 %d", e2);
 
-    sdh_item = proto_tree_add_uint_format(sdh_tree, hf_sdh_j1, tvb, au, 1, j1, "J1 %d", j1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_j1, tvb, au, 1, j1, "J1 %d", j1);
   }
     
 }
