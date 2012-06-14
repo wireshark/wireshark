@@ -364,7 +364,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                             frag_data, &gsm_page_items, NULL, cbs_page_tree);
      }
    }
-   if ((tree != NULL) && (cbs_msg_tvb != NULL))
+   if (cbs_msg_tvb != NULL)
    {
       guint16 len;
       proto_item     *cbs_msg_item = NULL;

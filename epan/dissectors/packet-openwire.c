@@ -1308,9 +1308,11 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static void
 dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
-    guint8 iCommand;
-    proto_tree    *openwireroot_tree = NULL;
+    gint        offset            = 0;
+    guint8      iCommand;
+    proto_tree *openwireroot_tree = NULL;
+    proto_item *ti;
+    gboolean    caching;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenWire");
 
@@ -1327,39 +1329,32 @@ dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         detect_protocol_options(tvb, pinfo, offset, iCommand);
 
-        if (tree)
+        ti = proto_tree_add_item(tree, proto_openwire, tvb, offset, -1, ENC_NA);
+        proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
+        openwireroot_tree = proto_item_add_subtree(ti, ett_openwire);
+
+        proto_tree_add_item(openwireroot_tree, hf_openwire_length, tvb, offset + 0, 4, ENC_BIG_ENDIAN);
+
+        /* Abort dissection if tight encoding is enabled*/
+        if (iCommand != OPENWIRE_WIREFORMAT_INFO && retrieve_tight(pinfo) == TRUE)
         {
-            proto_item    *ti;
-            gboolean caching;
+            proto_tree_add_item(openwireroot_tree, hf_openwire_command, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+            expert_add_info_format(pinfo, openwireroot_tree, PI_UNDECODED, PI_NOTE,
+                                   "OpenWire tight encoding not supported by Wireshark, use wireFormat.tightEncodingEnabled=false");
+            return;
+        }
 
-            ti = proto_tree_add_item(tree, proto_openwire, tvb, offset, -1, ENC_NA);
-            proto_item_append_text(ti, " (%s)", val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
-            openwireroot_tree = proto_item_add_subtree(ti, ett_openwire);
+        caching = retrieve_caching(pinfo);
+        if (caching)
+        {
+            proto_tree_add_boolean(openwireroot_tree, hf_openwire_cached_enabled, tvb, offset, 0, caching);
+        }
 
-            proto_tree_add_item(openwireroot_tree, hf_openwire_length, tvb, offset + 0, 4, ENC_BIG_ENDIAN);
-
-            /* Abort dissection if tight encoding is enabled*/
-            if (iCommand != OPENWIRE_WIREFORMAT_INFO && retrieve_tight(pinfo) == TRUE)
-            {
-                proto_tree_add_item(openwireroot_tree, hf_openwire_command, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-                expert_add_info_format(pinfo, openwireroot_tree, PI_UNDECODED, PI_NOTE,
-                       "OpenWire tight encoding not supported by Wireshark, use wireFormat.tightEncodingEnabled=false");
-                return;
-            }
-
-            caching = retrieve_caching(pinfo);
-            if (caching)
-            {
-                proto_tree_add_boolean(openwireroot_tree, hf_openwire_cached_enabled, tvb, offset, 0, caching);
-            }
-
-            offset += 4;
-            offset += dissect_openwire_command(tvb, pinfo, openwireroot_tree, offset, iCommand);
-            if (tvb_length_remaining(tvb, offset) > 0)
-            {
-                expert_add_info_format(pinfo, tree, PI_UNDECODED, PI_NOTE, "OpenWire command fields unknown to Wireshark: %d", iCommand);
-            }
-
+        offset += 4;
+        offset += dissect_openwire_command(tvb, pinfo, openwireroot_tree, offset, iCommand);
+        if (tvb_length_remaining(tvb, offset) > 0)
+        {
+            expert_add_info_format(pinfo, tree, PI_UNDECODED, PI_NOTE, "OpenWire command fields unknown to Wireshark: %d", iCommand);
         }
     }
 }

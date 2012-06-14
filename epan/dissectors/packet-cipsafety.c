@@ -709,14 +709,11 @@ dissect_cip_class_s_supervisor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
    proto_item *ti;
    proto_tree *class_tree;
 
-   if( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_s_supervisor, tvb, 0, -1, ENC_NA);
-      class_tree = proto_item_add_subtree( ti, ett_cip_class_s_supervisor );
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip_class_s_supervisor, tvb, 0, -1, ENC_NA);
+   class_tree = proto_item_add_subtree( ti, ett_cip_class_s_supervisor );
 
-      dissect_cip_s_supervisor_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
-   }
+   dissect_cip_s_supervisor_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
 
    return tvb_length(tvb);
 }
@@ -1289,14 +1286,11 @@ dissect_cip_class_s_validator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
    proto_item *ti;
    proto_tree *class_tree;
 
-   if( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_s_validator, tvb, 0, -1, ENC_NA);
-      class_tree = proto_item_add_subtree( ti, ett_cip_class_s_validator );
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip_class_s_validator, tvb, 0, -1, ENC_NA);
+   class_tree = proto_item_add_subtree( ti, ett_cip_class_s_validator );
 
-      dissect_cip_s_validator_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
-   }
+   dissect_cip_s_validator_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
 
    return tvb_length(tvb);
 }
@@ -1416,6 +1410,9 @@ dissect_ack_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinf
 
    ack_byte = tvb_get_guint8(tvb, offset);
 #endif
+   if (!tree)
+      return;
+
    /* dissect Ack Byte bits */
    ack_item = proto_tree_add_item(tree, hf_cipsafety_ack_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    ack_tree = proto_item_add_subtree( ack_item, ett_cipsafety_ack_byte);
@@ -1616,14 +1613,11 @@ dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti;
    proto_tree *safety_tree;
 
-   if( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cipsafety, tvb, 0, -1, ENC_NA);
-      safety_tree = proto_item_add_subtree( ti, ett_cip_safety);
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cipsafety, tvb, 0, -1, ENC_NA);
+   safety_tree = proto_item_add_subtree( ti, ett_cip_safety);
 
-      dissect_cip_safety_data(safety_tree, ti, tvb, tvb_length(tvb), pinfo );
-   }
+   dissect_cip_safety_data(safety_tree, ti, tvb, tvb_length(tvb), pinfo );
 }
 
 static int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,

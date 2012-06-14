@@ -84,9 +84,6 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVB-DATA");
 	col_set_str(pinfo->cinfo, COL_INFO, "MultiProtocol Encapsulation");
 
-	if (!tree)
-		return;
-
 	ti = proto_tree_add_item(tree, proto_dvb_data_mpe, tvb, offset, -1, ENC_NA);
 	dvb_data_mpe_tree = proto_item_add_subtree(ti, ett_dvb_data_mpe);
 

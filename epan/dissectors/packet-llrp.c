@@ -842,33 +842,30 @@ dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_ntohs(tvb, offset) & 0x03FF;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-            val_to_str(type, message_types, "Unknown Type: %d"));
+                    val_to_str(type, message_types, "Unknown Type: %d"));
 
-    if (tree)
+    ti = proto_tree_add_item(tree, proto_llrp, tvb, offset, -1, ENC_NA);
+    llrp_tree = proto_item_add_subtree(ti, ett_llrp);
+
+    proto_tree_add_item(llrp_tree, hf_llrp_version, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(llrp_tree, hf_llrp_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    ti = proto_tree_add_item(llrp_tree, hf_llrp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+    len = tvb_get_ntohl(tvb, offset);
+    if (len > tvb_reported_length(tvb))
     {
-        ti = proto_tree_add_item(tree, proto_llrp, tvb, offset, -1, ENC_NA);
-        llrp_tree = proto_item_add_subtree(ti, ett_llrp);
-
-        proto_tree_add_item(llrp_tree, hf_llrp_version, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(llrp_tree, hf_llrp_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        ti = proto_tree_add_item(llrp_tree, hf_llrp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-        len = tvb_get_ntohl(tvb, offset);
-        if (len > tvb_reported_length(tvb))
-        {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                    "Incorrect length field: claimed %u, but only have %u.",
-                    len, tvb_reported_length(tvb));
-        }
-        offset += 4;
-
-        proto_tree_add_item(llrp_tree, hf_llrp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        if (match_strval(type, message_types))
-            dissect_llrp_message(tvb, pinfo, llrp_tree, type, offset);
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Incorrect length field: claimed %u, but only have %u.",
+                               len, tvb_reported_length(tvb));
     }
+    offset += 4;
+
+    proto_tree_add_item(llrp_tree, hf_llrp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (match_strval(type, message_types))
+        dissect_llrp_message(tvb, pinfo, llrp_tree, type, offset);
 
     return tvb_length(tvb);
 }

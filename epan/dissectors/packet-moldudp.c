@@ -147,40 +147,37 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
         col_set_str(pinfo->cinfo, COL_INFO, "MoldUDP Messages");
 
-    if (tree)
+    /* create display subtree for the protocol */
+    ti = proto_tree_add_item(tree, proto_moldudp,
+                             tvb, offset, -1, ENC_NA);
+
+    moldudp_tree = proto_item_add_subtree(ti, ett_moldudp);
+
+    proto_tree_add_item(moldudp_tree, hf_moldudp_session,
+                        tvb, offset, MOLDUDP_SESSION_LEN, ENC_ASCII|ENC_NA);
+    offset += MOLDUDP_SESSION_LEN;
+
+    sequence = tvb_get_letohl(tvb, offset);
+    proto_tree_add_item(moldudp_tree, hf_moldudp_sequence,
+                        tvb, offset, MOLDUDP_SEQUENCE_LEN, ENC_LITTLE_ENDIAN);
+    offset += MOLDUDP_SEQUENCE_LEN;
+
+    ti = proto_tree_add_item(moldudp_tree, hf_moldudp_count,
+                             tvb, offset, MOLDUDP_COUNT_LEN, ENC_LITTLE_ENDIAN);
+    offset += MOLDUDP_COUNT_LEN;
+
+    while (tvb_reported_length(tvb) >= offset + MOLDUDP_MSGLEN_LEN)
     {
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_moldudp,
-                tvb, offset, -1, ENC_NA);
+        offset += dissect_moldudp_msgblk(tvb, pinfo, moldudp_tree,
+                                         offset, sequence++);
+        real_count++;
+    }
 
-        moldudp_tree = proto_item_add_subtree(ti, ett_moldudp);
-
-        proto_tree_add_item(moldudp_tree, hf_moldudp_session,
-                tvb, offset, MOLDUDP_SESSION_LEN, ENC_ASCII|ENC_NA);
-        offset += MOLDUDP_SESSION_LEN;
-
-        sequence = tvb_get_letohl(tvb, offset);
-        proto_tree_add_item(moldudp_tree, hf_moldudp_sequence,
-                tvb, offset, MOLDUDP_SEQUENCE_LEN, ENC_LITTLE_ENDIAN);
-        offset += MOLDUDP_SEQUENCE_LEN;
-
-        ti = proto_tree_add_item(moldudp_tree, hf_moldudp_count,
-                tvb, offset, MOLDUDP_COUNT_LEN, ENC_LITTLE_ENDIAN);
-        offset += MOLDUDP_COUNT_LEN;
-
-        while (tvb_reported_length(tvb) >= offset + MOLDUDP_MSGLEN_LEN)
-        {
-            offset += dissect_moldudp_msgblk(tvb, pinfo, moldudp_tree,
-                    offset, sequence++);
-            real_count++;
-        }
-
-        if (real_count != count)
-        {
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                    "Invalid Message Count (claimed %u, found %u)",
-                    count, real_count);
-        }
+    if (real_count != count)
+    {
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Invalid Message Count (claimed %u, found %u)",
+                               count, real_count);
     }
 
     /* Return the amount of data this dissector was able to dissect */
