@@ -39,7 +39,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include <epan/expert.h>
 
 /* protocol handles */
 static int proto_mndp = -1;
@@ -220,32 +219,31 @@ static int
 dissect_mndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_tree *mndp_tree = NULL;
-	guint32 offset = 0;
-	guint32 packet_length;
+	proto_tree *mndp_tree;
+	guint32     offset = 0;
+	guint32     packet_length;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
 
 	packet_length = tvb_length(tvb);
 
-	if (tree) {
-		/* Header dissection */
-		ti = proto_tree_add_item(tree, proto_mndp, tvb, offset, -1,
-		    ENC_NA);
-		mndp_tree = proto_item_add_subtree(ti, ett_mndp);
+	/* Header dissection */
+	ti = proto_tree_add_item(tree, proto_mndp, tvb, offset, -1,
+				 ENC_NA);
+	mndp_tree = proto_item_add_subtree(ti, ett_mndp);
 
-		proto_tree_add_item(mndp_tree, hf_mndp_header_unknown, tvb, offset, 2,
-			ENC_NA);
-		offset += 2;
-		proto_tree_add_item(mndp_tree, hf_mndp_header_seqno, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
-		offset += 2;
+	proto_tree_add_item(mndp_tree, hf_mndp_header_unknown, tvb, offset, 2,
+			    ENC_NA);
+	offset += 2;
+	proto_tree_add_item(mndp_tree, hf_mndp_header_seqno, tvb, offset, 2,
+			    ENC_BIG_ENDIAN);
+	offset += 2;
 
-		while (offset < packet_length)
-			offset = dissect_tlv(tvb, pinfo, mndp_tree,
-				offset, 0, mndp_body_tlv_vals);
+	while (offset < packet_length) {
+		offset = dissect_tlv(tvb, pinfo, mndp_tree,
+				     offset, 0, mndp_body_tlv_vals);
 	}
+
 	return offset;
 }
 
@@ -362,7 +360,6 @@ void
 proto_reg_handoff_mndp(void)
 {
 	dissector_handle_t mndp_handle;
-
 
 	mndp_handle = new_create_dissector_handle(dissect_mndp_static, proto_mndp);
 	dissector_add_uint("udp.port", PORT_MNDP, mndp_handle);
