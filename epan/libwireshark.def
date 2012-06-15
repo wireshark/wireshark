@@ -733,6 +733,7 @@ prefs_modules_foreach_submodules
 prefs_pref_foreach
 prefs_register_bool_preference
 prefs_register_enum_preference
+prefs_register_filename_preference
 prefs_register_modules
 prefs_register_obsolete_preference
 prefs_register_protocol

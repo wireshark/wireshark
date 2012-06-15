@@ -64,6 +64,7 @@ typedef enum {
 	PREF_RANGE,
 	PREF_STATIC_TEXT,
 	PREF_UAT,
+	PREF_FILENAME,
 	PREF_OBSOLETE
 } pref_type_t;
 

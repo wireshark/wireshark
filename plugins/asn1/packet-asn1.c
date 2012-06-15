@@ -5311,10 +5311,10 @@ proto_register_asn1(void) {
 #endif
 
   orig_ptr = asn1_filename;
-  prefs_register_string_preference(asn1_module, "file",
-				   "ASN.1 type table file",
-				   "Compiled ASN.1 description of ASN.1 types",
-				   &asn1_filename);
+  prefs_register_filename_preference(asn1_module, "file",
+				     "ASN.1 type table file",
+				     "Compiled ASN.1 description of ASN.1 types",
+				     &asn1_filename);
   /* prefs_register_string_preference just overwrite our pointer with a pointer
    *  to a _copy_ of our string.  Free the original string.
    */

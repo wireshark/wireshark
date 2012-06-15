@@ -5638,7 +5638,7 @@ proto_register_ssl(void)
             "A table of RSA keys for SSL decryption",
             ssldecrypt_uat);
 
-        prefs_register_string_preference(ssl_module, "debug_file", "SSL debug file",
+        prefs_register_filename_preference(ssl_module, "debug_file", "SSL debug file",
             "Redirect SSL debug to file name; leave empty to disable debugging, "
             "or use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
             &ssl_debug_file_name);
@@ -5670,7 +5670,7 @@ proto_register_ssl(void)
              "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
              &ssl_psk);
 
-        prefs_register_string_preference(ssl_module, "keylog_file", "(Pre)-Master-Secret log filename",
+        prefs_register_filename_preference(ssl_module, "keylog_file", "(Pre)-Master-Secret log filename",
              "The filename of a file which contains a list of \n"
              "(pre-)master secrets in one of the following formats:\n"
              "\n"

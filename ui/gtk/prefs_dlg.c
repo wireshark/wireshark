@@ -59,6 +59,7 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/file_dlg.h"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -79,6 +80,8 @@ static gboolean prefs_main_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 static void     prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 
+static GtkWidget *create_preference_filename_entry(GtkWidget *, int,
+   const gchar *, const gchar *, char *);
 
 #define E_PREFSW_SCROLLW_KEY          "prefsw_scrollw"
 #define E_PREFSW_TREE_KEY             "prefsw_tree"
@@ -217,6 +220,15 @@ pref_show(pref_t *pref, gpointer user_data)
     pref->control = create_preference_entry(main_tb, pref->ordinal,
                                             label_string, pref->description,
                                             pref->saved_val.string);
+    break;
+
+  case PREF_FILENAME:
+    g_free(pref->saved_val.string);
+    pref->saved_val.string = g_strdup(*pref->varp.string);
+    pref->control = create_preference_filename_entry(main_tb, pref->ordinal,
+                                                     label_string,
+                                                     pref->description,
+                                                     pref->saved_val.string);
     break;
 
   case PREF_RANGE:
@@ -863,6 +875,45 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
   return entry;
 }
 
+static void
+preference_filename_entry_cb(GtkWidget *button, GtkWidget *filename_te)
+{
+    /* XXX - use a better browser dialog title */
+    file_selection_browse(button, filename_te, "Wireshark: file preference",
+                          FILE_SELECTION_READ_BROWSE);
+}
+
+static GtkWidget *
+create_preference_filename_entry(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, const gchar *tooltip_text, char *value)
+{
+  GtkWidget *entry;
+  GtkWidget *button, *file_bt_hb;
+
+  set_option_label(main_tb, table_position, label_text, tooltip_text);
+  file_bt_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
+  gtk_table_attach_defaults(GTK_TABLE(main_tb), file_bt_hb, 1, 2,
+                            table_position, table_position + 1);
+  gtk_widget_show(file_bt_hb);
+
+  button = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
+  gtk_box_pack_end(GTK_BOX(file_bt_hb), button, FALSE, FALSE, 0);
+  gtk_widget_show(button);
+
+  entry = gtk_entry_new();
+  gtk_box_pack_start(GTK_BOX(file_bt_hb), entry, TRUE, TRUE, 0);
+  if (value != NULL)
+    gtk_entry_set_text(GTK_ENTRY(entry), value);
+  if (tooltip_text != NULL)
+    gtk_widget_set_tooltip_text(entry, tooltip_text);
+  gtk_widget_show(entry);
+
+  g_signal_connect(button, "clicked", G_CALLBACK(preference_filename_entry_cb), entry);
+
+
+  return entry;
+}
+
 GtkWidget *
 create_preference_static_text(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text)
@@ -886,7 +937,7 @@ GtkWidget *
 create_preference_uat(GtkWidget *main_tb, int table_position,
     const gchar *label_text, const gchar *tooltip_text, void* uat)
 {
-  GtkWidget *button = NULL;
+  GtkWidget *button;
 
   set_option_label(main_tb, table_position, label_text, tooltip_text);
 
@@ -947,6 +998,7 @@ pref_check(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_STRING:
+  case PREF_FILENAME:
     /* Value can't be bad. */
     break;
 
@@ -1035,6 +1087,7 @@ pref_fetch(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_STRING:
+  case PREF_FILENAME:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
     if (strcmp(*pref->varp.string, str_val) != 0) {
       *pref_changed_p = TRUE;
@@ -1182,6 +1235,7 @@ pref_clean(pref_t *pref, gpointer user_data _U_)
     break;
 
   case PREF_STRING:
+  case PREF_FILENAME:
     if (pref->saved_val.string != NULL) {
       g_free(pref->saved_val.string);
       pref->saved_val.string = NULL;
@@ -1377,6 +1431,7 @@ pref_copy(pref_t *pref, gpointer user_data _U_)
     break;
 
   case PREF_STRING:
+  case PREF_FILENAME:
     g_free(pref->saved_val.string);
     pref->saved_val.string = g_strdup(*pref->varp.string);
     break;
@@ -1576,6 +1631,7 @@ pref_revert(pref_t *pref, gpointer user_data)
     break;
 
   case PREF_STRING:
+  case PREF_FILENAME:
     if (strcmp(*pref->varp.string, pref->saved_val.string) != 0) {
       *pref_changed_p = TRUE;
       g_free((void *)*pref->varp.string);
