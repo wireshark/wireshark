@@ -1161,9 +1161,6 @@ main(int argc, char *argv[])
                   wtap_strerror(err));
           exit(2);
         }
-
-        g_free(idb_inf);
-        idb_inf = NULL;
       }
 
       g_assert(filename);
@@ -1187,9 +1184,9 @@ main(int argc, char *argv[])
             fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
-          pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+          pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-            FALSE /* compressed */, &err);
+            FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
@@ -1218,9 +1215,9 @@ main(int argc, char *argv[])
             fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
-          pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+          pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-            FALSE /* compressed */, &err);
+            FALSE /* compressed */, shb_hdr, idb_inf, &err);
           if (pdh == NULL) {
             fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                 wtap_strerror(err));
@@ -1485,6 +1482,7 @@ main(int argc, char *argv[])
       count++;
     }
 
+
     g_free(fprefix);
     g_free(fsuffix);
 
@@ -1509,15 +1507,18 @@ main(int argc, char *argv[])
       g_free (filename);
       filename = g_strdup(argv[optind+1]);
 
-      pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+      pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
-        FALSE /* compressed */, &err);
+        FALSE /* compressed */, shb_hdr, idb_inf, &err);
       if (pdh == NULL) {
         fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
         wtap_strerror(err));
         exit(2);
       }
     }
+
+    g_free(idb_inf);
+    idb_inf = NULL;
 
     if (!wtap_dump_close(pdh, &err)) {
 
