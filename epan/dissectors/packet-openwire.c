@@ -546,10 +546,10 @@ openwire_init(void)
 }
 
 static void
-validate_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_item * boolean_item)
+validate_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, proto_item *boolean_item)
 {
     /* Sanity check of boolean : must be 0x00 or 0x01 */
-    guint8 booleanByte = 0;
+    guint8 booleanByte;
     booleanByte = tvb_get_guint8(tvb, offset);
     if (booleanByte != OPENWIRE_BOOLEAN_FALSE && booleanByte != OPENWIRE_BOOLEAN_TRUE)
     {
@@ -557,7 +557,6 @@ validate_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
                                "OpenWire encoding not supported by Wireshark or dissector bug");
         THROW(ReportedBoundsError);
     }
-    if (tree) return; /* Avoid compiler warning */
 }
 
 static int
@@ -650,8 +649,9 @@ detect_protocol_options(tvbuff_t *tvb, packet_info *pinfo, int offset, int iComm
 static gboolean
 retrieve_caching(packet_info *pinfo)
 {
-    conversation_t *conv = NULL;
-    openwire_conv_data *cd = NULL;
+    conversation_t     *conv;
+    openwire_conv_data *cd;
+
     conv = find_or_create_conversation(pinfo);
     cd = (openwire_conv_data*)conversation_get_proto_data(conv, proto_openwire);
     if (cd) return cd->caching;
@@ -662,8 +662,9 @@ retrieve_caching(packet_info *pinfo)
 static gboolean
 retrieve_tight(packet_info *pinfo)
 {
-    conversation_t *conv = NULL;
-    openwire_conv_data *cd = NULL;
+    conversation_t     *conv;
+    openwire_conv_data *cd;
+
     conv = find_or_create_conversation(pinfo);
     cd = (openwire_conv_data*)conversation_get_proto_data(conv, proto_openwire);
     if (cd && cd->tight) return TRUE;
@@ -676,9 +677,10 @@ dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 static int
 dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int field, int type, int parentType, gboolean nullable)
 {
-    gint startOffset = offset;
-    proto_item * boolean_item = NULL;
+    gint           startOffset  = offset;
+    proto_item    *boolean_item = NULL;
     emem_strbuf_t *cache_strbuf = ep_strbuf_new_label("");
+
     if (type == OPENWIRE_TYPE_CACHED && retrieve_caching(pinfo) == TRUE && tvb_length_remaining(tvb, offset) >= 3)
     {
         guint8 inlined = 0;
@@ -1090,8 +1092,9 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 static int
 dissect_openwire_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int parentType)
 {
-    gint startOffset = offset;
+    gint   startOffset = offset;
     guint8 iCommand;
+
     iCommand = tvb_get_guint8(tvb, offset + 0);
 
     proto_tree_add_item(tree, hf_openwire_command, tvb, offset + 0, 1, ENC_BIG_ENDIAN);
@@ -1309,21 +1312,23 @@ static void
 dissect_openwire(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint        offset            = 0;
-    guint8      iCommand;
-    proto_tree *openwireroot_tree = NULL;
-    proto_item *ti;
-    gboolean    caching;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OpenWire");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if (tvb_length_remaining(tvb, offset) >= 5)
     {
+        guint8      iCommand;
+        proto_tree *openwireroot_tree;
+        proto_item *ti;
+        gboolean    caching;
+
         iCommand = tvb_get_guint8(tvb, offset + 4);
 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
-            col_clear(pinfo->cinfo, COL_INFO);
-            col_append_sep_str(pinfo->cinfo, COL_INFO, " | ", val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
+            col_append_sep_str(pinfo->cinfo, COL_INFO, " | ",
+                               val_to_str_ext(iCommand, &openwire_opcode_vals_ext, "Unknown (0x%02x)"));
             col_set_fence(pinfo->cinfo, COL_INFO);
         }
 
@@ -1379,8 +1384,9 @@ dissect_openwire_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_openwire_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    conversation_t * conversation;
-    gboolean detected = FALSE;
+    conversation_t *conversation;
+    gboolean        detected = FALSE;
+
     if (tvb_length(tvb) == 10 || tvb_length(tvb) == 11)
     {
         /* KeepAlive is sent by default every 30 second.  It is 10 bytes (loose) or 11 bytes (tight) long. */
@@ -1430,559 +1436,559 @@ proto_register_openwire(void)
     static hf_register_info hf[] = {
      { &hf_openwire_length,
         { "Length", "openwire.length", FT_UINT32, BASE_DEC, NULL, 0x0, "OpenWire length", HFILL }},
-  
+
      { &hf_openwire_command,
         { "Command", "openwire.command", FT_UINT8, BASE_DEC, VALS(openwire_opcode_vals), 0x0, "Openwire command", HFILL }},
-  
+
      { &hf_openwire_command_id,
         { "Command Id", "openwire.command.id", FT_UINT32, BASE_DEC, NULL, 0x0, "Openwire command id", HFILL }},
-  
+
      { &hf_openwire_command_response_required,
         { "Command response required", "openwire.command.response_required", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire command response required", HFILL }},
-  
+
      { &hf_openwire_response_correlationid,
         { "CorrelationId", "openwire.response.correlationid", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire Response CorrelationId", HFILL }},
-  
+
      { &hf_openwire_dataresponse_data,
         { "Data", "openwire.responsedata.data", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ResponseData Data", HFILL }},
-  
+
      { &hf_openwire_exceptionresponse_exception,
         { "Exception", "openwire.exceptionresponse.exception", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ExceptionResponse Exception", HFILL }},
-  
+
      { &hf_openwire_connectionerror_exception,
         { "Exception", "openwire.connectionerror.exception", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConnectionError Exception", HFILL }},
-  
+
      { &hf_openwire_connectionerror_connectionid,
         { "ConnectionId", "openwire.connectionerror.connectionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConnectionError ConnectionId", HFILL }},
-  
+
      { &hf_openwire_controlcommand_command,
         { "Command", "openwire.controlcommand.command", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ControlCommand Command", HFILL }},
-  
+
      { &hf_openwire_wireformatinfo_magic,
         { "Magic", "openwire.wireformatinfo.magic", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire WireFormatInfo Magic", HFILL }},
-  
+
      { &hf_openwire_wireformatinfo_version,
         { "Version", "openwire.wireformatinfo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "Openwire WireFormatInfo Version", HFILL }},
-  
+
      { &hf_openwire_wireformatinfo_data,
         { "Data", "openwire.wireformatinfo.data", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire WireFormatInfo Data", HFILL }},
-  
+
      { &hf_openwire_wireformatinfo_length,
         { "Length", "openwire.wireformatinfo.length", FT_UINT32, BASE_DEC, NULL, 0x0, "Openwire WireFormatInfo Length", HFILL }},
-  
+
      { &hf_openwire_sessioninfo_sessionid,
         { "SessionId", "openwire.sessioninfo.sessionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire SessionInfo SessionId", HFILL }},
-  
+
      { &hf_openwire_destinationinfo_connectionid,
         { "ConnectionId", "openwire.destinationinfo.connectionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire DestinationInfo ConnectionId", HFILL }},
-  
+
      { &hf_openwire_destinationinfo_destination,
         { "Destination", "openwire.destinationinfo.destination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire DestinationInfo Destination", HFILL }},
-  
+
      { &hf_openwire_destinationinfo_operationtype,
         { "OperationType", "openwire.destinationinfo.operationtype", FT_UINT8, BASE_DEC, VALS(openwire_operation_type_vals), 0x0, "Openwire DestinationInfo OperationType", HFILL }},
-  
+
      { &hf_openwire_destinationinfo_timeout,
         { "Timeout", "openwire.destinationinfo.timeout", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire DestinationInfo Timeout", HFILL }},
-  
+
      { &hf_openwire_destinationinfo_brokerpath,
         { "BrokerPath", "openwire.destinationinfo.brokerpath", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire DestinationInfo BrokerPath", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_brokerid,
         { "BrokerId", "openwire.brokerinfo.brokerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire BrokerInfo BrokerId", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_brokerurl,
         { "BrokerURL", "openwire.brokerinfo.brokerurl", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire BrokerInfo BrokerURL", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_peerbrokerinfos,
         { "PeerBrokerInfos", "openwire.brokerinfo.peerbrokerinfos", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire BrokerInfo PeerBrokerInfos", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_brokername,
         { "BrokerName", "openwire.brokerinfo.brokername", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire BrokerInfo BrokerName", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_slavebroker,
         { "SlaveBroker", "openwire.brokerinfo.slavebroker", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire BrokerInfo SlaveBroker", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_masterbroker,
         { "MasterBroker", "openwire.brokerinfo.masterbroker", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire BrokerInfo MasterBroker", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_faulttolerantconfiguration,
         { "FaultTolerantConfiguration", "openwire.brokerinfo.faulttolerantconfiguration", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire BrokerInfo FaultTolerantConfiguration", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_duplexconnection,
         { "DuplexConnection", "openwire.brokerinfo.duplexconnection", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire BrokerInfo DuplexConnection", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_networkconnection,
         { "NetworkConnection", "openwire.brokerinfo.networkconnection", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire BrokerInfo NetworkConnection", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_connectionid,
         { "ConnectionId", "openwire.brokerinfo.connectionid", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire BrokerInfo ConnectionId", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_brokeruploadurl,
         { "BrokerUploadUrl", "openwire.brokerinfo.brokeruploadurl", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire BrokerInfo BrokerUploadUrl", HFILL }},
-  
+
      { &hf_openwire_brokerinfo_networkproperties,
         { "NetworkProperties", "openwire.brokerinfo.networkproperties", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire BrokerInfo NetworkProperties", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_connectionid,
         { "ConnectionId", "openwire.connectioninfo.connectionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConnectionInfo ConnectionId", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_clientid,
         { "ClientId", "openwire.connectioninfo.clientid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConnectionInfo ClientId", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_password,
         { "Password", "openwire.connectioninfo.password", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConnectionInfo Password", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_username,
         { "UserName", "openwire.connectioninfo.username", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConnectionInfo UserName", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_brokerpath,
         { "BrokerPath", "openwire.connectioninfo.brokerpath", FT_BYTES, BASE_NONE, NULL, 0x0, "Openwire ConnectionInfo BrokerPath", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_brokermasterconnector,
         { "BrokerMasterConnector", "openwire.connectioninfo.brokermasterconnector", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionInfo BrokerMasterConnector", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_manageable,
         { "Manageable", "openwire.connectioninfo.manageable", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionInfo Manageable", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_clientmaster,
         { "ClientMaster", "openwire.connectioninfo.clientmaster", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionInfo ClientMaster", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_faulttolerant,
         { "FaultTolerant", "openwire.connectioninfo.faulttolerant", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionInfo FaultTolerant", HFILL }},
-  
+
      { &hf_openwire_connectioninfo_failoverreconnect,
         { "FailoverReconnect", "openwire.connectioninfo.failoverreconnect", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionInfo FailoverReconnect", HFILL } },
-  
+
      { &hf_openwire_consumerinfo_consumerid,
         { "ConsumerId", "openwire.consumerinfo.consumerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConsumerInfo ConsumerId", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_browser,
         { "Browser", "openwire.consumerinfo.browser", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo Browser", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_destination,
         { "Destination", "openwire.consumerinfo.destination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConsumerInfo Destination", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_prefetchsize,
         { "PrefetchSize", "openwire.consumerinfo.prefetchsize", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo PrefetchSize", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_maximumpendingmessagelimit,
         { "MaximumPendingMessageLimit", "openwire.consumerinfo.maximumpendingmessagelimit", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo MaximumPendingMessageLimit", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_dispatchasync,
         { "DispatchAsync", "openwire.consumerinfo.dispatchasync", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo DispatchAsync", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_selector,
         { "Selector", "openwire.consumerinfo.selector", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConsumerInfo Selector", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_subscriptionname,
         { "SubscriptionName", "openwire.consumerinfo.subscriptionname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConsumerInfo SubscriptionName", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_nolocal,
         { "NoLocal", "openwire.consumerinfo.nolocal", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo NoLocal", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_exclusive,
         { "Exclusive", "openwire.consumerinfo.exclusive", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo Exclusive", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_retroactive,
         { "RetroActive", "openwire.consumerinfo.retroactive", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo RetroActive", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_priority,
         { "Priority", "openwire.consumerinfo.priority", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo Priority", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_brokerpath,
         { "BrokerPath", "openwire.consumerinfo.brokerpath", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConsumerInfo BrokerPath", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_additionalpredicate,
         { "AdditionalPredicate", "openwire.consumerinfo.additionalpredicate", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConsumerInfo AdditionalPredicate", HFILL   }},
-  
+
      { &hf_openwire_consumerinfo_networksubscription,
         { "NetworkSubscription", "openwire.consumerinfo.networksubscription", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo NetworkSubscription", HFILL   }},
-  
+
      { &hf_openwire_consumerinfo_optimizedacknowledge,
         { "OptimizedAcknowledge", "openwire.consumerinfo.optimizedacknowledge", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo OptimizedAcknowledge",  HFILL }},
-  
+
      { &hf_openwire_consumerinfo_norangeacks,
         { "NoRangeAcks", "openwire.consumerinfo.norangeacks", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerInfo NoRangeAcks", HFILL }},
-  
+
      { &hf_openwire_consumerinfo_networkconsumerpath,
         { "NetworkConsumerPath", "openwire.consumerinfo.networkconsumerpath", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConsumerInfo NetworkConsumerPath", HFILL   }},
-  
+
      { &hf_openwire_consumercontrol_destination,
         { "Destination", "openwire.consumercontrol.destination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConsumerControl Destination", HFILL }},
-  
+
      { &hf_openwire_consumercontrol_close,
         { "Close", "openwire.consumercontrol.close", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerControl Close", HFILL }},
-  
+
      { &hf_openwire_consumercontrol_consumerid,
         { "ConsumerId", "openwire.consumercontrol.consumerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ConsumerControl ConsumerId", HFILL }},
-  
+
      { &hf_openwire_consumercontrol_prefetch,
         { "Prefetch", "openwire.consumercontrol.prefetch", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire ConsumerControl Prefetch", HFILL }},
-  
+
      { &hf_openwire_consumercontrol_flush,
         { "Flush", "openwire.consumercontrol.flush", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerControl Flush", HFILL }},
-  
+
      { &hf_openwire_consumercontrol_start,
         { "Start", "openwire.consumercontrol.start", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerControl Start", HFILL }},
-  
+
      { &hf_openwire_consumercontrol_stop,
         { "Stop", "openwire.consumercontrol.stop", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConsumerControl Stop", HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_close,
         { "Close", "openwire.connectioncontrol.close", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionControl Close", HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_exit,
         { "Exit", "openwire.connectioncontrol.exit", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionControl Exit", HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_faulttolerant,
         { "FaultTolerant", "openwire.connectioncontrol.faulttolerant", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionControl FaultTolerant", HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_resume,
         { "Resume", "openwire.connectioncontrol.resume", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionControl Resume", HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_suspend,
         { "Suspend", "openwire.connectioncontrol.suspend", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionControl Suspend", HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_connectedbrokers,
         { "ConnectedBrokers", "openwire.connectioncontrol.connectedbrokers", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConnectionControl ConnectedBrokers",  HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_reconnectto,
         { "ReconnectTo", "openwire.connectioncontrol.reconnectto", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConnectionControl ReconnectTo", HFILL }},
-  
+
      { &hf_openwire_connectioncontrol_rebalanceconnection,
         { "RebalanceConnection", "openwire.connectioncontrol.rebalanceconnection", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ConnectionControl RebalanceConnection", HFILL }},
-  
+
      { &hf_openwire_removeinfo_objectid,
         { "ObjectId", "openwire.removeinfo.objectid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire RemoveInfo ObjectId", HFILL }},
-  
+
      { &hf_openwire_removeinfo_lastdeliveredsequenceid,
         { "LastDeliveredSequenceId", "openwire.removeinfo.lastdeliveredsequenceid", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire RemoveInfo LastDeliveredSequenceId" ,  HFILL }},
-  
+
      { &hf_openwire_removesubscriptioninfo_connectionid,
         { "ConnectionId", "openwire.removesubscriptioninfo.connectionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire RemoveSubscriptionInfo ConnectionId", HFILL  } },
-  
+
      { &hf_openwire_removesubscriptioninfo_subscriptionname,
         { "SubscriptionName", "openwire.removesubscriptioninfo.subscriptionname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire RemoveSubscriptionInfo SubscriptionName", HFILL }},
-  
+
      { &hf_openwire_removesubscriptioninfo_clientid,
         { "ClientId", "openwire.removesubscriptioninfo.clientid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire RemoveSubscriptionInfo ClientId", HFILL }},
-  
+
      { &hf_openwire_producerinfo_producerid,
         { "ProducerId", "openwire.producerinfo.producerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ProducerInfo ProducerId", HFILL }},
-  
+
      { &hf_openwire_producerinfo_destination,
         { "Destination", "openwire.producerinfo.destination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ProducerInfo Destination", HFILL }},
-  
+
      { &hf_openwire_producerinfo_brokerpath,
         { "BrokerPath", "openwire.producerinfo.brokerpath", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ProducerInfo BrokerPath", HFILL }},
-  
+
      { &hf_openwire_producerinfo_dispatchasync,
         { "DispatchAsync", "openwire.producerinfo.dispatchasync", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire ProducerInfo DispatchAsync", HFILL }},
-  
+
      { &hf_openwire_producerinfo_windowsize,
         { "WindowSize", "openwire.producerinfo.windowsize", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire ProducerInfo WindowSize", HFILL }},
-  
+
      { &hf_openwire_transactioninfo_connectionid,
         { "ConnectionId", "openwire.transactioninfo.connectionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire TransactionInfo ConnectionId", HFILL }},
-  
+
      { &hf_openwire_transactioninfo_transactionid,
         { "TransactionId", "openwire.transactioninfo.transactionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire TransactionInfo TransactionId", HFILL }},
-  
+
      { &hf_openwire_transactioninfo_type,
         { "Type", "openwire.transactioninfo.type", FT_UINT8, BASE_DEC, VALS(openwire_transaction_type_vals), 0x0, "Openwire TransactionInfo Type", HFILL }},
-  
+
      { &hf_openwire_producerack_producerid,
         { "ProducerId", "openwire.producerack.producerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire ProducerAck ProducerId", HFILL }},
-  
+
      { &hf_openwire_producerack_size,
         { "Size", "openwire.producerack.size", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire ProducerAck Size", HFILL }},
-  
+
      { &hf_openwire_messagedispatch_consumerid,
         { "ConsumerId", "openwire.messagedispatch.consumerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageDispatch ConsumerId", HFILL }},
-  
+
      { &hf_openwire_messagedispatch_destination,
         { "Destination", "openwire.messagedispatch.destination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageDispatch Destination", HFILL }},
-  
+
      { &hf_openwire_messagedispatch_message,
         { "Message", "openwire.messagedispatch.message", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageDispatch Message", HFILL }},
-  
+
      { &hf_openwire_messagedispatch_redeliverycounter,
         { "RedeliveryCounter", "openwire.messagedispatch.redeliverycounter", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire MessageDispatch RedeliveryCounter", HFILL }},
-  
+
      { &hf_openwire_messageack_destination,
         { "Destination", "openwire.messageack.destination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageAck Destination", HFILL }},
-  
+
      { &hf_openwire_messageack_transactionid,
         { "TransactionId", "openwire.messageack.transactionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageAck TransactionId", HFILL }},
-  
+
      { &hf_openwire_messageack_consumerid,
         { "ConsumerId", "openwire.messageack.consumerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageAck ConsumerId", HFILL }},
-  
+
      { &hf_openwire_messageack_acktype,
         { "AckType", "openwire.messageack.acktype", FT_UINT8, BASE_DEC, VALS(openwire_message_ack_type_vals), 0x0, "Openwire MessageAck AckType", HFILL }},
-  
+
      { &hf_openwire_messageack_firstmessageid,
         { "FirstMessageId", "openwire.messageack.firstmessageid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageAck FirstMessageId", HFILL }},
-  
+
      { &hf_openwire_messageack_lastmessageid,
         { "LastMessageId", "openwire.messageack.lastmessageid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageAck LastMessageId", HFILL }},
-  
+
      { &hf_openwire_messageack_messagecount,
         { "MessageCount", "openwire.messageack.messagecount", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire MessageAck MessageCount", HFILL }},
-  
+
      { &hf_openwire_messagepull_consumerid,
         { "ConsumerId", "openwire.messagepull.consumerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessagePull ConsumerId", HFILL }},
-  
+
      { &hf_openwire_messagepull_destinationid,
         { "DestinationId", "openwire.messagepull.destinationid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessagePull DestinationId", HFILL }},
-  
+
      { &hf_openwire_messagepull_timeout,
         { "Timeout", "openwire.messagepull.timeout", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire MessagePull Timeout", HFILL }},
-  
+
      { &hf_openwire_messagepull_correlationid,
         { "CorrelationId", "openwire.messagepull.correlationid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire MessagePull CorrelationId", HFILL }},
-  
+
      { &hf_openwire_messagepull_messageid,
         { "MessageId", "openwire.messagepull.messageid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessagePull MessageId", HFILL }},
-  
+
      { &hf_openwire_message_producerid,
         { "ProducerId", "openwire.message.producerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message ProducerID", HFILL }},
-  
+
      { &hf_openwire_message_destination,
         { "Destination", "openwire.message.destination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message Destination", HFILL }},
-  
+
      { &hf_openwire_message_transactionid,
         { "TransactionId", "openwire.message.transactionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message TransactionId", HFILL }},
-  
+
      { &hf_openwire_message_originaldestination,
         { "OriginalDestination", "openwire.message.originaldestination", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message OriginalDestination", HFILL }},
-  
+
      { &hf_openwire_message_messageid,
         { "MessageId", "openwire.message.messageid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message MessageId", HFILL }},
-  
+
      { &hf_openwire_message_originaldestinationid,
         { "OriginalDestinationId", "openwire.message.originaldestinationid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message OriginalDestinationId", HFILL }},
-  
+
      { &hf_openwire_message_groupid,
         { "GroupID", "openwire.message.groupid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire message GroupID", HFILL }},
-  
+
      { &hf_openwire_message_groupsequence,
         { "GroupSequence", "openwire.message.groupsequence", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire message GroupSequence", HFILL }},
-  
+
      { &hf_openwire_message_correlationid,
         { "CorrelationId", "openwire.message.correlationid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire message CorrelationID", HFILL }},
-  
+
      { &hf_openwire_message_persistent,
         { "Persistent", "openwire.message.persistent", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire message Persistent", HFILL }},
-  
+
      { &hf_openwire_message_expiration,
         { "Expiration", "openwire.message.expiration", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire message Expiration", HFILL }},
-  
+
      { &hf_openwire_message_priority,
         { "Priority", "openwire.message.priority", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire message Priority", HFILL }},
-  
+
      { &hf_openwire_message_replyto,
         { "ReplyTo", "openwire.message.replyto", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message ReplyTo", HFILL }},
-  
+
      { &hf_openwire_message_timestamp,
         { "Timestamp", "openwire.message.timestamp", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire message Timestamp", HFILL }},
-  
+
      { &hf_openwire_message_type,
         { "Type", "openwire.message.type", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire message Type", HFILL }},
-  
+
      { &hf_openwire_message_body,
         { "Body", "openwire.message.body", FT_BYTES, BASE_NONE, NULL, 0x0, "Openwire message Body", HFILL }},
-  
+
      { &hf_openwire_message_properties,
         { "Properties", "openwire.message.properties", FT_BYTES, BASE_NONE, NULL, 0x0, "Openwire message Properties", HFILL }},
-  
+
      { &hf_openwire_message_datastructure,
         { "DataStructure", "openwire.message.datastructure", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message DataStructure", HFILL }},
-  
+
      { &hf_openwire_message_targetconsumerid,
         { "TargetConsumerId", "openwire.message.targetconsumerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message TargetConsumerId", HFILL }},
-  
+
      { &hf_openwire_message_compressed,
         { "Compressed", "openwire.message.compressed", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire message Compressed", HFILL }},
-  
+
      { &hf_openwire_message_redeliverycount,
         { "RedeliveryCount", "openwire.message.redeliverycount", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire message RedeliveryCount", HFILL }},
-  
+
      { &hf_openwire_message_brokerpath,
         { "BrokerPath", "openwire.message.brokerpath", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message BrokerPath", HFILL }},
-  
+
      { &hf_openwire_message_arrival,
         { "Arrival", "openwire.message.arrival", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire message Arrival", HFILL }},
-  
+
      { &hf_openwire_message_userid,
         { "UserID", "openwire.message.userid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire message UserID", HFILL }},
-  
+
      { &hf_openwire_message_receivedbydfbridge,
         { "RecievedByDFBridge", "openwire.message.receivedbydfbridge", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire message ReceivedByDFBridge", HFILL }},
-  
+
      { &hf_openwire_message_droppable,
         { "Droppable", "openwire.message.droppable", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire message Droppable", HFILL }},
-  
+
      { &hf_openwire_message_cluster,
         { "Cluster", "openwire.message.cluster", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire message Cluster", HFILL }},
-  
+
      { &hf_openwire_message_brokerintime,
         { "BrokerInTime", "openwire.message.brokerintime", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire message BrokerInTime", HFILL }},
-  
+
      { &hf_openwire_message_brokerouttime,
         { "BrokerOutTime", "openwire.message.brokerouttime", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire message BrokerOutTime", HFILL }},
-  
+
      { &hf_openwire_producerid_connectionid,
         { "ConnectionId", "openwire.producerid.connectionid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ProducerId ConnectionId", HFILL }},
-  
+
      { &hf_openwire_producerid_value,
         { "Value", "openwire.producerid.value", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire ProducerId Value", HFILL }},
-  
+
      { &hf_openwire_producerid_sessionid,
         { "SessionId", "openwire.producerid.sessionid", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire ProducerId SessionId", HFILL }},
-  
+
      { &hf_openwire_consumerid_connectionid,
         { "ConnectionId", "openwire.consumerid.connectionid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConsumerId ConnectionId", HFILL }},
-  
+
      { &hf_openwire_consumerid_value,
         { "Value", "openwire.consumerid.value", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire ConsumerId Value", HFILL }},
-  
+
      { &hf_openwire_consumerid_sessionid,
         { "SessionId", "openwire.consumerid.sessionid", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire ConsumerId SessionId", HFILL }},
-  
+
      { &hf_openwire_destination_name,
         { "Name", "openwire.destination.name", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire Destination Name", HFILL }},
-  
+
      { &hf_openwire_messageid_producerid,
         { "ProducerId", "openwire.messageid.producerid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire MessageId ProducerId", HFILL }},
-  
+
      { &hf_openwire_messageid_producersequenceid,
         { "ProducerSequenceId", "openwire.messageid.producersequenceid", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire MessageId ProducerSequenceId", HFILL }},
-  
+
      { &hf_openwire_messageid_brokersequenceid,
         { "BrokerSequenceId", "openwire.messageid.brokersequenceid", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire MessageId BrokerSequenceId", HFILL }},
-  
+
      { &hf_openwire_connectionid_value,
         { "Value", "openwire.connectionid.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire ConnectionId Value", HFILL }},
-  
+
      { &hf_openwire_sessionid_connectionid,
         { "Connection", "openwire.sessionid.connectionid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire SessionId ConnectionId", HFILL }},
-  
+
      { &hf_openwire_sessionid_value,
         { "Value", "openwire.sessionid.value", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire SessionId Value", HFILL }},
-  
+
      { &hf_openwire_brokerid_value,
         { "Value", "openwire.brokerid.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire BrokerId Value", HFILL }},
-  
+
      { &hf_openwire_localtransactionid_value,
         { "Value", "openwire.localtransactionid.value", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire LocalTransactionId Value", HFILL }},
-  
+
      { &hf_openwire_localtransactionid_connectionid,
         { "ConnectionId", "openwire.localtransactionid.connectionid", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire LocalTransactionId ConnecctionId", HFILL }},
-  
+
      { &hf_openwire_xatransactionid_formatid,
         { "FormatId", "openwire.xatransactionid.formatid", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire XATransactionId FormatId", HFILL }},
-  
+
      { &hf_openwire_xatransactionid_globaltransactionid,
         { "GlobalTransactionId", "openwire.xatransactionid.globaltransactionid", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire XATransactionId GlobalTransactionId", HFILL }},
-  
+
      { &hf_openwire_xatransactionid_branchqualifier,
         { "BranchQualifier", "openwire.xatransactionid.branchqualifier", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire XATransactionId BranchQualifier", HFILL }},
-  
+
      { &hf_openwire_none,
         { "Generic field", "openwire.generic", FT_BYTES, BASE_NONE, NULL, 0x0, "Openwire integer type", HFILL }},
-  
+
      { &hf_openwire_map_length,
         { "Length", "openwire.map.length", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire map length", HFILL }},
-  
+
      { &hf_openwire_map_key,
         { "Key", "openwire.map.key", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire map Key", HFILL }},
-  
+
      { &hf_openwire_map_entry,
         { "Entry", "openwire.map.entry", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire map Entry", HFILL }},
-  
+
      { &hf_openwire_throwable_class,
         { "Class", "openwire.throwable.class", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire Throwable Class", HFILL }},
-  
+
      { &hf_openwire_throwable_message,
         { "Message", "openwire.throwable.message", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire Throwable Message", HFILL }},
-  
+
      { &hf_openwire_throwable_element,
         { "Element", "openwire.throwable.element", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire Throwable Element", HFILL }},
-  
+
      { &hf_openwire_throwable_classname,
         { "ClassName", "openwire.throwable.classname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire Throwable ClassName", HFILL }},
-  
+
      { &hf_openwire_throwable_methodname,
         { "MethodName", "openwire.throwable.methodname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire Throwable MethodName", HFILL }},
-  
+
      { &hf_openwire_throwable_filename,
         { "FileName", "openwire.throwable.filename", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire Throwable FileName", HFILL }},
-  
+
      { &hf_openwire_throwable_linenumber,
         { "LineNumber", "openwire.throwable.filename", FT_UINT32, BASE_DEC, NULL, 0x0, "Openwire Throwable LineNumber", HFILL }},
-  
+
      { &hf_openwire_type_integer,
         { "Integer", "openwire.type.integer", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire Integer type", HFILL }},
-  
+
      { &hf_openwire_type_short,
         { "Short", "openwire.type.short", FT_INT32, BASE_DEC, NULL, 0x0, "Openwire Short type", HFILL }},
-  
+
      { &hf_openwire_type_string,
         { "String", "openwire.type.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Openwire String type", HFILL }},
-  
+
      { &hf_openwire_type_bytes,
         { "Bytes", "openwire.type.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, "Openwire Bytes type", HFILL }},
-  
+
      { &hf_openwire_type_boolean,
         { "Boolean", "openwire.type.boolean", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire Boolean type", HFILL }},
-  
+
      { &hf_openwire_type_byte,
         { "Byte", "openwire.type.byte", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire Byte type", HFILL }},
-  
+
      { &hf_openwire_type_char,
         { "Char", "openwire.type.char", FT_UINT16, BASE_DEC, NULL, 0x0, "Openwire Char type", HFILL }},
-  
+
      { &hf_openwire_type_long,
         { "Long", "openwire.type.long", FT_INT64, BASE_DEC, NULL, 0x0, "Openwire Cong type", HFILL }},
-  
+
      { &hf_openwire_type_float,
         { "Float", "openwire.type.float", FT_FLOAT, BASE_NONE, NULL, 0x0, "Openwire Float type", HFILL }},
-  
+
      { &hf_openwire_type_double,
         { "Double", "openwire.type.double", FT_DOUBLE, BASE_NONE, NULL, 0x0, "Openwire Double type", HFILL }},
-  
+
      { &hf_openwire_type_notnull,
         { "NotNull", "openwire.type.notnull", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire NotNull type", HFILL }},
-  
+
      { &hf_openwire_cached_inlined,
         { "Inlined", "openwire.cached.inlined", FT_UINT8, BASE_DEC, NULL, 0x0, "Openwire Cached Inlined", HFILL }},
-  
+
      { &hf_openwire_cached_id,
         { "CachedID", "openwire.cached.id", FT_UINT16, BASE_DEC, NULL, 0x0, "Openwire Cached ID", HFILL }},
-  
+
      { &hf_openwire_cached_enabled,
         { "CachedEnabled", "openwire.cached.enabled", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Openwire Cached Enabled", HFILL }},
-  
+
      { &hf_openwire_type_object,
         { "Object", "openwire.type.object", FT_NONE, BASE_NONE, NULL, 0x0, "Openwire object", HFILL }},
-  
+
      { &hf_openwire_type,
         { "Type", "openwire.type", FT_UINT8, BASE_DEC, VALS(openwire_type_vals), 0x0, "Openwire type", HFILL }}
-  
+
     };
     static gint *ett[] = {
         &ett_openwire,
         &ett_openwire_type
     };
-  
-  	module_t *openwire_module;
-  
+
+    module_t *openwire_module;
+
     proto_openwire = proto_register_protocol("OpenWire", "OpenWire", "openwire");
     proto_register_field_array(proto_openwire, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-  
+
     openwire_module = prefs_register_protocol(proto_openwire, NULL);
     prefs_register_bool_preference(openwire_module, "desegment",
         "Reassemble Openwire messages spanning multiple TCP segments",
