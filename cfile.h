@@ -74,7 +74,8 @@ typedef struct _capture_file {
   gint64       f_datalen;       /* Size of capture file data (uncompressed) */
   guint16      cd_t;            /* File type of capture file */
   gboolean     iscompressed;    /* TRUE if the file is compressed */
-  int          lnk_t;           /* Link-layer type with which to save capture */
+  int          lnk_t;           /* File link-layer type; could be WTAP_ENCAP_PER_PACKET */
+  GArray      *linktypes;       /* Array of packet link-layer types */
   guint32      count;           /* Total number of frames */
   guint32      displayed_count; /* Number of displayed frames */
   guint32      marked_count;    /* Number of marked frames */

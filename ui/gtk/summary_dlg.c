@@ -247,9 +247,17 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Format:", string_buff);
 
   /* encapsulation */
-  g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_encap_string(summary.encap_type));
-  add_string_to_table(table, &row, "Encapsulation:", string_buff);
-
+  if (summary.file_encap_type == WTAP_ENCAP_PER_PACKET) {
+    for (i = 0; i < summary.packet_encap_types->len; i++) {
+      g_snprintf(string_buff, SUM_STR_MAX, "%s",
+                 wtap_encap_string(g_array_index(summary.packet_encap_types, int, i)));
+      add_string_to_table(table, &row, (i == 0) ? "Encapsulation:" : "",
+                          string_buff);
+    }
+  } else {
+    g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_encap_string(summary.file_encap_type));
+    add_string_to_table(table, &row, "Encapsulation:", string_buff);
+  }
   if (summary.has_snap) {
     /* snapshot length */
     g_snprintf(string_buff, SUM_STR_MAX, "%u bytes", summary.snap);
