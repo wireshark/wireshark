@@ -582,7 +582,6 @@ proto_register_yami(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	yami_module = prefs_register_protocol(proto_yami, proto_reg_handoff_yami);
-	yami_module = prefs_register_protocol(proto_yami, NULL);
 	prefs_register_uint_preference(yami_module, "tcp.port", "YAMI TCP Port", "The TCP port on which YAMI messages will be read", 10, &yami_config_tcp_port);
 	prefs_register_uint_preference(yami_module, "udp.port", "YAMI UDP Port", "The UDP port on which YAMI messages will be read", 10, &yami_config_udp_port);
 	prefs_register_bool_preference(yami_module, "desegment",
