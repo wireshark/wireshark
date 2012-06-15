@@ -126,9 +126,12 @@ remote_icons.h:
 #	Makefile.nmake
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
+	$(QRC_IMAGES)			\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
-	main_window.ui
+	main_window.ui			\
+	display_filter_16.svg		\
+	gpl-template.txt

@@ -268,30 +268,6 @@ ui_DATA = \
 	ui/gtk/ui/main-menubar-ui.xml
 
 #
-# Install the ui/gt directory files in the "ui/qt" subdirectory
-# of that directory
-#
-uiqtdir = $(pkgdatadir)/ui/qt
-uiqt_DATA = \
-	ui/qt/capture_start_24.png	\
-	ui/qt/capture_start_active_24.png	\
-	ui/qt/capture_stop_24.png	\
-	ui/qt/dfilter_apply_hover.png	\
-	ui/qt/dfilter_apply_normal.png	\
-	ui/qt/dfilter_apply_pressed.png	\
-	ui/qt/dfilter_bookmark_hover.png	\
-	ui/qt/dfilter_bookmark_normal.png	\
-	ui/qt/dfilter_bookmark_pressed.png	\
-	ui/qt/dfilter_dropdown.png	\
-	ui/qt/dfilter_erase_active.png	\
-	ui/qt/dfilter_erase_normal.png	\
-	ui/qt/dfilter_erase_selected.png	\
-	ui/qt/dfilter_refresh_active.png	\
-	ui/qt/dfilter_refresh_normal.png	\
-	ui/qt/display_filter_16.svg	\
-	ui/qt/gpl-template.txt
-
-#
 # Install the wimaxasncp directory files in the "wimaxasncp" subdirectory
 # of that directory
 #
@@ -831,7 +807,6 @@ EXTRA_DIST = \
 	$(radius_DATA)		\
 	$(tpncp_DATA)		\
 	$(ui_DATA)		\
-	$(uiqt_DATA)		\
 	$(wimaxasncp_DATA)	\
 	randpkt.c		\
 	smi_modules		\
