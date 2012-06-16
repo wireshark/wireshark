@@ -1582,14 +1582,12 @@ airpcap_get_if_string_number_from_description(gchar* description)
 airpcap_if_info_t*
 airpcap_get_default_if(GList* airpcap_if_list)
 {
-    gchar* s;
     airpcap_if_info_t* if_info = NULL;
 
     if(prefs.capture_device != NULL)
     {
-	s = g_strdup(get_if_name(prefs.capture_device));
-	if_info = get_airpcap_if_from_name(airpcap_if_list,g_strdup(get_if_name(prefs.capture_device)));
-	g_free(s);
+        if_info = get_airpcap_if_from_name(airpcap_if_list,
+                                           get_if_name(prefs.capture_device));
     }
     return if_info;
 }
