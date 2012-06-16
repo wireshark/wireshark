@@ -84,7 +84,7 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/main_proto_draw.h"
+#include "ui/gtk/packet_panes.h"
 #include "ui/gtk/conversations_table.h"
 #include "ui/gtk/hostlist_table.h"
 #include "ui/gtk/packet_history.h"

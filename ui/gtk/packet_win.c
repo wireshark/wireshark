@@ -65,7 +65,7 @@
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/packet_win.h"
-#include "ui/gtk/main_proto_draw.h"
+#include "ui/gtk/packet_panes.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"

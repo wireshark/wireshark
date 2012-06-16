@@ -46,7 +46,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/font_utils.h"
-#include "ui/gtk/main_proto_draw.h"
+#include "ui/gtk/packet_panes.h"
 #include "ui/gtk/follow_tcp.h"
 #include "ui/gtk/new_packet_list.h"
 

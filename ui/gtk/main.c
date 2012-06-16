@@ -151,7 +151,7 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/capture_file_dlg.h"
-#include "ui/gtk/main_proto_draw.h"
+#include "ui/gtk/packet_panes.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/packet_win.h"
 #include "ui/gtk/stock_icons.h"
