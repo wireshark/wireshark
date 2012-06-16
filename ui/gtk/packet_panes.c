@@ -204,11 +204,11 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
     gtk_tree_model_get(model, iter, 1, &finfo, -1);
     g_assert(finfo);
 
-	/* scroll the expanded item to reduce the need to do a manual scroll down
-	 * and provide faster navigation of deeper trees */
+    /* scroll the expanded item to reduce the need to do a manual scroll down
+     * and provide faster navigation of deeper trees */
 
-	if(prefs.gui_auto_scroll_on_expand) 
-		gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
+    if(prefs.gui_auto_scroll_on_expand) 
+        gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
 
     /*
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
@@ -595,7 +595,7 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
     gtk_tree_selection_select_path(gtk_tree_view_get_selection(tree_view),
                                    first_path);
 
-	/* If the last search was a string or hex search within "Packet data", the entire field might
+    /* If the last search was a string or hex search within "Packet data", the entire field might
        not be highlighted. If the user just clicked on one of the bytes comprising that field, the
        above call didn't trigger a 'gtk_tree_view_get_selection' event. Call redraw_packet_bytes()
        to make the highlighting of the entire field visible. */
@@ -686,18 +686,18 @@ GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
              proto_tree *tree, GtkWidget *tree_view)
 {
-	GtkWidget *byte_view, *byte_scrollw, *label;
-	GtkTextBuffer *buf;
+    GtkWidget       *byte_view, *byte_scrollw, *label;
+    GtkTextBuffer   *buf;
 #if GTK_CHECK_VERSION(3,0,0)
-	GtkStyleContext *context;
-	GdkRGBA		*rgba_bg_color;
-	GdkRGBA		*rgba_fg_color;
+    GtkStyleContext *context;
+    GdkRGBA         *rgba_bg_color;
+    GdkRGBA         *rgba_fg_color;
 #if !GTK_CHECK_VERSION(3,2,0)
-	GdkColor	bg_color;
-	GdkColor	fg_color;
+    GdkColor         bg_color;
+    GdkColor         fg_color;
 #endif /* GTK_CHECK_VERSION(3,2,0) */
 #else
-	GtkStyle    *style;
+    GtkStyle        *style;
 #endif
 
     /* Byte view.  Create a scrolled window for the text. */
@@ -1721,9 +1721,9 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
         bmask = (1 << (7-bitoffset));
         break;
 
-	default:
-		g_assert_not_reached();
-		break;
+    default:
+        g_assert_not_reached();
+        break;
     }
 
     /* save the information needed to redraw the text */
@@ -1868,7 +1868,7 @@ void proto_draw_colors_init(void)
         return;
     }
 #if 0
-	/* Allocating collor isn't necessary? */
+    /* Allocating collor isn't necessary? */
     get_color(&expert_color_chat);
     get_color(&expert_color_note);
     get_color(&expert_color_warn);
@@ -1883,7 +1883,7 @@ void proto_draw_colors_init(void)
     expert_color_foreground_str = gdk_color_to_string(&expert_color_foreground);
 
 #if 0
-	get_color(&hidden_proto_item);
+    get_color(&hidden_proto_item);
 #endif
     colors_ok = TRUE;
 }
@@ -2027,7 +2027,7 @@ proto_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
 #if GTK_CHECK_VERSION(3,0,0)
     gtk_widget_override_font(tree_view, user_font_get_regular());
 #else
-	gtk_widget_modify_font(tree_view, user_font_get_regular());
+    gtk_widget_modify_font(tree_view, user_font_get_regular());
 #endif
     remember_ptree_widget(tree_view);
 
