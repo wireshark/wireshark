@@ -74,7 +74,6 @@ set(WIRESHARK_GTK_SRC
 	main_airpcap_toolbar.c
 	main_filter_toolbar.c
 	main_menubar.c
-	main_proto_draw.c
 	main_statusbar.c
 	main_titlebar.c
 	main_toolbar.c
@@ -84,6 +83,7 @@ set(WIRESHARK_GTK_SRC
 	new_packet_list.c
 	packet_history.c
 	packet_list_store.c
+	packet_panes.c
 	packet_win.c
 	pixmap_save.c
 	plugins_dlg.c
