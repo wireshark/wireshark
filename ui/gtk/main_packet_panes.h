@@ -39,4 +39,8 @@ void add_main_byte_views(epan_dissect_t *edt);
  */
 void main_proto_tree_draw(proto_tree *protocol_tree);
 
+/** Clear the hex dump and protocol tree panes.
+ */
+void main_clear_tree_and_hex_views(void);
+
 #endif /* __MAIN_PACKET_PANES_H__ */

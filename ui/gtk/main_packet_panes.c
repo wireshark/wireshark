@@ -49,10 +49,10 @@ main_proto_tree_draw(proto_tree *protocol_tree)
 }
 
 /*
- * Clear the hex dump and protocol tree panes.
+ * Clear the hex dump and protocol tree panes in the main window.
  */
 void
-clear_tree_and_hex_views(void)
+main_clear_tree_and_hex_views(void)
 {
     /* Clear the hex dump by getting rid of all the byte views. */
     while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0) != NULL)
@@ -63,5 +63,5 @@ clear_tree_and_hex_views(void)
     add_byte_tab(byte_nb_ptr_gbl, "", NULL, NULL, tree_view_gbl);
 
     /* Clear the protocol tree */
-    proto_tree_draw(NULL, tree_view_gbl);
+    main_proto_tree_draw(NULL);
 }

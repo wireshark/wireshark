@@ -31,11 +31,6 @@
  *  @ingroup main_window_group
  */
 
-/** Clear the hex dump and protocol tree panes.
- */
-void clear_tree_and_hex_views(void);
-
-
 /** Get the current text notebook page of the packet details notebook.
  *
  * @param nb_ptr the notebook widget

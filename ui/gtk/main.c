@@ -1751,7 +1751,7 @@ static void
 main_cf_cb_packet_unselected(capture_file *cf)
 {
     /* Clear out the display of that packet. */
-    clear_tree_and_hex_views();
+    main_clear_tree_and_hex_views();
 
     /* No packet is selected. */
     set_menus_for_selected_packet(cf);
