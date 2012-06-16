@@ -152,7 +152,8 @@ ExtendedMCE-ID ::= OCTET STRING (SIZE(1))
 Global-MCE-ID ::= SEQUENCE {
 	pLMN-Identity			PLMN-Identity,
 	mCE-ID					MCE-ID,
-	extendedMCE-ID			ExtendedMCE-ID,
+--	extendedMCE-ID			ExtendedMCE-ID,
+	extendedMCE-ID			ExtendedMCE-ID OPTIONAL, -- Spec discrepancy 9.2.1.10	Global MCE ID Optional
 	iE-Extensions			ProtocolExtensionContainer { {GlobalMCE-ID-ExtIEs} } OPTIONAL,
 	...
 }
