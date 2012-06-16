@@ -752,7 +752,9 @@ proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
 
-offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid,
+dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+PROTO_ITEM_SET_HIDDEN(actx->created_item);
+offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_otid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
@@ -797,7 +799,7 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 200 "../../asn1/tcap/tcap.cnf"
+#line 204 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -819,15 +821,17 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "../../asn1/tcap/tcap.cnf"
+#line 167 "../../asn1/tcap/tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len , i;
 proto_item *tid_item;
 proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
-subtree = proto_item_add_subtree(tid_item, ett_otid);
+subtree = proto_item_add_subtree(tid_item, ett_dtid);
 
-offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid,
+dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+PROTO_ITEM_SET_HIDDEN(actx->created_item);
+offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_dtid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
@@ -869,7 +873,7 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 214 "../../asn1/tcap/tcap.cnf"
+#line 218 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
@@ -891,7 +895,7 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 221 "../../asn1/tcap/tcap.cnf"
+#line 225 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
@@ -962,7 +966,7 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 228 "../../asn1/tcap/tcap.cnf"
+#line 232 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");

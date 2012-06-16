@@ -130,7 +130,9 @@ proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Source Transaction ID");
 subtree = proto_item_add_subtree(tid_item, ett_otid);
 
-offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid,
+dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+PROTO_ITEM_SET_HIDDEN(actx->created_item);
+offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_otid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
@@ -167,9 +169,11 @@ guint8 len , i;
 proto_item *tid_item;
 proto_tree *subtree;
 tid_item = proto_tree_add_text(tree, tvb, offset, -1, "Destination Transaction ID");
-subtree = proto_item_add_subtree(tid_item, ett_otid);
+subtree = proto_item_add_subtree(tid_item, ett_dtid);
 
-offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid,
+dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_tid, NULL);
+PROTO_ITEM_SET_HIDDEN(actx->created_item);
+offset = dissect_ber_octet_string(implicit_tag, actx, subtree, tvb, offset, hf_tcap_dtid,
                                     &parameter_tvb);
 
 if (parameter_tvb){
