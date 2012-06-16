@@ -4640,6 +4640,11 @@ set_menus_for_capture_file(capture_file *cf)
 void
 set_menus_for_capture_in_progress(gboolean capture_in_progress)
 {
+    /* Either a capture was started or stopped; in either case, it's not
+       in the process of stopping, so allow quitting. */
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Quit",
+                         TRUE);
+
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Open",
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/OpenRecent",
@@ -4673,6 +4678,26 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
     set_toolbar_for_capture_in_progress(capture_in_progress);
 
     set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
+#endif /* HAVE_LIBPCAP */
+}
+
+
+/* Disable menu items while we're waiting for the capture child to
+   finish.  We disallow quitting until it finishes, and also disallow
+   stopping or restarting the capture. */
+void
+set_menus_for_capture_stopping(void)
+{
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Quit",
+                         FALSE);
+#ifdef HAVE_LIBPCAP
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Stop",
+                         FALSE);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
+                         FALSE);
+    set_toolbar_for_capture_stopping();
+
+    set_capture_if_dialog_for_capture_stopping();
 #endif /* HAVE_LIBPCAP */
 }
 

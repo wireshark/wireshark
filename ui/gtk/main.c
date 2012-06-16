@@ -205,6 +205,8 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 
 capture_file cfile;
 
+static gboolean capture_stopping;
+
 /* "exported" main widgets */
 GtkWidget   *top_level = NULL, *pkt_scrollw, *tree_view_gbl, *byte_nb_ptr_gbl;
 
@@ -1009,6 +1011,11 @@ main_do_quit(void)
 static gboolean
 main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_)
 {
+    /* If we're in the middle of stopping a capture, don't do anything;
+       the user can try deleting the window after the capture stops. */
+    if (capture_stopping)
+        return TRUE;
+
     /* If there's unsaved data, let the user save it first.
        If they cancel out of it, don't quit. */
     if (do_file_close(&cfile, TRUE, " before quitting"))
@@ -1601,6 +1608,9 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
     capture_file *cf = capture_opts->cf;
     static GList *icon_list = NULL;
 
+    /* The capture isn't stopping any more - it's stopped. */
+    capture_stopping = FALSE;
+
     if (!cf->is_tempfile && cf->filename) {
         /* Add this filename to the list of recent files in the "Recent Files" submenu */
         add_menu_recent_capture_file(cf->filename);
@@ -1644,6 +1654,9 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 #endif
     static GList *icon_list = NULL;
 
+    /* The capture isn't stopping any more - it's stopped. */
+    capture_stopping = FALSE;
+
     /*set_display_filename(cf);*/
 
     /* Enable menu items that make sense if you're not currently running
@@ -1671,9 +1684,19 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 }
 
 static void
+main_capture_cb_capture_stopping(capture_options *capture_opts _U_)
+{
+    capture_stopping = TRUE;
+    set_menus_for_capture_stopping();
+}
+
+static void
 main_capture_cb_capture_failed(capture_options *capture_opts _U_)
 {
     static GList *icon_list = NULL;
+
+    /* Capture isn't stopping any more. */
+    capture_stopping = FALSE;
 
     /* the capture failed before the first packet was captured
        reset title, menus and icon */
@@ -1862,6 +1885,7 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
         gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
 #endif
+        main_capture_cb_capture_stopping(capture_opts);
         break;
     case(capture_cb_capture_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");

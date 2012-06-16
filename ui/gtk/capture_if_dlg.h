@@ -25,12 +25,16 @@
 #ifndef __CAPTURE_IF_DLG_H__
 #define __CAPTURE_IF_DLG_H__
 
-/** User requested the "Capture Interfaces" dialog box by menu or toolbar.
+/** A live capture has started or stopped.
  *
  * @param capture_in_progress capture is in progress
  */
 void
 set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress);
+
+/** A live capture is being stopped.
+ */
+void set_capture_if_dialog_for_capture_stopping(void);
 
 /** User requested the "Capture Interfaces" dialog box by menu or toolbar.
  *

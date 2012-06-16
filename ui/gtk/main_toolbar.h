@@ -46,6 +46,10 @@ void toolbar_redraw_all(void);
  */
 void set_toolbar_for_capture_in_progress(gboolean have_capture_file);
 
+/** The capture is in the process of being stopped.
+ */
+void set_toolbar_for_capture_stopping(void);
+
 /** We have (or don't have) captured packets now.
  *
  * @param have_captured_packets TRUE, if we have captured packets

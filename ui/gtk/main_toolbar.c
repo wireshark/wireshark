@@ -191,6 +191,24 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
     }
 }
 
+/* set toolbar state "stopping a capture" */
+void set_toolbar_for_capture_stopping(void) {
+
+    if (toolbar_init) {
+#ifdef HAVE_LIBPCAP
+        gtk_widget_set_sensitive(GTK_WIDGET(stop_button), FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(clear_button), FALSE);
+        /*if (capture_in_progress) {
+            gtk_widget_hide(GTK_WIDGET(new_button));
+            gtk_widget_show(GTK_WIDGET(stop_button));
+        } else {
+            gtk_widget_show(GTK_WIDGET(new_button));
+            gtk_widget_hide(GTK_WIDGET(stop_button));
+        }*/
+#endif /* HAVE_LIBPCAP */
+    }
+}
+
 /* set toolbar state "have packets captured" */
 void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 
