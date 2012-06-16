@@ -151,6 +151,7 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/capture_file_dlg.h"
+#include "ui/gtk/main_packet_panes.h"
 #include "ui/gtk/packet_panes.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/packet_win.h"
@@ -3740,7 +3741,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     gtk_widget_show_all(pkt_scrollw);
 
     /* Tree view */
-    tv_scrollw = main_tree_view_new(prefs_p, &tree_view_gbl);
+    tv_scrollw = proto_tree_view_new(prefs_p, &tree_view_gbl);
     gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
     gtk_widget_show(tv_scrollw);
 

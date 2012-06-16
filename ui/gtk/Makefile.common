@@ -99,6 +99,7 @@ WIRESHARK_GTK_SRC = \
 	main_airpcap_toolbar.c	\
 	main_filter_toolbar.c	\
 	main_menubar.c	\
+	main_packet_panes.c	\
 	manual_addr_resolv.c	\
 	packet_panes.c	\
 	main_statusbar.c	\
@@ -294,6 +295,7 @@ noinst_HEADERS = \
 	main_airpcap_toolbar.h	\
 	main_filter_toolbar.h	\
 	main_menubar_private.h	\
+	main_packet_panes.h	\
 	menus.h		\
 	packet_panes.h	\
 	main_statusbar_private.h	\

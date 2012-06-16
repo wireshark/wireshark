@@ -1,5 +1,5 @@
 /* packet_panes.c
- * Routines for GTK+ packet display
+ * Routines for GTK+ packet display (packet details and hex dump panes)
  *
  * $Id$
  *
@@ -96,10 +96,6 @@
 #define E_BYTE_VIEW_APP_START_KEY "byte_view_app_start"
 #define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
-
-static GtkWidget *
-add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
-             proto_tree *tree, GtkWidget *tree_view);
 
 /* Get the current text window for the notebook. */
 GtkWidget *
@@ -686,7 +682,7 @@ byte_view_realize_cb(GtkWidget *bv, gpointer data _U_)
     packet_hex_print(bv, byte_data, cfile.current_frame, NULL, byte_len);
 }
 
-static GtkWidget *
+GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
              proto_tree *tree, GtkWidget *tree_view)
 {
@@ -780,12 +776,6 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
                                   gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_nb));
 
     return byte_view;
-}
-
-void
-add_main_byte_views(epan_dissect_t *edt)
-{
-    add_byte_views(edt, tree_view_gbl, byte_nb_ptr_gbl);
 }
 
 void
@@ -2001,7 +1991,7 @@ tree_cell_renderer(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *cell,
 }
 
 GtkWidget *
-main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
+proto_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
 {
     GtkWidget *tv_scrollw, *tree_view;
     ProtoTreeModel *store;
@@ -2065,14 +2055,6 @@ collapse_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
     }
     gtk_tree_view_collapse_all(GTK_TREE_VIEW(tree_view));
 }
-
-
-void
-main_proto_tree_draw(proto_tree *protocol_tree)
-{
-    proto_tree_draw(protocol_tree, tree_view_gbl);
-}
-
 
 static void
 tree_view_follow_link(field_info   *fi)
@@ -2160,24 +2142,6 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 
     gtk_tree_model_foreach(GTK_TREE_MODEL(model), expand_finfos, GTK_TREE_VIEW(tree_view));
     g_object_unref(G_OBJECT(model));
-}
-
-/*
- * Clear the hex dump and protocol tree panes.
- */
-void
-clear_tree_and_hex_views(void)
-{
-    /* Clear the hex dump by getting rid of all the byte views. */
-    while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0) != NULL)
-        gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0);
-
-    /* Add a placeholder byte view so that there's at least something
-       displayed in the byte view notebook. */
-    add_byte_tab(byte_nb_ptr_gbl, "", NULL, NULL, tree_view_gbl);
-
-    /* Clear the protocol tree */
-    proto_tree_draw(NULL, tree_view_gbl);
 }
 
 void

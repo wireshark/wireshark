@@ -930,7 +930,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 	gtk_widget_show(pane);
 
 	/* Tree view */
-	tv_scrollw = main_tree_view_new(&prefs, &tree_view);
+	tv_scrollw = proto_tree_view_new(&prefs, &tree_view);
 	gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
 	gtk_widget_set_size_request(tv_scrollw, -1, TV_SIZE);
 	gtk_widget_show(tv_scrollw);

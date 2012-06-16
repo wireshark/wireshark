@@ -1,5 +1,6 @@
-/* proto_draw.h
- * Definitions for GTK+ packet display structures and routines
+/* packet_panes.h
+ * Definitions for GTK+ packet display structures and routines (packet
+ * details and hex dump panes)
  *
  * $Id$
  *
@@ -22,21 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __MAIN_PROTO_DRAW_H__
-#define __MAIN_PROTO_DRAW_H__
+#ifndef __PACKET_PANES_H__
+#define __PACKET_PANES_H__
 
 /** @file
  *  Packet tree and details panes.
  *  @ingroup main_window_group
  */
-
-/** Create byte views in the main window.
- */
-void add_main_byte_views(epan_dissect_t *edt);
-
-/** Display the protocol tree in the main window.
- */
-void main_proto_tree_draw(proto_tree *protocol_tree);
 
 /** Clear the hex dump and protocol tree panes.
  */
@@ -84,6 +77,12 @@ extern void redraw_packet_bytes_all(void);
  * @return the new byte view
  */
 extern GtkWidget *byte_view_new(void);
+
+/** Add a new tab to a byte view.
+ */
+extern GtkWidget *add_byte_tab(GtkWidget *byte_nb, const char *name,
+                               tvbuff_t *tvb, proto_tree *tree,
+                               GtkWidget *tree_view);
 
 /** Clear and fill all the byte view notebook tabs.
  *
@@ -189,7 +188,7 @@ extern GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *
  * @param tree_view_p fill in the new tree view
  * @return the new scrolled window (parent of the tree view)
  */
-extern GtkWidget * main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p);
+extern GtkWidget * proto_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p);
 
 /** Clear and redraw the whole tree view.
  *
@@ -251,4 +250,4 @@ extern gchar *expert_color_warn_str;
 extern gchar *expert_color_error_str;
 extern gchar *expert_color_foreground_str;
 
-#endif /* __MAIN_PROTO_DRAW_H__ */
+#endif /* __PACKET_PANES_H__ */
