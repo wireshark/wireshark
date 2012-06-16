@@ -305,7 +305,7 @@ init_progfile_dir(const char *arg0
          * Oh, well.  Return an indication of the error.
          */
         error = GetLastError();
-        if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+        if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
             NULL, error, 0, (LPTSTR) &msg_w, 0, NULL) == 0) {
             /*
              * Gak.  We can't format the message.
