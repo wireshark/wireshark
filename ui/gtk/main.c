@@ -1732,8 +1732,8 @@ main_cf_cb_packet_selected(gpointer data)
     /* Display the GUI protocol tree and packet bytes.
       XXX - why do we dump core if we call "proto_tree_draw()"
       before calling "add_byte_views()"? */
-    add_main_byte_views(cf->edt);
-    main_proto_tree_draw(cf->edt->tree);
+    add_byte_views(cf->edt, tree_view_gbl, byte_nb_ptr_gbl);
+    proto_tree_draw(cf->edt->tree, tree_view_gbl);
 
     /* Note: Both string and hex value searches in the packet data produce a non-zero
        search_pos if successful */
@@ -1750,8 +1750,17 @@ main_cf_cb_packet_selected(gpointer data)
 static void
 main_cf_cb_packet_unselected(capture_file *cf)
 {
-    /* Clear out the display of that packet. */
-    main_clear_tree_and_hex_views();
+    /* No packet is being displayed; clear the hex dump pane by getting
+       rid of all the byte views. */
+    while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0) != NULL)
+        gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr_gbl), 0);
+
+    /* Add a placeholder byte view so that there's at least something
+       displayed in the byte view notebook. */
+    add_byte_tab(byte_nb_ptr_gbl, "", NULL, NULL, tree_view_gbl);
+
+    /* And clear the protocol tree display as well. */
+    proto_tree_draw(NULL, tree_view_gbl);
 
     /* No packet is selected. */
     set_menus_for_selected_packet(cf);
