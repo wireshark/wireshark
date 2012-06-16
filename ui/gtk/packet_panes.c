@@ -1,4 +1,4 @@
-/* proto_draw.c
+/* packet_panes.c
  * Routines for GTK+ packet display
  *
  * $Id$
@@ -75,7 +75,7 @@
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
-#include "ui/gtk/main_proto_draw.h"
+#include "ui/gtk/packet_panes.h"
 #include "ui/gtk/proto_tree_model.h"
 
 #ifdef _WIN32
