@@ -26,10 +26,33 @@
 
 /*** PRIVATE INTERFACE BETWEEN main.c AND main_menubar.c DON'T USE OR TOUCH :-)*/
 
+/** The recent file read has finished, update the menu corresponding. */
+extern void menu_recent_read_finished(void);
+
 /* Enable or disable menu items based on whether you have a capture file
    you've finished reading and, if you have one, whether it's been saved
    and whether it could be saved except by copying the raw packet data. */
 void set_menus_for_capture_file(capture_file *);
+
+/** The packet history has changed, we need to update the menu.
+ *
+ * @param back_history some back history entries available
+ * @param forward_history some forward history entries available
+ */
+extern void set_menus_for_packet_history(gboolean back_history, gboolean forward_history);
+
+/* Enable or disable menu items based on whether there's a capture in
+   progress. */
+void set_menus_for_capture_in_progress(gboolean);
+
+/* Disable menu items while we're waiting for the capture child to
+   finish.  We disallow quitting until it finishes, and also disallow
+   stopping or restarting the capture. */
+void set_menus_for_capture_stopping(void);
+
+/* Enable or disable menu items based on whether you have some captured
+   packets. */
+void set_menus_for_captured_packets(gboolean);
 
 #ifdef HAVE_LIBPCAP
 /** The "Auto Scroll Packet List in Live Capture" option changed. */

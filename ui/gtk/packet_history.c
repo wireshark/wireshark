@@ -33,7 +33,7 @@
 #include "../file.h"
 #include "../globals.h"
 
-#include "ui/gtk/menus.h"
+#include "ui/gtk/main.h"
 #include "ui/gtk/packet_history.h"
 
 
@@ -65,12 +65,12 @@ static void history_print(void) {
 static void adjust_menus(void) {
 
     if(history_current) {
-        set_menus_for_packet_history(
+        main_set_for_packet_history(
             (g_list_previous(history_current) != NULL),
             (g_list_next(history_current) != NULL));
     } else {
         /* we don't have any history */
-        set_menus_for_packet_history(FALSE, FALSE);
+        main_set_for_packet_history(FALSE, FALSE);
     }
 
     /* history_print(); */

@@ -4151,8 +4151,8 @@ menu_open_filename(gchar *cf_name)
 }
 
 /* callback, if the user pushed a recent file submenu item */
-void
-menu_open_recent_file_cmd(gpointer action)
+static void
+menu_open_recent_file_cmd(GtkAction *action)
 {
     GtkWidget *submenu_recent_files;
     GList *recent_files_list;
@@ -4675,9 +4675,6 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
                          capture_in_progress);
-    set_toolbar_for_capture_in_progress(capture_in_progress);
-
-    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif /* HAVE_LIBPCAP */
 }
 
@@ -4695,9 +4692,6 @@ set_menus_for_capture_stopping(void)
                          FALSE);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Restart",
                          FALSE);
-    set_toolbar_for_capture_stopping();
-
-    set_capture_if_dialog_for_capture_stopping();
 #endif /* HAVE_LIBPCAP */
 }
 
@@ -4740,7 +4734,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
                          have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
                          have_captured_packets);
-    set_toolbar_for_captured_packets(have_captured_packets);
 }
 
 
@@ -5488,7 +5481,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
 void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Back", back_history);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Forward", forward_history);
-    set_toolbar_for_packet_history(back_history, forward_history);
 }
 
 

@@ -338,6 +338,9 @@ extern void main_widgets_rearrange(void);
 /** Show or hide the main window widgets, user changed it's preferences. */
 extern void main_widgets_show_or_hide(void);
 
+/* Update main window items based on whether we have a packet history. */
+extern void main_set_for_packet_history(gboolean back_history, gboolean forward_history);
+
 /** Apply a new filter string.
  *  Call cf_filter_packets() and add this filter string to the recent filter list.
  *

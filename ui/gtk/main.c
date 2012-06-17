@@ -923,12 +923,42 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
     }
 }
 
+/* Update main window items based on whether there's a capture in progress. */
+static void
+main_set_for_capture_in_progress(gboolean capture_in_progress)
+{
+    set_menus_for_capture_in_progress(capture_in_progress);
+
+#ifdef HAVE_LIBPCAP
+    set_toolbar_for_capture_in_progress(capture_in_progress);
+
+    set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
+#endif
+}
+
+/* Update main window items based on whether we have a capture file. */
 static void
 main_set_for_capture_file(gboolean have_capture_file_in)
 {
     have_capture_file = have_capture_file_in;
 
     main_widgets_show_or_hide();
+}
+
+/* Update main window items based on whether we have captured packets. */
+static void
+main_set_for_captured_packets(gboolean have_captured_packets)
+{
+    set_menus_for_captured_packets(have_captured_packets);
+    set_toolbar_for_captured_packets(have_captured_packets);
+}
+
+/* Update main window items based on whether we have a packet history. */
+void
+main_set_for_packet_history(gboolean back_history, gboolean forward_history)
+{
+    set_menus_for_packet_history(back_history, forward_history);
+    set_toolbar_for_packet_history(back_history, forward_history);
 }
 
 gboolean
@@ -1440,9 +1470,9 @@ main_cf_cb_file_closing(capture_file *cf)
     /* Disable all menu items that make sense only if you have a capture. */
     set_menus_for_capture_file(NULL);
     set_toolbar_for_capture_file(NULL);
-    set_menus_for_captured_packets(FALSE);
+    main_set_for_captured_packets(FALSE);
     set_menus_for_selected_packet(cf);
-    set_menus_for_capture_in_progress(FALSE);
+    main_set_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
     set_menus_for_selected_tree_row(cf);
 
@@ -1490,7 +1520,7 @@ main_cf_cb_file_read_finished(capture_file *cf)
     main_update_for_unsaved_changes(cf);
 
     /* Enable menu items that make sense if you have some captured packets. */
-    set_menus_for_captured_packets(TRUE);
+    main_set_for_captured_packets(TRUE);
 }
 
 static void
@@ -1578,7 +1608,7 @@ main_capture_cb_capture_prepared(capture_options *capture_opts)
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
-    set_menus_for_capture_in_progress(TRUE);
+    main_set_for_capture_in_progress(TRUE);
     set_capture_if_dialog_for_capture_in_progress(TRUE);
 
     /* Don't set up main window for a capture file. */
@@ -1592,12 +1622,12 @@ main_capture_cb_capture_update_started(capture_options *capture_opts)
        switching to the next multiple file. */
     main_capture_set_main_window_title(capture_opts);
 
-    set_menus_for_capture_in_progress(TRUE);
+    main_set_for_capture_in_progress(TRUE);
     set_capture_if_dialog_for_capture_in_progress(TRUE);
 
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
-    set_menus_for_captured_packets(TRUE);
+    main_set_for_captured_packets(TRUE);
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
@@ -1622,7 +1652,7 @@ main_capture_cb_capture_update_finished(capture_options *capture_opts)
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
-    set_menus_for_capture_in_progress(FALSE);
+    main_set_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
 
     /* Set up main window for a capture file. */
@@ -1662,7 +1692,7 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 
     /* Enable menu items that make sense if you're not currently running
      a capture. */
-    set_menus_for_capture_in_progress(FALSE);
+    main_set_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
 
     /* Restore the standard title bar message */
@@ -1689,6 +1719,11 @@ main_capture_cb_capture_stopping(capture_options *capture_opts _U_)
 {
     capture_stopping = TRUE;
     set_menus_for_capture_stopping();
+#ifdef HAVE_LIBPCAP
+    set_toolbar_for_capture_stopping();
+
+    set_capture_if_dialog_for_capture_stopping();
+#endif
 }
 
 static void
@@ -1704,7 +1739,7 @@ main_capture_cb_capture_failed(capture_options *capture_opts _U_)
 
     main_set_window_name("The Wireshark Network Analyzer");
 
-    set_menus_for_capture_in_progress(FALSE);
+    main_set_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
 
     main_set_for_capture_file(FALSE);
@@ -3111,7 +3146,7 @@ main(int argc, char *argv[])
         cfile.rfcode = NULL;
         show_main_window(FALSE);
         /* Don't call check_and_warn_user_startup(): we did it above */
-        set_menus_for_capture_in_progress(FALSE);
+        main_set_for_capture_in_progress(FALSE);
         set_capture_if_dialog_for_capture_in_progress(FALSE);
       }
     }
@@ -3146,7 +3181,7 @@ main(int argc, char *argv[])
     } else {
       show_main_window(FALSE);
       check_and_warn_user_startup(cf_name);
-      set_menus_for_capture_in_progress(FALSE);
+      main_set_for_capture_in_progress(FALSE);
       set_capture_if_dialog_for_capture_in_progress(FALSE);
     }
 
@@ -3157,7 +3192,7 @@ main(int argc, char *argv[])
 #else /* HAVE_LIBPCAP */
     show_main_window(FALSE);
     check_and_warn_user_startup(cf_name);
-    set_menus_for_capture_in_progress(FALSE);
+    main_set_for_capture_in_progress(FALSE);
     set_capture_if_dialog_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
   }

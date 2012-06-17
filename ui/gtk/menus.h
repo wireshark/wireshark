@@ -38,15 +38,6 @@ extern void menu_open_filename(gchar *cf_name);
  *  @ingroup main_window_group
  */
 
-/** User pushed a recent file submenu item.
- *
- * @param widget parent widget
- */
-extern void menu_open_recent_file_cmd(gpointer action);
-
-/** The recent file read has finished, update the menu corresponding. */
-extern void menu_recent_read_finished(void);
-
 /** One of the name resolution menu items changed. */
 extern void menu_name_resolution_changed(void);
 
@@ -78,13 +69,6 @@ extern void set_menu_object_data(const gchar *path, const gchar *key, gpointer d
  */
 extern gboolean popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
 
-/** The packet history has changed, we need to update the menu.
- *
- * @param back_history some back history entries available
- * @param forward_history some forward history entries available
- */
-extern void set_menus_for_packet_history(gboolean back_history, gboolean forward_history);
-
 /** The current file has changed, we need to update the file set menu items.
  *
  * @param file_set the current file is part of a file set
@@ -115,20 +99,6 @@ extern GtkWidget *menus_get_profiles_change_menu (void);
 /* Enable or disable menu items based on whether a tree row is selected
    and and on whether a "Match Selected" can be done. */
 void set_menus_for_selected_tree_row(capture_file *cf);
-
-
-/* Enable or disable menu items based on whether there's a capture in
-   progress. */
-void set_menus_for_capture_in_progress(gboolean);
-
-/* Disable menu items while we're waiting for the capture child to
-   finish.  We disallow quitting until it finishes, and also disallow
-   stopping or restarting the capture. */
-void set_menus_for_capture_stopping(void);
-
-/* Enable or disable menu items based on whether you have some captured
-   packets. */
-void set_menus_for_captured_packets(gboolean);
 
 /* Enable or disable menu items based on whether a packet is selected. */
 void set_menus_for_selected_packet(capture_file *cf);
