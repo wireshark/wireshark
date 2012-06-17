@@ -3678,10 +3678,10 @@ ssl_keylog_parse_session_id(const char* line,
     if (ssl_session->session_id.data_len == 0)
         return FALSE;
 
-    if (len < 14 || memcmp(line, "RSA Session-ID:", 14) != 0)
+    if (len < 15 || memcmp(line, "RSA Session-ID:", 15) != 0)
         return FALSE;
-    line += 14;
-    len -= 14;
+    line += 15;
+    len -= 15;
 
     if (len < ssl_session->session_id.data_len*2)
         return FALSE;
