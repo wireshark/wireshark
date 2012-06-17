@@ -468,8 +468,8 @@ do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
   if (notagain != NULL) {
     checkbox = gtk_check_button_new_with_label("Don't show this message again.");
     gtk_container_set_border_width(GTK_CONTAINER(checkbox), 12);
-    gtk_box_pack_start(GTK_BOX(gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG(msg_dialog))), checkbox,
-                       TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(msg_dialog))),
+                       checkbox, TRUE, TRUE, 0);
     gtk_widget_show(checkbox);
   }
 
