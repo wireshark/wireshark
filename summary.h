@@ -65,7 +65,8 @@ typedef struct _summary_tally {
     gint64        file_length;      /**< file length in bytes */
     int           file_type;        /**< wiretap file type */
     int           iscompressed;     /**< TRUE if file is compressed */
-    int           encap_type;       /**< wiretap encapsulation type */
+    int           file_encap_type;  /**< wiretap encapsulation type for file */
+    GArray       *packet_encap_types; /**< wiretap encapsulation types for packets */
     gboolean      has_snap;         /**< TRUE if maximum capture packet length is known */
     int           snap;             /**< Maximum captured packet length */
     gboolean      drops_known;      /**< TRUE if number of packet drops is known */

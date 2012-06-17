@@ -1205,7 +1205,7 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf)
   guint i;
   int ft;
 
-  savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->lnk_t);
+  savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
 
   if (savable_file_types != NULL) {
     /* OK, we have at least one file type we can save this file as.

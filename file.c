@@ -312,6 +312,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   reset_elapsed();
 
   cf->cd_t        = wtap_file_type(cf->wth);
+  cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
   cf->count     = 0;
   cf->displayed_count = 0;
   cf->marked_count = 0;
@@ -357,6 +358,21 @@ fail:
   return CF_ERROR;
 }
 
+/*
+ * Add an encapsulation type to cf->linktypes.
+ */
+void
+cf_add_encapsulation_type(capture_file *cf, int encap)
+{
+  guint i;
+
+  for (i = 0; i < cf->linktypes->len; i++) {
+    if (g_array_index(cf->linktypes, gint, i) == encap)
+      return; /* it's already there */
+  }
+  /* It's not already there - add it. */
+  g_array_append_val(cf->linktypes, encap);
+}
 
 /*
  * Reset the state for the currently closed file, but don't do the
@@ -410,6 +426,10 @@ cf_reset_state(capture_file *cf)
   cf->current_frame = 0;
   cf->current_row = 0;
   cf->finfo_selected = NULL;
+
+  /* No frame link-layer types, either. */
+  g_array_free(cf->linktypes, TRUE);
+  cf->linktypes = NULL;
 
   /* Clear the packet list. */
   new_packet_list_freeze();
@@ -530,7 +550,8 @@ cf_read(capture_file *cf, gboolean reloading)
   else
     cf_callback_invoke(cf_cb_file_read_started, cf);
 
-  /* Record whether the file is compressed. */
+  /* Record whether the file is compressed.
+     XXX - do we know this at open time? */
   cf->iscompressed = wtap_iscompressed(cf->wth);
 
   /* Find the size of the file. */
@@ -922,7 +943,7 @@ cf_finish_tail(capture_file *cf, int *err)
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
          loop, and let the code below (which is called even if there
-     aren't any packets left to read) exit. */
+         aren't any packets left to read) exit. */
       break;
     }
     read_packet(cf, dfcode, filtering_tap_listeners, tap_flags, data_offset);
@@ -1197,6 +1218,14 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
   frame_data   *fdata;
   int           passed;
   int           row = -1;
+
+  /* Add this packet's link-layer encapsulation type to cf->linktypes, if
+     it's not already there.
+     XXX - yes, this is O(N), so if every packet had a different 
+     link-layer encapsulation type, it'd be O(N^2) to read the file, but
+     there are probably going to be a small number of encapsulation types
+     in a file. */
+  cf_add_encapsulation_type(cf, phdr->pkt_encap);
 
   /* The frame number of this packet is one more than the count of
      frames in the file so far. */
@@ -3826,6 +3855,7 @@ cf_can_save_as(capture_file *cf)
 static cf_read_status_t
 rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
+  const struct wtap_pkthdr *phdr;
   gchar       *err_info;
   gchar       *name_ptr;
   const char  *errmsg;
@@ -3873,6 +3903,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->unsaved_changes = FALSE;
 
   cf->cd_t        = wtap_file_type(cf->wth);
+  cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
 
   cf->snap      = wtap_snapshot_length(cf->wth);
   if (cf->snap == 0) {
@@ -3886,7 +3917,8 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   cf_callback_invoke(cf_cb_file_rescan_started, cf);
 
-  /* Record whether the file is compressed. */
+  /* Record whether the file is compressed.
+     XXX - do we know this at open time? */
   cf->iscompressed = wtap_iscompressed(cf->wth);
 
   /* Find the size of the file. */
@@ -3909,6 +3941,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   g_get_current_time(&start_time);
 
   framenum = 0;
+  phdr = wtap_phdr(cf->wth);
   while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
     framenum++;
     fdata = frame_data_sequence_find(cf->frames, framenum);
@@ -3955,6 +3988,14 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
          close the current capture. */
       break;
     }
+
+    /* Add this packet's link-layer encapsulation type to cf->linktypes, if
+       it's not already there.
+       XXX - yes, this is O(N), so if every packet had a different 
+       link-layer encapsulation type, it'd be O(N^2) to read the file, but
+       there are probably going to be a small number of encapsulation types
+       in a file. */
+    cf_add_encapsulation_type(cf, phdr->pkt_encap);
   }
 
   /* Free the display name */

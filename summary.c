@@ -149,7 +149,8 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->file_type = cf->cd_t;
   st->iscompressed = cf->iscompressed;
   st->is_tempfile = cf->is_tempfile;
-  st->encap_type = cf->lnk_t;
+  st->file_encap_type = cf->lnk_t;
+  st->packet_encap_types = cf->linktypes;
   st->has_snap = cf->has_snap;
   st->snap = cf->snap;
   st->elapsed_time = nstime_to_sec(&cf->elapsed_time);
@@ -196,7 +197,6 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   }
   g_free(idb_info);
 }
-
 
 #ifdef HAVE_LIBPCAP
 void
