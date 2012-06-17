@@ -30,6 +30,7 @@ wtap_default_file_extension
 wtap_dump
 wtap_dump_can_open
 wtap_dump_can_write_encap
+wtap_dump_can_write_encaps
 wtap_dump_can_compress
 wtap_dump_close
 wtap_dump_fdopen

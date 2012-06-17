@@ -3843,8 +3843,8 @@ cf_can_save_as(capture_file *cf)
   for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
     /* To save a file with Wiretap, Wiretap has to handle that format,
        and its code to handle that format must be able to write a file
-       with this file's encapsulation type. */
-    if (wtap_dump_can_open(ft) && wtap_dump_can_write_encap(ft, cf->lnk_t)) {
+       with this file's encapsulation types. */
+    if (wtap_dump_can_write_encaps(ft, cf->linktypes)) {
       /* OK, we can write it out in this type. */
       return TRUE;
     }

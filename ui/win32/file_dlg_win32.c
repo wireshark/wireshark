@@ -1503,19 +1503,6 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
-/* XXX - Copied verbatim from ui/gtk/capture_file_dlg.c.  Perhaps it
- * should be in wiretap instead?
- */
-
-static gboolean
-can_save_with_wiretap(int ft)
-{
-    /* To save a file with Wiretap, Wiretap has to handle that format,
-     and its code to handle that format must be able to write a file
-     with this file's encapsulation type. */
-    return wtap_dump_can_open(ft) && wtap_dump_can_write_encap(ft, cfile.lnk_t);
-}
-
 /* Generate a list of the file types we can save this file as.
 
    "filetype" is the type it has now.
@@ -1651,7 +1638,7 @@ build_file_format_list(HWND sf_hwnd) {
 
         if (!packet_range_process_all(&g_range) || ft != cfile.cd_t) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-            if (!can_save_with_wiretap(ft))
+            if (!wtap_can_save_with_wiretap(ft, cfile.linktypes))
                 continue;       /* We can't. */
         }
 
@@ -1707,7 +1694,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                         new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
                         if (new_filetype != CB_ERR) {
                             if (filetype != new_filetype) {
-                                if (can_save_with_wiretap(new_filetype)) {
+                                if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
                                     EnableWindow(cur_ctrl, TRUE);
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);
@@ -1810,7 +1797,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                         new_filetype = SendMessage(cur_ctrl, CB_GETITEMDATA, (WPARAM) index, 0);
                         if (new_filetype != CB_ERR) {
                             if (filetype != new_filetype) {
-                                if (can_save_with_wiretap(new_filetype)) {
+                                if (wtap_can_save_with_wiretap(new_filetype, cfile.linktypes)) {
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_CAPTURED_BTN);
                                     EnableWindow(cur_ctrl, TRUE);
                                     cur_ctrl = GetDlgItem(sf_hwnd, EWFD_DISPLAYED_BTN);

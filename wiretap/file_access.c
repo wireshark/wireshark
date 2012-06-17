@@ -762,11 +762,11 @@ int wtap_get_num_file_types(void)
 }
 
 /*
- * Get a GArray of WTAP_FILE_ values for file types that can be used
- * to save a file of a given type with a given WTAP_ENCAP_ type.
+ * Return TRUE if a capture with a given GArray of WTAP_ENCAP_ types
+ * can be written in a specified format, and FALSE if it can't.
  */
-static gboolean
-can_save_with_wiretap(int ft, const GArray *file_encaps)
+gboolean
+wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
 {
 	guint i;
 
@@ -800,6 +800,11 @@ can_save_with_wiretap(int ft, const GArray *file_encaps)
 	return TRUE;
 }
 
+/*
+ * Get a GArray of WTAP_FILE_ values for file types that can be used
+ * to save a file of a given type with a given GArray of WTAP_ENCAP_
+ * types.
+ */
 GArray *
 wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 {
@@ -809,19 +814,19 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 	int other_file_type = -1;
 
 	/* Can we save this file in its own file type? */
-	if (can_save_with_wiretap(file_type, file_encaps)) {
+	if (wtap_dump_can_write(file_type, file_encaps)) {
 		/* Yes - make that the default file type. */
 		default_file_type = file_type;
 	} else {
 		/* No - can we save it as a pcap-NG file? */
-		if (can_save_with_wiretap(WTAP_FILE_PCAPNG, file_encaps)) {
+		if (wtap_dump_can_write(WTAP_FILE_PCAPNG, file_encaps)) {
 			/* Yes - default to pcap-NG, instead. */
 			default_file_type = WTAP_FILE_PCAPNG;
 		} else {
 			/* OK, find the first file type we *can* save it as. */
 			default_file_type = -1;
 			for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-				if (can_save_with_wiretap(ft, file_encaps)) {
+				if (wtap_dump_can_write(ft, file_encaps)) {
 					/* OK, got it. */
 					default_file_type = ft;
 				}
@@ -843,10 +848,10 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 	/* If it's pcap, put pcap-NG right after it; otherwise, if it's
 	   pcap-NG, put pcap right after it. */
 	if (default_file_type == WTAP_FILE_PCAP) {
-		if (can_save_with_wiretap(WTAP_FILE_PCAPNG, file_encaps))
+		if (wtap_dump_can_write(WTAP_FILE_PCAPNG, file_encaps))
 			other_file_type = WTAP_FILE_PCAPNG;
 	} else if (default_file_type == WTAP_FILE_PCAPNG) {
-		if (can_save_with_wiretap(WTAP_FILE_PCAP, file_encaps))
+		if (wtap_dump_can_write(WTAP_FILE_PCAP, file_encaps))
 			other_file_type = WTAP_FILE_PCAP;
 	}
 	if (other_file_type != -1)
@@ -858,7 +863,7 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 			continue;	/* not a real file type */
 		if (ft == default_file_type || ft == other_file_type)
 			continue;	/* we've already done this one */
-		if (can_save_with_wiretap(ft, file_encaps)) {
+		if (wtap_dump_can_write(ft, file_encaps)) {
 			/* OK, we can write it out in this type. */
 			g_array_append_val(savable_file_types, ft);
 		}
