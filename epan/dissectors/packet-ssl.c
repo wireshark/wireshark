@@ -180,6 +180,9 @@ static gint hf_ssl_handshake_extension_server_name_len = -1;
 static gint hf_ssl_handshake_extension_server_name_list_len = -1;
 static gint hf_ssl_handshake_extension_server_name_type = -1;
 static gint hf_ssl_handshake_extension_server_name = -1;
+static gint hf_ssl_handshake_session_ticket_lifetime_hint = -1;
+static gint hf_ssl_handshake_session_ticket_len = -1;
+static gint hf_ssl_handshake_session_ticket = -1;
 static gint hf_ssl_handshake_certificates_len = -1;
 static gint hf_ssl_handshake_certificates     = -1;
 static gint hf_ssl_handshake_certificate      = -1;
@@ -289,6 +292,7 @@ static gint ett_ssl_sig_hash_algs     = -1;
 static gint ett_ssl_sig_hash_alg      = -1;
 static gint ett_ssl_dnames            = -1;
 static gint ett_ssl_random            = -1;
+static gint ett_ssl_new_ses_ticket    = -1;
 static gint ett_ssl_keyex_params      = -1;
 static gint ett_ssl_cert_status       = -1;
 static gint ett_ssl_ocsp_resp         = -1;
@@ -504,6 +508,10 @@ static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
                                        SslDecryptSession* ssl);
+
+static void dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb,
+                                       proto_tree *tree,
+                                       guint32 offset, guint32 length);
 
 static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                                   proto_tree *tree, guint32 offset, packet_info *pinfo);
@@ -1966,7 +1974,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_NEWSESSION_TICKET:
-                /* Content depends on implementation, so nothing to do! */
+                dissect_ssl3_hnd_new_ses_ticket(tvb, ssl_hand_tree, offset, length);
                 break;
 
             case SSL_HND_CERTIFICATE:
@@ -2776,6 +2784,34 @@ no_cipher:
                                        length - (offset - start_offset));
         }
     }
+}
+
+static void
+dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    guint nst_len;
+    proto_item *ti;
+    proto_tree *subtree;
+
+
+    nst_len = tvb_get_ntohs(tvb, offset+4);
+    if (6 + nst_len != length) {
+        return;
+    }
+
+    ti = proto_tree_add_text(tree, tvb, offset, 6+nst_len, "TLS Session Ticket");
+    subtree = proto_item_add_subtree(ti, ett_ssl_new_ses_ticket);
+
+	proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket_lifetime_hint,
+						tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+    proto_tree_add_uint(subtree, hf_ssl_handshake_session_ticket_len,
+        tvb, offset, 2, nst_len);
+    /* Content depends on implementation, so just show data! */
+    proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket,
+            tvb, offset + 2, nst_len, ENC_NA);
 }
 
 static void
@@ -5136,6 +5172,21 @@ proto_register_ssl(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_ssl_handshake_session_ticket_lifetime_hint,
+          { "Session Ticket Lifetime Hint", "ssl.handshake.session_ticket_lifetime_hint",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "New TLS Session Ticket Lifetime Hint", HFILL }
+        },
+        { &hf_ssl_handshake_session_ticket_len,
+          { "Session Ticket Length", "ssl.handshake.session_ticket_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "New TLS Session Ticket Length", HFILL }
+        },
+        { &hf_ssl_handshake_session_ticket,
+          { "Session Ticket", "ssl.handshake.session_ticket",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "New TLS Session Ticket", HFILL }
+        },
         { &hf_ssl_handshake_certificates_len,
           { "Certificates Length", "ssl.handshake.certificates_length",
             FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -5585,6 +5636,7 @@ proto_register_ssl(void)
         &ett_ssl_sig_hash_alg,
         &ett_ssl_dnames,
         &ett_ssl_random,
+		&ett_ssl_new_ses_ticket,
         &ett_ssl_keyex_params,
         &ett_ssl_cert_status,
         &ett_ssl_ocsp_resp,
