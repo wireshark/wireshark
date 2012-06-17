@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-06-08
+# 2012-06-15
 # 
 # Note
 # 
@@ -4007,12 +4007,7 @@ kmscontrol	1773/tcp	# KMSControl                   [Roy_Chastain]               
 kmscontrol	1773/udp	# KMSControl                   [Roy_Chastain]                                     [Roy_Chastain]
 global-dtserv	1774/tcp	# global-dtserv                [Nicholas_Davies]                                  [Nicholas_Davies]
 global-dtserv	1774/udp	# global-dtserv                [Nicholas_Davies]                                  [Nicholas_Davies]
-# IANA assigned this
--	1775/tcp	# well-formed service name as
-# a replacement for "#".
-# This entry is an alias to "-". This entry is now historic,
-#	1775/tcp	# not usable for use with many common service discovery
-# mechanisms.
+# 1775               Unassigned
 femis	1776/tcp	# Federal Emergency Management [Larry_Gerhardstein]                               [Larry_Gerhardstein]
 # Information System
 femis	1776/udp	# Federal Emergency Management [Larry_Gerhardstein]                               [Larry_Gerhardstein]
@@ -12381,7 +12376,9 @@ afesc-mc	6628/udp	# AFE Stock Channel M/C        [K_K_Ho]                       
 # 6631               Unassigned                                                                                                                                2004-05-28
 mxodbc-connect	6632/tcp	# eGenix mxODBC Connect        [Marc_Andre_Lemburg]                               [Marc_Andre_Lemburg]                                      2009-11-13
 # 6632        udp    Reserved
-# 6633-6654            Unassigned
+# 6633        tcp    Reserved
+cisco-vpath-tun	6633/udp	# Cisco vPath Services Overlay [Cisco2]                                           [Surendra_Kumar]                                          2012-06-11
+# 6634-6654            Unassigned
 pcs-sf-ui-man	6655/tcp	# PC SOFT - Software factory   [Jerome_AERTS]                                     [Jerome_AERTS]                                            2010-11-30
 # UI/manager
 # 6655        udp    Reserved
@@ -13322,7 +13319,10 @@ tmi	8300/udp	# Transport Management         [Steve_Kneizys]                     
 # Interface
 amberon	8301/tcp	# Amberon PPC/PPS              [Ronald_Snyder]                                    [Ronald_Snyder]                                           2006-03
 amberon	8301/udp	# Amberon PPC/PPS              [Ronald_Snyder]                                    [Ronald_Snyder]                                           2006-03
-# 8302-8319            Unassigned
+# 8302-8312            Unassigned
+hub-open-net	8313/tcp	# Hub Open Network             [Grexie]                                           [Tim_Behrsin]                                             2012-06-13                                                                                              Defined TXT keys: _hub._tcp.host.example.com
+# 8313        udp    Reserved
+# 8314-8319            Unassigned
 tnp-discover	8320/tcp	# Thin(ium) Network Protocol   [Aly_Orady]                                        [Aly_Orady]                                               2007-08-07
 tnp-discover	8320/udp	# Thin(ium) Network Protocol   [Aly_Orady]                                        [Aly_Orady]                                               2007-08-07
 tnp	8321/tcp	# Thin(ium) Network Protocol   [Aly_Orady]                                        [Aly_Orady]                                               2007-08-07
@@ -13413,7 +13413,8 @@ asterix	8600/tcp	# Surveillance Data            [Eivan_Cerasi]                  
 asterix	8600/udp	# Surveillance Data            [Eivan_Cerasi]                                     [Eivan_Cerasi]                                            2005-11
 # 8601-8608            Unassigned
 # 8609        tcp    Reserved
-canon-cpnp-disc	8609/tcp	# Canon CPNP discovery         [Canon_Inc]                                        [Ryusuke_Okuhara]                                         2012-06-08
+canon-cpp-disc	8609/udp	# Canon Compact Printer        [Canon_Inc]                                        [Ryusuke_Okuhara]                                         2012-06-08   2012-06-15
+# Protocol Discovery
 canon-mfnp	8610/tcp	# Canon MFNP Service           [Ritsuto_Sako]                                     [Ritsuto_Sako]                                            2009-05-04
 canon-mfnp	8610/udp	# Canon MFNP Service           [Ritsuto_Sako]                                     [Ritsuto_Sako]                                            2009-05-04
 canon-bjnp1	8611/tcp	# Canon BJNP Port 1            [Atsushi_Nakamura]                                 [Atsushi_Nakamura]                                        2003-11
@@ -17568,6 +17569,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # inc.
 # [Circus_Ponies_Suppor]                                    Circus Ponies Support                           mailto:support&circusponies.com
 # [Cisco]                                                                             Cisco                 mailto:glenn.matthews&cisco.com                               2011-10-25
+# [Cisco2]                                                                            Cisco                 mailto:smkumar&cisco.com                                      2012-06-11
 # [Cisco_Systems]                                                                     Cisco Systems         mailto:nmtg-port-numbers&cisco.com                            2005-11
 # [CityDisc]                                                                          CityDisc              mailto:citydisc&euronet.nl
 # [Claes_Fredrik_Mannby]                                    Claes-Fredrik Mannby                            mailto:cf&mannby.com
@@ -20932,6 +20934,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Support_Staff]                                           Support Staff             Sierra Photonics,     mailto:support&sierraphotonics.com                            2011-10-20
 # Inc.
 # [Support_Team]                                            Support Team                                    mailto:support&eucalyptus.com
+# [Surendra_Kumar]                                          Surendra Kumar            Cisco                 mailto:smkumar&cisco.com                                      2012-06-11
 # [Susan_Hinrichs]                                          Susan Hinrichs                                  mailto:shinrich&cisco.com
 # [Susan_Sauter]                                            Susan Sauter                                    mailto:ssauter&cisco.com                                      2006-07
 # [Sushil_Thomas]                                           Sushil Thomas                                   mailto:iana-comm&3par.com                                     2008-03-10
