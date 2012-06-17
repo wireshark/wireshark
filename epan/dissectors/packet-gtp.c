@@ -4218,7 +4218,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         break;
     }
 
-    if ((type == 3) && (rel_ind == 8)) {
+    if ((type == 3) && (rel_ind >= 8)) {
         /* Release 8 or higher P-GW QoS profile */
         offset++;
         arp = wrapped_tvb_get_guint8(tvb, offset, 2);
