@@ -857,7 +857,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 						#
 						want_lua=no
 					fi
-	  			fi
+				fi
 			fi
 		],
 		[
