@@ -1124,9 +1124,10 @@ gboolean wtap_dump_close(wtap_dumper *, int *);
 
 /**
  * Get a GArray of WTAP_FILE_ values for file types that can be used
- * to save a file of a given type with a given WTAP_ENCAP_ type.
+ * to save a file of a given type with a given GArray of WTAP_ENCAP_
+ * types.
  */
-GArray *wtap_get_savable_file_types(int file_type, int file_encap);
+GArray *wtap_get_savable_file_types(int file_type, const GArray *file_encaps);
 
 /*** various string converter functions ***/
 const char *wtap_file_type_string(int filetype);
