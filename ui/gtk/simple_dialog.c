@@ -412,3 +412,110 @@ simple_dialog_format_message(const char *msg)
     }
     return str;
 }
+
+static void
+do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
+                      const char *secondary_msg, const char *msg_format,
+                      va_list ap)
+{
+  GtkMessageType gtk_message_type;
+  gchar *message;
+  GtkWidget *msg_dialog;
+  GtkWidget *checkbox;
+
+  if (notagain != NULL) {
+    if (*notagain) {
+      /*
+       * The user had checked the "Don't show this message again" checkbox
+       * in the past; don't bother showing it.
+       */
+      return;
+    }
+  }
+
+  switch (type) {
+
+  case ESD_TYPE_INFO:
+    gtk_message_type = GTK_MESSAGE_INFO;
+    break;
+
+  case ESD_TYPE_WARN:
+    gtk_message_type = GTK_MESSAGE_WARNING;
+    break;
+
+  case ESD_TYPE_ERROR:
+    gtk_message_type = GTK_MESSAGE_ERROR;
+    break;
+
+  default:
+    g_assert_not_reached();
+    gtk_message_type = GTK_MESSAGE_INFO;
+    break;
+  }
+
+  /* Format the message. */
+  message = g_strdup_vprintf(msg_format, ap);
+  msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                      GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
+                                      type,
+                                      GTK_BUTTONS_OK,
+                                      "%s", message);
+  g_free(message);
+  if (secondary_msg != NULL)
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(msg_dialog),
+                                             "%s", secondary_msg);
+
+  if (notagain != NULL) {
+    checkbox = gtk_check_button_new_with_label("Don't show this message again.");
+    gtk_container_set_border_width(GTK_CONTAINER(checkbox), 12);
+    gtk_box_pack_start(GTK_BOX(gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG(msg_dialog))), checkbox,
+                       TRUE, TRUE, 0);
+    gtk_widget_show(checkbox);
+  }
+
+  gtk_dialog_run(GTK_DIALOG(msg_dialog));
+  if (notagain != NULL) {
+    /*
+     * OK, did they check the checkbox?
+     */
+    *notagain = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbox));
+  }
+  gtk_widget_destroy(msg_dialog);
+}
+
+/*
+ * Alert box, with optional "don't show this message again" variable
+ * and checkbox, and optional secondary text.
+ */
+void
+simple_message_box(ESD_TYPE_E type, gboolean *notagain,
+                   const char *secondary_msg, const char *msg_format, ...)
+{
+  va_list ap;
+
+  va_start(ap, msg_format);
+  do_simple_message_box(type, notagain, secondary_msg, msg_format, ap);
+  va_end(ap);
+}
+
+/*
+ * Error alert box, taking a format and a va_list argument.
+ */
+void
+vsimple_error_message_box(const char *msg_format, va_list ap)
+{
+  do_simple_message_box(ESD_TYPE_ERROR, NULL, NULL, msg_format, ap);
+}
+
+/*
+ * Error alert box, taking a format and a list of arguments.
+ */
+void
+simple_error_message_box(const char *msg_format, ...)
+{
+  va_list ap;
+
+  va_start(ap, msg_format);
+  do_simple_message_box(ESD_TYPE_ERROR, NULL, NULL, msg_format, ap);
+  va_end(ap);
+}
