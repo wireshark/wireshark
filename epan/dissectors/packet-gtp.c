@@ -94,7 +94,6 @@ static int proto_gtp = -1;
 
 /*KTi*/
 static int hf_gtp_ie_id = -1;
-static int hf_gtp_ie_len = -1;
 static int hf_gtp_response_in = -1;
 static int hf_gtp_response_to = -1;
 static int hf_gtp_time = -1;
@@ -172,6 +171,16 @@ static int hf_gtp_qos_guar_ul = -1;
 static int hf_gtp_qos_guar_dl = -1;
 static int hf_gtp_qos_src_stat_desc = -1;
 static int hf_gtp_qos_sig_ind = -1;
+static int hf_gtp_qos_arp_pvi = -1;
+static int hf_gtp_qos_arp_pl = -1;
+static int hf_gtp_qos_arp_pci = -1;
+static int hf_gtp_qos_qci = -1;
+static int hf_gtp_qos_ul_mbr = -1;
+static int hf_gtp_qos_dl_mbr = -1;
+static int hf_gtp_qos_ul_gbr = -1;
+static int hf_gtp_qos_dl_gbr = -1;
+static int hf_gtp_qos_ul_apn_ambr = -1;
+static int hf_gtp_qos_dl_apn_ambr = -1;
 static int hf_gtp_pkt_flow_id = -1;
 static int hf_gtp_rab_gtpu_dn = -1;
 static int hf_gtp_rab_gtpu_up = -1;
@@ -207,7 +216,6 @@ static int hf_gtp_tlli = -1;
 static int hf_gtp_tr_comm = -1;
 static int hf_gtp_trace_ref = -1;
 static int hf_gtp_trace_type = -1;
-static int hf_gtp_unknown = -1;
 static int hf_gtp_user_addr_pdp_org = -1;
 static int hf_gtp_user_addr_pdp_type = -1;
 static int hf_gtp_user_ipv4 = -1;
@@ -235,7 +243,6 @@ static int hf_gtp_earp_pci = -1;
 static int hf_gtp_cdr_app = -1;
 static int hf_gtp_cdr_rel = -1;
 static int hf_gtp_cdr_ver = -1;
-static int hf_gtp_spare = -1;
 static int hf_gtp_cmn_flg_ppc = -1;
 static int hf_gtp_cmn_flg_mbs_srv_type = -1;
 static int hf_gtp_cmn_flg_mbs_ran_pcd_rdy = -1;
@@ -279,6 +286,7 @@ static gint ett_gtp_flags = -1;
 static gint ett_gtp_ext = -1;
 static gint ett_gtp_ext_hdr = -1;
 static gint ett_gtp_qos = -1;
+static gint ett_gtp_qos_arp = -1;
 static gint ett_gtp_flow_ii = -1;
 static gint ett_gtp_rp = -1;
 static gint ett_gtp_pkt_flow_id = -1;
@@ -4125,9 +4133,12 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
     guint8      trans_delay, traf_handl_prio;
     guint8      guar_ul, guar_dl, guar_ul_ext, guar_dl_ext;
     guint8      src_stat_desc, sig_ind;
-    proto_tree *ext_tree_qos;
+    proto_tree *ext_tree_qos, *ext_tree_qos_arp;
     proto_item *te;
     int         mss, mu, md, gu, gd;
+    guint8      arp, qci;
+    guint32     apn_ambr;
+    guint64     br;
 
     /* Will keep if the input is UTF-8 encoded (as in RADIUS messages).
      * If 1, input is *not* UTF-8 encoded (i.e. each input octet corresponds
@@ -4136,6 +4147,9 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
      * corresponds to one byte to be dissected)
      * */
     guint8 utf8_type = 1;
+
+    /* Will keep the release indicator as indicated in the RADIUS message */
+    guint8 rel_ind = 0;
 
     /* In RADIUS messages the QoS has a version field of two octets prepended.
      * As of 29.061 v.3.a.0, there is an hyphen between "Release Indicator" and
@@ -4167,7 +4181,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         retval = length + 3;
         break;
     case 3:
-        /* For QoS inside RADIUS Client messages from GGSN */
+        /* For QoS inside RADIUS Client messages from GGSN/P-GW */
         utf8_type = 2;
 
         /* The field in the RADIUS message is the length of the tvb we were given */
@@ -4176,7 +4190,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
 
         ext_tree_qos = proto_item_add_subtree(te, ett_gtp_qos);
 
-        proto_tree_add_item(ext_tree_qos, hf_gtp_qos_version, tvb, offset, 2, ENC_ASCII|ENC_NA);
+        rel_ind = wrapped_tvb_get_guint8(tvb, offset, 2);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_version, tvb, offset, 2, rel_ind);
 
         /* Hyphen handling */
         hyphen = tvb_get_guint8(tvb, offset + 2);
@@ -4201,6 +4216,65 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         retval = 0;
         ext_tree_qos = NULL;
         break;
+    }
+
+    if ((type == 3) && (rel_ind >= 8)) {
+        /* Release 8 or higher P-GW QoS profile */
+        offset++;
+        arp = wrapped_tvb_get_guint8(tvb, offset, 2);
+        te = proto_tree_add_text(ext_tree_qos, tvb, offset, 2, "Allocation/Retention Priority");
+        ext_tree_qos_arp = proto_item_add_subtree(te, ett_gtp_qos_arp);
+        proto_tree_add_boolean(ext_tree_qos_arp, hf_gtp_qos_arp_pci, tvb, offset, 2, arp);
+        proto_tree_add_uint(ext_tree_qos_arp, hf_gtp_qos_arp_pl, tvb, offset, 2, arp);
+        proto_tree_add_boolean(ext_tree_qos_arp, hf_gtp_qos_arp_pvi, tvb, offset, 2, arp);
+        offset += 2;
+        qci = wrapped_tvb_get_guint8(tvb, offset, 2);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_qci, tvb, offset, 2, qci);
+        offset += 2;
+        if (qci <= 4) {
+            /* GBR QCI */
+            br = ((guint64)wrapped_tvb_get_guint8(tvb, offset  , 2) << 32) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+2, 2) << 24) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+4, 2) << 16) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+6, 2) <<  8) |
+                  (guint64)wrapped_tvb_get_guint8(tvb, offset+8, 2);
+            proto_tree_add_uint64(ext_tree_qos, hf_gtp_qos_ul_mbr, tvb, offset, 10, br);
+            offset += 10;
+            br = ((guint64)wrapped_tvb_get_guint8(tvb, offset  , 2) << 32) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+2, 2) << 24) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+4, 2) << 16) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+6, 2) <<  8) |
+                  (guint64)wrapped_tvb_get_guint8(tvb, offset+8, 2);
+            proto_tree_add_uint64(ext_tree_qos, hf_gtp_qos_dl_mbr, tvb, offset, 10, br);
+            offset += 10;
+            br = ((guint64)wrapped_tvb_get_guint8(tvb, offset  , 2) << 32) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+2, 2) << 24) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+4, 2) << 16) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+6, 2) <<  8) |
+                  (guint64)wrapped_tvb_get_guint8(tvb, offset+8, 2);
+            proto_tree_add_uint64(ext_tree_qos, hf_gtp_qos_ul_gbr, tvb, offset, 10, br);
+            offset += 10;
+            br = ((guint64)wrapped_tvb_get_guint8(tvb, offset  , 2) << 32) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+2, 2) << 24) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+4, 2) << 16) |
+                 ((guint64)wrapped_tvb_get_guint8(tvb, offset+6, 2) <<  8) |
+                  (guint64)wrapped_tvb_get_guint8(tvb, offset+8, 2);
+            proto_tree_add_uint64(ext_tree_qos, hf_gtp_qos_dl_gbr, tvb, offset, 10, br);
+        } else {
+            /* non GBR QCI */
+            apn_ambr = (wrapped_tvb_get_guint8(tvb, offset  , 2) << 24) |
+                       (wrapped_tvb_get_guint8(tvb, offset+2, 2) << 16) |
+                       (wrapped_tvb_get_guint8(tvb, offset+4, 2) <<  8) |
+                        wrapped_tvb_get_guint8(tvb, offset+6, 2);
+            proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_ul_apn_ambr, tvb, offset, 8, apn_ambr);
+            offset += 8;
+            apn_ambr = (wrapped_tvb_get_guint8(tvb, offset  , 2) << 24) |
+                       (wrapped_tvb_get_guint8(tvb, offset+2, 2) << 16) |
+                       (wrapped_tvb_get_guint8(tvb, offset+4, 2) <<  8) |
+                        wrapped_tvb_get_guint8(tvb, offset+6, 2);
+            proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_dl_apn_ambr, tvb, offset, 8, apn_ambr);
+        }
+        return retval;
     }
 
     /* In RADIUS messages there is no allocation-retention priority
@@ -5766,7 +5840,7 @@ decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
     /*
      * Octets 4-n are coded according to 3GPP TS 48.018 [20] 11.3.77 RIM Routing Information IE octets 4-n.
      */
-    proto_tree_add_item(ext_tree, hf_gtp_rim_routing_addr, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_rim_routing_addr, tvb, offset, length, ENC_NA);
 
     return 3 + length;
 
@@ -6613,7 +6687,7 @@ decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pro
     offset = offset + 2;
 
     /* 4-n MBMS Flow Identifier */
-    proto_tree_add_item(ext_tree, hf_gtp_mbms_flow_id, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_mbms_flow_id, tvb, offset, length, ENC_NA);
 
 
     return 3 + length;
@@ -8065,11 +8139,6 @@ proto_register_gtp(void)
            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtp_val_ext, 0x0,
            NULL, HFILL}
         },
-        {&hf_gtp_ie_len,
-         { "Length", "gtp.ie_len",
-           FT_UINT16, BASE_DEC, NULL, 0x0,
-           NULL, HFILL}
-        },
         {&hf_gtp_response_in,
          { "Response In", "gtp.response_in",
            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -8328,7 +8397,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_qos_version,
          { "Version", "gtp.qos_version",
-           FT_STRING, BASE_NONE, NULL, 0,
+           FT_UINT8, BASE_DEC, NULL, 0,
            "Version of the QoS Profile", HFILL}
         },
         {&hf_gtp_qos_spare1,
@@ -8446,6 +8515,56 @@ proto_register_gtp(void)
          { "Signalling Indication", "gtp.sig_ind",
            FT_BOOLEAN, 8, TFS(&gtp_sig_ind), GTP_EXT_QOS_SIG_IND_MASK,
            NULL, HFILL}
+        },
+        { &hf_gtp_qos_arp_pci,
+          {"Pre-emption Capability (PCI)", "gtp.qos_arp_pci",
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
+          NULL, HFILL}
+        },
+        { &hf_gtp_qos_arp_pl,
+          {"Priority Level", "gtp.qos_arp_pl",
+          FT_UINT8, BASE_DEC, NULL, 0x3c,
+          NULL, HFILL}
+        },
+        { &hf_gtp_qos_arp_pvi,
+          {"Pre-emption Vulnerability (PVI)", "gtp.qos_arp_pvi",
+          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+          NULL, HFILL}
+        },
+        {&hf_gtp_qos_qci,
+         {"QCI", "gtp.qos_qci",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_gtp_qos_ul_mbr,
+         {"Uplink Maximum Bit Rate", "gtp.qos_ul_mbr",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_gtp_qos_dl_mbr,
+         {"Downlink Maximum Bit Rate", "gtp.qos_dl_mbr",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_gtp_qos_ul_gbr,
+         {"Uplink Guaranteed Bit Rate", "gtp.qos_ul_gbr",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_gtp_qos_dl_gbr,
+         {"Downlink Guaranteed Bit Rate", "gtp.qos_dl_gbr",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_gtp_qos_ul_apn_ambr,
+         {"Uplink APN Aggregate Maximum Bit Rate", "gtp.qos_ul_apn_ambr",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_gtp_qos_dl_apn_ambr,
+         {"Downlink APN Aggregate Maximum Bit Rate", "gtp.qos_dl_apn_ambr",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
         },
         {&hf_gtp_pkt_flow_id,
          { "Packet Flow ID", "gtp.pkt_flow_id",
@@ -8632,11 +8751,6 @@ proto_register_gtp(void)
            FT_UINT16, BASE_HEX, NULL, 0,
            NULL, HFILL}
         },
-        {&hf_gtp_unknown,
-         { "Unknown data (length)", "gtp.unknown",
-           FT_UINT16, BASE_DEC, NULL, 0,
-           "Unknown data", HFILL}
-        },
         {&hf_gtp_user_addr_pdp_org,
          { "PDP type organization", "gtp.user_addr_pdp_org",
            FT_UINT8, BASE_DEC, VALS(pdp_org_type), 0,
@@ -8771,11 +8885,6 @@ proto_register_gtp(void)
           { "Version Identifier", "gtp.cdr_ver",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
-        },
-        {&hf_gtp_spare,
-         { "Spare", "gtp.spare",
-           FT_UINT8, BASE_DEC, NULL, 0x02,
-           NULL, HFILL}
         },
         {&hf_gtp_cmn_flg_ppc,
          { "Prohibit Payload Compression", "gtp.cmn_flg.ppc",
@@ -8961,7 +9070,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    26
+#define GTP_NUM_INDIVIDUAL_ELEMS    27
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -8969,27 +9078,28 @@ proto_register_gtp(void)
     ett_gtp_array[2] = &ett_gtp_ext;
     ett_gtp_array[3] = &ett_gtp_cdr_dr;
     ett_gtp_array[4] = &ett_gtp_qos;
-    ett_gtp_array[5] = &ett_gtp_uli_rai;
-    ett_gtp_array[6] = &ett_gtp_flow_ii;
-    ett_gtp_array[7] = &ett_gtp_ext_hdr;
-    ett_gtp_array[8] = &ett_gtp_rp;
-    ett_gtp_array[9] = &ett_gtp_pkt_flow_id;
-    ett_gtp_array[10] = &ett_gtp_data_resp;
-    ett_gtp_array[11] = &ett_gtp_cdr_ver;
-    ett_gtp_array[12] = &ett_gtp_tmgi;
-    ett_gtp_array[13] = &ett_gtp_trip;
-    ett_gtp_array[14] = &ett_gtp_quint;
-    ett_gtp_array[15] = &ett_gtp_net_cap;
-    ett_gtp_array[16] = &ett_gtp_can_pack;
-    ett_gtp_array[17] = &ett_gtp_proto;
-    ett_gtp_array[18] = &ett_gtp_gsn_addr;
-    ett_gtp_array[19] = &ett_gtp_tft;
-    ett_gtp_array[20] = &ett_gtp_tft_pf;
-    ett_gtp_array[21] = &ett_gtp_tft_flags;
-    ett_gtp_array[22] = &ett_gtp_rab_setup;
-    ett_gtp_array[23] = &ett_gtp_hdr_list;
-    ett_gtp_array[24] = &ett_gtp_rel_pack;
-    ett_gtp_array[25] = &ett_gtp_node_addr;
+    ett_gtp_array[5] = &ett_gtp_qos_arp;
+    ett_gtp_array[6] = &ett_gtp_uli_rai;
+    ett_gtp_array[7] = &ett_gtp_flow_ii;
+    ett_gtp_array[8] = &ett_gtp_ext_hdr;
+    ett_gtp_array[9] = &ett_gtp_rp;
+    ett_gtp_array[10] = &ett_gtp_pkt_flow_id;
+    ett_gtp_array[11] = &ett_gtp_data_resp;
+    ett_gtp_array[12] = &ett_gtp_cdr_ver;
+    ett_gtp_array[13] = &ett_gtp_tmgi;
+    ett_gtp_array[14] = &ett_gtp_trip;
+    ett_gtp_array[15] = &ett_gtp_quint;
+    ett_gtp_array[16] = &ett_gtp_net_cap;
+    ett_gtp_array[17] = &ett_gtp_can_pack;
+    ett_gtp_array[18] = &ett_gtp_proto;
+    ett_gtp_array[19] = &ett_gtp_gsn_addr;
+    ett_gtp_array[20] = &ett_gtp_tft;
+    ett_gtp_array[21] = &ett_gtp_tft_pf;
+    ett_gtp_array[22] = &ett_gtp_tft_flags;
+    ett_gtp_array[23] = &ett_gtp_rab_setup;
+    ett_gtp_array[24] = &ett_gtp_hdr_list;
+    ett_gtp_array[25] = &ett_gtp_rel_pack;
+    ett_gtp_array[26] = &ett_gtp_node_addr;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
