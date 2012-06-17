@@ -1097,6 +1097,13 @@ void wtap_close(wtap *wth);
 /*** dump packets into a capture file ***/
 gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);
+
+/**
+ * Return TRUE if a capture with a given GArray of WTAP_ENCAP_ types
+ * can be written in a specified format, and FALSE if it can't.
+ */
+gboolean wtap_dump_can_write_encaps(int ft, const GArray *file_encaps);
+
 gboolean wtap_dump_can_compress(int filetype);
 gboolean wtap_dump_has_name_resolution(int filetype);
 
