@@ -127,7 +127,7 @@ static gboolean find_packet(capture_file *cf,
 static void cf_open_failure_alert_box(const char *filename, int err,
                       gchar *err_info, gboolean for_writing,
                       int file_type);
-static const char *file_rename_error_message(int err);
+static void cf_rename_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
 static void ref_time_packets(capture_file *cf);
 /* Update the progress bar this many times when reading a file. */
@@ -463,12 +463,6 @@ cf_close(capture_file *cf)
   }
 }
 
-/* an out of memory exception occured, wait for a user button press to exit */
-static void outofmemory_cb(gpointer dialog _U_, gint btn _U_, gpointer data _U_)
-{
-    main_window_exit();
-}
-
 static float
 calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_str, gulong status_size)
 {
@@ -507,8 +501,6 @@ cf_read(capture_file *cf, gboolean reloading)
   int         err;
   gchar       *err_info;
   gchar       *name_ptr;
-  const char  *errmsg;
-  char         errmsg_errno[1024+1];
   gint64       data_offset;
   gint64       file_pos;
   progdlg_t *volatile progbar = NULL;
@@ -630,24 +622,17 @@ cf_read(capture_file *cf, gboolean reloading)
       read_packet(cf, dfcode, filtering_tap_listeners, tap_flags, data_offset);
     }
     CATCH(OutOfMemoryError) {
-      gpointer dialog;
-
-      dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                             "%sOut Of Memory!%s\n"
-                             "\n"
-                             "Sorry, but Wireshark has to terminate now!\n"
-                             "\n"
-                             "Some infos / workarounds can be found at:\n"
-                             "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-                             simple_dialog_primary_start(), simple_dialog_primary_end());
-      /* we have to terminate, as we cannot recover from the memory error */
-      simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
-      while(1) {
-        main_window_update();
-        /* XXX - how to avoid a busy wait? */
-        /* Sleep(100); */
-      };
+      simple_message_box(ESD_TYPE_ERROR, NULL,
+                     "Some infos / workarounds can be found at:\n"
+                     "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                     "Sorry, but Wireshark has run out of memory and has to terminate now!");
+#if 0
+      /* Could we close the current capture and free up memory from that? */
       break;
+#else
+      /* we have to terminate, as we cannot recover from the memory error */
+      exit(1);
+#endif
     }
     ENDTRY;
   }
@@ -699,14 +684,12 @@ cf_read(capture_file *cf, gboolean reloading)
   }
 
   if(stop_flag) {
-    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-                  "%sFile loading was cancelled!%s\n"
-                  "\n"
+    simple_message_box(ESD_TYPE_WARN, NULL,
                   "The remaining packets in the file were discarded.\n"
                   "\n"
                   "As a lot of packets from the original file will be missing,\n"
                   "remember to be careful when saving the current content to a file.\n",
-                  simple_dialog_primary_start(), simple_dialog_primary_end());
+                  "File loading was cancelled!");
     return CF_READ_ERROR;
   }
 
@@ -717,55 +700,51 @@ cf_read(capture_file *cf, gboolean reloading)
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The capture file contains record data that TShark doesn't support.\n(%s)",
+      simple_error_message_box(
+                 "The capture file contains record data that Wireshark doesn't support.\n(%s)",
                  err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
                  err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_READ:
-      errmsg = "An attempt to read from the capture file failed for"
-        " some unknown reason.";
+      simple_error_message_box(
+                 "An attempt to read from the capture file failed for"
+                 " some unknown reason.");
       break;
 
     case WTAP_ERR_SHORT_READ:
-      errmsg = "The capture file appears to have been cut short"
-        " in the middle of a packet.";
+      simple_error_message_box(
+                 "The capture file appears to have been cut short"
+                 " in the middle of a packet.");
       break;
 
     case WTAP_ERR_BAD_FILE:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "The capture file appears to be damaged or corrupt.\n(%s)",
                  err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_DECOMPRESS:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "The compressed capture file appears to be damaged or corrupt.\n"
                  "(%s)", err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     default:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "An error occurred while reading the"
                  " capture file: %s.", wtap_strerror(err));
-      errmsg = errmsg_errno;
       break;
     }
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", errmsg);
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;
@@ -831,29 +810,17 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
       }
     }
     CATCH(OutOfMemoryError) {
-      gpointer dialog;
-
-      dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                             "%sOut Of Memory!%s\n"
-                             "\n"
-                             "Sorry, but Wireshark has to terminate now!\n"
-                             "\n"
-                             "The capture file is not lost, it can be found at:\n"
-                             "%s\n"
-                             "\n"
-                             "Some infos / workarounds can be found at:\n"
-                             "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
-                             simple_dialog_primary_start(), simple_dialog_primary_end(), cf->filename);
-      /* we have to terminate, as we cannot recover from the memory error */
-      simple_dialog_set_cb(dialog, outofmemory_cb, NULL);
-      while(1) {
-        main_window_update();
-        /* XXX - how to avoid a busy wait? */
-        /* Sleep(100); */
-      };
-      /* Don't freeze/thaw the list when doing live capture */
-      /*new_packet_list_thaw();*/
+      simple_message_box(ESD_TYPE_ERROR, NULL,
+                     "Some infos / workarounds can be found at:\n"
+                     "http://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                     "Sorry, but Wireshark has run out of memory and has to terminate now!");
+#if 0
+      /* Could we close the current capture and free up memory from that? */
       return CF_READ_ABORTED;
+#else
+      /* we have to terminate, as we cannot recover from the memory error */
+      exit(1);
+#endif
     }
     ENDTRY;
     to_read--;
@@ -1273,8 +1240,6 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   gchar            *err_info;
   int               err_fileno;
   int               i;
-  char              errmsg_errno[1024+1];
-  const char       *errmsg;
   gboolean          got_read_error = FALSE, got_write_error = FALSE;
   gint64            data_offset;
   progdlg_t        *progbar = NULL;
@@ -1285,6 +1250,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   gchar             status_str[100];
   gint64            progbar_nextstep;
   gint64            progbar_quantum;
+  gchar            *display_basename;
 
   /* open the input files */
   if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
@@ -1435,50 +1401,50 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       if (in_files[i].state == GOT_ERROR) {
         /* Put up a message box noting that a read failed somewhere along
            the line. */
+        display_basename = g_filename_display_basename(in_files[i].filename);
         switch (read_err) {
 
         case WTAP_ERR_UNSUPPORTED_ENCAP:
-          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                     "The capture file %%s has a packet with a network type that Wireshark doesn't support.\n(%s)",
-                     err_info);
+          simple_error_message_box(
+                     "The capture file %s has a packet with a network type that Wireshark doesn't support.\n(%s)",
+                     display_basename, err_info);
           g_free(err_info);
-          errmsg = errmsg_errno;
           break;
 
         case WTAP_ERR_CANT_READ:
-          errmsg = "An attempt to read from the capture file %s failed for"
-                   " some unknown reason.";
+          simple_error_message_box(
+                     "An attempt to read from the capture file %s failed for"
+                     " some unknown reason.", display_basename);
           break;
 
         case WTAP_ERR_SHORT_READ:
-          errmsg = "The capture file %s appears to have been cut short"
-                   " in the middle of a packet.";
+          simple_error_message_box(
+                     "The capture file %s appears to have been cut short"
+                      " in the middle of a packet.", display_basename);
           break;
 
         case WTAP_ERR_BAD_FILE:
-          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                     "The capture file %%s appears to be damaged or corrupt.\n(%s)",
-                     err_info);
+          simple_error_message_box(
+                     "The capture file %s appears to be damaged or corrupt.\n(%s)",
+                     display_basename, err_info);
           g_free(err_info);
-          errmsg = errmsg_errno;
           break;
 
         case WTAP_ERR_DECOMPRESS:
-          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                     "The compressed capture file %%s appears to be damaged or corrupt.\n"
-                     "(%s)", err_info);
+          simple_error_message_box(
+                     "The compressed capture file %s appears to be damaged or corrupt.\n"
+                     "(%s)", display_basename, err_info);
           g_free(err_info);
-          errmsg = errmsg_errno;
           break;
 
         default:
-          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+          simple_error_message_box(
                      "An error occurred while reading the"
-                     " capture file %%s: %s.", wtap_strerror(read_err));
-          errmsg = errmsg_errno;
+                     " capture file %s: %s.",
+                     display_basename,  wtap_strerror(read_err));
           break;
         }
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, errmsg, in_files[i].filename);
+        g_free(display_basename);
       }
     }
   }
@@ -1494,16 +1460,20 @@ cf_merge_files(char **out_filenamep, int in_file_count,
          * This is a problem with the particular frame we're writing;
          * note that, and give the frame number.
          */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        display_basename = g_filename_display_basename(in_file->filename);
+        simple_error_message_box(
                       "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.",
-                      in_file->packet_num, in_file->filename,
+                      in_file->packet_num, display_basename,
                       wtap_file_type_string(file_type));
+        g_free(display_basename);
         break;
 
       default:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        display_basename = g_filename_display_basename(out_filename);
+        simple_error_message_box(
                       "An error occurred while writing to the file \"%s\": %s.",
                       out_filename, wtap_strerror(write_err));
+        g_free(display_basename);
         break;
       }
     } else {
@@ -1549,15 +1519,11 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
       gchar *safe_dftext = simple_dialog_format_message(dftext);
-      gchar *safe_dfilter_error_msg = simple_dialog_format_message(
-      dfilter_error_msg);
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          "%s%s%s\n"
-          "\n"
-          "The following display filter isn't a valid display filter:\n%s\n"
+      gchar *safe_dfilter_error_msg = simple_dialog_format_message(dfilter_error_msg);
+      simple_message_box(ESD_TYPE_ERROR, NULL,
           "See the help for a description of the display filter syntax.",
-          simple_dialog_primary_start(), safe_dfilter_error_msg,
-          simple_dialog_primary_end(), safe_dftext);
+          "\"%s\" isn't a valid display filter: %s",
+          safe_dftext, safe_dfilter_error_msg);
       g_free(safe_dfilter_error_msg);
       g_free(safe_dftext);
       g_free(dftext);
@@ -1611,7 +1577,7 @@ cf_read_frame_r(capture_file *cf, frame_data *fdata,
 {
   int err;
   gchar *err_info;
-  char errmsg_errno[1024+1];
+  gchar *display_basename;
 
 #ifdef WANT_PACKET_EDITOR
   /* if fdata->file_off == -1 it means packet was edited, and we must find data inside edited_frames tree */
@@ -1619,7 +1585,7 @@ cf_read_frame_r(capture_file *cf, frame_data *fdata,
     const modified_frame_data *frame = (const modified_frame_data *) g_tree_lookup(cf->edited_frames, GINT_TO_POINTER(fdata->num));
 
     if (!frame) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "fdata->file_off == -1, but can't find modified frame!");
+      simple_error_message_box("fdata->file_off == -1, but can't find modified frame!");
       return FALSE;
     }
 
@@ -1631,29 +1597,28 @@ cf_read_frame_r(capture_file *cf, frame_data *fdata,
 
   if (!wtap_seek_read(cf->wth, fdata->file_off, pseudo_header, pd,
                       fdata->cap_len, &err, &err_info)) {
+    display_basename = g_filename_display_basename(cf->filename);
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" has a packet with a network type that Wireshark doesn't support.\n(%s)",
-                 err_info);
+      simple_error_message_box("The file \"%s\" has a packet with a network type that Wireshark doesn't support.\n(%s)",
+                 display_basename, err_info);
       g_free(err_info);
       break;
 
     case WTAP_ERR_BAD_FILE:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "An error occurred while reading from the file \"%%s\": %s.\n(%s)",
-                 wtap_strerror(err), err_info);
+      simple_error_message_box("An error occurred while reading from the file \"%s\": %s.\n(%s)",
+                 display_basename, wtap_strerror(err), err_info);
       g_free(err_info);
       break;
 
     default:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "An error occurred while reading from the file \"%%s\": %s.",
-                 wtap_strerror(err));
+      simple_error_message_box(
+                 "An error occurred while reading from the file \"%s\": %s.",
+                 display_basename, wtap_strerror(err));
       break;
     }
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, errmsg_errno, cf->filename);
+    g_free(display_basename);
     return FALSE;
   }
   return TRUE;
@@ -1979,10 +1944,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
         /* We didn't find a row corresponding to this frame.
            This means that the frame isn't being displayed currently,
            so we can't select it. */
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                      "%sEnd of capture exceeded!%s\n\n"
-                      "The capture file is probably not fully dissected.",
-                      simple_dialog_primary_start(), simple_dialog_primary_end());
+        simple_message_box(ESD_TYPE_INFO, NULL,
+                           "The capture file is probably not fully dissected.",
+                           "End of capture exceeded!");
       }
     }
   }
@@ -3466,10 +3430,9 @@ find_packet(capture_file *cf,
       /* We didn't find a row corresponding to this frame.
          This means that the frame isn't being displayed currently,
          so we can't select it. */
-      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                    "%sEnd of capture exceeded!%s\n\n"
-                    "The capture file is probably not fully dissected.",
-                    simple_dialog_primary_start(), simple_dialog_primary_end());
+      simple_message_box(ESD_TYPE_INFO, NULL,
+                         "The capture file is probably not fully dissected.",
+                         "End of capture exceeded!");
       return FALSE;
     }
     return TRUE;    /* success */
@@ -3500,10 +3463,9 @@ cf_goto_frame(capture_file *cf, guint fnumber)
     /* We didn't find a row corresponding to this frame.
        This means that the frame isn't being displayed currently,
        so we can't select it. */
-    simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-                  "%sEnd of capture exceeded!%s\n\n"
-                  "The capture file is probably not fully dissected.",
-                  simple_dialog_primary_start(), simple_dialog_primary_end());
+    simple_message_box(ESD_TYPE_INFO, NULL,
+                       "The capture file is probably not fully dissected.",
+                       "End of capture exceeded!");
     return FALSE;
   }
   return TRUE;  /* we got to that packet */
@@ -3765,6 +3727,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   save_callback_args_t *args = argsp;
   struct wtap_pkthdr hdr;
   int           err;
+  gchar        *display_basename;
 
   /* init the wtap header for saving */
   /* XXX - these are the only flags that correspond to data that we have
@@ -3807,15 +3770,17 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
          * This is a problem with the particular frame we're writing;
          * note that, and give the frame number.
          */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_error_message_box(
                       "Frame %u has a network type that can't be saved in a \"%s\" file.",
                       fdata->num, wtap_file_type_string(args->file_type));
         break;
 
       default:
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        display_basename = g_filename_display_basename(args->fname);
+        simple_error_message_box(
                       "An error occurred while writing to the file \"%s\": %s.",
-                      args->fname, wtap_strerror(err));
+                      display_basename, wtap_strerror(err));
+        g_free(display_basename);
         break;
       }
     } else {
@@ -3858,8 +3823,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   const struct wtap_pkthdr *phdr;
   gchar       *err_info;
   gchar       *name_ptr;
-  const char  *errmsg;
-  char         errmsg_errno[1024+1];
   gint64       data_offset;
   gint64       file_pos;
   progdlg_t *volatile progbar = NULL;
@@ -4034,55 +3997,51 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
     switch (*err) {
 
     case WTAP_ERR_UNSUPPORTED:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The capture file contains record data that TShark doesn't support.\n(%s)",
+      simple_error_message_box(
+                 "The capture file contains record data that Wireshark doesn't support.\n(%s)",
                  err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
                  err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_CANT_READ:
-      errmsg = "An attempt to read from the capture file failed for"
-        " some unknown reason.";
+      simple_error_message_box(
+                 "An attempt to read from the capture file failed for"
+                 " some unknown reason.");
       break;
 
     case WTAP_ERR_SHORT_READ:
-      errmsg = "The capture file appears to have been cut short"
-        " in the middle of a packet.";
+      simple_error_message_box(
+                 "The capture file appears to have been cut short"
+                 " in the middle of a packet.");
       break;
 
     case WTAP_ERR_BAD_FILE:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "The capture file appears to be damaged or corrupt.\n(%s)",
                  err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_DECOMPRESS:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "The compressed capture file appears to be damaged or corrupt.\n"
                  "(%s)", err_info);
       g_free(err_info);
-      errmsg = errmsg_errno;
       break;
 
     default:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+      simple_error_message_box(
                  "An error occurred while reading the"
                  " capture file: %s.", wtap_strerror(*err));
-      errmsg = errmsg_errno;
       break;
     }
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", errmsg);
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;
@@ -4102,6 +4061,9 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
   }             how_to_save;
   wtap_dumper  *pdh;
   save_callback_args_t callback_args;
+#ifdef _WIN32
+  gchar *display_basename;
+#endif
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
@@ -4151,8 +4113,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
              be if we didn't have permission to remove the file from
              the temporary directory, and that might be fixable - but
              is it worth requiring the user to go off and fix it?) */
-          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                        file_rename_error_message(errno), fname);
+          cf_rename_failure_alert_box(fname, errno);
           goto fail;
         }
       }
@@ -4268,16 +4229,17 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
     /* Now do the rename. */
     if (ws_rename(fname_new, fname) == -1) {
       /* Well, the rename failed. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    file_rename_error_message(errno), fname);
+      cf_rename_failure_alert_box(fname, errno);
 #ifdef _WIN32
       /* Attempt to reopen the random file descriptor using the
          current file's filename.  (At this point, the sequential
          file descriptor is closed.) */
       if (!wtap_fdreopen(cf->wth, cf->filename, &err)) {
         /* Oh, well, we're screwed. */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      file_open_error_message(err, FALSE), cf->filename);
+        display_basename = g_filename_display_basename(cf->filename);
+        simple_error_message_box(
+                      file_open_error_message(err, FALSE), display_basename);
+        g_free(display_basename);
       }
 #endif
       goto fail;
@@ -4463,8 +4425,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        on Windows.  Do the rename. */
     if (ws_rename(fname_new, fname) == -1) {
       /* Well, the rename failed. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    file_rename_error_message(errno), fname);
+      cf_rename_failure_alert_box(fname, errno);
       goto fail;
     }
   }
@@ -4491,132 +4452,135 @@ static void
 cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
                           gboolean for_writing, int file_type)
 {
+  gchar *display_basename;
+
   if (err < 0) {
     /* Wiretap error. */
+    display_basename = g_filename_display_basename(filename);
     switch (err) {
 
     case WTAP_ERR_NOT_REGULAR_FILE:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" is a \"special file\" or socket or other non-regular file.",
-            filename);
+            display_basename);
       break;
 
     case WTAP_ERR_RANDOM_OPEN_PIPE:
       /* Seen only when opening a capture file for reading. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" is a pipe or FIFO; Wireshark can't read pipe or FIFO files.\n"
             "To capture from a pipe or FIFO use wireshark -i -",
-            filename);
+            display_basename);
       break;
 
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" isn't a capture file in a format Wireshark understands.",
-            filename);
+            display_basename);
       break;
 
     case WTAP_ERR_UNSUPPORTED:
       /* Seen only when opening a capture file for reading. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" isn't a capture file in a format Wireshark understands.\n"
             "(%s)",
-            filename, err_info);
+            display_basename, err_info);
       g_free(err_info);
       break;
 
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
       /* Seen only when opening a capture file for writing. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" is a pipe, and %s capture files can't be "
             "written to a pipe.",
-            filename, wtap_file_type_string(file_type));
+            display_basename, wtap_file_type_string(file_type));
       break;
 
     case WTAP_ERR_UNSUPPORTED_FILE_TYPE:
       /* Seen only when opening a capture file for writing. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "Wireshark doesn't support writing capture files in that format.");
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       if (for_writing) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-              "Wireshark can't save this capture in that format.");
+        simple_error_message_box("Wireshark can't save this capture in that format.");
       } else {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_error_message_box(
               "The file \"%s\" is a capture for a network type that Wireshark doesn't support.\n"
               "(%s)",
-              filename, err_info);
+              display_basename, err_info);
         g_free(err_info);
       }
       break;
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
       if (for_writing) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_error_message_box(
               "Wireshark can't save this capture in that format.");
       } else {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_error_message_box(
               "The file \"%s\" is a capture for a network type that Wireshark doesn't support.",
-              filename);
+              display_basename);
       }
       break;
 
     case WTAP_ERR_BAD_FILE:
       /* Seen only when opening a capture file for reading. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" appears to be damaged or corrupt.\n"
             "(%s)",
-            filename, err_info);
+            display_basename, err_info);
       g_free(err_info);
       break;
 
     case WTAP_ERR_CANT_OPEN:
       if (for_writing) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_error_message_box(
               "The file \"%s\" could not be created for some unknown reason.",
-              filename);
+              display_basename);
       } else {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        simple_error_message_box(
               "The file \"%s\" could not be opened for some unknown reason.",
-              filename);
+              display_basename);
       }
       break;
 
     case WTAP_ERR_SHORT_READ:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" appears to have been cut short"
             " in the middle of a packet or other data.",
-            filename);
+            display_basename);
       break;
 
     case WTAP_ERR_SHORT_WRITE:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "A full header couldn't be written to the file \"%s\".",
-            filename);
+            display_basename);
       break;
 
     case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "This file type cannot be written as a compressed file.");
       break;
 
     case WTAP_ERR_DECOMPRESS:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The compressed file \"%s\" appears to be damaged or corrupt.\n"
-            "(%s)", filename, err_info);
+            "(%s)", display_basename, err_info);
       g_free(err_info);
       break;
 
     default:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" could not be %s: %s.",
-            filename,
+            display_basename,
             for_writing ? "created" : "opened",
             wtap_strerror(err));
       break;
     }
+    g_free(display_basename);
   } else {
     /* OS error. */
     open_failure_alert_box(filename, err, for_writing);
@@ -4628,37 +4592,37 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
  * or both depends on the error and on what we find if we look for
  * one or both of them.
  */
-static const char *
-file_rename_error_message(int err)
+static void
+cf_rename_failure_alert_box(const char *filename, int err)
 {
-  const char *errmsg;
-  static char errmsg_errno[1024+1];
+  gchar *display_basename;
 
+  display_basename = g_filename_display_basename(filename);
   switch (err) {
 
   case ENOENT:
     /* XXX - should check whether the source exists and, if not,
        report it as the problem and, if so, report the destination
        as the problem. */
-    errmsg = "The path to the file \"%s\" doesn't exist.";
+    simple_error_message_box("The path to the file \"%s\" doesn't exist.",
+                             display_basename);
     break;
 
   case EACCES:
     /* XXX - if we're doing a rename after a safe save, we should
        probably say something else. */
-    errmsg = "You don't have permission to move the capture file to \"%s\".";
+    simple_error_message_box("You don't have permission to move the capture file to \"%s\".",
+                             display_basename);
     break;
 
   default:
     /* XXX - this should probably mention both the source and destination
        pathnames. */
-    g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-            "The file \"%%s\" could not be moved: %s.",
-                wtap_strerror(err));
-    errmsg = errmsg_errno;
+    simple_error_message_box("The file \"%s\" could not be moved: %s.",
+                             display_basename, wtap_strerror(err));
     break;
   }
-  return errmsg;
+  g_free(display_basename);
 }
 
 /* Check for write errors - if the file is being written to an NFS server,
@@ -4668,28 +4632,32 @@ file_rename_error_message(int err)
 static void
 cf_close_failure_alert_box(const char *filename, int err)
 {
+  gchar *display_basename;
+
   if (err < 0) {
     /* Wiretap error. */
+    display_basename = g_filename_display_basename(filename);
     switch (err) {
 
     case WTAP_ERR_CANT_CLOSE:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "The file \"%s\" couldn't be closed for some unknown reason.",
-            filename);
+            display_basename);
       break;
 
     case WTAP_ERR_SHORT_WRITE:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "Not all the packets could be written to the file \"%s\".",
-                    filename);
+                    display_basename);
       break;
 
     default:
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      simple_error_message_box(
             "An error occurred while closing the file \"%s\": %s.",
-            filename, wtap_strerror(err));
+            display_basename, wtap_strerror(err));
       break;
     }
+    g_free(display_basename);
   } else {
     /* OS error.
        We assume that a close error from the OS is really a write error. */
