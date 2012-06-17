@@ -814,19 +814,19 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 	int other_file_type = -1;
 
 	/* Can we save this file in its own file type? */
-	if (wtap_dump_can_write(file_type, file_encaps)) {
+	if (wtap_dump_can_write_encaps(file_type, file_encaps)) {
 		/* Yes - make that the default file type. */
 		default_file_type = file_type;
 	} else {
 		/* No - can we save it as a pcap-NG file? */
-		if (wtap_dump_can_write(WTAP_FILE_PCAPNG, file_encaps)) {
+		if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, file_encaps)) {
 			/* Yes - default to pcap-NG, instead. */
 			default_file_type = WTAP_FILE_PCAPNG;
 		} else {
 			/* OK, find the first file type we *can* save it as. */
 			default_file_type = -1;
 			for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-				if (wtap_dump_can_write(ft, file_encaps)) {
+				if (wtap_dump_can_write_encaps(ft, file_encaps)) {
 					/* OK, got it. */
 					default_file_type = ft;
 				}
@@ -848,10 +848,10 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 	/* If it's pcap, put pcap-NG right after it; otherwise, if it's
 	   pcap-NG, put pcap right after it. */
 	if (default_file_type == WTAP_FILE_PCAP) {
-		if (wtap_dump_can_write(WTAP_FILE_PCAPNG, file_encaps))
+		if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, file_encaps))
 			other_file_type = WTAP_FILE_PCAPNG;
 	} else if (default_file_type == WTAP_FILE_PCAPNG) {
-		if (wtap_dump_can_write(WTAP_FILE_PCAP, file_encaps))
+		if (wtap_dump_can_write_encaps(WTAP_FILE_PCAP, file_encaps))
 			other_file_type = WTAP_FILE_PCAP;
 	}
 	if (other_file_type != -1)
@@ -863,7 +863,7 @@ wtap_get_savable_file_types(int file_type, const GArray *file_encaps)
 			continue;	/* not a real file type */
 		if (ft == default_file_type || ft == other_file_type)
 			continue;	/* we've already done this one */
-		if (wtap_dump_can_write(ft, file_encaps)) {
+		if (wtap_dump_can_write_encaps(ft, file_encaps)) {
 			/* OK, we can write it out in this type. */
 			g_array_append_val(savable_file_types, ft);
 		}
