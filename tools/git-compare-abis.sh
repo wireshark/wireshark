@@ -23,7 +23,7 @@ cd `git rev-parse --show-toplevel`
 #LAST_TAG_DIR=$LAST_TAG
 
 # Unstable branches, e.g. master don't have usable tags. Use a commit instead.
-LAST_TAG=f1cf70fc10a09318e4a560dd9491f92d01f1c772
+LAST_TAG=d1128f64332ff4f9553e16a7343796d896f7a07e
 LAST_TAG_DIR=master
 
 rm -rf $LAST_TAG_DIR
