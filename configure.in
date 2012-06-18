@@ -889,6 +889,7 @@ if test "$have_gtk" = "no" ; then
 		wireshark_bin="wireshark\$(EXEEXT)"
 		wireshark_man="wireshark.1"
 	        wireshark_SUBDIRS="codecs ui/qt"
+		UI_LIBS="ui/qt/libqtui.a $Qt_LIBS"
 	else
 		#
 		# We don't have Qt, either, which means we have no UI
@@ -940,7 +941,9 @@ else
 		# (Versions prior to 2.22 lacked some necessary accessors.)
 		CPPFLAGS="-DGSEAL_ENABLE $CPPFLAGS"
 	fi
+	UI_LIBS="ui/gtk/libgtkui.a ui/gtk/libgtkui_dirty.a $GTK_LIBS"
 fi
+AC_SUBST(UI_LIBS)
 
 # Error out if a glib header other than a "top level" header
 #  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
