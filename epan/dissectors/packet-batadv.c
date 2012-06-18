@@ -464,6 +464,7 @@ static int hf_msg_reassembled_length = -1;
 /* flags */
 static int hf_batadv_batman_flags_directlink = -1;
 static int hf_batadv_batman_flags_vis_server = -1;
+static int hf_batadv_batman_flags_not_best_next_hop = -1;
 static int hf_batadv_batman_flags_primaries_first_hop = -1;
 static int hf_batadv_unicast_frag_flags_head = -1;
 static int hf_batadv_unicast_frag_flags_largetail = -1;
@@ -1311,6 +1312,7 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_directlink, tvb, offset, 1, batman_packeth->flags);
 	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_vis_server, tvb, offset, 1, batman_packeth->flags);
 	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_primaries_first_hop, tvb, offset, 1, batman_packeth->flags);
+	proto_tree_add_boolean(flag_tree, hf_batadv_batman_flags_not_best_next_hop, tvb, offset, 1, batman_packeth->flags);
 	/* </flags> */
 	offset += 1;
 
@@ -3251,6 +3253,11 @@ void proto_register_batadv(void)
 		{ &hf_batadv_batman_flags_primaries_first_hop,
 		  { "PRIMARIES_FIRST_HOP", "batadv.batman.flags.primaries_first_hop",
 		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_batman_flags_not_best_next_hop,
+		  { "NOT_BEST_NEXT_HOP", "batadv.batman.flags.not_best_next_hop",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x8,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_batman_tt,
