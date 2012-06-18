@@ -457,7 +457,7 @@ do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
   message = g_strdup_vprintf(msg_format, ap);
   msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
                                       GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-                                      type,
+                                      gtk_message_type,
                                       GTK_BUTTONS_OK,
                                       "%s", message);
   g_free(message);
