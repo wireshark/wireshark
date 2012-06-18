@@ -670,6 +670,7 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 {
 	PacketListRecord *record;
 	gchar *str;
+	size_t col_text_len;
 
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
@@ -713,9 +714,13 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		case COL_EXPERT:
 		case COL_FREQ_CHAN:
 			if (cinfo->col_data[col] && cinfo->col_data[col] != cinfo->col_buf[col]) {
+				col_text_len = strlen(record->col_text[col]);
+				if (col_text_len > G_MAXUSHORT)
+					col_text_len = G_MAXUSHORT;
+
 				/* This is a constant string, so we don't have to copy it */
 				record->col_text[col] = (gchar *) cinfo->col_data[col];
-				record->col_text_len[col] = (guint) strlen(record->col_text[col]);
+				record->col_text_len[col] = (gushort) col_text_len;
 #ifdef NEW_PACKET_LIST_STATISTICS
 				++packet_list->const_strings;
 #endif
@@ -724,7 +729,10 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 		/* !! FALL-THROUGH!! */
 
 		default:
-			record->col_text_len[col] = (guint) strlen(cinfo->col_data[col]);
+			col_text_len = strlen(cinfo->col_data[col]);
+			if (col_text_len > G_MAXUSHORT)
+				col_text_len = G_MAXUSHORT;
+			record->col_text_len[col] = (gushort) col_text_len;
 
 			if (!record->col_text_len[col]) {
 				record->col_text[col] = "";
