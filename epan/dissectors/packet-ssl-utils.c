@@ -1916,7 +1916,7 @@ static gint prf(SslDecryptSession* ssl,StringInfo* secret,gchar* usage,StringInf
     gint ret;
     if (ssl->version_netorder==SSLV3_VERSION){
         ret = ssl3_prf(secret,usage,rnd1,rnd2,out);
-    }else if (ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION || 
+    }else if (ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION ||
             ssl->version_netorder==DTLSV1DOT0_VERSION || ssl->version_netorder==DTLSV1DOT2_VERSION ||
             ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
         ret = tls_prf(secret,usage,rnd1,rnd2,out);
@@ -3025,6 +3025,10 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
     char       ip_addr_any[] = {0,0,0,0};
     guint32    port    = 0;
     Ssl_private_key_t * private_key;
+
+    if (!ssl_session) {
+	return 0;
+    }
 
     /* we need to know which side of the conversation is speaking */
     if (ssl_packet_from_server(ssl_session, associations, pinfo)) {
