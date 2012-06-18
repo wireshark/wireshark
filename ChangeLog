@@ -1,4 +1,1130 @@
 ------------------------------------------------------------------------
+r43336 | gerald | 2012-06-18 10:26:50 -0700 (Mon, 18 Jun 2012) | 57 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-dtls.c
+   M /trunk-1.8/epan/dissectors/packet-ip.c
+   M /trunk-1.8/epan/dissectors/packet-ip.h
+   M /trunk-1.8/epan/dissectors/packet-ipv6.c
+   M /trunk-1.8/epan/dissectors/packet-megaco.c
+   M /trunk-1.8/epan/dissectors/packet-mpls-pm.c
+   M /trunk-1.8/epan/dissectors/packet-nhrp.h
+   M /trunk-1.8/epan/dissectors/packet-ssl-utils.c
+   M /trunk-1.8/epan/dissectors/packet-ssl.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43303 | sake | 2012-06-17 02:02:04 -0700 (Sun, 17 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ssl-utils.c
+
+  Fix reading back exported SSL keys. Bug was introduced in r43097.
+  ------------------------------------------------------------------------
+  r43304 | sake | 2012-06-17 04:30:25 -0700 (Sun, 17 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-dtls.c
+     M /trunk/epan/dissectors/packet-ssl.c
+
+  Enhance dissection of the NewSessionTicket handshake message.
+  ------------------------------------------------------------------------
+  r43204 | wmeier | 2012-06-11 08:47:50 -0700 (Mon, 11 Jun 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ip.c
+     M /trunk/epan/dissectors/packet-ip.h
+
+  Create dscp_vals_ext value_str_ext (based upon dscp_vals); Use it as appropriate.
+  Also:
+   - use val_to_str_const() [instead of val_to_str()] in a few cases;
+   - do some trivial formatting cleanup.
+  ------------------------------------------------------------------------
+  r43211 | wmeier | 2012-06-11 12:07:53 -0700 (Mon, 11 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ip.h
+     M /trunk/epan/dissectors/packet-megaco.c
+     M /trunk/epan/dissectors/packet-mpls-pm.c
+     M /trunk/epan/dissectors/packet-nhrp.h
+
+  Use dscp_vals_ext everyplace (instead of dscp_vals);
+  (dscp_vals is now a static array in packet-ip.c)
+  ------------------------------------------------------------------------
+  r43221 | jmayer | 2012-06-12 03:38:22 -0700 (Tue, 12 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ip.c
+     M /trunk/epan/dissectors/packet-ip.h
+     M /trunk/epan/dissectors/packet-ipv6.c
+
+  Manually revert r41953
+
+    BACKPORT to 1.8
+  ------------------------------------------------------------------------
+  r43222 | jmayer | 2012-06-12 03:44:57 -0700 (Tue, 12 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ip.c
+     M /trunk/epan/dissectors/packet-ip.h
+     M /trunk/epan/dissectors/packet-ipv6.c
+
+  Revert r41952
+
+    BACKPORT to 1.8
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43331 | guy | 2012-06-18 01:35:03 -0700 (Mon, 18 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/ui/qt/simple_dialog_qt.cpp
+
+Copy over r43330 from trunk:
+
+  ------------------------------------------------------------------------
+  r43330 | guy | 2012-06-18 01:30:53 -0700 (Mon, 18 Jun 2012) | 2 lines
+
+  Add "simple dialog" routines to pop up modal message boxes.
+
+------------------------------------------------------------------------
+r43328 | guy | 2012-06-17 23:00:17 -0700 (Sun, 17 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/simple_dialog.c
+
+Copy over r43327 from trunk:
+
+  ------------------------------------------------------------------------
+  r43327 | guy | 2012-06-17 22:59:33 -0700 (Sun, 17 Jun 2012) | 2 lines
+
+  Add initialization to squelch compiler warnings.
+
+------------------------------------------------------------------------
+r43326 | guy | 2012-06-17 22:58:22 -0700 (Sun, 17 Jun 2012) | 8 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/simple_dialog.c
+
+Copy over r43325 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43325 | guy | 2012-06-17 22:57:26 -0700 (Sun, 17 Jun 2012) | 3 lines
+
+  Use the GTK+ message type, not the Wireshark message type, in GTK+
+  calls.
+
+------------------------------------------------------------------------
+r43324 | guy | 2012-06-17 16:30:28 -0700 (Sun, 17 Jun 2012) | 8 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/simple_dialog.c
+
+Copy over r43323 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43323 | guy | 2012-06-17 16:24:06 -0700 (Sun, 17 Jun 2012) | 3 lines
+
+  Stuff the "Don't show this message again" checkbox in the dialog's
+  content area.
+
+------------------------------------------------------------------------
+r43322 | guy | 2012-06-17 15:33:11 -0700 (Sun, 17 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/file.c
+   M /trunk-1.8/ui/alert_box.c
+   M /trunk-1.8/ui/gtk/simple_dialog.c
+   M /trunk-1.8/ui/simple_dialog.h
+
+Copy over r43321 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43321 | guy | 2012-06-17 15:32:03 -0700 (Sun, 17 Jun 2012) | 5 lines
+
+  Add "simple dialog" routines to pop up modal message boxes.  Use them in
+  file.c and routines called from it; non-modal dialogs end up, in some
+  cases, either hidden, devoid of the input focus and not dismissable, or
+  both.
+
+------------------------------------------------------------------------
+r43319 | gerald | 2012-06-17 10:07:27 -0700 (Sun, 17 Jun 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/epan/enterprise-numbers
+   M /trunk-1.8/manuf
+
+[Automatic manuf, services and enterprise-numbers update for 2012-06-17]
+------------------------------------------------------------------------
+r43318 | guy | 2012-06-17 09:54:19 -0700 (Sun, 17 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/wiretap/file_access.c
+
+Copy over r43317 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43317 | guy | 2012-06-17 09:53:31 -0700 (Sun, 17 Jun 2012) | 2 lines
+
+  Forgot to use wtap_dump_can_write_encaps()'s final name.
+
+------------------------------------------------------------------------
+r43316 | guy | 2012-06-17 09:45:32 -0700 (Sun, 17 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/file.c
+   M /trunk-1.8/ui/win32/file_dlg_win32.c
+   M /trunk-1.8/wiretap/file_access.c
+   M /trunk-1.8/wiretap/wtap.def
+   M /trunk-1.8/wiretap/wtap.h
+
+Copy over r43315 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43315 | guy | 2012-06-17 09:44:09 -0700 (Sun, 17 Jun 2012) | 5 lines
+
+  Export a wtap_dump_can_write_encaps() routine from Wiretap; it takes a
+  file type and a GArray of encapsulation types and returns TRUE if a
+  capture with all those encapsulation types can be written to a file in
+  that file type and FALSE otherwise.  Use it where appropriate.
+
+------------------------------------------------------------------------
+r43313 | pascal | 2012-06-17 09:19:27 -0700 (Sun, 17 Jun 2012) | 14 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-gtp.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r43280 | pascal | 2012-06-16 15:09:51 +0200 (sam. 16 juin 2012) | 3 lignes
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7371 :
+Add dissection of Release 8 or higher P-GW QoS profile
+
+------------------------------------------------------------------------
+r43312 | pascal | 2012-06-17 18:08:43 +0200 (dim. 17 juin 2012) | 2 lignes
+
+Allow future forward compatibility
+
+
+------------------------------------------------------------------------
+r43301 | guy | 2012-06-16 18:47:59 -0700 (Sat, 16 Jun 2012) | 31 lines
+Changed paths:
+   M /trunk-1.8/cfile.h
+   M /trunk-1.8/file.c
+   M /trunk-1.8/summary.c
+   M /trunk-1.8/summary.h
+   M /trunk-1.8/ui/gtk/capture_file_dlg.c
+   M /trunk-1.8/ui/gtk/summary_dlg.c
+   M /trunk-1.8/wiretap/file_access.c
+   M /trunk-1.8/wiretap/wtap.h
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43300 | guy | 2012-06-16 18:32:50 -0700 (Sat, 16 Jun 2012) | 16 lines
+
+  Have wtap_get_savable_file_types() take an array of encapsulations and
+  only return file types that could handle a single file with all those
+  encapsulations - this means that
+
+	1) if there's more then one encapsulation, the file format has
+  to handle per-packet encapsulation;
+
+	2) just because a file format handles per-packet encapsulation,
+  that doesn't mean that it can handle the *particular* encapsulations
+  being handed to it.
+
+  This fixes some cases where we were claiming that a file could be saved
+  in a format that doesn't actually support it (e.g., ISDN files being
+  reported as savable in pcap-NG format - there's no LINKTYPE_ value for
+  ISDN including B and D channels).
+
+  ------------------------------------------------------------------------
+  r43278 | guy | 2012-06-15 16:54:05 -0700 (Fri, 15 Jun 2012) | 7 lines
+
+  For a capture file, keep an array of all encapsulation types seen.
+
+  Show all of them in the summary dialog; we will be using it in the
+  future to figure out what capture file formats we can write to (just
+  because a capture file format supports per-packet encapsulations, that
+  doesn't mean that it supports *all possible* encapsulations).
+
+------------------------------------------------------------------------
+r43289 | guy | 2012-06-16 12:27:24 -0700 (Sat, 16 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/main_proto_draw.c
+
+Copy over r43277 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43277 | darkjames | 2012-06-15 16:04:59 -0700 (Fri, 15 Jun 2012) | 5 lines
+
+  highlight_field: use passed GtkTreeView for proto_tree_draw.
+
+  highlight_field() is also called when we open packet in new window and we click some bytes,
+  it caused redrawing packet details in *main window* but with protocol tree from (possibly) another frame.
+
+------------------------------------------------------------------------
+r43287 | guy | 2012-06-16 12:06:37 -0700 (Sat, 16 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/doc/README.developer
+
+Copy over r43224 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43224 | wmeier | 2012-06-12 06:03:05 -0700 (Tue, 12 Jun 2012) | 2 lines
+
+  Note that calls to "expert" functions should not be under 'if (tree)'.
+
+------------------------------------------------------------------------
+r43286 | guy | 2012-06-16 12:00:58 -0700 (Sat, 16 Jun 2012) | 14 lines
+Changed paths:
+   M /trunk-1.8/capture_sync.c
+   M /trunk-1.8/epan/filesystem.c
+   M /trunk-1.8/rawshark.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43173 | cmaynard | 2012-06-08 20:54:29 -0700 (Fri, 08 Jun 2012) | 2 lines
+
+  Undo an accidental portion of the last commit.
+
+  ------------------------------------------------------------------------
+  r43172 | cmaynard | 2012-06-08 20:41:23 -0700 (Fri, 08 Jun 2012) | 2 lines
+
+  Be sure to specify FORMAT_MESSAGE_IGNORE_INSERTS in the dwFlags arg to
+  all FormatMessage() calls where FORMAT_MESSAGE_FROM_SYSTEM is also
+  specified.  (Ref: http://blogs.msdn.com/b/oldnewthing/archive/2007/11/28/6564257.aspx)
+
+------------------------------------------------------------------------
+r43285 | guy | 2012-06-16 11:35:13 -0700 (Sat, 16 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/airpcap_loader.c
+
+Copy over r43198 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43198 | etxrab | 2012-06-11 00:14:52 -0700 (Mon, 11 Jun 2012) | 4 lines
+
+  From Evan Huus:
+  Airpcap memory leak.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7352
+
+------------------------------------------------------------------------
+r43284 | guy | 2012-06-16 11:28:39 -0700 (Sat, 16 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/AUTHORS
+
+Copy over r43191 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43191 | cmaynard | 2012-06-10 17:53:23 -0700 (Sun, 10 Jun 2012) | 2 lines
+
+  Remove duplicate entry.
+
+------------------------------------------------------------------------
+r43283 | guy | 2012-06-16 11:17:12 -0700 (Sat, 16 Jun 2012) | 37 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/capture_file_dlg.c
+   M /trunk-1.8/ui/gtk/capture_if_dlg.c
+   M /trunk-1.8/ui/gtk/capture_if_dlg.h
+   M /trunk-1.8/ui/gtk/main.c
+   M /trunk-1.8/ui/gtk/main_menubar.c
+   M /trunk-1.8/ui/gtk/main_toolbar.c
+   M /trunk-1.8/ui/gtk/main_toolbar.h
+   M /trunk-1.8/ui/gtk/menus.h
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43252 | guy | 2012-06-13 20:50:39 -0700 (Wed, 13 Jun 2012) | 6 lines
+
+  In effect, disable closing the main window while a capture is being
+  stopped - there's no guaranteed way to make the UI's close button
+  inactive (on X11, it depends on whether the window manager allows that),
+  but we can just do nothing and return TRUE from the delete event handler
+  to ignore the delete event.
+
+  ------------------------------------------------------------------------
+  r43251 | guy | 2012-06-13 20:50:28 -0700 (Wed, 13 Jun 2012) | 3 lines
+
+  Re-enable the File -> Quit menu item when the capture stops (or is
+  started again).
+
+  ------------------------------------------------------------------------
+  r43250 | guy | 2012-06-13 19:19:46 -0700 (Wed, 13 Jun 2012) | 5 lines
+
+  Disable some menu items and toolbar items while we're waiting for a
+  capture to stop, so that we don't try to quit while we're in the middle
+  of quitting or try to stop or restart the capture we're in the middle of
+  stopping.
+  ------------------------------------------------------------------------
+  r43249 | guy | 2012-06-13 19:11:34 -0700 (Wed, 13 Jun 2012) | 2 lines
+
+  No pcap, no capture to stop.
+
+  ------------------------------------------------------------------------
+  r43248 | guy | 2012-06-13 18:34:52 -0700 (Wed, 13 Jun 2012) | 5 lines
+
+  When stopping the capture before asking whether to save the results, run
+  the main loop until we're done reading the captured packets.  Hopefully
+  this clears up bug 7318 in Evan Huus's case; I can't reproduce that
+  myself.
+
+------------------------------------------------------------------------
+r43282 | guy | 2012-06-16 10:54:07 -0700 (Sat, 16 Jun 2012) | 9 lines
+Changed paths:
+   M /trunk-1.8/epan/ftypes/ftype-double.c
+
+Copy over r43212 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43212 | darkjames | 2012-06-11 12:27:57 -0700 (Mon, 11 Jun 2012) | 4 lines
+
+  Fix bug 6917
+
+  strtod() is locale-aware, change it to g_ascii_strtod()
+
+------------------------------------------------------------------------
+r43281 | guy | 2012-06-16 10:47:18 -0700 (Sat, 16 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/editcap.c
+
+Copy over r43271 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43271 | etxrab | 2012-06-15 05:27:21 -0700 (Fri, 15 Jun 2012) | 4 lines
+
+  Try to fix pcap-ng - most files created by editcap -c have no IDB
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7350
+
+  By using wtap_dump_open_ng() in all places.
+
+------------------------------------------------------------------------
+r43279 | etxrab | 2012-06-16 02:49:13 -0700 (Sat, 16 Jun 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/asn1/m3ap/M3AP-IEs.asn
+   M /trunk-1.8/epan/dissectors/packet-m3ap.c
+
+Copy over r43270 from trunk Log:  Correct a discrepancy in the specification.
+------------------------------------------------------------------------
+r43276 | gerald | 2012-06-15 13:45:07 -0700 (Fri, 15 Jun 2012) | 23 lines
+Changed paths:
+   M /trunk-1.8/doc/README.developer
+   M /trunk-1.8/epan/dissectors/packet-dtls.c
+   M /trunk-1.8/epan/dissectors/packet-ssl.c
+   M /trunk-1.8/epan/libwireshark.def
+   M /trunk-1.8/epan/prefs-int.h
+   M /trunk-1.8/epan/prefs.c
+   M /trunk-1.8/epan/prefs.h
+   M /trunk-1.8/plugins/asn1/packet-asn1.c
+   M /trunk-1.8/plugins/mate/packet-mate.c
+   M /trunk-1.8/ui/gtk/prefs_dlg.c
+
+Copy over r43228 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43228 | morriss | 2012-06-12 18:13:12 -0700 (Tue, 12 Jun 2012) | 6 lines
+  Changed paths:
+     M /trunk/doc/README.developer
+     M /trunk/epan/dissectors/packet-dtls.c
+     M /trunk/epan/dissectors/packet-ssl.c
+     M /trunk/epan/libwireshark.def
+     M /trunk/epan/prefs-int.h
+     M /trunk/epan/prefs.c
+     M /trunk/epan/prefs.h
+     M /trunk/plugins/asn1/packet-asn1.c
+     M /trunk/plugins/mate/packet-mate.c
+     M /trunk/ui/gtk/prefs_dlg.c
+
+  Create, and start using, file name preferences.
+
+  File name preferences are basically just string preferences except that the
+  GUI will present a "Browse" button that allows the user to go and find the
+  file s/he wants (rather than having to blindly type in the full path).
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43275 | gerald | 2012-06-15 11:18:07 -0700 (Fri, 15 Jun 2012) | 14 lines
+Changed paths:
+   M /trunk-1.8/Makefile.am
+   M /trunk-1.8/ui/qt/Makefile.am
+   M /trunk-1.8/ui/qt/Makefile.common
+
+Copy over r43274 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43274 | gerald | 2012-06-15 11:17:20 -0700 (Fri, 15 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk/Makefile.am
+     M /trunk/ui/qt/Makefile.am
+     M /trunk/ui/qt/Makefile.common
+
+  Don't install the Qt resource images. They get converted to C arrays in
+  qrc_*.cpp so they shouldn't be necessary even when we're building and
+  installing qtshark.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43269 | darkjames | 2012-06-15 01:28:47 -0700 (Fri, 15 Jun 2012) | 4 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-yami.c
+
+Backport part of r43267 to 1.8
+
+Double registration of yami module cause not calling proto_reg_handoff_yami after changing preferences.
+
+------------------------------------------------------------------------
+r43265 | gerald | 2012-06-14 12:50:41 -0700 (Thu, 14 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/packaging/nsis/uninstall.nsi
+
+Copy over r43264 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43264 | gerald | 2012-06-14 12:49:57 -0700 (Thu, 14 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/packaging/nsis/uninstall.nsi
+
+  Add back an absolute path prefix.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43262 | gerald | 2012-06-14 11:54:48 -0700 (Thu, 14 Jun 2012) | 13 lines
+Changed paths:
+   M /trunk-1.8/packaging/nsis/common.nsh
+   M /trunk-1.8/packaging/nsis/uninstall.nsi
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+   M /trunk-1.8/packaging/ws-manifest.pl
+
+Copy over r43261 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43261 | gerald | 2012-06-14 11:53:55 -0700 (Thu, 14 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/packaging/nsis/common.nsh
+     M /trunk/packaging/nsis/uninstall.nsi
+     M /trunk/packaging/nsis/wireshark.nsi
+     M /trunk/packaging/ws-manifest.pl
+
+  More NSIS cleanup.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43258 | wmeier | 2012-06-14 06:43:34 -0700 (Thu, 14 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-bacapp.c
+   M /trunk-1.8/epan/dissectors/packet-banana.c
+   M /trunk-1.8/epan/dissectors/packet-bfcp.c
+   M /trunk-1.8/epan/dissectors/packet-bgp.c
+   M /trunk-1.8/epan/dissectors/packet-cell_broadcast.c
+   M /trunk-1.8/epan/dissectors/packet-cip.c
+   M /trunk-1.8/epan/dissectors/packet-cipsafety.c
+   M /trunk-1.8/epan/dissectors/packet-dmx.c
+   M /trunk-1.8/epan/dissectors/packet-dvb-data-mpe.c
+   M /trunk-1.8/epan/dissectors/packet-llrp.c
+   M /trunk-1.8/epan/dissectors/packet-moldudp.c
+   M /trunk-1.8/epan/dissectors/packet-moldudp64.c
+   M /trunk-1.8/epan/dissectors/packet-mpeg-pat.c
+   M /trunk-1.8/epan/dissectors/packet-mpeg-sect.c
+   M /trunk-1.8/epan/dissectors/packet-openwire.c
+
+Copy over SVN #43226 from trunk
+
+------------------------------------------------------------------------
+r43226 | wmeier | 2012-06-12 17:22:46 -0400 (Tue, 12 Jun 2012) | 2 lines
+
+Fix: code under 'if(tree)' (in)directly calls sub-dissector/col_...()/expert...() fcns
+
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r43254 | pascal | 2012-06-14 00:22:14 -0700 (Thu, 14 Jun 2012) | 11 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-nas_eps.c
+
+Copy over r43253 from the trunk:
+
+------------------------------------------------------------------------
+r43253 | pascal | 2012-06-14 09:14:59 +0200 (jeu., 14 juin 2012) | 3 lines
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7368 :
+Identity request, Identity response and Authentication failure message dissection are swapped
+
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r43247 | gerald | 2012-06-13 16:05:47 -0700 (Wed, 13 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/packaging/u3/win32/Makefile.nmake
+
+Copy over r43246 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43246 | gerald | 2012-06-13 16:04:57 -0700 (Wed, 13 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/packaging/u3/win32/Makefile.nmake
+
+  Fix things to match what we're doing in our portableapps counterpart.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43245 | gerald | 2012-06-13 15:29:21 -0700 (Wed, 13 Jun 2012) | 15 lines
+Changed paths:
+   M /trunk-1.8/packaging/portableapps/win32/Makefile.nmake
+   M /trunk-1.8/packaging/portableapps/win32/makenmake.pl
+   M /trunk-1.8/packaging/u3/win32/Makefile.nmake
+   M /trunk-1.8/packaging/u3/win32/makenmake.pl
+   M /trunk-1.8/packaging/ws-manifest.pl
+
+Copy over r43244 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43244 | gerald | 2012-06-13 15:28:28 -0700 (Wed, 13 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/packaging/portableapps/win32/Makefile.nmake
+     M /trunk/packaging/portableapps/win32/makenmake.pl
+     M /trunk/packaging/u3/win32/Makefile.nmake
+     M /trunk/packaging/u3/win32/makenmake.pl
+     M /trunk/packaging/ws-manifest.pl
+
+  Don't add uninstall.exe to the U3/PortableApps manifest. Define
+  STAGING_DIR. Update some makefile dependencies.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43240 | gerald | 2012-06-13 14:04:32 -0700 (Wed, 13 Jun 2012) | 12 lines
+Changed paths:
+   M /trunk-1.8/packaging/nsis/Makefile.nmake
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+
+Copy over r43239 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43239 | gerald | 2012-06-13 14:03:54 -0700 (Wed, 13 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/packaging/nsis/Makefile.nmake
+     M /trunk/packaging/nsis/wireshark.nsi
+
+  Define STAGING_DIR and use it in various places instead of hard-coding
+  "..\.." or "..\..\wireshark-gtk2".
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43238 | gerald | 2012-06-13 13:12:52 -0700 (Wed, 13 Jun 2012) | 37 lines
+Changed paths:
+   M /trunk-1.8/packaging/nsis/AdditionalTasksPage.ini
+   M /trunk-1.8/packaging/nsis/Makefile.nmake
+   A /trunk-1.8/packaging/nsis/common.nsh (from /trunk/packaging/nsis/common.nsh:43236)
+   A /trunk-1.8/packaging/nsis/uninstall.nsi (from /trunk/packaging/nsis/uninstall.nsi:43236)
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43236 | gerald | 2012-06-13 12:06:27 -0700 (Wed, 13 Jun 2012) | 17 lines
+  Changed paths:
+     M /trunk/packaging/nsis/AdditionalTasksPage.ini
+     M /trunk/packaging/nsis/Makefile.nmake
+     A /trunk/packaging/nsis/common.nsh
+     A /trunk/packaging/nsis/uninstall.nsi
+     M /trunk/packaging/nsis/wireshark.nsi
+
+  Move the "uninstall" parts of wireshark.nsi to uninstall.nsi and the
+  common parts to common.nsh. Creating an installer now requires two
+  NSIS runs:
+
+    - uninstaller.nsi, which creates an installer (uninstall_installer.exe)
+      that only writes uninstall.exe to ../../wireshark-gtk2.
+
+    - wireshark.nsi, which bundles uninstall.exe along with the rest of
+      our installation files.
+
+  If we ever get around to signing our executables this will let us sign
+  all of them. It also cleans up the .nsi file contents a bit.
+
+  Instead of keeping separate list of file extensions, manage them from
+  a single macro. Print the extensions we register / deregister in the
+  detail pane.
+  ------------------------------------------------------------------------
+  r43237 | gerald | 2012-06-13 13:11:41 -0700 (Wed, 13 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/packaging/nsis/uninstall.nsi
+     M /trunk/packaging/nsis/wireshark.nsi
+
+  Use terminology that conforms better with the MSDN documentation and a
+  style that conforms better with the rest of the NSIS output.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43225 | wmeier | 2012-06-12 07:02:09 -0700 (Tue, 12 Jun 2012) | 22 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-wreth.c
+
+Copy from trunk:
+
+------------------------------------------------------------------------
+r43217 | wmeier | 2012-06-11 16:51:47 -0400 (Mon, 11 Jun 2012) | 15 lines
+
+Fix bugs and other issues:
+- remove 'if (tree)' around code which (eventually) calls col_...() functions;
+- remove unneeded check_col() usage;
+- use extended value-strings where appropriate;
+- use col_set_str() instead of col_add_fstr();
+- fix mismatch between proto_tree_add_item() size arg and the FT type in the
+   referenced hf[] entry (in a few cases);
+- FT_STRING fields should have ENC_ASCII|ENC_NA as the 'encoding' arg
+   in the corresponding proto_tree_add_item() call;
+- do whitespace cleanup.
+
+Note: 1 issue remains:
+See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7260#c12
+
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r43223 | pascal | 2012-06-12 05:36:29 -0700 (Tue, 12 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-gsm_a_bssmap.c
+
+Copy from the trunk:
+
+------------------------------------------------------------------------
+r43214 | pascal | 2012-06-11 22:12:17 +0200 (lun., 11 juin 2012) | 3 lines
+
+From Alexander via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7360 :
+Service handover IE is not correctly dissected
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43220 | gerald | 2012-06-11 16:26:55 -0700 (Mon, 11 Jun 2012) | 53 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-per.c
+   M /trunk-1.8/epan/dissectors/packet-rsvp.c
+   M /trunk-1.8/epan/dissectors/packet-udp.c
+   M /trunk-1.8/epan/proto.c
+   M /trunk-1.8/ui/gtk/print_dlg.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43184 | wmeier | 2012-06-10 08:10:11 -0700 (Sun, 10 Jun 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Fix bug wherein values in a custom column aren't displayed as a value_string (when appropriate).
+  Essentially: BASE_CUSTOM is "base_display_e value" (like BASE_DEC) *not* a bit-mask
+   (like BASE_EXT_STRING).
+  Bug introduced in SVN #39902
+  ------------------------------------------------------------------------
+  r43186 | wmeier | 2012-06-10 12:23:50 -0700 (Sun, 10 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Fix "BASE_CUSTOM field is incorrectly formatted when applied as a column".
+  Resolves Bug #6671 - https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6671
+  ------------------------------------------------------------------------
+  r43187 | cmaynard | 2012-06-10 12:43:40 -0700 (Sun, 10 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-udp.c
+
+  Fix UDP-Lite checksum verification bug introduced with r40387 and reported by "answer" via http://ask.wireshark.org/questions/11798/is-udp-lite-checksum-correct-ipv6
+  There is a difference between the UDP and UDP-Lite pseudo header that wasn't realized when r40387 was committed.  Details of the difference in http://tools.ietf.org/html/rfc3828#section-3.2
+  ------------------------------------------------------------------------
+  r43193 | cmaynard | 2012-06-10 19:43:16 -0700 (Sun, 10 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/ui/gtk/print_dlg.c
+
+  Set the default for printing or exporting packets to displayed packets only.
+  ------------------------------------------------------------------------
+  r43195 | cmaynard | 2012-06-10 20:51:47 -0700 (Sun, 10 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/docbook/release-notes.xml
+
+  Expand the item regarding displayed packets, rather than all packets, as being the default when saving to also include exporting and printing as well.
+  ------------------------------------------------------------------------
+  r43194 | wmeier | 2012-06-10 20:36:04 -0700 (Sun, 10 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rsvp.c
+
+  From Evan Huus: Missing breaks in packet-rsvp.c
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7353
+  ------------------------------------------------------------------------
+  r43203 | pascal | 2012-06-11 06:54:06 -0700 (Mon, 11 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-per.c
+
+  Use restricted character string decoding for IA5String type
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6246
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43219 | gerald | 2012-06-11 16:22:50 -0700 (Mon, 11 Jun 2012) | 73 lines
+Changed paths:
+   M /trunk-1.8/asn1/snmp/packet-snmp-template.c
+   M /trunk-1.8/asn1/t124/packet-t124-template.c
+   M /trunk-1.8/epan/dissectors/packet-bzr.c
+   M /trunk-1.8/epan/dissectors/packet-diameter.c
+   M /trunk-1.8/epan/dissectors/packet-h248_annex_e.c
+   M /trunk-1.8/epan/dissectors/packet-homeplug-av.c
+   M /trunk-1.8/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.8/epan/dissectors/packet-mndp.c
+   M /trunk-1.8/epan/dissectors/packet-nflog.c
+   M /trunk-1.8/epan/dissectors/packet-opensafety.c
+   M /trunk-1.8/epan/dissectors/packet-sip.c
+   M /trunk-1.8/epan/dissectors/packet-snmp.c
+   M /trunk-1.8/epan/dissectors/packet-syslog.c
+   M /trunk-1.8/epan/dissectors/packet-t124.c
+   M /trunk-1.8/epan/dissectors/packet-uasip.c
+   M /trunk-1.8/epan/dissectors/packet-vmlab.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43174 | cmaynard | 2012-06-09 08:43:08 -0700 (Sat, 09 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-syslog.c
+
+  Allow syslog to work with "Decode As" for TCP.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5241
+  ------------------------------------------------------------------------
+  r43175 | cmaynard | 2012-06-09 08:54:15 -0700 (Sat, 09 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-sip.c
+
+  Add sip.to.tag and sip.from.tag filters.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5226
+  ------------------------------------------------------------------------
+  r43176 | cmaynard | 2012-06-09 10:08:46 -0700 (Sat, 09 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  Do not use BASE_NONE for FT_UINT8 types.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7333 (I think).
+  ------------------------------------------------------------------------
+  r43177 | cmaynard | 2012-06-09 10:47:58 -0700 (Sat, 09 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/asn1/t124/packet-t124-template.c
+     M /trunk/epan/dissectors/packet-bzr.c
+     M /trunk/epan/dissectors/packet-h248_annex_e.c
+     M /trunk/epan/dissectors/packet-homeplug-av.c
+     M /trunk/epan/dissectors/packet-nflog.c
+     M /trunk/epan/dissectors/packet-opensafety.c
+     M /trunk/epan/dissectors/packet-t124.c
+
+  Do not use BASE_NONE for FT_*INT* types.
+  ------------------------------------------------------------------------
+  r43178 | cmaynard | 2012-06-09 10:51:30 -0700 (Sat, 09 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-mndp.c
+
+  Do not use BASE_NONE for FT_*INT* types.
+  ------------------------------------------------------------------------
+  r43179 | cmaynard | 2012-06-09 10:56:08 -0700 (Sat, 09 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/asn1/snmp/packet-snmp-template.c
+     M /trunk/epan/dissectors/packet-diameter.c
+     M /trunk/epan/dissectors/packet-snmp.c
+     M /trunk/epan/dissectors/packet-vmlab.c
+
+  Do not use BASE_NONE for FT_*INT* types.
+  ------------------------------------------------------------------------
+  r43180 | wmeier | 2012-06-09 11:24:09 -0700 (Sat, 09 Jun 2012) | 11 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-uasip.c
+
+  str_to_ipaddr() had a bug; use inet_pton() instead;
+  See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6844#c27
+
+  Also: Improve handling of an invalid value for the 'proxy IP Address'
+  preference. If the address is invalid, setting the preference
+  to "" in proto_reg_handoff...() doesn't work well.
+  Instead, issue a g_warning for an invalid IP address when it'
+  s processed in proto_reg_handoff...()
+  (AFAIK, there's not a way for a dissector to validate the semantic
+  value of a preference and report an error).
+  ------------------------------------------------------------------------
+  r43181 | wmeier | 2012-06-09 11:42:20 -0700 (Sat, 09 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-uasip.c
+
+  Fix compiler error
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43218 | gerald | 2012-06-11 16:14:50 -0700 (Mon, 11 Jun 2012) | 53 lines
+Changed paths:
+   M /trunk-1.8/docbook/Makefile.common
+   M /trunk-1.8/epan/dissectors/packet-glusterfs.c
+   M /trunk-1.8/epan/dissectors/packet-smb2.c
+   M /trunk-1.8/epan/dissectors/packet-ua3g.c
+   M /trunk-1.8/epan/proto.c
+   M /trunk-1.8/wiretap/netscreen.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43139 | darkjames | 2012-06-06 12:59:55 -0700 (Wed, 06 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk/wiretap/netscreen.c
+
+  Fix bug #7340
+
+  interface name can also contain hyphen (v1-untrust, v1-trust).
+  ------------------------------------------------------------------------
+  r43144 | etxrab | 2012-06-06 13:44:21 -0700 (Wed, 06 Jun 2012) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-glusterfs.c
+
+  From Niels de Vos: GlusterFS: Display SETATTR attribute valid as a list of flags https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7341
+  ------------------------------------------------------------------------
+  r43147 | wmeier | 2012-06-07 10:39:11 -0700 (Thu, 07 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-smb2.c
+
+  Fix invalid hf[] entry 'display' field value.
+  result: incorect display of value (and, incidentally,
+          a crash in 'tshark -G values'
+  ------------------------------------------------------------------------
+  r43148 | rbalint | 2012-06-07 11:44:20 -0700 (Thu, 07 Jun 2012) | 1 line
+  Changed paths:
+     M /trunk/docbook/Makefile.common
+
+  fix building Developer Guide from release tarball
+  ------------------------------------------------------------------------
+  r43150 | wmeier | 2012-06-07 14:10:02 -0700 (Thu, 07 Jun 2012) | 11 lines
+  Changed paths:
+     M /trunk/epan/proto.c
+
+  Don't crash in 'proto_registrar_dump_values' if BASE_EXT_STRING and no extended string.
+  Note: this shows up when doing 'tshark -G values'.
+
+  BASE_EXT_STRING with a missing extended string does *not* cause issues
+  with the normal display code:
+
+  ToDo (eventually): Add some code to enforce requirement that hf[] entries with BASE_EXT_STRING
+  (or BASE_RANGE_STRING) set must also have a 'strings' value.
+  ------------------------------------------------------------------------
+  r43164 | wmeier | 2012-06-08 14:17:42 -0700 (Fri, 08 Jun 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ua3g.c
+
+  Fix bug I introduced in SVN #43129.
+
+  Fixes fuzz crash reported in Bug #7346.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43206 | morriss | 2012-06-11 09:07:51 -0700 (Mon, 11 Jun 2012) | 9 lines
+Changed paths:
+   M /trunk-1.8/Makefile.am
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+
+Copy over from trunk:
+
+------------------------------------------------------------------------
+r43202 | pascal | 2012-06-11 09:48:11 -0400 (Mon, 11 Jun 2012) | 2 lines
+
+Add TGPPS9.xml to makefile and NSIS installer
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43169 | gerald | 2012-06-08 16:02:45 -0700 (Fri, 08 Jun 2012) | 27 lines
+Changed paths:
+   M /trunk-1.8/epan/Makefile.am
+   M /trunk-1.8/tools/git-compare-abis.sh
+   M /trunk-1.8/wiretap/Makefile.am
+   M /trunk-1.8/wsutil/Makefile.am
+
+Forward-port r43165 and r43168 from trunk-1.6.
+
+  ------------------------------------------------------------------------
+  r43165 | gerald | 2012-06-08 14:23:25 -0700 (Fri, 08 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk-1.6/epan/Makefile.am
+     M /trunk-1.6/wiretap/Makefile.am
+     M /trunk-1.6/wsutil/Makefile.am
+  
+  Use separate commands in the dumpabi recipes instead a big huge long
+  chain. If abi-compliance-checker fails print the contents of its
+  log file.
+  ------------------------------------------------------------------------
+  r43168 | gerald | 2012-06-08 15:43:50 -0700 (Fri, 08 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk-1.6/epan/Makefile.am
+     M /trunk-1.6/wiretap/Makefile.am
+     M /trunk-1.6/wsutil/Makefile.am
+  
+  Make sure ln happens in the right directory.
+  ------------------------------------------------------------------------
+
+We don't currently have a usable tag for "git describe --tags
+--abbrev=0" to latch onto so just use the master-1.8 branch commit.
+Apparently if you gaze long into an abyss of commits CVS gazes back at
+you.
+
+------------------------------------------------------------------------
+r43167 | morriss | 2012-06-08 15:35:41 -0700 (Fri, 08 Jun 2012) | 34 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-diameter.c
+
+Copy over from trunk (mainly for the last revision but also to keep the files
+in sync):
+
+------------------------------------------------------------------------
+r43166 | morriss | 2012-06-08 18:23:11 -0400 (Fri, 08 Jun 2012) | 10 lines
+
+Don't register 3 (IPAddress) hf's with the same abbreviation but with 3
+different types; instead use different abbreviations (filters).
+
+This is in order to prevent running into
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2402
+
+and seg-faulting when someone applies a filter of, for example,
+diameter.Framed-IP-Address .
+
+------------------------------------------------------------------------
+r43163 | morriss | 2012-06-08 16:08:43 -0400 (Fri, 08 Jun 2012) | 1 line
+
+Thinking about it more, how we're storing the application ID isn't a problem.
+------------------------------------------------------------------------
+r43162 | morriss | 2012-06-08 15:59:33 -0400 (Fri, 08 Jun 2012) | 9 lines
+
+Don't call val_to_str() only to then compare the result with "Uknown": use
+match_strval() instead.
+
+Also, don't retrieve the application ID 3 more times; we've already got it
+in a variable...
+
+Point out a bug regarding how we're storing the application ID for use by
+subdissectors (from r34570).
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43161 | morriss | 2012-06-08 12:23:35 -0700 (Fri, 08 Jun 2012) | 14 lines
+Changed paths:
+   A /trunk-1.8/diameter/TGPPS9.xml
+   M /trunk-1.8/diameter/dictionary.xml
+
+Copy over the below without the SVN properties changes:
+
+------------------------------------------------------------------------
+r43160 | morriss | 2012-06-08 15:17:04 -0400 (Fri, 08 Jun 2012) | 7 lines
+
+Add support for 3GPP S9 (29.215).
+
+Massively reindent dictionary.xml to try to make it more readable
+to us humans.  Fix some typos too.
+
+Set SVN properties on all the files.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43146 | morriss | 2012-06-07 05:10:18 -0700 (Thu, 07 Jun 2012) | 3 lines
+Changed paths:
+   M /trunk-1.8/docbook/developer-guide.xml
+   M /trunk-1.8/docbook/user-guide.xml
+
+Version 1.7 --> 1.8.
+Extend the copyright for these documents into 2012.
+
+------------------------------------------------------------------------
+r43143 | gerald | 2012-06-06 13:43:49 -0700 (Wed, 06 Jun 2012) | 12 lines
+Changed paths:
+   M /trunk-1.8/config.nmake
+   M /trunk-1.8/tools/win64-setup.sh
+
+Copy over r43142 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43142 | gerald | 2012-06-06 13:42:47 -0700 (Wed, 06 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/config.nmake
+     M /trunk/tools/win64-setup.sh
+
+  Update the Lua configuration on Win64 to reflect the recent change to
+  Visual Studio 2010.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43135 | gerald | 2012-06-06 11:53:40 -0700 (Wed, 06 Jun 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/version.conf
+
+Switch back to interim versions.
+
+------------------------------------------------------------------------
+r43134 | gerald | 2012-06-06 10:08:20 -0700 (Wed, 06 Jun 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/version.conf
+
+Build 1.8.0rc1.
+
+------------------------------------------------------------------------
+r43132 | gerald | 2012-06-06 08:46:27 -0700 (Wed, 06 Jun 2012) | 45 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-noe.c
+   M /trunk-1.8/epan/dissectors/packet-ua.c
+   M /trunk-1.8/epan/dissectors/packet-ua3g.c
+   M /trunk-1.8/epan/dissectors/packet-uasip.c
+   M /trunk-1.8/epan/dissectors/packet-uaudp.c
+   M /trunk-1.8/epan/dissectors/packet-uaudp.h
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43129 | wmeier | 2012-06-05 21:54:47 -0700 (Tue, 05 Jun 2012) | 20 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-noe.c
+     M /trunk/epan/dissectors/packet-ua.c
+     M /trunk/epan/dissectors/packet-ua3g.c
+     M /trunk/epan/dissectors/packet-uasip.c
+     M /trunk/epan/dissectors/packet-uaudp.c
+     M /trunk/epan/dissectors/packet-uaudp.h
+
+  Fix some bugs & do extensive cleanup;
+  Bugs fixed:
+   - Calling col_...() fcns or dissectors under 'if (tree)'
+   - Potential buffer overflows (if bad data)
+   - Misc incorrect data display issues
+  Cleanup including;
+   - Remove unneeded #includes
+   - Fix excessive use of value_strings
+   - Use extended value_strings & val_to_str_(ext_)const as appropriate
+   - Optimize repeated fetches of the same data from a tvb
+   - Do general code simplification
+   - Remove or #if 0 unused code;
+   - Add XXX comments for code which may be incorrect
+   - Remove unneeded prefs callback to proto_reg_handoff...()
+   - Remove unneeded use of check_col()
+   - Define several functions as static
+   - Move proto_reg_handoff...() to the end of the file
+   - Fix whitespace (including "4 space tabs")
+   - ...
+  ------------------------------------------------------------------------
+  r43130 | wmeier | 2012-06-05 22:36:43 -0700 (Tue, 05 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-uasip.c
+
+  Fix compiler error
+  ------------------------------------------------------------------------
+  r43131 | wmeier | 2012-06-05 22:58:42 -0700 (Tue, 05 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-uaudp.c
+
+  Fix compiler error (I hope)
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43127 | gerald | 2012-06-05 16:20:48 -0700 (Tue, 05 Jun 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/CMakeOptions.txt
+   M /trunk-1.8/ChangeLog
+   M /trunk-1.8/NEWS
+   M /trunk-1.8/config.nmake
+   M /trunk-1.8/configure.in
+
+Disable warnings-as-errors by default. Update the ChangeLog and NEWS.
+
+------------------------------------------------------------------------
 r43125 | gerald | 2012-06-05 15:19:20 -0700 (Tue, 05 Jun 2012) | 2 lines
 Changed paths:
    M /trunk-1.8/ui/gtk/Makefile.common
