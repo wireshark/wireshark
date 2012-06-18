@@ -421,7 +421,7 @@ do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
   GtkMessageType gtk_message_type;
   gchar *message;
   GtkWidget *msg_dialog;
-  GtkWidget *checkbox;
+  GtkWidget *checkbox = NULL;
 
   if (notagain != NULL) {
     if (*notagain) {
