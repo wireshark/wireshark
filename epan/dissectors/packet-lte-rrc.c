@@ -112,6 +112,33 @@ static gint lte_rrc_si_or_psi_geran_val = -1;
 #define maxLogMeas_r10                 4060
 #define maxReestabInfo                 32
 
+typedef enum _T_targetRAT_Type_enum {
+  T_targetRAT_Type_utra =   0,
+  T_targetRAT_Type_geran =   1,
+  T_targetRAT_Type_cdma2000_1XRTT =   2,
+  T_targetRAT_Type_cdma2000_HRPD =   3,
+  T_targetRAT_Type_spare4 =   4,
+  T_targetRAT_Type_spare3 =   5,
+  T_targetRAT_Type_spare2 =   6,
+  T_targetRAT_Type_spare1 =   7
+} T_targetRAT_Type_enum;
+
+typedef enum _SI_OrPSI_GERAN_enum {
+  SI_OrPSI_GERAN_si =   0,
+  SI_OrPSI_GERAN_psi =   1
+} SI_OrPSI_GERAN_enum;
+
+typedef enum _RAT_Type_enum {
+  RAT_Type_eutra =   0,
+  RAT_Type_utra =   1,
+  RAT_Type_geran_cs =   2,
+  RAT_Type_geran_ps =   3,
+  RAT_Type_cdma2000_1XRTT =   4,
+  RAT_Type_spare3 =   5,
+  RAT_Type_spare2 =   6,
+  RAT_Type_spare1 =   7
+} RAT_Type_enum;
+
 /*--- End of included file: packet-lte-rrc-val.h ---*/
 #line 59 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
@@ -14966,14 +14993,14 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverFromEUTRAPreparationReques
 
 
 static const value_string lte_rrc_T_targetRAT_Type_vals[] = {
-  {   0, "utra" },
-  {   1, "geran" },
-  {   2, "cdma2000-1XRTT" },
-  {   3, "cdma2000-HRPD" },
-  {   4, "spare4" },
-  {   5, "spare3" },
-  {   6, "spare2" },
-  {   7, "spare1" },
+  { T_targetRAT_Type_utra, "utra" },
+  { T_targetRAT_Type_geran, "geran" },
+  { T_targetRAT_Type_cdma2000_1XRTT, "cdma2000-1XRTT" },
+  { T_targetRAT_Type_cdma2000_HRPD, "cdma2000-HRPD" },
+  { T_targetRAT_Type_spare4, "spare4" },
+  { T_targetRAT_Type_spare3, "spare3" },
+  { T_targetRAT_Type_spare2, "spare2" },
+  { T_targetRAT_Type_spare1, "spare1" },
   { 0, NULL }
 };
 
@@ -14999,12 +15026,12 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
   if(target_rat_msg_cont_tvb){
     guint8 byte;
     switch(lte_rrc_ho_target_rat_type_value){
-    case 0:
+    case T_targetRAT_Type_utra:
       /* utra */
       if (rrc_irat_ho_to_utran_cmd_handle)
         call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
       break;
-    case 1:
+    case T_targetRAT_Type_geran:
       /* geran */
       byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
       if (byte == 0x06) {
@@ -15017,10 +15044,10 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
         }
       }
       break;
-    case 2:
+    case T_targetRAT_Type_cdma2000_1XRTT:
       /* cdma2000-1XRTT */
       break;
-    case 3:
+    case T_targetRAT_Type_cdma2000_HRPD:
       /* cdma2000-HRPD */
       break;
     default:
@@ -15063,13 +15090,13 @@ dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   if (sys_info_list_tvb) {
     switch (lte_rrc_si_or_psi_geran_val) {
-    case 0:
+    case SI_OrPSI_GERAN_si:
       /* SI message */
       if (gsm_a_dtap_handle) {
         call_dissector(gsm_a_dtap_handle, sys_info_list_tvb ,actx->pinfo, tree);
       }
       break;
-    case 1:
+    case SI_OrPSI_GERAN_psi:
       /* PSI message */
       if (gsm_rlcmac_dl_handle) {
         call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb ,actx->pinfo, tree);
@@ -15100,14 +15127,14 @@ dissect_lte_rrc_SystemInfoListGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static const value_string lte_rrc_SI_OrPSI_GERAN_vals[] = {
-  {   0, "si" },
-  {   1, "psi" },
+  { SI_OrPSI_GERAN_si, "si" },
+  { SI_OrPSI_GERAN_psi, "psi" },
   { 0, NULL }
 };
 
 static const per_choice_t SI_OrPSI_GERAN_choice[] = {
-  {   0, &hf_lte_rrc_si          , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_SystemInfoListGERAN },
-  {   1, &hf_lte_rrc_psi         , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_SystemInfoListGERAN },
+  { SI_OrPSI_GERAN_si, &hf_lte_rrc_si          , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_SystemInfoListGERAN },
+  { SI_OrPSI_GERAN_psi, &hf_lte_rrc_psi         , ASN1_NO_EXTENSIONS     , dissect_lte_rrc_SystemInfoListGERAN },
   { 0, NULL, 0, NULL }
 };
 
@@ -18792,7 +18819,7 @@ static const per_sequence_t CellInfoGERAN_r9_sequence[] = {
 
 static int
 dissect_lte_rrc_CellInfoGERAN_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  lte_rrc_si_or_psi_geran_val = 0; /* SI message */
+  lte_rrc_si_or_psi_geran_val = SI_OrPSI_GERAN_si; /* SI message */
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CellInfoGERAN_r9, CellInfoGERAN_r9_sequence);
 
@@ -19279,14 +19306,14 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeCommand ");
 
 
 static const value_string lte_rrc_RAT_Type_vals[] = {
-  {   0, "eutra" },
-  {   1, "utra" },
-  {   2, "geran-cs" },
-  {   3, "geran-ps" },
-  {   4, "cdma2000-1XRTT" },
-  {   5, "spare3" },
-  {   6, "spare2" },
-  {   7, "spare1" },
+  { RAT_Type_eutra, "eutra" },
+  { RAT_Type_utra, "utra" },
+  { RAT_Type_geran_cs, "geran-cs" },
+  { RAT_Type_geran_ps, "geran-ps" },
+  { RAT_Type_cdma2000_1XRTT, "cdma2000-1XRTT" },
+  { RAT_Type_spare3, "spare3" },
+  { RAT_Type_spare2, "spare2" },
+  { RAT_Type_spare1, "spare1" },
   { 0, NULL }
 };
 
@@ -22605,15 +22632,15 @@ if(ue_eutra_cap_tvb){
 	proto_tree *subtree;
 	guint8 byte;
 	switch(lte_rrc_rat_type_value){
-	case 0:
+	case RAT_Type_eutra:
 		/* eutra */
 		dissect_lte_rrc_UE_EUTRA_Capability_PDU(ue_eutra_cap_tvb, actx->pinfo, tree);
 		break;
-	case 1:
+	case RAT_Type_utra:
 		/* utra */
 		dissect_rrc_InterRATHandoverInfo_PDU(ue_eutra_cap_tvb, actx->pinfo, tree);
 		break;
-	case 2:
+	case RAT_Type_geran_cs:
 		/* geran-cs */
 		/* Mobile Station Classmark 2 is formatted as TLV with the two first bytes set to 0x33 0x03 */
 		item = proto_tree_add_text(tree, ue_eutra_cap_tvb, 0, 5, "Mobile Station Classmark 2");
@@ -22635,7 +22662,7 @@ if(ue_eutra_cap_tvb){
 		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
 		de_ms_cm_3(ue_eutra_cap_tvb, subtree, actx->pinfo, 5, length, NULL, 0);
 		break;
-	case 3:
+	case RAT_Type_geran_ps:
 		/* geran-ps */
 		/* MS Radio Access Capability is formatted as V */
 		length = tvb_length(ue_eutra_cap_tvb);
@@ -22643,7 +22670,7 @@ if(ue_eutra_cap_tvb){
 		subtree = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
 		de_gmm_ms_radio_acc_cap(ue_eutra_cap_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 		break;
-	case 4:
+	case RAT_Type_cdma2000_1XRTT:
 		/* cdma2000-1XRTT */
 		/* dissection of "A21 Mobile Subscription Information" could be added to packet-ansi_a.c */
 		break;
