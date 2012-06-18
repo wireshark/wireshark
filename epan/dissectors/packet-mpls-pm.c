@@ -982,8 +982,8 @@ proto_register_mpls_pm(void)
             {
                 "Differentiated Services Codepoint",
                 "mpls.pm.ds",
-                FT_UINT8, BASE_DEC,
-                VALS(dscp_vals), 0x3F,
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+                &dscp_vals_ext, 0x3F,
                 NULL, HFILL
             }
         },

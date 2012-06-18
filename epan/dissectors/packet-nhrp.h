@@ -28,7 +28,4 @@
 
 void capture_nhrp(const guchar *, int, int, packet_counts *);
 
-/* Export the DSCP value-string table for other protocols */
-/*extern const value_string dscp_vals[];*/
-
 #endif

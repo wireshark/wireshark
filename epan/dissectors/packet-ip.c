@@ -286,8 +286,10 @@ static dissector_handle_t tapa_handle;
 #define IPDSFIELD_DSCP_MASK     0xFC
 #define IPDSFIELD_ECN_MASK      0x03
 #define IPDSFIELD_DSCP_SHIFT    2
+
 #define IPDSFIELD_DSCP(dsfield) (((dsfield)&IPDSFIELD_DSCP_MASK)>>IPDSFIELD_DSCP_SHIFT)
 #define IPDSFIELD_ECN(dsfield)  ((dsfield)&IPDSFIELD_ECN_MASK)
+
 #define IPDSFIELD_DSCP_DEFAULT  0x00
 #define IPDSFIELD_DSCP_CS1      0x08
 #define IPDSFIELD_DSCP_CS2      0x10
@@ -309,6 +311,7 @@ static dissector_handle_t tapa_handle;
 #define IPDSFIELD_DSCP_AF42     0x24
 #define IPDSFIELD_DSCP_AF43     0x26
 #define IPDSFIELD_DSCP_EF       0x2E
+
 #define IPDSFIELD_ECT_NOT       0x00
 #define IPDSFIELD_ECT_1         0x01
 #define IPDSFIELD_ECT_0         0x02
@@ -1826,6 +1829,7 @@ const value_string dscp_vals[] = {
   { IPDSFIELD_DSCP_AF43,    "Assured Forwarding 43" },
   { IPDSFIELD_DSCP_EF,      "Expedited Forwarding"  },
   { 0,                      NULL                    }};
+value_string_ext dscp_vals_ext = VALUE_STRING_EXT_INIT(dscp_vals);
 
 const value_string ecn_vals[] = {
   { IPDSFIELD_ECT_NOT, "Not-ECT (Not ECN-Capable Transport)" },
@@ -1880,21 +1884,6 @@ ip_checksum(const guint8 *ptr, int len)
   return in_cksum(&cksum_vec[0], 1);
 }
 
-proto_item *
-add_ip_version_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset)
-{
-	return proto_tree_add_item(tree, hf_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-}
-
-/*
- * Note boffset is offset in BITS to ba able to use the function in both IPv4 and IPv6
- */
-proto_item *
-add_ip_dscp_to_tree(proto_tree *tree, tvbuff_t *tvb, int boffset)
-{
-	return proto_tree_add_bits_item(tree, hf_ip_dsfield_dscp, tvb, boffset, 6, ENC_BIG_ENDIAN);
-}
-
 static void
 dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
@@ -1935,7 +1924,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
-	add_ip_version_to_tree(ip_tree, tvb, offset);
+
+    proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,
+                        hi_nibble(iph->ip_v_hl));
   }
 
   /* if IP is not referenced from any filters we don't need to worry about
@@ -1977,22 +1968,21 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, tvb, offset + 1,
         1, iph->ip_tos, "Differentiated Services Field: 0x%02x "
         "(DSCP 0x%02x: %s; ECN: 0x%02x: %s)", iph->ip_tos,
-        IPDSFIELD_DSCP(iph->ip_tos), val_to_str(IPDSFIELD_DSCP(iph->ip_tos),
-                                                dscp_vals, "Unknown DSCP"),
-        IPDSFIELD_ECN(iph->ip_tos), val_to_str(IPDSFIELD_ECN(iph->ip_tos),
-                                               ecn_vals, "Unknown ECN"));
+        IPDSFIELD_DSCP(iph->ip_tos), val_to_str_ext_const(IPDSFIELD_DSCP(iph->ip_tos),
+                                                          &dscp_vals_ext, "Unknown DSCP"),
+        IPDSFIELD_ECN(iph->ip_tos), val_to_str_const(IPDSFIELD_ECN(iph->ip_tos),
+                                                     ecn_vals, "Unknown ECN"));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_dsfield);
-	  /* Add DSCP using bit offset to be able to use the same hf field in IPv6 */
-	  add_ip_dscp_to_tree(field_tree, tvb, (offset+1)<<3);
+      proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, tvb, offset + 1, 1, ENC_NA);
       proto_tree_add_item(field_tree, hf_ip_dsfield_ecn, tvb, offset + 1, 1, ENC_NA);
     } else {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, tvb, offset + 1, 1,
                                       iph->ip_tos,
                                       "Type of service: 0x%02x (%s)",
                                       iph->ip_tos,
-                                      val_to_str(IPTOS_TOS(iph->ip_tos),
-                                                 iptos_vals, "Unknown"));
+                                      val_to_str_const(IPTOS_TOS(iph->ip_tos),
+                                                       iptos_vals, "Unknown"));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_tos);
       proto_tree_add_item(field_tree, hf_ip_tos_precedence, tvb, offset + 1, 1, ENC_NA);
@@ -2401,7 +2391,7 @@ proto_register_ip(void)
   static hf_register_info hf[] = {
     { &hf_ip_version,
       { "Version", "ip.version", FT_UINT8, BASE_DEC,
-        NULL, 0xf0, NULL, HFILL }},
+        NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_hdr_len,
       { "Header Length", "ip.hdr_len", FT_UINT8, BASE_DEC,
@@ -2412,8 +2402,8 @@ proto_register_ip(void)
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_dsfield_dscp,
-      { "Differentiated Services Codepoint", "ip.dsfield.dscp", FT_UINT8, BASE_HEX,
-        VALS(dscp_vals), 0, NULL, HFILL }},
+      { "Differentiated Services Codepoint", "ip.dsfield.dscp", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+        &dscp_vals_ext, IPDSFIELD_DSCP_MASK, NULL, HFILL }},
 
     { &hf_ip_dsfield_ecn,
       { "Explicit Congestion Notification", "ip.dsfield.ecn", FT_UINT8, BASE_HEX,
@@ -2570,8 +2560,8 @@ proto_register_ip(void)
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_proto,
-      { "Protocol", "ip.proto", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
-        (&ipproto_val_ext), 0x0, NULL, HFILL }},
+      { "Protocol", "ip.proto", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+        &ipproto_val_ext, 0x0, NULL, HFILL }},
 
     { &hf_ip_checksum,
       { "Header checksum", "ip.checksum", FT_UINT16, BASE_HEX,
@@ -2652,7 +2642,7 @@ proto_register_ip(void)
 
     { &hf_ip_opt_qs_rate,
       { "Rate", "ip.opt.qs_rate", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
-        &(qs_rate_vals_ext), QS_RATE_MASK, NULL, HFILL }},
+        &qs_rate_vals_ext, QS_RATE_MASK, NULL, HFILL }},
 
     { &hf_ip_opt_qs_ttl,
       { "QS TTL", "ip.opt.qs_ttl", FT_UINT8, BASE_DEC,

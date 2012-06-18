@@ -3222,7 +3222,8 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
                 tokenlen));
 
             tvb_get_nstringz0(tvb,tvb_current_offset,3,code_str);
-            proto_item_append_text(item,"[ %s ]", val_to_str(strtoul(code_str,NULL,16), dscp_vals,"Unknown (%u)"));
+            proto_item_append_text(item,"[ %s ]",
+                                   val_to_str_ext(strtoul(code_str,NULL,16), &dscp_vals_ext,"Unknown (%u)"));
 
             tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset +1);
             break;
