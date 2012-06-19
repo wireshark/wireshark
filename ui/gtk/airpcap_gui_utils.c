@@ -79,22 +79,22 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 
     gchar *if_label_text;
 
-    airpcap_toolbar_label    = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    toolbar_channel_cb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    airpcap_toolbar_fcs  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    airpcap_toolbar_fcs_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    airpcap_toolbar_button   = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
-    airpcap_toolbar_decryption = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-    airpcap_toolbar_decryption_lb = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
-    airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
+    airpcap_toolbar_label    = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    toolbar_channel_cb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
+    airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
+    airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
+    airpcap_toolbar_fcs  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    airpcap_toolbar_fcs_lb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
+    airpcap_toolbar_button   = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
+    airpcap_toolbar_decryption = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+    airpcap_toolbar_decryption_lb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
+    airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
     /* The current interface is an airpcap interface */
     if(if_info != NULL)
     {
-        gtk_widget_set_sensitive(airpcap_tb,TRUE);
+        gtk_widget_set_sensitive(wireless_tb,TRUE);
         gtk_widget_set_sensitive(airpcap_toolbar_label,TRUE);
         gtk_widget_set_sensitive(toolbar_channel_cb,TRUE);
         gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,TRUE);
@@ -109,12 +109,12 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
         gtk_widget_set_sensitive(airpcap_toolbar_keys_button,FALSE);
 
         /*decryption check box*/
-        g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
+        g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, wireless_tb);
         if(if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),TRUE);
         else
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),FALSE);
-        g_signal_handlers_unblock_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
+        g_signal_handlers_unblock_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, wireless_tb);
 
         if_label_text = g_strdup_printf("Current Wireless Interface: #%s", airpcap_get_if_string_number(if_info));
         gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),if_label_text);
@@ -135,7 +135,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
     }
     else /* Current interface is NOT an AirPcap one... */
     {
-        gtk_widget_set_sensitive(airpcap_tb,FALSE);
+        gtk_widget_set_sensitive(wireless_tb,FALSE);
         gtk_widget_set_sensitive(airpcap_toolbar_label,FALSE);
         gtk_widget_set_sensitive(toolbar_channel_cb,FALSE);
         gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,FALSE);
@@ -172,23 +172,23 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
 
     gchar *if_label_text;
 
-    airpcap_toolbar_crc_filter_combo = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    airpcap_toolbar_label    = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    toolbar_channel_cb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    airpcap_toolbar_fcs  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    airpcap_toolbar_fcs_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    airpcap_toolbar_button   = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
-    airpcap_toolbar_decryption = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-    airpcap_toolbar_decryption_lb = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
-    airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
+    airpcap_toolbar_crc_filter_combo = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    airpcap_toolbar_label    = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    toolbar_channel_cb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
+    airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
+    airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
+    airpcap_toolbar_fcs  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    airpcap_toolbar_fcs_lb  = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
+    airpcap_toolbar_button   = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
+    airpcap_toolbar_decryption = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+    airpcap_toolbar_decryption_lb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
+    airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
     /* The current interface is an airpcap interface */
     if(if_info != NULL)
     {
-          gtk_widget_set_sensitive(airpcap_tb,TRUE);
+          gtk_widget_set_sensitive(wireless_tb,TRUE);
           gtk_widget_set_sensitive(airpcap_toolbar_label,TRUE);
           gtk_widget_set_sensitive(toolbar_channel_cb,TRUE);
           gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,TRUE);
@@ -204,12 +204,12 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
           airpcap_validation_type_combo_set_by_type(airpcap_toolbar_crc_filter_combo, if_info->CrcValidationOn);
 
           /*decription check box*/
-          g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
+          g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, wireless_tb);
           if(if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
               gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),TRUE);
           else
               gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),FALSE);
-          g_signal_handlers_unblock_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
+          g_signal_handlers_unblock_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, wireless_tb);
 
           if_label_text = g_strdup_printf("Current Wireless Interface: #%s", airpcap_get_if_string_number(if_info));
           gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),if_label_text);
@@ -230,7 +230,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
       }
     else
     {
-          gtk_widget_set_sensitive(airpcap_tb,TRUE);
+          gtk_widget_set_sensitive(wireless_tb,TRUE);
           gtk_widget_set_sensitive(airpcap_toolbar_label,FALSE);
           gtk_widget_set_sensitive(toolbar_channel_cb,FALSE);
           gtk_widget_set_sensitive(airpcap_toolbar_channel_lb,FALSE);

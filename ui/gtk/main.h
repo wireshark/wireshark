@@ -59,7 +59,7 @@ extern GString *comp_info_str;
 /** Global runtime version string */
 extern GString *runtime_info_str;
 
-extern GtkWidget* airpcap_tb;
+extern GtkWidget* wireless_tb;
 
 extern void protect_thread_critical_region(void);
 extern void unprotect_thread_critical_region(void);

@@ -662,10 +662,10 @@ options_airpcap_advanced_cb(GtkWidget *w, gpointer d)
 
   from_widget = (gint*)g_malloc(sizeof(gint));
   *from_widget = AIRPCAP_ADVANCED_FROM_OPTIONS;
-  g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_ADVANCED_FROM_KEY,from_widget);
+  g_object_set_data(G_OBJECT(wireless_tb),AIRPCAP_ADVANCED_FROM_KEY,from_widget);
 
   airpcap_if_active = airpcap_if_selected;
-  airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
+  airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
   display_airpcap_advanced_cb(w,d);
 }
 #endif
@@ -2277,7 +2277,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   advanced_bt = gtk_button_new_with_label("Wireless Settings");
 
   /* Both the callback and the data are global */
-  g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb), airpcap_tb);
+  g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb), wireless_tb);
   g_object_set_data(G_OBJECT(top_level),AIRPCAP_OPTIONS_ADVANCED_KEY, advanced_bt);
   airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list, device.name);
   if (airpcap_if_selected != NULL) {
@@ -3610,7 +3610,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* load the airpcap interfaces */
   airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
-  decryption_cb = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
   update_decryption_mode_list(decryption_cb);
 
   if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {

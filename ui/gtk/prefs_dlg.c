@@ -1164,7 +1164,7 @@ prefs_airpcap_update(void)
   gboolean airpcap_decryption_was_enabled = FALSE;
   gboolean wireshark_decryption_is_now_enabled = FALSE;
 
-  decryption_cm = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
+  decryption_cm = GTK_WIDGET(g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 
   if (decryption_cm == NULL) {
     return;
