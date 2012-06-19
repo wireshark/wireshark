@@ -599,6 +599,13 @@ tvbuff_t *parameter_tvb=NULL;
 #.TYPE_ATTR
 HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
+#.FN_BODY HNBName VAL_PTR = &hnbname_tvb HF_INDEX = -1
+  tvbuff_t *hnbname_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  proto_tree_add_unicode_string(tree, hf_index, hnbname_tvb, 0, -1,
+                                tvb_get_ephemeral_string(hnbname_tvb, 0, tvb_length(hnbname_tvb)));
+
 #.FN_BODY CN-DomainIdentity VAL_PTR = (guint32*)(&rrc_nas_sys_info_gsm_map_type)
 %(DEFAULT_BODY)s
 

@@ -863,7 +863,7 @@ static int hf_lte_rrc_ac_Barring15_r9 = -1;       /* INTEGER_0_7 */
 static int hf_lte_rrc_ac_BarringMsg_r9 = -1;      /* INTEGER_0_7 */
 static int hf_lte_rrc_ac_BarringReg_r9 = -1;      /* INTEGER_0_7 */
 static int hf_lte_rrc_ac_BarringEmg_r9 = -1;      /* INTEGER_0_7 */
-static int hf_lte_rrc_hnb_Name = -1;              /* OCTET_STRING_SIZE_1_48 */
+static int hf_lte_rrc_hnb_Name = -1;              /* T_hnb_Name */
 static int hf_lte_rrc_messageIdentifier = -1;     /* BIT_STRING_SIZE_16 */
 static int hf_lte_rrc_serialNumber = -1;          /* BIT_STRING_SIZE_16 */
 static int hf_lte_rrc_warningType = -1;           /* OCTET_STRING_SIZE_2 */
@@ -7719,16 +7719,22 @@ dissect_lte_rrc_SystemInformationBlockType8(tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lte_rrc_OCTET_STRING_SIZE_1_48(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 48, FALSE, NULL);
+dissect_lte_rrc_T_hnb_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *hnb_name_tvb = NULL;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       1, 48, FALSE, &hnb_name_tvb);
+
+  proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
+                                tvb_get_ephemeral_string(hnb_name_tvb, 0, tvb_length(hnb_name_tvb)));
+
 
   return offset;
 }
 
 
 static const per_sequence_t SystemInformationBlockType9_sequence[] = {
-  { &hf_lte_rrc_hnb_Name    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING_SIZE_1_48 },
+  { &hf_lte_rrc_hnb_Name    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lte_rrc_T_hnb_Name },
   { &hf_lte_rrc_lateNonCriticalExtension, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
@@ -30297,7 +30303,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_hnb_Name,
       { "hnb-Name", "lte-rrc.hnb_Name",
         FT_STRING, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1_48", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_messageIdentifier,
       { "messageIdentifier", "lte-rrc.messageIdentifier",
         FT_BYTES, BASE_NONE, NULL, 0,

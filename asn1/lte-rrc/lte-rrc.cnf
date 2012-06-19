@@ -722,6 +722,13 @@ if(ue_eutra_cap_tvb){
 #.TYPE_ATTR
 SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
 
+#.FN_BODY SystemInformationBlockType9/hnb-Name VAL_PTR = &hnb_name_tvb HF_INDEX = -1
+  tvbuff_t *hnb_name_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
+                                tvb_get_ephemeral_string(hnb_name_tvb, 0, tvb_length(hnb_name_tvb)));
+
 #.FN_BODY RRCConnectionReject-r8-IEs/waitTime
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
