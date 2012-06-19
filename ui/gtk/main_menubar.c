@@ -148,9 +148,7 @@ static void menus_init(void);
 static void merge_lua_menu_items(GList *node);
 static void ws_menubar_build_external_menus(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
-#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_WIRELESS_TOOLBAR) || !defined(HAVE_LIBPCAP)
 static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
-#endif
 static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
 static void colorize_cb(GtkWidget *w, gpointer d);
 
@@ -3509,7 +3507,6 @@ menus_init(void) {
 #ifndef WANT_PACKET_EDITOR
         set_menu_visible(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket", FALSE);
 #endif /* WANT_PACKET_EDITOR */
-        set_menu_visible(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar", FALSE);
 
 #ifndef HAVE_LIBPCAP
         set_menu_visible(ui_manager_main_menubar, "/Menubar/CaptureMenu", FALSE);
@@ -3879,7 +3876,6 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
     gtk_action_set_sensitive (action, val); /* TRUE to make the action sensitive */
 }
 
-#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_WIRELESS_TOOLBAR) || !defined(HAVE_LIBPCAP)
 static void
 set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val)
 {
@@ -3893,7 +3889,6 @@ set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val)
     }
     gtk_action_set_visible (action, val); /* TRUE to make the action visible */
 }
-#endif
 
 static void
 set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gchar *key, gpointer data)
