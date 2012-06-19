@@ -25,7 +25,7 @@
 #ifndef __CAPTURE_DLG_H__
 #define __CAPTURE_DLG_H__
 
-/* extern GtkWidget* airpcap_tb; */
+/* extern GtkWidget* wireless_tb; */
 
 /** @file
  *  "Capture Options" dialog box.
@@ -37,7 +37,7 @@
 enum
 {
     CAPTURE = 0,
-    IFACE_HIDDEN_NAME, 
+    IFACE_HIDDEN_NAME,
     INTERFACE,
     LINK,
     PMODE,
@@ -118,7 +118,7 @@ capture_remote_combo_recent_write_all(FILE *rf);
  * @param s string with hostname,port,auth_type
  * @return TRUE if correctly added
  */
-gboolean 
+gboolean
 capture_remote_combo_add_recent(gchar *s);
 #endif
 

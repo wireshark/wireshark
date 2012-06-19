@@ -217,8 +217,8 @@ static GtkWidget   *main_first_pane, *main_second_pane;
 /* internally used widgets */
 static GtkWidget   *menubar, *main_tb, *filter_tb, *tv_scrollw, *statusbar, *welcome_pane;
 
-#ifdef HAVE_AIRPCAP
 GtkWidget *wireless_tb;
+#ifdef HAVE_AIRPCAP
 int    airpcap_dll_ret_val = -1;
 #endif
 
