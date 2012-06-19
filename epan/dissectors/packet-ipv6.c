@@ -166,7 +166,10 @@ static int hf_ipv6_routing_hdr_opt              = -1;
 static int hf_ipv6_routing_hdr_type             = -1;
 static int hf_ipv6_routing_hdr_left             = -1;
 static int hf_ipv6_routing_hdr_addr             = -1;
+static int hf_ipv6_frag_nxt                     = -1;
+static int hf_ipv6_frag_reserved                = -1;
 static int hf_ipv6_frag_offset                  = -1;
+static int hf_ipv6_frag_reserved_bits           = -1;
 static int hf_ipv6_frag_more                    = -1;
 static int hf_ipv6_frag_id                      = -1;
 static int hf_ipv6_fragments                    = -1;
@@ -810,36 +813,33 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
         col_add_fstr(pinfo->cinfo, COL_INFO,
             "IPv6 fragment (nxt=%s (%u) off=%u id=0x%x)",
             ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
-            frag.ip6f_offlg & IP6F_OFF_MASK, frag.ip6f_ident);
+            (frag.ip6f_offlg & IP6F_OFF_MASK) >> IP6F_OFF_SHIFT, frag.ip6f_ident);
     }
     if (tree) {
            ti = proto_tree_add_text(tree, tvb, offset, len,
                            "Fragmentation Header");
            rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-           proto_tree_add_text(rthdr_tree, tvb,
+           proto_tree_add_item(rthdr_tree, hf_ipv6_frag_nxt, tvb,
                          offset + offsetof(struct ip6_frag, ip6f_nxt), 1,
-                         "Next header: %s (%u)",
-                         ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt);
+                         ENC_BIG_ENDIAN);
 
-#if 0
-           proto_tree_add_text(rthdr_tree, tvb,
+           proto_tree_add_item(rthdr_tree, hf_ipv6_frag_reserved, tvb,
                          offset + offsetof(struct ip6_frag, ip6f_reserved), 1,
-                         "Reserved: %u",
-                         frag.ip6f_reserved);
-#endif
+                         ENC_BIG_ENDIAN);
 
            proto_tree_add_item(rthdr_tree, hf_ipv6_frag_offset, tvb,
                     offset + offsetof(struct ip6_frag, ip6f_offlg), 2, ENC_BIG_ENDIAN);
-
+           proto_tree_add_item(rthdr_tree, hf_ipv6_frag_reserved_bits, tvb,
+                    offset + offsetof(struct ip6_frag, ip6f_offlg), 2, ENC_BIG_ENDIAN);
            proto_tree_add_item(rthdr_tree, hf_ipv6_frag_more, tvb,
                     offset + offsetof(struct ip6_frag, ip6f_offlg), 2, ENC_BIG_ENDIAN);
-
            proto_tree_add_item(rthdr_tree, hf_ipv6_frag_id, tvb,
                     offset + offsetof(struct ip6_frag, ip6f_ident), 4, ENC_BIG_ENDIAN);
     }
     return len;
 }
+
 static const value_string rtalertvals[] = {
     { IP6OPT_RTALERT_MLD, "MLD" },
     { IP6OPT_RTALERT_RSVP, "RSVP" },
@@ -2471,10 +2471,22 @@ proto_register_ipv6(void)
       { "Address",              "ipv6.routing_hdr.addr",
                                 FT_IPv6, BASE_NONE, NULL, 0x0,
                                 "Routing Header Address", HFILL }},
+    { &hf_ipv6_frag_nxt,
+      { "Next header", "ipv6.fragment.nxt",
+                                FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+                                "Fragment next header", HFILL }},
+    { &hf_ipv6_frag_reserved,
+      { "Reserved octet", "ipv6.fragment.reserved_octet",
+                                FT_UINT16, BASE_HEX, NULL, 0x0,
+                                "Should always be 0", HFILL }},
     { &hf_ipv6_frag_offset,
       { "Offset",               "ipv6.fragment.offset",
                                 FT_UINT16, BASE_DEC_HEX, NULL, IP6F_OFF_MASK,
                                 "Fragment Offset", HFILL }},
+    { &hf_ipv6_frag_reserved_bits,
+      { "Reserved bits",        "ipv6.fragment.reserved_bits",
+                                FT_UINT16, BASE_DEC_HEX, NULL, IP6F_RESERVED_MASK,
+                                NULL, HFILL }},
     { &hf_ipv6_frag_more,
       { "More Fragment",        "ipv6.fragment.more",
                                 FT_BOOLEAN, 16, TFS(&tfs_yes_no), IP6F_MORE_FRAG,
