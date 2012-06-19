@@ -218,7 +218,7 @@ static GtkWidget   *main_first_pane, *main_second_pane;
 static GtkWidget   *menubar, *main_tb, *filter_tb, *tv_scrollw, *statusbar, *welcome_pane;
 
 #ifdef HAVE_AIRPCAP
-GtkWidget *wireless_tb;
+GtkWidget *airpcap_tb;
 int    airpcap_dll_ret_val = -1;
 #endif
 
@@ -3484,7 +3484,7 @@ void main_widgets_rearrange(void) {
     g_object_ref(G_OBJECT(main_tb));
     g_object_ref(G_OBJECT(filter_tb));
 #ifdef HAVE_AIRPCAP
-    g_object_ref(G_OBJECT(wireless_tb));
+    g_object_ref(G_OBJECT(airpcap_tb));
 #endif
     g_object_ref(G_OBJECT(pkt_scrollw));
     g_object_ref(G_OBJECT(tv_scrollw));
@@ -3518,7 +3518,7 @@ void main_widgets_rearrange(void) {
 
 #ifdef HAVE_AIRPCAP
     /* airpcap toolbar */
-    gtk_box_pack_start(GTK_BOX(main_vbox), wireless_tb, FALSE, TRUE, 1);
+    gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
 #endif
 
     /* fill the main layout panes */
@@ -3632,9 +3632,9 @@ main_widgets_show_or_hide(void)
     }
 
     if (recent.wireless_toolbar_show) {
-        gtk_widget_show(wireless_tb);
+        gtk_widget_show(airpcap_tb);
     } else {
-        gtk_widget_hide(wireless_tb);
+        gtk_widget_hide(airpcap_tb);
     }
 
     if (recent.packet_list_show && have_capture_file) {
@@ -3810,8 +3810,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     main_pane_h2 = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_widget_show(main_pane_h2);
 #ifdef HAVE_AIRPCAP
-    wireless_tb = airpcap_toolbar_new();
-    gtk_widget_show(wireless_tb);
+    airpcap_tb = airpcap_toolbar_new();
+    gtk_widget_show(airpcap_tb);
 #endif
     /* status bar */
     statusbar = statusbar_new();
@@ -3843,7 +3843,7 @@ show_main_window(gboolean doing_work)
   gdk_window_raise(gtk_widget_get_window(top_level));
 
 #ifdef HAVE_AIRPCAP
-  airpcap_toolbar_show(wireless_tb);
+  airpcap_toolbar_show(airpcap_tb);
 #endif /* HAVE_AIRPCAP */
 }
 
