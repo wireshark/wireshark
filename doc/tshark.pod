@@ -1,4 +1,4 @@
-ic
+
 =head1 NAME
 
 tshark - Dump and analyze network traffic
