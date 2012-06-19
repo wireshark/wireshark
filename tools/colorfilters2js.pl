@@ -16,15 +16,18 @@ function set_node_color(node,colorname)
   var bg;
 EOF
 
+my $elseflow = "";
+
 while(<>)
 {
     if(/\@(.+?)\@.+\[(\d+),(\d+),(\d+)\]\[(\d+),(\d+),(\d+)\]/)
     {
-	print "  if(colorname == '$1') {\n";
+	print "  " . $elseflow . "if (colorname == '$1') {\n";
 	printf("    bg='#%02x%02x%02x';\n", $2/256, $3/256, $4/256);
 	printf("    fg='#%02x%02x%02x';\n", $5/256, $6/256, $7/256);
 	print "  }\n";
     }
+    $elseflow = "else ";
 }
 
 print<<'EOF';
