@@ -24,7 +24,6 @@ DOC=../../doc/ws.css				\
 	../../doc/capinfos.html 		\
 	../../doc/dumpcap.html			\
 	../../doc/editcap.html 			\
-	../../doc/idl2wrs.html 			\
 	../../doc/mergecap.html 		\
 	../../doc/rawshark.html 		\
 	../../doc/text2pcap.html 		\
