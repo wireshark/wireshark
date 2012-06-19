@@ -2789,7 +2789,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                     utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
                     if(!l_conv_error) {
                         ucs2_item = proto_tree_add_unicode_string(subtree, hf_gsm_sms_text, tvb,
-                                                                  offset, length, utf8_text, "%s", utf8_text);
+                                                                  offset, length, utf8_text);
                     } else {
                         ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "Failed to decode UCS2!");
                     }
