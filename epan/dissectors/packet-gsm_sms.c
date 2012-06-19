@@ -2728,9 +2728,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                                              (udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : udl),
                                              tvb_get_ptr(tvb , offset , length) , messagebuf);
                 messagebuf[out_len] = '\0';
-                utf8_text = gsm_sms_chars_to_utf8(messagebuf, out_len);
-                proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, tvb, offset,
-                                                   length, utf8_text, "%s", utf8_text);
+                proto_tree_add_unicode_string(subtree, hf_gsm_sms_text, tvb, offset,
+                                              length,
+                                              gsm_sms_chars_to_utf8(messagebuf, out_len));
             }
             else
             {
@@ -2751,10 +2751,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                                 tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
 
                         messagebuf[out_len] = '\0';
-                        utf8_text = gsm_sms_chars_to_utf8(messagebuf, out_len);
-                        proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, sm_tvb,
-                                                           total_sms_len, p_frag_params->length,
-                                                           utf8_text, "%s", utf8_text);
+                        proto_tree_add_unicode_string(subtree, hf_gsm_sms_text, sm_tvb,
+                                                      total_sms_len, p_frag_params->length,
+                                                      gsm_sms_chars_to_utf8(messagebuf, out_len));
 
                         total_sms_len += p_frag_params->length;
                     }
@@ -2779,6 +2778,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         }
         else if (ucs2)
         {
+            /* XXX, use tvb_get_ephemeral_unicode_string(.., ENC_BIG_ENDIAN); */
             if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
             {
                 guint8 rep_len = tvb_reported_length(sm_tvb);
@@ -2788,9 +2788,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                     /* Show unreassembled SMS */
                     utf8_text = g_convert_with_iconv(tvb_get_ptr(sm_tvb, 0, rep_len), rep_len , cd , NULL , NULL , &l_conv_error);
                     if(!l_conv_error) {
-                        /* XXX - using proto_tree_add_string() doesn't work */
-                        ucs2_item = proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, tvb,
-                                                                       offset, length, utf8_text, "%s", utf8_text);
+                        ucs2_item = proto_tree_add_unicode_string(subtree, hf_gsm_sms_text, tvb,
+                                                                  offset, length, utf8_text, "%s", utf8_text);
                     } else {
                         ucs2_item = proto_tree_add_text(subtree, tvb, offset, length, "Failed to decode UCS2!");
                     }
@@ -2821,11 +2820,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                             } else
                                 length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
 
-                            /* XXX - using proto_tree_add_string() doesn't work */
-                            ucs2_item = proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, sm_tvb,
-                                                                           i * MAX_SMS_FRAG_LEN, length_ucs2,
-                                                                           &utf8_text[i * MAX_SMS_FRAG_LEN],
-                                                                           "%s", &utf8_text[i * MAX_SMS_FRAG_LEN]);
+                            ucs2_item = proto_tree_add_unicode_string(subtree, hf_gsm_sms_text, sm_tvb,
+                                                                      i * MAX_SMS_FRAG_LEN, length_ucs2,
+                                                                      &utf8_text[i * MAX_SMS_FRAG_LEN]);
                             PROTO_ITEM_SET_GENERATED(ucs2_item);
 
                             /* return the save byte to utf8 buffer*/

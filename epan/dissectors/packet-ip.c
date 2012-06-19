@@ -563,11 +563,11 @@ add_geoip_info_entry(proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, gu
         PROTO_ITEM_SET_GENERATED(item);
         PROTO_ITEM_SET_HIDDEN(item);
       } else {
-        item = proto_tree_add_string_format_value(geoip_info_tree, geoip_local_hf,
-          tvb, offset, 4, geoip_str, "%s", geoip_str);
+        item = proto_tree_add_unicode_string(geoip_info_tree, geoip_local_hf,
+          tvb, offset, 4, geoip_str);
         PROTO_ITEM_SET_GENERATED(item);
-        item = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf,
-          tvb, offset, 4, geoip_str, "%s", geoip_str);
+        item = proto_tree_add_unicode_string(geoip_info_tree, geoip_hf,
+          tvb, offset, 4, geoip_str);
         PROTO_ITEM_SET_GENERATED(item);
         PROTO_ITEM_SET_HIDDEN(item);
       }

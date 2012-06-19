@@ -434,12 +434,7 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, int hfindex, proto_tree *tree, i
 	if (len > 0)
 		offset++;	/* NUL */
 
-	/* proto_item_fill_label() is broken for UTF-8 strings.
-	 * It's using internally format_text() which doesn't support UTF-8 
-	 *
-	 * So don't use proto_tree_add_string() but proto_tree_add_string_format_value()
-	 */
-	proto_tree_add_string_format_value(tree, hfindex, tvb, org_offset, offset - org_offset, str->str, "%s", str->str);
+	proto_tree_add_unicode_string(tree, hfindex, tvb, org_offset, offset - org_offset, str->str);
 	g_string_free(str, TRUE);
 
 	return offset;
@@ -457,7 +452,9 @@ dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, int hfindex, proto_tree *tre
 	offset += 4;
 
 	if (len > 0) {
-		/* The one below doesn't work, same reason like in dissect_gadu_gadu_stringz_cp1250() */
+		/* proto_item_fill_label() is broken for UTF-8 strings.
+		 * It's using internally format_text() which doesn't support UTF-8 
+		 */
 		/* proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_UTF_8|ENC_NA); */
 
 		/* Use workaround */
@@ -468,7 +465,7 @@ dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, int hfindex, proto_tree *tre
 
 	offset += len;
 
-	proto_tree_add_string_format_value(tree, hfindex, tvb, org_offset, offset - org_offset, str, "%s", str);
+	proto_tree_add_unicode_string(tree, hfindex, tvb, org_offset, offset - org_offset, str);
 	return offset;
 }
 

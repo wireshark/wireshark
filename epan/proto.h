@@ -1215,6 +1215,10 @@ extern proto_item *
 proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
+extern proto_item *
+proto_tree_add_unicode_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+		      gint length, const char* value);
+
 /** Add a FT_BOOLEAN to a proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index

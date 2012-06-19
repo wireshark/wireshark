@@ -2487,6 +2487,14 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 }
 
 proto_item *
+proto_tree_add_unicode_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+		      gint length, const char* value)
+{
+	DISSECTOR_ASSERT(g_utf8_validate(value, -1, NULL));
+	return proto_tree_add_string_format_value(tree, hfindex, tvb, start, length, value, "%s", value);
+}
+
+proto_item *
 proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				   gint start, gint length, const char* value,
 				   const char *format,
