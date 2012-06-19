@@ -66,7 +66,7 @@ typedef struct _col_width_data {
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
     gboolean    filter_toolbar_show;
-    gboolean	airpcap_toolbar_show;
+    gboolean	wireless_toolbar_show;
     gboolean    airpcap_driver_check_show;
     gboolean    packet_list_show;
     gboolean    tree_view_show;

@@ -3631,13 +3631,11 @@ main_widgets_show_or_hide(void)
         gtk_widget_hide(filter_tb);
     }
 
-#ifdef HAVE_AIRPCAP
-    if (recent.airpcap_toolbar_show) {
+    if (recent.wireless_toolbar_show) {
         gtk_widget_show(airpcap_tb);
     } else {
         gtk_widget_hide(airpcap_tb);
     }
-#endif
 
     if (recent.packet_list_show && have_capture_file) {
         gtk_widget_show(pkt_scrollw);

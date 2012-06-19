@@ -148,7 +148,7 @@ static void menus_init(void);
 static void merge_lua_menu_items(GList *node);
 static void ws_menubar_build_external_menus(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
-#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_AIRPCAP) || !defined(HAVE_LIBPCAP)
+#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_WIRELESS_TOOLBAR) || !defined(HAVE_LIBPCAP)
 static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
 #endif
 static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
@@ -635,12 +635,14 @@ filter_toolbar_show_hide_cb(GtkAction * action _U_, gpointer user_data _U_)
 static void
 wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-#ifdef HAVE_AIRPCAP
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
 
-    recent.airpcap_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-    main_widgets_show_or_hide();
-#endif /* HAVE_AIRPCAP */
+	if(widget){
+		recent.wireless_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	}else{
+		recent.wireless_toolbar_show = FALSE;
+	}
+	main_widgets_show_or_hide();
 }
 
 static void
@@ -3507,9 +3509,7 @@ menus_init(void) {
 #ifndef WANT_PACKET_EDITOR
         set_menu_visible(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket", FALSE);
 #endif /* WANT_PACKET_EDITOR */
-#ifndef HAVE_AIRPCAP
         set_menu_visible(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar", FALSE);
-#endif /* HAVE_AIRPCAP */
 
 #ifndef HAVE_LIBPCAP
         set_menu_visible(ui_manager_main_menubar, "/Menubar/CaptureMenu", FALSE);
@@ -3879,7 +3879,7 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
     gtk_action_set_sensitive (action, val); /* TRUE to make the action sensitive */
 }
 
-#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_AIRPCAP) || !defined(HAVE_LIBPCAP)
+#if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_WIRELESS_TOOLBAR) || !defined(HAVE_LIBPCAP)
 static void
 set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val)
 {
@@ -4403,14 +4403,12 @@ menu_recent_read_finished(void) {
     }else{
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
     };
-#ifdef HAVE_AIRPCAP
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
     if(!menu){
         g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/WirelessToolbar");
     }else{
-        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.airpcap_toolbar_show);
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.wireless_toolbar_show);
     }
-#endif /* HAVE_AIRPCAP */
 
     /* Fix me? */
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/StatusBar");

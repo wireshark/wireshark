@@ -412,6 +412,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_LUA_5_1@/$(LUA_VERSION)/" \
 	    -e "s/@HAVE_PYTHON@/$(PYTHON_CONFIG)/" \
 	    -e "s/@HAVE_AIRPCAP@/$(AIRPCAP_CONFIG)/" \
+	    -e "s/@HAVE_WIRELESS_TOOLBAR@/$(WIRELESS_TOOLBAR_CONFIG)/" \
 	    -e "s/@HAVE_AIRPDCAP@/$(AIRPDCAP_CONFIG)/" \
 	    -e "s/@HAVE_LIBPORTAUDIO@/$(PORTAUDIO_CONFIG)/" \
 	    -e "s/@PORTAUDIO_API_1@/$(PORTAUDIO_API_CONFIG)/" \

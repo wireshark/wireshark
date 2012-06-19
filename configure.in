@@ -1243,6 +1243,7 @@ if test x$enable_airpcap = xyes; then
 	else
 		AC_MSG_RESULT(yes)
 		AC_DEFINE(HAVE_AIRPCAP, 1, [Enable AirPcap])
+		AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
 	fi
 else
 	AC_MSG_RESULT(no)
