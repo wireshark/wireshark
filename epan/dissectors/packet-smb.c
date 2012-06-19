@@ -5783,8 +5783,9 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -5875,8 +5876,9 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -6080,8 +6082,9 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -6248,8 +6251,9 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -6408,8 +6412,9 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -6604,8 +6609,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	END_OF_SMB
 
 	if (cmd != 0xff) {   /* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -6838,8 +6844,9 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -6924,8 +6931,9 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -7329,8 +7337,9 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		pinfo->private_data = si;
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
@@ -7464,8 +7473,9 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		pinfo->private_data = si;
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
@@ -7506,8 +7516,9 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -7705,8 +7716,9 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -7857,8 +7869,9 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	END_OF_SMB
 
 	if (cmd != 0xff) { 	/* there is an andX command */
-		if (andxoffset < offset)
+		if (andxoffset < offset) {
 			THROW(ReportedBoundsError);
+		}
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 	}
 
@@ -8517,8 +8530,10 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	DISSECTOR_ASSERT(si);
 
 	if(parent_tree){
-		tvb_ensure_bytes_exist(tvb, offset, bc);
-		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
+		guint32 bytes = 0;
+		bytes = tvb_length_remaining(tvb, offset);
+		/*tvb_ensure_bytes_exist(tvb, offset, bc);*/
+		item = proto_tree_add_text(parent_tree, tvb, offset, bytes,
 				"%s Data",
 				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
 		tree = proto_item_add_subtree(item, ett_smb_nt_trans_data);
@@ -8564,6 +8579,11 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		offset = dissect_nt_sec_desc(
 			tvb, offset, pinfo, tree, NULL, TRUE, bc, ami);
+
+		if (offset < (old_offset + bc)) {
+			offset = old_offset + bc;
+		}
+
 		break;
 	case NT_TRANS_NOTIFY:
 		break;

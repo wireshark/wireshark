@@ -2362,6 +2362,8 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int pre_ace_offset;
 	guint16 revision;
 	guint32 num_aces;
+	guint32 total_aces;
+	gboolean missing_data = FALSE;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -2407,15 +2409,27 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      tvb, offset, 4, num_aces);
 	  offset += 4;
 
-	  while(num_aces--){
+	  total_aces = num_aces;
+
+	  while(num_aces-- && !missing_data){
 		pre_ace_offset = offset;
-		offset = dissect_nt_v2_ace(tvb, offset, pinfo, tree, drep, ami);
-		if (pre_ace_offset == offset) {
+
+		TRY {
+		  offset = dissect_nt_v2_ace(tvb, offset, pinfo, tree, drep, ami);
+		  if (pre_ace_offset == offset) {
 			/*
 			 * Bogus ACE, with a length < 4.
 			 */
 			break;
+		  }
 		}
+
+		CATCH2(BoundsError, ReportedBoundsError) {
+			proto_tree_add_text(tree, tvb, offset, 0, "ACE Extends beyond end of captured or reassembled buffer");
+			missing_data = TRUE;
+		}
+
+		ENDTRY;
 	  }
 	}
 
@@ -2663,9 +2677,17 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       */
 	      THROW(ReportedBoundsError);
 	    }
-	    offset = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
-	    if (offset > end_offset)
-	      end_offset = offset;
+	    TRY{ 
+	      offset = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
+	      if (offset > end_offset)
+	        end_offset = offset;
+	    }
+
+	    CATCH2(BoundsError, ReportedBoundsError) {
+	      proto_tree_add_text(tree, tvb, item_offset, 0, "Owner SID beyond end of captured or reassembled buffer");
+	    }
+
+	    ENDTRY;
 	  }
 
 	  /*group SID*/
@@ -2677,9 +2699,17 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       */
 	      THROW(ReportedBoundsError);
 	    }
-	    offset = dissect_nt_sid(tvb, item_offset, tree, "Group", NULL, -1);
-	    if (offset > end_offset)
-	      end_offset = offset;
+	    TRY {
+	      offset = dissect_nt_sid(tvb, item_offset, tree, "Group", NULL, -1);
+	      if (offset > end_offset)
+	        end_offset = offset;
+	    }
+
+	    CATCH2(BoundsError, ReportedBoundsError) {
+	      proto_tree_add_text(tree, tvb, item_offset, 0, "Group SID beyond end of captured or reassembled buffer");
+	    }
+
+	    ENDTRY;
 	  }
 
 	  /* sacl */
@@ -2711,6 +2741,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    if (offset > end_offset)
 	      end_offset = offset;
 	  }
+
 	  break;
 
 	default:
@@ -2720,16 +2751,17 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (len_supplied) {
 	  /* Make sure the length isn't too large (so that we get an
 	     overflow) */
-	  tvb_ensure_bytes_exist(tvb, start_offset, len);
+	  /* tvb_ensure_bytes_exist(tvb, start_offset, len);*/
 	} else {
 	  /* The length of the security descriptor is the difference
 	     between the starting offset and the offset past the last
 	     item in the descriptor. */
 	  len = end_offset - start_offset;
 	}
+	len = end_offset - start_offset;
 	proto_item_set_len(item, len);
 
-	return offset+len;
+	return offset;
 }
 
 /*
