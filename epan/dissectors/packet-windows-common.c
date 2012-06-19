@@ -2361,7 +2361,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int old_offset = offset;
 	int pre_ace_offset;
 	guint16 revision;
-	guint32 num_aces;
+	guint32 volatile num_aces;
 	gboolean missing_data = FALSE;
 
 	if(parent_tree){
