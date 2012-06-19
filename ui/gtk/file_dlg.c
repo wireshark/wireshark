@@ -316,15 +316,6 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
     GtkWidget *fs;
     gchar     *f_name;
 
-    /* Has a file selection dialog box already been opened for that top-level
-       widget? */
-    fs = g_object_get_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
-    if (fs != NULL) {
-        /* Yes.  Just re-activate that dialog box. */
-        reactivate_window(fs);
-        return;
-    }
-
     fs = file_selection_new(label, action);
 
     g_object_set_data(G_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
