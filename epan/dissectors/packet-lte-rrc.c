@@ -7726,7 +7726,7 @@ dissect_lte_rrc_T_hnb_Name(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                        1, 48, FALSE, &hnb_name_tvb);
 
   proto_tree_add_unicode_string(tree, hf_index, hnb_name_tvb, 0, -1,
-                                tvb_get_ephemeral_string(hnb_name_tvb, 0, tvb_length(hnb_name_tvb)));
+                                tvb_get_ephemeral_string_enc(hnb_name_tvb, 0, tvb_length(hnb_name_tvb), ENC_UTF_8 | ENC_NA));
 
 
   return offset;
