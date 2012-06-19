@@ -2356,13 +2356,12 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       proto_tree *parent_tree, guint8 *drep, const char *name,
 	       struct access_mask_info *ami)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *volatile item = NULL;
+	proto_tree *volatile tree = NULL;
 	int old_offset = offset;
 	int pre_ace_offset;
 	guint16 revision;
 	guint32 num_aces;
-	guint32 total_aces;
 	gboolean missing_data = FALSE;
 
 	if(parent_tree){
@@ -2408,8 +2407,6 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  proto_tree_add_uint(tree, hf_nt_acl_num_aces,
 			      tvb, offset, 4, num_aces);
 	  offset += 4;
-
-	  total_aces = num_aces;
 
 	  while(num_aces-- && !missing_data){
 		pre_ace_offset = offset;
