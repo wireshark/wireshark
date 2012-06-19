@@ -260,14 +260,6 @@ tpncp_DATA = \
 	tpncp/tpncp.dat
 
 #
-# Install the ui directory files in the "ui" subdirectory
-# of that directory
-#
-uidir = $(pkgdatadir)/ui
-ui_DATA = \
-	ui/gtk/ui/main-menubar-ui.xml
-
-#
 # Install the wimaxasncp directory files in the "wimaxasncp" subdirectory
 # of that directory
 #
