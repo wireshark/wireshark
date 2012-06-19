@@ -46,64 +46,15 @@
 #include "ui/gtk/gui_utils.h"
 #endif
 #endif
-static GtkWidget *save_as_w;
-
-static void
-pixbuf_save_destroy_cb(GtkWidget *window _U_, gpointer data _U_)
-{
-	/* We no longer have a save as dialog */
-	save_as_w = NULL;
-}
-
-static gboolean
-pixbuf_save_button_cb(GtkWidget *save_as_w_lcl, GdkPixbuf *pixbuf)
-{
-	gchar *filename, *file_type;
-	GtkWidget *type_cm, *simple_w;
-    GError *error = NULL;
-	gboolean ret;
-
-	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w_lcl));
-	type_cm = g_object_get_data(G_OBJECT(save_as_w_lcl), "type_cm");
-	file_type = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(type_cm));
-
-	/* Perhaps the user specified a directory instead of a file.
-	   Check whether they did. */
-	if(test_for_directory(filename) == EISDIR) {
-		/* It's a directory - set the file selection box to display that
-		   directory, and leave the selection box displayed. */
-		set_last_open_dir(filename);
-		g_free(filename);
-		g_free(file_type);
-		file_selection_set_current_folder(save_as_w_lcl,
-						  get_last_open_dir());
-		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_as_w_lcl), "");
-		return FALSE;
-	}
-
-	ret = gdk_pixbuf_save(pixbuf, filename, file_type, &error, NULL);
-	g_free(filename);
-	g_free(file_type);
-
-	if(!ret) {
-		simple_w = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-					 "%s%s%s",
-					 simple_dialog_primary_start(),
-					 error->message,
-					 simple_dialog_primary_end());
-		gtk_window_set_transient_for(GTK_WINDOW(simple_w),
-					     GTK_WINDOW(save_as_w_lcl));
-	}
-	return TRUE;
-}
 
 void
 pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 {
+	GtkWidget *save_as_w;
 #if GTK_CHECK_VERSION(2,22,0)
 	surface_info_t *surface_info = g_object_get_data(G_OBJECT(w), "surface-info");
 #else
-    GdkPixmap *pixmap = g_object_get_data(G_OBJECT(w), "pixmap");
+	GdkPixmap *pixmap = g_object_get_data(G_OBJECT(w), "pixmap");
 #endif
 	GdkPixbuf *pixbuf;
 	GdkPixbufFormat *pixbuf_format;
@@ -114,6 +65,11 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	gchar *format_name;
 	guint format_index = 0;
 	guint default_index = 0;
+
+	gchar *filename, *file_type;
+	GError *error = NULL;
+	gboolean ret;
+	GtkWidget *msg_dialog;
 
 #if GTK_CHECK_VERSION(2,22,0)
 	pixbuf = gdk_pixbuf_get_from_surface (surface_info->surface,
@@ -129,14 +85,6 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 			      simple_dialog_primary_end());
 		return;
 	}
-
-#if 0  /* XXX: GtkFileChooserDialog/gtk_dialog_run currently being used is effectively modal so this is not req'd */
-	if(save_as_w != NULL) {
-		/* If this save as window is already open, re-open it */
-		reactivate_window(save_as_w);
-		return;
-	}
-#endif
 
 	save_as_w = file_selection_new("Wireshark: Save Graph As ...",
 				       FILE_SELECTION_SAVE);
@@ -176,40 +124,55 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	g_slist_free(file_formats);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(type_cm), default_index);
-	g_object_set_data(G_OBJECT(save_as_w), "type_cm", type_cm);
 	gtk_widget_show(type_cm);
-
-	g_signal_connect(save_as_w, "destroy", G_CALLBACK(pixbuf_save_destroy_cb), NULL);
 
 	gtk_widget_show(save_as_w);
 	window_present(save_as_w);
 	parent = gtk_widget_get_parent_window(w);
 	gdk_window_set_transient_for(gtk_widget_get_window(save_as_w), parent);
 
-#if 0
-	if(gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT)
-		pixbuf_save_button_cb(save_as_w, pixbuf);
-
-	window_destroy(save_as_w);
-#else
-	/* "Run" the GtkFileChooserDialog.                                              */
-        /* Upon exit: If "Accept" run the OK callback.                                  */
-        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-        /*            If not accept (ie: cancel) destroy the window.                    */
-        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-        /*      return with a TRUE status so that the dialog window will be destroyed.  */
-	/*      Trying to re-run the dialog after popping up an alert box will not work */
-        /*       since the user will not be able to dismiss the alert box.              */
-	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
-	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
-	/*                                                                              */
-        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
-	/*            GtkFileChooserDialog.                                             */
-	while (gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT) {
-		if (pixbuf_save_button_cb(save_as_w, pixbuf)) {
-                    break; /* we're done */
+	/*
+	 * Loop until the user either selects a file or gives up.
+	 */
+	for (;;) {
+		if (gtk_dialog_run(GTK_DIALOG(save_as_w)) != GTK_RESPONSE_ACCEPT) {
+			/* They clicked "Cancel" or closed the dialog or.... */
+			window_destroy(save_as_w);
+			return;
 		}
+
+		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w));
+
+		/* Perhaps the user specified a directory instead of a file.
+		   Check whether they did. */
+		if (test_for_directory(filename) == EISDIR) {
+			/* It's a directory - set the file selection box to display that
+			   directory, and leave the selection box displayed. */
+			set_last_open_dir(filename);
+			g_free(filename);
+			file_selection_set_current_folder(save_as_w,
+							  get_last_open_dir());
+			gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_as_w), "");
+			continue;
+		}
+
+		file_type = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(type_cm));
+		ret = gdk_pixbuf_save(pixbuf, filename, file_type, &error, NULL);
+		g_free(filename);
+		g_free(file_type);
+
+		if (!ret) {
+			msg_dialog = gtk_message_dialog_new(GTK_WINDOW(save_as_w),
+                                          GTK_DIALOG_DESTROY_WITH_PARENT,
+                                          GTK_MESSAGE_ERROR,
+                                          GTK_BUTTONS_OK,
+                                          "%s", error->message);
+			gtk_dialog_run(GTK_DIALOG(msg_dialog));
+			gtk_widget_destroy(msg_dialog);
+			continue;
+		}
+
+		window_destroy(save_as_w);
+		return;
 	}
-	window_destroy(save_as_w);
-#endif
 }
