@@ -313,7 +313,8 @@ endif
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
 wireshark_LDADD = \
-	@UI_LIBS@			\
+	ui/gtk/libgtkui.a		\
+	ui/gtk/libgtkui_dirty.a		\
 	ui/libui.a			\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
@@ -332,7 +333,7 @@ wireshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	@PORTAUDIO_LIBS@		\
-	-lm
+	@GTK_LIBS@ -lm
 
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
