@@ -620,8 +620,9 @@ make_gtk_array(void)
 void
 capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-  GtkWidget         *main_vb,
-                    *main_sw,
+  GtkWidget         *top_vb,
+                    *if_vb,
+                    *if_sw,
                     *bbox,
                     *close_bt,
                     *help_bt;
@@ -691,18 +692,21 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
 
-  main_sw = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(cap_if_w), main_sw);
+  top_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+  gtk_container_add(GTK_CONTAINER(cap_if_w), top_vb);
 
-  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), main_vb);
+  if_sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(if_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_box_pack_start(GTK_BOX(top_vb), if_sw, TRUE, TRUE, 0);
+
+  if_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+  gtk_container_set_border_width(GTK_CONTAINER(if_vb), 5);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(if_sw), if_vb);
 
   if_tb = gtk_table_new(1,9, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(if_tb), 3);
   gtk_table_set_col_spacings(GTK_TABLE(if_tb), 3);
-  gtk_box_pack_start(GTK_BOX(main_vb), if_tb, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(if_vb), if_tb, FALSE, FALSE, 0);
 
   row = 0;
   height = 0;
@@ -838,8 +842,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     g_array_insert_val(gtk_list, ifs, data);
 
     row++;
-    if (row <= 10) {
-        /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
+    if (row <= 20) {
+        /* Lets add up 20 rows of interfaces, otherwise the window may become too high */
       gtk_widget_get_preferred_size(GTK_WIDGET(data.choose_bt), &requisition, NULL);
       height += requisition.height;
     }
@@ -850,7 +854,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Button row: close, help, stop, start, and options button */
   bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_CAPTURE_START, WIRESHARK_STOCK_CAPTURE_OPTIONS, WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_CLOSE, NULL);
 
-  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
+  gtk_box_pack_end(GTK_BOX(top_vb), bbox, FALSE, FALSE, 5);
   help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
 

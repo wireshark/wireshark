@@ -590,14 +590,6 @@ SetOutPath $INSTDIR\tpncp
 File "..\..\tpncp\tpncp.dat"
 
 ;
-; Install the GUI XML files in the "ui" subdirectory
-; of the installation directory.
-;
-SetOutPath $INSTDIR\ui
-File "..\..\ui\gtk\ui\main-menubar-ui.xml"
-SetOutPath $INSTDIR
-
-;
 ; install the wimaxasncp TLV definitions in the wimaxasncp subdirectory
 ;
 SetOutPath $INSTDIR\wimaxasncp

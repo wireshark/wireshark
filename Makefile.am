@@ -50,7 +50,6 @@ bin_PROGRAMS = \
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap rawshark
-bin_SCRIPTS = tools/idl2wrs
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -258,14 +257,6 @@ radius_DATA = \
 tpncpdir = $(pkgdatadir)/tpncp
 tpncp_DATA = \
 	tpncp/tpncp.dat
-
-#
-# Install the ui directory files in the "ui" subdirectory
-# of that directory
-#
-uidir = $(pkgdatadir)/ui
-ui_DATA = \
-	ui/gtk/ui/main-menubar-ui.xml
 
 #
 # Install the wimaxasncp directory files in the "wimaxasncp" subdirectory

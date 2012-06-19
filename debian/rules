@@ -6,7 +6,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-include /usr/share/dpatch/dpatch.make 
+include /usr/share/dpatch/dpatch.make
 DB2MAN=/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl
 
 
@@ -52,7 +52,7 @@ clean: unpatch-stamp
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	[ ! -f Makefile ] || $(MAKE) distclean 
+	[ ! -f Makefile ] || $(MAKE) distclean
 	rm -f rdps wireshark.1 tshark.1 wireshark-filter.4
 	rm -f conftest conftest.c
 	rm -f config.guess config.sub config.log
@@ -75,6 +75,7 @@ install: build
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	mkdir -p $(CURDIR)/debian/tmp/usr/share/applications/
 	cp debian/wireshark.desktop $(CURDIR)/debian/tmp/usr/share/applications/
+	cp tools/idl2wrs $(CURDIR)/debian/tmp/usr/bin/
 	#cp debian/wireshark-root.desktop $(CURDIR)/debian/tmp/usr/share/applications/
 	mkdir -p $(CURDIR)/debian/tmp/usr/share/pixmaps/
 	cp image/hi48-app-wireshark.png $(CURDIR)/debian/tmp/usr/share/pixmaps/
@@ -93,6 +94,7 @@ install: build
 	done
 	-rm -rf $(CURDIR)/debian/tmp/usr/man
 	dh_installman
+	cp doc/idl2wrs.1 $(CURDIR)/debian/tmp/usr/man
 
 	dh_movefiles
 	dh_pysupport

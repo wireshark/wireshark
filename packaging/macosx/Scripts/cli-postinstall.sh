@@ -6,7 +6,6 @@ BINARIES="
     dftest
     dumpcap
     editcap
-    idl2wrs
     mergecap
     randpkt
     rawshark

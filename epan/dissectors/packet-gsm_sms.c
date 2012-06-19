@@ -2728,9 +2728,9 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                                              (udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : udl),
                                              tvb_get_ptr(tvb , offset , length) , messagebuf);
                 messagebuf[out_len] = '\0';
-                proto_tree_add_string(subtree, hf_gsm_sms_text, tvb, offset,
-                                      length,
-                                      gsm_sms_chars_to_utf8(messagebuf, out_len));
+                utf8_text = gsm_sms_chars_to_utf8(messagebuf, out_len);
+                proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, tvb, offset,
+                                                   length, utf8_text, "%s", utf8_text);
             }
             else
             {
@@ -2751,9 +2751,10 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                                 tvb_get_ptr(sm_tvb, total_sms_len, p_frag_params->length), messagebuf);
 
                         messagebuf[out_len] = '\0';
-                        proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
-                                              total_sms_len, p_frag_params->length,
-                                              gsm_sms_chars_to_utf8(messagebuf, out_len));
+                        utf8_text = gsm_sms_chars_to_utf8(messagebuf, out_len);
+                        proto_tree_add_string_format_value(subtree, hf_gsm_sms_text, sm_tvb,
+                                                           total_sms_len, p_frag_params->length,
+                                                           utf8_text, "%s", utf8_text);
 
                         total_sms_len += p_frag_params->length;
                     }

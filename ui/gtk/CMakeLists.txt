@@ -249,8 +249,6 @@ if (WANT_PACKET_EDITOR)
 	)
 endif()
 
-# add_definitions(-DNEW_MENU_CODE)
-
 if(WIN32)
 	set(PLATFORM_UI_SRC
 		capture_if_details_dlg_win32.c
