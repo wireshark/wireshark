@@ -539,15 +539,15 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_,
     else {
         recent.main_toolbar_show = FALSE;
     }
-	/* check both the old ane the new keyword */
-  } else if ((strcmp(key, RECENT_KEY_FILTER_TOOLBAR_SHOW) == 0) || (strcmp(key, "gui.airpcap_toolbar_show") == 0) ) {
+  } else if (strcmp(key, RECENT_KEY_FILTER_TOOLBAR_SHOW) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.filter_toolbar_show = TRUE;
     }
     else {
         recent.filter_toolbar_show = FALSE;
     }
-  } else if (strcmp(key, RECENT_KEY_WIRELESS_TOOLBAR_SHOW) == 0) {
+  /* check both the old and the new keyword */
+  } else if (strcmp(key, RECENT_KEY_WIRELESS_TOOLBAR_SHOW) == 0 || (strcmp(key, "gui.airpcap_toolbar_show") == 0)) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.wireless_toolbar_show = TRUE;
     }
