@@ -77,9 +77,11 @@ libwiretap_la_DEPENDENCIES = libwiretap_generated.la ${top_builddir}/wsutil/libw
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
+k12text_lex.h : k12text.c
+
 ascend_scanner_lex.h : ascend_scanner.c
 
-k12text_lex.h : k12text.c
+ascend_scanner.c: ascend.h
 
 ascend.c ascend.h: ascend.y
 	@if [ -z "$(YACC)" ]; then \
