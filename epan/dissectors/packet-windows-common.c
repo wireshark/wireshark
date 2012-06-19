@@ -2602,11 +2602,12 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree = NULL;
 	guint16 revision;
 	int start_offset = offset;
-	int item_offset, end_offset;
+	int volatile end_offset;
+	int item_offset;
 	guint32 owner_sid_offset;
-	guint32 group_sid_offset;
-	guint32 sacl_offset;
-	guint32 dacl_offset;
+	guint32 volatile group_sid_offset;
+	guint32 volatile sacl_offset;
+	guint32 volatile dacl_offset;
 
 	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 				   "NT Security Descriptor");
@@ -2674,7 +2675,7 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       */
 	      THROW(ReportedBoundsError);
 	    }
-	    TRY{ 
+	    TRY{
 	      offset = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
 	      if (offset > end_offset)
 	        end_offset = offset;
