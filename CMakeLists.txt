@@ -379,6 +379,7 @@ if(HAVE_LIBADNS)
 endif()
 if(ENABLE_AIRPCAP)
 	set(HAVE_AIRPCAP 1)
+	set(HAVE_WIRELESS_TOOLBAR 1)
 endif()
 # No matter which version of GTK is present
 if(GTK2_FOUND OR GTK3_FOUND)
