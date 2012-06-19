@@ -43,6 +43,7 @@ typedef enum {
 } sttype_id_t;
 
 typedef gpointer        (*STTypeNewFunc)(gpointer);
+typedef gpointer        (*STTypeDupFunc)(gconstpointer);
 typedef void            (*STTypeFreeFunc)(gpointer);
 
 
@@ -52,6 +53,7 @@ typedef struct {
 	const char		*name;
 	STTypeNewFunc		func_new;
 	STTypeFreeFunc		func_free;
+	STTypeDupFunc		func_dup;
 } sttype_t;
 
 /** Node (type instance) information */
@@ -85,6 +87,9 @@ sttype_register(sttype_t *type);
 
 stnode_t*
 stnode_new(sttype_id_t type_id, gpointer data);
+
+stnode_t*
+stnode_dup(const stnode_t *org);
 
 void
 stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data);

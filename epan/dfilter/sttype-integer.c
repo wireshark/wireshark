@@ -36,6 +36,7 @@ sttype_register_integer(void)
 		"INTEGER",
 		NULL,
 		NULL,
+		NULL
 	};
 
 	sttype_register(&integer_type);

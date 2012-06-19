@@ -249,6 +249,27 @@ relation_test(T) ::= entity(E) rel_op2(O) entity(F).
 	sttype_test_set2(T, O, E, F);
 }
 
+/* 'a == b == c' or 'a < b <= c <= d < e' */
+relation_test(T) ::= entity(E) rel_op2(O) relation_test(R).
+{
+	stnode_t *L, *F;
+	/* for now generate it like E O F  TEST_OP_AND  F P G, later it could be optimized
+	   or semantically checked (to make a <= b >= c or a == b != c invalid)?
+	 */
+
+	F = R;
+	do {
+		g_assert(F != NULL && stnode_type_id(F) == STTYPE_TEST);
+		sttype_test_get(F, NULL, &F, NULL);
+	} while (stnode_type_id(F) == STTYPE_TEST);
+
+	L = stnode_new(STTYPE_TEST, NULL);
+	sttype_test_set2(L, O, E, stnode_dup(F));
+
+	T = stnode_new(STTYPE_TEST, NULL);
+	sttype_test_set2(T, TEST_OP_AND, L, R);
+}
+
 rel_op2(O) ::= TEST_EQ.  { O = TEST_OP_EQ; }
 rel_op2(O) ::= TEST_NE.  { O = TEST_OP_NE; }
 rel_op2(O) ::= TEST_GT.  { O = TEST_OP_GT; }

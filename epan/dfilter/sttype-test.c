@@ -50,6 +50,20 @@ test_new(gpointer junk)
 	return (gpointer) test;
 }
 
+static gpointer
+test_dup(gconstpointer data)
+{
+	const test_t *org = data;
+	test_t		 *test;
+
+	test = test_new(NULL);
+	test->op   = org->op;
+	test->val1 = stnode_dup(org->val1);
+	test->val2 = stnode_dup(org->val1);
+
+	return (gpointer) test;
+}
+
 static void
 test_free(gpointer value)
 {
@@ -141,9 +155,12 @@ sttype_test_get(stnode_t *node, test_op_t *p_op, stnode_t **p_val1, stnode_t **p
 	test = (test_t*)stnode_data(node);
 	assert_magic(test, TEST_MAGIC);
 
-	*p_op = test->op;
-	*p_val1 = test->val1;
-	*p_val2 = test->val2;
+	if (p_op)
+		*p_op = test->op;
+	if (p_val1)
+		*p_val1 = test->val1;
+	if (p_val2)
+		*p_val2 = test->val2;
 }
 
 void
@@ -154,6 +171,7 @@ sttype_register_test(void)
 		"TEST",
 		test_new,
 		test_free,
+		test_dup
 	};
 
 	sttype_register(&test_type);

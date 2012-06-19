@@ -36,12 +36,14 @@ sttype_register_pointer(void)
 		"FIELD",
 		NULL,
 		NULL,
+		NULL
 	};
 	static sttype_t fvalue_type = {
 		STTYPE_FVALUE,
 		"FVALUE",
 		NULL,
 		NULL,
+		NULL
 	};
 
 	sttype_register(&field_type);

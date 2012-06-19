@@ -59,6 +59,19 @@ range_new(gpointer junk)
 	return (gpointer) range;
 }
 
+static gpointer
+range_dup(gconstpointer data)
+{
+	const range_t *org = data;
+	range_t       *range;
+
+	range = range_new(NULL);
+	range->hfinfo = org->hfinfo;
+	range->drange = drange_dup(org->drange);
+
+	return (gpointer) range;
+}
+
 static void
 range_free(gpointer value)
 {
@@ -116,6 +129,7 @@ sttype_register_range(void)
 		"RANGE",
 		range_new,
 		range_free,
+		range_dup
 	};
 
 	sttype_register(&range_type);

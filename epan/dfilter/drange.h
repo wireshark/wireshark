@@ -82,6 +82,7 @@ void drange_node_set_to_the_end(drange_node* drnode);
 /* drange constructor */
 drange* drange_new(void);
 drange* drange_new_from_list(GSList *list);
+drange *drange_dup(drange *org);
 
 /* drange destructor, only use this if you used drange_new() to creat
  * the drange

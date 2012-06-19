@@ -51,6 +51,22 @@ function_new(gpointer funcdef)
 	return (gpointer) stfuncrec;
 }
 
+static gpointer
+function_dup(gconstpointer data)
+{
+	const function_t *org = data;
+	function_t		 *stfuncrec;
+	GSList *p;
+
+	stfuncrec = function_new(org->funcdef);
+
+	for (p = org->params; p; p = p->next) {
+		const stnode_t *param = p->data;
+		stfuncrec->params = g_slist_append(stfuncrec->params, stnode_dup(param));
+	}
+	return (gpointer) stfuncrec;
+}
+
 static void
 slist_stnode_free(gpointer data, gpointer user_data _U_)
 {
@@ -118,6 +134,7 @@ sttype_register_function(void)
 		"FUNCTION",
 		function_new,
 		function_free,
+		function_dup
 	};
 
 	sttype_register(&function_type);

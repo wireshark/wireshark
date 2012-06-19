@@ -114,6 +114,30 @@ stnode_new(sttype_id_t type_id, gpointer data)
 	return node;
 }
 
+stnode_t*
+stnode_dup(const stnode_t *org)
+{
+	sttype_t	*type;
+	stnode_t	*node;
+
+	if (!org)
+		return NULL;
+
+	type = org->type;
+
+	node = g_new(stnode_t, 1);
+	node->magic = STNODE_MAGIC;
+	node->deprecated_token = NULL;
+	node->type = type;
+	if (type && type->func_dup)
+		node->data = type->func_dup(org->data);
+	else
+		node->data = org->data;
+	node->value = org->value;
+
+	return node;
+}
+
 void
 stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 {
