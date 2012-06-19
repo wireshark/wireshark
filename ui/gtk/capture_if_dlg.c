@@ -32,11 +32,6 @@
 
 #include <string.h>
 
-#ifdef __linux__
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
-
 #include <epan/prefs.h>
 
 #include "../capture_ifinfo.h"
