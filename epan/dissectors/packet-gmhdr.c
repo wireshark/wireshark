@@ -33,6 +33,8 @@
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/in_cksum.h>
+#include <epan/crc32-tvb.h>
+#include <wsutil/crc32.h>
 #include <epan/expert.h>
 
 #include "packet-ieee8023.h"
@@ -68,8 +70,11 @@ static const value_string gmhdr_plfm_str[] = {
 };
 
 static gboolean gmhdr_summary_in_tree = TRUE;
+static gboolean gmtrailer_summary_in_tree = TRUE;
+static gboolean gmhdr_decode_timestamp_trailer = TRUE;
 
 static int proto_gmhdr = -1;
+static int proto_gmtrailer = -1;
 static int hf_gmhdr_srcport = -1;
 static int hf_gmhdr_srcport_plfm = -1;
 static int hf_gmhdr_srcport_gid = -1;
@@ -82,8 +87,13 @@ static int hf_gmhdr_etype = -1;
 static int hf_gmhdr_len = -1;
 static int hf_gmhdr_trailer = -1;
 
+static int hf_gmtrailer_origcrc = -1;
+static int hf_gmtrailer_portid = -1;
+static int hf_gmtrailer_timestamp = -1;
+
 static gint ett_gmhdr = -1;
 static gint ett_srcport = -1;
+static gint ett_gmtrailer = -1;
 
 
 
@@ -206,6 +216,62 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
+dissect_gmtimestamp_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  proto_tree *ti;
+  guint tvblen, trailer_len = 18;
+  proto_tree *gmtrailer_tree = NULL;
+  guint offset = 0;
+  guint32 orig_crc, new_crc, comp_crc;
+  guint16 port_num;
+  nstime_t gmtime;
+
+  struct tm *tm = NULL;
+
+  if ( ! gmhdr_decode_timestamp_trailer)
+    return 0;
+
+  /* See if this packet has a Gigamon trailer, if yes, then decode it */
+  /* (Don't throw any exceptions while checking for the trailer).     */
+  tvblen = tvb_length(tvb); /* end+1 */
+  if (tvblen < trailer_len)
+    return 0;
+
+  orig_crc = tvb_get_ntohl(tvb, offset);
+  new_crc  = tvb_get_ntohl(tvb, tvblen - 4);
+
+  /* Verify the checksum; if not valid, it means that the trailer is not valid */
+  comp_crc = CRC32C_SWAP(crc32_ccitt_tvb_seed(tvb, 14, CRC32C_SWAP(~orig_crc)));
+  if (comp_crc != new_crc)
+    return 0;
+
+  /* OK: We appear to have a Gigamon trailer */
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_gmtrailer, tvb, offset, trailer_len - 4, ENC_NA);
+
+    if (gmtrailer_summary_in_tree) {
+      offset += 4;
+      port_num = tvb_get_ntohs(tvb, offset);
+      offset += 2;
+      gmtime.secs = tvb_get_ntohl(tvb, offset);
+      offset += 4;
+      gmtime.nsecs = tvb_get_ntohl(tvb, offset);
+
+      tm = localtime(&gmtime.secs);
+      proto_item_append_text(ti, ", Port: %d, Timestamp: %d:%d:%d.%d", port_num, tm->tm_hour, tm->tm_min, tm->tm_sec, gmtime.nsecs);
+    }
+
+    offset = 0;
+    gmtrailer_tree = proto_item_add_subtree(ti, ett_gmtrailer);
+    proto_tree_add_item(gmtrailer_tree, hf_gmtrailer_origcrc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(gmtrailer_tree, hf_gmtrailer_portid, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(gmtrailer_tree, hf_gmtrailer_timestamp, tvb, offset+6, 8, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+  }
+
+  return 14;
+}
+
+static int
 dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_tree *ti;
@@ -293,23 +359,52 @@ proto_register_gmhdr(void)
         NULL, 0x0, NULL, HFILL }},
     { &hf_gmhdr_trailer, {
         "Trailer", "gmhdr.trailer", FT_BYTES, BASE_NONE,
-        NULL, 0x0, "GMHDR Trailer", HFILL }}
+        NULL, 0x0, "GMHDR Trailer", HFILL }},
+  };
+  static hf_register_info gmtrailer_hf[] = {
+    { &hf_gmtrailer_origcrc, {
+        "Original CRC", "gmtrailer.crc", FT_UINT32, BASE_HEX,
+        NULL, 0x0, "Original Packet CRC", HFILL }},
+    { &hf_gmtrailer_portid, {
+        "Src Port", "gmtrailer.portid", FT_UINT16, BASE_HEX,
+        NULL, 0x0, "Origin Source Port", HFILL }},
+    { &hf_gmtrailer_timestamp, {
+        "Time Stamp", "gmtrailer.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
+        NULL, 0x0, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_gmhdr,
     &ett_srcport
   };
+  static gint *gmtrailer_ett[] = {
+    &ett_gmtrailer,
+  };
   module_t *gmhdr_module;
+  module_t *gmtrailer_module;
 
   proto_gmhdr = proto_register_protocol("Gigamon Header", "GMHDR", "gmhdr");
   proto_register_field_array(proto_gmhdr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  proto_gmtrailer = proto_register_protocol("Gigamon Trailer", "GMTRAILER", "gmtrailer");
+  proto_register_field_array(proto_gmtrailer, gmtrailer_hf, array_length(gmtrailer_hf));
+  proto_register_subtree_array(gmtrailer_ett, array_length(gmtrailer_ett));
 
   gmhdr_module = prefs_register_protocol(proto_gmhdr, NULL);
   prefs_register_bool_preference(gmhdr_module, "summary_in_tree",
         "Show Gigamon header summary in protocol tree",
         "Whether the Gigamon header summary line should be shown in the protocol tree",
         &gmhdr_summary_in_tree);
+
+  gmtrailer_module = prefs_register_protocol(proto_gmtrailer, NULL);
+  prefs_register_bool_preference(gmtrailer_module, "summary_in_tree",
+        "Show Gigamon Trailer summary in protocol tree",
+        "Whether the Gigamon Trailer summary line should be shown in the protocol tree",
+        &gmtrailer_summary_in_tree);
+  prefs_register_bool_preference(gmtrailer_module, "decode_trailer_timestamp",
+        "Decode Gigamon HW timestamp and source id in trailer",
+        "Whether the Gigamon trailer containing HW timestamp, source id and original CRC should be decoded",
+        &gmhdr_decode_timestamp_trailer);
 }
 
 void
@@ -320,5 +415,7 @@ proto_reg_handoff_gmhdr(void)
   gmhdr_handle = create_dissector_handle(dissect_gmhdr, proto_gmhdr);
   dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);
   heur_dissector_add("eth.trailer", dissect_gmtrailer, proto_gmhdr);
+
+  heur_dissector_add("eth.trailer", dissect_gmtimestamp_trailer, proto_gmtrailer);
 }
 
