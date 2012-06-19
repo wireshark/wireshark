@@ -66,6 +66,8 @@ LIBGPG_ERROR_VERSION=1.10
 #
 LIBGCRYPT_VERSION=1.5.0
 GNUTLS_VERSION=2.12.19
+# Stay with Lua 5.1 when updating until the code has been changed
+# to support 5.2
 LUA_VERSION=5.1.5
 PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
