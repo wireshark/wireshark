@@ -282,6 +282,9 @@ typedef struct conv_tables {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
+	/* This table keeps primary transact requests so secondaries can find
+	   them */
+	GHashTable *primaries;
 
 	/* This table is used to track TID->services for a conversation */
 	GHashTable *tid_service;

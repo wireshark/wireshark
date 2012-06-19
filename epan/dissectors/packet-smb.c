@@ -8852,7 +8852,8 @@ static int
 dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
 	guint8 wc, sc;
-	guint32 pc=0, po=0, dc=0, od=0;
+	guint32 pc=0, pd = 0, po=0, dc=0, od=0, dd = 0;
+	guint32 td=0, tp=0;
 	smb_info_t *si;
 	smb_saved_info_t *sip;
 	int subcmd;
@@ -8860,6 +8861,9 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	guint16 bc;
 	guint32 padcnt;
 	smb_nt_transact_info_t *nti=NULL;
+	fragment_data *r_fd = NULL;
+	tvbuff_t *pd_tvb=NULL;
+	gboolean save_fragmented;
 
 	ntd.subcmd = ntd.sd_len = ntd.ea_len = 0;
 
@@ -8887,11 +8891,13 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 
 	/* total param count */
-	proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	tp = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 4, tp);
 	offset += 4;
 
 	/* total data count */
-	proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	td = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_total_data_count, tvb, offset, 4, td);
 	offset += 4;
 
 	if(wc>=19){
@@ -8940,7 +8946,8 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		/* primary request */
 	} else {
 		/* secondary request */
-		proto_tree_add_item(tree, hf_smb_data_disp32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		dd = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_data_disp32, tvb, offset, 4, dd);
 		offset += 4;
 	}
 
@@ -9003,8 +9010,54 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	BYTE_COUNT;
 
-	/* parameters */
-	if(po>(guint32)offset){
+	/* reassembly of SMB NT Transaction data payload.
+	   In this section we do reassembly of both the data and parameters
+	   blocks of the SMB transaction command.
+	*/
+	save_fragmented = pinfo->fragmented;
+	/* do we need reassembly? */
+	if( (td&&(td!=dc)) || (tp&&(tp!=pc)) ){
+		/* oh yeah, either data or parameter section needs
+		   reassembly...
+		*/
+		pinfo->fragmented = TRUE;
+		if(smb_trans_reassembly){
+			/* ...and we were told to do reassembly */
+			if(pc && ((unsigned int)tvb_length_remaining(tvb, po)>=pc) ){
+				r_fd = smb_trans_defragment(tree, pinfo, tvb,
+							     po, pc, pd, td+tp);
+			}
+			if((r_fd==NULL) && dc && ((unsigned int)tvb_length_remaining(tvb, od)>=dc) ){
+				r_fd = smb_trans_defragment(tree, pinfo, tvb,
+							     od, dc, dd+tp, td+tp);
+			}
+		}
+	}
+
+	/* if we got a reassembled fd structure from the reassembly routine we
+	   must create pd_tvb from it
+	*/
+	if(r_fd){
+		proto_item *frag_tree_item;
+
+		pd_tvb = tvb_new_child_real_data(tvb, r_fd->data, r_fd->datalen,
+						 r_fd->datalen);
+		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
+
+		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb, &frag_tree_item);
+	}
+
+	if(pd_tvb){
+	  /* we have reassembled data, grab param and data from there */
+	  dissect_nt_trans_param_request(pd_tvb, pinfo, 0, tree, tp,
+					  &ntd, (guint16) tvb_length(pd_tvb), nti);
+	  dissect_nt_trans_data_request(pd_tvb, pinfo, tp, tree, td, &ntd, nti);
+	  COUNT_BYTES(bc); /* We are done */
+	} else {
+	  /* we do not have reassembled data, just use what we have in the
+	     packet as well as we can */
+	  /* parameters */
+	  if(po>(guint32)offset){
 		/* We have some initial padding bytes.
 		*/
 		padcnt = po-offset;
@@ -9013,15 +9066,15 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		CHECK_BYTE_COUNT(padcnt);
 	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
-	}
-	if(pc){
+	  }
+	  if(pc){
 		CHECK_BYTE_COUNT(pc);
 		dissect_nt_trans_param_request(tvb, pinfo, offset, tree, pc, &ntd, bc, nti);
 		COUNT_BYTES(pc);
-	}
+	  }
 
-	/* data */
-	if(od>(guint32)offset){
+	  /* data */
+	  if(od>(guint32)offset){
 		/* We have some initial padding bytes.
 		*/
 		padcnt = od-offset;
@@ -9029,12 +9082,13 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			padcnt = bc;
 	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
-	}
-	if(dc){
+	  }
+	  if(dc){
 		CHECK_BYTE_COUNT(dc);
 		dissect_nt_trans_data_request(
 			tvb, pinfo, offset, tree, dc, &ntd, nti);
 		COUNT_BYTES(dc);
+	  }
 	}
 
 	END_OF_SMB
@@ -9549,6 +9603,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	  dissect_nt_trans_param_response(pd_tvb, pinfo, 0, tree, tp,
 					  &ntd, (guint16) tvb_length(pd_tvb));
 	  dissect_nt_trans_data_response(pd_tvb, pinfo, tp, tree, td, &ntd, nti);
+	  COUNT_BYTES(bc); /* We are done */
 	} else {
 	  /* we do not have reassembled data, just use what we have in the
 	     packet as well as we can */
@@ -17213,6 +17268,8 @@ free_hash_tables(gpointer ctarg, gpointer user_data _U_)
 		g_hash_table_destroy(ct->unmatched);
 	if (ct->matched)
 		g_hash_table_destroy(ct->matched);
+	if (ct->primaries)
+		g_hash_table_destroy(ct->primaries);
 	if (ct->tid_service)
 		g_hash_table_destroy(ct->tid_service);
 	g_free(ct);
@@ -17575,6 +17632,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			smb_saved_info_equal_matched);
 		si->ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
+		/* We used the same key format as the unmatched entries */
+		si->ct->primaries=g_hash_table_new(
+			smb_saved_info_hash_unmatched,
+			smb_saved_info_equal_unmatched);
 		si->ct->tid_service=g_hash_table_new(
 			smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
@@ -17640,6 +17701,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key,
 				    sip);
+			} else {
+				if (si->cmd == SMB_COM_TRANSACTION_SECONDARY ||
+				    si->cmd == SMB_COM_TRANSACTION2_SECONDARY ||
+				    si->cmd == SMB_COM_NT_TRANSACT_SECONDARY) {
+					sip = g_hash_table_lookup(si->ct->primaries, GUINT_TO_POINTER(pid_mid));
+				}
 			}
 		} else {
 			/* we have seen this packet before; check the
@@ -17785,6 +17852,12 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						sip=NULL;
 					}
 				}
+			} else {
+				if (si->cmd == SMB_COM_TRANSACTION ||
+				    si->cmd == SMB_COM_TRANSACTION2 ||
+				    si->cmd == SMB_COM_NT_TRANSACT) {
+					sip = g_hash_table_lookup(si->ct->primaries, GUINT_TO_POINTER(pid_mid));
+				}
 			}
 			if(si->request){
 				sip = se_alloc(sizeof(smb_saved_info_t));
@@ -17806,6 +17879,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				new_key->frame = sip->frame_req;
 				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si->ct->matched, new_key, sip);
+
+				/* If it is a TRANSACT cmd, insert in hash */
+				if (si->cmd == SMB_COM_TRANSACTION ||
+				    si->cmd == SMB_COM_TRANSACTION2 ||
+				    si->cmd == SMB_COM_NT_TRANSACT) {
+					g_hash_table_insert(si->ct->primaries, GUINT_TO_POINTER(pid_mid), sip);
+				}
 			}
 		} else {
 			/* we have seen this packet before; check the
