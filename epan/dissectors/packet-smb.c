@@ -9093,6 +9093,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	END_OF_SMB
 
+	pinfo->fragmented = save_fragmented;
 	return offset;
 }
 
