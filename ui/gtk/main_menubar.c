@@ -168,18 +168,6 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
                     currently opened/captured file only.
 */
 
-#ifdef NEW_MENU_CODE
-static gchar *
-get_ui_file_path(const char *filename)
-{
-    gchar *gui_desc_file_name;
-
-    gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
-        running_in_build_directory() ? "ui/gtk/ui" : "ui", filename);
-    return gui_desc_file_name;
-}
-#endif
-
 typedef enum {
     CONV_ETHER = 1,
     CONV_IP,
@@ -984,7 +972,6 @@ help_menu_SampleCaptures_cb(GtkAction *action _U_, gpointer user_data _U_)
     topic_menu_cb( NULL/* widget_U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));
 }
 
-#ifndef NEW_MENU_CODE
 static const char *ui_desc_menubar =
 "<ui>\n"
 "  <menubar name ='Menubar'>\n"
@@ -1367,7 +1354,7 @@ static const char *ui_desc_menubar =
 "    </menu>\n"
 "  </menubar>\n"
 "</ui>\n";
-#endif
+
 
 
 /*
@@ -3259,9 +3246,6 @@ menus_init(void) {
     GError *error = NULL;
     guint merge_id;
 
-#ifdef NEW_MENU_CODE
-    gchar* gui_desc_file_name_and_path;
-#endif
     if (initialize) {
         initialize = FALSE;
 
@@ -3432,14 +3416,8 @@ menus_init(void) {
 
         ui_manager_main_menubar = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_main_menubar, main_menu_bar_action_group, 0);
-#ifndef NEW_MENU_CODE
 
         gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error);
-#else
-        gui_desc_file_name_and_path = get_ui_file_path("main-menubar-ui.xml");
-        gtk_ui_manager_add_ui_from_file ( ui_manager_main_menubar, gui_desc_file_name_and_path, &error);
-        g_free (gui_desc_file_name_and_path);
-#endif
         if (error != NULL)
         {
             fprintf (stderr, "Warning: building main menubar failed: %s\n",
