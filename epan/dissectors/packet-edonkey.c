@@ -1020,7 +1020,7 @@ static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
     hash = kademlia_hash(tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
-    hidden_item = proto_tree_add_string_format_value(tree, hf_kademlia_hash, tvb, offset, 16, hash, "%s", hash);
+    hidden_item = proto_tree_add_string(tree, hf_kademlia_hash, tvb, offset, 16, hash);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     return offset+16;
@@ -1034,7 +1034,7 @@ static int dissect_kademlia_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
     hash = kademlia_hash(tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
-    proto_tree_add_string_format_value(tree, *value_ptr, tvb, offset, 16, hash, "%s", hash);
+    proto_tree_add_string(tree, *value_ptr, tvb, offset, 16, hash);
 
     return dissect_kademlia_hash_hidden(tvb, pinfo, offset, tree);
 }
@@ -1047,7 +1047,7 @@ static int dissect_kademlia_tag_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U
     hash = kademlia_hash(tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
-    hidden_item = proto_tree_add_string_format_value(tree, hf_kademlia_tag_hash, tvb, offset, 16, hash, "%s", hash);
+    hidden_item = proto_tree_add_string(tree, hf_kademlia_tag_hash, tvb, offset, 16, hash);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     return offset+16;
@@ -1060,7 +1060,7 @@ static int dissect_kademlia_tag_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
     hash = kademlia_hash(tvb, offset);
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
-    proto_tree_add_string_format_value(tree, hf_kademlia_hash, tvb, offset, 16, hash, "%s", hash);
+    proto_tree_add_string(tree, hf_kademlia_hash, tvb, offset, 16, hash);
     return dissect_kademlia_tag_hash_hidden( tvb, pinfo, offset, tree );
 }
 
@@ -2752,7 +2752,7 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
                   }
                 }
                 binarray[128] = '\0';
-                proto_tree_add_string_format_value(tree, hf_kademlia_distance, tvb, offset, 0, binarray, "%s", binarray);
+                proto_tree_add_string(tree, hf_kademlia_distance, tvb, offset, 0, binarray);
             }
             break;
 
