@@ -8865,6 +8865,8 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	tvbuff_t *pd_tvb=NULL;
 	gboolean save_fragmented;
 
+	save_fragmented = pinfo->fragmented;
+
 	ntd.subcmd = ntd.sd_len = ntd.ea_len = 0;
 
 	si = (smb_info_t *)pinfo->private_data;
@@ -9014,7 +9016,6 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	   In this section we do reassembly of both the data and parameters
 	   blocks of the SMB transaction command.
 	*/
-	save_fragmented = pinfo->fragmented;
 	/* do we need reassembly? */
 	if( (td&&(td!=dc)) || (tp&&(tp!=pc)) ){
 		/* oh yeah, either data or parameter section needs
