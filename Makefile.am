@@ -50,7 +50,6 @@ bin_PROGRAMS = \
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap rawshark
-bin_SCRIPTS = tools/idl2wrs
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).

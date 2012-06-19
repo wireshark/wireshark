@@ -69,7 +69,6 @@ man1_MANS = \
 	@capinfos_man@	\
 	@editcap_man@	\
 	@dumpcap_man@	\
-	idl2wrs.1	\
 	@rawshark_man@	\
 	@dftest_man@	\
 	@randpkt_man@
@@ -78,7 +77,7 @@ man_MANS =
 
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
-	idl2wrs.html mergecap.html text2pcap.html dumpcap.html rawshark.html \
+	mergecap.html text2pcap.html dumpcap.html rawshark.html \
 	dftest.html randpkt.html
 
 #
