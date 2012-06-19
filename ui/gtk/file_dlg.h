@@ -87,15 +87,15 @@ extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
 
 #ifndef _WIN32
 /** If the specified file doesn't exist, return TRUE.
- * If it does exist, pop up and run the UI asking the user whether
- *  they want to overwrite a file and, if it's user-immutable or not
- *  writable, whether they want to overwrite it anyway, and return
- * TRUE if the file should be overwritten and FALSE otherwise.
+ *  If it exists and is neither user-immutable nor not writable, return
+ *  TRUE.
+ *  Otherwise, as the user whether they want to overwrite it anyway, and
+ *  return TRUE if the file should be overwritten and FALSE otherwise.
  *
  * @param chooser_w the GtkFileChooser used to select the file in question
  * @param cf_name the current name chosen
  */
-extern gboolean file_target_exist_ui(GtkWidget *chooser_w, char *cf_name);
+extern gboolean file_target_unwritable_ui(GtkWidget *chooser_w, char *cf_name);
 #endif
 
 /** The function file_selection_browse() will g_object_set_data() itself on it's parent window.

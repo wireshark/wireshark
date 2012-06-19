@@ -1258,8 +1258,10 @@ do_file_save_as(capture_file *cf)
   /* Default to saving in the file's current format. */
 
   /* build the file selection */
-  file_save_as_w = file_selection_new ("Wireshark: Save Capture File As",
-                                       FILE_SELECTION_SAVE);
+  file_save_as_w = file_selection_new("Wireshark: Save Capture File As",
+                                      FILE_SELECTION_SAVE);
+  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file_save_as_w),
+                                                 TRUE);
 
   /* Container for each row of widgets */
 
@@ -1318,10 +1320,9 @@ do_file_save_as(capture_file *cf)
       continue;
     }
 
-    /* If the file exists, ask the user whether they want to overwrite it
-       and, if so and it's user-immutable or not writable, whether they
-       want to override that. */
-    if (!file_target_exist_ui(file_save_as_w, cf_name)) {
+    /* If the file exists and it's user-immutable or not writable,
+       ask the user whether they want to override that. */
+    if (!file_target_unwritable_ui(file_save_as_w, cf_name)) {
       /* They don't.  Let them try another file name or cancel. */
       g_free(cf_name);
       continue;
@@ -1434,8 +1435,10 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   range.include_dependents = TRUE;
 
   /* build the file selection */
-  file_export_specified_packets_w = file_selection_new ("Wireshark: Export Specified Packets",
-                                                FILE_SELECTION_SAVE);
+  file_export_specified_packets_w = file_selection_new("Wireshark: Export Specified Packets",
+                                                       FILE_SELECTION_SAVE);
+  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file_export_specified_packets_w),
+                                                 TRUE);
 
   /* Container for each row of widgets */
 
@@ -1542,10 +1545,9 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       continue;
     }
 
-    /* If the file exists, ask the user whether they want to overwrite it
-       and, if so and it's user-immutable or not writable, whether they
-       want to override that. */
-    if (!file_target_exist_ui(file_export_specified_packets_w, cf_name)) {
+    /* If the file exists and it's user-immutable or not writable,
+       ask the user whether they want to override that. */
+    if (!file_target_unwritable_ui(file_export_specified_packets_w, cf_name)) {
       /* They don't.  Let them try another file name or cancel. */
       g_free(cf_name);
       continue;
@@ -1788,6 +1790,8 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 
   file_color_export_w = file_selection_new("Wireshark: Export Color Filters",
                                            FILE_SELECTION_SAVE);
+  gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(file_color_export_w),
+                                                 TRUE);
 
   /* Container for each row of widgets */
   main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -1833,10 +1837,9 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
       continue;
     }
 
-    /* If the file exists, ask the user whether they want to overwrite it
-       and, if so and it's user-immutable or not writable, whether they
-       want to override that. */
-    if (!file_target_exist_ui(file_color_export_w, cf_name)) {
+    /* If the file exists and it's user-immutable or not writable,
+       ask the user whether they want to override that. */
+    if (!file_target_unwritable_ui(file_color_export_w, cf_name)) {
       /* They don't.  Let them try another file name or cancel. */
       g_free(cf_name);
       continue;
