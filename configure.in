@@ -227,6 +227,35 @@ AC_ARG_WITH([qt],
                   [use Qt instead of GTK+ @<:@default=no@:>@]),
   with_qt="$withval", with_qt="no")
 
+libnl_message="no"
+PKG_CHECK_MODULES(LIBNL3, libnl-genl-3.0 >= 3.0, [have_libnl3=yes], [have_libnl3=no])
+PKG_CHECK_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
+PKG_CHECK_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
+if (test "${have_libnl3}" = "yes"); then
+        CFLAGS="$CFLAGS $LIBNL3_CFLAGS"
+        LIBS="$LIBS $LIBNL3_LIBS"
+	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
+	AC_DEFINE(HAVE_LIBNL3, 1, [libnl version 3])
+	AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
+	libnl_message="yes (v3)"
+	enable_airpcap=no
+elif (test "${have_libnl2}" = "yes"); then
+        CFLAGS="$CFLAGS $LIBNL2_CFLAGS"
+        LIBS="$LIBS $LIBNL2_LIBS"
+	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
+	AC_DEFINE(HAVE_LIBNL2, 1, [libnl version 2])
+	AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
+	libnl_message="yes (v2)"
+	enable_airpcap=no
+elif (test "${have_libnl1}" = "yes"); then
+        CFLAGS="$CFLAGS $LIBNL1_CFLAGS"
+        LIBS="$LIBS $LIBNL1_LIBS"
+	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
+	AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
+	libnl_message="yes (v1)"
+	enable_airpcap=no
+fi
+
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
                   [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
@@ -2256,3 +2285,4 @@ echo "           Use IPv6 name resolution : $enable_ipv6"
 echo "                 Use gnutls library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"
+echo "                     Use nl library : $libnl_message"
