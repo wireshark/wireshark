@@ -28,6 +28,6 @@
 extern int    airpcap_dll_ret_val;
 
 GtkWidget *airpcap_toolbar_new(void);
-void airpcap_toolbar_show(GtkWidget *airpcap_tb);
+void airpcap_toolbar_show(GtkWidget *wireless_tb);
 
 #endif /* __MAIN_AIRPCAP_TOOLBAR_H__ */
