@@ -280,7 +280,7 @@ win32_save_as_file(HWND h_wnd)
     OSVERSIONINFO osvi;
 #endif
 
-    savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.lnk_t);
+    savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.linktypes);
     if (savable_file_types == NULL)
         return;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
@@ -416,7 +416,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
     OSVERSIONINFO osvi;
 #endif
 
-    savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.lnk_t);
+    savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.linktypes);
     if (savable_file_types == NULL)
         return;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
