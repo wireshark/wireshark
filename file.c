@@ -314,6 +314,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   cf->cd_t        = wtap_file_type(cf->wth);
   cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
   cf->count     = 0;
+  cf->packet_comment_count = 0;
   cf->displayed_count = 0;
   cf->marked_count = 0;
   cf->ignored_count = 0;
@@ -1215,6 +1216,8 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
     fdata = frame_data_sequence_add(cf->frames, &fdlocal);
 
     cf->count++;
+    if (fdlocal.opt_comment != NULL)
+      cf->packet_comment_count++;
     cf->f_datalen = offset + fdlocal.cap_len;
 
     if (!cf->redissecting) {
@@ -3711,6 +3714,25 @@ cf_update_capture_comment(capture_file *cf, gchar *comment)
   cf->unsaved_changes = TRUE;
 }
 
+void
+cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment)
+{
+  if (fdata->opt_comment != NULL) {
+    /* OK, remove the old comment. */
+    g_free(fdata->opt_comment);
+    fdata->opt_comment = NULL;
+    cf->packet_comment_count--;
+  }
+  if (comment != NULL) {
+    /* Add the new comment. */
+    fdata->opt_comment = comment;
+    cf->packet_comment_count++;
+  }
+
+  /* OK, we have unsaved changes. */
+  cf->unsaved_changes = TRUE;
+}
+
 typedef struct {
   wtap_dumper *pdh;
   const char  *fname;
@@ -4054,7 +4076,8 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
 cf_write_status_t
 cf_save_packets(capture_file *cf, const char *fname, guint save_format,
-                gboolean compressed, gboolean dont_reopen)
+                gboolean compressed, gboolean discard_comments,
+                gboolean dont_reopen)
 {
   gchar        *fname_new = NULL;
   int           err;
@@ -4067,16 +4090,19 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
   wtap_dumper  *pdh;
   save_callback_args_t callback_args;
 #ifdef _WIN32
-  gchar *display_basename;
+  gchar        *display_basename;
 #endif
+  guint         framenum;
+  frame_data   *fdata;
 
   cf_callback_invoke(cf_cb_file_save_started, (gpointer)fname);
 
   if (save_format == cf->cd_t && compressed == cf->iscompressed
-      && !cf->unsaved_changes) {
-    /* We're saving in the format it's already in, and there are no
-       changes we have in memory that aren't saved to the file, so
-       we can just move or copy the raw data. */
+      && !discard_comments && !cf->unsaved_changes) {
+    /* We're saving in the format it's already in, and we're
+       not discarding comments, and there are no changes we have
+       in memory that aren't saved to the file, so we can just move
+       or copy the raw data. */
 
     if (cf->is_tempfile) {
       /* The file being saved is a temporary file from a live
@@ -4313,6 +4339,22 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
       }
       break;
     }
+
+    /* If we were told to discard the comments, do so. */
+    if (discard_comments) {
+      /* Remove SHB comment, if any. */
+      wtap_write_shb_comment(cf->wth, NULL);
+
+      /* Remove packet comments. */
+      for (framenum = 1; framenum <= cf->count; framenum++) {
+        fdata = frame_data_sequence_find(cf->frames, framenum);
+        if (fdata->opt_comment) {
+          g_free(fdata->opt_comment);
+          fdata->opt_comment = NULL;
+          cf->packet_comment_count--;
+        }
+      }
+    }    
   }
   return CF_WRITE_OK;
 

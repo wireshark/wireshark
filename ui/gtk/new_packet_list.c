@@ -1748,11 +1748,9 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	}
 
 	/* The comment has changed, let's update it */
-	g_free(record->fdata->opt_comment);
-	record->fdata->opt_comment = new_packet_comment;
+	cf_update_packet_comment(&cfile, record->fdata, new_packet_comment);
 
-	/* Mark the file as having unsaved changes */
-	cfile.unsaved_changes = TRUE;
+	/* Update the main window, as we now have unsaved changes. */
 	main_update_for_unsaved_changes(&cfile);
 
 	new_packet_list_queue_draw();
