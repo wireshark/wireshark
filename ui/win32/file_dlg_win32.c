@@ -378,7 +378,7 @@ win32_save_as_file(HWND h_wnd)
          * This should be fixed even though the cf_save_packets()
          * presumably should rarely fail in this case.
          */
-        if (cf_save_packets(&cfile, file_name8->str, filetype, FALSE, FALSE) != CF_OK) {
+        if (cf_save_packets(&cfile, file_name8->str, filetype, FALSE/*compressed */, FALSE/*discard_comments */, FALSE/* dont_reopen */) != CF_OK) {
             /* The write failed.  Try again. */
             g_array_free(savable_file_types, TRUE);
             g_string_free(file_name8, TRUE /* free_segment */);
