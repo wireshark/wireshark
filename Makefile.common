@@ -116,7 +116,8 @@ wireshark_SOURCES =	\
 	recent.c	\
 	summary.c	\
 	tempfile.c	\
-	u3.c
+	u3.c		\
+	ws80211_utils.c
 
 # corresponding headers
 wireshark_INCLUDES =	\
@@ -135,7 +136,8 @@ wireshark_INCLUDES =	\
 	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\
-	u3.h
+	u3.h		\
+	ws80211_utils.h
 
 # tshark specifics
 tshark_SOURCES =	\
@@ -193,7 +195,8 @@ dumpcap_SOURCES =	\
 	ringbuffer.c	\
 	sync_pipe_write.c	\
 	tempfile.c	\
-	version_info.c
+	version_info.c	\
+	ws80211_utils.c
 
 # corresponding headers
 dumpcap_INCLUDES = \
