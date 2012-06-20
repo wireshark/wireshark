@@ -60,7 +60,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint ett_tree;
 	int hf_idx;
 	proto_item *dtap_item = NULL, *pd_item = NULL;
-	proto_tree *dtap_tree = NULL, *pd_tree = NULL;
+	proto_tree *dtap_tree = NULL/*, *pd_tree = NULL*/;
 	guint32 oct[2];
 	guint8 pd;
 
@@ -123,14 +123,14 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		val_to_str(pd, gmr1_pd_vals, "Unknown (%u)")
 	);
 
-	pd_tree = proto_item_add_subtree(pd_item, ett_gmr1_pd);
+	/*pd_tree =*/ proto_item_add_subtree(pd_item, ett_gmr1_pd);
 
 		/* Move on */
 	offset++;
 
 	/* Message type - [1] 11.4 */
 	proto_tree_add_uint_format(
-		pd_tree, hf_idx, tvb, offset, 1, oct[1],
+		dtap_tree, hf_idx, tvb, offset, 1, oct[1],
 		"Message Type: %s", msg_str ? msg_str : "(Unknown)"
 	);
 
@@ -138,9 +138,9 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Decode elements */
 	if (msg_func) {
-		(*msg_func)(tvb, pd_tree, pinfo, offset, len - offset);
+		(*msg_func)(tvb, dtap_tree, pinfo, offset, len - offset);
 	} else {
-		proto_tree_add_text(pd_tree, tvb, offset, len - offset,
+		proto_tree_add_text(dtap_tree, tvb, offset, len - offset,
 		                    "Message Elements");
 	}
 
