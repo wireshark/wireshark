@@ -166,13 +166,13 @@ int get_selected_channel_type(void)
 static int
 tb80211_do_set_channel(char *iface, int freq, int type)
 {
+#if 0
 	gchar *freq_s, *type_s;
 	gchar *data, *primary_msg, *secondary_msg;
 	int ret;
 
 	freq_s = g_strdup_printf("%d", freq);
 	type_s = ws80211_chan_type_to_str(type);
-
 	ret = sync_interface_set_80211_chan(iface, freq_s, type_s,
                                             &data, &primary_msg, &secondary_msg);
 
@@ -180,12 +180,13 @@ tb80211_do_set_channel(char *iface, int freq, int type)
 	if (ret && primary_msg) {
 		return atoi(primary_msg);
 	}
-
 	g_free(data);
 	g_free(primary_msg);
 	g_free(secondary_msg);
 	g_free(freq_s);
 	return ret;
+#endif
+	return -1;;
 }
 
 /* Called on freq and type combo box change. */
