@@ -1,0 +1,50 @@
+#
+# $Id$
+#
+# - Find libnl
+# Find the native LIBNL includes and library
+#
+#  LIBNL_INCLUDE_DIRS - where to find libnl.h, etc.
+#  LIBNL_LIBRARIES    - List of libraries when using libnl3.
+#  LIBNL_FOUND        - True if libnl found.
+
+FIND_PATH(
+    LIBNL_INCLUDE_DIR
+  NAMES
+    netlink/netlink.h
+  PATHS
+    /opt/local/include
+    /sw/include
+    /usr/include
+    /usr/local/include
+  PATH_SUFFIXES
+    libnl3
+)
+
+SET(LIBNL_NAMES nl-3)
+FIND_LIBRARY(LIBNL_LIBRARY NAMES ${LIBNL_NAMES} )
+FIND_LIBRARY(LIBNLGENL_LIBRARY NAMES nl-genl-3 )
+FIND_LIBRARY(LIBNLROUTE_LIBRARY NAMES nl-route-3 )
+
+IF(NOT LIBNL_FOUND)
+  FIND_PATH(LIBNL_INCLUDE_DIR netlink/netlink.h /usr/include/)
+  SET(LIBNL_NAMES nl)
+  FIND_LIBRARY(LIBNL_LIBRARY NAMES ${LIBNL_NAMES} )
+  FIND_LIBRARY(LIBNLGENL_LIBRARY NAMES nl-genl )
+  FIND_LIBRARY(LIBNLROUTE_LIBRARY NAMES nl-route )
+ENDIF()
+
+# handle the QUIETLY and REQUIRED arguments and set LIBNL_FOUND to TRUE if
+# all listed variables are TRUE
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LIBNL DEFAULT_MSG LIBNL_LIBRARY LIBNL_INCLUDE_DIRS)
+
+IF(LIBNL_FOUND)
+  SET( LIBNL_LIBRARIES ${LIBNL_LIBRARY} ${LIBNLGENL_LIBRARY} ${LIBNLROUTE_LIBRARY})
+  SET( LIBNL_INCLUDE_DIRS ${LIBNL_INCLUDE_DIR})
+ELSE()
+  SET( LIBNL_LIBRARIES )
+  SET( LIBNL_INCLUDE_DIRS )
+ENDIF()
+
+MARK_AS_ADVANCED( LIBNL_LIBRARIES LIBNL_INCLUDE_DIRS )

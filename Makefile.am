@@ -832,6 +832,7 @@ EXTRA_DIST = \
 	cmake/modules/FindGTK3.cmake		\
 	cmake/modules/FindHtmlViewer.cmake	\
 	cmake/modules/FindKERBEROS.cmake	\
+	cmake/modules/FindLIBNL.cmake		\
 	cmake/modules/FindLEX.cmake		\
 	cmake/modules/FindLUA.cmake		\
 	cmake/modules/FindLYNX.cmake		\

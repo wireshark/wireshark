@@ -312,6 +312,10 @@ if(ENABLE_GEOIP)
 	set(PACKAGELIST ${PACKAGELIST} GEOIP)
 endif()
 
+if(ENABLE_NETLINK)
+	set(PACKAGELIST ${PACKAGELIST} NL)
+endif()
+
 # Capabilities
 if(ENABLE_CAP)
 	set(PACKAGELIST ${PACKAGELIST} CAP)
@@ -379,6 +383,9 @@ if(HAVE_LIBADNS)
 endif()
 if(ENABLE_AIRPCAP)
 	set(HAVE_AIRPCAP 1)
+endif()
+if(HAVE_LIBNL AND ENABLE_AIRPCAP)
+	message(ERROR "Airpcap and Libnl support are mutually exclusive")
 endif()
 # No matter which version of GTK is present
 if(GTK2_FOUND OR GTK3_FOUND)
@@ -904,6 +911,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${GTHREAD2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${APPLE_COCOA_LIBRARY}
+		${LIBNL_LIBRARIES}
 	)
 	set(dumpcap_FILES
 		svnversion.h

@@ -44,5 +44,6 @@ option(ENABLE_GCRYPT     "Build with GNU crypto support" ON)
 option(ENABLE_GEOIP      "Build with GeoIP support" ON)
 option(ENABLE_CAP        "Build with posix capabilities support" ON)
 option(ENABLE_CARES      "Build with c_ares support" ON)
+option(ENABLE_LIBNL      "Build with libnl support" ON)
 # todo Mostly hardcoded
 option(ENABLE_KERBEROS   "Build with Kerberos support" ON)
