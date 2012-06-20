@@ -229,7 +229,8 @@ static int hf_sctp_fragment = -1;
 static int hf_sctp_retransmission = -1;
 static int hf_sctp_retransmitted = -1;
 static int hf_sctp_retransmitted_count = -1;
-static int hf_sctp_rtt = -1;
+static int hf_sctp_data_rtt = -1;
+static int hf_sctp_sack_rtt = -1;
 static int hf_sctp_rto = -1;
 static int hf_sctp_ack_tsn = -1;
 static int hf_sctp_ack_frame = -1;
@@ -705,7 +706,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
     pt = proto_item_add_subtree(pi, ett_sctp_ack);
 
     nstime_delta( &rtt, &(t->ack.ts), &(t->first_transmit.ts) );
-    pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
+    pi = proto_tree_add_time(pt, hf_sctp_data_rtt, tvb, 0, 0, &rtt);
     PROTO_ITEM_SET_GENERATED(pi);
   }
 }
@@ -819,7 +820,7 @@ ack_tree(sctp_tsn_t *t, proto_tree *acks_tree,
     pi = proto_tree_add_uint(pt, hf_sctp_ack_frame, tvb, 0 , 0, t->first_transmit.framenum);
     PROTO_ITEM_SET_GENERATED(pi);
 
-    pi = proto_tree_add_time(pt, hf_sctp_rtt, tvb, 0, 0, &rtt);
+    pi = proto_tree_add_time(pt, hf_sctp_sack_rtt, tvb, 0, 0, &rtt);
     PROTO_ITEM_SET_GENERATED(pi);
   }
 }
@@ -4200,8 +4201,9 @@ proto_register_sctp(void)
     { &hf_sctp_reassembled_in,                      { "Reassembled Message in frame",                   "sctp.reassembled_in",                                  FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
     { &hf_sctp_duplicate,                           { "Fragment already seen in frame",                 "sctp.duplicate",                                       FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
 
-    { &hf_sctp_rtt,                                 { "The RTT to ACK the chunk was",                   "sctp.rtt",                                             FT_RELATIVE_TIME, BASE_NONE, NULL,                                      0x0,                                NULL, HFILL } },
-    { &hf_sctp_rto,                                 { "Retransmitted after",                            "sctp.retransmission_time",                             FT_RELATIVE_TIME, BASE_NONE, NULL,                                      0x0,                                NULL, HFILL } },
+    { &hf_sctp_data_rtt,                            { "The RTT to SACK was",                            "sctp.data_rtt",                                        FT_RELATIVE_TIME, BASE_NONE, NULL,                                     0x0,                                NULL, HFILL } },
+    { &hf_sctp_sack_rtt,                            { "The RTT since DATA was",                         "sctp.sack_rtt",                                        FT_RELATIVE_TIME, BASE_NONE, NULL,                                     0x0,                                NULL, HFILL } },
+    { &hf_sctp_rto,                                 { "Retransmitted after",                            "sctp.retransmission_time",                             FT_RELATIVE_TIME, BASE_NONE, NULL,                                     0x0,                                NULL, HFILL } },
     { &hf_sctp_retransmission,                      { "This TSN is a retransmission of one in frame",   "sctp.retransmission",                                  FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
     { &hf_sctp_retransmitted,                       { "This TSN is retransmitted in frame",             "sctp.retransmitted",                                   FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
     { &hf_sctp_retransmitted_count,                 { "TSN was retransmitted this many times",          "sctp.retransmitted_count",                             FT_UINT32, BASE_DEC, NULL,                                             0x0,                                NULL, HFILL } },
