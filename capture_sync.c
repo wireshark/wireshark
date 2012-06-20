@@ -1112,6 +1112,53 @@ sync_pipe_run_command(const char** argv, gchar **data, gchar **primary_msg,
     return ret;
 }
 
+int
+sync_interface_set_80211_chan(gchar *iface, char *freq, gchar *type,
+                              gchar **data, gchar **primary_msg,
+                              gchar **secondary_msg)
+{
+    int argc, ret;
+    const char **argv;
+    gchar *opt;
+
+    argv = init_pipe_args(&argc);
+
+    if (!argv) {
+        *primary_msg = g_strdup("We don't know where to find dumpcap.");
+        *secondary_msg = NULL;
+        *data = NULL;
+        return -1;
+    }
+
+    argv = sync_pipe_add_arg(argv, &argc, "-i");
+    argv = sync_pipe_add_arg(argv, &argc, iface);
+
+    if (type)
+        opt = g_strdup_printf("%s,%s", freq, type);
+    else
+        opt = g_strdup_printf("%s", freq);
+
+    if (!opt) {
+        *primary_msg = g_strdup("Out of mem.");
+        *secondary_msg = NULL;
+        *data = NULL;
+        return -1;
+    }
+
+    argv = sync_pipe_add_arg(argv, &argc, "-k");
+    argv = sync_pipe_add_arg(argv, &argc, opt);
+
+#ifndef DEBUG_CHILD
+    /* Run dumpcap in capture child mode */
+    argv = sync_pipe_add_arg(argv, &argc, "-Z");
+    argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
+#endif
+
+    ret = sync_pipe_run_command(argv, data, primary_msg, secondary_msg);
+    g_free(opt);
+    return ret;
+}
+
 /*
  * Get the list of interfaces using dumpcap.
  *

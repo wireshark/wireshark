@@ -57,6 +57,12 @@ sync_pipe_stop(capture_options *capture_opts);
 extern void
 sync_pipe_kill(int fork_child);
 
+/** Set wireless channel using dumpcap */
+extern int
+sync_interface_set_80211_chan(gchar *iface, char *freq, gchar *type,
+                              gchar **data, gchar **primary_msg,
+                              gchar **secondary_msg);
+
 /** Get an interface list using dumpcap */
 extern int
 sync_interface_list_open(gchar **data, gchar **primary_msg,

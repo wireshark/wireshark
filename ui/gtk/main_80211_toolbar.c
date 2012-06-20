@@ -166,7 +166,6 @@ int get_selected_channel_type(void)
 static int
 tb80211_do_set_channel(char *iface, int freq, int type)
 {
-#if 0
 	gchar *freq_s, *type_s;
 	gchar *data, *primary_msg, *secondary_msg;
 	int ret;
@@ -185,8 +184,6 @@ tb80211_do_set_channel(char *iface, int freq, int type)
 	g_free(secondary_msg);
 	g_free(freq_s);
 	return ret;
-#endif
-	return -1;;
 }
 
 /* Called on freq and type combo box change. */
