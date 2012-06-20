@@ -59,7 +59,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const gchar *msg_str;
 	gint ett_tree;
 	int hf_idx;
-	proto_item *dtap_item = NULL, *pd_item = NULL;
+	proto_item *dtap_item = NULL/*, *pd_item = NULL*/;
 	proto_tree *dtap_tree = NULL/*, *pd_tree = NULL*/;
 	guint32 oct[2];
 	guint8 pd;
@@ -117,13 +117,13 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 
 	/* Protocol discriminator item */
-	pd_item = proto_tree_add_text(
+	/*pd_item =*/ proto_tree_add_text(
 		dtap_tree, tvb, 1, 1,
 		"Protocol Discriminator: %s",
 		val_to_str(pd, gmr1_pd_vals, "Unknown (%u)")
 	);
 
-	/*pd_tree =*/ proto_item_add_subtree(pd_item, ett_gmr1_pd);
+	/*pd_tree = proto_item_add_subtree(pd_item, ett_gmr1_pd);*/
 
 		/* Move on */
 	offset++;
