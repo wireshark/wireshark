@@ -77,11 +77,15 @@
 #endif
 
 static void do_file_save(capture_file *cf, gboolean dont_reopen);
-static void do_file_save_as(capture_file *cf);
-static cf_write_status_t file_save_as_cb(GtkWidget *fs, gboolean discard_comments);
+static void do_file_save_as(capture_file *cf, gboolean must_support_comments,
+                            gboolean dont_reopen);
+static cf_write_status_t file_save_as_cb(GtkWidget *fs,
+                                         gboolean discard_comments,
+                                         gboolean dont_reopen);
 static void file_select_file_type_cb(GtkWidget *w, gpointer data);
 static cf_write_status_t file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
-static void set_file_type_list(GtkWidget *combo_box, capture_file *cf);
+static void set_file_type_list(GtkWidget *combo_box, capture_file *cf,
+                               gboolean must_support_comments);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
@@ -722,7 +726,7 @@ file_merge_cmd(GtkWidget *w)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, &cfile);
+  set_file_type_list(ft_combo_box, &cfile, FALSE);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_merge_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
@@ -1158,6 +1162,128 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
   do_file_close(&cfile, FALSE, "");
 }
 
+typedef enum {
+  SAVE,
+  SAVE_WITHOUT_COMMENTS,
+  SAVE_IN_ANOTHER_FORMAT,
+  CANCELLED
+} check_savability_t;
+
+#define RESPONSE_DISCARD_COMMENTS_AND_SAVE 1
+#define RESPONSE_SAVE_IN_ANOTHER_FORMAT    2
+
+static check_savability_t
+check_save_with_comments(capture_file *cf)
+{
+  GtkWidget     *msg_dialog;
+  gint           response;
+
+  /* Do we have any comments? */
+  if (!cf_has_comments(cf)) {
+    /* No.  Let the save happen; no comments to delete. */
+    return SAVE;
+  }
+
+  /* OK, we have comments.  Can we write them out in the file's format?
+
+     XXX - for now, we "know" that pcap-ng is the only format for which
+     we support comments.  We should really ask Wiretap what the
+     format in question supports (and handle different types of
+     comments, some but not all of which some file formats might
+     not support). */
+  if (cf->cd_t == WTAP_FILE_PCAPNG) {
+    /* Yes - the file is a pcap-ng file.  Let the save happen; we can
+       save the comments, so no need to delete them. */
+    return SAVE;
+  }
+
+  /* Is pcap-ng one of the formats in which we can write this file? */
+  if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, cf->linktypes)) {
+    /* Yes.  Ooffer the user a choice of "Save in a format that
+       supports comments", "Discard comments and save in the
+       file's own format", or "Cancel", meaning "don't bother
+       saving the file at all". */
+    msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                        GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_MESSAGE_QUESTION,
+                                        GTK_BUTTONS_NONE,
+  "The capture has comments, but the file's format "
+  "doesn't support comments.  Do you want to save the capture "
+  "in a format that supports comments, or discard the comments "
+  "and save in the file's format?");
+#ifndef _WIN32
+    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
+                           "Discard comments and save",
+                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                           GTK_STOCK_CANCEL,
+                           GTK_RESPONSE_CANCEL,
+                           "Save in another format",
+                           RESPONSE_SAVE_IN_ANOTHER_FORMAT,
+                           NULL);
+#else
+    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
+                           "Save in another format",
+                           RESPONSE_SAVE_IN_ANOTHER_FORMAT,
+                           GTK_STOCK_CANCEL,
+                           GTK_RESPONSE_CANCEL,
+                           "Discard comments and save",
+                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                           NULL);
+#endif
+    gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
+                                    RESPONSE_SAVE_IN_ANOTHER_FORMAT);
+  } else {
+    /* No.  Offer the user a choice of "Discard comments and
+       save in the file's format" or "Cancel". */
+    msg_dialog = gtk_message_dialog_new(GTK_WINDOW(top_level),
+                                        GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_MESSAGE_QUESTION,
+                                        GTK_BUTTONS_NONE,
+  "The capture has comments, but no file format in which it "
+  "can be saved supports comments.  Do you want to discard "
+  "the comments and save in the file's format?");
+#ifndef _WIN32
+    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
+                           "Discard comments and save",
+                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                           GTK_STOCK_CANCEL,
+                           GTK_RESPONSE_CANCEL,
+                           NULL);
+#else
+    gtk_dialog_add_buttons(GTK_DIALOG(msg_dialog),
+                           GTK_STOCK_CANCEL,
+                           GTK_RESPONSE_CANCEL,
+                           "Discard comments and save",
+                           RESPONSE_DISCARD_COMMENTS_AND_SAVE,
+                           NULL);
+#endif
+    gtk_dialog_set_default_response(GTK_DIALOG(msg_dialog),
+                                    GTK_RESPONSE_CANCEL);
+  }
+
+  response = gtk_dialog_run(GTK_DIALOG(msg_dialog));
+  gtk_widget_destroy(msg_dialog);
+
+  switch (response) {
+
+  case RESPONSE_SAVE_IN_ANOTHER_FORMAT:
+    /* Let the user select another format. */
+    return SAVE_IN_ANOTHER_FORMAT;
+
+  case RESPONSE_DISCARD_COMMENTS_AND_SAVE:
+    /* Save without the comments and, if that succeeds, delete the
+       comments. */
+    return SAVE_WITHOUT_COMMENTS;
+
+  case GTK_RESPONSE_CANCEL:
+  case GTK_RESPONSE_NONE:
+  case GTK_RESPONSE_DELETE_EVENT:
+  default:
+    /* Just give up. */
+    return CANCELLED;
+  }
+}
+
 /*
  * Save the capture file in question, prompting the user for a file
  * name to save to if necessary.
@@ -1166,24 +1292,92 @@ static void
 do_file_save(capture_file *cf, gboolean dont_reopen)
 {
   char *fname;
+  gboolean discard_comments;
+  cf_write_status_t status;
 
   if (cf->is_tempfile) {
     /* This is a temporary capture file, so saving it means saving
        it to a permanent file.  Prompt the user for a location
-       to which to save it. */
-    do_file_save_as(cf);
+       to which to save it.  Don't require that the file format
+       support comments - if it's a temporary capture file, it's
+       probably pcap-ng, which supports comments and, if it's
+       not pcap-ng, let the user decide what they want to do
+       if they've added comments. */
+    do_file_save_as(cf, FALSE, dont_reopen);
   } else {
     if (cf->unsaved_changes) {
       /* This is not a temporary capture file, but it has unsaved
          changes, so saving it means doing a "safe save" on top
-         of the existing file, in the same format - no UI needed. */
+         of the existing file, in the same format - no UI needed
+         unless the file has comments and the file's format doesn't
+         support them.
+
+         If the file has comments, does the file's format support them?
+         If not, ask the user whether they want to discard the comments
+         or choose a different format. */
+      switch (check_save_with_comments(cf)) {
+
+      case SAVE:
+        /* The file can be saved in the specified format as is;
+           just drive on and save in the format they selected. */
+        discard_comments = FALSE;
+        break;
+
+      case SAVE_WITHOUT_COMMENTS:
+        /* The file can't be saved in the specified format as is,
+           but it can be saved without the comments, and the user
+           said "OK, discard the comments", so save it in the
+           format they specified without the comments. */
+        discard_comments = TRUE;
+        break;
+
+      case SAVE_IN_ANOTHER_FORMAT:
+        /* There are file formats in which we can save this that
+           support comments, and the user said not to delete the
+           comments.  Do a "Save As" so the user can select
+           one of those formats and choose a file name. */
+        do_file_save_as(cf, TRUE, dont_reopen);
+        return;
+
+      case CANCELLED:
+        /* The user said "forget it".  Just return. */
+        return;
+
+      default:
+        /* Squelch warnings that discard_comments is being used
+           uninitialized. */
+        g_assert_not_reached();
+        return;
+      }      
+
       /* XXX - cf->filename might get freed out from under us, because
          the code path through which cf_save_packets() goes currently
 	 closes the current file and then opens and reloads the saved file,
 	 so make a copy and free it later. */
       fname = g_strdup(cf->filename);
-      cf_save_packets(cf, fname, cf->cd_t, cf->iscompressed, FALSE,
-                      dont_reopen);
+      status = cf_save_packets(cf, fname, cf->cd_t, cf->iscompressed,
+                               discard_comments, dont_reopen);
+      switch (status) {
+
+      case CF_WRITE_OK:
+        /* The save succeeded; we're done.
+           If we discarded comments, redraw the packet list to reflect
+           any packets that no longer have comments. */
+        if (discard_comments)
+          new_packet_list_queue_draw();
+        break;
+
+      case CF_WRITE_ERROR:
+        /* The write failed.
+           XXX - OK, what do we do now?  Let them try a
+           "Save As", in case they want to try to save to a
+           different directory r file system? */
+        break;
+
+      case CF_WRITE_ABORTED:
+        /* The write was aborted; just drive on. */
+        break;
+      }
       g_free(fname);
     }
     /* Otherwise just do nothing. */
@@ -1197,10 +1391,12 @@ file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
 
 /* Attach a list of the valid 'save as' file types to a combo_box by
    checking what Wiretap supports.  Make the default type the first
-   in the list.
+   in the list.  If must_supprt_comments is true, restrict the list
+   to those formats that support comments (currently, just pcap-ng).
  */
 static void
-set_file_type_list(GtkWidget *combo_box, capture_file *cf)
+set_file_type_list(GtkWidget *combo_box, capture_file *cf,
+                   gboolean must_support_comments)
 {
   GArray *savable_file_types;
   guint i;
@@ -1214,6 +1410,10 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf)
        place.)  Add them all to the combo box.  */
     for (i = 0; i < savable_file_types->len; i++) {
       ft = g_array_index(savable_file_types, int, i);
+      if (must_support_comments) {
+      	if (ft != WTAP_FILE_PCAPNG)
+      	  continue;
+      }
       ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
                                            wtap_file_type_string(ft),
                                            GINT_TO_POINTER(ft));
@@ -1249,19 +1449,9 @@ file_select_file_type_cb(GtkWidget *w, gpointer parent_arg)
     gtk_widget_set_sensitive(compressed_cb, TRUE);
 }
 
-typedef enum {
-  SAVE,
-  SAVE_WITHOUT_COMMENTS,
-  SAVE_IN_ANOTHER_FORMAT,
-  CANCELLED
-} check_savability_t;
-
-#define RESPONSE_DISCARD_COMMENTS_AND_SAVE 1
-#define RESPONSE_SAVE_IN_ANOTHER_FORMAT    2
-
 static check_savability_t
-check_savability_with_comments(capture_file *cf, GtkWidget *file_chooser_w,
-                               GtkWidget *ft_combo_box)
+check_save_as_with_comments(capture_file *cf, GtkWidget *file_chooser_w,
+                            GtkWidget *ft_combo_box)
 {
   gpointer       ptr;
   int            selected_file_type;
@@ -1271,7 +1461,7 @@ check_savability_with_comments(capture_file *cf, GtkWidget *file_chooser_w,
   gboolean       compressed;
 
   /* Do we have any comments? */
-  if (cf_read_shb_comment(cf) == NULL && cf->packet_comment_count == 0) {
+  if (!cf_has_comments(cf)) {
     /* No.  Let the save happen; no comments to delete. */
     return SAVE;
   }
@@ -1401,7 +1591,8 @@ check_savability_with_comments(capture_file *cf, GtkWidget *file_chooser_w,
 }
 
 static void
-do_file_save_as(capture_file *cf)
+do_file_save_as(capture_file *cf, gboolean must_support_comments,
+                gboolean dont_reopen)
 {
 #if _WIN32
   win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
@@ -1438,7 +1629,7 @@ do_file_save_as(capture_file *cf)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, cf);
+  set_file_type_list(ft_combo_box, cf, must_support_comments);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_save_as_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
@@ -1480,7 +1671,7 @@ do_file_save_as(capture_file *cf)
     /* If the file has comments, does the format the user selected
        support them?  If not, ask the user whether they want to
        discard the comments or choose a different format. */
-    switch (check_savability_with_comments(cf, file_save_as_w, ft_combo_box)) {
+    switch (check_save_as_with_comments(cf, file_save_as_w, ft_combo_box)) {
 
     case SAVE:
       /* The file can be saved in the specified format as is;
@@ -1523,13 +1714,14 @@ do_file_save_as(capture_file *cf)
 
     /* Attempt to save the file */
     g_free(cf_name);
-    switch (file_save_as_cb(file_save_as_w, discard_comments)) {
+    switch (file_save_as_cb(file_save_as_w, discard_comments, dont_reopen)) {
 
     case CF_WRITE_OK:
       /* The save succeeded; we're done.
          If we discarded comments, redraw the packet list to reflect
          any packets that no longer have comments. */
-      new_packet_list_queue_draw();
+      if (discard_comments)
+        new_packet_list_queue_draw();
       return;
 
     case CF_WRITE_ERROR:
@@ -1547,13 +1739,14 @@ do_file_save_as(capture_file *cf)
 void
 file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  do_file_save_as(&cfile);
+  do_file_save_as(&cfile, FALSE, FALSE);
 }
 
 /* all tests ok, we only have to save the file */
 /* (and probably continue with a pending operation) */
 static cf_write_status_t
-file_save_as_cb(GtkWidget *fs, gboolean discard_comments)
+file_save_as_cb(GtkWidget *fs, gboolean discard_comments,
+                gboolean dont_reopen)
 {
   GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
@@ -1580,7 +1773,7 @@ file_save_as_cb(GtkWidget *fs, gboolean discard_comments)
 
   /* Write out all the packets to the file with the specified name. */
   status = cf_save_packets(&cfile, cf_name, file_type, compressed,
-                           discard_comments, FALSE);
+                           discard_comments, dont_reopen);
   switch (status) {
 
   case CF_WRITE_OK:
@@ -1666,7 +1859,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, &cfile);
+  set_file_type_list(ft_combo_box, &cfile, FALSE);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_export_specified_packets_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);

@@ -3728,6 +3728,15 @@ cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment)
   cf->unsaved_changes = TRUE;
 }
 
+/*
+ * Does this capture file have any comments?
+ */
+gboolean
+cf_has_comments(capture_file *cf)
+{
+  return (cf_read_shb_comment(cf) != NULL || cf->packet_comment_count != 0);
+}
+
 typedef struct {
   wtap_dumper *pdh;
   const char  *fname;

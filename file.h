@@ -652,6 +652,14 @@ void cf_update_capture_comment(capture_file *cf, gchar *comment);
  */
 void cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment);
 
+/**
+ * Does this capture file have any comments?
+ *
+ * @param cf the capture file
+ * @return TRUE if it does, FALSE if it doesn't
+ */
+gboolean cf_has_comments(capture_file *cf);
+
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 void read_keytab_file(const char *);
 #endif
