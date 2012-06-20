@@ -236,7 +236,6 @@ if (test "${have_libnl3}" = "yes"); then
         LIBS="$LIBS $LIBNL3_LIBS"
 	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 	AC_DEFINE(HAVE_LIBNL3, 1, [libnl version 3])
-	AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
 	libnl_message="yes (v3)"
 	enable_airpcap=no
 elif (test "${have_libnl2}" = "yes"); then
@@ -244,14 +243,12 @@ elif (test "${have_libnl2}" = "yes"); then
         LIBS="$LIBS $LIBNL2_LIBS"
 	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 	AC_DEFINE(HAVE_LIBNL2, 1, [libnl version 2])
-	AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
 	libnl_message="yes (v2)"
 	enable_airpcap=no
 elif (test "${have_libnl1}" = "yes"); then
         CFLAGS="$CFLAGS $LIBNL1_CFLAGS"
         LIBS="$LIBS $LIBNL1_LIBS"
 	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
-	AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
 	libnl_message="yes (v1)"
 	enable_airpcap=no
 fi
@@ -1293,7 +1290,6 @@ if test x$enable_airpcap = xyes; then
 	else
 		AC_MSG_RESULT(yes)
 		AC_DEFINE(HAVE_AIRPCAP, 1, [Enable AirPcap])
-		AC_DEFINE(HAVE_WIRELESS_TOOLBAR, 1, [Wireless Toolbar])
 	fi
 else
 	AC_MSG_RESULT(no)
