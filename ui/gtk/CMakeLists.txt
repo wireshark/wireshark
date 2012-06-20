@@ -71,6 +71,7 @@ set(WIRESHARK_GTK_SRC
 	hostlist_table.c
 	macros_dlg.c
 	main.c
+	main_80211_toolbar.c
 	main_airpcap_toolbar.c
 	main_filter_toolbar.c
 	main_menubar.c

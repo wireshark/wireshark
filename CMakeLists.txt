@@ -919,6 +919,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		sync_pipe_write.c
 		tempfile.c
 		version_info.c
+		ws80211_utils.c
 		${PLATFORM_SRC}
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
