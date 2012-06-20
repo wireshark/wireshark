@@ -606,7 +606,8 @@ static const value_string context_id_type[] = {
 #endif
 
 /* the following value_strings are used to build defalut packages.
-   To add additional detail to a package, build a register a h248_package_t structure
+ *  To add additional detail to a package, build a register a h248_package_t structure
+ * http://www.iana.org/assignments/megaco-h248
  */
 
 static const value_string base_package_name_vals[] = {
