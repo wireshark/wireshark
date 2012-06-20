@@ -4822,62 +4822,64 @@ const guchar fld_abbrev_chars[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xF0-0xFF */
 };
 
+static const value_string hf_types[] = {
+	{ FT_NONE,	    "FT_NONE"	       },
+	{ FT_PROTOCOL,	    "FT_PROTOCOL"      },
+	{ FT_BOOLEAN,	    "FT_BOOLEAN"       },
+	{ FT_UINT8,	    "FT_UINT8"	       },
+	{ FT_UINT16,	    "FT_UINT16"	       },
+	{ FT_UINT24,	    "FT_UINT24"	       },
+	{ FT_UINT32,	    "FT_UINT32"	       },
+	{ FT_UINT64,	    "FT_UINT64"	       },
+	{ FT_INT8,	    "FT_INT8"	       },
+	{ FT_INT16,	    "FT_INT16"	       },
+	{ FT_INT24,	    "FT_INT24"	       },
+	{ FT_INT32,	    "FT_INT32"	       },
+	{ FT_INT64,	    "FT_INT64"	       },
+	{ FT_EUI64,	    "FT_EUI64"	       },
+	{ FT_FLOAT,	    "FT_FLOAT"	       },
+	{ FT_DOUBLE,	    "FT_DOUBLE"	       },
+	{ FT_ABSOLUTE_TIME, "FT_ABSOLUTE_TIME" },
+	{ FT_RELATIVE_TIME, "FT_RELATIVE_TIME" },
+	{ FT_STRING,	    "FT_STRING"	       },
+	{ FT_STRINGZ,	    "FT_STRINGZ"       },
+	{ FT_UINT_STRING,   "FT_UINT_STRING"   },
+	{ FT_ETHER,	    "FT_ETHER"	       },
+	{ FT_BYTES,	    "FT_BYTES"	       },
+	{ FT_UINT_BYTES,    "FT_UINT_BYTES"    },
+	{ FT_IPv4,	    "FT_IPv4"	       },
+	{ FT_IPv6,	    "FT_IPv6"	       },
+	{ FT_IPXNET,	    "FT_IPXNET"	       },
+	{ FT_FRAMENUM,	    "FT_FRAMENUM"      },
+	{ FT_PCRE,	    "FT_PCR"	       },
+	{ FT_GUID,	    "FT_GUID"	       },
+	{ FT_OID,	    "FT_OID"	       },
+	{ 0,		    NULL } };
+
+static const value_string hf_display[] = {
+	{ BASE_NONE,			  "BASE_NONE"			   },
+	{ BASE_DEC,			  "BASE_DEC"			   },
+	{ BASE_HEX,			  "BASE_HEX"			   },
+	{ BASE_OCT,			  "BASE_OCT"			   },
+	{ BASE_DEC_HEX,			  "BASE_DEC_HEX"		   },
+	{ BASE_HEX_DEC,			  "BASE_HEX_DEC"		   },
+	{ BASE_CUSTOM,			  "BASE_CUSTOM"			   },
+	{ BASE_NONE|BASE_RANGE_STRING,    "BASE_NONE|BASE_RANGE_STRING"	   },
+	{ BASE_DEC|BASE_RANGE_STRING,     "BASE_DEC|BASE_RANGE_STRING"	   },
+	{ BASE_HEX|BASE_RANGE_STRING,     "BASE_HEX|BASE_RANGE_STRING"	   },
+	{ BASE_OCT|BASE_RANGE_STRING,     "BASE_OCT|BASE_RANGE_STRING"	   },
+	{ BASE_DEC_HEX|BASE_RANGE_STRING, "BASE_DEC_HEX|BASE_RANGE_STRING" },
+	{ BASE_HEX_DEC|BASE_RANGE_STRING, "BASE_HEX_DEC|BASE_RANGE_STRING" },
+	{ BASE_CUSTOM|BASE_RANGE_STRING,  "BASE_CUSTOM|BASE_RANGE_STRING"  },
+	{ ABSOLUTE_TIME_LOCAL,		  "ABSOLUTE_TIME_LOCAL"		   },
+	{ ABSOLUTE_TIME_UTC,		  "ABSOLUTE_TIME_UTC"		   },
+	{ ABSOLUTE_TIME_DOY_UTC,	  "ABSOLUTE_TIME_DOY_UTC"	   },
+	{ 0,				  NULL } };
+
 /* temporary function containing assert part for easier profiling */
 static void
-tmp_fld_check_assert(header_field_info *hfinfo) {
-	static const value_string hf_types[] = {
-		{ FT_NONE,	    "FT_NONE"	       },
-		{ FT_PROTOCOL,	    "FT_PROTOCOL"      },
-		{ FT_BOOLEAN,	    "FT_BOOLEAN"       },
-		{ FT_UINT8,	    "FT_UINT8"	       },
-		{ FT_UINT16,	    "FT_UINT16"	       },
-		{ FT_UINT24,	    "FT_UINT24"	       },
-		{ FT_UINT32,	    "FT_UINT32"	       },
-		{ FT_UINT64,	    "FT_UINT64"	       },
-		{ FT_INT8,	    "FT_INT8"	       },
-		{ FT_INT16,	    "FT_INT16"	       },
-		{ FT_INT24,	    "FT_INT24"	       },
-		{ FT_INT32,	    "FT_INT32"	       },
-		{ FT_INT64,	    "FT_INT64"	       },
-		{ FT_EUI64,	    "FT_EUI64"	       },
-		{ FT_FLOAT,	    "FT_FLOAT"	       },
-		{ FT_DOUBLE,	    "FT_DOUBLE"	       },
-		{ FT_ABSOLUTE_TIME, "FT_ABSOLUTE_TIME" },
-		{ FT_RELATIVE_TIME, "FT_RELATIVE_TIME" },
-		{ FT_STRING,	    "FT_STRING"	       },
-		{ FT_STRINGZ,	    "FT_STRINGZ"       },
-		{ FT_UINT_STRING,   "FT_UINT_STRING"   },
-		{ FT_ETHER,	    "FT_ETHER"	       },
-		{ FT_BYTES,	    "FT_BYTES"	       },
-		{ FT_UINT_BYTES,    "FT_UINT_BYTES"    },
-		{ FT_IPv4,	    "FT_IPv4"	       },
-		{ FT_IPv6,	    "FT_IPv6"	       },
-		{ FT_IPXNET,	    "FT_IPXNET"	       },
-		{ FT_FRAMENUM,	    "FT_FRAMENUM"      },
-		{ FT_PCRE,	    "FT_PCR"	       },
-		{ FT_GUID,	    "FT_GUID"	       },
-		{ FT_OID,	    "FT_OID"	       },
-		{ 0,		NULL } };
-
-	static const value_string hf_display[] = {
-		{ BASE_NONE,                      "BASE_NONE"			   },
-		{ BASE_DEC,			  "BASE_DEC"			   },
-		{ BASE_HEX,			  "BASE_HEX"			   },
-		{ BASE_OCT,			  "BASE_OCT"			   },
-		{ BASE_DEC_HEX,                   "BASE_DEC_HEX"		   },
-		{ BASE_HEX_DEC,                   "BASE_HEX_DEC"		   },
-		{ BASE_CUSTOM,                    "BASE_CUSTOM"			   },
-		{ BASE_NONE|BASE_RANGE_STRING,    "BASE_NONE|BASE_RANGE_STRING"	   },
-		{ BASE_DEC|BASE_RANGE_STRING,     "BASE_DEC|BASE_RANGE_STRING"	   },
-		{ BASE_HEX|BASE_RANGE_STRING,     "BASE_HEX|BASE_RANGE_STRING"	   },
-		{ BASE_OCT|BASE_RANGE_STRING,     "BASE_OCT|BASE_RANGE_STRING"	   },
-		{ BASE_DEC_HEX|BASE_RANGE_STRING, "BASE_DEC_HEX|BASE_RANGE_STRING" },
-		{ BASE_HEX_DEC|BASE_RANGE_STRING, "BASE_HEX_DEC|BASE_RANGE_STRING" },
-		{ BASE_CUSTOM|BASE_RANGE_STRING,  "BASE_CUSTOM|BASE_RANGE_STRING"  },
-		{ ABSOLUTE_TIME_LOCAL,            "ABSOLUTE_TIME_LOCAL"		   },
-		{ ABSOLUTE_TIME_UTC,              "ABSOLUTE_TIME_UTC"		   },
-		{ ABSOLUTE_TIME_DOY_UTC,	  "ABSOLUTE_TIME_DOY_UTC"	   },
-		{ 0,				NULL } };
+tmp_fld_check_assert(header_field_info *hfinfo)
+{
 
 	/* The field must have a name (with length > 0) */
 	if (!hfinfo->name || !hfinfo->name[0]) {
@@ -4958,7 +4960,7 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 				if ((start_values[m].value == current->value) &&
 				    (strcmp(start_values[m].strptr, current->strptr) != 0)) {
 					g_warning("Field '%s' (%s) has a conflicting entry in its"
-                                                  " value_string: %u is at indices %u (%s) and %u (%s))\n",
+						  " value_string: %u is at indices %u (%s) and %u (%s))\n",
 						  hfinfo->name, hfinfo->abbrev,
 						  current->value, m, start_values[m].strptr, n, current->strptr);
 				}
@@ -4997,15 +4999,27 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 		case FT_UINT24:
 		case FT_UINT32:
 		case FT_UINT64:
-			if (hfinfo->strings == NULL) {
-				/*  Require integral types (other than frame number,
-				 *  which is always displayed in decimal) to have a
-				 *  number base */
-				if (hfinfo->display == BASE_NONE)
+			/*  Require integral types (other than frame number,
+			 *  which is always displayed in decimal) to have a
+			 *  number base.
+			 *  If there is a strings value then this base is not
+			 *  normally used except when constructing a display
+			 *  filter for a value not found in the strings lookup.
+			 */
+			switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
+				case BASE_DEC:
+				case BASE_HEX:
+				case BASE_OCT:
+				case BASE_DEC_HEX:
+				case BASE_HEX_DEC:
+				case BASE_CUSTOM: /* hfinfo_numeric_value_format() treats this as decimal */
+					break;
+				default:
 					g_error("Field '%s' (%s) is an integral value (%s)"
-                                                " without strings but is being displayed as BASE_NONE\n",
+						" but is being displayed as %s\n",
 						hfinfo->name, hfinfo->abbrev,
-						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+						val_to_str(hfinfo->display, hf_display, "(Unknown: 0x%x)"));
 			}
 			break;
 
