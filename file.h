@@ -221,12 +221,16 @@ gboolean cf_can_save_as(capture_file *cf);
  * @param fname the filename to save to
  * @param save_format the format of the file to save (libpcap, ...)
  * @param compressed whether to gzip compress the file
+ * @discard_comments TRUE if we should discard comments if the save
+ * succeeds (because we saved in a format that doesn't support
+ * comments)
  * @param dont_reopen TRUE if it shouldn't reopen and make that file the
  * current capture file
  * @return one of cf_write_status_t
  */
 cf_write_status_t cf_save_packets(capture_file * cf, const char *fname,
                                   guint save_format, gboolean compressed,
+                                  gboolean discard_comments,
                                   gboolean dont_reopen);
 
 /**
@@ -639,6 +643,14 @@ const gchar* cf_read_shb_comment(capture_file *cf);
  */
 void cf_update_capture_comment(capture_file *cf, gchar *comment);
 
+/**
+ * Update(replace) the comment on a capture from a frame
+ *
+ * @param cf the capture file
+ * @param fdata the frame_data structure for the frame
+ * @param comment the string replacing the old comment
+ */
+void cf_update_packet_comment(capture_file *cf, frame_data *fdata, gchar *comment);
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 void read_keytab_file(const char *);

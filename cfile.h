@@ -77,6 +77,7 @@ typedef struct _capture_file {
   int          lnk_t;           /* File link-layer type; could be WTAP_ENCAP_PER_PACKET */
   GArray      *linktypes;       /* Array of packet link-layer types */
   guint32      count;           /* Total number of frames */
+  guint64      packet_comment_count; /* Number of comments in frames (could be >1 per frame... */
   guint32      displayed_count; /* Number of displayed frames */
   guint32      marked_count;    /* Number of marked frames */
   guint32      ignored_count;   /* Number of ignored frames */
