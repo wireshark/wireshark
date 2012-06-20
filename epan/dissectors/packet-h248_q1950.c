@@ -2,7 +2,7 @@
  *  packet-h248_q1950.c
  *  Q.1950 annex A
  *
- *  (c) 2006, Anders Broman <anders.broman@telia.com>
+ *  (c) 2006, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
