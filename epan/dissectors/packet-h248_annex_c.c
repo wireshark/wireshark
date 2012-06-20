@@ -806,16 +806,15 @@ static void dissect_h248_annexc_USI(proto_tree* tree, tvbuff_t* tvb, packet_info
 }
 
 static void dissect_h248_annexc_SDP(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* h248_info _U_, void* implicit_p _U_) {
-	tvbuff_t* new_tvb = NULL;
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-	dissect_ber_octet_string(implicit_p ? *((gboolean*)implicit_p) : FALSE, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
-	if (new_tvb)
-		dissect_ber_restricted_string( FALSE, BER_UNI_TAG_IA5String,
-                                            &asn1_ctx, tree, new_tvb, 0, hfid,
+	dissect_ber_restricted_string( FALSE, BER_UNI_TAG_IA5String,
+                                            &asn1_ctx, tree, tvb, 0, hfid,
                                             NULL);
 }
+
+gboolean h248_c_implicit = TRUE;
 
 static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x1001, &hf_h248_pkg_annexc_media, h248_param_ber_integer, NULL },
@@ -935,21 +934,21 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0xA002, &hf_h248_pkg_annexc_bmsdu, h248_param_ber_octetstring, NULL },
 	{ 0xA003, &hf_h248_pkg_annexc_sscs, NULL, NULL },
 
-	{ 0xB001, &hf_h248_pkg_annexc_sdp_v, dissect_h248_annexc_SDP, NULL },
-	{ 0xB002, &hf_h248_pkg_annexc_sdp_o, dissect_h248_annexc_SDP, NULL },
-	{ 0xB003, &hf_h248_pkg_annexc_sdp_s, dissect_h248_annexc_SDP, NULL },
-	{ 0xB004, &hf_h248_pkg_annexc_sdp_i, dissect_h248_annexc_SDP, NULL },
-	{ 0xB005, &hf_h248_pkg_annexc_sdp_u, dissect_h248_annexc_SDP, NULL },
-	{ 0xB006, &hf_h248_pkg_annexc_sdp_e, dissect_h248_annexc_SDP, NULL },
-	{ 0xB007, &hf_h248_pkg_annexc_sdp_p, dissect_h248_annexc_SDP, NULL },
-	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, dissect_h248_annexc_SDP, NULL },
-	{ 0xB009, &hf_h248_pkg_annexc_sdp_b, dissect_h248_annexc_SDP, NULL },
-	{ 0xB00a, &hf_h248_pkg_annexc_sdp_z, dissect_h248_annexc_SDP, NULL },
-	{ 0xB00b, &hf_h248_pkg_annexc_sdp_k, dissect_h248_annexc_SDP, NULL },
-	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, dissect_h248_annexc_SDP, NULL },
-	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, dissect_h248_annexc_SDP, NULL },
-	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, dissect_h248_annexc_SDP, NULL },
-	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, dissect_h248_annexc_SDP, NULL },
+	{ 0xB001, &hf_h248_pkg_annexc_sdp_v, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB002, &hf_h248_pkg_annexc_sdp_o, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB003, &hf_h248_pkg_annexc_sdp_s, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB004, &hf_h248_pkg_annexc_sdp_i, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB005, &hf_h248_pkg_annexc_sdp_u, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB006, &hf_h248_pkg_annexc_sdp_e, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB007, &hf_h248_pkg_annexc_sdp_p, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB008, &hf_h248_pkg_annexc_sdp_c, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB009, &hf_h248_pkg_annexc_sdp_b, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00a, &hf_h248_pkg_annexc_sdp_z, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00b, &hf_h248_pkg_annexc_sdp_k, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00c, &hf_h248_pkg_annexc_sdp_a, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00d, &hf_h248_pkg_annexc_sdp_t, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00e, &hf_h248_pkg_annexc_sdp_r, dissect_h248_annexc_SDP, &h248_c_implicit },
+	{ 0xB00f, &hf_h248_pkg_annexc_sdp_m, dissect_h248_annexc_SDP, &h248_c_implicit },
 
 	{ 0xC001, &hf_h248_pkg_annexc_olc, h248_param_ber_octetstring, NULL },
 	{ 0xC002, &hf_h248_pkg_annexc_olcack, h248_param_ber_octetstring, NULL },
