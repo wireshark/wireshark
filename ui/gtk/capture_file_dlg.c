@@ -189,8 +189,8 @@ preview_do(GtkWidget *prev, wtap *wth)
     gchar      *err_info;
     gint64      data_offset;
     const struct wtap_pkthdr *phdr;
-    double      start_time = 0;	/* seconds, with nsec resolution */
-    double      stop_time = 0;	/* seconds, with nsec resolution */
+    double      start_time = 0; /* seconds, with nsec resolution */
+    double      stop_time = 0;  /* seconds, with nsec resolution */
     double      cur_time;
     unsigned int packets = 0;
     gboolean    is_breaked = FALSE;
@@ -204,7 +204,7 @@ preview_do(GtkWidget *prev, wtap *wth)
         phdr = wtap_phdr(wth);
         cur_time = wtap_nstime_to_sec(&phdr->ts);
         if(packets == 0) {
-            start_time 	= cur_time;
+            start_time = cur_time;
             stop_time = cur_time;
         }
         if (cur_time < start_time) {
@@ -245,19 +245,19 @@ preview_do(GtkWidget *prev, wtap *wth)
     /* first packet */
     ti_time = (long)start_time;
     ti_tm = localtime( &ti_time );
-	if(ti_tm) {
-		g_snprintf(string_buff, PREVIEW_STR_MAX,
-				 "%04d-%02d-%02d %02d:%02d:%02d",
-				 ti_tm->tm_year + 1900,
-				 ti_tm->tm_mon + 1,
-				 ti_tm->tm_mday,
-				 ti_tm->tm_hour,
-				 ti_tm->tm_min,
-				 ti_tm->tm_sec);
-	} else {
-		g_snprintf(string_buff, PREVIEW_STR_MAX, "?");
-	}
-        label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
+    if(ti_tm) {
+        g_snprintf(string_buff, PREVIEW_STR_MAX,
+                 "%04d-%02d-%02d %02d:%02d:%02d",
+                 ti_tm->tm_year + 1900,
+                 ti_tm->tm_mon + 1,
+                 ti_tm->tm_mday,
+                 ti_tm->tm_hour,
+                 ti_tm->tm_min,
+                 ti_tm->tm_sec);
+    } else {
+        g_snprintf(string_buff, PREVIEW_STR_MAX, "?");
+    }
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* elapsed time */
@@ -326,7 +326,7 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
      * the location bar and select the file or directory you've typed.
      * See
      *
-     *	https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1791
+     *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1791
      *
      * It's not as if allowing users to click Open when they've
      * selected a file that's not a valid capture file will cause
@@ -426,8 +426,8 @@ file_open_cmd(GtkWidget *w)
   win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 #else /* _WIN32 */
   GtkWidget     *file_open_w;
-  GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
-  		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
+  GtkWidget     *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
+                *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -509,18 +509,18 @@ file_open_cmd(GtkWidget *w)
   /* resolve buttons */
   m_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _MAC name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
-	gbl_resolv_flags & RESOLV_MAC);
+                               gbl_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(m_resolv_cb);
 
   n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-	gbl_resolv_flags & RESOLV_NETWORK);
+                               gbl_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
   t_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
-	gbl_resolv_flags & RESOLV_TRANSPORT);
+                               gbl_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
 
@@ -654,9 +654,9 @@ file_merge_cmd(GtkWidget *w)
   new_packet_list_thaw();
 #else /* _WIN32 */
   GtkWidget     *file_merge_w;
-  GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *filter_hbox,
-		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
-		*append_rb, *prev;
+  GtkWidget     *main_hb, *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *filter_hbox,
+                *filter_bt, *filter_te, *prepend_rb, *chrono_rb,
+                *append_rb, *prev;
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -1352,8 +1352,8 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
 
       /* XXX - cf->filename might get freed out from under us, because
          the code path through which cf_save_packets() goes currently
-	 closes the current file and then opens and reloads the saved file,
-	 so make a copy and free it later. */
+         closes the current file and then opens and reloads the saved file,
+         so make a copy and free it later. */
       fname = g_strdup(cf->filename);
       status = cf_save_packets(cf, fname, cf->cd_t, cf->iscompressed,
                                discard_comments, dont_reopen);
@@ -1411,8 +1411,8 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf,
     for (i = 0; i < savable_file_types->len; i++) {
       ft = g_array_index(savable_file_types, int, i);
       if (must_support_comments) {
-      	if (ft != WTAP_FILE_PCAPNG)
-      	  continue;
+        if (ft != WTAP_FILE_PCAPNG)
+          continue;
       }
       ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
                                            wtap_file_type_string(ft),
@@ -1750,8 +1750,8 @@ file_save_as_cb(GtkWidget *fs, gboolean discard_comments,
 {
   GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
-  gchar	    *cf_name;
-  gchar	    *dirname;
+  gchar     *cf_name;
+  gchar     *dirname;
   gpointer   ptr;
   int        file_type;
   gboolean   compressed;
@@ -1971,8 +1971,8 @@ file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range)
 {
   GtkWidget *ft_combo_box;
   GtkWidget *compressed_cb;
-  gchar	    *cf_name;
-  gchar	    *dirname;
+  gchar     *cf_name;
+  gchar     *dirname;
   gpointer   ptr;
   int        file_type;
   gboolean   compressed;
@@ -2065,7 +2065,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 #if _WIN32
   win32_import_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), color_filters);
 #else /* _WIN32 */
-  GtkWidget	*main_vb, *cfglobal_but;
+  GtkWidget     *main_vb, *cfglobal_but;
   gchar         *cf_name, *s;
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
