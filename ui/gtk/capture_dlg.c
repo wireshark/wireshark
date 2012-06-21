@@ -76,6 +76,27 @@
 #include "airpcap_dlg.h"
 #endif
 
+/*
+ * Symbolic names for column indices.
+ */
+enum
+{
+    CAPTURE = 0,
+    IFACE_HIDDEN_NAME, 
+    INTERFACE,
+    LINK,
+    PMODE,
+    SNAPLEN,
+#if defined(HAVE_PCAP_CREATE)
+    BUFFER,
+    MONITOR,
+#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+    BUFFER,
+#endif
+    FILTER,
+    NUM_COLUMNS
+};
+
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY                 "cap_iface"
 #define E_CAP_IFACE_IP_KEY              "cap_iface_ip"

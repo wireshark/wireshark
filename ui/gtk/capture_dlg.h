@@ -34,24 +34,6 @@
 #include "capture_opts.h"
 #include <gtk/gtk.h>
 
-enum
-{
-    CAPTURE = 0,
-    IFACE_HIDDEN_NAME,
-    INTERFACE,
-    LINK,
-    PMODE,
-    SNAPLEN,
-#if defined(HAVE_PCAP_CREATE)
-    BUFFER,
-    MONITOR,
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    BUFFER,
-#endif
-    FILTER,
-    NUM_COLUMNS
-};
-
 /** Initialize background capture filter syntax checking
  */
 void capture_filter_init(void);
