@@ -49,9 +49,7 @@
 
 #include <wsutil/file_util.h>
 
-#ifndef _WIN32
 #include <epan/filesystem.h>
-#endif
 
 #include "ui/last_open_dir.h"
 
