@@ -5,6 +5,8 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	wireshark.nsi	\
+	uninstall.nsi	\
+	common.nsh	\
 	GetWindowsVersion.nsh \
 	servicelib.nsh \
 	VersionCompare.nsh \
