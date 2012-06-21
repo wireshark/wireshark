@@ -108,9 +108,9 @@ Wireshark Info
 
         <listitem>
           <para>
-            When saving, exporting or printing packets, the default choice
-            is now to save, export or print only the displayed packets
-            rather than all packets.
+	    The "Save As" menu item has been split into "Save As", which lets
+	    you save a file using a different filename and "Export Specified
+	    Packets", which lets you have more control over which packets saved.
           </para>
         </listitem>
 

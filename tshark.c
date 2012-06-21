@@ -2498,6 +2498,7 @@ process_packet_first_pass(capture_file *cf,
 {
   frame_data fdlocal;
   guint32 framenum;
+  gboolean create_proto_tree = FALSE;
   epan_dissect_t edt;
   gboolean passed;
 
@@ -2520,11 +2521,14 @@ process_packet_first_pass(capture_file *cf,
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 
+      if (cf->rfcode)
+        create_proto_tree = TRUE;
+
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're printing stuff
        ("print_packet_info" is true) and we're in verbose mode ("verbose"
        is true). */
-    epan_dissect_init(&edt, FALSE, FALSE);
+    epan_dissect_init(&edt, create_proto_tree, FALSE);
 
     /* If we're running a read filter, prime the epan_dissect_t with that
        filter. */

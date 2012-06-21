@@ -3864,6 +3864,32 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
         subtree = proto_item_add_subtree(item, ett_codec_lst);
         codec = tvb_get_guint8(tvb,curr_offset)&0x0f;
         switch (codec) {
+            case 0:
+                /* GSM_FR is coded "0000" */
+                /* fall through */
+            case 1:
+                /* GSM_HR is coded "0001" */
+                /* fall through */
+            case 2:
+                /* GSM_EFR is coded "0010" */
+                /* fall through */
+                /* FI indicates Full IP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_fi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PI indicates PCMoIP */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* PT indicates PCMoTDM */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_pt, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* TF indicates TFO support */
+                proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                /* Codec Type */
+                proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_item_append_text(item, " - %s",
+                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                                        bssap_speech_codec_values,
+                                                        "Unknown"));
+                curr_offset++;
+                consumed++;
+                break;
             case 3:
                 /* fall through */
             case 4:
@@ -3883,7 +3909,11 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
                 proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                curr_offset++;
+                proto_item_append_text(item, " - %s",
+                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                                        bssap_speech_codec_values,
+                                                        "Unknown"));
+				curr_offset++;
                 consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 2, "S0 - S15");
                 curr_offset+=2;
@@ -3908,6 +3938,10 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
                 proto_tree_add_item(subtree, hf_gsm_a_bssmap_tf2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                 /* Codec Type */
                 proto_tree_add_item(subtree, hf_gsm_a_bssap_speech_codec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                proto_item_append_text(item, " - %s",
+                                       val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+                                                        bssap_speech_codec_values,
+                                                        "Unknown"));
                 curr_offset++;
                 consumed++;
                 proto_tree_add_text(subtree, tvb, curr_offset, 1, "S0 - S7");
@@ -6271,7 +6305,7 @@ bssmap_int_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     /* Speech Codec (MSC Chosen)    3.2.2.nn    MSC-BSS M (note 1)  3-n */
     ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_SPEECH_CODEC].value, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC, "(Chosen)");
     /* Circuit Identity Code    3.2.2.2     MSC-BSS     C (note 2)  3 */
-    ELEM_MAND_TV(gsm_bssmap_elem_strings[BE_CIC].value, GSM_A_PDU_TYPE_BSSMAP, BE_CIC, NULL);
+    ELEM_OPT_TV(gsm_bssmap_elem_strings[BE_CIC].value, GSM_A_PDU_TYPE_BSSMAP, BE_CIC, NULL);
     /* AoIP Transport Layer Address (MGW)   3.2.2.nn    MSC-BSS C (note 2)  10-22 */
     ELEM_OPT_TLV(gsm_bssmap_elem_strings[BE_AOIP_TRANS_LAY_ADD].value, GSM_A_PDU_TYPE_BSSMAP, BE_AOIP_TRANS_LAY_ADD, NULL);
 
