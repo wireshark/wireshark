@@ -1712,7 +1712,7 @@ static void *cap_thread_read(void *arg)
         g_mutex_lock(pcap_opts->cap_pipe_read_mtx);
         bytes_read = 0;
         while (bytes_read < (int) pcap_opts->cap_pipe_bytes_to_read) {
-           if ((pcap_opts->from_cap_socket) 
+           if ((pcap_opts->from_cap_socket)
 #ifndef _WIN32
               || 1
 #endif
@@ -1843,7 +1843,7 @@ cap_open_socket(char *pipename, pcap_options *pcap_opts, char *errmsg, int errms
       int lastError;
 
       lastError = WSAGetLastError();
-      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | 
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
                     FORMAT_MESSAGE_ALLOCATE_BUFFER |
                     FORMAT_MESSAGE_IGNORE_INSERTS,
                     NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -2110,7 +2110,7 @@ cap_pipe_open_live(char *pipename,
                bytes_read += b;
            }
        }
-    } 
+    }
 #ifdef _WIN32
     else {
        g_thread_create(&cap_thread_read, pcap_opts, FALSE, NULL);
@@ -2367,7 +2367,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         pcap_opts->cap_pipe_bytes_read += b;
       }
 #ifdef _WIN32
-      else 
+      else
       {
 
 #if GLIB_CHECK_VERSION(2,31,18)
