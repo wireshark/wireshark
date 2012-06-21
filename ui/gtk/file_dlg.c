@@ -22,6 +22,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/*
+ * Code to handle Windows shortcuts courtesy of:
+ *
+ * Sylpheed -- a GTK+ based, lightweight, and fast e-mail client
+ * Copyright (C) 1999-2012 Hiroyuki Yamamoto
+ *
+ * licensed under the GPL2 or later.
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -30,11 +39,21 @@
 
 #include <gtk/gtk.h>
 
+#ifdef _WIN32
+#  define COBJMACROS
+#  include <windows.h>
+#  include <objbase.h>
+#  include <objidl.h>
+#  include <shlobj.h>
+#endif
+
 #include <wsutil/file_util.h>
 
 #ifndef _WIN32
 #include <epan/filesystem.h>
 #endif
+
+#include "ui/last_open_dir.h"
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
@@ -155,6 +174,110 @@ void
 file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
 {
   gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(fs), extra);
+}
+
+#ifdef _WIN32
+static gchar *filesel_get_link(const gchar *link_file)
+{
+  WIN32_FIND_DATAW wfd;
+  IShellLinkW *psl;
+  IPersistFile *ppf;
+  wchar_t *wlink_file;
+  wchar_t wtarget[MAX_PATH];
+  gchar *target = NULL;
+
+  wtarget[0] = 0L;
+
+  CoInitialize(NULL);
+  if (S_OK == CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
+                               &IID_IShellLinkW, (void **)&psl)) {
+    if (S_OK == IShellLinkW_QueryInterface(psl, &IID_IPersistFile,
+                                           (void **)&ppf)) {
+      wlink_file = g_utf8_to_utf16(link_file, -1, NULL, NULL, NULL);
+      if (S_OK == IPersistFile_Load(ppf, wlink_file, STGM_READ)) {
+        if (S_OK == IShellLinkW_GetPath(psl, wtarget, MAX_PATH, &wfd,
+                                        SLGP_UNCPRIORITY)) {
+          target = g_utf16_to_utf8(wtarget, -1, NULL, NULL, NULL);
+        }
+      }
+      IPersistFile_Release(ppf);
+      g_free(wlink_file);
+    }
+    IShellLinkW_Release(psl);
+  }
+  CoUninitialize();
+
+  return target;
+}
+#endif /* _WIN32 */
+
+/* Run the dialog, and handle some common operations, such as, if the
+   user selects a directory, browsing that directory, and handling
+   shortcuts on Windows.
+
+   Returns NULL if the user decided not to open/write to a file,
+   returns the pathname of the selected file if they selected a
+   file. */
+gchar *
+file_selection_run(GtkWidget *fs)
+{
+  gchar *cf_name;
+#ifdef _WIN32
+  gchar *target;
+  const gchar *ext;
+#endif
+
+  for (;;) {
+    if (gtk_dialog_run(GTK_DIALOG(fs)) != GTK_RESPONSE_ACCEPT) {
+      /* They clicked "Cancel" or closed the dialog or...;
+         destroy the dialog and tell our caller the user decided
+         not to do anything with the file. */
+      window_destroy(fs);
+      return NULL;
+    }
+
+    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
+
+    /* Perhaps the user specified a directory instead of a file.
+       Check whether they did. */
+    if (test_for_directory(cf_name) == EISDIR) {
+      /* It's a directory - set the file selection box to display that
+         directory, and go back and re-run it; don't try to open the
+         directory as a file (you'll get crap if you get anything) or
+         write to it (which won't work anyway). */
+      set_last_open_dir(cf_name);
+      g_free(cf_name);
+      file_selection_set_current_folder(fs, get_last_open_dir());
+      continue;
+    }
+
+#ifdef _WIN32
+    /* Perhaps the user specified a "shortcut" instead of a file.
+       Check whether they did. */
+    if ((ext = strrchr(cf_name, '.')) && g_ascii_strcasecmp(ext, ".lnk") == 0) {
+      /* It ends with ".lnk", so it might be a shortcut. */
+      target = filesel_get_link(cf_name);
+      if (target != NULL) {
+        /* We resolved it, so it must've been a shortcut. */
+        g_free(cf_name);
+        if (test_for_directory(target)) {
+          /* It's a shortcut that points to a directory; treat it the same
+             way we treat a directory. */
+          set_last_open_dir(target);
+          g_free(target);
+          file_selection_set_current_folder(fs, get_last_open_dir());
+          continue;
+        }
+        /* It's a shortcut that points to a file; act as if the target
+           is what's selected. */
+        cf_name = target;
+      }
+    }
+#endif
+    break;
+  }
+
+  return cf_name;
 }
 
 #ifndef _WIN32

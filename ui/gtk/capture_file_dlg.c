@@ -47,7 +47,6 @@
 #include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"
-#include "ui/last_open_dir.h"
 #include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
@@ -70,7 +69,11 @@
 #include "ui/gtk/range_utils.h"
 #include "ui/gtk/filter_autocomplete.h"
 
-#if _WIN32
+#ifdef _WIN32
+#define USE_WIN32_FILE_DIALOGS
+#endif
+
+#ifdef USE_WIN32_FILE_DIALOGS
 #include <gdk/gdkwin32.h>
 #include <windows.h>
 #include "ui/win32/file_dlg_win32.h"
@@ -422,9 +425,9 @@ preview_new(void)
 static void
 file_open_cmd(GtkWidget *w)
 {
-#if _WIN32
+#ifdef USE_WIN32_FILE_DIALOGS
   win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
-#else /* _WIN32 */
+#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_open_w;
   GtkWidget     *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
@@ -541,24 +544,10 @@ file_open_cmd(GtkWidget *w)
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
-    if (gtk_dialog_run(GTK_DIALOG(file_open_w)) != GTK_RESPONSE_ACCEPT) {
-      /* They clicked "Cancel" or closed the dialog or.... */
-      window_destroy(file_open_w);
+    cf_name = file_selection_run(file_open_w);
+    if (cf_name == NULL) {
+      /* User cancelled or closed the dialog. */
       return;
-    }
-
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_open_w));
-
-    /* Perhaps the user specified a directory instead of a file.
-       Check whether they did. */
-    if (test_for_directory(cf_name) == EISDIR) {
-      /* It's a directory - set the file selection box to display that
-         directory, and go back and re-run it; don't try to open the
-         directory as a capture file. */
-      set_last_open_dir(cf_name);
-      g_free(cf_name);
-      file_selection_set_current_folder(file_open_w, get_last_open_dir());
-      continue;
     }
 
     /* Get the specified read filter and try to compile it. */
@@ -633,7 +622,7 @@ file_open_cmd(GtkWidget *w)
     g_free(cf_name);
     return;
   }
-#endif /* _WIN32 */
+#endif /* USE_WIN32_FILE_DIALOGS */
 }
 
 void
@@ -648,11 +637,11 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
 static void
 file_merge_cmd(GtkWidget *w)
 {
-#if _WIN32
+#ifdef USE_WIN32_FILE_DIALOGS
   win32_merge_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
   new_packet_list_freeze();
   new_packet_list_thaw();
-#else /* _WIN32 */
+#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_merge_w;
   GtkWidget     *main_hb, *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *filter_hbox,
                 *filter_bt, *filter_te, *prepend_rb, *chrono_rb,
@@ -794,24 +783,10 @@ file_merge_cmd(GtkWidget *w)
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
-    if (gtk_dialog_run(GTK_DIALOG(file_merge_w)) != GTK_RESPONSE_ACCEPT) {
-      /* They clicked "Cancel" or closed the dialog or.... */
-      window_destroy(file_merge_w);
+    cf_name = file_selection_run(file_merge_w);
+    if (cf_name == NULL) {
+      /* User cancelled or closed the dialog. */
       return;
-    }
-
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_merge_w));
-
-    /* Perhaps the user specified a directory instead of a file.
-       Check whether they did. */
-    if (test_for_directory(cf_name) == EISDIR) {
-      /* It's a directory - set the file selection box to display that
-         directory, and go back and re-run it; don't try to open the
-         directory as a capture file. */
-      set_last_open_dir(cf_name);
-      g_free(cf_name);
-      file_selection_set_current_folder(file_merge_w, get_last_open_dir());
-      continue;
     }
 
     /* Get the specified read filter and try to compile it. */
@@ -903,7 +878,7 @@ file_merge_cmd(GtkWidget *w)
     set_last_open_dir(s);
     return;
   }
-#endif /* _WIN32 */
+#endif /* USE_WIN32_FILE_DIALOGS */
 }
 
 void
@@ -1594,9 +1569,9 @@ static void
 do_file_save_as(capture_file *cf, gboolean must_support_comments,
                 gboolean dont_reopen)
 {
-#if _WIN32
+#ifdef USE_WIN32_FILE_DIALOGS
   win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
-#else /* _WIN32 */
+#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_save_as_w;
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
   char          *cf_name;
@@ -1648,24 +1623,10 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
-    if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) != GTK_RESPONSE_ACCEPT) {
-      /* They clicked "Cancel" or closed the dialog or.... */
-      window_destroy(file_save_as_w);
+    cf_name = file_selection_run(file_save_as_w);
+    if (cf_name == NULL) {
+      /* User cancelled or closed the dialog. */
       return;
-    }
-
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_save_as_w));
-
-    /* Perhaps the user specified a directory instead of a file.
-       Check whether they did. */
-    if (test_for_directory(cf_name) == EISDIR) {
-      /* It's a directory - set the file selection box to display that
-         directory, and go back and re-run it; don't try to write onto
-         the directory (which won't work anyway). */
-      set_last_open_dir(cf_name);
-      g_free(cf_name);
-      file_selection_set_current_folder(file_save_as_w, get_last_open_dir());
-      continue;
     }
 
     /* If the file has comments, does the format the user selected
@@ -1704,6 +1665,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
       return;
     }      
 
+#ifndef _WIN32
     /* If the file exists and it's user-immutable or not writable,
        ask the user whether they want to override that. */
     if (!file_target_unwritable_ui(file_save_as_w, cf_name)) {
@@ -1711,6 +1673,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
       g_free(cf_name);
       continue;
     }
+#endif
 
     /* Attempt to save the file */
     g_free(cf_name);
@@ -1733,7 +1696,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
       return;
     }
   }
-#endif /* _WIN32 */
+#endif /* USE_WIN32_FILE_DIALOGS */
 }
 
 void
@@ -1806,9 +1769,9 @@ file_save_as_cb(GtkWidget *fs, gboolean discard_comments,
 void
 file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-#if _WIN32
+#ifdef USE_WIN32_FILE_DIALOGS
   win32_export_specified_packets_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
-#else /* _WIN32 */
+#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_export_specified_packets_w;
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *range_tb,
                 *compressed_cb;
@@ -1881,24 +1844,10 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
-    if (gtk_dialog_run(GTK_DIALOG(file_export_specified_packets_w)) != GTK_RESPONSE_ACCEPT) {
-      /* They clicked "Cancel" or closed the dialog or.... */
-      window_destroy(file_export_specified_packets_w);
+    cf_name = file_selection_run(file_export_specified_packets_w);
+    if (cf_name == NULL) {
+      /* User cancelled or closed the dialog. */
       return;
-    }
-
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_export_specified_packets_w));
-
-    /* Perhaps the user specified a directory instead of a file.
-       Check whether they did. */
-    if (test_for_directory(cf_name) == EISDIR) {
-      /* It's a directory - set the file selection box to display that
-         directory, and go back and re-run it; don't try to write onto
-         the directory (which won't work anyway). */
-      set_last_open_dir(cf_name);
-      g_free(cf_name);
-      file_selection_set_current_folder(file_export_specified_packets_w, get_last_open_dir());
-      continue;
     }
 
     /* Check whether the range is valid. */
@@ -1935,6 +1884,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       continue;
     }
 
+#ifndef _WIN32
     /* If the file exists and it's user-immutable or not writable,
        ask the user whether they want to override that. */
     if (!file_target_unwritable_ui(file_export_specified_packets_w, cf_name)) {
@@ -1942,6 +1892,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       g_free(cf_name);
       continue;
     }
+#endif
 
     /* attempt to export the packets */
     g_free(cf_name);
@@ -1961,7 +1912,7 @@ file_export_specified_packets_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
       return;
     }
   }
-#endif /* _WIN32 */
+#endif /* USE_WIN32_FILE_DIALOGS */
 }
 
 /* all tests ok, we only have to write out the packets */
@@ -2062,9 +2013,9 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
 void
 file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 {
-#if _WIN32
+#ifdef USE_WIN32_FILE_DIALOGS
   win32_import_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), color_filters);
-#else /* _WIN32 */
+#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *main_vb, *cfglobal_but;
   gchar         *cf_name, *s;
 
@@ -2090,24 +2041,10 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
-    if (gtk_dialog_run(GTK_DIALOG(file_color_import_w)) != GTK_RESPONSE_ACCEPT) {
-      /* They clicked "Cancel" or closed the dialog or.... */
-      window_destroy(file_color_import_w);
+    cf_name = file_selection_run(file_color_import_w);
+    if (cf_name == NULL) {
+      /* User cancelled or closed the dialog. */
       return;
-    }
-
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_color_import_w));
-
-    /* Perhaps the user specified a directory instead of a file.
-       Check whether they did. */
-    if (test_for_directory(cf_name) == EISDIR) {
-      /* It's a directory - set the file selection box to display that
-         directory, and go back and re-run it; don't try to open the
-         directory as a color filter file. */
-      set_last_open_dir(cf_name);
-      g_free(cf_name);
-      file_selection_set_current_folder(file_color_import_w, get_last_open_dir());
-      continue;
     }
 
     /* Try to open the color filter file. */
@@ -2132,7 +2069,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
     g_free(cf_name);
     return;
   }
-#endif /* _WIN32 */
+#endif /* USE_WIN32_FILE_DIALOGS */
 }
 
 /*
@@ -2167,9 +2104,9 @@ color_toggle_selected_cb(GtkWidget *widget, gpointer data _U_)
 void
 file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 {
-#if _WIN32
+#if USE_WIN32_FILE_DIALOGS
   win32_export_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), filter_list);
-#else /* _WIN32 */
+#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget *file_color_export_w;
   GtkWidget *main_vb, *cfglobal_but;
   GtkWidget *cfselect_cb;
@@ -2207,26 +2144,13 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
-    if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) != GTK_RESPONSE_ACCEPT) {
-      /* They clicked "Cancel" or closed the dialog or.... */
-      window_destroy(file_color_export_w);
+    cf_name = file_selection_run(file_color_export_w);
+    if (cf_name == NULL) {
+      /* User cancelled or closed the dialog. */
       return;
     }
 
-    cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_color_export_w));
-
-    /* Perhaps the user specified a directory instead of a file.
-       Check whether they did. */
-    if (test_for_directory(cf_name) == EISDIR) {
-      /* It's a directory - set the file selection box to display that
-         directory, and go back and re-run it; don't try to write onto
-         the directory (which wn't work anyway). */
-      set_last_open_dir(cf_name);
-      g_free(cf_name);
-      file_selection_set_current_folder(file_color_export_w, get_last_open_dir());
-      continue;
-    }
-
+#ifndef _WIN32
     /* If the file exists and it's user-immutable or not writable,
        ask the user whether they want to override that. */
     if (!file_target_unwritable_ui(file_color_export_w, cf_name)) {
@@ -2234,6 +2158,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
       g_free(cf_name);
       continue;
     }
+#endif
 
     /* Write out the filters (all, or only the ones that are currently
        displayed or selected) to the file with the specified name. */
@@ -2253,5 +2178,5 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
     set_last_open_dir(dirname);
     g_free(cf_name);
   }
-#endif /* _WIN32 */
+#endif /* USE_WIN32_FILE_DIALOGS */
 }

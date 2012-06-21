@@ -85,6 +85,15 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
  */
 extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
 
+/** Run the dialog, and handle some common operations, such as, if the
+ *  user selects a directory, browsing that directory, and handling
+ *  shortcuts on Windows.
+ * @param fs the file selection dialog from file_selection_new()
+ * @return the pathname of the selected file if the user selected a
+ * file, NULL if they cancelled or closed the dialog.
+ */
+extern gchar *file_selection_run(GtkWidget *fs);
+
 #ifndef _WIN32
 /** If the specified file doesn't exist, return TRUE.
  *  If it exists and is neither user-immutable nor not writable, return

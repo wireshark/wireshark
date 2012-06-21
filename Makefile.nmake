@@ -73,7 +73,7 @@ dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
 
 wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
-	wsock32.lib user32.lib shell32.lib comctl32.lib \
+	wsock32.lib user32.lib shell32.lib comctl32.lib ole32.lib \
 	$(GTHREAD_LIBS) \
 	$(HHC_LIBS) \
 	wsutil\libwsutil.lib \
