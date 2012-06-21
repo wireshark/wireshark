@@ -245,12 +245,11 @@ tb80211_iface_changed_cb(GtkWidget *widget, gpointer data _U_)
     struct ws80211_interface *iface;
     struct ws80211_iface_info iface_info;
     gchar *active;
-    GtkComboBox *combo = GTK_COMBO_BOX_TEXT(widget);
 
     if (tb80211_dont_set_iface)
         return;
 
-    active = gtk_combo_box_text_get_active_text(combo);
+    active = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(widget));
 
     if (!active || tb80211_dont_set_chan)
         goto out_free;
