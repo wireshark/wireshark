@@ -2363,6 +2363,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint16 revision;
 	guint32 volatile num_aces;
 	gboolean missing_data = FALSE;
+	gboolean bad_ace = FALSE;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -2408,7 +2409,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      tvb, offset, 4, num_aces);
 	  offset += 4;
 
-	  while(num_aces-- && !missing_data){
+	  while(num_aces-- && !missing_data && !bad_ace) {
 		pre_ace_offset = offset;
 
 		TRY {
@@ -2417,7 +2418,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			/*
 			 * Bogus ACE, with a length < 4.
 			 */
-			break;
+			bad_ace = TRUE;
 		  }
 		}
 
