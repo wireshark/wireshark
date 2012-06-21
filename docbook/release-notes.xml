@@ -110,7 +110,8 @@ Wireshark Info
           <para>
 	    The "Save As" menu item has been split into "Save As", which lets
 	    you save a file using a different filename and "Export Specified
-	    Packets", which lets you have more control over which packets saved.
+	    Packets", which lets you have more control over which packets are
+	    saved.
           </para>
         </listitem>
 
