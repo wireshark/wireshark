@@ -2362,10 +2362,10 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int pre_ace_offset;
 	guint16 revision;
 	guint32 volatile num_aces;
-	gboolean missing_data = FALSE;
-	gboolean bad_ace = FALSE;
+	gboolean volatile missing_data = FALSE;
+	gboolean volatile bad_ace = FALSE;
 
-	if(parent_tree){
+	if(parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
 					   "NT %s ACL", name);
 		tree = proto_item_add_subtree(item, ett_nt_acl);
