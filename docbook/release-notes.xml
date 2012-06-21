@@ -38,26 +38,12 @@ Wireshark Info
 <!-- Sort by bug # -->
 <!--
         <listitem><para>
-	  Wireshark will strip the paint off your car, then apply a hideous
-	  flame job to the hood and fenders using gray, red, and black primer.
+	  Wireshark will practice the jazz flute for hours on end when you're
+	  trying to sleep.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=0000">Bug
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          When saving the displayed packets, packets which are dependencies
-	  (e.g., due to reassembly) of the displayed packets are included in
-	  the list of saved packets
-	  (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3315">Bug
-	  3315</ulink>).
-        </para></listitem>
-
-        <listitem><para>
-	  Rearranging columns in preferences doesn't work on 64-bit Windows.
-	  (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
-	  6077</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -68,78 +54,13 @@ Wireshark Info
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
       The following features are new (or have been significantly updated)
-      since version 1.6:
+      since version 1.8:
 
       <itemizedlist>
 
         <listitem>
           <para>
-            Wireshark supports capturing from multiple interfaces at once.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now add, edit, and save packet and capture file annotations.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark, TShark, and their associated utilities now save files
-	    using the pcap-ng file format by default. (Your copy of Wireshark
-	    might still use the pcap file format if pcap-ng is disabled in
-	    your preferences.)
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Decryption key management for IEEE 802.11, IPsec, and ISAKMP
-	    is easier.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            OID resolution is now supported on 64-bit Windows.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            When saving, exporting or printing packets, the default choice
-            is now to save, export or print only the displayed packets
-            rather than all packets.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            TCP fast retransmissions are now indicated as an expert info note,
-            rather than a warning, just as TCP retransmissions are.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            TCP window updates are no longer colorized as "Bad TCP".
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-	    TShark's command-line options have changed. The previously
-	    undocumented -P option is now -2 option for performing a two-pass
-	    analysis; the former -S option is now the -P option for printing
-	    packets even if writing to a file, and the -S option is now used to
-	    specify a different line separator between packets.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            GeoIP IPv6 databases are now supported.
+            .
           </para>
         </listitem>
 
@@ -153,124 +74,7 @@ Wireshark Info
 
 <!-- Sorted, one per line -->
 
-Aastra Signalling Protocol (AASP),
-ActiveMQ OpenWire,
-Bandwidth Reservation Protocol (BRP),
-Bazaar,
-Binary Floor Control Protocol,
-BitTorrent DHT,
-C12.22,
-CANopen,
-CIP Motion,
-CIP Safety,
-Cisco FabricPath MiM,
-DMX Channel Data,
-DMX SIP,
-DMX Test,
-DMX Text,
-DMX,
-DVB Application Information Table,
-DVB Bouquet Association Table,
-DVB Event Information Table,
-DVB MultiProtocol Encapsulation (DVB-MPE),
-DVB Network Information Table,
-DVB Service Description Table,
-DVB Time and Date Table,
-DVB Time Offset Table,
-DVB/ETSI IP Data Cast (IPDC) Electronic Service Guide (ESG),
-ECP VDP,
-EIA-709.1 (LonTalk),
-EIA-852 (CN/IP),
-ELCOM,
-Ericsson A-bis OML (OM 2000),
-Ericsson HDLC,
-Ericsson Proprietary PCAP,
-ETSI CAT,
-ETV-AM Data,
-ETV-AM EISS Section,
-Flight Message Transfer Protocol (FMTP),
-Gadu-Gadu,
-GEO-Mobile Radio (1) BCCH,
-GEO-Mobile Radio (1) Common,
-GEO-Mobile Radio (1) DTAP,
-GEO-Mobile Radio (1) Radio Resource,
-Gluster Callback,
-Gluster CLI,
-Gluster Dump,
-Gluster Portmap,
-GlusterD,
-GlusterFS Callback,
-GlusterFS Handshake,
-GlusterFS,
-GSM A-bis OML,
-GSM CBCH,
-GSM Cell Broadcast Service,
-GSM SIM,
-H.248.2,
-Hadoop Distributed File System (HDFS),
-HART/IP,
-Hazelcast,
-HDFS Data,
-High bandwidth Digital Content Protection (HDCP),
-High-availability Seamless Redundancy (HSR),
-HomePlug AV,
-HSR/PRP,
-IEEE 1722.1,
-ISO 7816,
-ixveriwave,
-Kismet drone/server protocol,
-KristalliNet,
-LCS-AP,
-Link Access Procedure, Satellite channel (LAPSat),
-LLRP,
-LTE Positioning Protocol A (LPPa),
-LTE Positioning Protocol,
-M3 Application Protocol (M3AP),
-MAC Address Acquisition Protocol,
-MBMS synchronisation protocol,
-Microsoft Credential Security Support Provider (CredSSP),
-MoldUDP,
-MoldUDP64,
-MPEG Conditional Access,
-MPEG descriptors,
-MPEG DSM-CC,
-MPEG Program Association Table (PAT),
-MPEG Program Map Table,
-MPEG Section,
-MPLS Packet Loss and Delay Measurement,
-MPLS-TP Protection State Coordination,
-Multiple VLAN Registration Protocol (MRVP),
-Netfilter LOG,
-NOE,
-NXP MiFare,
-NXP PN532,
-Open IPTV Forum
-openSAFETY,
-Performance Co-Pilot (PCP),
-PPI Sensor,
-RDP,
-RTP-MIDI,
-SBc Application Part (SBc-AP),
-SDH/SONET,
-Solaris IP over InfiniBand,
-Sony FeliCa,
-T.124,
-UA (Universal Alcatel),
-UA3G,
-UASIP,
-UAUDP,
-USB Integrated Circuit Card Interface Device Class (CCID),
-V5 Data Link Layer (V5DL),
-V5 Envelope Function (V5EF),
-Virtual eXtensible Local Area Network (VXLAN),
-VSS-Monitoring,
-Vuze DHT,
-WaveAgent,
-WebSocket,
-WSE Remote Ethernet,
-XMCP,
-YAMI
-
+.
 
     </para>
     </section>
@@ -287,27 +91,7 @@ Too many protocols have been updated to list here.
 
 <!-- Sorted, one per line -->
 
-Aethra Telecommunications' PC108,
-Catapult DCT2000,
-Citrix NetScaler,
-Cisco Secure IDS IPLog,
-Endace ERF,
-Gammu DCT3,
-Generic MIME,
-IBM iSeries,
-InfoVista 5View,
-Ixia IxVeriWave,
-LANalyzer,
-Microsoft NetMon,
-MPEG2-TS,
-Network Instruments Observer,
-Nokia DCT3,
-pcap,
-pcap-ng,
-Solaris snoop,
-TamoSoft CommView,
-Tektronix K12xx,
-XML
+.
 
     </para>
     </section>
