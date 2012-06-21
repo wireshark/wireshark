@@ -1,4 +1,346 @@
 ------------------------------------------------------------------------
+r43429 | gerald | 2012-06-21 10:37:00 -0700 (Thu, 21 Jun 2012) | 11 lines
+Changed paths:
+   M /trunk-1.8/Makefile.nmake
+   M /trunk-1.8/packaging/nsis/Makefile.am
+
+Copy over r43428 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43428 | gerald | 2012-06-21 10:35:59 -0700 (Thu, 21 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/Makefile.nmake
+     M /trunk/packaging/nsis/Makefile.am
+
+  Try to fix tarball compilation on Windows.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43427 | gerald | 2012-06-21 09:30:06 -0700 (Thu, 21 Jun 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+
+Release notes talk pretty one day.
+
+------------------------------------------------------------------------
+r43426 | gerald | 2012-06-21 09:26:07 -0700 (Thu, 21 Jun 2012) | 46 lines
+Changed paths:
+   M /trunk-1.8/docbook/release-notes.xml
+   M /trunk-1.8/epan/dissectors/packet-gmr1_dtap.c
+   M /trunk-1.8/epan/dissectors/packet-gsm_a_bssmap.c
+   M /trunk-1.8/epan/dissectors/packet-ipv6.c
+   M /trunk-1.8/epan/dissectors/packet-ipv6.h
+   M /trunk-1.8/tshark.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43389 | morriss | 2012-06-19 13:20:18 -0700 (Tue, 19 Jun 2012) | 5 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ipv6.c
+     M /trunk/epan/dissectors/packet-ipv6.h
+
+  Correct the IPv6 fragment offset shown in COL_INFO.
+
+  Make some Fragment header fields filterable (add_text() -> add_item()).
+  Display (and make filterable) the reserved octet and bits.
+  ------------------------------------------------------------------------
+  r43401 | etxrab | 2012-06-20 00:59:20 -0700 (Wed, 20 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_a_bssmap.c
+
+  - In INTERNAL HANDOVER COMMAND Circuit Identity Code is C(Coded optional in WS)
+  - be_speech_codec ( 3.2.2.104    Speech Codec) did not cover all codecs.
+  ------------------------------------------------------------------------
+  r43408 | pascal | 2012-06-20 06:37:22 -0700 (Wed, 20 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gmr1_dtap.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7383 :
+  Put back items into the correct dtap_tree tree and comment pd_tree that is unused for now
+  ------------------------------------------------------------------------
+  r43409 | pascal | 2012-06-20 06:42:17 -0700 (Wed, 20 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gmr1_dtap.c
+
+  Fix compilation with gcc...
+  ------------------------------------------------------------------------
+  r43420 | gerald | 2012-06-20 13:44:05 -0700 (Wed, 20 Jun 2012) | 5 lines
+  Changed paths:
+     M /trunk/tshark.c
+
+  If we're making two passes and we have a display filter applied, create
+  a protocol tree in process_packet_first_pass(). Otherwise we crash with
+
+  ERROR:dfvm.c:434:dfvm_apply: assertion failed: (tree)
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r43407 | morriss | 2012-06-20 06:35:24 -0700 (Wed, 20 Jun 2012) | 9 lines
+Changed paths:
+   M /trunk-1.8/epan/dissectors/packet-sctp.c
+
+Copy over from trunk:
+
+------------------------------------------------------------------------
+r43406 | morriss | 2012-06-20 09:30:07 -0400 (Wed, 20 Jun 2012) | 4 lines
+
+Use separate filters for the RTT found on a SACK and the RTT found on a
+DATA chunk: having them in both places is helpful when looking at the
+messages but having them separate is helpful when graphing the RTTs.
+
+------------------------------------------------------------------------
+r43400 | guy | 2012-06-19 22:53:42 -0700 (Tue, 19 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/ui/win32/file_dlg_win32.c
+
+Copy over r43394 from trunk:
+
+  ------------------------------------------------------------------------
+  r43394 | etxrab | 2012-06-19 21:42:55 -0700 (Tue, 19 Jun 2012) | 1 line
+
+  MAke it compile by adding discard_comments = FALSE
+
+------------------------------------------------------------------------
+r43399 | guy | 2012-06-19 22:52:40 -0700 (Tue, 19 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/ui/win32/file_dlg_win32.c
+
+Copy over r43302 from trunk:
+
+  ------------------------------------------------------------------------
+  r43302 | guy | 2012-06-16 18:50:52 -0700 (Sat, 16 Jun 2012) | 2 lines
+
+  Reflect change to wtap_get_savable_file_types.
+
+------------------------------------------------------------------------
+r43398 | guy | 2012-06-19 22:48:57 -0700 (Tue, 19 Jun 2012) | 7 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/capture_file_dlg.c
+
+Copy over r43397 from trunk:
+
+  ------------------------------------------------------------------------
+  r43397 | guy | 2012-06-19 22:48:06 -0700 (Tue, 19 Jun 2012) | 2 lines
+
+  Clean up white space (no tabs).
+
+------------------------------------------------------------------------
+r43396 | guy | 2012-06-19 21:45:08 -0700 (Tue, 19 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/file.c
+   M /trunk-1.8/file.h
+   M /trunk-1.8/ui/gtk/capture_file_dlg.c
+
+Copy over r43395 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43395 | guy | 2012-06-19 21:44:14 -0700 (Tue, 19 Jun 2012) | 5 lines
+
+  Handle the case where the user has added comments to a file that's not
+  in a format that supports comments and they do a "Save" by popping up a
+  similar question to the one we pop up in the "Save As" case and, if they
+  say "choose another format", pop up a "Save As" dialog box.
+
+------------------------------------------------------------------------
+r43393 | guy | 2012-06-19 18:13:06 -0700 (Tue, 19 Jun 2012) | 15 lines
+Changed paths:
+   M /trunk-1.8/cfile.h
+   M /trunk-1.8/file.c
+   M /trunk-1.8/file.h
+   M /trunk-1.8/ui/gtk/capture_file_dlg.c
+   M /trunk-1.8/ui/gtk/new_packet_list.c
+
+Copy over r43392 from trunk:
+
+  ------------------------------------------------------------------------
+  r43392 | guy | 2012-06-19 18:11:01 -0700 (Tue, 19 Jun 2012) | 10 lines
+
+  If the file has an SHB comment or any packet comments, and the user
+  tries to do "Save As" in a format for which we don't support comments
+  (currently, we only support them for pcap-ng), ask whether they want to
+  discard the comments and save anyway or, *if* the file can be saved in a
+  format for which we *do* support comments, they want to save the file in
+  some other format.
+
+  Keep a count of packet comments so that we don't have to scan all the
+  frame_data structures to determine whether we have any comments.
+
+------------------------------------------------------------------------
+r43388 | gerald | 2012-06-19 12:53:59 -0700 (Tue, 19 Jun 2012) | 14 lines
+Changed paths:
+   M /trunk-1.8/wiretap/Makefile.am
+   M /trunk-1.8/wiretap/Makefile.nmake
+
+Copy over r43387 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43387 | gerald | 2012-06-19 12:53:03 -0700 (Tue, 19 Jun 2012) | 5 lines
+  Changed paths:
+     M /trunk/wiretap/Makefile.am
+     M /trunk/wiretap/Makefile.nmake
+
+  ascend_scanner.c includes ascend.h. Add corresponding makefile
+  dependencies, otherwise we might have a race condition when doing
+  parallel makes. Hopefully this will fix intermitten buildbot failures
+  we've been getting lately.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43383 | guy | 2012-06-19 12:22:47 -0700 (Tue, 19 Jun 2012) | 10 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/capture_file_dlg.c
+   M /trunk-1.8/ui/gtk/file_dlg.c
+   M /trunk-1.8/ui/gtk/file_dlg.h
+
+Copy over r43381 from trunk:
+
+  ------------------------------------------------------------------------
+  r43381 | guy | 2012-06-19 12:20:47 -0700 (Tue, 19 Jun 2012) | 5 lines
+
+  The GTK+ file chooser already *includes* UI code to ask the user whether
+  they want to overwrite an existing file; just use that.  (The Win32 file
+  chooser also does that itself.)  Just do UI for "do you want to
+  overwrite this {user-immutable,unwritable} file?".
+
+------------------------------------------------------------------------
+r43382 | guy | 2012-06-19 12:22:04 -0700 (Tue, 19 Jun 2012) | 11 lines
+Changed paths:
+   M /trunk-1.8/ui/gtk/pixmap_save.c
+
+Copy over r43380 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43380 | guy | 2012-06-19 11:47:22 -0700 (Tue, 19 Jun 2012) | 6 lines
+
+  The "save as" dialog is modal, so we don't need to worry about keeping
+  track of multiple such "save as" windows.
+
+  Use modal dialog boxes to report errors, while we're at it.  That lets
+  us keep the dialog open if we get an error.
+
+------------------------------------------------------------------------
+r43378 | gerald | 2012-06-19 10:41:23 -0700 (Tue, 19 Jun 2012) | 80 lines
+Changed paths:
+   M /trunk-1.8/Makefile.am
+   M /trunk-1.8/debian/rules
+   M /trunk-1.8/doc/Makefile.am
+   M /trunk-1.8/doc/tshark.pod
+   M /trunk-1.8/doc/wireshark-filter.pod
+   M /trunk-1.8/dumpcap.c
+   M /trunk-1.8/epan/dissectors/packet-gsm_sms.c
+   M /trunk-1.8/packaging/macosx/Scripts/cli-postinstall.sh
+   M /trunk-1.8/packaging/macosx/osx-app.sh
+   M /trunk-1.8/packaging/nsis/Makefile.nmake
+   M /trunk-1.8/packaging/nsis/wireshark.nsi
+   M /trunk-1.8/ui/gtk/CMakeLists.txt
+   M /trunk-1.8/ui/gtk/capture_if_dlg.c
+   M /trunk-1.8/ui/gtk/main_menubar.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43343 | tuexen | 2012-06-18 14:50:59 -0700 (Mon, 18 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/dumpcap.c
+
+  Fix compilation on FreeBSD.
+  ------------------------------------------------------------------------
+  r43345 | etxrab | 2012-06-18 23:08:58 -0700 (Mon, 18 Jun 2012) | 12 lines
+  Changed paths:
+     M /trunk/ui/gtk/capture_if_dlg.c
+
+  From Pontus Fuchs:
+  If there are many interfaces the button bar is not visible
+  unless you manually resize the dialog. On a normal Linux PC
+  you can easily reach 15-20 interfaces due to USB monitor.
+
+  Add a vbox so that you get a scrollbar for the interface table
+  instead of on the window. This way the button bar is always
+  visible.
+
+  Also increase the default height to handle 20 interfaces.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7379
+  ------------------------------------------------------------------------
+  r43362 | darkjames | 2012-06-19 07:25:50 -0700 (Tue, 19 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_sms.c
+
+  Fix bug #7378: Wireshark 1.8.0rc1: gsm_a_dtap SMS 7-bit default alphabet regression w.r.t. 1.6.8
+
+  proto_item_add_string() can be only used with ASCII strings.
+  ------------------------------------------------------------------------
+  r43367 | etxrab | 2012-06-19 07:49:12 -0700 (Tue, 19 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/ui/gtk/CMakeLists.txt
+     M /trunk/ui/gtk/main_menubar.c
+
+  Get rid of the remnats of NEW_MENU_CODE.
+  It's probably not a good idea to read the menu bar code from file as it causes problems with permissions when Wireshark is run fom build dir.
+  ------------------------------------------------------------------------
+  r43368 | etxrab | 2012-06-19 07:54:11 -0700 (Tue, 19 Jun 2012) | 1 line
+  Changed paths:
+     M /trunk/Makefile.am
+     M /trunk/packaging/nsis/wireshark.nsi
+
+  Don't install main-menubar-ui.xml
+  ------------------------------------------------------------------------
+  r43370 | morriss | 2012-06-19 08:39:52 -0700 (Tue, 19 Jun 2012) | 9 lines
+  Changed paths:
+     M /trunk/Makefile.am
+     M /trunk/debian/rules
+     M /trunk/doc/Makefile.am
+
+  Don't install idl2wrs except in Debian's special wireshark-dev package.
+
+  (Normal Wireshark installations can't be used to develop dissectors so there's
+  no need to install it or its man page.)
+
+  http://www.wireshark.org/lists/wireshark-dev/201206/msg00073.html
+
+  (The Debian changes are untested.)
+  ------------------------------------------------------------------------
+  r43371 | gerald | 2012-06-19 08:44:10 -0700 (Tue, 19 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/doc/tshark.pod
+     M /trunk/doc/wireshark-filter.pod
+
+  Remove what appears to be an errant vi/vim command and add a newline.
+  ------------------------------------------------------------------------
+  r43377 | morriss | 2012-06-19 10:32:49 -0700 (Tue, 19 Jun 2012) | 1 line
+  Changed paths:
+     M /trunk/packaging/macosx/Scripts/cli-postinstall.sh
+     M /trunk/packaging/macosx/osx-app.sh
+     M /trunk/packaging/nsis/Makefile.nmake
+
+  Followup to r43370: don't install idl2wrs or its man page.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43341 | gerald | 2012-06-18 13:58:11 -0700 (Mon, 18 Jun 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/tools/git-compare-abis.sh
+
+Use a tag that compiles (r43301).
+------------------------------------------------------------------------
+r43340 | gerald | 2012-06-18 13:56:26 -0700 (Mon, 18 Jun 2012) | 1 line
+Changed paths:
+   M /trunk-1.8/version.conf
+
+Switch back to interim versions.
+------------------------------------------------------------------------
+r43337 | gerald | 2012-06-18 11:43:07 -0700 (Mon, 18 Jun 2012) | 2 lines
+Changed paths:
+   M /trunk-1.8/ChangeLog
+   M /trunk-1.8/version.conf
+
+Build 1.8.0rc2.
+
+------------------------------------------------------------------------
 r43336 | gerald | 2012-06-18 10:26:50 -0700 (Mon, 18 Jun 2012) | 57 lines
 Changed paths:
    M /trunk-1.8/epan/dissectors/packet-dtls.c
