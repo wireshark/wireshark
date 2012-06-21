@@ -245,7 +245,7 @@ tb80211_iface_changed_cb(GtkWidget *widget, gpointer data _U_)
     struct ws80211_interface *iface;
     struct ws80211_iface_info iface_info;
     gchar *active;
-    GtkComboBoxText *combo = GTK_COMBO_BOX_TEXT(widget);
+    GtkComboBox *combo = GTK_COMBO_BOX_TEXT(widget);
 
     if (tb80211_dont_set_iface)
         return;
