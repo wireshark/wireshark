@@ -411,11 +411,9 @@ ws80211_toolbar_new(void)
     toolbar_redraw_all();
 
     ret = ws80211_init();
-    if (ret == -ENOTSUP)
-        tb80211_set_info("<b>Wireless support not enabled</b>");
-    else if(ret)
+    if(ret) {
         tb80211_set_info("<b>Failed to initialize ws80211</b>");
-    else {
+    } else {
         tb80211_update_interfaces();
     }
 
