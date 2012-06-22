@@ -1362,7 +1362,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	int		 i, consumed, basictype_consumed;
 	int		 optoff, optleft, optend;
 	proto_tree	*v_tree;
-	proto_item	*vti;
+	proto_item	*vti, *ti;
 	guint8		 protocol;
 	guint8		 algorithm;
 	guint8		 rdm;
@@ -1514,6 +1514,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		tvb, voff, consumed, code, "(%d) %s", code, opt->text);
 	v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 	proto_tree_add_item(v_tree, hf_bootp_option_length, tvb, voff+1, 1, ENC_BIG_ENDIAN);
+
+	ti = proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, ENC_NA);
+	PROTO_ITEM_SET_HIDDEN(ti);
 
 	/* Special cases */
 	switch (code) {
@@ -2353,7 +2356,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	guint8      subopt, idx, vs_opt, vs_len;
 	int         subopt_len, subopt_end, datalen;
 	guint32     enterprise;
-	proto_item *vti;
+	proto_item *vti, *ti;
 	proto_tree *o82_v_tree, *o82_sub_tree;
 	guint8      tag, tag_len;
 
@@ -2422,90 +2425,94 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 			break;
 		}
 	}
-	if ( (idx < 1 ) || (idx == array_length(o82_opt)) ) {
-		proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
-	} else if (o82_opt[idx].info.ftype == special) {
-		switch(subopt)
-		{
-		case 9:
-			while (suboptoff < subopt_end) {
-				enterprise = tvb_get_ntohl(tvb, suboptoff);
-				vti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_vi_enterprise, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
-				suboptoff += 4;
 
-				o82_sub_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption9);
-				datalen = tvb_get_guint8(tvb, suboptoff);
-				proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_data_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-				suboptoff++;
+	ti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
 
-				switch (enterprise) {
-				case 4491: /* CableLab */
-					vs_opt = tvb_get_guint8(tvb, suboptoff);
-					proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_option, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-					suboptoff++;
-					vs_len = tvb_get_guint8(tvb, suboptoff);
-					proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+	if ( (idx >= 1 ) && (idx < array_length(o82_opt)) ) {
+		PROTO_ITEM_SET_HIDDEN(ti);
+		if (o82_opt[idx].info.ftype == special) {
+			switch(subopt)
+			{
+			case 9:
+				while (suboptoff < subopt_end) {
+					enterprise = tvb_get_ntohl(tvb, suboptoff);
+					vti = proto_tree_add_item(o82_v_tree, hf_bootp_option82_vi_enterprise, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+					suboptoff += 4;
+
+					o82_sub_tree = proto_item_add_subtree(vti, ett_bootp_option82_suboption9);
+					datalen = tvb_get_guint8(tvb, suboptoff);
+					proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_data_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 					suboptoff++;
 
-					switch (vs_opt) {
+					switch (enterprise) {
+					case 4491: /* CableLab */
+						vs_opt = tvb_get_guint8(tvb, suboptoff);
+						proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_option, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+						suboptoff++;
+						vs_len = tvb_get_guint8(tvb, suboptoff);
+						proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+						suboptoff++;
 
-					case 1:
-						if (vs_len == 4) {
-							tag = tvb_get_guint8(tvb, suboptoff);
-							proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_tag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-							tag_len = tvb_get_guint8(tvb, suboptoff+1);
-							proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, ENC_BIG_ENDIAN);
-							suboptoff+=2;
-							if (tag == 1) {
-								proto_tree_add_uint_format_value(o82_sub_tree, hf_bootp_option82_vi_cl_docsis_version,
-										  tvb, suboptoff, 2, 0, "%d.%d",
-										  tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1));
+						switch (vs_opt) {
+
+						case 1:
+							if (vs_len == 4) {
+								tag = tvb_get_guint8(tvb, suboptoff);
+								proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_tag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+								tag_len = tvb_get_guint8(tvb, suboptoff+1);
+								proto_tree_add_item(o82_sub_tree, hf_bootp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, ENC_BIG_ENDIAN);
 								suboptoff+=2;
+								if (tag == 1) {
+									proto_tree_add_uint_format_value(o82_sub_tree, hf_bootp_option82_vi_cl_docsis_version,
+											  tvb, suboptoff, 2, 0, "%d.%d",
+											  tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1));
+									suboptoff+=2;
+								} else {
+									expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
+										"Unknown tag %d (%d bytes)", tag, tag_len);
+									suboptoff += tag_len;
+								}
 							} else {
-								expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
-									"Unknown tag %d (%d bytes)", tag, tag_len);
-								suboptoff += tag_len;
+								suboptoff += vs_len;
 							}
-						} else {
-							suboptoff += vs_len;
-						}
-					  break;
+							break;
 
+						default:
+							expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
+									"Invalid suboption %d (%d bytes)", vs_opt, vs_len);
+							suboptoff += vs_len;
+							break;
+						}
+						break;
 					default:
-						expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
-								"Invalid suboption %d (%d bytes)", vs_opt, vs_len);
-						suboptoff += vs_len;
+						proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, datalen, ENC_NA);
+						suboptoff += datalen;
 						break;
 					}
-					break;
-				default:
-					proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, datalen, ENC_NA);
-					suboptoff += datalen;
+				}
+				break;
+			case 151:
+				if (subopt_len != 7) {
+					expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
+									"Invalid length (expected 7 bytes, found %d bytes)", subopt_len);
 					break;
 				}
-			}
-			break;
-		case 151:
-			if (subopt_len != 7) {
-				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR,
-								"Invalid length (expected 7 bytes, found %d bytes)", subopt_len);
+				proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_oui, tvb, suboptoff, 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_index, tvb, suboptoff+3, 4, ENC_BIG_ENDIAN);
+				break;
+			default:
+				if (o82_opt[idx].info.phf != NULL)
+					proto_tree_add_item(o82_v_tree, *o82_opt[idx].info.phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				else
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
 				break;
 			}
-			proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_oui, tvb, suboptoff, 3, ENC_BIG_ENDIAN);
-			proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_index, tvb, suboptoff+3, 4, ENC_BIG_ENDIAN);
-			break;
-		default:
-			if (o82_opt[idx].info.phf != NULL)
-				proto_tree_add_item(o82_v_tree, *o82_opt[idx].info.phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
-			else
-				proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
-			break;
 		}
-	}
-	else {
-		if (bootp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[idx].info.ftype,
-					     suboptoff, subopt_len, o82_opt[idx].info.phf, &default_hfs) == 0) {
-			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
+		else {
+			if (bootp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[idx].info.ftype,
+						     suboptoff, subopt_len, o82_opt[idx].info.phf, &default_hfs) == 0) {
+				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
+			}
 		}
 	}
 
@@ -2540,7 +2547,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	guint8      subopt;
 	guint8      subopt_len;
 	proto_tree *o43pxeclient_v_tree;
-	proto_item *vti;
+	proto_item *vti, *ti;
 
 	struct basic_types_hfs default_hfs = {
 		NULL,
@@ -2606,6 +2613,9 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	o43pxeclient_v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
 	proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
+
+	ti = proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
+	PROTO_ITEM_SET_HIDDEN(ti);
 
 	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */
 		/* case special */
@@ -3080,7 +3090,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	int         suboptoff = optoff;
 	guint8      subopt, subopt_len;
 	proto_tree *o63_v_tree;
-	proto_item *vti;
+	proto_item *vti, *ti;
 
 	struct basic_types_hfs default_hfs = {
 		NULL,
@@ -3129,6 +3139,9 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_tree_add_item(o63_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
+	ti = proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, ENC_NA);
+	PROTO_ITEM_SET_HIDDEN(ti);
+
 	if (subopt < array_length(o63_opt)) {
 		if (bootp_handle_basic_types(pinfo, o63_v_tree, vti, tvb, o63_opt[subopt].ftype,
 							suboptoff, subopt_len, o63_opt[subopt].phf, &default_hfs) == 0) {
@@ -3142,7 +3155,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				break;
 			default:
 				if (o63_opt[subopt].phf == NULL)
-				   proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, ENC_NA);
+					proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, ENC_NA);
 				break;
 			}
 		}
@@ -3167,7 +3180,7 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 {
 	int         suboptoff = optoff;
 	proto_tree *o125_v_tree;
-	proto_item *vti;
+	proto_item *vti, *ti;
 	guint8      subopt, subopt_len;
 
 	struct basic_types_hfs default_hfs = {
@@ -3221,6 +3234,9 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 			"Suboption %d: no room left in option for suboption value", subopt);
 		return (optend);
 	}
+
+	ti = proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
+	PROTO_ITEM_SET_HIDDEN(ti);
 
 	if (subopt < array_length(o125_tr111_opt)) {
 		if (bootp_handle_basic_types(pinfo, o125_v_tree, vti, tvb, o125_tr111_opt[subopt].ftype,
@@ -5119,37 +5135,37 @@ proto_register_bootp(void)
 		    "Bootp/Dhcp option value", HFILL }},
 
 		{ &hf_bootp_option_value_8,
-		  { "Value", "bootp.option.value",
+		  { "Value", "bootp.option.value.uint",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "8-bit Bootp/Dhcp option value", HFILL }},
 
 		{ &hf_bootp_option_value_16,
-		  { "Value", "bootp.option.value",
+		  { "Value", "bootp.option.value.uint",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "16-bit Bootp/Dhcp option value", HFILL }},
 
 		{ &hf_bootp_option_value_u32,
-		  { "Value", "bootp.option.value",
+		  { "Value", "bootp.option.value.uint",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    "32-bit Bootp/Dhcp option value", HFILL }},
 
 		{ &hf_bootp_option_value_i32,
-		  { "Value", "bootp.option.value",
+		  { "Value", "bootp.option.value.int",
 		    FT_INT32, BASE_DEC, NULL, 0x0,
 		    "32-bit Bootp/Dhcp option value", HFILL }},
 
 		{ &hf_bootp_option_value_stringz,
-		  { "Value", "bootp.option.value",
+		  { "Value", "bootp.option.value.string",
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Z-String Bootp/Dhcp option value", HFILL }},
 
 		{ &hf_bootp_option_value_ip_address,
-		  { "Value", "bootp.option.value",
+		  { "Value", "bootp.option.value.address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "IP address Bootp/Dhcp option value", HFILL }},
 
 		{ &hf_bootp_option_value_boolean,
-		  { "Value", "bootp.option.value",
+		  { "Value", "bootp.option.value.bool",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0x00,
 		    "Boolean Bootp/Dhcp option value", HFILL }},
 
@@ -5385,22 +5401,22 @@ proto_register_bootp(void)
 		    "Option 43: Suboption value", HFILL }},
 
 		{ &hf_bootp_option43_value_8,
-		  { "Value", "bootp.option.vendor.value",
+		  { "Value", "bootp.option.vendor.value.uint",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 43: Suboption 8-bit value", HFILL }},
 
 		{ &hf_bootp_option43_value_32,
-		  { "Value", "bootp.option.vendor.value",
+		  { "Value", "bootp.option.vendor.value.uint",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Option 43: Suboption 32-bit value", HFILL }},
 
 		{ &hf_bootp_option43_value_stringz,
-		  { "Value", "bootp.option.vendor.value",
+		  { "Value", "bootp.option.vendor.value.string",
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 43: Suboption Z-String value", HFILL }},
 
 		{ &hf_bootp_option43_value_ip_address,
-		  { "Value", "bootp.option.vendor.value",
+		  { "Value", "bootp.option.vendor.value.address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 43: Suboption IP address", HFILL }},
 
@@ -5537,7 +5553,7 @@ proto_register_bootp(void)
 		    "Option 43:CL 8 Organizationally Unique Identifier", HFILL }},
 
 		{ &hf_bootp_option43_cl_oui_bytes,
-		  { "Organizationally Unique Identifier", "bootp.option.vendor.cl.oui_string",
+		  { "Organizationally Unique Identifier", "bootp.option.vendor.cl.oui_bytes",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 43:CL 8 Organizationally Unique Identifier", HFILL }},
 
@@ -5759,17 +5775,17 @@ proto_register_bootp(void)
 		    "Option 63: Suboption value", HFILL }},
 
 		{ &hf_bootp_option63_value_8,
-		  { "Value", "bootp.option.novell_options.value",
+		  { "Value", "bootp.option.novell_options.value.uint",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 63: Suboption 8-bit value", HFILL }},
 
 		{ &hf_bootp_option63_value_ip_address,
-		  { "Value", "bootp.option.novell_options.value",
+		  { "Value", "bootp.option.novell_options.value.address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 63: Suboption IP address", HFILL }},
 
 		{ &hf_bootp_option63_value_boolean,
-		  { "Value", "bootp.option.novell_options.value",
+		  { "Value", "bootp.option.novell_options.value.bool",
 		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0x00,
 		    "Option 63: Suboption Boolean value", HFILL }},
 
@@ -5906,22 +5922,22 @@ proto_register_bootp(void)
 		    "Option 82: Suboption value", HFILL }},
 
 		{ &hf_bootp_option82_value_8,
-		  { "Value", "bootp.option.agent_information_option.value",
+		  { "Value", "bootp.option.agent_information_option.value.uint",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 82: Suboption 8-bit value", HFILL }},
 
 		{ &hf_bootp_option82_value_32,
-		  { "Value", "bootp.option.agent_information_option.value",
+		  { "Value", "bootp.option.agent_information_option.value.uint",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Option 82: Suboption 32-bit value", HFILL }},
 
 		{ &hf_bootp_option82_value_ip_address,
-		  { "Value", "bootp.option.agent_information_option.value",
+		  { "Value", "bootp.option.agent_information_option.value.address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 82: Suboption IP address", HFILL }},
 
 		{ &hf_bootp_option82_value_stringz,
-		  { "Value", "bootp.option.agent_information_option.value",
+		  { "Value", "bootp.option.agent_information_option.value.string",
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 82: Suboption Z-String value", HFILL }},
 
@@ -6222,22 +6238,22 @@ proto_register_bootp(void)
 		    "Option 125: Suboption value", HFILL }},
 
 		{ &hf_bootp_option125_value_8,
-		  { "Value", "bootp.option.vi.value",
+		  { "Value", "bootp.option.vi.value.uint",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 125: Suboption 8-bit value", HFILL }},
 
 		{ &hf_bootp_option125_value_16,
-		  { "Value", "bootp.option.vi.value",
+		  { "Value", "bootp.option.vi.value.uint",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "Option 125: Suboption 16-bit value", HFILL }},
 
 		{ &hf_bootp_option125_value_ip_address,
-		  { "Value", "bootp.option.vi.value",
+		  { "Value", "bootp.option.vi.value.address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 125: Suboption IP address value", HFILL }},
 
 		{ &hf_bootp_option125_value_stringz,
-		  { "Value", "bootp.option.vi.value",
+		  { "Value", "bootp.option.vi.value.string",
 		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    "Option 125: Suboption Z-String value", HFILL }},
 
