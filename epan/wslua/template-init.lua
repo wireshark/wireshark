@@ -39,13 +39,14 @@ run_user_scripts_when_superuser = false
 
 -- disable potentialy harmful lua functions when running superuser
 if running_superuser then
+    local hint = "has been disabled due to running Wireshark as superuser. See http://wiki.wireshark.org/CaptureSetup/CapturePrivileges for help in running Wireshark as an unprivileged user."
     local disabled_lib = {}
-    setmetatable(disabled_lib,{ __index = function() error("this package has been disabled") end } );
+    setmetatable(disabled_lib,{ __index = function() error("this package ".. hint) end } );
 
-    dofile = function() error("dofile has been disabled") end
-    loadfile = function() error("loadfile has been disabled") end
-    loadlib = function() error("loadlib has been disabled") end
-    require = function() error("require has been disabled") end
+    dofile = function() error("dofile " .. hint) end
+    loadfile = function() error("loadfile " .. hint) end
+    loadlib = function() error("loadlib " .. hint) end
+    require = function() error("require " .. hint) end
     os = disabled_lib
     io = disabled_lib
     file = disabled_lib
