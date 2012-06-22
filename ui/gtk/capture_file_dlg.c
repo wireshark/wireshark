@@ -2104,7 +2104,7 @@ color_toggle_selected_cb(GtkWidget *widget, gpointer data _U_)
 void
 file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 {
-#if USE_WIN32_FILE_DIALOGS
+#ifdef USE_WIN32_FILE_DIALOGS
   win32_export_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), filter_list);
 #else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget *file_color_export_w;
