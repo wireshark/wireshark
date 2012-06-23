@@ -2922,57 +2922,57 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_null,
-          { "Data: NULL",       "tds.type_varbyte.data",
+          { "Data: NULL",       "tds.type_varbyte.data.null",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_boolean,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.bool",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_int1,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.int",
             FT_INT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_int2,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.int",
             FT_INT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_int4,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.int",
             FT_INT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_int8,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.int64",
             FT_INT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_float,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.float",
             FT_FLOAT, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_double,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.double",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_bytes,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.bytes",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_guid,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.guid",
             FT_GUID, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_string,
-          { "Data",             "tds.type_varbyte.data",
+          { "Data",             "tds.type_varbyte.data.string",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

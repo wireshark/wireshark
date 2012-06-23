@@ -896,27 +896,27 @@ proto_register_mongo(void)
       "Element Length", HFILL }
     },
     { &hf_mongo_element_value_boolean,
-      { "Value", "mongo.element.value",
+      { "Value", "mongo.element.value.bool",
       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "Element Value", HFILL }
     },
     { &hf_mongo_element_value_int32,
-      { "Value", "mongo.element.value",
+      { "Value", "mongo.element.value.int",
       FT_INT32, BASE_DEC, NULL, 0x0,
       "Element Value", HFILL }
     },
     { &hf_mongo_element_value_int64,
-      { "Value", "mongo.element.value",
+      { "Value", "mongo.element.value.int64",
       FT_INT64, BASE_DEC, NULL, 0x0,
       "Element Value", HFILL }
     },
     { &hf_mongo_element_value_double,
-      { "Value", "mongo.element.value",
+      { "Value", "mongo.element.value.double",
       FT_DOUBLE, BASE_NONE, NULL, 0x0,
       "Element Value", HFILL }
     },
     { &hf_mongo_element_value_string,
-      { "Value", "mongo.element.value",
+      { "Value", "mongo.element.value.string",
       FT_STRING, BASE_NONE, NULL, 0x0,
       "Element Value", HFILL }
     },
@@ -926,7 +926,7 @@ proto_register_mongo(void)
       "Element Value Length", HFILL }
     },
     { &hf_mongo_element_value_binary,
-      { "Value", "mongo.element.value",
+      { "Value", "mongo.element.value.bytes",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Element Value", HFILL }
     },
