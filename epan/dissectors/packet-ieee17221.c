@@ -4515,7 +4515,7 @@ proto_register_17221(void)
 
       /* SET_CLOCK_SOURCE / GET_CLOCK_SOURCE */
       { &hf_aecp_clock_source_id,
-         { "Clock Source ID", "ieee17221.clock_source_id",
+         { "Clock Source ID", "ieee17221.aecp_clock_source_id",
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
 
@@ -5854,7 +5854,7 @@ proto_register_17221(void)
       },
       /* BEGIN STREAM FORMAT (SF) FIELDS */
       { &hf_aem_stream_format,
-         {"Stream Format", "ieee17221.stream_format",
+         {"Stream Format", "ieee17221.aem_stream_format",
             FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_sf_version,
