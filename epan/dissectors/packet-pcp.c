@@ -1987,63 +1987,63 @@ void proto_register_pcp(void)
           }
         },
         { &hf_pcp_instance_value_insitu,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.uint",
             FT_UINT32, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_ptr,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.string",
             FT_STRING, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_int,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.int",
             FT_INT32, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_uint,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.uint",
             FT_UINT32, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_int64,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.int64",
             FT_INT64, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_uint64,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.uint64",
             FT_UINT64, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_float,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.float",
             FT_FLOAT, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_double,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.double",
             FT_DOUBLE, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL
           }
         },
         { &hf_pcp_instance_value_aggr,
-          { "Instance Value", "pcp.instance.value",
+          { "Instance Value", "pcp.instance.value.bytes",
             FT_BYTES, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL
