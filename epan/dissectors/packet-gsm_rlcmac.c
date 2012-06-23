@@ -1267,7 +1267,7 @@ CSN_DESCR_END(Starting_Frame_Number_t)
 /*< Ack/Nack Description IE >*/
 static const
 CSN_DESCR_BEGIN(Ack_Nack_Description_t)
-  M_UINT        (Ack_Nack_Description_t,  FINAL_ACK_INDICATION, 1, &hf_ack_nack_description_final_ack_indication),
+  M_UINT       (Ack_Nack_Description_t,  FINAL_ACK_INDICATION, 1, &hf_ack_nack_description_final_ack_indication),
   M_UINT       (Ack_Nack_Description_t,  STARTING_SEQUENCE_NUMBER,  7, &hf_ack_nack_description_starting_sequence_number),
   M_BITMAP     (Ack_Nack_Description_t, RECEIVED_BLOCK_BITMAP, 64),
 CSN_DESCR_END  (Ack_Nack_Description_t)
@@ -6788,7 +6788,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_global_power_control_parameters_pc_meas_chan,
       { "PC_MEAS_CHAN",        "gsm_rlcmac_dl.pc_meas_chan",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
     },
@@ -6914,7 +6914,7 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_egprs_acknack_final_ack_indication,
       { "FINAL_ACK_INDICATION",        "gsm_rlcmac_dl.final_ack_indication",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
     },
