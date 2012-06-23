@@ -134,7 +134,8 @@ static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
 
 static TCHAR *build_file_open_type_list(void);
-static TCHAR *build_file_save_type_list(GArray *savable_file_types);
+static TCHAR *build_file_save_type_list(GArray *savable_file_types,
+                                        gboolean must_support_comments);
 
 static int            filetype;
 static packet_range_t g_range;
@@ -263,9 +264,114 @@ win32_open_file (HWND h_wnd) {
     return FALSE;
 }
 
+typedef enum {
+  SAVE,
+  SAVE_WITHOUT_COMMENTS,
+  SAVE_IN_ANOTHER_FORMAT,
+  CANCELLED
+} check_savability_t;
 
-void
-win32_save_as_file(HWND h_wnd)
+static check_savability_t
+check_save_as_with_comments(HWND parent, capture_file *cf)
+{
+    gint           response;
+
+    /* Do we have any comments? */
+    if (!cf_has_comments(cf)) {
+        /* No.  Let the save happen; no comments to delete. */
+        return SAVE;
+    }
+
+    /* OK, we have comments.  Can we write them out in the selected
+       format?
+
+       XXX - for now, we "know" that pcap-ng is the only format for which
+       we support comments.  We should really ask Wiretap what the
+       format in question supports (and handle different types of
+       comments, some but not all of which some file formats might
+       not support). */
+    if (filetype == WTAP_FILE_PCAPNG) {
+        /* Yes - they selected pcap-ng.  Let the save happen; we can
+           save the comments, so no need to delete them. */
+        return SAVE;
+    }
+    /* No. Is pcap-ng one of the formats in which we can write this file? */
+    if (wtap_dump_can_write_encaps(WTAP_FILE_PCAPNG, cf->linktypes)) {
+        /* Yes.  Offer the user a choice of "Save in a format that
+           supports comments", "Discard comments and save in the
+           format you selected", or "Cancel", meaning "don't bother
+           saving the file at all".
+
+           XXX - sadly, customizing buttons in a MessageBox() is
+           Really Painful; there are tricks out there to do it
+           with a "computer-based training" hook that gets called
+           before the window is activated and sets the text of the
+           buttons, but if you change the text of the buttons you
+           also have to make the buttons bigger.  There *has* to
+           be a better way of doing that, given that Microsoft's
+           own UI guidelines have examples of dialog boxes with
+           action buttons that have custom labels, but maybe we'd
+           have to go with Windows Forms or XAML or whatever the
+           heck the technology of the week is.
+
+           Therefore, we ask a yes-or-no question - "do you want
+           to discard the comments and save in the format you
+           chose?" - and have "no" mean "I want to save the
+           file but I don't want to discard the comments, meaning
+           we should reopen the dialog and not offer the user any
+           choices that would involve discarding the comments. */
+        response = MessageBox(parent,
+  _T("The capture has comments, but the file format you chose ")
+  _T("doesn't support comments.  Do you want to discard the comments ")
+  _T("and save in the format you chose?"),
+                              _T("Wireshark: Save File As"),
+                              MB_YESNOCANCEL|MB_ICONWARNING|MB_DEFBUTTON2);
+    } else {
+        /* No.  Offer the user a choice of "Discard comments and
+           save in the format you selected" or "Cancel".
+
+           XXX - see rant above. */
+        response = MessageBox(parent,
+  _T("The capture has comments, but no file format in which it ")
+  _T("can be saved supports comments.  Do you want to discard ")
+  _T("the comments and save in the format you chose?"),
+                              _T("Wireshark: Save File As"),
+                              MB_OKCANCEL|MB_ICONWARNING|MB_DEFBUTTON2);
+    }
+
+    switch (response) {
+
+    case IDNO: /* "No" means "Save in another format" in the first dialog */
+        /* OK, the only other format we support is pcap-ng.  Make that
+           the one and only format in the combo box, and return to
+           let the user continue with the dialog.
+
+           XXX - removing all the formats from the combo box will clear
+           the compressed checkbox; get the current value and restore
+           it.
+
+           XXX - we know pcap-ng can be compressed; if we ever end up
+           supporting saving comments in a format that *can't* be
+           compressed, such as NetMon format, we must check this. */
+        /* XXX - need a compressed checkbox here! */
+        return SAVE_IN_ANOTHER_FORMAT;
+
+    case IDYES: /* "Yes" means "Discard comments and save" in the first dialog */
+    case IDOK:  /* "OK" means "Discard comments and save" in the second dialog */
+        /* Save without the comments and, if that succeeds, delete the
+           comments. */
+        return SAVE_WITHOUT_COMMENTS;
+
+    case IDCANCEL:
+    default:
+        /* Just give up. */
+        return CANCELLED;
+    }
+}
+
+gboolean
+win32_save_as_file(HWND h_wnd, capture_file *cf,
+                   gboolean must_support_comments, gboolean dont_reopen)
 {
     GArray *savable_file_types;
     OPENFILENAME *ofn;
@@ -279,57 +385,112 @@ win32_save_as_file(HWND h_wnd)
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
+    gboolean discard_comments = FALSE;
 
-    savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.linktypes);
+    savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
     if (savable_file_types == NULL)
-        return;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
+        return FALSE;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
-    /* see OPENFILENAME comment in win32_open_file */
+    /*
+     * Loop until the user either selects a file or gives up.
+     */
+    for (;;) {
+        /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&osvi);
-    if (osvi.dwMajorVersion >= 5) {
-        ofnsize = sizeof(OPENFILENAME);
-    } else {
-        ofnsize = OPENFILENAME_SIZE_VERSION_400;
-    }
+        SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+        GetVersionEx(&osvi);
+        if (osvi.dwMajorVersion >= 5) {
+            ofnsize = sizeof(OPENFILENAME);
+        } else {
+            ofnsize = OPENFILENAME_SIZE_VERSION_400;
+        }
 #else
-    ofnsize = sizeof(OPENFILENAME) + 12;
+        ofnsize = sizeof(OPENFILENAME) + 12;
 #endif
-    ofn = g_malloc0(ofnsize);
+        ofn = g_malloc0(ofnsize);
 
-    ofn->lStructSize = ofnsize;
-    ofn->hwndOwner = h_wnd;
+        ofn->lStructSize = ofnsize;
+        ofn->hwndOwner = h_wnd;
 #if (_MSC_VER <= 1200)
-    ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+        ofn->hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
 #else
-    ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
+        ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
 #endif
-    ofn->lpstrFilter = build_file_save_type_list(savable_file_types);
-    ofn->lpstrCustomFilter = NULL;
-    ofn->nMaxCustFilter = 0;
-    ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
-    ofn->lpstrFile = file_name16;
-    ofn->nMaxFile = MAX_PATH;
-    ofn->lpstrFileTitle = NULL;
-    ofn->nMaxFileTitle = 0;
-    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
-    ofn->lpstrTitle = _T("Wireshark: Save file as");
-    ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
-                 OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
-    ofn->lpstrDefExt = NULL;
-    ofn->lpfnHook = save_as_file_hook_proc;
-    ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
+        ofn->lpstrFilter = build_file_save_type_list(savable_file_types,
+                                                     must_support_comments);
+        ofn->lpstrCustomFilter = NULL;
+        ofn->nMaxCustFilter = 0;
+        ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
+        ofn->lpstrFile = file_name16;
+        ofn->nMaxFile = MAX_PATH;
+        ofn->lpstrFileTitle = NULL;
+        ofn->nMaxFileTitle = 0;
+        ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+        ofn->lpstrTitle = _T("Wireshark: Save file as");
+        ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
+                     OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                     OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
+        ofn->lpstrDefExt = NULL;
+        ofn->lpfnHook = save_as_file_hook_proc;
+        ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
 
-    if (GetSaveFileName(ofn)) {
+        if (!GetSaveFileName(ofn)) {
+            /* User cancelled or closed the dialog, or an error occurred. */
+            if (CommDlgExtendedError() == 0) {
+                /* User cancelled or closed the dialog. */
+                return FALSE; /* No save, no comments discarded */
+            }
+            /* XXX - pop up some error here. FNERR_INVALIDFILENAME
+               might be a user error; if so, they should know about
+               it. */
+            continue;
+        }
+
+        /* What file format was specified? */
         filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
 
+        /* If the file has comments, does the format the user selected
+           support them?  If not, ask the user whether they want to
+           discard the comments or choose a different format. */
+        switch (check_save_as_with_comments(h_wnd, cf)) {
+
+        case SAVE:
+            /* The file can be saved in the specified format as is;
+               just drive on and save in the format they selected. */
+            discard_comments = FALSE;
+            break;
+
+        case SAVE_WITHOUT_COMMENTS:
+            /* The file can't be saved in the specified format as is,
+               but it can be saved without the comments, and the user
+               said "OK, discard the comments", so save it in the
+               format they specified without the comments. */
+            discard_comments = TRUE;
+            break;
+
+        case SAVE_IN_ANOTHER_FORMAT:
+            /* There are file formats in which we can save this that
+               support comments, and the user said not to delete the
+               comments.  Reopen the "Save As" dialog, but with the
+               list of file formats including only the formats that
+               support comments, to let the user decide whether to save
+               in one of those formats or give up. */
+            discard_comments = FALSE;
+            must_support_comments = TRUE;
+            g_free( (void *) ofn->lpstrFilter);
+            g_free( (void *) ofn);
+            continue;
+
+        case CANCELLED:
+            /* The user said "forget it".  Just return. */
+            return FALSE; /* No save, no comments discarded */
+        }      
+
         /*
-         * Append the default file extension if there's none given by the user
-         * or if they gave one that's not one of the valid extensions for
-         * the file type.
+         * Append the default file extension if there's none given by
+         * the user or if they gave one that's not one of the valid
+         * extensions for the file type.
          */
         file_name8 = g_string_new(utf_16to8(file_name16));
         file_last_dot = strrchr(file_name8->str,'.');
@@ -345,8 +506,12 @@ win32_save_as_file(HWND h_wnd)
                 /* OK, see if the file has one of those extensions. */
                 for (extension = extensions_list; extension != NULL;
                      extension = g_slist_next(extension)) {
-                    if (g_ascii_strcasecmp((char *)extension->data, file_last_dot) == 0) {
-                        /* The file name has one of the extensions for this file type */
+                    if (g_ascii_strcasecmp((char *)extension->data,
+                                           file_last_dot) == 0) {
+                        /*
+                         * The file name has one of the extensions for
+                         * this file type.
+                         */
                         add_extension = FALSE;
                         break;
                     }
@@ -358,16 +523,18 @@ win32_save_as_file(HWND h_wnd)
         }
         if (add_extension) {
             if (wtap_default_file_extension(filetype) != NULL) {
-                g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(filetype));
+                g_string_append_printf(file_name8, ".%s",
+                                       wtap_default_file_extension(filetype));
             }
         }
 
         g_sf_hwnd = NULL;
 
         /*
-         * GetSaveFileName() already asked the user if he wants to overwrite
-         * the old file, so if we are here, the user already said "yes".
-         * Write out all the packets to the file with the specified name.
+         * GetSaveFileName() already asked the user if he wants to
+         * overwrite the old file, so if we are here, the user already
+         * said "yes". Write out all the packets to the file with the
+         * specified name.
          *
          * XXX: if the cf_save_packets() fails, it will do a GTK+
          * simple_dialog(), which is not useful while runing a Windows
@@ -378,26 +545,36 @@ win32_save_as_file(HWND h_wnd)
          * This should be fixed even though the cf_save_packets()
          * presumably should rarely fail in this case.
          */
-        if (cf_save_packets(&cfile, file_name8->str, filetype, FALSE/*compressed */, FALSE/*discard_comments */, FALSE/* dont_reopen */) != CF_OK) {
-            /* The write failed.  Try again. */
-            g_array_free(savable_file_types, TRUE);
+        switch (cf_save_packets(&cfile, file_name8->str, filetype,
+                            FALSE/*compressed */,
+                            discard_comments,
+                            dont_reopen)) {
+        case CF_WRITE_OK:
+            /* The save succeeded; we're done.
+               Save the directory name for future file dialogs. */
+            dirname = get_dirname(file_name8->str);  /* Overwrites file_name8->str */
+            set_last_open_dir(dirname);
+            break;
+
+        case CF_WRITE_ERROR:
+            /* The save failed; let the user try again. */
             g_string_free(file_name8, TRUE /* free_segment */);
             g_free( (void *) ofn->lpstrFilter);
             g_free( (void *) ofn);
-            win32_save_as_file(h_wnd);
-            return;
+            continue;
+
+        case CF_WRITE_ABORTED:
+            /* The user aborted the save; just return. */
+            break;
         }
-
-        /* Save the directory name for future file dialogs. */
-        dirname = get_dirname(file_name8->str);  /* Overwrites cf_name */
-        set_last_open_dir(dirname);
-
         g_string_free(file_name8, TRUE /* free_segment */);
+        break;
     }
     g_sf_hwnd = NULL;
     g_array_free(savable_file_types, TRUE);
     g_free( (void *) ofn->lpstrFilter);
     g_free( (void *) ofn);
+    return discard_comments;
 }
 
 
@@ -442,7 +619,7 @@ win32_export_specified_packets_file(HWND h_wnd) {
 #else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
 #endif
-    ofn->lpstrFilter = build_file_save_type_list(savable_file_types);
+    ofn->lpstrFilter = build_file_save_type_list(savable_file_types, FALSE);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
@@ -1595,7 +1772,8 @@ build_file_open_type_list(void) {
 }
 
 static TCHAR *
-build_file_save_type_list(GArray *savable_file_types) {
+build_file_save_type_list(GArray *savable_file_types,
+                          gboolean must_support_comments) {
     guint i;
     int   ft;
     GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
@@ -1604,6 +1782,10 @@ build_file_save_type_list(GArray *savable_file_types) {
     /* Get only the file types as which we can save this file. */
     for (i = 0; i < savable_file_types->len; i++) {
         ft = g_array_index(savable_file_types, int, i);
+        if (must_support_comments) {
+            if (ft != WTAP_FILE_PCAPNG)
+                continue;
+        }
         append_file_type(sa, ft);
     }
 
