@@ -1284,6 +1284,10 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
+                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
+                    PROTO_ITEM_SET_HIDDEN(ti_opt);
 
                     /* Padding: 6 bytes */
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
@@ -3864,13 +3868,13 @@ proto_register_icmpv6(void)
           { "Target Link-layer address", "icmpv6.opt.target_linkaddr", FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_linkaddr_eui64,
-          { "Link-layer address", "icmpv6.opt.linkaddr", FT_EUI64, BASE_NONE, NULL, 0x0,
+          { "Link-layer address", "icmpv6.opt.linkaddr_eui64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
        { &hf_icmpv6_opt_src_linkaddr_eui64,
-          { "Source Link-layer address", "icmpv6.opt.src_linkaddr", FT_EUI64, BASE_NONE, NULL, 0x0,
+          { "Source Link-layer address", "icmpv6.opt.src_linkaddr_eui64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
        { &hf_icmpv6_opt_target_linkaddr_eui64,
-          { "Target Link-layer address", "icmpv6.opt.target_linkaddr", FT_EUI64, BASE_NONE, NULL, 0x0,
+          { "Target Link-layer address", "icmpv6.opt.target_linkaddr_eui64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_prefix_len,
           { "Prefix Length", "icmpv6.opt.prefix.length", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3921,7 +3925,7 @@ proto_register_icmpv6(void)
           { "Ext Length", "icmpv6.opt.cga.ext_length", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_cga_ext_data,
-          { "Ext Data", "icmpv6.opt.cga.ext_length", FT_BYTES, BASE_NONE, NULL, 0x0,
+          { "Ext Data", "icmpv6.opt.cga.ext_data", FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_rsa_key_hash,
           { "Key Hash", "icmpv6.opt.rsa.key_hash", FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -4450,16 +4454,16 @@ proto_register_icmpv6(void)
            { "IPv4 subject address", "icmpv6.ni.query.subject_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
              NULL, HFILL }},
         { &hf_icmpv6_ni_reply_node_ttl,
-           { "TTL", "icmpv6.ni.query.subject_ipv4", FT_UINT32, BASE_DEC, NULL, 0x0,
+           { "TTL", "icmpv6.ni.reply.node_ttl", FT_UINT32, BASE_DEC, NULL, 0x0,
              NULL, HFILL }},
         { &hf_icmpv6_ni_reply_node_name,
-           { "Name Node", "icmpv6.ni.query.node_name", FT_STRING, BASE_NONE, NULL, 0x0,
+           { "Name Node", "icmpv6.ni.reply.node_name", FT_STRING, BASE_NONE, NULL, 0x0,
              NULL, HFILL }},
         { &hf_icmpv6_ni_reply_node_address,
-           { "IPv6 Node address", "icmpv6.ni.query.node_address", FT_IPv6, BASE_NONE, NULL, 0x0,
+           { "IPv6 Node address", "icmpv6.ni.reply.node_address", FT_IPv6, BASE_NONE, NULL, 0x0,
              NULL, HFILL }},
         { &hf_icmpv6_ni_reply_ipv4_address,
-           { "IPv4 Node address", "icmpv6.ni.query.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
+           { "IPv4 Node address", "icmpv6.ni.reply.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
              NULL, HFILL }},
 
         /* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
