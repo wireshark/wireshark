@@ -3492,22 +3492,22 @@ proto_register_gsm_a_common(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_MSC_rev,
-        { "Revision Level", "gsm_a.MSC2_rev",
+        { "Revision Level", "gsm_a.MSC_rev",
         FT_UINT8, BASE_DEC, VALS(gsm_a_msc_rev_vals), 0x60,
         NULL, HFILL }
     },
     { &hf_gsm_a_ES_IND,
-        { "ES IND", "gsm_a.MSC2_rev",
+        { "ES IND", "gsm_a.ES_IND",
         FT_BOOLEAN, 8, TFS(&ES_IND_vals), 0x10,
             NULL, HFILL }
     },
     { &hf_gsm_a_A5_1_algorithm_sup,
-        { "A5/1 algorithm supported", "gsm_a.MSC2_rev",
+        { "A5/1 algorithm supported", "gsm_a.A5_1_algorithm_sup",
         FT_BOOLEAN, 8, TFS(&A5_1_algorithm_sup_vals), 0x08,
         NULL, HFILL }
     },
     { &hf_gsm_a_RF_power_capability,
-        { "RF Power Capability", "gsm_a.MSC2_rev",
+        { "RF Power Capability", "gsm_a.RF_power_capability",
         FT_UINT8, BASE_DEC, VALS(RF_power_capability_vals), 0x07,
         NULL, HFILL }
     },
