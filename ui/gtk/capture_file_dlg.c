@@ -1595,7 +1595,12 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
                 gboolean dont_reopen)
 {
 #if _WIN32
-  win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
+  if (win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)),
+                         cf, must_support_comments, dont_reopen)) {
+    /* They discarded comments, so redraw the packet details window
+       to reflect any packets that no longer have comments. */
+    new_packet_list_queue_draw();
+  }
 #else /* _WIN32 */
   GtkWidget     *file_save_as_w;
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
@@ -1725,7 +1730,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
       return;
 
     case CF_WRITE_ERROR:
-      /* The save failed; let the user try again */
+      /* The save failed; let the user try again. */
       continue;
 
     case CF_WRITE_ABORTED:
