@@ -121,6 +121,8 @@
 #include "log.h"
 #include "wsutil/file_util.h"
 
+#include "ws80211_utils.h"
+
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
  * XXX - can we just use pcap_open_offline() to read the pipe?
@@ -455,6 +457,7 @@ print_usage(gboolean print_ver)
 #ifdef HAVE_BPF_IMAGE
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
 #endif
+    fprintf(output, "  -k                       set channel on wifi interface <freq>,[<type>]\n");
     fprintf(output, "  -S                       print statistics for each interface once per second\n");
     fprintf(output, "  -M                       for -D, -L, and -S, produce machine-readable output\n");
     fprintf(output, "\n");
@@ -4020,6 +4023,49 @@ capture_loop_queue_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
           pcap_queue_bytes, pcap_queue_packets);
 }
 
+static int
+set_80211_channel(const char *iface, const char *opt)
+{
+    int freq = 0, type, ret;
+    gchar **options = NULL;
+    options = g_strsplit_set(opt, ",", 2);
+
+    if (options[0])
+        freq = atoi(options[0]);
+
+    if (options[1]) {
+        type = ws80211_str_to_chan_type(options[1]);
+        if (type == -1) {
+            ret = EINVAL;
+            goto out;
+        }
+    }
+    else
+        type = -1;
+
+    ret = ws80211_init();
+    if (ret) {
+        cmdarg_err("%d: Failed to init ws80211: %s\n", abs(ret), g_strerror(abs(ret)));
+        ret = 2;
+        goto out;
+    }
+    ret = ws80211_set_freq(iface, freq, type);
+
+    if (ret) {
+        cmdarg_err("%d: Failed to set channel: %s\n", abs(ret), g_strerror(abs(ret)));
+        ret = 2;
+        goto out;
+    }
+
+    if (capture_child)
+        pipe_write_block(2, SP_SUCCESS, NULL);
+    ret = 0;
+
+out:
+    g_strfreev(options);
+    return ret;
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -4042,6 +4088,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_BPF_IMAGE
     gboolean             print_bpf_code = FALSE;
 #endif
+    gboolean             set_chan = FALSE;
+    gchar                *set_chan_arg = NULL;
     gboolean             machine_readable = FALSE;
     gboolean             print_statistics = FALSE;
     int                  status, run_once_args = 0;
@@ -4098,7 +4146,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_d ""
 #endif
 
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "k:L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
@@ -4452,6 +4500,11 @@ main(int argc, char *argv[])
             print_statistics = TRUE;
             run_once_args++;
             break;
+        case 'k':        /* Set wireless channel */
+            set_chan = TRUE;
+            set_chan_arg = optarg;
+            run_once_args++;
+           break;
         case 'M':        /* For -D, -L, and -S, print machine-readable output */
             machine_readable = TRUE;
             break;
@@ -4573,6 +4626,19 @@ main(int argc, char *argv[])
      */
     if (print_statistics) {
         status = print_statistics_loop(machine_readable);
+        exit_main(status);
+    }
+
+    if (set_chan) {
+        interface_options interface_opts;
+
+        if (global_capture_opts.ifaces->len != 1) {
+            cmdarg_err("Need one interface");
+            exit_main(2);
+        }
+
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+        status = set_80211_channel(interface_opts.name, set_chan_arg);
         exit_main(status);
     }
 
