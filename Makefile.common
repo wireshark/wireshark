@@ -116,7 +116,8 @@ wireshark_SOURCES =	\
 	recent.c	\
 	summary.c	\
 	tempfile.c	\
-	u3.c
+	u3.c		\
+	ws80211_utils.c
 
 # corresponding headers
 wireshark_INCLUDES =	\
