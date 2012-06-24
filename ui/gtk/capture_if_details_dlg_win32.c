@@ -583,50 +583,50 @@ static const value_string win32_802_11_channel_vals[] = {
 
 
 /* Information Element IDs (802.11 Spec: "7.3.2 Information elements") */
-#define IE_ID_SSID				0
-#define IE_ID_SUPPORTED_RATES	1
-#define IE_ID_DS_PARAMETER_SET	3
-#define IE_ID_TIM				5
+#define IE_ID_SSID			0
+#define IE_ID_SUPPORTED_RATES		1
+#define IE_ID_DS_PARAMETER_SET		3
+#define IE_ID_TIM			5
 #define IE_ID_COUNTRY			7
-#define IE_ID_ERP_INFORMATION	42
-#define IE_ID_WPA2				48
+#define IE_ID_ERP_INFORMATION		42
+#define IE_ID_WPA2			48
 #define IE_ID_EXTENDED_SUPPORT_RATES	50
-#define IE_ID_VENDOR_SPECIFIC	221
+#define IE_ID_VENDOR_SPECIFIC		221
 
 /* ElementID in NDIS_802_11_VARIABLE_IEs */
 static const value_string ie_id_vals[] = {
-	{ IE_ID_SSID,					"SSID, 802.11" },
+	{ IE_ID_SSID,				"SSID, 802.11" },
 	{ IE_ID_SUPPORTED_RATES,		"Supported Rates, 802.11" },
-	{ 2,							"FH Parameter Set, 802.11" },
+	{ 2,					"FH Parameter Set, 802.11" },
 	{ IE_ID_DS_PARAMETER_SET,		"DS Parameter Set, 802.11" },
-	{ 4,							"CF Parameter Set, 802.11" },
-	{ IE_ID_TIM,					"TIM, 802.11" },
-	{ 6,							"IBSS Parameter Set, 802.11" },
-	{ IE_ID_COUNTRY,				"Country, 802.11d" },
-	{ 8,							"Hopping Pattern Parameters, 802.11d" },
-	{ 9,							"Hopping Pattern Table, 802.11d" },
-	{ 10,							"Request, 802.11d" },
-    /* 11-15 reserved, 802.11d */
-	{ 16,							"Challenge text, 802.11" },
-    /* 17-31 reserved, 802.11h */
-	{ 32,							"Power Constraint, 802.11h" },
-	{ 33,							"Power Capability, 802.11h" },
-	{ 34,							"TPC Request, 802.11h" },
-	{ 35,							"TPC Report, 802.11h" },
-	{ 36,							"Supported Channels, 802.11h" },
-	{ 37,							"Channel Switch Announcement, 802.11h" },
-	{ 38,							"Measurement Request, 802.11h" },
-	{ 39,							"Measurement Report, 802.11h" },
-	{ 40,							"Quiet, 802.11h" },
-	{ 41,							"IBSS DFS, 802.11h" },
+	{ 4,					"CF Parameter Set, 802.11" },
+	{ IE_ID_TIM,				"TIM, 802.11" },
+	{ 6,					"IBSS Parameter Set, 802.11" },
+	{ IE_ID_COUNTRY,			"Country, 802.11d" },
+	{ 8,					"Hopping Pattern Parameters, 802.11d" },
+	{ 9,					"Hopping Pattern Table, 802.11d" },
+	{ 10,					"Request, 802.11d" },
+	/* 11-15 reserved, 802.11d */
+	{ 16,					"Challenge text, 802.11" },
+	/* 17-31 reserved, 802.11h */
+	{ 32,					"Power Constraint, 802.11h" },
+	{ 33,					"Power Capability, 802.11h" },
+	{ 34,					"TPC Request, 802.11h" },
+	{ 35,					"TPC Report, 802.11h" },
+	{ 36,					"Supported Channels, 802.11h" },
+	{ 37,					"Channel Switch Announcement, 802.11h" },
+	{ 38,					"Measurement Request, 802.11h" },
+	{ 39,					"Measurement Report, 802.11h" },
+	{ 40,					"Quiet, 802.11h" },
+	{ 41,					"IBSS DFS, 802.11h" },
 	{ IE_ID_ERP_INFORMATION,		"ERP information, 802.11g" },
-    /* 43-47 reserved, 802.11i */
-	{ IE_ID_WPA2,					"WPA2/RSN (Robust Secure Network), 802.11i" },
-    /* 49 reserved, 802.11i */
+	/* 43-47 reserved, 802.11i */
+	{ IE_ID_WPA2,				"WPA2/RSN (Robust Secure Network), 802.11i" },
+	/* 49 reserved, 802.11i */
 	{ IE_ID_EXTENDED_SUPPORT_RATES,	"Extended Supported Rates, 802.11g" },
-    /* 51-255 reserved, 802.11g */
+	/* 51-255 reserved, 802.11g */
 	{ IE_ID_VENDOR_SPECIFIC,		"WPA, (not 802.11!)" },
-    { 0, NULL }
+	{ 0, NULL }
 };
 
 
@@ -635,7 +635,7 @@ static const value_string oid_vals[] = {
 	{ OID_GEN_HARDWARE_STATUS, "OID_GEN_HARDWARE_STATUS (only internally interesting)" },
 	{ OID_GEN_MEDIA_SUPPORTED, "OID_GEN_MEDIA_SUPPORTED" },
 	{ OID_GEN_MEDIA_IN_USE, "OID_GEN_MEDIA_IN_USE" },
-    { OID_GEN_MAXIMUM_LOOKAHEAD, "OID_GEN_MAXIMUM_LOOKAHEAD (unused)" },
+	{ OID_GEN_MAXIMUM_LOOKAHEAD, "OID_GEN_MAXIMUM_LOOKAHEAD (unused)" },
 	{ OID_GEN_MAXIMUM_FRAME_SIZE, "OID_GEN_MAXIMUM_FRAME_SIZE (unused)" },
 	{ OID_GEN_LINK_SPEED, "OID_GEN_LINK_SPEED" },
 	{ OID_GEN_TRANSMIT_BUFFER_SPACE, "OID_GEN_TRANSMIT_BUFFER_SPACE" },
@@ -649,7 +649,7 @@ static const value_string oid_vals[] = {
 	{ OID_GEN_DRIVER_VERSION, "OID_GEN_DRIVER_VERSION" },
 	{ OID_GEN_MAXIMUM_TOTAL_SIZE, "OID_GEN_MAXIMUM_TOTAL_SIZE" },
 	{ OID_GEN_PROTOCOL_OPTIONS, "OID_GEN_PROTOCOL_OPTIONS (info not interesting)" },
-    { OID_GEN_MAC_OPTIONS, "OID_GEN_MAC_OPTIONS" },
+	{ OID_GEN_MAC_OPTIONS, "OID_GEN_MAC_OPTIONS" },
 	{ OID_GEN_MEDIA_CONNECT_STATUS, "OID_GEN_MEDIA_CONNECT_STATUS" },
 	{ OID_GEN_MAXIMUM_SEND_PACKETS, "OID_GEN_MAXIMUM_SEND_PACKETS (only internally interesting)" },
 	{ OID_GEN_VENDOR_DRIVER_VERSION, "OID_GEN_VENDOR_DRIVER_VERSION" },
@@ -669,45 +669,45 @@ static const value_string oid_vals[] = {
 	{ OID_GEN_MULTICAST_BYTES_RCV, "OID_GEN_MULTICAST_BYTES_RCV" },
 	{ OID_GEN_MULTICAST_FRAMES_RCV, "OID_GEN_MULTICAST_FRAMES_RCV" },
 	{ OID_GEN_BROADCAST_BYTES_RCV, "OID_GEN_BROADCAST_BYTES_RCV" },
-    { OID_GEN_BROADCAST_FRAMES_RCV, "OID_GEN_BROADCAST_FRAMES_RCV" },
+	{ OID_GEN_BROADCAST_FRAMES_RCV, "OID_GEN_BROADCAST_FRAMES_RCV" },
 	{ OID_GEN_RCV_CRC_ERROR, "OID_GEN_RCV_CRC_ERROR" },
 	{ OID_GEN_TRANSMIT_QUEUE_LENGTH, "OID_GEN_TRANSMIT_QUEUE_LENGTH" },
 	{ OID_GEN_GET_TIME_CAPS, "OID_GEN_GET_TIME_CAPS (unsupp, unused)" },
 	{ OID_GEN_GET_NETCARD_TIME, "OID_GEN_GET_NETCARD_TIME (unsupp, unused)" },
 
-    { OID_GEN_PHYSICAL_MEDIUM, "OID_GEN_PHYSICAL_MEDIUM" },
+	{ OID_GEN_PHYSICAL_MEDIUM, "OID_GEN_PHYSICAL_MEDIUM" },
 	/*{ OID_GEN_MACHINE_NAME, "OID_GEN_MACHINE_NAME (unsupp, unused)" },*/
 	{ OID_GEN_VLAN_ID, "OID_GEN_VLAN_ID" },
 	{ OID_GEN_MEDIA_CAPABILITIES, "OID_GEN_MEDIA_CAPABILITIES (unsupp, unused)" },
 
-    { OID_GEN_NETWORK_LAYER_ADDRESSES, "OID_GEN_NETWORK_LAYER_ADDRESSES (write only)" },
-    { OID_GEN_TRANSPORT_HEADER_OFFSET, "OID_GEN_TRANSPORT_HEADER_OFFSET (write only)" },
+	{ OID_GEN_NETWORK_LAYER_ADDRESSES, "OID_GEN_NETWORK_LAYER_ADDRESSES (write only)" },
+	{ OID_GEN_TRANSPORT_HEADER_OFFSET, "OID_GEN_TRANSPORT_HEADER_OFFSET (write only)" },
 
 	{ OID_802_3_PERMANENT_ADDRESS, "OID_802_3_PERMANENT_ADDRESS" },
 	{ OID_802_3_CURRENT_ADDRESS, "OID_802_3_CURRENT_ADDRESS" },
-    { OID_802_3_MAXIMUM_LIST_SIZE, "OID_802_3_MAXIMUM_LIST_SIZE (unused)" },
-    { OID_802_3_MULTICAST_LIST, "OID_802_3_MULTICAST_LIST (unused)" }, /* XXX */
-    { OID_802_3_MAC_OPTIONS, "OID_802_3_MAC_OPTIONS (unsupp, unused)" },
+	{ OID_802_3_MAXIMUM_LIST_SIZE, "OID_802_3_MAXIMUM_LIST_SIZE (unused)" },
+	{ OID_802_3_MULTICAST_LIST, "OID_802_3_MULTICAST_LIST (unused)" }, /* XXX */
+	{ OID_802_3_MAC_OPTIONS, "OID_802_3_MAC_OPTIONS (unsupp, unused)" },
 
-    { OID_802_3_RCV_ERROR_ALIGNMENT, "OID_802_3_RCV_ERROR_ALIGNMENT" },
-    { OID_802_3_XMIT_ONE_COLLISION, "OID_802_3_XMIT_ONE_COLLISION" },
-    { OID_802_3_XMIT_MORE_COLLISIONS, "OID_802_3_XMIT_MORE_COLLISIONS" },
-    { OID_802_3_XMIT_DEFERRED, "OID_802_3_XMIT_DEFERRED" },
-    { OID_802_3_XMIT_MAX_COLLISIONS, "OID_802_3_XMIT_MAX_COLLISIONS" },
-    { OID_802_3_RCV_OVERRUN, "OID_802_3_RCV_OVERRUN" },
-    { OID_802_3_XMIT_UNDERRUN, "OID_802_3_XMIT_UNDERRUN" },
-    { OID_802_3_XMIT_HEARTBEAT_FAILURE, "OID_802_3_XMIT_HEARTBEAT_FAILURE (unsupp, used)" },
-    { OID_802_3_XMIT_TIMES_CRS_LOST, "OID_802_3_XMIT_TIMES_CRS_LOST (unsupp, used)" },
-    { OID_802_3_XMIT_LATE_COLLISIONS, "OID_802_3_XMIT_LATE_COLLISIONS" },
+	{ OID_802_3_RCV_ERROR_ALIGNMENT, "OID_802_3_RCV_ERROR_ALIGNMENT" },
+	{ OID_802_3_XMIT_ONE_COLLISION, "OID_802_3_XMIT_ONE_COLLISION" },
+	{ OID_802_3_XMIT_MORE_COLLISIONS, "OID_802_3_XMIT_MORE_COLLISIONS" },
+	{ OID_802_3_XMIT_DEFERRED, "OID_802_3_XMIT_DEFERRED" },
+	{ OID_802_3_XMIT_MAX_COLLISIONS, "OID_802_3_XMIT_MAX_COLLISIONS" },
+	{ OID_802_3_RCV_OVERRUN, "OID_802_3_RCV_OVERRUN" },
+	{ OID_802_3_XMIT_UNDERRUN, "OID_802_3_XMIT_UNDERRUN" },
+	{ OID_802_3_XMIT_HEARTBEAT_FAILURE, "OID_802_3_XMIT_HEARTBEAT_FAILURE (unsupp, used)" },
+	{ OID_802_3_XMIT_TIMES_CRS_LOST, "OID_802_3_XMIT_TIMES_CRS_LOST (unsupp, used)" },
+	{ OID_802_3_XMIT_LATE_COLLISIONS, "OID_802_3_XMIT_LATE_COLLISIONS" },
 
-    { OID_802_11_BSSID, "OID_802_11_BSSID" },
+	{ OID_802_11_BSSID, "OID_802_11_BSSID" },
 	{ OID_802_11_SSID, "OID_802_11_SSID" },
 	{ OID_802_11_NETWORK_TYPES_SUPPORTED, "OID_802_11_NETWORK_TYPES_SUPPORTED (info not interesting)" },
 	{ OID_802_11_NETWORK_TYPE_IN_USE, "OID_802_11_NETWORK_TYPE_IN_USE" },
 	{ OID_802_11_TX_POWER_LEVEL, "OID_802_11_TX_POWER_LEVEL (unsupp, used)" },
 	{ OID_802_11_RSSI, "OID_802_11_RSSI" },
 	{ OID_802_11_RSSI_TRIGGER, "OID_802_11_RSSI_TRIGGER (unsupp, unused)" },
-    { OID_802_11_INFRASTRUCTURE_MODE, "OID_802_11_INFRASTRUCTURE_MODE" },
+	{ OID_802_11_INFRASTRUCTURE_MODE, "OID_802_11_INFRASTRUCTURE_MODE" },
 	{ OID_802_11_FRAGMENTATION_THRESHOLD, "OID_802_11_FRAGMENTATION_THRESHOLD (unused)" },
 	{ OID_802_11_RTS_THRESHOLD, "OID_802_11_RTS_THRESHOLD (unused)" },
 	{ OID_802_11_NUMBER_OF_ANTENNAS, "OID_802_11_NUMBER_OF_ANTENNAS (unsupp, unused)" },
@@ -737,61 +737,61 @@ static const value_string oid_vals[] = {
 	{ OID_802_11_PMKID, "OID_802_11_PMKID (unsupp, unused)" },
 #endif
 
-    /* Token-Ring list is utterly incomplete (contains only the values for MS Loopback Driver) */
-    { OID_802_5_PERMANENT_ADDRESS, "OID_802_5_PERMANENT_ADDRESS (unused)" },
-    { OID_802_5_CURRENT_ADDRESS, "OID_802_5_CURRENT_ADDRESS (unused)" },
-    { OID_802_5_CURRENT_FUNCTIONAL, "OID_802_5_CURRENT_FUNCTIONAL (unused)" },
-    { OID_802_5_CURRENT_GROUP, "OID_802_5_CURRENT_GROUP (unused)" },
-    { OID_802_5_LAST_OPEN_STATUS, "OID_802_5_LAST_OPEN_STATUS (unused)" },
-    { OID_802_5_CURRENT_RING_STATUS, "OID_802_5_CURRENT_RING_STATUS (unused)" },
-    { OID_802_5_CURRENT_RING_STATE, "OID_802_5_CURRENT_RING_STATE (unused)" },
-    { OID_802_5_LINE_ERRORS, "OID_802_5_LINE_ERRORS (unused)" },
-    { OID_802_5_LOST_FRAMES, "OID_802_5_LOST_FRAMES (unused)" },
+	/* Token-Ring list is utterly incomplete (contains only the values for MS Loopback Driver) */
+	{ OID_802_5_PERMANENT_ADDRESS, "OID_802_5_PERMANENT_ADDRESS (unused)" },
+	{ OID_802_5_CURRENT_ADDRESS, "OID_802_5_CURRENT_ADDRESS (unused)" },
+	{ OID_802_5_CURRENT_FUNCTIONAL, "OID_802_5_CURRENT_FUNCTIONAL (unused)" },
+	{ OID_802_5_CURRENT_GROUP, "OID_802_5_CURRENT_GROUP (unused)" },
+	{ OID_802_5_LAST_OPEN_STATUS, "OID_802_5_LAST_OPEN_STATUS (unused)" },
+	{ OID_802_5_CURRENT_RING_STATUS, "OID_802_5_CURRENT_RING_STATUS (unused)" },
+	{ OID_802_5_CURRENT_RING_STATE, "OID_802_5_CURRENT_RING_STATE (unused)" },
+	{ OID_802_5_LINE_ERRORS, "OID_802_5_LINE_ERRORS (unused)" },
+	{ OID_802_5_LOST_FRAMES, "OID_802_5_LOST_FRAMES (unused)" },
 
-    /* FDDI list is utterly incomplete (contains only the values for MS Loopback Driver) */
-    { OID_FDDI_LONG_PERMANENT_ADDR, "OID_FDDI_LONG_PERMANENT_ADDR (unused)" },
-    { OID_FDDI_LONG_CURRENT_ADDR, "OID_FDDI_LONG_CURRENT_ADDR (unused)" },
-    { OID_FDDI_LONG_MULTICAST_LIST, "OID_FDDI_LONG_MULTICAST_LIST (unused)" },
-    { OID_FDDI_LONG_MAX_LIST_SIZE, "OID_FDDI_LONG_MAX_LIST_SIZE (unused)" },
-    { OID_FDDI_SHORT_PERMANENT_ADDR, "OID_FDDI_SHORT_PERMANENT_ADDR (unused)" },
-    { OID_FDDI_SHORT_CURRENT_ADDR, "OID_FDDI_SHORT_CURRENT_ADDR (unused)" },
-    { OID_FDDI_SHORT_MULTICAST_LIST, "OID_FDDI_SHORT_MULTICAST_LIST (unused)" },
-    { OID_FDDI_SHORT_MAX_LIST_SIZE, "OID_FDDI_SHORT_MAX_LIST_SIZE (unused)" },
+	/* FDDI list is utterly incomplete (contains only the values for MS Loopback Driver) */
+	{ OID_FDDI_LONG_PERMANENT_ADDR, "OID_FDDI_LONG_PERMANENT_ADDR (unused)" },
+	{ OID_FDDI_LONG_CURRENT_ADDR, "OID_FDDI_LONG_CURRENT_ADDR (unused)" },
+	{ OID_FDDI_LONG_MULTICAST_LIST, "OID_FDDI_LONG_MULTICAST_LIST (unused)" },
+	{ OID_FDDI_LONG_MAX_LIST_SIZE, "OID_FDDI_LONG_MAX_LIST_SIZE (unused)" },
+	{ OID_FDDI_SHORT_PERMANENT_ADDR, "OID_FDDI_SHORT_PERMANENT_ADDR (unused)" },
+	{ OID_FDDI_SHORT_CURRENT_ADDR, "OID_FDDI_SHORT_CURRENT_ADDR (unused)" },
+	{ OID_FDDI_SHORT_MULTICAST_LIST, "OID_FDDI_SHORT_MULTICAST_LIST (unused)" },
+	{ OID_FDDI_SHORT_MAX_LIST_SIZE, "OID_FDDI_SHORT_MAX_LIST_SIZE (unused)" },
 
-    /* LocalTalk list is utterly incomplete (contains only the values for MS Loopback Driver) */
-    { OID_LTALK_CURRENT_NODE_ID, "OID_LTALK_CURRENT_NODE_ID (unused)" },
+	/* LocalTalk list is utterly incomplete (contains only the values for MS Loopback Driver) */
+	{ OID_LTALK_CURRENT_NODE_ID, "OID_LTALK_CURRENT_NODE_ID (unused)" },
 
-    /* Arcnet list is utterly incomplete (contains only the values for MS Loopback Driver) */
-    { OID_ARCNET_PERMANENT_ADDRESS, "OID_ARCNET_PERMANENT_ADDRESS (unused)" },
-    { OID_ARCNET_CURRENT_ADDRESS, "OID_ARCNET_CURRENT_ADDRESS (unused)" },
+	/* Arcnet list is utterly incomplete (contains only the values for MS Loopback Driver) */
+	{ OID_ARCNET_PERMANENT_ADDRESS, "OID_ARCNET_PERMANENT_ADDRESS (unused)" },
+	{ OID_ARCNET_CURRENT_ADDRESS, "OID_ARCNET_CURRENT_ADDRESS (unused)" },
 
-    { OID_TCP_TASK_OFFLOAD, "OID_TCP_TASK_OFFLOAD" },
+	{ OID_TCP_TASK_OFFLOAD, "OID_TCP_TASK_OFFLOAD" },
 
-    /* PnP and power management OIDs */
-    { OID_PNP_CAPABILITIES, "OID_PNP_CAPABILITIES (unused)" },
-    { OID_PNP_SET_POWER, "OID_PNP_SET_POWER (write only)" },
-    { OID_PNP_QUERY_POWER, "OID_PNP_QUERY_POWER (unused)" },
-    { OID_PNP_ADD_WAKE_UP_PATTERN, "OID_PNP_ADD_WAKE_UP_PATTERN (write only)" },
-    { OID_PNP_REMOVE_WAKE_UP_PATTERN, "OID_PNP_REMOVE_WAKE_UP_PATTERN (write only)" },
-    { OID_PNP_WAKE_UP_PATTERN_LIST, "OID_PNP_WAKE_UP_PATTERN_LIST (unused)" },
-    { OID_PNP_ENABLE_WAKE_UP, "OID_PNP_ENABLE_WAKE_UP (unused)" },
+	/* PnP and power management OIDs */
+	{ OID_PNP_CAPABILITIES, "OID_PNP_CAPABILITIES (unused)" },
+	{ OID_PNP_SET_POWER, "OID_PNP_SET_POWER (write only)" },
+	{ OID_PNP_QUERY_POWER, "OID_PNP_QUERY_POWER (unused)" },
+	{ OID_PNP_ADD_WAKE_UP_PATTERN, "OID_PNP_ADD_WAKE_UP_PATTERN (write only)" },
+	{ OID_PNP_REMOVE_WAKE_UP_PATTERN, "OID_PNP_REMOVE_WAKE_UP_PATTERN (write only)" },
+	{ OID_PNP_WAKE_UP_PATTERN_LIST, "OID_PNP_WAKE_UP_PATTERN_LIST (unused)" },
+	{ OID_PNP_ENABLE_WAKE_UP, "OID_PNP_ENABLE_WAKE_UP (unused)" },
 
-    /* Unknown OID's (seen on an "Intel(R) PRO/Wireless 2200BG" 802.11 interface) */
-    { 0xFF100000, "Unknown 0xFF100000 (unused)" },
-    { 0xFF100002, "Unknown 0xFF100002 (unused)" },
-    { 0xFF100003, "Unknown 0xFF100003 (unused)" },
-    { 0xFF100004, "Unknown 0xFF100004 (unused)" },
-    { 0xFF100005, "Unknown 0xFF100005 (unused)" },
-    { 0xFF100006, "Unknown 0xFF100006 (unused)" },
-    { 0xFF100007, "Unknown 0xFF100007 (unused)" },
-    { 0xFF100009, "Unknown 0xFF100009 (unused)" },
-    { 0xFF10000b, "Unknown 0xFF10000b (unused)" },
-    { 0xFF10000c, "Unknown 0xFF10000c (unused)" },
-    { 0xFF10000e, "Unknown 0xFF10000e (unused)" },
-    { 0xFF10000f, "Unknown 0xFF10000f (unused)" },
-    /* continued by a lot more 0xFF... values */
+	/* Unknown OID's (seen on an "Intel(R) PRO/Wireless 2200BG" 802.11 interface) */
+	{ 0xFF100000, "Unknown 0xFF100000 (unused)" },
+	{ 0xFF100002, "Unknown 0xFF100002 (unused)" },
+	{ 0xFF100003, "Unknown 0xFF100003 (unused)" },
+	{ 0xFF100004, "Unknown 0xFF100004 (unused)" },
+	{ 0xFF100005, "Unknown 0xFF100005 (unused)" },
+	{ 0xFF100006, "Unknown 0xFF100006 (unused)" },
+	{ 0xFF100007, "Unknown 0xFF100007 (unused)" },
+	{ 0xFF100009, "Unknown 0xFF100009 (unused)" },
+	{ 0xFF10000b, "Unknown 0xFF10000b (unused)" },
+	{ 0xFF10000c, "Unknown 0xFF10000c (unused)" },
+	{ 0xFF10000e, "Unknown 0xFF10000e (unused)" },
+	{ 0xFF10000f, "Unknown 0xFF10000f (unused)" },
+	/* continued by a lot more 0xFF... values */
 
-    { 0, NULL }
+	{ 0, NULL }
 };
 
 
