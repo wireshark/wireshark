@@ -172,15 +172,13 @@ find_camelsrt_call(struct camelsrt_call_info_key_t *p_camelsrt_call_key)
   struct camelsrt_call_t *p_camelsrt_call = NULL;
   p_camelsrt_call = (struct camelsrt_call_t *)g_hash_table_lookup(srt_calls, p_camelsrt_call_key);
 
+#ifdef DEBUG_CAMELSRT
   if(p_camelsrt_call) {
-#ifdef DEBUG_CAMELSRT
     dbg(10,"D%d ", p_camelsrt_call->session_id);
-#endif
   } else {
-#ifdef DEBUG_CAMELSRT
     dbg(23,"Not in hash ");
-#endif
   }
+#endif
 
   return p_camelsrt_call;
 }
