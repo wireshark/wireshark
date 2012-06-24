@@ -249,6 +249,7 @@ elif (test "${have_libnl1}" = "yes"); then
         CFLAGS="$CFLAGS $LIBNL1_CFLAGS"
         LIBS="$LIBS $LIBNL1_LIBS"
 	AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
+	AC_DEFINE(HAVE_LIBNL1, 1, [libnl version 1])
 	libnl_message="yes (v1)"
 	enable_airpcap=no
 fi
