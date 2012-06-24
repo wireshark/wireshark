@@ -469,6 +469,7 @@ static int hf_rtcp_xr_stats_jitter_flag = -1;
 static int hf_rtcp_xr_stats_ttl = -1;
 static int hf_rtcp_xr_beginseq = -1;
 static int hf_rtcp_xr_endseq = -1;
+static int hf_rtcp_xr_receipt_time_seq = -1;
 static int hf_rtcp_xr_stats_lost = -1;
 static int hf_rtcp_xr_stats_dups = -1;
 static int hf_rtcp_xr_stats_minjitter = -1;
@@ -1763,7 +1764,8 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
     return offset;
 }
 
-static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block_type, proto_tree *tree)
+static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block_type,
+                                         proto_tree *tree, guint8 *thinning)
 {
     guint8 flags = tvb_get_guint8(tvb, offset);
 
@@ -1771,6 +1773,7 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
         case RTCP_XR_LOSS_RLE:
         case RTCP_XR_DUP_RLE:
         case RTCP_XR_PKT_RXTIMES:
+            *thinning = tvb_get_guint8(tvb, offset) & 0x0F;
             proto_tree_add_item(tree, hf_rtcp_xr_thinning, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
 
@@ -1843,6 +1846,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
     for( block_num = 1; packet_len > 0; block_num++) {
         guint block_type     = tvb_get_guint8(tvb, offset), block_length = 0;
         gint  content_length = 0;
+        guint8 thinning = 0;
         /*gboolean valid = TRUE;*/
 
         /* Create a subtree for this block, dont know the length yet*/
@@ -1854,7 +1858,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         proto_tree_add_item(xr_block_tree, hf_rtcp_xr_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         if (packet_len >= 2) {
-            parse_xr_type_specific_field(tvb, offset + 1, block_type, xr_block_tree);
+            parse_xr_type_specific_field(tvb, offset + 1, block_type, xr_block_tree, &thinning);
             if (packet_len >= 4) {
                 block_length = tvb_get_ntohs(tvb, offset + 2);
                 /* XXX: What if FALSE return from the following ?? */
@@ -2075,6 +2079,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 
         case RTCP_XR_PKT_RXTIMES: {
             /* 8 bytes of fixed header */
+            guint32 rcvd_time;
             gint count = 0, skip = 8;
             guint16 begin = 0;
 
@@ -2084,6 +2089,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 
             /* Begin Seq */
             begin = tvb_get_ntohs(tvb, offset);
+            /* Apply Thinning value */
+            begin = (begin + ((1<<thinning)-1)) & ~((1<<thinning)-1);
             proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
@@ -2092,8 +2099,10 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset += 2;
 
             for(count = 0; skip < content_length; skip += 4, count++) {
-                proto_tree_add_text(content_tree, tvb, offset, 4, "Seq: %u, Timestamp: %u",
-                                    (begin + count) % 65536, ENC_BIG_ENDIAN);
+                rcvd_time = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_uint_format(content_tree, hf_rtcp_xr_receipt_time_seq, tvb,
+                                           offset, 4, rcvd_time, "Seq: %u, Receipt Time: %u",
+                                           (begin + (count<<thinning)) % 65536, rcvd_time);
                 offset += 4;
             }
             break;
@@ -4297,6 +4306,18 @@ proto_register_rtcp(void)
                 "Begin Sequence Number",
                 "rtcp.xr.beginseq",
                 FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtcp_xr_receipt_time_seq,
+            {
+                "Receipt Time",
+                "rtcp.xr.receipt_time_seq",
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
