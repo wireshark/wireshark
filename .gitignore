@@ -16,7 +16,6 @@
 epan/declare_wslua.h
 epan/dissectors/dcerpc/idl2wrs
 epan/dissectors/packet-ncp2222.c
-epan/dissectors/packet-spnego.h
 epan/dissectors/register-cache.pkl
 epan/dissectors/register.c
 epan/dtd_parse.c
