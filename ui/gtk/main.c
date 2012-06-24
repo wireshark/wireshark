@@ -139,6 +139,7 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/uat_gui.h"
 #include "ui/gtk/main.h"
+#include "ui/gtk/main_80211_toolbar.h"
 #include "ui/gtk/main_airpcap_toolbar.h"
 #include "ui/gtk/main_filter_toolbar.h"
 #include "ui/gtk/main_titlebar.h"
@@ -3483,9 +3484,7 @@ void main_widgets_rearrange(void) {
     g_object_ref(G_OBJECT(menubar));
     g_object_ref(G_OBJECT(main_tb));
     g_object_ref(G_OBJECT(filter_tb));
-#ifdef HAVE_AIRPCAP
     g_object_ref(G_OBJECT(wireless_tb));
-#endif
     g_object_ref(G_OBJECT(pkt_scrollw));
     g_object_ref(G_OBJECT(tv_scrollw));
     g_object_ref(G_OBJECT(byte_nb_ptr_gbl));
@@ -3516,10 +3515,8 @@ void main_widgets_rearrange(void) {
         gtk_box_pack_start(GTK_BOX(main_vbox), filter_tb, FALSE, TRUE, 1);
     }
 
-#ifdef HAVE_AIRPCAP
     /* airpcap toolbar */
     gtk_box_pack_start(GTK_BOX(main_vbox), wireless_tb, FALSE, TRUE, 1);
-#endif
 
     /* fill the main layout panes */
     switch(prefs.gui_layout_type) {
@@ -3811,8 +3808,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     gtk_widget_show(main_pane_h2);
 #ifdef HAVE_AIRPCAP
     wireless_tb = airpcap_toolbar_new();
+#else
     gtk_widget_show(wireless_tb);
 #endif
+    wireless_tb = ws80211_toolbar_new();
+
     /* status bar */
     statusbar = statusbar_new();
     gtk_widget_show(statusbar);
