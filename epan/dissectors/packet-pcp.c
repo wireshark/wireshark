@@ -2036,7 +2036,7 @@ void proto_register_pcp(void)
           }
         },
         { &hf_pcp_instance_value_double,
-          { "Instance Value", "pcp.instance.value.double",
+          { "Instance Value", "pcp.instance.value.float",
             FT_DOUBLE, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL

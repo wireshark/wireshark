@@ -2957,7 +2957,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_type_varbyte_data_double,
-          { "Data",             "tds.type_varbyte.data.double",
+          { "Data",             "tds.type_varbyte.data.float",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
