@@ -622,4 +622,10 @@ Digest ::= OCTET STRING
     iso(1) identified-organization(3) oiw(14) secsig(3)
     algorithm(2) 26 }
 
+   -- SHA-2 family (from RFC 3447)
+
+   id-sha256    OBJECT IDENTIFIER ::= {
+    joint-iso-itu-t(2) country(16) us(840) organization(1)
+    gov(101) csor(3) nistalgorithm(4) hashalgs(2) 1 }
+
    END

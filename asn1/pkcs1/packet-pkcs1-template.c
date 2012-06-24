@@ -108,5 +108,8 @@ void proto_reg_handoff_pkcs1(void) {
 ;	oid_add_from_string("sect571k1","1.3.132.0.38");
 	oid_add_from_string("sect571r1","1.3.132.0.39");
 
+	/* sha2 family, see RFC3447 and http://www.oid-info.com/get/2.16.840.1.101.3.4.2 */
+	oid_add_from_string("sha256", "2.16.840.1.101.3.4.2.1");
+
 }
 
