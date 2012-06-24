@@ -281,7 +281,7 @@ static int get_freq_wext(const char *ifname)
 	if (fd == -1)
 		return -1;
 
-	strncpy(wrq.name1, ifname, IFNAMSIZ);
+	g_strlcpy(wrq.name1, ifname, IFNAMSIZ);
 	/* SIOCGIWFREQ */
 	if (ioctl(fd, 0x8B05, &wrq) == 0) {
 		if (wrq.e == 6)
@@ -446,7 +446,7 @@ static int ws80211_iface_up(const char *ifname)
 	if (sock == -1)
 		return -1;
 
-	strncpy(ifreq.ifr_name, ifname, sizeof(ifreq.ifr_name));
+	g_strlcpy(ifreq.ifr_name, ifname, sizeof(ifreq.ifr_name));
 
 	if (ioctl(sock, SIOCGIFFLAGS, &ifreq))
 		goto out_err;
