@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2012-06-17)
+(last updated 2012-06-23)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -14282,7 +14282,7 @@ Decimal
     Jim Cole
       jcole&netEPS.com
 3570
-  Tait Electronics Ltd
+  Tait Limited
     Nathalie Giraudon
       nathalie.giraudon&taitradio.com
 3571
@@ -15987,8 +15987,8 @@ Decimal
       jci&vasco.com
 3996
   Open Systems AG
-    Stephan Meystre
-      mey&open.ch
+    Dominik Langenegger
+      iana&open.ch
 3997
   ImproWare AG
     Patrick Guelat
@@ -47367,8 +47367,8 @@ Decimal
       david.kim&zetabroadband.com
 11953
   ZUMtOBEL AG
-    Jurgen Paulmichl
-      paulmichl&zag.at
+    Martin Eberle
+      martin.eberle&zumtobel.com
 11954
   Elegant solutions consulting Inc.
     Atsushi Ikeda
@@ -52775,7 +52775,7 @@ Decimal
       Marius-Julian.Tamas&t-systems.com
 13305
   Berne University of Applied Sciences
-    Adrian Gschwend
+    Wolfram Strauss
       ldapmaster&bfh.ch
 13306
   University of Montana
@@ -99139,9 +99139,9 @@ Minas Gerais
     Christopher Horn
       hornc&aptea.com
 24893
-  GE Fanuc Intelligent Platforms, Inc.
-    Jozef Jablonski
-      jozef.jablonski&ge.com
+  GE Intelligent Platforms, Inc.
+    Chiu Leung
+      chiu.leung&ge.com
 24894
   PantheraNet
     Steven Saner
@@ -118948,9 +118948,9 @@ Decentralization / Helenic Public Administra
     Ferdy Nagy
       ferdy.nagy&fatspaniel.com
 29842
-  mikado soft gmbH
-    Wolfgang Duerr
-      Wolfgang.Duerr&mikado.de
+  macmon secure gmbh (previous was 'mikado soft gmbH')
+    Christian Bücker
+      christian.buecker&macmon.eu
 29843
   ncode  gmbh
     Oli Kessler
@@ -159894,6 +159894,186 @@ Decentralization / Helenic Public Administra
   Austrian Red Cross
     Markus Hnatek
       markus.hnatek&roteskreuz.at
+40078
+  Open Grid Computing
+    Jes Nielsen
+      jes&opengridcomputing.com
+40079
+  Electronic Systems Protection, Inc.
+    Robert Dawley
+      radawley&espei.com
+40080
+  IIHE - Inter-university Institute for High Energies
+    Gilles De Lentdecker
+      gdelentd&ulb.ac.be
+40081
+  Shanghai Myway Technology, Inc.
+    Simon Tian
+      simonT&mywayinfo.com
+40082
+  NuGardt Software
+    Kevin Gardthausen
+      kevin&nugardt.com
+40083
+  Accelerated Concepts, Inc.
+    Tom Butts
+      tom.butts&accelecon.com
+40084
+  Ingalls Memorial Hospital
+    Susan Bjork
+      sbjork&ingalls.org
+40085
+  Stage Tec GmbH
+    R. Harder
+      org.adm&stagetec.com
+40086
+  Inworx Group
+    Javier Schamber
+      itadministrator&inworx.com
+40087
+  NIDO Informatica
+    Cassio Jose de Jesus
+      cassio&nido.com.br
+40088
+  Voixtel Telecom
+    Melcon Moraes
+      ianaoid&voixtel.com.br
+40089
+  NetAmbit Infosource & E-services Pvt. Ltd.
+    Vijay Sharma
+      vijay.sharma&netambit.in
+40090
+  Netline Communications Technologies Ltd 
+    Harel Bahaloul
+      harel&netline.co.il
+40091
+  A.C.T.I.C asbl
+    Kenny Louveaux
+      info&actic.be
+40092
+  Wiwynn Corporation
+    Zong Bing, Wu
+      bing_wu&wiwynn.com
+40093
+  Zhuhai Seine Technology Co., Ltd
+    WangDan
+      wangdan&pantum.com
+40094
+  SecuEnv
+    Zhou Li
+      zhou.li&secuenv.com
+40095
+  G4S Engenharia e Sistemas S. A.
+    Mario Dias
+      mario.dias&br.g4s.com
+40096
+  ROICX
+    matt Hu
+      hul&roicx.com
+40097
+  WorldPay
+    Vladimir Jirasek
+      vladimir.jirasek&worldpay.com
+40098
+  update software
+    Christoph Macheiner
+      christoph.macheiner&update.com
+40099
+  North Carolina Healthcare Exchange
+    Himabindu Bolisetty
+      bindu&careevolution.com
+40100
+  TechNet
+    Richard Dols
+      richard&technetgroup.nl
+40101
+  EPB Fiber Optics
+    Mike Cathey
+      iana-poc&epbinternet.com
+40102
+  Pinger, Inc.
+    Jo Rhett
+      jorhett&pinger.com
+40103
+  Fashion Days
+    David Shulman
+      David.Shulman&fashiondays.ch
+40104
+  BamseNet GmbH
+    Mr. Rico Koerner
+      service&bamsenet.de
+40105
+  APN Promise S.A.
+    Konrad Sagala
+      konrad.sagala&promise.pl
+40106
+  Polara Engineering, Inc.
+    Brad Whitney
+      bwhitney&polara.com
+40107
+  Michael Reschly
+    Michael Reschly
+      michael&reschly.com
+40108
+  Amber Buddha
+    Steve Gillam
+      steveg&amberbuddha.com
+40109
+  SigAlgo Technology Ltd
+    Roger McCalman
+      snmp-pen&sigalgo.com
+40110
+  EGNATIA
+    Athanasios Bakalis
+      athanasios.bakalis&group-egnatia.gr
+40111
+  Deloitte Services & Investments nv
+    Christophe Castelein
+      ccastelein&deloitte.be
+40112
+  Ethernix
+    Amaury Darsch
+      amaury&ethernix.com
+40113
+  Blue Mountain Health System
+    Cheryl Heffelfinger
+      cheffelfinger&blmtn.org
+40114
+  Guavatech
+    John Cheeseman
+      johnc&guavatech.com
+40115
+  V & B Ingenieria S.A. de C.V.
+    Asterio Valenzuela Delfin
+      ventas.vybingenieria&gmail.com
+40116
+  DCO4 Sp. z o.o.
+    Jan Szumiec
+      jan&linkedlist.co.uk
+40117
+  Faculté des Sciences et Technologies - Université de Lorraine
+    Samson Bisaro
+      Samson.Bisaro&univ-lorraine.fr
+40118
+  CNPC LOGGING Co.Ltc
+    chen xiaolei
+      chenxiaolei2002&126.com
+40119
+  Terralink LLC
+    Grudtsin Andrey
+      support&terralink.ru
+40120
+  Pamlock AB
+    Johannes Hassmund
+      johannes&pamlock.com
+40121
+  Methodia Inc
+    Gerard Hovanessyan
+      gerard.hovanesyan&methodia.com
+40122
+  Beijing Cyber Stone Information Technology Corp. Ltd.
+    Yunfei xiang
+      xiangyf&cyber-stone.com
 
 
 End of Document

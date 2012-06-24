@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-06-15
+# 2012-06-22
 # 
 # Note
 # 
@@ -13483,7 +13483,11 @@ dxspider	8873/udp	# dxspider linking protocol    [Dirk_Koopman]                 
 # 8874-8879            Unassigned
 cddbp-alt	8880/tcp	# CDDBP                        [Steve_Scherf]                                     [Steve_Scherf]
 cddbp-alt	8880/udp	# CDDBP                        [Steve_Scherf]                                     [Steve_Scherf]
-# 8881-8882            Unassigned
+galaxy4d	8881/tcp	# Galaxy4D Online Game Engine  [Galaxy4D]                                         [Olivier_St-Laurent]                                      2012-06-18
+# 8881        udp    Reserved
+# Unauthorized
+# 8882               Unassigned                                                                                                                                                                                                                          Use Known on
+# port 8882
 secure-mqtt	8883/tcp	# Secure MQTT                  [Arthur_Barr]                                      [Arthur_Barr]                                             2008-02-27
 secure-mqtt	8883/udp	# Secure MQTT                  [Arthur_Barr]                                      [Arthur_Barr]                                             2008-02-27
 # 8884-8887            Unassigned
@@ -15414,7 +15418,9 @@ crestron-cip	41794/tcp	# Crestron Control Port        [Ed_Ranney]               
 crestron-cip	41794/udp	# Crestron Control Port        [Ed_Ranney]                                        [Ed_Ranney]                                               2003-01
 crestron-ctp	41795/tcp	# Crestron Terminal Port       [Ed_Ranney]                                        [Ed_Ranney]                                               2003-01
 crestron-ctp	41795/udp	# Crestron Terminal Port       [Ed_Ranney]                                        [Ed_Ranney]                                               2003-01
-# 41796-42507           Unassigned
+# Unauthorized
+# 41796-42507           Unassigned                                                                                                                                                                                                                          Use Known on
+# port 42000
 candp	42508/tcp	# Computer Associates network  [Jon_Press]                                        [Jon_Press]                                               2005-09
 # discovery protocol
 candp	42508/udp	# Computer Associates network  [Jon_Press]                                        [Jon_Press]                                               2005-09
@@ -15433,7 +15439,12 @@ ip-provision	43190/udp	# IP-PROVISION                 [Roman_Kriis]             
 noit-transport	43191/tcp	# Reconnoiter Agent Data       [Theo_Schlossnagle]                                [Theo_Schlossnagle]                                       2009-05-19
 # Transport
 # 43191       udp    Reserved
-# 43192-43438           Unassigned
+# 43192-43209           Unassigned
+shaperai	43210/tcp	# Shaper Automation Server     [Shaper_Automation]                                [Yohann_Sulaiman]                                         2012-06-22
+# Management
+shaperai-disc	43210/udp	# Shaper Automation Server     [Shaper_Automation]                                [Yohann_Sulaiman]                                         2012-06-22
+# Management Discovery
+# 43211-43438           Unassigned
 eq3-update	43439/tcp	# EQ3 firmware update          [eQ-3_AG]                                          [Falk_Werner]                                             2012-02-10
 eq3-config	43439/udp	# EQ3 discovery and            [eQ-3_AG]                                          [Falk_Werner]                                             2012-02-10
 # configuration
@@ -16129,6 +16140,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # service
 # irmc                                  Intego Remote Management     [Olivier_Delecluse]                                [Olivier_Delecluse]                                                                                                                                               Defined TXT keys: RMC Client Version=<version>, MAC
 # Console                                                                                                                                                                                                                                           Address=<address>
+# irradiatd-iclip                tcp    iClip clipboard transfer     [Irradiated_Software]                              [Thomas_Tempelmann]                                       2012-06-19                                                                                              Defined TXT keys: none
 # isparx                                iSparx                       [Philipp_Dreiss]                                   [Philipp_Dreiss]                                                                                                                                                  Defined TXT keys: None
 # ispq-vc                               iSpQ VideoChat               [Chris_Silverberg]                                 [Chris_Silverberg]                                                                                                                                                Defined TXT keys: None
 # ishare                                iShare                       [Steve_Dekorte]                                    [Steve_Dekorte]                                                                                                                                                   Defined TXT keys: None
@@ -18259,6 +18271,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Gabriel_Kalmar]                                          Gabriel Kalmar                                  mailto:kalga01&ca.com                                         2008-03-06
 # [Gabriel_Levy]                                            Gabriel Levy                                    mailto:glevy&riverbed.com                                     2008-08-29
 # [Gal_Cucuy]                                               Gal Cucuy                                       mailto:galc&cyber-ark.com                                     2002-03
+# [Galaxy4D]                                                                          Galaxy4D Online Game  mailto:admin&galaxy4d.com                                     2012-06-18
+# Engine
 # [Gang_Gong_Moy]                                           Gang Gong Moy
 # [Gangsta_Ltd]                                                                       Gangsta Ltd.          mailto:jc&gangstamedia.com                                    2011-10-13
 # [Gareth_Nelson]                                           Gareth Nelson                                   mailto:gareth&garethnelson.com                                2007-06
@@ -18597,6 +18611,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Insist]                                                                            Insist                mailto:support&isticky.net
 # [Intel]                                                                             Intel                 mailto:joshua.boelter&intel.com                               2011-10-18
 # [Ira_McDonald]                                            Ira McDonald                                    mailto:imcdonald&sharplabs.com                                2005-12
+# [Irradiated_Software]                                                               Irradiated Software   mailto:info&irradiatedsoftware.com                            2012-06-19
 # [Isaack_Rasmussen]                                        Isaack Rasmussen                                mailto:isaack&pictua.com
 # [Israel_Beniaminy]                                        Israel Beniaminy                                mailto:israel.beniaminy&clickservice.com
 # [Israel_Shainert]                                         Israel Shainert                                 mailto:israels&209.88.177.2
@@ -19962,6 +19977,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Olivier_Delecluse]                                       Olivier Delecluse                               mailto:odelecluse&intego.com
 # [Olivier_Guezenec]                                        Olivier Guezenec                                mailto:olivier.guezenec&cogilab.com                           2006-12
 # [Olivier_Mascia]                                          Olivier Mascia                                  mailto:om&tipgroup.com
+# [Olivier_St-Laurent]                                      Olivier St-Laurent        Galaxy4D Online Game  mailto:admin&galaxy4d.com                                     2012-06-18
+# Engine
 # [One_Laptop_per_Child]                                                              One Laptop per        mailto:devel&lists.laptop.org
 # Child/Collabora Ltd.
 # [Open_Mobile_Alliance]                                                              Open Mobile Alliance  mailto:Technical-Comments&mail.openmobilealliance.org         2011-08-19
@@ -20701,6 +20718,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Shankar_Prasad_2]                                        Shankar Prasad                                  mailto:shankar.prasad&honeywell.com
 # [Shannon_Yeh]                                             Shannon Yeh                                     mailto:yeh&netix.com
 # [Shantonu_Sen]                                            Shantonu Sen                                    mailto:ssen&apple.com
+# [Shaper_Automation]                                                                 Shaper Automation     mailto:ports&shaperai.com                                     2012-06-22
+# Inc.
 # [Shaun_Byrne]                                             Shaun Byrne                                     mailto:s_byrne&tunstall.co.uk                                 2009-08-18
 # [Shaun_Wexler]                                            Shaun Wexler                                    mailto:dev&macfoh.com
 # [Shawn_Casey]                                             Shawn Casey                                     mailto:Shawn.Casey&matrixone.com
@@ -21057,6 +21076,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Thomas_Sciorilli]                                        Thomas Sciorilli          Wi-Fi Alliance        mailto:tsciorilli&wi-fi.org                                   2012-04-09
 # [Thomas_Soerensen]                                        Thomas Soerensen                                mailto:thomassoerensen&stofanet.dk                            2002-04
 # [Thomas_Soranno]                                          Thomas Soranno                                  mailto:tom_soranno&cipartners.com
+# [Thomas_Tempelmann]                                       Thomas Tempelmann                               mailto:tt&tempel.org                                          2012-06-19
 # [Thomas_Weise]                                            Thomas Weise                                    mailto:weise&vs.uni-kassel.de                                 2006-04
 # [Thomas_Zwick]                                            Thomas Zwick                                    mailto:thomas.zwick&tz-software.de                            2011-10-12
 # [Thor_Olson]                                              Thor Olson                                      mailto:Thor&terabase.com
@@ -21400,6 +21420,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Yoann_Vandoorselaere]                                    Yoann Vandoorselaere                            mailto:yoann&prelude-ids.org                                  2005-08
 # [Yochai_Cohen]                                            Yochai Cohen                                    mailto:yochai&combox.co.il
 # [Yogesh_P_Gajjar]                                         Yogesh P. Gajjar                                mailto:yogesh&cytel.com
+# [Yohann_Sulaiman]                                         Yohann Sulaiman                                 mailto:ports&shaperai.com                                     2012-06-22
 # [Yoneda_Terumasa]                                         Yoneda Terumasa                                 mailto:yonedat&pfu.co.jp
 # [Yong_Cai]                                                Yong Cai                                        mailto:ycai&emc.com
 # [YoonSoo_Kim]                                             YoonSoo Kim                                     mailto:ys71.kim&samsung.com                                   2006-05
