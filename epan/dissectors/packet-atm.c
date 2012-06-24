@@ -1685,7 +1685,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * XXX - do this for all AAL values, overriding whatever information
    * Wiretap got from the file?
    */
-  if (aal == AAL_USER) {
+  if (aal == AAL_USER || aal == AAL_UNKNOWN) {
     if (atm_is_oam_cell(vci,pt)) {
       aal = AAL_OAMCELL;
     }
@@ -1731,6 +1731,9 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         (aal3_4_hdr >> 10) & 0xF);
     proto_tree_add_text(aal_tree, tvb, offset, 2, "Multiplex ID: %u",
                         aal3_4_hdr & 0x3FF);
+    length = tvb_length_remaining(tvb, offset);
+    crc10 = update_crc10_by_bytes(0, tvb_get_ptr(tvb, offset, length),
+                                  length);
     offset += 2;
 
     proto_tree_add_text(aal_tree, tvb, offset, 44, "Information");
@@ -1739,9 +1742,6 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     aal3_4_trlr = tvb_get_ntohs(tvb, offset);
     proto_tree_add_text(aal_tree, tvb, offset, 2, "Length Indicator: %u",
                         (aal3_4_trlr >> 10) & 0x3F);
-    length = tvb_length_remaining(tvb, 5);
-    crc10 = update_crc10_by_bytes(0, tvb_get_ptr(tvb, 5, length),
-                                  length);
     proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC: 0x%03x (%s)",
                         aal3_4_trlr & 0x3FF,
                         (crc10 == 0) ? "correct" : "incorrect");
@@ -1785,14 +1785,14 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           octet & 0x0F);
       break;
     }
+    length = tvb_length_remaining(tvb, offset);
+    crc10 = update_crc10_by_bytes(0, tvb_get_ptr(tvb, offset, length),
+                                  length);
     offset += 1;
 
     proto_tree_add_text(aal_tree, tvb, offset, 45, "Function-specific information");
     offset += 45;
 
-    length = tvb_length_remaining(tvb, 5);
-    crc10 = update_crc10_by_bytes(0, tvb_get_ptr(tvb, 5, length),
-                                  length);
     oam_crc = tvb_get_ntohs(tvb, offset);
     proto_tree_add_text(aal_tree, tvb, offset, 2, "CRC-10: 0x%03x (%s)",
                         oam_crc & 0x3FF,
