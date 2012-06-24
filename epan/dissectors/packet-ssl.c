@@ -2136,8 +2136,6 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                             }
                         } else {
                             /* try to find the key in the key log */
-                            if (!ssl_keylog_filename)
-                                break;
                             if (ssl_keylog_lookup(ssl, ssl_keylog_filename, &encrypted_pre_master)<0)
                                 break;
                         }
@@ -2288,7 +2286,15 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                  (tvb_memeql(tvb, offset+33, ssl->session_id.data, session_id_length) == 0))
         {
             /* client/server id match: try to restore a previous cached session*/
-            ssl_restore_session(ssl, ssl_session_hash);
+            if (!ssl_restore_session(ssl, ssl_session_hash)) {
+                /* If we failed to find the previous session, we may still have
+                 * the master secret in the key log. */
+                if (ssl_keylog_lookup(ssl, ssl_keylog_filename, NULL)) {
+                    ssl_debug_printf("  cannot find master secret in keylog file either\n");
+                } else {
+                    ssl_debug_printf("  found master secret in keylog file\n");
+                }
+            }
         } else {
             tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
             ssl->session_id.data_len = session_id_length;

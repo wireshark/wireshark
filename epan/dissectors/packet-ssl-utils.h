@@ -438,8 +438,8 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server);
 /** Try to find the pre-master secret for the given encrypted pre-master secret
     from a log of secrets.
  @param ssl_session the store for the decrypted pre_master_secret
- @param ssl_keylog_filename a file that contains a log of pre-master secrets
- @param encrypted_pre_master the rsa encrypted pre_master_secret
+ @param ssl_keylog_filename a file that contains a log of secrets (may be NULL)
+ @param encrypted_pre_master the rsa encrypted pre_master_secret (may be NULL)
  @return 0 on success */
 int
 ssl_keylog_lookup(SslDecryptSession* ssl_session,
@@ -534,7 +534,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
 extern void
 ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
-extern void
+extern gboolean
 ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
 extern gint

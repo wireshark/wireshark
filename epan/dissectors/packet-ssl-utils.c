@@ -2280,6 +2280,9 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
 {
     gint i;
 
+    if (!encrypted_pre_master)
+        return -1;
+
     if(ssl_session->cipher_suite.kex == KEX_DH) {
         ssl_debug_printf("ssl_decrypt_pre_master_secret session uses DH (%d) key exchange, which is impossible to decrypt\n",
             KEX_DH);
@@ -3607,7 +3610,7 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash)
     ssl_print_string("ssl_save_session stored master secret", master_secret);
 }
 
-void
+gboolean
 ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
 {
     StringInfo* ms;
@@ -3615,11 +3618,12 @@ ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
 
     if (!ms) {
         ssl_debug_printf("ssl_restore_session can't find stored session\n");
-        return;
+        return FALSE;
     }
     ssl_data_set(&ssl->master_secret, ms->data, ms->data_len);
     ssl->state |= SSL_MASTER_SECRET;
     ssl_debug_printf("ssl_restore_session master key retrieved\n");
+    return TRUE;
 }
 
 int
@@ -3822,6 +3826,9 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
                   StringInfo* encrypted_pre_master) {
     FILE* ssl_keylog;
     int ret = -1;
+
+    if (!ssl_keylog_filename)
+        return -1;
 
     ssl_debug_printf("trying to use SSL keylog in %s\n", ssl_keylog_filename);
 
