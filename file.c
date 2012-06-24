@@ -953,6 +953,10 @@ cf_finish_tail(capture_file *cf, int *err)
      packets we've read. */
   cf->lnk_t = wtap_file_encap(cf->wth);
 
+  /* Update the details in the file-set dialog, as the capture file
+   * has likely grown since we first stat-ed it */
+  fileset_update_file(cf->filename);
+
   if (*err != 0) {
     /* We got an error reading the capture file.
        XXX - pop up a dialog box? */

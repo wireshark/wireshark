@@ -67,6 +67,8 @@ extern void fileset_file_closed(void);
 
 extern void fileset_update_dlg(void);
 
+extern void fileset_update_file(const char *path);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
