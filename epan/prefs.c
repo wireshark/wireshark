@@ -237,6 +237,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	module->description = description;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
+    module->parent = parent;
 	module->submodules = NULL;	/* no submodules, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
@@ -326,9 +327,10 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
 	 */
 	if (protocols_module == NULL) {
 		/*
-		 * No.  Do so.
+		 * No.  Register Protocols subtree as well as any preferences
+         * for non-dissector modules.
 		 */
-		protocols_module = prefs_register_subtree(NULL, "Protocols", NULL);
+        prefs_register_modules();
 	}
 	protocol = find_protocol_by_id(id);
 	return prefs_register_module(protocols_module,
@@ -351,9 +353,10 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 	 */
 	if (protocols_module == NULL) {
 		/*
-		 * No.  Do so.
+		 * No.  Register Protocols subtree as well as any preferences
+         * for non-dissector modules.
 		 */
-		protocols_module = prefs_register_subtree(NULL, "Protocols", NULL);
+        prefs_register_modules();
 	}
 
 	subtree_module = protocols_module;
@@ -401,9 +404,10 @@ prefs_register_protocol_obsolete(int id)
 	 */
 	if (protocols_module == NULL) {
 		/*
-		 * No.  Do so.
+		 * No.  Register Protocols subtree as well as any preferences
+         * for non-dissector modules.
 		 */
-		protocols_module = prefs_register_subtree(NULL, "Protocols", NULL);
+        prefs_register_modules();
 	}
 	protocol = find_protocol_by_id(id);
 	module = prefs_register_module(protocols_module,
@@ -927,12 +931,58 @@ prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
 	return 0;
 }
 
+static void stats_callback(void)
+{
+    /* Test for a sane tap update interval */
+    if (prefs.tap_update_interval < 100 || prefs.tap_update_interval > 10000) {
+            prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
+    }
+
+#ifdef HAVE_LIBPORTAUDIO
+    /* Test for a sane max channels entry */
+    if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
+            prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
+#endif
+
+}
+
 /*
  * Register all non-dissector modules' preferences.
  */
 void
 prefs_register_modules(void)
 {
+    module_t* stats;
+
+    if (protocols_module != NULL) {
+        /* Already setup preferences */
+        return;
+    }
+
+    stats = prefs_register_module(NULL, "statistics", "Statistics",
+        "Statistics", &stats_callback);
+
+	prefs_register_uint_preference(stats, "update_interval",
+				       "Tap update interval in ms",
+				       "Determines time between tap updates",
+				       10,
+				       &prefs.tap_update_interval);
+
+#ifdef HAVE_LIBPORTAUDIO
+	prefs_register_uint_preference(stats, "rtp_player_max_visible",
+				       "Max visible channels in RTP Player",
+				       "Determines maximum height of RTP Player window",
+				       10,
+				       &prefs.rtp_player_max_visible);
+#endif
+
+    protocols_module = prefs_register_module(NULL, "protocols", "Protocols",
+        "Protocols", NULL);
+
+    prefs_register_bool_preference(protocols_module, "display_hidden_proto_items",
+                                  "Display hidden protocol items",
+                                  "Display all hidden protocol items in the packet list.",
+                                  &prefs.display_hidden_proto_items);
 }
 
 /* Parse through a list of comma-separated, possibly quoted strings.
@@ -2126,12 +2176,6 @@ prefs_capture_device_monitor_mode(const char *name)
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
 
-/*  values for the rtp player preferences dialog box */
-#define PRS_TAP_UPDATE_INTERVAL           "taps.update_interval"
-#define PRS_RTP_PLAYER_MAX_VISIBLE        "taps.rtp_player_max_visible"
-
-#define PRS_DISPLAY_HIDDEN_PROTO_ITEMS          "packet_list.display_hidden_proto_items"
-
 static const gchar *pr_formats[] = { "text", "postscript" };
 static const gchar *pr_dests[]   = { "command", "file" };
 
@@ -2661,14 +2705,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     prefs.load_smi_modules = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS) == 0) {
     prefs.suppress_smi_errors = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if ((strcmp(pref_name, PRS_RTP_PLAYER_MAX_VISIBLE) == 0) ||
-             (strcmp(pref_name, "rtp_player.max_visible") == 0)) {
-    /* ... also accepting old name for this preference */
-    prefs.rtp_player_max_visible = strtol(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_TAP_UPDATE_INTERVAL) == 0) {
-    prefs.tap_update_interval = strtol(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_DISPLAY_HIDDEN_PROTO_ITEMS) == 0) {
-    prefs.display_hidden_proto_items = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else {
     /* To which module does this preference belong? */
     module = NULL;
@@ -3757,21 +3793,12 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS ": %s\n",
 	  prefs.suppress_smi_errors == TRUE ? "TRUE" : "FALSE");
 
-  fprintf(pf, "\n####### Taps/Statistics ########\n");
-
-  fprintf(pf, "\n# Tap update interval in ms.\n");
-  fprintf(pf, "# An integer value greater between 100 and 10000.\n");
-  if (prefs.tap_update_interval == default_prefs.tap_update_interval)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_TAP_UPDATE_INTERVAL ": %d\n",
-          prefs.tap_update_interval);
-
-  fprintf(pf, "\n# Maximum visible channels in RTP Player window.\n");
-  fprintf(pf, "# An integer value greater than 0.\n");
-  if (prefs.rtp_player_max_visible == default_prefs.rtp_player_max_visible)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_RTP_PLAYER_MAX_VISIBLE ": %d\n",
-	  prefs.rtp_player_max_visible);
+  /*
+   * XXX - The following members are intentionally not written here because 
+   * they are handled within the 'generic' preference handling:
+   * tap_update_interval
+   * rtp_player_max_visible
+   */
 
   fprintf(pf, "\n####### Filter Expressions ########\n");
   {
@@ -3791,12 +3818,11 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n####### Protocols ########\n");
 
-  fprintf(pf, "\n# Display hidden items in packet details pane?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.display_hidden_proto_items == default_prefs.display_hidden_proto_items)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_DISPLAY_HIDDEN_PROTO_ITEMS ": %s\n",
-	  prefs.display_hidden_proto_items == TRUE ? "TRUE" : "FALSE");
+  /*
+   * XXX - The following members are intentionally not written here because 
+   * they are handled within the 'generic' preference handling:
+   * display_hidden_proto_items
+   */
 
   pe_tree_foreach(prefs_modules, write_module_prefs, pf);
 
@@ -3893,10 +3919,13 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_show_info = src->capture_show_info;
   dest->name_resolve = src->name_resolve;
   dest->name_resolve_concurrency = src->name_resolve_concurrency;
-  dest->tap_update_interval = src->tap_update_interval;
-  dest->rtp_player_max_visible = src->rtp_player_max_visible;
-  dest->display_hidden_proto_items = src->display_hidden_proto_items;
-
+  /*
+   * XXX - The following members are intentionally not copied because they
+   * are handled within the 'generic' preference handling:
+   * tap_update_interval
+   * rtp_player_max_visible
+   * display_hidden_proto_items
+   */
 }
 
 /* Free a set of preferences. */

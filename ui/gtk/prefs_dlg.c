@@ -50,8 +50,6 @@
 #include "ui/gtk/prefs_layout.h"
 #include "ui/gtk/prefs_capture.h"
 #include "ui/gtk/prefs_nameres.h"
-#include "ui/gtk/prefs_taps.h"
-#include "ui/gtk/prefs_protocols.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/stock_icons.h"
@@ -99,8 +97,6 @@ static GtkWidget *create_preference_filename_entry(GtkWidget *, int,
 #define E_CAPTURE_PAGE_KEY            "capture_options_page"
 #define E_PRINT_PAGE_KEY              "printer_options_page"
 #define E_NAMERES_PAGE_KEY            "nameres_options_page"
-#define E_TAPS_PAGE_KEY               "taps_options_page"
-#define E_PROTOCOLS_PAGE_KEY          "protocols_options_page"
 #define E_FILTER_EXPRESSIONS_PAGE_KEY "filter_expressions_page"
 
 /*
@@ -124,7 +120,7 @@ struct ct_struct {
   GtkWidget    *tree;
   GtkTreeIter  iter;
   gint         page;
-  gboolean     is_protocol;
+  GtkTreeStore *store;
 };
 
 static gint protocols_page = 0;
@@ -268,7 +264,76 @@ pref_show(pref_t *pref, gpointer user_data)
   return 0;
 }
 
+#define prefs_tree_iter GtkTreeIter
+
+/* add a page to the tree */
+static prefs_tree_iter
+prefs_tree_page_add(const gchar *title, gint page_nr,
+                    gpointer store, prefs_tree_iter *parent_iter)
+{
+  prefs_tree_iter   iter;
+
+  gtk_tree_store_append(store, &iter, parent_iter);
+  gtk_tree_store_set(store, &iter, 0, title, 1, page_nr, -1);
+  return iter;
+}
+
+/* add a page to the notebook */
+static GtkWidget *
+prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, const char *page_key)
+{
+  GtkWidget         *frame;
+
+  frame = gtk_frame_new(title);
+  gtk_widget_show(frame);
+  if(page) {
+    gtk_container_add(GTK_CONTAINER(frame), page);
+    g_object_set_data(G_OBJECT(prefs_w), page_key, page);
+  }
+  gtk_notebook_append_page (GTK_NOTEBOOK(notebook), frame, NULL);
+
+  return frame;
+}
+
+/* create a basic window for preferences */
+GtkWidget*
+simple_prefs_show(module_t *module, struct ct_struct *cts, gchar* label_str)
+{
+    GtkWidget   *main_tb, *main_vb, *frame, *main_sw;
+    int pos = 0;
+
+    /* Scrolled window */
+    main_sw = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+
+    /* Frame */
+    frame = gtk_frame_new(module->description);
+    gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
+    g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
+
+    /* Main vertical box */
+    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_add(GTK_CONTAINER(frame), main_vb);
+
+    /* Main table */
+    main_tb = gtk_table_new(module->numprefs, 2, FALSE);
+    gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+    gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
+    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+
+    /* Add items for each of the preferences */
+    prefs_pref_foreach(module, pref_show, main_tb);
+
+    /* Show 'em what we got */
+    gtk_widget_show_all(main_vb);
+
+    return main_vb;
+}
+
 #define MAX_TREE_NODE_NAME_LEN 64
+
 /* show prefs page for each registered module (protocol) */
 static guint
 module_prefs_show(module_t *module, gpointer user_data)
@@ -304,8 +369,17 @@ module_prefs_show(module_t *module, gpointer user_data)
    */
   g_strlcpy(label_str, module->title, MAX_TREE_NODE_NAME_LEN);
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
-  if (prefs_module_has_submodules(module) && !cts->iter.stamp)
-    gtk_tree_store_append(model, &iter, NULL);
+
+  if (module->parent == NULL) {
+        prefs_nb_page_add(cts->notebook, label_str, simple_prefs_show(module, cts, label_str), module->title);
+        gtk_tree_store_append(model, &iter, NULL);
+        /* Save the protocols page */
+        if (strcmp(module->title, "Protocols") == 0) {
+            protocols_page = cts->page++;
+        } else {
+            cts->page++;
+        }
+  }
   else
     gtk_tree_store_append(model, &iter, &cts->iter);
 
@@ -324,8 +398,6 @@ module_prefs_show(module_t *module, gpointer user_data)
      */
     child_cts = *cts;
     child_cts.iter = iter;
-    if (module == protocols_module)
-      child_cts.is_protocol = TRUE;
     prefs_modules_foreach_submodules(module, module_prefs_show, &child_cts);
 
     /* keep the page count right */
@@ -383,38 +455,6 @@ module_prefs_show(module_t *module, gpointer user_data)
   }
 
   return 0;
-}
-
-
-#define prefs_tree_iter GtkTreeIter
-
-/* add a page to the tree */
-static prefs_tree_iter
-prefs_tree_page_add(const gchar *title, gint page_nr,
-                    gpointer store, prefs_tree_iter *parent_iter)
-{
-  prefs_tree_iter   iter;
-
-  gtk_tree_store_append(store, &iter, parent_iter);
-  gtk_tree_store_set(store, &iter, 0, title, 1, page_nr, -1);
-  return iter;
-}
-
-/* add a page to the notebook */
-static GtkWidget *
-prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, const char *page_key)
-{
-  GtkWidget         *frame;
-
-  frame = gtk_frame_new(title);
-  gtk_widget_show(frame);
-  if(page) {
-    gtk_container_add(GTK_CONTAINER(frame), page);
-    g_object_set_data(G_OBJECT(prefs_w), page_key, page);
-  }
-  gtk_notebook_append_page (GTK_NOTEBOOK(notebook), frame, NULL);
-
-  return frame;
 }
 
 
@@ -512,11 +552,6 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 
   cts.page = 0;
 
-  /* Preferences common for all protocols */
-  g_strlcpy(label_str, "Protocols", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, protocols_prefs_show(), E_PROTOCOLS_PAGE_KEY);
-  protocols_page = cts.page++;
-
   /* GUI prefs */
   g_strlcpy(label_str, "User Interface", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, gui_prefs_show(), E_GUI_PAGE_KEY);
@@ -582,9 +617,10 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
-  /* Printing prefs */
-  g_strlcpy(label_str, "Printing", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, printer_prefs_show(), E_PRINT_PAGE_KEY);
+  /* Saved filter prefs */
+  g_strlcpy(label_str, "Filter Expressions", MAX_TREE_NODE_NAME_LEN);
+  prefs_nb_page_add(prefs_nb, label_str, filter_expressions_prefs_show(),
+    E_FILTER_EXPRESSIONS_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
@@ -594,22 +630,15 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
-  /* Saved filter prefs */
-  g_strlcpy(label_str, "Filter Expressions", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, filter_expressions_prefs_show(),
-    E_FILTER_EXPRESSIONS_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL);
-  cts.page++;
-
-  /* TAPS player prefs */
-  g_strlcpy(label_str, "Statistics", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, stats_prefs_show(), E_TAPS_PAGE_KEY);
+  /* Printing prefs */
+  g_strlcpy(label_str, "Printing", MAX_TREE_NODE_NAME_LEN);
+  prefs_nb_page_add(prefs_nb, label_str, printer_prefs_show(), E_PRINT_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
   /* Registered prefs */
   cts.notebook = prefs_nb;
-  cts.is_protocol = FALSE;
+  cts.store = store;
   prefs_modules_foreach_submodules(NULL, module_prefs_show, &cts);
 
   /* Button row: OK and alike buttons */
@@ -1322,8 +1351,6 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
   nameres_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
   filter_expressions_prefs_fetch(g_object_get_data(G_OBJECT(dlg),
     E_FILTER_EXPRESSIONS_PAGE_KEY));
-  stats_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_TAPS_PAGE_KEY));
-  protocols_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
   return TRUE;
@@ -1359,8 +1386,6 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
   nameres_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
-  stats_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_TAPS_PAGE_KEY));
-  protocols_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
 
   /* show/hide the Save button - depending on setting */
   save_bt = g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_SAVE_BT_KEY);
@@ -1403,13 +1428,11 @@ prefs_main_destroy_all(GtkWidget *dlg)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
   nameres_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
-  stats_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_TAPS_PAGE_KEY));
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */
   free_prefs(&saved_prefs);
   prefs_modules_foreach(module_prefs_clean, NULL);
-  protocols_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
 }
 
 

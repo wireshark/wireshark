@@ -514,10 +514,6 @@ main(int argc, char *argv[])
               failure_message, open_failure_message, read_failure_message,
               write_failure_message);
 
-    /* Now register the preferences for any non-dissector modules.
-       We must do that before we read the preferences as well. */
-    prefs_register_modules();
-
     /* Set the C-language locale to the native environment. */
     setlocale(LC_ALL, "");
 

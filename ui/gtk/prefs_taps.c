@@ -107,7 +107,7 @@ stats_prefs_fetch(GtkWidget *w _U_)
 
         /* Test for a sane tap update interval */
         if (prefs.tap_update_interval < 100 || prefs.tap_update_interval > 10000) {
-                prefs.tap_update_interval = 3000;
+                prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
         }
 
 #ifdef HAVE_LIBPORTAUDIO

@@ -2574,10 +2574,6 @@ main(int argc, char *argv[])
 
   splash_update(RA_PREFERENCES, NULL, (gpointer)splash_win);
 
-  /* Now register the preferences for any non-dissector modules.
-     We must do that before we read the preferences as well. */
-  prefs_register_modules();
-
   prefs_p = read_configuration_files (&gdp_path, &dp_path);
   /* Removed thread code:
    * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027

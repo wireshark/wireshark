@@ -967,10 +967,6 @@ main(int argc, char *argv[])
 #endif
   register_all_tap_listeners();
 
-  /* Now register the preferences for any non-dissector modules.
-     We must do that before we read the preferences as well. */
-  prefs_register_modules();
-
   /* If invoked with the "-G" flag, we dump out information based on
      the argument to the "-G" flag; if no argument is specified,
      for backwards compatibility we dump out a glossary of display

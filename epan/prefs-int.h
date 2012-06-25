@@ -38,6 +38,7 @@ struct pref_module {
 	const char *description;	/**< Description of module (displayed in preferences notebook) */
 	void (*apply_cb)(void);		/**< routine to call when preferences applied */
 	GList	*prefs;				/**< list of its preferences */
+    struct pref_module *parent; /**< parent module */
 	emem_tree_t *submodules;	/**< list of its submodules */
 	int	numprefs;				/**< number of non-obsolete preferences */
 	gboolean prefs_changed;		/**< if TRUE, a preference has changed since we last checked */
