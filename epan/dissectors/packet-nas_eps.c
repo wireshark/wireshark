@@ -307,10 +307,10 @@ static const value_string security_header_type_vals[] = {
     { 9,    "Reserved"},
     { 10,   "Reserved"},
     { 11,   "Reserved"},
-    { 12,   "Security header for the SERVICE REQUEST message "},
-    { 13,   "These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
-    { 14,   "These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
-    { 15,   "These values are not used in this version of the protocol. If received they shall be interpreted as \"1100\""},
+    { 12,   "Security header for the SERVICE REQUEST message"},
+    { 13,   "These values are not used in this version of the protocol. If received they shall be interpreted as security header for the SERVICE REQUEST message"},
+    { 14,   "These values are not used in this version of the protocol. If received they shall be interpreted as Security header for the SERVICE REQUEST message"},
+    { 15,   "These values are not used in this version of the protocol. If received they shall be interpreted as Security header for the SERVICE REQUEST message"},
     { 0,    NULL }
 };
 static value_string_ext security_header_type_vals_ext = VALUE_STRING_EXT_INIT(security_header_type_vals);
@@ -4633,7 +4633,20 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_NA);
     nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
-    pd = tvb_get_guint8(tvb,offset)&0x0f;
+    /* SERVICE REQUEST (security header type equal to 12 or greater) is not a plain NAS message */
+    pd = tvb_get_guint8(tvb,offset);
+    if (pd >= 0xc0) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SERVICE REQUEST");
+        /* Security header type Security header type 9.3.1 M V 1/2 */
+        proto_tree_add_item(nas_eps_tree, hf_nas_eps_security_header_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+        /* Protocol discriminator Protocol discriminator 9.2 M V 1/2 */
+        proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
+        offset++;
+        nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, tvb_length(tvb)-offset);
+        return;
+    }
+
+    pd &= 0x0f;
     switch (pd) {
         case 2:
             /* EPS session management messages.
@@ -4739,15 +4752,15 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (security_header_type == 0) {
         if (pd == 7) {
             /* Plain EPS mobility management messages. */
-            dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, ENC_BIG_ENDIAN);
+            dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
             return;
         } else {
             proto_tree_add_text(tree, tvb, offset, len, "All ESM messages should be integrity protected");
             return;
         }
     } else {
-        /* SERVICE REQUEST (12)  is not a plain NAS message treat separately */
-        if (security_header_type == 12) {
+        /* SERVICE REQUEST (12 or greater) is not a plain NAS message treat separately */
+        if (security_header_type >= 12) {
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SERVICE REQUEST");
             nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, len-offset);
             return;
