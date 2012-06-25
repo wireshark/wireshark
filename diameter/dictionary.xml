@@ -178,6 +178,7 @@
 		<vendor vendor-id="Merit" code="61" name="Merit Networks"/>
 		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
 		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
+		<vendor vendor-id="Huawei" code="2011" name="Huawei"/>
 		<vendor vendor-id="Cisco" code="5771" name="Cisco"/>
 		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
@@ -1926,6 +1927,12 @@
 			<enum name="DIAMETER_ERROR_TOO_MUCH_DATA" code="5039"/>
 			<enum name="DIAMETER_ERROR_NOT SUPPORTED_USER_DATA" code="5040"/>
 			<enum name="DIAMETER_ERROR_MIP6_AUTH_MODE" code="5041"/>
+
+			<!-- (Ericsson) SCAP Result Codes, see 155 19-FAY 112 51/2 rev B -->
+			<enum name="DIAMETER_END_USER_SERVICE_DENIED" code="4241"/>
+			<enum name="DIAMETER_END_USER_NOT_FOUND" code="5241"/>
+			<!-- END SCAP Result Codes -->
+
 			<!-- 5042-4294967295 Unassigned -->
 		</avp>
 		<avp name="Product-Name" code="269" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
