@@ -764,7 +764,7 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 # AC_WIRESHARK_LIBLUA_CHECK
 #
 AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
-
+	lua_ver=5.2
 	if test "x$lua_dir" != "x"
 	then
 		#
@@ -785,6 +785,15 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		LIBS="$LIBS -L$lua_dir/lib -llua -lm"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		LDFLAGS="$LDFLAGS -L$lua_dir/lib"
+		
+		#
+		# Determine Lua version by reading the LUA_VERSION_NUM definition
+		# from lua.h under the given Lua directory. The value is 501 for 
+		# Lua 5.1, 502 for Lua 5.2, etc.
+		#
+		AC_MSG_CHECKING(Lua version)
+		[[ -d "$lua_dir/include" ]] && grep -rq 'LUA_VERSION_NUM.*501' "$lua_dir/include" && lua_ver=5.1
+		AC_MSG_RESULT(Lua ${lua_ver})
 	else
 		#
 		# The user specified no directory in which liblua resides,
@@ -802,24 +811,24 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 	#
 	AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h,,
 	[
-		AC_CHECK_HEADERS(lua5.1/lua.h lua5.1/lualib.h lua5.1/lauxlib.h,
+		AC_CHECK_HEADERS(lua${lua_ver}/lua.h lua${lua_ver}/lualib.h lua${lua_ver}/lauxlib.h,
 		[
 			if test "x$lua_dir" != "x"
 			then
-				LUA_INCLUDES="-I$lua_dir/include/lua5.1"
+				LUA_INCLUDES="-I$lua_dir/include/lua${lua_ver}"
 			else
 				#
 				# The user didn't specify a directory in which liblua resides;
-				# we must look for the headers in a "lua5.1" subdirectory of
+				# we must look for the headers in a "lua${lua_ver}" subdirectory of
 				# "/usr/include", "/usr/local/include", or "$prefix/include"
-				# as some systems apparently put the headers in a "lua5.1"
+				# as some systems apparently put the headers in a "lua${lua_ver}"
 				# subdirectory.
 				AC_MSG_CHECKING(for extraneous lua header directories)
 				found_lua_dir=""
-				lua_dir_list="/usr/include/lua5.1 $prefix/include/lua5.1"
+				lua_dir_list="/usr/include/lua${lua_ver} $prefix/include/lua${lua_ver}"
 				if test "x$ac_cv_enable_usr_local" = "xyes"
 				then
-					lua_dir_list="$lua_dir_list /usr/local/include/lua5.1"
+					lua_dir_list="$lua_dir_list /usr/local/include/lua${lua_ver}"
 				fi
 				for lua_dir_ent in $lua_dir_list
 				do
@@ -848,8 +857,8 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 					LUA_LIBS=""
 					if test "x$want_lua" = "xyes"
 					then
-						# we found lua5.1/lua.h, but we don't know which include dir contains it
-						AC_MSG_ERROR(Header file lua.h was found as lua5.1/lua.h but we can't locate the include directory. Please set the DIR for the --with-lua configure parameter.)
+						# we found lua${lua_ver}/lua.h, but we don't know which include dir contains it
+						AC_MSG_ERROR(Header file lua.h was found as lua${lua_ver}/lua.h but we can't locate the include directory. Please set the DIR for the --with-lua configure parameter.)
 					else
 						#
 						# We couldn't find the header file; don't use the
@@ -912,10 +921,10 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# against libm.
 		LIBS="$LIBS $LUA_LIBS -lm"
 
-		AC_CHECK_LIB(lua, luaL_register,
+		AC_CHECK_LIB(lua, luaL_openlibs,
 		[
 			#
-			#  Lua 5.1 found
+			#  Lua found
 			#
 			if test "x$lua_dir" != "x"
 			then
@@ -929,7 +938,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				LUA_LIBS="-llua -lm"
 				LUA_INCLUDES=""
 			fi
-			AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
+			AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua ${lua_ver}])
 			want_lua=yes
 
 		],[
@@ -937,15 +946,15 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			# We could not find the libs, maybe we have version number in the lib name
 			#
 
-			LIBS="$wireshark_save_LIBS -llua5.1 -lm"
+			LIBS="$wireshark_save_LIBS -llua${lua_ver} -lm"
 
-			AC_CHECK_LIB(lua5.1, luaL_register,
+			AC_CHECK_LIB(lua${lua_ver}, luaL_openlibs,
 			[
 			    #
-			    #  Lua 5.1 found
+			    #  Lua found
 			    #
-			    LUA_LIBS=" -llua5.1 -lm"
-			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua 5.1])
+			    LUA_LIBS=" -llua${lua_ver} -lm"
+			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua ${lua_ver}])
 			    want_lua=yes
 			],[
 				#
