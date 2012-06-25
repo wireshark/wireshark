@@ -2183,7 +2183,7 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     octet = tvb_get_guint8(tvb,curr_offset);
     if ((octet == 0)||(octet == 0xff)) {
         proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
-                       "Use the value indicated by the APN-AMBR for uplink and APN-AMBR for downlink (extended)");
+                       "Use the value indicated by the APN-AMBR for uplink and APN-AMBR for uplink (extended)");
     } else {
         ul_total += octet*256*1000;
         proto_tree_add_uint_format(tree, hf_nas_eps_emm_apn_ambr_ul_ext2, tvb, curr_offset, 1, octet,
@@ -2281,7 +2281,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
         proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, curr_offset, 1, octet,
-                       "Use the value indicated by the maximum bit rate for uplink in octet 4.");
+                       "Use the value indicated by the maximum bit rate for uplink in octet 4");
     } else {
         proto_tree_add_uint_format(tree, hf_nas_eps_embr_ul, tvb, curr_offset, 1, octet,
                        "Maximum bit rate for uplink(extended) : %u %s",
@@ -2295,7 +2295,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
         proto_tree_add_uint_format(tree, hf_nas_eps_embr_dl, tvb, curr_offset, 1, octet,
-                       "Use the value indicated by the maximum bit rate for downlink in octet 5.");
+                       "Use the value indicated by the maximum bit rate for downlink in octet 5");
     } else {
         proto_tree_add_uint_format(tree, hf_nas_eps_embr_dl, tvb, curr_offset, 1, octet,
                        "Maximum bit rate for downlink(extended) : %u %s",
@@ -2309,7 +2309,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
         proto_tree_add_uint_format(tree, hf_nas_eps_egbr_ul, tvb, curr_offset, 1, octet,
-                       "Use the value indicated by the Guaranteed bit rate for uplink in octet 6.");
+                       "Use the value indicated by the guaranteed bit rate for uplink in octet 6");
     } else {
         proto_tree_add_uint_format(tree, hf_nas_eps_egbr_ul, tvb, curr_offset, 1, octet,
                        "Guaranteed bit rate for uplink(extended) : %u %s",
@@ -2323,7 +2323,7 @@ de_esm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
     octet = tvb_get_guint8(tvb,curr_offset);
     if (octet == 0) {
         proto_tree_add_uint_format(tree, hf_nas_eps_egbr_dl, tvb, curr_offset, 1, octet,
-                       "Use the value indicated by the Guaranteed bit rate for downlink in octet 7.");
+                       "Use the value indicated by the guaranteed bit rate for downlink in octet 7");
     } else {
         proto_tree_add_uint_format(tree, hf_nas_eps_egbr_dl, tvb, curr_offset, 1, octet,
                        "Guaranteed bit rate for downlink(extended) : %u %s",
