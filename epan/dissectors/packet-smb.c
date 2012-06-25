@@ -942,20 +942,17 @@ smb_trans_reassembly_init(void)
 	fragment_table_init(&smb_trans_fragment_table);
 }
 
-/*
- * XXX - This keeps us from allocating huge amounts of memory as shown in
- * bug 421.  It may need to be increased.
- */
-#define MAX_FRAGMENT_SIZE 65536
 static fragment_data *
 smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
-		     int offset, int count, int pos, int totlen)
+		     int offset, guint count, guint pos, guint totlen)
 {
 	fragment_data *fd_head=NULL;
 	smb_info_t *si;
 	int more_frags;
 
-	if (count > MAX_FRAGMENT_SIZE || count < 0) {
+	/* Don't pass the reassembly code data that doesn't exist */
+	/* Fail if some or all of the fragment is located beyond the total length */
+	if ( !tvb_bytes_exist(tvb, offset, count) || (pos > totlen) || (count > totlen) || ((pos+count) > totlen)){
 		THROW(ReportedBoundsError);
 	}
 
@@ -9044,11 +9041,11 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		pinfo->fragmented = TRUE;
 		if(smb_trans_reassembly){
 			/* ...and we were told to do reassembly */
-			if(pc && ((unsigned int)tvb_length_remaining(tvb, po)>=pc) ){
+			if(pc){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb,
 							     po, pc, pd, td+tp);
 			}
-			if((r_fd==NULL) && dc && ((unsigned int)tvb_length_remaining(tvb, od)>=dc) ){
+			if((r_fd==NULL) && dc){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb,
 							     od, dc, dd+tp, td+tp);
 			}
@@ -9594,12 +9591,12 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		pinfo->fragmented = TRUE;
 		if(smb_trans_reassembly){
 			/* ...and we were told to do reassembly */
-			if(pc && ((unsigned int)tvb_length_remaining(tvb, po)>=pc) ){
+			if(pc){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb,
 							     po, pc, pd, td+tp);
 
 			}
-			if((r_fd==NULL) && dc && ((unsigned int)tvb_length_remaining(tvb, od)>=dc) ){
+			if((r_fd==NULL) && dc){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb,
 							     od, dc, dd+tp, td+tp);
 			}
@@ -16437,12 +16434,12 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		pinfo->fragmented = TRUE;
 		if(smb_trans_reassembly){
 			/* ...and we were told to do reassembly */
-			if(pc && (tvb_length_remaining(tvb, po)>=pc) ){
+			if(pc){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb,
 							     po, pc, pd, td+tp);
 
 			}
-			if((r_fd==NULL) && dc && (tvb_length_remaining(tvb, od)>=dc) ){
+			if((r_fd==NULL) && dc){
 				r_fd = smb_trans_defragment(tree, pinfo, tvb,
 							     od, dc, dd+tp, td+tp);
 			}
