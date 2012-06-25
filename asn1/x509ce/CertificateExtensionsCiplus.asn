@@ -1,0 +1,47 @@
+-- $Id$
+-- Module CertificateExtensionsCiplus
+--  X.509 certificate extensions defined by CI+ (www.ci-plus.com)
+CertificateExtensionsCiplus DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- EXPORTS ALL 
+IMPORTS
+  id-pkix
+  FROM PKIX1Explicit93 {iso(1) identified-organization(3) dod(6) internet(1)
+   security(5) mechanisms(5) pkix(7) id-mod(0) id-pkix1-explicit-93(3)}
+  EXTENSION
+  FROM AuthenticationFramework { joint-iso-itu-t ds(5)
+                      module(1) authenticationFramework(7) 3 };
+
+scramblerCapabilities EXTENSION ::= {
+   SYNTAX         ScramblerCapabilities
+   IDENTIFIED BY  id-pe-scramblerCapabilities
+}
+
+ScramblerCapabilities ::= SEQUENCE {
+   capability INTEGER (0..MAX),
+   version    INTEGER (0..MAX)
+}
+
+
+ciplusInfo EXTENSION ::= {
+   SYNTAX    CiplusInfo
+   IDENTIFIED BY  id-pe-ciplusInfo
+}
+
+CiplusInfo ::= BIT STRING
+
+
+cicamBrandId EXTENSION ::= {
+   SYNTAX    CicamBrandId
+   IDENTIFIED BY  id-pe-cicamBrandId
+}
+
+CicamBrandId ::= INTEGER(1..65535)
+
+-- Object identifier assignments 
+id-pe-scramblerCapabilities OBJECT IDENTIFIER ::= { id-pkix id-pe(1) 25 }
+id-pe-ciplusInfo OBJECT IDENTIFIER ::= { id-pkix id-pe(1) 26 }
+id-pe-cicamBrandId OBJECT IDENTIFIER ::= { id-pkix id-pe(1) 27 }
+
+END

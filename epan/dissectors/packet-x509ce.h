@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509ce.h                                                            */
-/* ../../tools/asn2wrs.py -b -p x509ce -c ./x509ce.cnf -s ./packet-x509ce-template -D . -O ../../epan/dissectors CertificateExtensions.asn */
+/* ../../tools/asn2wrs.py -b -p x509ce -c ./x509ce.cnf -s ./packet-x509ce-template -D . -O ../../epan/dissectors CertificateExtensions.asn CertificateExtensionsCiplus.asn */
 
 /* Input file: packet-x509ce-template.h */
 
@@ -95,9 +95,15 @@ int dissect_x509ce_CertificatePairAssertion(gboolean implicit_tag _U_, tvbuff_t 
 int dissect_x509ce_CertificateListExactAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_x509ce_CertificateListAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_x509ce_PkiPathMatchSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_x509ce_ScramblerCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_x509ce_CiplusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_x509ce_CicamBrandId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-x509ce-exp.h ---*/
 #line 30 "../../asn1/x509ce/packet-x509ce-template.h"
+
+void x509ce_enable_ciplus(void);
+void x509ce_disable_ciplus(void);
 
 #endif  /* PACKET_X509CE_H */
 

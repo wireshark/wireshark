@@ -87,6 +87,15 @@ SkipCerts
 StatusReferral
 StatusReferrals
 SubjectKeyIdentifier
+ScramblerCapabilities
+CiplusInfo
+CicamBrandId
+
+#.PDU
+ScramblerCapabilities
+CiplusInfo
+CicamBrandId
+
 
 #.REGISTER
 CertificatePoliciesSyntax B "2.5.29.3"  "id-ce-certificatePolicies"

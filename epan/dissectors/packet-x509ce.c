@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509ce.c                                                            */
-/* ../../tools/asn2wrs.py -b -p x509ce -c ./x509ce.cnf -s ./packet-x509ce-template -D . -O ../../epan/dissectors CertificateExtensions.asn */
+/* ../../tools/asn2wrs.py -b -p x509ce -c ./x509ce.cnf -s ./packet-x509ce-template -D . -O ../../epan/dissectors CertificateExtensions.asn CertificateExtensionsCiplus.asn */
 
 /* Input file: packet-x509ce-template.c */
 
@@ -96,6 +96,9 @@ static int hf_x509ce_PkiPathMatchSyntax_PDU = -1;  /* PkiPathMatchSyntax */
 static int hf_x509ce_EnhancedCertificateAssertion_PDU = -1;  /* EnhancedCertificateAssertion */
 static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
 static int hf_x509ce_EntrustVersionInfo_PDU = -1;  /* EntrustVersionInfo */
+static int hf_x509ce_ScramblerCapabilities_PDU = -1;  /* ScramblerCapabilities */
+static int hf_x509ce_CiplusInfo_PDU = -1;         /* CiplusInfo */
+static int hf_x509ce_CicamBrandId_PDU = -1;       /* CicamBrandId */
 static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
 static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
 static int hf_x509ce_authorityCertSerialNumber = -1;  /* CertificateSerialNumber */
@@ -223,6 +226,8 @@ static int hf_x509ce_templateMajorVersion = -1;   /* INTEGER */
 static int hf_x509ce_templateMinorVersion = -1;   /* INTEGER */
 static int hf_x509ce_entrustVers = -1;            /* GeneralString */
 static int hf_x509ce_entrustVersInfoFlags = -1;   /* EntrustInfoFlags */
+static int hf_x509ce_capability = -1;             /* INTEGER_0_MAX */
+static int hf_x509ce_version = -1;                /* INTEGER_0_MAX */
 /* named bits */
 static int hf_x509ce_KeyUsage_digitalSignature = -1;
 static int hf_x509ce_KeyUsage_contentCommitment = -1;
@@ -318,6 +323,7 @@ static gint ett_x509ce_AltName = -1;
 static gint ett_x509ce_CertificateTemplate = -1;
 static gint ett_x509ce_EntrustVersionInfo = -1;
 static gint ett_x509ce_EntrustInfoFlags = -1;
+static gint ett_x509ce_ScramblerCapabilities = -1;
 
 /*--- End of included file: packet-x509ce-ett.c ---*/
 #line 55 "../../asn1/x509ce/packet-x509ce-template.c"
@@ -350,7 +356,7 @@ dissect_x509ce_OtherNameType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509ce_OtherNameValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 172 "../../asn1/x509ce/x509ce.cnf"
+#line 181 "../../asn1/x509ce/x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -407,7 +413,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
 
-#line 175 "../../asn1/x509ce/x509ce.cnf"
+#line 184 "../../asn1/x509ce/x509ce.cnf"
   
 	PROTO_ITEM_SET_URL(actx->created_item);
 
@@ -419,7 +425,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_x509ce_T_iPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "../../asn1/x509ce/x509ce.cnf"
+#line 174 "../../asn1/x509ce/x509ce.cnf"
 	proto_tree_add_item(tree, hf_x509ce_IPAddress, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
@@ -602,7 +608,7 @@ dissect_x509ce_T_policyQualifierId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_x509ce_T_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 162 "../../asn1/x509ce/x509ce.cnf"
+#line 171 "../../asn1/x509ce/x509ce.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -1624,6 +1630,42 @@ dissect_x509ce_EntrustVersionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
   return offset;
 }
 
+
+static const ber_sequence_t ScramblerCapabilities_sequence[] = {
+  { &hf_x509ce_capability   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x509ce_INTEGER_0_MAX },
+  { &hf_x509ce_version      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x509ce_INTEGER_0_MAX },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_x509ce_ScramblerCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ScramblerCapabilities_sequence, hf_index, ett_x509ce_ScramblerCapabilities);
+
+  return offset;
+}
+
+
+
+int
+dissect_x509ce_CiplusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+
+
+
+int
+dissect_x509ce_CicamBrandId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_AuthorityKeyIdentifier_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -1811,10 +1853,50 @@ static void dissect_EntrustVersionInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509ce_EntrustVersionInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_EntrustVersionInfo_PDU);
 }
+static void dissect_ScramblerCapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_ScramblerCapabilities(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_ScramblerCapabilities_PDU);
+}
+static void dissect_CiplusInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_CiplusInfo(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CiplusInfo_PDU);
+}
+static void dissect_CicamBrandId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509ce_CicamBrandId(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509ce_CicamBrandId_PDU);
+}
 
 
 /*--- End of included file: packet-x509ce-fn.c ---*/
 #line 59 "../../asn1/x509ce/packet-x509ce-template.c"
+
+/* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
+    that use OIDs which are not officially assigned
+   dissection of these extensions can be enabled temporarily using the
+    functions below */
+void
+x509ce_enable_ciplus(void)
+{
+	dissector_handle_t dh25, dh26, dh27;
+
+	dh25 = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
+	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", dh25);
+	dh26 = create_dissector_handle(dissect_CiplusInfo_PDU, proto_x509ce);
+	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", dh26);
+	dh27 = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
+	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", dh27);
+}
+
+void
+x509ce_disable_ciplus(void)
+{
+	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.25");
+	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.26");
+	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.27");
+}
 
 
 static void
@@ -2004,6 +2086,18 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_EntrustVersionInfo_PDU,
       { "EntrustVersionInfo", "x509ce.EntrustVersionInfo",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_ScramblerCapabilities_PDU,
+      { "ScramblerCapabilities", "x509ce.ScramblerCapabilities",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_CiplusInfo_PDU,
+      { "CiplusInfo", "x509ce.CiplusInfo",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_CicamBrandId_PDU,
+      { "CicamBrandId", "x509ce.CicamBrandId",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_keyIdentifier,
       { "keyIdentifier", "x509ce.keyIdentifier",
@@ -2513,6 +2607,14 @@ void proto_register_x509ce(void) {
       { "entrustVersInfoFlags", "x509ce.entrustVersInfoFlags",
         FT_BYTES, BASE_NONE, NULL, 0,
         "EntrustInfoFlags", HFILL }},
+    { &hf_x509ce_capability,
+      { "capability", "x509ce.capability",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_MAX", HFILL }},
+    { &hf_x509ce_version,
+      { "version", "x509ce.version",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_MAX", HFILL }},
     { &hf_x509ce_KeyUsage_digitalSignature,
       { "digitalSignature", "x509ce.digitalSignature",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -2623,7 +2725,7 @@ void proto_register_x509ce(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509ce-hfarr.c ---*/
-#line 99 "../../asn1/x509ce/packet-x509ce-template.c"
+#line 124 "../../asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* List of subtrees */
@@ -2690,9 +2792,10 @@ void proto_register_x509ce(void) {
     &ett_x509ce_CertificateTemplate,
     &ett_x509ce_EntrustVersionInfo,
     &ett_x509ce_EntrustInfoFlags,
+    &ett_x509ce_ScramblerCapabilities,
 
 /*--- End of included file: packet-x509ce-ettarr.c ---*/
-#line 104 "../../asn1/x509ce/packet-x509ce-template.c"
+#line 129 "../../asn1/x509ce/packet-x509ce-template.c"
   };
 
   /* Register protocol */
@@ -2755,7 +2858,7 @@ void proto_reg_handoff_x509ce(void) {
 
 
 /*--- End of included file: packet-x509ce-dis-tab.c ---*/
-#line 119 "../../asn1/x509ce/packet-x509ce-template.c"
+#line 144 "../../asn1/x509ce/packet-x509ce-template.c"
 	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
 	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }

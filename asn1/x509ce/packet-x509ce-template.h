@@ -28,5 +28,8 @@
 
 #include "packet-x509ce-exp.h"
 
+void x509ce_enable_ciplus(void);
+void x509ce_disable_ciplus(void);
+
 #endif  /* PACKET_X509CE_H */
 

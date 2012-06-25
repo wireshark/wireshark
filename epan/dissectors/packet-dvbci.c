@@ -45,6 +45,7 @@
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-mpeg-descriptor.h>
 #include <epan/dissectors/packet-x509af.h>
+#include <epan/dissectors/packet-x509ce.h>
 
 #include "packet-ber.h"
 
@@ -1757,8 +1758,13 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             hf_cert_index = (dat_id==CC_ID_HOST_BRAND_CERT ||
                              dat_id==CC_ID_CICAM_BRAND_CERT) ?
                 hf_dvbci_brand_cert : hf_dvbci_dev_cert;
+
+            /* enable dissection of CI+ specific X.509 extensions
+               only for our certificates */
+            x509ce_enable_ciplus();
             dissect_x509af_Certificate(FALSE, tvb, offset,
                     &asn1_ctx, cc_item_tree, hf_cert_index);
+            x509ce_disable_ciplus();
             break;
         case CC_ID_URI:
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "URI");

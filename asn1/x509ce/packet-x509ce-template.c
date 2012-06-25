@@ -57,6 +57,31 @@ static const char *object_identifier_id;
 
 #include "packet-x509ce-fn.c"
 
+/* CI+ (www.ci-plus.com) defines some X.509 certificate extensions
+    that use OIDs which are not officially assigned
+   dissection of these extensions can be enabled temporarily using the
+    functions below */
+void
+x509ce_enable_ciplus(void)
+{
+	dissector_handle_t dh25, dh26, dh27;
+
+	dh25 = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
+	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", dh25);
+	dh26 = create_dissector_handle(dissect_CiplusInfo_PDU, proto_x509ce);
+	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", dh26);
+	dh27 = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
+	dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", dh27);
+}
+
+void
+x509ce_disable_ciplus(void)
+{
+	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.25");
+	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.26");
+	dissector_reset_string("ber.oid", "1.3.6.1.5.5.7.1.27");
+}
+
 
 static void
 dissect_x509ce_invalidityDate_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
