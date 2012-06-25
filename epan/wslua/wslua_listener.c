@@ -297,13 +297,13 @@ static int Listener_newindex(lua_State* L) {
 }
 
 
-static const luaL_reg Listener_methods[] = {
+static const luaL_Reg Listener_methods[] = {
     {"new", Listener_new},
     {"remove", Listener_remove},
     { NULL, NULL }
 };
 
-static const luaL_reg Listener_meta[] = {
+static const luaL_Reg Listener_meta[] = {
     {"__tostring", Listener_tostring},
     {"__newindex", Listener_newindex},
     { NULL, NULL }

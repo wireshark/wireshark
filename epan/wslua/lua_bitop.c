@@ -81,7 +81,7 @@ static UBits barg(lua_State *L, int idx)
 #error "Unknown number type, check LUA_NUMBER_* in luaconf.h"
 #endif
   if (b == 0 && !lua_isnumber(L, idx))
-    luaL_typerror(L, idx, "number");
+    luaL_error(L, "bad argument %d (number expected, got %s)", idx, lua_typename(L, lua_type(L, idx)));
   return b;
 }
 
@@ -174,7 +174,14 @@ LUALIB_API int luaopen_bit(lua_State *L)
       msg = "arithmetic right-shift broken";
     luaL_error(L, "bit library self-test failed (%s)", msg);
   }
+
+#if LUA_VERSION_NUM >= 502
+  luaL_newlib(L, bit_funcs);
+  lua_setglobal(L, "bit");
+#else
   luaL_register(L, "bit", bit_funcs);
+#endif
+
   return 1;
 }
 

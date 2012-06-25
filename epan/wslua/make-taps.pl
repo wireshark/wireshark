@@ -195,14 +195,14 @@ TBLFTR
 
 
 for my $ename (sort keys %enums) {
-	print CFILE  "\n\t/*\n\t * $ename\n\t */\n\tlua_pushstring(L,\"$ename\"); lua_newtable(L);\n";
+	print CFILE  "\n\t/*\n\t * $ename\n\t */\n\tlua_newtable(L);\n";
 	for my $a (@{$enums{$ename}}) {
 		print CFILE  <<"ENUMELEM";
-		lua_pushstring(L,"$a"); lua_pushnumber(L,(lua_Number)$a); lua_settable(L,LUA_GLOBALSINDEX);
+		lua_pushnumber(L,(lua_Number)$a); lua_setglobal(L,"$a");
 		lua_pushnumber(L,(lua_Number)$a); lua_pushstring(L,"$a"); lua_settable(L,-3);
 ENUMELEM
 	}
-	print CFILE  "\tlua_settable(L,LUA_GLOBALSINDEX);\n";
+	print CFILE "\tlua_setglobal(L,\"$ename\");\n";
 }
 
 print CFILE <<"TAIL";

@@ -419,7 +419,7 @@ static int TreeItem_gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg TreeItem_methods[] = {
+static const luaL_Reg TreeItem_methods[] = {
     {"add_packet_field", TreeItem_add_packet_field},
     {"add",              TreeItem_add},
     {"add_le",           TreeItem_add_le},
@@ -433,7 +433,7 @@ static const luaL_reg TreeItem_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg TreeItem_meta[] = {
+static const luaL_Reg TreeItem_meta[] = {
     {"__gc", TreeItem_gc},
     { NULL, NULL }
 };

@@ -301,9 +301,9 @@ WSLUA_META NSTime_meta[] = {
 int NSTime_register(lua_State* L) {
     WSLUA_REGISTER_META(NSTime);
 
-    lua_pushstring(L, "NSTime");
     lua_pushcfunction(L, NSTime_new);
-    lua_settable(L, LUA_GLOBALSINDEX);
+    lua_setglobal(L, "NSTime");
+
     return 1;
 }
 
@@ -809,7 +809,7 @@ static int Columns_gc(lua_State* L) {
 }
 
 
-static const luaL_reg Columns_meta[] = {
+static const luaL_Reg Columns_meta[] = {
     {"__tostring", Columns__tostring },
     {"__newindex", Columns__newindex },
     {"__index",  Columns_index},
@@ -1444,7 +1444,7 @@ static int Pinfo_gc(lua_State* L) {
 
 }
 
-static const luaL_reg Pinfo_meta[] = {
+static const luaL_Reg Pinfo_meta[] = {
     {"__index", Pinfo_index},
     {"__newindex",Pinfo_setindex},
     {"__tostring", Pinfo_tostring},

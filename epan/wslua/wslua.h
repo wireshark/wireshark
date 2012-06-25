@@ -258,7 +258,7 @@ typedef struct _wslua_private_table* PrivateTable;
 #define WSLUA_CLASS_DEFINE(C,check_code,push_code) \
 C to##C(lua_State* L, int idx) { \
     C* v = (C*)lua_touserdata (L, idx); \
-    if (!v) luaL_typerror(L,idx,#C); \
+    if (!v) luaL_error(L, "bad argument %d (%s expected, got %s)", idx, #C, lua_typename(L, lua_type(L, idx))); \
     return v ? *v : NULL; \
 } \
 C check##C(lua_State* L, int idx) { \
@@ -299,6 +299,29 @@ typedef int dummy##C
 
 #ifdef HAVE_LUA_5_1
 
+#if LUA_VERSION_NUM >= 502
+#define WSLUA_REGISTER_CLASS(C) { \
+    int lib_idx, meta_idx; \
+	lua_createtable(L, 0, 0); \
+    lib_idx = lua_gettop(L); \
+	luaL_newmetatable(L, #C); \
+    meta_idx = lua_gettop(L); \
+	luaL_setfuncs(L, C ## _meta, 0); \
+	luaL_newlib(L, C ## _methods); \
+	lua_setfield(L, meta_idx, "__index"); \
+	luaL_newlib(L, C ## _meta); \
+	lua_setfield(L, meta_idx, "__metatable"); \
+	lua_setmetatable(L, lib_idx); \
+	lua_setglobal(L, #C); \
+}
+
+#define WSLUA_REGISTER_META(C) { \
+    luaL_newmetatable (L, #C); \
+    luaL_setfuncs (L, C ## _meta, 0); \
+    lua_pop(L,1); \
+}
+
+#else
 #define WSLUA_REGISTER_CLASS(C) { \
     luaL_register (L, #C, C ## _methods); \
     luaL_newmetatable (L, #C); \
@@ -317,6 +340,7 @@ typedef int dummy##C
     luaL_register (L, NULL, C ## _meta); \
     lua_pop(L,1); \
 }
+#endif
 
 #define WSLUA_INIT(L) \
     luaL_openlibs(L); \
@@ -326,7 +350,9 @@ typedef int dummy##C
 #endif
 
 #define WSLUA_FUNCTION extern int 
-#define WSLUA_REGISTER_FUNCTION(name)     { lua_pushstring(L, #name); lua_pushcfunction(L, wslua_## name); lua_settable(L, LUA_GLOBALSINDEX); }
+
+#define WSLUA_REGISTER_FUNCTION(name)     { lua_pushcfunction(L, wslua_## name); lua_setglobal(L, #name); }
+
 #define WSLUA_REGISTER extern int
 
 #define WSLUA_METHOD static int 
@@ -335,17 +361,17 @@ typedef int dummy##C
 #define WSLUA_ATTR_GET static int 
 #define WSLUA_METAMETHOD static int
 
-#define WSLUA_METHODS static const luaL_reg 
-#define WSLUA_META static const luaL_reg
+#define WSLUA_METHODS static const luaL_Reg 
+#define WSLUA_META static const luaL_Reg
 #define WSLUA_CLASS_FNREG(class,name) { #name, class##_##name }
 
 #define WSLUA_ERROR(name,error) { luaL_error(L, ep_strdup_printf("%s%s", #name ": " ,error) ); return 0; }
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); return 0; }
 #define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); return 0; }
 
-#define WSLUA_REG_GLOBAL_BOOL(L,n,v) { lua_pushstring(L,n); lua_pushboolean(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
-#define WSLUA_REG_GLOBAL_STRING(L,n,v) { lua_pushstring(L,n); lua_pushstring(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
-#define WSLUA_REG_GLOBAL_NUMBER(L,n,v) { lua_pushstring(L,n); lua_pushnumber(L,v); lua_settable(L, LUA_GLOBALSINDEX); }
+#define WSLUA_REG_GLOBAL_BOOL(L,n,v) { lua_pushboolean(L,v); lua_setglobal(L,n); }
+#define WSLUA_REG_GLOBAL_STRING(L,n,v) { lua_pushstring(L,v); lua_setglobal(L,n); }
+#define WSLUA_REG_GLOBAL_NUMBER(L,n,v) { lua_pushnumber(L,v); lua_setglobal(L,n); }
 
 #define WSLUA_RETURN(i) return (i);
 

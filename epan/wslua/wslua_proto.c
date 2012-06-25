@@ -1095,7 +1095,7 @@ static int ProtoField_gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg ProtoField_methods[] = {
+static const luaL_Reg ProtoField_methods[] = {
     {"new",   ProtoField_new},
     {"uint8",ProtoField_uint8},
     {"uint16",ProtoField_uint16},
@@ -1126,7 +1126,7 @@ static const luaL_reg ProtoField_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg ProtoField_meta[] = {
+static const luaL_Reg ProtoField_meta[] = {
     {"__tostring", ProtoField__tostring },
     {"__gc", ProtoField_gc },
     { NULL, NULL }
@@ -1281,11 +1281,20 @@ static int Proto_set_init(lua_State* L) {
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
         lua_pushstring(L, WSLUA_INIT_ROUTINES);
+#if LUA_VERSION_NUM >= 502
+        lua_pushglobaltable(L);
+#else
         lua_gettable(L, LUA_GLOBALSINDEX);
+#endif
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
         lua_replace(L, 2);
         lua_settable(L,1);
+
+#if LUA_VERSION_NUM >= 502
+        /* remove the global environment table from the stack */
+        lua_pop(L,1);
+#endif
 
         return 0;
     }  else {
@@ -1423,7 +1432,7 @@ static int Proto_newindex(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg Proto_meta[] = {
+static const luaL_Reg Proto_meta[] = {
     {"__tostring", Proto_tostring},
     {"__index", Proto_index},
     {"__newindex", Proto_newindex},
@@ -1437,10 +1446,9 @@ int Proto_register(lua_State* L) {
     lua_newtable(L);
     protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
-    lua_pushstring(L, "Proto");
-    lua_pushcfunction(L, Proto_new);
-    lua_settable(L, LUA_GLOBALSINDEX);
-
+	lua_pushcfunction(L, Proto_new);
+	lua_setglobal(L, "Proto");
+	
     Pref_register(L);
     Prefs_register(L);
 
@@ -1539,13 +1547,13 @@ WSLUA_METAMETHOD Dissector_tostring(lua_State* L) {
     return 1;
 }
 
-static const luaL_reg Dissector_methods[] = {
+static const luaL_Reg Dissector_methods[] = {
     {"get", Dissector_get },
     {"call", Dissector_call },
     { NULL, NULL }
 };
 
-static const luaL_reg Dissector_meta[] = {
+static const luaL_Reg Dissector_meta[] = {
     {"__tostring", Dissector_tostring},
     { NULL, NULL }
 };
@@ -1825,7 +1833,7 @@ WSLUA_METAMETHOD DissectorTable_tostring(lua_State* L) {
     return 1;
 }
 
-static const luaL_reg DissectorTable_methods[] = {
+static const luaL_Reg DissectorTable_methods[] = {
     {"new", DissectorTable_new },
     {"get", DissectorTable_get },
     {"add", DissectorTable_add },
@@ -1835,7 +1843,7 @@ static const luaL_reg DissectorTable_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg DissectorTable_meta[] = {
+static const luaL_Reg DissectorTable_meta[] = {
     {"__tostring", DissectorTable_tostring},
     { NULL, NULL }
 };

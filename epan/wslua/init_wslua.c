@@ -130,12 +130,11 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
 }
 
-static void iter_table_and_call(lua_State* LS, int env, const gchar* table_name, lua_CFunction error_handler) {
+static void iter_table_and_call(lua_State* LS, const gchar* table_name, lua_CFunction error_handler) {
     lua_settop(LS,0);
 
     lua_pushcfunction(LS,error_handler);
-    lua_pushstring(LS, table_name);
-    lua_gettable(LS, env);
+    lua_getglobal(LS, table_name);
 
     if (!lua_istable(LS, 2)) {
         report_failure("Lua: either `%s' does not exist or it is not a table!\n",table_name);
@@ -183,7 +182,7 @@ static void wslua_init_routine(void) {
     }
 
     if (L) {
-        iter_table_and_call(L, LUA_GLOBALSINDEX, WSLUA_INIT_ROUTINES,init_error_handler);
+        iter_table_and_call(L, WSLUA_INIT_ROUTINES,init_error_handler);
     }
 
 }
@@ -239,7 +238,11 @@ static gboolean lua_load_script(const gchar* filename) {
 
     lua_pushcfunction(L,lua_main_error_handler);
 
+#if LUA_VERSION_NUM >= 502
+    error = lua_load(L,getF,file,filename,NULL);
+#else
     error = lua_load(L,getF,file,filename);
+#endif
     switch (error) {
         case 0:
             lua_pcall(L,0,0,1);
@@ -254,6 +257,10 @@ static gboolean lua_load_script(const gchar* filename) {
             report_failure("Lua: memory allocation error during execution of %s",filename);
             fclose(file);
             return FALSE;
+        default:
+        	report_failure("Lua: unspecified error during execution of %s", filename);
+        	fclose(file);
+        	return FALSE;
     }
 
     report_failure("Lua: unknown error during execution of %s: %d",filename,error);
@@ -348,9 +355,8 @@ int wslua_init(register_cb cb, gpointer client_data) {
     lua_atpanic(L,wslua_panic);
 
     /* the init_routines table (accessible by the user) */
-    lua_pushstring(L, WSLUA_INIT_ROUTINES);
     lua_newtable (L);
-    lua_settable(L, LUA_GLOBALSINDEX);
+	lua_setglobal(L, WSLUA_INIT_ROUTINES);
 
     /* the dissectors table goes in the registry (not accessible) */
     lua_newtable (L);
@@ -374,8 +380,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     filename = NULL;
 
     /* check if lua is to be disabled */
-    lua_pushstring(L,"disable_lua");
-    lua_gettable(L, LUA_GLOBALSINDEX);
+    lua_getglobal(L,"disable_lua");
 
     if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
         /* disable lua */
@@ -388,8 +393,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     lua_load_plugins(get_plugin_dir());
 
     /* check whether we should run other scripts even if running superuser */
-    lua_pushstring(L,"run_user_scripts_when_superuser");
-    lua_gettable(L, LUA_GLOBALSINDEX);
+    lua_getglobal(L,"run_user_scripts_when_superuser");
 
     if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
         run_anyway = TRUE;
@@ -424,9 +428,8 @@ int wslua_init(register_cb cb, gpointer client_data) {
      * after this point it is too late to register a menu
      * disable the function to avoid weirdness
      */
-    lua_pushstring(L, "register_menu");
     lua_pushcfunction(L, wslua_not_register_menu);
-    lua_settable(L, LUA_GLOBALSINDEX);
+    lua_setglobal(L, "register_menu");
 
     /* set up some essential globals */
     lua_pinfo = NULL;

@@ -373,13 +373,13 @@ static int wslua_Dir__gc(lua_State* L) {
 	return 0;
 }
 
-static const luaL_reg Dir_methods[] = {
+static const luaL_Reg Dir_methods[] = {
     {"open", Dir_open},
     {"close", Dir_close},
     { NULL, NULL }
 };
 
-static const luaL_reg Dir_meta[] = {
+static const luaL_Reg Dir_meta[] = {
     {"__call", Dir__call},
     {"__gc", wslua_Dir__gc},
     { NULL, NULL }

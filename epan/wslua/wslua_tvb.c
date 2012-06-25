@@ -287,7 +287,7 @@ static int ByteArray_tostring(lua_State* L) {
 
 static int ByteArray_tvb (lua_State *L);
 
-static const luaL_reg ByteArray_methods[] = {
+static const luaL_Reg ByteArray_methods[] = {
     {"new", ByteArray_new},
     {"len", ByteArray_len},
     {"prepend", ByteArray_prepend},
@@ -300,7 +300,7 @@ static const luaL_reg ByteArray_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg ByteArray_meta[] = {
+static const luaL_Reg ByteArray_meta[] = {
     {"__tostring", ByteArray_tostring},
     {"__gc",       ByteArray_gc},
     {"__concat", ByteArray__concat},
@@ -623,7 +623,7 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg Tvb_methods[] = {
+static const luaL_Reg Tvb_methods[] = {
     {"range", Tvb_range},
     {"len", Tvb_len},
     {"offset", Tvb_offset},
@@ -632,7 +632,7 @@ static const luaL_reg Tvb_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg Tvb_meta[] = {
+static const luaL_Reg Tvb_meta[] = {
     {"__call", Tvb_range},
     {"__tostring", Tvb__tostring},
     {"__gc", Tvb__gc},
@@ -1314,7 +1314,7 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
     return 1;
 }
 
-static const luaL_reg TvbRange_methods[] = {
+static const luaL_Reg TvbRange_methods[] = {
     {"uint", TvbRange_uint},
     {"le_uint", TvbRange_le_uint},
     {"int", TvbRange_int},
@@ -1345,7 +1345,7 @@ static const luaL_reg TvbRange_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg TvbRange_meta[] = {
+static const luaL_Reg TvbRange_meta[] = {
     {"__tostring", TvbRange__tostring},
     {"__concat", wslua__concat},
     {"__call", TvbRange_range},
@@ -1386,11 +1386,11 @@ static int Int64__gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg Int64_methods[] = {
+static const luaL_Reg Int64_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg Int64_meta[] = {
+static const luaL_Reg Int64_meta[] = {
     {"__tostring", Int64__tostring},
     {"__concat", wslua__concat},
     {"__gc", Int64__gc},
@@ -1422,11 +1422,11 @@ static int UInt64__gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_reg UInt64_methods[] = {
+static const luaL_Reg UInt64_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_reg UInt64_meta[] = {
+static const luaL_Reg UInt64_meta[] = {
     {"__tostring", UInt64__tostring},
     {"__concat", wslua__concat},
     {"__gc", UInt64__gc},

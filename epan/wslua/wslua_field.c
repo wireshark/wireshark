@@ -208,7 +208,7 @@ static int FieldInfo_get_name(lua_State* L) {
 	return 1;
 }
 
-static const luaL_reg FieldInfo_get[] = {
+static const luaL_Reg FieldInfo_get[] = {
 /*    {"data_source", FieldInfo_get_data_source }, */
     {"range", FieldInfo_get_range},
 /*    {"hidden", FieldInfo_get_hidden}, */
@@ -232,7 +232,7 @@ static int FieldInfo__index(lua_State* L) {
 	 Other attributes:
 	 */
 	const gchar* idx = luaL_checkstring(L,2);
-	const luaL_reg* r;
+	const luaL_Reg* r;
 
 	checkFieldInfo(L,1);
 
@@ -294,7 +294,7 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
 }
 
 
-static const luaL_reg FieldInfo_meta[] = {
+static const luaL_Reg FieldInfo_meta[] = {
     {"__tostring", FieldInfo__tostring},
     {"__call", FieldInfo__call},
     {"__index", FieldInfo__index},
@@ -469,12 +469,12 @@ WSLUA_METAMETHOD Field_tostring(lua_State* L) {
     return 1;
 }
 
-static const luaL_reg Field_methods[] = {
+static const luaL_Reg Field_methods[] = {
     {"new", Field_new},
     { NULL, NULL }
 };
 
-static const luaL_reg Field_meta[] = {
+static const luaL_Reg Field_meta[] = {
     {"__tostring", Field_tostring},
     {"__call", Field__call},
     { NULL, NULL }
