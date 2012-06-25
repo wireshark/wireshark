@@ -47,6 +47,45 @@
 
 #include "ui/util.h"
 
+/*
+ * Collect command-line arguments as a string consisting of the arguments,
+ * separated by spaces.
+ */
+char *
+get_args_as_string(int argc, char **argv, int optindex)
+{
+	int len;
+	int i;
+	char *argstring;
+
+	/*
+	 * Find out how long the string will be.
+	 */
+	len = 0;
+	for (i = optindex; i < argc; i++) {
+		len += (int) strlen(argv[i]);
+		len++;	/* space, or '\0' if this is the last argument */
+	}
+
+	/*
+	 * Allocate the buffer for the string.
+	 */
+	argstring = (char *)g_malloc(len);
+
+	/*
+	 * Now construct the string.
+	 */
+	argstring[0] = '\0';
+	i = optindex;
+	for (;;) {
+		g_strlcat(argstring, argv[i], len);
+		i++;
+		if (i == argc)
+			break;
+		g_strlcat(argstring, " ", len);
+	}
+	return argstring;
+}
 
 /* Compute the difference between two seconds/microseconds time stamps. */
 void
