@@ -87,8 +87,8 @@ static cf_write_status_t file_save_as_cb(GtkWidget *fs,
                                          gboolean dont_reopen);
 static void file_select_file_type_cb(GtkWidget *w, gpointer data);
 static cf_write_status_t file_export_specified_packets_cb(GtkWidget *fs, packet_range_t *range);
-static void set_file_type_list(GtkWidget *combo_box, capture_file *cf,
-                               gboolean must_support_comments);
+static int set_file_type_list(GtkWidget *combo_box, capture_file *cf,
+                              gboolean must_support_comments);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
@@ -1368,14 +1368,16 @@ file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
    checking what Wiretap supports.  Make the default type the first
    in the list.  If must_supprt_comments is true, restrict the list
    to those formats that support comments (currently, just pcap-ng).
- */
-static void
+
+   Returns the default file type. */
+static int
 set_file_type_list(GtkWidget *combo_box, capture_file *cf,
                    gboolean must_support_comments)
 {
   GArray *savable_file_types;
   guint i;
   int ft;
+  int default_ft = -1;
 
   savable_file_types = wtap_get_savable_file_types(cf->cd_t, cf->linktypes);
 
@@ -1389,12 +1391,16 @@ set_file_type_list(GtkWidget *combo_box, capture_file *cf,
         if (ft != WTAP_FILE_PCAPNG)
           continue;
       }
+      if (default_ft == -1)
+        default_ft = ft; /* first file type is the default */
       ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
                                            wtap_file_type_string(ft),
                                            GINT_TO_POINTER(ft));
     }
     g_array_free(savable_file_types, TRUE);
   }
+
+  return default_ft;
 }
 
 static void
@@ -1579,6 +1585,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
 #else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_save_as_w;
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *compressed_cb;
+  int            default_ft;
   char          *cf_name;
   gboolean       discard_comments;
 
@@ -1609,14 +1616,17 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  set_file_type_list(ft_combo_box, cf, must_support_comments);
+  default_ft = set_file_type_list(ft_combo_box, cf, must_support_comments);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_save_as_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
 
-  /* compressed */
+  /* compressed - if the file is currently compressed, and the default
+     file type supports compression, turn the checkbox on */
   compressed_cb = gtk_check_button_new_with_label("Compress with gzip");
   gtk_container_add(GTK_CONTAINER(ft_hb), compressed_cb);
+  if (cf->iscompressed && wtap_dump_can_compress(default_ft))
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(compressed_cb), TRUE);
   gtk_widget_show(compressed_cb);
   g_object_set_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY, compressed_cb);
 
