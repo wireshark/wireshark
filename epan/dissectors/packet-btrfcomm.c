@@ -180,7 +180,7 @@ static const value_string vs_frame_type_short[] = {
 
 static const value_string vs_ctl[] = {
        /* masked 0xfc */
-    {0x20, "DLC parameter negotiation (PN)"},
+    {0x20, "DLC Parameter Negotiation (PN)"},
     {0x08, "Test Command (Test)"},
     {0x28, "Flow Control On Command (FCon)"},
     {0x18, "Flow Control Off Command (FCoff)"},
@@ -505,7 +505,6 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *mc
         *mcc_ea_flagp = mcc_ea_flag;
     }
 
-
     offset = get_le_multi_byte_value(tvb, offset, tree, &mcc_type, -1);
     mcc_type = (mcc_type>>1) & 0x3f; /* shift c/r flag off */
     if (mcc_typep) {
@@ -637,7 +636,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         switch(mcc_type) {
-        case 0x20: /* Parameter Negotiation */
+        case 0x20: /* DLC Parameter Negotiation */
             dissect_ctrl_pn(pinfo, ctrl_tree, tvb, offset, mcc_cr_flag, &mcc_channel);
             break;
         case 0x24: /* Remote Port Negotiation */
@@ -655,7 +654,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(ctrl_tree, hf_mcc_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
             break;
-        case 0x38: /* Model Status Command */
+        case 0x38: /* Modem Status Command */
             dissect_ctrl_msc(ctrl_tree, tvb, offset, length, &mcc_channel);
             break;
         default:
@@ -725,7 +724,7 @@ proto_register_btrfcomm(void)
         { &hf_direction,
            {"Direction", "btrfcomm.direction",
             FT_UINT8, BASE_HEX, NULL, 0x04,
-            "Direction", HFILL}
+            NULL, HFILL}
         },
         { &hf_priority,
           { "Priority", "btrfcomm.priority",
@@ -738,9 +737,9 @@ proto_register_btrfcomm(void)
             "Maximum Frame Size", HFILL}
         },
         { &hf_max_retrans,
-          { "Max Retrans", "btrfcomm.max_retrans",
+          { "Maximum number of retransmissions", "btrfcomm.max_retrans",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Maximum number of retransmissions", HFILL}
+            NULL, HFILL}
         },
         { &hf_error_recovery_mode,
           { "Error Recovery Mode", "btrfcomm.error_recovery_mode",
@@ -749,28 +748,28 @@ proto_register_btrfcomm(void)
         },
         { &hf_ea,
           { "EA Flag", "btrfcomm.ea",
-            FT_UINT8, BASE_HEX, VALS(vs_ea), 0x1,
+            FT_UINT8, BASE_HEX, VALS(vs_ea), 0x01,
             "EA flag (should be always 1)", HFILL}
         },
         { &hf_cr,
           { "C/R Flag", "btrfcomm.cr",
-            FT_UINT8, BASE_HEX, VALS(vs_cr), 0x2,
+            FT_UINT8, BASE_HEX, VALS(vs_cr), 0x02,
             "Command/Response flag", HFILL}
         },
         { &hf_mcc_ea,
           { "EA Flag", "btrfcomm.mcc.ea",
-            FT_UINT8, BASE_HEX, VALS(vs_ea), 0x1,
-            "EA flag", HFILL}
+            FT_UINT8, BASE_HEX, VALS(vs_ea), 0x01,
+            "RFCOMM MCC EA flag", HFILL}
         },
         { &hf_mcc_cr,
           { "C/R Flag", "btrfcomm.mcc.cr",
-            FT_UINT8, BASE_HEX, VALS(vs_cr), 0x2,
+            FT_UINT8, BASE_HEX, VALS(vs_cr), 0x02,
             "Command/Response flag", HFILL}
         },
         { &hf_mcc_const_1,
           { "Ones padding", "btrfcomm.mcc.padding",
             FT_UINT8, BASE_HEX, NULL, 0x02,
-            "Ones padding", HFILL}
+            NULL, HFILL}
         },
         { &hf_mcc_dlci,
           { "MCC DLCI", "btrfcomm.mcc.dlci",
@@ -808,13 +807,13 @@ proto_register_btrfcomm(void)
             "RFCOMM MSC Zeros padding", HFILL}
         },
         { &hf_mcc_cmd,
-          { "C/R Flag", "btrfcomm.mcc.cmd",
-            FT_UINT8, BASE_HEX, VALS(vs_ctl), 0xfc,
-            "Command/Response flag", HFILL}
+          { "MCC Command Type", "btrfcomm.mcc.cmd",
+            FT_UINT8, BASE_HEX, VALS(vs_ctl), 0xFC,
+            "Command Type", HFILL}
         },
         { &hf_frame_type,
           { "Frame type", "btrfcomm.frame_type",
-            FT_UINT8, BASE_HEX, VALS(vs_frame_type), 0xef,
+            FT_UINT8, BASE_HEX, VALS(vs_frame_type), 0xEF,
             "Command/Response flag", HFILL}
         },
         { &hf_pf,
@@ -824,13 +823,13 @@ proto_register_btrfcomm(void)
         },
         { &hf_pn_i14,
           { "Type of frame", "btrfcomm.pn.i",
-            FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_i), 0x0f,
+            FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_i), 0x0F,
             "Type of information frames used for that particular DLCI",
             HFILL}
         },
         { &hf_pn_c14,
           { "Convergence layer", "btrfcomm.pn.cl",
-            FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_cl), 0xf0,
+            FT_UINT8, BASE_HEX, VALS(vs_ctl_pn_cl), 0xF0,
             "Convergence layer used for that particular DLCI", HFILL}
         },
         { &hf_len,
@@ -850,17 +849,17 @@ proto_register_btrfcomm(void)
         },
         { &hf_msc_fc,
           { "Flow Control (FC)", "btrfcomm.msc.fc",
-            FT_UINT8, BASE_HEX, NULL, 0x2,
+            FT_UINT8, BASE_HEX, NULL, 0x02,
             "Flow Control", HFILL}
         },
         { &hf_msc_rtc,
           { "Ready To Communicate (RTC)", "btrfcomm.msc.rtc",
-            FT_UINT8, BASE_HEX, NULL, 0x4,
+            FT_UINT8, BASE_HEX, NULL, 0x04,
             "Ready To Communicate", HFILL}
         },
         { &hf_msc_rtr,
           { "Ready To Receive (RTR)", "btrfcomm.msc.rtr",
-            FT_UINT8, BASE_HEX, NULL, 0x8,
+            FT_UINT8, BASE_HEX, NULL, 0x08,
             "Ready To Receive", HFILL}
         },
         { &hf_msc_ic,
@@ -875,7 +874,7 @@ proto_register_btrfcomm(void)
         },
         { &hf_msc_l,
           { "Length of break in units of 200ms", "btrfcomm.msc.bl",
-            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
             NULL, HFILL}
         },
         { &hf_fc_credits,
