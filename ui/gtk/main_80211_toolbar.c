@@ -149,6 +149,7 @@ void tb80211_update_freq_and_type(void)
     tb80211_dont_set_chan = FALSE;
 }
 
+#ifdef HAVE_PCAP
 /* Get currently selected channel type type enum */
 static
 int get_selected_channel_type(void)
@@ -236,6 +237,7 @@ tb80211_set_chan_cb(GtkWidget *widget _U_, gpointer data _U_)
 
     tb80211_set_channel();
 }
+#endif
 
 static void
 tb80211_iface_changed_cb(GtkWidget *widget, gpointer data _U_)
@@ -383,7 +385,11 @@ ws80211_toolbar_new(void)
     ti = gtk_tool_item_new();
     gtk_widget_show(GTK_WIDGET (ti));
     tb80211_freq_list_box = gtk_combo_box_text_new();
+#ifdef HAVE_PCAP
     g_signal_connect(tb80211_freq_list_box, "changed", G_CALLBACK(tb80211_set_chan_cb), NULL);
+#else
+    gtk_widget_set_sensitive(GTK_WIDGET(tb80211_freq_list_box), FALSE);
+#endif
     gtk_container_add(GTK_CONTAINER(ti), tb80211_freq_list_box);
     gtk_widget_show(GTK_WIDGET (tb80211_freq_list_box));
     gtk_toolbar_insert(GTK_TOOLBAR(tb80211_tb), ti, -1);
@@ -391,7 +397,11 @@ ws80211_toolbar_new(void)
     ti = gtk_tool_item_new();
     gtk_widget_show(GTK_WIDGET (ti));
     tb80211_chan_type_box = gtk_combo_box_text_new();
+#ifdef HAVE_PCAP
     g_signal_connect(tb80211_chan_type_box, "changed", G_CALLBACK(tb80211_set_chan_cb), NULL);
+#else
+    gtk_widget_set_sensitive(GTK_WIDGET(tb80211_freq_list_box), FALSE);
+#endif
     gtk_container_add(GTK_CONTAINER(ti), tb80211_chan_type_box);
     gtk_widget_show(GTK_WIDGET (tb80211_chan_type_box));
     gtk_toolbar_insert(GTK_TOOLBAR(tb80211_tb), ti, -1);
