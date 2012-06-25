@@ -31,7 +31,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -39,6 +38,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <etypes.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
@@ -125,6 +125,9 @@ typedef struct _dlci_state_t {
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ppp_handle;
+
+static const char *decode_by_dissector_name = "";
+static guint       decode_by_channel = 0;
 
 static const value_string vs_ctl_pn_i[] = {
     {0x0, "use UIH Frames"},
@@ -532,15 +535,16 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *mc
 static void
 dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item   *ti;
-    proto_tree   *rfcomm_tree;
-    proto_tree   *ctrl_tree;
-    int           offset     = 0;
-    int           fcs_offset;
-    guint8        dlci, cr_flag, ea_flag;
-    guint8        frame_type, pf_flag;
-    guint16       frame_len;
-    dlci_state_t *dlci_state = NULL;
+    proto_item          *ti;
+    proto_tree          *rfcomm_tree;
+    proto_tree          *ctrl_tree;
+    int                  offset     = 0;
+    int                  fcs_offset;
+    guint8               dlci, cr_flag, ea_flag;
+    guint8               frame_type, pf_flag;
+    guint16              frame_len;
+    dlci_state_t        *dlci_state = NULL;
+    dissector_handle_t   decode_by_dissector;
 
     ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_NA);
     rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
@@ -693,7 +697,10 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         rfcomm_data.cid = l2cap_data->cid;
         rfcomm_data.dlci = dlci;
 
-        if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
+        decode_by_dissector = find_dissector(decode_by_dissector_name);
+        if (decode_by_dissector && decode_by_channel && decode_by_channel == (dlci >> 1)) {
+            call_dissector(decode_by_dissector, next_tvb, pinfo, tree);
+        } else if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
                 next_tvb, pinfo, tree)) {
             if (!dissector_try_uint(rfcomm_service_dissector_table, dlci_state->service,
                         next_tvb, pinfo, tree)) {
@@ -710,6 +717,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_btrfcomm(void)
 {
+    module_t *module;
     static hf_register_info hf[] = {
         { &hf_dlci,
           { "DLCI", "btrfcomm.dlci",
@@ -911,6 +919,16 @@ proto_register_btrfcomm(void)
     rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "RFCOMM Channel", FT_UINT16, BASE_DEC);
 
     dlci_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "RFCOMM dlci table");
+
+    module = prefs_register_protocol(proto_btrfcomm, NULL);
+    prefs_register_static_text_preference(module, "rfcomm.version",
+            "Bluetooth Protocol RFCOMM version: 1.1", "Version of protocol supported by this dissector.");
+
+    prefs_register_uint_preference(module, "rfcomm.decode_by.channel",
+            "Decoby by: channel", "Channel - used to decode by RFCOMM channel", 10, &decode_by_channel);
+
+    prefs_register_string_preference(module, "rfcomm.decode_by.name",
+            "Decoby by: dissector name", "Dissector name - used to decode by RFCOMM channel", &decode_by_dissector_name);
 }
 
 static int
