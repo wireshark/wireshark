@@ -35,7 +35,7 @@
 #include "ui/gtk/plugins_dlg.h"
 
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 
 /*
  * Fill the list widget with a list of the plugin modules.
@@ -48,7 +48,7 @@ plugins_scan(GtkWidget *list)
     plugin     *pt_plug;
     const char *sep;
 #endif
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
     wslua_plugin  *lua_plug;
 #endif
     GString    *type;
@@ -86,7 +86,7 @@ plugins_scan(GtkWidget *list)
     }
 #endif
 
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
     for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
     {
         type = g_string_new("");
@@ -119,4 +119,4 @@ about_plugins_page_new(void)
     return scrolledwindow;
 }
 
-#endif /* HAVE_PLUGINS || HAVE_LUA_5_1 */
+#endif /* HAVE_PLUGINS || HAVE_LUA */

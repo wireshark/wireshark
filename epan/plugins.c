@@ -519,7 +519,7 @@ plugins_dump_all(void)
     plugin     *pt_plug;
     const char *sep;
 #endif
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
     wslua_plugin  *lua_plug;
 #endif
 
@@ -552,7 +552,7 @@ plugins_dump_all(void)
     }
 #endif
 
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
     for (lua_plug = wslua_plugin_list; lua_plug != NULL; lua_plug = lua_plug->next)
     {
         printf("%s\t%s\tlua script\t%s\n", lua_plug->name, lua_plug->version, lua_plug->filename);

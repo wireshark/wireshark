@@ -54,7 +54,7 @@
 #include "emem.h"
 #include "expert.h"
 
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
 #include <lua.h>
 #include <wslua/wslua.h>
 #endif
@@ -117,7 +117,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	final_registration_all_protocols();
 	host_name_lookup_init();
 	expert_init();
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
 	wslua_init(cb, client_data);
 #endif
 #ifdef HAVE_GEOIP
@@ -295,12 +295,12 @@ epan_get_compiled_version_info(GString *str)
 
         /* LUA */
 	g_string_append(str, ", ");
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
 	g_string_append(str, "with ");
 	g_string_append(str, LUA_VERSION);
 #else
 	g_string_append(str, "without Lua");
-#endif /* HAVE_LUA_5_1 */
+#endif /* HAVE_LUA */
 
 	g_string_append(str, ", ");
 #ifdef HAVE_PYTHON

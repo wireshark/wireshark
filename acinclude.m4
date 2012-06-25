@@ -938,7 +938,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				LUA_LIBS="-llua -lm"
 				LUA_INCLUDES=""
 			fi
-			AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua ${lua_ver}])
+			AC_DEFINE(HAVE_LUA, 1, [Define to use Lua ${lua_ver}])
 			want_lua=yes
 
 		],[
@@ -954,7 +954,7 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			    #  Lua found
 			    #
 			    LUA_LIBS=" -llua${lua_ver} -lm"
-			    AC_DEFINE(HAVE_LUA_5_1, 1, [Define to use Lua ${lua_ver}])
+			    AC_DEFINE(HAVE_LUA, 1, [Define to use Lua ${lua_ver}])
 			    want_lua=yes
 			],[
 				#

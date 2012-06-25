@@ -771,7 +771,7 @@ get_wspython_dir(void)
 }
 
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
 /*
  * Find the directory where the plugins are stored.
  *
@@ -850,7 +850,7 @@ init_plugin_dir(void)
     }
 #endif
 }
-#endif /* HAVE_PLUGINS || HAVE_LUA_5_1 */
+#endif /* HAVE_PLUGINS || HAVE_LUA */
 
 /*
  * Get the directory in which the plugins are stored.
@@ -858,7 +858,7 @@ init_plugin_dir(void)
 const char *
 get_plugin_dir(void)
 {
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     if (!plugin_dir) init_plugin_dir();
     return plugin_dir;
 #else

@@ -247,7 +247,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 					  dissectors, listeners,
 					  registering plugins, handingoff plugins,
 					  preferences and configuration */
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
       ul_count++;   /* additional one for lua plugins */
 #endif
 #ifdef HAVE_PYTHON
@@ -438,7 +438,7 @@ about_folders_page_new(void)
   about_folders_row(table, "Program", constpath,
       "program files");
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
   /* pers plugins */
   path = get_plugins_pers_dir();
   about_folders_row(table, "Personal Plugins", path,
@@ -509,7 +509,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   GtkWidget   *main_box, *main_nb, *bbox, *ok_btn;
   GtkWidget   *page_lb, *about_page, *folders_page;
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
   GtkWidget   *plugins_page;
 #endif
 
@@ -553,7 +553,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   page_lb = gtk_label_new("Folders");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), folders_page, page_lb);
 
-#if defined(HAVE_PLUGINS) || defined(HAVE_LUA_5_1)
+#if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
   plugins_page = about_plugins_page_new();
   page_lb = gtk_label_new("Plugins");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), plugins_page, page_lb);

@@ -297,7 +297,7 @@ C shift##C(lua_State* L,int i) { \
 } \
 typedef int dummy##C
 
-#ifdef HAVE_LUA_5_1
+#ifdef HAVE_LUA
 
 #if LUA_VERSION_NUM >= 502
 #define WSLUA_REGISTER_CLASS(C) { \

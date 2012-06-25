@@ -203,7 +203,7 @@
 
 /* Define to use Lua */
 @HAVE_LUA@
-@HAVE_LUA_5_1@
+@HAVE_LUA@
 
 /* Define to use Python */
 @HAVE_PYTHON@

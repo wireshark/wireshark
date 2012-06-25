@@ -136,7 +136,7 @@
 #cmakedefine HAVE_LUALIB_H 1
 
 /* Define to use Lua 5.1 */
-#cmakedefine HAVE_LUA_5_1 1
+#cmakedefine HAVE_LUA 1
 
 /* Define to 1 if you have the <lua.h> header file. */
 #cmakedefine HAVE_LUA_H 1
