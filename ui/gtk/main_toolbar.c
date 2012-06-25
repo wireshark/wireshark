@@ -138,8 +138,21 @@ void set_toolbar_for_capture_file(capture_file *cf) {
                     g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(0));
                 }
             }
+
+            /*
+             * "Save" should be available only if:
+             *
+             *  the file has unsaved changes, and we can save it in some
+             *  format through Wiretap
+             *
+             * or
+             *
+             *  the file is a temporary file and has no unsaved changes (so
+             *  that "saving" it just means copying it).
+             */
             gtk_widget_set_sensitive(GTK_WIDGET(save_button),
-                                     (cf->is_tempfile || cf->unsaved_changes) && cf_can_save_as(cf));
+                                     (cf->unsaved_changes && cf_can_write_with_wiretap(cf)) ||
+                                     (cf->is_tempfile && !cf->unsaved_changes));
             gtk_widget_set_sensitive(GTK_WIDGET(close_button), TRUE);
             gtk_widget_set_sensitive(GTK_WIDGET(reload_button), TRUE);
         }

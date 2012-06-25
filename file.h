@@ -203,12 +203,12 @@ cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
 
 /**
  * Determine whether this capture file (or a range of it) can be saved
- * (except by copying the raw file data).
+ * in any format using Wiretap rather than by copying the raw data.
  *
  * @param cf the capture file to check
  * @return TRUE if it can be saved, FALSE if it can't
  */
-gboolean cf_can_save_as(capture_file *cf);
+gboolean cf_can_write_with_wiretap(capture_file *cf);
 
 /**
  * Save all packets in a capture file to a new file, and, if that succeeds,
