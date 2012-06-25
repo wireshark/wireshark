@@ -53,6 +53,8 @@ static int hf_len = -1;
 static int hf_frame_type = -1;
 static int hf_cr = -1;
 static int hf_dlci = -1;
+static int hf_channel = -1;
+static int hf_direction = -1;
 static int hf_priority = -1;
 static int hf_error_recovery_mode = -1;
 static int hf_max_frame_size = -1;
@@ -80,6 +82,15 @@ static int hf_at_cmd = -1;
 static int hf_dun_at_cmd = -1;
 static int hf_data = -1;
 
+static int hf_mcc_dlci = -1;
+static int hf_mcc_channel = -1;
+static int hf_mcc_direction = -1;
+static int hf_mcc_const_1 = -1;
+static int hf_mcc_pn_dlci = -1;
+static int hf_mcc_pn_channel = -1;
+static int hf_mcc_pn_direction = -1;
+static int hf_mcc_pn_zeros_padding = -1;
+
 /* Initialize the protocol and registered fields */
 static int proto_btrfcomm = -1;
 static int proto_bthf = -1;
@@ -94,6 +105,8 @@ static gint ett_control = -1;
 static gint ett_mcc = -1;
 static gint ett_ctrl_pn_ci = -1;
 static gint ett_ctrl_pn_v24 = -1;
+static gint ett_dlci = -1;
+static gint ett_mcc_dlci = -1;
 
 static gint ett_bthf = -1;
 static gint ett_btdun = -1;
@@ -103,6 +116,7 @@ static emem_tree_t *dlci_table;
 
 /* Initialize dissector table */
 dissector_table_t rfcomm_service_dissector_table;
+dissector_table_t rfcomm_channel_dissector_table;
 
 typedef struct _dlci_state_t {
     guint32 service;
@@ -232,18 +246,29 @@ get_le_multi_byte_value(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *va
 
 
 static int
-dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, int cr_flag)
+dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, int cr_flag, guint8 *mcc_channel)
 {
     proto_tree   *st;
     proto_item   *ti;
-    int           dlci;
+    proto_tree   *dlci_tree = NULL;
+    proto_item   *dlci_item = NULL;
+    int           mcc_dlci;
     int           cl;
     dlci_state_t *dlci_state;
     guint8        flags;
 
-    /* dlci */
-    dlci = tvb_get_guint8(tvb, offset) & 0x3f;
-    proto_tree_add_uint(t, hf_dlci, tvb, offset, 1, dlci);
+    proto_tree_add_item(t, hf_mcc_pn_zeros_padding, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+    /* mcc dlci */
+    mcc_dlci = tvb_get_guint8(tvb, offset) & 0x3f;
+    *mcc_channel = mcc_dlci >> 1;
+
+    dlci_item = proto_tree_add_item(t, hf_mcc_pn_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", mcc_dlci & 0x01, *mcc_channel);
+
+    dlci_tree = proto_item_add_subtree(dlci_item, ett_mcc_dlci);
+    proto_tree_add_item(dlci_tree, hf_mcc_pn_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(dlci_tree, hf_mcc_pn_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     /* cl */
@@ -281,9 +306,9 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
         guint32 token;
 
         if (pinfo->p2p_dir == cr_flag)
-            token = dlci | 0x01; /* local service */
+            token = mcc_dlci | 0x01; /* local service */
         else
-            token = dlci;
+            token = mcc_dlci;
 
         dlci_state = se_tree_lookup32(dlci_table, token);
         if (!dlci_state) {
@@ -307,15 +332,30 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 }
 
 static int
-dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length)
+dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length, guint8 *mcc_channel)
 {
 
     proto_tree *st;
     proto_item *it;
+    proto_tree *dlci_tree = NULL;
+    proto_item *dlci_item = NULL;
+    guint8      mcc_dlci;
     guint8      status;
     int         start_offset;
 
-    proto_tree_add_uint(t, hf_dlci, tvb, offset, 1, tvb_get_guint8(tvb, offset)&0x3f);
+    mcc_dlci = tvb_get_guint8(tvb, offset) >> 2;
+    *mcc_channel = mcc_dlci >> 1;
+
+    dlci_item = proto_tree_add_item(t, hf_mcc_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", mcc_dlci & 0x01, *mcc_channel);
+
+    dlci_tree = proto_item_add_subtree(dlci_item, ett_mcc_dlci);
+    proto_tree_add_item(dlci_tree, hf_mcc_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(dlci_tree, hf_mcc_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_item(t, hf_mcc_const_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(t, hf_mcc_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
     offset += 1;
 
     start_offset = offset;
@@ -348,6 +388,8 @@ dissect_btrfcomm_Address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea
 {
     proto_item *ti;
     proto_tree *addr_tree;
+    proto_tree *dlci_tree = NULL;
+    proto_item *dlci_item = NULL;
     guint8      dlci, cr_flag, ea_flag, flags;
 
     flags = tvb_get_guint8(tvb, offset);
@@ -367,10 +409,16 @@ dissect_btrfcomm_Address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea
         *dlcip = dlci;
     }
 
-    ti = proto_tree_add_text(tree, tvb, offset, 1, "Address: E/A flag: %d, C/R flag: %d, DLCI: 0x%02x", ea_flag, cr_flag, dlci);
+    ti = proto_tree_add_text(tree, tvb, offset, 1, "Address: E/A flag: %d, C/R flag: %d, Direction: %d, Channel: %u", ea_flag, cr_flag, dlci & 0x01, dlci >> 1);
     addr_tree = proto_item_add_subtree(ti, ett_addr);
 
-    proto_tree_add_uint(addr_tree, hf_dlci, tvb, offset, 1, dlci);
+    dlci_item = proto_tree_add_item(addr_tree, hf_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", dlci & 0x01, dlci >> 1);
+
+    dlci_tree = proto_item_add_subtree(dlci_item, ett_dlci);
+    proto_tree_add_item(dlci_tree, hf_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(dlci_tree, hf_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
     proto_tree_add_item(addr_tree, hf_cr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(addr_tree, hf_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -437,7 +485,7 @@ dissect_btrfcomm_PayloadLen(tvbuff_t *tvb, int offset, proto_tree *tree, guint16
 }
 
 static int
-dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, guint8 *mcc_cr_flagp, guint8 *mcc_ea_flagp, guint32 *mcc_typep)
+dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *mcc_cr_flagp, guint8 *mcc_ea_flagp, guint32 *mcc_typep)
 {
     int         start_offset = offset;
     proto_item *ti;
@@ -463,12 +511,6 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, packet_inf
     if (mcc_typep) {
         *mcc_typep = mcc_type;
     }
-
-
-    if (mcc_type) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(mcc_type, vs_ctl, "Unknown"));
-    }
-
 
     ti = proto_tree_add_text(tree, tvb, start_offset, offset-start_offset,
                              "Type: %s (0x%x), C/R flag = %d, E/A flag = %d",
@@ -548,8 +590,8 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ",
-                    val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s Channel=%u ",
+                    val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == 0x2f))
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
                         val_to_str_ext_const(dlci_state->service, &vs_service_classes_ext, "Unknown"));
@@ -572,21 +614,22 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* multiplexer control command */
     if (!dlci && frame_len) {
         proto_item *mcc_ti;
+        proto_tree *dlci_tree = NULL;
+        proto_item *dlci_item = NULL;
         guint32     mcc_type, length;
         guint8      mcc_cr_flag, mcc_ea_flag;
+        guint8      mcc_channel;
+        guint8      mcc_dlci;
         int         start_offset = offset;
-
-        col_append_str(pinfo->cinfo, COL_INFO, "MPX_CTRL ");
 
         mcc_ti = proto_tree_add_text(rfcomm_tree, tvb, offset, 1, "Multiplexer Control Command");
         ctrl_tree = proto_item_add_subtree(mcc_ti, ett_btrfcomm_ctrl);
 
         /* mcc type */
-        offset = dissect_btrfcomm_MccType(tvb, offset, ctrl_tree, pinfo, &mcc_cr_flag, &mcc_ea_flag, &mcc_type);
+        offset = dissect_btrfcomm_MccType(tvb, offset, ctrl_tree, &mcc_cr_flag, &mcc_ea_flag, &mcc_type);
 
         /* len */
         offset = get_le_multi_byte_value(tvb, offset, ctrl_tree, &length, hf_mcc_len);
-
 
         if (length > (guint32) tvb_length_remaining(tvb, offset)) {
             expert_add_info_format(pinfo, ctrl_tree, PI_MALFORMED, PI_ERROR, "Huge MCC length: %u", length);
@@ -595,14 +638,40 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch(mcc_type) {
         case 0x20: /* Parameter Negotiation */
-            col_append_str(pinfo->cinfo, COL_INFO, "Parameter Negotiation ");
-            dissect_ctrl_pn(pinfo, ctrl_tree, tvb, offset, mcc_cr_flag);
+            dissect_ctrl_pn(pinfo, ctrl_tree, tvb, offset, mcc_cr_flag, &mcc_channel);
+            break;
+        case 0x24: /* Remote Port Negotiation */
+            mcc_dlci = tvb_get_guint8(tvb, offset) >> 2;
+            mcc_channel = mcc_dlci >> 1;
+
+            dlci_item = proto_tree_add_item(ctrl_tree, hf_mcc_dlci, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(dlci_item, " (Direction: %d, Channel: %u)", mcc_dlci & 0x01, mcc_channel);
+
+            dlci_tree = proto_item_add_subtree(dlci_item, ett_mcc_dlci);
+            proto_tree_add_item(dlci_tree, hf_mcc_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(dlci_tree, hf_mcc_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+            proto_tree_add_item(ctrl_tree, hf_mcc_const_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ctrl_tree, hf_mcc_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
             break;
         case 0x38: /* Model Status Command */
-            col_append_str(pinfo->cinfo, COL_INFO, "Model Status Command ");
-            dissect_ctrl_msc(ctrl_tree, tvb, offset, length);
+            dissect_ctrl_msc(ctrl_tree, tvb, offset, length, &mcc_channel);
             break;
+        default:
+            mcc_channel = -1;
         }
+
+        if (mcc_channel > 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "-> %d ", mcc_channel);
+        }
+
+        col_append_str(pinfo->cinfo, COL_INFO, "MPX_CTRL ");
+
+        if(mcc_type){
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(mcc_type, vs_ctl, "Unknown"));
+        }
+
         offset += length;
 
         proto_item_set_len(mcc_ti, offset-start_offset);
@@ -625,10 +694,13 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         rfcomm_data.cid = l2cap_data->cid;
         rfcomm_data.dlci = dlci;
 
-        if (!dissector_try_uint(rfcomm_service_dissector_table, dlci_state->service,
-                    next_tvb, pinfo, tree)) {
-            /* unknown service, let the data dissector handle it */
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+        if (!dissector_try_uint(rfcomm_channel_dissector_table, (guint32) dlci >> 1,
+                next_tvb, pinfo, tree)) {
+            if (!dissector_try_uint(rfcomm_service_dissector_table, dlci_state->service,
+                        next_tvb, pinfo, tree)) {
+                /* unknown service, let the data dissector handle it */
+                call_dissector(data_handle, next_tvb, pinfo, tree);
+            }
         }
     }
 
@@ -642,8 +714,18 @@ proto_register_btrfcomm(void)
     static hf_register_info hf[] = {
         { &hf_dlci,
           { "DLCI", "btrfcomm.dlci",
-            FT_UINT8, BASE_HEX, NULL, 0,
-            "RFCOMM DLCI", HFILL}
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            "RFCOMM Data Link Connection Identifier", HFILL}
+        },
+        { &hf_channel,
+           { "Channel", "btrfcomm.channel",
+            FT_UINT8, BASE_DEC, NULL, 0xF8,
+            "RFCOMM Channel", HFILL}
+        },
+        { &hf_direction,
+           {"Direction", "btrfcomm.direction",
+            FT_UINT8, BASE_HEX, NULL, 0x04,
+            "Direction", HFILL}
         },
         { &hf_priority,
           { "Priority", "btrfcomm.priority",
@@ -678,12 +760,52 @@ proto_register_btrfcomm(void)
         { &hf_mcc_ea,
           { "EA Flag", "btrfcomm.mcc.ea",
             FT_UINT8, BASE_HEX, VALS(vs_ea), 0x1,
-            "EA flag (should be always 1)", HFILL}
+            "EA flag", HFILL}
         },
         { &hf_mcc_cr,
           { "C/R Flag", "btrfcomm.mcc.cr",
             FT_UINT8, BASE_HEX, VALS(vs_cr), 0x2,
             "Command/Response flag", HFILL}
+        },
+        { &hf_mcc_const_1,
+          { "Ones padding", "btrfcomm.mcc.padding",
+            FT_UINT8, BASE_HEX, NULL, 0x02,
+            "Ones padding", HFILL}
+        },
+        { &hf_mcc_dlci,
+          { "MCC DLCI", "btrfcomm.mcc.dlci",
+            FT_UINT8, BASE_HEX, NULL, 0xFC,
+            "RFCOMM MCC Data Link Connection Identifier", HFILL}
+        },
+        { &hf_mcc_channel,
+          { "MCC Channel", "btrfcomm.mcc.channel",
+            FT_UINT8, BASE_DEC, NULL, 0xF8,
+            "RFCOMM MCC Channel", HFILL}
+        },
+        { &hf_mcc_direction,
+          { "MCC Direction", "btrfcomm.mcc.direction",
+            FT_UINT8, BASE_HEX, NULL, 0x04,
+            "RFCOMM MCC Direction", HFILL}
+        },
+        { &hf_mcc_pn_dlci,
+          { "MCC DLCI", "btrfcomm.mcc.dlci",
+            FT_UINT8, BASE_HEX, NULL, 0x3F,
+            "RFCOMM MCC Data Link Connection Identifier", HFILL}
+        },
+        { &hf_mcc_pn_channel,
+          { "MCC Channel", "btrfcomm.mcc.channel",
+            FT_UINT8, BASE_DEC, NULL, 0x3E,
+            "RFCOMM MCC Channel", HFILL}
+        },
+        { &hf_mcc_pn_direction,
+          { "MCC Direction", "btrfcomm.mcc.direction",
+            FT_UINT8, BASE_HEX, NULL, 0x01,
+            "RFCOMM MCC Direction", HFILL}
+        },
+        { &hf_mcc_pn_zeros_padding,
+          { "Zeros padding", "btrfcomm.mcc.padding",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            "RFCOMM MSC Zeros padding", HFILL}
         },
         { &hf_mcc_cmd,
           { "C/R Flag", "btrfcomm.mcc.cmd",
@@ -772,7 +894,9 @@ proto_register_btrfcomm(void)
         &ett_control,
         &ett_mcc,
         &ett_ctrl_pn_ci,
-        &ett_ctrl_pn_v24
+        &ett_ctrl_pn_v24,
+        &ett_dlci,
+        &ett_mcc_dlci
     };
 
     /* Register the protocol name and description */
@@ -785,6 +909,7 @@ proto_register_btrfcomm(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "RFCOMM SERVICE", FT_UINT16, BASE_HEX);
+    rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "RFCOMM Channel", FT_UINT16, BASE_DEC);
 
     dlci_table = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "RFCOMM dlci table");
 }
@@ -880,6 +1005,7 @@ proto_reg_handoff_bthf(void)
 
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_SERVICE_UUID, bthf_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_HFP_GW_SERVICE_UUID, bthf_handle);
+    dissector_add_handle("btrfcomm.channel", bthf_handle);
 }
 
 /* Bluetooth Dial-Up Networking (DUN) profile dissection */
@@ -957,6 +1083,7 @@ proto_reg_handoff_btdun(void)
     btdun_handle = create_dissector_handle(dissect_btdun, proto_btdun);
 
     dissector_add_uint("btrfcomm.service", BTSDP_DUN_SERVICE_UUID, btdun_handle);
+    dissector_add_handle("btrfcomm.channel", btdun_handle);
 
     ppp_handle = find_dissector("ppp_raw_hdlc");
 }
@@ -1022,6 +1149,7 @@ proto_reg_handoff_btspp(void)
     btspp_handle = create_dissector_handle(dissect_btspp, proto_btspp);
 
     dissector_add_uint("btrfcomm.service", BTSDP_SPP_SERVICE_UUID, btspp_handle);
+    dissector_add_handle("btrfcomm.channel", btspp_handle);
 }
 
 
