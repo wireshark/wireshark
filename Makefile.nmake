@@ -358,7 +358,7 @@ text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj wsuti
 dftest.exe	: $(dftest_OBJECTS) epan ui
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) ui\libui.lib $(dftest_OBJECTS)
+		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
