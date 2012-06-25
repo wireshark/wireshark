@@ -297,10 +297,9 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
 
 /* create a basic window for preferences */
 GtkWidget*
-simple_prefs_show(module_t *module, struct ct_struct *cts, gchar* label_str)
+simple_prefs_show(module_t *module)
 {
     GtkWidget   *main_tb, *main_vb, *frame, *main_sw;
-    int pos = 0;
 
     /* Scrolled window */
     main_sw = gtk_scrolled_window_new(NULL, NULL);
@@ -371,7 +370,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
 
   if (module->parent == NULL) {
-        prefs_nb_page_add(cts->notebook, label_str, simple_prefs_show(module, cts, label_str), module->title);
+        prefs_nb_page_add(cts->notebook, label_str, simple_prefs_show(module), module->title);
         gtk_tree_store_append(model, &iter, NULL);
         /* Save the protocols page */
         if (strcmp(module->title, "Protocols") == 0) {
