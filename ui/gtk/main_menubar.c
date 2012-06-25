@@ -4581,27 +4581,41 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportObjects", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
     } else {
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_save_as(cf));
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_write_with_wiretap(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", TRUE);
         /*
-         * "Save" should be available only if the file is a temporary file
-         * or has unsaved changes.
+         * "Save" should be available only if:
+         *
+         *  the file has unsaved changes, and we can save it in some
+         *  format through Wiretap
+         *
+         * or
+         *
+         *  the file is a temporary file and has no unsaved changes (so
+         *  that "saving" it just means copying it).
          */
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save",
-                             (cf->is_tempfile || cf->unsaved_changes));
+                             (cf->unsaved_changes && cf_can_write_with_wiretap(cf)) ||
+                             (cf->is_tempfile && !cf->unsaved_changes));
         /*
-         * "Save As..." should be available only if we have no unsaved
-         * changes (so saving just involves copying the raw file) or if
-         * we can write the file out in at least one format.
+         * "Save As..." should be available only if:
+         *
+         *  we can save it in some format through Wiretap
+         *
+         * or
+         *
+         *  the file is a temporary file and has no unsaved changes (so
+         *  that "saving" it just means copying it).
          */
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs",
-                             (!cf->unsaved_changes || cf_can_save_as(cf)));
+                             cf_can_write_with_wiretap(cf) ||
+                             (cf->is_tempfile && !cf->unsaved_changes));
         /*
          * "Export Specified Packets..." should be available only if
          * we can write the file out in at least one format.
          */
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSpecifiedPackets",
-                             cf_can_save_as(cf));
+                             cf_can_write_with_wiretap(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportPacketDissections", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSelectedPacketBytes", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/ExportSSLSessionKeys", TRUE);

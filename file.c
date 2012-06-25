@@ -3833,10 +3833,11 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 }
 
 /*
- * Can this capture file be saved in any format except by copying the raw data?
+ * Can this capture file be written out in any format using Wiretap
+ * rather than by copying the raw data?
  */
 gboolean
-cf_can_save_as(capture_file *cf)
+cf_can_write_with_wiretap(capture_file *cf)
 {
   int ft;
 
