@@ -16988,6 +16988,10 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 			smb_dissector[cmd].request:smb_dissector[cmd].response;
 
 		offset = (*dissector)(tvb, pinfo, cmd_tree, offset, smb_tree);
+
+                if (!tvb_offset_exists(tvb, offset-1)) {
+			THROW(ReportedBoundsError);
+		}
 		proto_item_set_end(cmd_item, tvb, offset);
 	}
 	return offset;
