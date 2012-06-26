@@ -75,6 +75,11 @@ man1_MANS = \
 man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
+# Build these in case a developer wants to read them and for the Debian
+# development package.
+# (The former arguably should be in noinst_MANS but it didn't work for me.)
+noinst_DATA = idl2wrs.1 idl2wrs.html
+
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	mergecap.html text2pcap.html dumpcap.html rawshark.html \
