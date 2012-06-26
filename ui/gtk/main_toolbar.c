@@ -77,10 +77,6 @@ static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *coloriz
 static GtkToolItem *resize_columns_button;
 static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
-#define SAVE_BUTTON_TOOLTIP_TEXT "Save this capture file..."
-#define SAVE_AS_BUTTON_TOOLTIP_TEXT "Save this capture file as..."
-
-
 /*
  * Redraw all toolbars 
  */
@@ -112,63 +108,28 @@ void set_toolbar_for_capture_file(capture_file *cf) {
             /* We have no open capture file, or we have one but we're in
                the process of reading it.  Disable everything having to
                do with the file*/
-            if (strcmp(gtk_tool_button_get_stock_id(GTK_TOOL_BUTTON(save_button)), GTK_STOCK_SAVE_AS) != 0) {
-                gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button), GTK_STOCK_SAVE_AS);
-                gtk_widget_set_tooltip_text(GTK_WIDGET(save_button), SAVE_AS_BUTTON_TOOLTIP_TEXT);
-                g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(0));
-            }
             gtk_widget_set_sensitive(GTK_WIDGET(save_button), FALSE);
             gtk_widget_set_sensitive(GTK_WIDGET(close_button), FALSE);
             gtk_widget_set_sensitive(GTK_WIDGET(reload_button), FALSE);
         } else {
             /* We have an open capture file and we're finished reading it.
-               Enable "Save As", "Close", and "Reload"; enable "Save" iff
-               it has stuff not saved to a permanent file (and we support
-               saving in its format). */
-            if (cf->is_tempfile || cf->unsaved_changes) {
-                if (strcmp(gtk_tool_button_get_stock_id(GTK_TOOL_BUTTON(save_button)), GTK_STOCK_SAVE) != 0) {
-                    gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button), GTK_STOCK_SAVE);
-                    gtk_widget_set_tooltip_text(GTK_WIDGET(save_button),SAVE_BUTTON_TOOLTIP_TEXT);
-                    g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
-                }
-            } else {
-                if (strcmp(gtk_tool_button_get_stock_id(GTK_TOOL_BUTTON(save_button)), GTK_STOCK_SAVE_AS) != 0) {
-                    gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button), GTK_STOCK_SAVE_AS);
-                    gtk_widget_set_tooltip_text(GTK_WIDGET(save_button), SAVE_AS_BUTTON_TOOLTIP_TEXT);
-                    g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(0));
-                }
-            }
+               Enable "Save" if and only if:
 
-            /*
-             * "Save" should be available only if:
-             *
-             *  the file has unsaved changes, and we can save it in some
-             *  format through Wiretap
-             *
-             * or
-             *
-             *  the file is a temporary file and has no unsaved changes (so
-             *  that "saving" it just means copying it).
-             */
+                  the file has unsaved changes, and we can save it in some
+                  format through Wiretap
+
+               or
+
+                  the file is a temporary file and has no unsaved changes (so
+                  that "saving" it just means copying it).
+
+               Enable "Close" and "Reload". */
             gtk_widget_set_sensitive(GTK_WIDGET(save_button),
                                      (cf->unsaved_changes && cf_can_write_with_wiretap(cf)) ||
                                      (cf->is_tempfile && !cf->unsaved_changes));
             gtk_widget_set_sensitive(GTK_WIDGET(close_button), TRUE);
             gtk_widget_set_sensitive(GTK_WIDGET(reload_button), TRUE);
         }
-    }
-}
-
-/* fudge to call correct file_save or file_save_as fcn based upon the
-   value of the "save" key associated with the save button
-*/
-
-static void file_save_or_save_as_cmd_cb(GtkWidget *w, gpointer data) {
-    if (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(save_button),"save")) == 1) {
-        file_save_cmd_cb(w, data);
-    }
-    else {
-        file_save_as_cmd_cb(w, data);
     }
 }
 
@@ -361,17 +322,8 @@ toolbar_new(void)
     toolbar_item(open_button, main_tb,
 	GTK_STOCK_OPEN, "Open a capture file...", file_open_cmd_cb, NULL);
 
-    /* Only create a separate button in GTK < 2.4.  With GTK 2.4+, we will
-     * just modify the save_button to read/show save or save as as needed.
-     * We'll also fudge in an object key ("save") for the save button with data which  specifies
-     * whether the button is currently "save" (1)or "save as" (0).
-     * The fcn file_save_or_save_as_cmd_cb
-     * will then call the appropriate file_save_cmd_cb or file_save_as_cmd_cb
-     */
-
     toolbar_item(save_button, main_tb,
-	GTK_STOCK_SAVE, SAVE_BUTTON_TOOLTIP_TEXT, file_save_or_save_as_cmd_cb, NULL);
-    g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
+	GTK_STOCK_SAVE, "Save this capture file", file_save_cmd_cb, NULL);
 
     toolbar_item(close_button, main_tb,
 	GTK_STOCK_CLOSE, "Close this capture file", file_close_cmd_cb, NULL);
