@@ -5531,11 +5531,11 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* names here are just until we find better names for these functions */
 static const value_string smb2_cmd_vals[] = {
-  { 0x00, "NegotiateProtocol" },
-  { 0x01, "SessionSetup" },
-  { 0x02, "SessionLogoff" },
-  { 0x03, "TreeConnect" },
-  { 0x04, "TreeDisconnect" },
+  { 0x00, "Negotiate Protocol" },
+  { 0x01, "Session Setup" },
+  { 0x02, "Session Logoff" },
+  { 0x03, "Tree Connect" },
+  { 0x04, "Tree Disconnect" },
   { 0x05, "Create" },
   { 0x06, "Close" },
   { 0x07, "Flush" },
