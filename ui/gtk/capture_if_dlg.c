@@ -111,7 +111,7 @@ static GtkWidget *stop_bt, *capture_bt, *options_bt;
 
 static GList     *if_list;
 
-static GArray    *gtk_list;
+static GArray    *if_array;
 
 static if_stat_cache_t   *sc;
 
@@ -142,6 +142,7 @@ void
 add_interface(void)
 {
   if_dlg_data_t data;
+
   data.device_lb = NULL;
   data.descr_lb   = NULL;
   data.ip_lb      = NULL;
@@ -152,7 +153,7 @@ add_interface(void)
   data.details_bt = NULL;
 #endif
   data.hidden     = FALSE;
-  g_array_append_val(gtk_list, data);
+  g_array_append_val(if_array, data);
   refresh_if_window();
 }
 
@@ -165,7 +166,7 @@ update_selected_interface(gchar *name)
 
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-    data = g_array_index(gtk_list, if_dlg_data_t, i);
+    data = g_array_index(if_array, if_dlg_data_t, i);
     if (strcmp(name, device.name) == 0) {
       gtk_toggle_button_set_active((GtkToggleButton *)data.choose_bt, device.selected);
       break;
@@ -216,14 +217,14 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data _U_)
   if_dlg_data_t data;
   guint ifs;
 
-  for (ifs = 0; ifs < gtk_list->len; ifs++) {
-    data = g_array_index(gtk_list, if_dlg_data_t, ifs);
+  for (ifs = 0; ifs < if_array->len; ifs++) {
+    data = g_array_index(if_array, if_dlg_data_t, ifs);
     if (data.hidden) {
       continue;
     }
     gtk_widget_set_sensitive(data.choose_bt, FALSE);
-    gtk_list = g_array_remove_index(gtk_list, ifs);
-    g_array_insert_val(gtk_list, ifs, data);
+    if_array = g_array_remove_index(if_array, ifs);
+    g_array_insert_val(if_array, ifs, data);
 #ifdef HAVE_AIRPCAP
     airpcap_if_active = get_airpcap_if_from_name(airpcap_if_list, gtk_label_get_text(GTK_LABEL(data.device_lb)));
     airpcap_if_selected = airpcap_if_active;
@@ -295,7 +296,7 @@ update_if(gchar *name, if_stat_cache_t *sc)
     for (ifs = 0, data_ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
       if (device.type != IF_PIPE) {
-        data = g_array_index(gtk_list, if_dlg_data_t, data_ifs++);
+        data = g_array_index(if_array, if_dlg_data_t, data_ifs++);
         if (!device.hidden && strcmp(name, device.name) == 0) {
           found = TRUE;
           break;
@@ -326,8 +327,8 @@ update_if(gchar *name, if_stat_cache_t *sc)
       }
       global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, ifs);
       g_array_insert_val(global_capture_opts.all_ifaces, ifs, device);
-      gtk_list = g_array_remove_index(gtk_list, ifs);
-      g_array_insert_val(gtk_list, ifs, data);
+      if_array = g_array_remove_index(if_array, ifs);
+      g_array_insert_val(if_array, ifs, data);
     }
   }
 }
@@ -576,25 +577,25 @@ capture_if_stop_cb(GtkWidget *w _U_, gpointer d _U_)
   guint ifs;
   if_dlg_data_t data;
 
-  for (ifs = 0; ifs < gtk_list->len; ifs++) {
-    data = g_array_index(gtk_list, if_dlg_data_t, ifs);
+  for (ifs = 0; ifs < if_array->len; ifs++) {
+    data = g_array_index(if_array, if_dlg_data_t, ifs);
     if (data.hidden) {
       continue;
     }
     gtk_widget_set_sensitive(data.choose_bt, TRUE);
-    gtk_list = g_array_remove_index(gtk_list, ifs);
-    g_array_insert_val(gtk_list, ifs, data);
+    if_array = g_array_remove_index(if_array, ifs);
+    g_array_insert_val(if_array, ifs, data);
   }
   capture_stop_cb(NULL, NULL);
 }
 
 static void
-make_gtk_array(void)
+make_if_array(void)
 {
   if_dlg_data_t data;
   guint         i;
 
-  gtk_list = g_array_new(FALSE, FALSE, sizeof(if_dlg_data_t));
+  if_array = g_array_new(FALSE, FALSE, sizeof(if_dlg_data_t));
 
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
      data.device_lb  = NULL;
@@ -607,7 +608,7 @@ make_gtk_array(void)
      data.details_bt = NULL;
 #endif
      data.hidden     = FALSE;
-     g_array_append_val(gtk_list, data);
+     g_array_append_val(if_array, data);
   }
 }
 
@@ -683,7 +684,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     airpcap_set_toolbar_start_capture(airpcap_if_active);
 #endif
 
-  make_gtk_array();
+  make_if_array();
   cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
   gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
 
@@ -739,13 +740,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   /* List the interfaces */
   for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
-    data = g_array_index(gtk_list, if_dlg_data_t, ifs);
+    data = g_array_index(if_array, if_dlg_data_t, ifs);
     g_string_assign(if_tool_str, "");
     /* Continue if capture device is hidden */
     if (device.hidden) {
       data.hidden = TRUE;
-      gtk_list = g_array_remove_index(gtk_list, ifs);
-      g_array_insert_val(gtk_list, ifs, data);
+      if_array = g_array_remove_index(if_array, ifs);
+      g_array_insert_val(if_array, ifs, data);
       continue;
     }
     data.choose_bt = gtk_check_button_new();
@@ -833,8 +834,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       gtk_widget_set_sensitive(data.details_bt, FALSE);
     }
 #endif
-    gtk_list = g_array_remove_index(gtk_list, ifs);
-    g_array_insert_val(gtk_list, ifs, data);
+    if_array = g_array_remove_index(if_array, ifs);
+    g_array_insert_val(if_array, ifs, data);
 
     row++;
     if (row <= 20) {
