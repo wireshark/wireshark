@@ -184,11 +184,14 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	g_vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
 
 	tree = expert_create_tree(pi, group, severity, formatted);
+
 	ti = proto_tree_add_string(tree, hf_expert_msg, NULL, 0, 0, formatted);
 	PROTO_ITEM_SET_GENERATED(ti);
-	ti = proto_tree_add_uint(tree, hf_expert_severity, NULL, 0, 0, severity);
+	ti = proto_tree_add_uint_format_value(tree, hf_expert_severity, NULL, 0, 0, severity,
+					      val_to_str_const(severity, expert_severity_vals, "Unknown"));
 	PROTO_ITEM_SET_GENERATED(ti);
-	ti = proto_tree_add_uint(tree, hf_expert_group, NULL, 0, 0, group);
+	ti = proto_tree_add_uint_format_value(tree, hf_expert_group, NULL, 0, 0, group,
+					      val_to_str_const(group, expert_group_vals, "Unknown"));
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	tap = have_tap_listener(expert_tap);
