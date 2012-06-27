@@ -360,11 +360,25 @@ glusterfs_rpc_dissect_gf_2_flock(proto_tree *tree, tvbuff_t *tvb, int offset)
 	return offset;
 }
 
+static const true_false_string glusterfs_notset_set = {
+	"Not set",
+	"Set"
+};
+
+static const value_string glusterfs_accmode_vals[] = {
+	{ 0, "Not set"},
+	{ 1, "Not set"},
+	{ 2, "Not set"},
+	{ 3, "Set"},
+	{ 0, NULL}
+};
+
 static int
 glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	gboolean rdonly, accmode;
-	proto_item *flag_tree, *rdonly_item, *accmode_item;
+	gboolean rdonly;
+	guint32 accmode;
+	proto_item *flag_tree;
 	header_field_info *rdonly_hf, *accmode_hf;
 
 	static const int *flag_bits[] = {
@@ -394,21 +408,18 @@ glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 		/* rdonly is TRUE only when no flags are set */
 		rdonly = (tvb_get_ntohl(tvb, offset) == 0);
-		rdonly_item = proto_tree_add_boolean(flag_tree, hf_glusterfs_flags_rdonly, tvb, offset, 4, rdonly);
-		rdonly_hf = proto_registrar_get_nth(hf_glusterfs_flags_rdonly);
-		/* show a static value of zero's, proto_tree_add_boolean() removes them */
-		proto_item_set_text(rdonly_item, "0000 0000 0000 0000 0000 0000 0000 0000 = %s: %s",
-			rdonly_hf->name, rdonly ? tfs_set_notset.true_string : tfs_set_notset.false_string);
-		PROTO_ITEM_SET_GENERATED(rdonly_item);
-		if (rdonly)
+		proto_tree_add_item(flag_tree, hf_glusterfs_flags_rdonly, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		if (rdonly) {
+			rdonly_hf = proto_registrar_get_nth(hf_glusterfs_flags_rdonly);
 			proto_item_append_text(flag_tree, ", %s", rdonly_hf->name);
+		}
 
 		/* hf_glusterfs_flags_accmode is TRUE if bits 0 and 1 are set */
 		accmode_hf = proto_registrar_get_nth(hf_glusterfs_flags_accmode);
-		accmode = ((tvb_get_ntohl(tvb, offset) & accmode_hf->bitmask) == accmode_hf->bitmask);
-		accmode_item = proto_tree_add_boolean(flag_tree, hf_glusterfs_flags_accmode, tvb, offset, 4, accmode);
-		PROTO_ITEM_SET_GENERATED(accmode_item);
-		if (accmode)
+		accmode = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_uint_format_value(flag_tree, hf_glusterfs_flags_accmode, tvb, offset, 4, accmode,
+		                                 "%s", val_to_str((accmode & accmode_hf->bitmask), glusterfs_accmode_vals, "Unknown"));
+		if ((accmode & accmode_hf->bitmask) == accmode_hf->bitmask)
 			proto_item_append_text(flag_tree, ", %s", proto_registrar_get_nth(hf_glusterfs_flags_accmode)->name);
 	}
 
@@ -2119,8 +2130,8 @@ proto_register_glusterfs(void)
 				NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_flags_rdonly,
-			{ "O_RDONLY", "glusterfs.flags.rdonly", FT_BOOLEAN, BASE_NONE,
-				TFS(&tfs_set_notset), 00000000, NULL, HFILL }
+			{ "O_RDONLY", "glusterfs.flags.rdonly", FT_BOOLEAN, 32,
+				TFS(&glusterfs_notset_set), 0xffffffff, NULL, HFILL }
 		},
 		{ &hf_glusterfs_flags_wronly,
 			{ "O_WRONLY", "glusterfs.flags.wronly", FT_BOOLEAN, 32,
@@ -2131,8 +2142,8 @@ proto_register_glusterfs(void)
 				TFS(&tfs_set_notset), 00000002, NULL, HFILL }
 		},
 		{ &hf_glusterfs_flags_accmode,
-			{ "O_ACCMODE", "glusterfs.flags.accmode", FT_BOOLEAN, 32,
-				TFS(&tfs_set_notset), 00000003, NULL, HFILL }
+			{ "O_ACCMODE", "glusterfs.flags.accmode", FT_UINT32, BASE_DEC,
+				VALS(glusterfs_accmode_vals), 00000003, NULL, HFILL }
 		},
 		{ &hf_glusterfs_flags_append,
 			{ "O_APPEND", "glusterfs.flags.append", FT_BOOLEAN, 32,
