@@ -53,16 +53,23 @@ proto_hier_tree_get_n_columns(GtkTreeModel *tree_model)
 {
 	g_return_val_if_fail(PROTOHIER_IS_TREE(tree_model), 0);
 
-	return 1;
+	return 2;
 }
 
 static GType
 proto_hier_tree_get_column_type(GtkTreeModel *tree_model, gint idx)
 {
 	g_return_val_if_fail(PROTOHIER_IS_TREE(tree_model), G_TYPE_INVALID);
-	g_return_val_if_fail(idx == 0, G_TYPE_INVALID);
+	g_return_val_if_fail(idx == 0 || idx == 1, G_TYPE_INVALID);
 
-	return G_TYPE_POINTER;
+	switch (idx) {
+		case 0:
+			return G_TYPE_POINTER;
+		case 1:
+			return G_TYPE_STRING;
+	}
+	/* never here */
+	return G_TYPE_INVALID;
 }
 
 static gboolean
@@ -156,6 +163,20 @@ proto_hier_tree_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter, GtkTreePat
 	return TRUE;
 }
 
+static char *
+hfinfo_to_name(const header_field_info *hfinfo)
+{
+	if (hfinfo->parent == -1) {
+		protocol_t *protocol = find_protocol_by_id(hfinfo->id);
+
+		return g_strdup_printf("%s - %s", proto_get_protocol_short_name(protocol), proto_get_protocol_long_name(protocol));
+	}
+	if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0')
+		return g_strdup_printf("%s - %s (%s)", hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
+	else
+		return g_strdup_printf("%s - %s", hfinfo->abbrev, hfinfo->name);
+}
+
 static void
 proto_hier_tree_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column, GValue *value)
 {
@@ -167,12 +188,21 @@ proto_hier_tree_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint colu
 
 	g_return_if_fail(iter != NULL);
 	g_return_if_fail(iter->stamp == model->stamp);
-	g_return_if_fail(column == 0);
+	g_return_if_fail(column == 0 || column == 1);
 
 	hfinfo = iter->user_data3;
 
-	g_value_init(value, G_TYPE_POINTER);
-	g_value_set_pointer(value, hfinfo);
+	switch (column) {
+		case 0:	/* hfinfo */
+			g_value_init(value, G_TYPE_POINTER);
+			g_value_set_pointer(value, hfinfo);
+			break;
+
+		case 1:	/* field name */
+			g_value_init(value, G_TYPE_STRING);
+			g_value_take_string(value, hfinfo_to_name(hfinfo));
+			break;
+	}
 }
 
 static gboolean
