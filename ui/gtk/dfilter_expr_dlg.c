@@ -189,10 +189,12 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
          * fill up the list of values, otherwise clear the list of values.
          */
 	/* XXX: ToDo: Implement "range-string" filter ?   */
-        if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_RANGE_STRING) && !(hfinfo->display & BASE_CUSTOM)) {
+        if ((hfinfo->strings != NULL) &&
+            ! (hfinfo->display & BASE_RANGE_STRING) &&
+            ! ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM)) {
             const value_string *vals = hfinfo->strings;
             if (hfinfo->display & BASE_EXT_STRING)
-                vals = VALUE_STRING_EXT_VS_P((value_string_ext *) vals);
+                vals = VALUE_STRING_EXT_VS_P((value_string_ext *)vals);
             build_enum_values(value_list_scrolled_win, value_list, vals);
         } else
             gtk_list_store_clear(GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(value_list))));
@@ -890,39 +892,6 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
 	g_signal_handlers_disconnect_by_func(filter_te, dfilter_expr_dlg_cancel_cb, w);
 }
 
-/*
- * Length of string used for protocol fields.
- */
-#define TAG_STRING_LEN	256
-
-static void
-show_hfinfo_name_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
-			GtkTreeModel *model, GtkTreeIter *iter, gpointer data _U_)
-{
-	char str[TAG_STRING_LEN+1];
-	header_field_info *hfinfo;
-
-	gtk_tree_model_get(model, iter, 0, &hfinfo, -1);
-
-	if (hfinfo->parent == -1) {
-    	protocol_t *protocol = find_protocol_by_id(hfinfo->id);
-
-		g_snprintf(str, TAG_STRING_LEN, "%s - %s",
-		   proto_get_protocol_short_name(protocol),
-		   proto_get_protocol_long_name(protocol));
-
-	} else {
-		if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-			g_snprintf(str, TAG_STRING_LEN, "%s - %s (%s)", 
-				hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
-		} else {
-			g_snprintf(str, TAG_STRING_LEN, "%s - %s", 
-				hfinfo->abbrev, hfinfo->name);
-		}
-	}
-	g_object_set(renderer, "text", str, NULL);
-}
-
 GtkWidget *
 dfilter_expr_dlg_new(GtkWidget *filter_te)
 {
@@ -982,11 +951,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(field_tree));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_BROWSE);
     renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_pack_start(column, renderer, TRUE);
-    gtk_tree_view_column_set_title(column, "Field name");
-    gtk_tree_view_column_set_cell_data_func(column, renderer, 
-                                    show_hfinfo_name_func, NULL, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Field name", renderer,
+                                                      "text", 1, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(field_tree), column);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_column_set_sort_column_id(column, 0);
@@ -1123,6 +1089,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     store = proto_hier_tree_model_new();
     gtk_tree_view_set_model(GTK_TREE_VIEW(field_tree), GTK_TREE_MODEL(store));
+    gtk_tree_view_set_search_column(GTK_TREE_VIEW(field_tree), 1);
+    gtk_tree_view_set_enable_search(GTK_TREE_VIEW(field_tree), TRUE);
     g_object_unref(G_OBJECT(store));
 
     range_label = gtk_label_new("Range (offset:length)");
