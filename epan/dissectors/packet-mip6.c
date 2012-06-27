@@ -41,6 +41,8 @@
 #include <epan/expert.h>
 #include <epan/sminmpec.h>
 
+#define UDP_PORT_PMIP6_CNTL 5436
+
 /* Mobility Header types */
 typedef enum {
     MIP6_BRR    =  0,
@@ -2501,5 +2503,7 @@ proto_reg_handoff_mip6(void)
     mip6_handle = create_dissector_handle(dissect_mip6, proto_mip6);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
+    /* Add support for PMIPv6 control messages over IPV4 */
+    dissector_add_uint("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);
     ip_dissector_table = find_dissector_table("ip.proto");
 }
