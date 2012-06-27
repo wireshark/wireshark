@@ -192,7 +192,9 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
          * fill up the list of values, otherwise clear the list of values.
          */
 	/* XXX: ToDo: Implement "range-string" filter ?   */
-        if ((hfinfo->strings != NULL) && !(hfinfo->display & BASE_RANGE_STRING)) {
+        if ((hfinfo->strings != NULL) &&
+            ! (hfinfo->display & BASE_RANGE_STRING) &&
+            ! ((hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_CUSTOM)) {
             const value_string *vals = hfinfo->strings;
             if (hfinfo->display & BASE_EXT_STRING)
                 vals = VALUE_STRING_EXT_VS_P((value_string_ext *) vals);
