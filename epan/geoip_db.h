@@ -71,7 +71,7 @@ extern int geoip_db_type(guint dbnum);
  * @param not_found The string to return if the lookup fails. May be NULL.
  * @return The database entry if found, else not_found
  */
-extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found);
+extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found);
 
 /**
  * Look up an IPv6 address in a database
@@ -81,7 +81,7 @@ extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_fou
  * @param not_found The string to return if the lookup fails. May be NULL.
  * @return The database entry if found, else not_found
  */
-extern const char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found);
+extern const char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found);
 
 /**
  * Get all configured paths

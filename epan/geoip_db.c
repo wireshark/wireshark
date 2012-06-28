@@ -269,7 +269,7 @@ iso_8859_1_to_utf_8(char *val) {
 }
 
 const char *
-geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
+geoip_db_lookup_ipv4(guint dbnum, guint32 addr, const char *not_found) {
     GeoIP *gi;
     GeoIPRecord *gir;
     const char *raw_val, *ret = not_found;
@@ -344,10 +344,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
                 break;
         }
     }
-    if (ret) {
-        return ret;
-    }
-    return not_found;
+    return ret;
 }
 
 #ifdef HAVE_GEOIP_V6
@@ -388,7 +385,7 @@ geoip_db_lookup_latlon6(geoipv6_t addr _U_, float *lat _U_, float *lon _U_) {
 #endif /* NUM_DB_TYPES */
 
 const char *
-geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
+geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, const char *not_found) {
     GeoIP *gi;
     geoipv6_t gaddr;
     const char *raw_val, *ret = not_found;
@@ -470,16 +467,13 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
                 break;
         }
     }
-    if (ret) {
-        return ret;
-    }
-    return not_found;
+    return ret;
 }
 
 #else /* HAVE_GEOIP_V6 */
 
 const char *
-geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr addr _U_, char *not_found) {
+geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr addr _U_, const char *not_found) {
     return not_found;
 }
 
@@ -532,12 +526,12 @@ geoip_db_type(guint dbnum _U_) {
 }
 
 const char *
-geoip_db_lookup_ipv4(guint dbnum _U_, guint32 addr _U_, char *not_found) {
+geoip_db_lookup_ipv4(guint dbnum _U_, guint32 addr _U_, const char *not_found) {
     return not_found;
 }
 
 const char *
-geoip_db_lookup_ipv6(guint dbnum _U_, guint32 addr _U_, char *not_found) {
+geoip_db_lookup_ipv6(guint dbnum _U_, guint32 addr _U_, const char *not_found) {
     return not_found;
 }
 
