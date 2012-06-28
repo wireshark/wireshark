@@ -3202,13 +3202,17 @@ main(int argc, char *argv[])
 
   g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
+#ifdef HAVE_LIBPCAP
   gtk_iface_mon_start();
+#endif
 
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
   gtk_main();
   /* ... back from GTK, we're going down now! */
 
+#ifdef HAVE_LIBPCAP
   gtk_iface_mon_stop();
+#endif
 
   /* deregister our pid */
   u3_deregister_pid();
