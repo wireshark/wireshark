@@ -2530,7 +2530,7 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
   guint i;
   interface_t   device;
-  gchar        *temp, *optname, *snaplen_string, *oldname = "";
+  gchar        *temp, *optname, *snaplen_string/*, *oldname = ""*/;
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   GtkTreeIter   iter;
@@ -2587,7 +2587,9 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
 #else
                 gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, "",  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
 #endif
+#if 0
                 oldname = g_strdup(pipe_name);
+#endif
                 pipe_name = g_strdup(device.name);
                 break;
               }
