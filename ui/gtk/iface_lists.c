@@ -59,7 +59,7 @@ get_interface_type(gchar *name, gchar *description)
      * Much digging failed to reveal any obvious way to get something such
      * as the SNMP MIB-II ifType value for an interface:
      *
-     *	http://www.iana.org/assignments/ianaiftype-mib
+     *    http://www.iana.org/assignments/ianaiftype-mib
      *
      * by making some NDIS request.
      */
@@ -298,7 +298,7 @@ scan_local_interfaces(capture_options* capture_opts)
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
         device.remote_opts.sampling_method = capture_opts->default_options.sampling_method;
-        device.remote_opts.sampling_param  = capture_opts->default_options.sampling_param;	
+        device.remote_opts.sampling_param  = capture_opts->default_options.sampling_param;
 #endif
         linktype_count = 0;
         device.links = NULL;
