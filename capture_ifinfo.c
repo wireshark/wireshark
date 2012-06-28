@@ -53,6 +53,8 @@
 #include "capture_sync.h"
 #include "log.h"
 
+#include "wsutil/file_util.h"
+
 #include "capture_ifinfo.h"
 
 #ifdef HAVE_PCAP_REMOTE
