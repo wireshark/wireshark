@@ -98,6 +98,12 @@ void free_if_capabilities(if_capabilities_t *caps);
 
 void add_interface_to_remote_list(if_info_t *if_info);
 
+/**
+ * Get the type of an interface, given its name and description.
+ */
+extern guint
+get_interface_type(gchar *name, gchar *description);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
