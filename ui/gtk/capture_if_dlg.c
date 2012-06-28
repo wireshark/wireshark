@@ -107,13 +107,12 @@ static GtkWidget *cap_if_w;
 
 static guint     timer_id;
 
-static GtkWidget *stop_bt, *capture_bt, *options_bt;
-
-static GList     *if_list;
+static GtkWidget *close_bt, *stop_bt, *capture_bt, *options_bt;
 
 static GArray    *if_array;
 
 static if_stat_cache_t   *sc;
+static GtkWidget *cap_if_top_vb, *cap_if_sw;
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
@@ -195,7 +194,7 @@ store_selected(GtkWidget *choose_bt, gpointer name)
         if (gtk_widget_is_focus(choose_bt) && get_welcome_window()) {
           change_interface_selection(device.name, device.selected);
         }
-        if (gtk_widget_is_focus(choose_bt) && dlg_window_present()) {
+        if (gtk_widget_is_focus(choose_bt) && capture_dlg_window_present()) {
           enable_selected_interface(device.name, device.selected);
         }
         device.locked = FALSE;
@@ -380,12 +379,15 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   g_source_remove(timer_id);
 
-  free_interface_list(if_list);
-  if (sc)
+  if (sc) {
     capture_stat_stop(sc);
+    sc = NULL;
+  }
   window_destroy(GTK_WIDGET(cap_if_w));
   /* Note that we no longer have a "Capture Options" dialog box. */
   cap_if_w = NULL;
+  cap_if_top_vb = NULL;
+  cap_if_sw = NULL;
 #ifdef HAVE_AIRPCAP
   if (airpcap_if_active)
     airpcap_set_toolbar_stop_capture(airpcap_if_active);
@@ -612,100 +614,84 @@ make_if_array(void)
   }
 }
 
-/* start getting capture stats from all interfaces */
-void
-capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
+/*
+ * If this is Windows, is WinPcap loaded?  If not, pop up a dialog noting
+ * that fact and return FALSE, as we can't capture traffic.
+ *
+ * Otherwise (not Windows or WinPcap loaded), are there any interfaces?
+ * If not, pop up a dialog noting that fact and return FALSE, as there
+ * are no interfaces on which to capture traffic.
+ *
+ * Otherwise, return TRUE, as we can capture.
+ */
+static gboolean
+can_capture(void)
 {
-  GtkWidget         *top_vb,
-                    *if_vb,
-                    *if_sw,
-                    *bbox,
-                    *close_bt,
-                    *help_bt;
-
-#ifdef HAVE_AIRPCAP
-  GtkWidget         *decryption_cb;
-#endif
-
-  GtkWidget         *if_tb, *icon;
-  GtkWidget         *if_lb;
-  GtkWidget         *eb;
-  GtkRequisition    requisition;
-  int               row, height;
-  guint             ifs;
-  interface_t       device;
-  GString           *if_tool_str = g_string_new("");
-  const gchar       *addr_str;
-  gchar             *user_descr;
-  if_dlg_data_t     data;
-
-  if (cap_if_w != NULL) {
-    /* There's already a "Capture Interfaces" dialog box; reactivate it. */
-    reactivate_window(cap_if_w);
-    return;
-  }
-
-  if (global_capture_opts.all_ifaces->len == 0) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                  "There are no interfaces on which a capture can be done.");
-    return;
-  }
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (!has_wpcap) {
     char *detailed_err;
 
     detailed_err = cant_load_winpcap_err("Wireshark");
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
+    simple_error_message_box("%s", detailed_err);
     g_free(detailed_err);
+    return FALSE;
+  }
+#endif
+
+  if (global_capture_opts.all_ifaces->len == 0) {
+    simple_error_message_box("There are no interfaces on which a capture can be done.");
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+static void
+capture_if_refresh_if_list(void)
+{
+  GtkWidget         *if_vb, *if_tb, *icon, *if_lb, *eb;
+  GString           *if_tool_str = g_string_new("");
+  GtkRequisition    requisition;
+  int               row = 0, height = 0, curr_height, curr_width;
+  guint             ifs;
+  interface_t       device;
+  const gchar       *addr_str;
+  gchar             *user_descr;
+  if_dlg_data_t     data;
+
+  if (!can_capture()) {
+    /* No interfaces or, on Windows, no WinPcap; we've already popped
+       up a message, so just get rid of the interface dialog. */
+    destroy_if_window();
     return;
   }
-#endif
 
-#ifdef HAVE_AIRPCAP
-  /* LOAD AIRPCAP INTERFACES */
-
-  decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-  update_decryption_mode_list(decryption_cb);
-
-  /* If no airpcap interface is present, gray everything */
-  if (airpcap_if_active == NULL) {
-    if (airpcap_if_list == NULL) {
-      /*No airpcap device found */
-      airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
-    } else {
-      /* default adapter is not airpcap... or is airpcap but is not found*/
-      if (airpcap_if_active)
-        airpcap_set_toolbar_stop_capture(airpcap_if_active);
-      airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
-    }
+  if (cap_if_sw) {
+    /* First, get rid of the old interface list, and stop updating
+       the statistics on it. */
+    gtk_container_remove(GTK_CONTAINER(cap_if_top_vb), cap_if_sw);
+    capture_stat_stop(sc);
+    g_source_remove(timer_id);
   }
-  if (airpcap_if_active)
-    airpcap_set_toolbar_start_capture(airpcap_if_active);
-#endif
+
+  /* Now construct the new interface list, and start updating the
+     statistics on it. */
 
   make_if_array();
-  cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
-  gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
 
-  top_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-  gtk_container_add(GTK_CONTAINER(cap_if_w), top_vb);
-
-  if_sw = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(if_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_box_pack_start(GTK_BOX(top_vb), if_sw, TRUE, TRUE, 0);
+  cap_if_sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(cap_if_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_box_pack_start(GTK_BOX(cap_if_top_vb), cap_if_sw, TRUE, TRUE, 0);
 
   if_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(if_vb), 5);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(if_sw), if_vb);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(cap_if_sw), if_vb);
 
   if_tb = gtk_table_new(1,9, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(if_tb), 3);
   gtk_table_set_col_spacings(GTK_TABLE(if_tb), 3);
   gtk_box_pack_start(GTK_BOX(if_vb), if_tb, FALSE, FALSE, 0);
-
-  row = 0;
-  height = 0;
 
   /* This is the icon column, used to display which kind of interface we have */
   if_lb = gtk_label_new("");
@@ -845,12 +831,79 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     }
   }
 
+  gtk_widget_get_preferred_size(GTK_WIDGET(close_bt), &requisition, NULL);
+  /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
+  height += requisition.height + 40 + ifs;
+
+  if (cap_if_w) {
+    gtk_window_get_size(GTK_WINDOW(cap_if_w), &curr_width, &curr_height);
+    if (curr_height < height)
+       gtk_window_resize(GTK_WINDOW(cap_if_w), curr_width, height);
+  }
+  else
+    gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
+
   g_string_free(if_tool_str, TRUE);
+  gtk_widget_show_all(cap_if_w);
+
+  /* update the interface list every 1000ms */
+  timer_id = g_timeout_add(1000, update_all, sc);
+}
+
+/* start getting capture stats from all interfaces */
+void
+capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+  GtkWidget         *bbox,
+                    *help_bt;
+#ifdef HAVE_AIRPCAP
+  GtkWidget         *decryption_cb;
+#endif
+
+  if (cap_if_w != NULL) {
+    /* There's already a "Capture Interfaces" dialog box; reactivate it. */
+    reactivate_window(cap_if_w);
+    return;
+  }
+
+  if (!can_capture()) {
+    /* No interfaces or, on Windows, no WinPcap; just give up. */
+    return;
+  }
+
+#ifdef HAVE_AIRPCAP
+  /* LOAD AIRPCAP INTERFACES */
+
+  decryption_cb = g_object_get_data(G_OBJECT(wireless_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  update_decryption_mode_list(decryption_cb);
+
+  /* If no airpcap interface is present, gray everything */
+  if (airpcap_if_active == NULL) {
+    if (airpcap_if_list == NULL) {
+      /*No airpcap device found */
+      airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
+    } else {
+      /* default adapter is not airpcap... or is airpcap but is not found*/
+      if (airpcap_if_active)
+        airpcap_set_toolbar_stop_capture(airpcap_if_active);
+      airpcap_enable_toolbar_widgets(wireless_tb,FALSE);
+    }
+  }
+  if (airpcap_if_active)
+    airpcap_set_toolbar_start_capture(airpcap_if_active);
+#endif
+
+  cap_if_w = dlg_window_new("Wireshark: Capture Interfaces");  /* transient_for top_level */
+  gtk_window_set_destroy_with_parent (GTK_WINDOW(cap_if_w), TRUE);
+
+  cap_if_top_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
+  gtk_container_add(GTK_CONTAINER(cap_if_w), cap_if_top_vb);
 
   /* Button row: close, help, stop, start, and options button */
   bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_CAPTURE_START, WIRESHARK_STOCK_CAPTURE_OPTIONS, WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_CLOSE, NULL);
 
-  gtk_box_pack_end(GTK_BOX(top_vb), bbox, FALSE, FALSE, 5);
+  gtk_container_set_border_width(GTK_CONTAINER(bbox), 0);
+  gtk_box_pack_end(GTK_BOX(cap_if_top_vb), bbox, FALSE, FALSE, 10);
   help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
 
@@ -863,23 +916,17 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(options_bt, "clicked", G_CALLBACK(capture_prepare_cb), NULL);
   capture_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), NULL);
-  gtk_widget_get_preferred_size(GTK_WIDGET(close_bt), &requisition, NULL);
-  /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
-  height += requisition.height + 40 + ifs;
-  gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
   gtk_widget_grab_default(close_bt);
 
   g_signal_connect(cap_if_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(cap_if_w, "destroy", G_CALLBACK(capture_if_destroy_cb), sc);
 
-  gtk_widget_show_all(cap_if_w);
+  capture_if_refresh_if_list();
+
   window_present(cap_if_w);
 
   set_capture_if_dialog_for_capture_in_progress(gbl_capture_in_progress);
-
-  /* update the interface list every 1000ms */
-  timer_id = g_timeout_add(1000, update_all, sc);
 }
 
 gboolean interfaces_dialog_window_present(void)
@@ -889,9 +936,9 @@ gboolean interfaces_dialog_window_present(void)
 
 void refresh_if_window(void)
 {
-  destroy_if_window();
-  cap_if_w = NULL;
-  capture_if_cb(NULL, NULL);
+  if (cap_if_w) {
+    capture_if_refresh_if_list();
+  }
 }
 
 void select_all_interfaces(gboolean enable _U_)

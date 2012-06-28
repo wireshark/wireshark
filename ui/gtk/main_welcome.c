@@ -765,7 +765,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
                 global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
                 g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 
-                if (dlg_window_present()) {
+                if (capture_dlg_window_present()) {
                     enable_selected_interface(g_strdup(if_name), device.selected);
                 }
                 if (interfaces_dialog_window_present()) {
@@ -1130,7 +1130,7 @@ welcome_if_tree_load(void)
             }
             changed = TRUE;
             gtk_tree_selection_set_select_function(GTK_TREE_SELECTION(entry), on_selection_changed, (gpointer)&changed, NULL);
-            if (gtk_widget_is_focus(GTK_WIDGET(if_view)) && dlg_window_present()) {
+            if (gtk_widget_is_focus(GTK_WIDGET(if_view)) && capture_dlg_window_present()) {
                 update_all_rows();
             }
         }

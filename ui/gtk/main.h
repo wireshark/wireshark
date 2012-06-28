@@ -374,6 +374,11 @@ extern GList *get_ip_address_list_from_packet_list_row(gpointer data);
 
 extern GtkWidget *pkt_scrollw;
 
+/*
+ * Refresh everything visible that shows an interface list.
+ */
+extern void refresh_interfaces_cb(void);
+
 void hide_interface(gchar* new_hide);
 
 /*

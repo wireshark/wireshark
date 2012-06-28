@@ -884,6 +884,9 @@ capture_cb(GtkAction *action _U_, gpointer user_data _U_)
     }else if(strcmp(name, "CaptureFilters") == 0){
         cfilter_dialog_cb(NULL /* GtkWidget *w _U_ */);
         return;
+    }else if(strcmp(name, "RefreshInterfaces") == 0){
+        refresh_interfaces_cb();
+        return;
     }
 
     fprintf (stderr, "Warning capture_cb unknown action: %s/n",action_name);
@@ -1144,6 +1147,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='Stop' action='/Capture/Stop'/>\n"
 "      <menuitem name='Restart' action='/Capture/Restart'/>\n"
 "      <menuitem name='CaptureFilters' action='/Capture/CaptureFilters'/>\n"
+"      <menuitem name='RefreshInterfaces' action='/Capture/RefreshInterfaces'/>\n"
 "    </menu>\n"
 "    <menu name= 'AnalyzeMenu' action='/Analyze'>\n"
 "      <menuitem name='DisplayFilters' action='/Analyze/DisplayFilters'/>\n"
@@ -1612,6 +1616,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Capture/Stop",               WIRESHARK_STOCK_CAPTURE_STOP,       "S_top",                "<control>E",                   NULL,               G_CALLBACK(capture_cb) },
    { "/Capture/Restart",            WIRESHARK_STOCK_CAPTURE_RESTART,    "_Restart",             "<control>R",                   NULL,               G_CALLBACK(capture_cb) },
    { "/Capture/CaptureFilters",     WIRESHARK_STOCK_CAPTURE_FILTER,     "Capture _Filters...",  NULL,                           NULL,               G_CALLBACK(capture_cb) },
+   { "/Capture/RefreshInterfaces",  GTK_STOCK_REFRESH,                  "Refresh Interfaces",  NULL,                           NULL,               G_CALLBACK(capture_cb) },
 
    { "/Analyze/DisplayFilters",     WIRESHARK_STOCK_DISPLAY_FILTER,     "_Display Filters...",  NULL,                           NULL,               G_CALLBACK(dfilter_dialog_cb) },
 

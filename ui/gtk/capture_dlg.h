@@ -120,7 +120,7 @@ activate_monitor (GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
                   GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
 
 gboolean
-dlg_window_present(void);
+capture_dlg_window_present(void);
 
 void
 enable_selected_interface(gchar *name, gboolean selected);
@@ -130,5 +130,8 @@ options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *co
 
 void
 update_all_rows(void);
+
+void
+capture_dlg_refresh_if(void);
 
 #endif /* capture_dlg.h */

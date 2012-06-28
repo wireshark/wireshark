@@ -1132,6 +1132,29 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
         main_do_quit();
 }
 
+/*
+ * Refresh everything visible that shows an interface list.
+ */
+void
+refresh_interfaces_cb(void)
+{
+  /* Reload the interface list. */
+  scan_local_interfaces(&global_capture_opts);
+
+  /* If there's an interfaces dialog up, refresh it. */
+  if (interfaces_dialog_window_present())
+    refresh_if_window();
+
+  /* If there's a capture options dialog up, refresh it; doing
+     so will also update the welcome screen, if it's up.
+     Otherwise, if the welcome screen is up, refresh it. */
+  if (capture_dlg_window_present())
+    /* Will also update welcome panel */
+    capture_dlg_refresh_if();
+  else if(get_welcome_window() != NULL)
+    welcome_if_panel_reload();
+}
+
 static void
 print_usage(gboolean print_ver) {
 

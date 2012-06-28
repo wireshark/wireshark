@@ -2993,11 +2993,9 @@ apply_local_cb(GtkWidget *win _U_, gpointer *data _U_)
   }
 }
 
-static void 
-rescan_local_cb(GtkWidget *button, gpointer *data _U_)
+void
+capture_dlg_refresh_if(void)
 {
-  gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
-  scan_local_interfaces(&global_capture_opts);
   fill_local_list();
   update_all_rows();
   if (interfaces_dialog_window_present()) {
@@ -3006,7 +3004,12 @@ rescan_local_cb(GtkWidget *button, gpointer *data _U_)
   if (get_welcome_window() != NULL) {
     welcome_if_panel_reload ();
   }
-  gtk_widget_set_sensitive(GTK_WIDGET(button), TRUE);
+}
+
+static void 
+rescan_local_cb(GtkWidget *button _U_, gpointer *data _U_)
+{
+  refresh_interfaces_cb();
 }
 
 #if defined(HAVE_PCAP_REMOTE)
@@ -4903,7 +4906,7 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_duration_cb)));
 }
 
-gboolean dlg_window_present(void)
+gboolean capture_dlg_window_present(void)
 {
   return (cap_open_w?TRUE:FALSE);
 }
