@@ -65,6 +65,7 @@ set(WIRESHARK_GTK_SRC
 	font_utils.c
 	goto_dlg.c
 	graph_analysis.c
+	gtk_iface_monitor.c
 	gui_stat_util.c
 	gui_utils.c
 	help_dlg.c

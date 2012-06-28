@@ -228,7 +228,7 @@ AC_ARG_WITH([qt],
   with_qt="$withval", with_qt="no")
 
 libnl_message="no"
-PKG_CHECK_MODULES(LIBNL3, libnl-genl-3.0 >= 3.0, [have_libnl3=yes], [have_libnl3=no])
+PKG_CHECK_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
 PKG_CHECK_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
 PKG_CHECK_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
 if (test "${have_libnl3}" = "yes"); then

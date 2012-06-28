@@ -111,6 +111,7 @@ wireshark_SOURCES =	\
 	fileset.c	\
 	filters.c	\
 	g711.c \
+	iface_monitor.c \
 	merge.c	\
 	proto_hier_stats.c	\
 	recent.c	\
@@ -130,6 +131,7 @@ wireshark_INCLUDES =	\
 	filters.h	\
 	g711.h	\
 	globals.h	\
+	iface_monitor.h \
 	log.h	\
 	merge.h	\
 	proto_hier_stats.h	\

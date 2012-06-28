@@ -693,6 +693,7 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		fileset.c
 		filters.c
 		g711.c
+		iface_monitor.c
 		merge.c
 		proto_hier_stats.c
 		recent.c
@@ -718,6 +719,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 		${LIBEPAN_LIBS}
 		${APPLE_CORE_SERVICES_LIBRARY}
 		${APPLE_COCOA_LIBRARY}
+		${LIBNL_LIBRARIES}
 	)
 	# qtshark and wireshark share wireshark_FILES
 

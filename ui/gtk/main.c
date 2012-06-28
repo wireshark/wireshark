@@ -103,6 +103,8 @@
 #include "../log.h"
 #include "../u3.h"
 
+#include "gtk_iface_monitor.h"
+
 #include "ui/alert_box.h"
 #include "ui/main_statusbar.h"
 #include "ui/recent.h"
@@ -3663,9 +3665,13 @@ main(int argc, char *argv[])
 
   g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
+  gtk_iface_mon_start();
+
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
   gtk_main();
   /* ... back from GTK, we're going down now! */
+
+  gtk_iface_mon_stop();
 
   /* deregister our pid */
   u3_deregister_pid();
