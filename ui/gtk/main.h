@@ -386,22 +386,14 @@ extern void refresh_local_interface_lists(void);
  * includes non-local interfaces.
  */
 extern void refresh_non_local_interface_lists(void);
-#endif
-
-void hide_interface(gchar* new_hide);
-
-/*
- * Fetch the list of local interfaces with capture_interface_list()
- * and set the list of "all interfaces" in *capture_opts to include
- * those interfaces.  On failure, we just set the list to an empty
- * list.
- */
-extern void scan_local_interfaces(capture_options* capture_opts);
 
 /*
  * Get the global interface list.  Generate it if we haven't
  * done so already.
  */
 extern void fill_in_local_interfaces(capture_options* capture_opts);
+
+void hide_interface(gchar* new_hide);
+#endif
 
 #endif /* __MAIN_H__ */

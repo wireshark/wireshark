@@ -1268,10 +1268,7 @@ welcome_new(void)
     g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_VIEW, topic_capture_to_fill);
 
 #ifdef HAVE_LIBPCAP
-    if (global_capture_opts.all_ifaces->len == 0) {
-        scan_local_interfaces(&global_capture_opts);
-    }
-
+    fill_in_local_interfaces(&global_capture_opts);
     fill_capture_box();
 
     /* capture help topic */
