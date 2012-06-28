@@ -885,7 +885,7 @@ capture_cb(GtkAction *action _U_, gpointer user_data _U_)
         cfilter_dialog_cb(NULL /* GtkWidget *w _U_ */);
         return;
     }else if(strcmp(name, "RefreshInterfaces") == 0){
-        refresh_interfaces_cb();
+        refresh_local_interface_lists();
         return;
     }
 

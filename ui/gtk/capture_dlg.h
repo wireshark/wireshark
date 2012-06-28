@@ -129,9 +129,6 @@ void
 options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata);
 
 void
-update_all_rows(void);
-
-void
 capture_dlg_refresh_if(void);
 
 #endif /* capture_dlg.h */

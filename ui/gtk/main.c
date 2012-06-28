@@ -1134,25 +1134,41 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
 #ifdef HAVE_LIBPCAP
 /*
- * Refresh everything visible that shows an interface list.
+ * Refresh everything visible that shows an interface list that
+ * includes local interfaces.
  */
 void
-refresh_interfaces_cb(void)
+refresh_local_interface_lists(void)
 {
-  /* Reload the interface list. */
+  /* Reload the local interface list. */
   scan_local_interfaces(&global_capture_opts);
 
   /* If there's an interfaces dialog up, refresh it. */
   if (interfaces_dialog_window_present())
     refresh_if_window();
 
-  /* If there's a capture options dialog up, refresh it; doing
-     so will also update the welcome screen, if it's up.
-     Otherwise, if the welcome screen is up, refresh it. */
+  /* If there's a capture options dialog up, refresh it. */
   if (capture_dlg_window_present())
-    /* Will also update welcome panel */
     capture_dlg_refresh_if();
-  else if(get_welcome_window() != NULL)
+
+  /* If the welcome screen is up, refresh its interface list. */
+  if (get_welcome_window() != NULL)
+    welcome_if_panel_reload();
+}
+
+/*
+ * Refresh everything visible that shows an interface list that
+ * includes non-local interfaces.
+ */
+void
+refresh_non_local_interface_lists(void)
+{
+  /* If there's a capture options dialog up, refresh it. */
+  if (capture_dlg_window_present())
+    capture_dlg_refresh_if();
+
+  /* If the welcome screen is up, refresh its interface list. */
+  if (get_welcome_window() != NULL)
     welcome_if_panel_reload();
 }
 #endif
@@ -2615,9 +2631,7 @@ main(int argc, char *argv[])
   prefs_to_capture_opts();
 
 /*#ifdef HAVE_LIBPCAP
-  if (global_capture_opts.all_ifaces->len == 0) {
-    scan_local_interfaces(&global_capture_opts);
-  }
+  fill_in_local_interfaces(&global_capture_opts);
 #endif*/
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -2861,11 +2875,7 @@ main(int argc, char *argv[])
   }
   
 #ifdef HAVE_LIBPCAP
-  if (global_capture_opts.all_ifaces->len == 0) {
-    scan_local_interfaces(&global_capture_opts);
-  }
-#endif
-#ifdef HAVE_LIBPCAP
+  fill_in_local_interfaces(&global_capture_opts);
   if (start_capture && list_link_layer_types) {
     /* Specifying *both* is bogus. */
     cmdarg_err("You can't specify both -L and a live capture.");
@@ -4375,6 +4385,21 @@ scan_local_interfaces(capture_options* capture_opts)
             g_array_append_val(capture_opts->all_ifaces, device);
             capture_opts->num_selected++;
         }
+    }
+}
+
+/*
+ * Get the global interface list.  Generate it if we haven't
+ * done so already.
+ */
+void
+fill_in_local_interfaces(capture_options* capture_opts)
+{
+    static gboolean initialized = FALSE;
+
+    if (!initialized) {
+        scan_local_interfaces(capture_opts);
+        initialized = TRUE;
     }
 }
 

@@ -1059,9 +1059,7 @@ update_interface_list(void)
   } else if (iftype == CAPTURE_IFREMOTE) {
     /* New remote interface */
     insert_new_rows(if_list);
-    if (interfaces_dialog_window_present()) {
-      refresh_if_window();
-    }
+    refresh_non_local_interface_lists();
   }
 }
 
@@ -1777,16 +1775,6 @@ update_options_table(gint index)
       change_interface_selection(g_strdup(device.name), device.selected);
     }
   }
-}
-
-
-void
-update_all_rows(void) 
-{
-  GtkTreeView *view;
-
-  view = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-  create_and_fill_model(GTK_TREE_VIEW(view));
 }
 
 
@@ -2612,12 +2600,7 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
           } else {
             gtk_widget_set_sensitive(ok_bt, FALSE);
           }
-          if (interfaces_dialog_window_present()) {
-            refresh_if_window();
-          }
-          if (get_welcome_window() != NULL) {
-            change_interface_name(oldname, i);
-          }
+          refresh_non_local_interface_lists();
           break;
         }
       }
@@ -2737,12 +2720,12 @@ add_pipe_cb(gpointer w _U_)
     } else {
       gtk_widget_set_sensitive(ok_bt, FALSE);
     }
-    if (interfaces_dialog_window_present()) {
-      refresh_if_window();
-    }
-    if (get_welcome_window() != NULL) {
-      welcome_if_panel_reload ();
-    }
+
+    /* Refresh all places that are displaying an interface list
+       that includes interfaces other than local interfaces
+       (such as pipes). */
+    refresh_non_local_interface_lists();
+
     g_free(name);
   }
 }
@@ -2819,9 +2802,10 @@ pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_widget_set_sensitive(name_te, FALSE);
   }
 
-  if (get_welcome_window() != NULL) {
-     welcome_if_panel_reload();
-  }
+  /* Refresh all places that are displaying an interface list
+     that includes interfaces other than local interfaces
+     (such as pipes). */
+  refresh_non_local_interface_lists();
 }
 
 static void
@@ -2983,33 +2967,30 @@ apply_local_cb(GtkWidget *win _U_, gpointer *data _U_)
       prefs.capture_devices_hide = NULL;
     }
     hide_interface(g_strdup(new_hide));
-    update_all_rows();
-    if (interfaces_dialog_window_present()) {
-      refresh_if_window();
-    }
-    if (get_welcome_window() != NULL) {
-      welcome_if_panel_reload ();
-    }
+
+    /* Refresh all places that are displaying an interface list
+       that includes local interfaces. */
+    refresh_local_interface_lists();
   }
 }
 
 void
 capture_dlg_refresh_if(void)
 {
+  GtkTreeView *view;
+
   fill_local_list();
-  update_all_rows();
-  if (interfaces_dialog_window_present()) {
-    refresh_if_window();
-  }
-  if (get_welcome_window() != NULL) {
-    welcome_if_panel_reload ();
-  }
+
+  view = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  create_and_fill_model(GTK_TREE_VIEW(view));
 }
 
 static void 
 rescan_local_cb(GtkWidget *button _U_, gpointer *data _U_)
 {
-  refresh_interfaces_cb();
+  /* Refresh all places that are displaying an interface list
+     that includes local interfaces. */
+  refresh_local_interface_lists();
 }
 
 #if defined(HAVE_PCAP_REMOTE)
@@ -3123,13 +3104,9 @@ ok_remote_cb(GtkWidget *win _U_, gpointer *data _U_)
     g_free(name);
   }
   hide_interface(g_strdup(new_hide));
-  update_all_rows();
-  if (interfaces_dialog_window_present()) {
-    refresh_if_window();
-  }
-  if (get_welcome_window() != NULL) {
-    welcome_if_panel_reload ();
-  }
+
+  /* Refresh all places that are displaying an interface list. */
+  refresh_interfaces_cb();
 }
 
 static gboolean 
@@ -3186,13 +3163,9 @@ remove_remote_host(GtkWidget *w _U_, gpointer data _U_)
         }
       }
     }
-    update_all_rows();
-    if (interfaces_dialog_window_present()) {
-      refresh_if_window();
-    }
-    if (get_welcome_window() != NULL) {
-      welcome_if_panel_reload ();
-    }
+
+    /* Refresh all places that are displaying an interface list. */
+    refresh_interfaces_cb();
   } 
 }
 #endif

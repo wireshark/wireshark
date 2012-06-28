@@ -137,6 +137,7 @@ typedef struct if_dlg_data_s {
 
 static gboolean gbl_capture_in_progress = FALSE;
 
+#if 0
 void
 add_interface(void)
 {
@@ -155,6 +156,7 @@ add_interface(void)
   g_array_append_val(if_array, data);
   refresh_if_window();
 }
+#endif
 
 void
 update_selected_interface(gchar *name)

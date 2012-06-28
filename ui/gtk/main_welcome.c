@@ -113,7 +113,6 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_);
 #if GTK_CHECK_VERSION(2,18,0)
 static gboolean activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_data _U_);
 #endif
-static void welcome_if_tree_load(void);
 #endif
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
@@ -927,6 +926,36 @@ clear_capture_box(void)
     }
 }
 
+static void
+update_capture_box(void)
+{
+    guint               i;
+    GtkListStore        *store = NULL;
+    GtkTreeIter         iter;
+    GtkTreeSelection    *entry;
+    interface_t         device;
+    gboolean            changed = FALSE;
+
+    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
+    gtk_tree_selection_unselect_all(GTK_TREE_SELECTION(entry));
+    store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
+
+    gtk_list_store_clear(store);
+    gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device.hidden) {
+            gtk_list_store_append (store, &iter);
+            gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
+            if (device.selected) {
+                gtk_tree_selection_select_iter(entry, &iter);
+            }
+        }
+    }
+    changed = TRUE;
+    gtk_tree_selection_set_select_function(GTK_TREE_SELECTION(entry), on_selection_changed, (gpointer)&changed, NULL);
+}
+
 static void fill_capture_box(void)
 {
     GtkWidget         *box_to_fill;
@@ -991,7 +1020,7 @@ static void fill_capture_box(void)
                                        "Same as Capture/Interfaces with default options",
                                        (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
         gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_start, FALSE, FALSE, 5);
-        welcome_if_tree_load();
+        update_capture_box();
         gtk_container_add (GTK_CONTAINER (swindow), if_view);
         gtk_container_add(GTK_CONTAINER(box_to_fill), swindow);
         g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_START, item_hb_start);
@@ -1090,54 +1119,6 @@ static void fill_capture_box(void)
         g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_LABEL, w);
     }
 }
-#endif
-
-#ifdef HAVE_LIBPCAP
-/* list the interfaces */
-static void
-welcome_if_tree_load(void)
-{
-    guint               i;
-    GtkListStore        *store = NULL;
-    GtkTreeIter         iter;
-    GtkTreeSelection    *entry;
-    interface_t         device;
-    gboolean            changed = FALSE;
-
-    if (if_view && swindow) {
-        entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
-        gtk_tree_selection_unselect_all(GTK_TREE_SELECTION(entry));
-        store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
-
-        gtk_list_store_clear(store);
-        gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
-        /* LOAD THE INTERFACES */
-        if (global_capture_opts.all_ifaces->len == 0) {
-            scan_local_interfaces(&global_capture_opts);
-            if (global_capture_opts.all_ifaces->len == 0) {
-                fill_capture_box();
-            }
-        } else {
-            for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-                if (!device.hidden) {
-                    gtk_list_store_append (store, &iter);
-                    gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
-                    if (device.selected) {
-                        gtk_tree_selection_select_iter(entry, &iter);
-                    }
-                }
-            }
-            changed = TRUE;
-            gtk_tree_selection_set_select_function(GTK_TREE_SELECTION(entry), on_selection_changed, (gpointer)&changed, NULL);
-            if (gtk_widget_is_focus(GTK_WIDGET(if_view)) && capture_dlg_window_present()) {
-                update_all_rows();
-            }
-        }
-    } else {
-        fill_capture_box();
-    }
-}
 #endif  /* HAVE_LIBPCAP */
 
 
@@ -1147,7 +1128,15 @@ welcome_if_panel_reload(void)
 {
 #ifdef HAVE_LIBPCAP
     if (welcome_hb) {
-        welcome_if_tree_load();
+        /* If we have a list of interfaces, and if the current interface
+           list is non-empty, just update the interface list.  Otherwise,
+           create it (as we didn't have it) or destroy it (as we won't
+           have it). */
+        if (if_view && swindow && global_capture_opts.all_ifaces->len > 0) {
+            update_capture_box();
+        } else {
+            fill_capture_box();
+        }
         gtk_widget_show_all(welcome_hb);
     }
 #endif  /* HAVE_LIBPCAP */

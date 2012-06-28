@@ -620,8 +620,9 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 		ifopts_write_new_hide();
 	}
 
-	/* Update welcome page */
-	welcome_if_panel_reload ();
+	/* Update everything that shows an interface list that includes
+	   local interfaces. */
+	refresh_local_interface_lists();
 
 	/* Now nuke this window. */
 	gtk_grab_remove(GTK_WIDGET(parent_w));
