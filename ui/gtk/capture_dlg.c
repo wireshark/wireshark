@@ -50,6 +50,7 @@
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
+#include "ui/gtk/iface_lists.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/filter_dlg.h"

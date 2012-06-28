@@ -95,6 +95,7 @@
 #include "epan/dissectors/packet-ssl-utils.h"
 #include "ui/gtk/export_sslkeys.h"
 #include "ui/gtk/gui_stat_menu.h"
+#include "ui/gtk/iface_lists.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/main_menubar_private.h"

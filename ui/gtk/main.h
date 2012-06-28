@@ -374,26 +374,4 @@ extern GList *get_ip_address_list_from_packet_list_row(gpointer data);
 
 extern GtkWidget *pkt_scrollw;
 
-#ifdef HAVE_LIBPCAP
-/*
- * Refresh everything visible that shows an interface list that
- * includes local interfaces.
- */
-extern void refresh_local_interface_lists(void);
-
-/*
- * Refresh everything visible that shows an interface list that
- * includes non-local interfaces.
- */
-extern void refresh_non_local_interface_lists(void);
-
-/*
- * Get the global interface list.  Generate it if we haven't
- * done so already.
- */
-extern void fill_in_local_interfaces(capture_options* capture_opts);
-
-void hide_interface(gchar* new_hide);
-#endif
-
 #endif /* __MAIN_H__ */

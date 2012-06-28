@@ -41,7 +41,7 @@
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
-#include "ui/gtk/main.h"
+#include "ui/gtk/iface_lists.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/stock_icons.h"

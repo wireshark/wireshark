@@ -22,23 +22,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "config.h"
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
 
 #ifdef HAVE_LIBPCAP
 
+#include <string.h>
+
+#include <glib.h>
+
 #include "../../iface_monitor.h"
 
-#include <gtk/gtk.h>
+#include "capture_opts.h"
 
-#include "gtkglobals.h"
-
-#include "main.h"
-#include "main_toolbar.h"
-
+#include "ui/gtk/iface_lists.h"
 #include "ui/gtk/capture_globals.h"
-#include "ui/gtk/main_welcome.h"
-#include "ui/gtk/capture_if_dlg.h"
-#include "ui/gtk/capture_dlg.h"
 
 GIOChannel *iface_mon_channel;
 
