@@ -66,9 +66,6 @@ void capture_stop_cb(GtkWidget *widget, gpointer data);
  */
 void capture_restart_cb(GtkWidget *widget, gpointer data);
 
-/* capture start confirmed by "Save unsaved capture", so do it now */
-void capture_start_confirmed(void);
-
 /** User requested the "Capture Airpcap" dialog box by menu or toolbar.
  *
  * @param widget parent widget (unused)

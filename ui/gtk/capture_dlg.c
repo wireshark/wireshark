@@ -1432,7 +1432,7 @@ options_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 
 #endif /*HAVE_PCAP_SETSAMPLING*/
 #ifdef HAVE_PCAP_REMOTE
-void
+static void
 options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget *opt_remote_w, *main_vb;
@@ -2520,7 +2520,8 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
 }
 
 #if defined (HAVE_PCAP_REMOTE)
-void show_remote_dialog(GtkWidget *w)
+static void
+show_remote_dialog(GtkWidget *w)
 {
 
   g_free(global_remote_opts.remote_host_opts.remote_host);
@@ -4170,7 +4171,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 /* everythings prepared, now it's really time to start the capture */
-void
+static void
 capture_start_confirmed(void)
 {
   interface_options interface_opts;
