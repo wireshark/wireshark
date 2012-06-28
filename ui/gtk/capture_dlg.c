@@ -3107,8 +3107,10 @@ ok_remote_cb(GtkWidget *win _U_, gpointer *data _U_)
   }
   hide_interface(g_strdup(new_hide));
 
-  /* Refresh all places that are displaying an interface list. */
-  refresh_interfaces_cb();
+  /* Refresh all places that are displaying an interface list
+     that includes interfaces other than local interfaces
+     (such as remote interfaces). */
+  refresh_non_local_interface_lists();
 }
 
 static gboolean 
@@ -3166,8 +3168,10 @@ remove_remote_host(GtkWidget *w _U_, gpointer data _U_)
       }
     }
 
-    /* Refresh all places that are displaying an interface list. */
-    refresh_interfaces_cb();
+    /* Refresh all places that are displaying an interface list
+       that includes interfaces other than local interfaces
+       (such as remote interfaces). */
+    refresh_non_local_interface_lists();
   } 
 }
 #endif
