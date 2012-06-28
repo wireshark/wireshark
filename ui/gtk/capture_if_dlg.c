@@ -395,21 +395,6 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
 
 /*
- * Sorts the Interface List in alphabetical order
- */
-gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
-  const if_info_t *first = first_arg, *second = second_arg;
-
-  if (first != NULL && first->description != NULL &&
-      second != NULL && second->description != NULL) {
-    return g_ascii_strcasecmp(first->description, second->description);
-  } else {
-    return 0;
-  }
-}
-
-
-/*
  * Used to retrieve the interface icon.
  */
 GtkWidget * capture_get_if_icon(interface_t *device)

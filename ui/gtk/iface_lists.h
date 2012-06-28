@@ -28,6 +28,12 @@
 
 #ifdef HAVE_LIBPCAP
 /*
+ * Used when sorting an interface list into alphabetical order by
+ * their descriptions.
+ */
+extern gint if_list_comparator_alph(const void *first_arg, const void *second_arg);
+
+/*
  * Get the global interface list.  Generate it if we haven't
  * done so already.
  */

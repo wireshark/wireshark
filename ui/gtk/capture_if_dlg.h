@@ -72,9 +72,6 @@ select_all_interfaces(gboolean enable);
 void
 destroy_if_window(void);
 
-gint 
-if_list_comparator_alph (const void *first_arg, const void *second_arg);
-
 #endif /* HAVE_LIBPCAP */
 
 #endif /* capture_if_dlg.h */

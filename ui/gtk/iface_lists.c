@@ -50,6 +50,23 @@
 capture_options global_capture_opts;
 
 /*
+ * Used when sorting an interface list into alphabetical order by
+ * their descriptions.
+ */
+gint
+if_list_comparator_alph(const void *first_arg, const void *second_arg)
+{
+    const if_info_t *first = first_arg, *second = second_arg;
+
+    if (first != NULL && first->description != NULL &&
+        second != NULL && second->description != NULL) {
+        return g_ascii_strcasecmp(first->description, second->description);
+    } else {
+        return 0;
+    }
+}
+
+/*
  * Fetch the list of local interfaces with capture_interface_list()
  * and set the list of "all interfaces" in *capture_opts to include
  * those interfaces.

@@ -119,7 +119,6 @@
 #include "../capture_ifinfo.h"
 #include "../capture.h"
 #include "../capture_sync.h"
-extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 #endif
 
 #ifdef _WIN32

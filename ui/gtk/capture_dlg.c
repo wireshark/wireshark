@@ -266,8 +266,6 @@ activate_monitor(GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
                  GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
 #endif
 
-extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
-
 /* stop the currently running capture */
 void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
