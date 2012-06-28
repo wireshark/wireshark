@@ -74,10 +74,7 @@
 #include "ui/gtk/remote_icons.h"
 #endif
 
-#ifdef _WIN32
-#include "../../image/toolbar/capture_ethernet_16.xpm"
 #include "../../image/toolbar/modem_16.xpm"
-#endif
 
 #include "../../image/toolbar/network_virtual_16.xpm"
 
@@ -414,7 +411,6 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
 
 /*
  * Used to retrieve the interface icon.
- * This is hideously platform-dependent.
  */
 GtkWidget * capture_get_if_icon(interface_t *device)
 {
@@ -424,16 +420,12 @@ GtkWidget * capture_get_if_icon(interface_t *device)
   }
 #endif
   switch (device->type) {
-#ifdef _WIN32
   case IF_DIALUP:
     return xpm_to_widget(modem_16_xpm);
-#endif
   case IF_WIRELESS:
     return pixbuf_to_widget(network_wireless_pb_data);
-#ifdef HAVE_AIRPCAP
   case IF_AIRPCAP:
     return xpm_to_widget(capture_airpcap_16_xpm);
-#endif
   case IF_BLUETOOTH:
     return pixbuf_to_widget(network_bluetooth_pb_data);
   case IF_USB:
