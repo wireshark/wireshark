@@ -24,6 +24,8 @@
 
 #include "config.h"
 
+#ifdef HAVE_LIBPCAP
+
 #include "../../iface_monitor.h"
 
 #include <gtk/gtk.h>
@@ -91,3 +93,4 @@ gtk_iface_mon_stop(void)
     return 0;
 }
 
+#endif /* HAVE_LIBPCAP */

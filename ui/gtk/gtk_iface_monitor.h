@@ -25,10 +25,14 @@
 #ifndef GTK_IFACE_MONITOR_H
 #define GTK_IFACE_MONITOR_H
 
+#ifdef HAVE_LIBPCAP
+
 int
 gtk_iface_mon_start(void);
 
 int
 gtk_iface_mon_stop(void);
+
+#endif /* HAVE_LIBPCAP */
 
 #endif

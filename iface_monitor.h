@@ -24,6 +24,8 @@
 #ifndef IFACE_MONITOR_H
 #define IFACE_MONITOR_H
 
+#ifdef HAVE_LIBPCAP
+
 typedef void (*iface_mon_cb)(const char *iface, int up);
 int
 iface_mon_start(iface_mon_cb cb);
@@ -37,4 +39,6 @@ iface_mon_get_sock(void);
 void
 iface_mon_event(void);
 
-#endif
+#endif /* HAVE_LIBPCAP */
+
+#endif /* IFACE_MONITOR_H */

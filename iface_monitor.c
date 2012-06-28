@@ -22,6 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 #include "config.h"
+
+#ifdef HAVE_LIBPCAP
+
 #include "iface_monitor.h"
 
 #ifdef HAVE_LIBNL
@@ -175,3 +178,5 @@ iface_mon_event(void)
 }
 
 #endif /* HAVE_LIBNL */
+
+#endif /* HAVE_LIBPCAP */
