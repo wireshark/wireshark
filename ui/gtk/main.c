@@ -1132,6 +1132,7 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
         main_do_quit();
 }
 
+#ifdef HAVE_LIBPCAP
 /*
  * Refresh everything visible that shows an interface list.
  */
@@ -1154,6 +1155,7 @@ refresh_interfaces_cb(void)
   else if(get_welcome_window() != NULL)
     welcome_if_panel_reload();
 }
+#endif
 
 static void
 print_usage(gboolean print_ver) {
