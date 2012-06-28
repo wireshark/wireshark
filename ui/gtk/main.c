@@ -111,6 +111,8 @@
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
+#include <wsutil/file_util.h>
+
 #ifdef HAVE_LIBPCAP
 #include "../capture_ui_utils.h"
 #include "../capture-pcap-util.h"
