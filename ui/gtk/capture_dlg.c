@@ -249,6 +249,23 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp);
 static gboolean
 capture_dlg_prep(gpointer parent_w);
 
+static GtkTreeModel*
+create_and_fill_model(GtkTreeView *view);
+
+static gboolean
+query_tooltip_tree_view_cb (GtkWidget  *widget,
+                            gint        x,
+                            gint        y,
+                            gboolean    keyboard_tip,
+                            GtkTooltip *tooltip,
+                            gpointer    data);
+
+#ifdef HAVE_PCAP_CREATE
+static void
+activate_monitor(GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
+                 GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
+#endif
+
 extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 
 /* stop the currently running capture */
@@ -4463,7 +4480,8 @@ capture_dlg_prep(gpointer parent_w) {
   return TRUE;
 }
 
-GtkTreeModel *create_and_fill_model(GtkTreeView *view)
+static GtkTreeModel *
+create_and_fill_model(GtkTreeView *view)
 {
   GtkListStore *store;
   GtkTreeIter iter;
@@ -4515,12 +4533,13 @@ GtkTreeModel *create_and_fill_model(GtkTreeView *view)
   return GTK_TREE_MODEL(store);
 }
 
-gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
-                                     gint        x,
-                                     gint        y,
-                                     gboolean    keyboard_tip,
-                                     GtkTooltip *tooltip,
-                                     gpointer    data _U_)
+static gboolean
+query_tooltip_tree_view_cb (GtkWidget  *widget,
+                            gint        x,
+                            gint        y,
+                            gboolean    keyboard_tip,
+                            GtkTooltip *tooltip,
+                            gpointer    data _U_)
 {
   GtkTreeIter iter;
   GtkTreeView *tree_view = GTK_TREE_VIEW (widget);
@@ -4591,8 +4610,9 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
 }
 
 #if defined (HAVE_PCAP_CREATE)
-void activate_monitor (GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
-                              GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data _U_)
+static void
+activate_monitor(GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
+                 GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data _U_)
 {
   interface_t device;
   GtkTreePath *path = gtk_tree_model_get_path(tree_model, iter);

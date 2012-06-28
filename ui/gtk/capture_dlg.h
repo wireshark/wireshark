@@ -104,21 +104,6 @@ gboolean
 capture_remote_combo_add_recent(gchar *s);
 #endif
 
-GtkTreeModel*
-create_and_fill_model (GtkTreeView *view);
-
-gboolean
-query_tooltip_tree_view_cb (GtkWidget  *widget,
-                            gint        x,
-                            gint        y,
-                            gboolean    keyboard_tip,
-                            GtkTooltip *tooltip,
-                            gpointer    data);
-
-void
-activate_monitor (GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
-                  GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
-
 gboolean
 capture_dlg_window_present(void);
 
