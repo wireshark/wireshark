@@ -371,6 +371,9 @@
 #define LSC_RET_CONNECTED    1
 #define LSC_RET_TOO_BIG 0xFE
 
+/* operator profile resource */
+#define TABLE_ID_CICAM_NIT 0x40  /* CICAM NIT must be a NIT actual */
+
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
 #define SAS_SESS_STATE_NOT_FOUND 1
@@ -760,6 +763,8 @@ static int proto_dvbci = -1;
 static const gchar *dvbci_sek = NULL;
 static const gchar *dvbci_siv = NULL;
 
+static dissector_table_t mpeg_sect_tid_dissector_table;
+
 static gint ett_dvbci = -1;
 static gint ett_dvbci_hdr = -1;
 static gint ett_dvbci_cis = -1;
@@ -946,7 +951,6 @@ static int hf_dvbci_dlv_sys_hint = -1;
 static int hf_dvbci_refr_req_date = -1;
 static int hf_dvbci_refr_req_time = -1;
 static int hf_dvbci_nit_loop_len = -1;
-static int hf_dvbci_nit = -1;
 static int hf_dvbci_info_valid = -1;
 static int hf_dvbci_info_ver_op_info = -1;
 static int hf_dvbci_cicam_onid = -1;
@@ -2456,7 +2460,6 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
     guint16            old_pid, new_pid;
     gboolean           pmt_flag;
     gint               desc_loop_len;
-    dissector_table_t  mpeg_sect_tid_dissector_table = NULL;
     guint8             table_id;
     tvbuff_t          *pmt_tvb = NULL;
     guint8             status;
@@ -2523,8 +2526,6 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
             offset += desc_loop_len;
             if (pmt_flag) {
                 table_id = tvb_get_guint8(tvb, offset);
-                mpeg_sect_tid_dissector_table =
-                    find_dissector_table("mpeg_sect.tid");
                 pmt_tvb = tvb_new_subset(tvb, offset,
                         tvb_reported_length_remaining(tvb, offset),
                         tvb_reported_length_remaining(tvb, offset));
@@ -3390,12 +3391,14 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint16     nit_loop_len;
-    guint8      cap_loop_len;
-    gboolean    info_valid;
-    guint8      char_tbl;
-    guint8      sig_strength, sig_qual;
-    proto_item *pi;
+    guint16            nit_loop_len;
+    guint8             table_id;
+    tvbuff_t          *nit_tvb = NULL;
+    guint8             cap_loop_len;
+    gboolean           info_valid;
+    guint8             char_tbl;
+    guint8             sig_strength, sig_qual;
+    proto_item        *pi;
 
     switch(tag) {
         case T_OPERATOR_STATUS:
@@ -3407,8 +3410,21 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           proto_tree_add_item(tree, hf_dvbci_nit_loop_len,
                   tvb, offset, 2, ENC_BIG_ENDIAN);
           offset += 2;
-          proto_tree_add_item(tree, hf_dvbci_nit,
-                  tvb, offset, nit_loop_len, ENC_NA);
+          table_id = tvb_get_guint8(tvb, offset);
+          if (table_id != TABLE_ID_CICAM_NIT) {
+              pi = proto_tree_add_text(tree, tvb, offset, 1,
+                      "Invalid table id for the CICAM NIT");
+              expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                      "CICAM NIT must have table id 0x40 (NIT actual)");
+          }
+          nit_tvb = tvb_new_subset(tvb, offset, nit_loop_len, nit_loop_len); 
+          if (mpeg_sect_tid_dissector_table && nit_tvb) {
+              col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+              /* prevent nit dissector from clearing col_info */
+              col_set_fence(pinfo->cinfo, COL_INFO);
+              dissector_try_uint(mpeg_sect_tid_dissector_table,
+                      (const guint32)table_id, nit_tvb, pinfo, tree);
+          }
           break;
         case T_OPERATOR_INFO:
           info_valid = ((tvb_get_guint8(tvb, offset) & 0x08) == 0x08);
@@ -5101,10 +5117,6 @@ proto_register_dvbci(void)
           { "NIT loop length", "dvb-ci.opp.nit_loop_len",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
         },
-        { &hf_dvbci_nit,
-          { "NIT", "dvb-ci.opp.nit",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-        },
         { &hf_dvbci_info_valid,
           { "Info valid", "dvb-ci.opp.info_valid",
             FT_UINT8, BASE_HEX, NULL, 0x08, NULL, HFILL }
@@ -5268,6 +5280,8 @@ proto_reg_handoff_dvbci(void)
 
     dvbci_handle = new_create_dissector_handle(dissect_dvbci, proto_dvbci);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
+
+    mpeg_sect_tid_dissector_table = find_dissector_table("mpeg_sect.tid");
 }
 
 /*
