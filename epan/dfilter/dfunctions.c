@@ -104,7 +104,38 @@ df_func_upper(GList* arg1list, GList *arg2junk _U_, GList **retval)
     return string_walk(arg1list, retval, string_ascii_to_upper);
 }
 
-/* For upper() and lower(), checks that the parameter passed to
+/* dfilter function: len() */
+static gboolean
+df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
+{
+    GList       *arg1;
+    fvalue_t    *arg_fvalue;
+    fvalue_t    *ft_len;
+
+    arg1 = arg1list;
+    while (arg1) {
+        arg_fvalue = (fvalue_t *)arg1->data; 
+        switch (fvalue_ftype(arg_fvalue)->ftype) {
+            case FT_STRING:
+            case FT_STRINGZ:
+            case FT_UINT_STRING:
+                ft_len = fvalue_new(FT_UINT32);
+                fvalue_set_uinteger(ft_len, (guint) strlen(fvalue_get(arg_fvalue)));
+                *retval = g_list_append(*retval, ft_len);
+                break;
+
+            /* XXX - it would be nice to handle other types */
+
+            default:
+                break;
+        } 
+        arg1 = arg1->next;
+    }
+
+    return TRUE;
+}
+
+/* For upper(), lower() and len(), checks that the parameter passed to
  * it is an FT_STRING */
 static void
 ul_semcheck_params(int param_num, stnode_t *st_node)
@@ -122,12 +153,12 @@ ul_semcheck_params(int param_num, stnode_t *st_node)
                 ftype = hfinfo->type;
                 if (ftype != FT_STRING && ftype != FT_STRINGZ
                         && ftype != FT_UINT_STRING) {
-                    dfilter_fail("Only strings can be used in upper() or lower()");
+                    dfilter_fail("Only strings can be used in upper() or lower() or len()");
                     THROW(TypeError);
                 }
                 break;
             default:
-                dfilter_fail("Only string-type fields can be used in upper() or lower()");
+                dfilter_fail("Only string-type fields can be used in upper() or lower() or len()");
                 THROW(TypeError);
         }
     }
@@ -141,6 +172,7 @@ static df_func_def_t
 df_functions[] = {
     { "lower", df_func_lower, FT_STRING, 1, 1, ul_semcheck_params },
     { "upper", df_func_upper, FT_STRING, 1, 1, ul_semcheck_params },
+    { "len", df_func_len, FT_UINT32, 1, 1, ul_semcheck_params },
     { NULL, NULL, 0, 0, 0, NULL }
 };
 
