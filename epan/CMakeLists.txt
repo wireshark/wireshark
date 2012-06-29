@@ -439,6 +439,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-data.c
 	dissectors/packet-daytime.c
 	dissectors/packet-db-lsp.c
+	dissectors/packet-dbus.c
 	dissectors/packet-dcc.c
 	dissectors/packet-dccp.c
 	dissectors/packet-dcerpc-bossvr.c

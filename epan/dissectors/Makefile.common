@@ -359,6 +359,7 @@ DISSECTOR_SRC = \
 	packet-data.c		\
 	packet-daytime.c	\
 	packet-db-lsp.c		\
+	packet-dbus.c		\
 	packet-dcc.c		\
 	packet-dccp.c		\
 	packet-dcerpc-bossvr.c		\
