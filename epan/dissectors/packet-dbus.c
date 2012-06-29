@@ -351,7 +351,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree
 				offset = dissect_dbus_sig(tvb, dinfo, tree, offset, 's', &addr_val);
 				if (offset != -1)
 					SET_ADDRESS((field_code == DBUS_HEADER_FIELD_DESTINATION) ? &dinfo->pinfo->dst : &dinfo->pinfo->src,
-					            AT_STRINGZ, strlen(addr_val.str)+1, addr_val.str);
+					            AT_STRINGZ, (int)strlen(addr_val.str)+1, addr_val.str);
 				return offset;
 			}
 			break;
