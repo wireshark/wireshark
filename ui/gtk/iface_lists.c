@@ -36,8 +36,6 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 
-#include <wsutil/file_util.h>
-
 #include "../capture_ui_utils.h"
 
 #include "ui/gtk/capture_dlg.h"
