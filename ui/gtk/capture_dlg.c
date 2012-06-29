@@ -83,7 +83,7 @@
 enum
 {
     CAPTURE = 0,
-    IFACE_HIDDEN_NAME, 
+    IFACE_HIDDEN_NAME,
     INTERFACE,
     LINK,
     PMODE,
@@ -848,7 +848,7 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
   capture_remote_cb(GTK_WIDGET(data), FALSE);
 }
 
-static void 
+static void
 insert_new_rows(GList *list)
 {
   interface_t device;
@@ -1148,7 +1148,7 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
   g_free(global_remote_opts.remote_host_opts.auth_password);
   global_remote_opts.remote_host_opts.auth_password =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(passwd_te)));
-  
+
   window_destroy(GTK_WIDGET(remote_w));
   update_interface_list();
   fill_remote_list();
@@ -1177,7 +1177,7 @@ static void
 select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
 {
   gchar *string;
-  GtkWidget *port_te, *auth_rb, *user_te, *pass_te; 
+  GtkWidget *port_te, *auth_rb, *user_te, *pass_te;
   GtkWidget *remote_w;
   struct remote_host *rh;
 
@@ -1746,7 +1746,7 @@ update_options_table(gint index)
     for (list=device.links; list!=NULL; list=g_list_next(list))
     {
       link = (link_row*)(list->data);
-      linkname = g_strdup(link->name); 
+      linkname = g_strdup(link->name);
       if (link->dlt == device.active_dlt) {
         break;
       }
@@ -1810,7 +1810,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   gpointer  ptr = NULL;
   int       dlt = -1;
   const gchar *filter_text;
-  
+
   device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_interface);
   global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_interface);
   snap_cb    = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_CB_KEY);
@@ -1833,7 +1833,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
         * ws_combo_box_get_active_pointer() is not cause for
         * g_assert_not_reached().
         */
-       if (ptr != NULL && (dlt = GPOINTER_TO_INT(ptr)) == -1) 
+       if (ptr != NULL && (dlt = GPOINTER_TO_INT(ptr)) == -1)
          g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
      }
   }
@@ -1959,7 +1959,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   model = gtk_tree_view_get_model(view);
   gtk_tree_model_get_iter (model, &iter, path);
-  
+
   if (window == get_welcome_window()) {
     gtk_tree_model_get(model, &iter, IFACE_NAME, &name, -1);
   } else if (window == cap_open_w) {
@@ -1967,7 +1967,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   } else {
     return;
   }
-  
+
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
     if (strcmp(device.name, name) == 0) {
@@ -2160,7 +2160,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_widget_set_tooltip_text(monitor_cb,
     "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture the traffic on the BSS to which it's associated. "
     "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option. "
-    "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
+    "In order to see IEEE 802.11 headers or to see radio information for captured packets, "
     "it might be necessary to turn this option on.\n\n"
     "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.");
   gtk_box_pack_start (GTK_BOX(left_vb), monitor_cb, FALSE, FALSE, 0);
@@ -2360,8 +2360,8 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter (model, &iter, path);
   gtk_tree_model_get (model, &iter, CAPTURE, &enabled, IFACE_HIDDEN_NAME, &name, -1);
-  /* Look for the right interface. The number of interfaces shown might be less 
-   * than the real number. Therefore the path index does not correspond 
+  /* Look for the right interface. The number of interfaces shown might be less
+   * than the real number. Therefore the path index does not correspond
    * necessarily to the position in the list */
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
@@ -2571,7 +2571,7 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
                 gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, pipe_name, -1);
                 gtk_entry_set_text(GTK_ENTRY(pipe_te), pipe_name);
                 break;
-              } 
+              }
             } while (gtk_tree_model_iter_next(model, &iter));
             g_free(optname);
           }
@@ -2636,7 +2636,7 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
             gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, pipe_name, -1);
             gtk_entry_set_text(GTK_ENTRY(pipe_te), pipe_name);
             break;
-          } 
+          }
         } while (gtk_tree_model_iter_next(model, &iter));
         g_free(optname);
       }
@@ -2908,7 +2908,7 @@ fill_local_list(void)
   GtkListStore  *store;
   GtkTreeView   *local_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_LOCAL_L_KEY));
 
-  store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_BOOLEAN); 
+  store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_BOOLEAN);
 
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
@@ -2943,7 +2943,7 @@ static void local_hide_cb(GtkCellRendererToggle *cell _U_,
   }
 }
 
-static void 
+static void
 apply_local_cb(GtkWidget *win _U_, gpointer *data _U_)
 {
   GtkTreeIter    iter;
@@ -3004,7 +3004,7 @@ capture_dlg_refresh_if(void)
   create_and_fill_model(GTK_TREE_VIEW(view));
 }
 
-static void 
+static void
 rescan_local_cb(GtkWidget *button _U_, gpointer *data _U_)
 {
   /* Refresh all places that are displaying an interface list
@@ -3088,7 +3088,7 @@ static void remote_hide_cb(GtkCellRendererToggle *cell _U_,
   }
 }
 
-static void 
+static void
 ok_remote_cb(GtkWidget *win _U_, gpointer *data _U_)
 {
   GtkTreeIter    iter, child;
@@ -3130,7 +3130,7 @@ ok_remote_cb(GtkWidget *win _U_, gpointer *data _U_)
   refresh_non_local_interface_lists();
 }
 
-static gboolean 
+static gboolean
 select_host_cb(GtkTreeSelection *selection _U_,
                GtkTreeModel *model,
                GtkTreePath *path,
@@ -3189,7 +3189,7 @@ remove_remote_host(GtkWidget *w _U_, gpointer data _U_)
        that includes interfaces other than local interfaces
        (such as remote interfaces). */
     refresh_non_local_interface_lists();
-  } 
+  }
 }
 #endif
 
@@ -4566,32 +4566,32 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
     }
     switch (col)
     {
-      case 0: g_snprintf (buffer, 511, "Choose which interface (network adapter) will be used to capture packets from. "
+      case 0: g_snprintf (buffer, sizeof(buffer), "Choose which interface (network adapter) will be used to capture packets from. "
                 "Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
               break;
-      case 2: g_snprintf (buffer, 511, "Lists the interface name and the IP address(es) assigned to it. ");
+      case 2: g_snprintf (buffer, sizeof(buffer), "Lists the interface name and the IP address(es) assigned to it. ");
               break;
-      case 3: g_snprintf (buffer, 511, "Link-layer type the interface supports.");
+      case 3: g_snprintf (buffer, sizeof(buffer), "Link-layer type the interface supports.");
               break;
-      case 4: g_snprintf (buffer, 511, "Usually a network adapter will only capture the traffic sent to its own network address. "
+      case 4: g_snprintf (buffer, sizeof(buffer), "Usually a network adapter will only capture the traffic sent to its own network address. "
                 "If you want to capture all traffic that the network adapter can \"see\", promiscuous mode should be configured.");
               break;
-      case 5: g_snprintf(buffer, 511, "Limit the maximum number of bytes to be captured from each packet. This size includes the "
-                "link-layer header and all subsequent headers. ");
+      case 5: g_snprintf(buffer, sizeof(buffer), "Limit the maximum number of bytes to be captured from each packet. This size includes the "
+                "link-layer header and all subsequent headers.");
               break;
-      case 6: g_snprintf (buffer, 511, "The memory buffer size used while capturing."
-                "If you notice packet drops, you can try to increase this size.");
+      case 6: g_snprintf (buffer, sizeof(buffer), "The memory buffer size used while capturing. "
+                "If you notice packet drops, you can try increasing this size.");
               break;
-      case 7: g_snprintf (buffer, 511, "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
+      case 7: g_snprintf (buffer, sizeof(buffer), "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
                 "the traffic on the BSS to which it's associated. "
-                "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option."
-                "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
+                "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", select this option. "
+                "In order to see IEEE 802.11 headers or to see radio information for captured packets, "
                 "it might be necessary to turn this option on.\n\n"
-                "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated. mode");
+                "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.");
               break;
-      case 8: g_snprintf(buffer, 511, "Selected capture filter to reduce the amount of packets to be captured.");
+      case 8: g_snprintf(buffer, sizeof(buffer), "Selected capture filter to reduce the amount of packets to be captured.");
               break;
-      default: g_snprintf(buffer, 511, "another option");
+      default: g_snprintf(buffer, sizeof(buffer), "another option");
     }
 
     gtk_tooltip_set_markup (tooltip, buffer);
