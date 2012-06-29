@@ -199,7 +199,7 @@ static const range_string dsmcc_adaptation_header_vals[] = {
 	{ 0x01, 0x01, "DSM-CC Conditional Access Adaptation Format" },
 	{ 0x02, 0x02, "DSM-CC User ID Adaptation Format" },
 	{ 0x03, 0x7f, "ISO/IEC 13818-6 Reserved" },
-	{ 0x80, 0xff, "User Defeined Adaption Type" },
+	{ 0x80, 0xff, "User Defined Adaptation Type" },
 	{    0,    0, NULL }
 };
 

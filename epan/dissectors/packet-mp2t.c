@@ -1318,7 +1318,7 @@ proto_register_mp2t(void)
 			FT_UINT32, BASE_HEX, VALS(mp2t_tsc_vals), MP2T_TSC_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_afc, {
-			"Adaption Field Control", "mp2t.afc",
+			"Adaptation Field Control", "mp2t.afc",
 			FT_UINT32, BASE_HEX, VALS(mp2t_afc_vals) , MP2T_AFC_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_cc, {
@@ -1345,7 +1345,7 @@ proto_register_mp2t(void)
 			"Discontinuity: A number of TS frames were dropped", HFILL
 		} } ,
 		{ &hf_mp2t_af, {
-			"Adaption field", "mp2t.af",
+			"Adaptation Field", "mp2t.af",
 			FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_length, {
