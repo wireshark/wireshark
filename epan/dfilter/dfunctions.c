@@ -66,7 +66,9 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
         arg_fvalue = (fvalue_t *)arg1->data; 
         switch (fvalue_ftype(arg_fvalue)->ftype) {
             case FT_STRING:
-                s = (char *)ep_strdup(fvalue_get((fvalue_t *)arg1->data));
+            case FT_STRINGZ:
+            case FT_UINT_STRING:
+                s = (char *)ep_strdup(fvalue_get(arg_fvalue));
                 for (c = s; *c; c++) {
                         /**c = string_ascii_to_lower(*c);*/
                         *c = conv_func(*c);
