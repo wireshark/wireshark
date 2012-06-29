@@ -27,7 +27,11 @@
 
 #include "iface_monitor.h"
 
-#ifdef HAVE_LIBNL
+#if defined(HAVE_LIBNL)
+
+/*
+ * Linux with libnl.
+ */
 
 #include <stdio.h>
 #include <strings.h>
@@ -81,6 +85,17 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
     flags = rtnl_link_get_flags (link_obj);
     ifname = rtnl_link_get_name(link_obj);
 
+    /*
+     * You can't bind a PF_PACKET socket to an interface that's not
+     * up, so an interface going down is an "interface should be
+     * removed" indication.
+     *
+     * XXX - what indication, if any, do we get if the interface
+     * *completely goes away*?
+     *
+     * XXX - can we get events if an interface's link-layer or
+     * network addresses change?
+     */
     up = (flags & IFF_UP) ? 1 : 0;
 
     cb(ifname, up);
@@ -95,36 +110,6 @@ iface_mon_handler(struct nl_msg *msg, void *arg)
 {
     nl_msg_parse (msg, &iface_mon_handler2, arg);
     return 0;
-}
-
-static int
-iface_mon_nl_init(void *arg)
-{
-    int err;
-
-    iface_mon_sock = nl_socket_alloc();
-    if (!iface_mon_sock) {
-        fprintf(stderr, "Failed to allocate netlink socket.\n");
-        return -ENOMEM;
-    }
-
-    nl_socket_disable_seq_check(iface_mon_sock);
-
-    nl_socket_modify_cb(iface_mon_sock, NL_CB_VALID, NL_CB_CUSTOM, iface_mon_handler, arg);
-
-    if (nl_connect(iface_mon_sock, NETLINK_ROUTE)) {
-        fprintf(stderr, "Failed to connect to generic netlink.\n");
-        err = -ENOLINK;
-        goto out_handle_destroy;
-    }
-
-    nl_socket_add_membership(iface_mon_sock, RTNLGRP_LINK);
-
-    return 0;
-
-out_handle_destroy:
-    nl_socket_free(iface_mon_sock);
-    return err;
 }
 
 void
@@ -142,7 +127,31 @@ iface_mon_get_sock(void)
 int
 iface_mon_start(iface_mon_cb cb)
 {
-    return iface_mon_nl_init(cb);
+    int err;
+
+    iface_mon_sock = nl_socket_alloc();
+    if (!iface_mon_sock) {
+        fprintf(stderr, "Failed to allocate netlink socket.\n");
+        return -ENOMEM;
+    }
+
+    nl_socket_disable_seq_check(iface_mon_sock);
+
+    nl_socket_modify_cb(iface_mon_sock, NL_CB_VALID, NL_CB_CUSTOM, iface_mon_handler, cb);
+
+    if (nl_connect(iface_mon_sock, NETLINK_ROUTE)) {
+        fprintf(stderr, "Failed to connect to generic netlink.\n");
+        err = -ENOLINK;
+        goto out_handle_destroy;
+    }
+
+    nl_socket_add_membership(iface_mon_sock, RTNLGRP_LINK);
+
+    return 0;
+
+out_handle_destroy:
+    nl_socket_free(iface_mon_sock);
+    return err;
 }
 
 void
@@ -153,7 +162,184 @@ iface_mon_stop(void)
     iface_mon_sock = NULL;
 }
 
-#else /* HAVE_LIBNL */
+#elif defined(__APPLE__)
+
+/*
+ * OS X.
+ */
+
+#include <stddef.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <net/if.h>
+#include <sys/kern_event.h>
+
+#include <glib.h>
+
+static int s;
+static iface_mon_cb callback;
+
+int
+iface_mon_start(iface_mon_cb cb)
+{
+    int ret;
+    struct kev_request key;
+
+    /* Create a socket of type PF_SYSTEM to listen for events. */
+    s = socket(PF_SYSTEM, SOCK_RAW, SYSPROTO_EVENT);
+    if (s == -1)
+        return -errno;
+
+    /*
+     * Ask for DLIL messages.
+     *
+     * XXX - also ask for KEV_INET_SUBCLASS and KEV_INET6_SUBCLASS,
+     * to detect new or changed network addresses, so those can be
+     * updated as well?  Can we specify multiple filters on a socket,
+     * or must we specify KEV_ANY_SUBCLASS and filter the events after
+     * receiving them?
+     */
+    key.vendor_code = KEV_VENDOR_APPLE;
+    key.kev_class = KEV_NETWORK_CLASS;
+    key.kev_subclass = KEV_DL_SUBCLASS;
+    if (ioctl(s, SIOCSKEVFILT, &key) == -1) {
+        ret = -errno;
+        close(s);
+        return ret;
+    }
+
+    callback = cb;
+    return 0;
+}
+
+void
+iface_mon_stop(void)
+{
+    close(s);
+}
+
+int
+iface_mon_get_sock(void)
+{
+    return s;
+}
+
+/*
+ * Size of buffer for kernel network event.
+ */
+#define NET_EVENT_DATA_SIZE	(KEV_MSG_HEADER_SIZE + sizeof (struct net_event_data))
+
+void
+iface_mon_event(void)
+{
+    char msg[NET_EVENT_DATA_SIZE];
+    ssize_t received;
+    struct kern_event_msg *kem;
+    struct net_event_data *evd;
+    int evd_len;
+    char ifr_name[IFNAMSIZ];
+
+    received = recv(s, msg, sizeof msg, 0);
+    if (received < 0) {
+        /* Error - ignore. */
+        return;
+    }
+    if ((size_t)received < sizeof msg) {
+        /* Short read - ignore. */
+        return;
+    }
+    kem = (struct kern_event_msg *)msg;
+    evd_len = kem->total_size - KEV_MSG_HEADER_SIZE;
+    if (evd_len != sizeof (struct net_event_data)) {
+        /* Length of the message is bogus. */
+        return;
+    }
+    evd = (struct net_event_data *)&kem->event_data[0];
+    g_snprintf(ifr_name, IFNAMSIZ, "%s%u", evd->if_name, evd->if_unit);
+
+    /*
+     * Check type of event.
+     *
+     * Note: if we also ask for KEV_INET_SUBCLASS, we will get
+     * events with keys
+     *
+     *    KEV_INET_NEW_ADDR
+     *    KEV_INET_CHANGED_ADDR
+     *    KEV_INET_CHANGED_ADDR
+     *    KEV_INET_SIFDSTADDR
+     *    KEV_INET_SIFBRDADDR
+     *    KEV_INET_SIFNETMASK
+     *
+     * reflecting network address changes, with the data being a
+     * struct kev_in_data rather than struct net_event_data, and
+     * if we also ask for KEV_INET6_SUBCLASS, we will get events
+     * with keys
+     *
+     *    KEV_INET6_NEW_LL_ADDR
+     *    KEV_INET6_NEW_USER_ADDR
+     *    KEV_INET6_NEW_RTADV_ADDR
+     *    KEV_INET6_ADDR_DELETED
+     *
+     * with the data being a struct kev_in6_data.
+     */
+    switch (kem->event_code) {
+
+    case KEV_DL_IF_ATTACHED:
+        /*
+         * A new interface has arrived.
+         *
+         * XXX - what we really want is "a new BPFable interface
+         * has arrived", but that's not available.  While we're
+         * asking for additional help from BPF, it'd also be
+         * nice if we could ask it for a list of all interfaces
+         * that have had bpfattach()/bpf_attach() done on them,
+         * so we don't have to try to open the device in order
+         * to see whether we should show it as something on
+         * which we can capture.
+         */
+        callback(ifr_name, 1);
+        break;
+
+    case KEV_DL_IF_DETACHED:
+        /*
+         * An existing interface has been removed.
+         *
+         * XXX - use KEV_DL_IF_DETACHING instead, as that's
+         * called shortly after bpfdetach() is called, and
+         * bpfdetach() makes an interface no longer BPFable,
+         * and that's what we *really* care about.
+         */
+        callback(ifr_name, 0);
+        break;
+
+    default:
+        /*
+         * Is there any reason to care about:
+         *
+         *    KEV_DL_LINK_ON
+         *    KEV_DL_LINK_OFF
+         *    KEV_DL_SIFFLAGS
+         *    KEV_DL_LINK_ADDRESS_CHANGED
+         *    KEV_DL_IFCAP_CHANGED
+         *
+         * or any of the other events?  On Snow Leopard and, I think,
+         * earlier releases, you can't attach a BPF device to an
+         * interface that's not up, so KEV_DL_SIFFLAGS might be
+         * worth listening to so that we only say "here's a new
+         * interface" when it goes up; on Lion (and possibly Mountain
+         * Lion), an interface doesn't have to be up in order to
+         * have a BPF device attached to it.
+	 */
+        break;
+    }
+}
+
+#else /* don't have something we support */
 
 int
 iface_mon_start(iface_mon_cb cb _U_)
