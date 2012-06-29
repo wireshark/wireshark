@@ -1,5 +1,6 @@
 /* capture_dlg.c
- * Routines for packet capture windows
+ * Routines for the "Capture Options" dialog and dialog windows popped
+ * up from it
  *
  * $Id$
  *

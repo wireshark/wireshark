@@ -1,5 +1,6 @@
 /* capture_dlg.h
- * Definitions for packet capture windows
+ * Definitions for the "Capture Options" dialog and dialog windows popped
+ * up from it
  *
  * $Id$
  *
