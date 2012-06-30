@@ -3668,6 +3668,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   view = gtk_tree_view_new ();
   gtk_tree_view_set_rules_hint(GTK_TREE_VIEW (view), TRUE);
   g_signal_connect(view, "row-activated", G_CALLBACK(options_interface_cb), (gpointer)cap_open_w);
+
   toggle_renderer = gtk_cell_renderer_toggle_new();
   column = gtk_tree_view_column_new_with_attributes("Capture", GTK_CELL_RENDERER(toggle_renderer), "active", CAPTURE, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
@@ -3682,6 +3683,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                                NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_visible(column, FALSE);
+
   renderer = gtk_cell_renderer_text_new ();
   gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW (view), -1, "Interface", renderer, "markup", INTERFACE, NULL);
   column = gtk_tree_view_get_column(GTK_TREE_VIEW (view), INTERFACE);
