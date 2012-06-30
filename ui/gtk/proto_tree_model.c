@@ -34,6 +34,7 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
+#include <epan/addr_resolv.h>
 #include <epan/proto.h>
 
 static GObjectClass *parent_class = NULL;
@@ -51,6 +52,9 @@ struct proto_tree_model {
 
 	proto_tree *protocol_tree;
 	int with_hidden;
+
+	gboolean resolv_forced;
+	guint32 resolv_flags;
 };
 
 #include "proto_tree_model.h"
@@ -195,9 +199,19 @@ proto_tree_model_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint col
 
 	switch (column) {
 		case 0:
+		{
 			g_value_init(value, G_TYPE_STRING);
-			g_value_take_string(value, fi_get_string(fi));
+			if (model->resolv_forced) {
+				guint32 old_flags = gbl_resolv_flags;
+
+				gbl_resolv_flags = model->resolv_flags;
+				g_value_take_string(value, fi_get_string(fi));
+				gbl_resolv_flags = old_flags;
+
+			} else
+				g_value_take_string(value, fi_get_string(fi));
 			break;
+		}
 
 		case 1:
 			g_value_init(value, G_TYPE_POINTER);
@@ -440,6 +454,13 @@ proto_tree_model_get_type(void)
 	return proto_tree_type;
 }
 
+void 
+proto_tree_model_force_resolv(ProtoTreeModel *model, guint32 flags)
+{
+	model->resolv_forced = TRUE;
+	model->resolv_flags  = flags;
+}
+
 ProtoTreeModel *
 proto_tree_model_new(proto_tree *protocol_tree, int display_hidden_proto_items)
 {
@@ -449,7 +470,8 @@ proto_tree_model_new(proto_tree *protocol_tree, int display_hidden_proto_items)
 
 	g_assert(model != NULL);
 	model->protocol_tree = protocol_tree;
-	model->with_hidden = display_hidden_proto_items;
+	model->with_hidden   = display_hidden_proto_items;
+	model->resolv_forced = FALSE;
 
 	return model;
 }

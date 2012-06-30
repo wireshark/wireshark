@@ -916,12 +916,8 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
 }
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
-    if (cfile.edt->tree) {
-        guint32 tmp = gbl_resolv_flags;
-        gbl_resolv_flags = RESOLV_ALL;
-        proto_tree_draw(cfile.edt->tree, tree_view_gbl);
-        gbl_resolv_flags = tmp;
-    }
+    if (cfile.edt->tree)
+        proto_tree_draw_resolve(cfile.edt->tree, tree_view_gbl, RESOLV_ALL);
 }
 
 /* Update main window items based on whether there's a capture in progress. */

@@ -192,6 +192,8 @@ extern GtkWidget * proto_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p);
  */
 extern void proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view);
 
+extern void proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, guint32 resolv);
+
 /** Expand the whole tree view.
  *
  * @param protocol_tree the currently dissected protocol tree

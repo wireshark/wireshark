@@ -2131,6 +2131,19 @@ expand_finfos(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointe
     return FALSE;
 }
 
+void 
+proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, guint32 resolv)
+{
+    ProtoTreeModel *model;
+
+    model = proto_tree_model_new(protocol_tree, prefs.display_hidden_proto_items);
+    proto_tree_model_force_resolv(PROTO_TREE_MODEL(model), resolv);
+    gtk_tree_view_set_model(GTK_TREE_VIEW(tree_view), GTK_TREE_MODEL(model));
+
+    gtk_tree_model_foreach(GTK_TREE_MODEL(model), expand_finfos, GTK_TREE_VIEW(tree_view));
+    g_object_unref(G_OBJECT(model));
+}
+
 /* fill the whole protocol tree with the string values */
 void
 proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
