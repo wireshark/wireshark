@@ -98,7 +98,7 @@ then
 	#
 	exitstatus=$?
 	echo "${LEX} failed: exit status $exitstatus"
-	exit $?
+	exit $exitstatus
 fi
 
 #
