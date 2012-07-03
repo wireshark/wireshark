@@ -324,6 +324,9 @@ endif
 # It is not actually a superset: gmodule is included in GLIB_LIBS but
 # not in GTK_LIBS (unless accidentally on older glibs/gtks)."
 #
+# although it's also possible that -lgmodule is in GTK_LIBS but not
+# GLIB_LIBS (that's the case on my machine right now, for example).
+#
 wireshark_LDADD = \
 	ui/gtk/libgtkui.a		\
 	ui/gtk/libgtkui_dirty.a		\
