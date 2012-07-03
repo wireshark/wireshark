@@ -9,8 +9,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from README.developer
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -65,9 +63,12 @@
 #include <epan/expert.h>
 
 #include <epan/prefs.h>
-#include "packet-frame.h"
-#include "packet-x11-keysymdef.h"
 #include <epan/emem.h>
+
+#include "packet-frame.h"
+
+#include "packet-x11-keysymdef.h"
+#include "packet-x11.h"
 
 #define cVALS(x) (const value_string*)(x)
 
@@ -551,7 +552,7 @@ static const value_string key_vals[] = {
       { 0, NULL }
 };
 
-#include "packet-x11-keysym.h"
+#include "x11-keysym.h"
 
 static const value_string line_style_vals[] = {
       { 0, "Solid" },
@@ -1581,8 +1582,6 @@ static void listOfColorItem(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       }
 }
 
-static GTree *keysymTable = NULL;
-
 static gint compareGuint32(gconstpointer a, gconstpointer b)
 {
       return GPOINTER_TO_INT(b) - GPOINTER_TO_INT(a);
@@ -1871,18 +1870,24 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 
 static const char *keysymString(guint32 v)
 {
+#if 0  /* XXX: Use of GTree no longer needed; use value_string_ext */
+      static GTree *keysymTable = NULL;
+
       gpointer res;
       if (!keysymTable) {
 
             /* This table is so big that we built it only if necessary */
-
-            const value_string *p = keysym_vals_source;
+            const value_string *p = x11_keysym_vals_source;
             keysymTable = g_tree_new(compareGuint32);
             for(; p -> strptr; p++)
                   g_tree_insert(keysymTable, GINT_TO_POINTER(p -> value), (gpointer) (p -> strptr) );
       }
       res = g_tree_lookup(keysymTable, GINT_TO_POINTER(v));
       return res ? res : "<Unknown>";
+#endif
+
+      return val_to_str_ext_const(v, &x11_keysym_vals_source_ext, "<Unknown>");
+
 }
 
 static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
@@ -2892,15 +2897,15 @@ guess_byte_ordering(tvbuff_t *tvb, packet_info *pinfo,
                 decision = ENC_LITTLE_ENDIAN;
             else {
                 if (tvb_get_letohs(tvb, 2) <= tvb_get_ntohs(tvb, 2))
-                    decision = ENC_LITTLE_ENDIAN;
+                      decision = ENC_LITTLE_ENDIAN;
                 else
-		    decision = ENC_BIG_ENDIAN;
-	    }
+                      decision = ENC_BIG_ENDIAN;
+            }
       } else {
-      	  if (le >= be)
-      	      decision = ENC_LITTLE_ENDIAN;
-      	  else
-      	      decision = ENC_BIG_ENDIAN;
+            if (le >= be)
+                  decision = ENC_LITTLE_ENDIAN;
+            else
+                  decision = ENC_BIG_ENDIAN;
       }
 
       if ((le < 0 && be > 0) || (le > 0 && be < 0)) {
@@ -5685,3 +5690,15 @@ proto_reg_handoff_x11(void)
       dissector_add_uint("tcp.port", TCP_PORT_X11_3, x11_handle);
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 6
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=6 tabstop=8 expandtab:
+ * :indentSize=6:tabSize=8:noTabs=true:
+ */

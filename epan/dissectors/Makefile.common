@@ -1496,8 +1496,9 @@ DISSECTOR_INCLUDES =	\
 	packet-wsp.h	\
 	packet-wtls.h	\
 	packet-wtp.h	\
-	packet-x11-keysym.h	\
+	packet-x11.h	\
 	packet-x11-keysymdef.h	\
+	x11-keysym.h	\
 	x11-declarations.h	\
 	x11-register-info.h	\
 	x11-extension-implementation.h	\

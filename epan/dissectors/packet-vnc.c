@@ -53,8 +53,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include "packet-x11-keysym.h" /* This contains the X11 value_string
-				* "keysym_vals_source" that VNC also uses. */
+#include "packet-x11.h" /* This contains the extern for the X11 value_string_ext
+			 * "x11_keysym_vals_source_ext" that VNC uses. */
 
 typedef enum {
 	VNC_SECURITY_TYPE_INVALID       =  0,
@@ -2913,7 +2913,7 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_key,
 		  { "Key", "vnc.key",
-		    FT_UINT32, BASE_HEX, VALS(keysym_vals_source), 0x0, /* keysym_vals_source is from packet-x11-keysym.h */
+		    FT_UINT32, BASE_HEX | BASE_EXT_STRING, &x11_keysym_vals_source_ext, 0x0, /* keysym_vals_source_exr is from packet-x11.c */
 		    "Key being pressed/depressed", HFILL }
 		},
 
