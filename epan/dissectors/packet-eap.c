@@ -529,18 +529,21 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
   /* Rest of EAP-SIM data is in Type-Len-Value format. */
   while (left >= 2) {
-    guint8 length;
+    guint8 type, length;
     proto_item *pi;
     proto_tree *attr_tree;
     int aoffset;
     gint aleft;
     aoffset = offset;
+    type = tvb_get_guint8(tvb, aoffset);
     length = tvb_get_guint8(tvb, aoffset + 1);
     aleft = 4 * length;
 
-    pi = proto_tree_add_item(eap_tree, hf_eap_sim_subtype_attribute, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_none_format(eap_tree, hf_eap_sim_subtype_attribute, tvb,
+                                    aoffset, aleft, "EAP-SIM Attribute: %s (%d)",
+                                    val_to_str_const(type, eap_sim_aka_attribute_vals, "Unknown"), type);
     attr_tree = proto_item_add_subtree(pi, ett_eap_sim_attr);
-    proto_tree_add_item(attr_tree, hf_eap_sim_subtype_type, tvb, aoffset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(attr_tree, hf_eap_sim_subtype_type, tvb, aoffset, 1, type);
     aoffset++;
     aleft--;
 
@@ -573,18 +576,21 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
   /* Rest of EAP-AKA data is in Type-Len-Value format. */
   while (left >= 2) {
-    guint8 length;
+    guint8 type, length;
     proto_item *pi;
     proto_tree *attr_tree;
     int aoffset;
     gint aleft;
     aoffset = offset;
+    type = tvb_get_guint8(tvb, aoffset);
     length = tvb_get_guint8(tvb, aoffset + 1);
     aleft = 4 * length;
 
-    pi = proto_tree_add_item(eap_tree, hf_eap_aka_subtype_attribute, tvb, aoffset, aleft, ENC_BIG_ENDIAN);
+    pi = proto_tree_add_none_format(eap_tree, hf_eap_aka_subtype_attribute, tvb,
+                                    aoffset, aleft, "EAP-AKA Attribute: %s (%d)",
+                                    val_to_str_const(type, eap_sim_aka_attribute_vals, "Unknown"), type);
     attr_tree = proto_item_add_subtree(pi, ett_eap_aka_attr);
-    proto_tree_add_item(attr_tree, hf_eap_aka_subtype_type, tvb, aoffset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_uint(attr_tree, hf_eap_aka_subtype_type, tvb, aoffset, 1, type);
     aoffset++;
     aleft--;
 
@@ -1271,11 +1277,11 @@ proto_register_eap(void)
       "EAP-SIM Reserved", "eap.sim.reserved", FT_UINT16, BASE_HEX,
       NULL, 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_attribute, {
-      "EAP-SIM Attribute", "eap.sim.subtype.attribute", FT_UINT8, BASE_DEC,
-      VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
+      "EAP-SIM Attribute", "eap.sim.subtype.attribute", FT_NONE, BASE_NONE,
+      NULL, 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_type, {
       "EAP-SIM Type", "eap.sim.subtype.type", FT_UINT8, BASE_DEC,
-      NULL, 0x0, NULL, HFILL }},
+      VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
     { &hf_eap_sim_subtype_length, {
       "EAP-SIM Length", "eap.sim.subtype.len", FT_UINT8, BASE_DEC,
       NULL, 0x0, NULL, HFILL }},
@@ -1289,11 +1295,11 @@ proto_register_eap(void)
       "EAP-AKA Reserved", "eap.aka.reserved", FT_UINT16, BASE_HEX,
       NULL, 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_attribute, {
-      "EAP-AKA Attribute", "eap.aka.subtype.attribute", FT_UINT8, BASE_DEC,
-      VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
+      "EAP-AKA Attribute", "eap.aka.subtype.attribute", FT_NONE, BASE_NONE,
+      NULL, 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_type, {
       "EAP-AKA Type", "eap.aka.subtype.type", FT_UINT8, BASE_DEC,
-      NULL, 0x0, NULL, HFILL }},
+      VALS(eap_sim_aka_attribute_vals), 0x0, NULL, HFILL }},
     { &hf_eap_aka_subtype_length, {
       "EAP-AKA Length", "eap.aka.subtype.len", FT_UINT8, BASE_DEC,
       NULL, 0x0, NULL, HFILL }},
