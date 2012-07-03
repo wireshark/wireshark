@@ -1200,7 +1200,7 @@ static const value_string x11_keysym_vals_source[] = {
       { 0xFF21, "Kanji" },
       { 0xFF22, "Muhenkan" },
       /** { 0xFF23, "Henkan" },**/
-      { 0xFF23, "Henkan_Mode" }, // ??
+      { 0xFF23, "Henkan_Mode" },
       { 0xFF24, "Romaji" },
       { 0xFF25, "Hiragana" },
       { 0xFF26, "Katakana" },
