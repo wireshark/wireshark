@@ -37,7 +37,9 @@
 #include <strings.h>
 #include <errno.h>
 
+#if defined(HAVE_LIBNL1) || defined(HAVE_LIBNL2)
 #include <net/if.h>
+#endif
 
 #include <netlink/msg.h>
 #include <netlink/attr.h>
