@@ -1318,6 +1318,9 @@ sub checkAddTextCalls($$)
         my $okay_add_text_count = 0;
         my $add_xxx_count = 0;
 
+	# The 3 loops here are slow, but trying a single loop with capturing
+	# parenthesis is even slower!
+
         # First count how many proto_tree_add_text() calls there are in total
         while (${$fileContentsRef} =~ m/ \W* proto_tree_add_text \W* \( /gox) {
                 $add_text_count++;
@@ -1406,6 +1409,40 @@ sub check_snprintf_plus_strlen($$)
                 }
         }
 }
+
+sub check_proto_tree_add_XXX_encoding($$)
+{
+        my ($fileContentsRef, $filename) = @_;
+        my @items;
+
+        @items = (${$fileContentsRef} =~ m/ (proto_tree_add_[_a-z0-9]+) \( ([^;]*) \) \s* ; /xsg);
+
+	while (@items) {
+		my ($func) = @items;
+		shift @items;
+		my ($args) = @items;
+		shift @items;
+
+		# Remove anything inside parenthesis in the arguments so we
+		# don't get false positives when someone calls
+		# proto_tree_add_XXX(..., tvb_YYY(..., ENC_ZZZ))
+		$args =~ s/\(.*\)//g;
+
+		if ($args =~ /,\s*ENC_/xos) {
+			if (!($func =~ /proto_tree_add_(item|bitmask|bits_item|bits_ret_val)/xos)
+			   ) {
+				print STDERR "Warning: ".$filename." uses $func with ENC_*.\n";
+
+				# Print out the function args to make it easier
+				# to find the offending code.  But first make
+				# it readable by eliminating extra white space.
+				$args =~ s/\s+/ /g;
+				print STDERR "\tArgs: " . $args . "\n";
+			}
+		}
+	}
+}
+
 
 # Verify that all declared ett_ variables are registered.
 # Don't bother trying to check usage (for now)...
@@ -1764,6 +1801,8 @@ while ($_ = $ARGV[0])
         if (! $buildbot_flag) {
                 checkAddTextCalls(\$fileContents, $filename);
         }
+
+	check_proto_tree_add_XXX_encoding(\$fileContents, $filename);
 
         # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {
