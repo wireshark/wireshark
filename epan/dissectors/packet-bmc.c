@@ -170,7 +170,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     guint8      future_extension_bitmap;
     guint8      length_of_serial_number_list;
     guint8      entry;
-    guint8      mask, bit;
+    guint8      bit;
     proto_tree *message_description_tree;
     proto_item *ti;
 
@@ -194,7 +194,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     bit=1;
     for (i=0; i<new_message_bitmap_len; i++) {
-        for(mask=1; bit<=length_of_cbs_schedule_period; mask<<=1, bit++) {
+        for(; bit<=length_of_cbs_schedule_period; bit++) {
             message_description_type = tvb_get_guint8(tvb,offset);
             proto_tree_add_uint_format(message_description_tree, hf_bmc_message_description_type,
                                        tvb, offset, 1, message_description_type,
