@@ -2865,11 +2865,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_tlvType, tvb,
                         PTP_V2_SIG_TARGETPORTID_OFFSET+2, 2, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_lengthField, tvb,
-                        PTP_V2_SIG_TARGETPORTID_OFFSET+4, 2, ENC_BIG_ENDIAN);
-
-                    /*tlv_type = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_TYPE_OFFSET);*/
-                    tlv_length = tvb_get_ntohs (tvb, PTP_V2_MM_TLV_LENGTHFIELD_OFFSET);
+                    tlv_length = tvb_get_ntohs(tvb, PTP_V2_SIG_TARGETPORTID_OFFSET+4);
+                    proto_tree_add_uint(ptp_tree, hf_ptp_v2_mm_lengthField, tvb,
+                        PTP_V2_SIG_TARGETPORTID_OFFSET+4, 2, tlv_length);
 
                     if (tlv_length <= 2)
                     {
@@ -2877,7 +2875,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         break;
                     }
                     /* ToDO: Add dissector for TLVs and allow multiple TLVs */
-                    proto_tree_add_text(ptp_tree, tvb, PTP_V2_SIG_TARGETPORTID_OFFSET+6, tlv_length, "Data");
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_data, tvb,
+                        PTP_V2_SIG_TARGETPORTID_OFFSET+6, tlv_length, ENC_NA);
                 }
                 break;
             }
@@ -2929,7 +2928,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             break;
                         }
 
-                        managementData_ti = proto_tree_add_text(ptp_tree, tvb, Offset, tlv_length, "Data");
+                        managementData_ti = proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_data, tvb, Offset, tlv_length, ENC_NA);
 
                         /* data field of the management message (subtree)*/
                         ptp_managementData_tree = proto_item_add_subtree(managementData_ti, ett_ptp_v2_managementData);
