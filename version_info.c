@@ -154,6 +154,18 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 	g_string_append(str, "without POSIX capabilities");
 #endif /* HAVE_LIBCAP */
 
+	/* LIBNL */
+	g_string_append(str, ", ");
+#if defined(HAVE_LIBNL1)
+	g_string_append(str, "with libnl 1");
+#elif defined(HAVE_LIBNL2)
+	g_string_append(str, "with libnl 2");
+#elif defined(HAVE_LIBNL3)
+	g_string_append(str, "with libnl 3");
+#else
+	g_string_append(str, "without libnl");
+#endif
+
 	/* Additional application-dependent information */
 	if (append_info)
 		(*append_info)(str);
