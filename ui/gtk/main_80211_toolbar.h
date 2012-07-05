@@ -25,6 +25,10 @@
 #ifndef __80211_TOOLBAR_H__
 #define __80211_TOOLBAR_H__
 
-GtkWidget *ws80211_toolbar_new(void);
+GtkWidget
+*ws80211_toolbar_new(void);
+
+void
+tb80211_refresh_interfaces(void);
 
 #endif

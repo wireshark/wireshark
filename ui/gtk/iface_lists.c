@@ -42,6 +42,7 @@
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/capture_globals.h"
 #include "ui/gtk/main_welcome.h"
+#include "ui/gtk/main_80211_toolbar.h"
 
 #include "ui/gtk/iface_lists.h"
 
@@ -348,6 +349,9 @@ refresh_local_interface_lists(void)
   /* If the welcome screen is up, refresh its interface list. */
   if (get_welcome_window() != NULL)
     welcome_if_panel_reload();
+
+  /* Refresh the 802.11 toolbar. */
+  tb80211_refresh_interfaces();
 }
 
 /*

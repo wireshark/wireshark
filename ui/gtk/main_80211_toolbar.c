@@ -49,7 +49,7 @@
 #include <ws80211_utils.h>
 #include "capture_sync.h"
 
-static GtkWidget *tb80211_iface_list_box, *tb80211_freq_list_box, *tb80211_chan_type_box, *tb80211_info_label;
+static GtkWidget *tb80211_tb, *tb80211_iface_list_box, *tb80211_freq_list_box, *tb80211_chan_type_box, *tb80211_info_label;
 
 static GArray *tb80211_interfaces;
 static struct ws80211_interface *tb80211_current_iface;
@@ -279,13 +279,16 @@ out_free:
     g_free(active);
 }
 
-static void
-tb80211_update_interfaces(void)
+void
+tb80211_refresh_interfaces(void)
 {
     struct ws80211_interface *iface;
     unsigned int i;
     gboolean same = FALSE;
     gchar *selected_iface = NULL, *info;
+
+    if (!tb80211_tb)
+        return;
 
     if (tb80211_interfaces) {
         selected_iface = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(tb80211_iface_list_box));
@@ -333,7 +336,7 @@ out_free:
 static void
 tb80211_update_iface_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-    tb80211_update_interfaces();
+    tb80211_refresh_interfaces();
 }
 
 static void
@@ -353,7 +356,6 @@ tb80211_add_label(gchar *text, GtkWidget *tb)
 GtkWidget *
 ws80211_toolbar_new(void)
 {
-    GtkWidget     *tb80211_tb;
     GtkToolItem	  *ti;
     int ret;
 
@@ -424,7 +426,7 @@ ws80211_toolbar_new(void)
     if(ret) {
         tb80211_set_info("<b>Failed to initialize ws80211</b>");
     } else {
-        tb80211_update_interfaces();
+        tb80211_refresh_interfaces();
     }
 
     return tb80211_tb;
