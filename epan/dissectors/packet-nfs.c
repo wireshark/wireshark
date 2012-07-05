@@ -8331,8 +8331,6 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 	guint32 bitmap_len;
 	proto_item *fitem = NULL;
 	proto_tree *newftree = NULL;
-	proto_item *op_fitem = NULL;
-	proto_tree *op_newftree = NULL;
 	guint32 *bitmap=NULL;
 	guint32 op;
 	guint32 i;
@@ -8347,7 +8345,7 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 	}
 	tvb_ensure_bytes_exist(tvb, offset, 4 + bitmap_len * 4);
 	fitem = proto_tree_add_text(tree, tvb, offset, 4 + bitmap_len * 4,
-					"%s", "operation mask");
+				    "%s", "operation mask");
 	offset += 4;
 
 	newftree = proto_item_add_subtree(fitem, ett_nfs_bitmap4);
@@ -8361,9 +8359,8 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 		for (j = 0; j < 32; j++) {
 			op = 32 * i + j;
 			if (bitmap[i] & sl) {
-				op_fitem = proto_tree_add_uint(newftree,
-				hf_nfs_op_mask, tvb, offset, 4, op);
-				op_newftree = proto_item_add_subtree(op_fitem, ett_nfs_bitmap4);
+				proto_tree_add_uint(newftree, hf_nfs_op_mask,
+						    tvb, offset, 4, op);
 			}
 			sl <<= 1;
 		}
