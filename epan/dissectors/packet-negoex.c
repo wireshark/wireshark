@@ -363,7 +363,7 @@ dissect_negoex_nego_message(tvbuff_t *tvb,
 static void
 dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 offset;
+  volatile guint32 offset;
   proto_tree * volatile negoex_tree;
   proto_item *tf;
   volatile gboolean done;
