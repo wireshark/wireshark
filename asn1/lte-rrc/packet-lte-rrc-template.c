@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V10.5.0 Release 10) packet dissection
+ * (3GPP TS 36.331 V10.6.0 Release 10) packet dissection
  * Copyright 2008, Vincent Helfre
  *
  * $Id$
@@ -349,8 +349,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_43_val = {
   "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_44_val = {
-  "DCI format 3a; Aperiodic CQI/PMI/RI reporting on PUSCH: Mode 2-0 & 2-2; PUCCH format 2a & 2b; Periodic CQI/PMI/RI reporting on PUCCH: Mode 2-0 & 2-1 - Supported",
-  "DCI format 3a; Aperiodic CQI/PMI/RI reporting on PUSCH: Mode 2-0 & 2-2; PUCCH format 2a & 2b; Periodic CQI/PMI/RI reporting on PUCCH: Mode 2-0 & 2-1 - Not supported"
+  "Undefined - Supported",
+  "Undefined - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_45_val = {
   "Undefined - Supported",

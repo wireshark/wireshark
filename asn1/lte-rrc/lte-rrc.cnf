@@ -245,7 +245,7 @@ if(ue_eutra_cap_tvb){
   tvbuff_t *featureGroupIndRel10_tvb=NULL;
 %(DEFAULT_BODY)s
   if(featureGroupIndRel10_tvb){
-    /* Dissect featureGroupIndicators-v1020 */
+    /* Dissect featureGroupIndRel10-r10 */
     proto_tree *subtree;
     gint curr_bit_offset = 0;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_featureGroupIndRel10);
@@ -319,7 +319,7 @@ if(ue_eutra_cap_tvb){
   tvbuff_t *featureGroupIndRel9Add_tvb=NULL;
 %(DEFAULT_BODY)s
   if(featureGroupIndRel9Add_tvb){
-    /* Dissect featureGroupIndicators */
+    /* Dissect featureGroupIndRel9Add-r9 */
     proto_tree *subtree;
     gint curr_bit_offset = 0;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_featureGroupIndRel9Add);
@@ -393,7 +393,7 @@ if(ue_eutra_cap_tvb){
   tvbuff_t *featureGroupIndicators_tvb=NULL;
 %(DEFAULT_BODY)s
   if(featureGroupIndicators_tvb){
-    /* Dissect featureGroupIndicators */
+    /* Dissect featureGroupIndicators-r9 */
     proto_tree *subtree;
     gint curr_bit_offset = 0;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_featureGroupIndicators);
@@ -467,7 +467,7 @@ if(ue_eutra_cap_tvb){
   tvbuff_t *featureGroupIndRel9Add_tvb=NULL;
 %(DEFAULT_BODY)s
   if(featureGroupIndRel9Add_tvb){
-    /* Dissect featureGroupIndicators */
+    /* Dissect featureGroupIndRel9Add-r9 */
     proto_tree *subtree;
     gint curr_bit_offset = 0;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_featureGroupIndRel9Add);
@@ -534,6 +534,80 @@ if(ue_eutra_cap_tvb){
     proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_63, featureGroupIndRel9Add_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
     proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_64, featureGroupIndRel9Add_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+  }
+
+#.FN_BODY UE-EUTRA-CapabilityAddXDD-Mode-v1060/featureGroupIndRel10-v1060 VAL_PTR = &featureGroupIndRel10_tvb
+  tvbuff_t *featureGroupIndRel10_tvb=NULL;
+%(DEFAULT_BODY)s
+  if(featureGroupIndRel10_tvb){
+    /* Dissect featureGroupIndRel10-v1060 */
+    proto_tree *subtree;
+    gint curr_bit_offset = 0;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_featureGroupIndRel10);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_101, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_102, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_103, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_104, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_105, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_106, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_107, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_108, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_109, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_110, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_111, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_112, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_113, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_114, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_115, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_116, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_117, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_118, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_119, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_120, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_121, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_122, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_123, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_124, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_125, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_126, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_127, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_128, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_129, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_130, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_131, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_132, featureGroupIndRel10_tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset++;
   }
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V10.5.0 (2012-03)﻿
+-- 3GPP TS 36.331 V10.6.0 (2012-06)
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -173,3 +173,5 @@ maxReestabInfo				INTEGER ::= 32	-- Maximum number of KeNB* and shortMAC-I forwa
 
 
 END
+
+

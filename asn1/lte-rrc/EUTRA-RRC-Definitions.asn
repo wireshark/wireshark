@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V10.5.0 (2012-03)﻿
+-- 3GPP TS 36.331 V10.6.0 (2012-06)
 -- $Id$
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -1183,7 +1183,7 @@ SystemInformationBlockType1 ::=		SEQUENCE {
 		q-RxLevMinOffset					INTEGER (1..8)			OPTIONAL	-- Need OP
 	},
 	p-Max								P-Max						OPTIONAL,			-- Need OP
-	freqBandIndicator					INTEGER (1..64),
+	freqBandIndicator					FreqBandIndicator,
 	schedulingInfoList					SchedulingInfoList,
 	tdd-Config							TDD-Config					OPTIONAL,	-- Cond TDD
 	si-WindowLength						ENUMERATED {
@@ -1194,8 +1194,13 @@ SystemInformationBlockType1 ::=		SEQUENCE {
 }
 
 SystemInformationBlockType1-v890-IEs::=	SEQUENCE {
-	lateNonCriticalExtension			OCTET STRING			OPTIONAL,	-- Need OP
+	lateNonCriticalExtension			OCTET STRING (CONTAINING SystemInformationBlockType1-v8h0-IEs)			OPTIONAL,	-- Need OP
 	nonCriticalExtension				SystemInformationBlockType1-v920-IEs	OPTIONAL
+}
+
+SystemInformationBlockType1-v8h0-IEs ::=	SEQUENCE {
+	multiBandInfoList					MultiBandInfoList		OPTIONAL,	-- Need OR
+	nonCriticalExtension				SEQUENCE {}				OPTIONAL	-- Need OP
 }
 
 SystemInformationBlockType1-v920-IEs ::=	SEQUENCE {
@@ -1484,12 +1489,17 @@ SystemInformationBlockType2 ::=		SEQUENCE {
 	mbsfn-SubframeConfigList			MBSFN-SubframeConfigList			OPTIONAL, 	-- Need OR
 	timeAlignmentTimerCommon			TimeAlignmentTimer,
 	...,
-	lateNonCriticalExtension		OCTET STRING						OPTIONAL,	-- Need OP
+	lateNonCriticalExtension		OCTET STRING (CONTAINING SystemInformationBlockType2-v8h0-IEs)						OPTIONAL,	-- Need OP
 	[[	ssac-BarringForMMTEL-Voice-r9		AC-BarringConfig				OPTIONAL,	-- Need OP
 		ssac-BarringForMMTEL-Video-r9		AC-BarringConfig				OPTIONAL	-- Need OP
 	]],
 	[[	ac-BarringForCSFB-r10				AC-BarringConfig			OPTIONAL	-- Need OP
 	]]
+}
+
+SystemInformationBlockType2-v8h0-IEs ::=	SEQUENCE {
+	multiBandInfoList				SEQUENCE (SIZE (1..maxMultiBands)) OF AdditionalSpectrumEmission	OPTIONAL,	-- Need OR
+	nonCriticalExtension			SEQUENCE {}				OPTIONAL	-- Need OP
 }
 
 AC-BarringConfig ::=				SEQUENCE {
@@ -1571,7 +1581,12 @@ IntraFreqBlackCellList ::=		SEQUENCE (SIZE (1..maxCellBlack)) OF PhysCellIdRange
 SystemInformationBlockType5 ::=		SEQUENCE {
 	interFreqCarrierFreqList			InterFreqCarrierFreqList,
 	...,
-	lateNonCriticalExtension				OCTET STRING				OPTIONAL	-- Need OP
+	lateNonCriticalExtension				OCTET STRING	(CONTAINING SystemInformationBlockType5-v8h0-IEs)				OPTIONAL	-- Need OP
+}
+
+SystemInformationBlockType5-v8h0-IEs ::=	SEQUENCE {
+	interFreqCarrierFreqList-v8h0 SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v8h0				OPTIONAL,	-- Need OP
+	nonCriticalExtension			SEQUENCE {}							OPTIONAL	-- Need OP
 }
 
 InterFreqCarrierFreqList ::=		SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo
@@ -1600,6 +1615,10 @@ InterFreqCarrierFreqInfo ::=	SEQUENCE {
 	]]
 }
 
+InterFreqCarrierFreqInfo-v8h0 ::=		SEQUENCE {
+	multiBandInfoList					MultiBandInfoList				OPTIONAL	-- Need OR
+}
+
 InterFreqNeighCellList ::=			SEQUENCE (SIZE (1..maxCellInter)) OF InterFreqNeighCellInfo
 
 InterFreqNeighCellInfo ::=			SEQUENCE {
@@ -1616,7 +1635,12 @@ SystemInformationBlockType6 ::=		SEQUENCE {
 	t-ReselectionUTRA					T-Reselection,
 	t-ReselectionUTRA-SF				SpeedStateScaleFactors			OPTIONAL,		-- Need OP
 	...,
-	lateNonCriticalExtension			OCTET STRING					OPTIONAL	-- Need OP
+	lateNonCriticalExtension			OCTET STRING	(CONTAINING SystemInformationBlockType6-v8h0-IEs)					OPTIONAL	-- Need OP
+}
+
+SystemInformationBlockType6-v8h0-IEs ::=	SEQUENCE {
+	carrierFreqListUTRA-FDD-v8h0 SEQUENCE (SIZE (1..maxUTRA-FDD-Carrier)) OF CarrierFreqInfoUTRA-FDD-v8h0 OPTIONAL,    -- Need OR
+	nonCriticalExtension			SEQUENCE {}							OPTIONAL	-- Need OP
 }
 
 CarrierFreqListUTRA-FDD ::=		SEQUENCE (SIZE (1..maxUTRA-FDD-Carrier)) OF CarrierFreqUTRA-FDD 
@@ -1637,6 +1661,10 @@ CarrierFreqUTRA-FDD ::=				SEQUENCE {
 	]]
 }
 
+CarrierFreqInfoUTRA-FDD-v8h0 ::=			SEQUENCE {
+	multiBandInfoList					SEQUENCE (SIZE (1..maxMultiBands)) OF FreqBandIndicator-UTRA-FDD				OPTIONAL	-- Need OR
+}
+
 CarrierFreqListUTRA-TDD ::=		SEQUENCE (SIZE (1..maxUTRA-TDD-Carrier)) OF CarrierFreqUTRA-TDD 
 
 CarrierFreqUTRA-TDD ::=				SEQUENCE {
@@ -1648,6 +1676,8 @@ CarrierFreqUTRA-TDD ::=				SEQUENCE {
 	p-MaxUTRA							INTEGER (-50..33),
 	...
 }
+
+FreqBandIndicator-UTRA-FDD ::=				INTEGER (1..86)
 
 
 SystemInformationBlockType7 ::=		SEQUENCE {
@@ -3021,6 +3051,9 @@ CellGlobalIdCDMA2000 ::=				CHOICE {
 CSG-Identity ::=					BIT STRING (SIZE (27))
 
 
+FreqBandIndicator ::=					INTEGER (1..64)
+
+
 MobilityControlInfo ::=		SEQUENCE {
 	targetPhysCellId					PhysCellId,
 	carrierFreq							CarrierFreqEUTRA					OPTIONAL,	-- Cond HO-toEUTRA
@@ -3063,6 +3096,9 @@ MobilityStateParameters ::=			SEQUENCE {
 	n-CellChangeMedium					INTEGER (1..16),
 	n-CellChangeHigh					INTEGER (1..16)
 }
+
+
+MultiBandInfoList ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF FreqBandIndicator
 
 
 PhysCellId ::=						INTEGER (0..503)
@@ -3827,6 +3863,13 @@ UE-EUTRA-Capability-v1020-IEs ::=	SEQUENCE {
 	interRAT-ParametersCDMA2000-v1020	IRAT-ParametersCDMA2000-1XRTT-v1020		OPTIONAL,
 	ue-BasedNetwPerfMeasParameters-r10	UE-BasedNetwPerfMeasParameters-r10		OPTIONAL,
 	interRAT-ParametersUTRA-TDD-v1020	IRAT-ParametersUTRA-TDD-v1020			OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v1060-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v1060-IEs ::=	SEQUENCE {
+	fdd-Add-UE-EUTRA-Capabilities-v1060	UE-EUTRA-CapabilityAddXDD-Mode-v1060	OPTIONAL,
+	tdd-Add-UE-EUTRA-Capabilities-v1060	UE-EUTRA-CapabilityAddXDD-Mode-v1060	OPTIONAL,
+	rf-Parameters-v1060					RF-Parameters-v1060						OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
@@ -3838,6 +3881,14 @@ UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
 	interRAT-ParametersUTRA-r9			IRAT-ParametersUTRA-v920			OPTIONAL,
 	interRAT-ParametersCDMA2000-r9		IRAT-ParametersCDMA2000-1XRTT-v920	OPTIONAL,
 	neighCellSI-AcquisitionParameters-r9	NeighCellSI-AcquisitionParameters-r9	OPTIONAL,
+	...
+}
+
+UE-EUTRA-CapabilityAddXDD-Mode-v1060 ::=	SEQUENCE {
+	phyLayerParameters-v1060			PhyLayerParameters-v1020			OPTIONAL,
+	featureGroupIndRel10-v1060			BIT STRING (SIZE (32))				OPTIONAL,
+	interRAT-ParametersCDMA2000-v1060	IRAT-ParametersCDMA2000-1XRTT-v1020	OPTIONAL,
+	interRAT-ParametersUTRA-TDD-v1060	IRAT-ParametersUTRA-TDD-v1020		OPTIONAL,
 	...
 }
 
@@ -3898,9 +3949,21 @@ RF-Parameters-v1020 ::=				SEQUENCE {
 	supportedBandCombination-r10			SupportedBandCombination-r10
 }
 
+RF-Parameters-v1060 ::=				SEQUENCE {
+	supportedBandCombinationExt-r10			SupportedBandCombinationExt-r10
+}
+
 SupportedBandCombination-r10 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-r10 
 
+SupportedBandCombinationExt-r10 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParametersExt-r10
+
 BandCombinationParameters-r10 ::= SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF BandParameters-r10
+
+BandCombinationParametersExt-r10 ::= SEQUENCE {
+	supportedBandwidthCombinationSet-r10	SupportedBandwidthCombinationSet-r10	OPTIONAL
+}
+
+SupportedBandwidthCombinationSet-r10 ::=	BIT STRING (SIZE (1..maxBandwidthCombSet-r10))
 
 BandParameters-r10 ::= SEQUENCE {
 	bandEUTRA-r10					INTEGER (1..64),
@@ -4171,6 +4234,8 @@ TMGI-r9 ::=						SEQUENCE {
 maxBandComb-r10				INTEGER ::=	128	-- Maximum number of band combinations.
 maxBands					INTEGER ::= 64	-- Maximum number of bands listed in EUTRA UE caps
 maxBandwidthClass-r10		INTEGER ::=	16	-- Maximum number of supported CA BW classes per band
+maxBandwidthCombSet-r10		INTEGER ::=	32	-- Maximum number of bandwidth combination sets per
+											-- supported band combination
 maxCDMA-BandClass			INTEGER ::= 32	-- Maximum value of the CDMA band classes
 maxCellBlack				INTEGER ::= 16	-- Maximum number of blacklisted physical cell identity
 											-- ranges listed in SIB type 4 and 5
@@ -4203,6 +4268,8 @@ maxMBSFN-Allocations		INTEGER ::= 8	-- Maximum number of MBSFN frame allocations
 maxMBSFN-Area				INTEGER ::= 8
 maxMBSFN-Area-1				INTEGER ::= 7
 maxMeasId					INTEGER ::= 32
+maxMultiBands				INTEGER ::= 8	-- Maximum number of additional frequency bands
+											-- that a cell belongs to
 maxObjectId					INTEGER ::= 32
 maxPageRec					INTEGER ::= 16	-- 
 maxPhysCellIdRange-r9 		INTEGER ::= 4	-- Maximum number of physical cell identity ranges
@@ -4228,3 +4295,5 @@ maxUTRA-TDD-Carrier			INTEGER ::= 16	-- Maximum number of UTRA TDD carrier frequ
 
 
 END
+
+

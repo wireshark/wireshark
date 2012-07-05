@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V10.5.0 (2012-03)﻿
+-- 3GPP TS 36.331 V10.6.0 (2012-06)
 -- $Id$
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
@@ -115,3 +115,5 @@ maxLogMeas-r10				INTEGER ::= 4060-- Maximum number of logged measurement entrie
 
 
 END
+
+
