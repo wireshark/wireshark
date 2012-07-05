@@ -121,8 +121,9 @@ static const value_string error_code_vals[] = {
 };
 
 static const value_string crypto_suite_attr_vals[] = {
-  {0x0100, "CBC Mode, 56 Bit DES & no Data Authentication"},
-  {0x0200, "CBC Mode, 40 Bit DES & no Data Authentication"},
+  {0x0100, "CBC-Mode 56-bit DES, no data authentication"},
+  {0x0200, "CBC-Mode 40-bit DES, no data authentication"},
+  {0x0300, "CBC-Mode 128-bit AES, no data authentication"},
   {0, NULL},
 };
 
@@ -204,7 +205,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             THROW (ReportedBoundsError);
           break;
         case BPKM_TEK:
-          if (length == 8)
+          if (length == 8 || length == 16)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_tek, tvb, pos,
                                  length, ENC_NA);
           else
@@ -249,7 +250,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_OBSOLETED:
           break;
         case BPKM_CBC_IV:
-          if (length == 8)
+          if (length == 8 || length == 16)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_cbc_iv, tvb, pos,
                                  length, ENC_NA);
           else
