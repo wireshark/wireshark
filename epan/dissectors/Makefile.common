@@ -815,6 +815,7 @@ DISSECTOR_SRC = \
 	packet-ndmp.c		\
 	packet-ndp.c		\
 	packet-ndps.c		\
+	packet-negoex.c		\
 	packet-netanalyzer.c	\
 	packet-netbios.c	\
 	packet-netdump.c	\

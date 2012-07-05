@@ -894,6 +894,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ndmp.c
 	dissectors/packet-ndp.c
 	dissectors/packet-ndps.c
+	dissectors/packet-negoex.c
 	dissectors/packet-netanalyzer.c
 	dissectors/packet-netbios.c
 	dissectors/packet-netdump.c
