@@ -334,12 +334,6 @@ out_free:
 }
 
 static void
-tb80211_update_iface_cb(GtkWidget *widget _U_, gpointer data _U_)
-{
-    tb80211_refresh_interfaces();
-}
-
-static void
 tb80211_add_label(gchar *text, GtkWidget *tb)
 {
     GtkWidget     *label;
@@ -375,12 +369,6 @@ ws80211_toolbar_new(void)
     gtk_container_add(GTK_CONTAINER(ti), tb80211_iface_list_box);
     gtk_widget_show(GTK_WIDGET (tb80211_iface_list_box));
     gtk_toolbar_insert(GTK_TOOLBAR(tb80211_tb), ti, -1);
-
-    ti = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
-    gtk_widget_set_tooltip_text(GTK_WIDGET(ti), "Refresh interfaces");
-    g_signal_connect(ti, "clicked", G_CALLBACK(tb80211_update_iface_cb), NULL);
-    gtk_toolbar_insert(GTK_TOOLBAR(tb80211_tb), ti, -1);
-    gtk_widget_show(GTK_WIDGET(ti));
 
     tb80211_add_label(" Frequency: ", tb80211_tb);
 
