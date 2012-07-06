@@ -3807,9 +3807,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
 #ifdef HAVE_AIRPCAP
     wireless_tb = airpcap_toolbar_new();
 #else
-    gtk_widget_show(wireless_tb);
-#endif
     wireless_tb = ws80211_toolbar_new();
+#endif
+    gtk_widget_show(wireless_tb);
 
     /* status bar */
     statusbar = statusbar_new();
