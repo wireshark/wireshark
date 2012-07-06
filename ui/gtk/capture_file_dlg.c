@@ -578,7 +578,6 @@ file_open_cmd(GtkWidget *w)
     cfile.rfcode = rfcode;
 
     /* Set the global resolving variable */
-    gbl_resolv_flags = prefs.name_resolve;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
       gbl_resolv_flags.mac_name = TRUE;
     else

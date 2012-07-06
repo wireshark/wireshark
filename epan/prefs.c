@@ -42,7 +42,9 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/oids.h>
+#ifdef HAVE_GEOIP
 #include <epan/geoip_db.h>
+#endif
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
@@ -982,7 +984,9 @@ prefs_register_modules(void)
         "Name Resolution", NULL);
     addr_resolve_pref_init(nameres_module);
     oid_pref_init(nameres_module);
+#ifdef HAVE_GEOIP
     geoip_db_pref_init(nameres_module);
+#endif
 
     /* Printing */
     printing = prefs_register_module(NULL, "print", "Printing",
@@ -998,11 +1002,11 @@ prefs_register_modules(void)
 
 #ifndef _WIN32
     prefs_register_string_preference(printing, "command", "Command", 
-        "Output gets piped to this command when the destination is set to \"command\"", &prefs.pr_cmd);
+        "Output gets piped to this command when the destination is set to \"command\"", (const char**)(&prefs.pr_cmd));
 #endif
 
     prefs_register_filename_preference(printing, "file", "File", 
-        "This is the file that gets written to when the destination is set to \"file\"", &prefs.pr_file);
+        "This is the file that gets written to when the destination is set to \"file\"", (const char**)(&prefs.pr_file));
 
 
     /* Statistics */
@@ -2205,9 +2209,6 @@ prefs_capture_device_monitor_mode(const char *name)
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
-
-static const gchar *pr_formats[] = { "text", "postscript" };
-static const gchar *pr_dests[]   = { "command", "file" };
 
 char
 string_to_name_resolve(char *string, e_addr_resolve *name_resolve)
