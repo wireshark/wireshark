@@ -287,7 +287,9 @@ static void add_serv_port_cb(const guint32 port);
  * Flag controlling what names to resolve.
  */
 e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, TRUE, TRUE};
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 static guint name_resolve_concurrency = 500;
+#endif
 
 /*
  *  Global variables (can be changed in GUI sections)

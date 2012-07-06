@@ -192,7 +192,7 @@ extern GtkWidget * proto_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p);
  */
 extern void proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view);
 
-extern void proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, e_addr_resolve resolv);
+extern void proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, const e_addr_resolve *resolv);
 
 /** Expand the whole tree view.
  *

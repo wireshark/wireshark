@@ -455,10 +455,10 @@ proto_tree_model_get_type(void)
 }
 
 void 
-proto_tree_model_force_resolv(ProtoTreeModel *model, e_addr_resolve flags)
+proto_tree_model_force_resolv(ProtoTreeModel *model, const e_addr_resolve *flags)
 {
 	model->resolv_forced = TRUE;
-	model->resolv_flags  = flags;
+	model->resolv_flags  = *flags;
 }
 
 ProtoTreeModel *

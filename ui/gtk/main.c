@@ -916,10 +916,10 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
 }
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
-    e_addr_resolve resolv_flags = {TRUE, TRUE, TRUE, TRUE};
+    static const e_addr_resolve resolv_flags = {TRUE, TRUE, TRUE, TRUE};
 
     if (cfile.edt->tree) {
-        proto_tree_draw_resolve(cfile.edt->tree, tree_view_gbl, resolv_flags);
+        proto_tree_draw_resolve(cfile.edt->tree, tree_view_gbl, &resolv_flags);
     }
 }
 
