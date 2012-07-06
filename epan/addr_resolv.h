@@ -115,8 +115,8 @@ void get_addr_name_buf(const address *addr, gchar *buf, gsize size);
  */
 
 /* Setup name resolution preferences */
-typedef struct pref_module module_t;
-extern void addr_resolve_pref_init(module_t *nameres);
+struct pref_module;
+extern void addr_resolve_pref_init(struct pref_module *nameres);
 
 /* host_name_lookup_init fires up an ADNS socket if we're using ADNS */
 extern void host_name_lookup_init(void);
