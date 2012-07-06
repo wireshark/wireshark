@@ -45,22 +45,17 @@ extern "C" {
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
 #endif
 
+typedef struct _e_addr_resolve {
+  gboolean mac_name;
+  gboolean network_name;
+  gboolean transport_name;
+  gboolean concurrent_dns;
+} e_addr_resolve;
+
 /*
  * Flag controlling what names to resolve.
  */
-WS_VAR_IMPORT guint32 gbl_resolv_flags;
-
-/* 32 types are sufficient (as are 640k of RAM) */
-/* FIXME: Maybe MANUF/m, IP/i, IP6/6, IPX/x, UDP+TCP/t etc would be
-   more useful/consistent */
-#define RESOLV_NONE		0x0
-#define RESOLV_MAC		0x1
-#define RESOLV_NETWORK		0x2
-#define RESOLV_TRANSPORT	0x4
-#define RESOLV_CONCURRENT	0x8
-
-#define RESOLV_ALL_ADDRS	(RESOLV_MAC|RESOLV_NETWORK|RESOLV_TRANSPORT)
-#define RESOLV_ALL		0xFFFFFFFF
+WS_VAR_IMPORT e_addr_resolve gbl_resolv_flags;
 
 /* global variables */
 
@@ -69,10 +64,7 @@ extern gchar *g_ipxnets_path;
 extern gchar *g_pethers_path;
 extern gchar *g_pipxnets_path;
 
-/* Functions in resolv.c */
-
-/* Set the flags controlling what names to resolve */
-extern void resolv_set_flags(guint32 flags);
+/* Functions in addr_resolv.c */
 
 /*
  * get_udp_port() returns the port name corresponding to that UDP port,
@@ -121,6 +113,10 @@ void get_addr_name_buf(const address *addr, gchar *buf, gsize size);
 /*
  * Asynchronous host name lookup initialization, processing, and cleanup
  */
+
+/* Setup name resolution preferences */
+typedef struct pref_module module_t;
+extern void addr_resolve_pref_init(module_t *nameres);
 
 /* host_name_lookup_init fires up an ADNS socket if we're using ADNS */
 extern void host_name_lookup_init(void);

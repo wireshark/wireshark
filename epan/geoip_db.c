@@ -140,16 +140,13 @@ static void geoip_db_path_free_cb(void* p) {
 /**
  * Initialize GeoIP lookups
  */
-void
-geoip_db_init(void) {
-    guint i;
+void 
+geoip_db_pref_init(module_t *nameres)
+{
     static uat_field_t geoip_db_paths_fields[] = {
         UAT_FLD_DIRECTORYNAME(geoip_mod, path, "GeoIP Database Directory", "The GeoIP database directory path"),
         UAT_END_FIELDS
     };
-    char* geoip_load_error = NULL;
-
-    geoip_dat_arr = g_array_new(FALSE, FALSE, sizeof(GeoIP *));
 
     geoip_db_paths_uat = uat_new("GeoIP Database Paths",
             sizeof(geoip_db_path_t),
@@ -165,12 +162,22 @@ geoip_db_init(void) {
                         NULL,
             geoip_db_paths_fields);
 
-    uat_load(geoip_db_paths_uat, &geoip_load_error);
+	prefs_register_uat_preference(nameres,
+                                    "geoip_db_paths",
+                                    "GeoIP database directories",
+		                            "Search paths for GeoIP address mapping databases.\n"
+		                            "Wireshark will look in each directory for files beginning\n"
+		                            "with \"Geo\" and ending with \".dat\".\n"
+		                            "You must restart Wireshark for these changes to take\n"
+		                            "effect.",
+                                    geoip_db_paths_uat);
+}
 
-    if (geoip_load_error) {
-        report_failure("Error loading GeoIP database path table: %s", geoip_load_error);
-        return;
-    }
+void
+geoip_db_init(void) {
+    guint i;
+
+    geoip_dat_arr = g_array_new(FALSE, FALSE, sizeof(GeoIP *));
 
     for (i = 0; i < num_geoip_db_paths; i++) {
         if (geoip_db_paths[i].path) {

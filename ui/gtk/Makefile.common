@@ -121,8 +121,6 @@ WIRESHARK_GTK_SRC = \
 	prefs_filter_expressions.c	\
 	prefs_gui.c	\
 	prefs_layout.c	\
-	prefs_nameres.c	\
-	prefs_print.c	\
 	prefs_stream.c	\
 	print_dlg.c	\
 	profile_dlg.c	\
@@ -324,8 +322,6 @@ noinst_HEADERS = \
 	prefs_filter_expressions.h	\
 	prefs_gui.h	\
 	prefs_layout.h	\
-	prefs_nameres.h	\
-	prefs_print.h	\
 	prefs_stream.h	\
 	profile_dlg.h	\
 	proto_dlg.h	\

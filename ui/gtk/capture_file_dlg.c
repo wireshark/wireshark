@@ -512,18 +512,18 @@ file_open_cmd(GtkWidget *w)
   /* resolve buttons */
   m_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _MAC name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
-                               gbl_resolv_flags & RESOLV_MAC);
+                               gbl_resolv_flags.mac_name);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(m_resolv_cb);
 
   n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-                               gbl_resolv_flags & RESOLV_NETWORK);
+                               gbl_resolv_flags.network_name);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
   t_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
-                               gbl_resolv_flags & RESOLV_TRANSPORT);
+                               gbl_resolv_flags.transport_name);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
 
@@ -580,17 +580,17 @@ file_open_cmd(GtkWidget *w)
     /* Set the global resolving variable */
     gbl_resolv_flags = prefs.name_resolve;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
-      gbl_resolv_flags |= RESOLV_MAC;
+      gbl_resolv_flags.mac_name = TRUE;
     else
-      gbl_resolv_flags &= ~RESOLV_MAC;
+      gbl_resolv_flags.mac_name = FALSE;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
-     gbl_resolv_flags |= RESOLV_NETWORK;
+     gbl_resolv_flags.network_name = TRUE;
     else
-     gbl_resolv_flags &= ~RESOLV_NETWORK;
+     gbl_resolv_flags.network_name = FALSE;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_resolv_cb)))
-      gbl_resolv_flags |= RESOLV_TRANSPORT;
+      gbl_resolv_flags.transport_name = TRUE;
     else
-      gbl_resolv_flags &= ~RESOLV_TRANSPORT;
+      gbl_resolv_flags.transport_name = FALSE;
 
     /* We've crossed the Rubicon; get rid of the file selection box. */
     window_destroy(GTK_WIDGET(file_open_w));

@@ -152,7 +152,7 @@ static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint)
 #if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_LIBPCAP)
 static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
 #endif
-static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
+static void name_resolution_cb(GtkWidget *w, gpointer d, gboolean* res_flag);
 static void colorize_cb(GtkWidget *w, gpointer d);
 
 
@@ -727,7 +727,7 @@ view_menu_en_for_MAC_cb(GtkAction *action _U_, gpointer user_data)
     if (!widget){
         g_warning("view_menu_en_for_MAC_cb: No widget found");
     }else{
-        name_resolution_cb( widget , user_data, RESOLV_MAC);
+        name_resolution_cb( widget , user_data, &gbl_resolv_flags.mac_name);
     }
 }
 
@@ -738,7 +738,7 @@ view_menu_en_for_network_cb(GtkAction *action _U_, gpointer user_data)
     if (!widget){
         g_warning("view_menu_en_for_network_cb: No widget found");
     }else{
-        name_resolution_cb( widget , user_data, RESOLV_NETWORK);
+        name_resolution_cb( widget , user_data, &gbl_resolv_flags.network_name);
     }
 }
 
@@ -749,7 +749,7 @@ view_menu_en_for_transport_cb(GtkAction *action _U_, gpointer user_data)
     if (!widget){
         g_warning("view_menu_en_for_transport_cb: No widget found");
     }else{
-        name_resolution_cb( widget , user_data, RESOLV_TRANSPORT);
+        name_resolution_cb( widget , user_data, &gbl_resolv_flags.transport_name);
     }
 }
 
@@ -4301,29 +4301,29 @@ menu_name_resolution_changed(void)
     if(!menu){
         g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/EnableforMACLayer");
     }
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), gbl_resolv_flags & RESOLV_MAC);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), gbl_resolv_flags.mac_name);
 
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
     if(!menu){
         g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/EnableforNetworkLayer");
     }
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), gbl_resolv_flags & RESOLV_NETWORK);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), gbl_resolv_flags.network_name);
 
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
     if(!menu){
         g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/EnableforTransportLayer");
     }
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), gbl_resolv_flags & RESOLV_TRANSPORT);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), gbl_resolv_flags.transport_name);
 
 }
 
 static void
-name_resolution_cb(GtkWidget *w, gpointer d _U_, gint action)
+name_resolution_cb(GtkWidget *w, gpointer d _U_, gboolean* res_flag)
 {
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w))) {
-        gbl_resolv_flags |= action;
+        *res_flag = TRUE;
     } else {
-        gbl_resolv_flags &= ~action;
+        *res_flag = FALSE;
     }
 }
 
@@ -4889,7 +4889,8 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/PrepareaFilter",
                          frame_selected);
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/ResolveName",
-                         frame_selected && (gbl_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowTCPStream",
                          frame_selected ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowUDPStream",
@@ -4899,7 +4900,8 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/DecodeAs",
                          frame_selected && decode_as_ok());
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
-                         frame_selected && (gbl_resolv_flags & RESOLV_ALL_ADDRS) != RESOLV_ALL_ADDRS);
+                         frame_selected && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+                                            gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns));
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ToolsMenu/FirewallACLRules",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",

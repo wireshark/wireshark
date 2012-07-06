@@ -54,7 +54,7 @@ struct proto_tree_model {
 	int with_hidden;
 
 	gboolean resolv_forced;
-	guint32 resolv_flags;
+	e_addr_resolve resolv_flags;
 };
 
 #include "proto_tree_model.h"
@@ -202,7 +202,7 @@ proto_tree_model_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint col
 		{
 			g_value_init(value, G_TYPE_STRING);
 			if (model->resolv_forced) {
-				guint32 old_flags = gbl_resolv_flags;
+				e_addr_resolve old_flags = gbl_resolv_flags;
 
 				gbl_resolv_flags = model->resolv_flags;
 				g_value_take_string(value, fi_get_string(fi));
@@ -455,7 +455,7 @@ proto_tree_model_get_type(void)
 }
 
 void 
-proto_tree_model_force_resolv(ProtoTreeModel *model, guint32 flags)
+proto_tree_model_force_resolv(ProtoTreeModel *model, e_addr_resolve flags)
 {
 	model->resolv_forced = TRUE;
 	model->resolv_flags  = flags;

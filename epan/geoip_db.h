@@ -28,6 +28,7 @@
 #define __GEOIP_DB_H__
 
 #include <epan/ipv6-utils.h>
+#include <epan/prefs.h>
 
 /* Fake databases to make lat/lon values available */
 /* XXX - find a better way to interface */
@@ -39,6 +40,7 @@
  * Init function called from epan.h
  */
 extern void geoip_db_init(void);
+extern void geoip_db_pref_init(module_t *nameres);
 
 /**
  * Number of databases we have loaded

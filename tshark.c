@@ -1045,9 +1045,6 @@ main(int argc, char *argv[])
     pf_path = NULL;
   }
 
-  /* Set the name resolution code's flags from the preferences. */
-  gbl_resolv_flags = prefs_p->name_resolve;
-
   /* Read the disabled protocols file. */
   read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
                             &dp_path, &dp_open_errno, &dp_read_errno);
@@ -1215,11 +1212,12 @@ main(int argc, char *argv[])
 #endif
       break;
     case 'n':        /* No name resolution */
-      gbl_resolv_flags = RESOLV_NONE;
+      gbl_resolv_flags.mac_name = FALSE;
+      gbl_resolv_flags.network_name = FALSE;
+      gbl_resolv_flags.transport_name = FALSE;
+      gbl_resolv_flags.concurrent_dns = FALSE;
       break;
     case 'N':        /* Select what types of addresses/port #s to resolve */
-      if (gbl_resolv_flags == RESOLV_ALL)
-        gbl_resolv_flags = RESOLV_NONE;
       badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
       if (badopt != '\0') {
         cmdarg_err("-N specifies unknown resolving option '%c';",
@@ -2513,7 +2511,8 @@ process_packet_first_pass(capture_file *cf,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (gbl_resolv_flags)
+    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+        gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 
@@ -2572,7 +2571,8 @@ process_packet_second_pass(capture_file *cf, frame_data *fdata,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (gbl_resolv_flags)
+    if (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+        gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns)
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 
@@ -3026,7 +3026,8 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
      run a read filter, or we're going to process taps, set up to
      do a dissection and do so. */
   if (do_dissection) {
-    if (print_packet_info && gbl_resolv_flags)
+    if (print_packet_info && (gbl_resolv_flags.mac_name || gbl_resolv_flags.network_name || 
+        gbl_resolv_flags.transport_name || gbl_resolv_flags.concurrent_dns))
       /* Grab any resolved addresses */
       host_name_lookup_process(NULL);
 

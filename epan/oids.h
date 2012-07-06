@@ -28,6 +28,7 @@
 #define __OIDS_H__
 
 #include <epan/ftypes/ftypes.h>
+#include <epan/prefs.h>
 /**
  *@file
  */
@@ -106,6 +107,7 @@ typedef struct _oid_info_t {
 
 /** init funcion called from epan.h */
 extern void oids_init(void);
+extern void oid_pref_init(module_t *nameres);
 
 /** init funcion called from epan.h */
 extern void oids_cleanup(void);

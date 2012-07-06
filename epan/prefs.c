@@ -42,6 +42,7 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/oids.h>
+#include <epan/geoip_db.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
@@ -315,7 +316,8 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 /*
  * Register that a protocol has preferences.
  */
-module_t *protocols_module;
+module_t *protocols_module = NULL;
+module_t *stats_module = NULL;
 
 module_t *
 prefs_register_protocol(int id, void (*apply_cb)(void))
@@ -338,7 +340,6 @@ prefs_register_protocol(int id, void (*apply_cb)(void))
 				     proto_get_protocol_short_name(protocol),
 				     proto_get_protocol_name(id), apply_cb);
 }
-
 
 module_t *
 prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(void))
@@ -931,6 +932,23 @@ prefs_pref_foreach(module_t *module, pref_cb callback, gpointer user_data)
 	return 0;
 }
 
+static const enum_val_t print_format_vals[] = {
+	{ "text",       "Plain Text", PR_FMT_TEXT },
+	{ "postscript", "Postscript", PR_FMT_PS },
+	{ NULL,         NULL,         0 }
+};
+
+static const enum_val_t print_dest_vals[] = {
+#ifdef _WIN32
+	/* "PR_DEST_CMD" means "to printer" on Windows */
+	{ "command", "Printer", PR_DEST_CMD },
+#else
+	{ "command", "Command", PR_DEST_CMD },
+#endif
+	{ "file",    "File",    PR_DEST_FILE },
+	{ NULL,      NULL,      0 }
+};
+
 static void stats_callback(void)
 {
     /* Test for a sane tap update interval */
@@ -952,30 +970,61 @@ static void stats_callback(void)
 void
 prefs_register_modules(void)
 {
-    module_t* stats;
+    module_t *printing, *nameres_module;
 
     if (protocols_module != NULL) {
         /* Already setup preferences */
         return;
     }
 
-    stats = prefs_register_module(NULL, "statistics", "Statistics",
+    /* Name Resolution */
+    nameres_module = prefs_register_module(NULL, "nameres", "Name Resolution",
+        "Name Resolution", NULL);
+    addr_resolve_pref_init(nameres_module);
+    oid_pref_init(nameres_module);
+    geoip_db_pref_init(nameres_module);
+
+    /* Printing */
+    printing = prefs_register_module(NULL, "print", "Printing",
+        "Printing", NULL);
+
+    prefs_register_enum_preference(printing, "format", 
+                                   "Format", "Can be one of \"text\" or \"postscript\"", 
+                                   &prefs.pr_format, print_format_vals, TRUE);
+
+    prefs_register_enum_preference(printing, "destination", 
+                                   "Print to", "Can be one of \"command\" or \"file\"", 
+                                   &prefs.pr_dest, print_dest_vals, TRUE);
+
+#ifndef _WIN32
+    prefs_register_string_preference(printing, "command", "Command", 
+        "Output gets piped to this command when the destination is set to \"command\"", &prefs.pr_cmd);
+#endif
+
+    prefs_register_filename_preference(printing, "file", "File", 
+        "This is the file that gets written to when the destination is set to \"file\"", &prefs.pr_file);
+
+
+    /* Statistics */
+    stats_module = prefs_register_module(NULL, "statistics", "Statistics",
         "Statistics", &stats_callback);
 
-	prefs_register_uint_preference(stats, "update_interval",
+	prefs_register_uint_preference(stats_module, "update_interval",
 				       "Tap update interval in ms",
 				       "Determines time between tap updates",
 				       10,
 				       &prefs.tap_update_interval);
 
 #ifdef HAVE_LIBPORTAUDIO
-	prefs_register_uint_preference(stats, "rtp_player_max_visible",
+	prefs_register_uint_preference(stats_module, "rtp_player_max_visible",
 				       "Max visible channels in RTP Player",
 				       "Determines maximum height of RTP Player window",
 				       10,
 				       &prefs.rtp_player_max_visible);
 #endif
 
+
+    /* Protocols */
     protocols_module = prefs_register_module(NULL, "protocols", "Protocols",
         "Protocols", NULL);
 
@@ -1456,12 +1505,6 @@ init_prefs(void)
   prefs.capture_auto_scroll           = TRUE;
   prefs.capture_show_info             = FALSE;
 
-/* set the default values for the name resolution dialog box */
-  prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
-  prefs.name_resolve_concurrency = 500;
-  prefs.load_smi_modules         = FALSE;
-  prefs.suppress_smi_errors	 = FALSE;
-
 /* set the default values for the tap/statistics dialog box */
   prefs.tap_update_interval    = TAP_UPDATE_DEFAULT_INTERVAL;
   prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
@@ -1616,9 +1659,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   FILE        *pf;
 
   /* clean up libsmi structures before reading prefs */
-  if (prefs.load_smi_modules) {
-    oids_cleanup();
-  }
+  oids_cleanup();
 
   init_prefs();
 
@@ -1719,10 +1760,8 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   }
 
   /* load SMI modules if needed */
-  if (prefs.load_smi_modules) {
-    oids_init();
-  }
-
+  oids_init();
+ 
   return &prefs;
 }
 
@@ -2081,10 +2120,6 @@ prefs_capture_device_monitor_mode(const char *name)
 	return FALSE;
 }
 
-#define PRS_PRINT_FMT                    "print.format"
-#define PRS_PRINT_DEST                   "print.destination"
-#define PRS_PRINT_FILE                   "print.file"
-#define PRS_PRINT_CMD                    "print.command"
 #define PRS_COL_HIDDEN                   "column.hidden"
 #define PRS_COL_FMT                      "column.format"
 #define PRS_STREAM_CL_FG                 "stream.client.fg"
@@ -2139,7 +2174,7 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
 #define PRS_GUI_LAYOUT_CONTENT_3         "gui.layout_content_3"
-#define PRS_CONSOLE_LOG_LEVEL		 "console.log.level"
+#define PRS_CONSOLE_LOG_LEVEL            "console.log.level"
 #define PRS_GUI_FILTER_LABEL             "gui.filter_expressions.label"
 #define PRS_GUI_FILTER_EXPR              "gui.filter_expressions.expr"
 #define PRS_GUI_FILTER_ENABLED           "gui.filter_expressions.enabled"
@@ -2179,66 +2214,36 @@ prefs_capture_device_monitor_mode(const char *name)
 static const gchar *pr_formats[] = { "text", "postscript" };
 static const gchar *pr_dests[]   = { "command", "file" };
 
-typedef struct {
-  char    letter;
-  guint32 value;
-} name_resolve_opt_t;
-
-static name_resolve_opt_t name_resolve_opt[] = {
-  { 'm', RESOLV_MAC },
-  { 'n', RESOLV_NETWORK },
-  { 't', RESOLV_TRANSPORT },
-  { 'C', RESOLV_CONCURRENT },
-};
-
-#define N_NAME_RESOLVE_OPT	(sizeof name_resolve_opt / sizeof name_resolve_opt[0])
-
-static const char *
-name_resolve_to_string(guint32 name_resolve)
-{
-  static char string[N_NAME_RESOLVE_OPT+1];
-  char *p;
-  unsigned int i;
-  gboolean all_opts_set = TRUE;
-
-  if (name_resolve == RESOLV_NONE)
-    return "FALSE";
-  p = &string[0];
-  for (i = 0; i < N_NAME_RESOLVE_OPT; i++) {
-    if (name_resolve & name_resolve_opt[i].value)
-      *p++ =  name_resolve_opt[i].letter;
-    else
-      all_opts_set = FALSE;
-  }
-  *p = '\0';
-  if (all_opts_set)
-    return "TRUE";
-  return string;
-}
-
 char
-string_to_name_resolve(char *string, guint32 *name_resolve)
+string_to_name_resolve(char *string, e_addr_resolve *name_resolve)
 {
   char c;
-  unsigned int i;
 
-  *name_resolve = 0;
+  memset(name_resolve, 0, sizeof(e_addr_resolve));
   while ((c = *string++) != '\0') {
-    for (i = 0; i < N_NAME_RESOLVE_OPT; i++) {
-      if (c == name_resolve_opt[i].letter) {
-        *name_resolve |= name_resolve_opt[i].value;
-        break;
+      switch (c) {
+      case 'm':
+          name_resolve->mac_name = TRUE;
+          break;
+      case 'n':
+          name_resolve->network_name = TRUE;
+          break;
+      case 't':
+          name_resolve->transport_name = TRUE;
+          break;
+      case 'C':
+          name_resolve->concurrent_dns = TRUE;
+          break;
+      default:
+          /*
+           * Unrecognized letter.
+           */
+          return c;
       }
-    }
-    if (i == N_NAME_RESOLVE_OPT) {
-      /*
-       * Unrecognized letter.
-       */
-      return c;
-    }
   }
   return '\0';
 }
+
 
 static void
 try_convert_to_custom_column(gpointer *el_data)
@@ -2303,29 +2308,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   pref_t   *pref;
   gboolean had_a_dot;
 
-  if (strcmp(pref_name, PRS_PRINT_FMT) == 0) {
-    if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
-      prefs.pr_format = PR_FMT_TEXT;
-    } else if (strcmp(value, pr_formats[PR_FMT_PS]) == 0) {
-      prefs.pr_format = PR_FMT_PS;
-    } else {
-      return PREFS_SET_SYNTAX_ERR;
-    }
-  } else if (strcmp(pref_name, PRS_PRINT_DEST) == 0) {
-    if (strcmp(value, pr_dests[PR_DEST_CMD]) == 0) {
-      prefs.pr_dest = PR_DEST_CMD;
-    } else if (strcmp(value, pr_dests[PR_DEST_FILE]) == 0) {
-      prefs.pr_dest = PR_DEST_FILE;
-    } else {
-      return PREFS_SET_SYNTAX_ERR;
-    }
-  } else if (strcmp(pref_name, PRS_PRINT_FILE) == 0) {
-    g_free(prefs.pr_file);
-    prefs.pr_file = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_PRINT_CMD) == 0) {
-    g_free(prefs.pr_cmd);
-    prefs.pr_cmd = g_strdup(value);
-  } else if (strcmp(pref_name, PRS_COL_HIDDEN) == 0) {
+  if (strcmp(pref_name, PRS_COL_HIDDEN) == 0) {
     g_free(cols_hidden_list);
     cols_hidden_list = g_strdup(value);
     /*
@@ -2681,30 +2664,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   } else if (strcmp(pref_name, PRS_CAP_SYNTAX_CHECK_FILTER) == 0) {
     /* Obsolete preference. */
     ;
-/* handle the global options */
-  } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
-	     strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
-    /*
-     * "TRUE" and "FALSE", for backwards compatibility, are synonyms for
-     * RESOLV_ALL and RESOLV_NONE.
-     *
-     * Otherwise, we treat it as a list of name types we want to resolve.
-     */
-    if (g_ascii_strcasecmp(value, "true") == 0)
-      prefs.name_resolve = RESOLV_ALL;
-    else if (g_ascii_strcasecmp(value, "false") == 0)
-      prefs.name_resolve = RESOLV_NONE;
-    else {
-      prefs.name_resolve = RESOLV_NONE;	/* start out with none set */
-      if (string_to_name_resolve(value, &prefs.name_resolve) != '\0')
-        return PREFS_SET_SYNTAX_ERR;
-    }
-  } else if (strcmp(pref_name, PRS_NAME_RESOLVE_CONCURRENCY) == 0) {
-    prefs.name_resolve_concurrency = strtol(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_NAME_RESOLVE_LOAD_SMI_MODULES) == 0) {
-    prefs.load_smi_modules = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-  } else if (strcmp(pref_name, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS) == 0) {
-    prefs.suppress_smi_errors = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else {
     /* To which module does this preference belong? */
     module = NULL;
@@ -3739,63 +3698,13 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
 	  prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
 
-  fprintf (pf, "\n######## Printing ########\n");
-
-  fprintf (pf, "\n# Can be one of \"text\" or \"postscript\".\n");
-  if (prefs.pr_format == default_prefs.pr_format)
-    fprintf(pf, "#");
-  fprintf (pf, "print.format: %s\n", pr_formats[prefs.pr_format]);
-
-  fprintf (pf, "\n# Can be one of \"command\" or \"file\".\n");
-  if (prefs.pr_dest == default_prefs.pr_dest)
-    fprintf(pf, "#");
-  fprintf (pf, "print.destination: %s\n", pr_dests[prefs.pr_dest]);
-
-  fprintf (pf, "\n# This is the file that gets written to when the "
-	   "destination is set to \"file\"\n");
-  if (strcmp(prefs.pr_file, default_prefs.pr_file) == 0)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %s\n", PRS_PRINT_FILE, prefs.pr_file);
-
-  fprintf (pf, "\n# Output gets piped to this command when the destination "
-	   "is set to \"command\"\n");
-  if (strcmp(prefs.pr_cmd, default_prefs.pr_cmd) == 0)
-    fprintf(pf, "#");
-  fprintf (pf, "%s: %s\n", PRS_PRINT_CMD, prefs.pr_cmd);
-
-  fprintf(pf, "\n####### Name Resolution ########\n");
-
-  fprintf(pf, "\n# Resolve addresses to names?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive), or a list of address types to resolve.\n");
-  if (prefs.name_resolve == default_prefs.name_resolve)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_NAME_RESOLVE ": %s\n",
-	  name_resolve_to_string(prefs.name_resolve));
-
-  fprintf(pf, "\n# Name resolution concurrency.\n");
-  fprintf(pf, "# A decimal number.\n");
-  if (prefs.name_resolve_concurrency == default_prefs.name_resolve_concurrency)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
-	  prefs.name_resolve_concurrency);
-
-  fprintf(pf, "\n# Load SMI modules?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.load_smi_modules == default_prefs.load_smi_modules)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_NAME_RESOLVE_LOAD_SMI_MODULES ": %s\n",
-	  prefs.load_smi_modules == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(pf, "\n# Suppress SMI errors?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  if (prefs.suppress_smi_errors == default_prefs.suppress_smi_errors)
-    fprintf(pf, "#");
-  fprintf(pf, PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS ": %s\n",
-	  prefs.suppress_smi_errors == TRUE ? "TRUE" : "FALSE");
-
   /*
    * XXX - The following members are intentionally not written here because 
    * they are handled within the 'generic' preference handling:
+   * pr_format
+   * pr_dest
+   * pr_file
+   * pr_cmd
    * tap_update_interval
    * rtp_player_max_visible
    */
@@ -3842,8 +3751,6 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   fmt_data *src_cfmt, *dest_cfmt;
   GList *entry;
 
-  dest->pr_format = src->pr_format;
-  dest->pr_dest = src->pr_dest;
   dest->pr_file = g_strdup(src->pr_file);
   dest->pr_cmd = g_strdup(src->pr_cmd);
   dest->col_list = NULL;
@@ -3917,11 +3824,12 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_real_time = src->capture_real_time;
   dest->capture_auto_scroll = src->capture_auto_scroll;
   dest->capture_show_info = src->capture_show_info;
-  dest->name_resolve = src->name_resolve;
-  dest->name_resolve_concurrency = src->name_resolve_concurrency;
+
   /*
    * XXX - The following members are intentionally not copied because they
    * are handled within the 'generic' preference handling:
+   * pr_format
+   * pr_dest
    * tap_update_interval
    * rtp_player_max_visible
    * display_hidden_proto_items

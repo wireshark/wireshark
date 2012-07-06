@@ -2132,7 +2132,7 @@ expand_finfos(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, gpointe
 }
 
 void 
-proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, guint32 resolv)
+proto_tree_draw_resolve(proto_tree *protocol_tree, GtkWidget *tree_view, e_addr_resolve resolv)
 {
     ProtoTreeModel *model;
 

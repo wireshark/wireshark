@@ -44,12 +44,10 @@
 #include "ui/gtk/prefs_column.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/prefs_filter_expressions.h"
-#include "ui/gtk/prefs_print.h"
 #include "ui/gtk/prefs_stream.h"
 #include "ui/gtk/prefs_gui.h"
 #include "ui/gtk/prefs_layout.h"
 #include "ui/gtk/prefs_capture.h"
-#include "ui/gtk/prefs_nameres.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/stock_icons.h"
@@ -95,7 +93,6 @@ static GtkWidget *create_preference_filename_entry(GtkWidget *, int,
 #define E_GUI_FONT_PAGE_KEY           "gui_font_options_page"
 #define E_GUI_COLORS_PAGE_KEY         "gui_colors_options_page"
 #define E_CAPTURE_PAGE_KEY            "capture_options_page"
-#define E_PRINT_PAGE_KEY              "printer_options_page"
 #define E_NAMERES_PAGE_KEY            "nameres_options_page"
 #define E_FILTER_EXPRESSIONS_PAGE_KEY "filter_expressions_page"
 
@@ -620,18 +617,6 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   g_strlcpy(label_str, "Filter Expressions", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, filter_expressions_prefs_show(),
     E_FILTER_EXPRESSIONS_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL);
-  cts.page++;
-
-  /* Name resolution prefs */
-  g_strlcpy(label_str, "Name Resolution", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, nameres_prefs_show(), E_NAMERES_PAGE_KEY);
-  prefs_tree_page_add(label_str, cts.page, store, NULL);
-  cts.page++;
-
-  /* Printing prefs */
-  g_strlcpy(label_str, "Printing", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, printer_prefs_show(), E_PRINT_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
@@ -1346,8 +1331,6 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  printer_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
-  nameres_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
   filter_expressions_prefs_fetch(g_object_get_data(G_OBJECT(dlg),
     E_FILTER_EXPRESSIONS_PAGE_KEY));
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
@@ -1383,8 +1366,6 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  printer_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
-  nameres_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
 
   /* show/hide the Save button - depending on setting */
   save_bt = g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_SAVE_BT_KEY);
@@ -1425,8 +1406,6 @@ prefs_main_destroy_all(GtkWidget *dlg)
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  printer_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
-  nameres_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */

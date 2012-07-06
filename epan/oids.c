@@ -46,6 +46,8 @@
 #include <smi.h>
 
 static gboolean oids_init_done = FALSE;
+static gboolean load_smi_modules = FALSE;
+static gboolean suppress_smi_errors = FALSE;
 #endif
 
 #define D(level,args) do if (debuglevel >= level) { printf args; printf("\n"); fflush(stdout); } while(0)
@@ -514,61 +516,9 @@ static void register_mibs(void) {
 	int proto_mibs = -1;
 	GArray* hfa = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	GArray* etta = g_array_new(FALSE,TRUE,sizeof(gint*));
-	static uat_field_t smi_fields[] = {
-		UAT_FLD_CSTRING(smi_mod,name,"Module name","The module's name"),
-		UAT_END_FIELDS
-	};
-	static uat_field_t smi_paths_fields[] = {
-		UAT_FLD_DIRECTORYNAME(smi_mod,name,"Directory path","The directory name"),
-		UAT_END_FIELDS
-	};
-	char* smi_load_error = NULL;
 	gchar* path_str;
 
-	smi_modules_uat = uat_new("SMI Modules",
-							  sizeof(smi_module_t),
-							  "smi_modules",
-							  FALSE,
-							  (void*)&smi_modules,
-							  &num_smi_modules,
-							  UAT_CAT_GENERAL,
-							  "ChSNMPSMIModules",
-							  smi_mod_copy_cb,
-							  NULL,
-							  smi_mod_free_cb,
-							  restart_needed_warning,
-							  smi_fields);
-
-	smi_paths_uat = uat_new("SMI Paths",
-							  sizeof(smi_module_t),
-							  "smi_paths",
-							  FALSE,
-							  (void*)&smi_paths,
-							  &num_smi_paths,
-							  UAT_CAT_GENERAL,
-							  "ChSNMPSMIPaths",
-							  smi_mod_copy_cb,
-							  NULL,
-							  smi_mod_free_cb,
-							  restart_needed_warning,
-							  smi_paths_fields);
-
-
-	uat_load(smi_modules_uat, &smi_load_error);
-
-	if (smi_load_error) {
-		report_failure("Error Loading SMI Modules Table: %s",smi_load_error);
-		return;
-	}
-
-	uat_load(smi_paths_uat, &smi_load_error);
-
-	if (smi_load_error) {
-		report_failure("Error Loading SMI Paths Table: %s",smi_load_error);
-		return;
-	}
-
-	if (!prefs.load_smi_modules) {
+	if (!load_smi_modules) {
 		D(1,("OID resolution not enabled"));
 		return;
 	}
@@ -607,7 +557,7 @@ static void register_mibs(void) {
 	}
 
 	if (smi_errors->len) {
-		if (!prefs.suppress_smi_errors) {
+		if (!suppress_smi_errors) {
 			report_failure("The following errors were found while loading the MIBS:\n%s\n\n"
 					   "The Current Path is: %s\n\nYou can avoid this error message "
 					   "by removing the missing MIB modules at Edit -> Preferences"
@@ -631,7 +581,7 @@ static void register_mibs(void) {
 		 * Currently there is no such version. :-(
 		 */
 		if (smiModule->conformance == 1) {
-			if (!prefs.suppress_smi_errors) {
+			if (!suppress_smi_errors) {
 				report_failure("Stopped processing module %s due to "
 					"error(s) to prevent potential crash in libsmi.\n"
 					"Module's conformance level: %d.\n"
@@ -768,21 +718,103 @@ static void register_mibs(void) {
 }
 #endif
 
+void oid_pref_init(module_t *nameres)
+{
+	static uat_field_t smi_fields[] = {
+		UAT_FLD_CSTRING(smi_mod,name,"Module name","The module's name"),
+		UAT_END_FIELDS
+	};
+	static uat_field_t smi_paths_fields[] = {
+		UAT_FLD_DIRECTORYNAME(smi_mod,name,"Directory path","The directory name"),
+		UAT_END_FIELDS
+	};
+
+#ifdef HAVE_LIBSMI
+    prefs_register_bool_preference(nameres, "load_smi_modules",
+                                  "Enable OID resolution",
+                                  "You must restart Wireshark for this change to take effect",
+                                  &load_smi_modules);
+
+    prefs_register_bool_preference(nameres, "suppress_smi_errors",
+                                  "Suppress SMI errors",
+                                  "Some errors can be ignored. If unsure, set to false.",
+                                  &suppress_smi_errors);
+
+	smi_paths_uat = uat_new("SMI Paths",
+							  sizeof(smi_module_t),
+							  "smi_paths",
+							  FALSE,
+							  (void*)&smi_paths,
+							  &num_smi_paths,
+							  UAT_CAT_GENERAL,
+							  "ChSNMPSMIPaths",
+							  smi_mod_copy_cb,
+							  NULL,
+							  smi_mod_free_cb,
+							  restart_needed_warning,
+							  smi_paths_fields);
+
+	prefs_register_uat_preference(nameres,
+                                      "smi_paths",
+                                      "SMI (MIB and PIB) paths",
+                                      "Search paths for SMI (MIB and PIB) modules. You must\n"
+                                      "restart Wireshark for these changes to take effect.",
+                                      smi_paths_uat);
+
+	smi_modules_uat = uat_new("SMI Modules",
+							  sizeof(smi_module_t),
+							  "smi_modules",
+							  FALSE,
+							  (void*)&smi_modules,
+							  &num_smi_modules,
+							  UAT_CAT_GENERAL,
+							  "ChSNMPSMIModules",
+							  smi_mod_copy_cb,
+							  NULL,
+							  smi_mod_free_cb,
+							  restart_needed_warning,
+							  smi_fields);
+
+	prefs_register_uat_preference(nameres,
+                                      "smi_modules",
+                                      "SMI (MIB and PIB) modules",
+                                      "List of enabled SMI (MIB and PIB) modules. You must\n"
+                                      "restart Wireshark for these changes to take effect.",
+                                      smi_modules_uat);
+
+#else
+    prefs_register_static_text_preference(nameres, "load_smi_modules_static",
+                            "Enable OID resolution: N/A", 
+                            "Support for this feature was not compiled into this version of Wireshark");
+
+    prefs_register_static_text_preference(nameres, "suppress_smi_errors_static",
+                            "Suppress SMI errors: N/A", 
+                            "Support for this feature was not compiled into this version of Wireshark");
+
+    prefs_register_static_text_preference(nameres, "smi_module_path",
+                            "SMI (MIB and PIB) modules and paths: N/A", 
+                            "Support for this feature was not compiled into this version of Wireshark");
+#endif
+}
 
 void oids_init(void) {
+  if (load_smi_modules) {
 #ifdef HAVE_LIBSMI
 	register_mibs();
 #else
 	D(1,("libsmi disabled oid resolution not enabled"));
 #endif
+  }
 }
 
 void oids_cleanup(void) {
+  if (load_smi_modules) {
 #ifdef HAVE_LIBSMI
-	unregister_mibs();
+	  unregister_mibs();
 #else
-	D(1,("libsmi disabled oid resolution not enabled"));
+	  D(1,("libsmi disabled oid resolution not enabled"));
 #endif
+  }
 }
 
 const char* oid_subid2string(guint32* subids, guint len) {
@@ -1123,7 +1155,7 @@ oid_get_default_mib_path(void) {
 
 	path_str = g_string_new("");
 	
-	if (!prefs.load_smi_modules) {
+	if (!load_smi_modules) {
 		D(1,("OID resolution not enabled"));
 		return path_str->str;
 	}

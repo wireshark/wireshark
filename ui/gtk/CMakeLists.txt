@@ -96,8 +96,6 @@ set(WIRESHARK_GTK_SRC
 	prefs_filter_expressions.c
 	prefs_gui.c
 	prefs_layout.c
-	prefs_nameres.c
-	prefs_print.c
 	prefs_stream.c
 	print_dlg.c
 	profile_dlg.c

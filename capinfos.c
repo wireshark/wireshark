@@ -154,6 +154,100 @@ static gboolean cap_order = TRUE;           /* Report if packets are in chronolo
 static gboolean cap_file_hashes = TRUE;     /* Calculate file hashes */
 #endif
 
+#define USE_GOPTION = 1
+#ifdef USE_GOPTION
+static gboolean cap_help = FALSE;
+static gboolean table_report = FALSE;
+ 
+static GOptionEntry general_entries[] =
+{
+/* General */
+  { "type", 't', 0, G_OPTION_ARG_NONE, &cap_file_type,
+    "display the capture file type", NULL },
+  { "Encapsulation", 'E', 0, G_OPTION_ARG_NONE, &cap_file_encap,
+    "display the capture file encapsulation", NULL },
+#ifdef HAVE_LIBGCRYPT
+  { "Hash", 'H', 0, G_OPTION_ARG_NONE, &cap_file_hashes,
+    "display the SHA1, RMD160, and MD5 hashes of the file", NULL },
+#endif /* HAVE_LIBGCRYPT */
+ { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+};
+static GOptionEntry size_entries[] =
+{
+/* Size */
+  { "packets", 'c', 0, G_OPTION_ARG_NONE, &cap_packet_count,
+    "display the number of packets", NULL },
+  { "size", 's', 0, G_OPTION_ARG_NONE, &cap_file_size,
+    "display the size of the file (in bytes)", NULL },
+  { "tot-len-of-pkts", 'd', 0, G_OPTION_ARG_NONE, &cap_data_size,
+    "display the total length of all packets (in bytes)", NULL },
+  { "snap", 'l', 0, G_OPTION_ARG_NONE, &cap_snaplen,
+    "display the packet size limit (snapshot length)", NULL },
+  { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+};
+static GOptionEntry time_entries[] =
+{
+/* Time */
+  { "duration", 'u', 0, G_OPTION_ARG_NONE, &cap_duration,
+    "display the capture duration (in seconds)", NULL },
+  { "start", 'a', 0, G_OPTION_ARG_NONE, &cap_start_time,
+    "display the capture start time", NULL },
+  { "end", 'e', 0, G_OPTION_ARG_NONE, &cap_end_time,
+    "display the capture end time", NULL },
+  { "cron", 'o', 0, G_OPTION_ARG_NONE, &cap_order,
+    "display the capture file chronological status (True/False)", NULL },
+  { "start-end-time-sec", 'S', 0, G_OPTION_ARG_NONE, &time_as_secs,
+    "display start and end times as seconds", NULL },
+  { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+};
+
+static GOptionEntry stats_entries[] =
+{
+/* Statistics */
+  { "bytes", 'y', 0, G_OPTION_ARG_NONE, &cap_data_rate_byte,
+    "display average data rate (in bytes/s)", NULL },
+  { "bits", 'i', 0, G_OPTION_ARG_NONE, &cap_data_rate_bit,
+    "display average data rate (in bits/s)", NULL },
+  { "packet-bytes", 'z', 0, G_OPTION_ARG_NONE, &cap_packet_size,
+    "display average packet size (in bytes)", NULL },
+  { "packets", 'x', 0, G_OPTION_ARG_NONE, &cap_packet_rate,
+    "display average packet rate (in packets/s)", NULL },
+  { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+};
+
+static GOptionEntry output_format_entries[] =
+{
+/* Output format */
+  { "long", 'L', 0, G_OPTION_ARG_NONE, &long_report,
+    "generate long report (default)", NULL },
+  { "Table", 'T', 0, G_OPTION_ARG_NONE, &table_report,
+    "generate table report", NULL },
+  { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+};
+
+static GOptionEntry table_report_entries[] =
+{
+/* Table report */
+  { "header-rec", 'R', 0, G_OPTION_ARG_NONE, &table_report_header,
+    "generate header record (default)", NULL },
+  { "no-table", 'r', 0, G_OPTION_ARG_NONE, &table_report_header,
+    "do not generate header record", NULL },
+  { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+};
+
+static GOptionEntry misc_entries[] =
+{
+  { "helpcompat", 'h', 0, G_OPTION_ARG_NONE, &cap_help,
+    "display help", NULL },
+ { NULL,'\0',0,G_OPTION_ARG_NONE,NULL,NULL,NULL }
+};
+
+GOptionContext *ctx;
+GOptionGroup *general_grp, *size_grp, *time_grp, *stats_grp, *output_grp, *table_report_grp;
+GError *parse_err = NULL;
+
+#endif /* USE_GOPTION */
+
 #ifdef HAVE_LIBGCRYPT
 #define HASH_SIZE_SHA1 20
 #define HASH_SIZE_RMD160 20
@@ -216,6 +310,7 @@ typedef struct _capture_info {
 
   int          *encap_counts;           /* array of per_packet encap counts; array has one entry per wtap_encap type */
 } capture_info;
+
 
 static void
 enable_all_infos(void)
@@ -950,7 +1045,54 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
+#ifdef USE_GOPTION
+  ctx = g_option_context_new(" <infile> ... - print information about capture file(s)");
+  general_grp = g_option_group_new("gen", "General infos:", 
+				"Show general options", NULL, NULL);
+  size_grp = g_option_group_new("size", "Size infos:",
+			       "Show size options", NULL, NULL);
+  time_grp = g_option_group_new("time", "Time infos:",
+			       "Show time options", NULL, NULL);
+  stats_grp = g_option_group_new("stats", "Statistics infos:",
+				 "Show statistics options", NULL, NULL);
+  output_grp = g_option_group_new("output", "Output format:",
+				 "Show output format options", NULL, NULL);
+  table_report_grp = g_option_group_new("table", "Table report options:",
+				 "Show table report options", NULL, NULL);
+  g_option_group_add_entries(general_grp, general_entries);
+  g_option_group_add_entries(size_grp, size_entries);
+  g_option_group_add_entries(time_grp, time_entries);
+  g_option_group_add_entries(stats_grp, stats_entries);
+  g_option_group_add_entries(output_grp, output_format_entries);
+  g_option_group_add_entries(table_report_grp, table_report_entries);
+  g_option_context_add_main_entries(ctx, misc_entries, NULL);
+  g_option_context_add_group(ctx, general_grp);
+  g_option_context_add_group(ctx, size_grp);
+  g_option_context_add_group(ctx, time_grp);
+  g_option_context_add_group(ctx, stats_grp);
+  g_option_context_add_group(ctx, output_grp);
+  g_option_context_add_group(ctx, table_report_grp);
+  /* There's probably a better way to do this, but this works for now.
+     GOptions displays the name in argv[0] as the name of the
+     application.  This is reasonable, but because we actually have a
+     script wrapper that calls the executable.  The name that gets
+     displayed is not exactly the same as the command the user used
+     ran.
+   */
+  argv[0] = "capinfos";
+  ;
+  if( !g_option_context_parse(ctx, &argc, &argv, &parse_err) ) {
+    if(parse_err) g_print ("option parsing failed: %s\n", parse_err->message);
+    g_print("%s", g_option_context_get_help (ctx, TRUE, NULL));
+    exit(1);
+  }
+  if( cap_help || (argc < 2) ) {
+    g_print("%s", g_option_context_get_help (ctx, FALSE, NULL));
+    exit(0);
+  }
+  g_option_context_free(ctx);
 
+#endif /* USE_GOPTION */
   while ((opt = getopt(argc, argv, "tEcs" FILE_HASH_OPT "dluaeyizvhxoCALTRrSNqQBmb")) !=-1) {
 
     switch (opt) {

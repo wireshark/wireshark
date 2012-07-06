@@ -916,8 +916,11 @@ void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
 }
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
-    if (cfile.edt->tree)
-        proto_tree_draw_resolve(cfile.edt->tree, tree_view_gbl, RESOLV_ALL);
+    e_addr_resolve resolv_flags = {TRUE, TRUE, TRUE, TRUE};
+
+    if (cfile.edt->tree) {
+        proto_tree_draw_resolve(cfile.edt->tree, tree_view_gbl, resolv_flags);
+    }
 }
 
 /* Update main window items based on whether there's a capture in progress. */
@@ -2665,11 +2668,12 @@ main(int argc, char *argv[])
         prefs_p->gui_font_name = g_strdup(optarg);
         break;
       case 'n':        /* No name resolution */
-        gbl_resolv_flags = RESOLV_NONE;
+        gbl_resolv_flags.mac_name = FALSE;
+        gbl_resolv_flags.network_name = FALSE;
+        gbl_resolv_flags.transport_name = FALSE;
+        gbl_resolv_flags.concurrent_dns = FALSE;
         break;
       case 'N':        /* Select what types of addresses/port #s to resolve */
-        if (gbl_resolv_flags == RESOLV_ALL)
-          gbl_resolv_flags = RESOLV_NONE;
         badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
         if (badopt != '\0') {
           cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
@@ -3854,9 +3858,6 @@ prefs_to_capture_opts(void)
     global_capture_opts.real_time_mode               = prefs.capture_real_time;
     auto_scroll_live                                 = prefs.capture_auto_scroll;
 #endif /* HAVE_LIBPCAP */
-
-  /* Set the name resolution code's flags from the preferences. */
-    gbl_resolv_flags = prefs.name_resolve;
 }
 
 static void copy_global_profile (const gchar *profile_name)

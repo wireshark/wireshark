@@ -286,7 +286,8 @@ static void add_serv_port_cb(const guint32 port);
 /*
  * Flag controlling what names to resolve.
  */
-guint32 gbl_resolv_flags;
+e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, TRUE, TRUE};
+static guint name_resolve_concurrency = 500;
 
 /*
  *  Global variables (can be changed in GUI sections)
@@ -362,7 +363,7 @@ typedef struct _async_dns_queue_msg
 #endif /* HAVE_C_ARES */
 #ifdef ASYNC_DNS
 static  gboolean  async_dns_initialized = FALSE;
-static  int       async_dns_in_flight = 0;
+static  guint       async_dns_in_flight = 0;
 static  GList    *async_dns_queue_head = NULL;
 
 /* push a dns request */
@@ -656,7 +657,7 @@ static gchar
   tp->port = port;
   tp->next = NULL;
 
-  if (!(gbl_resolv_flags & RESOLV_TRANSPORT) ||
+  if ((!gbl_resolv_flags.transport_name) ||
       (servp = getservbyport(g_htons(port), serv_proto)) == NULL) {
     /* unknown port */
     guint32_to_str_buf(port, tp->name, MAXNAMELEN);
@@ -799,8 +800,8 @@ host_lookup(const guint addr, const gboolean resolve, gboolean *found)
   if (resolve) {
     tp->resolve = TRUE;
 #ifdef ASYNC_DNS
-    if ((gbl_resolv_flags & RESOLV_CONCURRENT) &&
-        prefs.name_resolve_concurrency > 0 &&
+    if (gbl_resolv_flags.concurrent_dns &&
+        name_resolve_concurrency > 0 &&
         async_dns_initialized) {
         add_async_dns_ipv4(AF_INET, addr);
       /* XXX found is set to TRUE, which seems a bit odd, but I'm not
@@ -817,7 +818,7 @@ host_lookup(const guint addr, const gboolean resolve, gboolean *found)
      * botch, we don't try to translate an all-zero IP address to a host
      * name.
      */
-    if (addr != 0 && (gbl_resolv_flags & RESOLV_NETWORK)) {
+    if (addr != 0 && gbl_resolv_flags.network_name) {
       /* Use async DNS if possible, else fall back to timeouts,
        * else call gethostbyaddr and hope for the best
        */
@@ -908,8 +909,8 @@ host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *fo
 #ifdef INET6
 
 #ifdef HAVE_C_ARES
-  if ((gbl_resolv_flags & RESOLV_CONCURRENT) &&
-      prefs.name_resolve_concurrency > 0 &&
+  if ((gbl_resolv_flags.concurrent_dns) &&
+      name_resolve_concurrency > 0 &&
       async_dns_initialized) {
     caqm = g_malloc(sizeof(async_dns_queue_msg_t));
     caqm->family = AF_INET6;
@@ -2377,6 +2378,42 @@ subnet_name_lookup_init(void)
  *  External Functions
  */
 
+void 
+addr_resolve_pref_init(module_t *nameres)
+{
+    prefs_register_bool_preference(nameres, "mac_name",
+                                  "Enable MAC name resolution",
+                                  "e.g. Ethernet address to manufacturer name",
+                                  &gbl_resolv_flags.mac_name);
+
+    prefs_register_bool_preference(nameres, "network_name",
+                                  "Enable network name resolution",
+                                  "e.g. IP address to DNS name (hostname)",
+                                  &gbl_resolv_flags.network_name);
+
+    prefs_register_bool_preference(nameres, "transport_name",
+                                  "Enable transport name resolution",
+                                  "e.g. TCP/UDP port to service name",
+                                  &gbl_resolv_flags.transport_name);
+
+#if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
+    prefs_register_bool_preference(nameres, "concurrent_dns",
+                                  "Enable concurrent DNS name resolution",
+                                  "be sure to enable network name resolution",
+                                  &gbl_resolv_flags.concurrent_dns);
+
+	prefs_register_uint_preference(nameres, "name_resolve_concurrency",
+				       "Maximum concurrent requests",
+				       "maximum parallel running DNS requests",
+				       10,
+				       &name_resolve_concurrency);
+#else
+    prefs_register_static_text_preference(nameres, "no_concurrent_dns",
+                       "Enable concurrent DNS name resolution: N/A", 
+                       "Support for this feature was not compiled into this version of Wireshark");
+#endif
+}
+
 void
 host_name_lookup_init(void) {
   char *hostspath;
@@ -2492,7 +2529,7 @@ host_name_lookup_process(gpointer data _U_) {
 
   async_dns_queue_head = g_list_first(async_dns_queue_head);
 
-  while (async_dns_queue_head != NULL && async_dns_in_flight <= prefs.name_resolve_concurrency) {
+  while (async_dns_queue_head != NULL && async_dns_in_flight <= name_resolve_concurrency) {
     caqm = (async_dns_queue_msg_t *) async_dns_queue_head->data;
     async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) caqm);
     if (caqm->family == AF_INET) {
@@ -2636,7 +2673,7 @@ const gchar *
 get_hostname(const guint addr)
 {
   gboolean found;
-  gboolean resolve = gbl_resolv_flags & RESOLV_NETWORK;
+  gboolean resolve = gbl_resolv_flags.network_name;
   hashipv4_t *tp = host_lookup(addr, resolve, &found);
 
   if (!resolve)
@@ -2651,7 +2688,7 @@ const gchar *
 get_hostname6(const struct e_in6_addr *addr)
 {
   gboolean found;
-  gboolean resolve = gbl_resolv_flags & RESOLV_NETWORK;
+  gboolean resolve = gbl_resolv_flags.network_name;
   hashipv6_t *tp = host_lookup6(addr, resolve, &found);
 
   if (!resolve)
@@ -2794,7 +2831,7 @@ gchar *
 get_udp_port(guint port)
 {
 
-  if (!(gbl_resolv_flags & RESOLV_TRANSPORT)) {
+  if (!gbl_resolv_flags.transport_name) {
     return ep_utoa(port);
   }
 
@@ -2806,7 +2843,7 @@ gchar *
 get_dccp_port(guint port)
 {
 
-  if (!(gbl_resolv_flags & RESOLV_TRANSPORT)) {
+  if (!gbl_resolv_flags.transport_name) {
     return ep_utoa(port);
   }
 
@@ -2819,7 +2856,7 @@ gchar *
 get_tcp_port(guint port)
 {
 
-  if (!(gbl_resolv_flags & RESOLV_TRANSPORT)) {
+  if (!gbl_resolv_flags.transport_name) {
     return ep_utoa(port);
   }
 
@@ -2831,7 +2868,7 @@ gchar *
 get_sctp_port(guint port)
 {
 
-  if (!(gbl_resolv_flags & RESOLV_TRANSPORT)) {
+  if (!gbl_resolv_flags.transport_name) {
     return ep_utoa(port);
   }
 
@@ -2894,7 +2931,7 @@ gchar *
 get_ether_name(const guint8 *addr)
 {
   hashether_t *tp;
-  gboolean resolve = (gbl_resolv_flags & RESOLV_MAC) != 0;
+  gboolean resolve = gbl_resolv_flags.mac_name;
 
   if (resolve && !eth_resolution_initialized) {
     initialize_ethers();
@@ -2917,7 +2954,7 @@ get_ether_name_if_known(const guint8 *addr)
 
   /* Initialize ether structs if we're the first
    * ether-related function called */
-  if (!(gbl_resolv_flags & RESOLV_MAC))
+  if (!gbl_resolv_flags.mac_name)
     return NULL;
 
   if (!eth_resolution_initialized) {
@@ -2962,7 +2999,7 @@ add_ether_byip(const guint ip, const guint8 *eth)
   gboolean found;
 
   /* first check that IP address can be resolved */
-  if (!(gbl_resolv_flags & RESOLV_NETWORK))
+  if (!gbl_resolv_flags.network_name)
     return;
 
   if ((host = host_name_lookup(ip, &found)) == NULL)
@@ -2979,7 +3016,7 @@ const gchar *
 get_ipxnet_name(const guint32 addr)
 {
 
-  if (!(gbl_resolv_flags & RESOLV_NETWORK)) {
+  if (!gbl_resolv_flags.network_name) {
     return ipxnet_to_str_punct(addr, '\0');
   }
 
@@ -3018,12 +3055,12 @@ get_manuf_name(const guint8 *addr)
   gchar *cur;
   hashmanuf_t  *mtp;
 
-  if ((gbl_resolv_flags & RESOLV_MAC) && !eth_resolution_initialized) {
+  if (gbl_resolv_flags.mac_name && !eth_resolution_initialized) {
     initialize_ethers();
     eth_resolution_initialized = TRUE;
   }
 
-  if (!(gbl_resolv_flags & RESOLV_MAC) || ((mtp = manuf_name_lookup(addr)) == NULL)) {
+  if (!gbl_resolv_flags.mac_name || ((mtp = manuf_name_lookup(addr)) == NULL)) {
     cur=ep_strdup_printf("%02x:%02x:%02x", addr[0], addr[1], addr[2]);
     return cur;
   }
@@ -3094,12 +3131,12 @@ get_eui64_name(const guint64 addr_eui64)
   /* Copy and convert the address to network byte order. */
   *(guint64 *)(void *)(addr) = pntoh64(&(addr_eui64));
 
-  if ((gbl_resolv_flags & RESOLV_MAC) && !eth_resolution_initialized) {
+  if (gbl_resolv_flags.mac_name && !eth_resolution_initialized) {
     initialize_ethers();
     eth_resolution_initialized = TRUE;
   }
 
-  if (!(gbl_resolv_flags & RESOLV_MAC) || ((mtp = manuf_name_lookup(addr)) == NULL)) {
+  if (!gbl_resolv_flags.mac_name || ((mtp = manuf_name_lookup(addr)) == NULL)) {
     cur=ep_strdup_printf("%02x:%02x:%02x%02x:%02x:%02x%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
     return cur;
   }
@@ -3177,14 +3214,14 @@ get_host_ipaddr(const char *host, guint32 *addrp)
    * less-than-4 octet notation.
    */
   if (!inet_aton(host, &ipaddr)) {
-    if (! (gbl_resolv_flags & RESOLV_NETWORK)) {
+    if (!gbl_resolv_flags.network_name) {
       return FALSE;
     }
     /* It's not a valid dotted-quad IP address; is it a valid
      * host name? */
 #ifdef HAVE_C_ARES
-    if (! (gbl_resolv_flags & RESOLV_CONCURRENT) ||
-        prefs.name_resolve_concurrency < 1 ||
+    if (! (gbl_resolv_flags.concurrent_dns) ||
+        name_resolve_concurrency < 1 ||
         ! async_dns_initialized) {
       return FALSE;
     }
@@ -3253,14 +3290,14 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
   if (inet_pton(AF_INET6, host, addrp) == 1)
     return TRUE;
 
-  if (! (gbl_resolv_flags & RESOLV_NETWORK)) {
+  if (!gbl_resolv_flags.network_name) {
     return FALSE;
   }
 
   /* try FQDN */
 #ifdef HAVE_C_ARES
-  if (! (gbl_resolv_flags & RESOLV_CONCURRENT) ||
-      prefs.name_resolve_concurrency < 1 ||
+  if (! (gbl_resolv_flags.concurrent_dns) ||
+      name_resolve_concurrency < 1 ||
       ! async_dns_initialized) {
     return FALSE;
   }

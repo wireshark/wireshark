@@ -35,6 +35,7 @@ extern "C" {
 
 #include <epan/params.h>
 #include <epan/range.h>
+#include <epan/addr_resolv.h>
 
 #define PR_DEST_CMD  0
 #define PR_DEST_FILE 1
@@ -54,7 +55,7 @@ extern "C" {
  * Set "*name_resolve" to the bitmask, and return '\0', on success;
  * return the bad character in the string on error.
  */
-char string_to_name_resolve(char *string, guint32 *name_resolve);
+char string_to_name_resolve(char *string, e_addr_resolve *name_resolve);
 
 /*
  * Modes for the starting directory in File Open dialogs.
@@ -153,10 +154,6 @@ typedef struct _e_prefs {
   layout_pane_content_e gui_layout_content_2;
   layout_pane_content_e gui_layout_content_3;
   gint     console_log_level;
-  guint32  name_resolve;
-  gint     name_resolve_concurrency;
-  gboolean load_smi_modules;
-  gboolean suppress_smi_errors;
   gchar   *capture_device;
   gchar   *capture_devices_linktypes;
   gchar   *capture_devices_descr;

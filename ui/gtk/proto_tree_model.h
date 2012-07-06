@@ -37,6 +37,6 @@ typedef struct proto_tree_model ProtoTreeModel;
 
 GType proto_tree_model_get_type(void);
 ProtoTreeModel *proto_tree_model_new(proto_tree *protocol_tree, int display_hidden_proto_items);
-void proto_tree_model_force_resolv(ProtoTreeModel *model, guint32 resolv_flags);
+void proto_tree_model_force_resolv(ProtoTreeModel *model, e_addr_resolve resolv_flags);
 
 #endif /* __PROTO_TREE_MODEL_H__ */

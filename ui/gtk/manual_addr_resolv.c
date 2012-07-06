@@ -75,9 +75,9 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
 
   resolv_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "resolv");
   active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolv_cb));
-  if (!(gbl_resolv_flags & RESOLV_NETWORK) && active) {
+  if (!gbl_resolv_flags.network_name && active) {
     /* Name resolution for Network Layer activated */
-    gbl_resolv_flags |= RESOLV_NETWORK;
+    gbl_resolv_flags.network_name = TRUE;
     menu_name_resolution_changed ();
     redissect = TRUE;
   }
@@ -152,8 +152,8 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   gtk_container_add (GTK_CONTAINER(vbox), sep);
 
   resolv_cb = gtk_check_button_new_with_mnemonic ("Enable network name resolution");
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(resolv_cb), gbl_resolv_flags & RESOLV_NETWORK);
-  gtk_widget_set_sensitive (resolv_cb, !(gbl_resolv_flags & RESOLV_NETWORK));
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(resolv_cb), gbl_resolv_flags.network_name);
+  gtk_widget_set_sensitive (resolv_cb, !gbl_resolv_flags.network_name);
 
   gtk_widget_set_tooltip_text(resolv_cb, "Perform network layer name resolution.");
   g_object_set_data (G_OBJECT(man_addr_resolv_dlg), "resolv", resolv_cb);
