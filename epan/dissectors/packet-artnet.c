@@ -1202,7 +1202,6 @@ static int hf_artnet_address_swout_1 = -1;
 static int hf_artnet_address_swout_2 = -1;
 static int hf_artnet_address_swout_3 = -1;
 static int hf_artnet_address_swout_4 = -1;
-static int hf_artnet_address_subswitch = -1;
 static int hf_artnet_address_swvideo = -1;
 static int hf_artnet_address_command = -1;
 
@@ -1227,7 +1226,6 @@ static int hf_artnet_firmware_reply = -1;
 static int hf_artnet_firmware_reply_type = -1;
 
 /* ArtVideoSetup */
-static int hf_artnet_video_setup = -1;
 static int hf_artnet_video_setup_control = -1;
 static int hf_artnet_video_setup_font_height = -1;
 static int hf_artnet_video_setup_first_font = -1;
@@ -1236,13 +1234,11 @@ static int hf_artnet_video_setup_win_font_name = -1;
 static int hf_artnet_video_setup_font_data = -1;
 
 /* ArtVideoPalette */
-static int hf_artnet_video_palette = -1;
 static int hf_artnet_video_palette_colour_red = -1;
 static int hf_artnet_video_palette_colour_green = -1;
 static int hf_artnet_video_palette_colour_blue = -1;
 
 /* ArtVideoData */
-static int hf_artnet_video_data = -1;
 static int hf_artnet_video_data_pos_x = -1;
 static int hf_artnet_video_data_pos_y = -1;
 static int hf_artnet_video_data_len_x = -1;
@@ -2324,7 +2320,7 @@ dissect_artnet_diag_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset+=2;
 
   proto_tree_add_item(tree, hf_artnet_diag_data_data, tvb,
-                      offset, length, ENC_NA);
+                      offset, length, ENC_ASCII|ENC_NA);
   offset += length;
 
   return offset;
@@ -2422,11 +2418,11 @@ dissect_artnet_directory_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_name, tvb,
-                      offset, 16, ENC_NA);
+                      offset, 16, ENC_ASCII|ENC_NA);
   offset += 16;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_desc, tvb,
-                      offset, 64, ENC_NA);
+                      offset, 64, ENC_ASCII|ENC_NA);
   offset += 64;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_length, tvb,
@@ -2475,7 +2471,7 @@ dissect_artnet_file_tn_master(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_name, tvb,
-                      offset, 14, ENC_NA);
+                      offset, 14, ENC_ASCII|ENC_NA);
   offset += 14;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_checksum, tvb,
@@ -3665,12 +3661,6 @@ proto_register_artnet(void) {
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_artnet_address_subswitch,
-      { "Subswitch",
-        "artnet.address.subswitch",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }},
-
     { &hf_artnet_address_swvideo,
       { "SwVideo",
         "artnet.address.swvideo",
@@ -3775,12 +3765,6 @@ proto_register_artnet(void) {
 
     /* ArtVideoSetup */
 
-    { &hf_artnet_video_setup,
-      { "ArtVideoSetup packet",
-        "artnet.video_setup",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ArtNET ArtVideoSetup packet", HFILL }},
-
     { &hf_artnet_video_setup_control,
       { "control",
         "artnet.video_setup.control",
@@ -3819,12 +3803,6 @@ proto_register_artnet(void) {
 
     /* ArtVideoPalette */
 
-    { &hf_artnet_video_palette,
-      { "ArtVideoPalette packet",
-        "artnet.video_palette",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Art-Net ArtVideoPalette packet", HFILL }},
-
     { &hf_artnet_video_palette_colour_red,
       { "Colour Red",
         "artnet.video_palette.colour_red",
@@ -3844,12 +3822,6 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     /* ArtVideoData */
-
-    { &hf_artnet_video_data,
-      { "ArtVideoData packet",
-        "artnet.video_data",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Art-Net ArtVideoData packet", HFILL }},
 
     { &hf_artnet_video_data_pos_x,
       { "PosX",
