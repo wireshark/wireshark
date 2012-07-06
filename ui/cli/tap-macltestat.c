@@ -395,15 +395,23 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 /* Calculate and return a bandwidth figure, in Mbs */
 static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 bytes)
 {
+    /* Can only calculate bandwidth if have time delta */
     if (memcmp(start_time, stop_time, sizeof(nstime_t)) != 0) {
         float elapsed_ms = (((float)stop_time->secs - (float)start_time->secs) * 1000) +
                            (((float)stop_time->nsecs - (float)start_time->nsecs) / 1000000);
+
+        /* Only really meaningful if have a few frames spread over time...
+           For now at least avoid dividing by something very close to 0.0 */
+        if (elapsed_ms < 2.0) {
+           return 0.0;
+        }
         return ((bytes * 8) / elapsed_ms) / 1000;
     }
     else {
         return 0.0;
     }
 }
+
 
 
 /* Output the accumulated stats */
