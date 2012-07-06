@@ -2186,11 +2186,6 @@ prefs_capture_device_monitor_mode(const char *name)
  * It's not a preference for a particular part of Wireshark, it's used all
  * over the place, so its name doesn't have two components.
  */
-#define PRS_NAME_RESOLVE "name_resolve"
-#define PRS_NAME_RESOLVE_CONCURRENCY "name_resolve_concurrency"
-#define PRS_NAME_RESOLVE_LOAD_SMI_MODULES "name_resolve_load_smi_modules"
-#define PRS_NAME_RESOLVE_SUPPRESS_SMI_ERRORS "name_resolve_suppress_smi_errors"
-#define PRS_CAP_NAME_RESOLVE "capture.name_resolve"
 
 /*  values for the capture dialog box */
 #define PRS_CAP_DEVICE               "capture.device"

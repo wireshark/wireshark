@@ -732,6 +732,7 @@ c_ares_ghba_cb(void *arg, int status, int timeouts _U_, struct hostent *he) {
   char **p;
 
   if (!caqm) return;
+  /* XXX, what to do if async_dns_in_flight == 0? */
   async_dns_in_flight--;
 
   if (status == ARES_SUCCESS) {
@@ -2599,7 +2600,7 @@ host_name_lookup_process(gpointer data _U_) {
   async_dns_queue_head = g_list_first(async_dns_queue_head);
 
   cur = async_dns_queue_head;
-  while (cur &&  async_dns_in_flight <= prefs.name_resolve_concurrency) {
+  while (cur &&  async_dns_in_flight <= name_resolve_concurrency) {
     almsg = (async_dns_queue_msg_t *) cur->data;
     if (! almsg->submitted && almsg->type == AF_INET) {
       addr_bytes = (guint8 *) &almsg->ip4_addr;
@@ -2630,6 +2631,7 @@ host_name_lookup_process(gpointer data _U_) {
     if (dequeue) {
       async_dns_queue_head = g_list_remove(async_dns_queue_head, (void *) almsg);
       g_free(almsg);
+      /* XXX, what to do if async_dns_in_flight == 0? */
       async_dns_in_flight--;
     }
   }
