@@ -720,6 +720,7 @@ static void register_mibs(void) {
 
 void oid_pref_init(module_t *nameres)
 {
+#ifdef HAVE_LIBSMI
 	static uat_field_t smi_fields[] = {
 		UAT_FLD_CSTRING(smi_mod,name,"Module name","The module's name"),
 		UAT_END_FIELDS
@@ -729,7 +730,6 @@ void oid_pref_init(module_t *nameres)
 		UAT_END_FIELDS
 	};
 
-#ifdef HAVE_LIBSMI
     prefs_register_bool_preference(nameres, "load_smi_modules",
                                   "Enable OID resolution",
                                   "You must restart Wireshark for this change to take effect",
@@ -798,23 +798,19 @@ void oid_pref_init(module_t *nameres)
 }
 
 void oids_init(void) {
-  if (load_smi_modules) {
 #ifdef HAVE_LIBSMI
 	register_mibs();
 #else
 	D(1,("libsmi disabled oid resolution not enabled"));
 #endif
-  }
 }
 
 void oids_cleanup(void) {
-  if (load_smi_modules) {
 #ifdef HAVE_LIBSMI
-	  unregister_mibs();
+	unregister_mibs();
 #else
-	  D(1,("libsmi disabled oid resolution not enabled"));
+	D(1,("libsmi disabled oid resolution not enabled"));
 #endif
-  }
 }
 
 const char* oid_subid2string(guint32* subids, guint len) {
