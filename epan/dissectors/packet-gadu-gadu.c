@@ -51,6 +51,7 @@ static int hf_gadu_gadu_header_type_send = -1;
 static int hf_gadu_gadu_header_length = -1;
 
 static int hf_gadu_gadu_contact_uin = -1;
+static int hf_gadu_gadu_contact_uin_str = -1;
 static int hf_gadu_gadu_contact_type = -1;
 
 static int hf_gadu_gadu_login_uin = -1;
@@ -62,6 +63,11 @@ static int hf_gadu_gadu_login_version = -1;
 static int hf_gadu_gadu_login80_lang = -1;
 static int hf_gadu_gadu_login_local_ip = -1;
 static int hf_gadu_gadu_login_local_port = -1;
+
+static int hf_gadu_gadu_userdata_uin = -1;
+static int hf_gadu_gadu_userdata_attr_name = -1;
+static int hf_gadu_gadu_userdata_attr_type = -1;
+static int hf_gadu_gadu_userdata_attr_value = -1;
 
 static int hf_gadu_gadu_msg_uin = -1;
 static int hf_gadu_gadu_msg_sender = -1;
@@ -84,6 +90,12 @@ static int hf_gadu_gadu_status_port = -1;
 static int hf_gadu_gadu_status_version = -1;
 static int hf_gadu_gadu_status_img_size = -1;
 static int hf_gadu_gadu_status_descr = -1;
+
+static int hf_dcc_type = -1;
+static int hf_dcc_id = -1;
+static int hf_dcc_uin_to = -1;
+static int hf_dcc_uin_from = -1;
+static int hf_dcc_filename = -1;
 
 static int hf_gadu_gadu_new_status_status = -1;
 static int hf_gadu_gadu_new_status_desc = -1;
@@ -223,6 +235,9 @@ static const value_string gadu_gadu_packets_type_recv[] = {
 #define GG_RECV_MSG_ACK         0x46
 #define GG_TYPING_NOTIFY        0x59
 #define GG_OWN_DISCONNECT       0x62
+#define GG_NEW_STATUS105        0x63
+#define GG_NOTIFY105            0x78
+#define GG_LOGIN105             0x83
 
 static const value_string gadu_gadu_packets_type_send[] = {
 	GG_TYPE_VS(GG_NEW_STATUS),
@@ -257,6 +272,9 @@ static const value_string gadu_gadu_packets_type_send[] = {
 	GG_TYPE_VS(GG_RECV_MSG_ACK),
 	GG_TYPE_VS(GG_TYPING_NOTIFY),
 	GG_TYPE_VS(GG_OWN_DISCONNECT),
+	GG_TYPE_VS(GG_NEW_STATUS105),
+	GG_TYPE_VS(GG_NOTIFY105),
+	GG_TYPE_VS(GG_LOGIN105),
 	{ 0, NULL }
 };
 
@@ -343,6 +361,12 @@ static const value_string gadu_gadu_version_vals[] = {
 	{ 0x10,	"Gadu-Gadu 4.5.22, 4.5.21, 4.5.19, 4.5.17, 4.5.15" },
 	{ 0x0f,	"Gadu-Gadu 4.5.12" },
 	{ 0x0b,	"Gadu-Gadu 4.0.30, 4.0.29, 4.0.28, 4.0.25" },
+	{ 0, NULL }
+};
+
+static const value_string gadu_gadu_dcc_type_vals[] = {
+	{ 1, "Voice transmission" },
+	{ 4, "File transmission" },
 	{ 0, NULL }
 };
 
@@ -705,6 +729,55 @@ dissect_gadu_gadu_login80_failed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 }
 
 static int
+dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	guint32 users_num;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Contact details");
+
+	/* XXX, add subtrees */
+
+	offset += 4;
+
+	users_num = tvb_get_letohl(tvb, offset);
+	offset += 4;
+
+	while (users_num--) {
+		guint32 attr_num;
+
+		proto_tree_add_item(tree, hf_gadu_gadu_userdata_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		attr_num = tvb_get_letohl(tvb, offset);
+		offset += 4;
+
+		while (attr_num--) {
+			guint32 name_size, val_size;
+			char *name, *val;
+	/* name */
+			name_size = tvb_get_letohl(tvb, offset);
+			offset += 4;
+
+			name = tvb_get_ephemeral_string_enc(tvb, offset, name_size, ENC_ASCII | ENC_NA);
+			proto_tree_add_string(tree, hf_gadu_gadu_userdata_attr_name, tvb, offset - 4, 4 + name_size, name);
+			offset += name_size;
+	/* type */
+			proto_tree_add_item(tree, hf_gadu_gadu_userdata_attr_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
+	/* value */
+			val_size = tvb_get_letohl(tvb, offset);
+			offset += 4;
+
+			val = tvb_get_ephemeral_string_enc(tvb, offset, val_size, ENC_ASCII | ENC_NA);
+			proto_tree_add_string(tree, hf_gadu_gadu_userdata_attr_value, tvb, offset - 4, 4 + val_size, val);
+			offset += val_size;
+		}
+	}
+
+	return offset;
+}
+
+static int
 dissect_gadu_gadu_msg_attr(tvbuff_t *tvb _U_, proto_tree *tree _U_, int offset)
 {
 	/* XXX, stub */
@@ -875,13 +948,24 @@ dissect_gadu_gadu_send_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_gadu_gadu_send_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	col_set_str(pinfo->cinfo, COL_INFO, "Message acknowledge");
+	col_set_str(pinfo->cinfo, COL_INFO, "Message acknowledge (server)");
 
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_ack_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_ack_recipient, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_msg_ack_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_recv_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Message acknowledge (client)");
 
 	proto_tree_add_item(tree, hf_gadu_gadu_msg_ack_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -1120,6 +1204,44 @@ dissect_gadu_gadu_notify_last(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static int
+dissect_gadu_gadu_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	proto_tree *contact_tree;
+	proto_item *ti;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Notify list (10.5)");
+
+	while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+		const int org_offset = offset;
+
+		guint16 uin_len;
+		char *uin;
+
+		ti = proto_tree_add_text(tree, tvb, offset, 0, "Contact: ");
+		contact_tree = proto_item_add_subtree(ti, ett_gadu_gadu_contact);
+
+	/* unknown 00 */
+		proto_tree_add_item(contact_tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA);
+		offset += 1;
+	/* uin */
+		uin_len = tvb_get_guint8(tvb, offset);
+		offset += 1;
+
+		uin = tvb_get_ephemeral_string_enc(tvb, offset, uin_len, ENC_ASCII | ENC_NA);
+		proto_item_append_text(ti, "%s", uin);
+		proto_tree_add_string(contact_tree, hf_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
+		offset += uin_len;
+	/* contact type */
+		proto_tree_add_item(contact_tree, hf_gadu_gadu_contact_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+
+		proto_item_set_len(ti, offset - org_offset);
+	}
+
+	return offset;
+}
+
+static int
 dissect_gadu_gadu_ping(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, int offset)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Ping");
@@ -1202,6 +1324,71 @@ dissect_gadu_gadu_userlist_reply80(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	return offset;
 }
 
+static int
+dissect_gadu_gadu_dcc7_id_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Direct connection id request");
+
+	proto_tree_add_item(tree, hf_dcc_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_dcc7_id_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Direct connection id reply");
+
+	proto_tree_add_item(tree, hf_dcc_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dcc_id, tvb, offset, 8, ENC_NA);
+	offset += 8;
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_dcc7_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Direct connection new");
+
+	proto_tree_add_item(tree, hf_dcc_id, tvb, offset, 8, ENC_NA);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_dcc_uin_from, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dcc_uin_to, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dcc_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dcc_filename, tvb, offset, 255, ENC_ASCII | ENC_NA);
+	offset += 255;
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_dcc7_id_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Direct connection abort");
+
+	proto_tree_add_item(tree, hf_dcc_id, tvb, offset, 8, ENC_NA);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_dcc_uin_from, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_dcc_uin_to, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
 static void
 dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1257,6 +1444,10 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_login80_failed(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_USER_DATA:
+				offset = dissect_gadu_gadu_user_data(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
 			case GG_RECV_MSG:
 				offset = dissect_gadu_gadu_recv_msg(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
@@ -1284,6 +1475,10 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case GG_NOTIFY_REPLY80:
 				offset = dissect_gadu_gadu_notify_reply80(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_DCC7_ID_REPLY:
+				offset = dissect_gadu_gadu_dcc7_id_reply(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
 			case GG_WELCOME:
@@ -1332,6 +1527,10 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_notify_last(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_NOTIFY105:
+				offset = dissect_gadu_gadu_notify105(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
 			case GG_ADD_NOTIFY:
 				offset = dissect_gadu_gadu_add_notify(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
@@ -1352,12 +1551,29 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_send_msg80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_RECV_MSG_ACK:
+				/* GG_RECV_MSG_ACK is send by client */
+				offset = dissect_gadu_gadu_recv_msg_ack(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
 			case GG_NEW_STATUS:
 				offset = dissect_gadu_gadu_new_status(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
 			case GG_NEW_STATUS80:
 				offset = dissect_gadu_gadu_new_status80(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_DCC7_ID_REQUEST:
+				offset = dissect_gadu_gadu_dcc7_id_request(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_DCC7_NEW:
+				offset = dissect_gadu_gadu_dcc7_new(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_DCC7_ID_ABORT:
+				offset = dissect_gadu_gadu_dcc7_id_abort(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
 			case GG_USERLIST_REQUEST80:
@@ -1441,6 +1657,19 @@ proto_register_gadu_gadu(void)
 		{ &hf_gadu_gadu_login80_lang,
 			{ "Client language", "gadu-gadu.login80.lang", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
+	/* Contacts details */
+		{ &hf_gadu_gadu_userdata_uin,
+			{ "UIN", "gadu-gadu.user_data.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_userdata_attr_name,
+			{ "Attribute name", "gadu-gadu.user_data.attr_name", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_userdata_attr_type,
+			{ "Attribute type", "gadu-gadu.user_data.attr_type", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_userdata_attr_value,
+			{ "Attribute value", "gadu-gadu.user_data.attr_val", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
 	/* Message common */
 		{ &hf_gadu_gadu_msg_uin,
 			{ "Message sender or recipient", "gadu-gadu.msg.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
@@ -1473,6 +1702,9 @@ proto_register_gadu_gadu(void)
 	/* Contact (notify) common */
 		{ &hf_gadu_gadu_contact_uin,
 			{ "UIN", "gadu-gadu.contact.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_contact_uin_str,
+			{ "UIN", "gadu-gadu.contact.uin_str", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_gadu_gadu_contact_type,
 			{ "Type", "gadu-gadu.contact.type", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
@@ -1512,6 +1744,22 @@ proto_register_gadu_gadu(void)
 		},
 		{ &hf_gadu_gadu_userlist_reply_type,
 			{ "Reply type", "gadu-gadu.userlist.reply_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_reply_type_vals, 0x00, NULL, HFILL }
+		},
+	/* DCC7 */
+		{ &hf_dcc_type,
+			{ "Direct connection type", "gadu-gadu.dcc.type", FT_UINT32, BASE_HEX, gadu_gadu_dcc_type_vals, 0x00, NULL, HFILL }
+		},
+		{ &hf_dcc_id,
+			{ "Direct connection id", "gadu-gadu.dcc.id", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_dcc_uin_to,
+			{ "Direct connection UIN target", "gadu-gadu.dcc.uin_to", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_dcc_uin_from,
+			{ "Direct connection UIN initiator", "gadu-gadu.dcc.uin_from", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_dcc_filename,
+			{ "Direct connection filename", "gadu-gadu.dcc.filename", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 	/* GG_WELCOME */
 		{ &hf_gadu_gadu_welcome_seed,
