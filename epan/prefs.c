@@ -319,7 +319,6 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
  * Register that a protocol has preferences.
  */
 module_t *protocols_module = NULL;
-module_t *stats_module = NULL;
 
 module_t *
 prefs_register_protocol(int id, void (*apply_cb)(void))
@@ -425,6 +424,37 @@ prefs_register_protocol_obsolete(int id)
                                    proto_get_protocol_name(id), NULL);
     module->obsolete = TRUE;
     return module;
+}
+
+/*
+ * Register that a statistical tap has preferences.
+ *
+ * "name" is a name for the tap to use on the command line with "-o"
+ * and in preference files.
+ *
+ * "title" is a short human-readable name for the tap.
+ *
+ * "description" is a longer human-readable description of the tap.
+ */
+module_t *stats_module = NULL;
+
+module_t *
+prefs_register_stat(const char *name, const char *title,
+                    const char *description, void (*apply_cb)(void))
+{
+    /*
+     * Have we yet created the "Statistics" subtree?
+     */
+    if (stats_module == NULL) {
+        /*
+         * No.  Register Statistics subtree as well as any preferences
+         * for non-dissector modules.
+         */
+         prefs_register_modules();
+    }
+
+    return prefs_register_module(stats_module, name, title, description,
+                                 apply_cb);
 }
 
 module_t *

@@ -158,6 +158,7 @@ stats_tree_create_node_by_pname(st, name, parent_name, with_children);
 
 
 stats_tree_create_range_node(st, name, parent_id, ...)
+stats_tree_create_range_node_string(st, name, parent_id, num_str_ranges, str_ranges)
 stats_tree_range_node_with_pname(st, name, parent_name, ...)
   Creates a node in the tree, that will contain a ranges list.
     example:

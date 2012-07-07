@@ -221,6 +221,20 @@ extern module_t *prefs_register_subtree(module_t *parent, const char *title,
 extern module_t *prefs_register_protocol(int id, void (*apply_cb)(void));
 
 /*
+ * Register that a statistical tap has preferences.
+ *
+ * "name" is a name for the tap to use on the command line with "-o"
+ * and in preference files.
+ *
+ * "title" is a short human-readable name for the tap.
+ *
+ * "description" is a longer human-readable description of the tap.
+ */
+extern module_t *prefs_register_stat(const char *name, const char *title,
+                                     const char *description,
+                                     void (*apply_cb)(void));
+
+/*
  * Register that a protocol has preferences and group it under a single
  * subtree
  */

@@ -29,6 +29,9 @@
 #endif
 
 #include <epan/stats_tree.h>
+#include <epan/prefs.h>
+#include <epan/uat.h>
+#include <epan/uat-int.h>
 
 #include "pinfo_stats_tree.h"
 
@@ -45,9 +48,69 @@ static const gchar* port_type_to_str (port_type type) {
 		case PT_DDP:	return "DDP";
 		case PT_SBCCS:	return "FICON SBCCS";
 		case PT_IDP:	return "IDP";
-        default:        return "[Unknown]";
+		default:	return "[Unknown]";
 	}
 }
+
+/*-------------------------------------
+ * UAT for Packet Lengths
+ *-------------------------------------
+ */
+typedef struct {
+  range_t *packet_range;
+} uat_plen_record_t;
+
+static range_t default_range[10] = {
+	{1, {{0, 19}}},
+	{1, {{20, 39}}},
+	{1, {{40, 79}}},
+	{1, {{80, 159}}},
+	{1, {{160, 319}}},
+	{1, {{320, 639}}},
+	{1, {{640, 1279}}},
+	{1, {{1280, 2559}}},
+	{1, {{2560, 5119}}},
+	{1, {{5120, 0xFFFFFFFF}}}
+};
+static uat_plen_record_t *uat_plen_records = NULL;
+static uat_t * plen_uat = NULL;
+static guint num_plen_uat = 0;
+
+static void* uat_plen_record_copy_cb(void* n, const void* o, size_t siz _U_) {
+	const uat_plen_record_t *r = o;
+	uat_plen_record_t *rn = n;
+
+	if (r->packet_range)
+		rn->packet_range = range_copy(r->packet_range);
+
+	return n;
+}
+
+static void uat_plen_record_free_cb(void*r) {
+    uat_plen_record_t* record = (uat_plen_record_t*)r;
+
+	if (record->packet_range) 
+		g_free(record->packet_range);
+}
+
+static void uat_plen_record_post_update_cb(void) {
+	guint i, num_default;
+	uat_plen_record_t rec;
+
+	/* If there are no records, create default list */
+	if (num_plen_uat == 0) {
+		num_default = sizeof(default_range)/sizeof(range_t);
+
+		/* default values for packet lengths */
+		for (i = 0; i < num_default; i++)
+		{
+			rec.packet_range = &default_range[i];
+			uat_add_record(plen_uat, &rec);
+		}
+	}
+}
+
+UAT_RANGE_CB_DEF(uat_plen_records, packet_range, uat_plen_record_t)
 
 /* ip host stats_tree -- basic test */
 static int st_node_ip = -1;
@@ -88,7 +151,15 @@ static int st_node_plen = -1;
 static const gchar* st_str_plen = "Packet Lengths";
 
 static void plen_stats_tree_init(stats_tree* st) {
-	st_node_plen = stats_tree_create_range_node(st, st_str_plen, 0, "0-19","20-39","40-79","80-159","160-319","320-639","640-1279","1280-2559","2560-5119","5120-",NULL);
+	guint i;
+	char **str_range_array = ep_alloc(num_plen_uat*sizeof(char*));
+
+	/* Convert the ranges to strings for the stats tree API */
+	for (i = 0; i < num_plen_uat; i++) {
+		str_range_array[i] = range_convert_range(uat_plen_records[i].packet_range);
+	}
+
+	st_node_plen = stats_tree_create_range_node_string(st, st_str_plen, 0, num_plen_uat, str_range_array);
 }
 
 static int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t *edt _U_, const void *p _U_) {
@@ -130,9 +201,35 @@ static int dsts_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_disse
 
 /* register all pinfo trees */
 void register_pinfo_stat_trees(void) {
+	module_t *stat_module;
+
+	static uat_field_t plen_uat_flds[] = {
+		UAT_FLD_RANGE(uat_plen_records, packet_range, "Packet Range", 0xFFFFFFFF, "Range of packet sizes to count"),
+		UAT_END_FIELDS
+	};
+
 	stats_tree_register("ip","ip_hosts",st_str_ip, 0, ip_hosts_stats_tree_packet, ip_hosts_stats_tree_init, NULL );
 	stats_tree_register("ip","ptype",st_str_ptype, 0, ptype_stats_tree_packet, ptype_stats_tree_init, NULL );
 	stats_tree_register_with_group("frame","plen",st_str_plen, 0, plen_stats_tree_packet, plen_stats_tree_init, NULL, REGISTER_STAT_GROUP_GENERIC );
 	stats_tree_register("ip","dests",st_str_dsts, 0, dsts_stats_tree_packet, dsts_stats_tree_init, NULL );
+
+	stat_module = prefs_register_stat("stat_tree", "Stats Tree", "Stats Tree", NULL);
+
+	plen_uat = uat_new("Packet Lengths",
+			sizeof(uat_plen_record_t),  /* record size */
+			"packet_lengths",           /* filename */
+			TRUE,                       /* from_profile */
+			(void*) &uat_plen_records,  /* data_ptr */
+			&num_plen_uat,              /* numitems_ptr */
+			UAT_CAT_GENERAL,            /* category */
+			NULL,                       /* help */
+			uat_plen_record_copy_cb,    /* copy callback */
+			NULL,                       /* update callback */
+			uat_plen_record_free_cb,    /* free callback */
+			uat_plen_record_post_update_cb, /* post update callback */
+			plen_uat_flds);             /* UAT field definitions */
+
+	prefs_register_uat_preference(stat_module, "packet_lengths",
+		"Packet Lengths", "Delineated packet sizes to count", plen_uat);
 }
 

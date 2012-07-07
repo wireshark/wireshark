@@ -738,6 +738,7 @@ prefs_register_modules
 prefs_register_obsolete_preference
 prefs_register_protocol
 prefs_register_protocol_subtree
+prefs_register_stat
 prefs_register_range_preference
 prefs_register_static_text_preference
 prefs_register_string_preference
@@ -1008,6 +1009,7 @@ stats_tree_create_node_by_pname
 stats_tree_create_pivot_by_pname
 stats_tree_create_pivot
 stats_tree_create_range_node
+stats_tree_create_range_node_string
 stats_tree_free
 stats_tree_get_abbr
 stats_tree_get_cfg_by_abbr

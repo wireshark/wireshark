@@ -648,6 +648,23 @@ stats_tree_create_range_node(stats_tree *st, const gchar *name, int parent_id, .
 	return rng_root->id;
 }
 
+extern int 
+stats_tree_create_range_node_string(stats_tree *st, const gchar *name,
+				    int parent_id, int num_str_ranges,
+				    gchar** str_ranges)
+{
+	int i;
+	stat_node *rng_root = new_stat_node(st, name, parent_id, FALSE, TRUE);
+	stat_node *range_node = NULL;
+
+	for (i = 0; i < num_str_ranges; i++) {
+		range_node = new_stat_node(st, str_ranges[i], rng_root->id, FALSE, FALSE);
+		range_node->rng = get_range(str_ranges[i]);
+	}
+
+	return rng_root->id;
+}
+
 /****/
 extern int
 stats_tree_parent_id_by_name(stats_tree *st, const gchar *parent_name)
