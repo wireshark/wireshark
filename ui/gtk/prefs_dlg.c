@@ -296,36 +296,36 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
 GtkWidget*
 simple_prefs_show(module_t *module)
 {
-    GtkWidget   *main_tb, *main_vb, *frame, *main_sw;
+  GtkWidget   *main_tb, *main_vb, *frame, *main_sw;
 
-    /* Scrolled window */
-    main_sw = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  /* Scrolled window */
+  main_sw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
-    /* Frame */
-    frame = gtk_frame_new(module->description);
-    gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
-    g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
+  /* Frame */
+  frame = gtk_frame_new(module->description);
+  gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
+  g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
 
-    /* Main vertical box */
-    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
-    gtk_container_add(GTK_CONTAINER(frame), main_vb);
+  /* Main vertical box */
+  main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_add(GTK_CONTAINER(frame), main_vb);
 
-    /* Main table */
-    main_tb = gtk_table_new(module->numprefs, 2, FALSE);
-    gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-    gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
+  /* Main table */
+  main_tb = gtk_table_new(module->numprefs, 2, FALSE);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
+  gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
+  gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 
-    /* Add items for each of the preferences */
-    prefs_pref_foreach(module, pref_show, main_tb);
+  /* Add items for each of the preferences */
+  prefs_pref_foreach(module, pref_show, main_tb);
 
-    /* Show 'em what we got */
-    gtk_widget_show_all(main_vb);
+  /* Show 'em what we got */
+  gtk_widget_show_all(main_vb);
 
-    return main_vb;
+  return main_vb;
 }
 
 #define MAX_TREE_NODE_NAME_LEN 64
@@ -367,14 +367,14 @@ module_prefs_show(module_t *module, gpointer user_data)
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
 
   if (module->parent == NULL) {
-        prefs_nb_page_add(cts->notebook, label_str, simple_prefs_show(module), module->title);
-        gtk_tree_store_append(model, &iter, NULL);
-        /* Save the protocols page */
-        if (strcmp(module->title, "Protocols") == 0) {
-            protocols_page = cts->page++;
-        } else {
-            cts->page++;
-        }
+    prefs_nb_page_add(cts->notebook, label_str, simple_prefs_show(module), module->title);
+    gtk_tree_store_append(model, &iter, NULL);
+    /* Save the protocols page */
+    if (strcmp(module->title, "Protocols") == 0) {
+      protocols_page = cts->page++;
+    } else {
+      cts->page++;
+    }
   }
   else
     gtk_tree_store_append(model, &iter, &cts->iter);
