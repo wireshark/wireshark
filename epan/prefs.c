@@ -353,6 +353,8 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 
     /*
      * Have we yet created the "Protocols" subtree?
+     * XXX - can we just do this by registering Protocols/{subtree}?
+     * If not, why not?
      */
     if (protocols_module == NULL) {
         /*
