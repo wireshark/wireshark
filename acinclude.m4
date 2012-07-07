@@ -1674,6 +1674,52 @@ else
 fi
 ])
 
+# AC_WIRESHARK_GCC_FORTIFY_SOURCE_CHECK
+#
+# Checks if '-D_FORTIFY_SOURCE=...' is OK to use in CPPFLAGS.
+#  Use '-D_FORTIFY_SOURCE=...' in CPPFLAGS only if the GCC 'optimization level' is > 0.
+#  The use of '-D_FORTIFY_SOURCE=...' will cause a warning with at least some versions
+#    of glibc if the  GCC "optimization level" is 0 (default or -O or -O0)
+#    when using GCC to compile a source file which references the macro definition.
+#
+# See: http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
+# See: http://sourceware.org/bugzilla/show_bug.cgi?id=13979
+#
+#   We'll use '-D_FORTIFY_SOURCE=2' only if there's no warning; Among other things this means
+#    that the  use of '-D_FORTIFY_SOURCE=2' with '-Werror' and '-O0' won't cause
+#    the compiler to stop on error.
+#   Assumption: CFLAGS already contains whatever optimization option including none) is
+#    to be used.
+#
+
+AC_DEFUN([AC_WIRESHARK_GCC_FORTIFY_SOURCE_CHECK],
+[
+if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
+  AC_MSG_CHECKING([whether -D_FORTIFY_SOURCE=... can be used (without generating a warning)])
+  CFLAGS_saved="$CFLAGS"
+  CPPFLAGS_saved="$CPPFLAGS"
+  CFLAGS="$CFLAGS -Werror"
+  CPPFLAGS="$CPPFLAGS -D_FORTIFY_SOURCE=2"
+  AC_COMPILE_IFELSE([
+    AC_LANG_SOURCE([[
+                  #include <stdio.h>
+                      int foo;
+                  ]])],
+                  [
+                    AC_MSG_RESULT(yes)
+                    #
+                    # (CPPFLAGS contains _D_FORTIFY_SOURCE=2)
+                    #
+                  ],
+                  [
+                    AC_MSG_RESULT(no)
+                    # Remove -D_FORTIFY_SOURCE=2
+                    CPPFLAGS="$CPPFLAGS_saved"
+                  ])
+  CFLAGS="$CFLAGS_saved"
+fi
+])
+
 #
 # AC_WIRESHARK_OSX_INTEGRATION_CHECK
 #

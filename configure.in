@@ -436,12 +436,14 @@ else
   CPPFLAGS="-D_U_=\"\" $CPPFLAGS"
 fi
 
-# If we're running GCC or CLang, always use FORTIFY_SOURCE=2
+# If we're running GCC or CLang, use FORTIFY_SOURCE=2
+#  (only if the GCC 'optimization level' > 0).
+#
 # See: http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
-# Note: FORTIFY_SOURCE is only effective for gcc -O2 (and -O1 ?)
-if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-  CPPFLAGS="-D_FORTIFY_SOURCE=2 $CPPFLAGS"
-fi
+# See: http://sourceware.org/bugzilla/show_bug.cgi?id=13979
+#
+# Note: FORTIFY_SOURCE is only effective for gcc optimization level > 0 (-O1, etc)
+AC_WIRESHARK_GCC_FORTIFY_SOURCE_CHECK
 
 #
 # If the compiler supports GCC-style flags, enable a barrier "stop on
