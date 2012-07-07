@@ -120,8 +120,6 @@ struct ct_struct {
   GtkTreeStore *store;
 };
 
-static gint protocols_page = 0;
-
 static guint
 pref_exists(pref_t *pref _U_, gpointer user_data _U_)
 {
@@ -292,11 +290,76 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
   return frame;
 }
 
-/* create a basic window for preferences */
-GtkWidget*
-simple_prefs_show(module_t *module)
+#define MAX_TREE_NODE_NAME_LEN 64
+
+/* show prefs page for each registered module (protocol) */
+static guint
+module_prefs_show(module_t *module, gpointer user_data)
 {
-  GtkWidget   *main_tb, *main_vb, *frame, *main_sw;
+  struct ct_struct *cts = user_data;
+  struct ct_struct child_cts;
+  GtkWidget        *main_vb, *main_tb, *frame, *main_sw;
+  gchar            label_str[MAX_TREE_NODE_NAME_LEN];
+  GtkTreeStore     *model;
+  GtkTreeIter      iter;
+
+  /*
+   * Is this module an interior node, with modules underneath it?
+   */
+  if (!prefs_module_has_submodules(module)) {
+    /*
+     * No.
+     * Does it have any preferences (other than possibly obsolete ones)?
+     */
+    if (prefs_pref_foreach(module, pref_exists, NULL) == 0) {
+      /*
+       * No.  Don't put the module into the preferences window,
+       * as there's nothing to show.
+       *
+       * XXX - we should do the same for interior ndes; if the module
+       * has no non-obsolete preferences *and* nothing under it has
+       * non-obsolete preferences, don't put it into the window.
+       */
+      return 0;
+    }
+  }
+
+  /*
+   * Add this module to the tree.
+   */
+  g_strlcpy(label_str, module->title, MAX_TREE_NODE_NAME_LEN);
+  model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
+
+  if (module->parent == NULL)
+    gtk_tree_store_append(model, &iter, NULL);
+  else
+    gtk_tree_store_append(model, &iter, &cts->iter);
+
+  /*
+   * Is this an interior node?
+   */
+  if (prefs_module_has_submodules(module)) {
+    /*
+     * Yes.
+     */
+    gtk_tree_store_set(model, &iter, 0, label_str, 1, -1, -1);
+
+    /*
+     * Walk the subtree and attach stuff to it.
+     */
+    child_cts = *cts;
+    child_cts.iter = iter;
+    prefs_modules_foreach_submodules(module, module_prefs_show, &child_cts);
+
+    /* keep the page count right */
+    cts->page = child_cts.page;
+  }
+
+  /*
+   * We create pages for interior nodes even if they don't have
+   * preferences, so that we at least have something to show
+   * if the user clicks on them, even if it's empty.
+   */
 
   /* Scrolled window */
   main_sw = gtk_scrolled_window_new(NULL, NULL);
@@ -322,133 +385,20 @@ simple_prefs_show(module_t *module)
   /* Add items for each of the preferences */
   prefs_pref_foreach(module, pref_show, main_tb);
 
+  /* Associate this module with the page's frame. */
+  g_object_set_data(G_OBJECT(frame), E_PAGE_MODULE_KEY, module);
+
+  /* Add the page to the notebook */
+  gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), main_sw, NULL);
+
+  /* Attach the page to the tree item */
+  gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
+  g_object_set_data(G_OBJECT(frame), E_PAGE_ITER_KEY, gtk_tree_iter_copy(&iter));
+
+  cts->page++;
+
   /* Show 'em what we got */
-  gtk_widget_show_all(main_vb);
-
-  return main_vb;
-}
-
-#define MAX_TREE_NODE_NAME_LEN 64
-
-/* show prefs page for each registered module (protocol) */
-static guint
-module_prefs_show(module_t *module, gpointer user_data)
-{
-  struct ct_struct *cts = user_data;
-  struct ct_struct child_cts;
-  GtkWidget        *main_vb, *main_tb, *frame, *main_sw;
-  gchar            label_str[MAX_TREE_NODE_NAME_LEN];
-  GtkTreeStore     *model;
-  GtkTreeIter      iter;
-
-  /*
-   * Is this module a subtree, with modules underneath it?
-   */
-  if (!prefs_module_has_submodules(module)) {
-    /*
-     * No.
-     * Does it have any preferences (other than possibly obsolete ones)?
-     */
-    if (prefs_pref_foreach(module, pref_exists, NULL) == 0) {
-      /*
-       * No.  Don't put the module into the preferences window.
-       * XXX - we should do the same for subtrees; if a subtree has
-       * nothing under it that will be displayed, don't put it into
-       * the window.
-       */
-      return 0;
-    }
-  }
-
-  /*
-   * Add this module to the tree.
-   */
-  g_strlcpy(label_str, module->title, MAX_TREE_NODE_NAME_LEN);
-  model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
-
-  if (module->parent == NULL) {
-    prefs_nb_page_add(cts->notebook, label_str, simple_prefs_show(module), module->title);
-    gtk_tree_store_append(model, &iter, NULL);
-    /* Save the protocols page */
-    if (strcmp(module->title, "Protocols") == 0) {
-      protocols_page = cts->page++;
-    } else {
-      cts->page++;
-    }
-  }
-  else
-    gtk_tree_store_append(model, &iter, &cts->iter);
-
-  /*
-   * Is this a subtree?
-   */
-  if (prefs_module_has_submodules(module)) {
-    /*
-     * Yes.
-     */
-
-    gtk_tree_store_set(model, &iter, 0, label_str, 1, -1, -1);
-
-    /*
-     * Walk the subtree and attach stuff to it.
-     */
-    child_cts = *cts;
-    child_cts.iter = iter;
-    prefs_modules_foreach_submodules(module, module_prefs_show, &child_cts);
-
-    /* keep the page count right */
-    cts->page = child_cts.page;
-
-  }
-  if(module->prefs) {
-    /*
-     * Has preferences.  Create a notebook page for it.
-     */
-
-    /* Scrolled window */
-    main_sw = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-
-    /* Frame */
-    frame = gtk_frame_new(module->description);
-    gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
-    g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
-
-    /* Main vertical box */
-    main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
-    gtk_container_add(GTK_CONTAINER(frame), main_vb);
-
-    /* Main table */
-    main_tb = gtk_table_new(module->numprefs, 2, FALSE);
-    gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
-    gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
-    gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-
-    /* Add items for each of the preferences */
-    prefs_pref_foreach(module, pref_show, main_tb);
-
-    /* Associate this module with the page's frame. */
-    g_object_set_data(G_OBJECT(frame), E_PAGE_MODULE_KEY, module);
-
-    /* Add the page to the notebook */
-    gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), main_sw, NULL);
-
-    /* Attach the page to the tree item */
-    gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
-    g_object_set_data(G_OBJECT(frame), E_PAGE_ITER_KEY, gtk_tree_iter_copy(&iter));
-
-    cts->page++;
-
-    /* Show 'em what we got */
-    gtk_widget_show_all(main_sw);
-  } else {
-    /* show the protocols page */
-
-    gtk_tree_store_set(model, &iter, 0, label_str, 1, protocols_page, -1);
-
-  }
+  gtk_widget_show_all(main_sw);
 
   return 0;
 }

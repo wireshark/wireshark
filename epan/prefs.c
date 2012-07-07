@@ -376,8 +376,12 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
                 *sep++ = '\0';
 
             if(!(new_module = find_subtree(subtree_module, ptr))) {
-                /* create it */
-                new_module = prefs_register_subtree(subtree_module, ptr, NULL);
+                /*
+                 * There's no such module; create it, with the description
+                 * being the name (if it's later registered explicitly
+                 * with a description, that will override it).
+                 */
+                new_module = prefs_register_subtree(subtree_module, ptr, ptr);
             }
 
             subtree_module = new_module;
