@@ -5828,7 +5828,9 @@ elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 {
     guint8      oct;
     guint32     curr_offset;
+#ifndef MLUM
     guint       is2000_portion_len;
+#endif
 
     curr_offset = offset;
 
@@ -5847,9 +5849,9 @@ elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 
     curr_offset++;
 
-    is2000_portion_len = len - (curr_offset - offset);
-
 #ifndef MLUM
+
+    is2000_portion_len = len - (curr_offset - offset);
 
     NO_MORE_DATA_CHECK(len);
 
