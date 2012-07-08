@@ -12,7 +12,7 @@
 /*
  * Wireshark - Network traffic analyzer
  * By Gerald Combs
- * Copyright 1999 - 2006 Gerald Combs
+ * Copyright 1999 - 2012 Gerald Combs
  */
 
 static int hf_operationrequest = -1;/* Request_Operation field */
@@ -47,7 +47,6 @@ static int hf_operationrequest = -1;/* Request_Operation field */
 #include <epan/proto.h>
 #include <epan/dissectors/packet-giop.h>
 
-
 #ifdef _MSC_VER
 /* disable warning: "unreference local variable" */
 #pragma warning(disable:4101)
@@ -70,7 +69,6 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /* Union prototype declaration End */
 
 
-
 /* Initialise the protocol and subtree pointers */
 
 static int proto_coseventcomm = -1;
@@ -89,31 +87,9 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 /* TODO - Use registered fields */
 
 /*
- * IDL Operations Start
- */
- 
-static const char CosEventComm_PushConsumer_push_op[] = "push" ;
-static const char CosEventComm_PushConsumer_disconnect_push_consumer_op[] = "disconnect_push_consumer" ;
-static const char CosEventComm_PushSupplier_disconnect_push_supplier_op[] = "disconnect_push_supplier" ;
-static const char CosEventComm_PullSupplier_pull_op[] = "pull" ;
-static const char CosEventComm_PullSupplier_try_pull_op[] = "try_pull" ;
-static const char CosEventComm_PullSupplier_disconnect_pull_supplier_op[] = "disconnect_pull_supplier" ;
-static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "disconnect_pull_consumer" ;
-
-/*
- * IDL Operations End
- */
-
-/*  Begin Exception (containing members) String  Declare  */
-
-
-
-/*  End Exception (containing members) String Declare  */
-
-/*
  * IDL Attributes Start
  */
- 
+
 
 /*
  * IDL Attributes End
@@ -122,11 +98,11 @@ static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "dis
 /*
  * IDL Enums Start
  */
- 
+
 /*
  * IDL Enums End
  */
- 
+
 /*  Begin Exception Helper Functions  */
 
 
@@ -137,8 +113,9 @@ static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "dis
  * Main delegator for exception handling
  *
  */
-
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static gboolean
+decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     /*gboolean stream_is_big_endian _U_;*/                        /* big endianess */
     proto_tree *tree _U_;
@@ -161,7 +138,9 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
  * IDL:omg.org/CosEventComm/PushConsumer/push:1.0
  */
 
-static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -221,7 +200,9 @@ static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info
  * IDL:omg.org/CosEventComm/PushConsumer/disconnect_push_consumer:1.0
  */
 
-static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -279,7 +260,9 @@ static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *
  * IDL:omg.org/CosEventComm/PushSupplier/disconnect_push_supplier:1.0
  */
 
-static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -337,7 +320,9 @@ static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *
  * IDL:omg.org/CosEventComm/PullSupplier/pull:1.0
  */
 
-static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -395,12 +380,13 @@ static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info
  * IDL:omg.org/CosEventComm/PullSupplier/try_pull:1.0
  */
 
-static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
 
-    guint8    u_octet1;
     
     /* Operation specific Variable declarations End */
 
@@ -419,9 +405,8 @@ static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_
 
             get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 
-            u_octet1 = get_CDR_boolean(tvb,offset);
             if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-1,1,"has_event = %u",u_octet1);
+               proto_tree_add_text(tree,tvb,*offset-1,1,"has_event = %u",get_CDR_boolean(tvb,offset));
             }
 
             break;
@@ -459,7 +444,9 @@ static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_
  * IDL:omg.org/CosEventComm/PullSupplier/disconnect_pull_supplier:1.0
  */
 
-static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -517,7 +504,9 @@ static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *
  * IDL:omg.org/CosEventComm/PullConsumer/disconnect_pull_consumer:1.0
  */
 
-static void decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -576,7 +565,9 @@ static void decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *
  * Protocol and Info columns and creates the top-level protocol
  * tree item.
  */
-static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset) {
+static proto_tree *
+start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset)
+{
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
@@ -597,7 +588,9 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return tree;
 }
 
-static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
+static gboolean
+dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname)
+{
 
     gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
@@ -622,7 +615,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     case Request:
     case Reply:
 
-        if (strcmp(operation, CosEventComm_PushConsumer_push_op) == 0
+        if (strcmp(operation, "push") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -630,7 +623,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PushConsumer_disconnect_push_consumer_op) == 0
+        if (strcmp(operation, "disconnect_push_consumer") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -638,7 +631,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PushSupplier_disconnect_push_supplier_op) == 0
+        if (strcmp(operation, "disconnect_push_supplier") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushSupplier") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -646,7 +639,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullSupplier_pull_op) == 0
+        if (strcmp(operation, "pull") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -654,7 +647,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullSupplier_try_pull_op) == 0
+        if (strcmp(operation, "try_pull") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -662,7 +655,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullSupplier_disconnect_pull_supplier_op) == 0
+        if (strcmp(operation, "disconnect_pull_supplier") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -670,7 +663,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
            return TRUE;
         }
 
-        if (strcmp(operation, CosEventComm_PullConsumer_disconnect_pull_consumer_op) == 0
+        if (strcmp(operation, "disconnect_pull_consumer") == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullConsumer") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -764,5 +757,4 @@ void proto_reg_handoff_giop_coseventcomm(void) {
 
 
 }
-
 

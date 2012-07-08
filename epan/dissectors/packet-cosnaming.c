@@ -12,7 +12,7 @@
 /*
  * Wireshark - Network traffic analyzer
  * By Gerald Combs
- * Copyright 1999 - 2006 Gerald Combs
+ * Copyright 1999 - 2012 Gerald Combs
  */
 
 static int hf_operationrequest = -1;/* Request_Operation field */
@@ -61,12 +61,10 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 
 /* Struct = IDL:omg.org/CosNaming/NameComponent:1.0 */
-
 static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:omg.org/CosNaming/Binding:1.0 */
-
 static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
@@ -77,7 +75,6 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /* Union prototype declaration End */
-
 
 
 /* Initialise the protocol and subtree pointers */
@@ -98,39 +95,9 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 /* TODO - Use registered fields */
 
 /*
- * IDL Operations Start
- */
- 
-static const char CosNaming_NamingContext_bind_op[] = "bind" ;
-static const char CosNaming_NamingContext_rebind_op[] = "rebind" ;
-static const char CosNaming_NamingContext_bind_context_op[] = "bind_context" ;
-static const char CosNaming_NamingContext_rebind_context_op[] = "rebind_context" ;
-static const char CosNaming_NamingContext_resolve_op[] = "resolve" ;
-static const char CosNaming_NamingContext_unbind_op[] = "unbind" ;
-static const char CosNaming_NamingContext_new_context_op[] = "new_context" ;
-static const char CosNaming_NamingContext_bind_new_context_op[] = "bind_new_context" ;
-static const char CosNaming_NamingContext_destroy_op[] = "destroy" ;
-static const char CosNaming_NamingContext_list_op[] = "list" ;
-static const char CosNaming_BindingIterator_next_one_op[] = "next_one" ;
-static const char CosNaming_BindingIterator_next_n_op[] = "next_n" ;
-static const char CosNaming_BindingIterator_destroy_op[] = "destroy" ;
-
-/*
- * IDL Operations End
- */
-
-/*  Begin Exception (containing members) String  Declare  */
-
-
-static const char user_exception_CosNaming_NamingContext_NotFound[] = "IDL:omg.org/CosNaming/NamingContext/NotFound:1.0" ; 
-static const char user_exception_CosNaming_NamingContext_CannotProceed[] = "IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0" ; 
-
-/*  End Exception (containing members) String Declare  */
-
-/*
  * IDL Attributes Start
  */
- 
+
 
 /*
  * IDL Attributes End
@@ -139,40 +106,39 @@ static const char user_exception_CosNaming_NamingContext_CannotProceed[] = "IDL:
 /*
  * IDL Enums Start
  */
- 
+
 /*
  * Enum = IDL:omg.org/CosNaming/BindingType:1.0
  */
- 
 static const value_string CosNaming_BindingType[] = {
 
-   { 0, "nobject" }, 
-   { 1, "ncontext" }, 
+   { 0, "nobject" },
+   { 1, "ncontext" },
    { 0,       NULL },
 };
 
 /*
  * Enum = IDL:omg.org/CosNaming/NamingContext/NotFoundReason:1.0
  */
- 
 static const value_string CosNaming_NamingContext_NotFoundReason[] = {
 
-   { 0, "missing_node" }, 
-   { 1, "not_context" }, 
-   { 2, "not_object" }, 
+   { 0, "missing_node" },
+   { 1, "not_context" },
+   { 2, "not_object" },
    { 0,       NULL },
 };
 
 /*
  * IDL Enums End
  */
- 
+
 /*  Begin Exception Helper Functions  */
 
 
 /* Exception = IDL:omg.org/CosNaming/NamingContext/NotFound:1.0 */
-
-static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -209,8 +175,9 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet
 }
 
 /* Exception = IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0 */
-
-static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -249,8 +216,9 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
  * Main delegator for exception handling
  *
  */
-
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static gboolean
+decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     /*gboolean stream_is_big_endian _U_;*/                        /* big endianess */
     proto_tree *tree _U_;
@@ -258,13 +226,13 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     if (!header->exception_id)
         return FALSE;
 
-    if (strcmp(header->exception_id, user_exception_CosNaming_NamingContext_NotFound) == 0) {
+    if (strcmp(header->exception_id, "IDL:omg.org/CosNaming/NamingContext/NotFound:1.0") == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
        decode_ex_CosNaming_NamingContext_NotFound(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:omg.org/CosNaming/NamingContext/NotFound:1.0  */
        return TRUE;
     }
 
-    if (strcmp(header->exception_id, user_exception_CosNaming_NamingContext_CannotProceed) == 0) {
+    if (strcmp(header->exception_id, "IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0") == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
        decode_ex_CosNaming_NamingContext_CannotProceed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0  */
        return TRUE;
@@ -285,7 +253,9 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
  * IDL:omg.org/CosNaming/NamingContext/bind:1.0
  */
 
-static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -365,7 +335,9 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
  * IDL:omg.org/CosNaming/NamingContext/rebind:1.0
  */
 
-static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -445,7 +417,9 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
  * IDL:omg.org/CosNaming/NamingContext/bind_context:1.0
  */
 
-static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -525,7 +499,9 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
  * IDL:omg.org/CosNaming/NamingContext/rebind_context:1.0
  */
 
-static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -605,7 +581,9 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
  * IDL:omg.org/CosNaming/NamingContext/resolve:1.0
  */
 
-static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -683,7 +661,9 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
  * IDL:omg.org/CosNaming/NamingContext/unbind:1.0
  */
 
-static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -760,7 +740,9 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
  * IDL:omg.org/CosNaming/NamingContext/new_context:1.0
  */
 
-static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -819,7 +801,9 @@ static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet
  * IDL:omg.org/CosNaming/NamingContext/bind_new_context:1.0
  */
 
-static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -897,7 +881,9 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
  * IDL:omg.org/CosNaming/NamingContext/destroy:1.0
  */
 
-static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -955,12 +941,13 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_inf
  * IDL:omg.org/CosNaming/NamingContext/list:1.0
  */
 
-static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
     guint32   u_octet4_loop_bl;
     guint32   i_bl;
     
@@ -971,9 +958,8 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
 
     case Request:
 
-        u_octet4 = get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4,4,"how_many = %u",u_octet4);
+           proto_tree_add_text(tree,tvb,*offset-4,4,"how_many = %u",get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
         }
 
         break;
@@ -1041,12 +1027,13 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
  * IDL:omg.org/CosNaming/BindingIterator/next_one:1.0
  */
 
-static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
 
-    guint8    u_octet1;
     
     /* Operation specific Variable declarations End */
 
@@ -1063,9 +1050,8 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
 
         case NO_EXCEPTION:
 
-            u_octet1 = get_CDR_boolean(tvb,offset);
             if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-1,1,"Operation_Return_Value = %u",u_octet1);
+               proto_tree_add_text(tree,tvb,*offset-1,1,"Operation_Return_Value = %u",get_CDR_boolean(tvb,offset));
             }
 
             /*  Begin struct "CosNaming_Binding"  */
@@ -1111,13 +1097,13 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
  * IDL:omg.org/CosNaming/BindingIterator/next_n:1.0
  */
 
-static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    guint8    u_octet1;
     guint32   u_octet4_loop_bl;
     guint32   i_bl;
     
@@ -1128,9 +1114,8 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 
     case Request:
 
-        u_octet4 = get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4,4,"how_many = %u",u_octet4);
+           proto_tree_add_text(tree,tvb,*offset-4,4,"how_many = %u",get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
         }
 
         break;
@@ -1141,9 +1126,8 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 
         case NO_EXCEPTION:
 
-            u_octet1 = get_CDR_boolean(tvb,offset);
             if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-1,1,"Operation_Return_Value = %u",u_octet1);
+               proto_tree_add_text(tree,tvb,*offset-1,1,"Operation_Return_Value = %u",get_CDR_boolean(tvb,offset));
             }
 
             u_octet4_loop_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
@@ -1198,7 +1182,9 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
  * IDL:omg.org/CosNaming/BindingIterator/destroy:1.0
  */
 
-static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -1253,8 +1239,9 @@ static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_i
 }
 
 /* Struct = IDL:omg.org/CosNaming/NameComponent:1.0 */
-
-static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -1285,8 +1272,9 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
 }
 
 /* Struct = IDL:omg.org/CosNaming/Binding:1.0 */
-
-static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     
     /* Operation specific Variable declarations Begin */
@@ -1327,7 +1315,9 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
  * Protocol and Info columns and creates the top-level protocol
  * tree item.
  */
-static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset) {
+static proto_tree *
+start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset)
+{
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
@@ -1348,7 +1338,9 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return tree;
 }
 
-static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
+static gboolean
+dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname)
+{
 
     gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
@@ -1373,7 +1365,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     case Request:
     case Reply:
 
-        if (strcmp(operation, CosNaming_NamingContext_bind_op) == 0
+        if (strcmp(operation, "bind") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1381,7 +1373,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_rebind_op) == 0
+        if (strcmp(operation, "rebind") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1389,7 +1381,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_bind_context_op) == 0
+        if (strcmp(operation, "bind_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1397,7 +1389,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_rebind_context_op) == 0
+        if (strcmp(operation, "rebind_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1405,7 +1397,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_resolve_op) == 0
+        if (strcmp(operation, "resolve") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1413,7 +1405,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_unbind_op) == 0
+        if (strcmp(operation, "unbind") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1421,7 +1413,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_new_context_op) == 0
+        if (strcmp(operation, "new_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1429,7 +1421,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_bind_new_context_op) == 0
+        if (strcmp(operation, "bind_new_context") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1437,7 +1429,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_destroy_op) == 0
+        if (strcmp(operation, "destroy") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1445,7 +1437,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_NamingContext_list_op) == 0
+        if (strcmp(operation, "list") == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1453,7 +1445,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_BindingIterator_next_one_op) == 0
+        if (strcmp(operation, "next_one") == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1461,7 +1453,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_BindingIterator_next_n_op) == 0
+        if (strcmp(operation, "next_n") == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1469,7 +1461,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
            return TRUE;
         }
 
-        if (strcmp(operation, CosNaming_BindingIterator_destroy_op) == 0
+        if (strcmp(operation, "destroy") == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
            process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1553,5 +1545,4 @@ void proto_reg_handoff_giop_cosnaming(void) {
 
 
 }
-
 

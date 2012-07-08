@@ -127,8 +127,8 @@ class wireshark_gen_C:
     #
     # Some string constants for our templates
     #
-    c_u_octet8    = "guint64   u_octet8;"  
-    c_s_octet8    = "gint64    s_octet8;"  
+    c_u_octet8    = "guint64   u_octet8;"
+    c_s_octet8    = "gint64    s_octet8;"
     c_u_octet4    = "guint32   u_octet4;"
     c_s_octet4    = "gint32    s_octet4;"
     c_u_octet2    = "guint16   u_octet2;"
@@ -198,8 +198,6 @@ class wireshark_gen_C:
         self.genDeclares(oplist,atlist,enlist,stlist,unlist)
         self.genProtocol()
         self.genRegisteredFields()
-        self.genOpList(oplist)          # string constant declares for operation names
-        self.genExList(oplist)          # string constant declares for user exceptions
         self.genAtList(atlist)          # string constant declares for Attributes
         self.genEnList(enlist)          # string constant declares for Enums
 
@@ -217,7 +215,8 @@ class wireshark_gen_C:
 
         self.gen_proto_register()
         self.gen_proto_reg_handoff(oplist)
-        self.gen_plugin_register()
+	# All the dissectors are now built-in
+        #self.gen_plugin_register()
 
         #self.dumpvars()                 # debug
 
@@ -360,59 +359,6 @@ class wireshark_gen_C:
         self.st.dec_indent()
         self.st.out(self.template_main_dissector_end)
 
-
-    #
-    # genOpList
-    #
-    # in: oplist
-    #
-    # out: C code for IDL operations
-    #
-    # eg:
-    #
-    # static const char Penguin_Echo_echoShort_op[] = "echoShort" ;
-    #
-
-    def genOpList(self,oplist):
-        self.st.out(self.template_comment_operations_start)
-
-        for n in oplist:
-            sname = self.namespace(n, "_")
-            opname = n.identifier()
-            self.st.out(self.template_operations_declare, sname=sname, opname=opname)
-
-        self.st.out(self.template_comment_operations_end)
-
-    #
-    # genExList
-    #
-    # in: oplist
-    #
-    # out: C code for IDL User Exceptions that contain members
-    #
-    # eg:
-    #
-    # static const char user_exception_tux_bad_value[] = "IDL:tux/bad_value:1.0" ;
-    #
-
-    def genExList(self,oplist):
-
-        self.st.out(self.template_comment_user_exceptions_string_declare_start)
-
-        exlist = self.get_exceptionList(oplist) # grab list of ALL UNIQUE exception nodes
-
-        for ex in exlist:
-            if self.DEBUG:
-                print "XXX Exception " , ex.repoId()
-                print "XXX Exception Identifier" , ex.identifier()
-                print "XXX Exception Scoped Name" , ex.scopedName()
-
-            if (ex.members()):          # only if has members
-                sname = self.namespace(ex, "_")
-                exname = ex.repoId()
-                self.st.out(self.template_user_exceptions_declare,  sname=sname, exname=ex.repoId())
-
-        self.st.out(self.template_comment_user_exceptions_string_declare_end)
 
     #
     # genAtList
@@ -846,7 +792,7 @@ class wireshark_gen_C:
             iname = "/".join(op.scopedName()[:-1])
             opname = op.identifier()
             sname = self.namespace(op, "_")
-            self.st.out(self.template_op_delegate_code, interface=iname, sname=sname)
+            self.st.out(self.template_op_delegate_code, interface=iname, sname=sname, opname=opname)
 
     #
     # Delegator for Attributes
@@ -1030,42 +976,33 @@ class wireshark_gen_C:
 
     def get_CDR_ulong(self,pn):
         self.st.out(self.template_get_CDR_ulong, varname=pn)
-        self.addvar(self.c_u_octet4)
 
     def get_CDR_short(self,pn):
         self.st.out(self.template_get_CDR_short, varname=pn)
-        self.addvar(self.c_s_octet2)
 
     def get_CDR_void(self,pn):
         self.st.out(self.template_get_CDR_void, varname=pn)
 
     def get_CDR_long(self,pn):
         self.st.out(self.template_get_CDR_long, varname=pn)
-        self.addvar(self.c_s_octet4)
 
     def get_CDR_ushort(self,pn):
         self.st.out(self.template_get_CDR_ushort, varname=pn)
-        self.addvar(self.c_u_octet2)
 
     def get_CDR_float(self,pn):
         self.st.out(self.template_get_CDR_float, varname=pn)
-        self.addvar(self.c_float)
 
     def get_CDR_double(self,pn):
         self.st.out(self.template_get_CDR_double, varname=pn)
-        self.addvar(self.c_double)
 
     def get_CDR_longlong(self,pn):
         self.st.out(self.template_get_CDR_longlong, varname=pn)
-        self.addvar(self.c_s_octet8)
 
     def get_CDR_ulonglong(self,pn):
         self.st.out(self.template_get_CDR_ulonglong, varname=pn)
-        self.addvar(self.c_u_octet8)
 
     def get_CDR_boolean(self,pn):
         self.st.out(self.template_get_CDR_boolean, varname=pn)
-        self.addvar(self.c_u_octet1)
 
     def get_CDR_fixed(self,type,pn):
         if self.DEBUG:
@@ -1083,11 +1020,9 @@ class wireshark_gen_C:
 
     def get_CDR_char(self,pn):
         self.st.out(self.template_get_CDR_char, varname=pn)
-        self.addvar(self.c_u_octet1)
 
     def get_CDR_octet(self,pn):
         self.st.out(self.template_get_CDR_octet, varname=pn)
-        self.addvar(self.c_u_octet1)
 
     def get_CDR_any(self,pn):
         self.st.out(self.template_get_CDR_any, varname=pn)
@@ -1096,8 +1031,6 @@ class wireshark_gen_C:
         #self.st.out(self.template_get_CDR_enum, varname=pn)
         sname = self.namespace(type.unalias(), "_")
         self.st.out(self.template_get_CDR_enum_symbolic, valstringarray=sname,varname=pn)
-
-
         self.addvar(self.c_u_octet4)
 
     def get_CDR_string(self,pn):
@@ -1124,8 +1057,6 @@ class wireshark_gen_C:
 
     def get_CDR_sequence_len(self,pn):
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
-        self.addvar(self.c_u_octet4)
-
 
 
     def get_CDR_union(self,type,pn):
@@ -1604,18 +1535,6 @@ class wireshark_gen_C:
     # Templates for C code
     #
 
-    template_comment_operations_start = """\
-/*
- * IDL Operations Start
- */
- """
-    template_operations_declare = """static const char @sname@_op[] = \"@opname@\" ;"""
-
-    template_comment_operations_end = """
-/*
- * IDL Operations End
- */
-"""
     template_helper_function_comment = """\
 /*
  * @repoid@
@@ -1628,7 +1547,9 @@ class wireshark_gen_C:
 /* Operation specific Variable declarations End */
 """
     template_helper_function_start = """\
-static void decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 """
     template_helper_function_end = """\
 }
@@ -1747,9 +1668,9 @@ void proto_register_giop_@dissector_name@(void) {
     #
     # template for delegation code
     #
-    
+
     template_op_delegate_code = """\
-if (strcmp(operation, @sname@_op) == 0
+if (strcmp(operation, "@opname@") == 0
     && (!idlname || strcmp(idlname, \"@interface@\") == 0)) {
    process_RequestOperation();  /* fill-up Request_Operation field & info column */
    tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -1794,7 +1715,7 @@ case NO_EXCEPTION:
 """
     template_helper_switch_msgtype_reply_no_exception_end = """\
 break;
-"""    
+"""
     template_helper_switch_msgtype_reply_user_exception_start = """\
 case USER_EXCEPTION:
 """
@@ -1843,78 +1764,67 @@ default:
 
 break;
 """
-    
+
     #
     # Templates for get_CDR_xxx accessors
     #
 
     template_get_CDR_ulong = """\
-u_octet4 = get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %u",u_octet4);
+   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %u",get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_short = """\
-s_octet2 = get_CDR_short(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-2,2,"@varname@ = %i",s_octet2);
+   proto_tree_add_text(tree,tvb,*offset-2,2,"@varname@ = %i",get_CDR_short(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_void = """\
 /* Function returns void */
 """
     template_get_CDR_long = """\
-s_octet4 = get_CDR_long(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %i",s_octet4);
+   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_ushort = """\
-u_octet2 = get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-2,2,"@varname@ = %u",u_octet2);
+   proto_tree_add_text(tree,tvb,*offset-2,2,"@varname@ = %u",get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_float = """\
-my_float = get_CDR_float(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %.6e",my_float);
+   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@ = %.6e",get_CDR_float(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_double = """\
-my_double = get_CDR_double(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %.15e",my_double);
+   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %.15e",get_CDR_double(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_longlong = """\
-s_octet8 = get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" G_GINT64_MODIFIER "d",s_octet8);
+   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" G_GINT64_MODIFIER "d",get_CDR_long_long(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_ulonglong = """\
-u_octet8 = get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" G_GINT64_MODIFIER "u",u_octet8);
+   proto_tree_add_text(tree,tvb,*offset-8,8,"@varname@ = %" G_GINT64_MODIFIER "u",get_CDR_ulong_long(tvb,offset,stream_is_big_endian, boundary));
 }
 """
     template_get_CDR_boolean = """\
-u_octet1 = get_CDR_boolean(tvb,offset);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",u_octet1);
+   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",get_CDR_boolean(tvb,offset));
 }
 """
     template_get_CDR_char = """\
-u_octet1 = get_CDR_char(tvb,offset);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",u_octet1);
+   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",get_CDR_char(tvb,offset));
 }
 """
     template_get_CDR_octet = """\
-u_octet1 = get_CDR_octet(tvb,offset);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",u_octet1);
+   proto_tree_add_text(tree,tvb,*offset-1,1,"@varname@ = %u",get_CDR_octet(tvb,offset));
 }
 """
     template_get_CDR_any = """\
@@ -2118,7 +2028,9 @@ static int hf_operationrequest = -1;/* Request_Operation field */
  * Protocol and Info columns and creates the top-level protocol
  * tree item.
  */
-static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset) {
+static proto_tree *
+start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset)
+{
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
@@ -2139,7 +2051,9 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return tree;
 }
 
-static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
+static gboolean
+dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname)
+{
 
     gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
@@ -2219,25 +2133,6 @@ default:
 
 
 #
-# Templates for declaration of string constants for user exceptions.
-#
-
-    template_comment_user_exceptions_string_declare_start = """\
-/*  Begin Exception (containing members) String  Declare  */
-
-"""
-    template_user_exceptions_declare = """static const char user_exception_@sname@[] = \"@exname@\" ; """
-
-
-    template_comment_user_exceptions_string_declare_end = """\
-
-/*  End Exception (containing members) String Declare  */
-"""
-
-
-
-
-#
 # template for Main delegator for exception handling
 #
 
@@ -2246,8 +2141,9 @@ default:
  * Main delegator for exception handling
  *
  */
-
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static gboolean
+decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 
     /*gboolean stream_is_big_endian _U_;*/                        /* big endianess */
     proto_tree *tree _U_;
@@ -2261,7 +2157,7 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 # template for exception delegation code body
 #
     template_ex_delegate_code = """\
-if (strcmp(header->exception_id, user_exception_@sname@) == 0) {
+if (strcmp(header->exception_id, "@exname@") == 0) {
    tree = start_dissecting(tvb, pinfo, ptree, offset);
    decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  @exname@  */
    return TRUE;
@@ -2288,8 +2184,9 @@ if (strcmp(header->exception_id, user_exception_@sname@) == 0) {
 
     template_exception_helper_function_start = """\
 /* Exception = @exname@ */
-
-static void decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 """
 
     template_exception_helper_function_end = """\
@@ -2304,8 +2201,9 @@ static void decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
     template_struct_helper_function_start = """\
 /* Struct = @stname@ */
-
-static void decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 """
 
     template_struct_helper_function_end = """\
@@ -2319,8 +2217,9 @@ static void decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
     template_union_helper_function_start = """\
 /* Union = @unname@ */
-
-static void decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 """
 
     template_union_helper_function_end = """\
@@ -2337,7 +2236,7 @@ static void decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 static const value_string @valstringname@[] = {
 """
     template_value_string_entry = """\
-   { @intval@, \"@description@\" }, """
+   { @intval@, \"@description@\" },"""
 
     template_value_string_end = """\
    { 0,       NULL },
@@ -2354,17 +2253,16 @@ static const value_string @valstringname@[] = {
 /*
  * IDL Enums Start
  */
- """
+"""
     template_comment_enums_end = """\
 /*
  * IDL Enums End
  */
- """
+"""
     template_comment_enum_comment = """\
 /*
  * Enum = @ename@
- */
- """
+ */"""
 
 
 
@@ -2377,7 +2275,7 @@ static const value_string @valstringname@[] = {
 /*
  * IDL Attributes Start
  */
- """
+"""
 
     #
     # get/set accessor method names are language mapping dependant.
@@ -2431,8 +2329,9 @@ if (strcmp(operation, set_@sname@_at) == 0 && (header->message_type == Request) 
     template_attribute_helper_function_start = """\
 
 /* Attribute = @atname@ */
-
-static void decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
+static void
+decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
 """
 
     template_attribute_helper_function_end = """\
@@ -2472,7 +2371,7 @@ static void decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 /*
  * IDL Union Start - @uname@
  */
- """
+"""
     template_comment_union_code_end = """
 /*
  * IDL union End - @uname@
@@ -2482,7 +2381,7 @@ static void decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 /*
  * IDL Union - Discriminant - @uname@
  */
- """
+"""
     #
     # Cast Unions types to something appropriate
     # Enum value cast to guint32, all others cast to gint32
@@ -2514,11 +2413,11 @@ disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast 
 """
     template_comment_union_code_label_compare_start = """\
 if (disc_s_@discname@ == @labelval@) {
- """
+"""
     template_comment_union_code_label_compare_end = """\
     return;     /* End Compare for this discriminant type */
 }
- """
+"""
 
 
     template_comment_union_code_label_default_start = """
@@ -2526,7 +2425,7 @@ if (disc_s_@discname@ == @labelval@) {
 """
     template_comment_union_code_label_default_end = """\
 /* Default Union Case End */
- """
+"""
 
     #
     # Templates for function prototypes.
@@ -2546,7 +2445,6 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 """
     template_prototype_struct_body = """
 /* Struct = @stname@ */
-
 static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 """
     template_decode_struct = """
@@ -2558,14 +2456,10 @@ decode_@name@_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endi
 """
     template_prototype_union_end = """
 /* Union prototype declaration End */
-
 """
     template_prototype_union_body = """
-
 /* Union = @unname@ */
-
 static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
-
 """
     template_decode_union = """
 decode_@name@_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
