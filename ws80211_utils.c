@@ -218,6 +218,7 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 		nla_parse(tb_band, NL80211_BAND_ATTR_MAX, nla_data(nl_band),
 			  nla_len(nl_band), NULL);
 
+#ifdef NL80211_BAND_ATTR_HT_CAPA
 		if (tb_band[NL80211_BAND_ATTR_HT_CAPA]) {
 			gboolean ht40;
 			iface->channel_types |= 1 << WS80211_CHAN_HT20;
@@ -227,6 +228,7 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 				iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
 			}
 		}
+#endif /* NL80211_BAND_ATTR_HT_CAPA */
 
 		nla_for_each_nested(nl_freq, tb_band[NL80211_BAND_ATTR_FREQS], rem_freq) {
 			uint32_t freq;
@@ -544,6 +546,7 @@ int ws80211_set_freq(const char *name, int freq, int chan_type)
 
 	switch (chan_type) {
 
+#ifdef NL80211_BAND_ATTR_HT_CAPA
 	case WS80211_CHAN_NO_HT:
 		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, NL80211_CHAN_NO_HT);
 		break;
@@ -559,8 +562,9 @@ int ws80211_set_freq(const char *name, int freq, int chan_type)
 	case WS80211_CHAN_HT40PLUS:
 		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, NL80211_CHAN_HT40PLUS);
 		break;
+#endif
 
-	case -1:
+	default:
 		break;
 	}
 	err = nl80211_do_cmd(msg, cb);
