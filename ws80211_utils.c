@@ -47,6 +47,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <netlink/msg.h>
 #include <netlink/attr.h>
 
+#include <linux/nl80211.h>
+
 /* libnl 1.x compatibility code */
 #ifdef HAVE_LIBNL1
 #define nl_sock nl_handle
@@ -202,7 +204,7 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 		return NL_SKIP;
 
 	iface->frequencies = g_array_new(FALSE, FALSE, sizeof(int));
-	iface->channel_types = 1 << NL80211_CHAN_NO_HT;
+	iface->channel_types = 1 << WS80211_CHAN_NO_HT;
 
 	if (tb_msg[NL80211_ATTR_WIPHY_NAME]) {
 		char *phyname;
@@ -218,11 +220,11 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 
 		if (tb_band[NL80211_BAND_ATTR_HT_CAPA]) {
 			gboolean ht40;
-			iface->channel_types |= 1 << NL80211_CHAN_HT20;
+			iface->channel_types |= 1 << WS80211_CHAN_HT20;
 			ht40 = !!(nla_get_u16(tb_band[NL80211_BAND_ATTR_HT_CAPA]) & 0x02);
 			if (ht40) {
-				iface->channel_types |= 1 << NL80211_CHAN_HT40MINUS;
-				iface->channel_types |= 1 << NL80211_CHAN_HT40PLUS;
+				iface->channel_types |= 1 << WS80211_CHAN_HT40MINUS;
+				iface->channel_types |= 1 << WS80211_CHAN_HT40PLUS;
 			}
 		}
 
@@ -540,9 +542,27 @@ int ws80211_set_freq(const char *name, int freq, int chan_type)
 	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, devidx);
 	NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_FREQ, freq);
 
-	if (chan_type != -1)
-		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, chan_type);
+	switch (chan_type) {
 
+	case WS80211_CHAN_NO_HT:
+		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, NL80211_CHAN_NO_HT);
+		break;
+
+	case WS80211_CHAN_HT20:
+		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, NL80211_CHAN_HT20);
+		break;
+
+	case WS80211_CHAN_HT40MINUS:
+		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, NL80211_CHAN_HT40MINUS);
+		break;
+
+	case WS80211_CHAN_HT40PLUS:
+		NLA_PUT_U32(msg, NL80211_ATTR_WIPHY_CHANNEL_TYPE, NL80211_CHAN_HT40PLUS);
+		break;
+
+	case -1:
+		break;
+	}
 	err = nl80211_do_cmd(msg, cb);
 	return err;
 
