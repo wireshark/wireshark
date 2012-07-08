@@ -740,47 +740,61 @@ void oid_pref_init(module_t *nameres)
                                   "Some errors can be ignored. If unsure, set to false.",
                                   &suppress_smi_errors);
 
-	smi_paths_uat = uat_new("SMI Paths",
-							  sizeof(smi_module_t),
-							  "smi_paths",
-							  FALSE,
-							  (void*)&smi_paths,
-							  &num_smi_paths,
-							  UAT_CAT_GENERAL,
-							  "ChSNMPSMIPaths",
-							  smi_mod_copy_cb,
-							  NULL,
-							  smi_mod_free_cb,
-							  restart_needed_warning,
-							  smi_paths_fields);
+    smi_paths_uat = uat_new("SMI Paths",
+                            sizeof(smi_module_t),
+                            "smi_paths",
+                            FALSE,
+                            (void*)&smi_paths,
+                            &num_smi_paths,
+    /* affects dissection of packets (as the MIBs and PIBs affect the
+       interpretation of e.g. SNMP variable bindings), but not set of
+       named fields
 
-	prefs_register_uat_preference(nameres,
-                                      "smi_paths",
-                                      "SMI (MIB and PIB) paths",
-                                      "Search paths for SMI (MIB and PIB) modules. You must\n"
-                                      "restart Wireshark for these changes to take effect.",
-                                      smi_paths_uat);
+       XXX - if named fields are generated from the MIBs and PIBs
+       for particular variable bindings, this *does* affect the set
+       of named fields! */
+                            UAT_AFFECTS_DISSECTION,
+                            "ChSNMPSMIPaths",
+                            smi_mod_copy_cb,
+                            NULL,
+                            smi_mod_free_cb,
+                            restart_needed_warning,
+                            smi_paths_fields);
 
-	smi_modules_uat = uat_new("SMI Modules",
-							  sizeof(smi_module_t),
-							  "smi_modules",
-							  FALSE,
-							  (void*)&smi_modules,
-							  &num_smi_modules,
-							  UAT_CAT_GENERAL,
-							  "ChSNMPSMIModules",
-							  smi_mod_copy_cb,
-							  NULL,
-							  smi_mod_free_cb,
-							  restart_needed_warning,
-							  smi_fields);
+    prefs_register_uat_preference(nameres,
+                                  "smi_paths",
+                                  "SMI (MIB and PIB) paths",
+                                  "Search paths for SMI (MIB and PIB) modules. You must\n"
+                                  "restart Wireshark for these changes to take effect.",
+                                  smi_paths_uat);
 
-	prefs_register_uat_preference(nameres,
-                                      "smi_modules",
-                                      "SMI (MIB and PIB) modules",
-                                      "List of enabled SMI (MIB and PIB) modules. You must\n"
-                                      "restart Wireshark for these changes to take effect.",
-                                      smi_modules_uat);
+    smi_modules_uat = uat_new("SMI Modules",
+                              sizeof(smi_module_t),
+                              "smi_modules",
+                              FALSE,
+                              (void*)&smi_modules,
+                              &num_smi_modules,
+    /* affects dissection of packets (as the MIBs and PIBs affect the
+       interpretation of e.g. SNMP variable bindings), but not set of
+       named fields
+
+       XXX - if named fields are generated from the MIBs and PIBs
+       for particular variable bindings, would this affect the set
+       of named fields? */
+                              UAT_AFFECTS_DISSECTION,
+                              "ChSNMPSMIModules",
+                              smi_mod_copy_cb,
+                              NULL,
+                              smi_mod_free_cb,
+                              restart_needed_warning,
+                              smi_fields);
+
+    prefs_register_uat_preference(nameres,
+                                  "smi_modules",
+                                  "SMI (MIB and PIB) modules",
+                                  "List of enabled SMI (MIB and PIB) modules. You must\n"
+                                  "restart Wireshark for these changes to take effect.",
+                                  smi_modules_uat);
 
 #else
     prefs_register_static_text_preference(nameres, "load_smi_modules_static",

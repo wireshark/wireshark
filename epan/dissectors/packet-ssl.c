@@ -5683,7 +5683,7 @@ proto_register_ssl(void)
             TRUE,                           /* from_profile */
             (void*) &sslkeylist_uats,       /* data_ptr */
             &nssldecrypt,                   /* numitems_ptr */
-            UAT_CAT_FFMT,                   /* category */
+            UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */
             ssldecrypt_copy_cb,
             ssldecrypt_update_cb,

@@ -4002,9 +4002,10 @@ proto_register_sccp(void)
 
   uat_t *users_uat = uat_new("SCCP Users Table", sizeof(sccp_user_t),
                              "sccp_users", TRUE, (void*) &sccp_users,
-                             &num_sccp_users, UAT_CAT_PORTS, "ChSccpUsers",
-                             sccp_users_copy_cb, sccp_users_update_cb,
-                             sccp_users_free_cb, NULL, users_flds );
+                             &num_sccp_users, UAT_AFFECTS_DISSECTION,
+                             "ChSccpUsers", sccp_users_copy_cb,
+                             sccp_users_update_cb, sccp_users_free_cb,
+                             NULL, users_flds );
 
   /* Register the protocol name and description */
   proto_sccp = proto_register_protocol("Signalling Connection Control Part",

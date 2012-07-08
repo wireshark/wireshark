@@ -3749,7 +3749,7 @@ void proto_register_snmp(void) {
 			      TRUE,
 			      (void*)&ueas,
 			      &num_ueas,
-			      UAT_CAT_CRYPTO,
+			      UAT_AFFECTS_DISSECTION,	/* affects dissection of packets, but not set of named fields */
 			      "ChSNMPUsersSection",
 			      snmp_users_copy_cb,
 			      snmp_users_update_cb,
@@ -3770,7 +3770,7 @@ void proto_register_snmp(void) {
                                       TRUE,
                                       (void*) &specific_traps,
                                       &num_specific_traps,
-                                      UAT_CAT_GENERAL,
+                                      UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                       "ChSNMPEnterpriseSpecificTrapTypes",
                                       snmp_specific_trap_copy_cb,
                                       NULL,

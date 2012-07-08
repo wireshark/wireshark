@@ -1314,7 +1314,7 @@ void proto_register_c1222(void) {
       TRUE,				/* from_profile */
       (void*)&c1222_uat_data,		/* data_ptr */
       &num_c1222_uat_data,		/* numitems_ptr */
-      UAT_CAT_CRYPTO,			/* category */
+      UAT_AFFECTS_DISSECTION,		/* affects dissection of packets, but not set of named fields */
       NULL,				/* help */
       NULL,				/* copy callback */
       c1222_uat_data_update_cb,		/* update callback */

@@ -51,7 +51,7 @@ struct _uat_t {
 	const char* filename;
 	gboolean from_profile;
 	const char* help;
-	const char* category;
+	guint flags;
 	void** user_ptr;
 	guint* nrows_p;
 	uat_copy_cb_t copy_cb;

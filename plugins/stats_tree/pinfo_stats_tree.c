@@ -221,7 +221,7 @@ void register_pinfo_stat_trees(void) {
 			TRUE,                       /* from_profile */
 			(void*) &uat_plen_records,  /* data_ptr */
 			&num_plen_uat,              /* numitems_ptr */
-			UAT_CAT_GENERAL,            /* category */
+			0,                          /* not a dissector, so affects neither dissection nor fields */
 			NULL,                       /* help */
 			uat_plen_record_copy_cb,    /* copy callback */
 			NULL,                       /* update callback */

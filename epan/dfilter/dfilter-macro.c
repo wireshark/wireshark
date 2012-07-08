@@ -615,7 +615,7 @@ void dfilter_macro_init(void) {
 				    TRUE,
 				    (void*) &macros,
 				    &num_macros,
-				    NULL,
+				    0, /* doesn't affect anything that requires a GUI update */
 				    "ChDisplayFilterMacrosSection",
 				    macro_copy,
 				    macro_update,

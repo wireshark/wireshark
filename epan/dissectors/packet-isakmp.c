@@ -6104,7 +6104,7 @@ proto_register_isakmp(void)
       TRUE,
       (void*)&ikev1_uat_data,
       &num_ikev1_uat_data,
-      UAT_CAT_CRYPTO,
+      UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
       "ChIKEv1DecryptionSection",
       NULL,
       ikev1_uat_data_update_cb,
@@ -6124,7 +6124,7 @@ proto_register_isakmp(void)
       TRUE,
       (void*)&ikev2_uat_data,
       &num_ikev2_uat_data,
-      UAT_CAT_CRYPTO,
+      UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
       "ChIKEv2DecryptionSection",
       NULL,
       ikev2_uat_data_update_cb,

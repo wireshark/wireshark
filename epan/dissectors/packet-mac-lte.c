@@ -5692,7 +5692,7 @@ void proto_register_mac_lte(void)
                                     TRUE,
                                     (void*) &lcid_drb_mappings,
                                     &num_lcid_drb_mappings,
-                                    UAT_CAT_FFMT,
+                                    UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                     "",  /* TODO: is this ref to help manual? */
                                     lcid_drb_mapping_copy_cb,
                                     NULL,

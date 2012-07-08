@@ -154,12 +154,14 @@ geoip_db_pref_init(module_t *nameres)
             FALSE,
             (void*)&geoip_db_paths,
             &num_geoip_db_paths,
-            UAT_CAT_GENERAL,
+            /* affects dissection of packets (as the GeoIP database is
+               used when dissecting), but not set of named fields */
+            UAT_AFFECTS_DISSECTION,
             "ChGeoIPDbPaths",
             geoip_db_path_copy_cb,
             NULL,
             geoip_db_path_free_cb,
-                        NULL,
+            NULL,
             geoip_db_paths_fields);
 
 	prefs_register_uat_preference(nameres,

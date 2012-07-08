@@ -2112,25 +2112,25 @@ proto_register_ipsec(void)
 				 "Attempt to Check ESP Authentication based on the SAD described hereafter.",
 				 &g_esp_enable_authentication_check);
 
-    esp_uat = uat_new("ESP SAs",
-            sizeof(uat_esp_sa_record_t),	/* record size */
-            "esp_sa",						/* filename */
-            TRUE,							/* from_profile */
-            (void*) &uat_esp_sa_records,	/* data_ptr */
-            &num_sa_uat,					/* numitems_ptr */
-            UAT_CAT_CRYPTO,					/* category */
-            NULL,							/* help */
+  esp_uat = uat_new("ESP SAs",
+            sizeof(uat_esp_sa_record_t),    /* record size */
+            "esp_sa",                       /* filename */
+            TRUE,                           /* from_profile */
+            (void*) &uat_esp_sa_records,    /* data_ptr */
+            &num_sa_uat,                    /* numitems_ptr */
+            UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
+            NULL,                           /* help */
             uat_esp_sa_record_copy_cb,      /* copy callback */
-            NULL,							/* update callback */
+            NULL,                           /* update callback */
             uat_esp_sa_record_free_cb,      /* free callback */
-            NULL,							/* post update callback */
-            esp_uat_flds);					/* UAT field definitions */
+            NULL,                           /* post update callback */
+            esp_uat_flds);                  /* UAT field definitions */
 
-    prefs_register_uat_preference(esp_module,
-                                   "sa_table",
-                                   "ESP SAs",
-                                   "Preconfigured ESP Security Associations",
-                                   esp_uat);
+  prefs_register_uat_preference(esp_module,
+                                "sa_table",
+                                "ESP SAs",
+                                "Preconfigured ESP Security Associations",
+                                esp_uat);
 
 
 #endif

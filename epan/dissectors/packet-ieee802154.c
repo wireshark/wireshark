@@ -2726,7 +2726,7 @@ void proto_register_ieee802154(void)
             TRUE,                       /* from_profile */
             (void*) &static_addrs,      /* data_ptr */
             &num_static_addrs,          /* numitems_ptr */
-            UAT_CAT_GENERAL,            /* category */
+            UAT_AFFECTS_DISSECTION,     /* affects dissection of packets, but not set of named fields */
             NULL,                       /* help */
             NULL,                       /* copy callback */
             addr_uat_update_cb,         /* update callback */

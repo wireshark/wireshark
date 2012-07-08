@@ -223,12 +223,12 @@ void proto_register_user_encap(void)
                          TRUE,
                          (void*) &encaps,
                          &num_encaps,
-                         UAT_CAT_FFMT,
+                         UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                          "ChUserDLTsSection",
                          user_copy_cb,
                          NULL,
                          user_free_cb,
-                                                 NULL,
+                         NULL,
                          user_flds );
 
     prefs_register_uat_preference(module,
