@@ -3100,7 +3100,8 @@ write_pref(gpointer data, gpointer user_data)
     gchar **desc_lines;
     int i;
 
-    if (pref->type == PREF_OBSOLETE) {
+    switch (pref->type) {
+    case PREF_OBSOLETE:
         /*
          * This preference is no longer supported; it's not a
          * real preference, so we don't write it out (i.e., we
@@ -3108,6 +3109,13 @@ write_pref(gpointer data, gpointer user_data)
          * preferences, and we weren't called in the first place).
          */
         return;
+
+    case PREF_STATIC_TEXT:
+    case PREF_UAT:
+	/* Nothing to do; don't bother printing the description */
+        return;
+    default:
+	break;
     }
 
     /*
@@ -3215,14 +3223,9 @@ write_pref(gpointer data, gpointer user_data)
         break;
     }
 
+    case PREF_OBSOLETE:
     case PREF_STATIC_TEXT:
     case PREF_UAT:
-    {
-        /* Nothing to do */
-        break;
-    }
-
-    case PREF_OBSOLETE:
         g_assert_not_reached();
         break;
     }
