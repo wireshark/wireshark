@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-06-28
+# 2012-07-06
 # 
 # Note
 # 
@@ -15854,6 +15854,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # version=<firmware/instrument controller version>
 # bousg                                 Bag Of Unusual Strategy                                                                                                                                                                                                            Defined TXT keys: None
 # Games
+# boxraysrvr                     tcp    Boxray Devices Host Server   [Caprice_Productions]                              [Lance_Drake]                                             2012-07-05                                                                               Defined TXT keys: none
 # bri                                   RFID Reader Basic Reader     [Thaddeus_Ternes]                                  [Thaddeus_Ternes]                                                                                                                                  Defined TXT keys: None
 # Interface
 # bsqdea                                Backup Simplicity            [Qdea]                                             [Qdea]                                                                                                                                             Defined TXT keys: None
@@ -16590,6 +16591,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Interface
 # slimhttp                              SliMP3 Server Web Interface  [Dean_Blackketter_2]                               [Dean_Blackketter_2]                                                                                                                               Defined TXT keys: None
 # smartenergy                           Smart Energy Profile         [Robby_Simpson]                                    [Robby_Simpson]                                                                                                                                    Defined TXT keys: See http://www.zigbee.org/SmartEnergy
+# smartsocket                    tcp    home control                 [Robert_Diamond]                                   [Robert_Diamond]                                          2012-07-06                                                                               Defined TXT keys: None
 # smb                                   Server Message Block over                                                                                                                                                                                                          Defined TXT keys: u=<username> p=<password> path=<path>
 # TCP/IP
 # sms                                   Short Text Message Sending   [Christian_Flintrup]                               [Christian_Flintrup]                                                                                                                               Defined TXT keys: Proprietary
@@ -17428,6 +17430,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Cameron_Young]                                           Cameron Young                                   mailto:Cameron_Young&inetco.com
 # [Candace_Niccolson]                                       Candace Niccolson                               mailto:cniccolson&genisar.com                                 2002-04
 # [Canon_Inc]                                                                         Canon Inc.            mailto:fujii.ken-ichi149&canon.co.jp                          2011-10-10
+# [Caprice_Productions]                                                               Caprice Productions   mailto:ldrake&caprice.com                                     2012-07-05
 # [Carl_Banzhof]                                            Carl Banzhof                                    mailto:cbanzhof&citadel.com                                   2003-06
 # [Carl_Blundell]                                           Carl Blundell                                   mailto:cblundell&celador.co.uk                                2002-05
 # [Carl_Cedergren]                                          Carl Cedergren                                  mailto:asperon&home.se
@@ -19298,6 +19301,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Lai_Zit_Seng]                                            Lai Zit Seng                                    mailto:lzs&pobox.com
 # [Laird_Popkin]                                            Laird Popkin                                    mailto:laird&pando.com                                        2008-02-27
 # [Lal_Samuel_Varghese]                                     Lal Samuel Varghese                             mailto:lalsam&hp.com                                          2005-08
+# [Lance_Drake]                                             Lance Drake               Caprice Productions   mailto:bonjour&caprice.com                                    2012-07-05
 # [Lance_Kind]                                              Lance Kind                                      mailto:lance_kind&hp.com
 # [Lance_M_Steenson]                                        Lance M. Steenson                               mailto:lance&transactionwarehouse.net                         2009-09-18
 # [Larry_A_Young]                                           Larry A. Young                                  mailto:Larry.A.Young&mail.sprint.com                          2005-08
@@ -20460,6 +20464,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Robert_C_Henningsga]                                     Robert C. Henningsgard                          mailto:rhenn_iana&laptwo.com
 # [Robert_Ciochon]                                          Robert Ciochon                                  mailto:robert.ciochon&ca.com                                  2006-08
 # [Robert_D_Vincent]                                        Robert D. Vincent                               mailto:bert&willowpond.com
+# [Robert_Diamond]                                          Robert Diamond                                  mailto:rmd6502&gmail.com                                      2012-07-06
 # [Robert_Dye]                                              Robert Dye                                      mailto:rob&natinst.com
 # [Robert_E_Johnson_II]                                     Robert E. Johnson III                           mailto:johnson.robert&cimcor.com                              2003-04
 # [Robert_E_Minnear]                                        Robert E. Minnear                               mailto:minnear&ipsilon.com
