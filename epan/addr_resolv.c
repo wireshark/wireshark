@@ -286,7 +286,7 @@ static void add_serv_port_cb(const guint32 port);
 /*
  * Flag controlling what names to resolve.
  */
-e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, TRUE, TRUE};
+e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, TRUE, TRUE, TRUE};
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 static guint name_resolve_concurrency = 500;
 #endif
@@ -768,7 +768,7 @@ new_ipv4(const guint addr)
 }
 
 static hashipv4_t *
-host_lookup(const guint addr, const gboolean resolve, gboolean *found)
+host_lookup(const guint addr, gboolean *found)
 {
   int hash_idx;
   hashipv4_t * volatile tp;
@@ -800,7 +800,7 @@ host_lookup(const guint addr, const gboolean resolve, gboolean *found)
     }
   }
 
-  if (resolve) {
+  if (gbl_resolv_flags.use_external_net_name_resolver) {
     tp->resolve = TRUE;
 #ifdef ASYNC_DNS
     if (gbl_resolv_flags.concurrent_dns &&
@@ -844,16 +844,7 @@ host_lookup(const guint addr, const gboolean resolve, gboolean *found)
   fill_dummy_ip4(addr, tp);
   return tp;
 
-} /* host_name_lookup */
-
-static gchar *
-host_name_lookup(const guint addr, gboolean *found)
-{
-  hashipv4_t *tp;
-  tp = host_lookup(addr, TRUE, found);
-  return tp->name;
-}
-
+} /* host_lookup */
 
 /* --------------- */
 static hashipv6_t *
@@ -870,7 +861,7 @@ new_ipv6(const struct e_in6_addr *addr)
 
 /* ------------------------------------ */
 static hashipv6_t *
-host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *found)
+host_lookup6(const struct e_in6_addr *addr, gboolean *found)
 {
   int hash_idx;
   hashipv6_t * volatile tp;
@@ -907,7 +898,7 @@ host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *fo
     }
   }
 
-  if (resolve) {
+  if (gbl_resolv_flags.use_external_net_name_resolver) {
     tp->resolve = TRUE;
 #ifdef INET6
 
@@ -952,16 +943,6 @@ host_lookup6(const struct e_in6_addr *addr, const gboolean resolve, gboolean *fo
   return tp;
 
 } /* host_lookup6 */
-
-#if 0
-static gchar *
-host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
-{
-  hashipv6_t *tp;
-  tp = host_lookup6(addr, TRUE, found);
-  return tp->name;
-}
-#endif
 
 static const gchar *
 solve_address_to_name(const address *addr)
@@ -2386,34 +2367,45 @@ addr_resolve_pref_init(module_t *nameres)
 {
     prefs_register_bool_preference(nameres, "mac_name",
                                   "Enable MAC name resolution",
-                                  "e.g. Ethernet address to manufacturer name",
+                                  "Resolve Ethernet MAC address to manufacturer names",
                                   &gbl_resolv_flags.mac_name);
 
     prefs_register_bool_preference(nameres, "network_name",
                                   "Enable network name resolution",
-                                  "e.g. IP address to DNS name (hostname)",
+                                  "Resolve IP addresses into host names",
                                   &gbl_resolv_flags.network_name);
 
     prefs_register_bool_preference(nameres, "transport_name",
                                   "Enable transport name resolution",
-                                  "e.g. TCP/UDP port to service name",
+                                  "Resolve TCP/UDP ports into service names",
                                   &gbl_resolv_flags.transport_name);
+
+    prefs_register_bool_preference(nameres, "use_external_name_resolver",
+                                  "Use external network name resolver",
+                                  "Use the (system's) configured name resolver"
+				  " (e.g., DNS) to resolve network names."
+				  " Only applies when network name resolution"
+				  " is enabled",
+                                  &gbl_resolv_flags.use_external_net_name_resolver);
 
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
     prefs_register_bool_preference(nameres, "concurrent_dns",
                                   "Enable concurrent DNS name resolution",
-                                  "be sure to enable network name resolution",
+                                  "Enable concurrent DNS name resolution.  Only"
+				  " applies when network name resolution is"
+				  " enabled",
                                   &gbl_resolv_flags.concurrent_dns);
 
-	prefs_register_uint_preference(nameres, "name_resolve_concurrency",
-				       "Maximum concurrent requests",
-				       "maximum parallel running DNS requests",
-				       10,
-				       &name_resolve_concurrency);
+    prefs_register_uint_preference(nameres, "name_resolve_concurrency",
+				   "Maximum concurrent requests",
+				   "Maximum parallel running DNS requests",
+				   10,
+				   &name_resolve_concurrency);
 #else
-    prefs_register_static_text_preference(nameres, "no_concurrent_dns",
+    prefs_register_static_text_preference(nameres, "concurrent_dns",
                        "Enable concurrent DNS name resolution: N/A", 
-                       "Support for this feature was not compiled into this version of Wireshark");
+                       "Support for concurrent DNS name resolution was not"
+		       " compiled into this version of Wireshark");
 #endif
 }
 
@@ -2677,10 +2669,13 @@ const gchar *
 get_hostname(const guint addr)
 {
   gboolean found;
-  gboolean resolve = gbl_resolv_flags.network_name;
-  hashipv4_t *tp = host_lookup(addr, resolve, &found);
 
-  if (!resolve)
+  /* XXX why do we call this if we're not resolving? To create hash entries?
+   * Why?
+   */
+  hashipv4_t *tp = host_lookup(addr, &found);
+
+  if (!gbl_resolv_flags.network_name)
     return tp->ip;
 
   return tp->name;
@@ -2692,10 +2687,13 @@ const gchar *
 get_hostname6(const struct e_in6_addr *addr)
 {
   gboolean found;
-  gboolean resolve = gbl_resolv_flags.network_name;
-  hashipv6_t *tp = host_lookup6(addr, resolve, &found);
 
-  if (!resolve)
+  /* XXX why do we call this if we're not resolving? To create hash entries?
+   * Why?
+   */
+  hashipv6_t *tp = host_lookup6(addr, &found);
+
+  if (!gbl_resolv_flags.network_name)
     return tp->ip6;
 
   return tp->name;
@@ -2998,21 +2996,21 @@ get_ether_addr(const gchar *name)
 void
 add_ether_byip(const guint ip, const guint8 *eth)
 {
-
-  gchar *host;
   gboolean found;
+  hashipv4_t *tp;
 
   /* first check that IP address can be resolved */
   if (!gbl_resolv_flags.network_name)
     return;
 
-  if ((host = host_name_lookup(ip, &found)) == NULL)
+  tp = host_lookup(ip, &found);
+  if (tp->name == NULL)
     return;
 
   /* ok, we can add this entry in the ethers hashtable */
 
   if (found)
-    add_eth_name(eth, host);
+    add_eth_name(eth, tp->name);
 
 } /* add_ether_byip */
 

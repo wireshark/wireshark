@@ -799,15 +799,15 @@ void oid_pref_init(module_t *nameres)
 #else
     prefs_register_static_text_preference(nameres, "load_smi_modules_static",
                             "Enable OID resolution: N/A", 
-                            "Support for this feature was not compiled into this version of Wireshark");
+                            "Support for OID resolution was not compiled into this version of Wireshark");
 
     prefs_register_static_text_preference(nameres, "suppress_smi_errors_static",
                             "Suppress SMI errors: N/A", 
-                            "Support for this feature was not compiled into this version of Wireshark");
+                            "Support for OID resolution was not compiled into this version of Wireshark");
 
     prefs_register_static_text_preference(nameres, "smi_module_path",
                             "SMI (MIB and PIB) modules and paths: N/A", 
-                            "Support for this feature was not compiled into this version of Wireshark");
+                            "Support for OID resolution was not compiled into this version of Wireshark");
 #endif
 }
 

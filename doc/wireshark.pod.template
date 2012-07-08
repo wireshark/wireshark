@@ -454,6 +454,9 @@ B<m> to enable MAC address resolution
 
 B<n> to enable network address resolution
 
+B<N> to enable using external resolvers (e.g., DNS) for network address
+resolution
+
 B<t> to enable transport-layer port number resolution
 
 B<C> to enable concurrent (asynchronous) DNS lookups

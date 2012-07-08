@@ -50,6 +50,7 @@ typedef struct _e_addr_resolve {
   gboolean network_name;
   gboolean transport_name;
   gboolean concurrent_dns;
+  gboolean use_external_net_name_resolver;
 } e_addr_resolve;
 
 /*

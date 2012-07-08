@@ -2259,6 +2259,9 @@ string_to_name_resolve(char *string, e_addr_resolve *name_resolve)
       case 'n':
           name_resolve->network_name = TRUE;
           break;
+      case 'N':
+          name_resolve->use_external_net_name_resolver = TRUE;
+          break;
       case 't':
           name_resolve->transport_name = TRUE;
           break;
