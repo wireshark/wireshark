@@ -2997,19 +2997,10 @@ decode_ex_org_csapi_ui_P_ID_NOT_FOUND(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ID_NOT_FOUND_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ID_NOT_FOUND_ExtraInformation");
 
 }
 
@@ -3021,19 +3012,10 @@ decode_ex_org_csapi_ui_P_ILLEGAL_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_ID_ExtraInformation");
 
 }
 
@@ -3045,19 +3027,10 @@ decode_ex_org_csapi_ui_P_ILLEGAL_RANGE(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_RANGE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_RANGE_ExtraInformation");
 
 }
 
@@ -3069,19 +3042,10 @@ decode_ex_org_csapi_ui_P_INVALID_COLLECTION_CRITERIA(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_COLLECTION_CRITERIA_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_COLLECTION_CRITERIA_ExtraInformation");
 
 }
 
@@ -3093,19 +3057,10 @@ decode_ex_org_csapi_mm_P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED(tvbuff_t *tvb _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_REQUESTED_ACCURACY_CANNOT_BE_DELIVERED_ExtraInformation");
 
 }
 
@@ -3117,19 +3072,10 @@ decode_ex_org_csapi_mm_P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_REQUESTED_RESPONSE_TIME_CANNOT_BE_DELIVERED_ExtraInformation");
 
 }
 
@@ -3141,19 +3087,10 @@ decode_ex_org_csapi_mm_P_INVALID_REPORTING_INTERVAL(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_REPORTING_INTERVAL_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_REPORTING_INTERVAL_ExtraInformation");
 
 }
 
@@ -3165,19 +3102,10 @@ decode_ex_org_csapi_mm_P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_TRIGGER_CONDITIONS_NOT_SUBSCRIBED_ExtraInformation");
 
 }
 
@@ -3189,19 +3117,10 @@ decode_ex_org_csapi_termcap_P_INVALID_TERMINAL_ID(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_TERMINAL_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_TERMINAL_ID_ExtraInformation");
 
 }
 
@@ -3213,19 +3132,10 @@ decode_ex_org_csapi_gms_P_GMS_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_INVALID_FOLDER_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_INVALID_FOLDER_ID_ExtraInformation");
 
 }
 
@@ -3237,19 +3147,10 @@ decode_ex_org_csapi_gms_P_GMS_INSUFFICIENT_PRIVILEGE(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_INSUFFICIENT_PRIVILEGE_ExtraInformation");
 
 }
 
@@ -3261,19 +3162,10 @@ decode_ex_org_csapi_gms_P_GMS_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation");
 
 }
 
@@ -3285,19 +3177,10 @@ decode_ex_org_csapi_gms_P_GMS_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_INVALID_MAILBOX_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_INVALID_MAILBOX_ExtraInformation");
 
 }
 
@@ -3309,19 +3192,10 @@ decode_ex_org_csapi_gms_P_GMS_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_INVALID_MESSAGE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_INVALID_MESSAGE_ID_ExtraInformation");
 
 }
 
@@ -3333,19 +3207,10 @@ decode_ex_org_csapi_gms_P_GMS_LOCKING_LOCKED_MAILBOX(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_LOCKING_LOCKED_MAILBOX_ExtraInformation");
 
 }
 
@@ -3357,19 +3222,10 @@ decode_ex_org_csapi_gms_P_GMS_MESSAGE_NOT_REMOVED(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_MESSAGE_NOT_REMOVED_ExtraInformation");
 
 }
 
@@ -3381,19 +3237,10 @@ decode_ex_org_csapi_gms_P_GMS_NUMBER_NOT_POSITIVE(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_NUMBER_NOT_POSITIVE_ExtraInformation");
 
 }
 
@@ -3405,19 +3252,10 @@ decode_ex_org_csapi_gms_P_GMS_UNLOCKING_UNLOCKED_MAILBOX(tvbuff_t *tvb _U_, pack
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_UNLOCKING_UNLOCKED_MAILBOX_ExtraInformation");
 
 }
 
@@ -3429,19 +3267,10 @@ decode_ex_org_csapi_gms_P_GMS_MAILBOX_LOCKED(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_MAILBOX_LOCKED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_MAILBOX_LOCKED_ExtraInformation");
 
 }
 
@@ -3453,19 +3282,10 @@ decode_ex_org_csapi_gms_P_GMS_CANNOT_UNLOCK_MAILBOX(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_CANNOT_UNLOCK_MAILBOX_ExtraInformation");
 
 }
 
@@ -3477,19 +3297,10 @@ decode_ex_org_csapi_gms_P_GMS_PROPERTY_NOT_SET(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_PROPERTY_NOT_SET_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_PROPERTY_NOT_SET_ExtraInformation");
 
 }
 
@@ -3501,19 +3312,10 @@ decode_ex_org_csapi_gms_P_GMS_FOLDER_IS_OPEN(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_FOLDER_IS_OPEN_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_FOLDER_IS_OPEN_ExtraInformation");
 
 }
 
@@ -3525,19 +3327,10 @@ decode_ex_org_csapi_gms_P_GMS_MAILBOX_OPEN(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_GMS_MAILBOX_OPEN_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_GMS_MAILBOX_OPEN_ExtraInformation");
 
 }
 
@@ -3549,19 +3342,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_VPRP_ID(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_VPRP_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_VPRP_ID_ExtraInformation");
 
 }
 
@@ -3573,19 +3357,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SLA_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SLA_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SLA_ID_ExtraInformation");
 
 }
 
@@ -3597,19 +3372,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_STATUS(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_STATUS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_STATUS_ExtraInformation");
 
 }
 
@@ -3621,19 +3387,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_QOS_INFO(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_QOS_INFO_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_QOS_INFO_ExtraInformation");
 
 }
 
@@ -3645,19 +3402,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_VALIDITY_INFO(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_VALIDITY_INFO_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_VALIDITY_INFO_ExtraInformation");
 
 }
 
@@ -3669,19 +3417,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_PIPEQOSINFO(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_PIPEQOSINFO_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_PIPEQOSINFO_ExtraInformation");
 
 }
 
@@ -3693,19 +3432,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_DSCODEPOINT(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_DSCODEPOINT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_DSCODEPOINT_ExtraInformation");
 
 }
 
@@ -3717,19 +3447,10 @@ decode_ex_org_csapi_cm_P_ILLEGAL_VPRPID(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_VPRPID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_VPRPID_ExtraInformation");
 
 }
 
@@ -3741,19 +3462,10 @@ decode_ex_org_csapi_cm_P_ILLEGAL_REF_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_REF_VALUE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_REF_VALUE_ExtraInformation");
 
 }
 
@@ -3765,19 +3477,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_INTERFACE(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_INTERFACE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_INTERFACE_ExtraInformation");
 
 }
 
@@ -3789,19 +3492,10 @@ decode_ex_org_csapi_cm_P_CANT_DELETE_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_CANT_DELETE_VPRP_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_CANT_DELETE_VPRP_ExtraInformation");
 
 }
 
@@ -3813,19 +3507,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATES(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_TEMPLATES_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_TEMPLATES_ExtraInformation");
 
 }
 
@@ -3837,19 +3522,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_MENU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_MENU_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_MENU_ExtraInformation");
 
 }
 
@@ -3861,19 +3537,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_ENTERPRISE_NETWORK(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_ENTERPRISE_NETWORK_ExtraInformation");
 
 }
 
@@ -3885,19 +3552,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_TEMPLATE_TYPE(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_TEMPLATE_TYPE_ExtraInformation");
 
 }
 
@@ -3909,19 +3567,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_DESCRIPTION(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_DESCRIPTION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_DESCRIPTION_ExtraInformation");
 
 }
 
@@ -3933,19 +3582,10 @@ decode_ex_org_csapi_cm_P_ILLEGAL_SLA_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_SLA_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_SLA_ID_ExtraInformation");
 
 }
 
@@ -3957,19 +3597,10 @@ decode_ex_org_csapi_cm_P_ILLEGAL_TAG(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_TAG_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_TAG_ExtraInformation");
 
 }
 
@@ -3981,19 +3612,10 @@ decode_ex_org_csapi_cm_P_ILLEGAL_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_VALUE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_VALUE_ExtraInformation");
 
 }
 
@@ -4005,19 +3627,10 @@ decode_ex_org_csapi_cm_P_ILLEGAL_COMBINATION(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_COMBINATION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_COMBINATION_ExtraInformation");
 
 }
 
@@ -4029,19 +3642,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SITES(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SITES_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SITES_ExtraInformation");
 
 }
 
@@ -4053,19 +3657,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_VPRN(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_VPRN_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_VPRN_ExtraInformation");
 
 }
 
@@ -4077,19 +3672,10 @@ decode_ex_org_csapi_cm_P_ILLEGAL_SITE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_SITE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_SITE_ID_ExtraInformation");
 
 }
 
@@ -4101,19 +3687,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SITE_ID(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SITE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SITE_ID_ExtraInformation");
 
 }
 
@@ -4125,19 +3702,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SAPS(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SAPS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SAPS_ExtraInformation");
 
 }
 
@@ -4149,19 +3717,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SITE_LOCATION(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SITE_LOCATION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SITE_LOCATION_ExtraInformation");
 
 }
 
@@ -4173,19 +3732,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SITE_DESCRIPTION(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SITE_DESCRIPTION_ExtraInformation");
 
 }
 
@@ -4197,19 +3747,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_IPSUBNET(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_IPSUBNET_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_IPSUBNET_ExtraInformation");
 
 }
 
@@ -4221,19 +3762,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_SAP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SAP_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SAP_ExtraInformation");
 
 }
 
@@ -4245,19 +3777,10 @@ decode_ex_org_csapi_cm_P_UNKNOWN_VPRP(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_VPRP_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_VPRP_ExtraInformation");
 
 }
 
@@ -4269,19 +3792,10 @@ decode_ex_org_csapi_am_P_UNAUTHORIZED_APPLICATION(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNAUTHORIZED_APPLICATION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNAUTHORIZED_APPLICATION_ExtraInformation");
 
 }
 
@@ -4293,19 +3807,10 @@ decode_ex_org_csapi_cs_P_INVALID_USER(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_USER_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_USER_ExtraInformation");
 
 }
 
@@ -4317,19 +3822,10 @@ decode_ex_org_csapi_cs_P_INVALID_ACCOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_ACCOUNT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_ACCOUNT_ExtraInformation");
 
 }
 
@@ -4341,19 +3837,10 @@ decode_ex_org_csapi_cs_P_INVALID_REQUEST_NUMBER(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_REQUEST_NUMBER_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_REQUEST_NUMBER_ExtraInformation");
 
 }
 
@@ -4365,19 +3852,10 @@ decode_ex_org_csapi_cs_P_INVALID_VOLUME(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_VOLUME_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_VOLUME_ExtraInformation");
 
 }
 
@@ -4389,19 +3867,10 @@ decode_ex_org_csapi_policy_P_ACCESS_VIOLATION(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ACCESS_VIOLATION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ACCESS_VIOLATION_ExtraInformation");
 
 }
 
@@ -4413,19 +3882,10 @@ decode_ex_org_csapi_policy_P_SYNTAX_ERROR(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_SYNTAX_ERROR_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_SYNTAX_ERROR_ExtraInformation");
 
 }
 
@@ -4437,19 +3897,10 @@ decode_ex_org_csapi_policy_P_NAME_SPACE_ERROR(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_NAME_SPACE_ERROR_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_NAME_SPACE_ERROR_ExtraInformation");
 
 }
 
@@ -4461,19 +3912,10 @@ decode_ex_org_csapi_policy_P_NO_TRANSACTION_IN_PROCESS(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_NO_TRANSACTION_IN_PROCESS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_NO_TRANSACTION_IN_PROCESS_ExtraInformation");
 
 }
 
@@ -4485,19 +3927,10 @@ decode_ex_org_csapi_policy_P_TRANSACTION_IN_PROCESS(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_TRANSACTION_IN_PROCESS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_TRANSACTION_IN_PROCESS_ExtraInformation");
 
 }
 
@@ -4509,19 +3942,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_TYPE_ExtraInformation");
 
 }
 
@@ -4533,19 +3957,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_MEMBER(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_MEMBER_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_MEMBER_ExtraInformation");
 
 }
 
@@ -4557,19 +3972,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_IDENTITY(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_IDENTITY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_IDENTITY_ExtraInformation");
 
 }
 
@@ -4581,19 +3987,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_GROUP(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_GROUP_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_GROUP_ExtraInformation");
 
 }
 
@@ -4605,19 +4002,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_CAPABILITY(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_CAPABILITY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_CAPABILITY_ExtraInformation");
 
 }
 
@@ -4629,19 +4017,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTES(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_ATTRIBUTES_ExtraInformation");
 
 }
 
@@ -4653,19 +4032,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ATTRIBUTE(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_ATTRIBUTE_ExtraInformation");
 
 }
 
@@ -4677,19 +4047,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ASSIGNMENT(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_ASSIGNMENT_ExtraInformation");
 
 }
 
@@ -4701,19 +4062,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_ALIAS(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_ALIAS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_ALIAS_ExtraInformation");
 
 }
 
@@ -4725,19 +4077,10 @@ decode_ex_org_csapi_pam_P_PAM_UNKNOWN_AGENT(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNKNOWN_AGENT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNKNOWN_AGENT_ExtraInformation");
 
 }
 
@@ -4749,19 +4092,10 @@ decode_ex_org_csapi_pam_P_PAM_UNASSIGNED_ALIAS(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNASSIGNED_ALIAS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNASSIGNED_ALIAS_ExtraInformation");
 
 }
 
@@ -4773,19 +4107,10 @@ decode_ex_org_csapi_pam_P_PAM_TYPE_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_TYPE_EXISTS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_TYPE_EXISTS_ExtraInformation");
 
 }
 
@@ -4797,19 +4122,10 @@ decode_ex_org_csapi_pam_P_PAM_TYPE_ASSOCIATED(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_TYPE_ASSOCIATED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_TYPE_ASSOCIATED_ExtraInformation");
 
 }
 
@@ -4821,19 +4137,10 @@ decode_ex_org_csapi_pam_P_PAM_NOT_REGISTERED(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_NOT_REGISTERED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_NOT_REGISTERED_ExtraInformation");
 
 }
 
@@ -4845,19 +4152,10 @@ decode_ex_org_csapi_pam_P_PAM_NOT_MEMBER(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_NOT_MEMBER_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_NOT_MEMBER_ExtraInformation");
 
 }
 
@@ -4869,19 +4167,10 @@ decode_ex_org_csapi_pam_P_PAM_NO_CAPABILITY(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_NO_CAPABILITY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_NO_CAPABILITY_ExtraInformation");
 
 }
 
@@ -4893,19 +4182,10 @@ decode_ex_org_csapi_pam_P_PAM_MEMBER_EXISTS(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_MEMBER_EXISTS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_MEMBER_EXISTS_ExtraInformation");
 
 }
 
@@ -4917,19 +4197,10 @@ decode_ex_org_csapi_pam_P_PAM_IS_CYCLIC(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_IS_CYCLIC_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_IS_CYCLIC_ExtraInformation");
 
 }
 
@@ -4941,19 +4212,10 @@ decode_ex_org_csapi_pam_P_PAM_IDENTITY_EXISTS(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_IDENTITY_EXISTS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_IDENTITY_EXISTS_ExtraInformation");
 
 }
 
@@ -4965,19 +4227,10 @@ decode_ex_org_csapi_pam_P_PAM_DISASSOCIATED_TYPE(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_DISASSOCIATED_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_DISASSOCIATED_TYPE_ExtraInformation");
 
 }
 
@@ -4989,19 +4242,10 @@ decode_ex_org_csapi_pam_P_PAM_ATTRIBUTE_EXISTS(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_ATTRIBUTE_EXISTS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_ATTRIBUTE_EXISTS_ExtraInformation");
 
 }
 
@@ -5013,19 +4257,10 @@ decode_ex_org_csapi_pam_P_PAM_ALIAS_NOT_UNIQUE(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_ALIAS_NOT_UNIQUE_ExtraInformation");
 
 }
 
@@ -5037,19 +4272,10 @@ decode_ex_org_csapi_pam_P_PAM_ALIAS_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_ALIAS_EXISTS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_ALIAS_EXISTS_ExtraInformation");
 
 }
 
@@ -5061,19 +4287,10 @@ decode_ex_org_csapi_pam_P_PAM_AGENT_EXISTS(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_AGENT_EXISTS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_AGENT_EXISTS_ExtraInformation");
 
 }
 
@@ -5085,19 +4302,10 @@ decode_ex_org_csapi_pam_P_PAM_UNAVAILABLE_INTERFACE(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_UNAVAILABLE_INTERFACE_ExtraInformation");
 
 }
 
@@ -5109,19 +4317,10 @@ decode_ex_org_csapi_pam_P_PAM_INVALID_CREDENTIAL(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PAM_INVALID_CREDENTIAL_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PAM_INVALID_CREDENTIAL_ExtraInformation");
 
 }
 
@@ -5133,19 +4332,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_AUTHENTICATION_INFORMATION(tvbuff_t *tvb _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_AUTHENTICATION_INFORMATION_ExtraInformation");
 
 }
 
@@ -5157,19 +4347,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_MAILBOX(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_MAILBOX_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_MAILBOX_ExtraInformation");
 
 }
 
@@ -5181,19 +4362,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TYPE(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_DELIVERY_TYPE_ExtraInformation");
 
 }
 
@@ -5205,19 +4377,10 @@ decode_ex_org_csapi_mmm_P_MMM_MAX_MESSAGE_SIZE_EXCEEDED(tvbuff_t *tvb _U_, packe
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_MAX_MESSAGE_SIZE_EXCEEDED_ExtraInformation");
 
 }
 
@@ -5229,19 +4392,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_FOLDER_ID(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_FOLDER_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_FOLDER_ID_ExtraInformation");
 
 }
 
@@ -5253,19 +4407,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_MESSAGE_ID(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_MESSAGE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_MESSAGE_ID_ExtraInformation");
 
 }
 
@@ -5277,19 +4422,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_PART_ID(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_PART_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_PART_ID_ExtraInformation");
 
 }
 
@@ -5301,19 +4437,10 @@ decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_DELIVERY_TYPE_ADDRESS_TYPE_MISMATCH_ExtraInformation");
 
 }
 
@@ -5325,19 +4452,10 @@ decode_ex_org_csapi_mmm_P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_DELIVERY_TYPE_MESSAGE_TYPE_MISMATCH_ExtraInformation");
 
 }
 
@@ -5349,19 +4467,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_PROPERTY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_PROPERTY_ExtraInformation");
 
 }
 
@@ -5373,19 +4482,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_DELIVERY_TIME(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_DELIVERY_TIME_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_DELIVERY_TIME_ExtraInformation");
 
 }
 
@@ -5397,19 +4497,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_VALIDITY_TIME(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_VALIDITY_TIME_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_VALIDITY_TIME_ExtraInformation");
 
 }
 
@@ -5421,19 +4512,10 @@ decode_ex_org_csapi_mmm_P_MMM_MAX_SUBJECT_SIZE_EXCEEDED(tvbuff_t *tvb _U_, packe
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_MAX_SUBJECT_SIZE_EXCEEDED_ExtraInformation");
 
 }
 
@@ -5445,19 +4527,10 @@ decode_ex_org_csapi_mmm_P_MMM_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packe
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INFORMATION_NOT_AVAILABLE_ExtraInformation");
 
 }
 
@@ -5469,19 +4542,10 @@ decode_ex_org_csapi_mmm_P_MMM_CANNOT_CANCEL(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_CANNOT_CANCEL_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_CANNOT_CANCEL_ExtraInformation");
 
 }
 
@@ -5493,455 +4557,10 @@ decode_ex_org_csapi_mmm_P_MMM_INVALID_HEADER(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MMM_INVALID_HEADER_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_ASSIGNMENT_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_EVENT_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_INTERFACE_NAME_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_INTERFACE_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0 */
-static void
-decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SUBSCRIBER_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0 */
-static void
-decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INFORMATION_NOT_AVAILABLE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_CRITERIA:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_CRITERIA_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_SESSION_ID:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_SESSION_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SESSION_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/TpCommonExceptions:1.0 */
-static void
-decode_ex_org_csapi_TpCommonExceptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"TpCommonExceptions_ExceptionType = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
-    }
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCommonExceptions_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_CURRENCY:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_CURRENCY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_CURRENCY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_AMOUNT:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_AMOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_AMOUNT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0 */
-static void
-decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_APPLICATION_NOT_ACTIVATED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_ADDRESS:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_ADDRESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_ADDRESS_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0 */
-static void
-decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0 */
-static void
-decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_VERSION:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_VERSION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_VERSION_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-}
-
-/* Exception = IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0 */
-static void
-decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
-{
-
-    
-    /* Operation specific Variable declarations Begin */
-
-    guint32   u_octet4;
-    gchar   *seq = NULL;
-    
-    /* Operation specific Variable declarations End */
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_NETWORK_STATE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MMM_INVALID_HEADER_ExtraInformation");
 
 }
 
@@ -5953,19 +4572,10 @@ decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SERVICE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SERVICE_ID_ExtraInformation");
 
 }
 
@@ -5977,19 +4587,10 @@ decode_ex_org_csapi_fw_P_SERVICE_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_SERVICE_ACCESS_DENIED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_SERVICE_ACCESS_DENIED_ExtraInformation");
 
 }
 
@@ -6001,19 +4602,10 @@ decode_ex_org_csapi_fw_P_ACCESS_DENIED(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ACCESS_DENIED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ACCESS_DENIED_ExtraInformation");
 
 }
 
@@ -6025,19 +4617,10 @@ decode_ex_org_csapi_fw_P_SERVICE_NOT_ENABLED(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_SERVICE_NOT_ENABLED_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_SERVICE_NOT_ENABLED_ExtraInformation");
 
 }
 
@@ -6049,19 +4632,10 @@ decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY(tvbuff_t *tvb _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_NO_ACCEPTABLE_ENCRYPTION_CAPABILITY_ExtraInformation");
 
 }
 
@@ -6073,19 +4647,10 @@ decode_ex_org_csapi_fw_P_INVALID_AGREEMENT_TEXT(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_AGREEMENT_TEXT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_AGREEMENT_TEXT_ExtraInformation");
 
 }
 
@@ -6097,19 +4662,10 @@ decode_ex_org_csapi_fw_P_INVALID_SERVICE_TOKEN(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SERVICE_TOKEN_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SERVICE_TOKEN_ExtraInformation");
 
 }
 
@@ -6121,19 +4677,10 @@ decode_ex_org_csapi_fw_P_INVALID_SIGNATURE(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SIGNATURE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SIGNATURE_ExtraInformation");
 
 }
 
@@ -6145,19 +4692,10 @@ decode_ex_org_csapi_fw_P_INVALID_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, packet_inf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SIGNING_ALGORITHM_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SIGNING_ALGORITHM_ExtraInformation");
 
 }
 
@@ -6169,19 +4707,10 @@ decode_ex_org_csapi_fw_P_INVALID_DOMAIN_ID(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_DOMAIN_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_DOMAIN_ID_ExtraInformation");
 
 }
 
@@ -6193,19 +4722,10 @@ decode_ex_org_csapi_fw_P_INVALID_PROPERTY(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_PROPERTY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_PROPERTY_ExtraInformation");
 
 }
 
@@ -6217,19 +4737,10 @@ decode_ex_org_csapi_fw_P_INVALID_ACCESS_TYPE(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_ACCESS_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_ACCESS_TYPE_ExtraInformation");
 
 }
 
@@ -6241,19 +4752,10 @@ decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_SERVICE_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_SERVICE_TYPE_ExtraInformation");
 
 }
 
@@ -6265,19 +4767,10 @@ decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_TYPE(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SERVICE_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SERVICE_TYPE_ExtraInformation");
 
 }
 
@@ -6289,19 +4782,10 @@ decode_ex_org_csapi_fw_P_MISSING_MANDATORY_PROPERTY(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_MISSING_MANDATORY_PROPERTY_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_MISSING_MANDATORY_PROPERTY_ExtraInformation");
 
 }
 
@@ -6313,19 +4797,10 @@ decode_ex_org_csapi_fw_P_DUPLICATE_PROPERTY_NAME(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_DUPLICATE_PROPERTY_NAME_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_DUPLICATE_PROPERTY_NAME_ExtraInformation");
 
 }
 
@@ -6337,19 +4812,10 @@ decode_ex_org_csapi_fw_P_PROPERTY_TYPE_MISMATCH(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_PROPERTY_TYPE_MISMATCH_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_PROPERTY_TYPE_MISMATCH_ExtraInformation");
 
 }
 
@@ -6361,19 +4827,10 @@ decode_ex_org_csapi_fw_P_INVALID_CLIENT_APP_ID(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_CLIENT_APP_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_CLIENT_APP_ID_ExtraInformation");
 
 }
 
@@ -6385,19 +4842,10 @@ decode_ex_org_csapi_fw_P_INVALID_AUTH_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_AUTH_TYPE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_AUTH_TYPE_ExtraInformation");
 
 }
 
@@ -6409,19 +4857,10 @@ decode_ex_org_csapi_fw_P_INVALID_SAG_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SAG_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SAG_ID_ExtraInformation");
 
 }
 
@@ -6433,19 +4872,10 @@ decode_ex_org_csapi_fw_P_INVALID_SERVICE_PROFILE_ID(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SERVICE_PROFILE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SERVICE_PROFILE_ID_ExtraInformation");
 
 }
 
@@ -6457,19 +4887,10 @@ decode_ex_org_csapi_fw_P_INVALID_SERVICE_CONTRACT_ID(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SERVICE_CONTRACT_ID_ExtraInformation");
 
 }
 
@@ -6481,19 +4902,10 @@ decode_ex_org_csapi_fw_P_INVALID_ACTIVITY_TEST_ID(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_ACTIVITY_TEST_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_ACTIVITY_TEST_ID_ExtraInformation");
 
 }
 
@@ -6505,19 +4917,10 @@ decode_ex_org_csapi_fw_P_ILLEGAL_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_ILLEGAL_SERVICE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_ILLEGAL_SERVICE_ID_ExtraInformation");
 
 }
 
@@ -6529,19 +4932,10 @@ decode_ex_org_csapi_fw_P_UNKNOWN_SERVICE_ID(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_UNKNOWN_SERVICE_ID_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SERVICE_ID_ExtraInformation");
 
 }
 
@@ -6553,19 +4947,10 @@ decode_ex_org_csapi_fw_P_SERVICE_TYPE_UNAVAILABLE(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_SERVICE_TYPE_UNAVAILABLE_ExtraInformation");
 
 }
 
@@ -6577,19 +4962,10 @@ decode_ex_org_csapi_fw_P_INVALID_ADDITION_TO_SAG(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_ADDITION_TO_SAG_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_ADDITION_TO_SAG_ExtraInformation");
 
 }
 
@@ -6601,19 +4977,10 @@ decode_ex_org_csapi_fw_P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SAG_TO_SERVICE_PROFILE_ASSIGNMENT_ExtraInformation");
 
 }
 
@@ -6625,19 +4992,10 @@ decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM(tvbuff_t *tvb _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_NO_ACCEPTABLE_AUTHENTICATION_MECHANISM_ExtraInformation");
 
 }
 
@@ -6649,19 +5007,284 @@ decode_ex_org_csapi_fw_P_NO_ACCEPTABLE_SIGNING_ALGORITHM(tvbuff_t *tvb _U_, pack
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_AMOUNT:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_AMOUNT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_AMOUNT_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0 */
+static void
+decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_APPLICATION_NOT_ACTIVATED_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_ADDRESS:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_ADDRESS(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_ADDRESS_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0 */
+static void
+decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNSUPPORTED_ADDRESS_PLAN_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0 */
+static void
+decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNAUTHORISED_PARAMETER_VALUE_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_VERSION:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_VERSION(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_VERSION_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_NETWORK_STATE_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_ASSIGNMENT_ID_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_TIME_AND_DATE_FORMAT_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_EVENT_TYPE_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_INTERFACE_NAME_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_INTERFACE_TYPE_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0 */
+static void
+decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_UNKNOWN_SUBSCRIBER_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0 */
+static void
+decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INFORMATION_NOT_AVAILABLE_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_CRITERIA:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_CRITERIA(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_CRITERIA_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_SESSION_ID:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_SESSION_ID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_SESSION_ID_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/TpCommonExceptions:1.0 */
+static void
+decode_ex_org_csapi_TpCommonExceptions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"P_NO_ACCEPTABLE_SIGNING_ALGORITHM_ExtraInformation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
+       proto_tree_add_text(tree,tvb,*offset-4,4,"TpCommonExceptions_ExceptionType = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCommonExceptions_ExtraInformation");
+
+}
+
+/* Exception = IDL:org/csapi/P_INVALID_CURRENCY:1.0 */
+static void
+decode_ex_org_csapi_P_INVALID_CURRENCY(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_)
+{
+
+    
+    /* Operation specific Variable declarations Begin */
+
+    
+    /* Operation specific Variable declarations End */
+
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "P_INVALID_CURRENCY_ExtraInformation");
 
 }
 
@@ -7312,114 +5935,6 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
        return TRUE;
     }
 
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CRITERIA:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CRITERIA:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_SESSION_ID:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_SESSION_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_SESSION_ID:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/TpCommonExceptions:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_TpCommonExceptions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/TpCommonExceptions:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CURRENCY:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_CURRENCY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CURRENCY:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_AMOUNT:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_AMOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_AMOUNT:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ADDRESS:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_ADDRESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ADDRESS:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_VERSION:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_VERSION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_VERSION:1.0  */
-       return TRUE;
-    }
-
-    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0") == 0) {
-       tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0  */
-       return TRUE;
-    }
-
     if (strcmp(header->exception_id, "IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0") == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
        decode_ex_org_csapi_fw_P_INVALID_SERVICE_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/fw/P_INVALID_SERVICE_ID:1.0  */
@@ -7600,6 +6115,114 @@ decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptr
        return TRUE;
     }
 
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_AMOUNT:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_AMOUNT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_AMOUNT:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_APPLICATION_NOT_ACTIVATED(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_APPLICATION_NOT_ACTIVATED:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ADDRESS:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_ADDRESS(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ADDRESS:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_UNSUPPORTED_ADDRESS_PLAN(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNSUPPORTED_ADDRESS_PLAN:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_UNAUTHORISED_PARAMETER_VALUE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNAUTHORISED_PARAMETER_VALUE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_VERSION:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_VERSION(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_VERSION:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_NETWORK_STATE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_NETWORK_STATE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_ASSIGNMENT_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_ASSIGNMENT_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_TIME_AND_DATE_FORMAT(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_TIME_AND_DATE_FORMAT:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_EVENT_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_EVENT_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_INTERFACE_NAME(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_NAME:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_INTERFACE_TYPE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_INTERFACE_TYPE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_UNKNOWN_SUBSCRIBER(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_UNKNOWN_SUBSCRIBER:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INFORMATION_NOT_AVAILABLE(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INFORMATION_NOT_AVAILABLE:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CRITERIA:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_CRITERIA(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CRITERIA:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_SESSION_ID:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_SESSION_ID(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_SESSION_ID:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/TpCommonExceptions:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_TpCommonExceptions(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/TpCommonExceptions:1.0  */
+       return TRUE;
+    }
+
+    if (strcmp(header->exception_id, "IDL:org/csapi/P_INVALID_CURRENCY:1.0") == 0) {
+       tree = start_dissecting(tvb, pinfo, ptree, offset);
+       decode_ex_org_csapi_P_INVALID_CURRENCY(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:org/csapi/P_INVALID_CURRENCY:1.0  */
+       return TRUE;
+    }
+
 
 
     return FALSE;    /* user exception not found */
@@ -7752,8 +6375,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthenticatio
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -7770,14 +6391,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthenticatio
 
         /*  End struct "org_csapi_fw_TpAuthDomain"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"authType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "authType");
 
         break;
 
@@ -7837,8 +6451,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthenticatio
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -7855,23 +6467,9 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpInitial_initiateAuthenticatio
 
         /*  End struct "org_csapi_fw_TpAuthDomain"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"authType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "authType");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"frameworkVersion (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "frameworkVersion");
 
         break;
 
@@ -7931,8 +6529,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAuthentication_requestAccess(
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -7941,14 +6537,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAuthentication_requestAccess(
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"accessType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "accessType");
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -8006,8 +6595,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess(
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_digitalSignature;
     guint32   i_digitalSignature;
     
@@ -8018,23 +6605,9 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpClientAccess_terminateAccess(
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"terminationText (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "terminationText");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signingAlgorithm (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signingAlgorithm");
 
         u_octet4_loop_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -8101,8 +6674,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterface(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -8111,14 +6682,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterface(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"interfaceName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "interfaceName");
 
         break;
 
@@ -8173,8 +6737,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterfaceWithCal
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -8183,14 +6745,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_obtainInterfaceWithCal
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"interfaceName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "interfaceName");
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -8329,8 +6884,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces(tvbuff_
 
     guint32   u_octet4_loop_TpInterfaceNameList;
     guint32   i_TpInterfaceNameList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -8354,14 +6907,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_listInterfaces(tvbuff_
 
             for (i_TpInterfaceNameList=0; i_TpInterfaceNameList < u_octet4_loop_TpInterfaceNameList; i_TpInterfaceNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpInterfaceNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpInterfaceNameList");
 
             }
 
@@ -8407,8 +6953,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_releaseInterface(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -8417,14 +6961,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_releaseInterface(tvbuf
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"interfaceName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "interfaceName");
 
         break;
 
@@ -8478,8 +7015,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_selectSigningAlgorithm
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -8488,14 +7023,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_selectSigningAlgorithm
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signingAlgorithmCaps (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signingAlgorithmCaps");
 
         break;
 
@@ -8505,14 +7033,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_selectSigningAlgorithm
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSigningAlgorithm (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSigningAlgorithm");
 
             break;
 
@@ -8556,8 +7077,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_digitalSignature;
     guint32   i_digitalSignature;
     
@@ -8568,14 +7087,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_terminateAccess(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"terminationText (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "terminationText");
 
         u_octet4_loop_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -8642,8 +7154,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_digitalSignature;
     guint32   i_digitalSignature;
     
@@ -8654,23 +7164,9 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAccess_relinquishInterface(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"interfaceName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "interfaceName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"terminationText (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "terminationText");
 
         u_octet4_loop_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -9033,8 +7529,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -9043,14 +7537,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"encryptionCaps (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "encryptionCaps");
 
         break;
 
@@ -9060,14 +7547,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpEncryptionCapability (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpEncryptionCapability");
 
             break;
 
@@ -9319,8 +7799,6 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -9329,14 +7807,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"authMechanismList (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "authMechanismList");
 
         break;
 
@@ -9346,14 +7817,7 @@ decode_org_csapi_fw_fw_access_trust_and_security_IpAPILevelAuthentication_select
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAuthMechanism (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAuthMechanism");
 
             break;
 
@@ -9749,8 +8213,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes(t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -9763,14 +8225,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_activityTestRes(t
            proto_tree_add_text(tree,tvb,*offset-4,4,"activityTestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"activityTestResult (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "activityTestResult");
 
         break;
 
@@ -10023,7 +8478,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcUnavailableInd
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -10032,14 +8486,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcUnavailableInd
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -10101,8 +8548,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -10126,14 +8571,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -10323,7 +8761,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
     guint32   u_octet4;
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -10345,14 +8782,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_genFaultStatsReco
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -10408,8 +8838,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appUnavailableInd
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -10418,14 +8846,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_appUnavailableInd
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         break;
 
@@ -10548,7 +8969,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcAvailStatusInd
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -10557,14 +8977,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_svcAvailStatusInd
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -10626,8 +9039,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -10655,14 +9066,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -10723,7 +9127,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
     guint32   u_octet4;
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -10758,14 +9161,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppFaultManager_generateFaultStat
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -11788,8 +10184,6 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq(tvbuff_t
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -11805,14 +10199,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadReq(tvbuff_t
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -12024,8 +10411,6 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotifi
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12041,14 +10426,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_createLoadLevelNotifi
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -12106,8 +10484,6 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotif
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12123,14 +10499,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_destroyLoadLevelNotif
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -12188,8 +10557,6 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification(tv
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12205,14 +10572,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_resumeNotification(tv
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -12270,8 +10630,6 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification(t
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12287,14 +10645,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_suspendNotification(t
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -12352,8 +10703,6 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq(tvb
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12373,14 +10722,7 @@ decode_org_csapi_fw_fw_application_integrity_IpLoadManager_queryLoadStatsReq(tvb
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -12598,8 +10940,6 @@ decode_org_csapi_fw_fw_application_integrity_IpAppOAM_systemDateTimeQuery(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12608,14 +10948,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppOAM_systemDateTimeQuery(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"systemDateAndTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "systemDateAndTime");
 
         break;
 
@@ -12625,14 +10958,7 @@ decode_org_csapi_fw_fw_application_integrity_IpAppOAM_systemDateTimeQuery(tvbuff
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDateAndTime (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDateAndTime");
 
             break;
 
@@ -12676,8 +11002,6 @@ decode_org_csapi_fw_fw_application_integrity_IpOAM_systemDateTimeQuery(tvbuff_t 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12686,14 +11010,7 @@ decode_org_csapi_fw_fw_application_integrity_IpOAM_systemDateTimeQuery(tvbuff_t 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientDateAndTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientDateAndTime");
 
         break;
 
@@ -12703,14 +11020,7 @@ decode_org_csapi_fw_fw_application_integrity_IpOAM_systemDateTimeQuery(tvbuff_t 
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDateAndTime (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDateAndTime");
 
             break;
 
@@ -12754,8 +11064,6 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq(tvbu
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12768,14 +11076,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_activityTestReq(tvbu
            proto_tree_add_text(tree,tvb,*offset-4,4,"activityTestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"svcID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "svcID");
 
         break;
 
@@ -12829,8 +11130,6 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes(t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12843,14 +11142,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appActivityTestRes(t
            proto_tree_add_text(tree,tvb,*offset-4,4,"activityTestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"activityTestResult (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "activityTestResult");
 
         break;
 
@@ -12904,8 +11196,6 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_svcUnavailableInd(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -12914,14 +11204,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_svcUnavailableInd(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         break;
 
@@ -12977,8 +11260,6 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordR
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -13002,14 +11283,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_genFaultStatsRecordR
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -13129,8 +11403,6 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appUnavailableInd(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -13139,14 +11411,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_appUnavailableInd(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         break;
 
@@ -13404,8 +11669,6 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -13433,14 +11696,7 @@ decode_org_csapi_fw_fw_application_integrity_IpFaultManager_generateFaultStatist
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -14143,8 +12399,6 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes
 
     guint32   u_octet4_loop_TpServiceTypeNameList;
     guint32   i_TpServiceTypeNameList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -14168,14 +12422,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_listServiceTypes
 
             for (i_TpServiceTypeNameList=0; i_TpServiceTypeNameList < u_octet4_loop_TpServiceTypeNameList; i_TpServiceTypeNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypeNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypeNameList");
 
             }
 
@@ -14221,8 +12468,6 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_describeServiceT
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -14231,14 +12476,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_describeServiceT
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"name (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "name");
 
         break;
 
@@ -14298,8 +12536,6 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService(
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_desiredPropertyList;
     guint32   i_desiredPropertyList;
     guint32   u_octet4_loop_TpServiceList;
@@ -14312,14 +12548,7 @@ decode_org_csapi_fw_fw_application_discovery_IpServiceDiscovery_discoverService(
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceTypeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceTypeName");
 
         u_octet4_loop_desiredPropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -14486,8 +12715,6 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpOctetSet;
     guint32   i_TpOctetSet;
     
@@ -14498,32 +12725,11 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceToken (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceToken");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agreementText");
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agreementText (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signingAlgorithm (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signingAlgorithm");
 
         break;
 
@@ -14588,8 +12794,6 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_digitalSignature;
     guint32   i_digitalSignature;
     
@@ -14600,23 +12804,9 @@ decode_org_csapi_fw_fw_application_service_agreement_IpAppServiceAgreementManage
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceToken (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceToken");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"terminationText (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "terminationText");
 
         u_octet4_loop_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -14683,8 +12873,6 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -14693,32 +12881,11 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceToken (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceToken");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agreementText");
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agreementText (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signingAlgorithm (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signingAlgorithm");
 
         break;
 
@@ -14778,8 +12945,6 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_digitalSignature;
     guint32   i_digitalSignature;
     
@@ -14790,23 +12955,9 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceToken (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceToken");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"terminationText (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "terminationText");
 
         u_octet4_loop_digitalSignature = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -14873,8 +13024,6 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -14883,14 +13032,7 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         break;
 
@@ -14900,14 +13042,7 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceToken (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceToken");
 
             break;
 
@@ -14951,8 +13086,6 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -14961,14 +13094,7 @@ decode_org_csapi_fw_fw_application_service_agreement_IpServiceAgreementManagemen
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceToken (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceToken");
 
         break;
 
@@ -15022,8 +13148,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15048,14 +13172,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileID (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileID");
 
             break;
 
@@ -15167,8 +13284,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15177,14 +13292,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceProfileID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceProfileID");
 
         break;
 
@@ -15238,8 +13346,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15248,23 +13354,9 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sagID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sagID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceProfileID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceProfileID");
 
         break;
 
@@ -15318,8 +13410,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15328,23 +13418,9 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sagID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sagID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceProfileID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceProfileID");
 
         break;
 
@@ -15477,8 +13553,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
     guint32   u_octet4_loop_TpServiceProfileIDList;
     guint32   i_TpServiceProfileIDList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15502,14 +13576,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
             for (i_TpServiceProfileIDList=0; i_TpServiceProfileIDList < u_octet4_loop_TpServiceProfileIDList; i_TpServiceProfileIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileIDList");
 
             }
 
@@ -15555,8 +13622,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15565,14 +13630,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceProfileID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceProfileID");
 
         break;
 
@@ -15632,8 +13690,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpSagIDList;
     guint32   i_TpSagIDList;
     
@@ -15644,14 +13700,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceProfileID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceProfileID");
 
         break;
 
@@ -15668,14 +13717,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceProfile
 
             for (i_TpSagIDList=0; i_TpSagIDList < u_octet4_loop_TpSagIDList; i_TpSagIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSagIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSagIDList");
 
             }
 
@@ -15721,8 +13763,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15747,14 +13787,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceContractID (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceContractID");
 
             break;
 
@@ -15866,8 +13899,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15876,14 +13907,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceContractID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceContractID");
 
         break;
 
@@ -15937,8 +13961,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -15947,14 +13969,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceContractID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceContractID");
 
         break;
 
@@ -16016,8 +14031,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
 
     guint32   u_octet4_loop_TpServiceContractIDList;
     guint32   i_TpServiceContractIDList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -16041,14 +14054,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
 
             for (i_TpServiceContractIDList=0; i_TpServiceContractIDList < u_octet4_loop_TpServiceContractIDList; i_TpServiceContractIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceContractIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceContractIDList");
 
             }
 
@@ -16094,8 +14100,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpServiceProfileIDList;
     guint32   i_TpServiceProfileIDList;
     
@@ -16106,14 +14110,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceContractID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceContractID");
 
         break;
 
@@ -16130,14 +14127,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpServiceContrac
 
             for (i_TpServiceProfileIDList=0; i_TpServiceProfileIDList < u_octet4_loop_TpServiceProfileIDList; i_TpServiceProfileIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileIDList");
 
             }
 
@@ -16524,8 +14514,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -16534,14 +14522,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientAppID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientAppID");
 
         break;
 
@@ -16597,8 +14578,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
     guint32   u_octet4_loop_clientAppIDs;
     guint32   i_clientAppIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -16622,14 +14601,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
         for (i_clientAppIDs=0; i_clientAppIDs < u_octet4_loop_clientAppIDs; i_clientAppIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientAppIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientAppIDs");
 
         }
 
@@ -16753,8 +14725,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -16763,14 +14733,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sagID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sagID");
 
         break;
 
@@ -16824,8 +14787,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_clientAppIDs;
     guint32   i_clientAppIDs;
     
@@ -16836,14 +14797,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sagID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sagID");
 
         u_octet4_loop_clientAppIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -16852,14 +14806,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
         for (i_clientAppIDs=0; i_clientAppIDs < u_octet4_loop_clientAppIDs; i_clientAppIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientAppIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientAppIDs");
 
         }
 
@@ -16915,8 +14862,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_clientAppIDList;
     guint32   i_clientAppIDList;
     
@@ -16927,14 +14872,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sagID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sagID");
 
         u_octet4_loop_clientAppIDList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -16943,14 +14881,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppManag
 
         for (i_clientAppIDList=0; i_clientAppIDList < u_octet4_loop_clientAppIDList; i_clientAppIDList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientAppIDList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientAppIDList");
 
         }
 
@@ -17083,8 +15014,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -17093,14 +15022,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientAppID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientAppID");
 
         break;
 
@@ -17162,8 +15084,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
     guint32   u_octet4_loop_TpClientAppIDList;
     guint32   i_TpClientAppIDList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -17187,14 +15107,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
             for (i_TpClientAppIDList=0; i_TpClientAppIDList < u_octet4_loop_TpClientAppIDList; i_TpClientAppIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpClientAppIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpClientAppIDList");
 
             }
 
@@ -17240,8 +15153,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -17250,14 +15161,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sagID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sagID");
 
         break;
 
@@ -17267,14 +15171,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSagDescription (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSagDescription");
 
             break;
 
@@ -17320,8 +15217,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
     guint32   u_octet4_loop_TpSagIDList;
     guint32   i_TpSagIDList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -17345,14 +15240,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
             for (i_TpSagIDList=0; i_TpSagIDList < u_octet4_loop_TpSagIDList; i_TpSagIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSagIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSagIDList");
 
             }
 
@@ -17398,8 +15286,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpClientAppIDList;
     guint32   i_TpClientAppIDList;
     
@@ -17410,14 +15296,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sagID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sagID");
 
         break;
 
@@ -17434,14 +15313,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
             for (i_TpClientAppIDList=0; i_TpClientAppIDList < u_octet4_loop_TpClientAppIDList; i_TpClientAppIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpClientAppIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpClientAppIDList");
 
             }
 
@@ -17487,8 +15359,6 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpSagIDList;
     guint32   i_TpSagIDList;
     
@@ -17499,14 +15369,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientAppID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientAppID");
 
         break;
 
@@ -17523,14 +15386,7 @@ decode_org_csapi_fw_fw_enterprise_operator_service_subscription_IpClientAppInfoQ
 
             for (i_TpSagIDList=0; i_TpSagIDList < u_octet4_loop_TpSagIDList; i_TpSagIDList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSagIDList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSagIDList");
 
             }
 
@@ -17842,8 +15698,6 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes(t
 
     guint32   u_octet4_loop_TpServiceTypeNameList;
     guint32   i_TpServiceTypeNameList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -17867,14 +15721,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_listServiceTypes(t
 
             for (i_TpServiceTypeNameList=0; i_TpServiceTypeNameList < u_octet4_loop_TpServiceTypeNameList; i_TpServiceTypeNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypeNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypeNameList");
 
             }
 
@@ -17920,8 +15767,6 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_describeServiceTyp
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -17930,14 +15775,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_describeServiceTyp
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"name (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "name");
 
         break;
 
@@ -17997,8 +15835,6 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_desiredPropertyList;
     guint32   i_desiredPropertyList;
     guint32   u_octet4_loop_TpServiceList;
@@ -18011,14 +15847,7 @@ decode_org_csapi_fw_fw_service_discovery_IpFwServiceDiscovery_discoverService(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceTypeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceTypeName");
 
         u_octet4_loop_desiredPropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -18185,8 +16014,6 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_serviceProperties;
     guint32   i_serviceProperties;
     
@@ -18197,14 +16024,7 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"application (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "application");
 
         u_octet4_loop_serviceProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -18223,14 +16043,7 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
 
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceInstanceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceInstanceID");
 
         break;
 
@@ -18285,8 +16098,6 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -18295,14 +16106,7 @@ decode_org_csapi_fw_fw_service_service_lifecycle_IpServiceInstanceLifecycleManag
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceInstance (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceInstance");
 
         break;
 
@@ -18356,8 +16160,6 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_servicePropertyList;
     guint32   i_servicePropertyList;
     
@@ -18368,14 +16170,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceTypeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceTypeName");
 
         u_octet4_loop_servicePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -18402,14 +16197,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceID (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceID");
 
             break;
 
@@ -18453,8 +16241,6 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_anno
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -18463,14 +16249,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_anno
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -18527,8 +16306,6 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unre
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -18537,14 +16314,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unre
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         break;
 
@@ -18598,8 +16368,6 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_desc
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -18608,14 +16376,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_desc
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         break;
 
@@ -18675,8 +16436,6 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unan
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -18685,14 +16444,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_unan
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceID");
 
         break;
 
@@ -18746,8 +16498,6 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_servicePropertyList;
     guint32   i_servicePropertyList;
     guint32   u_octet4_loop_extendedServicePropertyList;
@@ -18760,14 +16510,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceTypeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceTypeName");
 
         u_octet4_loop_servicePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -18811,14 +16554,7 @@ decode_org_csapi_fw_fw_service_service_registration_IpFwServiceRegistration_regi
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceID (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceID");
 
             break;
 
@@ -20410,8 +18146,6 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -20424,14 +18158,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_activityTestRes(tvbuf
            proto_tree_add_text(tree,tvb,*offset-4,4,"activityTestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"activityTestResult (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "activityTestResult");
 
         break;
 
@@ -21084,8 +18811,6 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRe
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -21109,14 +18834,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcFaultManager_genFaultStatsRecordRe
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -21673,8 +19391,6 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes(tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -21687,14 +19403,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_svcActivityTestRes(tvb
            proto_tree_add_text(tree,tvb,*offset-4,4,"activityTestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"activityTestResult (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "activityTestResult");
 
         break;
 
@@ -22016,8 +19725,6 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes
 
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -22041,14 +19748,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordRes
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -22107,7 +19807,6 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr
     guint32   u_octet4;
     guint32   u_octet4_loop_serviceIDs;
     guint32   i_serviceIDs;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -22129,14 +19828,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwFaultManager_genFaultStatsRecordErr
 
         for (i_serviceIDs=0; i_serviceIDs < u_octet4_loop_serviceIDs; i_serviceIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"serviceIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "serviceIDs");
 
         }
 
@@ -22616,8 +20308,6 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcOAM_systemDateTimeQuery(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -22626,14 +20316,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcOAM_systemDateTimeQuery(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"systemDateAndTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "systemDateAndTime");
 
         break;
 
@@ -22643,14 +20326,7 @@ decode_org_csapi_fw_fw_service_integrity_IpSvcOAM_systemDateTimeQuery(tvbuff_t *
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDateAndTime (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDateAndTime");
 
             break;
 
@@ -22694,8 +20370,6 @@ decode_org_csapi_fw_fw_service_integrity_IpFwOAM_systemDateTimeQuery(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -22704,14 +20378,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwOAM_systemDateTimeQuery(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"clientDateAndTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "clientDateAndTime");
 
         break;
 
@@ -22721,14 +20388,7 @@ decode_org_csapi_fw_fw_service_integrity_IpFwOAM_systemDateTimeQuery(tvbuff_t *t
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDateAndTime (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDateAndTime");
 
             break;
 
@@ -24049,8 +21709,6 @@ decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -24063,14 +21721,7 @@ decode_org_csapi_cc_gccs_IpAppCall_getMoreDialledDigitsRes(tvbuff_t *tvb _U_, pa
            proto_tree_add_text(tree,tvb,*offset-4,4,"callSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"digits (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "digits");
 
         break;
 
@@ -28303,8 +25954,6 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getProperties(tvbuff_t *tvb _U_, packet_info
 
     guint32   u_octet4_loop_propertyNames;
     guint32   i_propertyNames;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpCallLegPropertyList;
     guint32   i_TpCallLegPropertyList;
     
@@ -28326,14 +25975,7 @@ decode_org_csapi_cc_mpccs_IpCallLeg_getProperties(tvbuff_t *tvb _U_, packet_info
 
         for (i_propertyNames=0; i_propertyNames < u_octet4_loop_propertyNames; i_propertyNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"propertyNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "propertyNames");
 
         }
 
@@ -31610,8 +29252,6 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -31623,14 +29263,7 @@ decode_org_csapi_cc_cccs_IpConfCallControlManager_reserveResources(tvbuff_t *tvb
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"startTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "startTime");
 
         if (tree) {
            proto_tree_add_text(tree,tvb,*offset-4,4,"numberOfParticipants = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -32855,7 +30488,6 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectRes(tvbuff_t *tvb _U_, packet_info
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -32878,14 +30510,7 @@ decode_org_csapi_ui_IpAppUI_sendInfoAndCollectRes(tvbuff_t *tvb _U_, packet_info
            proto_tree_add_text(tree,tvb,*offset-4,4,"response  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_ui_TpUIReport,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"collectedInfo (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "collectedInfo");
 
         break;
 
@@ -34030,8 +31655,6 @@ decode_org_csapi_ui_IpUI_sendInfoReq(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_variableInfo;
     guint32   i_variableInfo;
     
@@ -34053,14 +31676,7 @@ decode_org_csapi_ui_IpUI_sendInfoReq(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
         /*  End union "org_csapi_ui_TpUIInfo"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"language (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "language");
 
         u_octet4_loop_variableInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -34140,8 +31756,6 @@ decode_org_csapi_ui_IpUI_sendInfoAndCollectReq(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_variableInfo;
     guint32   i_variableInfo;
     
@@ -34163,14 +31777,7 @@ decode_org_csapi_ui_IpUI_sendInfoAndCollectReq(tvbuff_t *tvb _U_, packet_info *p
 
         /*  End union "org_csapi_ui_TpUIInfo"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"language (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "language");
 
         u_octet4_loop_variableInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -34318,8 +31925,6 @@ decode_org_csapi_ui_IpUI_setOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -34332,14 +31937,7 @@ decode_org_csapi_ui_IpUI_setOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
            proto_tree_add_text(tree,tvb,*offset-4,4,"userInteractionSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"origin (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "origin");
 
         break;
 
@@ -34393,8 +31991,6 @@ decode_org_csapi_ui_IpUI_getOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -34415,14 +32011,7 @@ decode_org_csapi_ui_IpUI_getOriginatingAddress(tvbuff_t *tvb _U_, packet_info *p
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -40402,8 +37991,6 @@ decode_org_csapi_termcap_IpTerminalCapabilities_getTerminalCapabilities(tvbuff_t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -40412,14 +37999,7 @@ decode_org_csapi_termcap_IpTerminalCapabilities_getTerminalCapabilities(tvbuff_t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"terminalIdentity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "terminalIdentity");
 
         break;
 
@@ -42543,8 +40123,6 @@ decode_org_csapi_gms_IpMessagingManager_openMailbox(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -42561,14 +40139,7 @@ decode_org_csapi_gms_IpMessagingManager_openMailbox(tvbuff_t *tvb _U_, packet_in
 
         /*  End struct "org_csapi_TpAddress"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"authenticationInfo (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "authenticationInfo");
 
         break;
 
@@ -43471,8 +41042,6 @@ decode_org_csapi_gms_IpMailbox_openFolder(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -43485,14 +41054,7 @@ decode_org_csapi_gms_IpMailbox_openFolder(tvbuff_t *tvb _U_, packet_info *pinfo 
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -43552,8 +41114,6 @@ decode_org_csapi_gms_IpMailbox_createFolder(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -43566,14 +41126,7 @@ decode_org_csapi_gms_IpMailbox_createFolder(tvbuff_t *tvb _U_, packet_info *pinf
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -43627,8 +41180,6 @@ decode_org_csapi_gms_IpMailbox_remove(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -43645,14 +41196,7 @@ decode_org_csapi_gms_IpMailbox_remove(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
         /*  End struct "org_csapi_TpAddress"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"authenticationInfo (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "authenticationInfo");
 
         break;
 
@@ -43706,8 +41250,6 @@ decode_org_csapi_gms_IpMessage_getInfoAmount(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -43720,14 +41262,7 @@ decode_org_csapi_gms_IpMessage_getInfoAmount(tvbuff_t *tvb _U_, packet_info *pin
            proto_tree_add_text(tree,tvb,*offset-4,4,"folderSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -43783,8 +41318,6 @@ decode_org_csapi_gms_IpMessage_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpMessageInfoPropertySet;
     guint32   i_TpMessageInfoPropertySet;
     
@@ -43799,14 +41332,7 @@ decode_org_csapi_gms_IpMessage_getInfoProperties(tvbuff_t *tvb _U_, packet_info 
            proto_tree_add_text(tree,tvb,*offset-4,4,"folderSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         if (tree) {
            proto_tree_add_text(tree,tvb,*offset-4,4,"firstProperty = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -43882,8 +41408,6 @@ decode_org_csapi_gms_IpMessage_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_messageInfoProperties;
     guint32   i_messageInfoProperties;
     
@@ -43898,14 +41422,7 @@ decode_org_csapi_gms_IpMessage_setInfoProperties(tvbuff_t *tvb _U_, packet_info 
            proto_tree_add_text(tree,tvb,*offset-4,4,"folderSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         if (tree) {
            proto_tree_add_text(tree,tvb,*offset-4,4,"firstProperty = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -43979,8 +41496,6 @@ decode_org_csapi_gms_IpMessage_remove(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -43993,14 +41508,7 @@ decode_org_csapi_gms_IpMessage_remove(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
            proto_tree_add_text(tree,tvb,*offset-4,4,"folderSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -44054,8 +41562,6 @@ decode_org_csapi_gms_IpMessage_getContent(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -44068,14 +41574,7 @@ decode_org_csapi_gms_IpMessage_getContent(tvbuff_t *tvb _U_, packet_info *pinfo 
            proto_tree_add_text(tree,tvb,*offset-4,4,"folderSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -44085,14 +41584,7 @@ decode_org_csapi_gms_IpMessage_getContent(tvbuff_t *tvb _U_, packet_info *pinfo 
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpMessage (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpMessage");
 
             break;
 
@@ -44376,8 +41868,6 @@ decode_org_csapi_gms_IpMailboxFolder_putMessage(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_messageInfoProperties;
     guint32   i_messageInfoProperties;
     
@@ -44392,14 +41882,7 @@ decode_org_csapi_gms_IpMailboxFolder_putMessage(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"folderSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"message (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "message");
 
         u_octet4_loop_messageInfoProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -44469,8 +41952,6 @@ decode_org_csapi_gms_IpMailboxFolder_getMessage(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -44483,14 +41964,7 @@ decode_org_csapi_gms_IpMailboxFolder_getMessage(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"folderSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -44613,8 +42087,6 @@ decode_org_csapi_gms_IpMailboxFolder_remove(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -44627,14 +42099,7 @@ decode_org_csapi_gms_IpMailboxFolder_remove(tvbuff_t *tvb _U_, packet_info *pinf
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -44688,8 +42153,6 @@ decode_org_csapi_cm_IpVPrP_getVPrPID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -44706,14 +42169,7 @@ decode_org_csapi_cm_IpVPrP_getVPrPID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -44757,8 +42213,6 @@ decode_org_csapi_cm_IpVPrP_getSlaID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -44775,14 +42229,7 @@ decode_org_csapi_cm_IpVPrP_getSlaID(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -45157,8 +42604,6 @@ decode_org_csapi_cm_IpVPrN_getVPrPList(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45182,14 +42627,7 @@ decode_org_csapi_cm_IpVPrN_getVPrPList(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -45235,8 +42673,6 @@ decode_org_csapi_cm_IpVPrN_getVPrP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45245,14 +42681,7 @@ decode_org_csapi_cm_IpVPrN_getVPrP(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"vPrPID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "vPrPID");
 
         break;
 
@@ -45371,8 +42800,6 @@ decode_org_csapi_cm_IpVPrN_deleteVPrP(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45381,14 +42808,7 @@ decode_org_csapi_cm_IpVPrN_deleteVPrP(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"vPrPID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "vPrPID");
 
         break;
 
@@ -45442,8 +42862,6 @@ decode_org_csapi_cm_IpQoSMenu_getTemplate(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45452,14 +42870,7 @@ decode_org_csapi_cm_IpQoSMenu_getTemplate(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"templateType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "templateType");
 
         break;
 
@@ -45516,8 +42927,6 @@ decode_org_csapi_cm_IpQoSMenu_getTemplateList(tvbuff_t *tvb _U_, packet_info *pi
 
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45541,14 +42950,7 @@ decode_org_csapi_cm_IpQoSMenu_getTemplateList(tvbuff_t *tvb _U_, packet_info *pi
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -45716,8 +43118,6 @@ decode_org_csapi_cm_IpQoSTemplate_getTemplateType(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45734,14 +43134,7 @@ decode_org_csapi_cm_IpQoSTemplate_getTemplateType(tvbuff_t *tvb _U_, packet_info
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -45785,8 +43178,6 @@ decode_org_csapi_cm_IpQoSTemplate_getDescription(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45803,14 +43194,7 @@ decode_org_csapi_cm_IpQoSTemplate_getDescription(tvbuff_t *tvb _U_, packet_info 
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -45854,8 +43238,6 @@ decode_org_csapi_cm_IpQoSTemplate_setSlaID(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -45864,14 +43246,7 @@ decode_org_csapi_cm_IpQoSTemplate_setSlaID(tvbuff_t *tvb _U_, packet_info *pinfo
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"slaID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "slaID");
 
         break;
 
@@ -46395,8 +43770,6 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getSiteList(tvbuff_t *tvb _U_, packet_in
 
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -46420,14 +43793,7 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getSiteList(tvbuff_t *tvb _U_, packet_in
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -46534,8 +43900,6 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getSite(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -46544,14 +43908,7 @@ decode_org_csapi_cm_IpEnterpriseNetwork_getSite(tvbuff_t *tvb _U_, packet_info *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"siteID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "siteID");
 
         break;
 
@@ -46608,8 +43965,6 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList(tvbuff_t *tvb _U_, packet
 
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -46633,14 +43988,7 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPList(tvbuff_t *tvb _U_, packet
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -46686,8 +44034,6 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteID(tvbuff_t *tvb _U_, packet_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -46704,14 +44050,7 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteID(tvbuff_t *tvb _U_, packet_
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -46755,8 +44094,6 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteLocation(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -46773,14 +44110,7 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteLocation(tvbuff_t *tvb _U_, p
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -46824,8 +44154,6 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteDescription(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -46842,14 +44170,7 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSiteDescription(tvbuff_t *tvb _U_
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpString (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpString");
 
             break;
 
@@ -46959,8 +44280,6 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPIPSubnet(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -46969,14 +44288,7 @@ decode_org_csapi_cm_IpEnterpriseNetworkSite_getSAPIPSubnet(tvbuff_t *tvb _U_, pa
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sapID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sapID");
 
         break;
 
@@ -52992,8 +50304,6 @@ decode_org_csapi_cs_IpChargingManager_createChargingSession(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -53005,14 +50315,7 @@ decode_org_csapi_cs_IpChargingManager_createChargingSession(tvbuff_t *tvb _U_, p
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sessionDescription (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sessionDescription");
 
         /*  Begin struct "org_csapi_cs_TpMerchantAccountID"  */
 
@@ -53096,8 +50399,6 @@ decode_org_csapi_cs_IpChargingManager_createSplitChargingSession(tvbuff_t *tvb _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_users;
     guint32   i_users;
     
@@ -53111,14 +50412,7 @@ decode_org_csapi_cs_IpChargingManager_createSplitChargingSession(tvbuff_t *tvb _
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sessionDescription (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sessionDescription");
 
         /*  Begin struct "org_csapi_cs_TpMerchantAccountID"  */
 
@@ -53434,8 +50728,6 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_inputVariables;
     guint32   i_inputVariables;
     guint32   u_octet4_loop_TpPolicyNameValueList;
@@ -53448,23 +50740,9 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicy(tvbuff_t *tvb 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signatureName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signatureName");
 
         u_octet4_loop_inputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -53550,8 +50828,6 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_inputVariables;
     guint32   i_inputVariables;
     
@@ -53562,23 +50838,9 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_evalPolicyReq(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signatureName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signatureName");
 
         u_octet4_loop_inputVariables = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -53654,8 +50916,6 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -53664,14 +50924,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_abortEvalPolicyReq(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         if (tree) {
            proto_tree_add_text(tree,tvb,*offset-4,4,"assignmentID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -53729,8 +50982,6 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributes;
     guint32   i_attributes;
     
@@ -53741,23 +50992,9 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_generateEvent(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"eventDefinitionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "eventDefinitionName");
 
         u_octet4_loop_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -53828,8 +51065,6 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_events;
     guint32   i_events;
     
@@ -53840,14 +51075,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -53859,14 +51087,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_createNotification(tvbuff
 
         for (i_events=0; i_events < u_octet4_loop_events; i_events++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"events (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "events");
 
         }
 
@@ -53926,8 +51147,6 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification(tvbuf
 
     guint32   u_octet4_loop_events;
     guint32   i_events;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -53947,14 +51166,7 @@ decode_org_csapi_policy_evaluation_IpPolicyEvalManager_destroyNotification(tvbuf
 
         for (i_events=0; i_events < u_octet4_loop_events; i_events++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"events (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "events");
 
         }
 
@@ -54010,8 +51222,6 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttribute(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -54020,14 +51230,7 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttribute(tvbuff_t *tvb _U_, pa
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeName");
 
         break;
 
@@ -54157,8 +51360,6 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttributes(tvbuff_t *tvb _U_, p
 
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpAttributeSet;
     guint32   i_TpAttributeSet;
     
@@ -54176,14 +51377,7 @@ decode_org_csapi_policy_provisioning_IpPolicy_getAttributes(tvbuff_t *tvb _U_, p
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -54335,8 +51529,6 @@ decode_org_csapi_policy_provisioning_IpPolicyIterator_getList(tvbuff_t *tvb _U_,
 
     guint32   u_octet4_loop_TpStringSet;
     guint32   i_TpStringSet;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -54368,14 +51560,7 @@ decode_org_csapi_policy_provisioning_IpPolicyIterator_getList(tvbuff_t *tvb _U_,
 
             for (i_TpStringSet=0; i_TpStringSet < u_octet4_loop_TpStringSet; i_TpStringSet++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringSet (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringSet");
 
             }
 
@@ -54482,8 +51667,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createRepository(tvbuff_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -54492,14 +51675,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createRepository(tvbuff_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"repositoryName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "repositoryName");
 
         break;
 
@@ -54554,8 +51730,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepository(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -54564,14 +51738,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getRepository(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"repositoryName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "repositoryName");
 
         break;
 
@@ -54626,8 +51793,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeRepository(tvbuff_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -54636,14 +51801,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeRepository(tvbuff_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"repositoryName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "repositoryName");
 
         break;
 
@@ -54821,7 +51979,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createCondition(tvbuff_t
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_conditionAttributes;
     guint32   i_conditionAttributes;
     
@@ -54832,14 +51989,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createCondition(tvbuff_t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"conditionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "conditionName");
 
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -54917,8 +52067,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getCondition(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -54927,14 +52075,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getCondition(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"conditionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "conditionName");
 
         break;
 
@@ -54989,8 +52130,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeCondition(tvbuff_t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -54999,14 +52138,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeCondition(tvbuff_t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"conditionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "conditionName");
 
         break;
 
@@ -55184,7 +52316,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createAction(tvbuff_t *t
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_actionAttributes;
     guint32   i_actionAttributes;
     
@@ -55195,14 +52326,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_createAction(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"actionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "actionName");
 
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -55280,8 +52404,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getAction(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -55290,14 +52412,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_getAction(tvbuff_t *tvb 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"actionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "actionName");
 
         break;
 
@@ -55352,8 +52467,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeAction(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -55362,14 +52475,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRepository_removeAction(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"actionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "actionName");
 
         break;
 
@@ -55669,7 +52775,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createCondition(tvbuff_t *tvb 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_conditionAttributes;
     guint32   i_conditionAttributes;
     
@@ -55680,14 +52785,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createCondition(tvbuff_t *tvb 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"conditionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "conditionName");
 
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -55765,8 +52863,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getCondition(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -55775,14 +52871,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getCondition(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"conditionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "conditionName");
 
         break;
 
@@ -55837,8 +52926,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_removeCondition(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -55847,14 +52934,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_removeCondition(tvbuff_t *tvb 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"conditionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "conditionName");
 
         break;
 
@@ -56032,7 +53112,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createAction(tvbuff_t *tvb _U_
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_actionAttributes;
     guint32   i_actionAttributes;
     
@@ -56043,14 +53122,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_createAction(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"actionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "actionName");
 
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -56128,8 +53200,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getAction(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -56138,14 +53208,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_getAction(tvbuff_t *tvb _U_, p
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"actionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "actionName");
 
         break;
 
@@ -56200,8 +53263,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_removeAction(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -56210,14 +53271,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_removeAction(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"actionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "actionName");
 
         break;
 
@@ -56394,8 +53448,6 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setValidityPeriodConditionByNa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -56404,14 +53456,7 @@ decode_org_csapi_policy_provisioning_IpPolicyRule_setValidityPeriodConditionByNa
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"conditionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "conditionName");
 
         break;
 
@@ -56961,8 +54006,6 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_createDomain(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -56971,14 +54014,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_createDomain(tvbuff_t *tvb 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         break;
 
@@ -57033,8 +54069,6 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getDomain(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -57043,14 +54077,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getDomain(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         break;
 
@@ -57105,8 +54132,6 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_removeDomain(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -57115,14 +54140,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_removeDomain(tvbuff_t *tvb 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         break;
 
@@ -57303,8 +54321,6 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains(tvbuff_
     guint32   i_matchingAttributes;
     guint32   u_octet4_loop_TpStringSet;
     guint32   i_TpStringSet;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -57345,14 +54361,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_findMatchingDomains(tvbuff_
 
             for (i_TpStringSet=0; i_TpStringSet < u_octet4_loop_TpStringSet; i_TpStringSet++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringSet (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringSet");
 
             }
 
@@ -57398,8 +54407,6 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_createRepository(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -57408,14 +54415,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_createRepository(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"repositoryName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "repositoryName");
 
         break;
 
@@ -57470,8 +54470,6 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getRepository(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -57480,14 +54478,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_getRepository(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"repositoryName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "repositoryName");
 
         break;
 
@@ -57542,8 +54533,6 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_removeRepository(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -57552,14 +54541,7 @@ decode_org_csapi_policy_provisioning_IpPolicyManager_removeRepository(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"repositoryName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "repositoryName");
 
         break;
 
@@ -58040,8 +55022,6 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_createGroup(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -58050,14 +55030,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_createGroup(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"groupName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "groupName");
 
         break;
 
@@ -58112,8 +55085,6 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroup(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -58122,14 +55093,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getGroup(tvbuff_t *tvb _U_, p
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"groupName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "groupName");
 
         break;
 
@@ -58184,8 +55148,6 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_removeGroup(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -58194,14 +55156,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_removeGroup(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"groupName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "groupName");
 
         break;
 
@@ -58378,8 +55333,6 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_createRule(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -58388,14 +55341,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_createRule(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ruleName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ruleName");
 
         break;
 
@@ -58450,8 +55396,6 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getRule(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -58460,14 +55404,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_getRule(tvbuff_t *tvb _U_, pa
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ruleName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ruleName");
 
         break;
 
@@ -58522,8 +55459,6 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_removeRule(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -58532,14 +55467,7 @@ decode_org_csapi_policy_provisioning_IpPolicyGroup_removeRule(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ruleName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ruleName");
 
         break;
 
@@ -59335,8 +56263,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables(tvbuff_
 
     guint32   u_octet4_loop_inputVariables;
     guint32   i_inputVariables;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59352,14 +56278,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setInputVariables(tvbuff_
 
         for (i_inputVariables=0; i_inputVariables < u_octet4_loop_inputVariables; i_inputVariables++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"inputVariables (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "inputVariables");
 
         }
 
@@ -59417,8 +56336,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables(tvbuff
 
     guint32   u_octet4_loop_outputVariables;
     guint32   i_outputVariables;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59434,14 +56351,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setOutputVariables(tvbuff
 
         for (i_outputVariables=0; i_outputVariables < u_octet4_loop_outputVariables; i_outputVariables++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"outputVariables (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "outputVariables");
 
         }
 
@@ -59499,8 +56409,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables(tvbuff_
 
     guint32   u_octet4_loop_TpStringSet;
     guint32   i_TpStringSet;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59524,14 +56432,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getInputVariables(tvbuff_
 
             for (i_TpStringSet=0; i_TpStringSet < u_octet4_loop_TpStringSet; i_TpStringSet++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringSet (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringSet");
 
             }
 
@@ -59579,8 +56480,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables(tvbuff
 
     guint32   u_octet4_loop_TpStringSet;
     guint32   i_TpStringSet;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59604,14 +56503,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getOutputVariables(tvbuff
 
             for (i_TpStringSet=0; i_TpStringSet < u_octet4_loop_TpStringSet; i_TpStringSet++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringSet (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringSet");
 
             }
 
@@ -59659,8 +56551,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames(tvbuff_t *t
 
     guint32   u_octet4_loop_groupNames;
     guint32   i_groupNames;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59676,14 +56566,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setGroupNames(tvbuff_t *t
 
         for (i_groupNames=0; i_groupNames < u_octet4_loop_groupNames; i_groupNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"groupNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "groupNames");
 
         }
 
@@ -59741,8 +56624,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles(tvbuff_t *
 
     guint32   u_octet4_loop_roleNames;
     guint32   i_roleNames;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59758,14 +56639,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_setPolicyRoles(tvbuff_t *
 
         for (i_roleNames=0; i_roleNames < u_octet4_loop_roleNames; i_roleNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"roleNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "roleNames");
 
         }
 
@@ -59823,8 +56697,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames(tvbuff_t *t
 
     guint32   u_octet4_loop_TpStringSet;
     guint32   i_TpStringSet;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59848,14 +56720,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getGroupNames(tvbuff_t *t
 
             for (i_TpStringSet=0; i_TpStringSet < u_octet4_loop_TpStringSet; i_TpStringSet++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringSet (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringSet");
 
             }
 
@@ -59903,8 +56768,6 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles(tvbuff_t *
 
     guint32   u_octet4_loop_TpStringSet;
     guint32   i_TpStringSet;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -59928,14 +56791,7 @@ decode_org_csapi_policy_provisioning_IpPolicySignature_getPolicyRoles(tvbuff_t *
 
             for (i_TpStringSet=0; i_TpStringSet < u_octet4_loop_TpStringSet; i_TpStringSet++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringSet (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringSet");
 
             }
 
@@ -60103,8 +56959,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createDomain(tvbuff_t *tvb _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60113,14 +56967,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createDomain(tvbuff_t *tvb _
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         break;
 
@@ -60175,8 +57022,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomain(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60185,14 +57030,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getDomain(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         break;
 
@@ -60247,8 +57085,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeDomain(tvbuff_t *tvb _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60257,14 +57093,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeDomain(tvbuff_t *tvb _
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"domainName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "domainName");
 
         break;
 
@@ -60441,8 +57270,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createGroup(tvbuff_t *tvb _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60451,14 +57278,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createGroup(tvbuff_t *tvb _U
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"groupName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "groupName");
 
         break;
 
@@ -60513,8 +57333,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroup(tvbuff_t *tvb _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60523,14 +57341,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getGroup(tvbuff_t *tvb _U_, 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"groupName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "groupName");
 
         break;
 
@@ -60585,8 +57396,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeGroup(tvbuff_t *tvb _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60595,14 +57404,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeGroup(tvbuff_t *tvb _U
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"groupName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "groupName");
 
         break;
 
@@ -60779,8 +57581,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createRule(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60789,14 +57589,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createRule(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ruleName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ruleName");
 
         break;
 
@@ -60851,8 +57644,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getRule(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60861,14 +57652,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getRule(tvbuff_t *tvb _U_, p
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ruleName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ruleName");
 
         break;
 
@@ -60923,8 +57707,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeRule(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -60933,14 +57715,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeRule(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ruleName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ruleName");
 
         break;
 
@@ -61117,8 +57892,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_requiredAttributes;
     guint32   i_requiredAttributes;
     guint32   u_octet4_loop_optionalAttributes;
@@ -61131,14 +57904,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"eventDefinitionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "eventDefinitionName");
 
         u_octet4_loop_requiredAttributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -61147,14 +57913,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvbuff
 
         for (i_requiredAttributes=0; i_requiredAttributes < u_octet4_loop_requiredAttributes; i_requiredAttributes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"requiredAttributes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "requiredAttributes");
 
         }
 
@@ -61165,14 +57924,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createEventDefinition(tvbuff
 
         for (i_optionalAttributes=0; i_optionalAttributes < u_octet4_loop_optionalAttributes; i_optionalAttributes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"optionalAttributes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "optionalAttributes");
 
         }
 
@@ -61229,8 +57981,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinition(tvbuff_t 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -61239,14 +57989,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getEventDefinition(tvbuff_t 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"eventDefinitionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "eventDefinitionName");
 
         break;
 
@@ -61301,8 +58044,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeEventDefinition(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -61311,14 +58052,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeEventDefinition(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"eventDefinitionName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "eventDefinitionName");
 
         break;
 
@@ -61495,8 +58229,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariableSet(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -61505,14 +58237,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariableSet(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
         break;
 
@@ -61566,8 +58291,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPolicyVarSet;
     guint32   i_TpPolicyVarSet;
     
@@ -61578,14 +58301,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableSet(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
         break;
 
@@ -61654,8 +58370,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariableSet(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -61664,14 +58378,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariableSet(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
         break;
 
@@ -61848,8 +58555,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariable(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -61858,23 +58563,9 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createVariable(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableName");
 
         /*  Begin union "org_csapi_policy_TpPolicyType"  */
 
@@ -61935,8 +58626,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_setVariableValue(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -61945,23 +58634,9 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_setVariableValue(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableName");
 
         get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 
@@ -62017,8 +58692,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableType(tvbuff_t *tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -62027,23 +58700,9 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableType(tvbuff_t *tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableName");
 
         break;
 
@@ -62102,8 +58761,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableValue(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -62112,23 +58769,9 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariableValue(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableName");
 
         break;
 
@@ -62182,8 +58825,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariable(tvbuff_t *tvb _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -62192,23 +58833,9 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getVariable(tvbuff_t *tvb _U
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableSetName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableName");
 
         break;
 
@@ -62268,8 +58895,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariable(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -62278,23 +58903,9 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeVariable(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variablSetName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variablSetName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"variableName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "variableName");
 
         break;
 
@@ -62348,8 +58959,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createSignature(tvbuff_t *tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -62358,14 +58967,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_createSignature(tvbuff_t *tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signatureName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signatureName");
 
         break;
 
@@ -62420,8 +59022,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignature(tvbuff_t *tvb _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -62430,14 +59030,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_getSignature(tvbuff_t *tvb _
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signatureName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signatureName");
 
         break;
 
@@ -62492,8 +59085,6 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeSignature(tvbuff_t *tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -62502,14 +59093,7 @@ decode_org_csapi_policy_provisioning_IpPolicyDomain_removeSignature(tvbuff_t *tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"signatureName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "signatureName");
 
         break;
 
@@ -62686,8 +59270,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity(tvbuff_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_identityTypes;
     guint32   i_identityTypes;
     guint32   u_octet4_loop_authToken;
@@ -62700,14 +59282,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity(tvbuff_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -62716,14 +59291,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createIdentity(tvbuff_
 
         for (i_identityTypes=0; i_identityTypes < u_octet4_loop_identityTypes; i_identityTypes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityTypes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityTypes");
 
         }
 
@@ -62792,8 +59360,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity(tvbuff_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -62804,14 +59370,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteIdentity(tvbuff_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -62878,8 +59437,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -62890,14 +59447,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isIdentity(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -62966,8 +59516,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_identityTypes;
     guint32   i_identityTypes;
     guint32   u_octet4_loop_authToken;
@@ -62980,14 +59528,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -62996,14 +59537,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_createGroupIdentity(tv
 
         for (i_identityTypes=0; i_identityTypes < u_octet4_loop_identityTypes; i_identityTypes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityTypes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityTypes");
 
         }
 
@@ -63072,8 +59606,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -63084,14 +59616,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_deleteGroupIdentity(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63158,8 +59683,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -63170,23 +59693,9 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addToGroup(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"group (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "group");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"member (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "member");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63253,8 +59762,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -63265,23 +59772,9 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeFromGroup(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"group (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "group");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63348,8 +59841,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMFQNameList;
@@ -63362,14 +59853,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63399,14 +59883,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listMembers(tvbuff_t *
 
             for (i_TpPAMFQNameList=0; i_TpPAMFQNameList < u_octet4_loop_TpPAMFQNameList; i_TpPAMFQNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQNameList");
 
             }
 
@@ -63452,8 +59929,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -63464,14 +59939,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_isGroupIdentity(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63540,8 +60008,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMFQNameList;
@@ -63554,14 +60020,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63591,14 +60050,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listGroupMembership(tv
 
             for (i_TpPAMFQNameList=0; i_TpPAMFQNameList < u_octet4_loop_TpPAMFQNameList; i_TpPAMFQNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQNameList");
 
             }
 
@@ -63644,8 +60096,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -63656,23 +60106,9 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_addAlias(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"alias (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "alias");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63739,8 +60175,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases(tvbuff_t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -63751,23 +60185,9 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_removeAliases(tvbuff_t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"alias (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "alias");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63834,8 +60254,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMFQNameList;
@@ -63848,14 +60266,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63885,14 +60296,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listAliases(tvbuff_t *
 
             for (i_TpPAMFQNameList=0; i_TpPAMFQNameList < u_octet4_loop_TpPAMFQNameList; i_TpPAMFQNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQNameList");
 
             }
 
@@ -63938,8 +60342,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias(tvbuff_t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -63950,14 +60352,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias(tvbuff_t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"alias (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "alias");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -63980,14 +60375,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_lookupByAlias(tvbuff_t
 
         case NO_EXCEPTION:
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQName (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQName");
 
             break;
 
@@ -64031,8 +60419,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes(tvbuff_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_identityTypes;
     guint32   i_identityTypes;
     guint32   u_octet4_loop_authToken;
@@ -64045,14 +60431,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes(tvbuff_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64061,14 +60440,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_associateTypes(tvbuff_
 
         for (i_identityTypes=0; i_identityTypes < u_octet4_loop_identityTypes; i_identityTypes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityTypes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityTypes");
 
         }
 
@@ -64137,8 +60509,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes(tvbu
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_identityTypes;
     guint32   i_identityTypes;
     guint32   u_octet4_loop_authToken;
@@ -64151,14 +60521,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes(tvbu
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_identityTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64167,14 +60530,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_disassociateTypes(tvbu
 
         for (i_identityTypes=0; i_identityTypes < u_octet4_loop_identityTypes; i_identityTypes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityTypes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityTypes");
 
         }
 
@@ -64243,8 +60599,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMFQNameList;
@@ -64257,14 +60611,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64294,14 +60641,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_listTypesOfIdentity(tv
 
             for (i_TpPAMFQNameList=0; i_TpPAMFQNameList < u_octet4_loop_TpPAMFQNameList; i_TpPAMFQNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQNameList");
 
             }
 
@@ -64347,8 +60687,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -64359,23 +60697,9 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_hasType(tvbuff_t *tvb 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64444,8 +60768,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -64460,23 +60782,9 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityType");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64485,14 +60793,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_getIdentityAttributes(
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -64576,8 +60877,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes(
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributes;
     guint32   i_attributes;
     guint32   u_octet4_loop_authToken;
@@ -64590,23 +60889,9 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityManagement_setIdentityAttributes(
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityType");
 
         u_octet4_loop_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64690,8 +60975,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_agentTypes;
     guint32   i_agentTypes;
     guint32   u_octet4_loop_authToken;
@@ -64704,14 +60987,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_agentTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64720,14 +60996,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_createAgent(tvbuff_t *tvb
 
         for (i_agentTypes=0; i_agentTypes < u_octet4_loop_agentTypes; i_agentTypes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentTypes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentTypes");
 
         }
 
@@ -64796,8 +61065,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -64808,14 +61075,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_deleteAgent(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64882,8 +61142,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -64894,14 +61152,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isAgent(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -64970,8 +61221,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_capabilities;
     guint32   i_capabilities;
     guint32   u_octet4_loop_authToken;
@@ -64984,14 +61233,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65000,14 +61242,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_enableCapabilities(tvbuff
 
         for (i_capabilities=0; i_capabilities < u_octet4_loop_capabilities; i_capabilities++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilities (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilities");
 
         }
 
@@ -65076,8 +61311,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_capabilities;
     guint32   i_capabilities;
     guint32   u_octet4_loop_authToken;
@@ -65090,14 +61323,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities(tvbuf
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65106,14 +61332,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disableCapabilities(tvbuf
 
         for (i_capabilities=0; i_capabilities < u_octet4_loop_capabilities; i_capabilities++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilities (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilities");
 
         }
 
@@ -65182,8 +61401,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities(t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMCapabilityList;
@@ -65196,14 +61413,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities(t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65233,14 +61443,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listEnabledCapabilities(t
 
             for (i_TpPAMCapabilityList=0; i_TpPAMCapabilityList < u_octet4_loop_TpPAMCapabilityList; i_TpPAMCapabilityList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCapabilityList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCapabilityList");
 
             }
 
@@ -65286,8 +61489,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMCapabilityList;
@@ -65300,14 +61501,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities(tvbuf
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65337,14 +61531,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listAllCapabilities(tvbuf
 
             for (i_TpPAMCapabilityList=0; i_TpPAMCapabilityList < u_octet4_loop_TpPAMCapabilityList; i_TpPAMCapabilityList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCapabilityList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCapabilityList");
 
             }
 
@@ -65390,8 +61577,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -65402,23 +61587,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_isCapableOf(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capability (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capability");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65487,8 +61658,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_agentTypes;
     guint32   i_agentTypes;
     guint32   u_octet4_loop_authToken;
@@ -65501,14 +61670,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_agentTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65517,14 +61679,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_associateTypes(tvbuff_t *
 
         for (i_agentTypes=0; i_agentTypes < u_octet4_loop_agentTypes; i_agentTypes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentTypes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentTypes");
 
         }
 
@@ -65593,8 +61748,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes(tvbuff_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_agentTypes;
     guint32   i_agentTypes;
     guint32   u_octet4_loop_authToken;
@@ -65607,14 +61760,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes(tvbuff_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_agentTypes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65623,14 +61769,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_disassociateTypes(tvbuff_
 
         for (i_agentTypes=0; i_agentTypes < u_octet4_loop_agentTypes; i_agentTypes++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentTypes (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentTypes");
 
         }
 
@@ -65699,8 +61838,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent(tvbuff_t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
@@ -65713,14 +61850,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent(tvbuff_t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65750,14 +61880,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_listTypesOfAgent(tvbuff_t
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -65803,8 +61926,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -65815,23 +61936,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_hasType(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65900,8 +62007,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -65916,23 +62021,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -65941,14 +62032,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_getAgentAttributes(tvbuff
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -66032,8 +62116,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributes;
     guint32   i_attributes;
     guint32   u_octet4_loop_authToken;
@@ -66046,23 +62128,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentManagement_setAgentAttributes(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66146,8 +62214,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent(tvbuff_t *tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -66158,23 +62224,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_assignAgent(tvbuff_t *tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66241,8 +62293,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -66253,23 +62303,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_unassignAgent(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66336,8 +62372,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMFQNameList;
@@ -66350,14 +62384,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66387,14 +62414,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgents(tvbuff
 
             for (i_TpPAMFQNameList=0; i_TpPAMFQNameList < u_octet4_loop_TpPAMFQNameList; i_TpPAMFQNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQNameList");
 
             }
 
@@ -66440,8 +62460,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesO
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMFQNameList;
@@ -66454,14 +62472,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesO
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66491,14 +62502,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssociatedIdentitiesO
 
             for (i_TpPAMFQNameList=0; i_TpPAMFQNameList < u_octet4_loop_TpPAMFQNameList; i_TpPAMFQNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQNameList");
 
             }
 
@@ -66544,8 +62548,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapab
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMFQNameList;
@@ -66558,23 +62560,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapab
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capability (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capability");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66604,14 +62592,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listAssignedAgentsByCapab
 
             for (i_TpPAMFQNameList=0; i_TpPAMFQNameList < u_octet4_loop_TpPAMFQNameList; i_TpPAMFQNameList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMFQNameList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMFQNameList");
 
             }
 
@@ -66657,8 +62638,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentit
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMCapabilityList;
@@ -66671,14 +62650,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentit
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66708,14 +62680,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_listCapabilitiesOfIdentit
 
             for (i_TpPAMCapabilityList=0; i_TpPAMCapabilityList < u_octet4_loop_TpPAMCapabilityList; i_TpPAMCapabilityList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCapabilityList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCapabilityList");
 
             }
 
@@ -66761,8 +62726,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -66773,23 +62736,9 @@ decode_org_csapi_pam_provisioning_IpPAMAgentAssignment_isIdentityCapableOf(tvbuf
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capability (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capability");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -66941,8 +62890,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttr
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -66953,14 +62900,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityAttr
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67027,8 +62967,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttribu
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -67039,14 +62977,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_getIdentityAttribu
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67123,8 +63054,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAtt
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -67161,14 +63090,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listAllIdentityAtt
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -67214,8 +63136,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -67228,14 +63148,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67244,14 +63157,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_createIdentityType
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -67320,8 +63226,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -67332,14 +63236,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_deleteIdentityType
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67410,8 +63307,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes(
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -67448,14 +63343,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypes(
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -67501,8 +63389,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAtt
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -67515,14 +63401,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAtt
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67531,14 +63410,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_addIdentityTypeAtt
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -67607,8 +63479,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityType
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -67621,14 +63491,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityType
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67637,14 +63500,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_removeIdentityType
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -67713,8 +63569,6 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAt
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
@@ -67727,14 +63581,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAt
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67764,14 +63611,7 @@ decode_org_csapi_pam_provisioning_IpPAMIdentityTypeManagement_listIdentityTypeAt
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -67900,8 +63740,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute(
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -67912,14 +63750,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentAttribute(
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -67986,8 +63817,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -67998,14 +63827,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_getAgentAttributeDefi
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -68082,8 +63904,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttribute
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -68120,14 +63940,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAllAgentAttribute
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -68173,8 +63986,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -68187,14 +63998,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType(tvbuf
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -68203,14 +64007,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_createAgentType(tvbuf
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -68279,8 +64076,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -68291,14 +64086,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_deleteAgentType(tvbuf
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -68369,8 +64157,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes(tvbuff
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -68407,14 +64193,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypes(tvbuff
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -68460,8 +64239,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttribute
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -68474,14 +64251,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttribute
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -68490,14 +64260,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_addAgentTypeAttribute
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -68566,8 +64329,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttrib
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -68580,14 +64341,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttrib
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -68596,14 +64350,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_removeAgentTypeAttrib
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -68672,8 +64419,6 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttribut
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
@@ -68686,14 +64431,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttribut
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"typeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "typeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -68723,14 +64461,7 @@ decode_org_csapi_pam_provisioning_IpPAMAgentTypeManagement_listAgentTypeAttribut
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -68859,8 +64590,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttr
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -68871,14 +64600,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapabilityAttr
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -68945,8 +64667,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttribu
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -68957,14 +64677,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_getCapabilityAttribu
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69041,8 +64754,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAtt
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
     guint32   i_TpStringList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -69079,14 +64790,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listAllCapabilityAtt
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -69132,8 +64836,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability(tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -69146,14 +64848,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability(tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilityName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69162,14 +64857,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_createCapability(tvb
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -69238,8 +64926,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability(tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -69250,14 +64936,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_deleteCapability(tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilityName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69328,8 +65007,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities(tvb
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMCapabilityList;
     guint32   i_TpPAMCapabilityList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -69366,14 +65043,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilities(tvb
 
             for (i_TpPAMCapabilityList=0; i_TpPAMCapabilityList < u_octet4_loop_TpPAMCapabilityList; i_TpPAMCapabilityList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCapabilityList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCapabilityList");
 
             }
 
@@ -69419,8 +65089,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttribu
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -69433,14 +65101,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttribu
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilityName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69449,14 +65110,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_addCapabilityAttribu
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -69525,8 +65179,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttr
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -69539,14 +65191,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttr
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilityName");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69555,14 +65200,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_removeCapabilityAttr
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -69631,8 +65269,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttrib
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpStringList;
@@ -69645,14 +65281,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttrib
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilityName");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69682,14 +65311,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilityAttrib
 
             for (i_TpStringList=0; i_TpStringList < u_octet4_loop_TpStringList; i_TpStringList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStringList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStringList");
 
             }
 
@@ -69735,8 +65357,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesTo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_capabilities;
     guint32   i_capabilities;
     guint32   u_octet4_loop_authToken;
@@ -69749,14 +65369,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesTo
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69765,14 +65378,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_assignCapabilitiesTo
 
         for (i_capabilities=0; i_capabilities < u_octet4_loop_capabilities; i_capabilities++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilities (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilities");
 
         }
 
@@ -69841,8 +65447,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilities
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_capabilities;
     guint32   i_capabilities;
     guint32   u_octet4_loop_authToken;
@@ -69855,14 +65459,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilities
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69871,14 +65468,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_unassignCapabilities
 
         for (i_capabilities=0; i_capabilities < u_octet4_loop_capabilities; i_capabilities++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capabilities (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capabilities");
 
         }
 
@@ -69947,8 +65537,6 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfTy
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     guint32   u_octet4_loop_TpPAMCapabilityList;
@@ -69961,14 +65549,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfTy
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -69998,14 +65579,7 @@ decode_org_csapi_pam_provisioning_IpPAMCapabilityManagement_listCapabilitiesOfTy
 
             for (i_TpPAMCapabilityList=0; i_TpPAMCapabilityList < u_octet4_loop_TpPAMCapabilityList; i_TpPAMCapabilityList++) {
 
-                u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-                if (tree) {
-                   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCapabilityList (%u) = %s",
-                      u_octet4, (u_octet4 > 0) ? seq : "");
-                }
-
-                g_free(seq);          /*  free buffer  */
-                seq = NULL;
+                giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCapabilityList");
 
             }
 
@@ -70143,8 +65717,6 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_obtainInterface(tvbuf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -70153,14 +65725,7 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_obtainInterface(tvbuf
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"interfaceName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "interfaceName");
 
         break;
 
@@ -70215,8 +65780,6 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl(tvbu
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -70227,14 +65790,7 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_getAccessControl(tvbu
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -70307,8 +65863,6 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl(tvbu
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -70319,23 +65873,9 @@ decode_org_csapi_pam_provisioning_IpPAMProvisioningManager_setAccessControl(tvbu
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"operation (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "operation");
 
         /*  Begin struct "org_csapi_pam_TpPAMAccessControlData"  */
 
@@ -70410,8 +65950,6 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributes;
     guint32   i_attributes;
     guint32   u_octet4_loop_authToken;
@@ -70424,23 +65962,9 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresence(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityType");
 
         u_octet4_loop_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -70524,8 +66048,6 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -70538,23 +66060,9 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityType");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -70563,14 +66071,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_setIdentityPresenceExpiration(
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -70643,8 +66144,6 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvbuff_t *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -70659,23 +66158,9 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvbuff_t *
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identityType");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -70684,14 +66169,7 @@ decode_org_csapi_pam_access_IpPAMIdentityPresence_getIdentityPresence(tvbuff_t *
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -70775,8 +66253,6 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence(tvbuff_t *tvb _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributes;
     guint32   i_attributes;
     guint32   u_octet4_loop_authToken;
@@ -70789,23 +66265,9 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresence(tvbuff_t *tvb _U
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agent");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -70889,8 +66351,6 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributes;
     guint32   i_attributes;
     guint32   u_octet4_loop_authToken;
@@ -70903,23 +66363,9 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresence(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agent");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capability (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capability");
 
         u_octet4_loop_attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -71003,8 +66449,6 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvbuff
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -71017,23 +66461,9 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvbuff
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agent");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -71042,14 +66472,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setAgentPresenceExpiration(tvbuff
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -71122,8 +66545,6 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -71136,23 +66557,9 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agent");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capability (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capability");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -71161,14 +66568,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_setCapabilityPresenceExpiration(t
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -71241,8 +66641,6 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvbuff_t *tvb _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -71257,23 +66655,9 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvbuff_t *tvb _U
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agent");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agentType");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -71282,14 +66666,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getAgentPresence(tvbuff_t *tvb _U
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -71373,8 +66750,6 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvbuff_t *t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -71389,23 +66764,9 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvbuff_t *t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"agent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "agent");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"capability (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "capability");
 
         u_octet4_loop_attributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -71414,14 +66775,7 @@ decode_org_csapi_pam_access_IpPAMAgentPresence_getCapabilityPresence(tvbuff_t *t
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -71505,8 +66859,6 @@ decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvbuff_t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -71521,14 +66873,7 @@ decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvbuff_t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         /*  Begin struct "org_csapi_pam_TpPAMContext"  */
 
@@ -71545,14 +66890,7 @@ decode_org_csapi_pam_access_IpAppPAMPreferenceCheck_computeAvailability(tvbuff_t
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -71636,8 +66974,6 @@ decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_attributeNames;
     guint32   i_attributeNames;
     guint32   u_octet4_loop_authToken;
@@ -71652,14 +66988,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         /*  Begin struct "org_csapi_pam_TpPAMContext"  */
 
@@ -71676,14 +67005,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_getAvailability(tvbuff_t *tvb _U_,
 
         for (i_attributeNames=0; i_attributeNames < u_octet4_loop_attributeNames; i_attributeNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"attributeNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "attributeNames");
 
         }
 
@@ -71767,8 +67089,6 @@ decode_org_csapi_pam_access_IpPAMAvailability_getPreference(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -71779,14 +67099,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_getPreference(tvbuff_t *tvb _U_, p
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         /*  Begin struct "org_csapi_pam_TpPAMContext"  */
 
@@ -71866,8 +67179,6 @@ decode_org_csapi_pam_access_IpPAMAvailability_setPreference(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -71878,14 +67189,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_setPreference(tvbuff_t *tvb _U_, p
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         /*  Begin struct "org_csapi_pam_TpPAMContext"  */
 
@@ -71895,14 +67199,7 @@ decode_org_csapi_pam_access_IpPAMAvailability_setPreference(tvbuff_t *tvb _U_, p
 
         /*  End struct "org_csapi_pam_TpPAMContext"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"operation (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "operation");
 
         /*  Begin union "org_csapi_pam_TpPAMPreferenceData"  */
 
@@ -72068,8 +67365,6 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_obtainInterface(tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -72078,14 +67373,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_obtainInterface(tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"interfaceName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "interfaceName");
 
         break;
 
@@ -72140,8 +67428,6 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -72152,14 +67438,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_getAccessControl(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -72232,8 +67511,6 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -72244,23 +67521,9 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_setAccessControl(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"operation (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "operation");
 
         /*  Begin struct "org_csapi_pam_TpPAMAccessControlData"  */
 
@@ -72335,8 +67598,6 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService(tvb
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -72347,14 +67608,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_activateService(tvb
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -72421,8 +67675,6 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService(t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -72433,14 +67685,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_deactivateService(t
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -72507,8 +67752,6 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity(tv
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -72519,14 +67762,7 @@ decode_org_csapi_pam_access_IpPAMPresenceAvailabilityManager_isActiveIdentity(tv
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -73263,8 +68499,6 @@ decode_org_csapi_pam_event_IpPAMEventManager_obtainInterface(tvbuff_t *tvb _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -73273,14 +68507,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_obtainInterface(tvbuff_t *tvb _U_, 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"interfaceName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "interfaceName");
 
         break;
 
@@ -73335,8 +68562,6 @@ decode_org_csapi_pam_event_IpPAMEventManager_getAccessControl(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -73347,14 +68572,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_getAccessControl(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -73427,8 +68645,6 @@ decode_org_csapi_pam_event_IpPAMEventManager_setAccessControl(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -73439,23 +68655,9 @@ decode_org_csapi_pam_event_IpPAMEventManager_setAccessControl(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"operation (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "operation");
 
         /*  Begin struct "org_csapi_pam_TpPAMAccessControlData"  */
 
@@ -73530,8 +68732,6 @@ decode_org_csapi_pam_event_IpPAMEventManager_activateService(tvbuff_t *tvb _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -73542,14 +68742,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_activateService(tvbuff_t *tvb _U_, 
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -73616,8 +68809,6 @@ decode_org_csapi_pam_event_IpPAMEventManager_deactivateService(tvbuff_t *tvb _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -73628,14 +68819,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_deactivateService(tvbuff_t *tvb _U_
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -73702,8 +68886,6 @@ decode_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_authToken;
     guint32   i_authToken;
     
@@ -73714,14 +68896,7 @@ decode_org_csapi_pam_event_IpPAMEventManager_isActiveIdentity(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"identity (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "identity");
 
         u_octet4_loop_authToken = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -74287,8 +69462,6 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_openMailbox(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -74297,23 +69470,9 @@ decode_org_csapi_mmm_IpMultiMediaMessagingManager_openMailbox(tvbuff_t *tvb _U_,
 
     case Request:
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"mailboxID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "mailboxID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"authenticationInfo (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "authenticationInfo");
 
         get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -74885,8 +70044,6 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderRes(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -74903,14 +70060,7 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderRes(tvbuff_t *tvb _U_, packet_info
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -74965,7 +70115,6 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderErr(tvbuff_t *tvb _U_, packet_info
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -74988,14 +70137,7 @@ decode_org_csapi_mmm_IpAppMailbox_createFolderErr(tvbuff_t *tvb _U_, packet_info
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -75049,8 +70191,6 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersRes(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_folderNames;
     guint32   i_folderNames;
     
@@ -75069,14 +70209,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersRes(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         u_octet4_loop_folderNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -75085,14 +70218,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersRes(tvbuff_t *tvb _U_, packet_info *
 
         for (i_folderNames=0; i_folderNames < u_octet4_loop_folderNames; i_folderNames++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderNames (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderNames");
 
         }
 
@@ -75149,7 +70275,6 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersErr(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -75166,14 +70291,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersErr(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -75181,14 +70299,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFoldersErr(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -75311,7 +70422,6 @@ decode_org_csapi_mmm_IpAppMailbox_deleteFolderErr(tvbuff_t *tvb _U_, packet_info
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -75334,14 +70444,7 @@ decode_org_csapi_mmm_IpAppMailbox_deleteFolderErr(tvbuff_t *tvb _U_, packet_info
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -75464,7 +70567,6 @@ decode_org_csapi_mmm_IpAppMailbox_copyFolderErr(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -75487,14 +70589,7 @@ decode_org_csapi_mmm_IpAppMailbox_copyFolderErr(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -75617,7 +70712,6 @@ decode_org_csapi_mmm_IpAppMailbox_moveFolderErr(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -75640,14 +70734,7 @@ decode_org_csapi_mmm_IpAppMailbox_moveFolderErr(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -75701,8 +70788,6 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageRes(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -75719,14 +70804,7 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageRes(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -75781,7 +70859,6 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageErr(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -75804,14 +70881,7 @@ decode_org_csapi_mmm_IpAppMailbox_putMessageErr(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -75934,7 +71004,6 @@ decode_org_csapi_mmm_IpAppMailbox_copyMessageErr(tvbuff_t *tvb _U_, packet_info 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -75957,14 +71026,7 @@ decode_org_csapi_mmm_IpAppMailbox_copyMessageErr(tvbuff_t *tvb _U_, packet_info 
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -76087,7 +71149,6 @@ decode_org_csapi_mmm_IpAppMailbox_moveMessageErr(tvbuff_t *tvb _U_, packet_info 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -76110,14 +71171,7 @@ decode_org_csapi_mmm_IpAppMailbox_moveMessageErr(tvbuff_t *tvb _U_, packet_info 
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -76240,7 +71294,6 @@ decode_org_csapi_mmm_IpAppMailbox_deleteMessageErr(tvbuff_t *tvb _U_, packet_inf
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -76263,14 +71316,7 @@ decode_org_csapi_mmm_IpAppMailbox_deleteMessageErr(tvbuff_t *tvb _U_, packet_inf
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -76424,7 +71470,6 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesErr(tvbuff_t *tvb _U_, packet_info
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -76447,14 +71492,7 @@ decode_org_csapi_mmm_IpAppMailbox_listMessagesErr(tvbuff_t *tvb _U_, packet_info
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -76596,7 +71634,6 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr(tvbuff_t *tvb _U_, pac
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -76619,14 +71656,7 @@ decode_org_csapi_mmm_IpAppMailbox_listMessageBodyPartsErr(tvbuff_t *tvb _U_, pac
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -76768,7 +71798,6 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr(tvbuff_t *tvb _U_, pack
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -76791,14 +71820,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageBodyPartsErr(tvbuff_t *tvb _U_, pack
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -76939,7 +71961,6 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr(tvbuff_t *tvb _U_, packet
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -76962,14 +71983,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageHeadersErr(tvbuff_t *tvb _U_, packet
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -77023,8 +72037,6 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentRes(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_content;
     guint32   i_content;
     
@@ -77043,23 +72055,9 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentRes(tvbuff_t *tvb _U_, packet
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"contentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "contentType");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"contentTransferEncoding (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "contentTransferEncoding");
 
         u_octet4_loop_content = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -77127,7 +72125,6 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentErr(tvbuff_t *tvb _U_, packet
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -77150,14 +72147,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageContentErr(tvbuff_t *tvb _U_, packet
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -77295,7 +72285,6 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageErr(tvbuff_t *tvb _U_, packet_in
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -77318,14 +72307,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFullMessageErr(tvbuff_t *tvb _U_, packet_in
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -77465,8 +72447,6 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes(tvbuff_t *tvb _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_returnedProperties;
     guint32   i_returnedProperties;
     
@@ -77485,14 +72465,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesRes(tvbuff_t *tvb _U_, 
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         u_octet4_loop_returnedProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -77562,8 +72535,6 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_returnedProperties;
     guint32   i_returnedProperties;
     
@@ -77582,14 +72553,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         u_octet4_loop_returnedProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -77659,8 +72623,6 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_propertiesUpdated;
     guint32   i_propertiesUpdated;
     
@@ -77679,14 +72641,7 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesRes(tvbuff_t *tvb _U_,
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         u_octet4_loop_propertiesUpdated = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -77756,8 +72711,6 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_propertiesNotUpdated;
     guint32   i_propertiesNotUpdated;
     
@@ -77776,14 +72729,7 @@ decode_org_csapi_mmm_IpAppMailbox_setMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
            proto_tree_add_text(tree,tvb,*offset-4,4,"requestID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         u_octet4_loop_propertiesNotUpdated = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -77855,7 +72801,6 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr(tvbuff_t *tvb _U_,
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -77878,14 +72823,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMailboxInfoPropertiesErr(tvbuff_t *tvb _U_,
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -77940,7 +72878,6 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr(tvbuff_t *tvb _U_, 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -77963,14 +72900,7 @@ decode_org_csapi_mmm_IpAppMailbox_getFolderInfoPropertiesErr(tvbuff_t *tvb _U_, 
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -78025,7 +72955,6 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78048,14 +72977,7 @@ decode_org_csapi_mmm_IpAppMailbox_getMessageInfoPropertiesErr(tvbuff_t *tvb _U_,
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -78173,8 +73095,6 @@ decode_org_csapi_mmm_IpMailbox_createFolderReq(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78187,14 +73107,7 @@ decode_org_csapi_mmm_IpMailbox_createFolderReq(tvbuff_t *tvb _U_, packet_info *p
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -78250,8 +73163,6 @@ decode_org_csapi_mmm_IpMailbox_getFoldersReq(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78264,14 +73175,7 @@ decode_org_csapi_mmm_IpMailbox_getFoldersReq(tvbuff_t *tvb _U_, packet_info *pin
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -78327,8 +73231,6 @@ decode_org_csapi_mmm_IpMailbox_deleteFolderReq(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78341,14 +73243,7 @@ decode_org_csapi_mmm_IpMailbox_deleteFolderReq(tvbuff_t *tvb _U_, packet_info *p
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -78404,8 +73299,6 @@ decode_org_csapi_mmm_IpMailbox_copyFolderReq(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78418,23 +73311,9 @@ decode_org_csapi_mmm_IpMailbox_copyFolderReq(tvbuff_t *tvb _U_, packet_info *pin
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sourceFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sourceFolderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"destinationFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "destinationFolderID");
 
         break;
 
@@ -78490,8 +73369,6 @@ decode_org_csapi_mmm_IpMailbox_moveFolderReq(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78504,23 +73381,9 @@ decode_org_csapi_mmm_IpMailbox_moveFolderReq(tvbuff_t *tvb _U_, packet_info *pin
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"sourceFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "sourceFolderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"destinationFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "destinationFolderID");
 
         break;
 
@@ -78576,8 +73439,6 @@ decode_org_csapi_mmm_IpMailbox_putMessageReq(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_message;
     guint32   i_message;
     
@@ -78592,14 +73453,7 @@ decode_org_csapi_mmm_IpMailbox_putMessageReq(tvbuff_t *tvb _U_, packet_info *pin
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         u_octet4_loop_message = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -78668,8 +73522,6 @@ decode_org_csapi_mmm_IpMailbox_copyMessageReq(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78682,32 +73534,11 @@ decode_org_csapi_mmm_IpMailbox_copyMessageReq(tvbuff_t *tvb _U_, packet_info *pi
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"fromFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "fromFolderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "toFolderID");
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"toFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -78763,8 +73594,6 @@ decode_org_csapi_mmm_IpMailbox_moveMessageReq(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78777,32 +73606,11 @@ decode_org_csapi_mmm_IpMailbox_moveMessageReq(tvbuff_t *tvb _U_, packet_info *pi
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"fromFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "fromFolderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "toFolderID");
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"toFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -78858,8 +73666,6 @@ decode_org_csapi_mmm_IpMailbox_deleteMessageReq(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78872,23 +73678,9 @@ decode_org_csapi_mmm_IpMailbox_deleteMessageReq(tvbuff_t *tvb _U_, packet_info *
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"fromFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "fromFolderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -78944,8 +73736,6 @@ decode_org_csapi_mmm_IpMailbox_listMessagesReq(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -78958,14 +73748,7 @@ decode_org_csapi_mmm_IpMailbox_listMessagesReq(tvbuff_t *tvb _U_, packet_info *p
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         /*  Begin struct "org_csapi_mmm_TpListMessagesCriteria"  */
 
@@ -79033,8 +73816,6 @@ decode_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -79047,23 +73828,9 @@ decode_org_csapi_mmm_IpMailbox_listMessageBodyPartsReq(tvbuff_t *tvb _U_, packet
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         if (tree) {
            proto_tree_add_text(tree,tvb,*offset-4,4,"maxNestingLevel = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -79123,8 +73890,6 @@ decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvbuff_t *tvb _U_, packet_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_partIDs;
     guint32   i_partIDs;
     
@@ -79139,23 +73904,9 @@ decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvbuff_t *tvb _U_, packet_
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         u_octet4_loop_partIDs = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -79164,14 +73915,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageBodyPartsReq(tvbuff_t *tvb _U_, packet_
 
         for (i_partIDs=0; i_partIDs < u_octet4_loop_partIDs; i_partIDs++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"partIDs (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "partIDs");
 
         }
 
@@ -79229,8 +73973,6 @@ decode_org_csapi_mmm_IpMailbox_getMessageHeadersReq(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -79243,23 +73985,9 @@ decode_org_csapi_mmm_IpMailbox_getMessageHeadersReq(tvbuff_t *tvb _U_, packet_in
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -79315,8 +74043,6 @@ decode_org_csapi_mmm_IpMailbox_getMessageContentReq(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -79329,23 +74055,9 @@ decode_org_csapi_mmm_IpMailbox_getMessageContentReq(tvbuff_t *tvb _U_, packet_in
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -79401,8 +74113,6 @@ decode_org_csapi_mmm_IpMailbox_getFullMessageReq(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -79415,23 +74125,9 @@ decode_org_csapi_mmm_IpMailbox_getFullMessageReq(tvbuff_t *tvb _U_, packet_info 
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
-
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -79553,8 +74249,6 @@ decode_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq(tvbuff_t *tvb _U_, pac
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -79567,14 +74261,7 @@ decode_org_csapi_mmm_IpMailbox_getFolderInfoPropertiesReq(tvbuff_t *tvb _U_, pac
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"folderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "folderID");
 
         break;
 
@@ -79630,8 +74317,6 @@ decode_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -79644,14 +74329,7 @@ decode_org_csapi_mmm_IpMailbox_getMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         break;
 
@@ -79707,8 +74385,6 @@ decode_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_properties;
     guint32   i_properties;
     
@@ -79723,14 +74399,7 @@ decode_org_csapi_mmm_IpMailbox_setMessageInfoPropertiesReq(tvbuff_t *tvb _U_, pa
            proto_tree_add_text(tree,tvb,*offset-4,4,"mailboxSessionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"messageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "messageID");
 
         u_octet4_loop_properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -79871,7 +74540,6 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr(tvbuff_t *tvb _U_, 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -79894,14 +74562,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_sendMessageErr(tvbuff_t *tvb _U_, 
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -80024,7 +74685,6 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr(tvbuff_t *tvb _U_
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -80047,14 +74707,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_cancelMessageErr(tvbuff_t *tvb _U_
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -80196,7 +74849,6 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr(tvbuff_t *tvb _U_, 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -80219,14 +74871,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_queryStatusErr(tvbuff_t *tvb _U_, 
            proto_tree_add_text(tree,tvb,*offset-4,4,"error  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mmm_TpMessagingError,"Unknown Enum Value"));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"errorDetails (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "errorDetails");
 
         break;
 
@@ -80280,8 +74925,6 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport(tvbuff_t *tvb 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -80310,14 +74953,7 @@ decode_org_csapi_mmm_IpAppMultiMediaMessaging_messageStatusReport(tvbuff_t *tvb 
            proto_tree_add_text(tree,tvb,*offset-4,4,"deliveryReportType = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
         }
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"deliveryReportInfo (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "deliveryReportInfo");
 
         break;
 
@@ -80468,8 +75104,6 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_messageTreatment;
     guint32   i_messageTreatment;
     guint32   u_octet4_loop_message;
@@ -80504,14 +75138,7 @@ decode_org_csapi_mmm_IpMultiMediaMessaging_sendMessageReq(tvbuff_t *tvb _U_, pac
 
         /*  End struct "org_csapi_mmm_TpTerminatingAddressList"  */
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"deliveryType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "deliveryType");
 
         u_octet4_loop_messageTreatment = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         if (tree) {
@@ -80810,7 +75437,6 @@ decode_org_csapi_TpAddress_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -80820,23 +75446,9 @@ decode_org_csapi_TpAddress_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpAddress_Plan  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_TpAddressPlan,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddress_AddrString (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddress_AddrString");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddress_Name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddress_Name");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -80850,14 +75462,7 @@ decode_org_csapi_TpAddress_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpAddress_Screening  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_TpAddressScreening,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddress_SubAddressString (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddress_SubAddressString");
 
 }
 
@@ -80870,7 +75475,6 @@ decode_org_csapi_TpAddressRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -80880,32 +75484,11 @@ decode_org_csapi_TpAddressRange_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpAddressRange_Plan  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_TpAddressPlan,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddressRange_AddrString (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddressRange_AddrString");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddressRange_Name");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddressRange_Name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddressRange_SubAddressString (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddressRange_SubAddressString");
 
 }
 
@@ -81012,8 +75595,6 @@ decode_org_csapi_TpAoCInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -81024,14 +75605,7 @@ decode_org_csapi_TpAoCInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
     /*  End union "org_csapi_TpAoCOrder"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAoCInfo_Currency (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAoCInfo_Currency");
 
 }
 
@@ -81043,28 +75617,12 @@ decode_org_csapi_TpTimeInterval_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpTimeInterval_StartTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpTimeInterval_StartTime");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpTimeInterval_StopTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpTimeInterval_StopTime");
 
 }
 
@@ -81076,19 +75634,10 @@ decode_org_csapi_TpStructuredAttributeValue_st(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpStructuredAttributeValue_Type (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpStructuredAttributeValue_Type");
 
     get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 
@@ -81102,19 +75651,10 @@ decode_org_csapi_TpAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAttribute_AttributeName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAttribute_AttributeName");
 
     /*  Begin union "org_csapi_TpAttributeValue"  */
 
@@ -81209,19 +75749,10 @@ decode_org_csapi_fw_TpLoadPolicy_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpLoadPolicy_LoadPolicy (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpLoadPolicy_LoadPolicy");
 
 }
 
@@ -81302,28 +75833,12 @@ decode_org_csapi_fw_TpProperty_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpProperty_PropertyName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpProperty_PropertyName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpProperty_PropertyValue (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpProperty_PropertyValue");
 
 }
 
@@ -81335,21 +75850,12 @@ decode_org_csapi_fw_TpClientAppDescription_st(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpClientAppDescription_ClientAppProperties;
     guint32   i_TpClientAppDescription_ClientAppProperties;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpClientAppDescription_ClientAppID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpClientAppDescription_ClientAppID");
 
     u_octet4_loop_TpClientAppDescription_ClientAppProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -81386,21 +75892,12 @@ decode_org_csapi_fw_TpEntOp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpEntOp_EntOpProperties;
     guint32   i_TpEntOp_EntOpProperties;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpEntOp_EntOpID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpEntOp_EntOpID");
 
     u_octet4_loop_TpEntOp_EntOpProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -81429,28 +75926,12 @@ decode_org_csapi_fw_TpSag_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSag_SagID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSag_SagID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSag_SagDescription (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSag_SagDescription");
 
 }
 
@@ -81462,21 +75943,12 @@ decode_org_csapi_fw_TpServiceProperty_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpServiceProperty_ServicePropertyValueList;
     guint32   i_TpServiceProperty_ServicePropertyValueList;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProperty_ServicePropertyName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProperty_ServicePropertyName");
 
     u_octet4_loop_TpServiceProperty_ServicePropertyValueList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -81485,14 +75957,7 @@ decode_org_csapi_fw_TpServiceProperty_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpServiceProperty_ServicePropertyValueList=0; i_TpServiceProperty_ServicePropertyValueList < u_octet4_loop_TpServiceProperty_ServicePropertyValueList; i_TpServiceProperty_ServicePropertyValueList++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProperty_ServicePropertyValueList (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProperty_ServicePropertyValueList");
 
     }
 
@@ -81506,21 +75971,12 @@ decode_org_csapi_fw_TpServiceDescription_st(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpServiceDescription_ServicePropertyList;
     guint32   i_TpServiceDescription_ServicePropertyList;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceDescription_ServiceTypeName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceDescription_ServiceTypeName");
 
     u_octet4_loop_TpServiceDescription_ServicePropertyList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -81549,19 +76005,10 @@ decode_org_csapi_fw_TpService_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpService_ServiceID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpService_ServiceID");
 
     /*  Begin struct "org_csapi_fw_TpServiceDescription"  */
 
@@ -81581,48 +76028,18 @@ decode_org_csapi_fw_TpServiceProfileDescription_st(tvbuff_t *tvb _U_, packet_inf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpServiceProfileDescription_ServiceSubscriptionProperties;
     guint32   i_TpServiceProfileDescription_ServiceSubscriptionProperties;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileDescription_ServiceContractID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileDescription_ServiceContractID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileDescription_ServiceStartDate");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileDescription_ServiceStartDate (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileDescription_ServiceEndDate");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileDescription_ServiceEndDate (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileDescription_ServiceTypeName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileDescription_ServiceTypeName");
 
     u_octet4_loop_TpServiceProfileDescription_ServiceSubscriptionProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -81645,14 +76062,7 @@ decode_org_csapi_fw_TpServiceProfileDescription_st(tvbuff_t *tvb _U_, packet_inf
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpServiceProfileDescription_InUse = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfileDescription_ServiceID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfileDescription_ServiceID");
 
 }
 
@@ -81665,18 +76075,10 @@ decode_org_csapi_fw_TpServiceTypeProperty_st(tvbuff_t *tvb _U_, packet_info *pin
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypeProperty_ServicePropertyName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypeProperty_ServicePropertyName");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -81684,14 +76086,7 @@ decode_org_csapi_fw_TpServiceTypeProperty_st(tvbuff_t *tvb _U_, packet_info *pin
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpServiceTypeProperty_ServiceTypePropertyMode  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_fw_TpServiceTypePropertyMode,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypeProperty_ServicePropertyTypeName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypeProperty_ServicePropertyTypeName");
 
 }
 
@@ -81707,8 +76102,6 @@ decode_org_csapi_fw_TpServiceTypeDescription_st(tvbuff_t *tvb _U_, packet_info *
     guint32   i_TpServiceTypeDescription_ServiceTypePropertyList;
     guint32   u_octet4_loop_TpServiceTypeDescription_ServiceTypeNameList;
     guint32   i_TpServiceTypeDescription_ServiceTypeNameList;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -81736,14 +76129,7 @@ decode_org_csapi_fw_TpServiceTypeDescription_st(tvbuff_t *tvb _U_, packet_info *
 
     for (i_TpServiceTypeDescription_ServiceTypeNameList=0; i_TpServiceTypeDescription_ServiceTypeNameList < u_octet4_loop_TpServiceTypeDescription_ServiceTypeNameList; i_TpServiceTypeDescription_ServiceTypeNameList++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypeDescription_ServiceTypeNameList (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypeDescription_ServiceTypeNameList");
 
     }
 
@@ -81792,57 +76178,20 @@ decode_org_csapi_fw_TpPerson_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPerson_PersonProperties;
     guint32   i_TpPerson_PersonProperties;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPerson_PersonName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPerson_PersonName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPerson_PostalAddress");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPerson_PostalAddress (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPerson_TelephoneNumber");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPerson_Email");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPerson_TelephoneNumber (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPerson_Email (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPerson_HomePage (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPerson_HomePage");
 
     u_octet4_loop_TpPerson_PersonProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -81871,8 +76220,6 @@ decode_org_csapi_fw_TpServiceContractDescription_st(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpServiceContractDescription_ServiceSubscriptionProperties;
     guint32   i_TpServiceContractDescription_ServiceSubscriptionProperties;
     
@@ -81894,41 +76241,13 @@ decode_org_csapi_fw_TpServiceContractDescription_st(tvbuff_t *tvb _U_, packet_in
 
     /*  End struct "org_csapi_fw_TpPerson"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceContractDescription_ServiceStartDate (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceContractDescription_ServiceStartDate");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceContractDescription_ServiceEndDate");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceContractDescription_ServiceEndDate (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceContractDescription_ServiceTypeName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceContractDescription_ServiceTypeName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceContractDescription_ServiceID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceContractDescription_ServiceID");
 
     u_octet4_loop_TpServiceContractDescription_ServiceSubscriptionProperties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -81961,8 +76280,6 @@ decode_org_csapi_fw_TpLoadStatistic_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -81973,14 +76290,7 @@ decode_org_csapi_fw_TpLoadStatistic_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
     /*  End union "org_csapi_fw_TpLoadStatisticEntityID"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpLoadStatistic_TimeStamp (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpLoadStatistic_TimeStamp");
 
     /*  Begin union "org_csapi_fw_TpLoadStatisticInfo"  */
 
@@ -81999,19 +76309,10 @@ decode_org_csapi_fw_TpServiceContract_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceContract_ServiceContractID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceContract_ServiceContractID");
 
     /*  Begin struct "org_csapi_fw_TpServiceContractDescription"  */
 
@@ -82031,19 +76332,10 @@ decode_org_csapi_fw_TpServiceProfile_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceProfile_ServiceProfileID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceProfile_ServiceProfileID");
 
     /*  Begin struct "org_csapi_fw_TpServiceProfileDescription"  */
 
@@ -82086,28 +76378,12 @@ decode_org_csapi_fw_TpSagProfilePair_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSagProfilePair_Sag (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSagProfilePair_Sag");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpSagProfilePair_ServiceProfile (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpSagProfilePair_ServiceProfile");
 
 }
 
@@ -82119,19 +76395,10 @@ decode_org_csapi_fw_TpAddSagMembersConflict_st(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddSagMembersConflict_ClientApplication (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddSagMembersConflict_ClientApplication");
 
     /*  Begin struct "org_csapi_fw_TpSagProfilePair"  */
 
@@ -82149,14 +76416,7 @@ decode_org_csapi_fw_TpAddSagMembersConflict_st(tvbuff_t *tvb _U_, packet_info *p
 
     /*  End struct "org_csapi_fw_TpSagProfilePair"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAddSagMembersConflict_Service (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAddSagMembersConflict_Service");
 
 }
 
@@ -82168,19 +76428,10 @@ decode_org_csapi_fw_TpAssignSagToServiceProfileConflict_st(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAssignSagToServiceProfileConflict_ClientApplication (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAssignSagToServiceProfileConflict_ClientApplication");
 
     /*  Begin struct "org_csapi_fw_TpSagProfilePair"  */
 
@@ -82190,14 +76441,7 @@ decode_org_csapi_fw_TpAssignSagToServiceProfileConflict_st(tvbuff_t *tvb _U_, pa
 
     /*  End struct "org_csapi_fw_TpSagProfilePair"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpAssignSagToServiceProfileConflict_Service (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpAssignSagToServiceProfileConflict_Service");
 
 }
 
@@ -82210,20 +76454,12 @@ decode_org_csapi_fw_TpServiceTypePropertyValue_st(tvbuff_t *tvb _U_, packet_info
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpServiceTypePropertyValue_ServicePropertyValueList;
     guint32   i_TpServiceTypePropertyValue_ServicePropertyValueList;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypePropertyValue_ServicePropertyName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypePropertyValue_ServicePropertyName");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -82231,14 +76467,7 @@ decode_org_csapi_fw_TpServiceTypePropertyValue_st(tvbuff_t *tvb _U_, packet_info
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpServiceTypePropertyValue_ServiceTypePropertyMode  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_fw_TpServiceTypePropertyMode,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypePropertyValue_ServicePropertyTypeName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypePropertyValue_ServicePropertyTypeName");
 
     u_octet4_loop_TpServiceTypePropertyValue_ServicePropertyValueList = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -82247,14 +76476,7 @@ decode_org_csapi_fw_TpServiceTypePropertyValue_st(tvbuff_t *tvb _U_, packet_info
 
     for (i_TpServiceTypePropertyValue_ServicePropertyValueList=0; i_TpServiceTypePropertyValue_ServicePropertyValueList < u_octet4_loop_TpServiceTypePropertyValue_ServicePropertyValueList; i_TpServiceTypePropertyValue_ServicePropertyValueList++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpServiceTypePropertyValue_ServicePropertyValueList (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpServiceTypePropertyValue_ServicePropertyValueList");
 
     }
 
@@ -82268,39 +76490,16 @@ decode_org_csapi_fw_TpFwMigrationServiceAvailableInfo_st(tvbuff_t *tvb _U_, pack
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo;
     guint32   i_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwMigrationServiceAvailableInfo_ServiceType (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwMigrationServiceAvailableInfo_ServiceType");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwMigrationServiceAvailableInfo_ServiceID");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwMigrationServiceAvailableInfo_ServiceID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwMigrationServiceAvailableInfo_CompatibleServiceID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwMigrationServiceAvailableInfo_CompatibleServiceID");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpFwMigrationServiceAvailableInfo_BackwardCompatibilityLevel = %u",get_CDR_boolean(tvb,offset));
@@ -82314,14 +76513,7 @@ decode_org_csapi_fw_TpFwMigrationServiceAvailableInfo_st(tvbuff_t *tvb _U_, pack
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpFwMigrationServiceAvailableInfo_DataMigrated = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwMigrationServiceAvailableInfo_MigrationDataAndTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwMigrationServiceAvailableInfo_MigrationDataAndTime");
 
     u_octet4_loop_TpFwMigrationServiceAvailableInfo_MigrationAdditionalInfo = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -82349,46 +76541,16 @@ decode_org_csapi_fw_TpFwAgreementInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwAgreementInfo_ClientApplicationID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwAgreementInfo_ClientApplicationID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwAgreementInfo_ServiceID");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwAgreementInfo_ServiceID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwAgreementInfo_ServiceContractID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwAgreementInfo_ServiceContractID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpFwAgreementInfo_ServiceProfileID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpFwAgreementInfo_ServiceProfileID");
 
 }
 
@@ -82400,19 +76562,10 @@ decode_org_csapi_ui_TpUIMessageCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIMessageCriteria_EndSequence (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIMessageCriteria_EndSequence");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpUIMessageCriteria_MaxMessageTime = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -82433,7 +76586,6 @@ decode_org_csapi_ui_TpUIEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -82453,14 +76605,7 @@ decode_org_csapi_ui_TpUIEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     /*  End struct "org_csapi_TpAddress"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIEventInfo_ServiceCode (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIEventInfo_ServiceCode");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -82468,14 +76613,7 @@ decode_org_csapi_ui_TpUIEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpUIEventInfo_DataTypeIndication  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_ui_TpUIEventInfoDataType,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIEventInfo_DataString (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIEventInfo_DataString");
 
 }
 
@@ -82487,8 +76625,6 @@ decode_org_csapi_ui_TpUIEventCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -82508,14 +76644,7 @@ decode_org_csapi_ui_TpUIEventCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     /*  End struct "org_csapi_TpAddressRange"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIEventCriteria_ServiceCode (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIEventCriteria_ServiceCode");
 
 }
 
@@ -82553,7 +76682,6 @@ decode_org_csapi_ui_TpUIEventNotificationInfo_st(tvbuff_t *tvb _U_, packet_info 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpUIEventNotificationInfo_UIEventData;
     guint32   i_TpUIEventNotificationInfo_UIEventData;
     
@@ -82575,14 +76703,7 @@ decode_org_csapi_ui_TpUIEventNotificationInfo_st(tvbuff_t *tvb _U_, packet_info 
 
     /*  End struct "org_csapi_TpAddress"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIEventNotificationInfo_ServiceCode (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIEventNotificationInfo_ServiceCode");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -82613,28 +76734,12 @@ decode_org_csapi_ui_TpUIRecognitionProperty_st(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIRecognitionProperty_PropertyName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIRecognitionProperty_PropertyName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIRecognitionProperty_PropertyValue (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIRecognitionProperty_PropertyValue");
 
 }
 
@@ -82646,21 +76751,12 @@ decode_org_csapi_ui_TpUIRecognitionCriteria_st(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpUIRecognitionCriteria_Properties;
     guint32   i_TpUIRecognitionCriteria_Properties;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIRecognitionCriteria_SpeakerID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIRecognitionCriteria_SpeakerID");
 
     u_octet4_loop_TpUIRecognitionCriteria_Properties = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -82679,14 +76775,7 @@ decode_org_csapi_ui_TpUIRecognitionCriteria_st(tvbuff_t *tvb _U_, packet_info *p
 
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIRecognitionCriteria_Grammar (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIRecognitionCriteria_Grammar");
 
 }
 
@@ -82699,7 +76788,6 @@ decode_org_csapi_ui_TpUICollectCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -82711,14 +76799,7 @@ decode_org_csapi_ui_TpUICollectCriteria_st(tvbuff_t *tvb _U_, packet_info *pinfo
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpUICollectCriteria_MaxLength = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUICollectCriteria_EndSequence (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUICollectCriteria_EndSequence");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpUICollectCriteria_StartTimeout = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -82753,18 +76834,10 @@ decode_org_csapi_ui_TpUIWordOverride_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIWordOverride_Spelling (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIWordOverride_Spelling");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -82772,14 +76845,7 @@ decode_org_csapi_ui_TpUIWordOverride_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpUIWordOverride_PronounceType  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_ui_TpUIPronounceType,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUIWordOverride_PronounceAs (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUIWordOverride_PronounceAs");
 
 }
 
@@ -82792,7 +76858,6 @@ decode_org_csapi_ui_TpUISynthesisInfoData_st(tvbuff_t *tvb _U_, packet_info *pin
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpUISynthesisInfoData_WordOverrideSet;
     guint32   i_TpUISynthesisInfoData_WordOverrideSet;
     
@@ -82822,14 +76887,7 @@ decode_org_csapi_ui_TpUISynthesisInfoData_st(tvbuff_t *tvb _U_, packet_info *pin
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpUISynthesisInfoData_SpeakerRange  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_ui_TpUISynthesisRange,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUISynthesisInfoData_TextData (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUISynthesisInfoData_TextData");
 
     u_octet4_loop_TpUISynthesisInfoData_WordOverrideSet = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -82859,18 +76917,10 @@ decode_org_csapi_cc_TpCallError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallError_ErrorTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallError_ErrorTime");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -82920,7 +76970,6 @@ decode_org_csapi_cc_TpCallInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -82928,41 +76977,13 @@ decode_org_csapi_cc_TpCallInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpCallInfoReport_CallInfoType = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallInitiationStartTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallInitiationStartTime");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallConnectedToResourceTime");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallConnectedToResourceTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallConnectedToDestinationTime");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallConnectedToDestinationTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallEndTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallEndTime");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -82981,7 +77002,6 @@ decode_org_csapi_cc_TpCallServiceCode_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -82991,14 +77011,7 @@ decode_org_csapi_cc_TpCallServiceCode_st(tvbuff_t *tvb _U_, packet_info *pinfo _
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpCallServiceCode_CallServiceCodeType  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_cc_TpCallServiceCodeType,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallServiceCode_ServiceCodeValue (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallServiceCode_ServiceCodeValue");
 
 }
 
@@ -83203,7 +77216,6 @@ decode_org_csapi_cc_gccs_TpCallReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -83213,14 +77225,7 @@ decode_org_csapi_cc_gccs_TpCallReport_st(tvbuff_t *tvb _U_, packet_info *pinfo _
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpCallReport_MonitorMode  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_cc_TpCallMonitorMode,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallReport_CallEventTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallReport_CallEventTime");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -83383,8 +77388,6 @@ decode_org_csapi_cc_gccs_TpCallInfoReport_st(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -83392,41 +77395,13 @@ decode_org_csapi_cc_gccs_TpCallInfoReport_st(tvbuff_t *tvb _U_, packet_info *pin
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpCallInfoReport_CallInfoType = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallInitiationStartTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallInitiationStartTime");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallConnectedToResourceTime");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallConnectedToResourceTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallConnectedToDestinationTime");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallConnectedToDestinationTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallInfoReport_CallEndTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallInfoReport_CallEndTime");
 
     /*  Begin struct "org_csapi_cc_gccs_TpCallReleaseCause"  */
 
@@ -83678,7 +77653,6 @@ decode_org_csapi_cc_TpCallEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -83701,14 +77675,7 @@ decode_org_csapi_cc_TpCallEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpCallEventInfo_CallMonitorMode  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_cc_TpCallMonitorMode,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallEventInfo_CallEventTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallEventInfo_CallEventTime");
 
 }
 
@@ -83839,7 +77806,6 @@ decode_org_csapi_cc_TpCallLegInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpCallLegInfoReport_CallAppInfo;
     guint32   i_TpCallLegInfoReport_CallAppInfo;
     
@@ -83849,41 +77815,13 @@ decode_org_csapi_cc_TpCallLegInfoReport_st(tvbuff_t *tvb _U_, packet_info *pinfo
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpCallLegInfoReport_CallLegInfoType = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallLegInfoReport_CallLegStartTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallLegInfoReport_CallLegStartTime");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallLegInfoReport_CallLegConnectedToResourceTime");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallLegInfoReport_CallLegConnectedToResourceTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallLegInfoReport_CallLegConnectedToAddressTime");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallLegInfoReport_CallLegConnectedToAddressTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallLegInfoReport_CallLegEndTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallLegInfoReport_CallLegEndTime");
 
     /*  Begin struct "org_csapi_TpAddress"  */
 
@@ -83925,28 +77863,12 @@ decode_org_csapi_cc_TpCallLegProperty_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallLegProperty_CallLegPropertyName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallLegProperty_CallLegPropertyName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpCallLegProperty_CallLegPropertyValue (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpCallLegProperty_CallLegPropertyValue");
 
 }
 
@@ -84321,28 +78243,12 @@ decode_org_csapi_cc_cccs_TpConfSearchCriteria_st(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpConfSearchCriteria_StartSearch (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpConfSearchCriteria_StartSearch");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpConfSearchCriteria_StopSearch (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpConfSearchCriteria_StopSearch");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpConfSearchCriteria_RequestedResources = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -84362,8 +78268,6 @@ decode_org_csapi_cc_cccs_TpConfSearchResult_st(tvbuff_t *tvb _U_, packet_info *p
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -84371,14 +78275,7 @@ decode_org_csapi_cc_cccs_TpConfSearchResult_st(tvbuff_t *tvb _U_, packet_info *p
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpConfSearchResult_MatchFound = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpConfSearchResult_ActualStartTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpConfSearchResult_ActualStartTime");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpConfSearchResult_ActualResources = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -84604,7 +78501,6 @@ decode_org_csapi_mm_TpLocationRequest_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -84636,14 +78532,7 @@ decode_org_csapi_mm_TpLocationRequest_st(tvbuff_t *tvb _U_, packet_info *pinfo _
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpLocationRequest_Priority  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_mm_TpLocationPriority,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpLocationRequest_RequestedLocationMethod (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpLocationRequest_RequestedLocationMethod");
 
 }
 
@@ -84755,7 +78644,6 @@ decode_org_csapi_mm_TpUlExtendedData_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -84789,23 +78677,9 @@ decode_org_csapi_mm_TpUlExtendedData_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUlExtendedData_TimestampPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUlExtendedData_Timestamp (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUlExtendedData_Timestamp");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUlExtendedData_UsedLocationMethod (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUlExtendedData_UsedLocationMethod");
 
 }
 
@@ -84922,7 +78796,6 @@ decode_org_csapi_mm_TpUserLocationCamel_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -84956,14 +78829,7 @@ decode_org_csapi_mm_TpUserLocationCamel_st(tvbuff_t *tvb _U_, packet_info *pinfo
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationCamel_TimestampPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationCamel_Timestamp (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationCamel_Timestamp");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationCamel_VlrNumberPresent = %u",get_CDR_boolean(tvb,offset));
@@ -84993,14 +78859,7 @@ decode_org_csapi_mm_TpUserLocationCamel_st(tvbuff_t *tvb _U_, packet_info *pinfo
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationCamel_CellIdOrLaiPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationCamel_CellIdOrLai (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationCamel_CellIdOrLai");
 
 }
 
@@ -85012,8 +78871,6 @@ decode_org_csapi_mm_TpUserLocationEmergencyRequest_st(tvbuff_t *tvb _U_, packet_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -85033,40 +78890,19 @@ decode_org_csapi_mm_TpUserLocationEmergencyRequest_st(tvbuff_t *tvb _U_, packet_
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationEmergencyRequest_NaEsrdPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergencyRequest_NaEsrd (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergencyRequest_NaEsrd");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationEmergencyRequest_NaEsrkPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergencyRequest_NaEsrk (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergencyRequest_NaEsrk");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationEmergencyRequest_ImeiPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergencyRequest_Imei (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergencyRequest_Imei");
 
     /*  Begin struct "org_csapi_mm_TpLocationRequest"  */
 
@@ -85087,7 +78923,6 @@ decode_org_csapi_mm_TpUserLocationEmergency_st(tvbuff_t *tvb _U_, packet_info *p
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -85113,40 +78948,19 @@ decode_org_csapi_mm_TpUserLocationEmergency_st(tvbuff_t *tvb _U_, packet_info *p
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationEmergency_NaEsrdPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergency_NaEsrd (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergency_NaEsrd");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationEmergency_NaEsrkPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergency_NaEsrk (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergency_NaEsrk");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationEmergency_ImeiPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergency_Imei (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergency_Imei");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -85182,23 +78996,9 @@ decode_org_csapi_mm_TpUserLocationEmergency_st(tvbuff_t *tvb _U_, packet_info *p
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpUserLocationEmergency_TimestampPresent = %u",get_CDR_boolean(tvb,offset));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergency_Timestamp (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergency_Timestamp");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserLocationEmergency_UsedLocationMethod (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserLocationEmergency_UsedLocationMethod");
 
 }
 
@@ -85510,28 +79310,12 @@ decode_org_csapi_mm_TpUserInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserInfo_UserName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserInfo_UserName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserInfo_Password (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserInfo_Password");
 
 }
 
@@ -85544,27 +79328,12 @@ decode_org_csapi_mm_TpNetworkStatusIndicator_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNetworkStatusIndicator_CountryCode (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNetworkStatusIndicator_CountryCode");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNetworkStatusIndicator_MobileNetworkCode (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNetworkStatusIndicator_MobileNetworkCode");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -85589,18 +79358,10 @@ decode_org_csapi_mm_TpUserStatusExtended_st(tvbuff_t *tvb _U_, packet_info *pinf
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserStatusExtended_UserID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserStatusExtended_UserID");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -85636,23 +79397,9 @@ decode_org_csapi_mm_TpUserStatusExtended_st(tvbuff_t *tvb _U_, packet_info *pinf
 
     /*  End struct "org_csapi_mm_TpNetworkStatusIndicator"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserStatusExtended_UserIPAddress (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserStatusExtended_UserIPAddress");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserStatusExtended_UserMSISDN (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserStatusExtended_UserMSISDN");
 
     /*  Begin struct "org_csapi_mm_TpUserInfo"  */
 
@@ -85662,23 +79409,9 @@ decode_org_csapi_mm_TpUserStatusExtended_st(tvbuff_t *tvb _U_, packet_info *pinf
 
     /*  End struct "org_csapi_mm_TpUserInfo"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserStatusExtended_UserConnectionID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserStatusExtended_UserConnectionID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpUserStatusExtended_AccessPointName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpUserStatusExtended_AccessPointName");
 
 }
 
@@ -85726,19 +79459,10 @@ decode_org_csapi_termcap_TpTerminalCapabilities_st(tvbuff_t *tvb _U_, packet_inf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpTerminalCapabilities_TerminalCapabilities (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpTerminalCapabilities_TerminalCapabilities");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpTerminalCapabilities_StatusCode = %u",get_CDR_boolean(tvb,offset));
@@ -85755,7 +79479,6 @@ decode_org_csapi_termcap_TpTerminalCapabilityScope_st(tvbuff_t *tvb _U_, packet_
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -85765,14 +79488,7 @@ decode_org_csapi_termcap_TpTerminalCapabilityScope_st(tvbuff_t *tvb _U_, packet_
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpTerminalCapabilityScope_ScopeType  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_termcap_TpTerminalCapabilityScopeType,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpTerminalCapabilityScope_Scope (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpTerminalCapabilityScope_Scope");
 
 }
 
@@ -85809,8 +79525,6 @@ decode_org_csapi_dsc_TpDataSessionChargePlan_st(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -85821,23 +79535,9 @@ decode_org_csapi_dsc_TpDataSessionChargePlan_st(tvbuff_t *tvb _U_, packet_info *
 
     /*  End union "org_csapi_dsc_TpDataSessionChargeOrder"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDataSessionChargePlan_Currency (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDataSessionChargePlan_Currency");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDataSessionChargePlan_AdditionalInfo (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDataSessionChargePlan_AdditionalInfo");
 
 }
 
@@ -85850,18 +79550,10 @@ decode_org_csapi_dsc_TpDataSessionError_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDataSessionError_ErrorTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDataSessionError_ErrorTime");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -85994,7 +79686,6 @@ decode_org_csapi_dsc_TpDataSessionReport_st(tvbuff_t *tvb _U_, packet_info *pinf
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -86004,14 +79695,7 @@ decode_org_csapi_dsc_TpDataSessionReport_st(tvbuff_t *tvb _U_, packet_info *pinf
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpDataSessionReport_MonitorMode  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_dsc_TpDataSessionMonitorMode,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDataSessionReport_DataSessionEventTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDataSessionReport_DataSessionEventTime");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86128,8 +79812,6 @@ decode_org_csapi_gms_TpGMSNewMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet_inf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -86141,23 +79823,9 @@ decode_org_csapi_gms_TpGMSNewMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet_inf
 
     /*  End struct "org_csapi_TpAddress"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpGMSNewMessageArrivedInfo_FolderID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpGMSNewMessageArrivedInfo_FolderID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpGMSNewMessageArrivedInfo_MessageID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpGMSNewMessageArrivedInfo_MessageID");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpGMSNewMessageArrivedInfo_NumberOfProperties = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -86173,8 +79841,6 @@ decode_org_csapi_gms_TpGMSNewMessageArrivedCriteria_st(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -86186,14 +79852,7 @@ decode_org_csapi_gms_TpGMSNewMessageArrivedCriteria_st(tvbuff_t *tvb _U_, packet
 
     /*  End struct "org_csapi_TpAddress"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpGMSNewMessageArrivedCriteria_AuthenticationInfo (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpGMSNewMessageArrivedCriteria_AuthenticationInfo");
 
 }
 
@@ -86263,27 +79922,12 @@ decode_org_csapi_cm_TpNameDescrpTagTimeOfDay_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagTimeOfDay_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagTimeOfDay_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagTimeOfDay_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagTimeOfDay_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86291,14 +79935,7 @@ decode_org_csapi_cm_TpNameDescrpTagTimeOfDay_st(tvbuff_t *tvb _U_, packet_info *
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpNameDescrpTagTimeOfDay_tag  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_cm_TpTagValue,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagTimeOfDay_value (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagTimeOfDay_value");
 
 }
 
@@ -86311,27 +79948,12 @@ decode_org_csapi_cm_TpNameDescrpTagString_st(tvbuff_t *tvb _U_, packet_info *pin
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagString_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagString_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagString_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagString_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86339,14 +79961,7 @@ decode_org_csapi_cm_TpNameDescrpTagString_st(tvbuff_t *tvb _U_, packet_info *pin
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpNameDescrpTagString_tag  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_cm_TpTagValue,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagString_value (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagString_value");
 
 }
 
@@ -86359,27 +79974,12 @@ decode_org_csapi_cm_TpNameDescrpTagMonth_st(tvbuff_t *tvb _U_, packet_info *pinf
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagMonth_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagMonth_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagMonth_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagMonth_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86402,27 +80002,12 @@ decode_org_csapi_cm_TpNameDescrpTagInt_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagInt_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagInt_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagInt_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagInt_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86445,27 +80030,12 @@ decode_org_csapi_cm_TpNameDescrpTagDir_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagDir_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagDir_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagDir_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagDir_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86490,27 +80060,12 @@ decode_org_csapi_cm_TpNameDescrpTagDayOfWeek_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagDayOfWeek_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagDayOfWeek_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagDayOfWeek_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagDayOfWeek_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86533,27 +80088,12 @@ decode_org_csapi_cm_TpNameDescrpTagDateTime_st(tvbuff_t *tvb _U_, packet_info *p
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagDateTime_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagDateTime_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagDateTime_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagDateTime_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -86561,14 +80101,7 @@ decode_org_csapi_cm_TpNameDescrpTagDateTime_st(tvbuff_t *tvb _U_, packet_info *p
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpNameDescrpTagDateTime_tag  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_cm_TpTagValue,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagDateTime_value (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagDateTime_value");
 
 }
 
@@ -86780,7 +80313,6 @@ decode_org_csapi_cm_TpEndpoint_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -86790,14 +80322,7 @@ decode_org_csapi_cm_TpEndpoint_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpEndpoint_type  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_cm_TpSiteOrSap,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpEndpoint_id (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpEndpoint_id");
 
 }
 
@@ -86871,27 +80396,12 @@ decode_org_csapi_cm_TpNameDescrpTagExcessLoadAction_st(tvbuff_t *tvb _U_, packet
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagExcessLoadAction_name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagExcessLoadAction_name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNameDescrpTagExcessLoadAction_description (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNameDescrpTagExcessLoadAction_description");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -87098,28 +80608,12 @@ decode_org_csapi_cm_TpDsCodepoint_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDsCodepoint_match (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDsCodepoint_match");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpDsCodepoint_mask (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpDsCodepoint_mask");
 
 }
 
@@ -87132,27 +80626,12 @@ decode_org_csapi_cm_TpIPSubnet_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpIPSubnet_subnetNumber (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpIPSubnet_subnetNumber");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpIPSubnet_subnetMask (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpIPSubnet_subnetMask");
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -87176,19 +80655,10 @@ decode_org_csapi_am_TpBalanceInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBalanceInfo_Currency (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBalanceInfo_Currency");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpBalanceInfo_ValuePartA = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -87202,14 +80672,7 @@ decode_org_csapi_am_TpBalanceInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpBalanceInfo_Exponent = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBalanceInfo_AdditionalInfo (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBalanceInfo_AdditionalInfo");
 
 }
 
@@ -87222,7 +80685,6 @@ decode_org_csapi_am_TpChargingEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -87240,14 +80702,7 @@ decode_org_csapi_am_TpChargingEventInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     /*  End struct "org_csapi_am_TpBalanceInfo"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpChargingEventInfo_ChargingEventTime (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpChargingEventInfo_ChargingEventTime");
 
 }
 
@@ -87295,8 +80750,6 @@ decode_org_csapi_am_TpTransactionHistory_st(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -87304,23 +80757,9 @@ decode_org_csapi_am_TpTransactionHistory_st(tvbuff_t *tvb _U_, packet_info *pinf
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpTransactionHistory_TransactionID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpTransactionHistory_TimeStamp (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpTransactionHistory_TimeStamp");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpTransactionHistory_AdditionalInfo (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpTransactionHistory_AdditionalInfo");
 
 }
 
@@ -87408,7 +80847,6 @@ decode_org_csapi_am_TpBalanceExpiryDate_st(tvbuff_t *tvb _U_, packet_info *pinfo
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -87426,14 +80864,7 @@ decode_org_csapi_am_TpBalanceExpiryDate_st(tvbuff_t *tvb _U_, packet_info *pinfo
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpBalanceExpiryDate_StatusCode  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_am_TpBalanceQueryError,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBalanceExpiryDate_ExpiryDate (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBalanceExpiryDate_ExpiryDate");
 
 }
 
@@ -87478,19 +80909,10 @@ decode_org_csapi_cs_TpMerchantAccountID_st(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpMerchantAccountID_MerchantID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpMerchantAccountID_MerchantID");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpMerchantAccountID_AccountID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -87548,19 +80970,10 @@ decode_org_csapi_cs_TpChargingPrice_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpChargingPrice_Currency (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpChargingPrice_Currency");
 
     /*  Begin struct "org_csapi_cs_TpAmount"  */
 
@@ -87658,21 +81071,12 @@ decode_org_csapi_cs_TpApplicationDescription_st(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpApplicationDescription_AppInformation;
     guint32   i_TpApplicationDescription_AppInformation;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpApplicationDescription_Text (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpApplicationDescription_Text");
 
     u_octet4_loop_TpApplicationDescription_AppInformation = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -87724,8 +81128,6 @@ decode_org_csapi_policy_TpPolicyEvent_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPolicyEvent_Attributes;
     guint32   i_TpPolicyEvent_Attributes;
     
@@ -87735,14 +81137,7 @@ decode_org_csapi_policy_TpPolicyEvent_st(tvbuff_t *tvb _U_, packet_info *pinfo _
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpPolicyEvent_EventID = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPolicyEvent_TimeGenerated (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPolicyEvent_TimeGenerated");
 
     u_octet4_loop_TpPolicyEvent_Attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -87761,23 +81156,9 @@ decode_org_csapi_policy_TpPolicyEvent_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPolicyEvent_EventDefinitionName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPolicyEvent_EventDefinitionName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPolicyEvent_EventDomainName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPolicyEvent_EventDomainName");
 
 }
 
@@ -87789,19 +81170,10 @@ decode_org_csapi_policy_TpPolicyNameValue_st(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPolicyNameValue_Name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPolicyNameValue_Name");
 
     get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 
@@ -87817,8 +81189,6 @@ decode_org_csapi_policy_TpPolicyType_TpPolicyRecordType_st(tvbuff_t *tvb _U_, pa
 
     guint32   u_octet4_loop_TpPolicyRecordType_Names;
     guint32   i_TpPolicyRecordType_Names;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPolicyRecordType_Types;
     guint32   i_TpPolicyRecordType_Types;
     
@@ -87831,14 +81201,7 @@ decode_org_csapi_policy_TpPolicyType_TpPolicyRecordType_st(tvbuff_t *tvb _U_, pa
 
     for (i_TpPolicyRecordType_Names=0; i_TpPolicyRecordType_Names < u_octet4_loop_TpPolicyRecordType_Names; i_TpPolicyRecordType_Names++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPolicyRecordType_Names (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPolicyRecordType_Names");
 
     }
 
@@ -87899,19 +81262,10 @@ decode_org_csapi_policy_TpPolicyVar_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPolicyVar_VarName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPolicyVar_VarName");
 
     /*  Begin union "org_csapi_policy_TpPolicyType"  */
 
@@ -87976,28 +81330,12 @@ decode_org_csapi_pam_TpPAMAttributeDef_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAttributeDef_Name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAttributeDef_Name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAttributeDef_Type (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAttributeDef_Type");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"TpPAMAttributeDef_IsStatic = %u",get_CDR_boolean(tvb,offset));
@@ -88019,19 +81357,10 @@ decode_org_csapi_pam_TpPAMAttribute_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAttribute_AttributeName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAttribute_AttributeName");
 
     /*  Begin union "org_csapi_TpAttributeValue"  */
 
@@ -88054,46 +81383,16 @@ decode_org_csapi_pam_TpPAMPresenceData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMPresenceData_Name (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMPresenceData_Name");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMPresenceData_subscriberStatus");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMPresenceData_subscriberStatus (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMPresenceData_networkStatus");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMPresenceData_networkStatus (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMPresenceData_communicationMeans (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMPresenceData_communicationMeans");
 
     /*  Begin struct "org_csapi_TpAddress"  */
 
@@ -88103,36 +81402,15 @@ decode_org_csapi_pam_TpPAMPresenceData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     /*  End struct "org_csapi_TpAddress"  */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMPresenceData_subscriberProvidedLocation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMPresenceData_subscriberProvidedLocation");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMPresenceData_networkProvidedLocation (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMPresenceData_networkProvidedLocation");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpPAMPresenceData_Priority = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMPresenceData_otherInfo (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMPresenceData_otherInfo");
 
 }
 
@@ -88144,19 +81422,10 @@ decode_org_csapi_pam_TpPAMAvailabilityProfile_st(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAvailabilityProfile_PrivacyCode (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAvailabilityProfile_PrivacyCode");
 
     /*  Begin struct "org_csapi_pam_TpPAMPresenceData"  */
 
@@ -88176,19 +81445,10 @@ decode_org_csapi_pam_TpPAMCommunicationContext_st(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCommunicationContext_CommunicationCapability (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCommunicationContext_CommunicationCapability");
 
 }
 
@@ -88242,7 +81502,6 @@ decode_org_csapi_pam_TpPAMAccessControlData_st(tvbuff_t *tvb _U_, packet_info *p
     guint32   u_octet4;
     guint32   u_octet4_loop_TpPAMAccessControlData_AllowList;
     guint32   i_TpPAMAccessControlData_AllowList;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMAccessControlData_DenyList;
     guint32   i_TpPAMAccessControlData_DenyList;
     
@@ -88261,14 +81520,7 @@ decode_org_csapi_pam_TpPAMAccessControlData_st(tvbuff_t *tvb _U_, packet_info *p
 
     for (i_TpPAMAccessControlData_AllowList=0; i_TpPAMAccessControlData_AllowList < u_octet4_loop_TpPAMAccessControlData_AllowList; i_TpPAMAccessControlData_AllowList++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAccessControlData_AllowList (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAccessControlData_AllowList");
 
     }
 
@@ -88279,14 +81531,7 @@ decode_org_csapi_pam_TpPAMAccessControlData_st(tvbuff_t *tvb _U_, packet_info *p
 
     for (i_TpPAMAccessControlData_DenyList=0; i_TpPAMAccessControlData_DenyList < u_octet4_loop_TpPAMAccessControlData_DenyList; i_TpPAMAccessControlData_DenyList++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAccessControlData_DenyList (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAccessControlData_DenyList");
 
     }
 
@@ -88302,8 +81547,6 @@ decode_org_csapi_pam_TpPAMICEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4_loop_TpPAMICEventData_IdentityType;
     guint32   i_TpPAMICEventData_IdentityType;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -88314,14 +81557,7 @@ decode_org_csapi_pam_TpPAMICEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMICEventData_IdentityType=0; i_TpPAMICEventData_IdentityType < u_octet4_loop_TpPAMICEventData_IdentityType; i_TpPAMICEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMICEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMICEventData_IdentityType");
 
     }
 
@@ -88337,8 +81573,6 @@ decode_org_csapi_pam_TpPAMICNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     guint32   u_octet4_loop_TpPAMICNotificationData_Identities;
     guint32   i_TpPAMICNotificationData_Identities;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -88349,14 +81583,7 @@ decode_org_csapi_pam_TpPAMICNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     for (i_TpPAMICNotificationData_Identities=0; i_TpPAMICNotificationData_Identities < u_octet4_loop_TpPAMICNotificationData_Identities; i_TpPAMICNotificationData_Identities++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMICNotificationData_Identities (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMICNotificationData_Identities");
 
     }
 
@@ -88372,8 +81599,6 @@ decode_org_csapi_pam_TpPAMIDEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4_loop_TpPAMIDEventData_IdentityName;
     guint32   i_TpPAMIDEventData_IdentityName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMIDEventData_IdentityType;
     guint32   i_TpPAMIDEventData_IdentityType;
     
@@ -88386,14 +81611,7 @@ decode_org_csapi_pam_TpPAMIDEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMIDEventData_IdentityName=0; i_TpPAMIDEventData_IdentityName < u_octet4_loop_TpPAMIDEventData_IdentityName; i_TpPAMIDEventData_IdentityName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMIDEventData_IdentityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMIDEventData_IdentityName");
 
     }
 
@@ -88404,14 +81622,7 @@ decode_org_csapi_pam_TpPAMIDEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMIDEventData_IdentityType=0; i_TpPAMIDEventData_IdentityType < u_octet4_loop_TpPAMIDEventData_IdentityType; i_TpPAMIDEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMIDEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMIDEventData_IdentityType");
 
     }
 
@@ -88427,8 +81638,6 @@ decode_org_csapi_pam_TpPAMIDNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     guint32   u_octet4_loop_TpPAMIDNotificationData_Identities;
     guint32   i_TpPAMIDNotificationData_Identities;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -88439,14 +81648,7 @@ decode_org_csapi_pam_TpPAMIDNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     for (i_TpPAMIDNotificationData_Identities=0; i_TpPAMIDNotificationData_Identities < u_octet4_loop_TpPAMIDNotificationData_Identities; i_TpPAMIDNotificationData_Identities++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMIDNotificationData_Identities (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMIDNotificationData_Identities");
 
     }
 
@@ -88462,8 +81664,6 @@ decode_org_csapi_pam_TpPAMGMCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     guint32   u_octet4_loop_TpPAMGMCEventData_GroupName;
     guint32   i_TpPAMGMCEventData_GroupName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMGMCEventData_GroupType;
     guint32   i_TpPAMGMCEventData_GroupType;
     
@@ -88476,14 +81676,7 @@ decode_org_csapi_pam_TpPAMGMCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMGMCEventData_GroupName=0; i_TpPAMGMCEventData_GroupName < u_octet4_loop_TpPAMGMCEventData_GroupName; i_TpPAMGMCEventData_GroupName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMGMCEventData_GroupName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMGMCEventData_GroupName");
 
     }
 
@@ -88494,14 +81687,7 @@ decode_org_csapi_pam_TpPAMGMCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMGMCEventData_GroupType=0; i_TpPAMGMCEventData_GroupType < u_octet4_loop_TpPAMGMCEventData_GroupType; i_TpPAMGMCEventData_GroupType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMGMCEventData_GroupType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMGMCEventData_GroupType");
 
     }
 
@@ -88517,8 +81703,6 @@ decode_org_csapi_pam_TpPAMGMCNotificationData_st(tvbuff_t *tvb _U_, packet_info 
 
     guint32   u_octet4_loop_TpPAMGMCNotificationData_Groups;
     guint32   i_TpPAMGMCNotificationData_Groups;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -88529,14 +81713,7 @@ decode_org_csapi_pam_TpPAMGMCNotificationData_st(tvbuff_t *tvb _U_, packet_info 
 
     for (i_TpPAMGMCNotificationData_Groups=0; i_TpPAMGMCNotificationData_Groups < u_octet4_loop_TpPAMGMCNotificationData_Groups; i_TpPAMGMCNotificationData_Groups++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMGMCNotificationData_Groups (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMGMCNotificationData_Groups");
 
     }
 
@@ -88552,8 +81729,6 @@ decode_org_csapi_pam_TpPAMACEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4_loop_TpPAMACEventData_AgentType;
     guint32   i_TpPAMACEventData_AgentType;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -88564,14 +81739,7 @@ decode_org_csapi_pam_TpPAMACEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMACEventData_AgentType=0; i_TpPAMACEventData_AgentType < u_octet4_loop_TpPAMACEventData_AgentType; i_TpPAMACEventData_AgentType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACEventData_AgentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACEventData_AgentType");
 
     }
 
@@ -88587,8 +81755,6 @@ decode_org_csapi_pam_TpPAMACNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     guint32   u_octet4_loop_TpPAMACNotificationData_Agents;
     guint32   i_TpPAMACNotificationData_Agents;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -88599,14 +81765,7 @@ decode_org_csapi_pam_TpPAMACNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     for (i_TpPAMACNotificationData_Agents=0; i_TpPAMACNotificationData_Agents < u_octet4_loop_TpPAMACNotificationData_Agents; i_TpPAMACNotificationData_Agents++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACNotificationData_Agents (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACNotificationData_Agents");
 
     }
 
@@ -88622,8 +81781,6 @@ decode_org_csapi_pam_TpPAMADEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4_loop_TpPAMADEventData_AgentName;
     guint32   i_TpPAMADEventData_AgentName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMADEventData_AgentType;
     guint32   i_TpPAMADEventData_AgentType;
     
@@ -88636,14 +81793,7 @@ decode_org_csapi_pam_TpPAMADEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMADEventData_AgentName=0; i_TpPAMADEventData_AgentName < u_octet4_loop_TpPAMADEventData_AgentName; i_TpPAMADEventData_AgentName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMADEventData_AgentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMADEventData_AgentName");
 
     }
 
@@ -88654,14 +81804,7 @@ decode_org_csapi_pam_TpPAMADEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMADEventData_AgentType=0; i_TpPAMADEventData_AgentType < u_octet4_loop_TpPAMADEventData_AgentType; i_TpPAMADEventData_AgentType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMADEventData_AgentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMADEventData_AgentType");
 
     }
 
@@ -88677,8 +81820,6 @@ decode_org_csapi_pam_TpPAMADNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     guint32   u_octet4_loop_TpPAMADNotificationData_Agents;
     guint32   i_TpPAMADNotificationData_Agents;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -88689,14 +81830,7 @@ decode_org_csapi_pam_TpPAMADNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     for (i_TpPAMADNotificationData_Agents=0; i_TpPAMADNotificationData_Agents < u_octet4_loop_TpPAMADNotificationData_Agents; i_TpPAMADNotificationData_Agents++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMADNotificationData_Agents (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMADNotificationData_Agents");
 
     }
 
@@ -88712,8 +81846,6 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4_loop_TpPAMAAEventData_IdentityName;
     guint32   i_TpPAMAAEventData_IdentityName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMAAEventData_IdentityType;
     guint32   i_TpPAMAAEventData_IdentityType;
     guint32   u_octet4_loop_TpPAMAAEventData_AgentName;
@@ -88730,14 +81862,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAAEventData_IdentityName=0; i_TpPAMAAEventData_IdentityName < u_octet4_loop_TpPAMAAEventData_IdentityName; i_TpPAMAAEventData_IdentityName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAAEventData_IdentityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAAEventData_IdentityName");
 
     }
 
@@ -88748,14 +81873,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAAEventData_IdentityType=0; i_TpPAMAAEventData_IdentityType < u_octet4_loop_TpPAMAAEventData_IdentityType; i_TpPAMAAEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAAEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAAEventData_IdentityType");
 
     }
 
@@ -88766,14 +81884,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAAEventData_AgentName=0; i_TpPAMAAEventData_AgentName < u_octet4_loop_TpPAMAAEventData_AgentName; i_TpPAMAAEventData_AgentName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAAEventData_AgentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAAEventData_AgentName");
 
     }
 
@@ -88784,14 +81895,7 @@ decode_org_csapi_pam_TpPAMAAEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAAEventData_AgentType=0; i_TpPAMAAEventData_AgentType < u_octet4_loop_TpPAMAAEventData_AgentType; i_TpPAMAAEventData_AgentType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAAEventData_AgentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAAEventData_AgentType");
 
     }
 
@@ -88805,28 +81909,12 @@ decode_org_csapi_pam_TpPAMAANotificationData_st(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAANotificationData_Identity (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAANotificationData_Identity");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAANotificationData_Agent (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAANotificationData_Agent");
 
 }
 
@@ -88840,8 +81928,6 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4_loop_TpPAMAUEventData_IdentityName;
     guint32   i_TpPAMAUEventData_IdentityName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMAUEventData_IdentityType;
     guint32   i_TpPAMAUEventData_IdentityType;
     guint32   u_octet4_loop_TpPAMAUEventData_AgentName;
@@ -88858,14 +81944,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAUEventData_IdentityName=0; i_TpPAMAUEventData_IdentityName < u_octet4_loop_TpPAMAUEventData_IdentityName; i_TpPAMAUEventData_IdentityName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAUEventData_IdentityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAUEventData_IdentityName");
 
     }
 
@@ -88876,14 +81955,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAUEventData_IdentityType=0; i_TpPAMAUEventData_IdentityType < u_octet4_loop_TpPAMAUEventData_IdentityType; i_TpPAMAUEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAUEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAUEventData_IdentityType");
 
     }
 
@@ -88894,14 +81966,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAUEventData_AgentName=0; i_TpPAMAUEventData_AgentName < u_octet4_loop_TpPAMAUEventData_AgentName; i_TpPAMAUEventData_AgentName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAUEventData_AgentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAUEventData_AgentName");
 
     }
 
@@ -88912,14 +81977,7 @@ decode_org_csapi_pam_TpPAMAUEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMAUEventData_AgentType=0; i_TpPAMAUEventData_AgentType < u_octet4_loop_TpPAMAUEventData_AgentType; i_TpPAMAUEventData_AgentType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAUEventData_AgentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAUEventData_AgentType");
 
     }
 
@@ -88933,28 +81991,12 @@ decode_org_csapi_pam_TpPAMAUNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAUNotificationData_Identity (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAUNotificationData_Identity");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAUNotificationData_Agent (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAUNotificationData_Agent");
 
 }
 
@@ -88968,8 +82010,6 @@ decode_org_csapi_pam_TpPAMCCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4_loop_TpPAMCCEventData_IdentityName;
     guint32   i_TpPAMCCEventData_IdentityName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMCCEventData_IdentityType;
     guint32   i_TpPAMCCEventData_IdentityType;
     guint32   u_octet4_loop_TpPAMCCEventData_Capabilities;
@@ -88984,14 +82024,7 @@ decode_org_csapi_pam_TpPAMCCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMCCEventData_IdentityName=0; i_TpPAMCCEventData_IdentityName < u_octet4_loop_TpPAMCCEventData_IdentityName; i_TpPAMCCEventData_IdentityName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCCEventData_IdentityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCCEventData_IdentityName");
 
     }
 
@@ -89002,14 +82035,7 @@ decode_org_csapi_pam_TpPAMCCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMCCEventData_IdentityType=0; i_TpPAMCCEventData_IdentityType < u_octet4_loop_TpPAMCCEventData_IdentityType; i_TpPAMCCEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCCEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCCEventData_IdentityType");
 
     }
 
@@ -89020,14 +82046,7 @@ decode_org_csapi_pam_TpPAMCCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMCCEventData_Capabilities=0; i_TpPAMCCEventData_Capabilities < u_octet4_loop_TpPAMCCEventData_Capabilities; i_TpPAMCCEventData_Capabilities++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCCEventData_Capabilities (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCCEventData_Capabilities");
 
     }
 
@@ -89041,21 +82060,12 @@ decode_org_csapi_pam_TpPAMCCNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMCCNotificationData_Capabilities;
     guint32   i_TpPAMCCNotificationData_Capabilities;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCCNotificationData_Identity (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCCNotificationData_Identity");
 
     u_octet4_loop_TpPAMCCNotificationData_Capabilities = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -89064,14 +82074,7 @@ decode_org_csapi_pam_TpPAMCCNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     for (i_TpPAMCCNotificationData_Capabilities=0; i_TpPAMCCNotificationData_Capabilities < u_octet4_loop_TpPAMCCNotificationData_Capabilities; i_TpPAMCCNotificationData_Capabilities++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMCCNotificationData_Capabilities (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMCCNotificationData_Capabilities");
 
     }
 
@@ -89087,8 +82090,6 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     guint32   u_octet4_loop_TpPAMACPSEventData_AgentName;
     guint32   i_TpPAMACPSEventData_AgentName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMACPSEventData_AgentType;
     guint32   i_TpPAMACPSEventData_AgentType;
     guint32   u_octet4_loop_TpPAMACPSEventData_Capabilities;
@@ -89105,14 +82106,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     for (i_TpPAMACPSEventData_AgentName=0; i_TpPAMACPSEventData_AgentName < u_octet4_loop_TpPAMACPSEventData_AgentName; i_TpPAMACPSEventData_AgentName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACPSEventData_AgentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACPSEventData_AgentName");
 
     }
 
@@ -89123,14 +82117,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     for (i_TpPAMACPSEventData_AgentType=0; i_TpPAMACPSEventData_AgentType < u_octet4_loop_TpPAMACPSEventData_AgentType; i_TpPAMACPSEventData_AgentType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACPSEventData_AgentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACPSEventData_AgentType");
 
     }
 
@@ -89141,14 +82128,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     for (i_TpPAMACPSEventData_Capabilities=0; i_TpPAMACPSEventData_Capabilities < u_octet4_loop_TpPAMACPSEventData_Capabilities; i_TpPAMACPSEventData_Capabilities++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACPSEventData_Capabilities (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACPSEventData_Capabilities");
 
     }
 
@@ -89159,14 +82139,7 @@ decode_org_csapi_pam_TpPAMACPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     for (i_TpPAMACPSEventData_AttributeNames=0; i_TpPAMACPSEventData_AttributeNames < u_octet4_loop_TpPAMACPSEventData_AttributeNames; i_TpPAMACPSEventData_AttributeNames++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACPSEventData_AttributeNames (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACPSEventData_AttributeNames");
 
     }
 
@@ -89184,30 +82157,14 @@ decode_org_csapi_pam_TpPAMACPSNotificationData_st(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMACPSNotificationData_AttributeNames;
     guint32   i_TpPAMACPSNotificationData_AttributeNames;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACPSNotificationData_Agent (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACPSNotificationData_Agent");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACPSNotificationData_Capability (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACPSNotificationData_Capability");
 
     u_octet4_loop_TpPAMACPSNotificationData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -89216,14 +82173,7 @@ decode_org_csapi_pam_TpPAMACPSNotificationData_st(tvbuff_t *tvb _U_, packet_info
 
     for (i_TpPAMACPSNotificationData_AttributeNames=0; i_TpPAMACPSNotificationData_AttributeNames < u_octet4_loop_TpPAMACPSNotificationData_AttributeNames; i_TpPAMACPSNotificationData_AttributeNames++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMACPSNotificationData_AttributeNames (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMACPSNotificationData_AttributeNames");
 
     }
 
@@ -89239,8 +82189,6 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     guint32   u_octet4_loop_TpPAMAPSEventData_AgentName;
     guint32   i_TpPAMAPSEventData_AgentName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMAPSEventData_AgentType;
     guint32   i_TpPAMAPSEventData_AgentType;
     guint32   u_octet4_loop_TpPAMAPSEventData_AttributeNames;
@@ -89255,14 +82203,7 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMAPSEventData_AgentName=0; i_TpPAMAPSEventData_AgentName < u_octet4_loop_TpPAMAPSEventData_AgentName; i_TpPAMAPSEventData_AgentName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAPSEventData_AgentName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAPSEventData_AgentName");
 
     }
 
@@ -89273,14 +82214,7 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMAPSEventData_AgentType=0; i_TpPAMAPSEventData_AgentType < u_octet4_loop_TpPAMAPSEventData_AgentType; i_TpPAMAPSEventData_AgentType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAPSEventData_AgentType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAPSEventData_AgentType");
 
     }
 
@@ -89291,14 +82225,7 @@ decode_org_csapi_pam_TpPAMAPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMAPSEventData_AttributeNames=0; i_TpPAMAPSEventData_AttributeNames < u_octet4_loop_TpPAMAPSEventData_AttributeNames; i_TpPAMAPSEventData_AttributeNames++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAPSEventData_AttributeNames (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAPSEventData_AttributeNames");
 
     }
 
@@ -89316,21 +82243,12 @@ decode_org_csapi_pam_TpPAMAPSNotificationData_st(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMAPSNotificationData_AttributeNames;
     guint32   i_TpPAMAPSNotificationData_AttributeNames;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAPSNotificationData_Agent (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAPSNotificationData_Agent");
 
     u_octet4_loop_TpPAMAPSNotificationData_AttributeNames = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -89339,14 +82257,7 @@ decode_org_csapi_pam_TpPAMAPSNotificationData_st(tvbuff_t *tvb _U_, packet_info 
 
     for (i_TpPAMAPSNotificationData_AttributeNames=0; i_TpPAMAPSNotificationData_AttributeNames < u_octet4_loop_TpPAMAPSNotificationData_AttributeNames; i_TpPAMAPSNotificationData_AttributeNames++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAPSNotificationData_AttributeNames (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAPSNotificationData_AttributeNames");
 
     }
 
@@ -89362,8 +82273,6 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     guint32   u_octet4_loop_TpPAMIPSEventData_IdentityName;
     guint32   i_TpPAMIPSEventData_IdentityName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMIPSEventData_IdentityType;
     guint32   i_TpPAMIPSEventData_IdentityType;
     guint32   u_octet4_loop_TpPAMIPSEventData_AttributeNames;
@@ -89378,14 +82287,7 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMIPSEventData_IdentityName=0; i_TpPAMIPSEventData_IdentityName < u_octet4_loop_TpPAMIPSEventData_IdentityName; i_TpPAMIPSEventData_IdentityName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMIPSEventData_IdentityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMIPSEventData_IdentityName");
 
     }
 
@@ -89396,14 +82298,7 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMIPSEventData_IdentityType=0; i_TpPAMIPSEventData_IdentityType < u_octet4_loop_TpPAMIPSEventData_IdentityType; i_TpPAMIPSEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMIPSEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMIPSEventData_IdentityType");
 
     }
 
@@ -89414,14 +82309,7 @@ decode_org_csapi_pam_TpPAMIPSEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMIPSEventData_AttributeNames=0; i_TpPAMIPSEventData_AttributeNames < u_octet4_loop_TpPAMIPSEventData_AttributeNames; i_TpPAMIPSEventData_AttributeNames++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMIPSEventData_AttributeNames (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMIPSEventData_AttributeNames");
 
     }
 
@@ -89439,21 +82327,12 @@ decode_org_csapi_pam_TpPAMIPSNotificationData_st(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMIPSNotificationData_Attributes;
     guint32   i_TpPAMIPSNotificationData_Attributes;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMIPSNotificationData_Identity (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMIPSNotificationData_Identity");
 
     u_octet4_loop_TpPAMIPSNotificationData_Attributes = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -89484,8 +82363,6 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     guint32   u_octet4_loop_TpPAMAVCEventData_IdentityName;
     guint32   i_TpPAMAVCEventData_IdentityName;
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMAVCEventData_IdentityType;
     guint32   i_TpPAMAVCEventData_IdentityType;
     guint32   u_octet4_loop_TpPAMAVCEventData_PAMContext;
@@ -89502,14 +82379,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMAVCEventData_IdentityName=0; i_TpPAMAVCEventData_IdentityName < u_octet4_loop_TpPAMAVCEventData_IdentityName; i_TpPAMAVCEventData_IdentityName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAVCEventData_IdentityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAVCEventData_IdentityName");
 
     }
 
@@ -89520,14 +82390,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMAVCEventData_IdentityType=0; i_TpPAMAVCEventData_IdentityType < u_octet4_loop_TpPAMAVCEventData_IdentityType; i_TpPAMAVCEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAVCEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAVCEventData_IdentityType");
 
     }
 
@@ -89555,14 +82418,7 @@ decode_org_csapi_pam_TpPAMAVCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     for (i_TpPAMAVCEventData_AttributeNames=0; i_TpPAMAVCEventData_AttributeNames < u_octet4_loop_TpPAMAVCEventData_AttributeNames; i_TpPAMAVCEventData_AttributeNames++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAVCEventData_AttributeNames (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAVCEventData_AttributeNames");
 
     }
 
@@ -89580,21 +82436,12 @@ decode_org_csapi_pam_TpPAMAVCNotificationData_st(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMAVCNotificationData_Availability;
     guint32   i_TpPAMAVCNotificationData_Availability;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMAVCNotificationData_Identity (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMAVCNotificationData_Identity");
 
     u_octet4_loop_TpPAMAVCNotificationData_Availability = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -89628,7 +82475,6 @@ decode_org_csapi_pam_TpPAMWCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     guint32   u_octet4;
     guint32   u_octet4_loop_TpPAMWCEventData_IdentityName;
     guint32   i_TpPAMWCEventData_IdentityName;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMWCEventData_IdentityType;
     guint32   i_TpPAMWCEventData_IdentityType;
     
@@ -89656,14 +82502,7 @@ decode_org_csapi_pam_TpPAMWCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMWCEventData_IdentityName=0; i_TpPAMWCEventData_IdentityName < u_octet4_loop_TpPAMWCEventData_IdentityName; i_TpPAMWCEventData_IdentityName++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMWCEventData_IdentityName (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMWCEventData_IdentityName");
 
     }
 
@@ -89674,14 +82513,7 @@ decode_org_csapi_pam_TpPAMWCEventData_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     for (i_TpPAMWCEventData_IdentityType=0; i_TpPAMWCEventData_IdentityType < u_octet4_loop_TpPAMWCEventData_IdentityType; i_TpPAMWCEventData_IdentityType++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMWCEventData_IdentityType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMWCEventData_IdentityType");
 
     }
 
@@ -89700,7 +82532,6 @@ decode_org_csapi_pam_TpPAMWCNotificationData_st(tvbuff_t *tvb _U_, packet_info *
     /* Operation specific Variable declarations Begin */
 
     guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpPAMWCNotificationData_Watchers;
     guint32   i_TpPAMWCNotificationData_Watchers;
     
@@ -89718,14 +82549,7 @@ decode_org_csapi_pam_TpPAMWCNotificationData_st(tvbuff_t *tvb _U_, packet_info *
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpPAMWCNotificationData_ChangeType  = %u (%s)",u_octet4,val_to_str(u_octet4,org_csapi_pam_TpPAMwatcherChangeType,"Unknown Enum Value"));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMWCNotificationData_Identity (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMWCNotificationData_Identity");
 
     u_octet4_loop_TpPAMWCNotificationData_Watchers = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -89734,14 +82558,7 @@ decode_org_csapi_pam_TpPAMWCNotificationData_st(tvbuff_t *tvb _U_, packet_info *
 
     for (i_TpPAMWCNotificationData_Watchers=0; i_TpPAMWCNotificationData_Watchers < u_octet4_loop_TpPAMWCNotificationData_Watchers; i_TpPAMWCNotificationData_Watchers++) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpPAMWCNotificationData_Watchers (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpPAMWCNotificationData_Watchers");
 
     }
 
@@ -89856,21 +82673,12 @@ decode_org_csapi_mmm_TpMessageDescription_st(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpMessageDescription_To;
     guint32   i_TpMessageDescription_To;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpMessageDescription_MessageID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpMessageDescription_MessageID");
 
     /*  Begin struct "org_csapi_TpAddress"  */
 
@@ -89897,23 +82705,9 @@ decode_org_csapi_mmm_TpMessageDescription_st(tvbuff_t *tvb _U_, packet_info *pin
 
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpMessageDescription_Subject (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpMessageDescription_Subject");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpMessageDescription_ReceivedDate (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpMessageDescription_ReceivedDate");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpMessageDescription_Size = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -89929,68 +82723,24 @@ decode_org_csapi_mmm_TpBodyPartDescription_st(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBodyPartDescription_ContentDescription (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBodyPartDescription_ContentDescription");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpBodyPartDescription_ContentSize = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
     }
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBodyPartDescription_ContentType (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBodyPartDescription_ContentType");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBodyPartDescription_ContentTransferEncoding");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBodyPartDescription_ContentTransferEncoding (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBodyPartDescription_ContentID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBodyPartDescription_ContentDisposition");
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBodyPartDescription_ContentID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBodyPartDescription_ContentDisposition (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpBodyPartDescription_PartID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpBodyPartDescription_PartID");
 
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-4,4,"TpBodyPartDescription_NestingLevel = %i",get_CDR_long(tvb,offset,stream_is_big_endian, boundary));
@@ -90042,28 +82792,12 @@ decode_org_csapi_mmm_TpGenericHeaderField_st(tvbuff_t *tvb _U_, packet_info *pin
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpGenericHeaderField_FieldName (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpGenericHeaderField_FieldName");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpGenericHeaderField_FieldValue (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpGenericHeaderField_FieldValue");
 
 }
 
@@ -90101,28 +82835,12 @@ decode_org_csapi_mmm_TpNewMailboxMessageArrivedCriteria_st(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNewMailboxMessageArrivedCriteria_MailboxID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNewMailboxMessageArrivedCriteria_MailboxID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNewMailboxMessageArrivedCriteria_AuthenticationInfo (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNewMailboxMessageArrivedCriteria_AuthenticationInfo");
 
 }
 
@@ -90134,8 +82852,6 @@ decode_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations Begin */
 
-    guint32   u_octet4;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_TpNewMailboxMessageArrivedInfo_MessageDescription;
     guint32   i_TpNewMailboxMessageArrivedInfo_MessageDescription;
     guint32   u_octet4_loop_TpNewMailboxMessageArrivedInfo_ExtendedHeaderInformation;
@@ -90143,23 +82859,9 @@ decode_org_csapi_mmm_TpNewMailboxMessageArrivedInfo_st(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations End */
 
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNewMailboxMessageArrivedInfo_MailboxID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNewMailboxMessageArrivedInfo_MailboxID");
 
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
-
-    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-    if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"TpNewMailboxMessageArrivedInfo_FolderID (%u) = %s",
-          u_octet4, (u_octet4 > 0) ? seq : "");
-    }
-
-    g_free(seq);          /*  free buffer  */
-    seq = NULL;
+    giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "TpNewMailboxMessageArrivedInfo_FolderID");
 
     u_octet4_loop_TpNewMailboxMessageArrivedInfo_MessageDescription = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -90486,7 +83188,6 @@ decode_org_csapi_TpAoCOrder_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
     guint32   u_octet4;
     gint32    disc_s_TpAoCOrder;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -90534,14 +83235,7 @@ decode_org_csapi_TpAoCOrder_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
     if (disc_s_TpAoCOrder == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NetworkCharge (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "NetworkCharge");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -90629,14 +83323,7 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     if (disc_s_TpSimpleAttributeValue == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"StringValue (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "StringValue");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -90739,7 +83426,6 @@ decode_org_csapi_TpAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     guint32   u_octet4;
     gint32    disc_s_TpAttributeValue;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -90786,14 +83472,7 @@ decode_org_csapi_TpAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     if (disc_s_TpAttributeValue == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"XMLValue (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "XMLValue");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -90810,7 +83489,6 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     guint32   u_octet4;
     gint32    disc_s_TpFwEventCriteria;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_ServiceTypeNameList;
     guint32   i_ServiceTypeNameList;
     guint32   u_octet4_loop_UnavailableServiceTypeNameList;
@@ -90846,14 +83524,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
     if (disc_s_TpFwEventCriteria == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"EventNameUndefined (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "EventNameUndefined");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -90867,14 +83538,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
         for (i_ServiceTypeNameList=0; i_ServiceTypeNameList < u_octet4_loop_ServiceTypeNameList; i_ServiceTypeNameList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ServiceTypeNameList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ServiceTypeNameList");
 
         }
 
@@ -90890,14 +83554,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
         for (i_UnavailableServiceTypeNameList=0; i_UnavailableServiceTypeNameList < u_octet4_loop_UnavailableServiceTypeNameList; i_UnavailableServiceTypeNameList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"UnavailableServiceTypeNameList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "UnavailableServiceTypeNameList");
 
         }
 
@@ -90913,14 +83570,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
         for (i_CompatibleServiceTypeNameList=0; i_CompatibleServiceTypeNameList < u_octet4_loop_CompatibleServiceTypeNameList; i_CompatibleServiceTypeNameList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"CompatibleServiceTypeNameList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "CompatibleServiceTypeNameList");
 
         }
 
@@ -90936,14 +83586,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
         for (i_SessionCreatedList=0; i_SessionCreatedList < u_octet4_loop_SessionCreatedList; i_SessionCreatedList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"SessionCreatedList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "SessionCreatedList");
 
         }
 
@@ -90959,14 +83602,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
         for (i_SessionTerminatedList=0; i_SessionTerminatedList < u_octet4_loop_SessionTerminatedList; i_SessionTerminatedList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"SessionTerminatedList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "SessionTerminatedList");
 
         }
 
@@ -90982,14 +83618,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
         for (i_AgreementSignedList=0; i_AgreementSignedList < u_octet4_loop_AgreementSignedList; i_AgreementSignedList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"AgreementSignedList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "AgreementSignedList");
 
         }
 
@@ -91005,14 +83634,7 @@ decode_org_csapi_fw_TpFwEventCriteria_un(tvbuff_t *tvb _U_, packet_info *pinfo _
 
         for (i_AgreementEndedList=0; i_AgreementEndedList < u_octet4_loop_AgreementEndedList; i_AgreementEndedList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"AgreementEndedList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "AgreementEndedList");
 
         }
 
@@ -91031,7 +83653,6 @@ decode_org_csapi_fw_TpLoadStatisticEntityID_un(tvbuff_t *tvb _U_, packet_info *p
 
     guint32   u_octet4;
     gint32    disc_s_TpLoadStatisticEntityID;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -91053,42 +83674,21 @@ decode_org_csapi_fw_TpLoadStatisticEntityID_un(tvbuff_t *tvb _U_, packet_info *p
 
     if (disc_s_TpLoadStatisticEntityID == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"FrameworkID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "FrameworkID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpLoadStatisticEntityID == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ServiceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ServiceID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpLoadStatisticEntityID == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ClientAppID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ClientAppID");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91160,7 +83760,6 @@ decode_org_csapi_fw_TpDomainID_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
     guint32   u_octet4;
     gint32    disc_s_TpDomainID;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -91182,70 +83781,35 @@ decode_org_csapi_fw_TpDomainID_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
     if (disc_s_TpDomainID == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"FwID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "FwID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpDomainID == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ClientAppID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ClientAppID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpDomainID == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"EntOpID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "EntOpID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpDomainID == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ServiceID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ServiceID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpDomainID == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ServiceSupplierID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ServiceSupplierID");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91302,7 +83866,6 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     guint32   u_octet4;
     gint32    disc_s_TpFwEventInfo;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_ServiceIDList;
     guint32   i_ServiceIDList;
     guint32   u_octet4_loop_UnavailableServiceIDList;
@@ -91328,14 +83891,7 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     if (disc_s_TpFwEventInfo == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"EventNameUndefined (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "EventNameUndefined");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91349,14 +83905,7 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
         for (i_ServiceIDList=0; i_ServiceIDList < u_octet4_loop_ServiceIDList; i_ServiceIDList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ServiceIDList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ServiceIDList");
 
         }
 
@@ -91372,14 +83921,7 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
         for (i_UnavailableServiceIDList=0; i_UnavailableServiceIDList < u_octet4_loop_UnavailableServiceIDList; i_UnavailableServiceIDList++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"UnavailableServiceIDList (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "UnavailableServiceIDList");
 
         }
 
@@ -91401,28 +83943,14 @@ decode_org_csapi_fw_TpFwEventInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     if (disc_s_TpFwEventInfo == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"AppSessionCreated (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "AppSessionCreated");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpFwEventInfo == 5 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"AppSessionTerminated (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "AppSessionTerminated");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91465,7 +83993,6 @@ decode_org_csapi_ui_TpUIVariableInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     guint32   u_octet4;
     gint32    disc_s_TpUIVariableInfo;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -91496,56 +84023,28 @@ decode_org_csapi_ui_TpUIVariableInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     if (disc_s_TpUIVariableInfo == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"VariablePartAddress (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "VariablePartAddress");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpUIVariableInfo == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"VariablePartTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "VariablePartTime");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpUIVariableInfo == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"VariablePartDate (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "VariablePartDate");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpUIVariableInfo == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"VariablePartPrice (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "VariablePartPrice");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91562,7 +84061,6 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
     guint32   u_octet4;
     gint32    disc_s_TpUIInfo;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_InfoBinData;
     guint32   i_InfoBinData;
     guint32   u_octet4_loop_InfoMimeData;
@@ -91601,28 +84099,14 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
     if (disc_s_TpUIInfo == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"InfoData (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "InfoData");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpUIInfo == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"InfoAddress (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "InfoAddress");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91647,14 +84131,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
     if (disc_s_TpUIInfo == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"InfoUUEncData (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "InfoUUEncData");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91715,14 +84192,7 @@ decode_org_csapi_ui_TpUIInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
     if (disc_s_TpUIInfo == 8 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"InfoVXMLData (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "InfoVXMLData");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -91948,7 +84418,6 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     guint32   u_octet4;
     gint32    disc_s_TpCallAppInfo;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -92036,14 +84505,7 @@ decode_org_csapi_cc_gccs_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo 
 
     if (disc_s_TpCallAppInfo == 7 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"CallAppGenericInfo (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "CallAppGenericInfo");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -92082,7 +84544,6 @@ decode_org_csapi_cc_gccs_TpCallAdditionalReportInfo_un(tvbuff_t *tvb _U_, packet
 
     guint32   u_octet4;
     gint32    disc_s_TpCallAdditionalReportInfo;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -92169,14 +84630,7 @@ decode_org_csapi_cc_gccs_TpCallAdditionalReportInfo_un(tvbuff_t *tvb _U_, packet
 
     if (disc_s_TpCallAdditionalReportInfo == 10 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"QueueStatus (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "QueueStatus");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -92545,7 +84999,6 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     guint32   u_octet4;
     gint32    disc_s_TpCallAppInfo;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_CallAppCarrier;
     guint32   i_CallAppCarrier;
     
@@ -92635,14 +85088,7 @@ decode_org_csapi_cc_TpCallAppInfo_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
     if (disc_s_TpCallAppInfo == 7 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"CallAppGenericInfo (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "CallAppGenericInfo");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93141,7 +85587,6 @@ decode_org_csapi_dsc_TpDataSessionChargeOrder_un(tvbuff_t *tvb _U_, packet_info 
 
     guint32   u_octet4;
     gint32    disc_s_TpDataSessionChargeOrder;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -93176,14 +85621,7 @@ decode_org_csapi_dsc_TpDataSessionChargeOrder_un(tvbuff_t *tvb _U_, packet_info 
 
     if (disc_s_TpDataSessionChargeOrder == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"NetworkCharge (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "NetworkCharge");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93304,7 +85742,6 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     guint32   u_octet4;
     gint32    disc_s_TpMessageInfoProperty;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -93326,70 +85763,35 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMessageInfoProperty == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMessageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMessageID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageInfoProperty == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMessageSubject (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMessageSubject");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageInfoProperty == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMessageDateSent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMessageDateSent");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageInfoProperty == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMessageDateReceived (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMessageDateReceived");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageInfoProperty == 5 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMessageDateChanged (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMessageDateChanged");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93479,14 +85881,7 @@ decode_org_csapi_gms_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMessageInfoProperty == 13 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMessageFolder (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMessageFolder");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93523,7 +85918,6 @@ decode_org_csapi_gms_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     guint32   u_octet4;
     gint32    disc_s_TpMailboxInfoProperty;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -93558,56 +85952,28 @@ decode_org_csapi_gms_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMailboxInfoProperty == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMailboxOwner (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMailboxOwner");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMailboxInfoProperty == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMailboxFolder (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMailboxFolder");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMailboxInfoProperty == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMailboxDateCreated (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMailboxDateCreated");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMailboxInfoProperty == 5 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingMailboxDateChanged (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingMailboxDateChanged");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93633,7 +85999,6 @@ decode_org_csapi_gms_TpMessagingEventInfo_un(tvbuff_t *tvb _U_, packet_info *pin
 
     guint32   u_octet4;
     gint32    disc_s_TpMessagingEventInfo;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -93655,14 +86020,7 @@ decode_org_csapi_gms_TpMessagingEventInfo_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpMessagingEventInfo == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"EventNameUndefined (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "EventNameUndefined");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93745,7 +86103,6 @@ decode_org_csapi_gms_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
 
     guint32   u_octet4;
     gint32    disc_s_TpFolderInfoProperty;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -93767,70 +86124,35 @@ decode_org_csapi_gms_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpFolderInfoProperty == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingFolderID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingFolderID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpFolderInfoProperty == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingFolderMessage (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingFolderMessage");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpFolderInfoProperty == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingFolderSubfolder (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingFolderSubfolder");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpFolderInfoProperty == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingFolderDateCreated (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingFolderDateCreated");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpFolderInfoProperty == 5 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessagingFolderDateChanged (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessagingFolderDateChanged");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93856,7 +86178,6 @@ decode_org_csapi_cs_TpChargingParameterValue_un(tvbuff_t *tvb _U_, packet_info *
 
     guint32   u_octet4;
     gint32    disc_s_TpChargingParameterValue;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_OctetValue;
     guint32   i_OctetValue;
     
@@ -93898,14 +86219,7 @@ decode_org_csapi_cs_TpChargingParameterValue_un(tvbuff_t *tvb _U_, packet_info *
 
     if (disc_s_TpChargingParameterValue == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"StringValue (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "StringValue");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93949,7 +86263,6 @@ decode_org_csapi_cs_TpAppInformation_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     guint32   u_octet4;
     gint32    disc_s_TpAppInformation;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -93971,14 +86284,7 @@ decode_org_csapi_cs_TpAppInformation_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     if (disc_s_TpAppInformation == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"Timestamp (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "Timestamp");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -93995,7 +86301,6 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     guint32   u_octet4;
     gint32    disc_s_TpPolicyType;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -94054,28 +86359,14 @@ decode_org_csapi_policy_TpPolicyType_un(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     if (disc_s_TpPolicyType == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"StructuredType (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "StructuredType");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpPolicyType == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"XMLString (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "XMLString");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -94593,7 +86884,6 @@ decode_org_csapi_mmm_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
 
     guint32   u_octet4;
     gint32    disc_s_TpFolderInfoProperty;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -94615,28 +86905,14 @@ decode_org_csapi_mmm_TpFolderInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpFolderInfoProperty == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"FolderDateCreated (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "FolderDateCreated");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpFolderInfoProperty == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"FolderDateChanged (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "FolderDateChanged");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -94680,7 +86956,6 @@ decode_org_csapi_mmm_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     guint32   u_octet4;
     gint32    disc_s_TpMailboxInfoProperty;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -94702,42 +86977,21 @@ decode_org_csapi_mmm_TpMailboxInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMailboxInfoProperty == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MailboxOwner (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MailboxOwner");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMailboxInfoProperty == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MailboxDateCreated (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MailboxDateCreated");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMailboxInfoProperty == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MailboxDateChanged (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MailboxDateChanged");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -94772,7 +87026,6 @@ decode_org_csapi_mmm_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     guint32   u_octet4;
     gint32    disc_s_TpMessageInfoProperty;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -94794,42 +87047,21 @@ decode_org_csapi_mmm_TpMessageInfoProperty_un(tvbuff_t *tvb _U_, packet_info *pi
 
     if (disc_s_TpMessageInfoProperty == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessageDateCreated (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessageDateCreated");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageInfoProperty == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessageDateReceived (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessageDateReceived");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageInfoProperty == 3 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MessageDateChanged (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MessageDateChanged");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -94875,7 +87107,6 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
     guint32   u_octet4;
     gint32    disc_s_TpMessageHeaderField;
-    gchar   *seq = NULL;
     guint32   u_octet4_loop_From;
     guint32   i_From;
     guint32   u_octet4_loop_ReplyTo;
@@ -94913,14 +87144,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpMessageHeaderField == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"DateSent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "DateSent");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -95050,14 +87274,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpMessageHeaderField == 7 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"RFC822MessageID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "RFC822MessageID");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -95071,14 +87288,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
         for (i_InReplyTo=0; i_InReplyTo < u_octet4_loop_InReplyTo; i_InReplyTo++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"InReplyTo (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "InReplyTo");
 
         }
 
@@ -95094,14 +87304,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
         for (i_References=0; i_References < u_octet4_loop_References; i_References++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"References (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "References");
 
         }
 
@@ -95110,28 +87313,14 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpMessageHeaderField == 10 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"Subject (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "Subject");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageHeaderField == 11 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"Comments (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "Comments");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -95145,14 +87334,7 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
         for (i_Keywords=0; i_Keywords < u_octet4_loop_Keywords; i_Keywords++) {
 
-            u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-            if (tree) {
-               proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"Keywords (%u) = %s",
-                  u_octet4, (u_octet4 > 0) ? seq : "");
-            }
-
-            g_free(seq);          /*  free buffer  */
-            seq = NULL;
+            giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "Keywords");
 
         }
 
@@ -95187,84 +87369,42 @@ decode_org_csapi_mmm_TpMessageHeaderField_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpMessageHeaderField == 15 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MimeVersion (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MimeVersion");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageHeaderField == 16 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MimeContent (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MimeContent");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageHeaderField == 17 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MimeEncoding (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MimeEncoding");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageHeaderField == 18 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MimeID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MimeID");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageHeaderField == 19 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MimeDescription (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MimeDescription");
 
         return;     /* End Compare for this discriminant type */
     }
 
     if (disc_s_TpMessageHeaderField == 20 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"MimeDisposition (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "MimeDisposition");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -95318,7 +87458,6 @@ decode_org_csapi_mmm_TpDeliveryTime_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
     guint32   u_octet4;
     gint32    disc_s_TpDeliveryTime;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -95340,14 +87479,7 @@ decode_org_csapi_mmm_TpDeliveryTime_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
     if (disc_s_TpDeliveryTime == 1 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"DeliveryTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "DeliveryTime");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -95373,7 +87505,6 @@ decode_org_csapi_mmm_TpMessageTreatment_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     guint32   u_octet4;
     gint32    disc_s_TpMessageTreatment;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -95404,14 +87535,7 @@ decode_org_csapi_mmm_TpMessageTreatment_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     if (disc_s_TpMessageTreatment == 2 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"BillingID (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "BillingID");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -95430,14 +87554,7 @@ decode_org_csapi_mmm_TpMessageTreatment_un(tvbuff_t *tvb _U_, packet_info *pinfo
 
     if (disc_s_TpMessageTreatment == 4 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"ValidityTime (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "ValidityTime");
 
         return;     /* End Compare for this discriminant type */
     }
@@ -95520,7 +87637,6 @@ decode_org_csapi_mmm_TpMessagingEventInfo_un(tvbuff_t *tvb _U_, packet_info *pin
 
     guint32   u_octet4;
     gint32    disc_s_TpMessagingEventInfo;
-    gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
 
@@ -95542,14 +87658,7 @@ decode_org_csapi_mmm_TpMessagingEventInfo_un(tvbuff_t *tvb _U_, packet_info *pin
 
     if (disc_s_TpMessagingEventInfo == 0 ) {
 
-        u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-        if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"EventNameUndefined (%u) = %s",
-              u_octet4, (u_octet4 > 0) ? seq : "");
-        }
-
-        g_free(seq);          /*  free buffer  */
-        seq = NULL;
+        giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "EventNameUndefined");
 
         return;     /* End Compare for this discriminant type */
     }

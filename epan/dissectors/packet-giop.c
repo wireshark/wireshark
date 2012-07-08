@@ -2408,6 +2408,26 @@ gint16 get_CDR_short(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, 
 }
 
 
+/* Add an octet string to the tree.  This function exists in an attempt
+ * to eliminate function-local variables in packet-parlay.c .
+ */
+void
+giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
+		    gboolean stream_is_big_endian, int boundary,
+		    const char *varname)
+{
+    guint32   u_octet4;
+    gchar   *seq = NULL;
+
+    u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
+    if (tree) {
+       proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"%s (%u) = %s",
+          varname, u_octet4, (u_octet4 > 0) ? seq : "");
+    }
+
+    g_free(seq);          /*  free buffer  */
+}
+
 
 /* Copy an octet sequence from the tvbuff
  * which represents a string, and convert

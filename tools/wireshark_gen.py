@@ -1035,8 +1035,6 @@ class wireshark_gen_C:
 
     def get_CDR_string(self,pn):
         self.st.out(self.template_get_CDR_string, varname=pn)
-        self.addvar(self.c_u_octet4)
-        self.addvar(self.c_seq)
 
     def get_CDR_wstring(self,pn):
         self.st.out(self.template_get_CDR_wstring, varname=pn)
@@ -1847,14 +1845,7 @@ if (tree) {
 }
 """
     template_get_CDR_string = """\
-u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
-if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-u_octet4,u_octet4,"@varname@ (%u) = %s",
-      u_octet4, (u_octet4 > 0) ? seq : \"\");
-}
-
-g_free(seq);          /*  free buffer  */
-seq = NULL;
+giop_add_CDR_string(tree, tvb, offset, stream_is_big_endian, boundary, "@varname@");
 """
     template_get_CDR_wstring = """\
 u_octet4 = get_CDR_wstring(tvb, &seq, offset, stream_is_big_endian, boundary, header);

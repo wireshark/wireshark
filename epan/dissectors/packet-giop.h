@@ -377,6 +377,10 @@ extern gint16 get_CDR_short(tvbuff_t *tvb, int *offset,
     gboolean stream_is_big_endian, int boundary);
 
 
+extern void giop_add_CDR_string(proto_tree *tree, tvbuff_t *tvb, int *offset,
+    gboolean stream_is_big_endian, int boundary,
+    const char *varname);
+
 /* Copy an octet sequence from the tvbuff
  * which represents a string, and convert
  * it to an string value, taking into account byte order.
