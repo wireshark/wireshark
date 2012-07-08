@@ -120,10 +120,6 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 #ifdef HAVE_LUA
 	wslua_init(cb, client_data);
 #endif
-#ifdef HAVE_GEOIP
-	geoip_db_init();
-#endif
-
 }
 
 void

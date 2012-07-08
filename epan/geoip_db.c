@@ -137,6 +137,62 @@ static void geoip_db_path_free_cb(void* p) {
     g_free(m->path);
 }
 
+/* called every time the user presses "Apply" or "OK in the list of
+ * GeoIP directories, and also once on startup */
+static void geoip_db_post_update_cb(void) {
+    GeoIP *gi;
+    guint i;
+
+    /* If we have old data, clear out the whole thing
+     * and start again. TODO: Just update the ones that
+     * have changed for efficiency's sake. */
+    if (geoip_dat_arr) {
+        /* skip the last two, as they are fake */
+        for (i = 0; i < geoip_db_num_dbs() - 2; i++) {
+            gi = g_array_index(geoip_dat_arr, GeoIP *, i);
+            if (gi) {
+                GeoIP_delete(gi);
+            }
+        }
+        /* don't use GeoIP_delete() on the two fake
+         * databases as they weren't created by GeoIP_new()
+         * or GeoIP_open() */
+        gi = g_array_index(geoip_dat_arr, GeoIP *, i);
+        if (gi) {
+            free(gi);
+        }
+        gi = g_array_index(geoip_dat_arr, GeoIP *, i+1);
+        if (gi) {
+            free(gi);
+        }
+        /* finally, free the array itself */
+        g_array_free(geoip_dat_arr, TRUE);
+    }
+
+    /* allocate the array */
+    geoip_dat_arr = g_array_new(FALSE, FALSE, sizeof(GeoIP *));
+
+    /* Walk all the directories */
+    for (i = 0; i < num_geoip_db_paths; i++) {
+        if (geoip_db_paths[i].path) {
+            geoip_dat_scan_dir(geoip_db_paths[i].path);
+        }
+    }
+
+    /* add fake databases for latitude and longitude
+     * (using "City" in reality) */
+
+    /* latitude */
+    gi = g_malloc(sizeof (GeoIP));
+    gi->databaseType = WS_LAT_FAKE_EDITION;
+    g_array_append_val(geoip_dat_arr, gi);
+
+    /* longitude */
+    gi = g_malloc(sizeof (GeoIP));
+    gi->databaseType = WS_LON_FAKE_EDITION;
+    g_array_append_val(geoip_dat_arr, gi);
+}
+
 /**
  * Initialize GeoIP lookups
  */
@@ -161,18 +217,16 @@ geoip_db_pref_init(module_t *nameres)
             geoip_db_path_copy_cb,
             NULL,
             geoip_db_path_free_cb,
-            NULL,
+            geoip_db_post_update_cb,
             geoip_db_paths_fields);
 
-	prefs_register_uat_preference(nameres,
-                                    "geoip_db_paths",
-                                    "GeoIP database directories",
-		                            "Search paths for GeoIP address mapping databases.\n"
-		                            "Wireshark will look in each directory for files beginning\n"
-		                            "with \"Geo\" and ending with \".dat\".\n"
-		                            "You must restart Wireshark for these changes to take\n"
-		                            "effect.",
-                                    geoip_db_paths_uat);
+    prefs_register_uat_preference(nameres,
+            "geoip_db_paths",
+            "GeoIP database directories",
+                "Search paths for GeoIP address mapping databases.\n"
+                "Wireshark will look in each directory for files beginning\n"
+                "with \"Geo\" and ending with \".dat\".",
+            geoip_db_paths_uat);
 }
 
 void

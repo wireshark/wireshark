@@ -39,7 +39,6 @@
 /**
  * Init function called from epan.h
  */
-extern void geoip_db_init(void);
 extern void geoip_db_pref_init(module_t *nameres);
 
 /**
