@@ -174,7 +174,7 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
     ret = wtap_file_read_till_separator (wth, str_num, sizeof (str_num)-1, "<",
 					 err, err_info);
     if (ret != 1) {
-	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
+	/* 0 means EOF, which means "not a valid Peek tagged file";
 	   -1 means error, and "err" has been set. */
 	return ret;
     }
