@@ -380,7 +380,6 @@ print_alloc_stats()
 	guint num_allocs = 0;
 	guint total_used = 0;
 	guint total_allocation = 0;
-	guint total_free = 0;
 	guint used_for_canaries = 0;
 	guint total_headers;
 	guint i;
@@ -408,7 +407,6 @@ print_alloc_stats()
 			num_chunks++;
 			total_used += (chunk->amount_free_init - chunk->amount_free);
 			total_allocation += chunk->amount_free_init;
-			total_free += chunk->amount_free;
 		}
 		if (num_chunks > 0) {
 			fprintf (stderr, "\n");
@@ -431,7 +429,6 @@ print_alloc_stats()
 		num_allocs = 0;
 		total_used = 0;
 		total_allocation = 0;
-		total_free = 0;
 		used_for_canaries = 0;
 	}
 
@@ -458,7 +455,6 @@ print_alloc_stats()
 		num_chunks++;
 		total_used += (chunk->amount_free_init - chunk->amount_free);
 		total_allocation += chunk->amount_free_init;
-		total_free += chunk->amount_free;
 
 		if (se_packet_mem.debug_use_canary){
 			void *ptr = chunk->canary_last;

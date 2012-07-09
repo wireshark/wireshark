@@ -1205,7 +1205,6 @@ welcome_new(void)
     GtkWidget *file_child_box;
 #ifdef _WIN32
     DWORD chimney_enabled = 0;
-    DWORD ce_size = sizeof(chimney_enabled);
 #endif
     /* prepare colors */
 #if 0

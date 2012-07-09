@@ -2404,7 +2404,6 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     guint n_wireshark_keys = 0;
     guint n_driver_keys = 0;
     guint n_curr_adapter_keys = 0;
-    guint n_total_keys = 0;
     guint i = 0;
 
     GList* wireshark_keys=NULL;
@@ -2424,14 +2423,12 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     /* Retrieve Wireshark keys */
     wireshark_keys = get_wireshark_keys();
     n_wireshark_keys = g_list_length(wireshark_keys);
-    n_total_keys += n_wireshark_keys;
 
     merged_list = merge_key_list(wireshark_keys,NULL);
 
     /* Retrieve AirPcap driver's keys */
     driver_keys = get_airpcap_driver_keys();
     n_driver_keys = g_list_length(driver_keys);
-    n_total_keys += n_driver_keys;
 
     merged_list = merge_key_list(merged_list,driver_keys);
 
@@ -2446,7 +2443,6 @@ on_merge_bt_clicked (GtkWidget* button _U_, gpointer user_data)
         merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
         free_key_list(merged_list_tmp);
 
-        n_total_keys += n_curr_adapter_keys;
     }
 
     /* Set up this new list as default for Wireshark and Adapters... */
@@ -2525,7 +2521,6 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
     guint n_wireshark_keys = 0;
     guint n_driver_keys = 0;
     guint n_curr_adapter_keys = 0;
-    guint n_total_keys = 0;
     guint i = 0;
 
     GList* wireshark_keys=NULL;
@@ -2544,12 +2539,10 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
 
     wireshark_keys = get_wireshark_keys();
     n_wireshark_keys = g_list_length(wireshark_keys);
-    n_total_keys += n_wireshark_keys;
 
     /* Retrieve AirPcap driver's keys */
     driver_keys = get_airpcap_driver_keys();
     n_driver_keys = g_list_length(driver_keys);
-    n_total_keys += n_driver_keys;
 
     merged_list = merge_key_list(merged_list,driver_keys);
 
@@ -2564,7 +2557,6 @@ on_import_bt_clicked (GtkWidget* button _U_, gpointer user_data)
         merged_list = merge_key_list(merged_list_tmp,current_adapter_keys);
         free_key_list(merged_list_tmp);
 
-        n_total_keys += n_curr_adapter_keys;
     }
 
     /* Set up this new list as default for Wireshark and Adapters... */
