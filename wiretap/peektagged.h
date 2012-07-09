@@ -1,4 +1,4 @@
-/* etherpeek.h
+/* peektagged.h
  *
  * $Id$
  *
@@ -18,15 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
  */
 
-#ifndef __W_ETHERPEEK_H__
-#define __W_ETHERPEEK_H__
-
+#ifndef __W_PEEKTAGGED_H__
+#define __W_PEEKTAGGED_H__
 #include <glib.h>
-#include <wtap.h>
 
-int etherpeek_open(wtap *wth, int *err, gchar **err_info);
+int peektagged_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

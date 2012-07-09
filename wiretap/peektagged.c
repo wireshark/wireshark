@@ -1,5 +1,16 @@
-/* airopeek9.c
- * Routines for opening EtherPeek and AiroPeek V9 files
+/* peektagged.c
+ * Routines for opening files in what WildPackets calls the tagged file
+ * format in the description of their "PeekRdr Sample Application" (C++
+ * source code to read their capture files, downloading of which requires
+ * a maintenance contract, so it's not free as in beer and probably not
+ * as in speech, either).
+ *
+ * As that description says, it's used by AiroPeek and AiroPeek NX 2.0
+ * and later, EtherPeek 6.0 and later, EtherPeek NX 3.0 and later,
+ * EtherPeek VX 1.0 and later, GigaPeek NX 1.0 and later, Omni3 1.0
+ * and later (both OmniPeek and the Remote Engine), and WANPeek NX
+ * 1.0 and later.  They also say it'll be used by future WildPackets
+ * products.
  *
  * $Id$
  *
@@ -30,27 +41,22 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
-#include "airopeek9.h"
+#include "peektagged.h"
 
 /* CREDITS
  *
  * This file decoder could not have been writen without examining
- * http://www.varsanofiev.com/inside/airopeekv9.htm, the help from
- * Martin Regner and Guy Harris, and the etherpeek.c file.
- */
-
-/*
- * NOTE: it says "airopeek" because the first files seen that use this
- * format were AiroPeek files; however, EtherPeek files using it have
- * also been seen.
+ * http://www.varsanofiev.com/inside/peektagged.htm, the help from
+ * Martin Regner and Guy Harris, and the etherpeek.c file (as it
+ * was called before renaming it to peekclassic.c).
  */
 
 /* section header */
-typedef struct airopeek_section_header {
+typedef struct peektagged_section_header {
 	gint8   section_id[4];
 	guint32 section_len;
 	guint32 section_const;
-} airopeek_section_header_t;
+} peektagged_section_header_t;
 
 /*
  * Network subtype values.
@@ -59,38 +65,38 @@ typedef struct airopeek_section_header {
  * network adapter types, with some adapters supplying the FCS and others
  * not supplying the FCS?
  */
-#define AIROPEEK_V9_NST_ETHERNET		0
-#define AIROPEEK_V9_NST_802_11			1	/* 802.11 with 0's at the end */
-#define AIROPEEK_V9_NST_802_11_2		2	/* 802.11 with 0's at the end */
-#define AIROPEEK_V9_NST_802_11_WITH_FCS		3	/* 802.11 with FCS at the end */
+#define PEEKTAGGED_NST_ETHERNET		0
+#define PEEKTAGGED_NST_802_11		1	/* 802.11 with 0's at the end */
+#define PEEKTAGGED_NST_802_11_2		2	/* 802.11 with 0's at the end */
+#define PEEKTAGGED_NST_802_11_WITH_FCS	3	/* 802.11 with FCS at the end */
 
 /* tags for fields in packet header */
-#define TAG_AIROPEEK_V9_LENGTH			0x0000
-#define TAG_AIROPEEK_V9_TIMESTAMP_LOWER		0x0001
-#define TAG_AIROPEEK_V9_TIMESTAMP_UPPER		0x0002
-#define TAG_AIROPEEK_V9_FLAGS_AND_STATUS	0x0003
-#define TAG_AIROPEEK_V9_CHANNEL			0x0004
-#define TAG_AIROPEEK_V9_RATE			0x0005
-#define TAG_AIROPEEK_V9_SIGNAL_PERC		0x0006
-#define TAG_AIROPEEK_V9_SIGNAL_DBM		0x0007
-#define TAG_AIROPEEK_V9_NOISE_PERC		0x0008
-#define TAG_AIROPEEK_V9_NOISE_DBM		0x0009
-#define TAG_AIROPEEK_V9_UNKNOWN_0x000D		0x000D
-#define TAG_AIROPEEK_V9_SLICE_LENGTH		0xffff
+#define TAG_PEEKTAGGED_LENGTH			0x0000
+#define TAG_PEEKTAGGED_TIMESTAMP_LOWER		0x0001
+#define TAG_PEEKTAGGED_TIMESTAMP_UPPER		0x0002
+#define TAG_PEEKTAGGED_FLAGS_AND_STATUS		0x0003
+#define TAG_PEEKTAGGED_CHANNEL			0x0004
+#define TAG_PEEKTAGGED_RATE			0x0005
+#define TAG_PEEKTAGGED_SIGNAL_PERC		0x0006
+#define TAG_PEEKTAGGED_SIGNAL_DBM		0x0007
+#define TAG_PEEKTAGGED_NOISE_PERC		0x0008
+#define TAG_PEEKTAGGED_NOISE_DBM		0x0009
+#define TAG_PEEKTAGGED_UNKNOWN_0x000D		0x000D
+#define TAG_PEEKTAGGED_SLICE_LENGTH		0xffff
 
 /* 64-bit time in nanoseconds from the (Windows FILETIME) epoch */
-typedef struct airopeek_utime {
+typedef struct peektagged_utime {
 	guint32 upper;
 	guint32 lower;
-} airopeek_utime;
+} peektagged_utime;
 
 typedef struct {
 	gboolean	has_fcs;
-} airopeek9_t;
+} peektagged_t;
 
-static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
+static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean airopeekv9_seek_read(wtap *wth, gint64 seek_off,
+static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 
@@ -180,22 +186,22 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
 }
 
 
-int airopeek9_open(wtap *wth, int *err, gchar **err_info)
+int peektagged_open(wtap *wth, int *err, gchar **err_info)
 {
-    airopeek_section_header_t ap_hdr;
+    peektagged_section_header_t ap_hdr;
     int ret;
     guint32 fileVersion;
     guint32 mediaType;
     guint32 mediaSubType = 0;
     int file_encap;
-    static const int airopeek9_encap[] = {
+    static const int peektagged_encap[] = {
 	WTAP_ENCAP_ETHERNET,
 	WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 	WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
 	WTAP_ENCAP_IEEE_802_11_WITH_RADIO
     };
-    #define NUM_AIROPEEK9_ENCAPS (sizeof airopeek9_encap / sizeof airopeek9_encap[0])
-    airopeek9_t *airopeek9;
+    #define NUM_PEEKTAGGED_ENCAPS (sizeof peektagged_encap / sizeof peektagged_encap[0])
+    peektagged_t *peektagged;
 
     wtap_file_read_unknown_bytes(&ap_hdr, sizeof(ap_hdr), wth->fh, err,
                                  err_info);
@@ -228,7 +234,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     if (fileVersion != 9) {
 	/* We only support version 9. */
 	*err = WTAP_ERR_UNSUPPORTED;
-	*err_info = g_strdup_printf("airopeekv9: version %u unsupported",
+	*err_info = g_strdup_printf("peektagged: version %u unsupported",
 	    fileVersion);
 	return -1;
     }
@@ -248,7 +254,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	return -1;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("airopeekv9: <MediaType> tag not found");
+	*err_info = g_strdup("peektagged: <MediaType> tag not found");
 	return -1;
     }
     /* XXX - this appears to be 0 in both the EtherPeek and AiroPeek
@@ -258,7 +264,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	return -1;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("airopeekv9: <MediaType> value not found");
+	*err_info = g_strdup("peektagged: <MediaType> value not found");
 	return -1;
     }
 
@@ -267,7 +273,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	return -1;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("airopeekv9: <MediaSubType> tag not found");
+	*err_info = g_strdup("peektagged: <MediaSubType> tag not found");
 	return -1;
     }
     ret = wtap_file_read_number (wth, &mediaSubType, err, err_info);
@@ -275,13 +281,13 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 	return -1;
     if (ret == 0) {
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("airopeekv9: <MediaSubType> value not found");
+	*err_info = g_strdup("peektagged: <MediaSubType> value not found");
 	return -1;
     }
-    if (mediaSubType >= NUM_AIROPEEK9_ENCAPS
-        || airopeek9_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
+    if (mediaSubType >= NUM_PEEKTAGGED_ENCAPS
+        || peektagged_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
 	*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-	*err_info = g_strdup_printf("airopeekv9: network type %u unknown or unsupported",
+	*err_info = g_strdup_printf("peektagged: network type %u unknown or unsupported",
 	    mediaSubType);
 	return -1;
     }
@@ -301,26 +307,26 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     /*
      * This is an EtherPeek or AiroPeek V9 file.
      */
-    file_encap = airopeek9_encap[mediaSubType];
+    file_encap = peektagged_encap[mediaSubType];
 
-    wth->file_type = WTAP_FILE_AIROPEEK_V9;
+    wth->file_type = WTAP_FILE_PEEKTAGGED;
     wth->file_encap = file_encap;
-    wth->subtype_read = airopeekv9_read;
-    wth->subtype_seek_read = airopeekv9_seek_read;
+    wth->subtype_read = peektagged_read;
+    wth->subtype_seek_read = peektagged_seek_read;
     wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
-    airopeek9 = (airopeek9_t *)g_malloc(sizeof(airopeek9_t));
-    wth->priv = (void *)airopeek9;
+    peektagged = (peektagged_t *)g_malloc(sizeof(peektagged_t));
+    wth->priv = (void *)peektagged;
     switch (mediaSubType) {
 
-    case AIROPEEK_V9_NST_ETHERNET:
-    case AIROPEEK_V9_NST_802_11:
-    case AIROPEEK_V9_NST_802_11_2:
-	airopeek9->has_fcs = FALSE;
+    case PEEKTAGGED_NST_ETHERNET:
+    case PEEKTAGGED_NST_802_11:
+    case PEEKTAGGED_NST_802_11_2:
+	peektagged->has_fcs = FALSE;
 	break;
 
-    case AIROPEEK_V9_NST_802_11_WITH_FCS:
-	airopeek9->has_fcs = TRUE;
+    case PEEKTAGGED_NST_802_11_WITH_FCS:
+	peektagged->has_fcs = TRUE;
 	break;
     }
 
@@ -332,7 +338,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
 typedef struct {
     guint32 length;
     guint32 sliceLength;
-    airopeek_utime timestamp;
+    peektagged_utime timestamp;
     struct ieee_802_11_phdr ieee_802_11;
 } hdr_info_t;
 
@@ -346,7 +352,7 @@ typedef struct {
  * are present.
  */
 static int
-airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
+peektagged_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     gchar **err_info)
 {
     int header_len = 0;
@@ -382,90 +388,90 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 	tag = pletohs(&tag_value[0]);
 	switch (tag) {
 
-	case TAG_AIROPEEK_V9_LENGTH:
+	case TAG_PEEKTAGGED_LENGTH:
 	    if (saw_length) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("airopeekv9: record has two length fields");
+		*err_info = g_strdup("peektagged: record has two length fields");
 		return 0;
 	    }
 	    hdr_info->length = pletohl(&tag_value[2]);
 	    saw_length = TRUE;
 	    break;
     
-	case TAG_AIROPEEK_V9_TIMESTAMP_LOWER:
+	case TAG_PEEKTAGGED_TIMESTAMP_LOWER:
 	    if (saw_timestamp_lower) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("airopeekv9: record has two timestamp-lower fields");
+		*err_info = g_strdup("peektagged: record has two timestamp-lower fields");
 		return 0;
 	    }
 	    hdr_info->timestamp.lower = pletohl(&tag_value[2]);
 	    saw_timestamp_lower = TRUE;
 	    break;
 
-	case TAG_AIROPEEK_V9_TIMESTAMP_UPPER:
+	case TAG_PEEKTAGGED_TIMESTAMP_UPPER:
 	    if (saw_timestamp_upper) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup("airopeekv9: record has two timestamp-upper fields");
+		*err_info = g_strdup("peektagged: record has two timestamp-upper fields");
 		return 0;
 	    }
 	    hdr_info->timestamp.upper = pletohl(&tag_value[2]);
 	    saw_timestamp_upper = TRUE;
 	    break;
 
-	case TAG_AIROPEEK_V9_FLAGS_AND_STATUS:
+	case TAG_PEEKTAGGED_FLAGS_AND_STATUS:
 	    /* XXX - not used yet */
 	    break;
 
-	case TAG_AIROPEEK_V9_CHANNEL:
+	case TAG_PEEKTAGGED_CHANNEL:
 	    hdr_info->ieee_802_11.channel = pletohl(&tag_value[2]);
 	    break;
 
-	case TAG_AIROPEEK_V9_RATE:
+	case TAG_PEEKTAGGED_RATE:
 	    hdr_info->ieee_802_11.data_rate = pletohl(&tag_value[2]);
 	    break;
 
-	case TAG_AIROPEEK_V9_SIGNAL_PERC:
+	case TAG_PEEKTAGGED_SIGNAL_PERC:
 	    hdr_info->ieee_802_11.signal_level = pletohl(&tag_value[2]);
 	    break;
 
-	case TAG_AIROPEEK_V9_SIGNAL_DBM:
+	case TAG_PEEKTAGGED_SIGNAL_DBM:
 	    /* XXX - not used yet */
 	    break;
 
-	case TAG_AIROPEEK_V9_NOISE_PERC:
+	case TAG_PEEKTAGGED_NOISE_PERC:
 	    /* XXX - not used yet */
 	    break;
 
-	case TAG_AIROPEEK_V9_NOISE_DBM:
+	case TAG_PEEKTAGGED_NOISE_DBM:
 	    /* XXX - not used yet */
 	    break;
 
-	case TAG_AIROPEEK_V9_UNKNOWN_0x000D:
+	case TAG_PEEKTAGGED_UNKNOWN_0x000D:
 	    /* XXX - seen in an EtherPeek capture; value unknown */
 	    break;
 
-	case TAG_AIROPEEK_V9_SLICE_LENGTH:
+	case TAG_PEEKTAGGED_SLICE_LENGTH:
 	    hdr_info->sliceLength = pletohl(&tag_value[2]);
 	    break;
 
 	default:
 	    break;
         }
-    } while (tag != TAG_AIROPEEK_V9_SLICE_LENGTH);	/* last tag */
+    } while (tag != TAG_PEEKTAGGED_SLICE_LENGTH);	/* last tag */
 
     if (!saw_length) {
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("airopeekv9: record has no length field");
+	*err_info = g_strdup("peektagged: record has no length field");
 	return 0;
     }
     if (!saw_timestamp_lower) {
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("airopeekv9: record has no timestamp-lower field");
+	*err_info = g_strdup("peektagged: record has no timestamp-lower field");
 	return 0;
     }
     if (!saw_timestamp_upper) {
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("airopeekv9: record has no timestamp-upper field");
+	*err_info = g_strdup("peektagged: record has no timestamp-upper field");
 	return 0;
     }
 
@@ -482,10 +488,10 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
  */
 #define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
 
-static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
+static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-    airopeek9_t *airopeek9 = (airopeek9_t *)wth->priv;
+    peektagged_t *peektagged = (peektagged_t *)wth->priv;
     hdr_info_t hdr_info;
     int hdrlen;
     double  t;
@@ -493,7 +499,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = file_tell(wth->fh);
 
     /* Process the packet header. */
-    hdrlen = airopeekv9_process_header(wth->fh, &hdr_info, err, err_info);
+    hdrlen = peektagged_process_header(wth->fh, &hdr_info, err, err_info);
     if (hdrlen == 0)
 	return FALSE;
 
@@ -509,7 +515,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	 * to allocate space for an immensely-large packet.
 	 */
 	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup_printf("airopeek9: File has %u-byte packet, bigger than maximum of %u",
+	*err_info = g_strdup_printf("peektagged: File has %u-byte packet, bigger than maximum of %u",
 	    hdr_info.sliceLength, WTAP_MAX_PACKET_SIZE);
 	return FALSE;
     }
@@ -549,7 +555,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	 * whether to supply it as an FCS or discard it.
 	 */
 	wth->pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
-	if (airopeek9->has_fcs)
+	if (peektagged->has_fcs)
 	    wth->pseudo_header.ieee_802_11.fcs_len = 4;
 	else {
 	    wth->pseudo_header.ieee_802_11.fcs_len = 0;
@@ -574,25 +580,25 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 
 
 static gboolean
-airopeekv9_seek_read(wtap *wth, gint64 seek_off,
+peektagged_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-    airopeek9_t *airopeek9 = (airopeek9_t *)wth->priv;
+    peektagged_t *peektagged = (peektagged_t *)wth->priv;
     hdr_info_t hdr_info;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
 
     /* Process the packet header. */
-    if (airopeekv9_process_header(wth->random_fh, &hdr_info, err, err_info) == -1)
+    if (peektagged_process_header(wth->random_fh, &hdr_info, err, err_info) == -1)
 	return FALSE;
 
     switch (wth->file_encap) {
 
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 	pseudo_header->ieee_802_11 = hdr_info.ieee_802_11;
-	if (airopeek9->has_fcs)
+	if (peektagged->has_fcs)
 	    pseudo_header->ieee_802_11.fcs_len = 4;
 	else
 	    pseudo_header->ieee_802_11.fcs_len = 0;

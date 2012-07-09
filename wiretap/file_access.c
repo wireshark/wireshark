@@ -44,7 +44,6 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "lanalyzer.h"
-#include "airopeek9.h"
 #include "ngsniffer.h"
 #include "radcom.h"
 #include "ascendtext.h"
@@ -60,7 +59,8 @@
 #include "i4btrace.h"
 #include "csids.h"
 #include "pppdump.h"
-#include "etherpeek.h"
+#include "peekclassic.h"
+#include "peektagged.h"
 #include "vms.h"
 #include "dbs-etherwatch.h"
 #include "visual.h"
@@ -124,7 +124,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	visual_open,
 	_5views_open,
 	network_instruments_open,
-	airopeek9_open,
+	peektagged_open,
 	dbs_etherwatch_open,
 	k12_open,
 	catapult_dct2000_open,
@@ -155,7 +155,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	erf_open,
 	ipfix_open,
 	k12text_open,
-	etherpeek_open,
+	peekclassic_open,
 	pppdump_open,
 	iseries_open,
 	ascend_open,
@@ -643,16 +643,16 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "Visual Networks traffic capture", "visual", NULL, NULL, TRUE, FALSE,
 	  visual_dump_can_write_encap, visual_dump_open },
 
-	/* WTAP_FILE_ETHERPEEK_V56 */
-	{ "WildPackets Ether/TokenPeek (V5 & V6)", "peek56", "pkt", "tpc;apc;wpz", FALSE, FALSE,
+	/* WTAP_FILE_PEEKCLASSIC_V56 */
+	{ "WildPackets classic (V5 and V6)", "peekclassic56", "pkt", "tpc;apc;wpz", FALSE, FALSE,
 	  NULL, NULL },
 
-	/* WTAP_FILE_ETHERPEEK_V7 */
-	{ "WildPackets Ether/Token/AiroPeek (V7)", "peek7", "pkt", "tpc;apc;wpz", FALSE, FALSE,
+	/* WTAP_FILE_PEEKCLASSIC_V7 */
+	{ "WildPackets classic (V7)", "peekclassic7", "pkt", "tpc;apc;wpz", FALSE, FALSE,
 	  NULL, NULL },
 
-	/* WTAP_FILE_AIROPEEK_V9 */
-	{ "WildPackets Ether/AiroPeek (V9)", "peek9", "pkt", "tpc;apc;wpz", FALSE, FALSE,
+	/* WTAP_FILE_PEEKTAGGED */
+	{ "WildPackets tagged", "peektagged", "pkt", "tpc;apc;wpz", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_MPEG */

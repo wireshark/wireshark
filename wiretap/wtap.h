@@ -286,9 +286,9 @@ extern "C" {
 #define WTAP_FILE_K12                           40
 #define WTAP_FILE_TOSHIBA                       41
 #define WTAP_FILE_VISUAL_NETWORKS               42
-#define WTAP_FILE_ETHERPEEK_V56                 43
-#define WTAP_FILE_ETHERPEEK_V7                  44
-#define WTAP_FILE_AIROPEEK_V9                   45
+#define WTAP_FILE_PEEKCLASSIC_V56               43
+#define WTAP_FILE_PEEKCLASSIC_V7                44
+#define WTAP_FILE_PEEKTAGGED                    45
 #define WTAP_FILE_MPEG                          46
 #define WTAP_FILE_K12TEXT                       47
 #define WTAP_FILE_NETSCREEN                     48

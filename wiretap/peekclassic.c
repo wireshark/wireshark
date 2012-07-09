@@ -1,6 +1,18 @@
-/* etherpeek.c
- * Routines for opening EtherPeek and AiroPeek (and TokenPeek?) V5, V6,
- * and V7 files
+/* peekclassic.c
+ * Routines for opening files in what WildPackets calls the classic file
+ * format in the description of their "PeekRdr Sample Application" (C++
+ * source code to read their capture files, downloading of which requires
+ * a maintenance contract, so it's not free as in beer and probably not
+ * as in speech, either).
+ *
+ * As that description says, it's used by AiroPeek and AiroPeek NX prior
+ * to 2.0, EtherPeek prior to 6.0, and EtherPeek NX prior to 3.0.  It
+ * was probably also used by TokenPeek.
+ *
+ * This handles versions 5, 6, and 7 of that format (the format version
+ * number is what appears in the file, and is distinct from the application
+ * version number).
+ *
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
  * $Id$
@@ -31,28 +43,22 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
-#include "etherpeek.h"
+#include "peekclassic.h"
 /* CREDITS
  *
  * This file decoder could not have been writen without examining how
  * tcptrace (http://www.tcptrace.org/) handles EtherPeek files.
  */
 
-/*
- * NOTE: it says "etherpeek" because the first files seen that use this
- * format were EtherPeek files; however, AiroPeek files using it have
- * also been seen, and I suspect TokenPeek uses it as well.
- */
-
 /* master header */
-typedef struct etherpeek_master_header {
+typedef struct peekclassic_master_header {
 	guint8  version;
 	guint8  status;
-} etherpeek_master_header_t;
-#define ETHERPEEK_MASTER_HDR_SIZE 2
+} peekclassic_master_header_t;
+#define PEEKCLASSIC_MASTER_HDR_SIZE 2
 
 /* secondary header (V5,V6,V7) */
-typedef struct etherpeek_v567_header {
+typedef struct peekclassic_v567_header {
 	guint32 filelength;
 	guint32 numPackets;
 	guint32 timeDate;
@@ -63,16 +69,16 @@ typedef struct etherpeek_v567_header {
 	guint32 appVers;    /* App Version Number Maj.Min.Bug.Build */
 	guint32 linkSpeed;  /* Link Speed Bits/sec */
 	guint32 reserved[3];
-} etherpeek_v567_header_t;
-#define ETHERPEEK_V567_HDR_SIZE 48
+} peekclassic_v567_header_t;
+#define PEEKCLASSIC_V567_HDR_SIZE 48
 
 /* full header */
-typedef struct etherpeek_header {
-	etherpeek_master_header_t master;
+typedef struct peekclassic_header {
+	peekclassic_master_header_t master;
 	union {
-		etherpeek_v567_header_t v567;
+		peekclassic_v567_header_t v567;
 	} secondary;
-} etherpeek_header_t;
+} peekclassic_header_t;
 
 /*
  * Packet header (V5, V6).
@@ -88,23 +94,23 @@ typedef struct etherpeek_header {
  *
  * So, instead, we #define numbers as the offsets of the fields.
  */
-#define ETHERPEEK_V56_LENGTH_OFFSET		0
-#define ETHERPEEK_V56_SLICE_LENGTH_OFFSET	2
-#define ETHERPEEK_V56_FLAGS_OFFSET		4
-#define ETHERPEEK_V56_STATUS_OFFSET		5
-#define ETHERPEEK_V56_TIMESTAMP_OFFSET		6
-#define ETHERPEEK_V56_DESTNUM_OFFSET		10
-#define ETHERPEEK_V56_SRCNUM_OFFSET		12
-#define ETHERPEEK_V56_PROTONUM_OFFSET		14
-#define ETHERPEEK_V56_PROTOSTR_OFFSET		16
-#define ETHERPEEK_V56_FILTERNUM_OFFSET		24
-#define ETHERPEEK_V56_PKT_SIZE			26
+#define PEEKCLASSIC_V56_LENGTH_OFFSET		0
+#define PEEKCLASSIC_V56_SLICE_LENGTH_OFFSET	2
+#define PEEKCLASSIC_V56_FLAGS_OFFSET		4
+#define PEEKCLASSIC_V56_STATUS_OFFSET		5
+#define PEEKCLASSIC_V56_TIMESTAMP_OFFSET	6
+#define PEEKCLASSIC_V56_DESTNUM_OFFSET		10
+#define PEEKCLASSIC_V56_SRCNUM_OFFSET		12
+#define PEEKCLASSIC_V56_PROTONUM_OFFSET		14
+#define PEEKCLASSIC_V56_PROTOSTR_OFFSET		16
+#define PEEKCLASSIC_V56_FILTERNUM_OFFSET	24
+#define PEEKCLASSIC_V56_PKT_SIZE		26
 
 /* 64-bit time in micro seconds from the (Mac) epoch */
-typedef struct etherpeek_utime {
+typedef struct peekclassic_utime {
 	guint32 upper;
 	guint32 lower;
-} etherpeek_utime;
+} peekclassic_utime;
 
 /*
  * Packet header (V7).
@@ -112,49 +118,50 @@ typedef struct etherpeek_utime {
  * This doesn't have the same alignment problem, but we do it with
  * #defines anyway.
  */
-#define ETHERPEEK_V7_PROTONUM_OFFSET		0
-#define ETHERPEEK_V7_LENGTH_OFFSET		2
-#define ETHERPEEK_V7_SLICE_LENGTH_OFFSET	4
-#define ETHERPEEK_V7_FLAGS_OFFSET		6
-#define ETHERPEEK_V7_STATUS_OFFSET		7
-#define ETHERPEEK_V7_TIMESTAMP_OFFSET		8
-#define ETHERPEEK_V7_PKT_SIZE			16
+#define PEEKCLASSIC_V7_PROTONUM_OFFSET		0
+#define PEEKCLASSIC_V7_LENGTH_OFFSET		2
+#define PEEKCLASSIC_V7_SLICE_LENGTH_OFFSET	4
+#define PEEKCLASSIC_V7_FLAGS_OFFSET		6
+#define PEEKCLASSIC_V7_STATUS_OFFSET		7
+#define PEEKCLASSIC_V7_TIMESTAMP_OFFSET		8
+#define PEEKCLASSIC_V7_PKT_SIZE			16
 
-typedef struct etherpeek_encap_lookup {
+typedef struct peekclassic_encap_lookup {
 	guint16 protoNum;
 	int     encap;
-} etherpeek_encap_lookup_t;
+} peekclassic_encap_lookup_t;
 
 static const unsigned int mac2unix = 2082844800u;
-static const etherpeek_encap_lookup_t etherpeek_encap[] = {
+static const peekclassic_encap_lookup_t peekclassic_encap[] = {
 	{ 1400, WTAP_ENCAP_ETHERNET }
 };
-#define NUM_ETHERPEEK_ENCAPS \
-	(sizeof (etherpeek_encap) / sizeof (etherpeek_encap[0]))
+#define NUM_PEEKCLASSIC_ENCAPS \
+	(sizeof (peekclassic_encap) / sizeof (peekclassic_encap[0]))
 
 typedef struct {
 	struct timeval reference_time;
-} etherpeek_t;
+} peekclassic_t;
 
-static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
+static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
+static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
-static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
+static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
+static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 
-int etherpeek_open(wtap *wth, int *err, gchar **err_info)
+int
+peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
-	etherpeek_header_t ep_hdr;
+	peekclassic_header_t ep_hdr;
 	struct timeval reference_time;
 	int file_encap;
-	etherpeek_t *etherpeek;
+	peekclassic_t *peekclassic;
 
-	/* EtherPeek files do not start with a magic value large enough
+	/* Peek classic files do not start with a magic value large enough
 	 * to be unique; hence we use the following algorithm to determine
 	 * the type of an unknown file:
 	 *  - populate the master header and reject file if there is no match
@@ -162,7 +169,7 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 	 *      is zero, and check some other fields; this isn't perfect,
 	 *	and we may have to add more checks at some point.
 	 */
-	g_assert(sizeof(ep_hdr.master) == ETHERPEEK_MASTER_HDR_SIZE);
+	g_assert(sizeof(ep_hdr.master) == PEEKCLASSIC_MASTER_HDR_SIZE);
 	wtap_file_read_unknown_bytes(
 		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err, err_info);
 
@@ -188,7 +195,7 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 	case 7:
 		/* get the secondary header */
 		g_assert(sizeof(ep_hdr.secondary.v567) ==
-		        ETHERPEEK_V567_HDR_SIZE);
+		        PEEKCLASSIC_V567_HDR_SIZE);
 		wtap_file_read_unknown_bytes(
 			&ep_hdr.secondary.v567,
 			sizeof(ep_hdr.secondary.v567), wth->fh, err, err_info);
@@ -202,11 +209,11 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 
 		/*
 		 * Check the mediaType and physMedium fields.
-		 * We assume it's not an EtherPeek/TokenPeek/AiroPeek
-		 * file if these aren't values we know, rather than
-		 * reporting them as invalid *Peek files, as, given
-		 * the lack of a magic number, we need all the checks
-		 * we can get.
+		 * We assume it's not a Peek classic file if
+		 * these aren't values we know, rather than
+		 * reporting them as invalid Peek classic files,
+		 * as, given the lack of a magic number, we need
+		 * all the checks we can get.
 		 */
 		ep_hdr.secondary.v567.mediaType =
 		    g_ntohl(ep_hdr.secondary.v567.mediaType);
@@ -302,33 +309,33 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/*
-	 * This is an EtherPeek (or TokenPeek or AiroPeek?) file.
+	 * This is a Peek classic file.
 	 *
 	 * At this point we have recognised the file type and have populated
 	 * the whole ep_hdr structure in host byte order.
 	 */
-	etherpeek = (etherpeek_t *)g_malloc(sizeof(etherpeek_t));
-	wth->priv = (void *)etherpeek;
-	etherpeek->reference_time = reference_time;
+	peekclassic = (peekclassic_t *)g_malloc(sizeof(peekclassic_t));
+	wth->priv = (void *)peekclassic;
+	peekclassic->reference_time = reference_time;
 	switch (ep_hdr.master.version) {
 
 	case 5:
 	case 6:
-		wth->file_type = WTAP_FILE_ETHERPEEK_V56;
+		wth->file_type = WTAP_FILE_PEEKCLASSIC_V56;
 		/*
 		 * XXX - can we get the file encapsulation from the
 		 * header in the same way we do for V7 files?
 		 */
 		wth->file_encap = WTAP_ENCAP_PER_PACKET;
-		wth->subtype_read = etherpeek_read_v56;
-		wth->subtype_seek_read = etherpeek_seek_read_v56;
+		wth->subtype_read = peekclassic_read_v56;
+		wth->subtype_seek_read = peekclassic_seek_read_v56;
 		break;
 
 	case 7:
-		wth->file_type = WTAP_FILE_ETHERPEEK_V7;
+		wth->file_type = WTAP_FILE_PEEKCLASSIC_V7;
 		wth->file_encap = file_encap;
-		wth->subtype_read = etherpeek_read_v7;
-		wth->subtype_seek_read = etherpeek_seek_read_v7;
+		wth->subtype_read = peekclassic_read_v7;
+		wth->subtype_seek_read = peekclassic_seek_read_v7;
 		break;
 
 	default:
@@ -342,10 +349,10 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
-static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean
+peekclassic_read_v7(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	guint8 ep_pkt[ETHERPEEK_V7_PKT_SIZE];
+	guint8 ep_pkt[PEEKCLASSIC_V7_PKT_SIZE];
 #if 0
 	guint16 protoNum;
 #endif
@@ -366,15 +373,15 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 
 	/* Extract the fields from the packet */
 #if 0
-	protoNum = pntohs(&ep_pkt[ETHERPEEK_V7_PROTONUM_OFFSET]);
+	protoNum = pntohs(&ep_pkt[PEEKCLASSIC_V7_PROTONUM_OFFSET]);
 #endif
-	length = pntohs(&ep_pkt[ETHERPEEK_V7_LENGTH_OFFSET]);
-	sliceLength = pntohs(&ep_pkt[ETHERPEEK_V7_SLICE_LENGTH_OFFSET]);
+	length = pntohs(&ep_pkt[PEEKCLASSIC_V7_LENGTH_OFFSET]);
+	sliceLength = pntohs(&ep_pkt[PEEKCLASSIC_V7_SLICE_LENGTH_OFFSET]);
 #if 0
-	flags = ep_pkt[ETHERPEEK_V7_FLAGS_OFFSET];
+	flags = ep_pkt[PEEKCLASSIC_V7_FLAGS_OFFSET];
 #endif
-	status = ep_pkt[ETHERPEEK_V7_STATUS_OFFSET];
-	timestamp = pntohll(&ep_pkt[ETHERPEEK_V7_TIMESTAMP_OFFSET]);
+	status = ep_pkt[PEEKCLASSIC_V7_STATUS_OFFSET];
+	timestamp = pntohll(&ep_pkt[PEEKCLASSIC_V7_TIMESTAMP_OFFSET]);
 
 	/* force sliceLength to be the actual length of the packet */
 	if (0 == sliceLength) {
@@ -433,11 +440,11 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
+peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-	guint8 ep_pkt[ETHERPEEK_V7_PKT_SIZE];
+	guint8 ep_pkt[PEEKCLASSIC_V7_PKT_SIZE];
 	guint8  status;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -446,7 +453,7 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 	/* Read the packet header. */
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->random_fh,
 	    err, err_info);
-	status = ep_pkt[ETHERPEEK_V7_STATUS_OFFSET];
+	status = ep_pkt[PEEKCLASSIC_V7_STATUS_OFFSET];
 
 	switch (wth->file_encap) {
 
@@ -471,11 +478,11 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 	return TRUE;
 }
 
-static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean
+peekclassic_read_v56(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	etherpeek_t *etherpeek = (etherpeek_t *)wth->priv;
-	guint8 ep_pkt[ETHERPEEK_V56_PKT_SIZE];
+	peekclassic_t *peekclassic = (peekclassic_t *)wth->priv;
+	guint8 ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
 	guint16 length;
 	guint16 sliceLength;
 #if 0
@@ -507,19 +514,19 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
 	    err_info);
 
 	/* Extract the fields from the packet */
-	length = pntohs(&ep_pkt[ETHERPEEK_V56_LENGTH_OFFSET]);
-	sliceLength = pntohs(&ep_pkt[ETHERPEEK_V56_SLICE_LENGTH_OFFSET]);
+	length = pntohs(&ep_pkt[PEEKCLASSIC_V56_LENGTH_OFFSET]);
+	sliceLength = pntohs(&ep_pkt[PEEKCLASSIC_V56_SLICE_LENGTH_OFFSET]);
 #if 0
-	flags = ep_pkt[ETHERPEEK_V56_FLAGS_OFFSET];
-	status = ep_pkt[ETHERPEEK_V56_STATUS_OFFSET];
+	flags = ep_pkt[PEEKCLASSIC_V56_FLAGS_OFFSET];
+	status = ep_pkt[PEEKCLASSIC_V56_STATUS_OFFSET];
 #endif
-	timestamp = pntohl(&ep_pkt[ETHERPEEK_V56_TIMESTAMP_OFFSET]);
+	timestamp = pntohl(&ep_pkt[PEEKCLASSIC_V56_TIMESTAMP_OFFSET]);
 #if 0
-	destNum = pntohs(&ep_pkt[ETHERPEEK_V56_DESTNUM_OFFSET]);
-	srcNum = pntohs(&ep_pkt[ETHERPEEK_V56_SRCNUM_OFFSET]);
+	destNum = pntohs(&ep_pkt[PEEKCLASSIC_V56_DESTNUM_OFFSET]);
+	srcNum = pntohs(&ep_pkt[PEEKCLASSIC_V56_SRCNUM_OFFSET]);
 #endif
-	protoNum = pntohs(&ep_pkt[ETHERPEEK_V56_PROTONUM_OFFSET]);
-	memcpy(protoStr, &ep_pkt[ETHERPEEK_V56_PROTOSTR_OFFSET],
+	protoNum = pntohs(&ep_pkt[PEEKCLASSIC_V56_PROTONUM_OFFSET]);
+	memcpy(protoStr, &ep_pkt[PEEKCLASSIC_V56_PROTOSTR_OFFSET],
 	    sizeof protoStr);
 
 	/*
@@ -541,14 +548,14 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.len        = length;
 	wth->phdr.caplen     = sliceLength;
 	/* timestamp is in milliseconds since reference_time */
-	wth->phdr.ts.secs  = etherpeek->reference_time.tv_sec
+	wth->phdr.ts.secs  = peekclassic->reference_time.tv_sec
 	    + (timestamp / 1000);
 	wth->phdr.ts.nsecs = 1000 * (timestamp % 1000) * 1000;
 
 	wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
-	for (i=0; i<NUM_ETHERPEEK_ENCAPS; i++) {
-		if (etherpeek_encap[i].protoNum == protoNum) {
-			wth->phdr.pkt_encap = etherpeek_encap[i].encap;
+	for (i=0; i<NUM_PEEKCLASSIC_ENCAPS; i++) {
+		if (peekclassic_encap[i].protoNum == protoNum) {
+			wth->phdr.pkt_encap = peekclassic_encap[i].encap;
 		}
 	}
 
@@ -563,11 +570,11 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean
-etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
+peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-	guint8 ep_pkt[ETHERPEEK_V56_PKT_SIZE];
+	guint8 ep_pkt[PEEKCLASSIC_V56_PKT_SIZE];
 	int pkt_encap;
 	guint16 protoNum;
 	unsigned int i;
@@ -578,11 +585,11 @@ etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->random_fh,
 	    err, err_info);
 
-	protoNum = pntohs(&ep_pkt[ETHERPEEK_V56_PROTONUM_OFFSET]);
+	protoNum = pntohs(&ep_pkt[PEEKCLASSIC_V56_PROTONUM_OFFSET]);
 	pkt_encap = WTAP_ENCAP_UNKNOWN;
-	for (i=0; i<NUM_ETHERPEEK_ENCAPS; i++) {
-		if (etherpeek_encap[i].protoNum == protoNum) {
-			pkt_encap = etherpeek_encap[i].encap;
+	for (i=0; i<NUM_PEEKCLASSIC_ENCAPS; i++) {
+		if (peekclassic_encap[i].protoNum == protoNum) {
+			pkt_encap = peekclassic_encap[i].encap;
 		}
 	}
 

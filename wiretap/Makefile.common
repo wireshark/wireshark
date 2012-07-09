@@ -31,7 +31,6 @@
 NONGENERATED_C_FILES = \
 	5views.c		\
 	aethra.c		\
-	airopeek9.c		\
 	ascendtext.c		\
 	atm.c			\
 	ber.c			\
@@ -45,7 +44,6 @@ NONGENERATED_C_FILES = \
 	dbs-etherwatch.c	\
 	dct3trace.c		\
 	erf.c			\
-	etherpeek.c             \
 	eyesdn.c		\
 	file_access.c		\
 	file_wrappers.c		\
@@ -70,6 +68,8 @@ NONGENERATED_C_FILES = \
 	packetlogger.c		\
 	pcap-common.c		\
 	pcapng.c		\
+	peekclassic.c           \
+	peektagged.c		\
 	pppdump.c		\
 	radcom.c		\
 	snoop.c			\
@@ -84,7 +84,6 @@ NONGENERATED_C_FILES = \
 NONGENERATED_HEADER_FILES = \
 	5views.h		\
 	aethra.h		\
-	airopeek9.h		\
 	ascendtext.h		\
 	ascend-int.h		\
 	atm.h			\
@@ -99,7 +98,6 @@ NONGENERATED_HEADER_FILES = \
 	dbs-etherwatch.h	\
 	dct3trace.h		\
 	erf.h			\
-	etherpeek.h             \
 	eyesdn.h		\
 	file_wrappers.h		\
 	hcidump.h		\
@@ -125,6 +123,8 @@ NONGENERATED_HEADER_FILES = \
 	pcap-common.h		\
 	pcap-encap.h		\
 	pcapng.h		\
+	peekclassic.h           \
+	peektagged.h		\
 	pppdump.h		\
 	radcom.h		\
 	snoop.h			\

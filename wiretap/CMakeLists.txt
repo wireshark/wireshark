@@ -25,7 +25,6 @@
 set(WIRETAP_FILES
 	5views.c
 	aethra.c
-	airopeek9.c
 	ascendtext.c
 	atm.c
 	ber.c
@@ -39,7 +38,6 @@ set(WIRETAP_FILES
 	dbs-etherwatch.c
 	dct3trace.c
 	erf.c
-	etherpeek.c
 	eyesdn.c
 	file_access.c
 	file_wrappers.c
@@ -64,6 +62,8 @@ set(WIRETAP_FILES
 	packetlogger.c
 	pcap-common.c
 	pcapng.c
+	peekclassic.c
+	peektagged.c
 	pppdump.c
 	radcom.c
 	snoop.c

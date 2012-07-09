@@ -1,4 +1,4 @@
-/* airopeek9.h
+/* peekclassic.h
  *
  * $Id$
  *
@@ -21,10 +21,12 @@
  *
  */
 
-#ifndef __W_AIROPEEK9_H__
-#define __W_AIROPEEK9_H__
-#include <glib.h>
+#ifndef __W_PEEKCLASSIC_H__
+#define __W_PEEKCLASSIC_H__
 
-int airopeek9_open(wtap *wth, int *err, gchar **err_info);
+#include <glib.h>
+#include <wtap.h>
+
+int peekclassic_open(wtap *wth, int *err, gchar **err_info);
 
 #endif
