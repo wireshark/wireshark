@@ -449,12 +449,23 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 				}
 				break;
 			default:
-				/*
-				 * "Can't happen"; see the "check that the
-				 * type is compatible" check in
-				 * filter_callback().
-				 */
-				g_assert_not_reached();
+				if(graph->calc_type == CALC_TYPE_COUNT_FRAMES ||
+					graph->calc_type == CALC_TYPE_COUNT_FIELDS) {
+					/*
+					 * It's not an integeresque type, but
+					 * all we want to do is count it, so
+					 * that's all right.
+					 */
+					it->fields++;
+				}
+				else {
+					/*
+					 * "Can't happen"; see the "check that the
+					 * type is compatible" check in
+					 * filter_callback().
+					 */
+					g_assert_not_reached();
+				}
 				break;
 			}
 		}
@@ -483,23 +494,24 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		return it->bytes;
 	case COUNT_TYPE_BITS:
 		return (it->bytes * 8);
+	case COUNT_TYPE_ADVANCED:
+		switch(io->graphs[graph].calc_type){
+		case CALC_TYPE_COUNT_FRAMES:
+			return it->frames;
+		case CALC_TYPE_COUNT_FIELDS:
+			return it->fields;
+		default:
+			/* If it's COUNT_TYPE_ADVANCED but not one of the
+			 * generic ones we'll get it when we switch on the
+			 * adv_type below. */
+			break;
+		}
+		break;
 	}
 
 
 	adv_type=proto_registrar_get_ftype(io->graphs[graph].hf_index);
 	switch(adv_type){
-	case FT_NONE:
-		switch(io->graphs[graph].calc_type){
-		case CALC_TYPE_COUNT_FRAMES:
-			value=it->frames;
-			break;
-		case CALC_TYPE_COUNT_FIELDS:
-			value=it->fields;
-			break;
-		default:
-			break;
-		}
-		break;
 	case FT_UINT8:
 	case FT_UINT16:
 	case FT_UINT24:
@@ -513,12 +525,6 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		switch(io->graphs[graph].calc_type){
 		case CALC_TYPE_SUM:
 			value=it->int_tot;
-			break;
-		case CALC_TYPE_COUNT_FRAMES:
-			value=it->frames;
-			break;
-		case CALC_TYPE_COUNT_FIELDS:
-			value=it->fields;
 			break;
 		case CALC_TYPE_MAX:
 			value=it->int_max;
@@ -542,12 +548,6 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		case CALC_TYPE_SUM:
 			value=(guint64)it->float_tot;
 			break;
-		case CALC_TYPE_COUNT_FRAMES:
-			value=it->frames;
-			break;
-		case CALC_TYPE_COUNT_FIELDS:
-			value=it->fields;
-			break;
 		case CALC_TYPE_MAX:
 			value=(guint64)it->float_max;
 			break;
@@ -570,12 +570,6 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		case CALC_TYPE_SUM:
 			value=(guint64)it->double_tot;
 			break;
-		case CALC_TYPE_COUNT_FRAMES:
-			value=it->frames;
-			break;
-		case CALC_TYPE_COUNT_FIELDS:
-			value=it->fields;
-			break;
 		case CALC_TYPE_MAX:
 			value=(guint64)it->double_max;
 			break;
@@ -595,12 +589,6 @@ get_it_value(io_stat_t *io, int graph, int idx)
 		break;
 	case FT_RELATIVE_TIME:
 		switch(io->graphs[graph].calc_type){
-		case CALC_TYPE_COUNT_FRAMES:
-			value=it->frames;
-			break;
-		case CALC_TYPE_COUNT_FIELDS:
-			value=it->fields;
-			break;
 		case CALC_TYPE_MAX:
 			value=(guint64) (it->time_max.secs*1000000 + it->time_max.nsecs/1000);
 			break;
@@ -1545,10 +1533,17 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 			last_interval = io->last_interval;
 
 		/* Get the interval that was clicked */
-		interval = (guint32) (
-				      (last_interval / io->interval) -
-				      ((draw_width + io->left_x_border - event->x-io->pixels_per_tick / 2 - 1) / io->pixels_per_tick)
-				     );
+		if ((last_interval / io->interval) <
+				((draw_width + io->left_x_border - event->x -
+				  io->pixels_per_tick / 2 - 1) / io->pixels_per_tick)) {
+			interval = 0;
+		}
+		else {
+			interval = (guint32) (
+					(last_interval / io->interval) -
+					((draw_width + io->left_x_border - event->x -
+					  io->pixels_per_tick / 2 - 1) / io->pixels_per_tick));
+		}
 
 		/* Determine the lowest or highest frame number depending on whether button 1 or 3 was clicked,
 		 *  respectively, among the up to 5 currently displayed graphs. */
