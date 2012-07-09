@@ -2928,7 +2928,8 @@ static void local_hide_cb(GtkCellRendererToggle *cell _U_,
                           gchar *path_str,
                           gpointer data _U_)
 {
-  gboolean hide;
+  gboolean hide, hide_enabled = TRUE;
+  gchar *name;
   GtkTreeModel  *model;
   GtkTreeIter    iter;
   GtkTreePath   *path = gtk_tree_path_new_from_string (path_str);
@@ -2936,12 +2937,31 @@ static void local_hide_cb(GtkCellRendererToggle *cell _U_,
 
   model = gtk_tree_view_get_model(local_l);
   gtk_tree_model_get_iter (model, &iter, path);
-  gtk_tree_model_get (model, &iter, 1, &hide, -1);
+  gtk_tree_model_get (model, &iter, 0, &name, 1, &hide, -1);
 
-  if (hide) {
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, FALSE, -1);
+  /* See if this is the currently selected capturing device */
+  if (prefs.capture_device != NULL) {
+     guint i;
+     interface_t device;
+     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if ((strcmp(device.display_name, prefs.capture_device) == 0) &&
+            (strcmp(device.name, name) == 0)) {
+               /* Don't allow current interface to be hidden */
+               hide_enabled = FALSE;
+               break;
+        }
+     }
+  }
+
+  if (hide_enabled) {
+     if (hide) {
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, FALSE, -1);
+      } else {
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, TRUE, -1);
+      }
   } else {
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, TRUE, -1);
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Default interface cannot be hidden");
   }
 }
 

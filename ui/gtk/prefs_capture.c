@@ -42,6 +42,7 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/iface_lists.h"
+#include "ui/gtk/capture_globals.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/stock_icons.h"
@@ -66,7 +67,7 @@
 #define IFOPTS_IF_NOSEL -1
 
 /* interface options dialog */
-static GtkWidget *cur_list, *if_dev_lb, *if_name_lb, *if_linktype_lb, *if_linktype_cb, *if_descr_te, *if_hide_cb;
+static GtkWidget *cur_list, *if_dev_lb, *if_name_lb, *if_linktype_lb, *if_linktype_cb, *if_descr_te, *if_hide_cb, *if_default_if_lb;
 #ifdef HAVE_PCAP_CREATE
 static GtkWidget *if_monitor_lb, *if_monitor_cb;
 #endif
@@ -560,7 +561,11 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 			cur_list);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_cb, 1, 2, row, row+1);
 	gtk_widget_show(if_hide_cb);
-        row++;
+
+	if_default_if_lb = gtk_label_new("(Default interface cannot be hidden)");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_default_if_lb, 1, 3, row, row+1);
+	gtk_misc_set_alignment(GTK_MISC(if_default_if_lb), 0.15f, 0.5f);
+	row++;
 
 	/* button row: OK and Cancel buttons */
 	bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
@@ -693,7 +698,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 #ifdef HAVE_PCAP_CREATE
 	gboolean            monitor_mode;
 #endif
-	gboolean            hide;
+	gboolean            hide, hide_enabled = TRUE;
 	if_capabilities_t  *caps;
 	gint                selected = 0;
 
@@ -773,8 +778,29 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 	/* display the interface description from current interfaces selection */
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), comment);
 
+	/* See if this is the currently selected capturing device */
+	if (prefs.capture_device != NULL) {
+		guint i;
+		interface_t device;
+		for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+			device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+			if ((strcmp(device.display_name, prefs.capture_device) == 0) &&
+				(strcmp(device.name, if_name) == 0)) {
+				/* Don't allow current interface to be hidden */
+				hide_enabled = FALSE;
+				break;
+			}
+		}
+	}
+
 	/* display the "hide interface" button state from current interfaces selection */
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), hide);
+	gtk_widget_set_sensitive(if_hide_cb, hide_enabled);
+	if (hide_enabled) {
+		gtk_widget_hide(if_default_if_lb);
+	} else {
+		gtk_widget_show(if_default_if_lb);
+	}
 
 	interfaces_info_nochange = FALSE;
 
