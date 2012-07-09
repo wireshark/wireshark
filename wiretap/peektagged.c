@@ -219,18 +219,18 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
      */
     ret = wtap_file_read_pattern (wth, "<FileVersion>", err, err_info);
     if (ret != 1) {
-	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
+	/* 0 means EOF, which means "not a valid Peek tagged file";
 	   -1 means error, and "err" has been set. */
 	return ret;
     }
     ret = wtap_file_read_number (wth, &fileVersion, err, err_info);
     if (ret != 1) {
-	/* 0 means EOF, which means "not a valid AiroPeek V9 file";
+	/* 0 means EOF, which means "not a valid Peek tagged file";
 	   -1 means error, and "err" has been set. */
 	return ret;
     }
 
-    /* If we got this far, we assume it's an AiroPeek V9 file. */
+    /* If we got this far, we assume it's a Peek tagged file. */
     if (fileVersion != 9) {
 	/* We only support version 9. */
 	*err = WTAP_ERR_UNSUPPORTED;
@@ -305,7 +305,7 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
 	return 0;
 
     /*
-     * This is an EtherPeek or AiroPeek V9 file.
+     * This is an Peek tagged file.
      */
     file_encap = peektagged_encap[mediaSubType];
 
