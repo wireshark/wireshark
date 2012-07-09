@@ -239,7 +239,7 @@ peekclassic_open(wtap *wth, int *err, gchar **err_info)
 
 			default:
 				/*
-				 * Assume this isn't a *Peek file.
+				 * Assume this isn't a Peek classic file.
 				 */
 				return 0;
 			}
@@ -259,7 +259,7 @@ peekclassic_open(wtap *wth, int *err, gchar **err_info)
 
 			default:
 				/*
-				 * Assume this isn't a *Peek file.
+				 * Assume this isn't a Peek classic file.
 				 */
 				return 0;
 			}
@@ -267,15 +267,15 @@ peekclassic_open(wtap *wth, int *err, gchar **err_info)
 
 		default:
 			/*
-			 * Assume this isn't a *Peek file.
+			 * Assume this isn't a Peek classic file.
 			 */
 			return 0;
 		}
 
 
 		/*
-		 * Assume this is a V5, V6 or V7 *Peek file, and byte
-		 * swap the rest of the fields in the secondary header.
+		 * Assume this is a V5, V6 or V7 Peek classic file, and
+		 * byte swap the rest of the fields in the secondary header.
 		 *
 		 * XXX - we could check the file length if the file were
 		 * uncompressed, but it might be compressed.
@@ -303,7 +303,7 @@ peekclassic_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		/*
-		 * Assume this isn't a *Peek file.
+		 * Assume this isn't a Peek classic file.
 		 */
 		return 0;
 	}
