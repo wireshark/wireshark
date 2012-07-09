@@ -2978,172 +2978,165 @@ static const string_string r3_snmortisenames [] =
 /*
  *  Mapping table so dissect_r3_cmd_setconfig() knows what the configuration item type is
  */
-typedef struct
+static configType_e configMap [] =
 {
-  configItem_e configItem;
-  configType_e configType;
-}
-configMap_t;
-
-static configMap_t configMap [] =
-{
-  { CONFIGITEM_SERIAL_NUMBER,               CONFIGTYPE_STRING },
-  { CONFIGITEM_CRYPT_KEY,                   CONFIGTYPE_STRING },
-  { CONFIGITEM_HARDWARE_OPTIONS_MFG,        CONFIGTYPE_16 },
-  { CONFIGITEM_HARDWARE_OPTIONS,            CONFIGTYPE_16 },
-  { CONFIGITEM_NVRAM_CHANGES,               CONFIGTYPE_16 },
-  { CONFIGITEM_NVRAMDIRTY,                  CONFIGTYPE_BOOL },
-  { CONFIGITEM_NVRAM_WV,                    CONFIGTYPE_BOOL },
-  { CONFIGITEM_ENABLE_WDT,                  CONFIGTYPE_BOOL },
-  { CONFIGITEM_EARLY_ACK,                   CONFIGTYPE_BOOL },
-  { CONFIGITEM_CONSOLE_AES_ONLY,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_RADIO_AES_ONLY,              CONFIGTYPE_BOOL },
-  { CONFIGITEM_NDRLE,                       CONFIGTYPE_BOOL },
-  { CONFIGITEM_SOMF,                        CONFIGTYPE_BOOL },
-  { CONFIGITEM_NOGAF,                       CONFIGTYPE_BOOL },
-  { CONFIGITEM_CARD_READER_POWER,           CONFIGTYPE_BOOL },
-  { CONFIGITEM_PROX_ENABLE,                 CONFIGTYPE_BOOL },
-  { CONFIGITEM_CKSUMCONFIG,                 CONFIGTYPE_BOOL },
-  { CONFIGITEM_DAILY_BATTERY_CHECK,         CONFIGTYPE_BOOL },
-  { CONFIGITEM_DAILY_BATTERY_CHECK_HOUR,    CONFIGTYPE_8 },
-  { CONFIGITEM_BATTERY_LOW,                 CONFIGTYPE_BOOL },
-  { CONFIGITEM_LRU_HEAD,                    CONFIGTYPE_16 },
-  { CONFIGITEM_LRU_TAIL,                    CONFIGTYPE_16 },
-  { CONFIGITEM_RTC_CALIBRATION,             CONFIGTYPE_8 },
-  { CONFIGITEM_ACVREQUESTER,                CONFIGTYPE_8 },
-  { CONFIGITEM_LOCAL_LED,                   CONFIGTYPE_8 },
-  { CONFIGITEM_ERRCNT_XORLEN,               CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_CRC,                  CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_NOTSIGIL,             CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_TIMEOUT,              CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_TOOLONG,              CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_TOOSHORT,             CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_HITDEFAULT,           CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_OVERRUN,              CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_UARTFE,               CONFIGTYPE_16 },
-  { CONFIGITEM_ERRCNT_UARTOE,               CONFIGTYPE_16 },
-  { CONFIGITEM_DST_SET,                     CONFIGTYPE_BOOL },
-  { CONFIGITEM_DST_MODE,                    CONFIGTYPE_8 },
-  { CONFIGITEM_DST_FORWARD_MONTH,           CONFIGTYPE_8 },
-  { CONFIGITEM_DST_FORWARD_DOM,             CONFIGTYPE_8 },
-  { CONFIGITEM_DST_FORWARD_OOD,             CONFIGTYPE_8 },
-  { CONFIGITEM_DST_FORWARD_DOW,             CONFIGTYPE_8 },
-  { CONFIGITEM_DST_FORWARD_HOUR,            CONFIGTYPE_8 },
-  { CONFIGITEM_DST_FORWARD_MINUTE,          CONFIGTYPE_8 },
-  { CONFIGITEM_DST_FORWARD_ADJUST,          CONFIGTYPE_8 },
-  { CONFIGITEM_DST_BACK_MONTH,              CONFIGTYPE_8 },
-  { CONFIGITEM_DST_BACK_DOM,                CONFIGTYPE_8 },
-  { CONFIGITEM_DST_BACK_OOD,                CONFIGTYPE_8 },
-  { CONFIGITEM_DST_BACK_DOW,                CONFIGTYPE_8 },
-  { CONFIGITEM_DST_BACK_HOUR,               CONFIGTYPE_8 },
-  { CONFIGITEM_DST_BACK_MINUTE,             CONFIGTYPE_8 },
-  { CONFIGITEM_DST_BACK_ADJUST,             CONFIGTYPE_8 },
-  { CONFIGITEM_EVENTLOG_ZEROMEM,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_EVENTLOG_BEGIN,              CONFIGTYPE_16 },
-  { CONFIGITEM_EVENTLOG_RECORD,             CONFIGTYPE_16 },
-  { CONFIGITEM_EVENTLOG_ENTRIES,            CONFIGTYPE_16 },
-  { CONFIGITEM_EVENTLOG_WARNDEVICE,         CONFIGTYPE_8 },
-  { CONFIGITEM_EVENTLOG_WARNEVERY,          CONFIGTYPE_16 },
-  { CONFIGITEM_EVENTLOG_RMTDEVICE,          CONFIGTYPE_8 },
-  { CONFIGITEM_DECLINEDLOG_ZEROMEM,         CONFIGTYPE_BOOL },
-  { CONFIGITEM_DECLINEDLOG_BEGIN,           CONFIGTYPE_16 },
-  { CONFIGITEM_DECLINEDLOG_RECORD,          CONFIGTYPE_16 },
-  { CONFIGITEM_DECLINEDLOG_ENTRIES,         CONFIGTYPE_16 },
-  { CONFIGITEM_DECLINEDLOG_WARNDEVICE,      CONFIGTYPE_8 },
-  { CONFIGITEM_DECLINEDLOG_WARNEVERY,       CONFIGTYPE_16 },
-  { CONFIGITEM_DECLINEDLOG_RMTDEVICE,       CONFIGTYPE_8 },
-  { CONFIGITEM_ALARMLOG_ZEROMEM,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_ALARMLOG_BEGIN,              CONFIGTYPE_16 },
-  { CONFIGITEM_ALARMLOG_RECORD,             CONFIGTYPE_16 },
-  { CONFIGITEM_ALARMLOG_ENTRIES,            CONFIGTYPE_16 },
-  { CONFIGITEM_ALARMLOG_WARNDEVICE,         CONFIGTYPE_8 },
-  { CONFIGITEM_ALARMLOG_WARNEVERY,          CONFIGTYPE_16 },
-  { CONFIGITEM_ALARMLOG_RMTDEVICE,          CONFIGTYPE_8 },
-  { CONFIGITEM_VISIBLE_FEEDBACK,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_AUDIBLE_FEEDBACK,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_VISIBLE_INDICATORS,          CONFIGTYPE_BOOL },
-  { CONFIGITEM_AUDIBLE_INDICATORS,          CONFIGTYPE_BOOL },
-  { CONFIGITEM_2NDPINDURATION,              CONFIGTYPE_8 },
-  { CONFIGITEM_LOCKOUT_ATTEMPTS,            CONFIGTYPE_8 },
-  { CONFIGITEM_LOCKOUT_DURATION,            CONFIGTYPE_8 },
-  { CONFIGITEM_KEYPAD_INACTIVITY,           CONFIGTYPE_8 },
-  { CONFIGITEM_ICIDLE_DURATION,             CONFIGTYPE_8 },
-  { CONFIGITEM_WRITE_DECLINED_LOG,          CONFIGTYPE_BOOL },
-  { CONFIGITEM_LOW_BATTERY_INDICATOR,       CONFIGTYPE_BOOL },
-  { CONFIGITEM_PANIC_MODE,                  CONFIGTYPE_BOOL },
-  { CONFIGITEM_TIMEZONE_ENABLE,             CONFIGTYPE_BOOL },
-  { CONFIGITEM_EXCEPTION_ENABLE,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_AUTOUNLOCK_ENABLE,           CONFIGTYPE_BOOL },
-  { CONFIGITEM_LOCK_PRIORITY_EMERGENCY,     CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_SUPERVISOR,    CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_USER,          CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_PASSAGE,       CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_PANIC,         CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_LOCKOUT,       CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_RELOCK,        CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_BOLTTHROWN,    CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_CONFIGCHANGE,  CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_PRIORITY_REMOTE,        CONFIGTYPE_8 },
-  { CONFIGITEM_LOCK_TYPE,                   CONFIGTYPE_8 },
-  { CONFIGITEM_DOUBLE_PULSE,                CONFIGTYPE_BOOL },
-  { CONFIGITEM_DOUBLE_DELAY,                CONFIGTYPE_8 },
-  { CONFIGITEM_MOTOR_DURATION,              CONFIGTYPE_8 },
-  { CONFIGITEM_MORTISE_TYPE,                CONFIGTYPE_8 },
-  { CONFIGITEM_UNLOCK_TIME,                 CONFIGTYPE_8 },
-  { CONFIGITEM_EXT_UNLOCK_TIME,             CONFIGTYPE_8 },
-  { CONFIGITEM_DOOR_AJAR_TIME,              CONFIGTYPE_8 },
-  { CONFIGITEM_SESSION_TIMEOUT,             CONFIGTYPE_8 },
-  { CONFIGITEM_RETRY_ON_TIMEOUT,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_UNSOLICITED_ENCRYPT,         CONFIGTYPE_8 },
-  { CONFIGITEM_RMT_AUTH_TIMEOUT,            CONFIGTYPE_8 },
-  { CONFIGITEM_RMT_AUTH_DEVICE,             CONFIGTYPE_8 },
-  { CONFIGITEM_ALARM_DEVICE,                CONFIGTYPE_8 },
-  { CONFIGITEM_NOTIFY_DEVICE,               CONFIGTYPE_8 },
-  { CONFIGITEM_COMMUSER_DEVICE,             CONFIGTYPE_8 },
-  { CONFIGITEM_SCHEDULER_DEVICE,            CONFIGTYPE_8 },
-  { CONFIGITEM_SCHEDULER_TYPE,              CONFIGTYPE_8 },
-  { CONFIGITEM_SCHEDULER_AWAKE,             CONFIGTYPE_8 },
-  { CONFIGITEM_SCHEDULER_PERIOD,            CONFIGTYPE_16 },
-  { CONFIGITEM_SCHEDULER_HOD,               CONFIGTYPE_STRING },
-  { CONFIGITEM_SCHEDULER_DOW,               CONFIGTYPE_8 },
-  { CONFIGITEM_SCHEDULER_DOM,               CONFIGTYPE_32 },
-  { CONFIGITEM_SCHEDULER_HM1,               CONFIGTYPE_16 },
-  { CONFIGITEM_SCHEDULER_HM2,               CONFIGTYPE_16 },
-  { CONFIGITEM_SCHEDULER_HM3,               CONFIGTYPE_16 },
-  { CONFIGITEM_SCHEDULER_HM4,               CONFIGTYPE_16 },
-  { CONFIGITEM_RADIO_TYPE,                  CONFIGTYPE_8 },
-  { CONFIGITEM_RADIO_MODE,                  CONFIGTYPE_8 },
-  { CONFIGITEM_RADIO_TIMEOUT,               CONFIGTYPE_8 },
-  { CONFIGITEM_RADIO_ATTEMPTS,              CONFIGTYPE_8 },
-  { CONFIGITEM_RADIO_HOUSEKEEPING,          CONFIGTYPE_8 },
-  { CONFIGITEM_RADIO_LEAPUSERNAME,          CONFIGTYPE_STRING },
-  { CONFIGITEM_RADIO_LEAPPASSWORD,          CONFIGTYPE_STRING },
-  { CONFIGITEM_INHIBIT_VOLTAGE,             CONFIGTYPE_8 },
-  { CONFIGITEM_LOW_VOLTAGE,                 CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_1,                  CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_2,                  CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_3,                  CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_4,                  CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_5,                  CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_6,                  CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_7,                  CONFIGTYPE_8 },
-  { CONFIGITEM_PT_RANGE_8,                  CONFIGTYPE_8 },
-  { CONFIGITEM_MAGCARD_IFS,                 CONFIGTYPE_BOOL },
-  { CONFIGITEM_MAGCARD_FIELDS,              CONFIGTYPE_8 },
-  { CONFIGITEM_MAGCARD_OFFSET,              CONFIGTYPE_8 },
-  { CONFIGITEM_MAGCARD_DIGITS,              CONFIGTYPE_8 },
-  { CONFIGITEM_ALARMS,                      CONFIGTYPE_STRING },
-  { CONFIGITEM_FILTERS,                     CONFIGTYPE_STRING },
-  { CONFIGITEM_ALARMSTATE,                  CONFIGTYPE_8 },
-  { CONFIGITEM_DOORSTATE,                   CONFIGTYPE_8 },
-  { CONFIGITEM_DPACDEBUG,                   CONFIGTYPE_BOOL },
-  { CONFIGITEM_FAILOPENSECURE,              CONFIGTYPE_BOOL },
-  { CONFIGITEM_REPLACED_VOLTAGE,            CONFIGTYPE_8 },
-  { CONFIGITEM_RX_HELD_TIME,                CONFIGTYPE_8 },
-  { CONFIGITEM_PACKET_TIMEOUT,              CONFIGTYPE_8 },
-  { CONFIGITEM_EXTENDEDRESPONSE,            CONFIGTYPE_BOOL },
-  { CONFIGITEM_PASSAGEMODEINDICATOR,        CONFIGTYPE_BOOL },
-  { CONFIGITEM_PFMRETURNTIME,               CONFIGTYPE_8 }
+  /* CONFIGITEM_SERIAL_NUMBER */               CONFIGTYPE_STRING,
+  /* CONFIGITEM_CRYPT_KEY */                   CONFIGTYPE_STRING,
+  /* CONFIGITEM_HARDWARE_OPTIONS_MFG */        CONFIGTYPE_16,
+  /* CONFIGITEM_HARDWARE_OPTIONS */            CONFIGTYPE_16,
+  /* CONFIGITEM_NVRAM_CHANGES */               CONFIGTYPE_16,
+  /* CONFIGITEM_NVRAMDIRTY */                  CONFIGTYPE_BOOL,
+  /* CONFIGITEM_NVRAM_WV */                    CONFIGTYPE_BOOL,
+  /* CONFIGITEM_ENABLE_WDT */                  CONFIGTYPE_BOOL,
+  /* CONFIGITEM_EARLY_ACK */                   CONFIGTYPE_BOOL,
+  /* CONFIGITEM_CONSOLE_AES_ONLY */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_RADIO_AES_ONLY */              CONFIGTYPE_BOOL,
+  /* CONFIGITEM_NDRLE */                       CONFIGTYPE_BOOL,
+  /* CONFIGITEM_SOMF */                        CONFIGTYPE_BOOL,
+  /* CONFIGITEM_NOGAF */                       CONFIGTYPE_BOOL,
+  /* CONFIGITEM_CARD_READER_POWER */           CONFIGTYPE_BOOL,
+  /* CONFIGITEM_PROX_ENABLE */                 CONFIGTYPE_BOOL,
+  /* CONFIGITEM_CKSUMCONFIG */                 CONFIGTYPE_BOOL,
+  /* CONFIGITEM_DAILY_BATTERY_CHECK */         CONFIGTYPE_BOOL,
+  /* CONFIGITEM_DAILY_BATTERY_CHECK_HOUR */    CONFIGTYPE_8,
+  /* CONFIGITEM_BATTERY_LOW */                 CONFIGTYPE_BOOL,
+  /* CONFIGITEM_LRU_HEAD */                    CONFIGTYPE_16,
+  /* CONFIGITEM_LRU_TAIL */                    CONFIGTYPE_16,
+  /* CONFIGITEM_RTC_CALIBRATION */             CONFIGTYPE_8,
+  /* CONFIGITEM_ACVREQUESTER */                CONFIGTYPE_8,
+  /* CONFIGITEM_LOCAL_LED */                   CONFIGTYPE_8,
+  /* CONFIGITEM_ERRCNT_XORLEN */               CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_CRC */                  CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_NOTSIGIL */             CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_TIMEOUT */              CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_TOOLONG */              CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_TOOSHORT */             CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_HITDEFAULT */           CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_OVERRUN */              CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_UARTFE */               CONFIGTYPE_16,
+  /* CONFIGITEM_ERRCNT_UARTOE */               CONFIGTYPE_16,
+  /* CONFIGITEM_DST_SET */                     CONFIGTYPE_BOOL,
+  /* CONFIGITEM_DST_MODE */                    CONFIGTYPE_8,
+  /* CONFIGITEM_DST_FORWARD_MONTH */           CONFIGTYPE_8,
+  /* CONFIGITEM_DST_FORWARD_DOM */             CONFIGTYPE_8,
+  /* CONFIGITEM_DST_FORWARD_OOD */             CONFIGTYPE_8,
+  /* CONFIGITEM_DST_FORWARD_DOW */             CONFIGTYPE_8,
+  /* CONFIGITEM_DST_FORWARD_HOUR */            CONFIGTYPE_8,
+  /* CONFIGITEM_DST_FORWARD_MINUTE */          CONFIGTYPE_8,
+  /* CONFIGITEM_DST_FORWARD_ADJUST */          CONFIGTYPE_8,
+  /* CONFIGITEM_DST_BACK_MONTH */              CONFIGTYPE_8,
+  /* CONFIGITEM_DST_BACK_DOM */                CONFIGTYPE_8,
+  /* CONFIGITEM_DST_BACK_OOD */                CONFIGTYPE_8,
+  /* CONFIGITEM_DST_BACK_DOW */                CONFIGTYPE_8,
+  /* CONFIGITEM_DST_BACK_HOUR */               CONFIGTYPE_8,
+  /* CONFIGITEM_DST_BACK_MINUTE */             CONFIGTYPE_8,
+  /* CONFIGITEM_DST_BACK_ADJUST */             CONFIGTYPE_8,
+  /* CONFIGITEM_EVENTLOG_ZEROMEM */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_EVENTLOG_BEGIN */              CONFIGTYPE_16,
+  /* CONFIGITEM_EVENTLOG_RECORD */             CONFIGTYPE_16,
+  /* CONFIGITEM_EVENTLOG_ENTRIES */            CONFIGTYPE_16,
+  /* CONFIGITEM_EVENTLOG_WARNDEVICE */         CONFIGTYPE_8,
+  /* CONFIGITEM_EVENTLOG_WARNEVERY */          CONFIGTYPE_16,
+  /* CONFIGITEM_EVENTLOG_RMTDEVICE */          CONFIGTYPE_8,
+  /* CONFIGITEM_DECLINEDLOG_ZEROMEM */         CONFIGTYPE_BOOL,
+  /* CONFIGITEM_DECLINEDLOG_BEGIN */           CONFIGTYPE_16,
+  /* CONFIGITEM_DECLINEDLOG_RECORD */          CONFIGTYPE_16,
+  /* CONFIGITEM_DECLINEDLOG_ENTRIES */         CONFIGTYPE_16,
+  /* CONFIGITEM_DECLINEDLOG_WARNDEVICE */      CONFIGTYPE_8,
+  /* CONFIGITEM_DECLINEDLOG_WARNEVERY */       CONFIGTYPE_16,
+  /* CONFIGITEM_DECLINEDLOG_RMTDEVICE */       CONFIGTYPE_8,
+  /* CONFIGITEM_ALARMLOG_ZEROMEM */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_ALARMLOG_BEGIN */              CONFIGTYPE_16,
+  /* CONFIGITEM_ALARMLOG_RECORD */             CONFIGTYPE_16,
+  /* CONFIGITEM_ALARMLOG_ENTRIES */            CONFIGTYPE_16,
+  /* CONFIGITEM_ALARMLOG_WARNDEVICE */         CONFIGTYPE_8,
+  /* CONFIGITEM_ALARMLOG_WARNEVERY */          CONFIGTYPE_16,
+  /* CONFIGITEM_ALARMLOG_RMTDEVICE */          CONFIGTYPE_8,
+  /* CONFIGITEM_VISIBLE_FEEDBACK */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_AUDIBLE_FEEDBACK */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_VISIBLE_INDICATORS */          CONFIGTYPE_BOOL,
+  /* CONFIGITEM_AUDIBLE_INDICATORS */          CONFIGTYPE_BOOL,
+  /* CONFIGITEM_2NDPINDURATION */              CONFIGTYPE_8,
+  /* CONFIGITEM_LOCKOUT_ATTEMPTS */            CONFIGTYPE_8,
+  /* CONFIGITEM_LOCKOUT_DURATION */            CONFIGTYPE_8,
+  /* CONFIGITEM_KEYPAD_INACTIVITY */           CONFIGTYPE_8,
+  /* CONFIGITEM_ICIDLE_DURATION */             CONFIGTYPE_8,
+  /* CONFIGITEM_WRITE_DECLINED_LOG */          CONFIGTYPE_BOOL,
+  /* CONFIGITEM_LOW_BATTERY_INDICATOR */       CONFIGTYPE_BOOL,
+  /* CONFIGITEM_PANIC_MODE */                  CONFIGTYPE_BOOL,
+  /* CONFIGITEM_TIMEZONE_ENABLE */             CONFIGTYPE_BOOL,
+  /* CONFIGITEM_EXCEPTION_ENABLE */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_AUTOUNLOCK_ENABLE */           CONFIGTYPE_BOOL,
+  /* CONFIGITEM_LOCK_PRIORITY_EMERGENCY */     CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_SUPERVISOR */    CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_USER */          CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_PASSAGE */       CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_PANIC */         CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_LOCKOUT */       CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_RELOCK */        CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_BOLTTHROWN */    CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_CONFIGCHANGE */  CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_PRIORITY_REMOTE */        CONFIGTYPE_8,
+  /* CONFIGITEM_LOCK_TYPE */                   CONFIGTYPE_8,
+  /* CONFIGITEM_DOUBLE_PULSE */                CONFIGTYPE_BOOL,
+  /* CONFIGITEM_DOUBLE_DELAY */                CONFIGTYPE_8,
+  /* CONFIGITEM_MOTOR_DURATION */              CONFIGTYPE_8,
+  /* CONFIGITEM_MORTISE_TYPE */                CONFIGTYPE_8,
+  /* CONFIGITEM_UNLOCK_TIME */                 CONFIGTYPE_8,
+  /* CONFIGITEM_EXT_UNLOCK_TIME */             CONFIGTYPE_8,
+  /* CONFIGITEM_DOOR_AJAR_TIME */              CONFIGTYPE_8,
+  /* CONFIGITEM_SESSION_TIMEOUT */             CONFIGTYPE_8,
+  /* CONFIGITEM_RETRY_ON_TIMEOUT */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_UNSOLICITED_ENCRYPT */         CONFIGTYPE_8,
+  /* CONFIGITEM_RMT_AUTH_TIMEOUT */            CONFIGTYPE_8,
+  /* CONFIGITEM_RMT_AUTH_DEVICE */             CONFIGTYPE_8,
+  /* CONFIGITEM_ALARM_DEVICE */                CONFIGTYPE_8,
+  /* CONFIGITEM_NOTIFY_DEVICE */               CONFIGTYPE_8,
+  /* CONFIGITEM_COMMUSER_DEVICE */             CONFIGTYPE_8,
+  /* CONFIGITEM_SCHEDULER_DEVICE */            CONFIGTYPE_8,
+  /* CONFIGITEM_SCHEDULER_TYPE */              CONFIGTYPE_8,
+  /* CONFIGITEM_SCHEDULER_AWAKE */             CONFIGTYPE_8,
+  /* CONFIGITEM_SCHEDULER_PERIOD */            CONFIGTYPE_16,
+  /* CONFIGITEM_SCHEDULER_HOD */               CONFIGTYPE_STRING,
+  /* CONFIGITEM_SCHEDULER_DOW */               CONFIGTYPE_8,
+  /* CONFIGITEM_SCHEDULER_DOM */               CONFIGTYPE_32,
+  /* CONFIGITEM_SCHEDULER_HM1 */               CONFIGTYPE_16,
+  /* CONFIGITEM_SCHEDULER_HM2 */               CONFIGTYPE_16,
+  /* CONFIGITEM_SCHEDULER_HM3 */               CONFIGTYPE_16,
+  /* CONFIGITEM_SCHEDULER_HM4 */               CONFIGTYPE_16,
+  /* CONFIGITEM_RADIO_TYPE */                  CONFIGTYPE_8,
+  /* CONFIGITEM_RADIO_MODE */                  CONFIGTYPE_8,
+  /* CONFIGITEM_RADIO_TIMEOUT */               CONFIGTYPE_8,
+  /* CONFIGITEM_RADIO_ATTEMPTS */              CONFIGTYPE_8,
+  /* CONFIGITEM_RADIO_HOUSEKEEPING */          CONFIGTYPE_8,
+  /* CONFIGITEM_RADIO_LEAPUSERNAME */          CONFIGTYPE_STRING,
+  /* CONFIGITEM_RADIO_LEAPPASSWORD */          CONFIGTYPE_STRING,
+  /* CONFIGITEM_INHIBIT_VOLTAGE */             CONFIGTYPE_8,
+  /* CONFIGITEM_LOW_VOLTAGE */                 CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_1 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_2 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_3 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_4 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_5 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_6 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_7 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_PT_RANGE_8 */                  CONFIGTYPE_8,
+  /* CONFIGITEM_MAGCARD_IFS */                 CONFIGTYPE_BOOL,
+  /* CONFIGITEM_MAGCARD_FIELDS */              CONFIGTYPE_8,
+  /* CONFIGITEM_MAGCARD_OFFSET */              CONFIGTYPE_8,
+  /* CONFIGITEM_MAGCARD_DIGITS */              CONFIGTYPE_8,
+  /* CONFIGITEM_ALARMS */                      CONFIGTYPE_STRING,
+  /* CONFIGITEM_FILTERS */                     CONFIGTYPE_STRING,
+  /* CONFIGITEM_ALARMSTATE */                  CONFIGTYPE_8,
+  /* CONFIGITEM_DOORSTATE */                   CONFIGTYPE_8,
+  /* CONFIGITEM_DPACDEBUG */                   CONFIGTYPE_BOOL,
+  /* CONFIGITEM_FAILOPENSECURE */              CONFIGTYPE_BOOL,
+  /* CONFIGITEM_REPLACED_VOLTAGE */            CONFIGTYPE_8,
+  /* CONFIGITEM_RX_HELD_TIME */                CONFIGTYPE_8,
+  /* CONFIGITEM_PACKET_TIMEOUT */              CONFIGTYPE_8,
+  /* CONFIGITEM_EXTENDEDRESPONSE */            CONFIGTYPE_BOOL,
+  /* CONFIGITEM_PASSAGEMODEINDICATOR */        CONFIGTYPE_BOOL,
+  /* CONFIGITEM_PFMRETURNTIME */               CONFIGTYPE_8
 };
 
 /*
@@ -3826,42 +3819,6 @@ static hf_register_info hf [] =
   { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_TIMEZONE],         { "Timezone",           "r3.manageuser.timezone",         FT_UINT32,  BASE_HEX,     NULL, 0x0, NULL, HFILL }}
 };
 
-typedef struct commandDissectorParser_s
-{
-  cmdCommand_e command;
-  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
-}
-commandDissectorParser_t;
-
-typedef struct commandMfgDissectorParser_s
-{
-  cmdMfgCommand_e command;
-  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
-}
-commandMfgDissectorParser_t;
-
-typedef struct responseTypeDissectorParser_s
-{
-  responseType_e command;
-  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
-}
-responseTypeDissectorParser_t;
-
-typedef struct upstreamCommandDissectorParser_s
-{
-  upstreamCommand_e command;
-  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
-}
-upstreamCommandDissectorParser_t;
-
-typedef struct mfgFieldDissectorParser_s
-{
-  mfgField_e command;
-  void (*dissector) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree);
-}
-mfgFieldDissectorParser_t;
-
-
 /*
  *  Dissectors for each command
  */
@@ -3898,40 +3855,40 @@ static void dissect_r3_cmd_mfgcommand (tvbuff_t *tvb, guint32 start_offset, guin
 static void dissect_r3_cmd_nvrambackup (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_cmd_extendedresponse (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static commandDissectorParser_t r3command_dissect [] =
+static void (*r3command_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
 {
-  { CMD_RESPONSE,                  dissect_r3_cmd_response },
-  { CMD_HANDSHAKE,                 dissect_r3_cmd_handshake },
-  { CMD_KILLSESSION,               dissect_r3_cmd_killsession },
-  { CMD_QUERYSERIALNUMBER,         dissect_r3_cmd_queryserialnumber },
-  { CMD_QUERYVERSION,              dissect_r3_cmd_queryversion },
-  { CMD_SETDATETIME,               dissect_r3_cmd_setdatetime },
-  { CMD_QUERYDATETIME,             dissect_r3_cmd_querydatetime },
-  { CMD_SETCONFIG,                 dissect_r3_cmd_setconfig },
-  { CMD_GETCONFIG,                 dissect_r3_cmd_getconfig },
-  { CMD_MANAGEUSER,                dissect_r3_cmd_manageuser },
-  { CMD_DELETEUSERS,               dissect_r3_cmd_deleteusers },
-  { CMD_DEFINEEXCEPTION,           dissect_r3_cmd_defineexception },
-  { CMD_DEFINEEXCEPTIONGROUP,      dissect_r3_cmd_defineexceptiongroup },
-  { CMD_DEFINECALENDAR,            dissect_r3_cmd_definecalendar },
-  { CMD_DEFINETIMEZONE,            dissect_r3_cmd_definetimezone },
-  { CMD_RMTAUTHRETRY,              dissect_r3_cmd_rmtauthretry },
-  { CMD_FILTERS,                   dissect_r3_cmd_filters },
-  { CMD_ALARMCONFIGURE,            dissect_r3_cmd_alarmconfigure },
-  { CMD_EVENTLOGDUMP,              dissect_r3_cmd_eventlogdump },
-  { CMD_DECLINEDLOGDUMP,           dissect_r3_cmd_declinedlogdump },
-  { CMD_ALARMLOGDUMP,              dissect_r3_cmd_alarmlogdump },
-  { CMD_DOWNLOADFIRMWARE,          dissect_r3_cmd_downloadfirmware },
-  { CMD_DOWNLOADFIRMWARETIMEOUT,   dissect_r3_cmd_downloadfirmwaretimeout },
-  { CMD_POWERTABLESELECTION,       dissect_r3_cmd_powertableselection },
-  { CMD_CLEARNVRAM,                dissect_r3_cmd_clearnvram },
-  { CMD_DPAC,                      dissect_r3_cmd_dpac },
-  { CMD_SELFTEST,                  dissect_r3_cmd_selftest },
-  { CMD_RESET,                     dissect_r3_cmd_reset },
-  { CMD_LOGWRITE,                  dissect_r3_cmd_logwrite },
-  { CMD_MFGCOMMAND,                dissect_r3_cmd_mfgcommand },
-  { CMD_NVRAMBACKUP,               dissect_r3_cmd_nvrambackup },
-  { CMD_EXTENDEDRESPONSE,          dissect_r3_cmd_extendedresponse }
+  /* CMD_RESPONSE */                dissect_r3_cmd_response,
+  /* CMD_HANDSHAKE */               dissect_r3_cmd_handshake,
+  /* CMD_KILLSESSION */             dissect_r3_cmd_killsession,
+  /* CMD_QUERYSERIALNUMBER */       dissect_r3_cmd_queryserialnumber,
+  /* CMD_QUERYVERSION */            dissect_r3_cmd_queryversion,
+  /* CMD_SETDATETIME */             dissect_r3_cmd_setdatetime,
+  /* CMD_QUERYDATETIME */           dissect_r3_cmd_querydatetime,
+  /* CMD_SETCONFIG */               dissect_r3_cmd_setconfig,
+  /* CMD_GETCONFIG */               dissect_r3_cmd_getconfig,
+  /* CMD_MANAGEUSER */              dissect_r3_cmd_manageuser,
+  /* CMD_DELETEUSERS */             dissect_r3_cmd_deleteusers,
+  /* CMD_DEFINEEXCEPTION */         dissect_r3_cmd_defineexception,
+  /* CMD_DEFINEEXCEPTIONGROUP */    dissect_r3_cmd_defineexceptiongroup,
+  /* CMD_DEFINECALENDAR */          dissect_r3_cmd_definecalendar,
+  /* CMD_DEFINETIMEZONE */          dissect_r3_cmd_definetimezone,
+  /* CMD_RMTAUTHRETRY */            dissect_r3_cmd_rmtauthretry,
+  /* CMD_FILTERS */                 dissect_r3_cmd_filters,
+  /* CMD_ALARMCONFIGURE */          dissect_r3_cmd_alarmconfigure,
+  /* CMD_EVENTLOGDUMP */            dissect_r3_cmd_eventlogdump,
+  /* CMD_DECLINEDLOGDUMP */         dissect_r3_cmd_declinedlogdump,
+  /* CMD_ALARMLOGDUMP */            dissect_r3_cmd_alarmlogdump,
+  /* CMD_DOWNLOADFIRMWARE */        dissect_r3_cmd_downloadfirmware,
+  /* CMD_DOWNLOADFIRMWARETIMEOUT */ dissect_r3_cmd_downloadfirmwaretimeout,
+  /* CMD_POWERTABLESELECTION */     dissect_r3_cmd_powertableselection,
+  /* CMD_CLEARNVRAM */              dissect_r3_cmd_clearnvram,
+  /* CMD_DPAC */                    dissect_r3_cmd_dpac,
+  /* CMD_SELFTEST */                dissect_r3_cmd_selftest,
+  /* CMD_RESET */                   dissect_r3_cmd_reset,
+  /* CMD_LOGWRITE */                dissect_r3_cmd_logwrite,
+  /* CMD_MFGCOMMAND */              dissect_r3_cmd_mfgcommand,
+  /* CMD_NVRAMBACKUP */             dissect_r3_cmd_nvrambackup,
+  /* CMD_EXTENDEDRESPONSE */        dissect_r3_cmd_extendedresponse
 };
 
 static void dissect_r3_cmdmfg_setserialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
@@ -3970,101 +3927,101 @@ static void dissect_r3_cmdmfg_mortisestatelogclear (tvbuff_t *tvb, guint32 start
 static void dissect_r3_cmdmfg_mortisepins (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_cmdmfg_haltandcatchfire (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static commandMfgDissectorParser_t r3commandmfg_dissect [] =
+static void (*r3commandmfg_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
 {
-  { CMDMFG_SETSERIALNUMBER,       dissect_r3_cmdmfg_setserialnumber },
-  { CMDMFG_SETCRYPTKEY,           dissect_r3_cmdmfg_setcryptkey },
-  { CMDMFG_DUMPNVRAM,             dissect_r3_cmdmfg_dumpnvram },
-  { CMDMFG_TERMINAL,              dissect_r3_cmdmfg_terminal },
-  { CMDMFG_REMOTEUNLOCK,          dissect_r3_cmdmfg_remoteunlock },
-  { CMDMFG_AUXCTLRVERSION,        dissect_r3_cmdmfg_auxctlrversion },
-  { CMDMFG_IOPINS,                dissect_r3_cmdmfg_iopins },
-  { CMDMFG_ADCS,                  dissect_r3_cmdmfg_adcs },
-  { CMDMFG_HARDWAREID,            dissect_r3_cmdmfg_hardwareid },
-  { CMDMFG_CHECKPOINTLOGDUMP,     dissect_r3_cmdmfg_checkpointlogdump },
-  { CMDMFG_CHECKPOINTLOGCLEAR,    dissect_r3_cmdmfg_checkpointlogclear },
-  { CMDMFG_READREGISTERS,         dissect_r3_cmdmfg_readregisters },
-  { CMDMFG_FORCEOPTIONS,          dissect_r3_cmdmfg_forceoptions },
-  { CMDMFG_COMMUSER,              dissect_r3_cmdmfg_commuser },
-  { CMDMFG_DUMPKEYPAD,            dissect_r3_cmdmfg_dumpkeypad },
-  { CMDMFG_BATTERYCHECK,          dissect_r3_cmdmfg_batterycheck },
-  { CMDMFG_RAMREFRESH,            dissect_r3_cmdmfg_ramrefresh },
-  { CMDMFG_TASKFLAGS,             dissect_r3_cmdmfg_taskflags },
-  { CMDMFG_TIMERCHAIN,            dissect_r3_cmdmfg_timerchain },
-  { CMDMFG_PEEKPOKE,              dissect_r3_cmdmfg_peekpoke },
-  { CMDMFG_LOCKSTATE,             dissect_r3_cmdmfg_lockstate },
-  { CMDMFG_CAPABILITIES,          dissect_r3_cmdmfg_capabilities },
-  { CMDMFG_DUMPM41T81,            dissect_r3_cmdmfg_dumpm41t81 },
-  { CMDMFG_DEBUGLOGDUMP,          dissect_r3_cmdmfg_debuglogdump },
-  { CMDMFG_DEBUGLOGCLEAR,         dissect_r3_cmdmfg_debuglogclear },
-  { CMDMFG_TESTWDT,               dissect_r3_cmdmfg_testwdt },
-  { CMDMFG_QUERYCKSUM,            dissect_r3_cmdmfg_querycksum },
-  { CMDMFG_VALIDATECHECKSUMS,     dissect_r3_cmdmfg_validatechecksums },
-  { CMDMFG_REBUILDLRUCACHE,       dissect_r3_cmdmfg_rebuildlrucache },
-  { CMDMFG_TZUPDATE,              dissect_r3_cmdmfg_tzupdate },
-  { CMDMFG_TESTPRESERVE,          dissect_r3_cmdmfg_testpreserve },
-  { CMDMFG_MORTISESTATELOGDUMP,   dissect_r3_cmdmfg_mortisestatelogdump },
-  { CMDMFG_MORTISESTATELOGCLEAR,  dissect_r3_cmdmfg_mortisestatelogclear },
-  { CMDMFG_MORTISEPINS,           dissect_r3_cmdmfg_mortisepins },
-  { CMDMFG_HALTANDCATCHFIRE,      dissect_r3_cmdmfg_haltandcatchfire }
+  /* CMDMFG_SETSERIALNUMBER */       dissect_r3_cmdmfg_setserialnumber,
+  /* CMDMFG_SETCRYPTKEY */           dissect_r3_cmdmfg_setcryptkey,
+  /* CMDMFG_DUMPNVRAM */             dissect_r3_cmdmfg_dumpnvram,
+  /* CMDMFG_TERMINAL */              dissect_r3_cmdmfg_terminal,
+  /* CMDMFG_REMOTEUNLOCK */          dissect_r3_cmdmfg_remoteunlock,
+  /* CMDMFG_AUXCTLRVERSION */        dissect_r3_cmdmfg_auxctlrversion,
+  /* CMDMFG_IOPINS */                dissect_r3_cmdmfg_iopins,
+  /* CMDMFG_ADCS */                  dissect_r3_cmdmfg_adcs,
+  /* CMDMFG_HARDWAREID */            dissect_r3_cmdmfg_hardwareid,
+  /* CMDMFG_CHECKPOINTLOGDUMP */     dissect_r3_cmdmfg_checkpointlogdump,
+  /* CMDMFG_CHECKPOINTLOGCLEAR */    dissect_r3_cmdmfg_checkpointlogclear,
+  /* CMDMFG_READREGISTERS */         dissect_r3_cmdmfg_readregisters,
+  /* CMDMFG_FORCEOPTIONS */          dissect_r3_cmdmfg_forceoptions,
+  /* CMDMFG_COMMUSER */              dissect_r3_cmdmfg_commuser,
+  /* CMDMFG_DUMPKEYPAD */            dissect_r3_cmdmfg_dumpkeypad,
+  /* CMDMFG_BATTERYCHECK */          dissect_r3_cmdmfg_batterycheck,
+  /* CMDMFG_RAMREFRESH */            dissect_r3_cmdmfg_ramrefresh,
+  /* CMDMFG_TASKFLAGS */             dissect_r3_cmdmfg_taskflags,
+  /* CMDMFG_TIMERCHAIN */            dissect_r3_cmdmfg_timerchain,
+  /* CMDMFG_PEEKPOKE */              dissect_r3_cmdmfg_peekpoke,
+  /* CMDMFG_LOCKSTATE */             dissect_r3_cmdmfg_lockstate,
+  /* CMDMFG_CAPABILITIES */          dissect_r3_cmdmfg_capabilities,
+  /* CMDMFG_DUMPM41T81 */            dissect_r3_cmdmfg_dumpm41t81,
+  /* CMDMFG_DEBUGLOGDUMP */          dissect_r3_cmdmfg_debuglogdump,
+  /* CMDMFG_DEBUGLOGCLEAR */         dissect_r3_cmdmfg_debuglogclear,
+  /* CMDMFG_TESTWDT */               dissect_r3_cmdmfg_testwdt,
+  /* CMDMFG_QUERYCKSUM */            dissect_r3_cmdmfg_querycksum,
+  /* CMDMFG_VALIDATECHECKSUMS */     dissect_r3_cmdmfg_validatechecksums,
+  /* CMDMFG_REBUILDLRUCACHE */       dissect_r3_cmdmfg_rebuildlrucache,
+  /* CMDMFG_TZUPDATE */              dissect_r3_cmdmfg_tzupdate,
+  /* CMDMFG_TESTPRESERVE */          dissect_r3_cmdmfg_testpreserve,
+  /* CMDMFG_MORTISESTATELOGDUMP */   dissect_r3_cmdmfg_mortisestatelogdump,
+  /* CMDMFG_MORTISESTATELOGCLEAR */  dissect_r3_cmdmfg_mortisestatelogclear,
+  /* CMDMFG_MORTISEPINS */           dissect_r3_cmdmfg_mortisepins,
+  /* CMDMFG_HALTANDCATCHFIRE */      dissect_r3_cmdmfg_haltandcatchfire
 };
 
 static void dissect_r3_response_singlebyte (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static responseTypeDissectorParser_t r3response_dissect [] =
+static void (*r3response_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
 {
-  { RESPONSETYPE_OK,                  dissect_r3_response_singlebyte },
-  { RESPONSETYPE_ERROR,               dissect_r3_response_singlebyte },
-  { RESPONSETYPE_HASDATA,             dissect_r3_response_hasdata },
-  { RESPONSETYPE_NOHANDLER,           dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NOSESSION,           dissect_r3_response_singlebyte },
-  { RESPONSETYPE_BADCOMMAND,          dissect_r3_response_singlebyte },
-  { RESPONSETYPE_BADPARAMETER,        dissect_r3_response_singlebyte },
-  { RESPONSETYPE_BADPARAMETERLEN,     dissect_r3_response_singlebyte },
-  { RESPONSETYPE_MISSINGPARAMETER,    dissect_r3_response_singlebyte },
-  { RESPONSETYPE_DUPLICATEPARAMETER,  dissect_r3_response_singlebyte },
-  { RESPONSETYPE_PARAMETERCONFLICT,   dissect_r3_response_singlebyte },
-  { RESPONSETYPE_BADDEVICE,           dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NVRAMERROR,          dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NVRAMERRORNOACK,     dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NVRAMERRORNOACK32,   dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NOTI2CADDRESS,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_FIRMWAREERROR,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_DUMPINPROGRESS,      dissect_r3_response_singlebyte },
-  { RESPONSETYPE_INTERNALERROR,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NOTIMPLEMENTED,      dissect_r3_response_singlebyte },
-  { RESPONSETYPE_PINFORMATERROR,      dissect_r3_response_singlebyte },
-  { RESPONSETYPE_PINEXISTS,           dissect_r3_response_singlebyte },
-  { RESPONSETYPE_PINNOTFOUND,         dissect_r3_response_singlebyte },
-  { RESPONSETYPE_USERACTIVE,          dissect_r3_response_singlebyte },
-  { RESPONSETYPE_USERINACTIVE,        dissect_r3_response_singlebyte },
-  { RESPONSETYPE_PARENTNOTFOUND,      dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NOCHAIN,             dissect_r3_response_singlebyte },
-  { RESPONSETYPE_CAUGHTINLOOP,        dissect_r3_response_singlebyte },
-  { RESPONSETYPE_EVENTFILTERED,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_PAYLOADTOOLARGE,     dissect_r3_response_singlebyte },
-  { RESPONSETYPE_ENDOFDATA,           dissect_r3_response_singlebyte },
-  { RESPONSETYPE_RMTAUTHREJECTED,     dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NVRAMVERSIONERROR,   dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NOHARDWARE,          dissect_r3_response_singlebyte },
-  { RESPONSETYPE_SCHEDULERCONFLICT,   dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NVRAMWRITEERROR,     dissect_r3_response_singlebyte },
-  { RESPONSETYPE_DECLINEDFILTERED,    dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NECONFIGPARM,        dissect_r3_response_singlebyte },
-  { RESPONSETYPE_FLASHERASEERROR,     dissect_r3_response_singlebyte },
-  { RESPONSETYPE_FLASHWRITEERROR,     dissect_r3_response_singlebyte },
-  { RESPONSETYPE_BADNVBACKUP,         dissect_r3_response_singlebyte },
-  { RESPONSETYPE_EARLYACK,            dissect_r3_response_singlebyte },
-  { RESPONSETYPE_ALARMFILTERED,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_ACVFAILURE,          dissect_r3_response_singlebyte },
-  { RESPONSETYPE_USERCHECKSUMERROR,   dissect_r3_response_singlebyte },
-  { RESPONSETYPE_CHECKSUMERROR,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_RTCSQWFAILURE,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_PRIORITYSHUTDOWN,    dissect_r3_response_singlebyte },
-  { RESPONSETYPE_NOTMODIFIABLE,       dissect_r3_response_singlebyte },
-  { RESPONSETYPE_CANTPRESERVE,        dissect_r3_response_singlebyte },
-  { RESPONSETYPE_INPASSAGEMODE,       dissect_r3_response_singlebyte }
+  /* RESPONSETYPE_OK */                  dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_ERROR */               dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_HASDATA */             dissect_r3_response_hasdata,
+  /* RESPONSETYPE_NOHANDLER */           dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NOSESSION */           dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_BADCOMMAND */          dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_BADPARAMETER */        dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_BADPARAMETERLEN */     dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_MISSINGPARAMETER */    dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_DUPLICATEPARAMETER */  dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_PARAMETERCONFLICT */   dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_BADDEVICE */           dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NVRAMERROR */          dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NVRAMERRORNOACK */     dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NVRAMERRORNOACK32 */   dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NOTI2CADDRESS */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_FIRMWAREERROR */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_DUMPINPROGRESS */      dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_INTERNALERROR */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NOTIMPLEMENTED */      dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_PINFORMATERROR */      dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_PINEXISTS */           dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_PINNOTFOUND */         dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_USERACTIVE */          dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_USERINACTIVE */        dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_PARENTNOTFOUND */      dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NOCHAIN */             dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_CAUGHTINLOOP */        dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_EVENTFILTERED */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_PAYLOADTOOLARGE */     dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_ENDOFDATA */           dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_RMTAUTHREJECTED */     dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NVRAMVERSIONERROR */   dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NOHARDWARE */          dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_SCHEDULERCONFLICT */   dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NVRAMWRITEERROR */     dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_DECLINEDFILTERED */    dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NECONFIGPARM */        dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_FLASHERASEERROR */     dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_FLASHWRITEERROR */     dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_BADNVBACKUP */         dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_EARLYACK */            dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_ALARMFILTERED */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_ACVFAILURE */          dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_USERCHECKSUMERROR */   dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_CHECKSUMERROR */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_RTCSQWFAILURE */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_PRIORITYSHUTDOWN */    dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_NOTMODIFIABLE */       dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_CANTPRESERVE */        dissect_r3_response_singlebyte,
+  /* RESPONSETYPE_INPASSAGEMODE */       dissect_r3_response_singlebyte
 };
 
 static void dissect_r3_upstreamcommand_reserved (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
@@ -4094,34 +4051,34 @@ static void dissect_r3_upstreamcommand_connectcommuser (tvbuff_t *tvb, guint32 s
 static void dissect_r3_upstreamcommand_commandalarm (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static upstreamCommandDissectorParser_t r3upstreamcommand_dissect [] =
+static void (*r3upstreamcommand_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
 {
-  { UPSTREAMCOMMAND_RESERVED,           dissect_r3_upstreamcommand_reserved },
-  { UPSTREAMCOMMAND_DEBUGMSG,           dissect_r3_upstreamcommand_debugmsg },
-  { UPSTREAMCOMMAND_QUERYVERSION,       dissect_r3_upstreamcommand_queryversion },
-  { UPSTREAMCOMMAND_QUERYDATETIME,      dissect_r3_upstreamcommand_querydatetime },
-  { UPSTREAMCOMMAND_QUERYSERIALNUMBER,  dissect_r3_upstreamcommand_queryserialnumber },
-  { UPSTREAMCOMMAND_DUMPEVENTLOG,       dissect_r3_upstreamcommand_dumpeventlog },
-  { UPSTREAMCOMMAND_DUMPNVRAM,          dissect_r3_upstreamcommand_dumpnvram },
-  { UPSTREAMCOMMAND_RMTAUTHREQUEST,     dissect_r3_upstreamcommand_rmtquthrequest },
-  { UPSTREAMCOMMAND_RETRIEVEUSER,       dissect_r3_upstreamcommand_retrieveuser },
-  { UPSTREAMCOMMAND_QUERYCONFIG,        dissect_r3_upstreamcommand_queryconfig },
-  { UPSTREAMCOMMAND_RMTEVENTLOGRECORD,  dissect_r3_upstreamcommand_rmteventlogrecord },
-  { UPSTREAMCOMMAND_DPAC,               dissect_r3_upstreamcommand_dpac },
-  { UPSTREAMCOMMAND_NOTIFY,             dissect_r3_upstreamcommand_notify },
-  { UPSTREAMCOMMAND_MFG,                dissect_r3_upstreamcommand_mfg },
-  { UPSTREAMCOMMAND_EVENTLOGWARNING,    dissect_r3_upstreamcommand_eventlogwarning },
-  { UPSTREAMCOMMAND_DUMPNVRAMRLE,       dissect_r3_upstreamcommand_dumpnvramrle },
-  { UPSTREAMCOMMAND_RMTDECLINEDRECORD,  dissect_r3_upstreamcommand_rmtdeclinedrecord },
-  { UPSTREAMCOMMAND_DECLINEDWARNING,    dissect_r3_upstreamcommand_declinedwarning },
-  { UPSTREAMCOMMAND_DUMPDECLINEDLOG,    dissect_r3_upstreamcommand_dumpdeclinedlog },
-  { UPSTREAMCOMMAND_RMTALARMRECORD,     dissect_r3_upstreamcommand_rmtalarmrecord },
-  { UPSTREAMCOMMAND_ALARMWARNING,       dissect_r3_upstreamcommand_alarmwarning },
-  { UPSTREAMCOMMAND_DUMPALARMLOG,       dissect_r3_upstreamcommand_dumpalarmlog },
-  { UPSTREAMCOMMAND_CONNECTSCHEDULER,   dissect_r3_upstreamcommand_connectscheduler },
-  { UPSTREAMCOMMAND_CONNECTCOMMUSER,    dissect_r3_upstreamcommand_connectcommuser },
-  { UPSTREAMCOMMAND_CONNECTALARM,       dissect_r3_upstreamcommand_commandalarm },
-  { UPSTREAMCOMMAND_DUMPDEBUGLOG,       dissect_r3_upstreamcommand_dumpdebuglog }
+  /* UPSTREAMCOMMAND_RESERVED */           dissect_r3_upstreamcommand_reserved,
+  /* UPSTREAMCOMMAND_DEBUGMSG */           dissect_r3_upstreamcommand_debugmsg,
+  /* UPSTREAMCOMMAND_QUERYVERSION */       dissect_r3_upstreamcommand_queryversion,
+  /* UPSTREAMCOMMAND_QUERYDATETIME */      dissect_r3_upstreamcommand_querydatetime,
+  /* UPSTREAMCOMMAND_QUERYSERIALNUMBER */  dissect_r3_upstreamcommand_queryserialnumber,
+  /* UPSTREAMCOMMAND_DUMPEVENTLOG */       dissect_r3_upstreamcommand_dumpeventlog,
+  /* UPSTREAMCOMMAND_DUMPNVRAM */          dissect_r3_upstreamcommand_dumpnvram,
+  /* UPSTREAMCOMMAND_RMTAUTHREQUEST */     dissect_r3_upstreamcommand_rmtquthrequest,
+  /* UPSTREAMCOMMAND_RETRIEVEUSER */       dissect_r3_upstreamcommand_retrieveuser,
+  /* UPSTREAMCOMMAND_QUERYCONFIG */        dissect_r3_upstreamcommand_queryconfig,
+  /* UPSTREAMCOMMAND_RMTEVENTLOGRECORD */  dissect_r3_upstreamcommand_rmteventlogrecord,
+  /* UPSTREAMCOMMAND_DPAC */               dissect_r3_upstreamcommand_dpac,
+  /* UPSTREAMCOMMAND_NOTIFY */             dissect_r3_upstreamcommand_notify,
+  /* UPSTREAMCOMMAND_MFG */                dissect_r3_upstreamcommand_mfg,
+  /* UPSTREAMCOMMAND_EVENTLOGWARNING */    dissect_r3_upstreamcommand_eventlogwarning,
+  /* UPSTREAMCOMMAND_DUMPNVRAMRLE */       dissect_r3_upstreamcommand_dumpnvramrle,
+  /* UPSTREAMCOMMAND_RMTDECLINEDRECORD */  dissect_r3_upstreamcommand_rmtdeclinedrecord,
+  /* UPSTREAMCOMMAND_DECLINEDWARNING */    dissect_r3_upstreamcommand_declinedwarning,
+  /* UPSTREAMCOMMAND_DUMPDECLINEDLOG */    dissect_r3_upstreamcommand_dumpdeclinedlog,
+  /* UPSTREAMCOMMAND_RMTALARMRECORD */     dissect_r3_upstreamcommand_rmtalarmrecord,
+  /* UPSTREAMCOMMAND_ALARMWARNING */       dissect_r3_upstreamcommand_alarmwarning,
+  /* UPSTREAMCOMMAND_DUMPALARMLOG */       dissect_r3_upstreamcommand_dumpalarmlog,
+  /* UPSTREAMCOMMAND_CONNECTSCHEDULER */   dissect_r3_upstreamcommand_connectscheduler,
+  /* UPSTREAMCOMMAND_CONNECTCOMMUSER */    dissect_r3_upstreamcommand_connectcommuser,
+  /* UPSTREAMCOMMAND_CONNECTALARM */       dissect_r3_upstreamcommand_commandalarm,
+  /* UPSTREAMCOMMAND_DUMPDEBUGLOG */       dissect_r3_upstreamcommand_dumpdebuglog
 };
 
 static void dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
@@ -4143,26 +4100,26 @@ static void dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, guint32 start
 static void dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 static void dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree);
 
-static mfgFieldDissectorParser_t r3upstreammfgfield_dissect [] =
+static void (*r3upstreammfgfield_dissect []) (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *r3_tree) =
 {
-  { MFGFIELD_IOPINS,              dissect_r3_upstreammfgfield_iopins },
-  { MFGFIELD_ADCS,                dissect_r3_upstreammfgfield_adcs },
-  { MFGFIELD_HARDWAREID,          dissect_r3_upstreammfgfield_hardwareid },
-  { MFGFIELD_CHECKPOINTLOG,       dissect_r3_upstreammfgfield_checkpointlog },
-  { MFGFIELD_CPUREGISTERS,        dissect_r3_upstreammfgfield_cpuregisters },
-  { MFGFIELD_TASKFLAGS,           dissect_r3_upstreammfgfield_taskflags },
-  { MFGFIELD_TIMERCHAIN,          dissect_r3_upstreammfgfield_timerchain },
-  { MFGFIELD_PEEKPOKE,            dissect_r3_upstreammfgfield_peekpoke },
-  { MFGFIELD_LOCKSTATE,           dissect_r3_upstreammfgfield_lockstate },
-  { MFGFIELD_CAPABILITIES,        dissect_r3_upstreammfgfield_capabilities },
-  { MFGFIELD_DUMPM41T81,          dissect_r3_upstreammfgfield_dumpm41t81 },
-  { MFGFIELD_NVRAMCHECKSUMVALUE,  dissect_r3_upstreammfgfield_nvramchecksumvalue },
-  { MFGFIELD_CHECKSUMRESULTS,     dissect_r3_upstreammfgfield_checksumresults },
-  { MFGFIELD_MORTISESTATELOG,     dissect_r3_upstreammfgfield_mortisestatelog },
-  { MFGFIELD_MORTISEPINS,         dissect_r3_upstreammfgfield_mortisepins },
-  { MFGFIELD_KEYPADCHAR,          dissect_r3_upstreammfgfield_keypadchar },
-  { MFGFIELD_MAGCARD,             dissect_r3_upstreammfgfield_magcard },
-  { MFGFIELD_PROXCARD,            dissect_r3_upstreammfgfield_proxcard }
+  /* MFGFIELD_IOPINS */              dissect_r3_upstreammfgfield_iopins,
+  /* MFGFIELD_ADCS */                dissect_r3_upstreammfgfield_adcs,
+  /* MFGFIELD_HARDWAREID */          dissect_r3_upstreammfgfield_hardwareid,
+  /* MFGFIELD_CHECKPOINTLOG */       dissect_r3_upstreammfgfield_checkpointlog,
+  /* MFGFIELD_CPUREGISTERS */        dissect_r3_upstreammfgfield_cpuregisters,
+  /* MFGFIELD_TASKFLAGS */           dissect_r3_upstreammfgfield_taskflags,
+  /* MFGFIELD_TIMERCHAIN */          dissect_r3_upstreammfgfield_timerchain,
+  /* MFGFIELD_PEEKPOKE */            dissect_r3_upstreammfgfield_peekpoke,
+  /* MFGFIELD_LOCKSTATE */           dissect_r3_upstreammfgfield_lockstate,
+  /* MFGFIELD_CAPABILITIES */        dissect_r3_upstreammfgfield_capabilities,
+  /* MFGFIELD_DUMPM41T81 */          dissect_r3_upstreammfgfield_dumpm41t81,
+  /* MFGFIELD_NVRAMCHECKSUMVALUE */  dissect_r3_upstreammfgfield_nvramchecksumvalue,
+  /* MFGFIELD_CHECKSUMRESULTS */     dissect_r3_upstreammfgfield_checksumresults,
+  /* MFGFIELD_MORTISESTATELOG */     dissect_r3_upstreammfgfield_mortisestatelog,
+  /* MFGFIELD_MORTISEPINS */         dissect_r3_upstreammfgfield_mortisepins,
+  /* MFGFIELD_KEYPADCHAR */          dissect_r3_upstreammfgfield_keypadchar,
+  /* MFGFIELD_MAGCARD */             dissect_r3_upstreammfgfield_magcard,
+  /* MFGFIELD_PROXCARD */            dissect_r3_upstreammfgfield_proxcard
 };
 
 /*
@@ -4671,8 +4628,8 @@ static void dissect_r3_upstreamcommand_mfg (tvbuff_t *tvb, guint32 start_offset 
 
   if (tvb_get_guint8 (tvb, 1) >= MFGFIELD_LAST)
     expert_add_info_format (pinfo, tree, PI_UNDECODED, PI_WARN, "Unknown manufacturing command value");
-  else if (r3upstreammfgfield_dissect [tvb_get_guint8 (tvb, 1)].dissector)
-    (*r3upstreammfgfield_dissect [tvb_get_guint8 (tvb, 1)].dissector) (mfg_tvb, 0, length, pinfo, mfg_tree);
+  else if (r3upstreammfgfield_dissect [tvb_get_guint8 (tvb, 1)])
+    (*r3upstreammfgfield_dissect [tvb_get_guint8 (tvb, 1)]) (mfg_tvb, 0, length, pinfo, mfg_tree);
 }
 
 static void dissect_r3_upstreamcommand_eventlogwarning (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
@@ -5443,8 +5400,8 @@ static void dissect_r3_response_hasdata (tvbuff_t *tvb, guint32 start_offset, gu
 
     tvb_ensure_bytes_exist (tvb, start_offset, commandPacketLen - 4);
 
-    if (r3upstreamcommand_dissect [tvb_get_guint8 (tvb, 3)].dissector)
-      (*r3upstreamcommand_dissect [tvb_get_guint8 (tvb, 3)].dissector) (upstreamcommand_tvb, 0, commandPacketLen - 4, pinfo, upstreamcommand_tree);
+    if (r3upstreamcommand_dissect [tvb_get_guint8 (tvb, 3)])
+      (*r3upstreamcommand_dissect [tvb_get_guint8 (tvb, 3)]) (upstreamcommand_tvb, 0, commandPacketLen - 4, pinfo, upstreamcommand_tree);
   }
 }
 
@@ -5468,8 +5425,8 @@ static void dissect_r3_cmd_response (tvbuff_t *tvb, guint32 start_offset, guint3
 
   if (tvb_get_guint8 (tvb, start_offset + 2) >= RESPONSETYPE_LAST)
     expert_add_info_format (pinfo, tree, PI_UNDECODED, PI_WARN, "Octet 3 >= UPSTREAMCOMMAND_LAST");
-  else if (r3response_dissect [responseType].dissector)
-    (*r3response_dissect [responseType].dissector) (payload_tvb, 0, length, pinfo, tree);
+  else if (r3response_dissect [responseType])
+    (*r3response_dissect [responseType]) (payload_tvb, 0, length, pinfo, tree);
 }
 
 /*
@@ -5552,7 +5509,7 @@ static void dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint
 
     if (tvb_get_guint8 (payload_tvb, offset + 1) < array_length (configMap))
     {
-      switch (configMap [tvb_get_guint8 (payload_tvb, offset + 1)].configType)
+      switch (configMap [tvb_get_guint8 (payload_tvb, offset + 1)])
       {
         case CONFIGTYPE_NONE :
           proto_tree_add_item (sc_tree, hf_r3_configitemdata, payload_tvb, offset + 2, tvb_get_guint8 (payload_tvb, offset + 0) - 3, ENC_NA);
@@ -6525,8 +6482,8 @@ static gint dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 len
       {
         if (cmd >= CMD_LAST)
           expert_add_info_format (pinfo, cmd_tree, PI_UNDECODED, PI_WARN, "Unknown command value");
-        else if (r3command_dissect [cmd].dissector)
-          (*r3command_dissect [cmd].dissector) (tvb, start_offset, length, pinfo, cmd_tree);
+        else if (r3command_dissect [cmd])
+          (*r3command_dissect [cmd]) (tvb, start_offset, length, pinfo, cmd_tree);
       }
       else
       {
@@ -6534,8 +6491,8 @@ static gint dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 len
 
         if (cmd >= CMDMFG_LAST)
           expert_add_info_format (pinfo, cmd_tree, PI_UNDECODED, PI_WARN, "Unknown manufacturing command value");
-        else if (r3commandmfg_dissect [cmd].dissector)
-          (*r3commandmfg_dissect [cmd].dissector) (tvb, start_offset, length, pinfo, cmd_tree);
+        else if (r3commandmfg_dissect [cmd])
+          (*r3commandmfg_dissect [cmd]) (tvb, start_offset, length, pinfo, cmd_tree);
       }
     }
   }
