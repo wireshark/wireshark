@@ -5301,7 +5301,11 @@
 			<type type-name="Unsigned32"/>
 		</avp>
 
-		<!--
+    <avp name="UE-Time-Zone" code="1641" vendor-bit="must" vendor-id="TGPP">
+      <type type-name="UTF8String"/>
+    </avp>
+
+    <!--
 		Note: The AVP codes from 1638 to 1699 are reserved for TS 29.272.
 		-->
 
