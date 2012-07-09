@@ -120,8 +120,9 @@ PER_LIST= \
 	h501			\
 	hnbap			\
 	lcsap			\
-	lpp				\
+	lpp			\
 	lppa			\
+	lppe			\
 	lte-rrc			\
 	nbap			\
 	m3ap			\

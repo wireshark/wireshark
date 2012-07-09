@@ -219,7 +219,9 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-inap.c
 	dissectors/packet-lcsap.c
 	dissectors/packet-logotypecertextn.c
+	dissectors/packet-lpp.c
 	dissectors/packet-lppa.c
+	dissectors/packet-lppe.c
 	dissectors/packet-lte-rrc.c
 	dissectors/packet-mms.c
 	dissectors/packet-mpeg-audio.c
@@ -268,7 +270,6 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-gprscdr.c
 	dissectors/packet-gsm_map.c
 	dissectors/packet-ldap.c
-	dissectors/packet-lpp.c
 	dissectors/packet-m3ap.c
 	dissectors/packet-nbap.c
 	dissectors/packet-p1.c

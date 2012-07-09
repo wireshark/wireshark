@@ -20,27 +20,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-PROTOCOL_NAME = lpp
-
-EXPORT_FILES = \
-	$(PROTOCOL_NAME)-exp.cnf
-
-EXT_ASN_FILE_LIST = 
-
-ASN_FILE_LIST = \
-	LPP.asn
-
-EXTRA_DIST = \
-	Makefile.nmake \
-	$(ASN_FILE_LIST) \
-	packet-$(PROTOCOL_NAME)-template.c \
-	$(PROTOCOL_NAME).cnf
-
-SRC_FILES = \
-	$(EXTRA_DIST) \
-	$(EXT_ASN_FILE_LIST)
-
-A2W_FLAGS = 
-
-EXTRA_CNF = 
+include ../Makefile.preinc
+include Makefile.common
+include ../Makefile.inc
 

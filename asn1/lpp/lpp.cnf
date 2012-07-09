@@ -12,6 +12,23 @@ UNALIGNED
 Ellipsoid-Point_PDU
 EllipsoidPointWithAltitude_PDU
 HorizontalVelocity_PDU
+GNSS-ID
+GNSS-SignalID
+GNSS-SignalIDs
+GNSS-SystemTime
+SV-ID
+ECID-SignalMeasurementInformation
+CellGlobalIdGERAN
+CellGlobalIdEUTRA-AndUTRA  
+OTDOA-ReferenceCellInfo
+OTDOA-NeighbourCellInfoElement
+ARFCN-ValueEUTRA
+Ellipsoid-Point
+EllipsoidPointWithAltitude
+EllipsoidPointWithAltitudeAndUncertaintyEllipsoid  
+NetworkTime
+GNSS-ID-Bitmap
+ARFCN-ValueUTRA
 #.END
 
 #.PDU_NEW
@@ -66,4 +83,24 @@ HorizontalVelocity
 #.FN_HDR Error
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error");
+
+#.FN_BODY EPDU-ID VAL_PTR = &lpp_epdu_id
+%(DEFAULT_BODY)s
+
+#.TYPE_ATTR
+EPDU-ID STRINGS=VALS(lpp_ePDU_ID_vals)
+
+#.FN_BODY EPDU-Body VAL_PTR=&lppe_tvb
+  tvbuff_t *lppe_tvb = NULL;
+%(DEFAULT_BODY)s
+  switch(lpp_epdu_id){
+  case 1:
+    if (lppe_tvb && lppe_handle) {
+      call_dissector(lppe_handle, lppe_tvb, actx->pinfo, tree);
+    }
+    break;
+  default:
+    break;
+  }
+  lpp_epdu_id = -1;
 

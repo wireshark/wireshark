@@ -2063,6 +2063,7 @@ AC_OUTPUT(
   asn1/logotypecertextn/Makefile
   asn1/lpp/Makefile
   asn1/lppa/Makefile
+  asn1/lppe/Makefile
   asn1/lte-rrc/Makefile
   asn1/m3ap/Makefile
   asn1/mms/Makefile

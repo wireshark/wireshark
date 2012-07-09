@@ -1,0 +1,23 @@
+# lpp.cnf
+# llp conformation file
+# Copyright 2011 Pascal Quantin 
+# $Id$
+
+#.OPT
+PER
+UNALIGNED
+#.END
+
+#.IMPORT ../lpp/lpp-exp.cnf
+
+#.PDU_NEW
+OMA-LPPe-MessageExtension
+#.END
+
+#.FN_HDR OMA-LPPe-MessageExtension
+	
+  proto_tree_add_item(tree, proto_lppe, tvb, 0, -1, ENC_NA);
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPPe");
+#.END
+

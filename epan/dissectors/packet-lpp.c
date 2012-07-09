@@ -30,7 +30,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 9.7.0 Release 9
+ * Ref 3GPP TS 36.355 version 10.5.0 Release 10
  * http://www.3gpp.org
  */
 
@@ -217,7 +217,7 @@ static int hf_lpp_horizontalVelocity = -1;        /* BOOLEAN */
 static int hf_lpp_horizontalWithVerticalVelocity = -1;  /* BOOLEAN */
 static int hf_lpp_horizontalVelocityWithUncertainty = -1;  /* BOOLEAN */
 static int hf_lpp_horizontalWithVerticalVelocityAndUncertainty = -1;  /* BOOLEAN */
-static int hf_lpp_servingCellID = -1;             /* ECGI */
+static int hf_lpp_primaryCellID = -1;             /* ECGI */
 static int hf_lpp_locationInformationType = -1;   /* LocationInformationType */
 static int hf_lpp_triggeredReporting = -1;        /* TriggeredReportingCriteria */
 static int hf_lpp_periodicalReporting = -1;       /* PeriodicalReportingCriteria */
@@ -820,7 +820,7 @@ static int hf_lpp_sbas_IDs_01 = -1;               /* T_sbas_IDs */
 static int hf_lpp_satellite_id = -1;              /* INTEGER_0_63 */
 static int hf_lpp_ecid_SignalMeasurementInformation = -1;  /* ECID_SignalMeasurementInformation */
 static int hf_lpp_ecid_Error = -1;                /* ECID_Error */
-static int hf_lpp_servingCellMeasuredResults = -1;  /* MeasuredResultsElement */
+static int hf_lpp_primaryCellMeasuredResults = -1;  /* MeasuredResultsElement */
 static int hf_lpp_measuredResultsList = -1;       /* MeasuredResultsList */
 static int hf_lpp_MeasuredResultsList_item = -1;  /* MeasuredResultsElement */
 static int hf_lpp_arfcnEUTRA = -1;                /* ARFCN_ValueEUTRA */
@@ -884,6 +884,10 @@ static int hf_lpp_T_ecid_MeasSupported_ueRxTxSup = -1;
 
 /*--- End of included file: packet-lpp-hf.c ---*/
 #line 52 "../../asn1/lpp/packet-lpp-template.c"
+
+static dissector_handle_t lppe_handle = NULL;
+
+static guint32 lpp_epdu_id = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_lpp = -1;
@@ -1184,7 +1188,7 @@ static gint ett_lpp_ECID_LocationServerErrorCauses = -1;
 static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 
 /*--- End of included file: packet-lpp-ett.c ---*/
-#line 56 "../../asn1/lpp/packet-lpp-template.c"
+#line 60 "../../asn1/lpp/packet-lpp-template.c"
 
 /* Include constants */
 
@@ -1195,8 +1199,12 @@ static gint ett_lpp_ECID_TargetDeviceErrorCauses = -1;
 #define maxBands                       64
 
 /*--- End of included file: packet-lpp-val.h ---*/
-#line 59 "../../asn1/lpp/packet-lpp-template.c"
+#line 63 "../../asn1/lpp/packet-lpp-template.c"
 
+static const value_string lpp_ePDU_ID_vals[] = {
+  { 1, "OMA LPP extensions (LPPe)"},
+  { 0, NULL}
+};
 
 
 /*--- Included file: packet-lpp-fn.c ---*/
@@ -1335,8 +1343,12 @@ dissect_lpp_ECID_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_lpp_EPDU_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 88 "../../asn1/lpp/lpp.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 256U, NULL, FALSE);
+                                                            1U, 256U, &lpp_epdu_id, FALSE);
+
+
+
 
   return offset;
 }
@@ -1370,8 +1382,23 @@ dissect_lpp_EPDU_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lpp_EPDU_Body(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 94 "../../asn1/lpp/lpp.cnf"
+  tvbuff_t *lppe_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &lppe_tvb);
+
+  switch(lpp_epdu_id){
+  case 1:
+    if (lppe_tvb && lppe_handle) {
+      call_dissector(lppe_handle, lppe_tvb, actx->pinfo, tree);
+    }
+    break;
+  default:
+    break;
+  }
+  lpp_epdu_id = -1;
+
+
 
   return offset;
 }
@@ -1501,7 +1528,7 @@ static const per_sequence_t RequestCapabilities_sequence[] = {
 
 static int
 dissect_lpp_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 39 "../../asn1/lpp/lpp.cnf"
+#line 56 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Capabilities");
 
@@ -1550,7 +1577,7 @@ static const per_sequence_t GNSS_ID_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_GNSS_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_GNSS_ID, GNSS_ID_sequence);
@@ -1622,7 +1649,7 @@ static const per_sequence_t GNSS_SignalIDs_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_GNSS_SignalIDs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_GNSS_SignalIDs, GNSS_SignalIDs_sequence);
@@ -1719,7 +1746,7 @@ static const per_sequence_t GNSS_ID_Bitmap_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_GNSS_ID_Bitmap(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_GNSS_ID_Bitmap, GNSS_ID_Bitmap_sequence);
@@ -2285,7 +2312,7 @@ static const per_sequence_t ProvideCapabilities_sequence[] = {
 
 static int
 dissect_lpp_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "../../asn1/lpp/lpp.cnf"
+#line 60 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Capabilities");
 
@@ -2362,7 +2389,7 @@ dissect_lpp_ECGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 
 
 static const per_sequence_t CommonIEsRequestAssistanceData_sequence[] = {
-  { &hf_lpp_servingCellID   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ECGI },
+  { &hf_lpp_primaryCellID   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_ECGI },
   { NULL, 0, 0, NULL }
 };
 
@@ -2572,7 +2599,7 @@ static const per_sequence_t SV_ID_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_SV_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_SV_ID, SV_ID_sequence);
@@ -2820,7 +2847,7 @@ static const per_sequence_t GNSS_SignalID_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_GNSS_SignalID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_GNSS_SignalID, GNSS_SignalID_sequence);
@@ -3046,7 +3073,7 @@ static const per_sequence_t RequestAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_RequestAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 47 "../../asn1/lpp/lpp.cnf"
+#line 64 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Assistance Data");
 
@@ -3163,7 +3190,7 @@ static const per_sequence_t GNSS_SystemTime_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_GNSS_SystemTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_GNSS_SystemTime, GNSS_SystemTime_sequence);
@@ -3293,7 +3320,7 @@ static const per_sequence_t CellGlobalIdEUTRA_AndUTRA_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_CellGlobalIdEUTRA_AndUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_CellGlobalIdEUTRA_AndUTRA, CellGlobalIdEUTRA_AndUTRA_sequence);
@@ -3303,7 +3330,7 @@ dissect_lpp_CellGlobalIdEUTRA_AndUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 
-static int
+int
 dissect_lpp_ARFCN_ValueEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, NULL, FALSE);
@@ -3389,7 +3416,7 @@ dissect_lpp_T_mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
 
 
-static int
+int
 dissect_lpp_ARFCN_ValueUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 16383U, NULL, FALSE);
@@ -3484,7 +3511,7 @@ static const per_sequence_t CellGlobalIdGERAN_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_CellGlobalIdGERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_CellGlobalIdGERAN, CellGlobalIdGERAN_sequence);
@@ -3541,7 +3568,7 @@ static const per_sequence_t NetworkTime_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_NetworkTime(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_NetworkTime, NetworkTime_sequence);
@@ -3697,7 +3724,7 @@ static const per_sequence_t EllipsoidPointWithAltitudeAndUncertaintyEllipsoid_se
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_EllipsoidPointWithAltitudeAndUncertaintyEllipsoid, EllipsoidPointWithAltitudeAndUncertaintyEllipsoid_sequence);
@@ -5659,7 +5686,7 @@ static const per_sequence_t OTDOA_ReferenceCellInfo_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_OTDOA_ReferenceCellInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_OTDOA_ReferenceCellInfo, OTDOA_ReferenceCellInfo_sequence);
@@ -5734,7 +5761,7 @@ static const per_sequence_t OTDOA_NeighbourCellInfoElement_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_OTDOA_NeighbourCellInfoElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_OTDOA_NeighbourCellInfoElement, OTDOA_NeighbourCellInfoElement_sequence);
@@ -5958,7 +5985,7 @@ static const per_sequence_t ProvideAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_ProvideAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "../../asn1/lpp/lpp.cnf"
+#line 68 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Assistance Data");
 
@@ -6356,7 +6383,7 @@ static const per_sequence_t RequestLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_RequestLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "../../asn1/lpp/lpp.cnf"
+#line 72 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Location Information");
 
@@ -6391,7 +6418,7 @@ static const per_sequence_t Ellipsoid_Point_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_Ellipsoid_Point(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_Ellipsoid_Point, Ellipsoid_Point_sequence);
@@ -6556,7 +6583,7 @@ static const per_sequence_t EllipsoidPointWithAltitude_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_EllipsoidPointWithAltitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_EllipsoidPointWithAltitude, EllipsoidPointWithAltitude_sequence);
@@ -7340,12 +7367,12 @@ dissect_lpp_MeasuredResultsList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t ECID_SignalMeasurementInformation_sequence[] = {
-  { &hf_lpp_servingCellMeasuredResults, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_MeasuredResultsElement },
+  { &hf_lpp_primaryCellMeasuredResults, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lpp_MeasuredResultsElement },
   { &hf_lpp_measuredResultsList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_MeasuredResultsList },
   { NULL, 0, 0, NULL }
 };
 
-static int
+int
 dissect_lpp_ECID_SignalMeasurementInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lpp_ECID_SignalMeasurementInformation, ECID_SignalMeasurementInformation_sequence);
@@ -7540,7 +7567,7 @@ static const per_sequence_t ProvideLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_ProvideLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/lpp/lpp.cnf"
+#line 76 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Location Information");
 
@@ -7667,7 +7694,7 @@ static const per_sequence_t Abort_sequence[] = {
 
 static int
 dissect_lpp_Abort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "../../asn1/lpp/lpp.cnf"
+#line 80 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Abort");
 
@@ -7754,7 +7781,7 @@ static const per_choice_t Error_choice[] = {
 
 static int
 dissect_lpp_Error(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "../../asn1/lpp/lpp.cnf"
+#line 84 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error");
 
@@ -7863,7 +7890,7 @@ static const per_sequence_t LPP_Message_sequence[] = {
 
 static int
 dissect_lpp_LPP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "../../asn1/lpp/lpp.cnf"
+#line 42 "../../asn1/lpp/lpp.cnf"
 	
   proto_tree_add_item(tree, proto_lpp, tvb, 0, -1, ENC_NA);
 
@@ -7912,7 +7939,7 @@ int dissect_lpp_HorizontalVelocity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-lpp-fn.c ---*/
-#line 62 "../../asn1/lpp/packet-lpp-template.c"
+#line 70 "../../asn1/lpp/packet-lpp-template.c"
 
 
 /*--- proto_register_lpp -------------------------------------------*/
@@ -8462,7 +8489,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
     { &hf_lpp_ePDU_ID,
       { "ePDU-ID", "lpp.ePDU_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(lpp_ePDU_ID_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_ePDU_Name,
       { "ePDU-Name", "lpp.ePDU_Name",
@@ -8556,8 +8583,8 @@ void proto_register_lpp(void) {
       { "horizontalWithVerticalVelocityAndUncertainty", "lpp.horizontalWithVerticalVelocityAndUncertainty",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_lpp_servingCellID,
-      { "servingCellID", "lpp.servingCellID",
+    { &hf_lpp_primaryCellID,
+      { "primaryCellID", "lpp.primaryCellID",
         FT_NONE, BASE_NONE, NULL, 0,
         "ECGI", HFILL }},
     { &hf_lpp_locationInformationType,
@@ -10968,8 +10995,8 @@ void proto_register_lpp(void) {
       { "ecid-Error", "lpp.ecid_Error",
         FT_UINT32, BASE_DEC, VALS(lpp_ECID_Error_vals), 0,
         NULL, HFILL }},
-    { &hf_lpp_servingCellMeasuredResults,
-      { "servingCellMeasuredResults", "lpp.servingCellMeasuredResults",
+    { &hf_lpp_primaryCellMeasuredResults,
+      { "primaryCellMeasuredResults", "lpp.primaryCellMeasuredResults",
         FT_NONE, BASE_NONE, NULL, 0,
         "MeasuredResultsElement", HFILL }},
     { &hf_lpp_measuredResultsList,
@@ -11210,7 +11237,7 @@ void proto_register_lpp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lpp-hfarr.c ---*/
-#line 71 "../../asn1/lpp/packet-lpp-template.c"
+#line 79 "../../asn1/lpp/packet-lpp-template.c"
   };
 
   /* List of subtrees */
@@ -11513,7 +11540,7 @@ void proto_register_lpp(void) {
     &ett_lpp_ECID_TargetDeviceErrorCauses,
 
 /*--- End of included file: packet-lpp-ettarr.c ---*/
-#line 77 "../../asn1/lpp/packet-lpp-template.c"
+#line 85 "../../asn1/lpp/packet-lpp-template.c"
   };
 
 
@@ -11533,7 +11560,7 @@ void proto_register_lpp(void) {
 void
 proto_reg_handoff_lpp(void)
 {
-
+  lppe_handle = find_dissector("lppe");
 }
 
 

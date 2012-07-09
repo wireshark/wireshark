@@ -67,8 +67,9 @@ SUBDIRS = 		\
 	lcsap		\
 	ldap		\
 	logotypecertextn \
-	lpp \
-	lppa \
+	lpp		\
+	lppa		\
+	lppe		\
 	lte-rrc		\
 	m3ap	\
 	mms		\

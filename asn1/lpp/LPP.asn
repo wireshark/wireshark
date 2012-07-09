@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V9.7.0 (2011-10)
+-- 3GPP TS 36.355 V10.5.0 (2012-06)
 -- $Id$
 --
 
@@ -381,7 +381,7 @@ CommonIEsProvideCapabilities ::= SEQUENCE {
 }
 
 CommonIEsRequestAssistanceData ::= SEQUENCE {
-	servingCellID		ECGI		OPTIONAL,	-- Cond EUTRA
+	primaryCellID		ECGI		OPTIONAL,	-- Cond EUTRA
 	...
 }
 
@@ -572,7 +572,7 @@ OTDOA-NeighbourCellInfoElement ::= SEQUENCE {
 															OPTIONAL,		-- Cond NotSameAsRef1
 	prsInfo								PRS-Info			OPTIONAL,		-- Cond NotSameAsRef2
 	antennaPortConfig					ENUMERATED {ports-1-or-2, ports-4, ...}
-															OPTIONAL,		-- Cond NotsameAsRef3
+															OPTIONAL,  		-- Cond NotsameAsRef3
 	slotNumberOffset					INTEGER (0..19)		OPTIONAL,		-- Cond NotSameAsRef4
 	prs-SubframeOffset					INTEGER (0..1279)	OPTIONAL,		-- Cond InterFreq
 	expectedRSTD						INTEGER (0..16383),
@@ -827,8 +827,8 @@ GNSS-TimeModelElement ::= SEQUENCE {
 	tA0		 					INTEGER (-67108864..67108863),
 	tA1		 					INTEGER (-4096..4095) 					OPTIONAL,	-- Need ON
 	tA2		 					INTEGER (-64..63) 						OPTIONAL,	-- Need ON
- 	gnss-TO-ID 					INTEGER (1..15),
- 	weekNumber 					INTEGER (0..8191) 						OPTIONAL,	-- Need ON
+	gnss-TO-ID 					INTEGER (1..15),
+	weekNumber 					INTEGER (0..8191) 						OPTIONAL,	-- Need ON
 	deltaT						INTEGER (-128..127)						OPTIONAL,	-- Need ON
 	...
 }
@@ -871,7 +871,7 @@ GNSS-NavModelSatelliteList ::= SEQUENCE (SIZE(1..64)) OF GNSS-NavModelSatelliteE
 
 GNSS-NavModelSatelliteElement ::= SEQUENCE {
 	svID 				SV-ID,
- 	svHealth 			BIT STRING (SIZE(8)), 	
+	svHealth 			BIT STRING (SIZE(8)), 	
 	iod 				BIT STRING (SIZE(11)),	
 	gnss-ClockModel		GNSS-ClockModel,
 	gnss-OrbitModel		GNSS-OrbitModel,
@@ -1624,7 +1624,7 @@ GNSS-GenericAssistanceDataSupport ::=
 
 GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 	gnss-ID 							GNSS-ID,
-	sbas-ID								SBAS-ID 					OPTIONAL, -- Cond GNSS-ID-SBAS
+	sbas-ID								SBAS-ID 					OPTIONAL, -- Cond GNSS ID SBAS
 	gnss-TimeModelsSupport				GNSS-TimeModelListSupport
 																	OPTIONAL, -- Cond TimeModSup
 	gnss-DifferentialCorrectionsSupport	GNSS-DifferentialCorrectionsSupport
@@ -1789,7 +1789,7 @@ ECID-ProvideLocationInformation ::= SEQUENCE {
 }
 
 ECID-SignalMeasurementInformation ::= SEQUENCE {
-	servingCellMeasuredResults	MeasuredResultsElement	OPTIONAL,
+	primaryCellMeasuredResults	MeasuredResultsElement	OPTIONAL,
 	measuredResultsList			MeasuredResultsList,
 	...
 }

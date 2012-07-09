@@ -1,6 +1,6 @@
-/* packet-lpp.c
- * Routines for 3GPP LTE Positioning Protocol (LLP) packet dissection
- * Copyright 2011, Pascal Quantin <pascal.quantin@gmail.com>
+/* packet-lppe.c
+ * Routines for LPP Extensions (LLPe) packet dissection
+ * Copyright 2012, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * $Id$
  *
@@ -22,8 +22,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 10.5.0 Release 10
- * http://www.3gpp.org
+ * Ref Open Mobile Alliance OMA-TS-LPPe V1_0-20110929-C
  */
 
 #ifdef HAVE_CONFIG_H
@@ -35,10 +34,11 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-lpp.h"
 
-#define PNAME  "LTE Positioning Protocol (LLP)"
-#define PSNAME "LPP"
-#define PFNAME "lpp"
+#define PNAME  "LTE Positioning Protocol Extensions (LLPe)"
+#define PSNAME "LPPe"
+#define PFNAME "lppe"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -46,51 +46,43 @@
 #endif
 
 /* Initialize the protocol and registered fields */
-static int proto_lpp = -1;
+static int proto_lppe = -1;
 
-#include "packet-lpp-hf.c"
-
-static dissector_handle_t lppe_handle = NULL;
-
-static guint32 lpp_epdu_id = -1;
+#include "packet-lppe-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_lpp = -1;
-#include "packet-lpp-ett.c"
+static gint ett_lppe = -1;
+#include "packet-lppe-ett.c"
 
 /* Include constants */
-#include "packet-lpp-val.h"
+#include "packet-lppe-val.h"
 
-static const value_string lpp_ePDU_ID_vals[] = {
-  { 1, "OMA LPP extensions (LPPe)"},
-  { 0, NULL}
-};
 
-#include "packet-lpp-fn.c"
+#include "packet-lppe-fn.c"
 
 
 /*--- proto_register_lpp -------------------------------------------*/
-void proto_register_lpp(void) {
+void proto_register_lppe(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
 
-#include "packet-lpp-hfarr.c"
+#include "packet-lppe-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-	  &ett_lpp,
-#include "packet-lpp-ettarr.c"
+	  &ett_lppe,
+#include "packet-lppe-ettarr.c"
   };
 
 
   /* Register protocol */
-  proto_lpp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("lpp", dissect_LPP_Message_PDU, proto_lpp);
+  proto_lppe = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  new_register_dissector("lppe", dissect_OMA_LPPe_MessageExtension_PDU, proto_lppe);
 
   /* Register fields and subtrees */
-  proto_register_field_array(proto_lpp, hf, array_length(hf));
+  proto_register_field_array(proto_lppe, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
  
@@ -99,9 +91,9 @@ void proto_register_lpp(void) {
 
 /*--- proto_reg_handoff_lpp ---------------------------------------*/
 void
-proto_reg_handoff_lpp(void)
+proto_reg_handoff_lppe(void)
 {
-  lppe_handle = find_dissector("lppe");
+
 }
 
 

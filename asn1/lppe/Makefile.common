@@ -20,15 +20,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-PROTOCOL_NAME = lpp
-
-EXPORT_FILES = \
-	$(PROTOCOL_NAME)-exp.cnf
+PROTOCOL_NAME = lppe
 
 EXT_ASN_FILE_LIST = 
 
 ASN_FILE_LIST = \
-	LPP.asn
+	LPPe.asn
 
 EXTRA_DIST = \
 	Makefile.nmake \
@@ -42,5 +39,9 @@ SRC_FILES = \
 
 A2W_FLAGS = 
 
-EXTRA_CNF = 
+EXTRA_CNF = \
+	$(builddir)/../lpp/lpp-exp.cnf
+
+$(builddir)/../lpp/lpp-exp.cnf:
+	(cd $(builddir)/../lpp && $(MAKE_CNF_EXPORT))
 
