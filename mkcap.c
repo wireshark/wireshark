@@ -571,8 +571,8 @@ process_drop_list(char *drop_list)
     else
       drops[commas / 2].drop_seg_start = num;
   }
-
   
+  g_free(save);
 
 }
 

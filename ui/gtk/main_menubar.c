@@ -4205,6 +4205,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("add_menu_recent_capture_file_absolute: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
+        g_free(normalized_cf_name);
         return;
     }
     recent_files_list = g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");

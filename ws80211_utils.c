@@ -207,9 +207,8 @@ static int get_phys_handler(struct nl_msg *msg, void *arg)
 	iface->channel_types = 1 << WS80211_CHAN_NO_HT;
 
 	if (tb_msg[NL80211_ATTR_WIPHY_NAME]) {
-		char *phyname;
-		phyname = g_strdup(nla_get_string(tb_msg[NL80211_ATTR_WIPHY_NAME]));
-		iface->ifname = g_strdup_printf("%s.mon", phyname);
+		iface->ifname = g_strdup_printf("%s.mon",
+                nla_get_string(tb_msg[NL80211_ATTR_WIPHY_NAME]));
 	}
 
 	nla_for_each_nested(nl_band, tb_msg[NL80211_ATTR_WIPHY_BANDS], rem_band) {
@@ -420,6 +419,7 @@ static int ws80211_populate_devices(GArray *interfaces)
 		ret = fgets(line, sizeof(line), fh);
 		if (ret == NULL) {
 			fprintf(stderr, "Error parsing /proc/net/dev");
+			fclose(fh);
 			return -1;
 		}
 	}

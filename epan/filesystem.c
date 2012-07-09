@@ -1053,13 +1053,10 @@ get_persconffile_dir_no_profile(void)
          */
         pwd = getpwuid(getuid());
         if (pwd != NULL) {
-            /*
-             * This is cached, so we don't need to worry
-             * about allocating multiple ones of them.
-             */
-            homedir = g_strdup(pwd->pw_dir);
-        } else
+            homedir = pwd->pw_dir;
+        } else {
             homedir = "/tmp";
+        }
     }
     persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
 #endif

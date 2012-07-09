@@ -122,6 +122,7 @@ rtp_streams_stat_draw(void *arg _U_)
 
 	list = g_list_next(list);
 
+	g_free(payload_type);
 
     }
 
