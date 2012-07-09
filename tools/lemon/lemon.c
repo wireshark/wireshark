@@ -2570,8 +2570,11 @@ void Parse(struct lemon *gp)
     gp->errorcnt++;
     return;
   }
-  fseek(fp,0,2);
-  filesize = ftell(fp);
+  if ( fseek(fp,0,SEEK_END)!=0 || (filesize = ftell(fp))<0 ) {
+    ErrorMsg(ps.filename,0,"Can't determine the file size.");
+    gp->errorcnt++;
+    return;
+  }
   rewind(fp);
   /* XXX - what if filesize is bigger than the maximum size_t value? */
   filebuf = (char *)malloc( filesize+1 );
@@ -2582,7 +2585,7 @@ void Parse(struct lemon *gp)
     gp->errorcnt++;
     return;
   }
-  if( fread(filebuf,1,filesize,fp)!=(size_t)filesize ){
+  if( fread(filebuf,1,(size_t)filesize,fp)!=(size_t)filesize ){
     ErrorMsg(ps.filename,0,"Can't read in all %ld bytes of this file.",
       filesize);
     free(filebuf);
