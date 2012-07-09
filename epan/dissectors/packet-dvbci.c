@@ -452,7 +452,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, circuit_t *circuit,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
@@ -762,8 +762,11 @@ static int proto_dvbci = -1;
 
 static const gchar *dvbci_sek = NULL;
 static const gchar *dvbci_siv = NULL;
+static gboolean dvbci_dissect_lsc_msg = FALSE;
 
 static dissector_table_t mpeg_sect_tid_dissector_table;
+static dissector_table_t tcp_dissector_table;
+static dissector_table_t udp_dissector_table;
 
 static gint ett_dvbci = -1;
 static gint ett_dvbci_hdr = -1;
@@ -938,7 +941,6 @@ static int hf_dvbci_lsc_proto = -1;
 static int hf_dvbci_lsc_hostname = -1;
 static int hf_dvbci_lsc_retry_count = -1;
 static int hf_dvbci_lsc_timeout = -1;
-static int hf_dvbci_lsc_msg = -1;
 static int hf_dvbci_info_ver_op_status = -1;
 static int hf_dvbci_nit_ver = -1;
 static int hf_dvbci_pro_typ = -1;
@@ -1597,10 +1599,29 @@ dissect_rating(tvbuff_t *tvb, gint offset,
 }
 
 
+/* if there's a dissector for the protocol and target port of our
+    lsc connection, store it in the lsc session's circuit */
+static void
+store_lsc_msg_dissector(circuit_t *circuit, guint8 ip_proto, guint16 port)
+{
+    dissector_handle_t msg_handle = NULL;
+
+    if (!circuit)
+        return;
+
+    if (ip_proto==LSC_TCP)
+        msg_handle = dissector_get_uint_handle(tcp_dissector_table, port);
+    else if (ip_proto==LSC_UDP)
+        msg_handle = dissector_get_uint_handle(udp_dissector_table, port);
+
+    circuit_set_dissector(circuit, msg_handle);
+}
+
+ 
 /* dissect a connection_descriptor for the lsc resource
    returns its length or -1 for error */
 static gint
-dissect_conn_desc(tvbuff_t *tvb, gint offset,
+dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
         packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti             = NULL;
@@ -1672,7 +1693,6 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_proto,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
         offset ++;
-
         if (port_item) {
             if (ip_proto==LSC_TCP && get_tcp_port(port)) {
                 proto_item_append_text(port_item, " (%s)",
@@ -1683,6 +1703,8 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,
                         get_udp_port(port));
             }
         }
+        store_lsc_msg_dissector(circuit, ip_proto, port);
+
     } else if (conn_desc_type == CONN_DESC_HOSTNAME) {
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_tag,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1708,6 +1730,8 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,
                         get_udp_port(port));
             }
         }
+        store_lsc_msg_dissector(circuit, ip_proto, port);
+
         /* everything from here to the descriptor's end is a hostname */
         hostname_len = (offset_body+len_field)-offset;
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_hostname,
@@ -3242,16 +3266,18 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
 
 static void
 dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, circuit_t *circuit,
         packet_info *pinfo, proto_tree *tree)
 {
-    gint         offset_start;
-    guint8       id, timeout, ret_val, phase_id;
-    gint         conn_desc_len, param_len;
-    guint16      buf_size;
-    proto_item  *pi          = NULL;
-    const gchar *ret_val_str = NULL;
-
+    gint                offset_start;
+    guint8              id, timeout, ret_val, phase_id;
+    gint                conn_desc_len, param_len;
+    guint16             buf_size;
+    proto_item         *pi          = NULL;
+    const gchar        *ret_val_str = NULL;
+    gint                msg_len;
+    tvbuff_t           *msg_tvb;
+    dissector_handle_t  msg_handle;
 
     offset_start = offset;
 
@@ -3265,7 +3291,8 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             offset++;
             switch(id) {
                 case COMMS_CMD_ID_CONNECT_ON_CHANNEL:
-                    conn_desc_len = dissect_conn_desc(tvb, offset, pinfo, tree);
+                    conn_desc_len = dissect_conn_desc(tvb, offset,
+                            circuit, pinfo, tree);
                     if (conn_desc_len < 0)
                         break;
                     offset += conn_desc_len;
@@ -3375,10 +3402,24 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "Phase ID %d", phase_id);
             offset++;
-            if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                proto_tree_add_item(tree, hf_dvbci_lsc_msg, tvb, offset,
-                    tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            msg_len = tvb_reported_length_remaining(tvb, offset);
+            if (msg_len<=0)
+                break;
+            msg_tvb = tvb_new_subset(tvb, offset, msg_len, msg_len);
+            if (!msg_tvb)
+                break;
+            if (dvbci_dissect_lsc_msg && circuit && circuit->dissector_handle) {
+                msg_handle = circuit->dissector_handle;
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                col_append_fstr(pinfo->cinfo, COL_PROTOCOL, ", ");
+                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
             }
+            else {
+                msg_handle = find_dissector("data");
+            }
+            if (msg_handle)
+                call_dissector(msg_handle, msg_tvb, pinfo, tree);
             break;
         default:
             break;
@@ -5062,10 +5103,6 @@ proto_register_dvbci(void)
           { "Timeout", "dvb-ci.lsc.timeout",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
-        { &hf_dvbci_lsc_msg,
-          { "Message", "dvb-ci.lsc.message",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-        },
 
         /* filter string for hf_dvbci_info_ver_op_status and
          * hf_dvbci_info_ver_op_info below is the same, it seems this is ok */
@@ -5265,6 +5302,14 @@ proto_register_dvbci(void)
     prefs_register_string_preference(dvbci_module,
             "siv", "SAC Init Vector", "SAC Init Vector (16 hex bytes)",
             &dvbci_siv);
+    prefs_register_bool_preference(dvbci_module,
+            "dissect_lsc_msg",
+            "Dissect LSC messages",
+            "Dissect the content of messages transmitted "
+                "on the Low-Speed Communication resource. "
+                "This requires a dissector for the protocol and target port "
+                "contained in the connection descriptor.",
+            &dvbci_dissect_lsc_msg);
 
     sas_msg_dissector_table = register_dissector_table("dvb-ci.sas.app_id_str",
                 "SAS application id", FT_STRING, BASE_NONE);
@@ -5282,6 +5327,8 @@ proto_reg_handoff_dvbci(void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
 
     mpeg_sect_tid_dissector_table = find_dissector_table("mpeg_sect.tid");
+    tcp_dissector_table = find_dissector_table("tcp.port");
+    udp_dissector_table = find_dissector_table("udp.port");
 }
 
 /*
