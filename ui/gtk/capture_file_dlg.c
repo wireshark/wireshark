@@ -430,7 +430,7 @@ file_open_cmd(GtkWidget *w)
 #else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_open_w;
   GtkWidget     *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
-                *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
+                *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb, *prev;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -526,6 +526,11 @@ file_open_cmd(GtkWidget *w)
                                gbl_resolv_flags.transport_name);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
+  e_resolv_cb = gtk_check_button_new_with_mnemonic("Use _external network name resolver");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(e_resolv_cb),
+                               gbl_resolv_flags.use_external_net_name_resolver);
+  gtk_box_pack_start(GTK_BOX(main_vb), e_resolv_cb, FALSE, FALSE, 0);
+  gtk_widget_show(e_resolv_cb);
 
   /* preview widget */
   prev = preview_new();
@@ -590,6 +595,10 @@ file_open_cmd(GtkWidget *w)
       gbl_resolv_flags.transport_name = TRUE;
     else
       gbl_resolv_flags.transport_name = FALSE;
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(e_resolv_cb)))
+      gbl_resolv_flags.use_external_net_name_resolver = TRUE;
+    else
+      gbl_resolv_flags.use_external_net_name_resolver = FALSE;
 
     /* We've crossed the Rubicon; get rid of the file selection box. */
     window_destroy(GTK_WIDGET(file_open_w));

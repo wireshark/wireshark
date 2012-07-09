@@ -110,23 +110,24 @@ void file_set_save_marked_sensitive();
 #define EWFD_MAC_NR_CB     1002
 #define EWFD_NET_NR_CB     1003
 #define EWFD_TRANS_NR_CB   1004
+#define EWFD_EXTERNAL_NR_CB   1005
 
 /* Note: The preview title (PT) and text (PTX) MUST have sequential IDs;
    they're used in a for loop. EWFD_PT_FILENAME MUST be first, and
    EWFD_PTX_ELAPSED MUST be last.  (so why don't we just use an enum? */
-#define EWFD_PT_FILENAME   1005
-#define EWFD_PT_FORMAT     1006
-#define EWFD_PT_SIZE       1007
-#define EWFD_PT_PACKETS    1008
-#define EWFD_PT_FIRST_PKT  1009
-#define EWFD_PT_ELAPSED    1010
+#define EWFD_PT_FILENAME   1006
+#define EWFD_PT_FORMAT     1007
+#define EWFD_PT_SIZE       1008
+#define EWFD_PT_PACKETS    1009
+#define EWFD_PT_FIRST_PKT  1010
+#define EWFD_PT_ELAPSED    1011
 
-#define EWFD_PTX_FILENAME  1011
-#define EWFD_PTX_FORMAT    1012
-#define EWFD_PTX_SIZE      1013
-#define EWFD_PTX_PACKETS   1014
-#define EWFD_PTX_FIRST_PKT 1015
-#define EWFD_PTX_ELAPSED   1016
+#define EWFD_PTX_FILENAME  1012
+#define EWFD_PTX_FORMAT    1013
+#define EWFD_PTX_SIZE      1014
+#define EWFD_PTX_PACKETS   1015
+#define EWFD_PTX_FIRST_PKT 1016
+#define EWFD_PTX_ELAPSED   1017
 
 
 /* Save dialog defines */

@@ -1617,6 +1617,8 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.network_name, 0);
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
             SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.transport_name, 0);
+            cur_ctrl = GetDlgItem(of_hwnd, EWFD_EXTERNAL_NR_CB);
+            SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.use_external_net_name_resolver, 0);
 
             preview_set_filename(of_hwnd, NULL);
             break;
@@ -1639,6 +1641,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_TRANS_NR_CB);
                     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
                         gbl_resolv_flags.transport_name = TRUE;
+                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_EXTERNAL_NR_CB);
+                    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                        gbl_resolv_flags.use_external_net_name_resolver = TRUE;
                     break;
                 case CDN_SELCHANGE:
                     /* This _almost_ works correctly. We need to handle directory

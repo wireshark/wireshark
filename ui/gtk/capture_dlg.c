@@ -147,6 +147,7 @@ enum
 #define E_CAP_M_RESOLVE_KEY             "cap_m_resolve"
 #define E_CAP_N_RESOLVE_KEY             "cap_n_resolve"
 #define E_CAP_T_RESOLVE_KEY             "cap_t_resolve"
+#define E_CAP_E_RESOLVE_KEY             "cap_e_resolve"
 
 #define E_CAP_IFTYPE_CBX_KEY            "cap_iftype_cbx"
 #ifdef HAVE_PCAP_REMOTE
@@ -3584,7 +3585,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *display_fr, *display_vb,
                 *sync_cb, *auto_scroll_cb, *hide_info_cb,
                 *resolv_fr, *resolv_vb,
-                *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
+                *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb,
                 *bbox, *close_bt,
                 *help_bt;
 #ifdef HAVE_AIRPCAP
@@ -4091,6 +4092,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "Perform transport layer name resolution while capturing.");
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
 
+  e_resolv_cb = gtk_check_button_new_with_mnemonic(
+                "Use _external network name resolver");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(e_resolv_cb),
+                gbl_resolv_flags.use_external_net_name_resolver);
+  gtk_widget_set_tooltip_text(e_resolv_cb,
+                "Use the (system's) configured name resolver (e.g., DNS) to resolve network names.");
+  gtk_container_add(GTK_CONTAINER(resolv_vb), e_resolv_cb);
+
   /* Button row: "Start", "Cancel" and "Help" buttons */
   bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_START, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
@@ -4150,6 +4159,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_E_RESOLVE_KEY,  e_resolv_cb);  
 
   /* Set the sensitivity of various widgets as per the settings of other
      widgets. */
@@ -4304,7 +4314,7 @@ capture_dlg_prep(gpointer parent_w) {
             *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_cbx,
             *file_duration_cb, *file_duration_sb, *file_duration_cbx,
             *stop_files_cb, *stop_files_sb,
-            *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+            *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb;
   const gchar *g_save_file;
   gchar *cf_name;
   gchar *dirname;
@@ -4337,6 +4347,7 @@ capture_dlg_prep(gpointer parent_w) {
   m_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_M_RESOLVE_KEY);
   n_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
+  e_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_E_RESOLVE_KEY);
 
   if (global_capture_opts.num_selected == 0) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -4397,6 +4408,10 @@ capture_dlg_prep(gpointer parent_w) {
     gbl_resolv_flags.transport_name = TRUE;
   else
     gbl_resolv_flags.transport_name = FALSE;
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(e_resolv_cb)))
+    gbl_resolv_flags.use_external_net_name_resolver = TRUE;
+  else
+    gbl_resolv_flags.use_external_net_name_resolver = FALSE;
 
   global_capture_opts.has_ring_num_files =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb));

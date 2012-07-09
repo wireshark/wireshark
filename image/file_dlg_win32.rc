@@ -14,6 +14,7 @@ FONT 8, "MS Shell Dlg"
     CHECKBOX "MAC name resolution", EWFD_MAC_NR_CB, 7, 32, 100, 8,  BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP
     CHECKBOX "Network name resolution", EWFD_NET_NR_CB, 7, 47, 100, 8,  BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP
     CHECKBOX "Transport name resolution", EWFD_TRANS_NR_CB, 7, 62, 100, 8,  BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP
+    CHECKBOX "Use external network name resolver", EWFD_EXTERNAL_NR_CB, 7, 77, 135, 8,  BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP
 
     LTEXT "Filename:", EWFD_PT_FILENAME, 164, 4, 40, 8
     LTEXT "-", EWFD_PTX_FILENAME, 211, 4, 150, 8
