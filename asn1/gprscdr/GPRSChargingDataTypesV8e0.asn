@@ -1,0 +1,848 @@
+-- $Id$
+-- 3GPP TS 32.298 V8.14.0 (2012-03)
+--
+GPRSChargingDataTypesV8e0 {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version1 (0)}
+
+DEFINITIONS IMPLICIT TAGS	::=
+
+BEGIN
+
+-- EXPORTS everything 
+
+IMPORTS	
+-- CallDuration, CalledNumber, RecordType, CallingNumber, CallReferenceNumber, CellId, DefaultSMS-Handling, Diagnostics, Ext-GeographicalInformation, IMSI, IMEI, IPAddress, ISDN-AddressString, LCSCause, LCSClientExternalID, LCSClientIdentity, LCSClientInternalID, LCSClientType, LCS-Priority, LCSQoSInfo, LevelOfCAMELService, LocalSequenceNumber, LocationAreaAndCell, LocationAreaCode, LocationType, ManagementExtensions, MessageReference, MSISDN, NotificationToMSUser, PositioningData, RecordingEntity, ServiceKey, ServiceSpecificInfo, SMSResult, SmsTpDestinationNumber, SubscriptionID, TimeStamp, AddressString, MSTimeZone
+-- FROM GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}
+
+DefaultGPRS-Handling
+-- From V670
+-- , RAIdentity
+FROM MAP-MS-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0)
+gsm-Network (1) modules (3) map-MS-DataTypes (11) version6 (6)}
+--
+-- from TS 29.002 [60]
+
+LocationMethod
+FROM SS-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3) ss-DataTypes (2) version7 (7)}
+--
+-- from TS 24.080 [61] 
+
+-- MBMS2G3GIndicator, FileRepairSupported, MBMSServiceType, MBMSUserServiceType, RequiredMBMSBearerCapabilities, MBMSSessionIdentity, TMGI, MBMSInformation
+-- FROM MBMSChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) mbmsChargingDataTypes (8) asn1Module (0) version1 (0)}
+
+-- Editor’s note:  consider moving the above 2 items also into the generic module in order to avoid again copying from external sources.
+;
+
+------------------------------------------------------------------------------
+--
+--  GPRS RECORDS
+--
+------------------------------------------------------------------------------
+
+GPRSRecord	::= CHOICE 
+--
+-- Record values 20, 22..27 are specific
+-- Record values 76..77 are MBMS specific
+-- Record values 78..79 are EPC specific 
+{
+	sgsnPDPRecord			[20] SGSNPDPRecord,
+	sgsnMMRecord			[22] SGSNMMRecord,
+	sgsnSMORecord			[23] SGSNSMORecord,
+	sgsnSMTRecord			[24] SGSNSMTRecord,
+--	sgsnLCTRecord			[25] SGSNLCTRecord,
+--	sgsnLCORecord			[26] SGSNLCORecord,
+--	sgsnLCNRecord			[27] SGSNLCNRecord,
+--
+--
+--	sgsnMBMSRecord			[76] SGSNMBMSRecord,
+--	ggsnMBMSRecord			[77] GGSNMBMSRecord,
+	sGWRecord				[78] SGWRecord,
+	pGWRecord				[79] PGWRecord
+}
+
+SGWRecord 	::= SET
+{
+	recordType					[0] RecordType,
+	servedIMSI					[3] IMSI,
+	s-GWAddress					[4] GSNAddress,
+	chargingID					[5] ChargingID,
+	servingNodeAddress			[6] SEQUENCE OF GSNAddress,
+	accessPointNameNI			[7] AccessPointNameNI OPTIONAL,
+	pdpPDNType					[8] PDPType OPTIONAL,
+	servedPDPPDNAddress			[9] PDPAddress OPTIONAL,
+	dynamicAddressFlag			[11] DynamicAddressFlag OPTIONAL,
+	listOfTrafficVolumes		[12] SEQUENCE OF ChangeOfCharCondition OPTIONAL,
+	recordOpeningTime			[13] TimeStamp,
+	duration					[14] CallDuration,
+	causeForRecClosing			[15] CauseForRecClosing,
+	diagnostics					[16] Diagnostics OPTIONAL,
+	recordSequenceNumber		[17] INTEGER OPTIONAL,
+	nodeID						[18] NodeID OPTIONAL,
+	recordExtensions			[19] ManagementExtensions OPTIONAL,
+	localSequenceNumber			[20] LocalSequenceNumber OPTIONAL,
+	apnSelectionMode			[21] APNSelectionMode OPTIONAL,
+	servedMSISDN				[22] MSISDN OPTIONAL,
+	chargingCharacteristics		[23] ChargingCharacteristics,
+	chChSelectionMode			[24] ChChSelectionMode OPTIONAL,
+	iMSsignalingContext			[25] NULL OPTIONAL,
+	servingNodePLMNIdentifier	[27] PLMN-Id OPTIONAL,
+	servedIMEISV				[29] IMEI OPTIONAL,
+	rATType						[30] RATType OPTIONAL,
+	mSTimeZone 					[31] MSTimeZone OPTIONAL,
+	userLocationInformation		[32] OCTET STRING OPTIONAL,
+	sGWChange					[34] SGWChange OPTIONAL,
+	servingNodeType				[35] SEQUENCE OF ServingNodeType,
+	p-GWAddressUsed				[36] GSNAddress OPTIONAL,
+	p-GWPLMNIdentifier			[37] PLMN-Id OPTIONAL,
+	startTime					[38] TimeStamp OPTIONAL,
+	stopTime					[39] TimeStamp OPTIONAL,
+	pDNConnectionChargingID		[40] ChargingID OPTIONAL,
+	servedPDPPDNAddressExt 		[43] PDPAddress OPTIONAL,
+	dynamicAddressFlagExt		[47] DynamicAddressFlag OPTIONAL
+
+
+}
+
+PGWRecord 	::= SET
+{
+	recordType						[0] RecordType,
+	servedIMSI						[3] IMSI,
+	p-GWAddress						[4] GSNAddress,
+	chargingID						[5] ChargingID,
+	servingNodeAddress				[6] SEQUENCE OF GSNAddress,
+	accessPointNameNI				[7] AccessPointNameNI OPTIONAL,
+	pdpPDNType						[8] PDPType OPTIONAL,
+	servedPDPPDNAddress				[9] PDPAddress OPTIONAL,
+	dynamicAddressFlag				[11] DynamicAddressFlag OPTIONAL,
+	recordOpeningTime				[13] TimeStamp,
+	duration						[14] CallDuration,
+	causeForRecClosing				[15] CauseForRecClosing,
+	diagnostics						[16] Diagnostics OPTIONAL,
+	recordSequenceNumber			[17] INTEGER OPTIONAL,
+	nodeID							[18] NodeID OPTIONAL,
+	recordExtensions				[19] ManagementExtensions OPTIONAL,
+	localSequenceNumber				[20] LocalSequenceNumber OPTIONAL,
+	apnSelectionMode				[21] APNSelectionMode OPTIONAL,
+	servedMSISDN					[22] MSISDN OPTIONAL,
+	chargingCharacteristics			[23] ChargingCharacteristics,
+	chChSelectionMode				[24] ChChSelectionMode OPTIONAL,
+	iMSsignalingContext				[25] NULL OPTIONAL,
+	externalChargingID				[26] OCTET STRING OPTIONAL,
+	servinggNodePLMNIdentifier		[27] PLMN-Id OPTIONAL,
+	pSFurnishChargingInformation	[28] PSFurnishChargingInformation OPTIONAL,
+	servedIMEISV					[29] IMEI OPTIONAL,
+	rATType							[30] RATType OPTIONAL,
+	mSTimeZone 						[31] MSTimeZone OPTIONAL,
+	userLocationInformation			[32] OCTET STRING OPTIONAL,
+	cAMELChargingInformation		[33] OCTET STRING OPTIONAL,
+	listOfServiceData				[34] SEQUENCE OF ChangeOfServiceCondition OPTIONAL,
+	servingNodeType					[35] SEQUENCE OF ServingNodeType,
+	servedMNNAI						[36] SubscriptionID OPTIONAL,
+	p-GWPLMNIdentifier				[37] PLMN-Id OPTIONAL,
+	startTime						[38] TimeStamp OPTIONAL,
+	stopTime						[39] TimeStamp OPTIONAL,
+	served3gpp2MEID					[40] OCTET STRING OPTIONAL,
+	pDNConnectionChargingID			[41] ChargingID OPTIONAL,
+	tGPP2UserLocationInformation	[42] OCTET STRING OPTIONAL,
+	servedPDPPDNAddressExt 			[45] PDPAddress OPTIONAL,
+	dynamicAddressFlagExt			[47] DynamicAddressFlag OPTIONAL
+
+}
+
+SGSNMMRecord	::= SET
+{
+	recordType					[0] RecordType,
+	servedIMSI					[1] IMSI,
+	servedIMEI					[2] IMEI OPTIONAL,
+	sgsnAddress					[3] GSNAddress OPTIONAL,
+	msNetworkCapability			[4] MSNetworkCapability OPTIONAL,
+	routingArea					[5] RoutingAreaCode OPTIONAL,
+	locationAreaCode			[6] LocationAreaCode OPTIONAL,
+	cellIdentifier				[7] CellId OPTIONAL,
+	changeLocation				[8] SEQUENCE OF ChangeLocation OPTIONAL,
+	recordOpeningTime			[9] TimeStamp,
+	duration					[10] CallDuration OPTIONAL, 
+	sgsnChange					[11] SGSNChange OPTIONAL,
+	causeForRecClosing			[12] CauseForRecClosing,
+	diagnostics					[13] Diagnostics OPTIONAL,
+	recordSequenceNumber		[14] INTEGER OPTIONAL,
+	nodeID						[15] NodeID OPTIONAL,
+	recordExtensions			[16] ManagementExtensions OPTIONAL,
+	localSequenceNumber			[17] LocalSequenceNumber OPTIONAL,
+	servedMSISDN				[18] MSISDN OPTIONAL,
+	chargingCharacteristics		[19] ChargingCharacteristics,	
+	cAMELInformationMM 			[20] CAMELInformationMM OPTIONAL,
+	rATType						[21] RATType OPTIONAL,
+	chChSelectionMode			[22] ChChSelectionMode OPTIONAL,
+	cellPLMNId					[23] PLMN-Id OPTIONAL
+}
+
+SGSNPDPRecord 	::= SET
+{
+	recordType					[0] RecordType,
+	networkInitiation			[1] NetworkInitiatedPDPContext OPTIONAL,
+	servedIMSI					[3] IMSI,
+	servedIMEI					[4] IMEI OPTIONAL,
+	sgsnAddress					[5] GSNAddress OPTIONAL,
+	msNetworkCapability			[6] MSNetworkCapability OPTIONAL,
+	routingArea					[7] RoutingAreaCode OPTIONAL,
+	locationAreaCode			[8] LocationAreaCode OPTIONAL,
+	cellIdentifier				[9] CellId OPTIONAL,
+	chargingID					[10] ChargingID,
+	ggsnAddressUsed				[11] GSNAddress,
+	accessPointNameNI			[12] AccessPointNameNI OPTIONAL,
+	pdpType						[13] PDPType OPTIONAL,
+	servedPDPAddress			[14] PDPAddress OPTIONAL,
+	listOfTrafficVolumes		[15] SEQUENCE OF ChangeOfCharCondition OPTIONAL,
+	recordOpeningTime			[16] TimeStamp,
+	duration					[17] CallDuration,
+	sgsnChange					[18] SGSNChange OPTIONAL,
+	causeForRecClosing			[19] CauseForRecClosing,
+	diagnostics					[20] Diagnostics OPTIONAL,
+	recordSequenceNumber		[21] INTEGER OPTIONAL,
+	nodeID						[22] NodeID OPTIONAL,
+	recordExtensions			[23] ManagementExtensions OPTIONAL,
+	localSequenceNumber			[24] LocalSequenceNumber OPTIONAL,
+	apnSelectionMode			[25] APNSelectionMode OPTIONAL,
+	accessPointNameOI			[26] AccessPointNameOI OPTIONAL,
+	servedMSISDN				[27] MSISDN OPTIONAL,
+	chargingCharacteristics		[28] ChargingCharacteristics,
+	rATType						[29] RATType OPTIONAL,
+	cAMELInformationPDP  		[30] CAMELInformationPDP OPTIONAL,
+	rNCUnsentDownlinkVolume	   [31] DataVolumeGPRS OPTIONAL,
+	chChSelectionMode			[32] ChChSelectionMode OPTIONAL,
+	dynamicAddressFlag			[33] DynamicAddressFlag OPTIONAL
+}
+
+SGSNSMORecord	::= SET
+{
+	recordType					[0] RecordType,
+	servedIMSI					[1] IMSI,
+	servedIMEI					[2] IMEI OPTIONAL,
+	servedMSISDN				[3] MSISDN OPTIONAL,
+	msNetworkCapability			[4] MSNetworkCapability OPTIONAL,
+	serviceCentre				[5] AddressString OPTIONAL,
+	recordingEntity				[6] RecordingEntity OPTIONAL,
+	locationArea				[7] LocationAreaCode OPTIONAL,
+	routingArea					[8] RoutingAreaCode OPTIONAL,
+	cellIdentifier				[9] CellId OPTIONAL,
+	messageReference			[10] MessageReference,
+	eventTimeStamp				[11] TimeStamp,	
+	smsResult					[12] SMSResult OPTIONAL,
+	recordExtensions			[13] ManagementExtensions OPTIONAL, 
+	nodeID						[14] NodeID OPTIONAL,
+	localSequenceNumber			[15] LocalSequenceNumber OPTIONAL,
+	chargingCharacteristics		[16] ChargingCharacteristics,
+	rATType						[17] RATType OPTIONAL,
+	destinationNumber			[18] SmsTpDestinationNumber OPTIONAL,
+	cAMELInformationSMS			[19] CAMELInformationSMS OPTIONAL,
+	chChSelectionMode			[20] ChChSelectionMode OPTIONAL
+}
+
+SGSNSMTRecord	::= SET
+{
+	recordType				[0] RecordType,
+	servedIMSI				[1] IMSI,
+	servedIMEI				[2] IMEI OPTIONAL,
+	servedMSISDN			[3] MSISDN OPTIONAL,
+	msNetworkCapability		[4] MSNetworkCapability OPTIONAL,
+	serviceCentre			[5] AddressString OPTIONAL,
+	recordingEntity			[6] RecordingEntity OPTIONAL,
+	locationArea			[7] LocationAreaCode OPTIONAL,
+	routingArea				[8] RoutingAreaCode OPTIONAL,
+	cellIdentifier			[9] CellId OPTIONAL,
+	eventTimeStamp			[10] TimeStamp,	
+	smsResult				[11] SMSResult OPTIONAL,
+	recordExtensions		[12] ManagementExtensions OPTIONAL,
+	nodeID					[13] NodeID OPTIONAL,
+	localSequenceNumber		[14] LocalSequenceNumber OPTIONAL,
+	chargingCharacteristics	[15] ChargingCharacteristics,
+	rATType					[16] RATType OPTIONAL,
+	chChSelectionMode		[17] ChChSelectionMode OPTIONAL,
+	cAMELInformationSMS		[18] CAMELInformationSMS OPTIONAL
+}
+
+SGSNMTLCSRecord			::= SET
+{
+	recordType				[0] RecordType,
+	recordingEntity			[1] RecordingEntity,
+	lcsClientType			[2] LCSClientType,
+	lcsClientIdentity		[3] LCSClientIdentity,
+	servedIMSI				[4] IMSI,
+	servedMSISDN			[5] MSISDN OPTIONAL,
+	sgsnAddress				[6] GSNAddress OPTIONAL,
+	locationType			[7] LocationType,
+	lcsQos					[8] LCSQoSInfo OPTIONAL,
+	lcsPriority				[9] LCS-Priority OPTIONAL,
+	mlcNumber				[10] ISDN-AddressString,
+	eventTimeStamp			[11] TimeStamp,
+	measurementDuration		[12] CallDuration OPTIONAL,
+	notificationToMSUser	[13] NotificationToMSUser OPTIONAL,
+	privacyOverride			[14] NULL OPTIONAL,
+	location				[15] LocationAreaAndCell OPTIONAL,
+	routingArea				[16] RoutingAreaCode OPTIONAL,
+	locationEstimate		[17] Ext-GeographicalInformation OPTIONAL,
+	positioningData			[18] PositioningData OPTIONAL,
+	lcsCause				[19] LCSCause OPTIONAL,
+	diagnostics				[20] Diagnostics OPTIONAL,
+	nodeID					[21] NodeID OPTIONAL,
+	localSequenceNumber		[22] LocalSequenceNumber OPTIONAL,
+	chargingCharacteristics	[23] ChargingCharacteristics,
+	chChSelectionMode		[24] ChChSelectionMode OPTIONAL,
+	rATType					[25] RATType OPTIONAL,
+	recordExtensions		[26] ManagementExtensions OPTIONAL,
+	causeForRecClosing		[27] CauseForRecClosing
+}
+
+SGSNMOLCSRecord			::= SET
+{
+	recordType				[0] RecordType,
+	recordingEntity			[1] RecordingEntity,
+	lcsClientType			[2] LCSClientType OPTIONAL,
+	lcsClientIdentity		[3] LCSClientIdentity OPTIONAL,
+	servedIMSI				[4] IMSI,
+	servedMSISDN			[5] MSISDN OPTIONAL,
+	sgsnAddress				[6] GSNAddress OPTIONAL,
+	locationMethod			[7] LocationMethod,
+	lcsQos					[8] LCSQoSInfo OPTIONAL,
+	lcsPriority				[9] LCS-Priority OPTIONAL,
+	mlcNumber				[10] ISDN-AddressString OPTIONAL,
+	eventTimeStamp			[11] TimeStamp,
+	measurementDuration		[12] CallDuration OPTIONAL,
+	location				[13] LocationAreaAndCell OPTIONAL,
+	routingArea				[14] RoutingAreaCode OPTIONAL,
+	locationEstimate		[15] Ext-GeographicalInformation OPTIONAL,
+	positioningData			[16] PositioningData OPTIONAL,
+	lcsCause				[17] LCSCause OPTIONAL,
+	diagnostics				[18] Diagnostics OPTIONAL,
+	nodeID					[19] NodeID OPTIONAL,
+	localSequenceNumber	    [20] LocalSequenceNumber OPTIONAL,
+	chargingCharacteristics	[21] ChargingCharacteristics,
+	chChSelectionMode		[22] ChChSelectionMode OPTIONAL,
+	rATType					[23] RATType OPTIONAL,
+	recordExtensions		[24] ManagementExtensions OPTIONAL,
+	causeForRecClosing		[25] CauseForRecClosing
+}
+
+SGSNNILCSRecord			::= SET
+{
+	recordType				[0] RecordType,
+	recordingEntity			[1] RecordingEntity,
+	lcsClientType			[2] LCSClientType OPTIONAL,
+	lcsClientIdentity		[3] LCSClientIdentity OPTIONAL,
+	servedIMSI				[4] IMSI OPTIONAL,
+	servedMSISDN			[5] MSISDN OPTIONAL,
+	sgsnAddress				[6] GSNAddress OPTIONAL,
+	servedIMEI				[7] IMEI OPTIONAL,
+	lcsQos					[8] LCSQoSInfo OPTIONAL,
+	lcsPriority				[9] LCS-Priority OPTIONAL,
+	mlcNumber				[10] ISDN-AddressString OPTIONAL,
+	eventTimeStamp			[11] TimeStamp,
+	measurementDuration		[12] CallDuration OPTIONAL,
+	location				[13] LocationAreaAndCell OPTIONAL,
+	routingArea			    [14] RoutingAreaCode OPTIONAL,
+	locationEstimate		[15] Ext-GeographicalInformation OPTIONAL,
+	positioningData			[16] PositioningData OPTIONAL,
+	lcsCause				[17] LCSCause OPTIONAL,
+	diagnostics				[18] Diagnostics OPTIONAL,
+	nodeID					[19] NodeID OPTIONAL,
+	localSequenceNumber	    [20] LocalSequenceNumber OPTIONAL,
+	chargingCharacteristics	[21] ChargingCharacteristics,
+	chChSelectionMode		[22] ChChSelectionMode OPTIONAL,
+	rATType					[23] RATType OPTIONAL,
+	recordExtensions		[24] ManagementExtensions OPTIONAL,
+	causeForRecClosing		[25] CauseForRecClosing 
+}
+
+SGSNMBMSRecord 	::= SET
+{
+	recordType					[0] RecordType,
+	ggsnAddress					[1] GSNAddress,
+	chargingID					[2] ChargingID,
+	listofRAs					[3] SEQUENCE OF RAIdentity OPTIONAL,
+	accessPointNameNI			[4] AccessPointNameNI OPTIONAL,
+	servedPDPAddress			[5] PDPAddress OPTIONAL,
+	listOfTrafficVolumes		[6] SEQUENCE OF ChangeOfMBMSCondition OPTIONAL,
+	recordOpeningTime			[7] TimeStamp,
+	duration					[8] CallDuration,
+	causeForRecClosing			[9] CauseForRecClosing,
+	diagnostics					[10] Diagnostics OPTIONAL,
+	recordSequenceNumber		[11] INTEGER OPTIONAL,
+	nodeID						[12] NodeID OPTIONAL,
+	recordExtensions			[13] ManagementExtensions OPTIONAL,
+	localSequenceNumber			[14] LocalSequenceNumber OPTIONAL,
+	sgsnPLMNIdentifier			[15] PLMN-Id OPTIONAL,
+	numberofReceivingUE			[16] INTEGER OPTIONAL,
+	mbmsInformation				[17] MBMSInformation OPTIONAL
+}
+
+GGSNMBMSRecord 	::= SET
+{
+	recordType					[0] RecordType,
+	ggsnAddress					[1] GSNAddress,
+	chargingID					[2] ChargingID,
+	listofDownstreamNodes		[3] SEQUENCE OF GSNAddress,
+	accessPointNameNI			[4] AccessPointNameNI OPTIONAL,
+	servedPDPAddress			[5] PDPAddress OPTIONAL,
+	listOfTrafficVolumes		[6] SEQUENCE OF ChangeOfMBMSCondition OPTIONAL,
+	recordOpeningTime			[7] TimeStamp,
+	duration					[8] CallDuration,
+	causeForRecClosing			[9] CauseForRecClosing,
+	diagnostics					[10] Diagnostics OPTIONAL,
+	recordSequenceNumber		[11] INTEGER OPTIONAL,
+	nodeID						[12] NodeID OPTIONAL,
+	recordExtensions			[13] ManagementExtensions OPTIONAL,
+	localSequenceNumber			[14] LocalSequenceNumber OPTIONAL,
+	mbmsInformation				[15] MBMSInformation OPTIONAL
+}
+
+------------------------------------------------------------------------------
+--
+--  PS DATA TYPES
+--
+------------------------------------------------------------------------------
+
+AccessPointNameNI	::= IA5String (SIZE(1..63))
+	--
+	-- Network Identifier part of APN in  dot representation.
+	-- For example, if the complete APN is 'apn1a.apn1b.apn1c.mnc022.mcc111.gprs'
+	-- NI is 'apn1a.apn1b.apn1c' and is presented in this form in the CDR..
+	--
+
+AccessPointNameOI	::= IA5String (SIZE(1..37))
+	--
+	-- Operator Identifier part of APN in dot representation.
+	-- In the 'apn1a.apn1b.apn1c.mnc022.mcc111.gprs' example, the OI portion is 'mnc022.mcc111.gprs'
+	-- and is presented in this form in the CDR.
+	--
+
+AFChargingIdentifier ::= OCTET STRING
+    --
+    -- see AF-Charging-Identifier AVP as defined in TS 29.214[89]
+    --
+
+AFRecordInformation	::= SEQUENCE
+{
+	aFChargingIdentifier		[1] AFChargingIdentifier,
+	flows						[2] Flows OPTIONAL
+}
+
+APNSelectionMode::= ENUMERATED
+{
+	--
+	-- See Information Elements TS 29.060 [75], TS 29.274 [91] or TS 29.275 [92]
+	--
+	mSorNetworkProvidedSubscriptionVerified				(0),
+	mSProvidedSubscriptionNotVerified					(1),
+	networkProvidedSubscriptionNotVerified				(2)
+}
+
+CAMELAccessPointNameNI	::= AccessPointNameNI
+
+CAMELAccessPointNameOI	::= AccessPointNameOI
+
+CAMELInformationMM		::= SET 
+{
+	sCFAddress						[1] SCFAddress OPTIONAL,
+	serviceKey						[2]	ServiceKey OPTIONAL,
+	defaultTransactionHandling		[3]	DefaultGPRS-Handling OPTIONAL,
+	numberOfDPEncountered  			[4] NumberOfDPEncountered OPTIONAL,
+	levelOfCAMELService				[5] LevelOfCAMELService OPTIONAL,
+	freeFormatData					[6] FreeFormatData OPTIONAL,
+	fFDAppendIndicator				[7]	FFDAppendIndicator OPTIONAL
+}
+
+CAMELInformationPDP	::= SET
+{
+	sCFAddress						[1] SCFAddress OPTIONAL,
+	serviceKey						[2]	ServiceKey OPTIONAL,
+	defaultTransactionHandling		[3]	DefaultGPRS-Handling OPTIONAL,
+	cAMELAccessPointNameNI			[4] CAMELAccessPointNameNI OPTIONAL,
+	cAMELAccessPointNameOI			[5] CAMELAccessPointNameOI OPTIONAL,
+	numberOfDPEncountered			[6] NumberOfDPEncountered OPTIONAL,
+	levelOfCAMELService				[7] LevelOfCAMELService OPTIONAL,
+	freeFormatData					[8]	FreeFormatData OPTIONAL,
+	fFDAppendIndicator				[9]	FFDAppendIndicator OPTIONAL
+}
+
+CAMELInformationSMS		::= SET 
+{
+	sCFAddress								[1] SCFAddress OPTIONAL,
+	serviceKey								[2]	ServiceKey OPTIONAL,
+	defaultSMSHandling						[3]	DefaultSMS-Handling OPTIONAL,
+	cAMELCallingPartyNumber					[4] CallingNumber OPTIONAL,
+	cAMELDestinationSubscriberNumber		[5] SmsTpDestinationNumber OPTIONAL,
+	cAMELSMSCAddress						[6] AddressString OPTIONAL,
+	freeFormatData							[7]	FreeFormatData OPTIONAL,
+	smsReferenceNumber						[8] CallReferenceNumber	OPTIONAL
+}
+
+CauseForRecClosing	::= INTEGER
+{
+	--
+	-- In PGW-CDR and SGW-CDR the value servingNodeChange is used for partial record
+	-- generation due to Serving Node Address list Overflow
+	-- In SGSN servingNodeChange indicates the SGSN change
+	-- 	
+	-- LCS related causes belong to the MAP error causes acc. TS 29.002 [60]
+	--
+	-- cause codes 0 to 15 are defined 'CauseForTerm' (cause for termination)
+	--
+	normalRelease					(0),
+	abnormalRelease					(4),
+	cAMELInitCallRelease			(5),
+	volumeLimit						(16),
+	timeLimit						(17),
+	servingNodeChange				(18),
+	maxChangeCond					(19),
+	managementIntervention			(20),
+	intraSGSNIntersystemChange		(21),
+	rATChange						(22),
+	mSTimeZoneChange				(23),
+	sGSNPLMNIDChange 				(24),
+	unauthorizedRequestingNetwork	(52),
+	unauthorizedLCSClient			(53),
+	positionMethodFailure			(54),
+	unknownOrUnreachableLCSClient	(58),
+	listofDownstreamNodeChange		(59)
+}
+
+ChangeCondition	::= ENUMERATED
+{
+	qoSChange								(0),
+	tariffTime								(1),
+	recordClosure							(2),
+	cGI-SAICHange							(6), 	-- bearer modification. "CGI-SAI Change"
+	rAIChange								(7), 	-- bearer modification. "RAI Change"
+	dT-Establishment						(8),
+	dT-Removal								(9),
+	eCGIChange								(10), 	-- bearer modification. "ECGI Change"
+	tAIChange								(11), 	-- bearer modification. "TAI Change"
+	userLocationChange						(12)	-- bearer modification. "User Location Change"
+
+}
+
+ChangeOfCharCondition	::= SEQUENCE
+{
+	--
+	-- qosRequested and qosNegotiated are used in S-CDR only
+	-- ePCQoSInformation used in SGW-CDR only
+	--
+	qosRequested				[1] QoSInformation OPTIONAL,
+	qosNegotiated				[2] QoSInformation OPTIONAL,
+	dataVolumeGPRSUplink		[3] DataVolumeGPRS OPTIONAL,
+	dataVolumeGPRSDownlink		[4] DataVolumeGPRS OPTIONAL,
+	changeCondition				[5] ChangeCondition,
+	changeTime					[6] TimeStamp,
+	userLocationInformation		[8] OCTET STRING OPTIONAL,
+	ePCQoSInformation			[9] EPCQoSInformation OPTIONAL
+}
+
+ChangeOfMBMSCondition	::= SEQUENCE
+{
+	--
+	-- Used in MBMS record
+	--
+	qosRequested				[1] QoSInformation OPTIONAL,
+	qosNegotiated				[2] QoSInformation OPTIONAL,
+	dataVolumeMBMSUplink		[3] DataVolumeMBMS OPTIONAL,
+	dataVolumeMBMSDownlink		[4] DataVolumeMBMS,
+	changeCondition				[5] ChangeCondition,
+	changeTime					[6] TimeStamp,
+	failureHandlingContinue		[7] FailureHandlingContinue OPTIONAL
+}
+
+ChangeOfServiceCondition	::= SEQUENCE
+{
+	--
+	-- Used for Flow based Charging service data container
+	--
+	ratingGroup 					[1] RatingGroupId,
+	chargingRuleBaseName			[2] ChargingRuleBaseName OPTIONAL,
+	resultCode						[3] ResultCode OPTIONAL,
+	localSequenceNumber				[4] LocalSequenceNumber OPTIONAL,
+	timeOfFirstUsage				[5] TimeStamp OPTIONAL,
+	timeOfLastUsage					[6] TimeStamp OPTIONAL,
+	timeUsage 						[7] CallDuration OPTIONAL,
+	serviceConditionChange			[8] ServiceConditionChange,
+	qoSInformationNeg				[9] EPCQoSInformation OPTIONAL,
+	servingNodeAddress 				[10] GSNAddress OPTIONAL,
+	datavolumeFBCUplink				[12] DataVolumeGPRS OPTIONAL,
+	datavolumeFBCDownlink			[13] DataVolumeGPRS OPTIONAL,
+	timeOfReport					[14] TimeStamp,
+	failureHandlingContinue			[16] FailureHandlingContinue OPTIONAL,
+	serviceIdentifier				[17] ServiceIdentifier OPTIONAL,
+	pSFurnishChargingInformation	[18] PSFurnishChargingInformation OPTIONAL,
+	aFRecordInformation				[19] SEQUENCE OF AFRecordInformation OPTIONAL,
+	userLocationInformation			[20] OCTET STRING OPTIONAL,
+	eventBasedChargingInformation	[21] EventBasedChargingInformation OPTIONAL,
+	timeQuotaMechanism				[22] TimeQuotaMechanism OPTIONAL,
+	serviceSpecificInfo				[23] SEQUENCE OF ServiceSpecificInfo OPTIONAL,
+	tGPP2UserLocationInformation	[24] OCTET STRING OPTIONAL
+}
+
+ChangeLocation	::= SEQUENCE
+{
+	--
+	-- used in SGSNMMRecord only
+	--
+	locationAreaCode		[0] LocationAreaCode,
+	routingAreaCode			[1] RoutingAreaCode,
+	cellId					[2] CellId OPTIONAL,
+	changeTime				[3] TimeStamp,
+	mCC-MNC					[4] PLMN-Id OPTIONAL
+}
+
+ChargingCharacteristics	::= OCTET STRING (SIZE(2))
+
+ChargingID	::= INTEGER (0..4294967295)
+	--
+	-- Generated in P-GW, part of IP CAN bearer	
+	-- 0..4294967295 is equivalent to 0..2**32-1
+	--
+
+ChargingRuleBaseName ::= IA5String (SIZE(1..16))
+	-- 
+	-- identifier for the group of charging rules
+	-- see Charging-Rule-Base-Name AVP as desined in TS 29.212 [88]
+	--
+
+ChChSelectionMode		::= ENUMERATED
+{
+	servingNodeSupplied			(0),	-- For S-GW/P-GW
+	subscriptionSpecific		(1),	-- For SGSN only
+	aPNSpecific					(2),	-- For SGSN only
+	homeDefault					(3),	-- For SGSN, S-GW and P-GW
+	roamingDefault				(4),	-- For SGSN, S-GW and P-GW	
+	visitingDefault				(5)		-- For SGSN, S-GW and P-GW
+}
+
+DataVolumeGPRS	::= INTEGER
+	--
+	-- The volume of data transferred in octets.
+	--
+
+DynamicAddressFlag	::= BOOLEAN
+
+EPCQoSInformation	::= SEQUENCE
+{
+	--
+	-- See TS 29.212 [88] for more information
+	-- 
+	qCI							[1] INTEGER,
+	maxRequestedBandwithUL		[2] INTEGER OPTIONAL,
+	maxRequestedBandwithDL		[3] INTEGER OPTIONAL,
+	guaranteedBitrateUL			[4] INTEGER OPTIONAL,
+	guaranteedBitrateDL			[5] INTEGER OPTIONAL,
+	aRP							[6] INTEGER OPTIONAL,
+	aPNAggregateMaxBitrateUL 	[7] INTEGER OPTIONAL,
+	aPNAggregateMaxBitrateDL 	[8] INTEGER OPTIONAL
+
+}
+
+EventBasedChargingInformation  ::= SEQUENCE
+{
+	numberOfEvents		[1] INTEGER,
+	eventTimeStamps  	[2] SEQUENCE OF TimeStamp OPTIONAL
+}
+
+FailureHandlingContinue  ::= BOOLEAN
+	--
+-- This parameter is included when the failure handling procedure has been executed and new 
+-- containers are opened. This parameter shall be included in the first and subsequent 
+-- containers opened after the failure handling execution.
+	--
+
+FFDAppendIndicator	::= BOOLEAN
+
+Flows  ::= 	SEQUENCE
+	--
+	-- See Flows AVP as defined in TS 29.214 [89] 
+	--
+{
+	mediaComponentNumber	[1] INTEGER,
+	flowNumber  			[2] SEQUENCE OF INTEGER OPTIONAL
+}
+
+FreeFormatData	::=	OCTET STRING (SIZE(1..160))
+	--
+	-- Free formatted data as sent in the FurnishChargingInformationGPRS 
+	-- see TS 29.078 [66]
+	--
+
+GSNAddress	::= IPAddress
+
+MSNetworkCapability	::= OCTET STRING (SIZE(1..8))
+	-- see TS 24.008 [64]
+
+NetworkInitiatedPDPContext	::= BOOLEAN
+	--
+	-- Set to true if PDP context was initiated from network side
+	--
+
+NodeID	::= IA5String (SIZE(1..20))
+
+NumberOfDPEncountered  ::= INTEGER
+
+PDPAddress	::= CHOICE
+{
+	iPAddress				[0] IPAddress
+--	eTSIAddress			   [1] ETSIAddress : has only been used in earlier releases for X.121 format
+}
+
+PDPType		::= OCTET STRING (SIZE(2))
+	--
+	-- OCTET 1: PDP Type Organization
+	-- OCTET 2: PDP/PDN Type Number
+	-- See TS 29.060 [75] for encoding details. 
+	--
+
+PLMN-Id		::= OCTET STRING (SIZE (3))
+	--
+	--	This is a 1:1 copy from the Routing Area Identity (RAI) IE specified in TS 29.060 [75]
+	--  as follows:
+	--	OCTET 1 of PLMN-Id = OCTET 2 of RAI  
+	--	OCTET 2 of PLMN-Id = OCTET 3 of RAI  
+	--	OCTET 3 of PLMN-Id = OCTET 4 of RAI  
+	--
+
+
+PSFurnishChargingInformation  ::= SEQUENCE
+{
+	pSFreeFormatData		[1] FreeFormatData,
+	pSFFDAppendIndicator  	[2] FFDAppendIndicator OPTIONAL
+}
+
+QoSInformation	::= OCTET STRING (SIZE (4..255))
+	--
+	-- This  octet string 
+	-- is a 1:1 copy of the contents (i.e. starting with octet 5) of the "Bearer Quality of 
+	-- Service" information element specified in TS 29.274 [92].
+	--
+
+RatingGroupId ::= INTEGER
+	-- 
+	-- IP service flow identity (DCCA), range of 4 byte (0...4294967295)
+	-- see Rating-Group AVP as used in TS 32.299 [40]
+	--
+
+RATType	::= INTEGER
+	--
+	-- Ihis integer is 1:1 copy of the RAT type value as defined in TS 29.061 [82]. 
+	--
+-- WS Extension
+{
+	reserved			(0),
+	utran				(1),
+	geran				(2),
+	wlan				(3),
+	gan					(4),
+	hspa-evolution		(5)
+}(0..255)
+
+ResultCode ::= INTEGER
+-- 
+	-- charging protocol return value, range of 4 byte (0...4294967295)
+	-- see Result-Code AVP as used in 3GPP 32.299 [40]
+	--
+
+RoutingAreaCode	::= OCTET STRING (SIZE(1))
+	--
+	-- See TS 24.008 [64]	
+	--
+
+ServiceConditionChange	::= BIT STRING 
+{
+	qoSChange 								 (0),	-- bearer modification
+	sGSNChange 								 (1), 	-- bearer modification
+	sGSNPLMNIDChange 						 (2), 	-- bearer modification
+	tariffTimeSwitch 						 (3), 	-- tariff time change
+	pDPContextRelease 						 (4), 	-- bearer release
+	rATChange 								 (5),	-- bearer modification
+	serviceIdledOut 						 (6),	-- IP flow idle out, DCCA QHT expiry
+	reserved 								 (7),	-- old: QCTexpiry is no report event
+	configurationChange 					 (8),	-- configuration change
+	serviceStop 							 (9), 	-- IP flow termination.From "Service Stop" in 
+													-- Change-Condition" AVP
+	dCCATimeThresholdReached 				(10),	-- DCCA quota reauthorization
+	dCCAVolumeThresholdReached 				(11), 	-- DCCA quota reauthorization
+	dCCAServiceSpecificUnitThresholdReached	(12), 	-- DCCA quota reauthorization
+	dCCATimeExhausted 						(13), 	-- DCCA quota reauthorization
+	dCCAVolumeExhausted 					(14), 	-- DCCA quota reauthorization
+	dCCAValidityTimeout 					(15), 	-- DCCA quota validity time (QVT expiry)
+	reserved1								(16),	-- reserved due to no use case, 
+													-- old: return Requested is covered by (17),(18)
+	dCCAReauthorisationRequest 				(17), 	-- DCCA quota reauthorization request by OCS
+	dCCAContinueOngoingSession 				(18), 	-- DCCA failure handling (CCFH),
+													-- continue IP flow
+	dCCARetryAndTerminateOngoingSession		(19), 	-- DCCA failure handling (CCFH),
+													-- terminate IP flow after DCCA retry
+	dCCATerminateOngoingSession 			(20), 	-- DCCA failure handling,
+													-- terminate IP flow
+	cGI-SAIChange							(21), 	-- bearer modification. "CGI-SAI Change"
+	rAIChange								(22), 	-- bearer modification. "RAI Change"
+	dCCAServiceSpecificUnitExhausted		(23), 	-- DCCA quota reauthorization
+	recordClosure							(24),	-- PGW-CDR closure
+	timeLimit								(25),	-- intermediate recording. From "Service Data 													
+	--	Time Limit" Change-Condition AVP value
+	volumeLimit								(26),	-- intermediate recording.From "Service Data 														
+	--	Volume Limit" Change-Condition AVP value
+	serviceSpecificUnitLimit				(27),	-- intermediate recording
+	envelopeClosure 						(28),	
+	eCGIChange								(29), 	-- bearer modification. "ECGI Change"
+	tAIChange								(30), 	-- bearer modification. "TAI Change"
+	userLocationChange						(31)	-- bearer modification. "User Location Change"
+
+} 
+--
+-- Trigger and cause values for IP flow level recording are defined for support of independent
+-- online and offline charging and also for tight interworking between online and offline charging.
+-- Unused bits will always be zero.
+-- Some of the values are non-exclusive (e.g. bearer modification reasons).
+	--
+
+SCFAddress	::= AddressString
+	--
+	-- See TS 29.002 [60]
+	--
+
+ServiceIdentifier	::= INTEGER (0..4294967295)
+	--
+	-- The service identifier is used to identify the service or the service component
+	-- the service data flow relates to. See Service-Identifier AVP as defined 
+	-- in TS 29.212 [88]
+	--
+
+ServingNodeType	::= ENUMERATED
+{
+	sGSN		(0),
+	pMIPSGW		(1),
+gTPSGW		(2),
+	ePDG		(3),
+	hSGW		(4),
+		mME			(5)
+}
+
+SGSNChange	::= BOOLEAN
+	--
+	-- present if first record after inter SGSN routing area update
+	-- in new SGSN
+	--
+
+SGWChange	::= BOOLEAN
+	--
+	-- present if first record after inter S-GW change
+	--
+
+TimeQuotaMechanism	::= SEQUENCE
+{
+	timeQuotaType					[1] TimeQuotaType,
+	baseTimeInterval				[2] INTEGER
+}
+
+TimeQuotaType	::= ENUMERATED
+{
+	dISCRETETIMEPERIOD			(0),
+	cONTINUOUSTIMEPERIOD			(1)
+}
+
+END

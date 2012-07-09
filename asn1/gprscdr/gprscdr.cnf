@@ -28,6 +28,8 @@ ChangeOfMBMSCondition
 #.EXPORTS
 GPRSCallEventRecord
 GPRSCallEventRecord_PDU
+GPRSRecord
+GPRSRecord_PDU
 
 #.CLASS ATTRIBUTE
 &id                    ObjectIdentifierType
@@ -39,6 +41,7 @@ GPRSCallEventRecord_PDU
 
 #.PDU_NEW
 GPRSCallEventRecord
+GPRSRecord
 
 
 #.FN_BODY ManagementExtension/information

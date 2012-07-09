@@ -7550,7 +7550,11 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 
             /* XXX this is for release 6, may not work for higher releases */
             if(format==1) {
-                dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
+                if(rel_id == 6){
+                    dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
+                }else if(rel_id == 8){
+                    dissect_gprscdr_GPRSRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
+                }
             } else {
                 /* Do we have a dissector regestering for this data format? */
                 dissector_try_uint(gtp_cdr_fmt_dissector_table, format, next_tvb, pinfo, cdr_dr_tree);
