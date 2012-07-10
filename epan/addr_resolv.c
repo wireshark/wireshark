@@ -2370,42 +2370,45 @@ addr_resolve_pref_init(module_t *nameres)
                                   "Resolve Ethernet MAC address to manufacturer names",
                                   &gbl_resolv_flags.mac_name);
 
-    prefs_register_bool_preference(nameres, "network_name",
-                                  "Enable network name resolution",
-                                  "Resolve IP addresses into host names",
-                                  &gbl_resolv_flags.network_name);
-
     prefs_register_bool_preference(nameres, "transport_name",
                                   "Enable transport name resolution",
                                   "Resolve TCP/UDP ports into service names",
                                   &gbl_resolv_flags.transport_name);
 
+    prefs_register_bool_preference(nameres, "network_name",
+                                  "Enable network name resolution",
+                                  "Resolve IP addresses into host names."
+                                  " Next set of check boxes determines how name resolution should be performed"
+                                  " If unchecked name resolution is made from Wiresharks host file,"
+                                  " name resolution block and DNS packets in the capture",
+                                  &gbl_resolv_flags.network_name);
+
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
                                   "Use external network name resolver",
                                   "Use the (system's) configured name resolver"
-				  " (e.g., DNS) to resolve network names."
-				  " Only applies when network name resolution"
-				  " is enabled",
+                                  " (e.g., DNS) to resolve network names."
+                                  " Only applies when network name resolution"
+                                  " is enabled",
                                   &gbl_resolv_flags.use_external_net_name_resolver);
 
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
     prefs_register_bool_preference(nameres, "concurrent_dns",
                                   "Enable concurrent DNS name resolution",
                                   "Enable concurrent DNS name resolution.  Only"
-				  " applies when network name resolution is"
-				  " enabled",
+				                  " applies when network name resolution is"
+				                  " enabled",
                                   &gbl_resolv_flags.concurrent_dns);
 
     prefs_register_uint_preference(nameres, "name_resolve_concurrency",
-				   "Maximum concurrent requests",
-				   "Maximum parallel running DNS requests",
-				   10,
-				   &name_resolve_concurrency);
+                				   "Maximum concurrent requests",
+				                   "Maximum parallel running DNS requests",
+				                   10,
+				                   &name_resolve_concurrency);
 #else
     prefs_register_static_text_preference(nameres, "concurrent_dns",
-                       "Enable concurrent DNS name resolution: N/A", 
-                       "Support for concurrent DNS name resolution was not"
-		       " compiled into this version of Wireshark");
+                                   "Enable concurrent DNS name resolution: N/A", 
+                                   "Support for concurrent DNS name resolution was not"
+		                           " compiled into this version of Wireshark");
 #endif
 }
 
