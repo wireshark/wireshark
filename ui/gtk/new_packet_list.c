@@ -172,6 +172,10 @@ right_justify_column (gint col)
 	case COL_CUMULATIVE_BYTES:
 	case COL_DCE_CALL:
 	case COL_DSCP_VALUE:
+	case COL_UNRES_DST_PORT:
+	case COL_UNRES_SRC_PORT:
+	case COL_DEF_DST_PORT:
+	case COL_DEF_SRC_PORT:
 		right_justify = TRUE;
 		break;
 
