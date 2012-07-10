@@ -2304,6 +2304,8 @@ static dissector_table_t	map_prop_err_opcode_table; /* prorietary operation code
 /* Preferenc settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
+#define APPLICATON_CONTEXT_FROM_TRACE 0
+static gint pref_application_context_version = APPLICATON_CONTEXT_FROM_TRACE;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -17835,7 +17837,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 823 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 825 "../../asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -18047,7 +18049,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 834 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 836 "../../asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -18252,7 +18254,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 838 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 840 "../../asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -19251,15 +19253,19 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   struct tcap_private_t * p_private_tcap;
 
   opcode = 0;
-  application_context_version = 0;
-  if (actx->pinfo->private_data != NULL){
-    p_private_tcap = (struct tcap_private_t *)actx->pinfo->private_data;
-    if (p_private_tcap->acv==TRUE ){
-      version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
-      if (version_ptr){
-		  application_context_version = atoi(version_ptr+1);
+  if (pref_application_context_version == APPLICATON_CONTEXT_FROM_TRACE) {
+	  application_context_version = 0;
+	  if (actx->pinfo->private_data != NULL){
+		p_private_tcap = (struct tcap_private_t *)actx->pinfo->private_data;
+		if (p_private_tcap->acv==TRUE ){
+		  version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
+		  if (version_ptr){
+			  application_context_version = atoi(version_ptr+1);
+		  }
+		}
 	  }
-    }
+  }else{
+	  application_context_version = pref_application_context_version;
   }
 
   gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
@@ -25859,7 +25865,7 @@ void proto_register_gsm_map(void) {
         "LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2569 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2575 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -26488,8 +26494,17 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2599 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2605 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
+
+  static enum_val_t application_context_modes[] = {
+    {"Use Application Context from the trace", "Use application context from the trace", APPLICATON_CONTEXT_FROM_TRACE},
+    {"Treat as AC 1", "Treat as AC 1", 1},
+    {"Treat as AC 2", "Treat as AC 2", 2},
+    {"Treat as AC 3", "Treat as AC 3", 3},
+    {NULL, NULL, -1}
+  };
+
 
   /* Register protocol */
   proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -26568,7 +26583,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2621 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2636 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
@@ -26583,4 +26598,10 @@ void proto_register_gsm_map(void) {
   prefs_register_range_preference(gsm_map_module, "tcap.ssn", "TCAP SSNs",
 				  "TCAP Subsystem numbers used for GSM MAP",
 				  &global_ssn_range, MAX_SSN);
+
+  prefs_register_enum_preference(gsm_map_module, "application.context.version",
+				  "Application context version",
+				  "How to treat Application context",
+				  &pref_application_context_version, application_context_modes, APPLICATON_CONTEXT_FROM_TRACE);
+
 }

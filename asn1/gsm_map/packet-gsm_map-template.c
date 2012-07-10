@@ -189,6 +189,8 @@ static dissector_table_t	map_prop_err_opcode_table; /* prorietary operation code
 /* Preferenc settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
+#define APPLICATON_CONTEXT_FROM_TRACE 0
+static gint pref_application_context_version = APPLICATON_CONTEXT_FROM_TRACE;
 
 /* Global variables */
 static guint32 opcode=0;
@@ -1833,15 +1835,19 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   struct tcap_private_t * p_private_tcap;
 
   opcode = 0;
-  application_context_version = 0;
-  if (actx->pinfo->private_data != NULL){
-    p_private_tcap = (struct tcap_private_t *)actx->pinfo->private_data;
-    if (p_private_tcap->acv==TRUE ){
-      version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
-      if (version_ptr){
-		  application_context_version = atoi(version_ptr+1);
+  if (pref_application_context_version == APPLICATON_CONTEXT_FROM_TRACE) {
+	  application_context_version = 0;
+	  if (actx->pinfo->private_data != NULL){
+		p_private_tcap = (struct tcap_private_t *)actx->pinfo->private_data;
+		if (p_private_tcap->acv==TRUE ){
+		  version_ptr = strrchr((const char*)p_private_tcap->oid,'.');
+		  if (version_ptr){
+			  application_context_version = atoi(version_ptr+1);
+		  }
+		}
 	  }
-    }
+  }else{
+	  application_context_version = pref_application_context_version;
   }
 
   gsmmap_pdu_type = tvb_get_guint8(tvb, offset)&0x0f;
@@ -2598,6 +2604,15 @@ void proto_register_gsm_map(void) {
 #include "packet-gsm_map-ettarr.c"
   };
 
+  static enum_val_t application_context_modes[] = {
+    {"Use Application Context from the trace", "Use application context from the trace", APPLICATON_CONTEXT_FROM_TRACE},
+    {"Treat as AC 1", "Treat as AC 1", 1},
+    {"Treat as AC 2", "Treat as AC 2", 2},
+    {"Treat as AC 3", "Treat as AC 3", 3},
+    {NULL, NULL, -1}
+  };
+
+
   /* Register protocol */
   proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
@@ -2632,4 +2647,10 @@ void proto_register_gsm_map(void) {
   prefs_register_range_preference(gsm_map_module, "tcap.ssn", "TCAP SSNs",
 				  "TCAP Subsystem numbers used for GSM MAP",
 				  &global_ssn_range, MAX_SSN);
+
+  prefs_register_enum_preference(gsm_map_module, "application.context.version",
+				  "Application context version",
+				  "How to treat Application context",
+				  &pref_application_context_version, application_context_modes, APPLICATON_CONTEXT_FROM_TRACE);
+
 }
