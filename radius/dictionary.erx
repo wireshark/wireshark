@@ -11,6 +11,7 @@
 # This dictionary applies to access services on Juniper JUNOS (M/MX)
 # based platforms as well as JUNOSe, although some of the attributes
 # have been given new names on JUNOS:
+#	http://www.juniper.net/techpubs/software/junos/junos112/radius-dictionary/unisphereDictionary_for_JUNOS_v11-2.dct
 #	http://www.juniper.net/techpubs/en_US/junos10.3/topics/reference/general/aaa-subscriber-access-radius-vsa.html
 #
 # In this file, we keep the ERX prefix and the JUNOSe attribute names
@@ -168,6 +169,7 @@ ATTRIBUTE	ERX-MLD-No-Tracking-V1-Grps		105	integer
 ATTRIBUTE	ERX-IPv6-Ingress-Policy-Name		106	string
 ATTRIBUTE	ERX-IPv6-Egress-Policy-Name		107	string
 ATTRIBUTE	ERX-CoS-Shaping-Pmt-Type		108	string
+ATTRIBUTE	ERX-DHCP-Guided-Relay-Server		109	ipaddr
 
 ATTRIBUTE	ERX-Acc-Loop-Cir-Id			110	string
 ATTRIBUTE	ERX-Acc-Aggr-Cir-Id-Bin			111	octets
@@ -201,7 +203,9 @@ ATTRIBUTE	ERX-Max-Clients-Per-Interface		143	integer
 ATTRIBUTE	ERX-PPP-Monitor-Ingress-Only		144	integer
 
 ATTRIBUTE	ERX-CoS-Scheduler-Pmt-Type		146	string
+ATTRIBUTE	ERX-Backup-Address-Pool			147	string
 
+ATTRIBUTE	ERX-ICR-Partition-Id			150	string
 ATTRIBUTE	ERX-IPv6-Acct-Input-Octets		151	integer
 ATTRIBUTE	ERX-IPv6-Acct-Output-Octets		152	integer
 ATTRIBUTE	ERX-IPv6-Acct-Input-Packets		153	integer
@@ -209,7 +213,13 @@ ATTRIBUTE	ERX-IPv6-Acct-Output-Packets		154	integer
 ATTRIBUTE	ERX-IPv6-Acct-Input-Gigawords		155	integer
 ATTRIBUTE	ERX-IPv6-Acct-Output-Gigawords		156	integer
 ATTRIBUTE	ERX-IPv6-NdRa-Pool-Name			157	string
+ATTRIBUTE	ERX-PppoE-Padn				158	string
+ATTRIBUTE	ERX-Dhcp-Option-82			159	octets
+ATTRIBUTE	ERX-Vlan-Map-Id				160	integer
+ATTRIBUTE	ERX-IPv6-Delegated-Pool-Name		161	string
 
+ATTRIBUTE	Juniper-Redirect-GW-Address		162	ipaddr
+ATTRIBUTE	Juniper-APN-Name			163	string
 
 #
 #  Values	Attribute		Name			Number
