@@ -1117,7 +1117,7 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 		wtapng_if_descr_t descr;
 
 		descr.wtap_encap = encap;
-		descr.time_units_per_second = 0;
+		descr.time_units_per_second = 1000000; /* default microsecond resolution */
 		descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
 		descr.snap_len = snaplen;
 		descr.opt_comment = NULL;
