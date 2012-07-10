@@ -821,7 +821,7 @@ host_lookup(const guint addr, gboolean *found)
      * botch, we don't try to translate an all-zero IP address to a host
      * name.
      */
-    if (addr != 0 && gbl_resolv_flags.network_name) {
+    if (addr != 0) {
       /* Use async DNS if possible, else fall back to timeouts,
        * else call gethostbyaddr and hope for the best
        */
@@ -898,7 +898,8 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
     }
   }
 
-  if (gbl_resolv_flags.network_name && gbl_resolv_flags.use_external_net_name_resolver) {
+  if (gbl_resolv_flags.network_name &&
+      gbl_resolv_flags.use_external_net_name_resolver) {
     tp->resolve = TRUE;
 #ifdef INET6
 
@@ -1378,7 +1379,7 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
         return;
       }
       if (wtp->next == NULL) {
-	wtp->next = wka_hash_new_entry(addr, name);
+        wtp->next = wka_hash_new_entry(addr, name);
         return;
       }
       wtp = wtp->next;
@@ -2366,49 +2367,49 @@ void
 addr_resolve_pref_init(module_t *nameres)
 {
     prefs_register_bool_preference(nameres, "mac_name",
-                                  "Enable MAC name resolution",
-                                  "Resolve Ethernet MAC address to manufacturer names",
-                                  &gbl_resolv_flags.mac_name);
+                                   "Enable MAC name resolution",
+                                   "Resolve Ethernet MAC address to manufacturer names",
+                                   &gbl_resolv_flags.mac_name);
 
     prefs_register_bool_preference(nameres, "transport_name",
-                                  "Enable transport name resolution",
-                                  "Resolve TCP/UDP ports into service names",
-                                  &gbl_resolv_flags.transport_name);
+                                   "Enable transport name resolution",
+                                   "Resolve TCP/UDP ports into service names",
+                                   &gbl_resolv_flags.transport_name);
 
     prefs_register_bool_preference(nameres, "network_name",
-                                  "Enable network name resolution",
-                                  "Resolve IP addresses into host names."
-                                  " Next set of check boxes determines how name resolution should be performed"
-                                  " If unchecked name resolution is made from Wiresharks host file,"
-                                  " name resolution block and DNS packets in the capture",
-                                  &gbl_resolv_flags.network_name);
+                                   "Enable network name resolution",
+                                   "Resolve IP addresses into host names."
+                                   " Next set of check boxes determines how name resolution should be performed"
+                                   " If unchecked name resolution is made from Wiresharks host file,"
+                                   " name resolution block and DNS packets in the capture",
+                                   &gbl_resolv_flags.network_name);
 
     prefs_register_bool_preference(nameres, "use_external_name_resolver",
-                                  "Use external network name resolver",
-                                  "Use the (system's) configured name resolver"
-                                  " (e.g., DNS) to resolve network names."
-                                  " Only applies when network name resolution"
-                                  " is enabled",
-                                  &gbl_resolv_flags.use_external_net_name_resolver);
+                                   "Use external network name resolver",
+                                   "Use the (system's) configured name resolver"
+                                   " (e.g., DNS) to resolve network names."
+                                   " Only applies when network name resolution"
+                                   " is enabled",
+                                   &gbl_resolv_flags.use_external_net_name_resolver);
 
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
     prefs_register_bool_preference(nameres, "concurrent_dns",
-                                  "Enable concurrent DNS name resolution",
-                                  "Enable concurrent DNS name resolution.  Only"
-				                  " applies when network name resolution is"
-				                  " enabled",
+                                   "Enable concurrent DNS name resolution",
+                                   "Enable concurrent DNS name resolution.  Only"
+                                   " applies when network name resolution is"
+                                   " enabled",
                                   &gbl_resolv_flags.concurrent_dns);
 
     prefs_register_uint_preference(nameres, "name_resolve_concurrency",
-                				   "Maximum concurrent requests",
-				                   "Maximum parallel running DNS requests",
-				                   10,
-				                   &name_resolve_concurrency);
+                                   "Maximum concurrent requests",
+                                   "Maximum parallel running DNS requests",
+                                   10,
+                                   &name_resolve_concurrency);
 #else
     prefs_register_static_text_preference(nameres, "concurrent_dns",
-                                   "Enable concurrent DNS name resolution: N/A",
-                                   "Support for concurrent DNS name resolution was not"
-		                           " compiled into this version of Wireshark");
+                                          "Enable concurrent DNS name resolution: N/A",
+                                          "Support for concurrent DNS name resolution was not"
+                                          " compiled into this version of Wireshark");
 #endif
 }
 
@@ -3088,7 +3089,7 @@ uint_get_manuf_name(const guint oid)
 const gchar *
 tvb_get_manuf_name(tvbuff_t *tvb, gint offset)
 {
-	return get_manuf_name(tvb_get_ptr(tvb, offset, 3));
+  return get_manuf_name(tvb_get_ptr(tvb, offset, 3));
 }
 
 const gchar *
@@ -3123,7 +3124,7 @@ uint_get_manuf_name_if_known(const guint oid)
 const gchar *
 tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
 {
-	return get_manuf_name_if_known(tvb_get_ptr(tvb, offset, 3));
+  return get_manuf_name_if_known(tvb_get_ptr(tvb, offset, 3));
 }
 
 const gchar *
@@ -3219,11 +3220,19 @@ get_host_ipaddr(const char *host, guint32 *addrp)
    * less-than-4 octet notation.
    */
   if (!inet_aton(host, &ipaddr)) {
-    if (!gbl_resolv_flags.network_name) {
+
+    /* It's not a valid dotted-quad IP address; is it a valid
+     * host name?
+     */
+
+    /* If we're not allowed to do name resolution, don't do name
+     * resolution...
+     */
+    if (!gbl_resolv_flags.network_name ||
+        !gbl_resolv_flags.use_external_net_name_resolver) {
       return FALSE;
     }
-    /* It's not a valid dotted-quad IP address; is it a valid
-     * host name? */
+
 #ifdef HAVE_C_ARES
     if (! (gbl_resolv_flags.concurrent_dns) ||
         name_resolve_concurrency < 1 ||
@@ -3295,7 +3304,15 @@ get_host_ipaddr6(const char *host, struct e_in6_addr *addrp)
   if (inet_pton(AF_INET6, host, addrp) == 1)
     return TRUE;
 
-  if (!gbl_resolv_flags.network_name) {
+  /* It's not a valid dotted-quad IP address; is it a valid
+   * host name?
+   */
+
+  /* If we're not allowed to do name resolution, don't do name
+   * resolution...
+   */
+  if (!gbl_resolv_flags.network_name ||
+      !gbl_resolv_flags.use_external_net_name_resolver) {
     return FALSE;
   }
 
