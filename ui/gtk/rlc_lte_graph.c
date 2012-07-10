@@ -171,12 +171,6 @@ struct style_rlc_lte {
     int flags;
 };
 
-struct style_wscale {
-    int win_width;
-    int win_height;
-    int flags;
-};
-
 /* style flags */
 #define SEQ_ORIGIN			0x1
 /* show absolute sequence numbers (not differences from isn) */
@@ -976,7 +970,6 @@ static int compare_headers(guint16 ueid1, guint16 channelType1, guint16 channelI
                (ueid1 == ueid2) &&
                (channelType1 == channelType2) &&
                (channelId1 == channelId2) &&
-               (direction1 == direction2) &&
                (rlcMode1 == rlcMode2);
     }
     else {
@@ -2268,6 +2261,7 @@ static void graph_get_bounds(struct graph *g)
             int n;
             guint32 nack_seq_cur;
 
+            tim = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
             ack_seq_cur = tmp->ACKNo;
 
             /* Initialise if first status PDU seen */
@@ -2472,10 +2466,6 @@ static void rlc_lte_make_elmtlist(struct graph *g)
             previous_data_y = y;
         } else {
 
-            /* STATUS */
-            double yy1, yy2;
-            double xx1, xx2;
-
             /* Remember the last status segment */
             last_status_segment = tmp;
 
@@ -2484,10 +2474,6 @@ static void rlc_lte_make_elmtlist(struct graph *g)
 
             /* Work out positions around this SN */
             y = (g->zoom.y * seq_cur);
-            yy1 = y + 1;
-            yy2 = y - 1;
-            xx1 = x - 1;
-            xx2 = x + 1;
 
             if (ack_seen) {
 
