@@ -2754,7 +2754,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
                         return FALSE;
                 wdh->bytes_dumped += 4;
 
-                /* Write the comments string */
+                /* Write the time stamp resolution */
                 pcapng_debug1("pcapng_write_if_descr_block: if_tsresol %u", int_data->if_tsresol);
                 if (!wtap_dump_file_write(wdh, &int_data->if_tsresol, 1, err))
                         return FALSE;
@@ -3109,6 +3109,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
         guint32 options_total_length = 0;
         guint32 options_hdr = 0;
         guint32 comment_len = 0, comment_pad_len = 0;
+        wtapng_if_descr_t int_data;
 
         phdr_len = (guint32)pcap_get_phdr_size(phdr->pkt_encap, pseudo_header);
         if ((phdr_len + phdr->caplen) % 4) {
@@ -3153,8 +3154,14 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
                  */
                 epb.interface_id        = 0;
         }
-        /* Split the 64-bit timestamp into two 32-bit pieces */
-        ts = (((guint64)phdr->ts.secs) * 1000000) + (phdr->ts.nsecs / 1000);
+        /*
+         * Split the 64-bit timestamp into two 32-bit pieces, using
+         * the time stamp resolution for the interface.
+         */
+        int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t,
+            epb.interface_id);
+        ts = (((guint64)phdr->ts.secs) * int_data.time_units_per_second) +
+               (phdr->ts.nsecs / (1000000000/int_data.time_units_per_second));
         epb.timestamp_high      = (guint32)(ts >> 32);
         epb.timestamp_low       = (guint32)ts;
         epb.captured_len        = phdr->caplen + phdr_len;
@@ -3402,22 +3409,22 @@ static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
         pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
 
         if ((wdh->number_of_interfaces > 0) && (wdh->interface_data != NULL)) {
-            for (i = 0; i < (int)wdh->number_of_interfaces; i++) {
+                for (i = 0; i < (int)wdh->number_of_interfaces; i++) {
 
-                /* Get the interface description */
-                wtapng_if_descr_t int_data;
+                        /* Get the interface description */
+                        wtapng_if_descr_t int_data;
 
-                int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t, i);
-                for (j = 0; j < (int)int_data.num_stat_entries; j++) {
-                    wtapng_if_stats_t if_stats;
+                        int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t, i);
+                        for (j = 0; j < (int)int_data.num_stat_entries; j++) {
+                                wtapng_if_stats_t if_stats;
 
-                    if_stats = g_array_index(int_data.interface_statistics, wtapng_if_stats_t, j);
-                    pcapng_debug1("pcapng_dump_close: write ISB for interface %u",if_stats.interface_id);
-					if (!pcapng_write_interface_statistics_block(wdh, &if_stats, err)) {
-						return FALSE;
-					}
+                                if_stats = g_array_index(int_data.interface_statistics, wtapng_if_stats_t, j);
+                                pcapng_debug1("pcapng_dump_close: write ISB for interface %u",if_stats.interface_id);
+                                if (!pcapng_write_interface_statistics_block(wdh, &if_stats, err)) {
+                                        return FALSE;
+                                }
+                        }
                 }
-            }
         }
 
         pcapng_debug0("pcapng_dump_close");
