@@ -187,6 +187,7 @@ set(WIRESHARK_TAP_SRC
 	mtp3_summary.c
 	ncp_stat.c
 	radius_stat.c
+	rlc_lte_graph.c
 	rlc_lte_stat_dlg.c
 	rpc_progs.c
 	rpc_stat.c
