@@ -33,6 +33,9 @@
 #include <epan/strutil.h>
 #include "packet-ssl.h"
 
+#include <stdio.h>
+#include <ctype.h>
+
 static int proto_imap = -1;
 static int hf_imap_isrequest = -1;
 static int hf_imap_line = -1;
@@ -40,12 +43,17 @@ static int hf_imap_request = -1;
 static int hf_imap_request_tag = -1;
 static int hf_imap_response = -1;
 static int hf_imap_response_tag = -1;
+static int hf_imap_request_command = -1;
+static int hf_imap_response_status = -1;
+static int hf_imap_request_folder = -1;
+static int hf_imap_request_uid = -1;
 
 static gint ett_imap = -1;
 static gint ett_imap_reqresp = -1;
 
 #define TCP_PORT_IMAP			143
 #define TCP_PORT_SSL_IMAP		993
+#define MAX_BUFFER                      1024
 
 static void
 dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -54,12 +62,32 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree      *imap_tree, *reqresp_tree;
 	proto_item      *ti, *hidden_item;
 	gint		offset = 0;
+	gint		uid_offset = 0;
+	gint            folder_offset = 0;
 	const guchar	*line;
+	const guchar    *uid_line;
+	const guchar    *folder_line;
 	gint		next_offset;
 	int		linelen;
 	int		tokenlen;
+	int             uid_tokenlen;
+	int             folder_tokenlen;
 	const guchar	*next_token;
+	const guchar    *uid_next_token;
+	const guchar    *folder_next_token;
+	guchar          *tokenbuf;
+	guchar          *command_token;
+	int             iter;
+	int             commandlen;
 
+	tokenbuf = ep_alloc(MAX_BUFFER);
+	command_token = ep_alloc(MAX_BUFFER);
+	memset(tokenbuf, '\0', MAX_BUFFER);
+	memset(command_token, '\0', MAX_BUFFER);
+	commandlen = 0;
+	folder_offset = 0;
+	folder_tokenlen = 0;
+	folder_line = NULL;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IMAP");
 
 
@@ -104,38 +132,138 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Put the line into the protocol tree.
 			 */
 			ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset,
-					next_offset - offset, ENC_ASCII|ENC_NA);
+						 next_offset - offset, ENC_ASCII|ENC_NA);
 
 			reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
 
 			/*
-			 * Show each line as tags + requests or replies.
+			 * Check that the line doesn't begin with '*', because that's a continuation line.
+			 * Otherwise if a tag is present then extract tokens.
 			 */
+			if ( (line) && ((line[0] != '*') || (TRUE == is_request)) ) {
+			  /*
+			   * Show each line as tags + requests or replies.
+			   */
 
-			/*
-			 * Extract the first token, and, if there is a first
-			 * token, add it as the request or reply tag.
-			 */
-			tokenlen = get_token_len(line, line + linelen, &next_token);
-			if (tokenlen != 0) {
-				proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag,
-									tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+			  /*
+			   * Extract the first token, and, if there is a first
+			   * token, add it as the request or reply tag.
+			   */
+			  tokenlen = get_token_len(line, line + linelen, &next_token);
+			  if (tokenlen != 0) {
+			    proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag,
+						tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
-				offset += (gint) (next_token - line);
-				linelen -= (int) (next_token - line);
-				line = next_token;
-			}
+			    offset += (gint) (next_token - line);
+			    linelen -= (int) (next_token - line);
+			    line = next_token;
+			  }
 
-			/*
-			 * Add the rest of the line as request or reply data.
-			 */
-			if (linelen != 0) {
-				proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request : hf_imap_response,
-									tvb, offset, linelen, ENC_ASCII|ENC_NA);
+			  /*
+			   * Extract second token, and, if there is a second 
+			   * token, and it's not uid, add it as the request or reply command.
+			   */
+			  tokenlen = get_token_len(line, line + linelen, &next_token);
+			  if (tokenlen != 0) {
+			    for (iter = 0; iter < tokenlen && iter < MAX_BUFFER-1; iter++) {
+			      tokenbuf[iter] = tolower(line[iter]);
+			    }
+			    if ( TRUE == is_request && strncmp(tokenbuf,"uid",tokenlen) == 0) {
+			      proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+			      /*
+			       * UID is a precursor to a command, if following the tag, 
+                               * so move to next token to grab the actual command.
+                               */
+			      uid_offset = offset;
+			      uid_offset += (gint) (next_token - line);
+			      uid_line = next_token;
+			      uid_tokenlen = get_token_len(uid_line, uid_line + (linelen - tokenlen), &uid_next_token);
+			      if (tokenlen != 0) {
+				proto_tree_add_item(reqresp_tree, hf_imap_request_command,
+						    tvb, uid_offset, uid_tokenlen, ENC_ASCII|ENC_NA);
+
+				/*
+				 * Save command string to do specialized processing.
+				 */
+				for (iter = 0; iter < uid_tokenlen && iter < MAX_BUFFER-1; iter++) {
+				  command_token[iter] = tolower(uid_line[iter]);
+				}
+				commandlen = uid_tokenlen;
+
+				folder_offset = uid_offset;
+				folder_offset += (gint) (uid_next_token - uid_line);
+				folder_line = uid_next_token;
+				folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen - uid_tokenlen), &folder_next_token);
+			      }
+			    } else {
+			      /*
+			       * Not a UID request so perform normal parsing.
+			       */
+			      proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_command : hf_imap_response_status,
+						  tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+
+			      if (is_request) {
+				/*
+				 * Save command string to do specialized processing.
+				 */
+				for (iter = 0; iter < tokenlen && iter < 256; iter++) {
+				  command_token[iter] = tolower(line[iter]);
+				}
+				commandlen = tokenlen;
+
+				folder_offset = offset;
+				folder_offset += (gint) (next_token - line);
+				folder_line = next_token;
+				folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen), &folder_next_token);
+			      }
+			    }
+
+			    if (commandlen > 0 && (
+				strncmp(command_token, "select", commandlen) == 0 ||
+				strncmp(command_token, "examine", commandlen) == 0 ||
+				strncmp(command_token, "create", commandlen) == 0 ||
+				strncmp(command_token, "delete", commandlen) == 0 ||
+				strncmp(command_token, "rename", commandlen) == 0 ||
+				strncmp(command_token, "subscribe", commandlen) == 0 ||
+				strncmp(command_token, "unsubscribe", commandlen) == 0 ||
+				strncmp(command_token, "status", commandlen) == 0 ||
+				strncmp(command_token, "append", commandlen) == 0 ||
+				strncmp(command_token, "search", commandlen) == 0)) {
+			      /*
+			       * These commands support folder as an argument,
+			       * so parse out the folder name.
+			       */
+			      if (folder_tokenlen != 0)
+				proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII|ENC_NA);
+			    }
+
+			    if ( is_request && (NULL != folder_line) &&
+				 strncmp(command_token, "copy", commandlen) == 0) {
+			      /*
+			       * Handle the copy command separately since folder
+			       * is the second argument for this command.
+			       */
+			      folder_offset += (gint) (folder_next_token - folder_line);
+			      folder_line = folder_next_token;
+			      folder_tokenlen = get_token_len(folder_line, folder_line + (linelen - tokenlen), &folder_next_token);
+
+			      if (folder_tokenlen != 0)
+				proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII|ENC_NA);
+			    }
+
+			  }
+
+			  /*
+			   * Add the rest of the line as request or reply data.
+			   */
+			  if (linelen != 0) {
+			    proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request : hf_imap_response,
+						tvb, offset, linelen, ENC_ASCII|ENC_NA);
+			  }
+
 			}
 
 			offset += linelen+2; /* Skip over last line and \r\n at the end of it */
-
 		}
 	}
 }
@@ -149,7 +277,11 @@ proto_register_imap(void)
 		{ &hf_imap_request, { "Request", "imap.request", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Remainder of request line", HFILL }},
 		{ &hf_imap_request_tag, { "Request Tag", "imap.request_tag", FT_STRINGZ, BASE_NONE, NULL, 0x0, "First token of request line", HFILL }},
 		{ &hf_imap_response, { "Response", "imap.response", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Remainder of response line", HFILL }},
-		{ &hf_imap_response_tag, { "Response Tag", "imap.response_tag", FT_STRINGZ, BASE_NONE, NULL, 0x0, "First token of response line", HFILL }}
+		{ &hf_imap_response_tag, { "Response Tag", "imap.response_tag", FT_STRINGZ, BASE_NONE, NULL, 0x0, "First token of response line", HFILL }},
+		{ &hf_imap_request_command, { "Request Command", "imap.request.command", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Request command name", HFILL }},
+		{ &hf_imap_response_status, { "Response Status", "imap.response.status", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Response status code", HFILL }},
+		{ &hf_imap_request_folder, { "Request Folder", "imap.request.folder", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Request command folder", HFILL }},
+		{ &hf_imap_request_uid, { "Request isUID", "imap.request.command.uid", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Request command uid", HFILL }}
 	};
 
 	static gint *ett[] = {
