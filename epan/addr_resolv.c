@@ -800,7 +800,7 @@ host_lookup(const guint addr, gboolean *found)
     }
   }
 
-  if (gbl_resolv_flags.use_external_net_name_resolver) {
+  if (gbl_resolv_flags.network_name && gbl_resolv_flags.use_external_net_name_resolver) {
     tp->resolve = TRUE;
 #ifdef ASYNC_DNS
     if (gbl_resolv_flags.concurrent_dns &&
@@ -898,7 +898,7 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
     }
   }
 
-  if (gbl_resolv_flags.use_external_net_name_resolver) {
+  if (gbl_resolv_flags.network_name && gbl_resolv_flags.use_external_net_name_resolver) {
     tp->resolve = TRUE;
 #ifdef INET6
 
@@ -2362,7 +2362,7 @@ subnet_name_lookup_init(void)
  *  External Functions
  */
 
-void 
+void
 addr_resolve_pref_init(module_t *nameres)
 {
     prefs_register_bool_preference(nameres, "mac_name",
@@ -2406,7 +2406,7 @@ addr_resolve_pref_init(module_t *nameres)
 				                   &name_resolve_concurrency);
 #else
     prefs_register_static_text_preference(nameres, "concurrent_dns",
-                                   "Enable concurrent DNS name resolution: N/A", 
+                                   "Enable concurrent DNS name resolution: N/A",
                                    "Support for concurrent DNS name resolution was not"
 		                           " compiled into this version of Wireshark");
 #endif
