@@ -603,9 +603,9 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll),
                                    GTK_SHADOW_IN);
     gtk_box_pack_start(GTK_BOX(vbox), scroll, TRUE, TRUE, 0);
-        text = gtk_text_view_new();
+    text = gtk_text_view_new();
     gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
-        buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
+    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
     gtk_text_buffer_set_text(buf, helptext, -1);
     gtk_container_add(GTK_CONTAINER(scroll), text);
 
@@ -1418,7 +1418,7 @@ static void h_axis_pixmap_draw(struct axis *axis)
     double major_tick, minor_tick;
     int not_disp, rdigits, offset, imin, imax;
     double left, right, j, fl, corr;
-        PangoLayout *layout;
+    PangoLayout *layout;
     cairo_t *cr;
 
     debug(DBS_FENTRY) puts("h_axis_pixmap_draw()");
@@ -1648,7 +1648,7 @@ static int get_label_dim(struct axis *axis, int dir, double label)
     int rdigits, dim;
     PangoLayout *layout;
 
-     /* First, let's compute how many digits to the right of radix
+    /* First, let's compute how many digits to the right of radix
      * we need to print */
     y = axis->major - floor(axis->major);
     for (rdigits=0; rdigits<=6; rdigits++) {
@@ -1659,21 +1659,19 @@ static int get_label_dim(struct axis *axis, int dir, double label)
     }
     g_snprintf(str, sizeof(str), "%.*f", rdigits, label);
     switch (dir) {
-    case AXIS_HORIZONTAL:
-                layout = gtk_widget_create_pango_layout(axis->g->drawing_area,
-                                                        str);
-                pango_layout_get_pixel_size(layout, &dim, NULL);
-                g_object_unref(G_OBJECT(layout));
-        break;
-    case AXIS_VERTICAL:
-                layout = gtk_widget_create_pango_layout(axis->g->drawing_area,
-                                                        str);
-                pango_layout_get_pixel_size(layout, NULL, &dim);
-                g_object_unref(G_OBJECT(layout));
-        break;
-    default:
-        puts("initialize axis: an axis must be either horizontal or vertical");
-        return -1;
+        case AXIS_HORIZONTAL:
+            layout = gtk_widget_create_pango_layout(axis->g->drawing_area, str);
+            pango_layout_get_pixel_size(layout, &dim, NULL);
+            g_object_unref(G_OBJECT(layout));
+            break;
+        case AXIS_VERTICAL:
+            layout = gtk_widget_create_pango_layout(axis->g->drawing_area, str);
+            pango_layout_get_pixel_size(layout, NULL, &dim);
+            g_object_unref(G_OBJECT(layout));
+            break;
+        default:
+            puts("initialize axis: an axis must be either horizontal or vertical");
+            return -1;
     }
     return dim;
 }
@@ -1681,12 +1679,12 @@ static int get_label_dim(struct axis *axis, int dir, double label)
 static double axis_zoom_get(struct axis *axis, int dir)
 {
     switch (dir) {
-    case AXIS_HORIZONTAL:
-        return axis->g->zoom.x;
-    case AXIS_VERTICAL:
-        return axis->g->zoom.y;
-    default:
-        return -1;
+        case AXIS_HORIZONTAL:
+            return axis->g->zoom.x;
+        case AXIS_VERTICAL:
+            return axis->g->zoom.y;
+        default:
+            return -1;
     }
 }
 
@@ -2392,7 +2390,6 @@ static void rlc_lte_make_elmtlist(struct graph *g)
         secs = tmp->rel_secs + (tmp->rel_usecs / 1000000.0);
         x = secs - xx0;
         x *= g->zoom.x;
-
 
         if (!tmp->isControlPDU) {
 
