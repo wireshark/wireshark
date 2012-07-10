@@ -4357,6 +4357,9 @@ name_resolution_cb(GtkWidget *w, gpointer d _U_, gboolean* res_flag)
     } else {
         *res_flag = FALSE;
     }
+
+	new_packet_list_recreate();
+	redraw_packet_bytes_all();
 }
 
 #ifdef HAVE_LIBPCAP
