@@ -166,10 +166,11 @@ void radius_srt_cb(GtkAction *action, gpointer user_data);
 void scsi_srt_cb(GtkAction *action, gpointer user_data);
 void smb2_srt_cb(GtkAction *action, gpointer user_data);
 void smb_srt_cb(GtkAction *action, gpointer user_data);
+void rlc_lte_graph_cb(GtkAction *action, gpointer user_data);
 
 void gtk_stats_tree_cb(GtkAction *action, gpointer user_data);
 
-void tcp_graph_cb (GtkAction *action, gpointer user_data);
+void tcp_graph_cb(GtkAction *action, gpointer user_data);
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_);
 
 void gtk_rpcprogs_cb(GtkWidget *w, gpointer data);

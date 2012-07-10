@@ -1318,6 +1318,7 @@ static const char *ui_desc_menubar =
 "      <menu name= 'LTEmenu' action='/Telephony/LTE'>\n"
 "        <menuitem name='LTE_MAC' action='/Telephony/LTE/MAC'/>\n"
 "        <menuitem name='LTE_RLC' action='/Telephony/LTE/RLC'/>\n"
+"        <menuitem name='LTE_RLC_Graph' action='/Telephony/LTE/RLCGraph'/>\n"
 "      </menu>\n"
 "      <menu name= 'MTP3menu' action='/Telephony/MTP3'>\n"
 "        <menuitem name='MSUs' action='/Telephony/MTP3/MSUs'/>\n"
@@ -1788,8 +1789,9 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/isup_msg",             NULL,                       "_ISUP Messages",           NULL,                       NULL,               G_CALLBACK(gtk_stats_tree_cb) },
 
    { "/Telephony/LTE",                  NULL,                       "_LTE",                     NULL, NULL, NULL },
-   { "/Telephony/LTE/MAC",              NULL,                       "_MAC...",                  NULL,                       NULL,               G_CALLBACK(mac_lte_stat_cb) },
-   { "/Telephony/LTE/RLC",              NULL,                       "_RLC...",                  NULL,                       NULL,               G_CALLBACK(rlc_lte_stat_cb) },
+   { "/Telephony/LTE/MAC",              NULL,                       "_MAC Stats...",                  NULL,                       NULL,               G_CALLBACK(mac_lte_stat_cb) },
+   { "/Telephony/LTE/RLC",              NULL,                       "_RLC Stats...",                  NULL,                       NULL,               G_CALLBACK(rlc_lte_stat_cb) },
+   { "/Telephony/LTE/RLCGraph",         NULL,                       "RLC _Graph...",            NULL,                       NULL,               G_CALLBACK(rlc_lte_graph_cb) },
    { "/Telephony/MTP3",                 NULL,                       "_MTP3",                    NULL, NULL, NULL },
    { "/Telephony/MTP3/MSUs",            NULL,                       "MSUs",                     NULL,                       NULL,               G_CALLBACK(mtp3_stat_gtk_cb) },
    { "/Telephony/MTP3/MSUSummary",      NULL,                       "MSU Summary",              NULL,                       NULL,               G_CALLBACK(mtp3_sum_gtk_sum_cb) },
