@@ -1102,8 +1102,8 @@ static const char *ui_desc_menubar =
 "         <menuitem name='ManuallyResolveName' action='/View/NameResolution/ManuallyResolveName'/>\n"
 "         <separator/>\n"
 "         <menuitem name='EnableforMACLayer' action='/View/NameResolution/EnableforMACLayer'/>\n"
-"         <menuitem name='EnableforNetworkLayer' action='/View/NameResolution/EnableforNetworkLayer'/>\n"
 "         <menuitem name='EnableforTransportLayer' action='/View/NameResolution/EnableforTransportLayer'/>\n"
+"         <menuitem name='EnableforNetworkLayer' action='/View/NameResolution/EnableforNetworkLayer'/>\n"
 "         <menuitem name='UseExternalNetworkNameResolver' action='/View/NameResolution/UseExternalNetworkNameResolver'/>\n"
 "      </menu>\n"
 "      <menuitem name='ColorizePacketList' action='/View/ColorizePacketList'/>\n"
@@ -1846,8 +1846,8 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
     {"/View/PacketBytes",                                           NULL, "Packet _Bytes",                          NULL, NULL, G_CALLBACK(packet_bytes_show_hide_cb), TRUE},
     {"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",   NULL, "Display Seconds with hours and minutes", NULL, NULL, G_CALLBACK(timestamp_seconds_time_cb), FALSE},
     {"/View/NameResolution/EnableforMACLayer",                      NULL, "Enable for _MAC Layer",                  NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb), TRUE},
-    {"/View/NameResolution/EnableforNetworkLayer",                  NULL, "Enable for _Network Layer",              NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
     {"/View/NameResolution/EnableforTransportLayer",                NULL, "Enable for _Transport Layer",            NULL, NULL, G_CALLBACK(view_menu_en_for_transport_cb), TRUE },
+    {"/View/NameResolution/EnableforNetworkLayer",                  NULL, "Enable for _Network Layer",              NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
     {"/View/NameResolution/UseExternalNetworkNameResolver",         NULL, "Use _External Network Name Resolver",    NULL, NULL, G_CALLBACK(view_menu_en_use_external_resolver_cb), TRUE },
     {"/View/ColorizePacketList",                                    NULL, "Colorize Packet List",                   NULL, NULL, G_CALLBACK(view_menu_colorize_pkt_lst_cb), TRUE },
     {"/View/AutoScrollinLiveCapture",                               NULL, "Auto Scroll in Li_ve Capture",           NULL, NULL, G_CALLBACK(view_menu_auto_scroll_live_cb), TRUE },

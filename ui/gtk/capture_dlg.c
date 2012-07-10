@@ -4097,13 +4097,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(m_resolv_cb, "Perform MAC layer name resolution while capturing.");
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
 
-  n_resolv_cb = gtk_check_button_new_with_mnemonic(
-                "Enable _network name resolution");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-                gbl_resolv_flags.network_name);
-  gtk_widget_set_tooltip_text(n_resolv_cb, "Perform network layer name resolution while capturing.");
-  gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
-
   t_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
@@ -4111,6 +4104,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(t_resolv_cb,
     "Perform transport layer name resolution while capturing.");
   gtk_container_add(GTK_CONTAINER(resolv_vb), t_resolv_cb);
+
+  n_resolv_cb = gtk_check_button_new_with_mnemonic(
+                "Enable _network name resolution");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
+                gbl_resolv_flags.network_name);
+  gtk_widget_set_tooltip_text(n_resolv_cb, "Perform network layer name resolution while capturing.");
+  gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
 
   e_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Use _external network name resolver");

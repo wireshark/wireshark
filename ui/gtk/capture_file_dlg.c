@@ -516,16 +516,18 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(m_resolv_cb);
 
-  n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
-                               gbl_resolv_flags.network_name);
-  gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
-  gtk_widget_show(n_resolv_cb);
   t_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
                                gbl_resolv_flags.transport_name);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
+
+  n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
+                               gbl_resolv_flags.network_name);
+  gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
+  gtk_widget_show(n_resolv_cb);
+
   e_resolv_cb = gtk_check_button_new_with_mnemonic("Use _external network name resolver");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(e_resolv_cb),
                                gbl_resolv_flags.use_external_net_name_resolver);
