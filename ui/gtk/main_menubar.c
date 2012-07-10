@@ -152,6 +152,7 @@ static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint)
 #if !defined(WANT_PACKET_EDITOR) || !defined(HAVE_LIBPCAP)
 static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
 #endif
+static void menu_name_resolution_update_cb(GtkAction *action, gpointer data);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gboolean* res_flag);
 static void colorize_cb(GtkWidget *w, gpointer d);
 
@@ -3266,6 +3267,7 @@ menus_init(void) {
     GtkActionGroup *packet_list_heading_action_group, *packet_list_action_group,
         *packet_list_details_action_group, *packet_list_byte_menu_action_group,
         *statusbar_profiles_action_group;
+	GtkAction *name_res_action;
     GError *error = NULL;
     guint merge_id;
 
@@ -3518,6 +3520,9 @@ menus_init(void) {
         set_menus_for_capture_in_progress(FALSE);
         set_menus_for_file_set(/* dialog */TRUE, /* previous file */ FALSE, /* next_file */ FALSE);
 
+        /* Set callback to update name resolution settings when activated */
+        name_res_action = gtk_action_group_get_action(main_menu_bar_action_group, "/View/NameResolution");
+        g_signal_connect (name_res_action, "activate", G_CALLBACK (menu_name_resolution_update_cb), NULL);
     }
 }
 
@@ -4336,6 +4341,12 @@ menu_name_resolution_changed(void)
         g_warning("menu_name_resolution_changed: No menu found, path= /Menubar/ViewMenu/NameResolution/UseExternalNetworkNameResolver");
     }
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), gbl_resolv_flags.use_external_net_name_resolver);
+}
+
+static void
+menu_name_resolution_update_cb(GtkAction *action _U_, gpointer data _U_)
+{
+	menu_name_resolution_changed();
 }
 
 static void
