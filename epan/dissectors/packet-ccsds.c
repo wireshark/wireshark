@@ -296,8 +296,8 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int          offset          = 0;
 	proto_item  *ccsds_packet;
-	proto_tree  *ccsds_tree;
-	proto_item  *primary_header;
+	proto_tree  *ccsds_tree      = NULL;
+	proto_item  *primary_header  = NULL;
 	proto_tree  *primary_header_tree;
 	guint16      first_word;
 	guint32      coarse_time;
@@ -306,11 +306,11 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree  *secondary_header_tree;
         const char*  time_string;
 	gint         ccsds_length;
-	gint         length;
+	gint         length          = 0;
 	gint         reported_length;
 	guint8       checkword_flag  = 0;
 	gint         counter         = 0;
-	proto_item  *item;
+	proto_item  *item;           = NULL;
 	proto_tree  *checkword_tree;
 	guint16      checkword_field = 0;
 	guint16      checkword_sum   = 0;
