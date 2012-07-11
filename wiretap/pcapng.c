@@ -3158,6 +3158,13 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
          * Split the 64-bit timestamp into two 32-bit pieces, using
          * the time stamp resolution for the interface.
          */
+        if (epb.interface_id >= wdh->number_of_interfaces) {
+                /*
+                 * Our caller is doing something bad.
+                 */
+                *err = WTAP_ERR_INTERNAL;
+                return FALSE;
+        }
         int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t,
             epb.interface_id);
         ts = (((guint64)phdr->ts.secs) * int_data.time_units_per_second) +
