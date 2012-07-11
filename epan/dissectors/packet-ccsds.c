@@ -94,9 +94,6 @@ static gint ett_ccsds_checkword = -1;
 /* Generic data handle */
 static dissector_handle_t data_handle;
 
-/* Forward declaration we need below */
-void proto_reg_handoff_ccsds(void);
-
 static enum_val_t dissect_checkword[] = {
   { "hdr", "Use header flag", 2 },
   { "no", "Override header flag to be false", 0 },
@@ -297,36 +294,38 @@ static const char* embedded_time_to_string ( int coarse_time, int fine_time )
 static void
 dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
-	proto_item *ccsds_packet;
-	proto_tree *ccsds_tree;
-	proto_item *primary_header;
-	proto_tree *primary_header_tree;
-	guint16 first_word;
-	guint32 coarse_time;
-	guint8 fine_time;
-	proto_item *secondary_header;
-	proto_tree *secondary_header_tree;
-        const char* time_string;
-	gint ccsds_length = 0;
-	gint length;
-	gint reported_length;
-	guint8 checkword_flag = 0;
-	gint counter = 0;
-	proto_item *item = NULL;
-	proto_tree *checkword_tree;
-	guint16 checkword_field = 0;
-	guint16 checkword_sum = 0;
+	int          offset          = 0;
+	proto_item  *ccsds_packet;
+	proto_tree  *ccsds_tree;
+	proto_item  *primary_header;
+	proto_tree  *primary_header_tree;
+	guint16      first_word;
+	guint32      coarse_time;
+	guint8       fine_time;
+	proto_item  *secondary_header;
+	proto_tree  *secondary_header_tree;
+        const char*  time_string;
+	gint         ccsds_length;
+	gint         length;
+	gint         reported_length;
+	guint8       checkword_flag  = 0;
+	gint         counter         = 0;
+	proto_item  *item;
+	proto_tree  *checkword_tree;
+	guint16      checkword_field = 0;
+	guint16      checkword_sum   = 0;
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CCSDS");
 	col_set_str(pinfo->cinfo, COL_INFO, "CCSDS Packet");
+
 	first_word=tvb_get_ntohs(tvb, 0);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "APID %1$4d (0x%1$03X)", first_word&HDR_APID);
 
+	reported_length = tvb_reported_length_remaining(tvb, 0);
+	ccsds_length    = tvb_get_ntohs(tvb, 4) + CCSDS_PRIMARY_HEADER_LENGTH + 1;
+
 	if (tree) {
-		reported_length = tvb_reported_length_remaining(tvb, 0);
-		ccsds_length = tvb_get_ntohs(tvb, 4) + CCSDS_PRIMARY_HEADER_LENGTH + 1;
 		/* Min length is size of headers, whereas max length is reported length.
 		 * If the length field in the CCSDS header is outside of these bounds,
 		 * use the value it violates.  Otherwise, use the length field value.
@@ -339,7 +338,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			length = ccsds_length;
 
 		ccsds_packet = proto_tree_add_item(tree, proto_ccsds, tvb, 0, length, ENC_NA);
-		ccsds_tree = proto_item_add_subtree(ccsds_packet, ett_ccsds);
+		ccsds_tree   = proto_item_add_subtree(ccsds_packet, ett_ccsds);
 
                 /* build the ccsds primary header tree */
 		primary_header=proto_tree_add_text(ccsds_tree, tvb, offset, CCSDS_PRIMARY_HEADER_LENGTH, "Primary CCSDS Header");
@@ -356,10 +355,12 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 
 		item = proto_tree_add_item(primary_header_tree, hf_ccsds_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-		if (ccsds_length > reported_length) {
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-					"Length field value is greater than the packet seen on the wire");
-		}
+	}
+	if (ccsds_length > reported_length) {
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+				       "Length field value is greater than the packet seen on the wire");
+	}
+	if (tree) {
 		offset += 2;
 		proto_item_set_end(primary_header, tvb, offset);
 
@@ -486,9 +487,11 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* Give the data dissector any bytes past the CCSDS packet length */
-		call_dissector(data_handle, tvb_new_subset(tvb, offset, tvb_length(tvb) - length, 0),
-				pinfo, tree);
-	}
+		/* (XXX: Not really OK under 'if (tree)' but will work; see packet-data.c */
+		call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+
+	} /* if(tree) */
+
 }
 
 
@@ -669,7 +672,7 @@ proto_register_ccsds(void)
 	register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
 
 	/* Register preferences module */
-	ccsds_module = prefs_register_protocol(proto_ccsds, proto_reg_handoff_ccsds);
+	ccsds_module = prefs_register_protocol(proto_ccsds, NULL);
 
 	prefs_register_enum_preference(ccsds_module, "global_pref_checkword",
 		"How to handle the CCSDS checkword",
@@ -678,10 +681,6 @@ proto_register_ccsds(void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
- * This format is required because a script is used to find these routines and
- * create the code that calls these routines.
- */
 void
 proto_reg_handoff_ccsds(void)
 {
