@@ -428,12 +428,12 @@ win32_save_as_file(HWND h_wnd, capture_file *cf,
         ofn->nMaxFileTitle = 0;
         ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
         ofn->lpstrTitle = _T("Wireshark: Save file as");
-        ofn->Flags = OFN_ENABLESIZING  | OFN_ENABLETEMPLATE  | OFN_EXPLORER     |
+        ofn->Flags = OFN_ENABLESIZING  | OFN_EXPLORER        |
                      OFN_NOCHANGEDIR   | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
                      OFN_PATHMUSTEXIST | OFN_ENABLEHOOK      | OFN_SHOWHELP;
         ofn->lpstrDefExt = NULL;
         ofn->lpfnHook = save_as_file_hook_proc;
-        ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
+        ofn->lpTemplateName = NULL;
 
         if (!GetSaveFileName(ofn)) {
             /* User cancelled or closed the dialog, or an error occurred. */
@@ -485,7 +485,7 @@ win32_save_as_file(HWND h_wnd, capture_file *cf,
         case CANCELLED:
             /* The user said "forget it".  Just return. */
             return FALSE; /* No save, no comments discarded */
-        }      
+        }
 
         /*
          * Append the default file extension if there's none given by
