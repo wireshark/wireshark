@@ -310,7 +310,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint         reported_length;
 	guint8       checkword_flag  = 0;
 	gint         counter         = 0;
-	proto_item  *item;           = NULL;
+	proto_item  *item            = NULL;
 	proto_tree  *checkword_tree;
 	guint16      checkword_field = 0;
 	guint16      checkword_sum   = 0;
