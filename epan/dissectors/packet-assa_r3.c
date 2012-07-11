@@ -9773,127 +9773,107 @@ static gint dissect_r3_command (tvbuff_t *tvb, guint32 start_offset, guint32 len
 /*
  * ***************************************************************************
  *
- *  Dissect a single packet, return bytes consumed
+ *  Dissect a single r3 PDU
  *
- *  Return either:
- *    >0 = number of bytes consumed
- *     0 = packet is just the right length
- *    <0 = need more bytes
+ *  return: amount consumed
  */
-static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *pinfo, proto_tree *r3_tree)
+static int dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
 {
-  guint offset    = 0;
-  guint octConsumed;
-  gint  available = tvb_length_remaining (tvb, start_offset);
+  proto_item *payload_item = NULL;
+  proto_tree *payload_tree = NULL;
+  guint       offset       = 0;
+  guint       packetLen;
+  guint       octConsumed;
 
-  if (tvb_strneql (tvb, start_offset, "~~~ds", 5) == 0)
+  if (tvb_strneql (tvb, 0, "~~~ds", 5) == 0)
   {
     if (r3_tree)
-      proto_tree_add_item (r3_tree, hf_r3_tildex3ds, tvb, start_offset + 0, -1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (r3_tree, hf_r3_tildex3ds, tvb, 0, -1, ENC_ASCII|ENC_NA);
 
-    offset = start_offset + 5;
+    return 5;
   }
-  else
-  {
-    gint packetLen = 0;
 
-    if (available < 4)
-      return available - 4;
+  /*
+   *  Show basic header stuff
+   */
+  if (r3_tree)
+  {
+    proto_item *header_item = proto_tree_add_item (r3_tree, hf_r3_header, tvb, 0, 5, ENC_NA);
+    proto_tree *header_tree = proto_item_add_subtree (header_item, ett_r3header);
+
+    proto_tree_add_item (header_tree, hf_r3_sigil,        tvb, 0, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item (header_tree, hf_r3_address,      tvb, 1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item (header_tree, hf_r3_packetnumber, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item (header_tree, hf_r3_packetlength, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item (header_tree, hf_r3_encryption,   tvb, 4, 1, ENC_LITTLE_ENDIAN);
+  }
+
+  /* Note: packetLen == tvb_reported_length() */
+
+  packetLen = tvb_get_guint8 (tvb, 3);
+
+  if (r3_tree)
+  {
+    payload_item = proto_tree_add_item (r3_tree, hf_r3_payload, tvb, 5, -1, ENC_NA);
+    payload_tree = proto_item_add_subtree (payload_item, ett_r3payload);
+  }
+
+  offset = 5;
+
+  mfgCommandFlag = FALSE;   /* XXX: Assumption: mfgCmd always follows Cmd in same r3 "packet" */
+  while (offset < (packetLen - 3))
+  {
+    octConsumed = dissect_r3_command (tvb, offset, 0, pinfo, payload_tree);
+    if(octConsumed == 0)
+    {
+      expert_add_info_format (pinfo, proto_tree_get_parent (payload_tree), PI_MALFORMED, PI_WARN,
+                              "Command length equal to 0; payload could be partially decoded");
+      offset = tvb_reported_length (tvb) - 3; /* just do CRC stuff ?? */
+      break;
+    }
+    offset += octConsumed;
+  }
+
+  /*
+   *  Show the CRC and XOR status
+   */
+  if (r3_tree)
+  {
+    proto_item *tail_item     = proto_tree_add_item (r3_tree, hf_r3_tail, tvb, offset, 3, ENC_NA);
+    proto_tree *tail_tree     = proto_item_add_subtree (tail_item, ett_r3tail);
+    guint32     packetCRC     = tvb_get_letohs (tvb, offset);
+    guint32     packetXor     = tvb_get_guint8 (tvb, offset + 2);
+    guint32     calculatedCRC;
+
+    if ((calculatedCRC = utilCrcCalculate (tvb_get_ptr (tvb, 1, packetLen - 3), packetLen - 3, 0x0000)) == packetCRC)
+      proto_tree_add_uint_format (tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC, "CRC: 0x%04x (correct)", packetCRC);
     else
     {
-      packetLen = tvb_get_guint8 (tvb, start_offset + 3) + 1;
+      proto_item *tmp_item;
 
-      if (packetLen > available)
-        return available - packetLen;
+      proto_tree_add_uint_format (tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC,
+                                  "CRC: 0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
+      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, offset, 2, TRUE);
+      PROTO_ITEM_SET_GENERATED (tmp_item);
     }
 
-    packetLen -= 1;
-
-    /*
-     *  Show basic header stuff
-     */
-    if (r3_tree)
+    if ((packetLen ^ 0xff) == (int)packetXor)
+      proto_tree_add_uint_format (tail_tree, hf_r3_xor, tvb, offset + 2, 1, packetXor,
+                                  "XOR: 0x%02x (correct)", packetXor);
+    else
     {
-      proto_item *header_item = proto_tree_add_item (r3_tree, hf_r3_header, tvb, start_offset + 0, 5, ENC_NA);
-      proto_tree *header_tree = proto_item_add_subtree (header_item, ett_r3header);
+      proto_item *tmp_item;
 
-      proto_tree_add_item (header_tree, hf_r3_sigil,        tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item (header_tree, hf_r3_address,      tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item (header_tree, hf_r3_packetnumber, tvb, start_offset + 2, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item (header_tree, hf_r3_packetlength, tvb, start_offset + 3, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item (header_tree, hf_r3_encryption,   tvb, start_offset + 4, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_uint_format (tail_tree, hf_r3_xor, tvb, offset + 7, 1, packetXor,
+                                  "XOR: 0x%02x (incorrect, should be 0x%02x)", packetXor, packetLen ^ 0xff);
+      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 7, 1, TRUE);
+      PROTO_ITEM_SET_GENERATED (tmp_item);
     }
-
-    /*
-     *  If the packet has enough data, try to decode it
-     */
-    if (available > 8)
-    {
-      proto_item *payload_item = NULL;
-      proto_tree *payload_tree = NULL;
-      tvbuff_t   *payload_tvb  = tvb_new_subset (tvb, start_offset + 5, packetLen - 7, packetLen - 7);
-
-      if (r3_tree)
-      {
-        payload_item = proto_tree_add_item (r3_tree, hf_r3_payload, payload_tvb, 0, -1, ENC_NA);
-        payload_tree = proto_item_add_subtree (payload_item, ett_r3payload);
-      }
-
-      mfgCommandFlag = FALSE;   /* XXX: Assumption: mfgCmd always follows Cmd in same r3 "packet" */
-      while (offset < tvb_reported_length (payload_tvb))
-      {
-        octConsumed = dissect_r3_command (payload_tvb, offset, 0, pinfo, payload_tree);
-        if(octConsumed == 0)
-        {
-          expert_add_info_format (pinfo, proto_tree_get_parent (payload_tree), PI_MALFORMED, PI_WARN,
-                                  "Command length equal to 0; payload could be partially decoded");
-          offset = tvb_reported_length (payload_tvb);
-          break;
-        }
-        offset += octConsumed;
-      }
-    }
-
-    offset += start_offset;
-
-    /*
-     *  Show the CRC and XOR status
-     */
-    if (r3_tree)
-    {
-      proto_item *tail_item = proto_tree_add_item (r3_tree, hf_r3_tail, tvb, offset + 5, 3, ENC_NA);
-      proto_tree *tail_tree = proto_item_add_subtree (tail_item, ett_r3tail);
-      guint32 packetCRC = tvb_get_letohs (tvb, offset + 5);
-      guint32 packetXor = tvb_get_guint8 (tvb, offset + 7);
-      guint32 calculatedCRC = 0;
-
-      if ((calculatedCRC = utilCrcCalculate (tvb_get_ptr (tvb, start_offset + 1, packetLen - 3), packetLen - 3, 0x0000)) == packetCRC)
-        proto_tree_add_uint_format (tail_tree, hf_r3_crc, tvb, offset + 5, 2, packetCRC, "CRC: 0x%04x (correct)", packetCRC);
-      else
-      {
-        proto_item *tmp_item;
-
-        proto_tree_add_uint_format (tail_tree, hf_r3_crc, tvb, offset + 5, 2, packetCRC, "CRC: 0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
-        tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, offset + 5, 2, TRUE);
-        PROTO_ITEM_SET_GENERATED (tmp_item);
-      }
-
-      if ((packetLen ^ 0xff) == (int)packetXor)
-        proto_tree_add_uint_format (tail_tree, hf_r3_xor, tvb, offset + 7, 1, packetXor, "XOR: 0x%02x (correct)", packetXor);
-      else
-      {
-        proto_item *tmp_item;
-
-        proto_tree_add_uint_format (tail_tree, hf_r3_xor, tvb, offset + 7, 1, packetXor, "XOR: 0x%02x (incorrect, should be 0x%02x)", packetXor, packetLen ^ 0xff);
-        tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 7, 1, TRUE);
-        PROTO_ITEM_SET_GENERATED (tmp_item);
-      }
-    }
-
-    offset += 8;
   }
 
-  return offset - start_offset;
+  offset += 3;
+
+  return offset;
 }
 
 /*
@@ -9903,32 +9883,23 @@ static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *p
  */
 static void dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *r3_item = NULL;
   proto_tree *r3_tree = NULL;
-  guint       offset  = 0;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "R3");
   col_clear (pinfo->cinfo, COL_INFO);
 
+  /* Note: The tvb (provided via tcp_dissect_pdus()) will contain (at most) one PDU of the length
+   *       specified via get_r3_message_len()
+   */
+
   if (tree)
   {
+    proto_item *r3_item;
     r3_item = proto_tree_add_item (tree, proto_r3, tvb, 0, -1, ENC_NA);
     r3_tree = proto_item_add_subtree (r3_item, ett_r3);
   }
 
-  while (offset < tvb_reported_length (tvb))
-  {
-    gint res = dissect_r3_packet (tvb, offset, pinfo, r3_tree);
-
-    if (res <= 0)
-    {
-      proto_item_set_len (r3_item, offset);
-
-      return;
-    }
-
-    offset += res;
-  }
+  dissect_r3_packet (tvb, pinfo, r3_tree);
 
   return;
 }
