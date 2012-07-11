@@ -901,6 +901,12 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 op_code;
     guint16 client_type;
     int object_len;
+    proto_item *ti, *tv;
+    proto_tree *cops_tree, *ver_flags_tree;
+    guint32 msg_len;
+    guint32 offset = 0;
+    guint8 ver_flags;
+    gint garbage;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -912,50 +918,41 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Currently used by PacketCable */
     client_type = tvb_get_ntohs(tvb, 2);
 
-    if (tree) {
-        proto_item *ti, *tv;
-        proto_tree *cops_tree, *ver_flags_tree;
-        guint32 msg_len;
-        guint32 offset = 0;
-        guint8 ver_flags;
-        gint garbage;
+    ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, ENC_NA);
+    cops_tree = proto_item_add_subtree(ti, ett_cops);
 
-        ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, ENC_NA);
-        cops_tree = proto_item_add_subtree(ti, ett_cops);
+    /* Version and flags share the same byte, put them in a subtree */
+    ver_flags = tvb_get_guint8(tvb, offset);
+    tv = proto_tree_add_uint_format(cops_tree, hf_cops_ver_flags, tvb, offset, 1,
+                                    ver_flags, "Version: %u, Flags: %s",
+                                    hi_nibble(ver_flags),
+                                    val_to_str(lo_nibble(ver_flags), cops_flags_vals, "Unknown"));
+    ver_flags_tree = proto_item_add_subtree(tv, ett_cops_ver_flags);
+    proto_tree_add_uint(ver_flags_tree, hf_cops_version, tvb, offset, 1, ver_flags);
+    proto_tree_add_uint(ver_flags_tree, hf_cops_flags, tvb, offset, 1, ver_flags);
+    offset++;
 
-        /* Version and flags share the same byte, put them in a subtree */
-        ver_flags = tvb_get_guint8(tvb, offset);
-        tv = proto_tree_add_uint_format(cops_tree, hf_cops_ver_flags, tvb, offset, 1,
-                                        ver_flags, "Version: %u, Flags: %s",
-                                        hi_nibble(ver_flags),
-                                        val_to_str(lo_nibble(ver_flags), cops_flags_vals, "Unknown"));
-        ver_flags_tree = proto_item_add_subtree(tv, ett_cops_ver_flags);
-        proto_tree_add_uint(ver_flags_tree, hf_cops_version, tvb, offset, 1, ver_flags);
-        proto_tree_add_uint(ver_flags_tree, hf_cops_flags, tvb, offset, 1, ver_flags);
-        offset++;
+    proto_tree_add_item(cops_tree, hf_cops_op_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset ++;
+    proto_tree_add_item(cops_tree, hf_cops_client_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        proto_tree_add_item(cops_tree, hf_cops_op_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset ++;
-        proto_tree_add_item(cops_tree, hf_cops_client_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    msg_len = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint(cops_tree, hf_cops_msg_len, tvb, offset, 4, msg_len);
+    offset += 4;
 
-        msg_len = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint(cops_tree, hf_cops_msg_len, tvb, offset, 4, msg_len);
-        offset += 4;
-
-        while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
-            object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type);
-            if (object_len < 0)
-                return;
-            offset += object_len;
-        }
-
-        garbage = tvb_length_remaining(tvb, offset);
-        if (garbage > 0)
-            proto_tree_add_text(cops_tree, tvb, offset, garbage,
-                                "Trailing garbage: %d byte%s", garbage,
-                                plurality(garbage, "", "s"));
+    while (tvb_reported_length_remaining(tvb, offset) >= COPS_OBJECT_HDR_SIZE) {
+        object_len = dissect_cops_object(tvb, pinfo, op_code, offset, cops_tree, client_type);
+        if (object_len < 0)
+            return;
+        offset += object_len;
     }
+
+    garbage = tvb_length_remaining(tvb, offset);
+    if (garbage > 0)
+        proto_tree_add_text(cops_tree, tvb, offset, garbage,
+                            "Trailing garbage: %d byte%s", garbage,
+                            plurality(garbage, "", "s"));
 }
 
 static const char *cops_c_type_to_str(guint8 c_num, guint8 c_type)
