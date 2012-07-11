@@ -51,6 +51,7 @@ typedef struct _e_addr_resolve {
   gboolean transport_name;
   gboolean concurrent_dns;
   gboolean use_external_net_name_resolver;
+  gboolean load_hosts_file_from_profile_only;
 } e_addr_resolve;
 
 /*

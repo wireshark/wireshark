@@ -286,7 +286,7 @@ static void add_serv_port_cb(const guint32 port);
 /*
  * Flag controlling what names to resolve.
  */
-e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, TRUE, TRUE, TRUE};
+e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, TRUE, TRUE, TRUE, FALSE};
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 static guint name_resolve_concurrency = 500;
 #endif
@@ -2411,6 +2411,14 @@ addr_resolve_pref_init(module_t *nameres)
                                           "Support for concurrent DNS name resolution was not"
                                           " compiled into this version of Wireshark");
 #endif
+
+    prefs_register_bool_preference(nameres, "hosts_file_handling",
+                                   "Use hosts file from profile dir only",
+                                   "By default hosts file(s) will be loaded from multiple sources"
+                                   " by checking this box only the hostfile for the current profile will be loaded"
+								   " if the default profile is used the hosts file must be in the same dir as preferences",
+                                   &gbl_resolv_flags.load_hosts_file_from_profile_only);
+
 }
 
 void
@@ -2434,21 +2442,23 @@ host_name_lookup_init(void) {
   /*
    * Load the user's hosts file, if they have one.
    */
-  hostspath = get_persconffile_path(ENAME_HOSTS, FALSE, FALSE);
-  if (!read_hosts_file(hostspath) && errno != ENOENT) {
-    report_open_failure(hostspath, errno, FALSE);
+  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
+    hostspath = get_persconffile_path(ENAME_HOSTS, TRUE, FALSE);
+    if (!read_hosts_file(hostspath) && errno != ENOENT) {
+      report_open_failure(hostspath, errno, FALSE);
+    }
+    g_free(hostspath);
   }
-  g_free(hostspath);
-
   /*
    * Load the global hosts file, if we have one.
    */
-  hostspath = get_datafile_path(ENAME_HOSTS);
-  if (!read_hosts_file(hostspath) && errno != ENOENT) {
-    report_open_failure(hostspath, errno, FALSE);
+  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
+    hostspath = get_datafile_path(ENAME_HOSTS);
+    if (!read_hosts_file(hostspath) && errno != ENOENT) {
+      report_open_failure(hostspath, errno, FALSE);
+    }
+    g_free(hostspath);
   }
-  g_free(hostspath);
-
 #ifdef HAVE_C_ARES
 #ifdef CARES_HAVE_ARES_LIBRARY_INIT
   if (ares_library_init(ARES_LIB_INIT_ALL) == ARES_SUCCESS) {
@@ -2478,16 +2488,20 @@ host_name_lookup_init(void) {
      * XXX - should we base it on the dwPlatformId value from
      * GetVersionEx()?
      */
-    hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
-    if (!read_hosts_file(hostspath)) {
+    if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
+      hostspath = g_strconcat(sysroot, rootpath_nt, NULL);
+      if (!read_hosts_file(hostspath)) {
+        g_free(hostspath);
+        hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
+        read_hosts_file(hostspath);
+      }
       g_free(hostspath);
-      hostspath = g_strconcat(sysroot, rootpath_ot, NULL);
-      read_hosts_file(hostspath);
-    }
-    g_free(hostspath);
+	}
   }
 #else /* _WIN32 */
-  read_hosts_file("/etc/hosts");
+  if(!gbl_resolv_flags.load_hosts_file_from_profile_only){
+    read_hosts_file("/etc/hosts");
+  }
 #endif /* _WIN32 */
 
   /* XXX - Any flags we should be using? */
