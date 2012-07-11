@@ -1091,16 +1091,11 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	return wtap_dump_open_ng(filename, filetype, encap,snaplen, compressed, NULL, NULL, err);
 }
 
-wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
-				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
+static wtap_dumper *
+wtap_dump_init_dumper(int filetype, int encap, int snaplen, gboolean compressed,
+    wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
 	wtap_dumper *wdh;
-	WFILE_T fh;
-
-	/* Check whether we can open a capture file with that file type
-	   and that encapsulation. */
-	if (!wtap_dump_open_check(filetype, encap, compressed, err))
-		return NULL;
 
 	/* Allocate a data structure for the output stream. */
 	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, compressed, err);
@@ -1136,6 +1131,25 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 		wdh->interface_data= g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 		g_array_append_val(wdh->interface_data, descr);
 	}
+	return wdh;
+}
+
+wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
+				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
+{
+	wtap_dumper *wdh;
+	WFILE_T fh;
+
+	/* Check whether we can open a capture file with that file type
+	   and that encapsulation. */
+	if (!wtap_dump_open_check(filetype, encap, compressed, err))
+		return NULL;
+
+	/* Allocate and initialize a data structure for the output stream. */
+	wdh = wtap_dump_init_dumper(filetype, encap, snaplen, compressed,
+	    shb_hdr, idb_inf, err);
+	if (wdh == NULL)
+		return NULL;
 
 	/* "-" means stdout */
 	if (strcmp(filename, "-") == 0) {
@@ -1196,10 +1210,11 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
 	if (!wtap_dump_open_check(filetype, encap, compressed, err))
 		return NULL;
 
-	/* Allocate a data structure for the output stream. */
-	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, compressed, err);
+	/* Allocate and initialize a data structure for the output stream. */
+	wdh = wtap_dump_init_dumper(filetype, encap, snaplen, compressed,
+	    shb_hdr, idb_inf, err);
 	if (wdh == NULL)
-		return NULL;	/* couldn't allocate it */
+		return NULL;
 
 #ifdef _WIN32
 	if (fd == 1) {
@@ -1211,36 +1226,6 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
 		}
 	}
 #endif
-
-	/* Set Section Header Block data */
-	wdh->shb_hdr = shb_hdr;
-	/* Set Interface Description Block data */
-	if ((idb_inf != NULL) && (idb_inf->number_of_interfaces > 0)) {
-		wdh->number_of_interfaces = idb_inf->number_of_interfaces;
-		wdh->interface_data = idb_inf->interface_data;
-	} else {
-		wtapng_if_descr_t descr;
-
-		descr.wtap_encap = encap;
-		descr.time_units_per_second = 0;
-		descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
-		descr.snap_len = snaplen;
-		descr.opt_comment = NULL;
-		descr.if_name = NULL;
-		descr.if_description = NULL;
-		descr.if_speed = 0;
-		descr.if_tsresol = 6;
-		descr.if_filter_str= NULL;
-		descr.bpf_filter_len= 0;
-		descr.if_filter_bpf_bytes= NULL;
-		descr.if_os = NULL;
-		descr.if_fcslen = -1;
-		descr.num_stat_entries = 0;          /* Number of ISB:s */
-		descr.interface_statistics = NULL;
-		wdh->number_of_interfaces= 1;
-		wdh->interface_data= g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
-		g_array_append_val(wdh->interface_data, descr);
-	}
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
