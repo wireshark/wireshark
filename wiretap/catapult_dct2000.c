@@ -407,7 +407,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             /* Create and use buffer for contents before time */
             line_prefix_info->before_time = g_malloc(before_time_offset+2);
-            g_strlcpy(line_prefix_info->before_time, linebuff, before_time_offset+1);
+            memcpy(line_prefix_info->before_time, linebuff, before_time_offset+1);
             line_prefix_info->before_time[before_time_offset+1] = '\0';
 
             /* Create and use buffer for contents before time.
@@ -421,8 +421,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             else {
                 /* Allocate & write buffer for line between timestamp and data */
                 line_prefix_info->after_time = g_malloc(dollar_offset - after_time_offset);
-                g_strlcpy(line_prefix_info->after_time, linebuff+after_time_offset,
-                          dollar_offset - after_time_offset);
+                memcpy(line_prefix_info->after_time, linebuff+after_time_offset, dollar_offset - after_time_offset);
                 line_prefix_info->after_time[dollar_offset - after_time_offset-1] = '\0';
             }
 
