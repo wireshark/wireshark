@@ -292,7 +292,7 @@ static struct graph *graph_new(void);
 static void graph_destroy(struct graph * );
 static void graph_initialize_values(struct graph * );
 static void graph_init_sequence(struct graph * );
-static void draw_element_line(struct graph * , struct element * );
+static void draw_element_line(struct graph * , struct element * ,  cairo_t * );
 static void graph_display(struct graph * );
 static void graph_pixmaps_create(struct graph * );
 static void graph_pixmaps_switch(struct graph * );
@@ -749,20 +749,15 @@ typedef struct rlc_scan_t {
 static int
 tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-    /* Note that this is static... Probably shouldn't be! */
-    static struct segment *segment=NULL;
-
     rlc_scan_t *ts=(rlc_scan_t *)pct;
     rlc_lte_tap_info *rlchdr=(rlc_lte_tap_info*)vip;
-
-    if (!segment){
-        segment=g_malloc(sizeof(struct segment));
-    }
 
     /* See if this one matches current channel */
     if (compare_headers(ts->current->ueid, ts->current->channelType, ts->current->channelId, ts->current->rlcMode, ts->current->direction,
                         rlchdr->ueid,      rlchdr->channelType,      rlchdr->channelId,      rlchdr->rlcMode, rlchdr->direction,
                         rlchdr->isControlPDU)) {
+
+        struct segment *segment = g_malloc(sizeof(struct segment));
 
         /* It matches.  Add to end of segment list */
         segment->next = NULL;
@@ -806,9 +801,6 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
         if (pinfo->fd->num == ts->current->num){
             ts->g->current = segment;
         }
-
-        /* Setting this to NULL! */
-        segment = NULL;
     }
 
     return 0;
@@ -1163,6 +1155,8 @@ static void graph_pixmap_draw(struct graph *g)
     int not_disp;
     cairo_t *cr;
 
+    cairo_t *cr_lines;
+
     debug(DBS_FENTRY) puts("graph_display()");
     not_disp = 1 ^ g->displayed;
 
@@ -1177,11 +1171,23 @@ static void graph_pixmap_draw(struct graph *g)
     cairo_destroy(cr);
     cr = NULL;
 
+    /* Create one cairo_t for use with all of the lines, rather than continually
+       creating and destroying one for each line */
+#if GTK_CHECK_VERSION(2,22,0)
+    cr_lines = cairo_create(g->surface[1^g->displayed]);
+#else
+    cr_lines = gdk_cairo_create(g->pixmap[1^g->displayed]);
+#endif
+
+    /* Line width is always 1 pixel */
+    cairo_set_line_width(cr_lines, 1.0);
+
+    /* Draw all elements */
     for (list=g->elists; list; list=list->next) {
         for (e=list->elements; e->type != ELMT_NONE; e++) {
             switch (e->type) {
                 case ELMT_LINE:
-                    draw_element_line(g, e);
+                    draw_element_line(g, e, cr_lines);
                     break;
 
                 default:
@@ -1190,54 +1196,63 @@ static void graph_pixmap_draw(struct graph *g)
             }
         }
     }
+
+    cairo_destroy(cr_lines);
 }
 
-static void draw_element_line(struct graph *g, struct element *e)
+static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr)
 {
     int xx1, xx2, yy1, yy2;
-    cairo_t *cr;
 
     debug(DBS_GRAPH_DRAWING)
         printf("\nline element: (%.2f,%.2f)->(%.2f,%.2f), seg %d ...\n",
                e->p.line.dim.x1, e->p.line.dim.y1,
                e->p.line.dim.x2, e->p.line.dim.y2, e->parent->num);
 
+    /* Map point into graph area, and round to nearest int */
     xx1 = (int )rint(e->p.line.dim.x1 + g->geom.x - g->wp.x);
     xx2 = (int )rint(e->p.line.dim.x2 + g->geom.x - g->wp.x);
     yy1 = (int )rint((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
     yy2 = (int )rint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
 
+    /* If line completely out of the area, we won't show it - OK */
     if ((xx1<0 && xx2<0) || (xx1>=g->wp.width && xx2>=g->wp.width) ||
                 (yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
         debug(DBS_GRAPH_DRAWING) printf(" refusing: (%d,%d)->(%d,%d)\n",
                                     xx1, yy1, xx2, yy2);
         return;
     }
-    if (xx2 > g->wp.width-1)
+
+    /* If any remaining extremeties are outside, clip them to the edge */
+    if (xx2 > g->wp.width-1) {
         xx2 = g->wp.width-1;
-    if (xx1 < 0)
+    }
+    if (xx1 < 0) {
         xx1 = 0;
-    if (yy2 > g->wp.height-1)
+    }
+    if (yy2 > g->wp.height-1) {
         yy2 = g->wp.height-1;
-    if (yy1 < 0)
+    }
+    if (yy1 < 0) {
         yy1 = 0;
+    }
+
     debug(DBS_GRAPH_DRAWING) printf("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
 
     g_assert(e->elment_color_p!=NULL);
 
-#if GTK_CHECK_VERSION(2,22,0)
-    cr = cairo_create(g->surface[1^g->displayed]);
-#else
-    cr = gdk_cairo_create(g->pixmap[1^g->displayed]);
-#endif
-    cairo_set_line_width(cr, 1.0);
-    if (e->elment_color_p!=NULL){
+    /* Set our colour (if chosen) */
+    /* TODO: would be nice to only set when changed, as its slow.  Simply maintaining
+       a static GdkColor* won't work though, as need to set again when get new
+       cairo_t* ... */
+    if (e->elment_color_p!=NULL) {
         gdk_cairo_set_source_color(cr, e->elment_color_p);
     }
+
+    /* Draw from first position to second */
     cairo_move_to(cr, xx1+0.5, yy1+0.5);
     cairo_line_to(cr, xx2+0.5, yy2+0.5);
     cairo_stroke(cr);
-    cairo_destroy(cr);
 }
 
 static void axis_pixmaps_create(struct axis *axis)
@@ -1302,6 +1317,7 @@ static void axis_display(struct axis *axis)
         h_axis_pixmap_draw(axis);
     else
         v_axis_pixmap_draw(axis);
+
     axis_pixmaps_switch(axis);
     axis_pixmap_display(axis);
 }
@@ -1313,7 +1329,7 @@ static void v_axis_pixmap_draw(struct axis *axis)
     double major_tick;
     int not_disp, rdigits, offset, imin, imax;
     double bottom, top, j, fl, corr;
-        PangoLayout *layout;
+    PangoLayout *layout;
     cairo_t *cr;
 
     debug(DBS_FENTRY) puts("v_axis_pixmap_draw()");
