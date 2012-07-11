@@ -606,8 +606,7 @@ static const value_string context_id_type[] = {
 #endif
 
 /* the following value_strings are used to build defalut packages.
- *  To add additional detail to a package, build a register a h248_package_t structure
- * http://www.iana.org/assignments/megaco-h248
+   To add additional detail to a package, build a register a h248_package_t structure
  */
 
 static const value_string base_package_name_vals[] = {
@@ -1267,14 +1266,14 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
 static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32* trx_id_p) {
     guint64 trx_id = 0;
-    gint8 class;
+    gint8 ber_class;
     gboolean pc;
     gint32 tag;
     guint32 len;
     guint32 i;
 
     if(!implicit_tag){
-        offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+        offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
         offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
     } else {
         len=tvb_length_remaining(tvb, offset);
@@ -1304,7 +1303,7 @@ static int dissect_h248_trx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 }
 
 static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, guint32* ctx_id_p) {
-    gint8 class;
+    gint8 ber_class;
     gboolean pc;
     gint32 tag;
     guint32 len;
@@ -1312,7 +1311,7 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
     guint32 i;
 
     if(!implicit_tag){
-        offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
+        offset=dissect_ber_identifier(pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
         offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
     } else {
         len=tvb_length_remaining(tvb, offset);
@@ -1656,7 +1655,7 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
 
 static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
 
-    gint8 class;
+    gint8 ber_class;
     gboolean pc, ind;
     gint32 tag;
     guint32 len;
@@ -1664,17 +1663,19 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     int end_offset;
     const h248_package_t* pkg;
     const h248_pkg_param_t* prop;
+    tvbuff_t *next_tvb = NULL;
 
-    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
     offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
     end_offset=offset+len;
 
-    if( (class!=BER_CLASS_UNI)
+    if( (ber_class!=BER_CLASS_UNI)
       ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
         return end_offset;
     }
 
+    next_tvb = tvb_new_subset(tvb,offset,len,len);
 
     name_minor = packageandid & 0xffff;
 
@@ -1691,7 +1692,7 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     }
     if (prop && prop->hfid ) {
         if (!prop->dissector) prop = &no_param;
-        prop->dissector(tree, tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
+        prop->dissector(tree, next_tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
     }
 
     return end_offset;
@@ -1741,24 +1742,26 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int dissect_h248_SigParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     int end_offset;
-    gint8 class;
+    gint8 ber_class;
     gboolean pc, ind;
     gint32 tag;
     guint32 len;
+    tvbuff_t *next_tvb = NULL;
 
-    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
     offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
     end_offset=offset+len;
 
-    if( (class!=BER_CLASS_UNI)
+    if( (ber_class!=BER_CLASS_UNI)
         ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
-        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
         return end_offset;
     }
 
+    next_tvb = tvb_new_subset(tvb,offset,len,len);
 
     if ( curr_info.par && curr_info.par->dissector) {
-        curr_info.par->dissector(tree, tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
+        curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
     }
 
     return end_offset;
@@ -1817,22 +1820,24 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 
 static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
     tvbuff_t *next_tvb;
-    int old_offset, end_offset;
-    gint8 class1;
-    gboolean pc1, ind1;
-    gint32 tag1;
-    guint32 len1;
-	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class1, &pc1, &tag1);
-	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len1, &ind1);
-	end_offset=offset+len1;
-	/* check to see if 1) is octet string and 2) if another OS is embedded */
-	if( !(tag1==BER_UNI_TAG_OCTETSTRING || tag1==BER_UNI_TAG_BOOLEAN || BER_UNI_TAG_ENUMERATED)) { /* allow octet string and boolean constructs */
-		proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class1, pc1, tag1);
+    int end_offset;
+    gint8 ber_class;
+    gboolean pc, ind;
+    gint32 tag;
+    guint32 len;
+
+	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
+	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+	end_offset=offset+len;
+
+	if( (ber_class!=BER_CLASS_UNI)
+        ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
+        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", ber_class, pc, tag);
         return end_offset;
-	}
-    next_tvb = tvb_new_subset(tvb,offset,len1,len1);
-	old_offset=offset;
-	offset = old_offset; /* restore initial offset before calling dissector functions */
+    }
+
+    next_tvb = tvb_new_subset(tvb,offset,len,len);
+
 	if ( curr_info.par && curr_info.par->dissector) {
         curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
     }
@@ -5362,7 +5367,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1404 "../../asn1/h248/packet-h248-template.c"
+#line 1410 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -5444,7 +5449,7 @@ void proto_register_h248(void) {
                 "PC", "h248.mtpaddress.pc", FT_UINT32, BASE_DEC,
                 NULL, 0, NULL, HFILL }},
 		{ &hf_h248_pkg_name, {
-                "Package", "h248.package_name", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+                "Package", "h248.package_name", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL }},
         { &hf_248_pkg_param, {
                 "Parameter ID", "h248.package_paramid", FT_UINT16, BASE_HEX,
@@ -5456,10 +5461,10 @@ void proto_register_h248(void) {
                 "Event ID", "h248.package_eventid", FT_UINT16, BASE_HEX,
                 NULL, 0, "Parameter ID", HFILL }},
         { &hf_h248_event_name, {
-                "Package and Event name", "h248.event_name", FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+                "Package and Event name", "h248.event_name", FT_UINT32, BASE_HEX,
                 NULL, 0, "Package", HFILL }},
         { &hf_h248_signal_name, {
-                "Package and Signal name", "h248.signal_name", FT_UINT32, BASE_HEX|BASE_EXT_STRING,
+                "Package and Signal name", "h248.signal_name", FT_UINT32, BASE_HEX,
                 NULL, 0, "Package", HFILL }},
         { &hf_h248_pkg_bcp_BNCChar_PDU,
           { "BNCChar", "h248.package_bcp.BNCChar",
@@ -6771,7 +6776,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1556 "../../asn1/h248/packet-h248-template.c"
+#line 1562 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6937,7 +6942,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1574 "../../asn1/h248/packet-h248-template.c"
+#line 1580 "../../asn1/h248/packet-h248-template.c"
     };
 
     module_t *h248_module;
