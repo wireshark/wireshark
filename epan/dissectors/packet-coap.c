@@ -74,9 +74,9 @@ static gint ett_coap_payload		= -1;
 /* COAP's IANA-assigned port number */
 #define DEFAULT_COAP_PORT	5683
 
-static const gchar *coap_content_type = NULL;
-static gint coap_content_type_value = ~0;
-static guint global_coap_port_number = DEFAULT_COAP_PORT;
+static const gchar *coap_content_type       = NULL;
+static gint         coap_content_type_value = ~0;
+static guint        global_coap_port_number = DEFAULT_COAP_PORT;
 
 static gint block_number = ~0;
 static guint block_mflag = 0;
@@ -137,15 +137,15 @@ static const value_string vals_code[] = {
  * No-Option must not be included in this structure, is handled in the function
  * of the dissector, especially.
  */
-#define COAP_OPT_CONTENT_TYPE	1
-#define COAP_OPT_MAX_AGE	2
-#define COAP_OPT_PROXY_URI	3
-#define COAP_OPT_ETAG		4
-#define COAP_OPT_URI_HOST	5
-#define COAP_OPT_LOCATION_PATH	6
-#define COAP_OPT_URI_PORT	7
-#define COAP_OPT_LOCATION_QUERY	8
-#define COAP_OPT_URI_PATH	9
+#define COAP_OPT_CONTENT_TYPE	 1
+#define COAP_OPT_MAX_AGE	 2
+#define COAP_OPT_PROXY_URI	 3
+#define COAP_OPT_ETAG		 4
+#define COAP_OPT_URI_HOST	 5
+#define COAP_OPT_LOCATION_PATH	 6
+#define COAP_OPT_URI_PORT	 7
+#define COAP_OPT_LOCATION_QUERY	 8
+#define COAP_OPT_URI_PATH	 9
 #define COAP_OPT_OBSERVE	10	/* core-observe */
 #define COAP_OPT_TOKEN		11
 #define COAP_OPT_ACCEPT		12
@@ -156,23 +156,23 @@ static const value_string vals_code[] = {
 #define COAP_OPT_IF_NONE_MATCH	21
 
 static const value_string vals_opt_type[] = {
-	{ COAP_OPT_CONTENT_TYPE, "Content-Type" },
-	{ COAP_OPT_MAX_AGE, "Max-age" },
-	{ COAP_OPT_PROXY_URI, "Proxy-Uri" },
-	{ COAP_OPT_ETAG, "Etag" },
-	{ COAP_OPT_URI_HOST, "Uri-Host" },
-	{ COAP_OPT_LOCATION_PATH, "Location-Path" },
-	{ COAP_OPT_URI_PORT, "Uri-Port" },
+	{ COAP_OPT_CONTENT_TYPE,   "Content-Type" },
+	{ COAP_OPT_MAX_AGE,        "Max-age" },
+	{ COAP_OPT_PROXY_URI,      "Proxy-Uri" },
+	{ COAP_OPT_ETAG,           "Etag" },
+	{ COAP_OPT_URI_HOST,       "Uri-Host" },
+	{ COAP_OPT_LOCATION_PATH,  "Location-Path" },
+	{ COAP_OPT_URI_PORT,       "Uri-Port" },
 	{ COAP_OPT_LOCATION_QUERY, "Location-Query" },
-	{ COAP_OPT_URI_PATH, "Uri-Path" },
-	{ COAP_OPT_OBSERVE, "Observe" },
-	{ COAP_OPT_TOKEN, "Token" },
-	{ COAP_OPT_ACCEPT, "Accept" },
-	{ COAP_OPT_IF_MATCH, "If-Match" },
-	{ COAP_OPT_URI_QUERY, "Uri-Query" },
-	{ COAP_OPT_BLOCK2, "Block2" },
-	{ COAP_OPT_BLOCK1, "Block1" },
-	{ COAP_OPT_IF_NONE_MATCH, "If-None-Match" },
+	{ COAP_OPT_URI_PATH,       "Uri-Path" },
+	{ COAP_OPT_OBSERVE,        "Observe" },
+	{ COAP_OPT_TOKEN,          "Token" },
+	{ COAP_OPT_ACCEPT,         "Accept" },
+	{ COAP_OPT_IF_MATCH,       "If-Match" },
+	{ COAP_OPT_URI_QUERY,      "Uri-Query" },
+	{ COAP_OPT_BLOCK2,         "Block2" },
+	{ COAP_OPT_BLOCK1,         "Block1" },
+	{ COAP_OPT_IF_NONE_MATCH,  "If-None-Match" },
 	{ 0, NULL },
 };
 
@@ -191,8 +191,8 @@ void proto_reg_handoff_coap(void);
 static int
 coap_is_str_ipv6addr(guint8 *str)
 {
-	size_t len = strlen(str);
-	int colon = 0;
+	size_t len   = strlen(str);
+	int    colon = 0;
 
 	while (len--) {
 		if (*str++ == ':')
@@ -269,10 +269,10 @@ dissect_coap_opt_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gi
 static void
 dissect_coap_opt_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gint offset, gint opt_length, int hfindex)
 {
-	guint8 val = 0;
-	guint encoded_block_size = 0;
-	guint block_size;
-	proto_item *item = NULL;
+	guint8      val                = 0;
+	guint       encoded_block_size = 0;
+	guint       block_size;
+	proto_item *item               = NULL;
 
 	switch (opt_length) {
 	case 1:
@@ -305,7 +305,7 @@ static void
 dissect_coap_opt_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gint offset, gint opt_length, int hfindex)
 {
 	proto_item *item = NULL;
-	char portstr[6];
+	char        portstr[6];
 
 	memset(portstr, '\0', sizeof(portstr));
 
@@ -342,12 +342,12 @@ dissect_coap_opt_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gi
 static int
 dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, guint8 opt_count, guint8 *opt_code)
 {
-	guint8 opt_delta;
-	gint opt_length;
-	proto_tree *subtree = NULL;
-	proto_item *item = NULL;
-	gint opt_hlen = 0;
-	tvbuff_t *tvb_lenbuf = NULL;
+	guint8      opt_delta;
+	gint        opt_length;
+	proto_tree *subtree    = NULL;
+	proto_item *item       = NULL;
+	gint        opt_hlen   = 0;
+	tvbuff_t   *tvb_lenbuf = NULL;
 
 	opt_delta = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
 	*opt_code += opt_delta;
@@ -440,22 +440,19 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 static void
 dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	guint offset = 0;
-	proto_item *coap_root = NULL;
-	proto_tree *coap_tree = NULL;
-	guint8 ttype = 0;
-	guint8 opt_count = 0;
-	guint8 code = 0;
-	guint16 tid = 0;
-	guint coap_length = 0;
-	guint8 opt_code = 0;
-	int i;
+	guint       offset      = 0;
+	proto_item *coap_root   = NULL;
+	proto_tree *coap_tree   = NULL;
+	guint8      ttype       = 0;
+	guint8      opt_count   = 0;
+	guint8      code        = 0;
+	guint16     tid         = 0;
+	guint       coap_length = 0;
+	guint8      opt_code    = 0;
+	int         i;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "COAP");
 	col_clear(pinfo->cinfo, COL_INFO);
-
-	if (!parent_tree)
-		return;
 
 	/* initialize the COAP length and the content-type */
 	/*
@@ -547,31 +544,131 @@ void
 proto_register_coap(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_coap_version, { "Version", "coap.version", FT_UINT8, BASE_DEC, NULL, 0xc0, "COAP Version", HFILL }},
-		{ &hf_coap_ttype, { "Type", "coap.type", FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30, "COAP Transaction Type", HFILL }},
-		{ &hf_coap_opt_count, { "Option Count", "coap.optcount", FT_UINT8, BASE_DEC, NULL, 0x0f, "COAP Option Count", HFILL }},
-		{ &hf_coap_code, { "Code", "coap.code", FT_UINT8, BASE_DEC, VALS(vals_code), 0x0, "COAP Method or Response Code", HFILL }},
-		{ &hf_coap_tid, { "Transaction ID", "coap.tid", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Transaction ID", HFILL }},
-		{ &hf_coap_opt_delta, { "Delta", "coap.opt.delta", FT_UINT8, BASE_DEC, NULL, 0xf0, "COAP Option Delta", HFILL }},
-		{ &hf_coap_opt_length, { "Length", "coap.opt.length", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Option Length", HFILL }},
-		{ &hf_coap_opt_ctype, { "Content-type", "coap.opt.ctype", FT_UINT8, BASE_DEC, VALS(vals_ctype), 0x0, "COAP Content Type", HFILL }},
-		{ &hf_coap_opt_max_age, { "Max-age", "coap.opt.max_age", FT_UINT32, BASE_DEC, NULL, 0x0, "COAP Max-age", HFILL }},
-		{ &hf_coap_opt_proxy_uri, { "Proxy-Uri", "coap.opt.proxy_uri", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Proxy-Uri", HFILL }},
-		{ &hf_coap_opt_etag, { "Etag", "coap.opt.etag", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Etag", HFILL }},
-		{ &hf_coap_opt_uri_host, { "Uri-Host", "coap.opt.uri_host", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Host", HFILL }},
-		{ &hf_coap_opt_location_path, { "Location-Path", "coap.opt.location_path", FT_STRING, BASE_NONE, NULL, 0x0, "COAP URI Path", HFILL }},
-		{ &hf_coap_opt_uri_port, { "Uri-Port", "coap.opt.uri_port", FT_UINT16, BASE_DEC, NULL, 0x0, "COAP Uri-Port", HFILL }},
-		{ &hf_coap_opt_location_query, { "Location-Query", "coap.opt.location_query", FT_STRING, BASE_NONE, NULL, 0x0, "COAP URI Query", HFILL }},
-		{ &hf_coap_opt_uri_path, { "Uri-Path", "coap.opt.uri_path", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Path", HFILL }},
-		{ &hf_coap_opt_observe, { "Lifetime", "coap.opt.subscr_lifetime", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Observe", HFILL }},
-		{ &hf_coap_opt_token, { "Token", "coap.opt.token", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP Token", HFILL }},
-		{ &hf_coap_opt_accept, { "Accept", "coap.opt.accept", FT_UINT8, BASE_DEC, VALS(vals_ctype), 0x0, "COAP Acceptable Content Type", HFILL }},
-		{ &hf_coap_opt_if_match, { "If-Match", "coap.opt.if_match", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP If-Match", HFILL }},
-		{ &hf_coap_opt_block_number, { "Block Number", "coap.opt.block_number", FT_INT32, BASE_DEC, NULL, 0x0, "COAP Block Number", HFILL }},
-		{ &hf_coap_opt_block_mflag, { "More Flag", "coap.opt.block_mflag", FT_UINT8, BASE_DEC, NULL, 0x08, "COAP Block More Size", HFILL }},
-		{ &hf_coap_opt_block_size, { "Encoded Block Size", "coap.opt.block_size", FT_UINT8, BASE_DEC, NULL, 0x07, "COAP Encoded Block Size", HFILL }},
-		{ &hf_coap_opt_uri_query, { "Uri-Query", "coap.opt.uri_query", FT_STRING, BASE_NONE, NULL, 0x0, "COAP Uri-Query", HFILL }},
-		{ &hf_coap_opt_if_none_match, { "If-None-Match", "coap.opt.if_none_match", FT_BYTES, BASE_NONE, NULL, 0x0, "COAP If-None-Match", HFILL }},
+		{ &hf_coap_version,
+                  { "Version", "coap.version",
+                    FT_UINT8, BASE_DEC, NULL, 0xc0,
+                    "COAP Version", HFILL }
+                },
+		{ &hf_coap_ttype,
+                  { "Type", "coap.type",
+                    FT_UINT8, BASE_DEC, VALS(vals_ttype), 0x30,
+                    "COAP Transaction Type", HFILL }
+                },
+		{ &hf_coap_opt_count,
+                  { "Option Count", "coap.optcount",
+                    FT_UINT8, BASE_DEC, NULL, 0x0f,
+                    "COAP Option Count", HFILL }
+                },
+		{ &hf_coap_code,
+                  { "Code", "coap.code",
+                    FT_UINT8, BASE_DEC, VALS(vals_code), 0x0,
+                    "COAP Method or Response Code", HFILL }
+                },
+		{ &hf_coap_tid,
+                  { "Transaction ID", "coap.tid",
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
+                    "COAP Transaction ID", HFILL }
+                },
+		{ &hf_coap_opt_delta,
+                  { "Delta", "coap.opt.delta",
+                    FT_UINT8, BASE_DEC, NULL, 0xf0,
+                    "COAP Option Delta", HFILL }
+                },
+		{ &hf_coap_opt_length,
+                  { "Length", "coap.opt.length",
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
+                    "COAP Option Length", HFILL }
+                },
+		{ &hf_coap_opt_ctype,
+                  { "Content-type", "coap.opt.ctype",
+                    FT_UINT8, BASE_DEC, VALS(vals_ctype), 0x0,
+                    "COAP Content Type", HFILL }
+                },
+		{ &hf_coap_opt_max_age,
+                  { "Max-age", "coap.opt.max_age",
+                    FT_UINT32, BASE_DEC, NULL, 0x0,
+                    "COAP Max-age", HFILL }
+                },
+		{ &hf_coap_opt_proxy_uri,
+                  { "Proxy-Uri", "coap.opt.proxy_uri",
+                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    "COAP Proxy-Uri", HFILL }
+                },
+		{ &hf_coap_opt_etag,
+                  { "Etag", "coap.opt.etag",
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
+                    "COAP Etag", HFILL }
+                },
+		{ &hf_coap_opt_uri_host,
+                  { "Uri-Host", "coap.opt.uri_host",
+                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    "COAP Uri-Host", HFILL }
+                },
+		{ &hf_coap_opt_location_path,
+                  { "Location-Path", "coap.opt.location_path",
+                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    "COAP URI Path", HFILL }
+                },
+		{ &hf_coap_opt_uri_port,
+                  { "Uri-Port", "coap.opt.uri_port",
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
+                    "COAP Uri-Port", HFILL }
+                },
+		{ &hf_coap_opt_location_query,
+                  { "Location-Query", "coap.opt.location_query",
+                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    "COAP URI Query", HFILL }
+                },
+		{ &hf_coap_opt_uri_path,
+                  { "Uri-Path", "coap.opt.uri_path",
+                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    "COAP Uri-Path", HFILL }
+                },
+		{ &hf_coap_opt_observe,
+                  { "Lifetime", "coap.opt.subscr_lifetime",
+                    FT_INT32, BASE_DEC, NULL, 0x0,
+                    "COAP Observe", HFILL }
+                },
+		{ &hf_coap_opt_token,
+                  { "Token", "coap.opt.token",
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
+                    "COAP Token", HFILL }
+                },
+		{ &hf_coap_opt_accept,
+                  { "Accept", "coap.opt.accept",
+                    FT_UINT8, BASE_DEC, VALS(vals_ctype), 0x0,
+                    "COAP Acceptable Content Type", HFILL }
+                },
+		{ &hf_coap_opt_if_match,
+                  { "If-Match", "coap.opt.if_match",
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
+                    "COAP If-Match", HFILL }
+                },
+		{ &hf_coap_opt_block_number,
+                  { "Block Number", "coap.opt.block_number",
+                    FT_INT32, BASE_DEC, NULL, 0x0,
+                    "COAP Block Number", HFILL }
+                },
+		{ &hf_coap_opt_block_mflag,
+                  { "More Flag", "coap.opt.block_mflag",
+                    FT_UINT8, BASE_DEC, NULL, 0x08,
+                    "COAP Block More Size", HFILL }
+                },
+		{ &hf_coap_opt_block_size,
+                  { "Encoded Block Size", "coap.opt.block_size",
+                    FT_UINT8, BASE_DEC, NULL, 0x07,
+                    "COAP Encoded Block Size", HFILL }
+                },
+		{ &hf_coap_opt_uri_query,
+                  { "Uri-Query", "coap.opt.uri_query",
+                    FT_STRING, BASE_NONE, NULL, 0x0,
+                    "COAP Uri-Query", HFILL }
+                },
+		{ &hf_coap_opt_if_none_match,
+                  { "If-None-Match", "coap.opt.if_none_match",
+                    FT_BYTES, BASE_NONE, NULL, 0x0,
+                    "COAP If-None-Match", HFILL }
+                },
 	};
 
 	static gint *ett[] = {
