@@ -315,8 +315,8 @@ extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offse
 ** Exported variables
 */
 extern dissector_table_t subdissector_class_table;
-extern const value_string cip_sc_rr[3];
-extern const value_string cip_reset_type_vals[4];
+extern const value_string cip_sc_rr[];
+extern const value_string cip_reset_type_vals[];
 extern value_string_ext cip_gs_vals_ext;
 extern value_string_ext cip_cm_ext_st_vals_ext;
 extern value_string_ext cip_vendor_vals_ext;

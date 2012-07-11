@@ -478,7 +478,7 @@ static const value_string cip_sc_vals_cco[] = {
 };
 
 /* Translate function to string - CIP Request/Response */
-const value_string cip_sc_rr[3] = {
+const value_string cip_sc_rr[] = {
    { 0,        "Request"  },
    { 1,        "Response" },
 
@@ -493,7 +493,7 @@ static const value_string cip_com_bit_vals[] = {
    { 0,        NULL          }
 };
 
-const value_string cip_reset_type_vals[4] = {
+const value_string cip_reset_type_vals[] = {
    { 0,        "Cycle Power" },
    { 1,        "Factory Default" },
    { 2,        "Keep Communication Parameters" },
