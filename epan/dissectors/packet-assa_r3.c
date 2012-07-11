@@ -9782,7 +9782,7 @@ static int dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_
   proto_item *payload_item = NULL;
   proto_tree *payload_tree = NULL;
   guint       offset       = 0;
-  guint       packetLen;
+  guint32     packetLen;
   guint       octConsumed;
 
   if (tvb_strneql (tvb, 0, "~~~ds", 5) == 0)
@@ -9857,7 +9857,7 @@ static int dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_
       PROTO_ITEM_SET_GENERATED (tmp_item);
     }
 
-    if ((packetLen ^ 0xff) == (int)packetXor)
+    if ((packetLen ^ 0xff) == packetXor)
       proto_tree_add_uint_format (tail_tree, hf_r3_xor, tvb, offset + 2, 1, packetXor,
                                   "XOR: 0x%02x (correct)", packetXor);
     else
