@@ -9786,7 +9786,7 @@ static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *p
   guint octConsumed;
   gint  available = tvb_length_remaining (tvb, start_offset);
 
-  if (tvb_strneql (tvb, start_offset, "~~~ds", 5) == 0)  // ?? wrong place ??
+  if (tvb_strneql (tvb, start_offset, "~~~ds", 5) == 0)
   {
     if (r3_tree)
       proto_tree_add_item (r3_tree, hf_r3_tildex3ds, tvb, start_offset + 0, -1, ENC_ASCII|ENC_NA);
