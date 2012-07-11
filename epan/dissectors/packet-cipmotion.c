@@ -31,8 +31,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/emem.h>
-#include <epan/expert.h>
 #include "packet-cip.h"
 
 /* The entry point to the actual disection is: dissect_cipmotion */
@@ -471,7 +469,7 @@ dissect_cmd_data_set(guint32 cmd_data_set, proto_tree* tree, tvbuff_t* tvb, guin
    guint32 bytes_used = 0;
 
    /* The order of these if statements is VERY important, this is the order the values will
-   * appear in the cyclic data */
+    * appear in the cyclic data */
    if ( (cmd_data_set & COMMAND_DATA_SET_POSITION) == COMMAND_DATA_SET_POSITION )
    {
       /* Based on the Command Position Data Type value embedded in the Command Control
@@ -1902,215 +1900,967 @@ proto_register_cipmotion(void)
 {
    /* This is a list of header fields that can be used in the dissection or
    * to use in a filter expression */
-   static hf_register_info header_fields[] =
+   static hf_register_info hf[] =
    {
       /* Connection format header field, the first byte in the message which
       * determines if the message is fixed or variable, controller to device,
       * device to controller, etc. */
-      { &hf_cip_format, { "Connection Format", "cipm.format", FT_UINT8, BASE_DEC, VALS(cip_con_format_vals), 0, "Message connection format", HFILL }},
+      { &hf_cip_format,
+        { "Connection Format", "cipm.format",
+          FT_UINT8, BASE_DEC, VALS(cip_con_format_vals), 0,
+          "Message connection format", HFILL }
+      },
 
       /* Connection format revision header field */
-      { &hf_cip_revision, { "Format Revision", "cipm.revision", FT_UINT8, BASE_DEC, NULL, 0, "Message format revision", HFILL }},
+      { &hf_cip_revision,
+        { "Format Revision", "cipm.revision",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Message format revision", HFILL }
+      },
 
-      { &hf_cip_class1_seqnum, { "CIP Class 1 Sequence Number", "cipm.class1seqnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_updateid, { "Update Id", "cipm.updateid", FT_UINT8, BASE_DEC, NULL, 0, "Cyclic Transaction Number", HFILL }},
-      { &hf_cip_instance_cnt, { "Instance Count", "cipm.instancecount", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_last_update, { "Last Update Id", "cipm.lastupdate", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_node_status, { "Node Status", "cipm.nodestatus", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_node_control, { "Node Control", "cipm.nodecontrol", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_node_control_remote, { "Remote Control", "cipm.remote", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01, "Node Control: Remote Control", HFILL}},
-      { &hf_cip_node_control_sync, { "Sync Control", "cipm.sync", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02, "Node Control: Synchronous Operation", HFILL}},
-      { &hf_cip_node_data_valid, { "Data Valid", "cipm.valid", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04, "Node Control: Data Valid", HFILL}},
-      { &hf_cip_node_fault_reset, { "Fault Reset", "cipm.fltrst", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08, "Node Control: Device Fault Reset", HFILL}},
-      { &hf_cip_node_device_faulted, { "Faulted", "cipm.flt", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08, "Node Control: Device Faulted", HFILL}},
-      { &hf_cip_node_fltalarms, { "Node Faults and Alarms", "cipm.fltalarms", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_time_data_set, { "Time Data Set", "cipm.timedataset", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_time_data_stamp, { "Time Stamp", "cipm.time.stamp", FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_TIME_STAMP, "Time Data Set: Time Stamp", HFILL}},
-      { &hf_cip_time_data_offset, { "Time Offset", "cipm.time.offset", FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_TIME_OFFSET, "Time Data Set: Time Offset", HFILL}},
-      { &hf_cip_time_data_diag, { "Time Update Diagnostics", "cipm.time.update", FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_UPDATE_DIAGNOSTICS, "Time Data Set: Time Update Diagnostics", HFILL}},
-      { &hf_cip_time_data_time_diag, { "Time Diagnostics", "cipm.time.diag", FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_TIME_DIAGNOSTICS, "Time Data Set: Time Diagnostics", HFILL}},
+      { &hf_cip_class1_seqnum,
+        { "CIP Class 1 Sequence Number", "cipm.class1seqnum",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+      },
+      { &hf_cip_updateid,
+        { "Update Id", "cipm.updateid",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Cyclic Transaction Number", HFILL }
+      },
+      { &hf_cip_instance_cnt,
+        { "Instance Count", "cipm.instancecount",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+      },
+      { &hf_cip_last_update,
+        { "Last Update Id", "cipm.lastupdate",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+      },
+      { &hf_cip_node_status,
+        { "Node Status", "cipm.nodestatus",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_node_control,
+        { "Node Control", "cipm.nodecontrol",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_node_control_remote,
+        { "Remote Control", "cipm.remote",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01,
+          "Node Control: Remote Control", HFILL}
+      },
+      { &hf_cip_node_control_sync,
+        { "Sync Control", "cipm.sync",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+          "Node Control: Synchronous Operation", HFILL}
+      },
+      { &hf_cip_node_data_valid,
+        { "Data Valid", "cipm.valid",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04,
+          "Node Control: Data Valid", HFILL}
+      },
+      { &hf_cip_node_fault_reset,
+        { "Fault Reset", "cipm.fltrst",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+          "Node Control: Device Fault Reset", HFILL}
+      },
+      { &hf_cip_node_device_faulted,
+        { "Faulted", "cipm.flt",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x08,
+          "Node Control: Device Faulted", HFILL}
+      },
+      { &hf_cip_node_fltalarms,
+        { "Node Faults and Alarms", "cipm.fltalarms",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+      },
+      { &hf_cip_time_data_set,
+        { "Time Data Set", "cipm.timedataset",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_time_data_stamp,
+        { "Time Stamp", "cipm.time.stamp",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_TIME_STAMP,
+          "Time Data Set: Time Stamp", HFILL}
+      },
+      { &hf_cip_time_data_offset,
+        { "Time Offset", "cipm.time.offset",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_TIME_OFFSET,
+          "Time Data Set: Time Offset", HFILL}
+      },
+      { &hf_cip_time_data_diag,
+        { "Time Update Diagnostics", "cipm.time.update",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_UPDATE_DIAGNOSTICS,
+          "Time Data Set: Time Update Diagnostics", HFILL}
+      },
+      { &hf_cip_time_data_time_diag,
+        { "Time Diagnostics", "cipm.time.diag",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), TIME_DATA_SET_TIME_DIAGNOSTICS,
+          "Time Data Set: Time Diagnostics", HFILL}
+      },
 
-      { &hf_cip_cont_time_stamp, { "Controller Time Stamp", "cipm.ctrltimestamp", FT_UINT64, BASE_DEC, NULL, 0, "Time Data Set: Controller Time Stamp", HFILL}},
-      { &hf_cip_cont_time_offset, { "Controller Time Offset", "cipm.ctrltimeoffser", FT_UINT64, BASE_DEC, NULL, 0, "Time Data Set: Controller Time Offset", HFILL}},
-      { &hf_cip_data_rx_time_stamp, { "Data Received Time Stamp", "cipm.rxtimestamp", FT_UINT64, BASE_DEC, NULL, 0, "Time Data Set: Data Received Time Stamp", HFILL}},
-      { &hf_cip_data_tx_time_stamp, { "Data Transmit Time Stamp", "cipm.txtimestamp", FT_UINT64, BASE_DEC, NULL, 0, "Time Data Set: Data Transmit Time Offset", HFILL}},
-      { &hf_cip_devc_time_stamp, { "Device Time Stamp", "cipm.devctimestamp", FT_UINT64, BASE_DEC, NULL, 0, "Time Data Set: Device Time Stamp", HFILL} },
-      { &hf_cip_devc_time_offset, { "Device Time Offset", "cipm.devctimeoffser", FT_UINT64, BASE_DEC, NULL, 0, "Time Data Set: Device Time Offset", HFILL}},
-      { &hf_cip_lost_update, { "Lost Updates", "cipm.lostupdates", FT_UINT8, BASE_DEC, NULL, 0, "Time Data Set: Lost Updates", HFILL}},
-      { &hf_cip_late_update, { "Lost Updates", "cipm.lateupdates", FT_UINT8, BASE_DEC, NULL, 0, "Time Data Set: Late Updates", HFILL}},
+      { &hf_cip_cont_time_stamp,
+        { "Controller Time Stamp", "cipm.ctrltimestamp",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Time Data Set: Controller Time Stamp", HFILL}
+      },
+      { &hf_cip_cont_time_offset,
+        { "Controller Time Offset", "cipm.ctrltimeoffser",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Time Data Set: Controller Time Offset", HFILL}
+      },
+      { &hf_cip_data_rx_time_stamp,
+        { "Data Received Time Stamp", "cipm.rxtimestamp",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Time Data Set: Data Received Time Stamp", HFILL}
+      },
+      { &hf_cip_data_tx_time_stamp,
+        { "Data Transmit Time Stamp", "cipm.txtimestamp",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Time Data Set: Data Transmit Time Offset", HFILL}
+      },
+      { &hf_cip_devc_time_stamp,
+        { "Device Time Stamp", "cipm.devctimestamp",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Time Data Set: Device Time Stamp", HFILL}
+      },
+      { &hf_cip_devc_time_offset,
+        { "Device Time Offset", "cipm.devctimeoffser",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Time Data Set: Device Time Offset", HFILL}
+      },
+      { &hf_cip_lost_update,
+        { "Lost Updates", "cipm.lostupdates",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Time Data Set: Lost Updates", HFILL}
+      },
+      { &hf_cip_late_update,
+        { "Lost Updates", "cipm.lateupdates",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Time Data Set: Late Updates", HFILL}
+      },
 
-      { &hf_cip_motor_cntrl, { "Control Mode", "cipm.ctrlmode", FT_UINT8, BASE_DEC, VALS(cip_motor_control_vals), 0, "Cyclic Data Block: Motor Control Mode", HFILL }},
-      { &hf_cip_fdbk_config, { "Feedback Config", "cipm.fdbkcfg", FT_UINT8, BASE_DEC, VALS(cip_fdbk_config_vals), 0, "Cyclic Data Block: Feedback Configuration", HFILL }},
-      { &hf_cip_axis_control, { "Axis Control", "cipm.axisctrl", FT_UINT8, BASE_DEC, VALS(cip_axis_control_vals), 0, "Cyclic Data Block: Axis Control", HFILL }},
-      { &hf_cip_control_status, { "Control Status", "cipm.csts", FT_UINT8, BASE_DEC, VALS(cip_control_status_vals), 0, "Cyclic Data Block: Axis Control Status", HFILL }},
-      { &hf_cip_axis_response, { "Axis Response", "cipm.axisresp", FT_UINT8, BASE_DEC, VALS(cip_axis_response_vals), 0, "Cyclic Data Block: Axis Response", HFILL }},
-      { &hf_cip_axis_resp_stat, { "Response Status", "cipm.respstat", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0, "Cyclic Data Block: Axis Response Status", HFILL }},
-      { &hf_cip_group_sync, { "Group Sync Status", "cipm.syncstatus", FT_UINT8, BASE_HEX, VALS(cip_sync_status_vals), 0, NULL, HFILL }},
-      { &hf_cip_cmd_data_set, { "Command Data Set", "cipm.cmdset", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_act_data_set, { "Actual Data Set", "cipm.actset", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_sts_data_set, { "Status Data Set", "cipm.stsset", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_cmd_data_pos_cmd, { "Command Position", "cipm.cmd.pos", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_POSITION, "Command Data Set: Command Position", HFILL}},
-      { &hf_cip_cmd_data_vel_cmd, { "Command Velocity", "cipm.cmd.vel", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_VELOCITY, "Command Data Set: Command Velocity", HFILL}},
-      { &hf_cip_cmd_data_acc_cmd, { "Command Acceleration", "cipm.cmd.acc", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_ACCELERATION, "Command Data Set: Command Acceleration", HFILL}},
-      { &hf_cip_cmd_data_trq_cmd, { "Command Torque", "cipm.cmd.trq", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_TORQUE, "Command Data Set: Command Torque", HFILL}},
-      { &hf_cip_cmd_data_pos_trim_cmd, { "Position Trim", "cipm.cmd.postrm", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_POSITION_TRIM, "Command Data Set: Position Trim", HFILL}},
-      { &hf_cip_cmd_data_vel_trim_cmd, { "Velocity Trim", "cipm.cmd.veltrm", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_VELOCITY_TRIM, "Command Data Set: Velocity Trim", HFILL}},
-      { &hf_cip_cmd_data_acc_trim_cmd, { "Acceleration Trim", "cipm.cmd.acctrm", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_ACCELERATION_TRIM, "Command Data Set: Acceleration Trim", HFILL}},
-      { &hf_cip_cmd_data_trq_trim_cmd, { "Torque Trim", "cipm.cmd.trqtrm", FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_TORQUE_TRIM, "Command Data Set: Torque Trim", HFILL}},
+      { &hf_cip_motor_cntrl,
+        { "Control Mode", "cipm.ctrlmode",
+          FT_UINT8, BASE_DEC, VALS(cip_motor_control_vals), 0,
+          "Cyclic Data Block: Motor Control Mode", HFILL }
+      },
+      { &hf_cip_fdbk_config,
+        { "Feedback Config", "cipm.fdbkcfg",
+          FT_UINT8, BASE_DEC, VALS(cip_fdbk_config_vals), 0,
+          "Cyclic Data Block: Feedback Configuration", HFILL }
+      },
+      { &hf_cip_axis_control,
+        { "Axis Control", "cipm.axisctrl",
+          FT_UINT8, BASE_DEC, VALS(cip_axis_control_vals), 0,
+          "Cyclic Data Block: Axis Control", HFILL }
+      },
+      { &hf_cip_control_status,
+        { "Control Status", "cipm.csts",
+          FT_UINT8, BASE_DEC, VALS(cip_control_status_vals), 0,
+          "Cyclic Data Block: Axis Control Status", HFILL }
+      },
+      { &hf_cip_axis_response,
+        { "Axis Response", "cipm.axisresp",
+          FT_UINT8, BASE_DEC, VALS(cip_axis_response_vals), 0,
+          "Cyclic Data Block: Axis Response", HFILL }
+      },
+      { &hf_cip_axis_resp_stat,
+        { "Response Status", "cipm.respstat",
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0,
+          "Cyclic Data Block: Axis Response Status", HFILL }
+      },
+      { &hf_cip_group_sync,
+        { "Group Sync Status", "cipm.syncstatus",
+          FT_UINT8, BASE_HEX, VALS(cip_sync_status_vals), 0,
+          NULL, HFILL }
+      },
+      { &hf_cip_cmd_data_set,
+        { "Command Data Set", "cipm.cmdset",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_act_data_set,
+        { "Actual Data Set", "cipm.actset",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_sts_data_set,
+        { "Status Data Set", "cipm.stsset",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_cmd_data_pos_cmd,
+        { "Command Position", "cipm.cmd.pos",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_POSITION,
+          "Command Data Set: Command Position", HFILL}
+      },
+      { &hf_cip_cmd_data_vel_cmd,
+        { "Command Velocity", "cipm.cmd.vel",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_VELOCITY,
+          "Command Data Set: Command Velocity", HFILL}
+      },
+      { &hf_cip_cmd_data_acc_cmd,
+        { "Command Acceleration", "cipm.cmd.acc",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_ACCELERATION,
+          "Command Data Set: Command Acceleration", HFILL}
+      },
+      { &hf_cip_cmd_data_trq_cmd,
+        { "Command Torque", "cipm.cmd.trq",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_TORQUE,
+          "Command Data Set: Command Torque", HFILL}
+      },
+      { &hf_cip_cmd_data_pos_trim_cmd,
+        { "Position Trim", "cipm.cmd.postrm",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_POSITION_TRIM,
+          "Command Data Set: Position Trim", HFILL}
+      },
+      { &hf_cip_cmd_data_vel_trim_cmd,
+        { "Velocity Trim", "cipm.cmd.veltrm",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_VELOCITY_TRIM,
+          "Command Data Set: Velocity Trim", HFILL}
+      },
+      { &hf_cip_cmd_data_acc_trim_cmd,
+        { "Acceleration Trim", "cipm.cmd.acctrm",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_ACCELERATION_TRIM,
+          "Command Data Set: Acceleration Trim", HFILL}
+      },
+      { &hf_cip_cmd_data_trq_trim_cmd,
+        { "Torque Trim", "cipm.cmd.trqtrm",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), COMMAND_DATA_SET_TORQUE_TRIM,
+          "Command Data Set: Torque Trim", HFILL}
+      },
 
-      { &hf_cip_act_data_pos, { "Actual Position", "cipm.act.pos", FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_POSITION, "Acutal Data Set: Actual Position", HFILL}},
-      { &hf_cip_act_data_vel, { "Actual Velocity", "cipm.act.vel", FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_VELOCITY, "Actual Data Set: Actual Velocity", HFILL}},
-      { &hf_cip_act_data_acc, { "Actual Acceleration", "cipm.act.acc", FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_ACCELERATION, "Actual Data Set: Actual Acceleration", HFILL}},
-      { &hf_cip_act_data_trq, { "Actual Torque", "cipm.act.trq", FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_TORQUE, "Actual Data Set: Actual Torque", HFILL}},
-      { &hf_cip_act_data_crnt, { "Actual Current", "cipm.act.crnt", FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_CURRENT, "Actual Data Set: Actual Current", HFILL}},
-      { &hf_cip_act_data_vltg, { "Actual Voltage", "cipm.act.vltg", FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_VOLTAGE, "Actual Data Set: Actual Voltage", HFILL}},
-      { &hf_cip_act_data_fqcy, { "Actual Frequency", "cipm.act.fqcy", FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_FREQUENCY, "Actual Data Set: Actual Frequency", HFILL}},
+      { &hf_cip_act_data_pos,
+        { "Actual Position", "cipm.act.pos",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_POSITION,
+          "Acutal Data Set: Actual Position", HFILL}
+      },
+      { &hf_cip_act_data_vel,
+        { "Actual Velocity", "cipm.act.vel",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_VELOCITY,
+          "Actual Data Set: Actual Velocity", HFILL}
+      },
+      { &hf_cip_act_data_acc,
+        { "Actual Acceleration", "cipm.act.acc",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_ACCELERATION,
+          "Actual Data Set: Actual Acceleration", HFILL}
+      },
+      { &hf_cip_act_data_trq,
+        { "Actual Torque", "cipm.act.trq",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_TORQUE,
+          "Actual Data Set: Actual Torque", HFILL}
+      },
+      { &hf_cip_act_data_crnt,
+        { "Actual Current", "cipm.act.crnt",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_CURRENT,
+          "Actual Data Set: Actual Current", HFILL}
+      },
+      { &hf_cip_act_data_vltg,
+        { "Actual Voltage", "cipm.act.vltg",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_VOLTAGE,
+          "Actual Data Set: Actual Voltage", HFILL}
+      },
+      { &hf_cip_act_data_fqcy,
+        { "Actual Frequency", "cipm.act.fqcy",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), ACTUAL_DATA_SET_FREQUENCY,
+          "Actual Data Set: Actual Frequency", HFILL}
+      },
 
-      { &hf_cip_axis_fault, { "Axis Fault Code", "cipm.fault.code", FT_UINT8, BASE_DEC, NULL, 0, "Status Data Set: Fault Code", HFILL }},
-      { &hf_cip_fault_type, { "Axis Fault Type", "cipm.flttype", FT_UINT8, BASE_DEC, NULL, 0, "Axis Status: Axis Fault Type", HFILL}},
-      { &hf_cip_fault_sub_code, { "Axis Fault Sub Code", "cipm.fltsubcode", FT_UINT8, BASE_DEC, NULL, 0, "Axis Status: Axis Fault Sub Code", HFILL}},
-      { &hf_cip_fault_action, { "Axis Fault Action", "cipm.fltaction", FT_UINT8, BASE_DEC, NULL, 0, "Axis Status: Axis Fault Action", HFILL}},
-      { &hf_cip_fault_time_stamp, { "Axis Fault Time Stamp", "cipm.flttimestamp", FT_UINT64,  BASE_DEC, NULL, 0, "Axis Status: Axis Fault Time Stamp", HFILL}},
-      { &hf_cip_alarm_type, { "Axis Fault Type", "cipm.alarmtype", FT_UINT8,  BASE_DEC, NULL, 0, "Axis Status: Axis Alarm Type", HFILL}},
-      { &hf_cip_alarm_sub_code, { "Axis Alarm Sub Code", "cipm.alarmsubcode", FT_UINT8,  BASE_DEC, NULL, 0, "Axis Status: Axis Alarm Sub Code", HFILL} },
-      { &hf_cip_alarm_state, { "Axis Alarm State", "cipm.alarmstate", FT_UINT8,  BASE_DEC, NULL, 0, "Axis Status: Axis Alarm State", HFILL }},
-      { &hf_cip_alarm_time_stamp, { "Axis Fault Time Stamp", "cipm.alarmtimestamp", FT_UINT64,  BASE_DEC, NULL, 0, "Axis Status: Axis Alarm Time Stamp", HFILL}},
-      { &hf_cip_axis_status, { "Axis Status", "cipm.axisstatus", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_axis_status_mfg, { "Axis Status Mfg", "cipm.axisstatusmfg", FT_UINT32, BASE_HEX, NULL, 0, "Axis Status, Manufacturer Specific", HFILL}},
-      { &hf_cip_axis_io_status, { "Axis I/O Status", "cipm.axisiostatus", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_axis_io_status_mfg, { "Axis I/O Status Mfg", "cipm.axisiostatusmfg", FT_UINT32, BASE_HEX, NULL, 0, "Axis I/O Status, Manufacturer Specific", HFILL}},
-      { &hf_cip_safety_status, { "Axis Safety Status", "cipm.safetystatus", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}},
-      { &hf_cip_sts_flt, { "Axis Fault Codes", "cipm.sts.flt", FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_FAULT, "Status Data Set: Axis Fault Codes", HFILL}},
-      { &hf_cip_sts_alrm, { "Axis Alarm Codes", "cipm.sts.alarm", FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_ALARM, "Status Data Set: Axis Alarm Codes", HFILL}},
-      { &hf_cip_sts_sts, { "Axis Status", "cipm.sts.sts", FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_STATUS, "Status Data Set: Axis Status", HFILL}},
-      { &hf_cip_sts_iosts, { "Axis I/O Status", "cipm.sts.iosts", FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_IO_STATUS, "Status Data Set: Axis I/O Status", HFILL}},
-      { &hf_cip_sts_safety, { "Axis Safety Status", "cipm.sts.safety", FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_SAFETY, "Status Data Set: Axis Safety Status", HFILL}},
+      { &hf_cip_axis_fault,
+        { "Axis Fault Code", "cipm.fault.code",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Status Data Set: Fault Code", HFILL }
+      },
+      { &hf_cip_fault_type,
+        { "Axis Fault Type", "cipm.flttype",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Fault Type", HFILL}
+      },
+      { &hf_cip_fault_sub_code,
+        { "Axis Fault Sub Code", "cipm.fltsubcode",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Fault Sub Code", HFILL}
+      },
+      { &hf_cip_fault_action,
+        { "Axis Fault Action", "cipm.fltaction",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Fault Action", HFILL}
+      },
+      { &hf_cip_fault_time_stamp,
+        { "Axis Fault Time Stamp", "cipm.flttimestamp",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Fault Time Stamp", HFILL}
+      },
+      { &hf_cip_alarm_type,
+        { "Axis Fault Type", "cipm.alarmtype",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Alarm Type", HFILL}
+      },
+      { &hf_cip_alarm_sub_code,
+        { "Axis Alarm Sub Code", "cipm.alarmsubcode",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Alarm Sub Code", HFILL}
+      },
+      { &hf_cip_alarm_state,
+        { "Axis Alarm State", "cipm.alarmstate",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Alarm State", HFILL }
+      },
+      { &hf_cip_alarm_time_stamp,
+        { "Axis Fault Time Stamp", "cipm.alarmtimestamp",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Axis Status: Axis Alarm Time Stamp", HFILL}
+      },
+      { &hf_cip_axis_status,
+        { "Axis Status", "cipm.axisstatus",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_axis_status_mfg,
+        { "Axis Status Mfg", "cipm.axisstatusmfg",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Axis Status, Manufacturer Specific", HFILL}
+      },
+      { &hf_cip_axis_io_status,
+        { "Axis I/O Status", "cipm.axisiostatus",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_axis_io_status_mfg,
+        { "Axis I/O Status Mfg", "cipm.axisiostatusmfg",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Axis I/O Status, Manufacturer Specific", HFILL}
+      },
+      { &hf_cip_safety_status,
+        { "Axis Safety Status", "cipm.safetystatus",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL}
+      },
+      { &hf_cip_sts_flt,
+        { "Axis Fault Codes", "cipm.sts.flt",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_FAULT,
+          "Status Data Set: Axis Fault Codes", HFILL}
+      },
+      { &hf_cip_sts_alrm,
+        { "Axis Alarm Codes", "cipm.sts.alarm",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_ALARM,
+          "Status Data Set: Axis Alarm Codes", HFILL}
+      },
+      { &hf_cip_sts_sts,
+        { "Axis Status", "cipm.sts.sts",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_STATUS,
+          "Status Data Set: Axis Status", HFILL}
+      },
+      { &hf_cip_sts_iosts,
+        { "Axis I/O Status", "cipm.sts.iosts",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_IO_STATUS,
+          "Status Data Set: Axis I/O Status", HFILL}
+      },
+      { &hf_cip_sts_safety,
+        { "Axis Safety Status", "cipm.sts.safety",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), STATUS_DATA_SET_AXIS_SAFETY,
+          "Status Data Set: Axis Safety Status", HFILL}
+      },
 
-      { &hf_cip_intrp, { "Interpolation Control", "cipm.intrp", FT_UINT8, BASE_DEC, VALS(cip_interpolation_vals), COMMAND_CONTROL_TARGET_UPDATE, "Cyclic Data Block: Interpolation Control", HFILL}},
-      { &hf_cip_position_data_type, { "Position Data Type", "cipm.posdatatype", FT_UINT8, BASE_DEC, VALS(cip_pos_data_type_vals), COMMAND_CONTROL_POSITION_DATA_TYPE, "Cyclic Data Block: Position Data Type", HFILL }},
-      { &hf_cip_axis_state, { "Axis State", "cipm.axste", FT_UINT8,  BASE_DEC, VALS(cip_axis_state_vals), 0, "Cyclic Data Block: Axis State", HFILL}},
-      { &hf_cip_command_control, { "Command Control", "cipm.cmdcontrol", FT_UINT8, BASE_DEC, NULL, 0, "Cyclic Data Block: Command Control", HFILL }},
-      { &hf_cip_cyclic_wrt_data, { "Write Data", "cipm.writedata", FT_BYTES, BASE_NONE, NULL, 0, "Cyclic Write: Data", HFILL }},
-      { &hf_cip_cyclic_rd_data, { "Read Data", "cipm.readdata", FT_BYTES, BASE_NONE, NULL, 0, "Cyclic Read: Data", HFILL }},
-      { &hf_cip_cyclic_write_blk, { "Write Block", "cipm.writeblk", FT_UINT8,  BASE_DEC, NULL, 0, "Cyclic Data Block: Write Block Id", HFILL }},
-      { &hf_cip_cyclic_read_blk, { "Read Block", "cipm.readblk", FT_UINT8,  BASE_DEC, NULL, 0, "Cyclic Data Block: Read Block Id", HFILL}},
-      { &hf_cip_cyclic_write_sts, { "Write Status", "cipm.writests", FT_UINT8,  BASE_DEC, NULL, 0, "Cyclic Data Block: Write Status", HFILL }},
-      { &hf_cip_cyclic_read_sts, { "Read Status", "cipm.readsts", FT_UINT8,  BASE_DEC, NULL, 0, "Cyclic Data Block: Read Status", HFILL }},
-      { &hf_cip_event_checking, { "Event Control", "cipm.evntchkcontrol", FT_UINT32,  BASE_HEX, NULL, 0, "Event Channel: Event Checking Control", HFILL}},
-      { &hf_cip_event_ack, { "Event Acknowledgement", "cipm.evntack", FT_UINT8,  BASE_DEC, NULL, 0, "Event Channel: Event Acknowledgement", HFILL} },
-      { &hf_cip_event_status, { "Event Status", "cipm.evntchkstatus", FT_UINT32, BASE_HEX, NULL, 0, "Event Channel: Event Checking Status", HFILL} },
-      { &hf_cip_event_id, { "Event Id", "cipm.evntack", FT_UINT8, BASE_DEC, NULL, 0, "Event Channel: Event Id", HFILL }},
-      { &hf_cip_event_pos, { "Event Position", "cipm.evntpos", FT_INT32,  BASE_DEC, NULL, 0, "Event Channel: Event Position", HFILL} },
-      { &hf_cip_event_ts, { "Event Time Stamp", "cipm.evntimestamp", FT_UINT64, BASE_DEC, NULL, 0, "Event Channel: Time Stamp", HFILL}},
+      { &hf_cip_intrp,
+        { "Interpolation Control", "cipm.intrp",
+          FT_UINT8, BASE_DEC, VALS(cip_interpolation_vals), COMMAND_CONTROL_TARGET_UPDATE,
+          "Cyclic Data Block: Interpolation Control", HFILL}
+      },
+      { &hf_cip_position_data_type,
+        { "Position Data Type", "cipm.posdatatype",
+          FT_UINT8, BASE_DEC, VALS(cip_pos_data_type_vals), COMMAND_CONTROL_POSITION_DATA_TYPE,
+          "Cyclic Data Block: Position Data Type", HFILL }
+      },
+      { &hf_cip_axis_state,
+        { "Axis State", "cipm.axste",
+          FT_UINT8, BASE_DEC, VALS(cip_axis_state_vals), 0,
+          "Cyclic Data Block: Axis State", HFILL}
+      },
+      { &hf_cip_command_control,
+        { "Command Control", "cipm.cmdcontrol",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Cyclic Data Block: Command Control", HFILL }
+      },
+      { &hf_cip_cyclic_wrt_data,
+        { "Write Data", "cipm.writedata",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Cyclic Write: Data", HFILL }
+      },
+      { &hf_cip_cyclic_rd_data,
+        { "Read Data", "cipm.readdata",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Cyclic Read: Data", HFILL }
+      },
+      { &hf_cip_cyclic_write_blk,
+        { "Write Block", "cipm.writeblk",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Cyclic Data Block: Write Block Id", HFILL }
+      },
+      { &hf_cip_cyclic_read_blk,
+        { "Read Block", "cipm.readblk",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Cyclic Data Block: Read Block Id", HFILL}
+      },
+      { &hf_cip_cyclic_write_sts,
+        { "Write Status", "cipm.writests",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Cyclic Data Block: Write Status", HFILL }
+      },
+      { &hf_cip_cyclic_read_sts,
+        { "Read Status", "cipm.readsts",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Cyclic Data Block: Read Status", HFILL }
+      },
+      { &hf_cip_event_checking,
+        { "Event Control", "cipm.evntchkcontrol",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Event Channel: Event Checking Control", HFILL}
+      },
+      { &hf_cip_event_ack,
+        { "Event Acknowledgement", "cipm.evntack",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Event Channel: Event Acknowledgement", HFILL}
+      },
+      { &hf_cip_event_status,
+        { "Event Status", "cipm.evntchkstatus",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Event Channel: Event Checking Status", HFILL}
+      },
+      { &hf_cip_event_id,
+        { "Event Id", "cipm.evntack",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Event Channel: Event Id", HFILL }
+      },
+      { &hf_cip_event_pos,
+        { "Event Position", "cipm.evntpos",
+          FT_INT32, BASE_DEC, NULL, 0,
+          "Event Channel: Event Position", HFILL}
+      },
+      { &hf_cip_event_ts,
+        { "Event Time Stamp", "cipm.evntimestamp",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          "Event Channel: Time Stamp", HFILL}
+      },
 
-      { &hf_cip_evnt_ctrl_reg1_pos, { "Reg 1 Pos Edge", "cipm.evnt.ctrl.reg1posedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001, "Event Checking Control: Reg 1 Pos Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_reg1_neg, { "Reg 1 Neg Edge", "cipm.evnt.ctrl.reg1negedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002, "Event Checking Control: Reg 1 Neg Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_reg2_pos, { "Reg 2 Pos Edge", "cipm.evnt.ctrl.reg2posedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004, "Event Checking Control: Reg 2 Pos Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_reg2_neg, { "Reg 2 Neg Edge", "cipm.evnt.ctrl.reg2negedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008, "Event Checking Control: Reg 2 Neg Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_reg1_posrearm, { "Reg 1 Pos Rearm", "cipm.evnt.ctrl.reg1posrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100, "Event Checking Control: Reg 1 Pos Rearm", HFILL}},
-      { &hf_cip_evnt_ctrl_reg1_negrearm, { "Reg 1 Neg Rearm", "cipm.evnt.ctrl.reg1negrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200, "Event Checking Control: Reg 1 Neg Rearm", HFILL}},
-      { &hf_cip_evnt_ctrl_reg2_posrearm, { "Reg 2 Pos Rearm", "cipm.evnt.ctrl.reg2posrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000400, "Event Checking Control: Reg 2 Pos Rearm", HFILL}},
-      { &hf_cip_evnt_ctrl_reg2_negrearm, { "Reg 2 Neg Rearm", "cipm.evnt.ctrl.reg2negrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000800, "Event Checking Control: Reg 2 Neg Rearm", HFILL}},
-      { &hf_cip_evnt_ctrl_marker_pos, { "Marker Pos Edge", "cipm.evnt.ctrl.mrkrpos", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00010000, "Event Checking Control: Marker Pos Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_marker_neg, { "Marker Neg Edge", "cipm.evnt.ctrl.mrkrneg", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00020000, "Event Checking Control: Marker Neg Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_home_pos, { "Home Pos Edge", "cipm.evnt.ctrl.homepos", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00040000, "Event Checking Control: Home Pos Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_home_neg, { "Home Neg Edge", "cipm.evnt.ctrl.homeneg", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000, "Event Checking Control: Home Neg Edge", HFILL}},
-      { &hf_cip_evnt_ctrl_home_pp, { "Home-Switch-Marker Plus Plus", "cipm.evnt.ctrl.homepp", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00100000, "Event Checking Control: Home-Switch-Marker Plus Plus", HFILL}},
-      { &hf_cip_evnt_ctrl_home_pm, { "Home-Switch-Marker Plus Minus", "cipm.evnt.ctrl.homepm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00200000, "Event Checking Control: Home-Switch-Marker Plus Minus", HFILL}},
-      { &hf_cip_evnt_ctrl_home_mp,{ "Home-Switch-Marker Minus Plus", "cipm.evnt.ctrl.homemp", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00400000, "Event Checking Control: Home-Switch-Marker Minus Plus", HFILL}},
-      { &hf_cip_evnt_ctrl_home_mm, { "Home-Switch-Marker Minus Minus", "cipm.evnt.ctrl.homemm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00800000, "Event Checking Control: Home-Switch-Marker Minus Minus", HFILL}},
-      { &hf_cip_evnt_ctrl_acks, { "Event Acknowledge Blocks", "cipm.evnt.ctrl.acks", FT_UINT32, BASE_DEC, NULL, 0x70000000, "Event Checking Control: Event Acknowledge Blocks", HFILL}},
-      { &hf_cip_evnt_extend_format, { "Extended Event Format", "cipm.evnt.extend", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x80000000, "Event Checking Control: Extended Event Format", HFILL}},
+      { &hf_cip_evnt_ctrl_reg1_pos,
+        { "Reg 1 Pos Edge", "cipm.evnt.ctrl.reg1posedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001,
+          "Event Checking Control: Reg 1 Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_reg1_neg,
+        { "Reg 1 Neg Edge", "cipm.evnt.ctrl.reg1negedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002,
+          "Event Checking Control: Reg 1 Neg Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_reg2_pos,
+        { "Reg 2 Pos Edge", "cipm.evnt.ctrl.reg2posedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004,
+          "Event Checking Control: Reg 2 Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_reg2_neg,
+        { "Reg 2 Neg Edge", "cipm.evnt.ctrl.reg2negedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008,
+          "Event Checking Control: Reg 2 Neg Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_reg1_posrearm,
+        { "Reg 1 Pos Rearm", "cipm.evnt.ctrl.reg1posrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100,
+          "Event Checking Control: Reg 1 Pos Rearm", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_reg1_negrearm,
+        { "Reg 1 Neg Rearm", "cipm.evnt.ctrl.reg1negrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200,
+          "Event Checking Control: Reg 1 Neg Rearm", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_reg2_posrearm,
+        { "Reg 2 Pos Rearm", "cipm.evnt.ctrl.reg2posrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000400,
+          "Event Checking Control: Reg 2 Pos Rearm", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_reg2_negrearm,
+        { "Reg 2 Neg Rearm", "cipm.evnt.ctrl.reg2negrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000800,
+          "Event Checking Control: Reg 2 Neg Rearm", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_marker_pos,
+        { "Marker Pos Edge", "cipm.evnt.ctrl.mrkrpos",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00010000,
+          "Event Checking Control: Marker Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_marker_neg,
+        { "Marker Neg Edge", "cipm.evnt.ctrl.mrkrneg",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00020000,
+          "Event Checking Control: Marker Neg Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_home_pos,
+        { "Home Pos Edge", "cipm.evnt.ctrl.homepos",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00040000,
+          "Event Checking Control: Home Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_home_neg,
+        { "Home Neg Edge", "cipm.evnt.ctrl.homeneg",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000,
+          "Event Checking Control: Home Neg Edge", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_home_pp,
+        { "Home-Switch-Marker Plus Plus", "cipm.evnt.ctrl.homepp",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00100000,
+          "Event Checking Control: Home-Switch-Marker Plus Plus", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_home_pm,
+        { "Home-Switch-Marker Plus Minus", "cipm.evnt.ctrl.homepm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00200000,
+          "Event Checking Control: Home-Switch-Marker Plus Minus", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_home_mp,
+        { "Home-Switch-Marker Minus Plus", "cipm.evnt.ctrl.homemp",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00400000,
+          "Event Checking Control: Home-Switch-Marker Minus Plus", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_home_mm,
+        { "Home-Switch-Marker Minus Minus", "cipm.evnt.ctrl.homemm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00800000,
+          "Event Checking Control: Home-Switch-Marker Minus Minus", HFILL}
+      },
+      { &hf_cip_evnt_ctrl_acks,
+        { "Event Acknowledge Blocks", "cipm.evnt.ctrl.acks",
+          FT_UINT32, BASE_DEC, NULL, 0x70000000,
+          "Event Checking Control: Event Acknowledge Blocks", HFILL}
+      },
+      { &hf_cip_evnt_extend_format,
+        { "Extended Event Format", "cipm.evnt.extend",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x80000000,
+          "Event Checking Control: Extended Event Format", HFILL}
+      },
 
-      { &hf_cip_evnt_sts_reg1_pos,{ "Reg 1 Pos Edge", "cipm.evnt.sts.reg1posedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001, "Event Checking Status: Reg 1 Pos Edge", HFILL}},
-      { &hf_cip_evnt_sts_reg1_neg, { "Reg 1 Neg Edge", "cipm.evnt.sts.reg1negedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002, "Event Checking Status: Reg 1 Neg Edge", HFILL }},
-      { &hf_cip_evnt_sts_reg2_pos, { "Reg 2 Pos Edge", "cipm.evnt.sts.reg2posedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004, "Event Checking Status: Reg 2 Pos Edge", HFILL}},
-      { &hf_cip_evnt_sts_reg2_neg, { "Reg 2 Neg Edge", "cipm.evnt.sts.reg2negedge", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008, "Event Checking Status: Reg 2 Neg Edge", HFILL}},
-      { &hf_cip_evnt_sts_reg1_posrearm, { "Reg 1 Pos Rearm", "cipm.evnt.sts.reg1posrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100, "Event Checking Status: Reg 1 Pos Rearm", HFILL}},
-      { &hf_cip_evnt_sts_reg1_negrearm, { "Reg 1 Neg Rearm", "cipm.evnt.sts.reg1negrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200, "Event Checking Status: Reg 1 Neg Rearm", HFILL}},
-      { &hf_cip_evnt_sts_reg2_posrearm, { "Reg 2 Pos Rearm", "cipm.evnt.sts.reg2posrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000400, "Event Checking Status: Reg 2 Pos Rearm", HFILL}},
-      { &hf_cip_evnt_sts_reg2_negrearm, { "Reg 2 Neg Rearm", "cipm.evnt.sts.reg2negrearm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000800, "Event Checking Status: Reg 2 Neg Rearm", HFILL}},
-      { &hf_cip_evnt_sts_marker_pos, { "Marker Pos Edge", "cipm.evnt.sts.mrkrpos", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00010000, "Event Checking Status: Marker Pos Edge", HFILL}},
-      { &hf_cip_evnt_sts_marker_neg, { "Marker Neg Edge", "cipm.evnt.sts.mrkrneg", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00020000, "Event Checking Status: Marker Neg Edge", HFILL }},
-      { &hf_cip_evnt_sts_home_pos, { "Home Pos Edge", "cipm.evnt.sts.homepos", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00040000, "Event Checking Status: Home Pos Edge", HFILL}},
-      { &hf_cip_evnt_sts_home_neg, { "Home Neg Edge", "cipm.evnt.sts.homeneg", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000, "Event Checking Status: Home Neg Edge", HFILL }},
-      { &hf_cip_evnt_sts_home_pp, { "Home-Switch-Marker Plus Plus", "cipm.evnt.sts.homepp", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00100000, "Event Checking Status: Home-Switch-Marker Plus Plus", HFILL}},
-      { &hf_cip_evnt_sts_home_pm, { "Home-Switch-Marker Plus Minus", "cipm.evnt.sts.homepm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00200000, "Event Checking Status: Home-Switch-Marker Plus Minus", HFILL}},
-      { &hf_cip_evnt_sts_home_mp, { "Home-Switch-Marker Minus Plus", "cipm.evnt.sts.homemp", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00400000, "Event Checking Status: Home-Switch-Marker Minus Plus", HFILL}},
-      { &hf_cip_evnt_sts_home_mm, { "Home-Switch-Marker Minus Minus", "cipm.evnt.sts.homemm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00800000, "Event Checking Status: Home-Switch-Marker Minus Minus", HFILL}},
-      { &hf_cip_evnt_sts_nfs, { "Event Notification Blocks", "cipm.evnt.sts.nfs", FT_UINT32, BASE_DEC, NULL, 0x70000000, "Event Checking Status: Event Notification Blocks", HFILL}},
+      { &hf_cip_evnt_sts_reg1_pos,
+        { "Reg 1 Pos Edge", "cipm.evnt.sts.reg1posedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001,
+          "Event Checking Status: Reg 1 Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_sts_reg1_neg,
+        { "Reg 1 Neg Edge", "cipm.evnt.sts.reg1negedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002,
+          "Event Checking Status: Reg 1 Neg Edge", HFILL }
+      },
+      { &hf_cip_evnt_sts_reg2_pos,
+        { "Reg 2 Pos Edge", "cipm.evnt.sts.reg2posedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004,
+          "Event Checking Status: Reg 2 Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_sts_reg2_neg,
+        { "Reg 2 Neg Edge", "cipm.evnt.sts.reg2negedge",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008,
+          "Event Checking Status: Reg 2 Neg Edge", HFILL}
+      },
+      { &hf_cip_evnt_sts_reg1_posrearm,
+        { "Reg 1 Pos Rearm", "cipm.evnt.sts.reg1posrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100,
+          "Event Checking Status: Reg 1 Pos Rearm", HFILL}
+      },
+      { &hf_cip_evnt_sts_reg1_negrearm,
+        { "Reg 1 Neg Rearm", "cipm.evnt.sts.reg1negrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200,
+          "Event Checking Status: Reg 1 Neg Rearm", HFILL}
+      },
+      { &hf_cip_evnt_sts_reg2_posrearm,
+        { "Reg 2 Pos Rearm", "cipm.evnt.sts.reg2posrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000400,
+          "Event Checking Status: Reg 2 Pos Rearm", HFILL}
+      },
+      { &hf_cip_evnt_sts_reg2_negrearm,
+        { "Reg 2 Neg Rearm", "cipm.evnt.sts.reg2negrearm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000800,
+          "Event Checking Status: Reg 2 Neg Rearm", HFILL}
+      },
+      { &hf_cip_evnt_sts_marker_pos,
+        { "Marker Pos Edge", "cipm.evnt.sts.mrkrpos",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00010000,
+          "Event Checking Status: Marker Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_sts_marker_neg,
+        { "Marker Neg Edge", "cipm.evnt.sts.mrkrneg",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00020000,
+          "Event Checking Status: Marker Neg Edge", HFILL }
+      },
+      { &hf_cip_evnt_sts_home_pos,
+        { "Home Pos Edge", "cipm.evnt.sts.homepos",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00040000,
+          "Event Checking Status: Home Pos Edge", HFILL}
+      },
+      { &hf_cip_evnt_sts_home_neg,
+        { "Home Neg Edge", "cipm.evnt.sts.homeneg",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000,
+          "Event Checking Status: Home Neg Edge", HFILL }
+      },
+      { &hf_cip_evnt_sts_home_pp,
+        { "Home-Switch-Marker Plus Plus", "cipm.evnt.sts.homepp",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00100000,
+          "Event Checking Status: Home-Switch-Marker Plus Plus", HFILL}
+      },
+      { &hf_cip_evnt_sts_home_pm,
+        { "Home-Switch-Marker Plus Minus", "cipm.evnt.sts.homepm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00200000,
+          "Event Checking Status: Home-Switch-Marker Plus Minus", HFILL}
+      },
+      { &hf_cip_evnt_sts_home_mp,
+        { "Home-Switch-Marker Minus Plus", "cipm.evnt.sts.homemp",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00400000,
+          "Event Checking Status: Home-Switch-Marker Minus Plus", HFILL}
+      },
+      { &hf_cip_evnt_sts_home_mm,
+        { "Home-Switch-Marker Minus Minus", "cipm.evnt.sts.homemm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00800000,
+          "Event Checking Status: Home-Switch-Marker Minus Minus", HFILL}
+      },
+      { &hf_cip_evnt_sts_nfs,
+        { "Event Notification Blocks", "cipm.evnt.sts.nfs",
+          FT_UINT32, BASE_DEC, NULL, 0x70000000,
+          "Event Checking Status: Event Notification Blocks", HFILL}
+      },
 
-      { &hf_cip_evnt_sts_stat, { "Event Status", "cipm.evnt.stat", FT_UINT8,  BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0, "Event Data Block: Event Status", HFILL }},
-      { &hf_cip_evnt_type, { "Event Type", "cipm.evnt.type", FT_UINT8,  BASE_DEC, VALS(cip_event_type_vals), 0, "Event Data Block: Event Type", HFILL}},
-      { &hf_cip_svc_code, { "Service Code", "cipm.svc.code", FT_UINT8, BASE_DEC, VALS(cip_sc_vals), 0, "Service Data Block: Service Code", HFILL}},
-      { &hf_cip_svc_sts, { "General Status", "cipm.svc.sts", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0, "Service Data Block: General Status", HFILL }},
-      { &hf_cip_svc_transction, { "Transaction Id", "cipm.svc.tranid", FT_UINT8, BASE_DEC, NULL, 0, "Service Data Block: Transaction Id", HFILL }},
-      { &hf_cip_svc_ext_status, { "Extended Status", "cipm.svc.extstatus", FT_UINT8, BASE_DEC, NULL, 0, "Service Data Block: Extended Status", HFILL }},
-      { &hf_cip_svc_data, { "Service Data", "cipm.svc.data", FT_BYTES, BASE_NONE, NULL, 0, "Service Data Block: Data", HFILL }},
-      { &hf_cip_attribute_data, { "Attribute Data", "cipm.attrdata", FT_BYTES, BASE_NONE, NULL, 0, "Attribute Service: Data", HFILL }},
-      { &hf_cip_ptp_grandmaster, { "Grandmaster", "cipm.grandmaster", FT_UINT64, BASE_HEX, NULL, 0, "Group Sync: Grandmaster Id", HFILL}},
+      { &hf_cip_evnt_sts_stat,
+        { "Event Status", "cipm.evnt.stat",
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0,
+          "Event Data Block: Event Status", HFILL }
+      },
+      { &hf_cip_evnt_type,
+        { "Event Type", "cipm.evnt.type",
+          FT_UINT8, BASE_DEC, VALS(cip_event_type_vals), 0,
+          "Event Data Block: Event Type", HFILL}
+      },
+      { &hf_cip_svc_code,
+        { "Service Code", "cipm.svc.code",
+          FT_UINT8, BASE_DEC, VALS(cip_sc_vals), 0,
+          "Service Data Block: Service Code", HFILL}
+      },
+      { &hf_cip_svc_sts,
+        { "General Status", "cipm.svc.sts",
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0,
+          "Service Data Block: General Status", HFILL }
+      },
+      { &hf_cip_svc_transction,
+        { "Transaction Id", "cipm.svc.tranid",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Service Data Block: Transaction Id", HFILL }
+      },
+      { &hf_cip_svc_ext_status,
+        { "Extended Status", "cipm.svc.extstatus",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Service Data Block: Extended Status", HFILL }
+      },
+      { &hf_cip_svc_data,
+        { "Service Data", "cipm.svc.data",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Service Data Block: Data", HFILL }
+      },
+      { &hf_cip_attribute_data,
+        { "Attribute Data", "cipm.attrdata",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Attribute Service: Data", HFILL }
+      },
+      { &hf_cip_ptp_grandmaster,
+        { "Grandmaster", "cipm.grandmaster",
+          FT_UINT64, BASE_HEX, NULL, 0,
+          "Group Sync: Grandmaster Id", HFILL}
+      },
 
-      { &hf_cip_svc_get_axis_attr_sts, { "Attribute Status", "cipm.getaxisattr.sts", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0, "Service Channel: Get Axis Attribute List Response Status", HFILL }},
-      { &hf_get_axis_attr_list_attribute_cnt, { "Number of attributes", "cipm.getaxisattr.cnt", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Get Axis Attribute List Attribute Count", HFILL}},
-      { &hf_get_axis_attr_list_attribute_id, { "Attribute ID", "cipm.getaxisattr.id", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Get Axis Attribute List Attribute ID", HFILL}},
-      { &hf_get_axis_attr_list_dimension, { "Dimension", "cipm.getaxisattr.dimension", FT_UINT8, BASE_DEC, NULL, 0, "Service Channel: Get Axis Attribute List Dimension", HFILL}},
-      { &hf_get_axis_attr_list_element_size, { "Element size", "cipm.getaxisattr.element_size", FT_UINT8, BASE_DEC, NULL, 0, "Service Channel: Get Axis Attribute List Element Size", HFILL}},
-      { &hf_get_axis_attr_list_start_index, { "Start index", "cipm.getaxisattr.start_index", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Get Axis Attribute List Start index", HFILL}},
-      { &hf_get_axis_attr_list_data_elements, { "Data elements", "cipm.getaxisattr.data_elements", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Get Axis Attribute List Data elements", HFILL}},
+      { &hf_cip_svc_get_axis_attr_sts,
+        { "Attribute Status", "cipm.getaxisattr.sts",
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0,
+          "Service Channel: Get Axis Attribute List Response Status", HFILL }
+      },
+      { &hf_get_axis_attr_list_attribute_cnt,
+        { "Number of attributes", "cipm.getaxisattr.cnt",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Get Axis Attribute List Attribute Count", HFILL}
+      },
+      { &hf_get_axis_attr_list_attribute_id,
+        { "Attribute ID", "cipm.getaxisattr.id",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Get Axis Attribute List Attribute ID", HFILL}
+      },
+      { &hf_get_axis_attr_list_dimension,
+        { "Dimension", "cipm.getaxisattr.dimension",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Service Channel: Get Axis Attribute List Dimension", HFILL}
+      },
+      { &hf_get_axis_attr_list_element_size,
+        { "Element size", "cipm.getaxisattr.element_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Service Channel: Get Axis Attribute List Element Size", HFILL}
+      },
+      { &hf_get_axis_attr_list_start_index,
+        { "Start index", "cipm.getaxisattr.start_index",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Get Axis Attribute List Start index", HFILL}
+      },
+      { &hf_get_axis_attr_list_data_elements,
+        { "Data elements", "cipm.getaxisattr.data_elements",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Get Axis Attribute List Data elements", HFILL}
+      },
 
-      { &hf_cip_svc_set_axis_attr_sts, { "Attribute Status", "cipm.setaxisattr.sts", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0, "Service Channel: Set Axis Attribute List Response Status", HFILL }},
-      { &hf_set_axis_attr_list_attribute_cnt, { "Number of attributes", "cipm.setaxisattr.cnt", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Set Axis Attribute List Attribute Count", HFILL}},
-      { &hf_set_axis_attr_list_attribute_id, { "Attribute ID", "cipm.setaxisattr.id", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Set Axis Attribute List Attribute ID", HFILL}},
-      { &hf_set_axis_attr_list_dimension, { "Dimension", "cipm.setaxisattr.dimension", FT_UINT8, BASE_DEC, NULL, 0, "Service Channel: Set Axis Attribute List Dimension", HFILL}},
-      { &hf_set_axis_attr_list_element_size, { "Element size", "cipm.setaxisattr.element_size", FT_UINT8, BASE_DEC, NULL, 0, "Service Channel: Set Axis Attribute List Element Size", HFILL}},
-      { &hf_set_axis_attr_list_start_index, { "Start index", "cipm.setaxisattr.start_index", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Set Axis Attribute List Start index", HFILL}},
-      { &hf_set_axis_attr_list_data_elements, { "Data elements", "cipm.setaxisattr.data_elements", FT_UINT16, BASE_DEC, NULL, 0, "Service Channel: Set Axis Attribute List Data elements", HFILL}},
+      { &hf_cip_svc_set_axis_attr_sts,
+        { "Attribute Status", "cipm.setaxisattr.sts",
+          FT_UINT8, BASE_DEC|BASE_EXT_STRING, &cip_gs_vals_ext, 0,
+          "Service Channel: Set Axis Attribute List Response Status", HFILL }
+      },
+      { &hf_set_axis_attr_list_attribute_cnt,
+        { "Number of attributes", "cipm.setaxisattr.cnt",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Set Axis Attribute List Attribute Count", HFILL}
+      },
+      { &hf_set_axis_attr_list_attribute_id,
+        { "Attribute ID", "cipm.setaxisattr.id",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Set Axis Attribute List Attribute ID", HFILL}
+      },
+      { &hf_set_axis_attr_list_dimension,
+        { "Dimension", "cipm.setaxisattr.dimension",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Service Channel: Set Axis Attribute List Dimension", HFILL}
+      },
+      { &hf_set_axis_attr_list_element_size,
+        { "Element size", "cipm.setaxisattr.element_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Service Channel: Set Axis Attribute List Element Size", HFILL}
+      },
+      { &hf_set_axis_attr_list_start_index,
+        { "Start index", "cipm.setaxisattr.start_index",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Set Axis Attribute List Start index", HFILL}
+      },
+      { &hf_set_axis_attr_list_data_elements,
+        { "Data elements", "cipm.setaxisattr.data_elements",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Service Channel: Set Axis Attribute List Data elements", HFILL}
+      },
 
-      { &hf_var_devce_instance, { "Instance Number", "cipm.var_devce.header.instance", FT_UINT8, BASE_DEC, NULL, 0, "Variable Device Header: Instance Number", HFILL}},
-      { &hf_var_devce_instance_block_size, { "Instance Block Size", "cipm.var_devce.header.instance_block_size", FT_UINT8, BASE_DEC, NULL, 0, "Variable Device Header: Instance Block Size", HFILL}},
-      { &hf_var_devce_cyclic_block_size, { "Cyclic Block Size", "cipm.var_devce.header.cyclic_block_size", FT_UINT8, BASE_DEC, NULL, 0, "Variable Device Header: Cyclic Block Size", HFILL}},
-      { &hf_var_devce_cyclic_data_block_size, { "Cyclic Data Block Size", "cipm.var_devce.header.cyclic_data_block_size", FT_UINT8, BASE_DEC, NULL, 0, "Variable Device Header: Cyclic Data Block Size", HFILL}},
-      { &hf_var_devce_cyclic_rw_block_size, { "Cyclic Read/Write Block Size", "cipm.var_devce.header.cyclic_rw_block_size", FT_UINT8, BASE_DEC, NULL, 0, "Variable Device Header: Cyclic Read/Write Block Size", HFILL}},
-      { &hf_var_devce_event_block_size, { "Event Block Size", "cipm.var_devce.header.event_block_size", FT_UINT8, BASE_DEC, NULL, 0, "Variable Device Header: Event Block Size", HFILL}},
-      { &hf_var_devce_service_block_size, { "Service Block Size", "cipm.var_devce.header.service_block_size", FT_UINT8, BASE_DEC, NULL, 0, "Variable Device Header: Service Block Size", HFILL}},
+      { &hf_var_devce_instance,
+        { "Instance Number", "cipm.var_devce.header.instance",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Variable Device Header: Instance Number", HFILL}
+      },
+      { &hf_var_devce_instance_block_size,
+        { "Instance Block Size", "cipm.var_devce.header.instance_block_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Variable Device Header: Instance Block Size", HFILL}
+      },
+      { &hf_var_devce_cyclic_block_size,
+        { "Cyclic Block Size", "cipm.var_devce.header.cyclic_block_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Variable Device Header: Cyclic Block Size", HFILL}
+      },
+      { &hf_var_devce_cyclic_data_block_size,
+        { "Cyclic Data Block Size", "cipm.var_devce.header.cyclic_data_block_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Variable Device Header: Cyclic Data Block Size", HFILL}
+      },
+      { &hf_var_devce_cyclic_rw_block_size,
+        { "Cyclic Read/Write Block Size", "cipm.var_devce.header.cyclic_rw_block_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Variable Device Header: Cyclic Read/Write Block Size", HFILL}
+      },
+      { &hf_var_devce_event_block_size,
+        { "Event Block Size", "cipm.var_devce.header.event_block_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Variable Device Header: Event Block Size", HFILL}
+      },
+      { &hf_var_devce_service_block_size,
+        { "Service Block Size", "cipm.var_devce.header.service_block_size",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Variable Device Header: Service Block Size", HFILL}
+      },
 
-      { &hf_cip_axis_alarm, { "Axis Alarm Code", "cipm.alarm.code", FT_UINT8, BASE_DEC, NULL, 0, "Status Data Set: Alarm Code", HFILL }},
-      { &hf_cip_axis_sts_local_ctrl, { "Local Control", "cipm.axis.local", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001, "Axis Status Data Set: Local Contol", HFILL }},
-      { &hf_cip_axis_sts_alarm, { "Alarm", "cipm.axis.alarm", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002, "Axis Status Data Set: Alarm", HFILL }},
-      { &hf_cip_axis_sts_dc_bus, { "DC Bus", "cipm.axis.bus", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004, "Axis Status Data Set: DC Bus", HFILL }},
-      { &hf_cip_axis_sts_pwr_struct, { "Power Struct", "cipm.axis.pwr", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008, "Axis Status Data Set: Power Struct", HFILL }},
-      { &hf_cip_axis_sts_tracking, { "Tracking", "cipm.axis.track", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020, "Axis Status Data Set: Tracking", HFILL }},
-      { &hf_cip_axis_sts_pos_lock, { "Pos Lock", "cipm.axis.poslock", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040, "Axis Status Data Set: Pos Lock", HFILL }},
-      { &hf_cip_axis_sts_vel_lock, { "Vel Lock", "cipm.axis.vellock", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080, "Axis Status Data Set: Vel Lock", HFILL }},
-      { &hf_cip_axis_sts_vel_standstill, { "Standstill", "cipm.axis.nomo", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100, "Axis Status Data Set: Standstill", HFILL }},
-      { &hf_cip_axis_sts_vel_threshold, { "Vel Threshold", "cipm.axis.vthresh", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200, "Axis Status Data Set: Vel Threshold", HFILL }},
-      { &hf_cip_axis_sts_vel_limit, { "Vel Limit", "cipm.axis.vlim", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000400, "Axis Status Data Set: Vel Limit", HFILL }},
-      { &hf_cip_axis_sts_acc_limit, { "Acc Limit", "cipm.axis.alim", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000800, "Axis Status Data Set: Acc Limit", HFILL }},
-      { &hf_cip_axis_sts_dec_limit, { "Dec Limit", "cipm.axis.dlim", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00001000, "Axis Status Data Set: Dec Limit", HFILL }},
-      { &hf_cip_axis_sts_torque_threshold, { "Torque Threshold", "cipm.axis.tthresh", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00002000, "Axis Status Data Set: Torque Threshold", HFILL }},
-      { &hf_cip_axis_sts_torque_limit, { "Torque Limit", "cipm.axis.tlim", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00004000, "Axis Status Data Set: Torque Limit", HFILL }},
-      { &hf_cip_axis_sts_cur_limit, { "Current Limit", "cipm.axis.ilim", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00008000, "Axis Status Data Set: Current Limit", HFILL }},
-      { &hf_cip_axis_sts_therm_limit, { "Thermal Limit", "cipm.axis.hot", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00010000, "Axis Status Data Set: Thermal Limit", HFILL }},
-      { &hf_cip_axis_sts_feedback_integ, { "Feedback Integrity", "cipm.axis.fgood", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00020000, "Axis Status Data Set: Feedback Integrity", HFILL }},
-      { &hf_cip_axis_sts_shutdown, { "Shutdown", "cipm.axis.sdwn", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00040000, "Axis Status Data Set: Shutdown", HFILL }},
-      { &hf_cip_axis_sts_in_process, { "In Process", "cipm.axis.inp", FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000, "Axis Status Data Set: In Process", HFILL }},
+      { &hf_cip_axis_alarm,
+        { "Axis Alarm Code", "cipm.alarm.code",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Status Data Set: Alarm Code", HFILL }
+      },
+      { &hf_cip_axis_sts_local_ctrl,
+        { "Local Control", "cipm.axis.local",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001,
+          "Axis Status Data Set: Local Contol", HFILL }
+      },
+      { &hf_cip_axis_sts_alarm,
+        { "Alarm", "cipm.axis.alarm",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002,
+          "Axis Status Data Set: Alarm", HFILL }
+      },
+      { &hf_cip_axis_sts_dc_bus,
+        { "DC Bus", "cipm.axis.bus",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000004,
+          "Axis Status Data Set: DC Bus", HFILL }
+      },
+      { &hf_cip_axis_sts_pwr_struct,
+        { "Power Struct", "cipm.axis.pwr",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000008,
+          "Axis Status Data Set: Power Struct", HFILL }
+      },
+      { &hf_cip_axis_sts_tracking,
+        { "Tracking", "cipm.axis.track",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
+          "Axis Status Data Set: Tracking", HFILL }
+      },
+      { &hf_cip_axis_sts_pos_lock,
+        { "Pos Lock", "cipm.axis.poslock",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000040,
+          "Axis Status Data Set: Pos Lock", HFILL }
+      },
+      { &hf_cip_axis_sts_vel_lock,
+        { "Vel Lock", "cipm.axis.vellock",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000080,
+          "Axis Status Data Set: Vel Lock", HFILL }
+      },
+      { &hf_cip_axis_sts_vel_standstill,
+        { "Standstill", "cipm.axis.nomo",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000100,
+          "Axis Status Data Set: Standstill", HFILL }
+      },
+      { &hf_cip_axis_sts_vel_threshold,
+        { "Vel Threshold", "cipm.axis.vthresh",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000200,
+          "Axis Status Data Set: Vel Threshold", HFILL }
+      },
+      { &hf_cip_axis_sts_vel_limit,
+        { "Vel Limit", "cipm.axis.vlim",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000400,
+          "Axis Status Data Set: Vel Limit", HFILL }
+      },
+      { &hf_cip_axis_sts_acc_limit,
+        { "Acc Limit", "cipm.axis.alim",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000800,
+          "Axis Status Data Set: Acc Limit", HFILL }
+      },
+      { &hf_cip_axis_sts_dec_limit,
+        { "Dec Limit", "cipm.axis.dlim",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00001000,
+          "Axis Status Data Set: Dec Limit", HFILL }
+      },
+      { &hf_cip_axis_sts_torque_threshold,
+        { "Torque Threshold", "cipm.axis.tthresh",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00002000,
+          "Axis Status Data Set: Torque Threshold", HFILL }
+      },
+      { &hf_cip_axis_sts_torque_limit,
+        { "Torque Limit", "cipm.axis.tlim",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00004000,
+          "Axis Status Data Set: Torque Limit", HFILL }
+      },
+      { &hf_cip_axis_sts_cur_limit,
+        { "Current Limit", "cipm.axis.ilim",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00008000,
+          "Axis Status Data Set: Current Limit", HFILL }
+      },
+      { &hf_cip_axis_sts_therm_limit,
+        { "Thermal Limit", "cipm.axis.hot",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00010000,
+          "Axis Status Data Set: Thermal Limit", HFILL }
+      },
+      { &hf_cip_axis_sts_feedback_integ,
+        { "Feedback Integrity", "cipm.axis.fgood",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00020000,
+          "Axis Status Data Set: Feedback Integrity", HFILL }
+      },
+      { &hf_cip_axis_sts_shutdown,
+        { "Shutdown", "cipm.axis.sdwn",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00040000,
+          "Axis Status Data Set: Shutdown", HFILL }
+      },
+      { &hf_cip_axis_sts_in_process,
+        { "In Process", "cipm.axis.inp",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00080000,
+          "Axis Status Data Set: In Process", HFILL }
+      },
 
-      { &hf_cip_act_pos, { "Actual Position", "cipm.actpos", FT_INT32, BASE_DEC, NULL, 0, "Cyclic Data Set: Actual Position", HFILL }},
-      { &hf_cip_act_vel, { "Actual Velocity", "cipm.actvel", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Actual Velocity", HFILL }},
-      { &hf_cip_act_accel, { "Actual Acceleration", "cipm.actaccel", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Actual Acceleration", HFILL }},
-      { &hf_cip_act_trq, { "Actual Torque", "cipm.acttrq", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Actual Torque", HFILL }},
-      { &hf_cip_act_crnt, { "Actual Current", "cipm.actcrnt", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Actual Current", HFILL }},
-      { &hf_cip_act_volts, { "Actual Volts", "cipm.actvolts", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Actual Volts", HFILL }},
-      { &hf_cip_act_freq, { "Actual Frequency", "cipm.actfreq", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Actual Frequency", HFILL }},
-      { &hf_cip_pos_cmd,  { "Position Command", "cipm.posfcmd", FT_DOUBLE, BASE_NONE, NULL, 0, "Cyclic Data Set: Position Command (LREAL)", HFILL }},
-      { &hf_cip_pos_cmd_int, { "Position Command", "cipm.posicmd", FT_INT32, BASE_DEC, NULL, 0, "Cyclic Data Set: Position Command (DINT)", HFILL }},
-      { &hf_cip_vel_cmd, { "Velocity Command", "cipm.velcmd", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Velocity Command", HFILL }},
-      { &hf_cip_accel_cmd, { "Acceleration Command", "cipm.accelcmd", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Acceleration Command", HFILL }},
-      { &hf_cip_trq_cmd, { "Torque Command", "cipm.torquecmd", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Torque Command", HFILL }},
-      { &hf_cip_pos_trim, { "Position Trim", "cipm.postrim", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Position Trim", HFILL }},
-      { &hf_cip_vel_trim, { "Velocity Trim", "cipm.veltrim", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Velocity Trim", HFILL }},
-      { &hf_cip_accel_trim, { "Acceleration Trim", "cipm.acceltrim", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Acceleration Trim", HFILL }},
-      { &hf_cip_trq_trim, { "Torque Trim", "cipm.trqtrim", FT_FLOAT, BASE_NONE, NULL, 0, "Cyclic Data Set: Torque Trim", HFILL }}
+      { &hf_cip_act_pos,
+        { "Actual Position", "cipm.actpos",
+          FT_INT32, BASE_DEC, NULL, 0,
+          "Cyclic Data Set: Actual Position", HFILL }
+      },
+      { &hf_cip_act_vel,
+        { "Actual Velocity", "cipm.actvel",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Actual Velocity", HFILL }
+      },
+      { &hf_cip_act_accel,
+        { "Actual Acceleration", "cipm.actaccel",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Actual Acceleration", HFILL }
+      },
+      { &hf_cip_act_trq,
+        { "Actual Torque", "cipm.acttrq",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Actual Torque", HFILL }
+      },
+      { &hf_cip_act_crnt,
+        { "Actual Current", "cipm.actcrnt",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Actual Current", HFILL }
+      },
+      { &hf_cip_act_volts,
+        { "Actual Volts", "cipm.actvolts",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Actual Volts", HFILL }
+      },
+      { &hf_cip_act_freq,
+        { "Actual Frequency", "cipm.actfreq",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Actual Frequency", HFILL }
+      },
+      { &hf_cip_pos_cmd,
+        { "Position Command", "cipm.posfcmd",
+          FT_DOUBLE, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Position Command (LREAL)", HFILL }
+      },
+      { &hf_cip_pos_cmd_int,
+        { "Position Command", "cipm.posicmd",
+          FT_INT32, BASE_DEC, NULL, 0,
+          "Cyclic Data Set: Position Command (DINT)", HFILL }
+      },
+      { &hf_cip_vel_cmd,
+        { "Velocity Command", "cipm.velcmd",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Velocity Command", HFILL }
+      },
+      { &hf_cip_accel_cmd,
+        { "Acceleration Command", "cipm.accelcmd",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Acceleration Command", HFILL }
+      },
+      { &hf_cip_trq_cmd,
+        { "Torque Command", "cipm.torquecmd",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Torque Command", HFILL }
+      },
+      { &hf_cip_pos_trim,
+        { "Position Trim", "cipm.postrim",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Position Trim", HFILL }
+      },
+      { &hf_cip_vel_trim,
+        { "Velocity Trim", "cipm.veltrim",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Velocity Trim", HFILL }
+      },
+      { &hf_cip_accel_trim,
+        { "Acceleration Trim", "cipm.acceltrim",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Acceleration Trim", HFILL }
+      },
+      { &hf_cip_trq_trim,
+        { "Torque Trim", "cipm.trqtrim",
+          FT_FLOAT, BASE_NONE, NULL, 0,
+          "Cyclic Data Set: Torque Trim", HFILL }
+      }
    };
 
    /* Setup protocol subtree array, these will help Wireshark remember
@@ -2150,27 +2900,13 @@ proto_register_cipmotion(void)
      "cipm");                /* Abbreviated name of protocol */
 
    /* Register the header fields with the protocol */
-   proto_register_field_array(proto_cipmotion, header_fields, array_length(header_fields));
+   proto_register_field_array(proto_cipmotion, hf, array_length(hf));
 
    /* Register the subtrees for the protocol dissection */
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
 
    register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
 }
-
-/*
- * Function name: proto_reg_handoff_cipmotion
- *
- * Purpose: This function will setup the automatic dissection of the CIP Motion datagram,
- * it is called by Wireshark when the protocol is registered
- *
- * Returns: void
- */
-void
-proto_reg_handoff_cipmotion(void)
-{
-}
-
 
 /*
 * Editor modelines - http://www.wireshark.org/tools/modelines.html
