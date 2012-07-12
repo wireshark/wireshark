@@ -64,6 +64,29 @@ static gboolean tcp_summary_in_tree = TRUE;
  */
 static gboolean tcp_check_checksum = FALSE;
 
+/*
+ * Window scaling values to be used when not known (set as a preference) */
+ enum scaling_window_value {
+  WindowScaling_NotKnown=-1,
+  WindowScaling_0=0,
+  WindowScaling_1,
+  WindowScaling_2,
+  WindowScaling_3,
+  WindowScaling_4,
+  WindowScaling_5,
+  WindowScaling_6,
+  WindowScaling_7,
+  WindowScaling_8,
+  WindowScaling_9,
+  WindowScaling_10,
+  WindowScaling_11,
+  WindowScaling_12,
+  WindowScaling_13,
+  WindowScaling_14
+};
+static gint tcp_default_window_scaling = (gint)WindowScaling_NotKnown;
+
+
 extern FILE* data_out_file;
 
 static int proto_tcp = -1;
@@ -4210,6 +4233,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (tcpd && (tcpd->fwd->win_scale>=0)) {
                     (tcph->th_win)<<=tcpd->fwd->win_scale;
                 }
+                else {
+                    /* Don't have it stored, so use preference setting instead! */
+                    if (tcp_default_window_scaling>=0) {
+                        (tcph->th_win)<<=tcp_default_window_scaling;
+                    }
+                }
             }
 
             /* Compute the sequence number of next octet after this segment. */
@@ -4339,8 +4368,22 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             switch (tcpd->fwd->win_scale) {
 
             case -1:
-                scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "Window size scaling factor: %d (unknown)", tcpd->fwd->win_scale);
-                PROTO_ITEM_SET_GENERATED(scaled_pi);
+                {
+                    gint16 win_scale = tcpd->fwd->win_scale;
+                    gboolean override_with_pref = FALSE;
+
+                    /* Use preference setting (if set) */
+                    if (tcp_default_window_scaling != WindowScaling_NotKnown) {
+                        win_scale = tcp_default_window_scaling;
+                        override_with_pref = TRUE;
+                    }
+
+                    scaled_pi = proto_tree_add_int_format(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2,
+                                                          win_scale, "Window size scaling factor: %d (%s)",
+                                                          win_scale,
+                                                          (override_with_pref) ? "missing - taken from preference" : "unkown");
+                    PROTO_ITEM_SET_GENERATED(scaled_pi);
+                }
                 break;
 
             case -2:
@@ -5528,6 +5571,28 @@ proto_register_tcp(void)
         &ett_tcp_checksum,
         &ett_tcp_process_info
     };
+
+    static enum_val_t window_scaling_vals[] = {
+        {"not-known",  "Not known",                  WindowScaling_NotKnown},
+        {"0",          "0 (no scaling)",             WindowScaling_0},
+        {"1",          "1 (multiply by 2)",          WindowScaling_1},
+        {"2",          "2 (multiply by 4)",          WindowScaling_2},
+        {"3",          "3 (multiply by 8)",          WindowScaling_3},
+        {"4",          "4 (multiply by 16)",         WindowScaling_4},
+        {"5",          "5 (multiply by 32)",         WindowScaling_5},
+        {"6",          "6 (multiply by 64)",         WindowScaling_6},
+        {"7",          "7 (multiply by 128)",        WindowScaling_7},
+        {"8",          "8 (multiply by 256)",        WindowScaling_8},
+        {"9",          "9 (multiply by 512)",        WindowScaling_9},
+        {"10",         "10 (multiply by 1024)",      WindowScaling_10},
+        {"11",         "11 (multiply by 2048)",      WindowScaling_11},
+        {"12",         "12 (multiply by 4096)",      WindowScaling_12},
+        {"13",         "13 (multiply by 8192)",      WindowScaling_13},
+        {"14",         "14 (multiply by 16384)",     WindowScaling_14},
+        {NULL, NULL, -1}
+    };
+
+
     module_t *tcp_module;
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol",
@@ -5564,10 +5629,13 @@ proto_register_tcp(void)
         "Make the TCP dissector use relative sequence numbers instead of absolute ones. "
         "To use this option you must also enable \"Analyze TCP sequence numbers\". ",
         &tcp_relative_seq);
+    prefs_register_enum_preference(tcp_module, "default_window_scaling",
+        "Scaling factor to use when not available from capture",
+        "Make the TCP dissector use this scaling factor for streams where the signalled scaling factor "
+        "is not visible in the capture",
+        &tcp_default_window_scaling, window_scaling_vals, FALSE);
 
-    /* We now have tcp.window_size_value and tcp.window_size, so no need
-     * anymore for the preference window_scaling
-     */
+    /* Presumably a retired, unconditional version of what has been added back with the preference above... */
     prefs_register_obsolete_preference(tcp_module, "window_scaling");
 
     prefs_register_bool_preference(tcp_module, "track_bytes_in_flight",
