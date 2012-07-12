@@ -1,4 +1,4 @@
-/* win32_file_dlg.h
+/* file_dlg_win32.h
  * Native Windows file dialog routines
  *
  * $Id$
@@ -22,8 +22,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WIN32_FILE_DLG_H__
-#define __WIN32_FILE_DLG_H__
+#ifndef __FILE_DLG_WIN32_H__
+#define __FILE_DLG_WIN32_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef enum {
     export_type_text = 1,
@@ -175,4 +179,8 @@ void file_set_save_marked_sensitive();
 #define EWFD_PKT_BYTES_CB     1054
 #define EWFD_PKT_NEW_PAGE_CB  1055
 
-#endif /* win32-file-dlg.h */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __FILE_DLG_WIN32_H__ */

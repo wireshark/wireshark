@@ -282,7 +282,7 @@ build_file_save_type_list(GArray *savable_file_types) {
 #endif
 
 void MainWindow::openCaptureFile(QString &cfPath)
- {
+{
     dfilter_t   *rfcode = NULL;
 
     if (cfPath.isEmpty()) {
@@ -290,18 +290,24 @@ void MainWindow::openCaptureFile(QString &cfPath)
         CaptureFileDialog cfDlg(this);
 
         cfDlg.setLabelText(QFileDialog::FileName, tr("Wireshark: Open Capture File"));
-        cfDlg.setDirectory("/Users/gcombs/Documents/Captures");
         cfDlg.setNameFilters(build_file_open_type_list());
         cfDlg.setFileMode(QFileDialog::ExistingFile);
 
         if (cfDlg.exec()) {
+#ifdef Q_WS_WIN
+            // XXX - This doesn't happen until after the file is loaded.
+            // We should catch an event from cf_read instead.
+            ui->mainStack->setCurrentWidget(splitterV);
+#else // Q_WS_WIN
             cfNames = cfDlg.selectedFiles();
             if (cfNames.length() > 0) {
                 cfPath = cfNames[0];
             }
+#endif // Q_WS_WIN
         }
     }
 
+#ifndef Q_WS_WIN
     if (cfPath.length() > 0) {
         int err;
 
@@ -321,6 +327,7 @@ void MainWindow::openCaptureFile(QString &cfPath)
             cf_read(&cfile, FALSE);
         }
     }
+#endif // Q_WS_WIN
 }
 
 void MainWindow::recentActionTriggered() {

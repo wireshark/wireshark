@@ -82,6 +82,8 @@ win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/AirPcap_Devpack_4_1_0_1622/Airpcap_Devpack/include \
     $${WIRESHARK_LIB_DIR}/zlib125/include
 
+# We have to manually trigger relinking each time one of these is modified.
+# Is there any way to do this automatically?
 SOURCES_WS_C = \
     ../../airpcap_loader.c \
     ../../ui/alert_box.c     \
@@ -118,7 +120,11 @@ SOURCES_WS_C = \
     ../../version_info.c
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
-win32:SOURCES_WS_C += ../../capture-wpcap.c ../../capture_wpcap_packet.c
+win32:SOURCES_WS_C += \
+    ../../capture-wpcap.c \
+    ../../capture_wpcap_packet.c \
+    ../../ui/win32/file_dlg_win32.c
+
 
 SOURCES_QT_CPP = \
     byte_view_tab.cpp \
@@ -210,6 +216,7 @@ win32 {
     OBJECTS_WS_C = $$SOURCES_WS_C
     OBJECTS_WS_C ~= s/[.]c/.obj/g
     OBJECTS_WS_C ~= s,/,\\,g
+    OBJECTS_WS_C += ../../image/file_dlg_win32.res
 } else {
 ## XXX: Shouldn't need to (re)compile WS_C sources ??
     SOURCES += $$SOURCES_WS_C
@@ -252,7 +259,7 @@ win32 {
     LIBS += $$OBJECTS_WS_C
     LIBS += $$PA_OBJECTS
     LIBS += \
-        wsock32.lib user32.lib shell32.lib comctl32.lib \
+        wsock32.lib user32.lib shell32.lib comctl32.lib comdlg32.lib \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
 
@@ -290,7 +297,6 @@ win32 {
     #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)$$escape_expand(\\n\\t))
 
 }
-
 
 RESOURCES += \
     toolbar.qrc \

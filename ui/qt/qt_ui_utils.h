@@ -66,6 +66,10 @@ struct remote_host_t {
     gboolean nocap_local;
 };
 
+// Referenced from ui/win32/file_dlg_win32.c and implemented in wireshark_application.cpp
+extern void set_last_open_dir(const char *dirname);
+extern gboolean main_do_quit(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

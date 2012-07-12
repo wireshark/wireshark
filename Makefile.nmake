@@ -183,10 +183,11 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
 
-RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
-	image\capinfos.res image\editcap.res image\mergecap.res \
-	image\text2pcap.res image\wiretap.res image\dumpcap.res \
-	image\rawshark.res image\libwsutil.res
+RESOURCES=image\wireshark.res image\file_dlg_win32.res \
+	image\libwireshark.res image\tshark.res image\capinfos.res \
+	image\editcap.res image\mergecap.res image\text2pcap.res \
+	image\wiretap.res image\dumpcap.res image\rawshark.res \
+	image\libwsutil.res
 
 
 all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) doc help install-all
@@ -286,10 +287,10 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk ui win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk ui win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1

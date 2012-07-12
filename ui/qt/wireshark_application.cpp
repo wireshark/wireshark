@@ -38,10 +38,16 @@
 #include <QDir>
 #include <QTimer>
 
+#ifdef Q_WS_WIN
+#include <QLibrary>
+#include <QDebug>
+#endif
+
 WiresharkApplication *wsApp = NULL;
 
 // XXX - Copied from ui/gtk/file_dlg.c
 
+// MUST be UTF-8
 static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
 static QList<recent_item_status *> recent_items;
@@ -150,6 +156,10 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
     }
 }
 
+extern gboolean main_do_quit(void) {
+    WiresharkApplication::quit();
+    return FALSE;
+}
 
 //
 void WiresharkApplication::refreshRecentFiles(void) {
@@ -271,6 +281,17 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(i18n);
     Q_INIT_RESOURCE(toolbar);
     Q_INIT_RESOURCE(welcome);
+
+#ifdef Q_WS_WIN
+    /* RichEd20.DLL is needed for native file dialog filter entries. */
+    if (QLibrary::isLibrary("riched20.dll")) {
+        QLibrary riched20("riched20.dll");
+        riched20.load();
+        if (!riched20.isLoaded()) {
+            qDebug() << riched20.errorString();
+        }
+    }
+#endif // Q_WS_WIN
 
     recentTimer = new QTimer(this);
     connect(recentTimer, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));

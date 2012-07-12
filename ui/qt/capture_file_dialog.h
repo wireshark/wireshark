@@ -60,6 +60,9 @@ signals:
 
 public slots:
 
+#if defined(Q_WS_WIN)
+    int exec();
+#endif
 };
 
 #endif // CAPTURE_FILE_DIALOG_H

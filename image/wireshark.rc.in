@@ -1,7 +1,5 @@
 #include "winver.h"
 
-#include "file_dlg_win32.rc"
-
 WIRESHARK_ICON1		ICON			"wireshark.ico"
 WIRESHARK_ICON2	ICON			"wiresharkdoc.ico"
 
