@@ -106,6 +106,9 @@ static int hf_catapult_dct2000_lte_ccpri_channel = -1;
 static int hf_catapult_dct2000_lte_monitor_cpu_user = -1;
 static int hf_catapult_dct2000_lte_monitor_cpu_sys = -1;
 static int hf_catapult_dct2000_lte_monitor_cpu_load = -1;
+static int hf_catapult_dct2000_lte_monitor_lte_scs_cpu_user = -1;
+static int hf_catapult_dct2000_lte_monitor_lte_scs_cpu_sys = -1;
+
 
 static int hf_catapult_dct2000_lte_nas_rrc_opcode = -1;
 static int hf_catapult_dct2000_lte_nas_rrc_establish_cause = -1;
@@ -300,7 +303,7 @@ static dissector_handle_t pdcp_lte_handle;
 void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(const char *protocol_name);
-static void parse_outhdr_string(const guchar *outhdr_string);
+static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length);
 
 static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
@@ -1396,31 +1399,41 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
 
 
 /* Populate outhdr_values array with numbers found in outhdr_string */
-static void parse_outhdr_string(const guchar *outhdr_string)
+static void parse_outhdr_string(const guchar *outhdr_string, gint outhdr_string_len)
 {
     int   n                 = 0;
-    guint outhdr_string_len = (guint)strlen((const gchar*)outhdr_string);
 
     /* Populate values array */
     for (outhdr_values_found=0; outhdr_values_found < MAX_OUTHDR_VALUES; ) {
-        guint digits_start = n;
-        guint digits;
+
+        guint  digit_array[MAX_OUTHDR_VALUES];
+        guint  number_digits = 0;
+
+        guint   number = 0;
+        guint   multiplier = 1;
+        guint   d;
 
         /* Find digits */
-        for (digits = 0; digits < outhdr_string_len; digits++, n++) {
+        for ( ; n < outhdr_string_len; n++) {
             if (!isdigit(outhdr_string[n])) {
                 break;
             }
+            else {
+                digit_array[number_digits++] = outhdr_string[n] - '0';
+            }
         }
 
-        if (digits == 0) {
+        if (number_digits == 0) {
             /* No more numbers left */
             break;
         }
 
-        /* Convert digits into value */
-        outhdr_values[outhdr_values_found++] =
-            atoi(format_text(outhdr_string+digits_start, digits));
+        /* Convert digits into value (much faster than format_text() + atoi()) */
+        for (d=number_digits; d > 0; d--) {
+            number += ((digit_array[d-1]) * multiplier);
+            multiplier *= 10;
+        }
+        outhdr_values[outhdr_values_found++] = number;
 
         /* Skip comma */
         n++;
@@ -2208,7 +2221,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r8") == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0)) {
 
-        parse_outhdr_string(outhdr_string);
+        parse_outhdr_string(outhdr_string, outhdr_length);
         attach_fp_info(pinfo, direction, protocol_name, atoi(variant_string));
     }
 
@@ -2221,7 +2234,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              (strcmp(protocol_name, "rlc_r8") == 0) ||
              (strcmp(protocol_name, "rlc_r9") == 0)) {
 
-        parse_outhdr_string(outhdr_string);
+        parse_outhdr_string(outhdr_string, outhdr_length);
         /* Can't attach info yet.  Need combination of outheader values
            and fields parsed from primitive header... */
     }
@@ -2229,21 +2242,21 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* LTE MAC needs info attached */
     else if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
              (strcmp(protocol_name, "mac_r9_lte") == 0)) {
-        parse_outhdr_string(outhdr_string);
+        parse_outhdr_string(outhdr_string, outhdr_length);
         attach_mac_lte_info(pinfo);
     }
 
     /* LTE RLC needs info attached */
     else if ((strcmp(protocol_name, "rlc_r8_lte") == 0) ||
              (strcmp(protocol_name, "rlc_r9_lte") == 0)) {
-        parse_outhdr_string(outhdr_string);
+        parse_outhdr_string(outhdr_string, outhdr_length);
         attach_rlc_lte_info(pinfo);
     }
 
     /* LTE PDCP needs info attached */
     else if ((strcmp(protocol_name, "pdcp_r8_lte") == 0) ||
              (strcmp(protocol_name, "pdcp_r9_lte") == 0)) {
-        parse_outhdr_string(outhdr_string);
+        parse_outhdr_string(outhdr_string, outhdr_length);
         attach_pdcp_lte_info(pinfo);
     }
 
@@ -2478,11 +2491,16 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 #define MONITOR_PREFIX ">> INFO ALL:    Monitor: CPU=["
                 if (strncmp(string, MONITOR_PREFIX, strlen(MONITOR_PREFIX)) == 0) {
                     gint user_cpu, sys_cpu, load_cpu;
+                    gint memory_free, memory_load;
+                    gint lte_scs_user_cpu, lte_scs_system_cpu;
                     int matched;
                     matched = sscanf(string+strlen(MONITOR_PREFIX),
-                                     "User%%=%d Sys%%=%d Load%%=%d",
-                                     &user_cpu, &sys_cpu, &load_cpu);
-                    if (matched == 3) {
+                                     "User%%=%d Sys%%=%d Load%%=%d] Memory=[FreeMb=%d Load%%=%d] LTE_SCS_CPU=[User%%=%d Sys%%=%d]",
+                                     &user_cpu, &sys_cpu, &load_cpu,
+                                     &memory_free, &memory_load,
+                                     &lte_scs_user_cpu, &lte_scs_system_cpu);
+                    if (matched == 7) {
+                        /* Overall CPU */
                         ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_user,
                                                  tvb, 0, 0, user_cpu);
                         PROTO_ITEM_SET_GENERATED(ti);
@@ -2494,9 +2512,17 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_cpu_load,
                                                  tvb, 0, 0, load_cpu);
                         PROTO_ITEM_SET_GENERATED(ti);
+
+                        /* LTE_SCS CPU */
+                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_lte_scs_cpu_user,
+                                                 tvb, 0, 0, lte_scs_user_cpu);
+                        PROTO_ITEM_SET_GENERATED(ti);
+
+                        ti = proto_tree_add_uint(tree, hf_catapult_dct2000_lte_monitor_lte_scs_cpu_sys,
+                                                 tvb, 0, 0, lte_scs_system_cpu);
+                        PROTO_ITEM_SET_GENERATED(ti);
                     }
                 }
-
                 return;
             }
 
@@ -3193,6 +3219,18 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_lte_monitor_cpu_load,
             { "Load CPU",
               "dct2000.lte.monitor.cpu.load", FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_monitor_lte_scs_cpu_user,
+            { "lte-scs User CPU",
+              "dct2000.lte.monitor.lte-scs.cpu.user", FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_lte_monitor_lte_scs_cpu_sys,
+            { "lte-scs Sys CPU",
+              "dct2000.lte.monitor.lte-scs.cpu.sys", FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
