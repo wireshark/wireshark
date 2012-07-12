@@ -250,7 +250,7 @@ unix:!macx {
 # qmake 2.01a / Qt 4.7.0 doesn't set DESTDIR on OS X.
 macx {
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK += $$quote(cp $${FILE} Wireshark.app/Contents/MacOS$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cp $${FILE} $${TARGET}.app/Contents/MacOS$$escape_expand(\\n\\t))
     }
 }
 
