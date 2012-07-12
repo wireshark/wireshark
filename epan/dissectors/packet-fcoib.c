@@ -53,8 +53,8 @@
 #endif
 
 #define FCOIB_HEADER_LEN   16        /* header: encap. header, SOF, and padding */
-#define FCOIB_TRAILER_LEN  8         /* trailer: FC-CRC, EOF and padding */
-#define FCOIB_VER_OFFSET   2         /* offset of ver field (in bytes) inside FCoIB Encap. header */
+#define FCOIB_TRAILER_LEN   8        /* trailer: FC-CRC, EOF and padding */
+#define FCOIB_VER_OFFSET    2        /* offset of ver field (in bytes) inside FCoIB Encap. header */
 
 /* Forward declaration we need below (for using proto_reg_handoff as a prefs callback) */
 void proto_reg_handoff_fcoib(void);
@@ -121,15 +121,15 @@ static dissector_handle_t data_handle;
 static dissector_handle_t fc_handle;
 
 /* global preferences */
-static gboolean gPREF_HEUR_EN   = TRUE;
-static gboolean gPREF_MAN_EN    = FALSE;
-static gint gPREF_TYPE[2]       = {0};
-static const char *gPREF_ID[2]  = {NULL};
-static guint gPREF_QP[2]        = {0};
+static gboolean    gPREF_HEUR_EN = TRUE;
+static gboolean    gPREF_MAN_EN  = FALSE;
+static gint        gPREF_TYPE[2] = {0};
+static const char *gPREF_ID[2]   = {NULL};
+static guint       gPREF_QP[2]   = {0};
 
 /* source/destination addresses from preferences menu (parsed from gPREF_TYPE[?], gPREF_ID[?]) */
-static address manual_addr[2];
-static void *manual_addr_data[2];
+static address  manual_addr[2];
+static void    *manual_addr_data[2];
 
 static enum_val_t pref_address_types[] = {
     {"lid", "LID", 0},
@@ -160,29 +160,29 @@ manual_addr_match(packet_info *pinfo) {
 static gboolean
 dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint crc_offset;
-    gint eof_offset;
-    gint sof_offset;
-    gint frame_len = 0;
-    guint version;
+    gint        crc_offset;
+    gint        eof_offset;
+    gint        sof_offset;
+    gint        frame_len;
+    guint       version;
     const char *ver;
-    gint bytes_remaining;
-    guint8 sof = 0;
-    guint8 eof = 0;
-    guint8 sig = 0;
+    gint        bytes_remaining;
+    guint8      sof          = 0;
+    guint8      eof          = 0;
+    guint8      sig          = 0;
     const char *eof_str;
     const char *sof_str;
     const char *crc_msg;
     const char *len_msg;
     proto_item *ti;
     proto_item *item;
-    proto_tree *fcoib_tree = NULL;
+    proto_tree *fcoib_tree;
     proto_tree *crc_tree;
-    tvbuff_t *next_tvb;
-    gboolean crc_exists;
-    guint32 crc_computed = 0;
-    guint32 crc = 0;
-    gboolean packet_match_manual = FALSE;
+    tvbuff_t   *next_tvb;
+    gboolean    crc_exists;
+    guint32     crc_computed = 0;
+    guint32     crc          = 0;
+    gboolean    packet_match_manual;
 
     tree = proto_tree_get_root(tree);   /* we don't want to add FCoIB under the Infiniband tree */
 
@@ -227,97 +227,95 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         bytes_remaining = frame_len;        /* backing length */
     next_tvb = tvb_new_subset(tvb, FCOIB_HEADER_LEN, bytes_remaining, frame_len);
 
-    if (tree) {
-        /*
-         * Only version 0 is defined at this point.
-         * Don't print the version in the short summary if it is zero.
-         */
-        ver = "";
-        version = tvb_get_guint8(tvb, 0 + FCOIB_VER_OFFSET) >> 4;
-        if (version != 0)
-            ver = ep_strdup_printf(ver, "ver %d ", version);
+    /*
+     * Only version 0 is defined at this point.
+     * Don't print the version in the short summary if it is zero.
+     */
+    ver = "";
+    version = tvb_get_guint8(tvb, 0 + FCOIB_VER_OFFSET) >> 4;
+    if (version != 0)
+        ver = ep_strdup_printf(ver, "ver %d ", version);
 
-        eof_str = "none";
-        if (tvb_bytes_exist(tvb, eof_offset, 1)) {
-            eof_str = val_to_str(eof, fcoib_eof_vals, "0x%x");
+    eof_str = "none";
+    if (tvb_bytes_exist(tvb, eof_offset, 1)) {
+        eof_str = val_to_str(eof, fcoib_eof_vals, "0x%x");
+    }
+
+    sof_str = "none";
+    if (tvb_bytes_exist(tvb, sof_offset, 1)) {
+        sof_str = val_to_str(sof, fcoib_sof_vals, "0x%x");
+    }
+
+    /*
+     * Check the CRC.
+     */
+    crc_msg = "";
+    crc_exists = tvb_bytes_exist(tvb, crc_offset, 4);
+    if (crc_exists) {
+        crc = tvb_get_ntohl(tvb, crc_offset);
+        crc_computed = crc32_802_tvb(next_tvb, frame_len);
+        if (crc != crc_computed) {
+            crc_msg = " [bad FC CRC]";
         }
+    }
+    len_msg = "";
+    if ((frame_len % 4) != 0 || frame_len < 24) {
+        len_msg = " [invalid length]";
+    }
 
-        sof_str = "none";
-        if (tvb_bytes_exist(tvb, sof_offset, 1)) {
-            sof_str = val_to_str(sof, fcoib_sof_vals, "0x%x");
-        }
+    ti = proto_tree_add_protocol_format(tree, proto_fcoib, tvb, 0,
+                                        FCOIB_HEADER_LEN,
+                                        "FCoIB %s(%s/%s) %d bytes%s%s", ver,
+                                        sof_str, eof_str,
+                                        frame_len, crc_msg,
+                                        len_msg);
 
-        /*
-         * Check the CRC.
-         */
-        crc_msg = "";
-        crc_exists = tvb_bytes_exist(tvb, crc_offset, 4);
-        if (crc_exists) {
-            crc = tvb_get_ntohl(tvb, crc_offset);
-            crc_computed = crc32_802_tvb(next_tvb, frame_len);
-            if (crc != crc_computed) {
-                crc_msg = " [bad FC CRC]";
-            }
-        }
-        len_msg = "";
-        if ((frame_len % 4) != 0 || frame_len < 24) {
-            len_msg = " [invalid length]";
-        }
+    /* Dissect the FCoIB Encapsulation header */
 
-        ti = proto_tree_add_protocol_format(tree, proto_fcoib, tvb, 0,
-                                            FCOIB_HEADER_LEN,
-                                            "FCoIB %s(%s/%s) %d bytes%s%s", ver,
-                                            sof_str, eof_str,
-                                            frame_len, crc_msg,
-                                            len_msg);
+    fcoib_tree = proto_item_add_subtree(ti, ett_fcoib);
+    proto_tree_add_uint(fcoib_tree, hf_fcoib_sig, tvb, 0, 1, sig);
+    proto_tree_add_uint(fcoib_tree, hf_fcoib_ver, tvb, FCOIB_VER_OFFSET, 1, version);
+    proto_tree_add_uint(fcoib_tree, hf_fcoib_sof, tvb, sof_offset, 1, sof);
 
-        /* Dissect the FCoIB Encapsulation header */
-
-        fcoib_tree = proto_item_add_subtree(ti, ett_fcoib);
-        proto_tree_add_uint(fcoib_tree, hf_fcoib_sig, tvb, 0, 1, sig);
-        proto_tree_add_uint(fcoib_tree, hf_fcoib_ver, tvb, FCOIB_VER_OFFSET, 1, version);
-        proto_tree_add_uint(fcoib_tree, hf_fcoib_sof, tvb, sof_offset, 1, sof);
-
-        /*
-         * Create the CRC information.
-         */
-        if (crc_exists) {
-            if (crc == crc_computed) {
-                item = proto_tree_add_uint_format(fcoib_tree, hf_fcoib_crc, tvb,
-                                           crc_offset, 4, crc,
-                                           "CRC: %8.8x [valid]", crc);
-            } else {
-                item = proto_tree_add_uint_format(fcoib_tree, hf_fcoib_crc, tvb,
-                                           crc_offset, 4, crc,
-                                           "CRC: %8.8x "
-                                           "[error: should be %8.8x]",
-                                           crc, crc_computed);
-                expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR,
-                                       "Bad FC CRC %8.8x %8.x",
-                                       crc, crc_computed);
-            }
-            proto_tree_set_appendix(fcoib_tree, tvb, crc_offset,
-                                    tvb_length_remaining (tvb, crc_offset));
+    /*
+     * Create the CRC information.
+     */
+    if (crc_exists) {
+        if (crc == crc_computed) {
+            item = proto_tree_add_uint_format(fcoib_tree, hf_fcoib_crc, tvb,
+                                              crc_offset, 4, crc,
+                                              "CRC: %8.8x [valid]", crc);
         } else {
-            item = proto_tree_add_text(fcoib_tree, tvb, crc_offset, 0,
-                                       "CRC: [missing]");
+            item = proto_tree_add_uint_format(fcoib_tree, hf_fcoib_crc, tvb,
+                                              crc_offset, 4, crc,
+                                              "CRC: %8.8x "
+                                              "[error: should be %8.8x]",
+                                              crc, crc_computed);
+            expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR,
+                                   "Bad FC CRC %8.8x %8.x",
+                                   crc, crc_computed);
         }
-        crc_tree = proto_item_add_subtree(item, ett_fcoib_crc);
-        ti = proto_tree_add_boolean(crc_tree, hf_fcoib_crc_bad, tvb,
-                                    crc_offset, 4,
-                                    crc_exists && crc != crc_computed);
-        PROTO_ITEM_SET_GENERATED(ti);
-        ti = proto_tree_add_boolean(crc_tree, hf_fcoib_crc_good, tvb,
-                                    crc_offset, 4,
-                                    crc_exists && crc == crc_computed);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_tree_set_appendix(fcoib_tree, tvb, crc_offset,
+                                tvb_length_remaining (tvb, crc_offset));
+    } else {
+        item = proto_tree_add_text(fcoib_tree, tvb, crc_offset, 0,
+                                   "CRC: [missing]");
+    }
+    crc_tree = proto_item_add_subtree(item, ett_fcoib_crc);
+    ti = proto_tree_add_boolean(crc_tree, hf_fcoib_crc_bad, tvb,
+                                crc_offset, 4,
+                                crc_exists && crc != crc_computed);
+    PROTO_ITEM_SET_GENERATED(ti);
+    ti = proto_tree_add_boolean(crc_tree, hf_fcoib_crc_good, tvb,
+                                crc_offset, 4,
+                                crc_exists && crc == crc_computed);
+    PROTO_ITEM_SET_GENERATED(ti);
 
-        /*
-         * Interpret the EOF.
-         */
-        if (tvb_bytes_exist(tvb, eof_offset, 1)) {
-            proto_tree_add_item(fcoib_tree, hf_fcoib_eof, tvb, eof_offset, 1, ENC_BIG_ENDIAN);
-        }
+    /*
+     * Interpret the EOF.
+     */
+    if (tvb_bytes_exist(tvb, eof_offset, 1)) {
+        proto_tree_add_item(fcoib_tree, hf_fcoib_eof, tvb, eof_offset, 1, ENC_BIG_ENDIAN);
     }
 
     /* Set the SOF/EOF flags in the packet_info header */
@@ -415,10 +413,6 @@ proto_register_fcoib(void)
         "QP Number for address B", 10, &gPREF_QP[1]);
 }
 
-/*
- * This function name is required because a script is used to find these
- * routines and create the code that calls these routines.
- */
 void
 proto_reg_handoff_fcoib(void)
 {

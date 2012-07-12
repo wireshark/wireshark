@@ -882,15 +882,13 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
   if (tvb_reported_length_remaining (tvb, offset) != 0) {
     /* Dissect a request or a response. */
     if (is_request_or_reply && reqresp_dissector) {
-      if (tree) {
-        next_offset = reqresp_dissector (tvb, pinfo, memcache_tree,
-                                         offset, line, lineend, opcode);
-        if (next_offset == -1) {
-          /* Error in dissecting. */
-          return -1;
-        }
-        offset = next_offset;
+      next_offset = reqresp_dissector (tvb, pinfo, memcache_tree,
+                                       offset, line, lineend, opcode);
+      if (next_offset == -1) {
+        /* Error in dissecting. */
+        return -1;
       }
+      offset = next_offset;
     }
   }
 

@@ -2479,132 +2479,130 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * correctly, building or updating whatever state information is necessary,
      * in either case.
      */
-    if (tree) {
-        /* NOTE: The offset and length values in the call to
-         * "proto_tree_add_item()" define what data bytes to highlight in the
-         * hex display window when the line in the protocol tree display
-         * corresponding to that item is selected.
-         */
+    /* NOTE: The offset and length values in the call to
+     * "proto_tree_add_item()" define what data bytes to highlight in the
+     * hex display window when the line in the protocol tree display
+     * corresponding to that item is selected.
+     */
 
-        /* create display subtree for the protocol */
-        ti = proto_tree_add_protocol_format(tree, proto_eigrp, tvb, 0, -1,
-                                            "Cisco EIGRP");
-        eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
-        proto_tree_add_item(eigrp_tree, hf_eigrp_version, tvb, 0, 1,
-                            ENC_BIG_ENDIAN);
-        proto_tree_add_item(eigrp_tree, hf_eigrp_opcode, tvb, 1, 1,
-                            ENC_BIG_ENDIAN);
+    /* create display subtree for the protocol */
+    ti = proto_tree_add_protocol_format(tree, proto_eigrp, tvb, 0, -1,
+                                        "Cisco EIGRP");
+    eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
+    proto_tree_add_item(eigrp_tree, hf_eigrp_version, tvb, 0, 1,
+                        ENC_BIG_ENDIAN);
+    proto_tree_add_item(eigrp_tree, hf_eigrp_opcode, tvb, 1, 1,
+                        ENC_BIG_ENDIAN);
 
-        size          = tvb_length(tvb);
-        checksum      = tvb_get_ntohs(tvb, 2);
-        cacl_checksum = ip_checksum(tvb_get_ptr(tvb, 0, size), size);
+    size          = tvb_length(tvb);
+    checksum      = tvb_get_ntohs(tvb, 2);
+    cacl_checksum = ip_checksum(tvb_get_ptr(tvb, 0, size), size);
 
-        if (cacl_checksum == checksum) {
-            proto_tree_add_text(eigrp_tree, tvb, 2, 2,
-                                "Checksum: 0x%02x [incorrect]",
-                                checksum);
-            expert_add_info_format(pinfo, ti, PI_RESPONSE_CODE, PI_NOTE,
-                                "Checksum: 0x%02x [incorrect, should be 0x%02x]",
-                                checksum, cacl_checksum);
-        } else {
-            proto_tree_add_text(eigrp_tree, tvb, 2, 2,
-                                "Checksum: 0x%02x [correct]", checksum);
-        }
+    if (cacl_checksum == checksum) {
+        proto_tree_add_text(eigrp_tree, tvb, 2, 2,
+                            "Checksum: 0x%02x [incorrect]",
+                            checksum);
+        expert_add_info_format(pinfo, ti, PI_RESPONSE_CODE, PI_NOTE,
+                               "Checksum: 0x%02x [incorrect, should be 0x%02x]",
+                               checksum, cacl_checksum);
+    } else {
+        proto_tree_add_text(eigrp_tree, tvb, 2, 2,
+                            "Checksum: 0x%02x [correct]", checksum);
+    }
 
-        /* Decode the EIGRP Flags Field */
-        proto_tree_add_bitmask(eigrp_tree, tvb, 4, hf_eigrp_flags, ett_eigrp_flags,
-                               eigrp_flag_fields, ENC_BIG_ENDIAN);
+    /* Decode the EIGRP Flags Field */
+    proto_tree_add_bitmask(eigrp_tree, tvb, 4, hf_eigrp_flags, ett_eigrp_flags,
+                           eigrp_flag_fields, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(eigrp_tree, hf_eigrp_sequence, tvb, 8, 4,
-                            ENC_BIG_ENDIAN);
-        proto_tree_add_item(eigrp_tree, hf_eigrp_acknowledge, tvb, 12, 4,
-                            ENC_BIG_ENDIAN);
+    proto_tree_add_item(eigrp_tree, hf_eigrp_sequence, tvb, 8, 4,
+                        ENC_BIG_ENDIAN);
+    proto_tree_add_item(eigrp_tree, hf_eigrp_acknowledge, tvb, 12, 4,
+                        ENC_BIG_ENDIAN);
 
-        /* print out what family we dealing with... */
-        ti = proto_tree_add_item(eigrp_tree, hf_eigrp_vrid, tvb, 16, 2,
-                                 ENC_BIG_ENDIAN);
-        vrid = (tvb_get_ntohs(tvb, 16) & EIGRP_VRID_MASK);
-        proto_item_append_text(ti, " %s", val_to_str(vrid, eigrp_vrid2string,
-                                                     ""));
+    /* print out what family we dealing with... */
+    ti = proto_tree_add_item(eigrp_tree, hf_eigrp_vrid, tvb, 16, 2,
+                             ENC_BIG_ENDIAN);
+    vrid = (tvb_get_ntohs(tvb, 16) & EIGRP_VRID_MASK);
+    proto_item_append_text(ti, " %s", val_to_str(vrid, eigrp_vrid2string,
+                                                 ""));
 
-        /* print autonomous-system */
-        proto_tree_add_item(eigrp_tree, hf_eigrp_as, tvb, 18, 2,
-                            ENC_BIG_ENDIAN);
+    /* print autonomous-system */
+    proto_tree_add_item(eigrp_tree, hf_eigrp_as, tvb, 18, 2,
+                        ENC_BIG_ENDIAN);
 
-        switch (opcode) {
-        case EIGRP_OPC_IPXSAP:
-            call_dissector(ipxsap_handle,
-                           tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo,
-                           eigrp_tree);
-            break;
+    switch (opcode) {
+    case EIGRP_OPC_IPXSAP:
+        call_dissector(ipxsap_handle,
+                       tvb_new_subset(tvb, EIGRP_HEADER_LENGTH, -1, -1), pinfo,
+                       eigrp_tree);
+        break;
 
-        default:
-            while (tvb_reported_length_remaining(tvb, offset) > 0) {
-                tlv = tvb_get_ntohs(tvb, offset);
+    default:
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            tlv = tvb_get_ntohs(tvb, offset);
 
-                /* its a rose by the wrong name... */
-                if (tlv == EIGRP_TLV_MTR_TIDLIST) {
-                    tlv = EIGRP_TLV_PEER_TIDLIST;
-                }
-
-                size =  tvb_get_ntohs(tvb, offset + 2);
-                if (size == 0) {
-                    ti = proto_tree_add_text(eigrp_tree, tvb, offset, -1,
-                                             "Corrupt TLV (Zero Size)");
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                                           "Corrupt TLV (Zero Size)");
-                    return(tvb_length(tvb));
-                }
-
-                ti = proto_tree_add_text(eigrp_tree, tvb, offset, size, "%s",
-                                         val_to_str(tlv, eigrp_tlv2string, "Unknown TLV (0x%04x)"));
-
-                tlv_tree = proto_item_add_subtree(ti, ett_eigrp_tlv);
-                proto_tree_add_item(tlv_tree, hf_eigrp_tlv_type, tvb,
-                                    offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_eigrp_tlv_len, tvb,
-                                    (offset + 2), 2, ENC_BIG_ENDIAN);
-
-                switch (tlv & EIGRP_TLV_RANGEMASK) {
-                case EIGRP_TLV_GENERAL:
-                    dissect_eigrp_general_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
-                    break;
-
-                case EIGRP_TLV_IPv4:
-                    dissect_eigrp_ipv4_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
-                    break;
-
-                case EIGRP_TLV_ATALK:
-                    dissect_eigrp_atalk_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), tlv);
-                    break;
-
-                case EIGRP_TLV_IPX:
-                    dissect_eigrp_ipx_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
-                    break;
-
-                case EIGRP_TLV_IPv6:
-                    dissect_eigrp_ipv6_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
-                    break;
-
-                case EIGRP_TLV_MP:
-                    dissect_eigrp_multi_protocol_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1),
-                                                     pinfo, tlv);
-                    break;
-
-                case EIGRP_TLV_MTR:
-                    dissect_eigrp_multi_topology_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1),
-                                                     pinfo, tlv);
-                    break;
-
-                default:
-                    expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
-                                           "Unknown TLV Group (0x%04x)", tlv);
-                }
-
-                offset += size;
+            /* its a rose by the wrong name... */
+            if (tlv == EIGRP_TLV_MTR_TIDLIST) {
+                tlv = EIGRP_TLV_PEER_TIDLIST;
             }
-            break;
+
+            size =  tvb_get_ntohs(tvb, offset + 2);
+            if (size == 0) {
+                ti = proto_tree_add_text(eigrp_tree, tvb, offset, -1,
+                                         "Corrupt TLV (Zero Size)");
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "Corrupt TLV (Zero Size)");
+                return(tvb_length(tvb));
+            }
+
+            ti = proto_tree_add_text(eigrp_tree, tvb, offset, size, "%s",
+                                     val_to_str(tlv, eigrp_tlv2string, "Unknown TLV (0x%04x)"));
+
+            tlv_tree = proto_item_add_subtree(ti, ett_eigrp_tlv);
+            proto_tree_add_item(tlv_tree, hf_eigrp_tlv_type, tvb,
+                                offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_eigrp_tlv_len, tvb,
+                                (offset + 2), 2, ENC_BIG_ENDIAN);
+
+            switch (tlv & EIGRP_TLV_RANGEMASK) {
+            case EIGRP_TLV_GENERAL:
+                dissect_eigrp_general_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                break;
+
+            case EIGRP_TLV_IPv4:
+                dissect_eigrp_ipv4_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                break;
+
+            case EIGRP_TLV_ATALK:
+                dissect_eigrp_atalk_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), tlv);
+                break;
+
+            case EIGRP_TLV_IPX:
+                dissect_eigrp_ipx_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                break;
+
+            case EIGRP_TLV_IPv6:
+                dissect_eigrp_ipv6_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                break;
+
+            case EIGRP_TLV_MP:
+                dissect_eigrp_multi_protocol_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1),
+                                                 pinfo, tlv);
+                break;
+
+            case EIGRP_TLV_MTR:
+                dissect_eigrp_multi_topology_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1),
+                                                 pinfo, tlv);
+                break;
+
+            default:
+                expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN,
+                                       "Unknown TLV Group (0x%04x)", tlv);
+            }
+
+            offset += size;
         }
+        break;
     }
 
     /* Return the amount of data this dissector was able to dissect */

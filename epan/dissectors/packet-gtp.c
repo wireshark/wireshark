@@ -84,6 +84,7 @@ static dissector_table_t gtp_cdr_fmt_dissector_table;
 #define GTP_CONDITIONAL 4
 
 static gboolean g_gtp_over_tcp = TRUE;
+
 static guint g_gtpv0_port  = GTPv0_PORT;
 static guint g_gtpv1c_port = GTPv1C_PORT;
 static guint g_gtpv1u_port = GTPv1U_PORT;
@@ -415,23 +416,23 @@ static const value_string gtp_message_type[] = {
      * shall be treated as an Unknown message.
      */
 #if 0
-    {   8,                        "Unknown message(For future use)"},
-    {   9,                        "Unknown message(For future use)"},
-    {  10,                        "Unknown message(For future use)"},
-    {  11,                        "Unknown message(For future use)"},
-    {  12,                        "Unknown message(For future use)"},
-    {  13,                        "Unknown message(For future use)"},
-    {  14,                        "Unknown message(For future use)"},
-    {  15,                        "Unknown message(For future use)"},
+    {   8,                              "Unknown message(For future use)"},
+    {   9,                              "Unknown message(For future use)"},
+    {  10,                              "Unknown message(For future use)"},
+    {  11,                              "Unknown message(For future use)"},
+    {  12,                              "Unknown message(For future use)"},
+    {  13,                              "Unknown message(For future use)"},
+    {  14,                              "Unknown message(For future use)"},
+    {  15,                              "Unknown message(For future use)"},
 #endif
-    {GTP_MSG_CREATE_PDP_REQ,      "Create PDP context request"},
-    {GTP_MSG_CREATE_PDP_RESP,     "Create PDP context response"},
-    {GTP_MSG_UPDATE_PDP_REQ,      "Update PDP context request"},
-    {GTP_MSG_UPDATE_PDP_RESP,     "Update PDP context response"},
-    {GTP_MSG_DELETE_PDP_REQ,      "Delete PDP context request"},
-    {GTP_MSG_DELETE_PDP_RESP,     "Delete PDP context response"},
-    {GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ,   "Initiate PDP Context Activation Request"},
-    {GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP,  "Initiate PDP Context Activation Response"},
+    {GTP_MSG_CREATE_PDP_REQ,            "Create PDP context request"},
+    {GTP_MSG_CREATE_PDP_RESP,           "Create PDP context response"},
+    {GTP_MSG_UPDATE_PDP_REQ,            "Update PDP context request"},
+    {GTP_MSG_UPDATE_PDP_RESP,           "Update PDP context response"},
+    {GTP_MSG_DELETE_PDP_REQ,            "Delete PDP context request"},
+    {GTP_MSG_DELETE_PDP_RESP,           "Delete PDP context response"},
+    {GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ,  "Initiate PDP Context Activation Request"},
+    {GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP, "Initiate PDP Context Activation Response"},
 /*
  * 24-25 For future use. Shall not be sent. If received,
  * shall be treated as an Unknown message.
@@ -771,105 +772,105 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_PRIV_EXT              0xFF
 
 static const value_string gtp_val[] = {
-    {GTP_EXT_CAUSE, "Cause of operation"},
-    {GTP_EXT_IMSI, "IMSI"},
-    {GTP_EXT_RAI, "Routing Area Identity"},
-    {GTP_EXT_TLLI, "Temporary Logical Link Identity"},
-    {GTP_EXT_PTMSI, "Packet TMSI"},
-/*   6 */  {GTP_EXT_QOS_GPRS, "Quality of Service"},
+    {GTP_EXT_CAUSE,                 "Cause of operation"},
+    {GTP_EXT_IMSI,                  "IMSI"},
+    {GTP_EXT_RAI,                   "Routing Area Identity"},
+    {GTP_EXT_TLLI,                  "Temporary Logical Link Identity"},
+    {GTP_EXT_PTMSI,                 "Packet TMSI"},
+/*   6 */  {GTP_EXT_QOS_GPRS,       "Quality of Service"},
 /* 6-7 Spare */
-/*   8 */  {GTP_EXT_REORDER, "Reorder required"},
-/*   9 */  {GTP_EXT_AUTH_TRI, "Authentication triplets"},
+/*   8 */  {GTP_EXT_REORDER,        "Reorder required"},
+/*   9 */  {GTP_EXT_AUTH_TRI,       "Authentication triplets"},
 /* 10 Spare */
-/*  11 */  {GTP_EXT_MAP_CAUSE, "MAP cause"},
-/*  12 */  {GTP_EXT_PTMSI_SIG, "P-TMSI signature"},
-/*  13 */  {GTP_EXT_MS_VALID, "MS validated"},
-/*  14 */  {GTP_EXT_RECOVER, "Recovery"},
-/*  15 */  {GTP_EXT_SEL_MODE, "Selection mode"},
+/*  11 */  {GTP_EXT_MAP_CAUSE,      "MAP cause"},
+/*  12 */  {GTP_EXT_PTMSI_SIG,      "P-TMSI signature"},
+/*  13 */  {GTP_EXT_MS_VALID,       "MS validated"},
+/*  14 */  {GTP_EXT_RECOVER,        "Recovery"},
+/*  15 */  {GTP_EXT_SEL_MODE,       "Selection mode"},
 
-/*  16 */  {GTP_EXT_16, "Flow label data I"},
-/*  16 */  {GTP_EXT_FLOW_LABEL, "Flow label data I"},
-/*  16 */  {GTP_EXT_TEID, "Tunnel Endpoint Identifier Data I"},    /* 3G */
+/*  16 */  {GTP_EXT_16,             "Flow label data I"},
+/*  16 */  {GTP_EXT_FLOW_LABEL,     "Flow label data I"},
+/*  16 */  {GTP_EXT_TEID,           "Tunnel Endpoint Identifier Data I"},    /* 3G */
 
-    {GTP_EXT_17, "Flow label signalling"},
-    {GTP_EXT_FLOW_SIG, "Flow label signalling"},
-    {GTP_EXT_TEID_CP, "Tunnel Endpoint Identifier Data Control Plane"}, /* 3G */
+    {GTP_EXT_17,                    "Flow label signalling"},
+    {GTP_EXT_FLOW_SIG,              "Flow label signalling"},
+    {GTP_EXT_TEID_CP,               "Tunnel Endpoint Identifier Data Control Plane"}, /* 3G */
 
-    {GTP_EXT_18, "Flow label data II"},
-    {GTP_EXT_FLOW_II, "Flow label data II"},
-    {GTP_EXT_TEID_II, "Tunnel Endpoint Identifier Data II"},    /* 3G */
+    {GTP_EXT_18,                    "Flow label data II"},
+    {GTP_EXT_FLOW_II,               "Flow label data II"},
+    {GTP_EXT_TEID_II,               "Tunnel Endpoint Identifier Data II"},    /* 3G */
 
-    {GTP_EXT_19, "MS not reachable reason"},
-    {GTP_EXT_MS_REASON, "MS not reachable reason"},
-    {GTP_EXT_TEAR_IND, "Teardown ID"},  /* 3G */
+    {GTP_EXT_19,                    "MS not reachable reason"},
+    {GTP_EXT_MS_REASON,             "MS not reachable reason"},
+    {GTP_EXT_TEAR_IND,              "Teardown ID"},  /* 3G */
 
-    {GTP_EXT_NSAPI, "NSAPI"},   /* 3G */
-    {GTP_EXT_RANAP_CAUSE, "RANAP cause"},   /* 3G */
-    {GTP_EXT_RAB_CNTXT, "RAB context"}, /* 3G */
-    {GTP_EXT_RP_SMS, "Radio Priority for MO SMS"},  /* 3G */
-    {GTP_EXT_RP, "Radio Priority"}, /* 3G */
-    {GTP_EXT_PKT_FLOW_ID, "Packet Flow ID"},    /* 3G */
-    {GTP_EXT_CHRG_CHAR, "Charging characteristics"},    /* 3G */
-    {GTP_EXT_TRACE_REF, "Trace references"},    /* 3G */
-    {GTP_EXT_TRACE_TYPE, "Trace type"}, /* 3G */
-/*  29 */  {GTPv1_EXT_MS_REASON, "MS not reachable reason"},   /* 3G */
+    {GTP_EXT_NSAPI,                 "NSAPI"},   /* 3G */
+    {GTP_EXT_RANAP_CAUSE,           "RANAP cause"},   /* 3G */
+    {GTP_EXT_RAB_CNTXT,             "RAB context"}, /* 3G */
+    {GTP_EXT_RP_SMS,                "Radio Priority for MO SMS"},  /* 3G */
+    {GTP_EXT_RP,                    "Radio Priority"}, /* 3G */
+    {GTP_EXT_PKT_FLOW_ID,           "Packet Flow ID"},    /* 3G */
+    {GTP_EXT_CHRG_CHAR,             "Charging characteristics"},    /* 3G */
+    {GTP_EXT_TRACE_REF,             "Trace references"},    /* 3G */
+    {GTP_EXT_TRACE_TYPE,            "Trace type"}, /* 3G */
+/*  29 */  {GTPv1_EXT_MS_REASON,    "MS not reachable reason"},   /* 3G */
 /* 117-126 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
-/* 126 */  {GTP_EXT_TR_COMM, "Packet transfer command"},   /* charging */
-/* 127 */  {GTP_EXT_CHRG_ID, "Charging ID"},
-    {GTP_EXT_USER_ADDR, "End user address"},
-    {GTP_EXT_MM_CNTXT, "MM context"},
-    {GTP_EXT_PDP_CNTXT, "PDP context"},
-    {GTP_EXT_APN, "Access Point Name"},
-    {GTP_EXT_PROTO_CONF, "Protocol configuration options"},
-    {GTP_EXT_GSN_ADDR, "GSN address"},
-    {GTP_EXT_MSISDN, "MS international PSTN/ISDN number"},
-    {GTP_EXT_QOS_UMTS, "Quality of service (UMTS)"},    /* 3G */
-    {GTP_EXT_AUTH_QUI, "Authentication quintuplets"},   /* 3G */
-    {GTP_EXT_TFT, "Traffic Flow Template (TFT)"},   /* 3G */
-    {GTP_EXT_TARGET_ID, "Target (RNC) identification"}, /* 3G */
-    {GTP_EXT_UTRAN_CONT, "UTRAN transparent field"},    /* 3G */
-    {GTP_EXT_RAB_SETUP, "RAB setup information"},   /* 3G */
-    {GTP_EXT_HDR_LIST, "Extension Header Types List"},  /* 3G */
-    {GTP_EXT_TRIGGER_ID, "Trigger Id"}, /* 3G */
-    {GTP_EXT_OMC_ID, "OMC Identity"},   /* 3G */
+/* 126 */  {GTP_EXT_TR_COMM,        "Packet transfer command"},   /* charging */
+/* 127 */  {GTP_EXT_CHRG_ID,        "Charging ID"},
+    {GTP_EXT_USER_ADDR,             "End user address"},
+    {GTP_EXT_MM_CNTXT,              "MM context"},
+    {GTP_EXT_PDP_CNTXT,             "PDP context"},
+    {GTP_EXT_APN,                   "Access Point Name"},
+    {GTP_EXT_PROTO_CONF,            "Protocol configuration options"},
+    {GTP_EXT_GSN_ADDR,              "GSN address"},
+    {GTP_EXT_MSISDN,                "MS international PSTN/ISDN number"},
+    {GTP_EXT_QOS_UMTS,              "Quality of service (UMTS)"},    /* 3G */
+    {GTP_EXT_AUTH_QUI,              "Authentication quintuplets"},   /* 3G */
+    {GTP_EXT_TFT,                   "Traffic Flow Template (TFT)"},   /* 3G */
+    {GTP_EXT_TARGET_ID,             "Target (RNC) identification"}, /* 3G */
+    {GTP_EXT_UTRAN_CONT,            "UTRAN transparent field"},    /* 3G */
+    {GTP_EXT_RAB_SETUP,             "RAB setup information"},   /* 3G */
+    {GTP_EXT_HDR_LIST,              "Extension Header Types List"},  /* 3G */
+    {GTP_EXT_TRIGGER_ID,            "Trigger Id"}, /* 3G */
+    {GTP_EXT_OMC_ID,                "OMC Identity"},   /* 3G */
 
-    {GTP_EXT_RAN_TR_CONT, "RAN Transparent Container"}, /* 7.7.43 */
-    {GTP_EXT_PDP_CONT_PRIO, "PDP Context Prioritization"},  /* 7.7.45 */
-    {GTP_EXT_ADD_RAB_SETUP_INF, "Additional RAB Setup Information"},    /* 7.7.45A */
-    {GTP_EXT_SSGN_NO, "SGSN Number"},   /* 7.7.47 */
-    {GTP_EXT_COMMON_FLGS, "Common Flags"},  /* 7.7.48 */
-    {GTP_EXT_APN_RES, "APN Restriction"},   /* 3G */
-    {GTP_EXT_RA_PRIO_LCS, "Radio Priority LCS"},    /* 7.7.25B */
-    {GTP_EXT_RAT_TYPE, "RAT Type"}, /* 3G */
-    {GTP_EXT_USR_LOC_INF, "User Location Information"}, /* 7.7.51 */
-    {GTP_EXT_MS_TIME_ZONE, "MS Time Zone"}, /* 7.7.52 */
+    {GTP_EXT_RAN_TR_CONT,           "RAN Transparent Container"}, /* 7.7.43 */
+    {GTP_EXT_PDP_CONT_PRIO,         "PDP Context Prioritization"},  /* 7.7.45 */
+    {GTP_EXT_ADD_RAB_SETUP_INF,     "Additional RAB Setup Information"},    /* 7.7.45A */
+    {GTP_EXT_SSGN_NO,               "SGSN Number"},   /* 7.7.47 */
+    {GTP_EXT_COMMON_FLGS,           "Common Flags"},  /* 7.7.48 */
+    {GTP_EXT_APN_RES,               "APN Restriction"},   /* 3G */
+    {GTP_EXT_RA_PRIO_LCS,           "Radio Priority LCS"},    /* 7.7.25B */
+    {GTP_EXT_RAT_TYPE,              "RAT Type"}, /* 3G */
+    {GTP_EXT_USR_LOC_INF,           "User Location Information"}, /* 7.7.51 */
+    {GTP_EXT_MS_TIME_ZONE,          "MS Time Zone"}, /* 7.7.52 */
 
-    {GTP_EXT_IMEISV, "IMEI(SV)"},   /* 3G */
-    {GTP_EXT_CAMEL_CHG_INF_CON, "CAMEL Charging Information Container"},    /* 7.7.54 */
-    {GTP_EXT_MBMS_UE_CTX, "MBMS UE Context"},   /* 7.7.55 */
-    {GTP_EXT_TMGI, "Temporary Mobile Group Identity (TMGI)"},   /* 7.7.56 */
-    {GTP_EXT_RIM_RA, "RIM Routing Address"},    /* 7.7.57 */
-    {GTP_EXT_MBMS_PROT_CONF_OPT, "MBMS Protocol Configuration Options"},    /* 7.7.58 */
-    {GTP_EXT_MBMS_SA, "MBMS Service Area"}, /* 7.7.60 */
-    {GTP_EXT_SRC_RNC_PDP_CTX_INF, "Source RNC PDCP context info"},  /* 7.7.61 */
-    {GTP_EXT_ADD_TRS_INF, "Additional Trace Info"}, /* 7.7.62 */
-    {GTP_EXT_HOP_COUNT, "Hop Counter"}, /* 7.7.63 */
-    {GTP_EXT_SEL_PLMN_ID, "Selected PLMN ID"},  /* 7.7.64 */
-    {GTP_EXT_MBMS_SES_ID, "MBMS Session Identifier"},   /* 7.7.65 */
-    {GTP_EXT_MBMS_2G_3G_IND, "MBMS 2G/3G Indicator"},   /* 7.7.66 */
-    {GTP_EXT_ENH_NSAPI, "Enhanced NSAPI"},  /* 7.7.67 */
-    {GTP_EXT_MBMS_SES_DUR, "MBMS Session Duration"},    /* 7.7.59 */
-    {GTP_EXT_ADD_MBMS_TRS_INF, "Additional MBMS Trace Info"},   /* 7.7.68 */
-    {GTP_EXT_MBMS_SES_ID_REP_NO, "MBMS Session Identity Repetition Number"},    /* 7.7.69 */
-    {GTP_EXT_MBMS_TIME_TO_DATA_TR, "MBMS Time To Data Transfer"},   /* 7.7.70 */
-    {GTP_EXT_PS_HO_REQ_CTX, "PS Handover Request Context"}, /* 7.7.71 */
-    {GTP_EXT_BSS_CONT, "BSS Container"},    /* 7.7.72 */
-    {GTP_EXT_CELL_ID, "Cell Identification"},   /* 7.7.73 */
-    {GTP_EXT_PDU_NO, "PDU Numbers"},    /* 7.7.74 */
-    {GTP_EXT_BSSGP_CAUSE, "BSSGP Cause"},   /* 7.7.75 */
-    {GTP_EXT_REQ_MBMS_BEARER_CAP, "Required MBMS bearer capabilities"}, /* 7.7.76 */
+    {GTP_EXT_IMEISV,                "IMEI(SV)"},   /* 3G */
+    {GTP_EXT_CAMEL_CHG_INF_CON,     "CAMEL Charging Information Container"},    /* 7.7.54 */
+    {GTP_EXT_MBMS_UE_CTX,           "MBMS UE Context"},   /* 7.7.55 */
+    {GTP_EXT_TMGI,                  "Temporary Mobile Group Identity (TMGI)"},   /* 7.7.56 */
+    {GTP_EXT_RIM_RA,                "RIM Routing Address"},    /* 7.7.57 */
+    {GTP_EXT_MBMS_PROT_CONF_OPT,    "MBMS Protocol Configuration Options"},    /* 7.7.58 */
+    {GTP_EXT_MBMS_SA,               "MBMS Service Area"}, /* 7.7.60 */
+    {GTP_EXT_SRC_RNC_PDP_CTX_INF,   "Source RNC PDCP context info"},  /* 7.7.61 */
+    {GTP_EXT_ADD_TRS_INF,           "Additional Trace Info"}, /* 7.7.62 */
+    {GTP_EXT_HOP_COUNT,             "Hop Counter"}, /* 7.7.63 */
+    {GTP_EXT_SEL_PLMN_ID,           "Selected PLMN ID"},  /* 7.7.64 */
+    {GTP_EXT_MBMS_SES_ID,           "MBMS Session Identifier"},   /* 7.7.65 */
+    {GTP_EXT_MBMS_2G_3G_IND,        "MBMS 2G/3G Indicator"},   /* 7.7.66 */
+    {GTP_EXT_ENH_NSAPI,             "Enhanced NSAPI"},  /* 7.7.67 */
+    {GTP_EXT_MBMS_SES_DUR,          "MBMS Session Duration"},    /* 7.7.59 */
+    {GTP_EXT_ADD_MBMS_TRS_INF,      "Additional MBMS Trace Info"},   /* 7.7.68 */
+    {GTP_EXT_MBMS_SES_ID_REP_NO,    "MBMS Session Identity Repetition Number"},    /* 7.7.69 */
+    {GTP_EXT_MBMS_TIME_TO_DATA_TR,  "MBMS Time To Data Transfer"},   /* 7.7.70 */
+    {GTP_EXT_PS_HO_REQ_CTX,         "PS Handover Request Context"}, /* 7.7.71 */
+    {GTP_EXT_BSS_CONT,              "BSS Container"},    /* 7.7.72 */
+    {GTP_EXT_CELL_ID,               "Cell Identification"},   /* 7.7.73 */
+    {GTP_EXT_PDU_NO,                "PDU Numbers"},    /* 7.7.74 */
+    {GTP_EXT_BSSGP_CAUSE,           "BSSGP Cause"},   /* 7.7.75 */
+    {GTP_EXT_REQ_MBMS_BEARER_CAP,   "Required MBMS bearer capabilities"}, /* 7.7.76 */
     {GTP_EXT_RIM_ROUTING_ADDR_DISC, "RIM Routing Address Discriminator"},   /* 7.7.77 */
-    {GTP_EXT_LIST_OF_SETUP_PFCS, "List of set-up PFCs"},    /* 7.7.78 */
+    {GTP_EXT_LIST_OF_SETUP_PFCS,    "List of set-up PFCs"},    /* 7.7.78 */
 /* 180 */  {GTP_EXT_PS_HANDOVER_XIP_PAR, "  PS Handover XID Parameters"},                  /* 7.7.79 */
 /* 181 */  {GTP_EXT_MS_INF_CHG_REP_ACT,     "MS Info Change Reporting Action"},            /* 7.7.80 */
 /* 182 */  {GTP_EXT_DIRECT_TUNNEL_FLGS,     "Direct Tunnel Flags"},                        /* 7.7.81 */
@@ -904,14 +905,14 @@ static const value_string gtp_val[] = {
 /* 211 */  {GTP_EXT_EXT_RANAP_CAUSE,        "Extended RANAP Cause"},                       /* 7.7.111  */
 /* 212-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
-/* 249 */  {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
-/* 250 */  {GTP_EXT_CAN_PACK, "Sequence numbers of canceled packets IE"},  /* charging */
-/* 251 */  {GTP_EXT_CHRG_ADDR, "Charging Gateway address"}, /* 7.7.44 */
+/* 249 */  {GTP_EXT_REL_PACK,  "Sequence numbers of released packets IE"},  /* charging */
+/* 250 */  {GTP_EXT_CAN_PACK,  "Sequence numbers of canceled packets IE"},  /* charging */
+/* 251 */  {GTP_EXT_CHRG_ADDR, "Charging Gateway address"},                 /* 7.7.44 */
 /* 252-254 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
-/* 252 */  {GTP_EXT_DATA_REQ, "Data record packet"},   /* charging */
-/* 253 */  {GTP_EXT_DATA_RESP, "Requests responded"},  /* charging */
-/* 254 */  {GTP_EXT_NODE_ADDR, "Address of recommended node"}, /* charging */
-/* 255 */  {GTP_EXT_PRIV_EXT, "Private Extension"},
+/* 252 */  {GTP_EXT_DATA_REQ,  "Data record packet"},                       /* charging */
+/* 253 */  {GTP_EXT_DATA_RESP, "Requests responded"},                       /* charging */
+/* 254 */  {GTP_EXT_NODE_ADDR, "Address of recommended node"},              /* charging */
+/* 255 */  {GTP_EXT_PRIV_EXT,  "Private Extension"},
     {0, NULL}
 };
 static value_string_ext gtp_val_ext = VALUE_STRING_EXT_INIT(gtp_val);
@@ -920,138 +921,138 @@ static value_string_ext gtp_val_ext = VALUE_STRING_EXT_INIT(gtp_val);
  * 3GPP TS 29.060 version 6.11.0 Release 6
  */
 static const value_string gtpv1_val[] = {
-/*   1 */  {GTP_EXT_CAUSE, "Cause of operation"},
-/*   2 */  {GTP_EXT_IMSI, "IMSI"},
-/*   3 */  {GTP_EXT_RAI, "Routing Area Identity"},
-/*   4 */  {GTP_EXT_TLLI, "Temporary Logical Link Identity"},
-/*   5 */  {GTP_EXT_PTMSI, "Packet TMSI"},
-/*   6 */  {GTP_EXT_QOS_GPRS, "Quality of Service"},
+/*   1 */  {GTP_EXT_CAUSE,                 "Cause of operation"},
+/*   2 */  {GTP_EXT_IMSI,                  "IMSI"},
+/*   3 */  {GTP_EXT_RAI,                   "Routing Area Identity"},
+/*   4 */  {GTP_EXT_TLLI,                  "Temporary Logical Link Identity"},
+/*   5 */  {GTP_EXT_PTMSI,                 "Packet TMSI"},
+/*   6 */  {GTP_EXT_QOS_GPRS,              "Quality of Service"},
 /* 6-7 Spare */
-/*   7 */  {7, "Spare"},
-/*   8 */  {GTP_EXT_REORDER, "Reorder required"},
-/*   9 */  {GTP_EXT_AUTH_TRI, "Authentication triplets"},
+/*   7 */  {7,                             "Spare"},
+/*   8 */  {GTP_EXT_REORDER,               "Reorder required"},
+/*   9 */  {GTP_EXT_AUTH_TRI,              "Authentication triplets"},
 /* 10 Spare */
-/*  10 */  {10, "Spare"},
-/*  11 */  {GTP_EXT_MAP_CAUSE, "MAP cause"},
-/*  12 */  {GTP_EXT_PTMSI_SIG, "P-TMSI signature"},
-/*  13 */  {GTP_EXT_MS_VALID, "MS validated"},
-/*  14 */  {GTP_EXT_RECOVER, "Recovery"},
-/*  15 */  {GTP_EXT_SEL_MODE, "Selection mode"},
-/*  16 */  {GTP_EXT_TEID, "Tunnel Endpoint Identifier Data I"},    /* 3G */
-/*  17 */  {GTP_EXT_TEID_CP, "Tunnel Endpoint Identifier Data Control Plane"}, /* 3G */
-/*  18 */  {GTP_EXT_TEID_II, "Tunnel Endpoint Identifier Data II"},    /* 3G */
-/*  19 */  {GTP_EXT_TEAR_IND, "Teardown ID"},  /* 3G */
+/*  10 */  {10,                            "Spare"},
+/*  11 */  {GTP_EXT_MAP_CAUSE,             "MAP cause"},
+/*  12 */  {GTP_EXT_PTMSI_SIG,             "P-TMSI signature"},
+/*  13 */  {GTP_EXT_MS_VALID,              "MS validated"},
+/*  14 */  {GTP_EXT_RECOVER,               "Recovery"},
+/*  15 */  {GTP_EXT_SEL_MODE,              "Selection mode"},
+/*  16 */  {GTP_EXT_TEID,                  "Tunnel Endpoint Identifier Data I"},              /* 3G */
+/*  17 */  {GTP_EXT_TEID_CP,               "Tunnel Endpoint Identifier Data Control Plane"},  /* 3G */
+/*  18 */  {GTP_EXT_TEID_II,               "Tunnel Endpoint Identifier Data II"},             /* 3G */
+/*  19 */  {GTP_EXT_TEAR_IND,              "Teardown ID"},                                    /* 3G */
 
-/*  20 */  {GTP_EXT_NSAPI, "NSAPI"},   /* 3G */
-/*  21 */  {GTP_EXT_RANAP_CAUSE, "RANAP cause"},   /* 3G */
-/*  22 */  {GTP_EXT_RAB_CNTXT, "RAB context"}, /* 3G */
-/*  23 */  {GTP_EXT_RP_SMS, "Radio Priority for MO SMS"},  /* 3G */
-/*  24 */  {GTP_EXT_RP, "Radio Priority"}, /* 3G */
-/*  25 */  {GTP_EXT_PKT_FLOW_ID, "Packet Flow ID"},    /* 3G */
-/*  26 */  {GTP_EXT_CHRG_CHAR, "Charging characteristics"},    /* 3G */
-/*  27 */  {GTP_EXT_TRACE_REF, "Trace references"},    /* 3G */
-/*  28 */  {GTP_EXT_TRACE_TYPE, "Trace type"}, /* 3G */
-/*  29 */  {GTPv1_EXT_MS_REASON, "MS not reachable reason"},   /* 3G */
+/*  20 */  {GTP_EXT_NSAPI,                 "NSAPI"},                                          /* 3G */
+/*  21 */  {GTP_EXT_RANAP_CAUSE,           "RANAP cause"},                                    /* 3G */
+/*  22 */  {GTP_EXT_RAB_CNTXT,             "RAB context"},                                    /* 3G */
+/*  23 */  {GTP_EXT_RP_SMS,                "Radio Priority for MO SMS"},                      /* 3G */
+/*  24 */  {GTP_EXT_RP,                    "Radio Priority"},                                 /* 3G */
+/*  25 */  {GTP_EXT_PKT_FLOW_ID,           "Packet Flow ID"},                                 /* 3G */
+/*  26 */  {GTP_EXT_CHRG_CHAR,             "Charging characteristics"},                       /* 3G */
+/*  27 */  {GTP_EXT_TRACE_REF,             "Trace references"},                               /* 3G */
+/*  28 */  {GTP_EXT_TRACE_TYPE,            "Trace type"},                                     /* 3G */
+/*  29 */  {GTPv1_EXT_MS_REASON,           "MS not reachable reason"},                        /* 3G */
 /* 117-126 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
-/* 126 */  {GTP_EXT_TR_COMM, "Packet transfer command"},   /* charging */
-/* 127 */  {GTP_EXT_CHRG_ID, "Charging ID"},
+/* 126 */  {GTP_EXT_TR_COMM,               "Packet transfer command"},                        /* charging */
+/* 127 */  {GTP_EXT_CHRG_ID,               "Charging ID"},
 
-/* 128 */  {GTP_EXT_USER_ADDR, "End user address"},
-/* 129 */  {GTP_EXT_MM_CNTXT, "MM context"},
-/* 130 */  {GTP_EXT_PDP_CNTXT, "PDP context"},
-/* 131 */  {GTP_EXT_APN, "Access Point Name"},
-/* 132 */  {GTP_EXT_PROTO_CONF, "Protocol configuration options"},
-/* 133 */  {GTP_EXT_GSN_ADDR, "GSN address"},
-/* 134 */  {GTP_EXT_MSISDN, "MS international PSTN/ISDN number"},
-/* 135 */  {GTP_EXT_QOS_UMTS, "Quality of service (UMTS)"},    /* 3G */
-/* 136 */  {GTP_EXT_AUTH_QUI, "Authentication quintuplets"},   /* 3G */
-/* 137 */  {GTP_EXT_TFT, "Traffic Flow Template (TFT)"},   /* 3G */
-/* 138 */  {GTP_EXT_TARGET_ID, "Target (RNC) identification"}, /* 3G */
-/* 139 */  {GTP_EXT_UTRAN_CONT, "UTRAN transparent field"},    /* 3G */
-/* 140 */  {GTP_EXT_RAB_SETUP, "RAB setup information"},   /* 3G */
-/* 141 */  {GTP_EXT_HDR_LIST, "Extension Header Types List"},  /* 3G */
-/* 142 */  {GTP_EXT_TRIGGER_ID, "Trigger Id"}, /* 3G */
-/* 143 */  {GTP_EXT_OMC_ID, "OMC Identity"},   /* 3G */
-/* 144 */  {GTP_EXT_RAN_TR_CONT, "RAN Transparent Container"}, /* 7.7.43 */
-/* 145 */  {GTP_EXT_PDP_CONT_PRIO, "PDP Context Prioritization"},  /* 7.7.45 */
-/* 146 */  {GTP_EXT_ADD_RAB_SETUP_INF, "Additional RAB Setup Information"},    /* 7.7.45A */
-/* 147 */  {GTP_EXT_SSGN_NO, "SGSN Number"},   /* 7.7.47 */
-/* 148 */  {GTP_EXT_COMMON_FLGS, "Common Flags"},  /* 7.7.48 */
-/* 149 */  {GTP_EXT_APN_RES, "APN Restriction"},   /* 3G */
-/* 150 */  {GTP_EXT_RA_PRIO_LCS, "Radio Priority LCS"},    /* 7.7.25B */
-/* 151 */  {GTP_EXT_RAT_TYPE, "RAT Type"}, /* 3G */
-/* 152 */  {GTP_EXT_USR_LOC_INF, "User Location Information"}, /* 7.7.51 */
-/* 153 */  {GTP_EXT_MS_TIME_ZONE, "MS Time Zone"}, /* 7.7.52 */
+/* 128 */  {GTP_EXT_USER_ADDR,             "End user address"},
+/* 129 */  {GTP_EXT_MM_CNTXT,              "MM context"},
+/* 130 */  {GTP_EXT_PDP_CNTXT,             "PDP context"},
+/* 131 */  {GTP_EXT_APN,                   "Access Point Name"},
+/* 132 */  {GTP_EXT_PROTO_CONF,            "Protocol configuration options"},
+/* 133 */  {GTP_EXT_GSN_ADDR,              "GSN address"},
+/* 134 */  {GTP_EXT_MSISDN,                "MS international PSTN/ISDN number"},
+/* 135 */  {GTP_EXT_QOS_UMTS,              "Quality of service (UMTS)"},                      /* 3G */
+/* 136 */  {GTP_EXT_AUTH_QUI,              "Authentication quintuplets"},                     /* 3G */
+/* 137 */  {GTP_EXT_TFT,                   "Traffic Flow Template (TFT)"},                    /* 3G */
+/* 138 */  {GTP_EXT_TARGET_ID,             "Target (RNC) identification"},                    /* 3G */
+/* 139 */  {GTP_EXT_UTRAN_CONT,            "UTRAN transparent field"},                        /* 3G */
+/* 140 */  {GTP_EXT_RAB_SETUP,             "RAB setup information"},                          /* 3G */
+/* 141 */  {GTP_EXT_HDR_LIST,              "Extension Header Types List"},                    /* 3G */
+/* 142 */  {GTP_EXT_TRIGGER_ID,            "Trigger Id"},                                     /* 3G */
+/* 143 */  {GTP_EXT_OMC_ID,                "OMC Identity"},                                   /* 3G */
+/* 144 */  {GTP_EXT_RAN_TR_CONT,           "RAN Transparent Container"},                      /* 7.7.43 */
+/* 145 */  {GTP_EXT_PDP_CONT_PRIO,         "PDP Context Prioritization"},                     /* 7.7.45 */
+/* 146 */  {GTP_EXT_ADD_RAB_SETUP_INF,     "Additional RAB Setup Information"},               /* 7.7.45A */
+/* 147 */  {GTP_EXT_SSGN_NO,               "SGSN Number"},                                    /* 7.7.47 */
+/* 148 */  {GTP_EXT_COMMON_FLGS,           "Common Flags"},                                   /* 7.7.48 */
+/* 149 */  {GTP_EXT_APN_RES,               "APN Restriction"},                                /* 3G */
+/* 150 */  {GTP_EXT_RA_PRIO_LCS,           "Radio Priority LCS"},                             /* 7.7.25B */
+/* 151 */  {GTP_EXT_RAT_TYPE,              "RAT Type"},                                       /* 3G */
+/* 152 */  {GTP_EXT_USR_LOC_INF,           "User Location Information"},                      /* 7.7.51 */
+/* 153 */  {GTP_EXT_MS_TIME_ZONE,          "MS Time Zone"},                                   /* 7.7.52 */
 
-/* 154 */  {GTP_EXT_IMEISV, "IMEI(SV)"},   /* 3G */
-/* 155 */  {GTP_EXT_CAMEL_CHG_INF_CON, "CAMEL Charging Information Container"},    /* 7.7.54 */
-/* 156 */  {GTP_EXT_MBMS_UE_CTX, "MBMS UE Context"},   /* 7.7.55 */
-/* 157 */  {GTP_EXT_TMGI, "Temporary Mobile Group Identity (TMGI)"},   /* 7.7.56 */
-/* 158 */  {GTP_EXT_RIM_RA, "RIM Routing Address"},    /* 7.7.57 */
-/* 159 */  {GTP_EXT_MBMS_PROT_CONF_OPT, "MBMS Protocol Configuration Options"},    /* 7.7.58 */
-/* 160 */  {GTP_EXT_MBMS_SA, "MBMS Service Area"}, /* 7.7.60 */
-/* 161 */  {GTP_EXT_SRC_RNC_PDP_CTX_INF, "Source RNC PDCP context info"},  /* 7.7.61 */
-/* 162 */  {GTP_EXT_ADD_TRS_INF, "Additional Trace Info"}, /* 7.7.62 */
-/* 163 */  {GTP_EXT_HOP_COUNT, "Hop Counter"}, /* 7.7.63 */
-/* 164 */  {GTP_EXT_SEL_PLMN_ID, "Selected PLMN ID"},  /* 7.7.64 */
-/* 165 */  {GTP_EXT_MBMS_SES_ID, "MBMS Session Identifier"},   /* 7.7.65 */
-/* 166 */  {GTP_EXT_MBMS_2G_3G_IND, "MBMS 2G/3G Indicator"},   /* 7.7.66 */
-/* 167 */  {GTP_EXT_ENH_NSAPI, "Enhanced NSAPI"},  /* 7.7.67 */
-/* 168 */  {GTP_EXT_MBMS_SES_DUR, "MBMS Session Duration"},    /* 7.7.59 */
-/* 169 */  {GTP_EXT_ADD_MBMS_TRS_INF, "Additional MBMS Trace Info"},   /* 7.7.68 */
-/* 170 */  {GTP_EXT_MBMS_SES_ID_REP_NO, "MBMS Session Identity Repetition Number"},    /* 7.7.69 */
-/* 171 */  {GTP_EXT_MBMS_TIME_TO_DATA_TR, "MBMS Time To Data Transfer"},   /* 7.7.70 */
-/* 172 */  {GTP_EXT_PS_HO_REQ_CTX, "PS Handover Request Context"}, /* 7.7.71 */
-/* 173 */  {GTP_EXT_BSS_CONT, "BSS Container"},    /* 7.7.72 */
-/* 174 */  {GTP_EXT_CELL_ID, "Cell Identification"},   /* 7.7.73 */
-/* 175 */  {GTP_EXT_PDU_NO, "PDU Numbers"},    /* 7.7.74 */
-/* 176 */  {GTP_EXT_BSSGP_CAUSE,           "BSSGP Cause"},                                /* 7.7.75 */
+/* 154 */  {GTP_EXT_IMEISV,                "IMEI(SV)"},                                       /* 3G */
+/* 155 */  {GTP_EXT_CAMEL_CHG_INF_CON,     "CAMEL Charging Information Container"},           /* 7.7.54 */
+/* 156 */  {GTP_EXT_MBMS_UE_CTX,           "MBMS UE Context"},                                /* 7.7.55 */
+/* 157 */  {GTP_EXT_TMGI,                  "Temporary Mobile Group Identity (TMGI)"},         /* 7.7.56 */
+/* 158 */  {GTP_EXT_RIM_RA,                "RIM Routing Address"},                            /* 7.7.57 */
+/* 159 */  {GTP_EXT_MBMS_PROT_CONF_OPT,    "MBMS Protocol Configuration Options"},            /* 7.7.58 */
+/* 160 */  {GTP_EXT_MBMS_SA,               "MBMS Service Area"},                              /* 7.7.60 */
+/* 161 */  {GTP_EXT_SRC_RNC_PDP_CTX_INF,   "Source RNC PDCP context info"},                   /* 7.7.61 */
+/* 162 */  {GTP_EXT_ADD_TRS_INF,           "Additional Trace Info"},                          /* 7.7.62 */
+/* 163 */  {GTP_EXT_HOP_COUNT,             "Hop Counter"},                                    /* 7.7.63 */
+/* 164 */  {GTP_EXT_SEL_PLMN_ID,           "Selected PLMN ID"},                               /* 7.7.64 */
+/* 165 */  {GTP_EXT_MBMS_SES_ID,           "MBMS Session Identifier"},                        /* 7.7.65 */
+/* 166 */  {GTP_EXT_MBMS_2G_3G_IND,        "MBMS 2G/3G Indicator"},                           /* 7.7.66 */
+/* 167 */  {GTP_EXT_ENH_NSAPI,             "Enhanced NSAPI"},                                 /* 7.7.67 */
+/* 168 */  {GTP_EXT_MBMS_SES_DUR,          "MBMS Session Duration"},                          /* 7.7.59 */
+/* 169 */  {GTP_EXT_ADD_MBMS_TRS_INF,      "Additional MBMS Trace Info"},                     /* 7.7.68 */
+/* 170 */  {GTP_EXT_MBMS_SES_ID_REP_NO,    "MBMS Session Identity Repetition Number"},        /* 7.7.69 */
+/* 171 */  {GTP_EXT_MBMS_TIME_TO_DATA_TR,  "MBMS Time To Data Transfer"},                     /* 7.7.70 */
+/* 172 */  {GTP_EXT_PS_HO_REQ_CTX,         "PS Handover Request Context"},                    /* 7.7.71 */
+/* 173 */  {GTP_EXT_BSS_CONT,              "BSS Container"},                                  /* 7.7.72 */
+/* 174 */  {GTP_EXT_CELL_ID,               "Cell Identification"},                            /* 7.7.73 */
+/* 175 */  {GTP_EXT_PDU_NO,                "PDU Numbers"},                                    /* 7.7.74 */
+/* 176 */  {GTP_EXT_BSSGP_CAUSE,           "BSSGP Cause"},                                    /* 7.7.75 */
 
-/* 177 */  {GTP_EXT_REQ_MBMS_BEARER_CAP,   "Required MBMS bearer capabilities"},          /* 7.7.76 */
-/* 178 */  {GTP_EXT_RIM_ROUTING_ADDR_DISC, "RIM Routing Address Discriminator"},          /* 7.7.77 */
-/* 179 */  {GTP_EXT_LIST_OF_SETUP_PFCS,    "List of set-up PFCs"},                        /* 7.7.78 */
-/* 180 */  {GTP_EXT_PS_HANDOVER_XIP_PAR,   "PS Handover XID Parameters"},                 /* 7.7.79 */
-/* 181 */  {GTP_EXT_MS_INF_CHG_REP_ACT,    "MS Info Change Reporting Action"},            /* 7.7.80 */
-/* 182 */  {GTP_EXT_DIRECT_TUNNEL_FLGS,    "Direct Tunnel Flags"},                        /* 7.7.81 */
-/* 183 */  {GTP_EXT_CORRELATION_ID,        "Correlation-ID"},                             /* 7.7.82 */
-/* 184 */  {GTP_EXT_BEARER_CONTROL_MODE,   "Bearer Control Mode"},                        /* 7.7.83 */
-/* 185 */  {GTP_EXT_MBMS_FLOW_ID,          "MBMS Flow Identifier"},                       /* 7.7.84 */
-/* 186 */  {GTP_EXT_MBMS_IP_MCAST_DIST,    "MBMS IP Multicast Distribution"},             /* 7.7.85 */
-/* 187 */  {GTP_EXT_MBMS_DIST_ACK,         "MBMS Distribution Acknowledgement"},          /* 7.7.86 */
-/* 188 */  {GTP_EXT_RELIABLE_IRAT_HO_INF,  "Reliable INTER RAT HANDOVER INFO"},           /* 7.7.87 */
-/* 190 */  {GTP_EXT_RFSP_INDEX,            "RFSP Index"},                                 /* 7.7.88 */
-/* 190 */  {GTP_EXT_FQDN,                  "Fully Qualified Domain Name (FQDN)"},         /* 7.7.90 */
-/* 191 */  {GTP_EXT_EVO_ALLO_RETE_P1,      "Evolved Allocation/Retention Priority I"},    /* 7.7.91 */
-/* 192 */  {GTP_EXT_EVO_ALLO_RETE_P2,      "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
-/* 193 */  {GTP_EXT_EXTENDED_COMMON_FLGS,  "Extended Common Flags"},                      /* 7.7.93 */
-/* 194 */  {GTP_EXT_UCI,                   "User CSG Information (UCI)"},                 /* 7.7.94 */
-/* 195 */  {GTP_EXT_CSG_INF_REP_ACT,       "CSG Information Reporting Action"},           /* 7.7.95 */
-/* 196 */  {GTP_EXT_CSG_ID,                "CSG ID"},                                     /* 7.7.96 */
-/* 197 */  {GTP_EXT_CMI,                   "CSG Membership Indication (CMI)"},            /* 7.7.97 */
-/* 198 */  {198, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
-/* 199 */  {199, "UE Network Capability"},   /* 7.7.99 */
-/* 200 */  {200, "UE-AMBR"},   /* 7.7.100 */
-/* 201 */  {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
-/* 202 */  {202, "GGSN Back-Off Time"},   /* 7.7.102 */
-/* 203 */  {203, "Signalling Priority Indication"},   /* 7.7.103 */
-/* 204 */  {204, "Signalling Priority Indication with NSAPI"},   /* 7.7.104 */
-/* 205 */  {205, "Higher bitrates than 16 Mbps flag"},   /* 7.7.105  */
-/* 206 */  {206, "Max MBR/APN-AMBR"},   /* 7.7.106  */
-/* 207 */  {207, "Additional MM context for SRVCC"},   /* 7.7.107  */
-/* 208 */  {208, "Additional flags for SRVCC"},   /* 7.7.108  */
-/* 209 */  {209, "STN-SR"},   /* 7.7.109  */
-/* 210 */  {210, "C-MSISDN"},   /* 7.7.110  */
-/* 211 */  {211, "Extended RANAP Cause"},   /* 7.7.111  */
+/* 177 */  {GTP_EXT_REQ_MBMS_BEARER_CAP,   "Required MBMS bearer capabilities"},              /* 7.7.76 */
+/* 178 */  {GTP_EXT_RIM_ROUTING_ADDR_DISC, "RIM Routing Address Discriminator"},              /* 7.7.77 */
+/* 179 */  {GTP_EXT_LIST_OF_SETUP_PFCS,    "List of set-up PFCs"},                            /* 7.7.78 */
+/* 180 */  {GTP_EXT_PS_HANDOVER_XIP_PAR,   "PS Handover XID Parameters"},                     /* 7.7.79 */
+/* 181 */  {GTP_EXT_MS_INF_CHG_REP_ACT,    "MS Info Change Reporting Action"},                /* 7.7.80 */
+/* 182 */  {GTP_EXT_DIRECT_TUNNEL_FLGS,    "Direct Tunnel Flags"},                            /* 7.7.81 */
+/* 183 */  {GTP_EXT_CORRELATION_ID,        "Correlation-ID"},                                 /* 7.7.82 */
+/* 184 */  {GTP_EXT_BEARER_CONTROL_MODE,   "Bearer Control Mode"},                            /* 7.7.83 */
+/* 185 */  {GTP_EXT_MBMS_FLOW_ID,          "MBMS Flow Identifier"},                           /* 7.7.84 */
+/* 186 */  {GTP_EXT_MBMS_IP_MCAST_DIST,    "MBMS IP Multicast Distribution"},                 /* 7.7.85 */
+/* 187 */  {GTP_EXT_MBMS_DIST_ACK,         "MBMS Distribution Acknowledgement"},              /* 7.7.86 */
+/* 188 */  {GTP_EXT_RELIABLE_IRAT_HO_INF,  "Reliable INTER RAT HANDOVER INFO"},               /* 7.7.87 */
+/* 190 */  {GTP_EXT_RFSP_INDEX,            "RFSP Index"},                                     /* 7.7.88 */
+/* 190 */  {GTP_EXT_FQDN,                  "Fully Qualified Domain Name (FQDN)"},             /* 7.7.90 */
+/* 191 */  {GTP_EXT_EVO_ALLO_RETE_P1,      "Evolved Allocation/Retention Priority I"},        /* 7.7.91 */
+/* 192 */  {GTP_EXT_EVO_ALLO_RETE_P2,      "Evolved Allocation/Retention Priority II"},       /* 7.7.92 */
+/* 193 */  {GTP_EXT_EXTENDED_COMMON_FLGS,  "Extended Common Flags"},                          /* 7.7.93 */
+/* 194 */  {GTP_EXT_UCI,                   "User CSG Information (UCI)"},                     /* 7.7.94 */
+/* 195 */  {GTP_EXT_CSG_INF_REP_ACT,       "CSG Information Reporting Action"},               /* 7.7.95 */
+/* 196 */  {GTP_EXT_CSG_ID,                "CSG ID"},                                         /* 7.7.96 */
+/* 197 */  {GTP_EXT_CMI,                   "CSG Membership Indication (CMI)"},                /* 7.7.97 */
+/* 198 */  {198,                           "Aggregate Maximum Bit Rate (AMBR)"},              /* 7.7.98 */
+/* 199 */  {199,                           "UE Network Capability"},                          /* 7.7.99 */
+/* 200 */  {200,                           "UE-AMBR"},                                        /* 7.7.100 */
+/* 201 */  {201,                           "APN-AMBR with NSAPI"},                            /* 7.7.101 */
+/* 202 */  {202,                           "GGSN Back-Off Time"},                             /* 7.7.102 */
+/* 203 */  {203,                           "Signalling Priority Indication"},                 /* 7.7.103 */
+/* 204 */  {204,                           "Signalling Priority Indication with NSAPI"},      /* 7.7.104 */
+/* 205 */  {205,                           "Higher bitrates than 16 Mbps flag"},              /* 7.7.105  */
+/* 206 */  {206,                           "Max MBR/APN-AMBR"},                               /* 7.7.106  */
+/* 207 */  {207,                           "Additional MM context for SRVCC"},                /* 7.7.107  */
+/* 208 */  {208,                           "Additional flags for SRVCC"},                     /* 7.7.108  */
+/* 209 */  {209,                           "STN-SR"},                                         /* 7.7.109  */
+/* 210 */  {210,                           "C-MSISDN"},                                       /* 7.7.110  */
+/* 211 */  {211,                           "Extended RANAP Cause"},                           /* 7.7.111  */
 /* 212-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
-/* 249 */  {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
-/* 250 */  {GTP_EXT_CAN_PACK, "Sequence numbers of canceled packets IE"},  /* charging */
-/* 251 */  {GTP_EXT_CHRG_ADDR, "Charging Gateway address"}, /* 7.7.44 */
+/* 249 */  {GTP_EXT_REL_PACK,              "Sequence numbers of released packets IE"},        /* charging */
+/* 250 */  {GTP_EXT_CAN_PACK,              "Sequence numbers of canceled packets IE"},        /* charging */
+/* 251 */  {GTP_EXT_CHRG_ADDR,             "Charging Gateway address"},                       /* 7.7.44 */
 /* 252-254 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
-/* 252 */  {GTP_EXT_DATA_REQ, "Data record packet"},   /* charging */
-/* 253 */  {GTP_EXT_DATA_RESP, "Requests responded"},  /* charging */
-/* 254 */  {GTP_EXT_NODE_ADDR, "Address of recommended node"}, /* charging */
-/* 255 */  {GTP_EXT_PRIV_EXT, "Private Extension"},
+/* 252 */  {GTP_EXT_DATA_REQ,              "Data record packet"},                             /* charging */
+/* 253 */  {GTP_EXT_DATA_RESP,             "Requests responded"},                             /* charging */
+/* 254 */  {GTP_EXT_NODE_ADDR,             "Address of recommended node"},                    /* charging */
+/* 255 */  {GTP_EXT_PRIV_EXT,              "Private Extension"},
 
     {0, NULL}
 };
@@ -1465,16 +1466,16 @@ static const value_string tr_comm_type[] = {
 
 /* TODO: CHeck if all ms_reasons are included */
 static const value_string ms_not_reachable_type[] = {
-    {0, "No paging response via the MSC"},
-    {1, "IMSI detached"},
-    {2, "Roaming restriction"},
-    {3, "Deregistered in the HLR for non GPRS"},
-    {4, "MS purge for non GPRS"},
-    {5, "No paging response via the SGSN"},
-    {6, "GPRS detached"},
-    {7, "Deregistered in the HLR for non GPRS"},
-    {8, "MS purged for GPRS"},
-    {9, "Unidentified subscriber via the MSC"},
+    { 0, "No paging response via the MSC"},
+    { 1, "IMSI detached"},
+    { 2, "Roaming restriction"},
+    { 3, "Deregistered in the HLR for non GPRS"},
+    { 4, "MS purge for non GPRS"},
+    { 5, "No paging response via the SGSN"},
+    { 6, "GPRS detached"},
+    { 7, "Deregistered in the HLR for non GPRS"},
+    { 8, "MS purged for GPRS"},
+    { 9, "Unidentified subscriber via the MSC"},
     {10, "Unidentified subscriber via the SGSN"},
     {11, "Deregistered in the HSS/HLR for IMS"},
     {12, "No response via the IP-SM-GW"},
@@ -1485,89 +1486,89 @@ static const value_string ms_not_reachable_type[] = {
  */
 static const value_string ranap_cause_type[] = {
 /* Radio Network Layer Cause (1-->64) */
-    {  1, "RAB preempted"},
-    {  2, "Trelocoverall Expiry"},
-    {  3, "Trelocprep Expiry"},
-    {  4, "Treloccomplete Expiry"},
-    {  5, "Tqueuing Expiry"},
-    {  6, "Relocation Triggered"},
-    {  7, "TRELOCalloc Expiry"},
-    {  8, "Unable to Establish During Relocation"},
-    {  9, "Unknown Target RNC"},
-    { 10, "Relocation Cancelled"},
-    { 11, "Successful Relocation"},
-    { 12, "Requested Ciphering and/or Integrity Protection Algorithms not Supported"},
-    { 13, "Change of Ciphering and/or Integrity Protection is not supported"},
-    { 14, "Failure in the Radio Interface Procedure"},
-    { 15, "Release due to UTRAN Generated Reason"},
-    { 16, "User Inactivity"},
-    { 17, "Time Critical Relocation"},
-    { 18, "Requested Traffic Class not Available"},
-    { 19, "Invalid RAB Parameters Value"},
-    { 20, "Requested Maximum Bit Rate not Available"},
-    { 21, "Requested Guaranteed Bit Rate not Available"},
-    { 22, "Requested Transfer Delay not Achievable"},
-    { 23, "Invalid RAB Parameters Combination"},
-    { 24, "Condition Violation for SDU Parameters"},
-    { 25, "Condition Violation for Traffic Handling Priority"},
-    { 26, "Condition Violation for Guaranteed Bit Rate"},
-    { 27, "User Plane Versions not Supported"},
-    { 28, "Iu UP Failure"},
-    { 29, "Relocation Failure in Target CN/RNC or Target System"},
-    { 30, "Invalid RAB ID"},
-    { 31, "No Remaining RAB"},
-    { 32, "Interaction with other procedure"},
-    { 33, "Requested Maximum Bit Rate for DL not Available"},
-    { 34, "Requested Maximum Bit Rate for UL not Available"},
-    { 35, "Requested Guaranteed Bit Rate for DL not Available"},
-    { 36, "Requested Guaranteed Bit Rate for UL not Available"},
-    { 37, "Repeated Integrity Checking Failure"},
-    { 38, "Requested Report Type not supported"},
-    { 39, "Request superseded"},
-    { 40, "Release due to UE generated signalling connection release"},
-    { 41, "Resource Optimisation Relocation"},
-    { 42, "Requested Information Not Available"},
-    { 43, "Relocation desirable for radio reasons"},
-    { 44, "Relocation not supported in Target RNC or Target System"},
-    { 45, "Directed Retry"},
-    { 46, "Radio Connection With UE Lost"},
-    { 47, "rNC-unable-to-establish-all-RFCs"},
-    { 48, "deciphering-keys-not-available"},
-    { 49, "dedicated-assistance-data-not-available"},
-    { 50, "relocation-target-not-allowed"},
-    { 51, "location-reporting-congestion"},
-    { 52, "reduce-load-in-serving-cell"},
-    { 53, "no-radio-resources-available-in-target-cell"},
-    { 54, "gERAN-Iumode-failure"},
-    { 55, "access-restricted-due-to-shared-networks"},
-    { 56, "incoming-relocation-not-supported-due-to-PUESBINE-feature"},
-    { 57, "traffic-load-in-the-target-cell-higher-than-in-the-source-cell"},
-    { 58, "mBMS-no-multicast-service-for-this-UE"},
-    { 59, "mBMS-unknown-UE-ID"},
-    { 60, "successful-MBMS-session-start-no-data-bearer-necessary"},
-    { 61, "mBMS-superseded-due-to-NNSF"},
-    { 62, "mBMS-UE-linking-already-done"},
-    { 63, "mBMS-UE-de-linking-failure-no-existing-UE-linking"},
-    { 64, "tMGI-unknown"},
+    {   1, "RAB preempted"},
+    {   2, "Trelocoverall Expiry"},
+    {   3, "Trelocprep Expiry"},
+    {   4, "Treloccomplete Expiry"},
+    {   5, "Tqueuing Expiry"},
+    {   6, "Relocation Triggered"},
+    {   7, "TRELOCalloc Expiry"},
+    {   8, "Unable to Establish During Relocation"},
+    {   9, "Unknown Target RNC"},
+    {  10, "Relocation Cancelled"},
+    {  11, "Successful Relocation"},
+    {  12, "Requested Ciphering and/or Integrity Protection Algorithms not Supported"},
+    {  13, "Change of Ciphering and/or Integrity Protection is not supported"},
+    {  14, "Failure in the Radio Interface Procedure"},
+    {  15, "Release due to UTRAN Generated Reason"},
+    {  16, "User Inactivity"},
+    {  17, "Time Critical Relocation"},
+    {  18, "Requested Traffic Class not Available"},
+    {  19, "Invalid RAB Parameters Value"},
+    {  20, "Requested Maximum Bit Rate not Available"},
+    {  21, "Requested Guaranteed Bit Rate not Available"},
+    {  22, "Requested Transfer Delay not Achievable"},
+    {  23, "Invalid RAB Parameters Combination"},
+    {  24, "Condition Violation for SDU Parameters"},
+    {  25, "Condition Violation for Traffic Handling Priority"},
+    {  26, "Condition Violation for Guaranteed Bit Rate"},
+    {  27, "User Plane Versions not Supported"},
+    {  28, "Iu UP Failure"},
+    {  29, "Relocation Failure in Target CN/RNC or Target System"},
+    {  30, "Invalid RAB ID"},
+    {  31, "No Remaining RAB"},
+    {  32, "Interaction with other procedure"},
+    {  33, "Requested Maximum Bit Rate for DL not Available"},
+    {  34, "Requested Maximum Bit Rate for UL not Available"},
+    {  35, "Requested Guaranteed Bit Rate for DL not Available"},
+    {  36, "Requested Guaranteed Bit Rate for UL not Available"},
+    {  37, "Repeated Integrity Checking Failure"},
+    {  38, "Requested Report Type not supported"},
+    {  39, "Request superseded"},
+    {  40, "Release due to UE generated signalling connection release"},
+    {  41, "Resource Optimisation Relocation"},
+    {  42, "Requested Information Not Available"},
+    {  43, "Relocation desirable for radio reasons"},
+    {  44, "Relocation not supported in Target RNC or Target System"},
+    {  45, "Directed Retry"},
+    {  46, "Radio Connection With UE Lost"},
+    {  47, "rNC-unable-to-establish-all-RFCs"},
+    {  48, "deciphering-keys-not-available"},
+    {  49, "dedicated-assistance-data-not-available"},
+    {  50, "relocation-target-not-allowed"},
+    {  51, "location-reporting-congestion"},
+    {  52, "reduce-load-in-serving-cell"},
+    {  53, "no-radio-resources-available-in-target-cell"},
+    {  54, "gERAN-Iumode-failure"},
+    {  55, "access-restricted-due-to-shared-networks"},
+    {  56, "incoming-relocation-not-supported-due-to-PUESBINE-feature"},
+    {  57, "traffic-load-in-the-target-cell-higher-than-in-the-source-cell"},
+    {  58, "mBMS-no-multicast-service-for-this-UE"},
+    {  59, "mBMS-unknown-UE-ID"},
+    {  60, "successful-MBMS-session-start-no-data-bearer-necessary"},
+    {  61, "mBMS-superseded-due-to-NNSF"},
+    {  62, "mBMS-UE-linking-already-done"},
+    {  63, "mBMS-UE-de-linking-failure-no-existing-UE-linking"},
+    {  64, "tMGI-unknown"},
 /* Transport Layer Cause (65-->80) */
-    { 65, "Signalling Transport Resource Failure"},
-    { 66, "Iu Transport Connection Failed to Establish"},
+    {  65, "Signalling Transport Resource Failure"},
+    {  66, "Iu Transport Connection Failed to Establish"},
 /* NAS Cause (81-->96) */
-    { 81, "User Restriction Start Indication"},
-    { 82, "User Restriction End Indication"},
-    { 83, "Normal Release"},
+    {  81, "User Restriction Start Indication"},
+    {  82, "User Restriction End Indication"},
+    {  83, "Normal Release"},
 /* Protocol Cause (97-->112) */
-    { 97, "Transfer Syntax Error"},
-    { 98, "Semantic Error"},
-    { 99, "Message not compatible with receiver state"},
-    {100, "Abstract Syntax Error (Reject)"},
-    {101, "Abstract Syntax Error (Ignore and Notify)"},
-    {102, "Abstract Syntax Error (Falsely Constructed Message"},
+    {  97, "Transfer Syntax Error"},
+    {  98, "Semantic Error"},
+    {  99, "Message not compatible with receiver state"},
+    { 100, "Abstract Syntax Error (Reject)"},
+    { 101, "Abstract Syntax Error (Ignore and Notify)"},
+    { 102, "Abstract Syntax Error (Falsely Constructed Message"},
 /* Miscellaneous Cause (113-->128) */
-    {113, "O & M Intervention"},
-    {114, "No Resource Available"},
-    {115, "Unspecified Failure"},
-    {116, "Network Optimisation"},
+    { 113, "O & M Intervention"},
+    { 114, "No Resource Available"},
+    { 115, "Unspecified Failure"},
+    { 116, "Network Optimisation"},
 /* Non-standard Cause (129-->255) */
 
 /* ranap_CauseRadioNetworkExtension ??
@@ -1889,7 +1890,7 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xCA */  {GTP_EXT_GGSN_BACK_OFF_TIME, decode_gtp_ggsn_back_off_time},        /* 7.7.102 */
 /* 0xCB */  {GTP_EXT_SIG_PRI_IND, decode_gtp_sig_pri_ind},                      /* 7.7.103 */
 /* 0xCC */  {GTP_EXT_SIG_PRI_IND_W_NSAPI, decode_gtp_sig_pri_ind_w_nsapi},      /* 7.7.104 */
-/* 0xCD */  {GTP_EXT_HIGHER_BR_16MB_FLG, decode_gtp_higher_br_16mb_flg},         /* 7.7.105 */
+/* 0xCD */  {GTP_EXT_HIGHER_BR_16MB_FLG, decode_gtp_higher_br_16mb_flg},        /* 7.7.105 */
 /* 0xCE */  {GTP_EXT_MAX_MBR_APN_AMBR, decode_gtp_max_mbr_apn_ambr},            /* 7.7.106 */
 /* 0xCF */  {GTP_EXT_ADD_MM_CTX_SRVCC, decode_gtp_add_mm_ctx_srvcc},            /* 7.7.107 */
 /* 0xD0 */  {GTP_EXT_ADD_FLGS_SRVCC, decode_gtp_add_flgs_srvcc},                /* 7.7.108 */
@@ -2402,9 +2403,9 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_QOS_UMTS, GTP_CONDITIONAL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},
             /* TS 29.060 V6.11.0 */
-            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},  /* Alternative Charging Gateway Address Optional 7.7.44 */
-            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},        /* Common Flags Optional 7.7.48 */
-            {GTP_EXT_APN_RES, GTP_OPTIONAL},    /* APN Restriction Optional 7.7.49 */
+            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},   /* Alternative Charging Gateway Address Optional 7.7.44 */
+            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL}, /* Common Flags Optional 7.7.48 */
+            {GTP_EXT_APN_RES, GTP_OPTIONAL},     /* APN Restriction Optional 7.7.49 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
         }
@@ -2412,27 +2413,27 @@ static _gtp_mess_items umts_mess_items[] = {
     {                           /* checked, SGSN -> GGSN */
         GTP_MSG_UPDATE_PDP_REQ, {
             {GTP_EXT_IMSI, GTP_CONDITIONAL},
-            {GTP_EXT_RAI, GTP_OPTIONAL},        /* Routeing Area Identity (RAI) Optional 7.7.3 */
+            {GTP_EXT_RAI, GTP_OPTIONAL},         /* Routeing Area Identity (RAI) Optional 7.7.3 */
             {GTP_EXT_RECOVER, GTP_OPTIONAL},
             {GTP_EXT_TEID, GTP_MANDATORY},
             {GTP_EXT_TEID_CP, GTP_CONDITIONAL},
             {GTP_EXT_NSAPI, GTP_MANDATORY},
             {GTP_EXT_TRACE_REF, GTP_OPTIONAL},
             {GTP_EXT_TRACE_TYPE, GTP_OPTIONAL},
-            {GTP_EXT_PROTO_CONF, GTP_OPTIONAL}, /* Protocol Configuration Options Optional 7.7.31 */
-            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},  /* SGSN Address for Control Plane Mandatory GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},  /* SGSN Address for User Traffic Mandatory GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},   /* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},   /* Alternative SGSN Address for User Traffic Conditional GSN Address 7.7.32 */
+            {GTP_EXT_PROTO_CONF, GTP_OPTIONAL},  /* Protocol Configuration Options Optional 7.7.31 */
+            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},   /* SGSN Address for Control Plane Mandatory GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},   /* SGSN Address for User Traffic Mandatory GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},    /* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},    /* Alternative SGSN Address for User Traffic Conditional GSN Address 7.7.32 */
             {GTP_EXT_QOS_UMTS, GTP_MANDATORY},
             {GTP_EXT_TFT, GTP_OPTIONAL},
             {GTP_EXT_TRIGGER_ID, GTP_OPTIONAL},
             {GTP_EXT_OMC_ID, GTP_OPTIONAL},
-            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},                        /* Common Flags Optional 7.7.48 */
-            {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},                           /* RAT Type Optional 7.7.50 */
-            {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},                        /* User Location Information Optional 7.7.51 */
-            {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},                       /* MS Time Zone Optional 7.7.52 */
-            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},                        /* Additonal Trace Info Optional 7.7.62 */
+            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},        /* Common Flags Optional 7.7.48 */
+            {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},           /* RAT Type Optional 7.7.50 */
+            {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},        /* User Location Information Optional 7.7.51 */
+            {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},       /* MS Time Zone Optional 7.7.52 */
+            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additonal Trace Info Optional 7.7.62 */
             {GTP_EXT_DIRECT_TUNNEL_FLGS, GTP_OPTIONAL}, /* Direct Tunnel Flags     7.7.81 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
@@ -2445,17 +2446,17 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_TEID, GTP_CONDITIONAL},
             {GTP_EXT_TEID_CP, GTP_CONDITIONAL},
             {GTP_EXT_CHRG_ID, GTP_CONDITIONAL},
-            {GTP_EXT_PROTO_CONF, GTP_OPTIONAL}, /* Protocol Configuration Options Optional 7.7.31 */
+            {GTP_EXT_PROTO_CONF, GTP_OPTIONAL},  /* Protocol Configuration Options Optional 7.7.31 */
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},
-            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},   /* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},   /* Alternative SGSN Address for User Traffic Conditional GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},    /* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},    /* Alternative SGSN Address for User Traffic Conditional GSN Address 7.7.32 */
             {GTP_EXT_QOS_UMTS, GTP_CONDITIONAL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},
-            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},  /* Alternative Charging Gateway Address Optional 7.7.44 */
+            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},   /* Alternative Charging Gateway Address Optional 7.7.44 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
-            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},        /* Common Flags Optional 7.7.48 */
-            {GTP_EXT_APN_RES, GTP_OPTIONAL},    /* APN Restriction Optional 7.7.49 */
+            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL}, /* Common Flags Optional 7.7.48 */
+            {GTP_EXT_APN_RES, GTP_OPTIONAL},     /* APN Restriction Optional 7.7.49 */
             {0, 0}
         }
     },
@@ -2614,17 +2615,17 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_CAUSE, GTP_MANDATORY},
             {GTP_EXT_IMSI, GTP_CONDITIONAL},
             {GTP_EXT_TEID_CP, GTP_CONDITIONAL},
-            {GTP_EXT_RAB_CNTXT, GTP_CONDITIONAL},       /* RAB Context Conditional 7.7.19 */
+            {GTP_EXT_RAB_CNTXT, GTP_CONDITIONAL},  /* RAB Context Conditional 7.7.19 */
             {GTP_EXT_RP_SMS, GTP_OPTIONAL},
             {GTP_EXT_RP, GTP_OPTIONAL},
             {GTP_EXT_PKT_FLOW_ID, GTP_OPTIONAL},
-            {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL},  /* CharingCharacteristics Optional 7.7.23 */
-            {GTP_EXT_RA_PRIO_LCS, GTP_OPTIONAL},        /* Radio Priority LCS Optional 7.7.25B */
+            {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL},     /* CharingCharacteristics Optional 7.7.23 */
+            {GTP_EXT_RA_PRIO_LCS, GTP_OPTIONAL},   /* Radio Priority LCS Optional 7.7.25B */
             {GTP_EXT_MM_CNTXT, GTP_CONDITIONAL},
             {GTP_EXT_PDP_CNTXT, GTP_CONDITIONAL},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},
-            {GTP_EXT_PDP_CONT_PRIO, GTP_OPTIONAL},      /* PDP Context Prioritization Optional 7.7.45 */
-            {GTP_EXT_MBMS_UE_CTX, GTP_OPTIONAL},        /* MBMS UE Context Optional 7.7.55 */
+            {GTP_EXT_PDP_CONT_PRIO, GTP_OPTIONAL}, /* PDP Context Prioritization Optional 7.7.45 */
+            {GTP_EXT_MBMS_UE_CTX, GTP_OPTIONAL},   /* MBMS UE Context Optional 7.7.55 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
         }
@@ -2643,19 +2644,19 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_IMSI, GTP_MANDATORY},
             {GTP_EXT_TEID_CP, GTP_MANDATORY},
             {GTP_EXT_RANAP_CAUSE, GTP_MANDATORY},
-            {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL},  /* CharingCharacteristics Optional 7.7.23 */
+            {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL},     /* CharingCharacteristics Optional 7.7.23 */
             {GTP_EXT_MM_CNTXT, GTP_MANDATORY},
             {GTP_EXT_PDP_CNTXT, GTP_CONDITIONAL},
             {GTP_EXT_GSN_ADDR, GTP_MANDATORY},
             {GTP_EXT_TARGET_ID, GTP_MANDATORY},
             {GTP_EXT_UTRAN_CONT, GTP_MANDATORY},
-            {GTP_EXT_PDP_CONT_PRIO, GTP_OPTIONAL},      /* PDP Context Prioritization Optional 7.7.45 */
-            {GTP_EXT_MBMS_UE_CTX, GTP_OPTIONAL},        /* MBMS UE Context Optional 7.7.55 */
-            {GTP_EXT_SEL_PLMN_ID, GTP_OPTIONAL},        /* Selected PLMN ID Optional 7.7.64 */
-            {GTP_EXT_PS_HO_REQ_CTX, GTP_OPTIONAL},      /* PS Handover Request Context Optional 7.7.71 */
-            {GTP_EXT_BSS_CONT, GTP_OPTIONAL},   /* BSS Container Optional 7.7.72 */
-            {GTP_EXT_CELL_ID, GTP_OPTIONAL},    /* Cell Identification Optional 7.7.73 */
-            {GTP_EXT_BSSGP_CAUSE, GTP_OPTIONAL},        /* BSSGP Cause Optional 7.7.75 */
+            {GTP_EXT_PDP_CONT_PRIO, GTP_OPTIONAL}, /* PDP Context Prioritization Optional 7.7.45 */
+            {GTP_EXT_MBMS_UE_CTX, GTP_OPTIONAL},   /* MBMS UE Context Optional 7.7.55 */
+            {GTP_EXT_SEL_PLMN_ID, GTP_OPTIONAL},   /* Selected PLMN ID Optional 7.7.64 */
+            {GTP_EXT_PS_HO_REQ_CTX, GTP_OPTIONAL}, /* PS Handover Request Context Optional 7.7.71 */
+            {GTP_EXT_BSS_CONT, GTP_OPTIONAL},      /* BSS Container Optional 7.7.72 */
+            {GTP_EXT_CELL_ID, GTP_OPTIONAL},       /* Cell Identification Optional 7.7.73 */
+            {GTP_EXT_BSSGP_CAUSE, GTP_OPTIONAL},   /* BSSGP Cause Optional 7.7.75 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {GTP_EXT_SSGN_NO, GTP_OPTIONAL},
             {0, 0}
@@ -2665,12 +2666,12 @@ static _gtp_mess_items umts_mess_items[] = {
         GTP_MSG_FORW_RELOC_RESP, {
             {GTP_EXT_CAUSE, GTP_MANDATORY},
             {GTP_EXT_TEID_CP, GTP_CONDITIONAL},
-            {GTP_EXT_TEID_II, GTP_CONDITIONAL}, /* Tunnel Endpoint Identifier Data II Optional 7.7.15 */
+            {GTP_EXT_TEID_II, GTP_CONDITIONAL},           /* Tunnel Endpoint Identifier Data II Optional 7.7.15 */
             {GTP_EXT_RANAP_CAUSE, GTP_CONDITIONAL},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},
             {GTP_EXT_UTRAN_CONT, GTP_OPTIONAL},
             {GTP_EXT_RAB_SETUP, GTP_CONDITIONAL},
-            {GTP_EXT_ADD_RAB_SETUP_INF, GTP_CONDITIONAL},       /* Additional RAB Setup Information Conditional 7.7.45A */
+            {GTP_EXT_ADD_RAB_SETUP_INF, GTP_CONDITIONAL}, /* Additional RAB Setup Information Conditional 7.7.45A */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
         }
@@ -2712,8 +2713,8 @@ static _gtp_mess_items umts_mess_items[] = {
     {
         GTP_MSG_FORW_SRNS_CNTXT, {
             {GTP_EXT_RAB_CNTXT, GTP_MANDATORY},
-            {GTP_EXT_SRC_RNC_PDP_CTX_INF, GTP_OPTIONAL},        /* Source RNC PDCP context info Optional 7.7.61 */
-            {GTP_EXT_PDU_NO, GTP_OPTIONAL},     /* PDU Numbers Optional 7.7.74 */
+            {GTP_EXT_SRC_RNC_PDP_CTX_INF, GTP_OPTIONAL}, /* Source RNC PDCP context info Optional 7.7.61 */
+            {GTP_EXT_PDU_NO, GTP_OPTIONAL},              /* PDU Numbers Optional 7.7.74 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
         }
@@ -2722,8 +2723,8 @@ static _gtp_mess_items umts_mess_items[] = {
 /*      7.5.14 RAN Information Management Messages */
     {
         GTP_MSG_RAN_INFO_RELAY, {
-            {GTP_EXT_RAN_TR_CONT, GTP_MANDATORY},       /* RAN Transparent Container Mandatory 7.7.43 */
-            {GTP_EXT_RIM_RA, GTP_OPTIONAL},             /* RIM Routing Address Optional 7.7.57 */
+            {GTP_EXT_RAN_TR_CONT, GTP_MANDATORY},        /* RAN Transparent Container Mandatory 7.7.43 */
+            {GTP_EXT_RIM_RA, GTP_OPTIONAL},              /* RIM Routing Address Optional 7.7.57 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
         }
@@ -2733,14 +2734,14 @@ static _gtp_mess_items umts_mess_items[] = {
  */
     {
         GTP_MBMS_NOTIFY_REQ, {
-            {GTP_EXT_IMSI, GTP_MANDATORY},      /* IMSI Mandatory 7.7.2 */
-            {GTP_EXT_TEID_CP, GTP_MANDATORY},   /* Tunnel Endpoint Identifier Control Plane Mandatory 7.7.14 */
-            {GTP_EXT_NSAPI, GTP_MANDATORY},     /* NSAPI Mandatory 7.7.17 */
-            {GTP_EXT_USER_ADDR, GTP_MANDATORY}, /* End User Address Mandatory 7.7.27 */
-            {GTP_EXT_APN, GTP_MANDATORY},       /* Access Point Name Mandatory 7.7.30 */
-            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},  /* GGSN Address for Control Plane Mandatory 7.7.32 */
+            {GTP_EXT_IMSI, GTP_MANDATORY},              /* IMSI Mandatory 7.7.2 */
+            {GTP_EXT_TEID_CP, GTP_MANDATORY},           /* Tunnel Endpoint Identifier Control Plane Mandatory 7.7.14 */
+            {GTP_EXT_NSAPI, GTP_MANDATORY},             /* NSAPI Mandatory 7.7.17 */
+            {GTP_EXT_USER_ADDR, GTP_MANDATORY},         /* End User Address Mandatory 7.7.27 */
+            {GTP_EXT_APN, GTP_MANDATORY},               /* Access Point Name Mandatory 7.7.30 */
+            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},          /* GGSN Address for Control Plane Mandatory 7.7.32 */
             {GTP_EXT_MBMS_PROT_CONF_OPT, GTP_OPTIONAL}, /* MBMS Protocol Configuration Options Optional 7.7.58 */
-            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},   /* Private Extension Optional 7.7.46 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},           /* Private Extension Optional 7.7.46 */
             {0, 0}
         }
     },
@@ -2771,26 +2772,26 @@ static _gtp_mess_items umts_mess_items[] = {
     },
     {
         GTP_CREATE_MBMS_CNTXT_REQ, {
-            {GTP_EXT_IMSI, GTP_CONDITIONAL},    /* IMSI Conditional 7.7.2 */
-            {GTP_EXT_RAI, GTP_MANDATORY},       /* Routeing Area Identity (RAI) Mandatory 7.7.3 */
-            {GTP_EXT_RECOVER, GTP_OPTIONAL},    /* Recovery Optional 7.7.11 */
+            {GTP_EXT_IMSI, GTP_CONDITIONAL},            /* IMSI Conditional 7.7.2 */
+            {GTP_EXT_RAI, GTP_MANDATORY},               /* Routeing Area Identity (RAI) Mandatory 7.7.3 */
+            {GTP_EXT_RECOVER, GTP_OPTIONAL},            /* Recovery Optional 7.7.11 */
             {GTP_EXT_SEL_MODE, GTP_CONDITIONAL},        /* Selection mode Conditional 7.7.12 */
-            {GTP_EXT_TEID_CP, GTP_CONDITIONAL}, /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
-            {GTP_EXT_TRACE_REF, GTP_OPTIONAL},  /* Trace Reference Optional 7.7.24 */
-            {GTP_EXT_TRACE_TYPE, GTP_OPTIONAL}, /* Trace Type Optional 7.7.25 */
-            {GTP_EXT_USER_ADDR, GTP_MANDATORY}, /* End User Address Mandatory 7.7.27 */
-            {GTP_EXT_APN, GTP_MANDATORY},       /* Access Point Name Mandatory 7.7.30 */
-            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},  /* SGSN Address for signalling Mandatory GSN Address 7.7.32 */
-            {GTP_EXT_MSISDN, GTP_CONDITIONAL},  /* MSISDN Conditional 7.7.33 */
-            {GTP_EXT_TRIGGER_ID, GTP_OPTIONAL}, /* Trigger Id Optional 7.7.41 */
-            {GTP_EXT_OMC_ID, GTP_OPTIONAL},     /* OMC Identity Optional 7.7.42 */
-            {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},   /* RAT Type Optional 7.7.50 */
+            {GTP_EXT_TEID_CP, GTP_CONDITIONAL},         /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+            {GTP_EXT_TRACE_REF, GTP_OPTIONAL},          /* Trace Reference Optional 7.7.24 */
+            {GTP_EXT_TRACE_TYPE, GTP_OPTIONAL},         /* Trace Type Optional 7.7.25 */
+            {GTP_EXT_USER_ADDR, GTP_MANDATORY},         /* End User Address Mandatory 7.7.27 */
+            {GTP_EXT_APN, GTP_MANDATORY},               /* Access Point Name Mandatory 7.7.30 */
+            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},          /* SGSN Address for signalling Mandatory GSN Address 7.7.32 */
+            {GTP_EXT_MSISDN, GTP_CONDITIONAL},          /* MSISDN Conditional 7.7.33 */
+            {GTP_EXT_TRIGGER_ID, GTP_OPTIONAL},         /* Trigger Id Optional 7.7.41 */
+            {GTP_EXT_OMC_ID, GTP_OPTIONAL},             /* OMC Identity Optional 7.7.42 */
+            {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},           /* RAT Type Optional 7.7.50 */
             {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},        /* User Location Information Optional 7.7.51 */
             {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},       /* MS Time Zone Optional 7.7.52 */
-            {GTP_EXT_IMEISV, GTP_OPTIONAL},     /* IMEI(SV) Optional 7.7.53 */
+            {GTP_EXT_IMEISV, GTP_OPTIONAL},             /* IMEI(SV) Optional 7.7.53 */
             {GTP_EXT_MBMS_PROT_CONF_OPT, GTP_OPTIONAL}, /* MBMS Protocol Configuration Options Optional 7.7.58 */
             {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additonal Trace Info Optional 7.7.62 */
-            {GTP_EXT_ENH_NSAPI, GTP_MANDATORY}, /* Enhanced NSAPI Mandatory 7.7.67 */
+            {GTP_EXT_ENH_NSAPI, GTP_MANDATORY},         /* Enhanced NSAPI Mandatory 7.7.67 */
             {GTP_EXT_ADD_MBMS_TRS_INF, GTP_OPTIONAL},   /* Additional MBMS Trace Info Optional 7.7.68 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
@@ -2798,14 +2799,14 @@ static _gtp_mess_items umts_mess_items[] = {
     },
     {
         GTP_CREATE_MBMS_CNTXT_RES, {
-            {GTP_EXT_CAUSE, GTP_MANDATORY},     /* Cause Mandatory 7.7.1 */
-            {GTP_EXT_RECOVER, GTP_OPTIONAL},    /* Recovery Optional 7.7.11 */
-            {GTP_EXT_TEID_CP, GTP_CONDITIONAL}, /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
-            {GTP_EXT_CHRG_ID, GTP_CONDITIONAL}, /* Charging ID Conditional 7.7.26 */
+            {GTP_EXT_CAUSE, GTP_MANDATORY},             /* Cause Mandatory 7.7.1 */
+            {GTP_EXT_RECOVER, GTP_OPTIONAL},            /* Recovery Optional 7.7.11 */
+            {GTP_EXT_TEID_CP, GTP_CONDITIONAL},         /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+            {GTP_EXT_CHRG_ID, GTP_CONDITIONAL},         /* Charging ID Conditional 7.7.26 */
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* Alternative GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},  /* Charging Gateway Address Optional 7.7.44 */
-            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},  /* Alternative Charging Gateway Address Optional 7.7.44 */
+            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},          /* Charging Gateway Address Optional 7.7.44 */
+            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},          /* Alternative Charging Gateway Address Optional 7.7.44 */
             {GTP_EXT_MBMS_PROT_CONF_OPT, GTP_OPTIONAL}, /* MBMS Protocol Configuration Options Optional 7.7.58 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
@@ -2813,55 +2814,55 @@ static _gtp_mess_items umts_mess_items[] = {
     },
     {
         GTP_UPD_MBMS_CNTXT_REQ, {
-            {GTP_EXT_IMSI, GTP_CONDITIONAL},    /* IMSI Conditional 7.7.2 */
-            {GTP_EXT_RAI, GTP_MANDATORY},       /* Routeing Area Identity (RAI) Mandatory 7.7.3 */
-            {GTP_EXT_RECOVER, GTP_OPTIONAL},    /* Recovery Optional 7.7.11 */
-            {GTP_EXT_TEID_CP, GTP_CONDITIONAL}, /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
-            {GTP_EXT_TRACE_REF, GTP_OPTIONAL},  /* Trace Reference Optional 7.7.24 */
-            {GTP_EXT_TRACE_TYPE, GTP_OPTIONAL}, /* Trace Type Optional 7.7.25 */
-            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},  /* SGSN Address for Control Plane Mandatory GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_TRIGGER_ID, GTP_OPTIONAL}, /* Trigger Id Optional 7.7.41 */
-            {GTP_EXT_OMC_ID, GTP_OPTIONAL},     /* OMC Identity Optional 7.7.42 */
-            {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},   /* RAT Type Optional 7.7.50 */
-            {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},        /* User Location Information Optional 7.7.51 */
-            {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},       /* MS Time Zone Optional 7.7.52 */
-            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},        /* Additional Trace Info Optional 7.7.62 */
-            {GTP_EXT_ENH_NSAPI, GTP_MANDATORY}, /* Enhanced NSAPI Mandatory 7.7.67 */
-            {GTP_EXT_ADD_MBMS_TRS_INF, GTP_OPTIONAL},   /* Additional MBMS Trace Info Optional 7.7.68 */
+            {GTP_EXT_IMSI, GTP_CONDITIONAL},          /* IMSI Conditional 7.7.2 */
+            {GTP_EXT_RAI, GTP_MANDATORY},             /* Routeing Area Identity (RAI) Mandatory 7.7.3 */
+            {GTP_EXT_RECOVER, GTP_OPTIONAL},          /* Recovery Optional 7.7.11 */
+            {GTP_EXT_TEID_CP, GTP_CONDITIONAL},       /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+            {GTP_EXT_TRACE_REF, GTP_OPTIONAL},        /* Trace Reference Optional 7.7.24 */
+            {GTP_EXT_TRACE_TYPE, GTP_OPTIONAL},       /* Trace Type Optional 7.7.25 */
+            {GTP_EXT_GSN_ADDR, GTP_MANDATORY},        /* SGSN Address for Control Plane Mandatory GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},      /* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_TRIGGER_ID, GTP_OPTIONAL},       /* Trigger Id Optional 7.7.41 */
+            {GTP_EXT_OMC_ID, GTP_OPTIONAL},           /* OMC Identity Optional 7.7.42 */
+            {GTP_EXT_RAT_TYPE, GTP_OPTIONAL},         /* RAT Type Optional 7.7.50 */
+            {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL},      /* User Location Information Optional 7.7.51 */
+            {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL},     /* MS Time Zone Optional 7.7.52 */
+            {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL},      /* Additional Trace Info Optional 7.7.62 */
+            {GTP_EXT_ENH_NSAPI, GTP_MANDATORY},       /* Enhanced NSAPI Mandatory 7.7.67 */
+            {GTP_EXT_ADD_MBMS_TRS_INF, GTP_OPTIONAL}, /* Additional MBMS Trace Info Optional 7.7.68 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
         }
     },
     {
         GTP_UPD_MBMS_CNTXT_RES, {
-            {GTP_EXT_CAUSE, GTP_MANDATORY},     /* Cause Mandatory 7.7.1 */
-            {GTP_EXT_RECOVER, GTP_OPTIONAL},    /* Recovery Optional 7.7.11 */
-            {GTP_EXT_TEID_CP, GTP_MANDATORY},   /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
-            {GTP_EXT_CHRG_ID, GTP_CONDITIONAL}, /* Charging ID Conditional 7.7.26 */
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* Alternative GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},  /* Charging Gateway Address Optional 7.7.44 */
-            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},  /* Alternative Charging Gateway Address Optional 7.7.44 */
-            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},   /* Private Extension Optional 7.7.46 */
+            {GTP_EXT_CAUSE, GTP_MANDATORY},      /* Cause Mandatory 7.7.1 */
+            {GTP_EXT_RECOVER, GTP_OPTIONAL},     /* Recovery Optional 7.7.11 */
+            {GTP_EXT_TEID_CP, GTP_MANDATORY},    /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+            {GTP_EXT_CHRG_ID, GTP_CONDITIONAL},  /* Charging ID Conditional 7.7.26 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL}, /* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL}, /* Alternative GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},   /* Charging Gateway Address Optional 7.7.44 */
+            {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL},   /* Alternative Charging Gateway Address Optional 7.7.44 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},    /* Private Extension Optional 7.7.46 */
             {0, 0}
         }
     },
     {
         GTP_DEL_MBMS_CNTXT_REQ, {
-            {GTP_EXT_IMSI, GTP_CONDITIONAL},    /* IMSI Conditional 7.7.2 */
-            {GTP_EXT_TEID_CP, GTP_MANDATORY},   /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+            {GTP_EXT_IMSI, GTP_CONDITIONAL},            /* IMSI Conditional 7.7.2 */
+            {GTP_EXT_TEID_CP, GTP_MANDATORY},           /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
             {GTP_EXT_USER_ADDR, GTP_CONDITIONAL},       /* End User Address Conditional 7.7.27 */
-            {GTP_EXT_APN, GTP_CONDITIONAL},     /* Access Point Name Conditional 7.7.30 */
+            {GTP_EXT_APN, GTP_CONDITIONAL},             /* Access Point Name Conditional 7.7.30 */
             {GTP_EXT_MBMS_PROT_CONF_OPT, GTP_OPTIONAL}, /* MBMS Protocol Configuration Options Optional 7.7.58 */
-            {GTP_EXT_ENH_NSAPI, GTP_MANDATORY}, /* Enhanced NSAPI Conditional 7.7.67 */
-            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},   /* Private Extension Optional 7.7.46 */
+            {GTP_EXT_ENH_NSAPI, GTP_MANDATORY},         /* Enhanced NSAPI Conditional 7.7.67 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},           /* Private Extension Optional 7.7.46 */
             {0, 0}
         }
     },
     {
         GTP_DEL_MBMS_CNTXT_RES, {
-            {GTP_EXT_CAUSE, GTP_MANDATORY},     /* Cause Mandatory 7.7.1 */
+            {GTP_EXT_CAUSE, GTP_MANDATORY},             /* Cause Mandatory 7.7.1 */
             {GTP_EXT_MBMS_PROT_CONF_OPT, GTP_OPTIONAL}, /* MBMS Protocol Configuration Options Optional 7.7.58 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
@@ -2900,33 +2901,33 @@ static _gtp_mess_items umts_mess_items[] = {
     },
     {
         GTP_MBMS_SES_START_REQ, {
-            {GTP_EXT_RECOVER, GTP_OPTIONAL},    /* Recovery Optional 7.7.11 */
-            {GTP_EXT_TEID_CP, GTP_CONDITIONAL}, /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
-            {GTP_EXT_USER_ADDR, GTP_MANDATORY}, /* End User Address Mandatory 7.7.27 */
-            {GTP_EXT_APN, GTP_MANDATORY},       /* Access Point Name Mandatory 7.7.30 */
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_QOS_UMTS, GTP_MANDATORY},  /* Quality of Service Profile Mandatory 7.7.34 */
-            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},        /* Common Flags Mandatory 7.7.48 */
-            {GTP_EXT_TMGI, GTP_MANDATORY},      /* Temporary Mobile Group Identity (TMGI) Mandatory 7.7.56 */
-            {GTP_EXT_MBMS_SES_DUR, GTP_MANDATORY},      /* MBMS Session Duration Mandatory 7.7.59 */
-            {GTP_EXT_MBMS_SA, GTP_MANDATORY},   /* MBMS Service Area Mandatory 7.7.60 */
-            {GTP_EXT_MBMS_SES_ID, GTP_OPTIONAL},        /* MBMS Session Identifier Optional 7.7.65 */
-            {GTP_EXT_MBMS_2G_3G_IND, GTP_MANDATORY},    /* MBMS 2G/3G Indicator Mandatory 7.7.66 */
-            {GTP_EXT_MBMS_SES_ID_REP_NO, GTP_OPTIONAL}, /* MBMS Session Identity Repetition Number Optional 7.7.69 */
-            {GTP_EXT_MBMS_TIME_TO_DATA_TR, GTP_MANDATORY},      /* MBMS Time To Data Transfer Mandatory 7.7.70 */
-            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},   /* Private Extension Optional 7.7.46 */
+            {GTP_EXT_RECOVER, GTP_OPTIONAL},               /* Recovery Optional 7.7.11 */
+            {GTP_EXT_TEID_CP, GTP_CONDITIONAL},            /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+            {GTP_EXT_USER_ADDR, GTP_MANDATORY},            /* End User Address Mandatory 7.7.27 */
+            {GTP_EXT_APN, GTP_MANDATORY},                  /* Access Point Name Mandatory 7.7.30 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},           /* GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_QOS_UMTS, GTP_MANDATORY},             /* Quality of Service Profile Mandatory 7.7.34 */
+            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL},           /* Common Flags Mandatory 7.7.48 */
+            {GTP_EXT_TMGI, GTP_MANDATORY},                 /* Temporary Mobile Group Identity (TMGI) Mandatory 7.7.56 */
+            {GTP_EXT_MBMS_SES_DUR, GTP_MANDATORY},         /* MBMS Session Duration Mandatory 7.7.59 */
+            {GTP_EXT_MBMS_SA, GTP_MANDATORY},              /* MBMS Service Area Mandatory 7.7.60 */
+            {GTP_EXT_MBMS_SES_ID, GTP_OPTIONAL},           /* MBMS Session Identifier Optional 7.7.65 */
+            {GTP_EXT_MBMS_2G_3G_IND, GTP_MANDATORY},       /* MBMS 2G/3G Indicator Mandatory 7.7.66 */
+            {GTP_EXT_MBMS_SES_ID_REP_NO, GTP_OPTIONAL},    /* MBMS Session Identity Repetition Number Optional 7.7.69 */
+            {GTP_EXT_MBMS_TIME_TO_DATA_TR, GTP_MANDATORY}, /* MBMS Time To Data Transfer Mandatory 7.7.70 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},              /* Private Extension Optional 7.7.46 */
             {0, 0}
         }
     },
     {
         GTP_MBMS_SES_START_RES, {
-            {GTP_EXT_CAUSE, GTP_MANDATORY},     /* Cause Mandatory 7.7.1 */
-            {GTP_EXT_RECOVER, GTP_OPTIONAL},    /* Recovery Optional 7.7.11 */
-            {GTP_EXT_TEID, GTP_CONDITIONAL},    /* Tunnel Endpoint Identifier Data I Conditional 7.7.13 */
-            {GTP_EXT_TEID_CP, GTP_CONDITIONAL}, /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL},        /* SGSN Address for user traffic Conditional GSN Address 7.7.32 */
-            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},   /* Private Extension Optional 7.7.46 */
+            {GTP_EXT_CAUSE, GTP_MANDATORY},      /* Cause Mandatory 7.7.1 */
+            {GTP_EXT_RECOVER, GTP_OPTIONAL},     /* Recovery Optional 7.7.11 */
+            {GTP_EXT_TEID, GTP_CONDITIONAL},     /* Tunnel Endpoint Identifier Data I Conditional 7.7.13 */
+            {GTP_EXT_TEID_CP, GTP_CONDITIONAL},  /* Tunnel Endpoint Identifier Control Plane Conditional 7.7.14 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL}, /* SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL}, /* SGSN Address for user traffic Conditional GSN Address 7.7.32 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},    /* Private Extension Optional 7.7.46 */
             {0, 0}
         }
     },
@@ -3242,28 +3243,28 @@ decode_qos_gprs(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
     proto_tree *ext_tree_qos;
     proto_item *te;
 
-    spare1 = tvb_get_guint8(tvb, offset) & GTP_EXT_QOS_SPARE1_MASK;
-    delay = tvb_get_guint8(tvb, offset) & GTP_EXT_QOS_DELAY_MASK;
-    reliability = tvb_get_guint8(tvb, offset) & GTP_EXT_QOS_RELIABILITY_MASK;
-    peak = tvb_get_guint8(tvb, offset + 1) & GTP_EXT_QOS_PEAK_MASK;
-    spare2 = tvb_get_guint8(tvb, offset + 1) & GTP_EXT_QOS_SPARE2_MASK;
-    precedence = tvb_get_guint8(tvb, offset + 1) & GTP_EXT_QOS_PRECEDENCE_MASK;
-    spare3 = tvb_get_guint8(tvb, offset + 2) & GTP_EXT_QOS_SPARE3_MASK;
-    mean = tvb_get_guint8(tvb, offset + 2) & GTP_EXT_QOS_MEAN_MASK;
+    spare1      = tvb_get_guint8(tvb, offset)     & GTP_EXT_QOS_SPARE1_MASK;
+    delay       = tvb_get_guint8(tvb, offset)     & GTP_EXT_QOS_DELAY_MASK;
+    reliability = tvb_get_guint8(tvb, offset)     & GTP_EXT_QOS_RELIABILITY_MASK;
+    peak        = tvb_get_guint8(tvb, offset + 1) & GTP_EXT_QOS_PEAK_MASK;
+    spare2      = tvb_get_guint8(tvb, offset + 1) & GTP_EXT_QOS_SPARE2_MASK;
+    precedence  = tvb_get_guint8(tvb, offset + 1) & GTP_EXT_QOS_PRECEDENCE_MASK;
+    spare3      = tvb_get_guint8(tvb, offset + 2) & GTP_EXT_QOS_SPARE3_MASK;
+    mean        = tvb_get_guint8(tvb, offset + 2) & GTP_EXT_QOS_MEAN_MASK;
 
     te = proto_tree_add_text(tree, tvb, offset - adjust, 3 + adjust, "%s: delay: %u, reliability: %u, peak: %u, precedence: %u, mean: %u",
                              qos_str, (delay >> 3) & 0x07, reliability, (peak >> 4) & 0x0F, precedence, mean);
     ext_tree_qos = proto_item_add_subtree(te, ett_gtp_qos);
 
     if (adjust != 0) {
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare1, tvb, offset, 1, spare1);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_delay, tvb, offset, 1, delay);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_reliability, tvb, offset, 1, reliability);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_peak, tvb, offset + 1, 1, peak);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare2, tvb, offset + 1, 1, spare2);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_precedence, tvb, offset + 1, 1, precedence);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare3, tvb, offset + 2, 1, spare3);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_mean, tvb, offset + 2, 1, mean);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare1,      tvb, offset,     1, spare1);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_delay,       tvb, offset,     1, delay);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_reliability, tvb, offset,     1, reliability);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_peak,        tvb, offset + 1, 1, peak);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare2,      tvb, offset + 1, 1, spare2);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_precedence,  tvb, offset + 1, 1, precedence);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare3,      tvb, offset + 2, 1, spare3);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_mean,        tvb, offset + 2, 1, mean);
     }
 
     return 3;
@@ -3315,7 +3316,7 @@ decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 
     proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 1, 16, "RAND: %s", tvb_bytes_to_str(tvb, offset + 1, 16));
     proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 17, 4, "SRES: %s", tvb_bytes_to_str(tvb, offset + 17, 4));
-    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 21, 8, "Kc: %s", tvb_bytes_to_str(tvb, offset + 21, 8));
+    proto_tree_add_text(ext_tree_auth_tri, tvb, offset + 21, 8, "Kc: %s",   tvb_bytes_to_str(tvb, offset + 21, 8));
 
     return 1 + 16 + 4 + 8;
 }
@@ -3609,11 +3610,11 @@ decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     te = proto_tree_add_text(tree, tvb, offset, 10, "%s", val_to_str_ext_const(GTP_EXT_RAB_CNTXT, &gtp_val_ext, "Unknown message"));
     ext_tree_rab_cntxt = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_RAB_CNTXT]);
 
-    proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_nsapi, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_nsapi,       tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_gtpu_dn, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_gtpu_up, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_pdu_dn, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_pdu_up, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_pdu_dn,  tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree_rab_cntxt, hf_gtp_rab_pdu_up,  tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 
     return 10;
 }
@@ -3654,7 +3655,7 @@ decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
 
     proto_tree_add_uint(ext_tree_rp, hf_gtp_rp_nsapi, tvb, offset + 1, 1, nsapi);
     proto_tree_add_uint(ext_tree_rp, hf_gtp_rp_spare, tvb, offset + 1, 1, spare);
-    proto_tree_add_uint(ext_tree_rp, hf_gtp_rp, tvb, offset + 1, 1, rp);
+    proto_tree_add_uint(ext_tree_rp, hf_gtp_rp,       tvb, offset + 1, 1, rp);
 
     return 2;
 }
@@ -3843,7 +3844,7 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     ext_tree_user = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_USER_ADDR]);
 
     proto_tree_add_text(ext_tree_user, tvb, offset + 1, 2, "Length : %u", length);
-    proto_tree_add_uint(ext_tree_user, hf_gtp_user_addr_pdp_org, tvb, offset + 3, 1, pdp_org);
+    proto_tree_add_uint(ext_tree_user, hf_gtp_user_addr_pdp_org,  tvb, offset + 3, 1, pdp_org);
     proto_tree_add_uint(ext_tree_user, hf_gtp_user_addr_pdp_type, tvb, offset + 4, 1, pdp_typ);
 
     if (length == 2) {
@@ -3970,9 +3971,9 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 
     switch (sec_mode) {
     case 0:                     /* Used cipher value, UMTS keys and Quintuplets */
-        proto_tree_add_item(ext_tree_mm, hf_gtp_cksn_ksi, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_mm, hf_gtp_cksn_ksi,         tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 16, "Ciphering key CK: %s", tvb_bytes_to_str(tvb, offset + 5, 16));
         proto_tree_add_text(ext_tree_mm, tvb, offset + 21, 16, "Integrity key IK: %s", tvb_bytes_to_str(tvb, offset + 21, 16));
@@ -3988,7 +3989,7 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
         if (gtp_version != 0)
             proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset + 5, 8));
 
@@ -4008,11 +4009,12 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 
         break;
     case 3:                     /* GSM key and quintuplets */
-        proto_tree_add_item(ext_tree_mm, hf_gtp_cksn, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_mm, hf_gtp_cksn,             tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_mm, hf_gtp_security_mode,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_mm, hf_gtp_no_of_vectors,    tvb, offset + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_mm, hf_gtp_cipher_algorithm, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 8, "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset + 5, 8));
+        proto_tree_add_text(ext_tree_mm, tvb, offset + 5, 8,
+                            "Ciphering key Kc: %s", tvb_bytes_to_str(tvb, offset + 5, 8));
         quint_len = tvb_get_ntohs(tvb, offset + 13);
         proto_tree_add_text(ext_tree_mm, tvb, offset + 13, 2, "Quintuplets length: 0x%x (%u)", quint_len, quint_len);
 
@@ -4290,14 +4292,14 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
      * two bytes for needed shift, and the wrapped function will unencode
      * two values from the input.
      * */
-    spare1 = wrapped_tvb_get_guint8(tvb, offset + (1 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SPARE1_MASK;
-    delay = wrapped_tvb_get_guint8(tvb, offset + (1 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_DELAY_MASK;
+    spare1      = wrapped_tvb_get_guint8(tvb, offset + (1 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SPARE1_MASK;
+    delay       = wrapped_tvb_get_guint8(tvb, offset + (1 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_DELAY_MASK;
     reliability = wrapped_tvb_get_guint8(tvb, offset + (1 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_RELIABILITY_MASK;
-    peak = wrapped_tvb_get_guint8(tvb, offset + (2 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_PEAK_MASK;
-    spare2 = wrapped_tvb_get_guint8(tvb, offset + (2 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SPARE2_MASK;
-    precedence = wrapped_tvb_get_guint8(tvb, offset + (2 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_PRECEDENCE_MASK;
-    spare3 = wrapped_tvb_get_guint8(tvb, offset + (3 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SPARE3_MASK;
-    mean = wrapped_tvb_get_guint8(tvb, offset + (3 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_MEAN_MASK;
+    peak        = wrapped_tvb_get_guint8(tvb, offset + (2 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_PEAK_MASK;
+    spare2      = wrapped_tvb_get_guint8(tvb, offset + (2 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SPARE2_MASK;
+    precedence  = wrapped_tvb_get_guint8(tvb, offset + (2 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_PRECEDENCE_MASK;
+    spare3      = wrapped_tvb_get_guint8(tvb, offset + (3 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SPARE3_MASK;
+    mean        = wrapped_tvb_get_guint8(tvb, offset + (3 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_MEAN_MASK;
 
     /* In RADIUS messages there is no allocation-retention priority */
     if (type != 3)
@@ -4306,14 +4308,14 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
     /* All additions must take care of the fact that QoS fields in RADIUS
      * messages are UTF-8 encoded, so we have to use the same trick as above.
      * */
-    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare1, tvb, offset + (1 - 1) * utf8_type + 1, utf8_type, spare1);
-    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_delay, tvb, offset + (1 - 1) * utf8_type + 1, utf8_type, delay);
+    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare1,      tvb, offset + (1 - 1) * utf8_type + 1, utf8_type, spare1);
+    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_delay,       tvb, offset + (1 - 1) * utf8_type + 1, utf8_type, delay);
     proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_reliability, tvb, offset + (1 - 1) * utf8_type + 1, utf8_type, reliability);
-    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_peak, tvb, offset + (2 - 1) * utf8_type + 1, utf8_type, peak);
-    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare2, tvb, offset + (2 - 1) * utf8_type + 1, utf8_type, spare2);
-    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_precedence, tvb, offset + (2 - 1) * utf8_type + 1, utf8_type, precedence);
-    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare3, tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, spare3);
-    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_mean, tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, mean);
+    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_peak,        tvb, offset + (2 - 1) * utf8_type + 1, utf8_type, peak);
+    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare2,      tvb, offset + (2 - 1) * utf8_type + 1, utf8_type, spare2);
+    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_precedence,  tvb, offset + (2 - 1) * utf8_type + 1, utf8_type, precedence);
+    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_spare3,      tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, spare3);
+    proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_mean,        tvb, offset + (3 - 1) * utf8_type + 1, utf8_type, mean);
 
     /* TS 24.008 V 7.8.0
      * The quality of service is a type 4 information element with a minimum length of 14 octets and a maximum length of 18
@@ -4333,33 +4335,33 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
          *
          */
         /* Octet 6 */
-        traf_class = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_TRAF_CLASS_MASK;
-        del_order = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_DEL_ORDER_MASK;
-        del_err_sdu = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_DEL_ERR_SDU_MASK;
-        max_sdu_size = wrapped_tvb_get_guint8(tvb, offset + (5 - 1) * utf8_type + 1, utf8_type);
-        max_ul = wrapped_tvb_get_guint8(tvb, offset + (6 - 1) * utf8_type + 1, utf8_type);
-        max_dl = wrapped_tvb_get_guint8(tvb, offset + (7 - 1) * utf8_type + 1, utf8_type);
-        res_ber = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_RES_BER_MASK;
-        sdu_err_ratio = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SDU_ERR_RATIO_MASK;
-        trans_delay = wrapped_tvb_get_guint8(tvb, offset + (9 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_TRANS_DELAY_MASK;
+        traf_class      = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_TRAF_CLASS_MASK;
+        del_order       = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_DEL_ORDER_MASK;
+        del_err_sdu     = wrapped_tvb_get_guint8(tvb, offset + (4 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_DEL_ERR_SDU_MASK;
+        max_sdu_size    = wrapped_tvb_get_guint8(tvb, offset + (5 - 1) * utf8_type + 1, utf8_type);
+        max_ul          = wrapped_tvb_get_guint8(tvb, offset + (6 - 1) * utf8_type + 1, utf8_type);
+        max_dl          = wrapped_tvb_get_guint8(tvb, offset + (7 - 1) * utf8_type + 1, utf8_type);
+        res_ber         = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_RES_BER_MASK;
+        sdu_err_ratio   = wrapped_tvb_get_guint8(tvb, offset + (8 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SDU_ERR_RATIO_MASK;
+        trans_delay     = wrapped_tvb_get_guint8(tvb, offset + (9 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_TRANS_DELAY_MASK;
         traf_handl_prio = wrapped_tvb_get_guint8(tvb, offset + (9 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_TRAF_HANDL_PRIORITY_MASK;
-        guar_ul = wrapped_tvb_get_guint8(tvb, offset + (10 - 1) * utf8_type + 1, utf8_type);
+        guar_ul         = wrapped_tvb_get_guint8(tvb, offset + (10 - 1) * utf8_type + 1, utf8_type);
         /* Octet 13 */
-        guar_dl = wrapped_tvb_get_guint8(tvb, offset + (11 - 1) * utf8_type + 1, utf8_type);
+        guar_dl         = wrapped_tvb_get_guint8(tvb, offset + (11 - 1) * utf8_type + 1, utf8_type);
 
         src_stat_desc = 0;
-        sig_ind = 0;
-        max_dl_ext = 0;
-        guar_dl_ext = 0;
-        max_ul_ext = 0;
-        guar_ul_ext =0;
+        sig_ind       = 0;
+        max_dl_ext    = 0;
+        guar_dl_ext   = 0;
+        max_ul_ext    = 0;
+        guar_ul_ext   = 0;
 
         if (length > 13) {
-            src_stat_desc = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type)& GTP_EXT_QOS_SRC_STAT_DESC_MASK;
-            sig_ind = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type)& GTP_EXT_QOS_SIG_IND_MASK;
+            src_stat_desc = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SRC_STAT_DESC_MASK;
+            sig_ind       = wrapped_tvb_get_guint8(tvb, offset + (12 - 1) * utf8_type + 1, utf8_type) & GTP_EXT_QOS_SIG_IND_MASK;
         }
         if (length > 14) {
-            max_dl_ext = wrapped_tvb_get_guint8(tvb, offset + (13 - 1) * utf8_type + 1, utf8_type);
+            max_dl_ext  = wrapped_tvb_get_guint8(tvb, offset + (13 - 1) * utf8_type + 1, utf8_type);
             guar_dl_ext = wrapped_tvb_get_guint8(tvb, offset + (14 - 1) * utf8_type + 1, utf8_type);
         }
         if (length > 16) {
@@ -4370,8 +4372,8 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         /*
          * See above comments for the changes
          */
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_class, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, traf_class);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_order, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_order);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_class,  tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, traf_class);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_order,   tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_order);
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_err_sdu, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_err_sdu);
         if (max_sdu_size == 0 || max_sdu_size > 150)
             proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_max_sdu_size, tvb, offset + (5 - 1) * utf8_type + 1, utf8_type, max_sdu_size);
@@ -4414,9 +4416,9 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
                                        "Maximum bit rate for downlink: %u kbps", md);
         }
 
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_res_ber, tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, res_ber);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_sdu_err_ratio, tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, sdu_err_ratio);
-        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_trans_delay, tvb, offset + (9 - 1) * utf8_type + 1, utf8_type, trans_delay);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_res_ber,         tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, res_ber);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_sdu_err_ratio,   tvb, offset + (8 - 1) * utf8_type + 1, utf8_type, sdu_err_ratio);
+        proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_trans_delay,     tvb, offset + (9 - 1) * utf8_type + 1, utf8_type, trans_delay);
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_handl_prio, tvb, offset + (9 - 1) * utf8_type + 1, utf8_type, traf_handl_prio);
 
         if (guar_ul == 0 || guar_ul == 255)
@@ -4674,7 +4676,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
         break;
     case 1:
         pdp_cntxt_id = tvb_get_guint8(tvb, offset + 14);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_cp, tvb, offset + 6, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_cp,   tvb, offset + 6, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_pdp, hf_gtp_ulink_teid_data, tvb, offset + 10, 4, ENC_BIG_ENDIAN);
         proto_tree_add_text(ext_tree_pdp, tvb, offset + 14, 1, "PDP context identifier: %u", pdp_cntxt_id);
         offset = offset + 15;
@@ -4994,8 +4996,8 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
 
     tef = proto_tree_add_text(ext_tree_tft, tvb, offset + 3, 1, "TFT flags");
     ext_tree_tft_flags = proto_item_add_subtree(tef, ett_gtp_tft_flags);
-    proto_tree_add_uint(ext_tree_tft_flags, hf_gtp_tft_code, tvb, offset + 3, 1, tft_flags);
-    proto_tree_add_uint(ext_tree_tft_flags, hf_gtp_tft_spare, tvb, offset + 3, 1, tft_flags);
+    proto_tree_add_uint(ext_tree_tft_flags, hf_gtp_tft_code,   tvb, offset + 3, 1, tft_flags);
+    proto_tree_add_uint(ext_tree_tft_flags, hf_gtp_tft_spare,  tvb, offset + 3, 1, tft_flags);
     proto_tree_add_uint(ext_tree_tft_flags, hf_gtp_tft_number, tvb, offset + 3, 1, tft_flags);
 
     offset = offset + 4;
@@ -5443,22 +5445,22 @@ decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_COMMON_FLGS]);
 
     offset++;
-    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length,              tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     /* Upgrade QoS Supported */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_upgrd_qos_sup, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_upgrd_qos_sup,   tvb, offset, 1, ENC_BIG_ENDIAN);
     /* NRSN bit field */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_nrsn, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_nrsn,            tvb, offset, 1, ENC_BIG_ENDIAN);
     /* No QoS negotiation */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_no_qos_neg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_no_qos_neg,      tvb, offset, 1, ENC_BIG_ENDIAN);
     /* MBMS Counting Information bi */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_cnt_inf, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_cnt_inf,     tvb, offset, 1, ENC_BIG_ENDIAN);
     /* RAN Procedures Ready */
     proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_ran_pcd_rdy, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* MBMS Service Type */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_srv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_srv_type,    tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Prohibit Payload Compression */
-    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_ppc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_ppc,             tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -5884,7 +5886,7 @@ dissect_gtp_mbms_ses_dur(tvbuff_t * tvb _U_, packet_info * pinfo _U_, proto_tree
     int offset = 0;
 
     proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_days, tvb, offset, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_s, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_s,    tvb, offset, 3, ENC_BIG_ENDIAN);
 
     return 3;
 
@@ -6601,9 +6603,9 @@ decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     offset = offset + 2;
     /* TODO add decoding of data */
     proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
-    proto_tree_add_item(ext_tree, hf_gtp_ext_ei, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ext_ei,   tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_ext_gcsi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_gtp_ext_dti, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ext_dti,  tvb, offset, 1, ENC_BIG_ENDIAN);
 #if 0 /* Fix Dead Store Warning */
     offset++;
 #endif
@@ -6838,15 +6840,15 @@ decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P1, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te,  ett_gtp_ies[GTP_EXT_EVO_ALLO_RETE_P1]);
-    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id,      tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pl, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pci, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pvi,   tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pl,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pci,   tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -6874,7 +6876,7 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset = offset + 2;
 
     proto_tree_add_item(ext_tree, hf_gtp_earp_pvi, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ext_tree, hf_gtp_earp_pl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_earp_pl,  tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ext_tree, hf_gtp_earp_pci, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
@@ -6944,7 +6946,7 @@ decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CSG_INF_REP_ACT, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ies[GTP_EXT_CSG_INF_REP_ACT]);
-    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id,      tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -7699,8 +7701,8 @@ static void
 dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     struct _gtp_hdr  gtp_hdr;
-    proto_tree      *gtp_tree, *flags_tree, *ext_tree;
-    proto_item      *ti, *tf, *item;
+    proto_tree      *gtp_tree = NULL, *ext_tree;
+    proto_item      *ti = NULL, *tf, *item;
     int              i, offset, length, gtp_prime, checked_field, mandatory;
     int              seq_no           = 0;
     int              flow_label       = 0;
@@ -7715,7 +7717,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     guint8           acfield_len      = 0;
     guint8           control_field;
     gtp_msg_hash_t  *gcrp             = NULL;
-    conversation_t  *conversation     = NULL;
+    conversation_t  *conversation;
     gtp_conv_info_t *gtp_info;
     void*            pd_save;
 
@@ -7767,10 +7769,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             gtp_version = 1;
             break;
     }
+    gtp_hdr.length = g_ntohs(gtp_hdr.length);
 
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &gtp_message_type_ext, "Unknown"));
 
     if (tree) {
+        proto_tree *flags_tree;
         ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
         gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
@@ -7810,199 +7814,198 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
         proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr.message);
 
-        gtp_hdr.length = g_ntohs(gtp_hdr.length);
         proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr.length);
+    }
 
-        offset = 4;
+    offset = 4;
 
-        if (gtp_prime) {
+    if (gtp_prime) {
+        seq_no = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+        offset += 2;
+        /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, step past it */
+        if( (gtp_version == 0) && ((gtp_hdr.flags & 0x01) == 0) ) {
+            offset = GTPv0_HDR_LENGTH;
+        }
+    } else {
+        switch (gtp_version) {
+        case 0:
             seq_no = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
             offset += 2;
-            /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, step past it */
-            if( (gtp_version == 0) && ((gtp_hdr.flags & 0x01) == 0) ) {
-                offset = GTPv0_HDR_LENGTH;
-            }
-        } else {
-            switch (gtp_version) {
-            case 0:
+
+            flow_label = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
+            offset += 2;
+
+            pdu_no = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
+            offset += 4;
+
+            tid_str = id_to_str(tvb, offset);
+            proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
+            offset += 8;
+            break;
+        case 1:
+            teid = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
+            offset += 4;
+
+            /* Are sequence number/N-PDU Number/extension header present? */
+            if (gtp_hdr.flags & 0x07) {
                 seq_no = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
                 offset += 2;
 
-                flow_label = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
-                offset += 2;
-
                 pdu_no = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
-                offset += 4;
+                proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
+                offset++;
 
-                tid_str = id_to_str(tvb, offset);
-                proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
-                offset += 8;
-                break;
-            case 1:
-                teid = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
-                offset += 4;
+                next_hdr = tvb_get_guint8(tvb, offset);
 
-                /* Are sequence number/N-PDU Number/extension header present? */
-                if (gtp_hdr.flags & 0x07) {
-                    seq_no = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
-                    offset += 2;
+                /* Don't add extension header, we'll add a subtree for that */
+                /* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
 
-                    pdu_no = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
-                    offset++;
+                offset++;
 
-                    next_hdr = tvb_get_guint8(tvb, offset);
+                /* Change to while? */
+                if (next_hdr) {
 
-                    /* Don't add extension header, we'll add a subtree for that */
-                    /* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
+                    /* TODO Add support for more than one extension header */
 
-                    offset++;
+                    noOfExtHdrs++;
 
-                    /* Change to while? */
-                    if (next_hdr) {
+                    tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
+                    ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
 
-                        /* TODO Add support for more than one extension header */
+                    /* PDCP PDU
+                     * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
+                     *
+                     * "This extension header is transmitted, for example in UTRAN, at SRNS relocation time,
+                     * to provide the PDCP sequence number of not yet acknowledged N-PDUs. It is 4 octets long,
+                     *  and therefore the Length field has value 1.
+                     *
+                     *  When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare.
+                     *  The meaning of the spare bits shall be set to zero.
+                     *
+                     * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
+                     */
+                    if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
 
-                        noOfExtHdrs++;
-
-                        tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
-                        ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
-
-                        /* PDCP PDU
-                        * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
-                        *
-                        * "This extension header is transmitted, for example in UTRAN, at SRNS relocation time,
-                        * to provide the PDCP sequence number of not yet acknowledged N-PDUs. It is 4 octets long,
-                        *  and therefore the Length field has value 1.
-                        *
-                        *  When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare.
-                        *  The meaning of the spare bits shall be set to zero.
-                        *
-                        * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
-                        */
-                        if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
-
-                            /* First byte is length (should be 1) */
-                            ext_hdr_length = tvb_get_guint8(tvb, offset);
-                            if (ext_hdr_length != 1) {
-                                    expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
-                            }
-                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
-                            offset++;
-
-                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
-
-                            /* Last is next_hdr */
-                            next_hdr = tvb_get_guint8(tvb, offset);
-                            item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-                            if (next_hdr) {
-                                    expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
-                            }
-                            offset++;
+                        /* First byte is length (should be 1) */
+                        ext_hdr_length = tvb_get_guint8(tvb, offset);
+                        if (ext_hdr_length != 1) {
+                            expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
                         }
+                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
+                        offset++;
+
+                        proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+
+                        /* Last is next_hdr */
+                        next_hdr = tvb_get_guint8(tvb, offset);
+                        item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                        if (next_hdr) {
+                            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
+                        }
+                        offset++;
                     }
                 }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (gtp_hdr.message != GTP_MSG_TPDU) {
+        /* TODO: This code should be cleaned up to handle more than one
+         * header and possibly display the header content */
+        if (next_hdr) {
+            switch (next_hdr) {
+            case 1:
+                /* MBMS support indication */
+                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
+                offset += 3;
+                break;
+            case 2:
+                /* MS Info Change Reporting support indication */
+                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
+                offset += 3;
+                break;
+            case 0xc0:
+                /* PDCP PDU number */
+                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
+                offset += 3;
+                break;
+            case 0xc1:
+                /* Suspend Request */
+                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
+                offset += 3;
+                break;
+            case 0xc2:
+                /* Suspend Response */
+                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
+                offset += 3;
                 break;
             default:
+                proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
+                offset += 3;
                 break;
             }
+            next_hdr = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+            offset++;
         }
-
-        if (gtp_hdr.message != GTP_MSG_TPDU) {
-            /* TODO: This code should be cleaned up to handle more than one
-            * header and possibly display the header content */
+        /* proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");*/
+        length = tvb_length(tvb);
+        mandatory = 0;      /* check order of GTP fields against ETSI */
+        for (;;) {
+            if (offset >= length)
+                break;
             if (next_hdr) {
-                switch (next_hdr) {
-                case 1:
-                    /* MBMS support indication */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
-                    offset += 3;
+                ext_hdr_val = next_hdr;
+                next_hdr = 0;
+            } else
+                ext_hdr_val = tvb_get_guint8(tvb, offset);
+
+            if (g_gtp_etsi_order) {
+                checked_field = check_field_presence(gtp_hdr.message, ext_hdr_val, (int *) &mandatory);
+                switch (checked_field) {
+                case -2:
+                    proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
                     break;
-                case 2:
-                    /* MS Info Change Reporting support indication */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
-                    offset += 3;
+                case -1:
+                    proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] field not present");
                     break;
-                case 0xc0:
-                    /* PDCP PDU number */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
-                    offset += 3;
-                    break;
-                case 0xc1:
-                    /* Suspend Request */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
-                    offset += 3;
-                    break;
-                case 0xc2:
-                    /* Suspend Response */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
-                    offset += 3;
+                case 0:
                     break;
                 default:
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
-                    offset += 3;
+                    proto_tree_add_text(gtp_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s",
+                                        val_to_str_ext_const(checked_field, &gtp_val_ext, "Unknown extension field"));
                     break;
                 }
-                next_hdr = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
-                offset++;
             }
-            /* proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");*/
-            length = tvb_length(tvb);
-            mandatory = 0;      /* check order of GTP fields against ETSI */
-            for (;;) {
-                if (offset >= length)
+
+            i = -1;
+            while (gtpopt[++i].optcode)
+                if (gtpopt[i].optcode == ext_hdr_val)
                     break;
-                if (next_hdr) {
-                    ext_hdr_val = next_hdr;
-                    next_hdr = 0;
-                } else
-                    ext_hdr_val = tvb_get_guint8(tvb, offset);
+            offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree);
+        }
 
-                if (g_gtp_etsi_order) {
-                    checked_field = check_field_presence(gtp_hdr.message, ext_hdr_val, (int *) &mandatory);
-                    switch (checked_field) {
-                    case -2:
-                        proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
-                        break;
-                    case -1:
-                        proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] field not present");
-                        break;
-                    case 0:
-                        break;
-                    default:
-                        proto_tree_add_text(gtp_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s",
-                                val_to_str_ext_const(checked_field, &gtp_val_ext, "Unknown extension field"));
-                        break;
-                    }
-                }
-
-                i = -1;
-                while (gtpopt[++i].optcode)
-                    if (gtpopt[i].optcode == ext_hdr_val)
-                        break;
-                offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree);
-            }
-
-            /*Use sequence number to track Req/Resp pairs*/
-            if (seq_no) {
-                gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr.message);
-                /*pass packet to tap for response time reporting*/
-                if (gcrp) {
-                    tap_queue_packet(gtp_tap,pinfo,gcrp);
-                }
+        /*Use sequence number to track Req/Resp pairs*/
+        if (seq_no) {
+            gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr.message);
+            /*pass packet to tap for response time reporting*/
+            if (gcrp) {
+                tap_queue_packet(gtp_tap,pinfo,gcrp);
             }
         }
-        proto_item_set_len (ti, offset);
     }
+    proto_item_set_len (ti, offset);
 
     if ((gtp_hdr.message == GTP_MSG_TPDU) && g_gtp_tpdu) {
 
@@ -9162,12 +9165,12 @@ proto_register_gtp(void)
 void
 proto_reg_handoff_gtp(void)
 {
-    static gboolean Initialized = FALSE;
+    static gboolean           Initialized = FALSE;
     static dissector_handle_t gtp_handle, gtp_prim_handle;
-    static gboolean gtp_over_tcp;
-    static guint gtpv0_port;
-    static guint gtpv1c_port;
-    static guint gtpv1u_port;
+    static gboolean           gtp_over_tcp;
+    static guint              gtpv0_port;
+    static guint              gtpv1c_port;
+    static guint              gtpv1u_port;
 
     if (!Initialized) {
         gtp_handle = find_dissector("gtp");
@@ -9180,14 +9183,14 @@ proto_reg_handoff_gtp(void)
 
 
 
-        ip_handle = find_dissector("ip");
-        ipv6_handle = find_dissector("ipv6");
-        ppp_handle = find_dissector("ppp");
-        data_handle = find_dissector("data");
-        gtpcdr_handle = find_dissector("gtpcdr");
-        sndcpxid_handle = find_dissector("sndcpxid");
-        gtpv2_handle = find_dissector("gtpv2");
-        bssgp_handle = find_dissector("bssgp");
+        ip_handle            = find_dissector("ip");
+        ipv6_handle          = find_dissector("ipv6");
+        ppp_handle           = find_dissector("ppp");
+        data_handle          = find_dissector("data");
+        gtpcdr_handle        = find_dissector("gtpcdr");
+        sndcpxid_handle      = find_dissector("sndcpxid");
+        gtpv2_handle         = find_dissector("gtpv2");
+        bssgp_handle         = find_dissector("bssgp");
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
@@ -9200,12 +9203,12 @@ proto_reg_handoff_gtp(void)
 
         Initialized = TRUE;
     } else {
-        dissector_delete_uint("udp.port", gtpv0_port, gtp_prim_handle);
+        dissector_delete_uint("udp.port", gtpv0_port,  gtp_prim_handle);
         dissector_delete_uint("udp.port", gtpv1c_port, gtp_handle);
         dissector_delete_uint("udp.port", gtpv1u_port, gtp_handle);
 
         if (gtp_over_tcp) {
-            dissector_delete_uint("tcp.port", gtpv0_port, gtp_prim_handle);
+            dissector_delete_uint("tcp.port", gtpv0_port,  gtp_prim_handle);
             dissector_delete_uint("tcp.port", gtpv1c_port, gtp_handle);
             dissector_delete_uint("tcp.port", gtpv1u_port, gtp_handle);
         }

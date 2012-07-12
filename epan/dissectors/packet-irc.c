@@ -28,16 +28,16 @@
  *
  * See
  *
- *	http://www.irchelp.org/irchelp/rfc/
+ *  http://www.irchelp.org/irchelp/rfc/
  *
  * and the RFCs and other documents it mentions, such as RFC 1459, RFCs
  * 2810, 2811, 2812, and 2813,
  *
- *	http://www.irchelp.org/irchelp/rfc/ctcpspec.html
+ *  http://www.irchelp.org/irchelp/rfc/ctcpspec.html
  *
  * and
  *
- *	http://www.invlogic.com/irc/ctcp.html
+ *  http://www.invlogic.com/irc/ctcp.html
  */
 
 #ifdef HAVE_CONFIG_H
@@ -73,498 +73,495 @@ static gint ett_irc_response_command = -1;
 static const guint8 TAG_DELIMITER[] = {0x01, 0x00};
 
 
-#define TCP_PORT_IRC			6667
-#define TCP_PORT_DIRCPROXY		57000
-	/* good candidate for dynamic port specification */
+#define TCP_PORT_IRC            6667
+#define TCP_PORT_DIRCPROXY      57000
+    /* good candidate for dynamic port specification */
 
 static void
 dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, guint8* command)
 {
-	guchar	found_start_needle = 0,
-			found_end_needle = 0;
-	gint	tag_start_offset, tag_end_offset;
+    guchar found_start_needle = 0,
+           found_end_needle   = 0;
+    gint   tag_start_offset, tag_end_offset;
 
-	tag_start_offset = tvb_pbrk_guint8(tvb, offset, datalen, TAG_DELIMITER, &found_start_needle);
-	if (tag_start_offset == -1)
-	{
-		/* no tag data */
-		return;
-	}
+    tag_start_offset = tvb_pbrk_guint8(tvb, offset, datalen, TAG_DELIMITER, &found_start_needle);
+    if (tag_start_offset == -1)
+    {
+        /* no tag data */
+        return;
+    }
 
-	tag_end_offset = tvb_pbrk_guint8(tvb, offset, datalen-offset, TAG_DELIMITER, &found_end_needle);
-	if (tag_end_offset == -1)
-	{
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
-		return;
-	}
+    tag_end_offset = tvb_pbrk_guint8(tvb, offset, datalen-offset, TAG_DELIMITER, &found_end_needle);
+    if (tag_end_offset == -1)
+    {
+        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
+        return;
+    }
 
-	if ((strcmp(command, "NOTICE") != 0) &&
-	   (strcmp(command, "PRIVMSG") != 0))
-	{
-		expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Tag data outside of NOTICE or PRIVMSG command");
-	}
+    if ((strcmp(command, "NOTICE") != 0) &&
+       (strcmp(command, "PRIVMSG") != 0))
+    {
+        expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Tag data outside of NOTICE or PRIVMSG command");
+    }
 
-	/* Placeholder to call CTCP dissector, strip out delimiter */
-	proto_tree_add_item(tree, hf_irc_ctcp, tvb, offset+1, datalen-2, ENC_ASCII|ENC_NA);
+    /* Placeholder to call CTCP dissector, strip out delimiter */
+    proto_tree_add_item(tree, hf_irc_ctcp, tvb, offset+1, datalen-2, ENC_ASCII|ENC_NA);
 }
 
 static void
 dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int linelen)
 {
-	proto_tree *request_tree, *command_tree = NULL;
-	proto_item *request_item, *command_item;
-	int start_offset = offset;
-	int end_offset = start_offset+linelen;
-	gint eop_offset = -1,
-		eoc_offset = -1,
-		eocp_offset, 
-		tag_start_offset, tag_end_offset;
-	guint8* str_command;
-	guchar found_needle = 0,
-		  found_tag_needle = 0;
-	gboolean first_command_param = TRUE;
+    proto_tree *request_tree, *command_tree = NULL;
+    proto_item *request_item, *command_item;
+    int         start_offset                = offset;
+    int         end_offset                  = start_offset+linelen;
+    gint        eop_offset                  = -1,
+                eoc_offset                  = -1,
+                eocp_offset,
+                tag_start_offset, tag_end_offset;
+    guint8*     str_command;
+    guchar      found_needle                = 0,
+                found_tag_needle            = 0;
+    gboolean    first_command_param         = TRUE;
 
-	request_item = proto_tree_add_item(tree, hf_irc_request, tvb, offset, linelen, ENC_ASCII|ENC_NA);
-	if (linelen <= 0)
-		return;
+    request_item = proto_tree_add_item(tree, hf_irc_request, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    if (linelen <= 0)
+        return;
 
-	request_tree = proto_item_add_subtree(request_item, ett_irc_request );
+    request_tree = proto_item_add_subtree(request_item, ett_irc_request );
 
-	/* Check if message has a prefix */
-	if (tvb_get_guint8(tvb, offset) == ':') 
-	{
-		/* find the end of the prefix */
-		eop_offset = tvb_pbrk_guint8(tvb, offset+1, linelen-1, " ", &found_needle);
-		if (eop_offset == -1)
-		{
-			expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Prefix missing ending <space>");
-			return;
-		}
+    /* Check if message has a prefix */
+    if (tvb_get_guint8(tvb, offset) == ':')
+    {
+        /* find the end of the prefix */
+        eop_offset = tvb_pbrk_guint8(tvb, offset+1, linelen-1, " ", &found_needle);
+        if (eop_offset == -1)
+        {
+            expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Prefix missing ending <space>");
+            return;
+        }
 
-		proto_tree_add_item(request_tree, hf_irc_request_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII|ENC_NA);
-		found_needle = 0;
-		offset = eop_offset+1;
-	}
+        proto_tree_add_item(request_tree, hf_irc_request_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII|ENC_NA);
+        found_needle = 0;
+        offset = eop_offset+1;
+    }
 
-	/* clear out any whitespace before command */
-	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
-	{
-		offset++;
-	}
-	if (offset == end_offset)
-	{
-		expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Request has no command");
-		return;
-	}
+    /* clear out any whitespace before command */
+    while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
+    {
+        offset++;
+    }
+    if (offset == end_offset)
+    {
+        expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Request has no command");
+        return;
+    }
 
-	eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
-	if (eoc_offset == -1) 
-	{
-		proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
-		col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, linelen-offset));
+    eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
+    if (eoc_offset == -1)
+    {
+        proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
+        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, linelen-offset));
 
-		/* Warn if there is a "numeric" command */
-		if ((linelen-offset == 3) &&
-			(isdigit(tvb_get_guint8(tvb, offset))) &&
-			(isdigit(tvb_get_guint8(tvb, offset+1))) &&
-			(isdigit(tvb_get_guint8(tvb, offset+2))))
-		{
-			expert_add_info_format(pinfo, request_item, PI_PROTOCOL, PI_WARN, "Numeric command not allowed in request");
-		}
-		return;
-	}
+        /* Warn if there is a "numeric" command */
+        if ((linelen-offset == 3) &&
+            (isdigit(tvb_get_guint8(tvb, offset))) &&
+            (isdigit(tvb_get_guint8(tvb, offset+1))) &&
+            (isdigit(tvb_get_guint8(tvb, offset+2))))
+        {
+            expert_add_info_format(pinfo, request_item, PI_PROTOCOL, PI_WARN, "Numeric command not allowed in request");
+        }
+        return;
+    }
 
-	proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
-	str_command = tvb_get_ephemeral_string(tvb, offset, eoc_offset-offset);
-	col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
+    proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
+    str_command = tvb_get_ephemeral_string(tvb, offset, eoc_offset-offset);
+    col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
-	/* Warn if there is a "numeric" command */
-	if ((eoc_offset-offset == 3) &&
-	   (isdigit(tvb_get_guint8(tvb, offset))) &&
-	   (isdigit(tvb_get_guint8(tvb, offset+1))) &&
-	   (isdigit(tvb_get_guint8(tvb, offset+2))))
-	{
-		expert_add_info_format(pinfo, request_item, PI_PROTOCOL, PI_WARN, "Numeric command not allowed in request");
-	}
+    /* Warn if there is a "numeric" command */
+    if ((eoc_offset-offset == 3) &&
+       (isdigit(tvb_get_guint8(tvb, offset))) &&
+       (isdigit(tvb_get_guint8(tvb, offset+1))) &&
+       (isdigit(tvb_get_guint8(tvb, offset+2))))
+    {
+        expert_add_info_format(pinfo, request_item, PI_PROTOCOL, PI_WARN, "Numeric command not allowed in request");
+    }
 
-	found_needle = 0;
-	offset = eoc_offset+1;
+    found_needle = 0;
+    offset = eoc_offset+1;
 
-	/* clear out any whitespace before command parameter */
-	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
-	{
-		offset++;
-	}
-	if (offset == end_offset)
-	{
-		/* No command parameters */
-		return;
-	}
+    /* clear out any whitespace before command parameter */
+    while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
+    {
+        offset++;
+    }
+    if (offset == end_offset)
+    {
+        /* No command parameters */
+        return;
+    }
 
-	/* Check if message has a trailer */
-	if (tvb_get_guint8(tvb, offset) == ':') 
-	{
-		proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-		dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
-		return;
-	}
+    /* Check if message has a trailer */
+    if (tvb_get_guint8(tvb, offset) == ':')
+    {
+        proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
+        dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+        return;
+    }
 
-	while(offset < end_offset)
-	{
-		eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
-		tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
+    while(offset < end_offset)
+    {
+        eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
+        tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
 
-		/* Create subtree when the first parameter is found */
-		if (first_command_param)
-		{
-			command_item = proto_tree_add_text(request_tree, tvb, offset, linelen-offset, "Command parameters");
-			command_tree = proto_item_add_subtree(command_item, ett_irc_request_command );
-			first_command_param = FALSE;
-		}
+        /* Create subtree when the first parameter is found */
+        if (first_command_param)
+        {
+            command_item = proto_tree_add_text(request_tree, tvb, offset, linelen-offset, "Command parameters");
+            command_tree = proto_item_add_subtree(command_item, ett_irc_request_command );
+            first_command_param = FALSE;
+        }
 
-		if (((eocp_offset == -1) && (tag_start_offset == -1)) ||
-			((eocp_offset != -1) && (tag_start_offset == -1)) ||
-			(eocp_offset < tag_start_offset))
-		{
-			/* regular message should be dissected */
+        if (((eocp_offset == -1) && (tag_start_offset == -1)) ||
+            ((eocp_offset != -1) && (tag_start_offset == -1)) ||
+            (eocp_offset < tag_start_offset))
+        {
+            /* regular message should be dissected */
 
-			found_needle = 0;
-			if (eocp_offset == -1)
-			{
-				proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
-				return;
-			}
+            found_needle = 0;
+            if (eocp_offset == -1)
+            {
+                proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
+                return;
+            }
 
-			proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII|ENC_NA);
-			offset = eocp_offset+1;
+            proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII|ENC_NA);
+            offset = eocp_offset+1;
 
-			/* clear out any whitespace before next command parameter */
-			while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
-			{
-				offset++;
-			}
-			if (offset == end_offset)
-			{
-				break;
-			}
+            /* clear out any whitespace before next command parameter */
+            while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
+            {
+                offset++;
+            }
+            if (offset == end_offset)
+            {
+                break;
+            }
 
-			/* Check if message has a trailer */
-			if (tvb_get_guint8(tvb, offset) == ':') 
-			{
-				proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-				dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
-				return;
-			}
-		}
-		else if (((eocp_offset == -1) && (tag_start_offset != -1)) ||
-			   (eocp_offset > tag_start_offset))
-		{
-			/* tag data dissected */
+            /* Check if message has a trailer */
+            if (tvb_get_guint8(tvb, offset) == ':')
+            {
+                proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
+                dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+                return;
+            }
+        }
+        else if (((eocp_offset == -1) && (tag_start_offset != -1)) ||
+               (eocp_offset > tag_start_offset))
+        {
+            /* tag data dissected */
 
-			found_tag_needle = 0;
-			tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, linelen-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
-			if (tag_end_offset == -1)
-			{
-				expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
-				return;
-			}
+            found_tag_needle = 0;
+            tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, linelen-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
+            if (tag_end_offset == -1)
+            {
+                expert_add_info_format(pinfo, request_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
+                return;
+            }
 
-			dissect_irc_tag_data(request_tree, request_item, tvb, tag_start_offset, tag_end_offset-tag_start_offset, pinfo, str_command);
-			offset = tag_end_offset+1;
-		}
-	}
+            dissect_irc_tag_data(request_tree, request_item, tvb, tag_start_offset, tag_end_offset-tag_start_offset, pinfo, str_command);
+            offset = tag_end_offset+1;
+        }
+    }
 }
 
 static void
 dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int linelen)
 {
-	proto_tree *response_tree, *command_tree = NULL;
-	proto_item *response_item, *command_item, *hidden_item;
-	int start_offset = offset;
-	int end_offset = start_offset+linelen;
-	gint eop_offset = -1,
-		eoc_offset = -1,
-		eocp_offset, 
-		tag_start_offset, tag_end_offset;
-	guint8* str_command;
-	guint16 num_command;
-	guchar found_needle = 0,
-		  found_tag_needle = 0;
-	gboolean first_command_param = TRUE;
+    proto_tree *response_tree, *command_tree = NULL;
+    proto_item *response_item, *command_item, *hidden_item;
+    int         start_offset                 = offset;
+    int         end_offset                   = start_offset+linelen;
+    gint        eop_offset                   = -1,
+                eoc_offset                   = -1,
+                eocp_offset,
+                tag_start_offset, tag_end_offset;
+    guint8*     str_command;
+    guint16     num_command;
+    guchar      found_needle                 = 0,
+                found_tag_needle             = 0;
+    gboolean    first_command_param          = TRUE;
 
-	response_item = proto_tree_add_item(tree, hf_irc_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
-	if (linelen <= 0)
-		return;
+    response_item = proto_tree_add_item(tree, hf_irc_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    if (linelen <= 0)
+        return;
 
-	response_tree = proto_item_add_subtree(response_item, ett_irc_response );
+    response_tree = proto_item_add_subtree(response_item, ett_irc_response );
 
-	/* Check if message has a prefix */
-	if (tvb_get_guint8(tvb, offset) == ':') 
-	{
-		/* find the end of the prefix */
-		eop_offset = tvb_pbrk_guint8(tvb, offset+1, linelen-1, " ", &found_needle);
-		if (eop_offset == -1)
-		{
-			expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Prefix missing ending <space>");
-			return;
-		}
+    /* Check if message has a prefix */
+    if (tvb_get_guint8(tvb, offset) == ':')
+    {
+        /* find the end of the prefix */
+        eop_offset = tvb_pbrk_guint8(tvb, offset+1, linelen-1, " ", &found_needle);
+        if (eop_offset == -1)
+        {
+            expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Prefix missing ending <space>");
+            return;
+        }
 
-		proto_tree_add_item(response_tree, hf_irc_response_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII|ENC_NA);
-		found_needle = 0;
-		offset = eop_offset+1;
-	}
+        proto_tree_add_item(response_tree, hf_irc_response_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII|ENC_NA);
+        found_needle = 0;
+        offset = eop_offset+1;
+    }
 
-	/* clear out any whitespace before command */
-	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
-	{
-		offset++;
-	}
-	if (offset == end_offset)
-	{
-		expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Response has no command");
-		return;
-	}
+    /* clear out any whitespace before command */
+    while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
+    {
+        offset++;
+    }
+    if (offset == end_offset)
+    {
+        expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Response has no command");
+        return;
+    }
 
-	eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
-	if (eoc_offset == -1) 
-	{
-		proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
-		col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, linelen-offset));
+    eoc_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
+    if (eoc_offset == -1)
+    {
+        proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
+        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_ephemeral_string(tvb, offset, linelen-offset));
 
-		/* if response command is numeric, allow it to be filtered as an integer */
-		if ((linelen-offset == 3) &&
-			(isdigit(tvb_get_guint8(tvb, offset))) &&
-			(isdigit(tvb_get_guint8(tvb, offset+1))) &&
-			(isdigit(tvb_get_guint8(tvb, offset+2))))
-		{
-			num_command = ((tvb_get_guint8(tvb, offset)-0x30)*100) + ((tvb_get_guint8(tvb, offset+1)-0x30)*10) + (tvb_get_guint8(tvb, offset+2)-0x30);
-			hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, linelen-offset, num_command);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
-		}
-		return;
-	}
+        /* if response command is numeric, allow it to be filtered as an integer */
+        if ((linelen-offset == 3) &&
+            (isdigit(tvb_get_guint8(tvb, offset))) &&
+            (isdigit(tvb_get_guint8(tvb, offset+1))) &&
+            (isdigit(tvb_get_guint8(tvb, offset+2))))
+        {
+            num_command = ((tvb_get_guint8(tvb, offset)-0x30)*100) + ((tvb_get_guint8(tvb, offset+1)-0x30)*10) + (tvb_get_guint8(tvb, offset+2)-0x30);
+            hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, linelen-offset, num_command);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+        }
+        return;
+    }
 
-	proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
-	str_command = tvb_get_ephemeral_string(tvb, offset, eoc_offset-offset);
-	col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
+    proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
+    str_command = tvb_get_ephemeral_string(tvb, offset, eoc_offset-offset);
+    col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
-	/* if response command is numeric, allow it to be filtered as an integer */
-	if ((eoc_offset-offset == 3) &&
-	   (isdigit(tvb_get_guint8(tvb, offset))) &&
-	   (isdigit(tvb_get_guint8(tvb, offset+1))) &&
-	   (isdigit(tvb_get_guint8(tvb, offset+2))))
-	{
-		num_command = ((tvb_get_guint8(tvb, offset)-0x30)*100) + ((tvb_get_guint8(tvb, offset+1)-0x30)*10) + (tvb_get_guint8(tvb, offset+2)-0x30);
-		hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, eoc_offset-offset, num_command);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
-	}
+    /* if response command is numeric, allow it to be filtered as an integer */
+    if ((eoc_offset-offset == 3) &&
+       (isdigit(tvb_get_guint8(tvb, offset))) &&
+       (isdigit(tvb_get_guint8(tvb, offset+1))) &&
+       (isdigit(tvb_get_guint8(tvb, offset+2))))
+    {
+        num_command = ((tvb_get_guint8(tvb, offset)-0x30)*100) + ((tvb_get_guint8(tvb, offset+1)-0x30)*10) + (tvb_get_guint8(tvb, offset+2)-0x30);
+        hidden_item = proto_tree_add_uint(response_tree, hf_irc_response_num_command, tvb, offset, eoc_offset-offset, num_command);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+    }
 
-	found_needle = 0;
-	offset = eoc_offset+1;
+    found_needle = 0;
+    offset = eoc_offset+1;
 
-	/* clear out any whitespace before command parameter */
-	while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
-	{
-		offset++;
-	}
-	if (offset == end_offset)
-	{
-		/* No command parameters */
-		return;
-	}
+    /* clear out any whitespace before command parameter */
+    while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
+    {
+        offset++;
+    }
+    if (offset == end_offset)
+    {
+        /* No command parameters */
+        return;
+    }
 
-	/* Check if message has a trailer */
-	if (tvb_get_guint8(tvb, offset) == ':') 
-	{
-		proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-		dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
-		return;
-	}
+    /* Check if message has a trailer */
+    if (tvb_get_guint8(tvb, offset) == ':')
+    {
+        proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
+        dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+        return;
+    }
 
-	while(offset < end_offset)
-	{
-		eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
-		tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
+    while(offset < end_offset)
+    {
+        eocp_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, " ", &found_needle);
+        tag_start_offset = tvb_pbrk_guint8(tvb, offset, linelen-offset, TAG_DELIMITER, &found_tag_needle);
 
-		/* Create subtree when the first parameter is found */
-		if (first_command_param)
-		{
-			command_item = proto_tree_add_text(response_tree, tvb, offset, linelen-offset, "Command parameters");
-			command_tree = proto_item_add_subtree(command_item, ett_irc_response_command );
-			first_command_param = FALSE;
-		}
+        /* Create subtree when the first parameter is found */
+        if (first_command_param)
+        {
+            command_item = proto_tree_add_text(response_tree, tvb, offset, linelen-offset, "Command parameters");
+            command_tree = proto_item_add_subtree(command_item, ett_irc_response_command );
+            first_command_param = FALSE;
+        }
 
-		if (((eocp_offset == -1) && (tag_start_offset == -1)) ||
-			((eocp_offset != -1) && (tag_start_offset == -1)) ||
-			(eocp_offset < tag_start_offset))
-		{
-			/* regular message should be dissected */
+        if (((eocp_offset == -1) && (tag_start_offset == -1)) ||
+            ((eocp_offset != -1) && (tag_start_offset == -1)) ||
+            (eocp_offset < tag_start_offset))
+        {
+            /* regular message should be dissected */
 
-			found_needle = 0;
-			if (eocp_offset == -1)
-			{
-				proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
-				return;
-			}
+            found_needle = 0;
+            if (eocp_offset == -1)
+            {
+                proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, linelen-offset, ENC_ASCII|ENC_NA);
+                return;
+            }
 
-			proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII|ENC_NA);
-			offset = eocp_offset+1;
+            proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII|ENC_NA);
+            offset = eocp_offset+1;
 
-			/* clear out any whitespace before next command parameter */
-			while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
-			{
-				offset++;
-			}
-			if (offset == end_offset)
-			{
-				break;
-			}
+            /* clear out any whitespace before next command parameter */
+            while(offset < end_offset && tvb_get_guint8(tvb, offset) == ' ')
+            {
+                offset++;
+            }
+            if (offset == end_offset)
+            {
+                break;
+            }
 
-			/* Check if message has a trailer */
-			if (tvb_get_guint8(tvb, offset) == ':') 
-			{
-				proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
-				dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
-				return;
-			}
-		}
-		else if (((eocp_offset == -1) && (tag_start_offset != -1)) ||
-			   (eocp_offset > tag_start_offset))
-		{
-			/* tag data dissected */
+            /* Check if message has a trailer */
+            if (tvb_get_guint8(tvb, offset) == ':')
+            {
+                proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, linelen-offset-1, ENC_ASCII|ENC_NA);
+                dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, linelen-offset-1, pinfo, str_command);
+                return;
+            }
+        }
+        else if (((eocp_offset == -1) && (tag_start_offset != -1)) ||
+               (eocp_offset > tag_start_offset))
+        {
+            /* tag data dissected */
 
-			found_tag_needle = 0;
-			tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, linelen-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
-			if (tag_end_offset == -1)
-			{
-				expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
-				return;
-			}
+            found_tag_needle = 0;
+            tag_end_offset = tvb_pbrk_guint8(tvb, tag_start_offset+1, linelen-tag_start_offset-1, TAG_DELIMITER, &found_tag_needle);
+            if (tag_end_offset == -1)
+            {
+                expert_add_info_format(pinfo, response_item, PI_MALFORMED, PI_ERROR, "Missing ending tag delimited (0x01)");
+                return;
+            }
 
-			dissect_irc_tag_data(response_tree, response_item, tvb, tag_start_offset, tag_end_offset-tag_start_offset, pinfo, str_command);
-			offset = tag_end_offset+1;
-		}
-	}
+            dissect_irc_tag_data(response_tree, response_item, tvb, tag_start_offset, tag_end_offset-tag_start_offset, pinfo, str_command);
+            offset = tag_end_offset+1;
+        }
+    }
 }
 
 static void
 dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree      *irc_tree, *ti;
-	gint		offset = 0;
-	gint		next_offset;
-	int		linelen;
+    proto_tree *irc_tree, *ti;
+    gint        offset = 0;
+    gint        next_offset;
+    int         linelen;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IRC");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IRC");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_set_str(pinfo->cinfo, COL_INFO,
-		    (pinfo->match_uint == pinfo->destport) ? "Request" : "Response");
-	}
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_set_str(pinfo->cinfo, COL_INFO,
+            (pinfo->match_uint == pinfo->destport) ? "Request" : "Response");
+    }
 
-	if (tree)
-	{
-		ti = proto_tree_add_item(tree, proto_irc, tvb, 0, -1, ENC_NA);
-		irc_tree = proto_item_add_subtree(ti, ett_irc);
+    ti = proto_tree_add_item(tree, proto_irc, tvb, 0, -1, ENC_NA);
+    irc_tree = proto_item_add_subtree(ti, ett_irc);
 
-		/*
-		 * Process the packet data, a line at a time.
-		 */
-		while (tvb_reported_length_remaining(tvb, offset) > 0)
-		{
-			/*
-			 * Find the end of the line.
-			 */
-			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-			if (next_offset == offset) {
-				/*
-				 * XXX - we really want the "show data a
-				 * line at a time" loops in various
-				 * dissectors to do reassembly and to
-				 * throw an exception if there's no
-				 * line ending in the current packet
-				 * and we're not doing reassembly.
-				 */
-				break;
-			}
+    /*
+     * Process the packet data, a line at a time.
+     */
+    while (tvb_reported_length_remaining(tvb, offset) > 0)
+    {
+        /*
+         * Find the end of the line.
+         */
+        linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+        if (next_offset == offset) {
+            /*
+             * XXX - we really want the "show data a
+             * line at a time" loops in various
+             * dissectors to do reassembly and to
+             * throw an exception if there's no
+             * line ending in the current packet
+             * and we're not doing reassembly.
+             */
+            break;
+        }
 
-			if (linelen != 0)
-			{
-				if (pinfo->match_uint == pinfo->destport)
-				{
-					dissect_irc_request(irc_tree, tvb, pinfo, offset, linelen);
-				}
-				else
-				{
-					dissect_irc_response(irc_tree, tvb, pinfo, offset, linelen);
-				}
-			}
-			offset = next_offset;
-		}
-	}
+        if (linelen != 0)
+        {
+            if (pinfo->match_uint == pinfo->destport)
+            {
+                dissect_irc_request(irc_tree, tvb, pinfo, offset, linelen);
+            }
+            else
+            {
+                dissect_irc_response(irc_tree, tvb, pinfo, offset, linelen);
+            }
+        }
+        offset = next_offset;
+    }
 }
 
 void
 proto_register_irc(void)
 {
-	static hf_register_info hf[] = {
-		{ &hf_irc_response, { "Response", "irc.response", FT_STRING, BASE_NONE,
-		  NULL, 0x0, "Line of response message", HFILL }},
+    static hf_register_info hf[] = {
+        { &hf_irc_response, { "Response", "irc.response", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Line of response message", HFILL }},
 
-		{ &hf_irc_request, { "Request", "irc.request", FT_STRING, BASE_NONE,
-		  NULL, 0x0, "Line of request message", HFILL }},
+        { &hf_irc_request, { "Request", "irc.request", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Line of request message", HFILL }},
 
-		{ &hf_irc_request_prefix, { "Prefix", "irc.request.prefix", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Request prefix", HFILL }},
+        { &hf_irc_request_prefix, { "Prefix", "irc.request.prefix", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Request prefix", HFILL }},
 
-		{ &hf_irc_request_command, { "Command", "irc.request.command", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Request command", HFILL }},
+        { &hf_irc_request_command, { "Command", "irc.request.command", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Request command", HFILL }},
 
-		{ &hf_irc_request_command_param, { "Parameter", "irc.request.command_parameter", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Request command parameter", HFILL }},
+        { &hf_irc_request_command_param, { "Parameter", "irc.request.command_parameter", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Request command parameter", HFILL }},
 
-		{ &hf_irc_request_trailer, { "Trailer", "irc.request.trailer", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Request trailer", HFILL }},
+        { &hf_irc_request_trailer, { "Trailer", "irc.request.trailer", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Request trailer", HFILL }},
 
-		{ &hf_irc_response_prefix, { "Prefix", "irc.response.prefix", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Response prefix", HFILL }},
+        { &hf_irc_response_prefix, { "Prefix", "irc.response.prefix", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Response prefix", HFILL }},
 
-		{ &hf_irc_response_command, { "Command", "irc.response.command", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Response command", HFILL }},
+        { &hf_irc_response_command, { "Command", "irc.response.command", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Response command", HFILL }},
 
-		{ &hf_irc_response_num_command, { "Command", "irc.response.command", FT_UINT16, BASE_DEC, 
-		  NULL, 0x0, "Response (numeric) command", HFILL }},
+        { &hf_irc_response_num_command, { "Command", "irc.response.command", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "Response (numeric) command", HFILL }},
 
-		{ &hf_irc_response_command_param, { "Parameter", "irc.response.command_parameter", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Response command parameter", HFILL }},
+        { &hf_irc_response_command_param, { "Parameter", "irc.response.command_parameter", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Response command parameter", HFILL }},
 
-		{ &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Response trailer", HFILL }},
+        { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Response trailer", HFILL }},
 
-		{ &hf_irc_ctcp, { "CTCP Data", "irc.ctcp", FT_STRING, BASE_NONE, 
-		  NULL, 0x0, "Placeholder to dissect CTCP data", HFILL }}
-	};
+        { &hf_irc_ctcp, { "CTCP Data", "irc.ctcp", FT_STRING, BASE_NONE,
+          NULL, 0x0, "Placeholder to dissect CTCP data", HFILL }}
+    };
 
-	static gint *ett[] = {
-		&ett_irc,
-		&ett_irc_request,
-		&ett_irc_request_command,
-		&ett_irc_response,
-		&ett_irc_response_command
-	};
+    static gint *ett[] = {
+        &ett_irc,
+        &ett_irc_request,
+        &ett_irc_request_command,
+        &ett_irc_response,
+        &ett_irc_response_command
+    };
 
-	proto_irc = proto_register_protocol("Internet Relay Chat", "IRC", "irc");
-	proto_register_field_array(proto_irc, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_irc = proto_register_protocol("Internet Relay Chat", "IRC", "irc");
+    proto_register_field_array(proto_irc, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_irc(void)
 {
-	dissector_handle_t irc_handle;
+    dissector_handle_t irc_handle;
 
-	irc_handle = create_dissector_handle(dissect_irc, proto_irc);
-	dissector_add_uint("tcp.port", TCP_PORT_IRC, irc_handle);
-	dissector_add_uint("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
+    irc_handle = create_dissector_handle(dissect_irc, proto_irc);
+    dissector_add_uint("tcp.port", TCP_PORT_IRC, irc_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
 }
