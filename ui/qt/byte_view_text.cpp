@@ -261,7 +261,7 @@ ByteViewText::hexPrintCommon()
                 else {
                     g_assert_not_reached();
                 }
-                line += isprint(c) ? c : '.';
+                line += isascii(c) && isprint(c) ? c : '.';
             } else {
                 line += ' ';
             }
