@@ -30,12 +30,13 @@
 # _SOURCES variables).
 LIBWSUTIL_SRC = 	\
 	airpdcap_wep.c	\
+	crc6.c		\
+	crc7.c		\
+	crc8.c		\
 	crc10.c		\
 	crc16.c		\
 	crc16-plain.c	\
 	crc32.c		\
-	crc6.c		\
-	crc8.c		\
 	crcdrm.c	\
 	mpeg-audio.c	\
 	privileges.c	\
@@ -45,11 +46,12 @@ LIBWSUTIL_SRC = 	\
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
 	crc6.h		\
+	crc7.h		\
+	crc8.h		\
 	crc10.h		\
 	crc16.h		\
 	crc16-plain.h	\
 	crc32.h		\
-	crc8.h		\
 	crcdrm.h	\
 	mpeg-audio.h	\
 	privileges.h	\
