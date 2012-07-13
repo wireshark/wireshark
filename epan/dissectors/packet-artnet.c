@@ -553,7 +553,7 @@ static const value_string artnet_oem_code_vals[] = {
   { 0x0ae0, "chainzone:RoundTable:0 DMX Inputs, 1 DMX Outputs, emulated, No RDM" },
   { 0x0af0, "City Theatrical, Inc.:PDS-750TRX:0 DMX Inputs, 1 DMX Outputs, physical, RDM supported" },
   { 0x0af1, "City Theatrical, Inc.:PDS-375TRX:0 DMX Inputs, 1 DMX Outputs, physical, RDM supported" },
-  { 0x0ae0, "STC Mecatronica:DDR 2404 Digital Dimmer Rack:2 DMX Inputs, 0 DMX Outputs, physical, RDM supported" },
+  { 0x0b00, "STC Mecatronica:DDR 2404 Digital Dimmer Rack:2 DMX Inputs, 0 DMX Outputs, physical, RDM supported" },
   { 0x0b10, "LSC:LSC*:0 DMX Inputs, 1 DMX Outputs, No RDM" },
   { 0x0b11, "LSC:LSC*:1 DMX Inputs, 0 DMX Outputs, No RDM" },
   { 0x0b12, "LSC:LSC*:0 DMX Inputs, 4 DMX Outputs, No RDM" },
