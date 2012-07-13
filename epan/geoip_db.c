@@ -159,11 +159,11 @@ static void geoip_db_post_update_cb(void) {
          * or GeoIP_open() */
         gi = g_array_index(geoip_dat_arr, GeoIP *, i);
         if (gi) {
-            free(gi);
+            g_free(gi);
         }
         gi = g_array_index(geoip_dat_arr, GeoIP *, i+1);
         if (gi) {
-            free(gi);
+            g_free(gi);
         }
         /* finally, free the array itself */
         g_array_free(geoip_dat_arr, TRUE);
