@@ -58,14 +58,6 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 
-#define TXT_WIDTH	850
-#define TXT_HEIGHT	550
-
-/* for compare_headers() */
-/* segment went the same direction as the currently selected one */
-#define COMPARE_CURR_DIR	0
-#define COMPARE_ANY_DIR		1
-
 /* initialize_axis() */
 #define AXIS_HORIZONTAL		0
 #define AXIS_VERTICAL		1
@@ -211,9 +203,6 @@ struct graph {
     int flags;
     GtkWidget *toplevel;	/* keypress handler needs this */
     GtkWidget *drawing_area;
-    GtkWidget *text;	/* text widget for seg list - probably
-                         * temporary
-                         */
     PangoFontDescription *font;	/* font used for annotations etc. */
 #if GTK_CHECK_VERSION(2,22,0)
     cairo_surface_t *title_surface;
@@ -388,9 +377,7 @@ static char helptext[] =
 
 static void set_busy_cursor(GdkWindow *w)
 {
-    GdkCursor* cursor;
-
-    cursor = gdk_cursor_new(GDK_WATCH);
+    GdkCursor* cursor = gdk_cursor_new(GDK_WATCH);
     gdk_window_set_cursor(w, cursor);
     gdk_flush();
 #if GTK_CHECK_VERSION(3,0,0)
@@ -438,9 +425,7 @@ void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
 
     graph_segment_list_get(g);
     create_gui(g);
-    /* display_text(g); */
     graph_init_sequence(g);
-
 }
 
 static void create_gui(struct graph *g)
@@ -566,13 +551,9 @@ static void create_drawing_area(struct graph *g)
      * not fully set up yet - namely we're not sure about actual geometry
      * and we don't have the GC's at all. so we just postpone installation
      * of configure handler until we're ready to deal with it.
-     *
-     * !!! NEMLLO BY TO BYT NA KONCI graph_init_sequence()? !!!
-     *
      */
 #endif
-    g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event),
-                       g);
+    g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event), g);
 
     /* puts("exiting create_drawing_area()"); */
 }
@@ -817,7 +798,6 @@ static void graph_segment_list_get(struct graph *g)
 
     debug(DBS_FENTRY) puts("graph_segment_list_get()");
     select_rlc_lte_session(&cfile, &current);
-    ts.direction = COMPARE_ANY_DIR;
 
     /* rescan all the packets and pick up all frames for this channel.
      * we only filter for LTE RLC here for speed and do the actual compare
@@ -1823,6 +1803,7 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
     axis_pixmaps_switch(g->y_axis);
     return TRUE;
 }
+
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean
 draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
@@ -2045,14 +2026,18 @@ static void do_zoom_out_keyboard(struct graph *g)
 
 static void do_key_motion(struct graph *g)
 {
-    if (g->geom.x > g->wp.x)
+    if (g->geom.x > g->wp.x) {
         g->geom.x = g->wp.x;
-    if (g->geom.y > g->wp.y)
+    }
+    if (g->geom.y > g->wp.y) {
         g->geom.y = g->wp.y;
-    if (g->wp.x + g->wp.width > g->geom.x + g->geom.width)
+    }
+    if (g->wp.x + g->wp.width > g->geom.x + g->geom.width) {
         g->geom.x = g->wp.width + g->wp.x - g->geom.width;
-    if (g->wp.y + g->wp.height > g->geom.y + g->geom.height)
+    }
+    if (g->wp.y + g->wp.height > g->geom.y + g->geom.height) {
         g->geom.y = g->wp.height + g->wp.y - g->geom.height;
+    }
 
     graph_display(g);
     axis_display(g->y_axis);
@@ -2183,6 +2168,7 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
     return TRUE;
 }
 
+/* TODO: just lost this function and don't register for its handler? */
 static gboolean key_release_event(GtkWidget *widget _U_, GdkEventKey *event _U_, gpointer user_data _U_)
 {
     return TRUE;
@@ -2203,6 +2189,7 @@ static void restore_initial_graph_view(struct graph *g)
     graph_init_sequence(g);
 }
 
+/* Walk the segment list, totalling up data PDUs, status ACKs and NACKs */
 static void get_data_control_counts(struct graph *g, int *data, int *acks, int *nacks)
 {
     struct segment *tmp;
