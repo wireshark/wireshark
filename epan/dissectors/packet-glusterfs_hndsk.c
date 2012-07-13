@@ -38,9 +38,8 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
+
 #include <epan/packet.h>
-#include <epan/tfs.h>
 
 #include "packet-rpc.h"
 #include "packet-gluster.h"
@@ -177,13 +176,13 @@ gluster_hndsk_2_event_notify_reply(tvbuff_t *tvb, int offset,
 }
 
 static const vsff gluster_hndsk_proc[] = {
-	{ GF_HNDSK_NULL, "NULL", NULL, NULL },
+	{ GF_HNDSK_NULL,    "NULL",    NULL, NULL },
 	{
 		GF_HNDSK_SETVOLUME, "SETVOLUME",
 		gluster_hndsk_setvolume_call, gluster_hndsk_setvolume_reply
 	},
 	{ GF_HNDSK_GETSPEC, "GETSPEC", NULL, NULL },
-	{ GF_HNDSK_PING, "PING", NULL, gluster_dissect_common_reply },
+	{ GF_HNDSK_PING,    "PING",    NULL, gluster_dissect_common_reply },
 	{ 0, NULL, NULL, NULL }
 };
 
@@ -212,11 +211,11 @@ static const vsff gluster_hndsk_2_proc[] = {
 
 
 static const value_string gluster_hndsk_proc_vals[] = {
-	{ GF_HNDSK_NULL, "NULL" },
-	{ GF_HNDSK_SETVOLUME, "DUMP" },
-	{ GF_HNDSK_GETSPEC, "GETSPEC" },
-	{ GF_HNDSK_PING, "PING" },
-	{ GF_HNDSK_SET_LK_VER,"LOCK VERSION" },
+	{ GF_HNDSK_NULL,         "NULL" },
+	{ GF_HNDSK_SETVOLUME,    "DUMP" },
+	{ GF_HNDSK_GETSPEC,      "GETSPEC" },
+	{ GF_HNDSK_PING,         "PING" },
+	{ GF_HNDSK_SET_LK_VER,   "LOCK VERSION" },
 	{ GF_HNDSK_EVENT_NOTIFY, "EVENTNOTIFY" },
 	{ 0, NULL }
 };
@@ -291,13 +290,13 @@ proto_reg_handoff_gluster_hndsk(void)
 
 /* Legacy GlusterFS Callback procedures, they don't contain any data. */
 static const vsff gluster_cbk_proc[] = {
-	{ GF_CBK_NULL, "NULL", NULL, NULL },
+	{ GF_CBK_NULL,      "NULL",      NULL, NULL },
 	{ GF_CBK_FETCHSPEC, "FETCHSPEC", NULL, NULL },
 	{ GF_CBK_INO_FLUSH, "INO_FLUSH", NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string gluster_cbk_proc_vals[] = {
-	{ GF_CBK_NULL, "NULL" },
+	{ GF_CBK_NULL,      "NULL" },
 	{ GF_CBK_FETCHSPEC, "FETCHSPEC" },
 	{ GF_CBK_INO_FLUSH, "INO_FLUSH" },
 	{ 0, NULL }

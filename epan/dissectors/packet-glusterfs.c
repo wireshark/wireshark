@@ -38,9 +38,8 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
+
 #include <epan/packet.h>
-#include <epan/tfs.h>
 #include <epan/guid-utils.h>
 
 #include "packet-rpc.h"
@@ -1019,7 +1018,7 @@ static int
 glusterfs_gfs3_3_op_symlink_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
-	gchar *bname = NULL;
+	gchar *bname    = NULL;
 	gchar *linkname = NULL;
 
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
@@ -1479,7 +1478,7 @@ glusterfs_gfs3_3_op_entrylk_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree)
 {
 	gchar* volume = NULL;
-	gchar* name = NULL;
+	gchar* name   = NULL;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_cmd, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_type, offset);
@@ -1682,23 +1681,23 @@ glusterfs_gfs3_3_op_common_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * - xlators/protocol/server/src/server3_1-fops.c
  */
 static const vsff glusterfs3_1_fop_proc[] = {
-	{ GFS3_OP_NULL, "NULL", NULL, NULL },
-	{ GFS3_OP_STAT, "STAT", NULL, NULL },
+	{ GFS3_OP_NULL,     "NULL",     NULL, NULL },
+	{ GFS3_OP_STAT,     "STAT",     NULL, NULL },
 	{ GFS3_OP_READLINK, "READLINK", NULL, NULL },
-	{ GFS3_OP_MKNOD, "MKNOD", NULL, NULL },
-	{ GFS3_OP_MKDIR, "MKDIR", NULL, NULL },
+	{ GFS3_OP_MKNOD,    "MKNOD",    NULL, NULL },
+	{ GFS3_OP_MKDIR,    "MKDIR",    NULL, NULL },
 	{
 		GFS3_OP_UNLINK, "UNLINK",
 		glusterfs_gfs3_op_unlink_call, glusterfs_gfs3_op_unlink_reply
 	},
-	{ GFS3_OP_RMDIR, "RMDIR", NULL, NULL },
-	{ GFS3_OP_SYMLINK, "SYMLINK", NULL, NULL },
-	{ GFS3_OP_RENAME, "RENAME", NULL, NULL },
-	{ GFS3_OP_LINK, "LINK", NULL, NULL },
+	{ GFS3_OP_RMDIR,    "RMDIR",    NULL, NULL },
+	{ GFS3_OP_SYMLINK,  "SYMLINK",  NULL, NULL },
+	{ GFS3_OP_RENAME,   "RENAME",   NULL, NULL },
+	{ GFS3_OP_LINK,     "LINK",     NULL, NULL },
 	{ GFS3_OP_TRUNCATE, "TRUNCATE", NULL, NULL },
-	{ GFS3_OP_OPEN, "OPEN", NULL, NULL },
-	{ GFS3_OP_READ, "READ", NULL, NULL },
-	{ GFS3_OP_WRITE, "WRITE", NULL, NULL },
+	{ GFS3_OP_OPEN,     "OPEN",     NULL, NULL },
+	{ GFS3_OP_READ,     "READ",     NULL, NULL },
+	{ GFS3_OP_WRITE,    "WRITE",    NULL, NULL },
 	{
 		GFS3_OP_STATFS, "STATFS",
 		glusterfs_gfs3_op_statfs_call, glusterfs_gfs3_op_statfs_reply
@@ -1712,21 +1711,21 @@ static const vsff glusterfs3_1_fop_proc[] = {
 		GFS3_OP_SETXATTR, "SETXATTR",
 		glusterfs_gfs3_op_setxattr_call, gluster_dissect_common_reply
 	},
-	{ GFS3_OP_GETXATTR, "GETXATTR", NULL, NULL },
+	{ GFS3_OP_GETXATTR,    "GETXATTR",    NULL, NULL },
 	{ GFS3_OP_REMOVEXATTR, "REMOVEXATTR", NULL, NULL },
 	{
 		GFS3_OP_OPENDIR, "OPENDIR",
 		glusterfs_gfs3_op_opendir_call, glusterfs_gfs3_op_opendir_reply
 	},
 	{ GFS3_OP_FSYNCDIR, "FSYNCDIR", NULL, NULL },
-	{ GFS3_OP_ACCESS, "ACCESS", NULL, NULL },
+	{ GFS3_OP_ACCESS,   "ACCESS",   NULL, NULL },
 	{
 		GFS3_OP_CREATE, "CREATE",
 		glusterfs_gfs3_op_create_call, glusterfs_gfs3_op_create_reply
 	},
 	{ GFS3_OP_FTRUNCATE, "FTRUNCATE", NULL, NULL },
-	{ GFS3_OP_FSTAT, "FSTAT", NULL, NULL },
-	{ GFS3_OP_LK, "LK", NULL, NULL },
+	{ GFS3_OP_FSTAT,     "FSTAT",     NULL, NULL },
+	{ GFS3_OP_LK,        "LK",        NULL, NULL },
 	{
 		GFS3_OP_LOOKUP, "LOOKUP",
 		glusterfs_gfs3_op_lookup_call, glusterfs_gfs3_op_lookup_reply
@@ -1736,11 +1735,11 @@ static const vsff glusterfs3_1_fop_proc[] = {
 		GFS3_OP_INODELK, "INODELK",
 		glusterfs_gfs3_op_inodelk_call, gluster_dissect_common_reply
 	},
-	{ GFS3_OP_FINODELK, "FINODELK", NULL, NULL },
-	{ GFS3_OP_ENTRYLK, "ENTRYLK", NULL, NULL },
-	{ GFS3_OP_FENTRYLK, "FENTRYLK", NULL, NULL },
-	{ GFS3_OP_XATTROP, "XATTROP", NULL, NULL },
-	{ GFS3_OP_FXATTROP, "FXATTROP", NULL, NULL },
+	{ GFS3_OP_FINODELK,  "FINODELK",  NULL, NULL },
+	{ GFS3_OP_ENTRYLK,   "ENTRYLK",   NULL, NULL },
+	{ GFS3_OP_FENTRYLK,  "FENTRYLK",  NULL, NULL },
+	{ GFS3_OP_XATTROP,   "XATTROP",   NULL, NULL },
+	{ GFS3_OP_FXATTROP,  "FXATTROP",  NULL, NULL },
 	{ GFS3_OP_FGETXATTR, "FGETXATTR", NULL, NULL },
 	{ GFS3_OP_FSETXATTR, "FSETXATTR", NULL, NULL },
 	{ GFS3_OP_RCHECKSUM, "RCHECKSUM", NULL, NULL },
@@ -1757,7 +1756,7 @@ static const vsff glusterfs3_1_fop_proc[] = {
 		GFS3_OP_READDIRP, "READDIRP",
 		glusterfs_gfs3_op_readdirp_call, glusterfs_gfs3_op_readdirp_reply
 	},
-	{ GFS3_OP_RELEASE, "RELEASE", NULL, NULL },
+	{ GFS3_OP_RELEASE,    "RELEASE",    NULL, NULL },
 	{ GFS3_OP_RELEASEDIR, "RELEASEDIR", NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
@@ -1941,84 +1940,87 @@ static const vsff glusterfs3_3_fop_proc[] = {
 
 
 static const value_string glusterfs3_1_fop_proc_vals[] = {
-	{ GFS3_OP_NULL, "NULL" },
-	{ GFS3_OP_STAT, "STAT" },
-	{ GFS3_OP_READLINK, "READLINK" },
-	{ GFS3_OP_MKNOD, "MKNOD" },
-	{ GFS3_OP_MKDIR, "MKDIR" },
-	{ GFS3_OP_UNLINK, "UNLINK" },
-	{ GFS3_OP_RMDIR, "RMDIR" },
-	{ GFS3_OP_SYMLINK, "SYMLINK" },
-	{ GFS3_OP_RENAME, "RENAME" },
-	{ GFS3_OP_LINK, "LINK" },
-	{ GFS3_OP_TRUNCATE, "TRUNCATE" },
-	{ GFS3_OP_OPEN, "OPEN" },
-	{ GFS3_OP_READ, "READ" },
-	{ GFS3_OP_WRITE, "WRITE" },
-	{ GFS3_OP_STATFS, "STATFS" },
-	{ GFS3_OP_FLUSH, "FLUSH" },
-	{ GFS3_OP_FSYNC, "FSYNC" },
-	{ GFS3_OP_SETXATTR, "SETXATTR" },
-	{ GFS3_OP_GETXATTR, "GETXATTR" },
+	{ GFS3_OP_NULL,        "NULL" },
+	{ GFS3_OP_STAT,        "STAT" },
+	{ GFS3_OP_READLINK,    "READLINK" },
+	{ GFS3_OP_MKNOD,       "MKNOD" },
+	{ GFS3_OP_MKDIR,       "MKDIR" },
+	{ GFS3_OP_UNLINK,      "UNLINK" },
+	{ GFS3_OP_RMDIR,       "RMDIR" },
+	{ GFS3_OP_SYMLINK,     "SYMLINK" },
+	{ GFS3_OP_RENAME,      "RENAME" },
+	{ GFS3_OP_LINK,        "LINK" },
+	{ GFS3_OP_TRUNCATE,    "TRUNCATE" },
+	{ GFS3_OP_OPEN,        "OPEN" },
+	{ GFS3_OP_READ,        "READ" },
+	{ GFS3_OP_WRITE,       "WRITE" },
+	{ GFS3_OP_STATFS,      "STATFS" },
+	{ GFS3_OP_FLUSH,       "FLUSH" },
+	{ GFS3_OP_FSYNC,       "FSYNC" },
+	{ GFS3_OP_SETXATTR,    "SETXATTR" },
+	{ GFS3_OP_GETXATTR,    "GETXATTR" },
 	{ GFS3_OP_REMOVEXATTR, "REMOVEXATTR" },
-	{ GFS3_OP_OPENDIR, "OPENDIR" },
-	{ GFS3_OP_FSYNCDIR, "FSYNCDIR" },
-	{ GFS3_OP_ACCESS, "ACCESS" },
-	{ GFS3_OP_CREATE, "CREATE" },
-	{ GFS3_OP_FTRUNCATE, "FTRUNCATE" },
-	{ GFS3_OP_FSTAT, "FSTAT" },
-	{ GFS3_OP_LK, "LK" },
-	{ GFS3_OP_LOOKUP, "LOOKUP" },
-	{ GFS3_OP_READDIR, "READDIR" },
-	{ GFS3_OP_INODELK, "INODELK" },
-	{ GFS3_OP_FINODELK, "FINODELK" },
-	{ GFS3_OP_ENTRYLK, "ENTRYLK" },
-	{ GFS3_OP_FENTRYLK, "FENTRYLK" },
-	{ GFS3_OP_XATTROP, "XATTROP" },
-	{ GFS3_OP_FXATTROP, "FXATTROP" },
-	{ GFS3_OP_FGETXATTR, "FGETXATTR" },
-	{ GFS3_OP_FSETXATTR, "FSETXATTR" },
-	{ GFS3_OP_RCHECKSUM, "RCHECKSUM" },
-	{ GFS3_OP_SETATTR, "SETATTR" },
-	{ GFS3_OP_FSETATTR, "FSETATTR" },
-	{ GFS3_OP_READDIRP, "READDIRP" },
-	{ GFS3_OP_RELEASE, "RELEASE" },
-	{ GFS3_OP_RELEASEDIR, "RELEASEDIR" },
+	{ GFS3_OP_OPENDIR,     "OPENDIR" },
+	{ GFS3_OP_FSYNCDIR,    "FSYNCDIR" },
+	{ GFS3_OP_ACCESS,      "ACCESS" },
+	{ GFS3_OP_CREATE,      "CREATE" },
+	{ GFS3_OP_FTRUNCATE,   "FTRUNCATE" },
+	{ GFS3_OP_FSTAT,       "FSTAT" },
+	{ GFS3_OP_LK,          "LK" },
+	{ GFS3_OP_LOOKUP,      "LOOKUP" },
+	{ GFS3_OP_READDIR,     "READDIR" },
+	{ GFS3_OP_INODELK,     "INODELK" },
+	{ GFS3_OP_FINODELK,    "FINODELK" },
+	{ GFS3_OP_ENTRYLK,     "ENTRYLK" },
+	{ GFS3_OP_FENTRYLK,    "FENTRYLK" },
+	{ GFS3_OP_XATTROP,     "XATTROP" },
+	{ GFS3_OP_FXATTROP,    "FXATTROP" },
+	{ GFS3_OP_FGETXATTR,   "FGETXATTR" },
+	{ GFS3_OP_FSETXATTR,   "FSETXATTR" },
+	{ GFS3_OP_RCHECKSUM,   "RCHECKSUM" },
+	{ GFS3_OP_SETATTR,     "SETATTR" },
+	{ GFS3_OP_FSETATTR,    "FSETATTR" },
+	{ GFS3_OP_READDIRP,    "READDIRP" },
+	{ GFS3_OP_RELEASE,     "RELEASE" },
+	{ GFS3_OP_RELEASEDIR,  "RELEASEDIR" },
 	{ 0, NULL }
 };
+static value_string_ext glusterfs3_1_fop_proc_vals_ext = VALUE_STRING_EXT_INIT(glusterfs3_1_fop_proc_vals);
 
 /* dir-entry types */
 static const value_string glusterfs_entry_type_names[] = {
 	{ DT_UNKNOWN, "DT_UNKNOWN" },
-	{ DT_FIFO, "DT_FIFO" },
-	{ DT_CHR, "DT_CHR" },
-	{ DT_DIR, "DT_DIR" },
-	{ DT_BLK, "DT_BLK" },
-	{ DT_REG, "DT_REG" },
-	{ DT_LNK, "DT_LNK" },
-	{ DT_SOCK, "DT_SOCK" },
-	{ DT_WHT, "DT_WHT" },
+	{ DT_FIFO,    "DT_FIFO" },
+	{ DT_CHR,     "DT_CHR" },
+	{ DT_DIR,     "DT_DIR" },
+	{ DT_BLK,     "DT_BLK" },
+	{ DT_REG,     "DT_REG" },
+	{ DT_LNK,     "DT_LNK" },
+	{ DT_SOCK,    "DT_SOCK" },
+	{ DT_WHT,     "DT_WHT" },
 	{ 0, NULL }
 };
+static value_string_ext glusterfs_entry_type_names_ext = VALUE_STRING_EXT_INIT(glusterfs_entry_type_names);
 
 /* Normal locking commands */
 static const value_string glusterfs_lk_cmd_names[] = {
-	{ GF_LK_GETLK, "GF_LK_GETLK" },
-	{ GF_LK_SETLK, "GF_LK_SETLK" },
-	{ GF_LK_SETLKW, "GF_LK_SETLKW" },
-	{ GF_LK_RESLK_LCK, "GF_LK_RESLK_LCK" },
-	{ GF_LK_RESLK_LCKW, "GF_LK_RESLK_LCKW" },
+	{ GF_LK_GETLK,       "GF_LK_GETLK" },
+	{ GF_LK_SETLK,       "GF_LK_SETLK" },
+	{ GF_LK_SETLKW,      "GF_LK_SETLKW" },
+	{ GF_LK_RESLK_LCK,   "GF_LK_RESLK_LCK" },
+	{ GF_LK_RESLK_LCKW,  "GF_LK_RESLK_LCKW" },
 	{ GF_LK_RESLK_UNLCK, "GF_LK_RESLK_UNLCK" },
-	{ GF_LK_GETLK_FD, "GF_LK_GETLK_FD" },
+	{ GF_LK_GETLK_FD,    "GF_LK_GETLK_FD" },
 	{ 0, NULL }
 };
+static value_string_ext glusterfs_lk_cmd_names_ext = VALUE_STRING_EXT_INIT(glusterfs_lk_cmd_names);
 
 /* Different lock types */
 static const value_string glusterfs_lk_type_names[] = {
 	{ GF_LK_F_RDLCK, "GF_LK_F_RDLCK" },
 	{ GF_LK_F_WRLCK, "GF_LK_F_WRLCK" },
 	{ GF_LK_F_UNLCK, "GF_LK_F_UNLCK" },
-	{ GF_LK_EOL, "GF_LK_EOL" },
+	{ GF_LK_EOL,     "GF_LK_EOL" },
 	{ 0, NULL }
 };
 
@@ -2036,8 +2038,8 @@ proto_register_glusterfs(void)
 	static hf_register_info hf[] = {
 		/* programs */
 		{ &hf_glusterfs_proc,
-			{ "GlusterFS", "glusterfs.proc", FT_UINT32, BASE_DEC,
-				VALS(glusterfs3_1_fop_proc_vals), 0, NULL, HFILL }
+			{ "GlusterFS", "glusterfs.proc", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+				&glusterfs3_1_fop_proc_vals_ext, 0, NULL, HFILL }
 		},
 		/* fields used by multiple programs/procedures and other
 		 * Gluster dissectors with gluster_dissect_common_reply() */
@@ -2096,8 +2098,8 @@ proto_register_glusterfs(void)
 				VALS(glusterfs_lk_type_names), 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_cmd,
-			{ "Command", "glusterfs.cmd", FT_INT32, BASE_DEC,
-				VALS(glusterfs_lk_cmd_names), 0, NULL, HFILL }
+			{ "Command", "glusterfs.cmd", FT_INT32, BASE_DEC | BASE_EXT_STRING,
+				&glusterfs_lk_cmd_names_ext, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_volume,
 			{ "Volume", "glusterfs.volume", FT_STRING, BASE_NONE,
@@ -2280,8 +2282,8 @@ proto_register_glusterfs(void)
 				NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_entry_type,
-			{ "Type", "glusterfs.entry.d_type", FT_UINT32, BASE_DEC,
-				VALS(glusterfs_entry_type_names), 0, NULL, HFILL }
+		  { "Type", "glusterfs.entry.d_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+				&glusterfs_entry_type_names_ext, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_entry_path,
 			{ "Path", "glusterfs.entry.path", FT_STRING, BASE_NONE,

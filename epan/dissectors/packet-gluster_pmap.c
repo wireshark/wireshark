@@ -38,9 +38,8 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
+
 #include <epan/packet.h>
-#include <epan/tfs.h>
 
 #include "packet-rpc.h"
 #include "packet-gluster.h"
@@ -147,24 +146,24 @@ gluster_dump_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 /* GLUSTER_PMAP_PROGRAM from xlators/mgmt/glusterd/src/glusterd-pmap.c */
 static const vsff gluster_pmap_proc[] = {
-	{ GF_PMAP_NULL, "NULL", NULL, NULL },
+	{ GF_PMAP_NULL,        "NULL",        NULL, NULL },
 	{
 		GF_PMAP_PORTBYBRICK, "PORTBYBRICK",
 		gluster_pmap_portbybrick_call, gluster_pmap_portbybrick_reply
 	},
 	{ GF_PMAP_BRICKBYPORT, "BRICKBYPORT", NULL, NULL },
-	{ GF_PMAP_SIGNIN, "SIGNIN", NULL, NULL },
-	{ GF_PMAP_SIGNOUT, "SIGNOUT", NULL, NULL },
-	{ GF_PMAP_SIGNUP, "SIGNUP", NULL, NULL },
+	{ GF_PMAP_SIGNIN,      "SIGNIN",      NULL, NULL },
+	{ GF_PMAP_SIGNOUT,     "SIGNOUT",     NULL, NULL },
+	{ GF_PMAP_SIGNUP,      "SIGNUP",      NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string gluster_pmap_proc_vals[] = {
-	{ GF_PMAP_NULL, "NULL" },
+	{ GF_PMAP_NULL,        "NULL" },
 	{ GF_PMAP_PORTBYBRICK, "PORTBYBRICK" },
 	{ GF_PMAP_BRICKBYPORT, "BRICKBYPORT" },
-	{ GF_PMAP_SIGNIN, "SIGNIN" },
-	{ GF_PMAP_SIGNOUT, "SIGNOUT" },
-	{ GF_PMAP_SIGNUP, "SIGNUP" },
+	{ GF_PMAP_SIGNIN,      "SIGNIN" },
+	{ GF_PMAP_SIGNOUT,     "SIGNOUT" },
+	{ GF_PMAP_SIGNUP,      "SIGNUP" },
 	{ 0, NULL }
 };
 
@@ -175,7 +174,7 @@ static const vsff gluster_dump_proc[] = {
 	{ 0, NULL, NULL, NULL }
 };
 static const value_string gluster_dump_proc_vals[] = {
-	{ 0, "NULL" },
+	{ 0,            "NULL" },
 	{ GF_DUMP_DUMP, "DUMP" },
 	{ 0, NULL }
 };
