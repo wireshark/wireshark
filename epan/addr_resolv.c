@@ -3022,7 +3022,7 @@ add_ether_byip(const guint ip, const guint8 *eth)
     return;
 
   tp = host_lookup(ip, &found);
-  if (tp->name == NULL)
+  if (tp == NULL)
     return;
 
   /* ok, we can add this entry in the ethers hashtable */
