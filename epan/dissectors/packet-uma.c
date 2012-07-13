@@ -95,18 +95,10 @@ static int hf_uma_urlc_TLLI				= -1;
 static int hf_uma_urlc_seq_nr				= -1;
 static int hf_uma_urr_IE				= -1;
 static int hf_uma_urr_IE_len				= -1;
-static int hf_uma_urr_mobile_identity_type		= -1;
-static int hf_uma_urr_odde_even_ind			= -1;
-static int hf_uma_urr_imsi				= -1;
-static int hf_uma_urr_imei				= -1;
-static int hf_uma_urr_imeisv				= -1;
-static int hf_uma_urr_tmsi_p_tmsi			= -1;
 static int hf_uma_urr_uri				= -1;
 static int hf_uma_urr_radio_type_of_id	= -1;
 static int hf_uma_urr_radio_id				= -1;
 static int hf_uma_urr_cell_id				= -1;
-static int hf_uma_urr_mcc				= -1;
-static int hf_uma_urr_mnc				= -1;
 static int hf_uma_urr_lac				= -1;
 static int hf_uma_urr_gci				= -1;
 static int hf_uma_urr_tura				= -1;
@@ -134,8 +126,6 @@ static int hf_uma_urr_ECMP				= -1;
 static int hf_uma_urr_RE				= -1;
 static int hf_uma_urr_PFCFM				= -1;
 static int hf_uma_urr_3GECS				= -1;
-static int hf_uma_urr_bcc				= -1;
-static int hf_uma_urr_ncc				= -1;
 static int hf_uma_urr_TU3907_timer			= -1;
 static int hf_uma_urr_GSM_RR_state			= -1;
 static int hf_uma_urr_gan_band				= -1;
@@ -147,8 +137,6 @@ static int hf_uma_urr_TU3902_timer			= -1;
 static int hf_uma_urr_communication_port 		= -1;
 static int hf_uma_urr_L3_Message			= -1;
 static int hf_uma_urr_L3_protocol_discriminator 	= -1;
-static int hf_uma_urr_sc				= -1;
-static int hf_uma_urr_algorithm_id			= -1;
 static int hf_uma_urr_GPRS_resumption			= -1;
 static int hf_uma_urr_ULQI				= -1;
 static int hf_uma_urr_TU3920_timer			= -1;
@@ -436,25 +424,10 @@ static const value_string uma_urr_IE_type_vals[] = {
 };
 static value_string_ext uma_urr_IE_type_vals_ext = VALUE_STRING_EXT_INIT(uma_urr_IE_type_vals);
 
-static const value_string uma_urr_mobile_identity_type_vals[] = {
-	{ 0,		"No Identity"},
-	{ 1,		"IMSI"},
-	{ 2,		"IMEI"},
-	{ 3,		"IMEISV"},
-	{ 4,		"TMSI/P-TMSI"},
-	{ 0,	NULL }
-};
-
 static const value_string uma_urr_gan_rel_ind_vals[] = {
 	{ 1,		"Release 1 (i.e. 3GPP Release-6)"},
 	{ 2,		"Release 2 (i.e. 3GPP Release-7)"},
 	{ 3,		"Release 3 (i.e. 3GPP Release-8)"},
-	{ 0,	NULL }
-};
-
-static const value_string uma_urr_oddevenind_vals[] = {
-	{ 0,		"Even number of identity digits"},
-	{ 1,		"Odd number of identity digits"},
 	{ 0,	NULL }
 };
 
@@ -706,34 +679,10 @@ static const value_string protocol_discriminator_vals[] = {
 };
 #endif
 
-/* algorithm identifier
- * If SC=1 then:
- * bits
- * 4 3 2
- */
-static const value_string algorithm_identifier_vals[] = {
-	{ 0,		"Cipher with algorithm A5/1"},
- 	{ 1,		"Cipher with algorithm A5/2"},
- 	{ 2,		"Cipher with algorithm A5/3"},
-	{ 3,		"Cipher with algorithm A5/4"},
- 	{ 4,		"Cipher with algorithm A5/5"},
- 	{ 5,		"Cipher with algorithm A5/6"},
- 	{ 6,		"Cipher with algorithm A5/7"},
-	{ 7,		"Reserved"},
-	{ 0,	NULL }
-};
-static value_string_ext algorithm_identifier_vals_ext = VALUE_STRING_EXT_INIT(algorithm_identifier_vals);
-
 /*  GPRS Resumption */
 static const value_string GPRS_resumption_vals[] = {
 	{ 0,		"Resumption of GPRS services not successfully acknowledged"},
 	{ 1,		"Resumption of GPRS services successfully acknowledged"},
-	{ 0,	NULL }
-};
-/* SC (octet 1) */
-static const value_string SC_vals[] = {
-	{ 0,		"No ciphering"},
-	{ 1,		"Start ciphering"},
 	{ 0,	NULL }
 };
 
@@ -1899,36 +1848,6 @@ proto_register_uma(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{ &hf_uma_urr_mobile_identity_type,
-			{ "Mobile Identity Type","uma.urr.ie.mobileid.type",
-			FT_UINT8, BASE_DEC, VALS(uma_urr_mobile_identity_type_vals), 0x07,
-			NULL, HFILL }
-		},
-		{ &hf_uma_urr_odde_even_ind,
-			{ "Odd/even indication","uma.urr.oddevenind",
-			FT_UINT8, BASE_DEC, uma_urr_oddevenind_vals, 0x08,
-			"Mobile Identity", HFILL }
-		},
-		{ &hf_uma_urr_imsi,
-			{ "IMSI", "uma_urr.imsi",
-			FT_STRING, BASE_NONE, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_uma_urr_imei,
-			{ "IMEI", "uma_urr.imei",
-			FT_STRING, BASE_NONE, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_uma_urr_imeisv,
-			{ "IMEISV", "uma_urr.imeisv",
-			FT_STRING, BASE_NONE, NULL, 0,
-			NULL, HFILL }
-		},
-		{ &hf_uma_urr_tmsi_p_tmsi,
-			{ "TMSI/P-TMSI", "uma_urr.tmsi_p_tmsi",
-			FT_STRING, BASE_NONE, NULL, 0,
-			NULL, HFILL }
-		},
 		{ &hf_uma_urr_uri,
 			{ "GAN Release Indicator","uma.urr.uri",
 			FT_UINT8, BASE_DEC, VALS(uma_urr_gan_rel_ind_vals), 0x07,
@@ -1951,16 +1870,6 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 
-		{ &hf_uma_urr_mcc,
-			{ "Mobile Country Code","uma.urr.mcc",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }
-		},
-		{ &hf_uma_urr_mnc,
-			{ "Mobile network code","uma.urr.mnc",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
-			NULL, HFILL }
-		},
 		{ &hf_uma_urr_lac,
 			{ "Location area code","uma.urr.lac",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -2096,16 +2005,6 @@ proto_register_uma(void)
 			FT_UINT8,BASE_DEC,  VALS(Three_GECS_vals), 0x10,
 			NULL, HFILL }
 		},
-		{ &hf_uma_urr_bcc,
-			{ "BCC","uma.urr.bcc",
-			FT_UINT8,BASE_DEC,  NULL, 0x07,
-			NULL, HFILL }
-		},
-		{ &hf_uma_urr_ncc,
-			{ "NCC","uma.urr.ncc",
-			FT_UINT8,BASE_DEC,  NULL, 0x38,
-			NULL, HFILL }
-		},
 		{ &hf_uma_urr_TU3907_timer,
 			{ "TU3907 Timer value(seconds)","uma.urr.tu3907",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
@@ -2160,16 +2059,6 @@ proto_register_uma(void)
 			{ "Protocol discriminator","uma.urr.L3_protocol_discriminator",
 			FT_UINT8,BASE_DEC,  VALS(protocol_discriminator_vals), 0x0f,
 			NULL, HFILL }
-		},
-		{ &hf_uma_urr_sc,
-			{ "SC","uma.urr.SC",
-			FT_UINT8,BASE_DEC,  VALS(SC_vals), 0x1,
-			NULL, HFILL }
-		},
-		{ &hf_uma_urr_algorithm_id,
-			{ "Algorithm identifier","uma.urr.algorithm_identifier",
-			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &algorithm_identifier_vals_ext, 0xe,
-			"Algorithm_identifier", HFILL }
 		},
 		{ &hf_uma_urr_GPRS_resumption,
 			{ "GPRS resumption ACK","uma.urr.GPRS_resumption",
