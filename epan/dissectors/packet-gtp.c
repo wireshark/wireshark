@@ -189,6 +189,8 @@ static int hf_gtp_rab_pdu_dn = -1;
 static int hf_gtp_rab_pdu_up = -1;
 static int hf_gtp_rai_rac = -1;
 static int hf_gtp_rai_lac = -1;
+static int hf_gtp_tac = -1;
+static int hf_gtp_eci = -1;
 static int hf_gtp_ranap_cause = -1;
 static int hf_gtp_recovery = -1;
 static int hf_gtp_reorder = -1;
@@ -5554,16 +5556,73 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
     geo_loc_type = tvb_get_guint8(tvb, offset);
     offset++;
 
-    if (geo_loc_type == 0)
-        /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
-        be_cell_id_aux(tvb, tree, pinfo, offset, length - 1, NULL, 0, 0);
-    if (geo_loc_type == 1) {
-        /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-        be_cell_id_aux(tvb, tree, pinfo, offset, length - 1, NULL, 0, 4);
-        offset = offset + 5;
-        proto_tree_add_item(tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
+   switch(geo_loc_type) {
+        case 0:
+            /* Geographic Location field included and it holds the Cell Global
+             * Identification (CGI) of where the user currently is registered.
+             * CGI is defined in sub-clause 4.3.1 of 3GPP TS 23.003 [2].
+             */
+            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
+            be_cell_id_aux(tvb, tree, pinfo, offset, length - 1, NULL, 0, 0);
+            break;
+        case 1:
+            /* Geographic Location field included and it holds the Service
+             * Area Identity (SAI) of where the user currently is registered.
+             * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
+             */
+            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
+            be_cell_id_aux(tvb, tree, pinfo, offset, length - 1, NULL, 0, 4);
+            offset = offset + 5;
+            proto_tree_add_item(tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            break;
+        case 2:
+            /* Geographic Location field included and it holds the Routing
+             * Area Identification (RAI) of where the user currently is
+             * registered. RAI is defined in sub-clause 4.2 of 3GPP TS 23.003
+             * [2].
+             */
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            offset+=3;
+            proto_tree_add_item(tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            break;
+        case 128:
+            /* Geographic Location field included and it holds the Tracking
+             * Area Identity (TAI) of where the user currently is registered.
+             * TAI is defined in sub-clause 8.21.4 of 3GPP TS 29.274.
+             */
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            offset+=3;
+            proto_tree_add_item(tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            break;
+        case 129:
+            /* Geographic Location field included and it holds the E-UTRAN Cell
+             * Global Identifier (ECGI) of where the user currently is registered.
+             * ECGI is defined in sub-clause 8.21.5 of 3GPP TS 29.274.
+             */
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            offset+=3;
+            proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
+            break;
+        case 130:
+            /* Geographic Location field included and it holds the Tracking
+             * Area Identity (TAI) and E-UTRAN CellGlobal Identifier (ECGI)
+             * of where the user currently is registered.
+             * TAI is defined in sub-clause 8.21.4 of 3GPP TS 29.274.
+             * ECGI is defined in sub-clause 8.21.5 of 3GPP TS 29.274.
+             */
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            offset+=3;
+            proto_tree_add_item(tree, hf_gtp_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+            offset+=3;
+            proto_tree_add_item(tree, hf_gtp_eci, tvb, offset, 4, ENC_BIG_ENDIAN);
+            break;
+        default:
+            proto_tree_add_text(tree, tvb, offset, length - 1, "Unknown Location type data");
+            break;
     }
-
 
     return tvb_bytes_to_str(tvb, 0, length);
 }
@@ -8617,6 +8676,16 @@ proto_register_gtp(void)
          { "LAC", "gtp.lac",
            FT_UINT16, BASE_DEC, NULL, 0,
            "Location Area Code", HFILL}
+        },
+        { &hf_gtp_tac,
+          {"TAC", "gtp.tac",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           "Tracking Area Code", HFILL}
+        },
+        { &hf_gtp_eci,
+          {"ECI", "gtp.eci",
+           FT_UINT32, BASE_DEC, NULL, 0x0FFFFFFF,
+           "E-UTRAN Cell Identifier", HFILL}
         },
         {&hf_gtp_ranap_cause,
          { "RANAP cause", "gtp.ranap_cause",
