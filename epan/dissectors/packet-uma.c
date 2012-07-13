@@ -967,7 +967,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		if (( octet & 0xf) == 0){ /* IEEE MAC-address format */
 			ie_offset++;
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_id, tvb, ie_offset, ie_len, ENC_NA);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_id, tvb, ie_offset, ie_len-1, ENC_NA);
 		}else{
 			proto_tree_add_text(urr_ie_tree, tvb, ie_offset, ie_len,"Unknown format");
 		}
@@ -1469,7 +1469,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		if (( octet & 0xf) == 0){ /* IEEE MAC-address format */
 			ie_offset++;
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_ms_radio_id, tvb, ie_offset, ie_len, ENC_NA);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_ms_radio_id, tvb, ie_offset, ie_len-1, ENC_NA);
 		}else{
 			proto_tree_add_text(urr_ie_tree, tvb, ie_offset, ie_len,"Unknown format");
 		}
