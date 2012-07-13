@@ -30,8 +30,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/tvbuff.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-tcp.h>
@@ -514,7 +512,7 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:	/* same as BIG_ENDIAN */
 			/* XXX we should probably return 0; */
-			dinfo.enc   = ENC_NA;	
+			dinfo.enc   = ENC_NA;
 			dinfo.get16 = tvb_get_ntohs;
 			dinfo.get32 = tvb_get_ntohl;
 			dinfo.getdouble = tvb_get_ntohieee_double;
@@ -541,7 +539,7 @@ dissect_dbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #define DBUS_HEADER_LEN 16
 
-static guint 
+static guint
 get_dbus_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint32 (*get_guint32)(tvbuff_t *, const gint);
@@ -578,7 +576,7 @@ dissect_dbus_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
-void 
+void
 proto_register_dbus(void)
 {
 	/* XXX, FT_NONE -> FT_BYTES? */
@@ -642,7 +640,7 @@ proto_register_dbus(void)
 		}
 	};
 
-	static gint *ett[] = { 
+	static gint *ett[] = {
 		&ett_dbus,
 		&ett_dbus_hdr,
 		&ett_dbus_body,
@@ -655,7 +653,7 @@ proto_register_dbus(void)
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
-void 
+void
 proto_reg_handoff_dbus(void)
 {
 	dissector_handle_t dbus_handle = new_create_dissector_handle(dissect_dbus, proto_dbus);

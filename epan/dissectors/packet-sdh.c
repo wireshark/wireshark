@@ -1,6 +1,6 @@
 /* packet-sdh.c
  * Routines for SDH/SONET encapsulation dissection
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -71,9 +71,9 @@ static gint sdh_data_rate = 1;
 
 static enum_val_t data_rates[] = {
   {"Attempt to guess", "Attempt to guess", -1},
-  {"OC-3", "OC-3", 1},
-  {"OC-12", "OC-12", 4},
-  {"OC-24", "OC-24", 8},
+  {"OC-3",  "OC-3",   1},
+  {"OC-12", "OC-12",  4},
+  {"OC-24", "OC-24",  8},
   {"OC-48", "OC-48", 16},
   {NULL, NULL, -1}
 };
@@ -84,7 +84,7 @@ get_sdh_level(tvbuff_t *tvb)
   /*data rate has been set in the SHD options*/
   if(sdh_data_rate != -1) return sdh_data_rate;
   /*returns the multiplier for each data level*/
-  switch(tvb_length(tvb)){
+  switch(tvb_reported_length(tvb)){
     case 2430:  /*OC-3*/
       return 1;
     case 9720:  /*OC-12*/
@@ -101,106 +101,109 @@ get_sdh_level(tvbuff_t *tvb)
 static void
 dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *sdh_tree = NULL;
-  proto_item *sdh_item = NULL;
-  int level = get_sdh_level(tvb);
-  guint32 a1 = 0;
-  guint32 a2 = 0;
-  guint8 j0 = 0;
-  guint8 b1 = 0;
-  guint8 e1 = 0;
-  guint8 f1 = 0;
-  guint8 d1 = 0;
-  guint8 d2 = 0;
-  guint8 d3 = 0;
-  guint8 h1 = 0;
-  guint8 h2 = 0;
-  guint16 au = 0;
-  guint32 b2 = 0;
-  guint8 k1 = 0;
-  guint8 k2 = 0;
-  guint8 d4 = 0;
-  guint8 d5 = 0;
-  guint8 d6 = 0;
-  guint8 d7 = 0;
-  guint8 d8 = 0;
-  guint8 d9 = 0;
-  guint8 d10 = 0;
-  guint8 d11 = 0;
-  guint8 d12 = 0;
-  guint8 s1 = 0;
-  guint8 m1 = 0;
-  guint8 e2 = 0;
-  guint8 j1 = 0;
-  
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDH");
   col_clear(pinfo->cinfo,COL_INFO);
 
   if (tree) {
+    proto_tree *sdh_tree;
+    proto_item *sdh_item;
+
+    int     level = get_sdh_level(tvb);
+
+    guint32 a1;
+    guint32 a2;
+    guint8  j0;
+    guint8  b1;
+    guint8  e1;
+    guint8  f1;
+    guint8  d1;
+    guint8  d2;
+    guint8  d3;
+    guint8  h1;
+    guint8  h2;
+    guint16 au;
+    guint32 b2;
+    guint8  k1;
+    guint8  k2;
+    guint8  d4;
+    guint8  d5;
+    guint8  d6;
+    guint8  d7;
+    guint8  d8;
+    guint8  d9;
+    guint8  d10;
+    guint8  d11;
+    guint8  d12;
+    guint8  s1;
+    guint8  m1;
+    guint8  e2;
+    guint8  j1;
+
     sdh_item = proto_tree_add_protocol_format(tree, proto_sdh, tvb, 0, -1, "SDH");
     sdh_tree = proto_item_add_subtree(sdh_item, ett_sdh);
-    a1 = tvb_get_ntoh24(tvb, 0+(0*level*COLUMNS));
-    a2 = tvb_get_ntoh24(tvb, 3+(0*level*COLUMNS));
-    j0 = tvb_get_guint8(tvb, 6+(0*level*COLUMNS));
-    b1 = tvb_get_guint8(tvb, 0+(1*level*COLUMNS));
-    e1 = tvb_get_guint8(tvb, 3+(1*level*COLUMNS));
-    f1 = tvb_get_guint8(tvb, 6+(1*level*COLUMNS));
-    d1 = tvb_get_guint8(tvb, 0+(2*level*COLUMNS));
-    d2 = tvb_get_guint8(tvb, 3+(2*level*COLUMNS));
-    d3 = tvb_get_guint8(tvb, 6+(2*level*COLUMNS));
-    h1 = tvb_get_guint8(tvb, 0+(3*level*COLUMNS));
-    h2 = tvb_get_guint8(tvb, 3+(3*level*COLUMNS));
-    au = (h2 | ((0x03 & h1) << 8));
-    b2 = 0;
-    b2 = tvb_get_guint8(tvb, 0+(4*level*COLUMNS)) << 16;
-    b2 = tvb_get_guint8(tvb, (1*level)+(4*level*COLUMNS)) << 8;
-    b2 = tvb_get_guint8(tvb, (2*level)+(4*level*COLUMNS));
-    k1 = tvb_get_guint8(tvb, 3+(4*level*COLUMNS));
-    k2 = tvb_get_guint8(tvb, 6+(4*level*COLUMNS));
-    d4 = tvb_get_guint8(tvb, 0+(5*level*COLUMNS));
-    d5 = tvb_get_guint8(tvb, 3+(5*level*COLUMNS));
-    d6 = tvb_get_guint8(tvb, 6+(5*level*COLUMNS));
-    d7 = tvb_get_guint8(tvb, 0+(6*level*COLUMNS));
-    d8 = tvb_get_guint8(tvb, 3+(6*level*COLUMNS));
-    d9 = tvb_get_guint8(tvb, 6+(6*level*COLUMNS));
+
+    a1  = tvb_get_ntoh24(tvb, 0+(0*level*COLUMNS));
+    a2  = tvb_get_ntoh24(tvb, 3+(0*level*COLUMNS));
+    j0  = tvb_get_guint8(tvb, 6+(0*level*COLUMNS));
+    b1  = tvb_get_guint8(tvb, 0+(1*level*COLUMNS));
+    e1  = tvb_get_guint8(tvb, 3+(1*level*COLUMNS));
+    f1  = tvb_get_guint8(tvb, 6+(1*level*COLUMNS));
+    d1  = tvb_get_guint8(tvb, 0+(2*level*COLUMNS));
+    d2  = tvb_get_guint8(tvb, 3+(2*level*COLUMNS));
+    d3  = tvb_get_guint8(tvb, 6+(2*level*COLUMNS));
+    h1  = tvb_get_guint8(tvb, 0+(3*level*COLUMNS));
+    h2  = tvb_get_guint8(tvb, 3+(3*level*COLUMNS));
+    au  = (h2 | ((0x03 & h1) << 8));
+    b2  = 0;
+    b2  = tvb_get_guint8(tvb, 0+(4*level*COLUMNS)) << 16;
+    b2  = tvb_get_guint8(tvb, (1*level)+(4*level*COLUMNS)) << 8;
+    b2  = tvb_get_guint8(tvb, (2*level)+(4*level*COLUMNS));
+    k1  = tvb_get_guint8(tvb, 3+(4*level*COLUMNS));
+    k2  = tvb_get_guint8(tvb, 6+(4*level*COLUMNS));
+    d4  = tvb_get_guint8(tvb, 0+(5*level*COLUMNS));
+    d5  = tvb_get_guint8(tvb, 3+(5*level*COLUMNS));
+    d6  = tvb_get_guint8(tvb, 6+(5*level*COLUMNS));
+    d7  = tvb_get_guint8(tvb, 0+(6*level*COLUMNS));
+    d8  = tvb_get_guint8(tvb, 3+(6*level*COLUMNS));
+    d9  = tvb_get_guint8(tvb, 6+(6*level*COLUMNS));
     d10 = tvb_get_guint8(tvb, 0+(7*level*COLUMNS));
     d11 = tvb_get_guint8(tvb, 3+(7*level*COLUMNS));
     d12 = tvb_get_guint8(tvb, 6+(7*level*COLUMNS));
-    s1 = tvb_get_guint8(tvb, 0+(8*level*COLUMNS));
-    m1 = tvb_get_guint8(tvb, 5+(8*level*COLUMNS));
-    e2 = tvb_get_guint8(tvb, 6+(8*level*COLUMNS));
+    s1  = tvb_get_guint8(tvb, 0+(8*level*COLUMNS));
+    m1  = tvb_get_guint8(tvb, 5+(8*level*COLUMNS));
+    e2  = tvb_get_guint8(tvb, 6+(8*level*COLUMNS));
 
     j1 = tvb_get_guint8(tvb, au);
 
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_a1, tvb, 0, 3, a1, "A1 %x", a1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_a2, tvb, 3, 3, a2, "A2 %x", a2);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_j0, tvb, 6, 1, j0, "J0 %d", j0);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_b1, tvb, 0+(1*level*COLUMNS), 1, b1, "B1 %d", b1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_e1, tvb, 3+(1*level*COLUMNS), 1, e1, "E1 %d", e1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_f1, tvb, 6+(1*level*COLUMNS), 1, f1, "F1 %d", f1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d1, tvb, 0+(2*level*COLUMNS), 1, d1, "D1 %d", d1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d2, tvb, 3+(2*level*COLUMNS), 1, d2, "D2 %d", d2);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d3, tvb, 6+(2*level*COLUMNS), 1, d3, "D3 %d", d3);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_au, tvb, 0+(3*level*COLUMNS), 9, au, "AU pointer %d h1 %d, h2 %d", au, h1, h2);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_b2, tvb, 0+(4*level*COLUMNS), 1, b2, "B2 %d", b2);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_k1, tvb, 3+(4*level*COLUMNS), 1, k1, "K1 %d", k1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_k2, tvb, 6+(4*level*COLUMNS), 1, k2, "K2 %d", k2);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d4, tvb, 0+(5*level*COLUMNS), 1, d4, "D4 %d", d4);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d5, tvb, 3+(5*level*COLUMNS), 1, d5, "D5 %d", d5);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d6, tvb, 6+(5*level*COLUMNS), 1, d6, "D6 %d", d6);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d7, tvb, 0+(6*level*COLUMNS), 1, d7, "D7 %d", d7);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d8, tvb, 3+(6*level*COLUMNS), 1, d8, "D8 %d", d8);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_d9, tvb, 6+(6*level*COLUMNS), 1, d9, "D9 %d", d9);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_a1,  tvb, 0, 3, a1, "A1 %x", a1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_a2,  tvb, 3, 3, a2, "A2 %x", a2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_j0,  tvb, 6, 1, j0, "J0 %d", j0);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_b1,  tvb, 0+(1*level*COLUMNS), 1,  b1, "B1 %d",  b1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_e1,  tvb, 3+(1*level*COLUMNS), 1,  e1, "E1 %d",  e1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_f1,  tvb, 6+(1*level*COLUMNS), 1,  f1, "F1 %d",  f1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d1,  tvb, 0+(2*level*COLUMNS), 1,  d1, "D1 %d",  d1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d2,  tvb, 3+(2*level*COLUMNS), 1,  d2, "D2 %d",  d2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d3,  tvb, 6+(2*level*COLUMNS), 1,  d3, "D3 %d",  d3);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_au,  tvb, 0+(3*level*COLUMNS), 9,  au, "AU pointer %d h1 %d, h2 %d", au, h1, h2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_b2,  tvb, 0+(4*level*COLUMNS), 1,  b2, "B2 %d",  b2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_k1,  tvb, 3+(4*level*COLUMNS), 1,  k1, "K1 %d",  k1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_k2,  tvb, 6+(4*level*COLUMNS), 1,  k2, "K2 %d",  k2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d4,  tvb, 0+(5*level*COLUMNS), 1,  d4, "D4 %d",  d4);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d5,  tvb, 3+(5*level*COLUMNS), 1,  d5, "D5 %d",  d5);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d6,  tvb, 6+(5*level*COLUMNS), 1,  d6, "D6 %d",  d6);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d7,  tvb, 0+(6*level*COLUMNS), 1,  d7, "D7 %d",  d7);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d8,  tvb, 3+(6*level*COLUMNS), 1,  d8, "D8 %d",  d8);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_d9,  tvb, 6+(6*level*COLUMNS), 1,  d9, "D9 %d",  d9);
     proto_tree_add_uint_format(sdh_tree, hf_sdh_d10, tvb, 0+(7*level*COLUMNS), 1, d10, "D10 %d", d10);
     proto_tree_add_uint_format(sdh_tree, hf_sdh_d11, tvb, 3+(7*level*COLUMNS), 1, d11, "D11 %d", d11);
     proto_tree_add_uint_format(sdh_tree, hf_sdh_d12, tvb, 6+(7*level*COLUMNS), 1, d12, "D12 %d", d12);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_s1, tvb, 0+(8*level*COLUMNS), 1, s1, "S1 %d", s1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_m1, tvb, 5+(8*level*COLUMNS), 1, m1, "M1 %d", m1);
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_e2, tvb, 6+(7*level*COLUMNS), 1, e2, "E2 %d", e2);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_s1,  tvb, 0+(8*level*COLUMNS), 1,  s1, "S1 %d",  s1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_m1,  tvb, 5+(8*level*COLUMNS), 1,  m1, "M1 %d",  m1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_e2,  tvb, 6+(7*level*COLUMNS), 1,  e2, "E2 %d",  e2);
 
-    proto_tree_add_uint_format(sdh_tree, hf_sdh_j1, tvb, au, 1, j1, "J1 %d", j1);
+    proto_tree_add_uint_format(sdh_tree, hf_sdh_j1,  tvb, au, 1, j1, "J1 %d", j1);
   }
-    
+
 }
 
 void
@@ -265,7 +268,7 @@ proto_register_sdh(void)
   };
 
   module_t *sdh_module;
-  
+
 
   proto_sdh = proto_register_protocol("SDH/SONET Protocol", "SDH", "sdh");
   proto_register_field_array(proto_sdh, hf, array_length(hf));
@@ -284,7 +287,7 @@ void
 proto_reg_handoff_sdh(void)
 {
   dissector_handle_t sdh_handle;
-  
+
   sdh_handle = find_dissector("sdh");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_SDH, sdh_handle);
 

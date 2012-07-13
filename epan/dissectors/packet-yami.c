@@ -32,7 +32,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/tvbuff.h>
 #include <epan/strutil.h>
 #include <epan/dissectors/packet-tcp.h>
 
@@ -85,19 +84,19 @@ void proto_reg_handoff_yami(void);
 #define YAMI_TYPE_NESTED 13
 
 static const value_string yami_param_type_vals[] = {
-	{ YAMI_TYPE_BOOLEAN, "boolean" },
-	{ YAMI_TYPE_INTEGER, "integer" },
-	{ YAMI_TYPE_LONGLONG, "long long" },
-	{ YAMI_TYPE_DOUBLE, "double" },
-	{ YAMI_TYPE_STRING, "string" },
-	{ YAMI_TYPE_BINARY, "binary" },
-	{ YAMI_TYPE_BOOLEAN_ARRAY, "boolean array" },
-	{ YAMI_TYPE_INTEGER_ARRAY, "integer array" },
+	{ YAMI_TYPE_BOOLEAN,        "boolean" },
+	{ YAMI_TYPE_INTEGER,        "integer" },
+	{ YAMI_TYPE_LONGLONG,       "long long" },
+	{ YAMI_TYPE_DOUBLE,         "double" },
+	{ YAMI_TYPE_STRING,         "string" },
+	{ YAMI_TYPE_BINARY,         "binary" },
+	{ YAMI_TYPE_BOOLEAN_ARRAY,  "boolean array" },
+	{ YAMI_TYPE_INTEGER_ARRAY,  "integer array" },
 	{ YAMI_TYPE_LONGLONG_ARRAY, "long long array" },
-	{ YAMI_TYPE_DOUBLE_ARRAY, "double array" },
-	{ YAMI_TYPE_STRING_ARRAY, "string array" },
-	{ YAMI_TYPE_BINARY_ARRAY, "binary array" },
-	{ YAMI_TYPE_NESTED, "nested parameters" },
+	{ YAMI_TYPE_DOUBLE_ARRAY,   "double array" },
+	{ YAMI_TYPE_STRING_ARRAY,   "string array" },
+	{ YAMI_TYPE_BINARY_ARRAY,   "binary array" },
+	{ YAMI_TYPE_NESTED,         "nested parameters" },
 	{ 0, NULL }
 };
 
@@ -192,7 +191,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			guint32 val_len;
 			const guint8 *val;
 			char *repr;
-			
+
 			val_len = tvb_get_letohl(tvb, offset);
 			offset += 4;
 
@@ -413,7 +412,7 @@ dissect_yami_data(tvbuff_t *tvb, gboolean data, proto_tree *tree, int offset)
 
 	ti = proto_tree_add_item(tree, (data) ? hf_yami_message_data : hf_yami_message_hdr, tvb, offset, 0, ENC_NA);
 	yami_data_tree = proto_item_add_subtree(ti, (data) ? ett_yami_msg_data : ett_yami_msg_hdr);
-		
+
 	count = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(yami_data_tree, hf_yami_params_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -493,7 +492,7 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #define FRAME_HEADER_LEN 16
 
-static guint 
+static guint
 get_yami_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
 	guint32 len = tvb_get_letohl(tvb, offset + 12);
@@ -508,7 +507,7 @@ dissect_yami(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return tvb_length(tvb);
 }
 
-void 
+void
 proto_register_yami(void)
 {
 	static hf_register_info hf[] = {
@@ -567,7 +566,7 @@ proto_register_yami(void)
 		}
 	};
 
-	static gint *ett[] = { 
+	static gint *ett[] = {
 		&ett_yami,
 		&ett_yami_msg_hdr,
 		&ett_yami_msg_data,
@@ -591,7 +590,7 @@ proto_register_yami(void)
 			&yami_desegment);
 }
 
-void 
+void
 proto_reg_handoff_yami(void)
 {
 	static dissector_handle_t yami_handle;

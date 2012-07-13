@@ -28,25 +28,13 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 
 #include <glib.h>
 #include <epan/packet.h>
 
-#include "packet-windows-common.h"
-#include "packet-smb-common.h"
 #include "packet-frame.h"
-#include <epan/asn1.h>
-#include "packet-kerberos.h"
-#include <epan/prefs.h>
-#include <epan/emem.h>
-#include <epan/tap.h>
-#include <epan/expert.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
-#include <wsutil/crc32.h>
 
 static int proto_negoex = -1;
 static int hf_negoex_sig = -1;
@@ -189,7 +177,7 @@ dissect_negoex_verify_message(tvbuff_t *tvb,
   checksum_vector_offset = tvb_get_letohl(tvb, offset);
   checksum_vector_count = tvb_get_letohs(tvb, offset + 4);
 
-  pi_chk = proto_tree_add_text(checksum, tvb, offset, 8, 
+  pi_chk = proto_tree_add_text(checksum, tvb, offset, 8,
                                "Checksum Vector: %u at %u",
                                checksum_vector_count,
                                checksum_vector_offset);
@@ -207,7 +195,7 @@ dissect_negoex_verify_message(tvbuff_t *tvb,
                       offset, 2, ENC_NA);
   offset += 2;
 
-  proto_tree_add_item(checksum_vector, hf_negoex_checksum, tvb, 
+  proto_tree_add_item(checksum_vector, hf_negoex_checksum, tvb,
                       checksum_vector_offset, checksum_vector_count, ENC_NA);
 
 }
@@ -238,7 +226,7 @@ dissect_negoex_exchange_message(tvbuff_t *tvb,
                            exchange_vector_count, exchange_vector_offset);
   exchange_vector = proto_item_add_subtree(pi, ett_negoex_exchange);
 
-  proto_tree_add_item(exchange_vector, hf_negoex_exchange_vector_offset, tvb, 
+  proto_tree_add_item(exchange_vector, hf_negoex_exchange_vector_offset, tvb,
                       offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
@@ -255,15 +243,15 @@ dissect_negoex_exchange_message(tvbuff_t *tvb,
 }
 
 /*
- * In each of the subdissectors we are handed the whole message, but the 
- * header is already dissected. The offset tells us where in buffer the
+ * In each of the subdissectors we are handed the whole message, but the
+ * header is already dissected. The offset tells us where in the buffer the
  * actual data starts. This is a bit redundant, but it allows for changes
  * to the header structure ...
  *
  * Eventually we want to treat the header and body differently perhaps.
  */
 static void
-dissect_negoex_nego_message(tvbuff_t *tvb, 
+dissect_negoex_nego_message(tvbuff_t *tvb,
                             packet_info *pinfo _U_,
                             proto_tree *tree,
                             guint32 start_off)
@@ -338,14 +326,14 @@ dissect_negoex_nego_message(tvbuff_t *tvb,
       proto_item *bv_pi;
       proto_tree *bv_tree;
 
-      /* 
-       * Dissect these things ... they consist of a byte vector, so we 
+      /*
+       * Dissect these things ... they consist of a byte vector, so we
        * add a subtree and point to the relevant bytes
        */
       byte_vector_offset = tvb_get_letohl(tvb, offset);
       byte_vector_count = tvb_get_letohs(tvb, offset + 4);
 
-      bv_pi = proto_tree_add_text(extension_vector, tvb, 
+      bv_pi = proto_tree_add_text(extension_vector, tvb,
                                   extension_vector_offset + i * 8, 8,
                                   "Extension: %u bytes at %u",
                                   byte_vector_count, byte_vector_offset);
@@ -376,7 +364,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   negoex_tree = NULL;
   tf = NULL;
   done = FALSE;
-  payload_len = tvb_length(tvb); 
+  payload_len = tvb_length(tvb);
   message_len = 0;
   message_type = 0;  /* This is a MESSAGE_TYPE_INITIATOR_NEGO ... */
   header_len = 0;
@@ -388,8 +376,8 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /*
-   * There can me multiple negoex messages, each with a header with a length.
-   * However, the payload might not have been reassembled ... 
+   * There can be multiple negoex messages, each with a header with a length.
+   * However, the payload might not have been reassembled ...
    */
 
   while (offset < payload_len && !done) {
@@ -406,12 +394,12 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      /* Message type, it is after the signature */
       message_type = tvb_get_letohl(tvb, offset + 8);
 
-      /* Add the message type tree ... set its lenght below */
+      /* Add the message type tree ... set its length below */
       msg = proto_tree_add_text(negoex_tree, tvb, offset, -1,
                                 "NEGEOX %s",
-                                val_to_str(message_type,
-                                           negoex_message_types,
-                                           "Unknown NEGOEX message type"));
+                                val_to_str_const(message_type,
+                                                 negoex_message_types,
+                                                 "Unknown NEGOEX message type"));
 
       /* Add a subtree for the message */
       negoex_msg_tree = proto_item_add_subtree(msg, ett_negoex_msg);
@@ -426,13 +414,13 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 8;
 
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s",
-                          val_to_str(message_type, 
-                                     negoex_message_types,
-                                     "Unknown NEGOEX message type"));
+                          val_to_str_const(message_type,
+                                           negoex_message_types,
+                                           "Unknown NEGOEX message type"));
       proto_tree_add_uint(negoex_hdr_tree, hf_negoex_message_type,
                           tvb, offset, 4, message_type);
 
-      /* 
+      /*
        * If this is an unknown message type, we have to punt because anything
        * following cannot be handled
        */
@@ -469,10 +457,10 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 16;
 
       /*
-       * Construct a new TVB covering just this message and pass to the 
+       * Construct a new TVB covering just this message and pass to the
        * sub-dissector
        */
-      msg_tvb = tvb_new_subset(tvb, 
+      msg_tvb = tvb_new_subset(tvb,
                                start_offset,
                                MIN(message_len, tvb_length(tvb)),
                                message_len);
@@ -480,9 +468,9 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       switch (message_type) {
       case MESSAGE_TYPE_INITIATOR_NEGO:
       case MESSAGE_TYPE_ACCEPTOR_NEGO:
-        dissect_negoex_nego_message(msg_tvb, 
-                                    pinfo, 
-                                    negoex_msg_tree, 
+        dissect_negoex_nego_message(msg_tvb,
+                                    pinfo,
+                                    negoex_msg_tree,
                                     offset - start_offset);
         break;
 
@@ -490,7 +478,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case MESSAGE_TYPE_ACCEPTOR_META_DATA:
       case MESSAGE_TYPE_CHALLENGE:
       case MESSAGE_TYPE_AP_REQUEST:
-        dissect_negoex_exchange_message(msg_tvb, 
+        dissect_negoex_exchange_message(msg_tvb,
                                         pinfo,
                                         negoex_msg_tree,
                                         offset - start_offset);
@@ -545,9 +533,9 @@ proto_register_negoex(void)
       { "Signature", "negoex.message.sig", FT_STRING, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
     { &hf_negoex_message_type,
-      { "MessageType", "negoex.message.type", FT_UINT32, BASE_HEX, 
+      { "MessageType", "negoex.message.type", FT_UINT32, BASE_HEX,
          VALS(negoex_message_types), 0x00, NULL, HFILL }},
-    { &hf_negoex_sequence_num, 
+    { &hf_negoex_sequence_num,
       { "SequencNum", "negoex.message.seq_num", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
     { &hf_negoex_header_len,
@@ -560,7 +548,7 @@ proto_register_negoex(void)
       { "ConversationID", "negoex.message.conv_id", FT_GUID, BASE_NONE,
         NULL, 0x0, NULL, HFILL}},
     { &hf_negoex_random,
-      { "Random", "negoex.message.random", FT_BYTES, BASE_NONE, 
+      { "Random", "negoex.message.random", FT_BYTES, BASE_NONE,
         NULL, 0x0, "Random data", HFILL }},
     { &hf_negoex_proto_version,
       { "ProtocolVersion", "negoex.proto_version", FT_UINT64, BASE_DEC,
@@ -593,7 +581,7 @@ proto_register_negoex(void)
       { "ExchangeOffset", "negoex.exchange_vec_offset", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL}},
     { &hf_negoex_exchange_vector_count,
-      { "ExchangeByteCount", "negoex.exchange_vec_byte_count", FT_UINT16, 
+      { "ExchangeByteCount", "negoex.exchange_vec_byte_count", FT_UINT16,
         BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_negoex_exchange_vector_pad,
       { "ExchangePad", "negoex.exchange_vec_pad", FT_BYTES, BASE_NONE,
