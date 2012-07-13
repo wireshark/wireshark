@@ -1346,7 +1346,7 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 static gboolean
 snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_len_p, gchar const** error)
 {
-	guint msg_len;
+	gint msg_len;
 	guint8* msg;
 	guint auth_len;
 	guint8* auth;
@@ -1410,7 +1410,7 @@ snmp_usm_auth_md5(snmp_usm_params_t* p, guint8** calc_auth_p, guint* calc_auth_l
 static gboolean
 snmp_usm_auth_sha1(snmp_usm_params_t* p _U_, guint8** calc_auth_p, guint* calc_auth_len_p,  gchar const** error _U_)
 {
-	guint msg_len;
+	gint msg_len;
 	guint8* msg;
 	guint auth_len;
 	guint8* auth;
