@@ -593,8 +593,8 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		bit_offset+=24;
 		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 		bit_offset+= 8;
-		if(tvb_length_remaining(tvb,(bit_offset>>3))==0){
-			item = proto_tree_add_text(tree, tvb, 0, -1, "Config string to short");
+		if(tvb_length_remaining(tvb,(bit_offset>>3))<=0){
+			item = proto_tree_add_text(tree, tvb, 0, -1, "Config string too short");
 			PROTO_ITEM_SET_GENERATED(item);
 			return -1;
 		}
