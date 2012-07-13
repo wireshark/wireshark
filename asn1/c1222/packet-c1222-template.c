@@ -186,7 +186,7 @@ static guint32 iv_element_len = 0;
 
 
 /*------------------------------
- * Data Structures 
+ * Data Structures
  *------------------------------
  */
 typedef struct _c1222_uat_data {
@@ -196,16 +196,16 @@ typedef struct _c1222_uat_data {
 } c1222_uat_data_t;
 
 static const value_string c1222_security_modes[] = {
-  { 0x00, "Cleartext"}, 
-  { 0x01, "Cleartext with authentication"}, 
-  { 0x02, "Ciphertext with authentication"}, 
+  { 0x00, "Cleartext"},
+  { 0x01, "Cleartext with authentication"},
+  { 0x02, "Ciphertext with authentication"},
   { 0, NULL }
 };
 
 static const value_string c1222_response_control[] = {
-  { 0x00, "Always respond"}, 
-  { 0x01, "Respond on exception"}, 
-  { 0x02, "Never respond"}, 
+  { 0x00, "Always respond"},
+  { 0x01, "Respond on exception"},
+  { 0x02, "Never respond"},
   { 0, NULL }
 };
 
@@ -285,37 +285,37 @@ static guint num_c1222_uat_data = 0;
 static uat_t *c1222_uat;
 
 /* these macros ares used to populate fields needed to verify crypto */
-#define FILL_START int length, start_offset = offset; 
+#define FILL_START int length, start_offset = offset;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
   fieldname = tvb_memdup(tvb, start_offset, length); \
-  fieldname##_len = length; 
+  fieldname##_len = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
   fieldname = tvb_memdup(tvb, start_offset, length); \
-  fieldname##_len = len; 
+  fieldname##_len = len;
 #else /* HAVE_LIBGCRYPT */
-#define FILL_TABLE(fieldname) 
-#define FILL_TABLE_TRUNCATE(fieldname, len)  
+#define FILL_TABLE(fieldname)
+#define FILL_TABLE_TRUNCATE(fieldname, len)
 #define FILL_START
 #endif /* HAVE_LIBGCRYPT */
 
 /*------------------------------
- * Function Prototypes 
+ * Function Prototypes
  *------------------------------
  */
 void proto_reg_handoff_c1222(void);
 
 
 /*------------------------------
- * Code 
+ * Code
  *------------------------------
  */
 
 /**
  * Calculates simple one's complement checksum.
  *
- * \param tvb pointer to tvbuff containing data to be checksummed 
+ * \param tvb pointer to tvbuff containing data to be checksummed
  * \param offset offset within tvbuff to beginning of data
  * \param len length of data to be checksummed
  * \returns calculated checksum
@@ -354,9 +354,9 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
   guint16 packet_size;
   guint8 nbr_packet;
   /* timing setup parameters */
-  guint8 traffic; 
-  guint8 inter_char; 
-  guint8 resp_to; 
+  guint8 traffic;
+  guint8 inter_char;
+  guint8 resp_to;
   guint8 nbr_retries;
   proto_item *item = NULL;
 
@@ -378,7 +378,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    proto_tree_add_string(tree, hf_c1222_logon_user, tvb, *offset, 10, user_name);
 	    *offset += 10;
 	    *length -= 12;
-	    proto_item_set_text(tree, "C12.22 EPSEM: %s (id %d, user \"%s\")", 
+	    proto_item_set_text(tree, "C12.22 EPSEM: %s (id %d, user \"%s\")",
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), user_id, user_name);
 	} else {
 	    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR, "C12.22 LOGON command truncated");
@@ -415,7 +415,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		proto_tree_add_item(tree, hf_c1222_auth_data, tvb, *offset, auth_len, ENC_NA);
 		*offset += auth_len;
 		*length -= auth_len + 1;
-		proto_item_set_text(tree, "C12.22 EPSEM: %s (%d bytes: %s)", 
+		proto_item_set_text(tree, "C12.22 EPSEM: %s (%d bytes: %s)",
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), auth_len, auth_req);
 	    } else {
 		expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR, "C12.22 AUTHENTICATE command truncated");
@@ -429,7 +429,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    table = tvb_get_ntohs(tvb, *offset);
 	    proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
 	    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), 
+		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
 		    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
 	    *offset += 2;
 	    *length -= 2;
@@ -450,7 +450,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 	    *offset += 2;
 	    *length -= 2;
 	    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), 
+		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
 		    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
 	} else {
 	    expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR, "C12.22 READ command truncated");
@@ -477,7 +477,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		  expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum [should be 0x%02x]", calcsum);
 		}
 		proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-			val_to_str(cmd,commandnames,"Unknown (0x%02x)"), 
+			val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
 			val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
 		*offset += 1;
 		*length -= 1;
@@ -512,7 +512,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 		  expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum [should be 0x%02x]", calcsum);
 		}
 		proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
-			val_to_str(cmd,commandnames,"Unknown (0x%02x)"), 
+			val_to_str(cmd,commandnames,"Unknown (0x%02x)"),
 			val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
 		*offset += 1;
 		*length -= 1;
@@ -591,7 +591,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
 }
 
 #ifdef HAVE_LIBGCRYPT
-typedef struct tagTOP_ELEMENT_CONTROL 
+typedef struct tagTOP_ELEMENT_CONTROL
 {
   /* TRUE if this tag is required */
   gboolean required;
@@ -657,11 +657,11 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
     *ptr = (len -1) | 0x80;
     for (ptr += len-1; n; n >>= 8)
       *ptr-- = n & 0xff;
-  } 
+  }
   return len;
 
 }
-    
+
 /**
  * Checks a new encryption table item for validity.
  *
@@ -669,7 +669,7 @@ encode_ber_len(guint8 *ptr, guint32 n, int maxsize)
  * \param err is updated to point to an error string if needed
  */
 static void
-c1222_uat_data_update_cb(void* n, const char** err) 
+c1222_uat_data_update_cb(void* n, const char** err)
 {
   c1222_uat_data_t* new_rec = n;
 
@@ -685,10 +685,10 @@ c1222_uat_data_update_cb(void* n, const char** err)
  * Canonifies header fields in preparation for authenticating and/or decrypting the packet.
  *
  * \param buff points to the allocated canonization buffer
- * \param offset points to start of unallocated space in buffer and 
+ * \param offset points to start of unallocated space in buffer and
       is updated as we put bytes into buffer
  * \param buffsize total size of allocated buffer
- * \return FALSE if element is required and not present; otherwise TRUE 
+ * \return FALSE if element is required and not present; otherwise TRUE
  */
 static gboolean
 canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
@@ -696,17 +696,17 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
   const TOP_ELEMENT_CONTROL *t = canonifyTable;
   guint32 len;
 
-  for (t = canonifyTable; t->element != NULL; t++) 
+  for (t = canonifyTable; t->element != NULL; t++)
   {
     len = *(t->length);
-    if (t->required && *(t->element) == NULL) 
+    if (t->required && *(t->element) == NULL)
       return FALSE;
     if (*(t->element) != NULL) {
-      if (t->addtag) { 
+      if (t->addtag) {
 	/* recreate original tag and length */
 	buff[(*offset)++] = t->tag;
 	(*offset) += encode_ber_len(&buff[*offset], len, 4);
-      } 
+      }
       if (t->truncate) {
         len = 3+2*get_ber_len_size(len);
       }
@@ -731,7 +731,7 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
  * \param keyid is the ID number of the desired key
  * \returns TRUE if key was found; otherwise FALSE
  */
-static gboolean 
+static gboolean
 keylookup(guint8 *keybuff, guint8 keyid)
 {
   guint i;
@@ -751,14 +751,14 @@ keylookup(guint8 *keybuff, guint8 keyid)
 /**
  * Authenticates and decrypts the passed packet.
  *
- * \param buffer points to a memory copy of the packet to be authenticated/decrypted 
+ * \param buffer points to a memory copy of the packet to be authenticated/decrypted
  *	and contains the decrypted value on successful return.
  * \param length lenth of input packet
  * \param decrypt TRUE if packet is to be authenticated and decrypted; FALSE if authentication only is requested
  * \returns TRUE if the requested operation was successful; otherwise FALSE
  */
 #ifdef HAVE_LIBGCRYPT
-static gboolean 
+static gboolean
 decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
 {
 #define CANONBUFFSIZE 300U
@@ -769,7 +769,7 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
   gboolean status = FALSE;
 
   /* must be at least 4 bytes long to include the MAC */
-  if (length < 4) 
+  if (length < 4)
     return status;
   if (key_id_element != NULL)
     key_id = key_id_element[0];
@@ -788,17 +788,17 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
 /* RETURNS:        TRUE if message has been authenticated.                    */
 /*                 FALSE if not authenticated, invalid Mode, or error.        */
   if (offset) {
-    if (!keylookup((guint8 *)&c1222_key, key_id)) 
+    if (!keylookup((guint8 *)&c1222_key, key_id))
       return FALSE;
     status = Eax_Decrypt(canonbuff, c1222_key, buffer,
-		  offset, EAX_SIZEOF_KEY, length-4, 
-		  (MAC_T *)&buffer[length-4], 
+		  offset, EAX_SIZEOF_KEY, length-4,
+		  (MAC_T *)&buffer[length-4],
 		  decrypt ? EAX_MODE_CIPHERTEXT_AUTH : EAX_MODE_CLEARTEXT_AUTH);
   }
   return status;
 }
-#else /* HAVE_LIBCRYPT */  
-static gboolean 
+#else /* HAVE_LIBCRYPT */
+static gboolean
 decrypt_packet(guchar *buffer _U_, guint32 length _U_, gboolean decrypt _U_)
 {
   return FALSE;
@@ -864,7 +864,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   proto_item *item = NULL;
   guint8 flags;
   int local_offset;
-  guint32 len2;
+  gint len2;
   int cmd_err;
   gboolean ind;
   guchar *buffer;
@@ -888,7 +888,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       hasmac = TRUE;
       len2 = tvb_length_remaining(tvb, offset);
       if (len2 <= 0)
-        return offset; 
+        return offset;
       encrypted = TRUE;
       if (c1222_decrypt) {
 	buffer = tvb_memdup(tvb, offset, len2);
@@ -931,7 +931,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   }
   /* it's only encrypted if we have an undecrypted payload */
   if (encrypted) {
-    proto_tree_add_item(tree, hf_c1222_epsem_total, tvb, offset, -1, ENC_NA); 
+    proto_tree_add_item(tree, hf_c1222_epsem_total, tvb, offset, -1, ENC_NA);
     expert_add_info_format(pinfo, tree, PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted");
     local_offset = offset+len2-4;
     epsem_buffer = tvb;
@@ -947,13 +947,13 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       }
     }
     /* what follows are one or more <epsem-data> elements possibly followed by
-     * a <mac>.  Each <epsem-data> element is defined as <service-length><res-req>, 
+     * a <mac>.  Each <epsem-data> element is defined as <service-length><res-req>,
      * so we fetch such pairs until there isn't anything left (except possibly
      * the <mac>).
      */
     while (tvb_offset_exists(epsem_buffer, local_offset+(hasmac?5:1))) {
       if (ber_len_ok(epsem_buffer, local_offset)) {
-	local_offset = dissect_ber_length(pinfo, tree, epsem_buffer, local_offset, &len2, &ind);
+	local_offset = dissect_ber_length(pinfo, tree, epsem_buffer, local_offset, (guint32 *)&len2, &ind);
       } else {
 	expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR, "C12.22 EPSEM BER length error");
 	return offset+len;
@@ -962,7 +962,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
 	cmd_err = tvb_get_guint8(epsem_buffer, local_offset);
 	ct = proto_tree_add_item(tree, hf_c1222_epsem_total, epsem_buffer, local_offset, len2, ENC_NA);
 	cmd_tree = proto_item_add_subtree(ct, ett_c1222_cmd);
-	parse_c1222_detailed(epsem_buffer, pinfo, cmd_tree, cmd_err, &len2, &local_offset);
+	parse_c1222_detailed(epsem_buffer, pinfo, cmd_tree, cmd_err, (guint32 *)&len2, &local_offset);
 	local_offset += len2;
       } else {
 	expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_ERROR, "C12.22 EPSEM field length error");
@@ -971,7 +971,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
     }
   }
   if (hasmac) {
-    if (tvb_offset_exists(epsem_buffer, local_offset+4-1)) { 
+    if (tvb_offset_exists(epsem_buffer, local_offset+4-1)) {
       yt = proto_tree_add_item(tree, hf_c1222_epsem_mac, epsem_buffer, local_offset, 4, ENC_NA);
       /* now we have enough information to fill in the crypto subtree */
       crypto_tree = proto_item_add_subtree(yt, ett_c1222_crypto);
@@ -1041,10 +1041,10 @@ get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
  * \param pinfo
  * \param tree
  */
-static void 
+static void
 dissect_c1222(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5, 
+    tcp_dissect_pdus(tvb, pinfo, tree, c1222_desegment, 5,
 	    get_c1222_message_len, dissect_c1222_full);
 }
 
