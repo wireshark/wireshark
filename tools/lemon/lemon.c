@@ -2573,6 +2573,7 @@ void Parse(struct lemon *gp)
   if ( fseek(fp,0,SEEK_END)!=0 || (filesize = ftell(fp))<0 ) {
     ErrorMsg(ps.filename,0,"Can't determine the file size.");
     gp->errorcnt++;
+    fclose(fp);
     return;
   }
   rewind(fp);
