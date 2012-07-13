@@ -1098,6 +1098,9 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	/* Get remaining data in buffer as a string */
 
 	remaining = tvb_length_remaining(tvb, offset);
+	if (remaining <= 0)
+		return offset;
+
 	text = tvb_get_unicode_string(tvb, offset, remaining, ENC_LITTLE_ENDIAN);
 	len = (int)strlen(text);
 
@@ -4183,7 +4186,7 @@ dissect_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Eek - we need to know whether this pointer was NULL or not.
 	   Currently there is not any way to do this. */
 
-	if (tvb_length_remaining(tvb, offset) == 0)
+	if (tvb_length_remaining(tvb, offset) <= 0)
 		goto done;
 
 	offset = dissect_ndr_uint32(
