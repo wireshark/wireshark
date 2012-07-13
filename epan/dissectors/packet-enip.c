@@ -1357,7 +1357,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                /* Call dissector for interface */
                next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
                p_add_proto_data(pinfo->fd, proto_enip, request_info);
-               if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
+               if( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                {
                   /* Show the undissected payload */
                    if( tvb_length_remaining(tvb, offset) > 0 )
@@ -1412,7 +1412,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
                   p_add_proto_data(pinfo->fd, proto_enip, request_info);
-                  if( tvb_length_remaining(next_tvb, 0) == 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
+                  if( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                   {
                      /* Show the undissected payload */
                       if( tvb_length_remaining(tvb, offset) > 0 )
