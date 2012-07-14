@@ -62,6 +62,7 @@
 #define SCSI_SBC_WRITE6                 0x0A
 #define SCSI_SBC_WRITE10                0x2A
 #define SCSI_SBC_WRITE12                0xAA
+#define SCSI_SBC_COMPARENWRITE          0x89
 #define SCSI_SBC_WRITE16                0x8A
 #define SCSI_SBC_WRITENVERIFY10         0x2E
 #define SCSI_SBC_WRITENVERIFY12         0xAE
