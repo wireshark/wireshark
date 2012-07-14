@@ -684,6 +684,37 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
+dissect_sbc_orwrite (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+{
+    static const int *rdwr16_fields[] = {
+	&hf_scsi_sbc_wrprotect,
+	&hf_scsi_sbc_dpo,
+	&hf_scsi_sbc_fua,
+	&hf_scsi_sbc_fua_nv,
+	NULL
+    };
+
+    if (isreq && iscdb) {
+        if (check_col (pinfo->cinfo, COL_INFO))
+            col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+                             tvb_get_ntoh64 (tvb, offset+1),
+                             tvb_get_ntohl (tvb, offset+9));
+    }
+
+    if (tree && isreq && iscdb) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
+            ett_scsi_rdwr, rdwr16_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, ENC_NA);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
+    }
+}
+
+static void
 dissect_sbc_comparenwrite (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
                      guint payload_len _U_, scsi_task_data_t *cdata _U_)
@@ -1473,6 +1504,7 @@ const value_string scsi_sbc_vals[] = {
     {SCSI_SBC_WRITE10           , "Write(10)"},
     {SCSI_SBC_WRITE12           , "Write(12)"},
     {SCSI_SBC_WRITE16           , "Write(16)"},
+    {SCSI_SBC_ORWRITE           , "OrWrite(16)"},
     {SCSI_SPC_WRITEBUFFER       , "Write Buffer"},
     {SCSI_SBC_COMPARENWRITE     , "Compare & Write(16)"},
     {SCSI_SBC_WRITENVERIFY10    , "Write & Verify(10)"},
@@ -1634,7 +1666,7 @@ scsi_cdb_table_t scsi_sbc_table[256] = {
 /*SBC 0x88*/{dissect_sbc_read16},
 /*SBC 0x89*/{dissect_sbc_comparenwrite},
 /*SBC 0x8a*/{dissect_sbc_write16},
-/*SBC 0x8b*/{NULL},
+/*SBC 0x8b*/{dissect_sbc_orwrite},
 /*SBC 0x8c*/{NULL},
 /*SBC 0x8d*/{NULL},
 /*SBC 0x8e*/{dissect_sbc_wrverify16},
