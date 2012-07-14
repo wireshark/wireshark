@@ -2173,7 +2173,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ","%s",
                     val_to_str(ntlmssph->type,
                                ntlmssp_message_types,
-                               "Unknown message type"));
+                               "Unknown NTLMSSP message type"));
 
     /* Call the appropriate dissector based on the Message Type */
     switch (ntlmssph->type) {
