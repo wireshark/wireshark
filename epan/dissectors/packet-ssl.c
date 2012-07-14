@@ -972,7 +972,7 @@ again:
          */
         if(msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
             /* The dissector asked for the entire segment */
-            len = tvb_length_remaining(tvb, offset);
+            len = MAX(0, tvb_length_remaining(tvb, offset));
         } else {
             len = MIN(nxtseq, msp->nxtpdu) - seq;
         }
