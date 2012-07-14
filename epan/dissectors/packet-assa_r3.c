@@ -7409,10 +7409,11 @@ static void dissect_r3_upstreamcommand_dumpdebuglog (tvbuff_t *tvb, guint32 star
  */
 static void dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 len      = tvb_length_remaining (tvb, start_offset);
+  gint len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
+  len = MAX(0, tvb_length_remaining(tvb, start_offset));
   if (len % 3 != 0)
   {
     expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
@@ -7420,8 +7421,8 @@ static void dissect_r3_upstreammfgfield_iopins (tvbuff_t *tvb, guint32 start_off
   }
   else
   {
-    char    portname = 'A';
-    guint32 i;
+    char portname = 'A';
+    gint i;
 
     if (!tree)
       return;
@@ -7482,8 +7483,8 @@ static void dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 st
   proto_item *cpl_item;
   proto_tree *cpl_tree;
   guint       counter;
-  guint       len;
-  guint       i;
+  gint        len;
+  gint        i;
 
   if (!tree)
     return;
@@ -7731,14 +7732,14 @@ static void dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, guint32 sta
 
 static void dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint len;
-  guint i;
+  gint len;
+  gint i;
   proto_item *tfg_item;
   proto_tree *tfg_tree;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len      = tvb_length_remaining (tvb, 0);
+  len      = MAX(0, tvb_length_remaining (tvb, 0));
   tfg_item = proto_tree_add_text (tree, tvb, 0, -1, "Task Flags (%u tasks)", len / 5);
   tfg_tree = proto_item_add_subtree (tfg_item, ett_r3taskflags);
 
@@ -7757,8 +7758,8 @@ static void dissect_r3_upstreammfgfield_taskflags (tvbuff_t *tvb, guint32 start_
 
 static void dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint len;
-  guint i;
+  gint len;
+  gint i;
 
   if (!tree)
     return;
@@ -7770,7 +7771,7 @@ static void dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start
   proto_tree_add_item (tree, hf_r3_timerchain_newtick,         tvb, 0, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_timerchain_currentboundary, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 
-  for (i = 0; i < (len); i += 12)
+  for (i = 0; i < len; i += 12)
   {
     proto_item *tc_item = proto_tree_add_text (tree, tvb, 3 + i, 12, "Timer Chain Entry");
     proto_tree *tc_tree = proto_item_add_subtree (tc_item, ett_r3timerchain);
@@ -7786,8 +7787,8 @@ static void dissect_r3_upstreammfgfield_timerchain (tvbuff_t *tvb, guint32 start
 
 static void dissect_r3_upstreammfgfield_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint i;
-  guint len;
+  gint i;
+  gint len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
@@ -7921,14 +7922,14 @@ static void dissect_r3_upstreammfgfield_capabilities (tvbuff_t *tvb, guint32 sta
 {
   proto_item *cf_item;
   proto_tree *cf_tree;
-  guint       len;
+  gint        len;
   guint       items;
   guint       octets;
-  guint       i;
+  gint        i;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = tvb_length_remaining (tvb, 0);
+  len = MAX(0, tvb_length_remaining (tvb, 0));
 
   items = 0;
   i     = 0;
@@ -8085,11 +8086,11 @@ static void dissect_r3_upstreammfgfield_nvramchecksumvalue (tvbuff_t *tvb, guint
 
 static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 len;
+  gint len;
 
   DISSECTOR_ASSERT(start_offset == 0);
 
-  len = tvb_length_remaining (tvb, 0);
+  len = MAX(0, tvb_length_remaining(tvb, 0));
   if (len % 3 != 0)
   {
     expert_add_info_format (pinfo, proto_tree_get_parent (tree), PI_UNDECODED, PI_WARN,
@@ -8100,7 +8101,7 @@ static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 
     proto_item *cksum_item;
     proto_tree *cksum_tree;
     guint32     error = FALSE;
-    guint32     i;
+    gint        i;
 
     if (!tree)
       return;
@@ -8134,8 +8135,8 @@ static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 
 
 static void dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint len;
-  guint i;
+  gint len;
+  gint i;
 
   if (!tree)
     return;
@@ -9427,8 +9428,8 @@ static void dissect_r3_cmdmfg_readregisters (tvbuff_t *tvb, guint32 start_offset
 
 static void dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint i;
-  guint len;
+  gint i;
+  gint len;
 
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -9525,8 +9526,8 @@ static void dissect_r3_cmdmfg_timerchain (tvbuff_t *tvb, guint32 start_offset, g
 
 static void dissect_r3_cmdmfg_peekpoke (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  guint i;
-  guint len;
+  gint i;
+  gint len;
 
   proto_tree_add_item (tree, hf_r3_commandmfglength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_commandmfg,       tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
