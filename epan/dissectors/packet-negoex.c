@@ -193,7 +193,7 @@ dissect_negoex_verify_message(tvbuff_t *tvb,
 
   proto_tree_add_item(checksum_vector, hf_negoex_checksum_vector_pad, tvb,
                       offset, 2, ENC_NA);
-  offset += 2;
+  /*offset += 2;*/
 
   proto_tree_add_item(checksum_vector, hf_negoex_checksum, tvb,
                       checksum_vector_offset, checksum_vector_count, ENC_NA);
@@ -232,11 +232,11 @@ dissect_negoex_exchange_message(tvbuff_t *tvb,
 
   proto_tree_add_item(exchange_vector, hf_negoex_exchange_vector_count, tvb,
                       offset, 2, ENC_LITTLE_ENDIAN);
-  offset +=  2;
+  offset += 2;
 
   proto_tree_add_item(exchange_vector, hf_negoex_exchange_vector_pad, tvb,
                       offset, 2, ENC_NA);
-  offset += 2;
+  /*offset += 2;*/
 
   proto_tree_add_item(exchange_vector, hf_negoex_exchange, tvb,
                       exchange_vector_offset, exchange_vector_count, ENC_NA);
@@ -365,9 +365,6 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tf = NULL;
   done = FALSE;
   payload_len = tvb_length(tvb);
-  message_len = 0;
-  message_type = 0;  /* This is a MESSAGE_TYPE_INITIATOR_NEGO ... */
-  header_len = 0;
 
   /* Set up the initial NEGOEX payload */
   if (tree) {
@@ -396,7 +393,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Add the message type tree ... set its length below */
       msg = proto_tree_add_text(negoex_tree, tvb, offset, -1,
-                                "NEGEOX %s",
+                                "NEGOEX %s",
                                 val_to_str_const(message_type,
                                                  negoex_message_types,
                                                  "Unknown NEGOEX message type"));
