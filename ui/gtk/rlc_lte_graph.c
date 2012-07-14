@@ -867,6 +867,10 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
     GString *error_string;
     th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
+    if (cf->state == FILE_CLOSED) {
+        return NULL;
+    }
+
     fdata = cf->current_frame;
 
     /* no real filter yet */
@@ -902,7 +906,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
          * as rlc_lte_graph_selected_packet_enabled() is used
          * to determine whether to enable any of our menu items. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Selected packet Doesn't have an RLC PDU");
+            "Selected packet doesn't have an RLC PDU");
         return NULL;
     }
     /* XXX fix this later, we should show a dialog allowing the user

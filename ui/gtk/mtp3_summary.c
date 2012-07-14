@@ -280,6 +280,10 @@ void mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   int			tot_num_msus;
   double		tot_num_bytes;
 
+  if (cfile.state == FILE_CLOSED) {
+    return;
+  }
+
   /* initialize the tally */
   summary_fill_in(&cfile, &summary);
 
