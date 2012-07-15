@@ -129,7 +129,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item_set_len(ti, offset);
 
 	/* if we have some unparsed data, pass to data-text-lines dissector (?) */
-	if (tvb_length_remaining(tvb, offset) != 0) {
+	if (tvb_length_remaining(tvb, offset) > 0) {
 		int datalen, reported_datalen;
 		tvbuff_t *next_tvb;
 		
