@@ -2253,6 +2253,8 @@ typedef struct {
   char         *line_buf;
   int           line_buf_len;
   gint         *col_widths;
+  int           num_visible_cols;
+  gint         *visible_cols;
 } print_callback_args_t;
 
 static gboolean
@@ -2311,9 +2313,9 @@ print_packet(capture_file *cf, frame_data *fdata,
     }
     cp = &args->line_buf[0];
     line_len = 0;
-    for (i = 0; i < cf->cinfo.num_cols; i++) {
+    for (i = 0; i < args->num_visible_cols; i++) {
       /* Find the length of the string for this column. */
-      column_len = (int) strlen(cf->cinfo.col_data[i]);
+      column_len = (int) strlen(cf->cinfo.col_data[args->visible_cols[i]]);
       if (args->col_widths[i] > column_len)
          column_len = args->col_widths[i];
 
@@ -2328,12 +2330,12 @@ print_packet(capture_file *cf, frame_data *fdata,
       }
 
       /* Right-justify the packet number column. */
-      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        g_snprintf(cp, column_len+1, "%*s", args->col_widths[i], cf->cinfo.col_data[i]);
+      if (cf->cinfo.col_fmt[args->visible_cols[i]] == COL_NUMBER)
+        g_snprintf(cp, column_len+1, "%*s", args->col_widths[i], cf->cinfo.col_data[args->visible_cols[i]]);
       else
-        g_snprintf(cp, column_len+1, "%-*s", args->col_widths[i], cf->cinfo.col_data[i]);
+        g_snprintf(cp, column_len+1, "%-*s", args->col_widths[i], cf->cinfo.col_data[args->visible_cols[i]]);
       cp += column_len;
-      if (i != cf->cinfo.num_cols - 1)
+      if (i != args->num_visible_cols - 1)
         *cp++ = ' ';
     }
     *cp = '\0';
@@ -2405,14 +2407,14 @@ fail:
 cf_print_status_t
 cf_print_packets(capture_file *cf, print_args_t *print_args)
 {
-  int         i;
   print_callback_args_t callback_args;
   gint        data_width;
   char        *cp;
-  int         cp_off;
-  int         column_len;
-  int         line_len;
+  int         i, cp_off, column_len, line_len;
+  int         num_visible_col = 0, last_visible_col = 0, visible_col_count;
   psp_return_t ret;
+  GList       *clp;
+  fmt_data    *cfmt;
 
   callback_args.print_args = print_args;
   callback_args.print_header_line = TRUE;
@@ -2423,6 +2425,8 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   callback_args.line_buf = NULL;
   callback_args.line_buf_len = 256;
   callback_args.col_widths = NULL;
+  callback_args.num_visible_cols = 0;
+  callback_args.visible_cols = NULL;
 
   if (!print_preamble(print_args->stream, cf->filename)) {
     destroy_print_stream(print_args->stream);
@@ -2434,27 +2438,56 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
        and get the column widths. */
     callback_args.header_line_buf = g_malloc(callback_args.header_line_buf_len + 1);
 
+    /* Find the number of visible columns and the last visible column */
+    for (i = 0; i < prefs.num_cols; i++) {
+
+        clp = g_list_nth(prefs.col_list, i);
+        if (clp == NULL) /* Sanity check, Invalid column requested */
+            continue;
+
+        cfmt = (fmt_data *) clp->data;
+        if (cfmt->visible) {
+            num_visible_col++;
+            last_visible_col = i;
+        }
+    }
+
     /* Find the widths for each of the columns - maximum of the
        width of the title and the width of the data - and construct
        a buffer with a line containing the column titles. */
-    callback_args.col_widths = (gint *) g_malloc(sizeof(gint) * cf->cinfo.num_cols);
+    callback_args.num_visible_cols = num_visible_col;
+    callback_args.col_widths = (gint *) g_malloc(sizeof(gint) * num_visible_col);
+    callback_args.visible_cols = (gint *) g_malloc(sizeof(gint) * num_visible_col);
     cp = &callback_args.header_line_buf[0];
     line_len = 0;
+    visible_col_count = 0;
     for (i = 0; i < cf->cinfo.num_cols; i++) {
+
+      clp = g_list_nth(prefs.col_list, i);
+      if (clp == NULL) /* Sanity check, Invalid column requested */
+          continue;
+
+      cfmt = (fmt_data *) clp->data;
+      if (cfmt->visible == FALSE)
+          continue;
+
+      /* Save the order of visible columns */
+      callback_args.visible_cols[visible_col_count] = i;
+
       /* Don't pad the last column. */
-      if (i == cf->cinfo.num_cols - 1)
-        callback_args.col_widths[i] = 0;
+      if (i == last_visible_col)
+        callback_args.col_widths[visible_col_count] = 0;
       else {
-        callback_args.col_widths[i] = (gint) strlen(cf->cinfo.col_title[i]);
+        callback_args.col_widths[visible_col_count] = (gint) strlen(cf->cinfo.col_title[i]);
         data_width = get_column_char_width(get_column_format(i));
-        if (data_width > callback_args.col_widths[i])
-          callback_args.col_widths[i] = data_width;
+        if (data_width > callback_args.col_widths[visible_col_count])
+          callback_args.col_widths[visible_col_count] = data_width;
       }
 
       /* Find the length of the string for this column. */
       column_len = (int) strlen(cf->cinfo.col_title[i]);
       if (callback_args.col_widths[i] > column_len)
-        column_len = callback_args.col_widths[i];
+        column_len = callback_args.col_widths[visible_col_count];
 
       /* Make sure there's room in the line buffer for the column; if not,
          double its length. */
@@ -2469,12 +2502,14 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
 
       /* Right-justify the packet number column. */
 /*      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        g_snprintf(cp, column_len+1, "%*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
+        g_snprintf(cp, column_len+1, "%*s", callback_args.col_widths[visible_col_count], cf->cinfo.col_title[i]);
       else*/
-      g_snprintf(cp, column_len+1, "%-*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
+      g_snprintf(cp, column_len+1, "%-*s", callback_args.col_widths[visible_col_count], cf->cinfo.col_title[i]);
       cp += column_len;
       if (i != cf->cinfo.num_cols - 1)
         *cp++ = ' ';
+
+      visible_col_count++;
     }
     *cp = '\0';
 
@@ -2493,6 +2528,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   g_free(callback_args.header_line_buf);
   g_free(callback_args.line_buf);
   g_free(callback_args.col_widths);
+  g_free(callback_args.visible_cols);
 
   switch (ret) {
 
