@@ -243,7 +243,7 @@ bytes_view_scroll(GtkWidget *widget, GdkEventScroll *event)
 {
 	BytesView *bv = BYTES_VIEW(widget);
 
-	gfloat new_value;
+	gdouble new_value;
 
 	if (event->direction == GDK_SCROLL_UP) {	/* mouse wheel pageUp */
 		bytes_view_ensure_vadj(bv);
