@@ -43,6 +43,7 @@
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
+#include <epan/stats_tree_priv.h>
 
 #include <epan/filesystem.h>
 
@@ -144,6 +145,7 @@ GtkWidget *popup_menu_object;
 
 static void menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_ );
 static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
+static void add_tap_plugins (guint merge_id, GtkUIManager *ui_manager);
 
 static void menus_init(void);
 static void merge_lua_menu_items(GList *node);
@@ -1272,9 +1274,6 @@ static const char *ui_desc_menubar =
 "        <menuitem name='http_req' action='/StatisticsMenu/HTTP/http_req'/>\n"
 "        <menuitem name='http_srv' action='/StatisticsMenu/HTTP/http_srv'/>\n"
 "      </menu>\n"
-"      <menuitem name='IPAddresses' action='/StatisticsMenu/ip_hosts'/>\n"
-"      <menuitem name='IPDestinations' action='/StatisticsMenu/dests'/>\n"
-"      <menuitem name='IPptype' action='/StatisticsMenu/ptype'/>\n"
 "      <menuitem name='ONC-RPC-Programs' action='/StatisticsMenu/ONC-RPC-Programs'/>\n"
 "      <menu name= 'SametimeMenu' action='/StatisticsMenu/Sametime'>\n"
 "        <menuitem name='sametime' action='/StatisticsMenu/Sametime/sametime'/>\n"
@@ -1736,9 +1735,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/StatisticsMenu/HTTP/http_req",                   NULL,       "Requests",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/StatisticsMenu/HTTP/http_srv",                   NULL,       "Load Distribution",                NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
 
-   { "/StatisticsMenu/ip_hosts",                        NULL,       "IP Addresses...",                  NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/dests",                           NULL,       "IP Destinations...",               NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
-   { "/StatisticsMenu/ptype",                           NULL,       "IP Protocol Types..",              NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/StatisticsMenu/ONC-RPC-Programs",                NULL,       "ONC-RPC Programs",                 NULL, NULL, G_CALLBACK(gtk_rpcprogs_cb) },
    { "/StatisticsMenu/Sametime",                        NULL,       "Sametime",                         NULL, NULL, NULL },
    { "/StatisticsMenu/Sametime/sametime",               NULL,       "Messages",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
@@ -3462,6 +3458,11 @@ menus_init(void) {
         merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
         add_recent_items (merge_id, ui_manager_main_menubar);
 
+        /* Add statistics tap plug-in to the menu 
+         */
+        merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+        add_tap_plugins (merge_id, ui_manager_main_menubar);
+
         statusbar_profiles_action_group = gtk_action_group_new ("StatusBarProfilesPopUpMenuActionGroup");
 
         gtk_action_group_add_actions (statusbar_profiles_action_group,   /* the action group */
@@ -4123,6 +4124,56 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 
 }
 
+#define MENU_STATISTICS_PATH "/Menubar/StatisticsMenu"
+
+static void
+add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
+{
+    GtkActionGroup *action_group;
+    GtkAction *action;
+    GtkWidget *submenu_statistics;
+    GList *cfg_list;
+    GList *iter;
+    gchar *action_name;
+    
+    action_group = gtk_action_group_new ("tap-plugins-group");
+
+    submenu_statistics = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_STATISTICS_PATH);
+    if(!submenu_statistics){
+        g_warning("add_tap_plugins: No submenu_statistics found, path= MENU_STATISTICS_PATH");
+        return;
+    }
+    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+    g_object_set_data (G_OBJECT (ui_manager_main_menubar),
+                     "tap-plugins-merge-id", GUINT_TO_POINTER (merge_id));
+
+    cfg_list = stats_tree_get_cfg_list();
+    iter = g_list_first(cfg_list);
+    while (iter) {
+        stats_tree_cfg *cfg = (stats_tree_cfg*)iter->data;
+        if (cfg->plugin) {
+            action_name = g_strdup_printf(MENU_STATISTICS_PATH "/%s", cfg->abbr);
+            action = g_object_new (GTK_TYPE_ACTION,
+                 "name", action_name,
+                 "label", cfg->name,
+                 NULL);
+            g_signal_connect (action, "activate", G_CALLBACK (gtk_stats_tree_cb), NULL);
+            gtk_action_group_add_action (action_group, action);
+            g_object_unref (action);
+
+            gtk_ui_manager_add_ui (ui_manager, merge_id,
+                 MENU_STATISTICS_PATH,
+                 action_name,
+                 action_name,
+                 GTK_UI_MANAGER_MENUITEM,
+                FALSE);
+
+            g_free (action_name);
+        }
+        iter = g_list_next(iter);
+    }
+    g_list_free(cfg_list);
+}
 
 /* Open a file by it's name
    (Beware: will not ask to close existing capture file!) */

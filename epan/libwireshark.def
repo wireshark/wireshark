@@ -1013,6 +1013,7 @@ stats_tree_create_range_node_string
 stats_tree_free
 stats_tree_get_abbr
 stats_tree_get_cfg_by_abbr
+stats_tree_get_cfg_list
 stats_tree_get_strs_from_node
 stats_tree_manip_node
 stats_tree_new
@@ -1022,6 +1023,7 @@ stats_tree_parent_id_by_name
 stats_tree_presentation
 stats_tree_range_node_with_pname
 stats_tree_register
+stats_tree_register_plugin
 stats_tree_register_with_group
 stats_tree_reinit
 stats_tree_reset

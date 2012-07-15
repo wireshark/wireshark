@@ -113,6 +113,7 @@ struct _stats_tree_cfg {
 	register_stat_group_t	stat_group;
 	
 	gboolean in_use;
+	gboolean plugin;
 
 	/** dissector defined callbacks */
 	stat_tree_packet_cb packet;
@@ -180,6 +181,10 @@ extern gchar *stats_tree_get_abbr(const gchar *optarg);
 
 /** obtains a stats tree from the registry given its abbr */
 extern stats_tree_cfg *stats_tree_get_cfg_by_abbr(gchar *abbr);
+
+/** obtains a stats tree list from the registry 
+    caller should free returned list with  g_list_free() */
+extern GList *stats_tree_get_cfg_list(void);
 
 /** extracts node data as strings from a stat_node into
    the buffers given by value, rate and precent

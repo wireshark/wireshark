@@ -270,6 +270,7 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
 	/* at the very least the abbrev and the packet function should be given */
 	g_assert( tapname && abbr && packet );
 
+	cfg->plugin = FALSE;
 	cfg->tapname = g_strdup(tapname);
 	cfg->abbr = g_strdup(abbr);
 	cfg->name = name ? g_strdup(name) : g_strdup(abbr);
@@ -294,7 +295,6 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
 	if (!registry) registry = g_hash_table_new(g_str_hash,g_str_equal);
 
 	g_hash_table_insert(registry,cfg->abbr,cfg);
-
 }
 
 /* register a new stats_tree with default group REGISTER_STAT_GROUP_UNSORTED */
@@ -308,6 +308,23 @@ stats_tree_register(const char *tapname, const char *abbr, const char *name,
 		    flags,
 		    packet, init,
 		    cleanup, REGISTER_STAT_GROUP_UNSORTED);
+}
+
+/* register a new stat_tree with default group REGISTER_STAT_GROUP_UNSORTED from a plugin */
+extern void
+stats_tree_register_plugin(const char *tapname, const char *abbr, const char *name,
+		    guint flags,
+		    stat_tree_packet_cb packet, stat_tree_init_cb init,
+		    stat_tree_cleanup_cb cleanup)
+{
+	stats_tree_cfg *cfg;
+
+	stats_tree_register(tapname, abbr, name,
+		    flags,
+		    packet, init,
+		    cleanup);
+	cfg = stats_tree_get_cfg_by_abbr((char*)abbr);
+	cfg->plugin = TRUE;
 }
 
 extern stats_tree*
@@ -362,6 +379,11 @@ stats_tree_get_cfg_by_abbr(char *abbr)
 	return g_hash_table_lookup(registry,abbr);
 }
 
+extern GList*
+stats_tree_get_cfg_list(void)
+{
+	return g_hash_table_get_values(registry);
+}
 
 struct _stats_tree_pres_cbs {
 	void (*setup_node_pr)(stat_node*);

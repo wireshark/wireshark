@@ -208,10 +208,10 @@ void register_pinfo_stat_trees(void) {
 		UAT_END_FIELDS
 	};
 
-	stats_tree_register("ip","ip_hosts",st_str_ip, 0, ip_hosts_stats_tree_packet, ip_hosts_stats_tree_init, NULL );
-	stats_tree_register("ip","ptype",st_str_ptype, 0, ptype_stats_tree_packet, ptype_stats_tree_init, NULL );
+    stats_tree_register_plugin("ip","ip_hosts",st_str_ip, 0, ip_hosts_stats_tree_packet, ip_hosts_stats_tree_init, NULL );
+	stats_tree_register_plugin("ip","ptype",st_str_ptype, 0, ptype_stats_tree_packet, ptype_stats_tree_init, NULL );
 	stats_tree_register_with_group("frame","plen",st_str_plen, 0, plen_stats_tree_packet, plen_stats_tree_init, NULL, REGISTER_STAT_GROUP_GENERIC );
-	stats_tree_register("ip","dests",st_str_dsts, 0, dsts_stats_tree_packet, dsts_stats_tree_init, NULL );
+	stats_tree_register_plugin("ip","dests",st_str_dsts, 0, dsts_stats_tree_packet, dsts_stats_tree_init, NULL );
 
 	stat_module = prefs_register_stat("stat_tree", "Stats Tree", "Stats Tree", NULL);
 
@@ -232,4 +232,3 @@ void register_pinfo_stat_trees(void) {
 	prefs_register_uat_preference(stat_module, "packet_lengths",
 		"Packet Lengths", "Delineated packet sizes to count", plen_uat);
 }
-

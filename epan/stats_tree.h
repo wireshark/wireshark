@@ -66,6 +66,22 @@ extern void stats_tree_register(const gchar *tapname,
 				stat_tree_init_cb init,
 				stat_tree_cleanup_cb cleanup);
 
+/* registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED from a plugin
+ * abbr: protocol abbr
+ * name: protocol display name
+ * flags: tap listener flags for per-packet callback
+ * packet: per packet callback
+ * init: tree initialization callback
+ * cleanup: cleanup callback
+ */
+extern void stats_tree_register_plugin(const gchar *tapname,
+				const gchar *abbr, 
+				const gchar *name,
+				guint flags,
+				stat_tree_packet_cb packet,
+				stat_tree_init_cb init,
+				stat_tree_cleanup_cb cleanup);
+
 /* registers a new stats tree 
  * abbr: protocol abbr
  * name: protocol display name
