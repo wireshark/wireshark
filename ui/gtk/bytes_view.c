@@ -30,11 +30,14 @@
  */
 
 #ifdef HAVE_CONFIG_H
+#undef GTK_DISABLE_DEPRECATED
+#undef GSEAL_ENABLE
 #include "config.h"
 #endif
 
 #undef GTK_DISABLE_DEPRECATED
 #undef GSEAL_ENABLE
+#include <gtk/gtkmarshal.h>
 
 #include <gtk/gtk.h>
 #include "ui/gtk/old-gtk-compat.h"
@@ -176,27 +179,36 @@ bytes_view_realize(GtkWidget *widget)
 {
 	BytesView *bv;
 	GdkWindowAttr attributes;
- 
+	GtkAllocation allocation;
+	GdkWindow *win;
+
 	_gtk_widget_set_realized_true(widget);
 	bv = BYTES_VIEW(widget);
 
+	gtk_widget_get_allocation(widget, &allocation);
+
 	attributes.window_type = GDK_WINDOW_CHILD;
-	attributes.x = widget->allocation.x;
-	attributes.y = widget->allocation.y;
-	attributes.width = widget->allocation.width;
-	attributes.height = widget->allocation.height;
+	attributes.x = allocation.x;
+	attributes.y = allocation.y;
+	attributes.width = allocation.width;
+	attributes.height = allocation.height;
 	attributes.wclass = GDK_INPUT_OUTPUT;
 	attributes.visual = gtk_widget_get_visual(widget);
 	attributes.colormap = gtk_widget_get_colormap(widget);
 
 	attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK;
 
-	widget->window = gdk_window_new(widget->parent->window, &attributes, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP);
+	win = gdk_window_new(gtk_widget_get_parent_window(widget), &attributes, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP);
+	gtk_widget_set_window(widget, win);
 
-	gdk_window_set_user_data(widget->window, widget);
+	gdk_window_set_user_data(win, widget);
+	gdk_window_set_back_pixmap(win, NULL, FALSE);
 
-	gdk_window_set_back_pixmap(widget->window, NULL, FALSE);
-	widget->style = gtk_style_attach(widget->style, widget->window);
+#if GTK_CHECK_VERSION (2, 20, 0)
+	gtk_widget_style_attach(widget);
+#else
+	widget->style = gtk_style_attach(widget->style, gtk_widget_get_window(widget));
+#endif
 	bytes_view_ensure_layout(bv);
 }
 
@@ -210,7 +222,7 @@ bytes_view_unrealize(GtkWidget *widget)
 		bv->context = NULL;
 	}
 	/* if there are still events in the queue, this'll avoid segfault */
-	gdk_window_set_user_data(widget->window, NULL);
+	gdk_window_set_user_data(gtk_widget_get_window(widget), NULL);
 
 	if (parent_class->unrealize)
 		(*GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
@@ -246,7 +258,7 @@ bytes_view_scroll(GtkWidget *widget, GdkEventScroll *event)
 	if (event->direction == GDK_SCROLL_UP) {	/* mouse wheel pageUp */
 		bytes_view_ensure_vadj(bv);
 
-		new_value = bv->vadj->value - (bv->vadj->page_increment / 10);
+		new_value = gtk_adjustment_get_value(bv->vadj) - (bv->vadj->page_increment / 10);
 		if (new_value < bv->vadj->lower)
 			new_value = bv->vadj->lower;
 		gtk_adjustment_set_value(bv->vadj, new_value);
@@ -254,7 +266,7 @@ bytes_view_scroll(GtkWidget *widget, GdkEventScroll *event)
 	} else if (event->direction == GDK_SCROLL_DOWN) {	/* mouse wheel pageDn */
 		bytes_view_ensure_vadj(bv);
 
-		new_value = bv->vadj->value + (bv->vadj->page_increment / 10);
+		new_value = gtk_adjustment_get_value(bv->vadj) + (bv->vadj->page_increment / 10);
 		if (new_value > (bv->vadj->upper - bv->vadj->page_size))
 			new_value = bv->vadj->upper - bv->vadj->page_size;
 		gtk_adjustment_set_value(bv->vadj, new_value);
@@ -265,11 +277,12 @@ bytes_view_scroll(GtkWidget *widget, GdkEventScroll *event)
 static void 
 bytes_view_allocate(GtkWidget *widget, GtkAllocation *allocation)
 {
-	widget->allocation = *allocation;
+	gtk_widget_set_allocation(widget, allocation);
+
 	if (gtk_widget_get_realized(widget)) {
 		BytesView *bv = BYTES_VIEW(widget);
 
-		gdk_window_move_resize(widget->window, allocation->x, allocation->y, allocation->width, allocation->height);
+		gdk_window_move_resize(gtk_widget_get_window(widget), allocation->x, allocation->y, allocation->width, allocation->height);
 		bytes_view_adjustment_set(bv);
 	}
 }
@@ -516,7 +529,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 
 	g_assert(org_off >= 0);
 
-	scroll_x = (int)bytes_view_ensure_hadj(bv)->value;
+	scroll_x = (int) gtk_adjustment_get_value(bytes_view_ensure_hadj(bv));
 
 	state = GTK_STATE_NORMAL;
 	bytes_view_render_state(bv, GTK_STATE_NORMAL);
@@ -704,7 +717,7 @@ bytes_view_render(BytesView *bv, GdkRectangle *area)
 
 	bytes_view_ensure_layout(bv);
 
-	draw_buf = GTK_WIDGET(bv)->window;
+	draw_buf = gtk_widget_get_window(GTK_WIDGET(bv));
 	gdk_drawable_get_size(draw_buf, &width, &height);
 
 	if (width < 32 + MARGIN || height < bv->fontsize)
@@ -737,7 +750,7 @@ bytes_view_render(BytesView *bv, GdkRectangle *area)
 	cairo_fill(cr);
 
 	if (bv->pd) {
-		guint real_line = line + (guint)bytes_view_ensure_vadj(bv)->value;
+		guint real_line = line + (guint) gtk_adjustment_get_value(bytes_view_ensure_vadj(bv));
 
 		lines_max_full = (height / bv->fontsize) + 1;
 		if (lines_max_full < lines_max)
@@ -992,7 +1005,7 @@ bytes_view_byte_from_xy(BytesView *bv, int x, int y)
 
 	bytes_view_ensure_layout(bv);
 
-	char_y = (int)(bytes_view_ensure_vadj(bv)->value + (y / bv->fontsize));
+	char_y = (int) gtk_adjustment_get_value(bytes_view_ensure_vadj(bv)) + (y / bv->fontsize);
 	off_y = char_y * bv->per_line;
 
 	char_x = _bytes_view_find_pos(bv, off_y, x);

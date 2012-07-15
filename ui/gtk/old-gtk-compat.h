@@ -52,8 +52,10 @@
 #	define gtk_widget_get_visible(x) GTK_WIDGET_VISIBLE(x)
 #	define gtk_widget_get_state(x) GTK_WIDGET_STATE(x)
 #	define gtk_widget_get_allocation(x,y) (*(y) = x->allocation)
+#	define gtk_widget_set_allocation(x, y) (x) = *(y)
 #	define gtk_widget_get_sensitive(x) GTK_WIDGET_SENSITIVE(x)
 #	define gtk_widget_is_drawable(x) GDK_IS_DRAWABLE(x)
+#	define gtk_widget_set_window(x, y) (x)->window = (y)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)
