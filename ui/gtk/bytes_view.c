@@ -518,7 +518,7 @@ _bytes_view_line_common(BytesView *bv, void *data, const int org_off, int xx, in
 
 	g_assert(org_off >= 0);
 
-	scroll_x = bytes_view_ensure_hadj(bv)->value;
+	scroll_x = (int)bytes_view_ensure_hadj(bv)->value;
 
 	state = GTK_STATE_NORMAL;
 	bytes_view_render_state(bv, GTK_STATE_NORMAL);
@@ -739,7 +739,7 @@ bytes_view_render(BytesView *bv, GdkRectangle *area)
 	cairo_fill(cr);
 
 	if (bv->pd) {
-		guint real_line = line + bytes_view_ensure_vadj(bv)->value;
+		guint real_line = line + (guint)bytes_view_ensure_vadj(bv)->value;
 
 		lines_max_full = (height / bv->fontsize) + 1;
 		if (lines_max_full < lines_max)
@@ -994,7 +994,7 @@ bytes_view_byte_from_xy(BytesView *bv, int x, int y)
 
 	bytes_view_ensure_layout(bv);
 
-	char_y = bytes_view_ensure_vadj(bv)->value + (y / bv->fontsize);
+	char_y = (int)(bytes_view_ensure_vadj(bv)->value + (y / bv->fontsize));
 	off_y = char_y * bv->per_line;
 
 	char_x = _bytes_view_find_pos(bv, off_y, x);
@@ -1032,7 +1032,7 @@ bytes_view_scroll_to_byte(BytesView *bv, int byte)
 	bytes_view_ensure_vadj(bv);
 
 	if (line > bv->vadj->upper - bv->vadj->page_size) {
-		line = bv->vadj->upper - bv->vadj->page_size;
+		line = (int)(bv->vadj->upper - bv->vadj->page_size);
 
 		if (line < 0)
 			line = 0;
