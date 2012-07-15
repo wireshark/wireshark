@@ -77,6 +77,7 @@
 #include "ui/gtk/menus.h"
 #include "ui/gtk/packet_panes.h"
 #include "ui/gtk/proto_tree_model.h"
+#include "ui/gtk/bytes_view.h"
 
 #ifdef _WIN32
 #include <gdk/gdkwin32.h>
@@ -87,7 +88,6 @@
 
 #define E_BYTE_VIEW_TREE_PTR      "byte_view_tree_ptr"
 #define E_BYTE_VIEW_TREE_VIEW_PTR "byte_view_tree_view_ptr"
-#define E_BYTE_VIEW_NDIGITS_KEY   "byte_view_ndigits"
 #define E_BYTE_VIEW_TVBUFF_KEY    "byte_view_tvbuff"
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
@@ -243,40 +243,6 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
     }
 }
 
-#define MAX_OFFSET_LEN   8      /* max length of hex offset of bytes */
-#define BYTES_PER_LINE  16      /* max byte values in a line */
-#define BITS_PER_LINE    8      /* max bit values in a line */
-#define BYTE_VIEW_SEP    8      /* insert a space every BYTE_VIEW_SEP bytes */
-#define HEX_DUMP_LEN    (BYTES_PER_LINE*3 + 1)
-/* max number of characters hex dump takes -
-   2 digits plus trailing blank
-   plus separator between first and
-   second 8 digits */
-#define DATA_DUMP_LEN   (HEX_DUMP_LEN + 2 + BYTES_PER_LINE)
-/* number of characters those bytes take;
-   3 characters per byte of hex dump,
-   2 blanks separating hex from ASCII,
-   1 character per byte of ASCII dump */
-#define MAX_LINE_LEN    (MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
-/* number of characters per line;
-   offset, 2 blanks separating offset
-   from data dump, data dump */
-#define MAX_LINES       100
-#define MAX_LINES_LEN   (MAX_LINES*MAX_LINE_LEN)
-
-/* Which byte the offset is referring to. Associates
- * whitespace with the preceding digits. */
-static int
-byte_num(int offset, int start_point)
-{
-    return (offset - start_point) / 3;
-}
-static int
-bit_num(int offset, int start_point)
-{
-    return (offset - start_point) / 9;
-}
-
 struct field_lookup_info {
     field_info  *fi;
     GtkTreeIter  iter;
@@ -312,174 +278,6 @@ GtkTreePath
     return gtk_tree_model_get_path(model, &fli.iter);
 }
 
-static int
-hex_view_get_byte(guint ndigits, int row, int column)
-{
-    int           byte;
-    int           digits_start_1;
-    int           digits_end_1;
-    int           digits_start_2;
-    int           digits_end_2;
-    int           text_start_1;
-    int           text_end_1;
-    int           text_start_2;
-    int           text_end_2;
-
-    /*
-     * The column of the first hex digit in the first half.
-     * That starts after "ndigits" digits of offset and two
-     * separating blanks.
-     */
-    digits_start_1 = ndigits + 2;
-
-    /*
-     * The column of the last hex digit in the first half.
-     * There are BYTES_PER_LINE/2 bytes displayed in the first
-     * half; there are 2 characters per byte, plus a separating
-     * blank after all but the last byte's characters.
-     */
-    digits_end_1 = digits_start_1 + (BYTES_PER_LINE/2)*2 +
-        (BYTES_PER_LINE/2 - 1);
-
-    /*
-     * The column of the first hex digit in the second half.
-     * Add 2 for the 2 separating blanks between the halves.
-     */
-    digits_start_2 = digits_end_1 + 2;
-
-    /*
-     * The column of the last hex digit in the second half.
-     * Add the same value we used to get "digits_end_1" from
-     * "digits_start_1".
-     */
-    digits_end_2 = digits_start_2 + (BYTES_PER_LINE/2)*2 +
-        (BYTES_PER_LINE/2 - 1);
-
-    /*
-     * The column of the first "text dump" character in the first half.
-     * Add 3 for the 3 separating blanks between the hex and text dump.
-     */
-    text_start_1 = digits_end_2 + 3;
-
-    /*
-     * The column of the last "text dump" character in the first half.
-     * There are BYTES_PER_LINE/2 bytes displayed in the first
-     * half; there is 1 character per byte.
-     *
-     * Then subtract 1 to get the last column of the first half
-     * rather than the first column after the first half.
-     */
-    text_end_1 = text_start_1 + BYTES_PER_LINE/2 - 1;
-
-    /*
-     * The column of the first "text dump" character in the second half.
-     * Add back the 1 to get the first column after the first half,
-     * and then add 1 for the separating blank between the halves.
-     */
-    text_start_2 = text_end_1 + 2;
-
-    /*
-     * The column of the last "text dump" character in second half.
-     * Add the same value we used to get "text_end_1" from
-     * "text_start_1".
-     */
-    text_end_2 = text_start_2 + BYTES_PER_LINE/2 - 1;
-
-    /* Given the column and row, determine which byte offset
-     * the user clicked on. */
-    if (column >= digits_start_1 && column <= digits_end_1) {
-        byte = byte_num(column, digits_start_1);
-        if (byte == -1) {
-            return byte;
-        }
-    }
-    else if (column >= digits_start_2 && column <= digits_end_2) {
-        byte = byte_num(column, digits_start_2);
-        if (byte == -1) {
-            return byte;
-        }
-        byte += 8;
-    }
-    else if (column >= text_start_1 && column <= text_end_1) {
-        byte = column - text_start_1;
-    }
-    else if (column >= text_start_2 && column <= text_end_2) {
-        byte = 8 + column - text_start_2;
-    }
-    else {
-        /* The user didn't select a hex digit or
-         * text-dump character. */
-        return -1;
-    }
-
-    /* Add the number of bytes from the previous rows. */
-    byte += row * BYTES_PER_LINE;
-
-    return byte;
-}
-
-static int
-bit_view_get_byte(guint ndigits, int row, int column)
-{
-    int           byte;
-    int           digits_start;
-    int           digits_end;
-    int           text_start;
-    int           text_end;
-
-    /*
-     * The column of the first bit digit.
-     * That starts after "ndigits" digits of offset and two
-     * separating blanks.
-     */
-    digits_start = ndigits + 2;
-
-    /*
-     * The column of the last bit digit.
-     * There are BITS_PER_LINE bytes displayed; there are
-     * 8 characters per byte, plus a separating blank
-     * after all but the last byte's characters.
-     */
-    digits_end = digits_start + (BITS_PER_LINE)*8 +
-        (BITS_PER_LINE - 1);
-
-    /*
-     * The column of the first "text dump" character.
-     * Add 3 for the 3 separating blanks between the bit and text dump.
-     */
-    text_start = digits_end + 3;
-
-    /*
-     * The column of the last "text dump" character.
-     * There are BITS_PER_LINE bytes displayed; there is 1 character per byte.
-     *
-     * Then subtract 1 to get the last column.
-     */
-    text_end = text_start + BITS_PER_LINE - 1;
-
-    /* Given the column and row, determine which byte offset
-     * the user clicked on. */
-    if (column >= digits_start && column <= digits_end) {
-        byte = bit_num(column, digits_start);
-        if (byte == -1) {
-            return byte;
-        }
-    }
-    else if (column >= text_start && column <= text_end) {
-        byte = column - text_start;
-    }
-    else {
-        /* The user didn't select a hex digit or
-         * text-dump character. */
-        return -1;
-    }
-
-    /* Add the number of bytes from the previous rows. */
-    byte += row * BITS_PER_LINE;
-
-    return byte;
-}
-
 /* If the user selected a certain byte in the byte view, try to find
  * the item in the GUI proto_tree that corresponds to that byte, and:
  *
@@ -488,13 +286,8 @@ bit_view_get_byte(guint ndigits, int row, int column)
 gboolean
 byte_view_select(GtkWidget *widget, GdkEventButton *event)
 {
-    GtkTextView  *bv = GTK_TEXT_VIEW(widget);
     proto_tree   *tree;
     GtkTreeView  *tree_view;
-    GtkTextIter   iter;
-    int           row, column;
-    guint         ndigits;
-    gint          x, y;
     int           byte = -1;
     tvbuff_t     *tvb;
 
@@ -508,30 +301,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     tree_view = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(widget),
                                               E_BYTE_VIEW_TREE_VIEW_PTR));
 
-    /* get the row/column selected */
-    gtk_text_view_window_to_buffer_coords(bv,
-                         gtk_text_view_get_window_type(bv, event->window),
-                         (gint) event->x, (gint) event->y, &x, &y);
-    gtk_text_view_get_iter_at_location(bv, &iter, x, y);
-    row = gtk_text_iter_get_line(&iter);
-    column = gtk_text_iter_get_line_offset(&iter);
-
-    /*
-     * Get the number of digits of offset being displayed, and
-     * compute the byte position in the buffer.
-     */
-    ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
-
-    switch (recent.gui_bytes_view) {
-    case BYTES_HEX:
-        byte = hex_view_get_byte(ndigits, row, column);
-        break;
-    case BYTES_BITS:
-        byte = bit_view_get_byte(ndigits, row, column);
-        break;
-    default:
-        g_assert_not_reached();
-    }
+    byte = bytes_view_byte_from_xy(BYTES_VIEW(widget), event->x, event->y);
 
     if (byte == -1) {
         return FALSE;
@@ -686,19 +456,7 @@ GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
              proto_tree *tree, GtkWidget *tree_view)
 {
-    GtkWidget       *byte_view, *byte_scrollw, *label;
-    GtkTextBuffer   *buf;
-#if GTK_CHECK_VERSION(3,0,0)
-    GtkStyleContext *context;
-    GdkRGBA         *rgba_bg_color;
-    GdkRGBA         *rgba_fg_color;
-#if !GTK_CHECK_VERSION(3,2,0)
-    GdkColor         bg_color;
-    GdkColor         fg_color;
-#endif /* GTK_CHECK_VERSION(3,2,0) */
-#else
-    GtkStyle        *style;
-#endif
+    GtkWidget *byte_view, *byte_scrollw, *label;
 
     /* Byte view.  Create a scrolled window for the text. */
     byte_scrollw = scrolled_window_new(NULL, NULL);
@@ -710,49 +468,9 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 
     gtk_widget_show(byte_scrollw);
 
-    byte_view = gtk_text_view_new();
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
-    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
-    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
-#if GTK_CHECK_VERSION(3,0,0)
-    context = gtk_widget_get_style_context (GTK_WIDGET(byte_view));
-    gtk_style_context_get (context, GTK_STATE_FLAG_SELECTED,
-                    GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &rgba_bg_color,
-                    GTK_STYLE_PROPERTY_COLOR, &rgba_fg_color,
-                     NULL);
-#if GTK_CHECK_VERSION(3,2,0)
-    gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
-    gtk_text_buffer_create_tag(buf, "reverse",
-                               "font-desc", user_font_get_regular(),
-                               "foreground-gdk", rgba_fg_color,
-                               "background-gdk", rgba_bg_color,
-                               NULL);
-#else
-    /* Hack */
-    bg_color.red   = rgba_bg_color->red * 65535;
-    bg_color.green = rgba_bg_color->green * 65535;
-    bg_color.blue  = rgba_bg_color->blue * 65535;
-    fg_color.red   = rgba_fg_color->red * 65535;
-    fg_color.green = rgba_fg_color->green * 65535;
-    fg_color.blue  = rgba_fg_color->blue * 65535;
+    byte_view = bytes_view_new();
+    bytes_view_set_font(BYTES_VIEW(byte_view), user_font_get_regular());
 
-    gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
-    gtk_text_buffer_create_tag(buf, "reverse",
-                               "font-desc", user_font_get_regular(),
-                               "foreground-gdk", &fg_color,
-                               "background-gdk", &bg_color,
-                               NULL);
-#endif /* GTK_CHECK_VERSION(3,2,0) */
-#else
-    style = gtk_widget_get_style(GTK_WIDGET(top_level));
-    gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
-    gtk_text_buffer_create_tag(buf, "reverse",
-                               "font-desc", user_font_get_regular(),
-                               "foreground-gdk", &style->text[GTK_STATE_SELECTED],
-                               "background-gdk", &style->base[GTK_STATE_SELECTED],
-                               NULL);
-#endif
-    gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
     g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, tvb);
     gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
 
@@ -1153,459 +871,23 @@ savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 }
 #endif
 
-static GtkTextMark *
-packet_hex_apply_reverse_tag(GtkTextBuffer *buf, int bstart, int bend, guint32 mask, int mask_le, int use_digits, int create_mark)
-{
-    GtkTextIter i_start, i_stop, iter;
-
-    GtkTextTag    *revstyle_tag;
-    const char    *revstyle;
-
-    int per_line = 0;
-    int per_one = 0;
-    int bits_per_one = 0;
-    int hex_offset, ascii_offset;
-
-    int start_line, start_line_pos;
-    int stop_line, stop_line_pos;
-
-    if (bstart == -1 || bend == -1)
-        return NULL;
-
-    /* Display with inverse video ? */
-    if (prefs.gui_hex_dump_highlight_style)
-        revstyle = "reverse";
-    else
-        revstyle = "bold";
-
-    revstyle_tag = gtk_text_tag_table_lookup(gtk_text_buffer_get_tag_table(buf), revstyle);
-
-    switch (recent.gui_bytes_view) {
-    case BYTES_HEX:
-        per_line = BYTES_PER_LINE;
-        per_one  = 2+1;  /* "ff " */
-        bits_per_one = 4;
-        break;
-    case BYTES_BITS:
-        per_line = BITS_PER_LINE;
-        per_one  = 8+1;  /* "10101010 " */
-        bits_per_one = 1;
-        break;
-    default:
-        g_assert_not_reached();
-    }
-
-    start_line = bstart / per_line;
-    start_line_pos = bstart % per_line;
-
-    stop_line = bend / per_line;
-    stop_line_pos = bend % per_line;
-
-#define hex_fix(pos)   hex_offset + (pos * per_one) + (pos / BYTE_VIEW_SEP) - (pos == per_line)
-#define ascii_fix(pos) ascii_offset + pos + (pos / BYTE_VIEW_SEP) - (pos == per_line)
-
-    hex_offset = use_digits + 2;
-    ascii_offset = hex_fix(per_line) + 2;
-
-    gtk_text_buffer_get_iter_at_line_index(buf, &iter, start_line, hex_fix(start_line_pos));
-
-    if (mask == 0x00) {
-        while (start_line <= stop_line) {
-            int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
-            int first_block_adjust = (recent.gui_bytes_view == BYTES_HEX) ? (line_pos_end == per_line/2) : 0;
-
-            if (start_line_pos == line_pos_end) break;
-
-            /* bits/hex */
-            gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(start_line_pos));
-            gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos_end)-1-first_block_adjust);
-            gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-
-            /* ascii */
-            gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(start_line_pos));
-            gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos_end)-first_block_adjust);
-            gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-
-            start_line_pos = 0;
-            start_line++;
-        }
-
-    } else if (mask_le) { /* LSB of mask first (little-endian) */
-        while (start_line <= stop_line) {
-            int line_pos_end = (start_line == stop_line) ? stop_line_pos : per_line;
-            int line_pos = start_line_pos;
-
-            while (line_pos < line_pos_end) {
-                int lop = 8 / bits_per_one;
-                int mask_per_one = (1 << bits_per_one) - 1;
-                int ascii_on = 0;
-
-                while (lop--) {
-                    if ((mask & mask_per_one)) {
-                        /* bits/hex */
-                        gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, hex_fix(line_pos)+lop);
-                        gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, hex_fix(line_pos)+lop+1);
-                        gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-
-                        ascii_on = 1;
-                    }
-                    mask >>= bits_per_one;
-                }
-
-                /* at least one bit of ascii was one -> turn ascii on */
-                if (ascii_on) {
-                    /* ascii */
-                    gtk_text_buffer_get_iter_at_line_index(buf, &i_start, start_line, ascii_fix(line_pos));
-                    gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, start_line, ascii_fix(line_pos)+1);
-                    gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-                }
-
-                if (!mask)
-                    goto xend;
-
-                line_pos++;
-            }
-
-            start_line_pos = 0;
-            start_line++;
-        }
-    } else { /* mask starting from end (big-endian) */
-        while (start_line <= stop_line) {
-            int line_pos_start = (start_line == stop_line) ? start_line_pos : 0;
-            int line_pos = stop_line_pos-1;
-
-            while (line_pos >= line_pos_start) {
-                int lop = 8 / bits_per_one;
-                int mask_per_one = (1 << bits_per_one) - 1;
-                int ascii_on = 0;
-
-                while (lop--) {
-                    if ((mask & mask_per_one)) {
-                        /* bits/hex */
-                        gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, hex_fix(line_pos)+lop);
-                        gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, hex_fix(line_pos)+lop+1);
-                        gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-
-                        ascii_on = 1;
-                    }
-                    mask >>= bits_per_one;
-                }
-
-                /* at least one bit of ascii was one -> turn ascii on */
-                if (ascii_on) {
-                    /* ascii */
-                    gtk_text_buffer_get_iter_at_line_index(buf, &i_start, stop_line, ascii_fix(line_pos));
-                    gtk_text_buffer_get_iter_at_line_index(buf, &i_stop, stop_line, ascii_fix(line_pos)+1);
-                    gtk_text_buffer_apply_tag(buf, revstyle_tag, &i_start, &i_stop);
-                }
-
-                if (!mask)
-                    goto xend;
-
-                line_pos--;
-            }
-
-            stop_line_pos = per_line;
-            stop_line--;
-        }
-    }
-xend:
-    return (create_mark) ? gtk_text_buffer_create_mark(buf, NULL, &iter, TRUE) : NULL;
-#undef hex_fix
-#undef ascii_fix
-}
-
-/* Update the progress bar this many times when reading a file. */
-#define N_PROGBAR_UPDATES        100
-/* The minimum packet length required to check if a progress bar is needed or not */
-#define MIN_PACKET_LENGTH       1024
-
-/*
- * XXX - at least in GTK+ 2.x, this is not fast - in one capture with a
- * 64K-or-so reassembled HTTP reply, it takes about 3 seconds to construct
- * the hex dump pane on a 1.4 GHz G4 PowerMac on OS X 10.3.3.  (That's
- * presumably why there's a progress bar for it.)
- *
- * Perhaps what's needed is a custom widget (either one that lets you stuff
- * text into it more quickly, or one that's a "virtual" widget so that the
- * text for a row is constructed, via a callback, when the row is to be
- * displayed).  A custom widget might also let us treat the offset, hex
- * data, and ASCII data as three columns, so you can select purely in
- * the hex dump column.
- */
-static void
-packet_hex_print_common(GtkTextBuffer *buf, GtkWidget *bv, const guint8 *pd, int len, int encoding)
-{
-    int            i = 0, j, k = 0, b, cur;
-    guchar         line[MAX_LINES_LEN + 1];
-    static guchar  hexchars[16] = {
-        '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-    static const guint8 bitmask[8] = {
-        0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
-    guchar         c = '\0';
-    unsigned int   use_digits;
-    GtkTextIter    iter;
-
-    progdlg_t  *progbar = NULL;
-    float       progbar_val;
-    gboolean    progbar_stop_flag;
-    GTimeVal    progbar_start_time;
-    gchar       progbar_status_str[100];
-    int         progbar_nextstep;
-    int         progbar_quantum;
-
-    gtk_text_buffer_set_text(buf, "", 0);
-    gtk_text_buffer_get_start_iter(buf, &iter);
-
-    /*
-     * How many of the leading digits of the offset will we supply?
-     * We always supply at least 4 digits, but if the maximum offset
-     * won't fit in 4 digits, we use as many digits as will be needed.
-     */
-    if (((len - 1) & 0xF0000000) != 0)
-        use_digits = 8; /* need all 8 digits */
-    else if (((len - 1) & 0x0F000000) != 0)
-        use_digits = 7; /* need 7 digits */
-    else if (((len - 1) & 0x00F00000) != 0)
-        use_digits = 6; /* need 6 digits */
-    else if (((len - 1) & 0x000F0000) != 0)
-        use_digits = 5; /* need 5 digits */
-    else
-        use_digits = 4; /* we'll supply 4 digits */
-
-    /* Record the number of digits in this text view. */
-    g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
-
-    /* Update the progress bar when it gets to this value. */
-    if (len > MIN_PACKET_LENGTH){
-        progbar_nextstep = 0;
-    }else{
-        /* If length =< MIN_PACKET_LENGTH
-         * there is no need to calculate the progress
-         */
-        progbar_nextstep = len+1;
-    }
-
-    /* When we reach the value that triggers a progress bar update,
-       bump that value by this amount. */
-    progbar_quantum = len/N_PROGBAR_UPDATES;
-    /* Progress so far. */
-    progbar_val = 0.0f;
-
-    progbar_stop_flag = FALSE;
-    g_get_current_time(&progbar_start_time);
-
-    cur = 0;
-    while (i < len) {
-        /* Create the progress bar if necessary.
-           We check on every iteration of the loop, so that it takes no
-           longer than the standard time to create it (otherwise, for a
-           large packet, we might take considerably longer than that standard
-           time in order to get to the next progress bar step). */
-        if ((progbar == NULL) && (len > MIN_PACKET_LENGTH))
-            progbar = delayed_create_progress_dlg("Processing", "Packet Details",
-                                                  TRUE,
-                                                  &progbar_stop_flag,
-                                                  &progbar_start_time,
-                                                  progbar_val);
-
-        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-           when we update it, we have to run the GTK+ main loop to get it
-           to repaint what's pending, and doing so may involve an "ioctl()"
-           to see if there's any pending input from an X server, and doing
-           that for every packet can be costly, especially on a big file. */
-        if (i >= progbar_nextstep) {
-
-            if (progbar != NULL) {
-                /* let's not divide by zero. I should never be started
-                 * with count == 0, so let's assert that
-                 */
-                g_assert(len > 0);
-                progbar_val = (gfloat) i / len;
-                g_snprintf(progbar_status_str, sizeof(progbar_status_str),
-                           "%4u of %u bytes", i, len);
-                update_progress_dlg(progbar, progbar_val, progbar_status_str);
-            }
-
-            progbar_nextstep += progbar_quantum;
-        }
-
-        if (progbar_stop_flag) {
-            /* Well, the user decided to abort the operation.  Just stop,
-               and arrange to return TRUE to our caller, so they know it
-               was stopped explicitly. */
-            break;
-        }
-
-        /* Print the line number */
-        j = use_digits;
-        do {
-            j--;
-            c = (i >> (j*4)) & 0xF;
-            line[cur++] = hexchars[c];
-        } while (j != 0);
-        line[cur++] = ' ';
-        line[cur++] = ' ';
-
-        j   = i;
-        switch (recent.gui_bytes_view) {
-        case BYTES_HEX:
-            k = i + BYTES_PER_LINE;
-            break;
-        case BYTES_BITS:
-            k = i + BITS_PER_LINE;
-            break;
-        default:
-            g_assert_not_reached();
-        }
-        /* Print the hex bit */
-        while (i < k) {
-            if (i < len) {
-                switch (recent.gui_bytes_view) {
-                case BYTES_HEX:
-                    line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
-                    line[cur++] = hexchars[pd[i] & 0x0f];
-                    break;
-                case BYTES_BITS:
-                    for (b = 0; b < 8; b++) {
-                        line[cur++] = (pd[i] & bitmask[b]) ? '1' : '0';
-                    }
-                    break;
-                default:
-                    g_assert_not_reached();
-                }
-            } else {
-                switch (recent.gui_bytes_view) {
-                case BYTES_HEX:
-                    line[cur++] = ' '; line[cur++] = ' ';
-                    break;
-                case BYTES_BITS:
-                    for (b = 0; b < 8; b++) {
-                        line[cur++] = ' ';
-                    }
-                    break;
-                default:
-                    g_assert_not_reached();
-                }
-            }
-            i++;
-            /* Inter byte space if not at end of line */
-            if (i < k) {
-                line[cur++] = ' ';
-                /* insert a space every BYTE_VIEW_SEP bytes */
-                if( ( i % BYTE_VIEW_SEP ) == 0 ) {
-                    line[cur++] = ' ';
-                }
-            }
-        }
-
-        /* Print some space at the end of the line */
-        line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
-
-        /* Print the ASCII bit */
-        i = j;
-
-        while (i < k) {
-            if (i < len) {
-                if (encoding == PACKET_CHAR_ENC_CHAR_ASCII) {
-                    c = pd[i];
-                }
-                else if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
-                    c = EBCDIC_to_ASCII1(pd[i]);
-                }
-                else {
-                    g_assert_not_reached();
-                }
-                line[cur++] = isprint(c) ? c : '.';
-            } else {
-                line[cur++] = ' ';
-            }
-            i++;
-            if (i < k) {
-                /* insert a space every BYTE_VIEW_SEP bytes */
-                if( ( i % BYTE_VIEW_SEP ) == 0 ) {
-                    line[cur++] = ' ';
-                }
-            }
-        }
-        line[cur++] = '\n';
-        if (cur >= (MAX_LINES_LEN - MAX_LINE_LEN)) {
-            gtk_text_buffer_insert(buf, &iter, line, cur);
-            cur = 0;
-        }
-    }
-
-    /* We're done printing the packets; destroy the progress bar if
-       it was created. */
-    if (progbar != NULL)
-        destroy_progress_dlg(progbar);
-
-    if (cur) {
-        gtk_text_buffer_insert(buf, &iter, line, cur);
-    }
-}
-
 static void
 packet_hex_update(GtkWidget *bv, const guint8 *pd, int len, int bstart,
                   int bend, guint32 bmask, int bmask_le,
                   int astart, int aend, int encoding)
 {
-    GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
-    GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
-    GtkTextBuffer *buf_tmp;
-    GtkTextMark   *mark;
-    int ndigits;
-
-    GtkTextIter start, end;
-
-    g_object_ref(buf);
-
-#if 0
-    /* XXX: Setting the text_view buffer to NULL is apparently
-     *      not a good idea; If a progress_bar is displayed below
-     *      in delayed_create_progress_dlg() there will then be
-     *      a crash internally in the gtk library.
-     *      (It appears that gtk_text_view_set_buffer
-     *       queues a callback to be run when this
-     *       thread is next idle. Unfortunately the call to
-     *       gtk_main_iteration() in delayed_create_progress_dlg()
-     *       causes the internal callback to be run which then
-     *       crashes (because the textview has no buffer ?))
-     */
-    gtk_text_view_set_buffer(bv_text_view, NULL);
-#endif
-
-    /* attach a dummy buffer in place of the real buffer.
-     * (XXX: Presumably this is done so there's no attempt
-     *       to display the real buffer until it has been
-     *       completely generated).
-     */
-    buf_tmp = gtk_text_buffer_new(NULL);
-    gtk_text_view_set_buffer(bv_text_view, buf_tmp);
-    g_object_unref(buf_tmp);
-
-    packet_hex_print_common(buf, bv, pd, len, encoding);
-
-    /* mark everything with "plain" tag */
-    gtk_text_buffer_get_start_iter(buf, &start);
-    gtk_text_buffer_get_end_iter(buf, &end);
-    gtk_text_buffer_apply_tag_by_name(buf, "plain", &start, &end);
-
-    ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
-
-    /* mark reverse tags */
-    mark = packet_hex_apply_reverse_tag(buf, bstart, bend, bmask, bmask_le, ndigits, 1);
-    packet_hex_apply_reverse_tag(buf, astart, aend, 0x00, 0, ndigits, 0);
-
-    gtk_text_view_set_buffer(bv_text_view, buf);
-
-    /* scroll text into position */
-    if (mark) {
-        gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
-        gtk_text_buffer_delete_mark(buf, mark);
-    }
-    g_object_unref(buf);
+	bytes_view_set_encoding(BYTES_VIEW(bv), encoding);
+	bytes_view_set_format(BYTES_VIEW(bv), recent.gui_bytes_view);
+	bytes_view_set_data(BYTES_VIEW(bv), pd, len);
+ 
+	bytes_view_set_highlight_style(BYTES_VIEW(bv), prefs.gui_hex_dump_highlight_style);
+ 
+	bytes_view_set_highlight(BYTES_VIEW(bv), bstart, bend, bmask, bmask_le);
+	bytes_view_set_highlight_appendix(BYTES_VIEW(bv), astart, aend);
+ 
+	if (bstart != -1 && bend != -1)
+		bytes_view_scroll_to_byte(BYTES_VIEW(bv), bstart);
+	bytes_view_refresh(BYTES_VIEW(bv));
 }
 
 void

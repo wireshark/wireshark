@@ -58,6 +58,9 @@
 
 #if !GTK_CHECK_VERSION (2, 20, 0)
 #	define gtk_widget_get_realized(x) GTK_WIDGET_REALIZED(x)
+#   define _gtk_widget_set_realized_true(x) GTK_WIDGET_SET_FLAGS(widget, GTK_REALIZED)
+#else
+#   define _gtk_widget_set_realized_true(x) gtk_widget_set_realized(x, TRUE)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 22, 0)

@@ -51,6 +51,7 @@ WIRESHARK_GTK_SRC = \
 	about_dlg.c	\
 	airpcap_dlg.c \
 	airpcap_gui_utils.c \
+	bytes_view.c \
 	capture_dlg.c	\
 	capture_file_dlg.c	\
 	capture_if_dlg.c	\
@@ -241,6 +242,7 @@ noinst_HEADERS = \
 	about_dlg.h	\
 	airpcap_dlg.h \
 	airpcap_gui_utils.h \
+	bytes_view.h \
 	capture_comment_icons.h \
 	capture_dlg.h	\
 	capture_file_dlg.h	\
