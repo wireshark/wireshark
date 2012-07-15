@@ -91,6 +91,11 @@ typedef struct tlv_wireless_info {
 } tlv_wireless_info;
 
 /*
+ * Wireless conditions
+ */
+#define WIRELESS_WEP_SUCCESS		0x80
+
+/*
  * TLV type values.
  */
 #define INFORMATION_TYPE_ALIAS_LIST 0x01
