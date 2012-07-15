@@ -1402,10 +1402,14 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
 
         if (oid_tvb) {
-            guint encoid_len = tvb_length_remaining(oid_tvb,0);
-            guint8* encoid = ep_tvb_memdup(oid_tvb,0,encoid_len);
+            gint encoid_len;
+            guint8* encoid;
 
-            (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
+            encoid_len = tvb_length_remaining(oid_tvb,0);
+            if (encoid_len > 0) {
+                encoid = ep_tvb_memdup(oid_tvb,0,encoid_len);
+                (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
+            }
         }
         break;
     }
