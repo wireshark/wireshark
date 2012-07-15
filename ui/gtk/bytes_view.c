@@ -47,8 +47,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-#include "ui/recent.h"
-
 #include "packet_panes.h"
 
 #define MARGIN 2
