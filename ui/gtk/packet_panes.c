@@ -301,7 +301,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     tree_view = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(widget),
                                               E_BYTE_VIEW_TREE_VIEW_PTR));
 
-    byte = bytes_view_byte_from_xy(BYTES_VIEW(widget), event->x, event->y);
+    byte = bytes_view_byte_from_xy(BYTES_VIEW(widget), (gint) event->x, (gint) event->y);
 
     if (byte == -1) {
         return FALSE;
