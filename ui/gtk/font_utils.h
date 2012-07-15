@@ -66,10 +66,4 @@ extern gboolean user_font_test(gchar *font_name);
  */
 extern PangoFontDescription *user_font_get_regular(void);
 
-/** Get the bold user font.
- *
- * @return the bold user font
- */
-extern PangoFontDescription *user_font_get_bold(void);
-
 #endif

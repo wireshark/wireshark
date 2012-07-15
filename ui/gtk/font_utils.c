@@ -51,7 +51,7 @@
 #include "ui/gtk/new_packet_list.h"
 
 
-static PangoFontDescription *m_r_font, *m_b_font;
+static PangoFontDescription *m_r_font;
 
 
 /* Get the regular user font.
@@ -63,23 +63,13 @@ PangoFontDescription *user_font_get_regular(void)
     return m_r_font;
 }
 
-/* Get the bold user font.
- *
- * @return the bold user font
- */
-PangoFontDescription *user_font_get_bold(void)
-{
-    return m_b_font;
-}
-
 static void
-set_fonts(PangoFontDescription *regular, PangoFontDescription *bold)
+set_fonts(PangoFontDescription *regular)
 {
     /* Yes, assert. The code that loads the font should check
      * for NULL and provide its own error message. */
-    g_assert(m_r_font && m_b_font);
+    g_assert(m_r_font);
     m_r_font = regular;
-    m_b_font = bold;
 }
 
 void
@@ -166,7 +156,7 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
 gboolean
 user_font_test(gchar *font_name)
 {
-    PangoFontDescription *new_r_font, *new_b_font;
+    PangoFontDescription *new_r_font;
 
     new_r_font = pango_font_description_from_string(font_name);
     if (new_r_font == NULL) {
@@ -176,19 +166,6 @@ user_font_test(gchar *font_name)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "The font you selected can't be loaded.");
 
-        return FALSE;
-    }
-
-    new_b_font = pango_font_description_copy(new_r_font);
-    pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
-    if (new_b_font == NULL) {
-        /* Oops, that font didn't work.
-           Tell the user, but don't tear down the font selection
-           dialog, so that they can try again. */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "The font you selected doesn't have a boldface version.");
-
-        pango_font_description_free(new_r_font);
         return FALSE;
     }
 
@@ -236,8 +213,8 @@ font_zoom(char *gui_font_name)
 fa_ret_t
 user_font_apply(void) {
     char *gui_font_name;
-    PangoFontDescription *new_r_font, *new_b_font;
-    PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
+    PangoFontDescription *new_r_font;
+    PangoFontDescription *old_r_font = NULL;
 
     /* convert font name to reflect the zoom level */
     gui_font_name = font_zoom(prefs.gui_font_name);
@@ -254,15 +231,10 @@ user_font_apply(void) {
 
     /* load normal and bold font */
     new_r_font = pango_font_description_from_string(gui_font_name);
-    new_b_font = pango_font_description_copy(new_r_font);
-    pango_font_description_set_weight(new_b_font, PANGO_WEIGHT_BOLD);
-
-    if (new_r_font == NULL || new_b_font == NULL) {
+    if (new_r_font == NULL) {
         /* We're no longer using the new fonts; unreference them. */
         if (new_r_font != NULL)
             pango_font_description_free(new_r_font);
-        if (new_b_font != NULL)
-            pango_font_description_free(new_b_font);
         g_free(gui_font_name);
 
         /* We let our caller pop up a dialog box, as the error message
@@ -275,8 +247,7 @@ user_font_apply(void) {
     new_packet_list_set_font(new_r_font);
     set_ptree_font_all(new_r_font);
     old_r_font = m_r_font;
-    old_b_font = m_b_font;
-    set_fonts(new_r_font, new_b_font);
+    set_fonts(new_r_font);
 
     /* Redraw the packet bytes windows. */
     redraw_packet_bytes_all();
@@ -287,8 +258,6 @@ user_font_apply(void) {
     /* We're no longer using the old fonts; unreference them. */
     if (old_r_font != NULL)
         pango_font_description_free(old_r_font);
-    if (old_b_font != NULL)
-        pango_font_description_free(old_b_font);
     g_free(gui_font_name);
 
     return FA_SUCCESS;
@@ -396,36 +365,19 @@ void font_init(void)
 
     /* Try to load the regular and boldface fixed-width fonts */
     m_r_font = pango_font_description_from_string(prefs.gui_font_name);
-    m_b_font = pango_font_description_copy(m_r_font);
-    pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
-    if (m_r_font == NULL || m_b_font == NULL) {
+    if (m_r_font == NULL) {
         /* XXX - pop this up as a dialog box? no */
-        if (m_r_font == NULL) {
-            fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to Monospace 9\n",
-                    prefs.gui_font_name);
-        } else {
-            pango_font_description_free(m_r_font);
-        }
-        if (m_b_font == NULL) {
-            fprintf(stderr, "wireshark: Warning: bold font %s not found - defaulting"
-                    " to Monospace 9\n", prefs.gui_font_name);
-        } else {
-            pango_font_description_free(m_b_font);
-        }
+        fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to Monospace 9\n",
+                prefs.gui_font_name);
         if ((m_r_font = pango_font_description_from_string("Monospace 9")) == NULL)
         {
             fprintf(stderr, "wireshark: Error: font Monospace 9 not found\n");
             exit(1);
         }
-        if ((m_b_font = pango_font_description_copy(m_r_font)) == NULL) {
-            fprintf(stderr, "wireshark: Error: font Monospace 9 bold not found\n");
-            exit(1);
-        }
         g_free(prefs.gui_font_name);
-        pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
         prefs.gui_font_name = g_strdup("Monospace 9");
     }
 
     /* Call this for the side-effects that set_fonts() produces */
-    set_fonts(m_r_font, m_b_font);
+    set_fonts(m_r_font);
 }
