@@ -30,8 +30,6 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#undef GTK_DISABLE_DEPRECATED
-#undef GSEAL_ENABLE
 #include "config.h"
 #endif
 
@@ -39,9 +37,6 @@
 #undef GSEAL_ENABLE
 
 #include <gtk/gtk.h>
-#if !GTK_CHECK_VERSION(3, 0, 0)
-#include <gtk/gtkmarshal.h>
-#endif
 #include "ui/gtk/old-gtk-compat.h"
 
 #include <string.h>
@@ -913,15 +908,23 @@ bytes_view_set_scroll_adjustments(BytesView *bv, GtkAdjustment *hadj, GtkAdjustm
 static void 
 bytes_view_class_init(BytesViewClass *klass)
 {
+#if !GTK_CHECK_VERSION(3, 0, 0)
 	GtkObjectClass *object_class;
+#endif
 	GtkWidgetClass *widget_class;
 
 	parent_class = (GtkWidgetClass *) g_type_class_peek_parent(klass);
 
+#if !GTK_CHECK_VERSION(3, 0, 0)
 	object_class = (GtkObjectClass *) klass;
+#endif
 	widget_class = (GtkWidgetClass *) klass;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+	widget_class->destroy = bytes_view_destroy;
+#else
 	object_class->destroy = bytes_view_destroy;
+#endif
 	widget_class->realize = bytes_view_realize;
 	widget_class->unrealize = bytes_view_unrealize;
 	widget_class->size_request = bytes_view_size_request;
@@ -929,6 +932,12 @@ bytes_view_class_init(BytesViewClass *klass)
 	widget_class->expose_event = bytes_view_expose;
 	widget_class->scroll_event = bytes_view_scroll;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+	/* XXX - see
+
+		http://developer.gnome.org/gtk3/stable/GtkScrollable.html
+	*/
+#else
 	klass->set_scroll_adjustments = bytes_view_set_scroll_adjustments;
 
 	widget_class->set_scroll_adjustments_signal = 
@@ -942,6 +951,7 @@ bytes_view_class_init(BytesViewClass *klass)
 			G_TYPE_NONE, 2,
 			GTK_TYPE_ADJUSTMENT,
 			GTK_TYPE_ADJUSTMENT);
+#endif
 }
 
 GType 
