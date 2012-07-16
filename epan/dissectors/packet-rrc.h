@@ -33,6 +33,7 @@
 #ifndef PACKET_RRC_H
 #define PACKET_RRC_H
 
+#include <epan/asn1.h>	/* Needed for non asn1 dissectors?*/
 extern int proto_rrc;
 
 /*--- Included file: packet-rrc-exp.h ---*/
@@ -50,7 +51,7 @@ int dissect_rrc_ToTargetRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 int dissect_rrc_TargetRNC_ToSourceRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-rrc-exp.h ---*/
-#line 30 "../../asn1/rrc/packet-rrc-template.h"
+#line 31 "../../asn1/rrc/packet-rrc-template.h"
 
 enum rrc_message_type {
 	RRC_MESSAGE_TYPE_INVALID	= 0,
@@ -58,7 +59,8 @@ enum rrc_message_type {
 	RRC_MESSAGE_TYPE_UL_CCCH,
 	RRC_MESSAGE_TYPE_DL_CCCH,
 	RRC_MESSAGE_TYPE_UL_DCCH,
-	RRC_MESSAGE_TYPE_DL_DCCH
+	RRC_MESSAGE_TYPE_DL_DCCH,
+	RRC_MESSAGE_TYPE_BCCH_FACH
 };
 
 #define MAX_RRC_FRAMES	64

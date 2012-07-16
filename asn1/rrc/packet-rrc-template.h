@@ -25,6 +25,7 @@
 #ifndef PACKET_RRC_H
 #define PACKET_RRC_H
 
+#include <epan/asn1.h>	/* Needed for non asn1 dissectors?*/
 extern int proto_rrc;
 #include "packet-rrc-exp.h"
 
@@ -34,7 +35,8 @@ enum rrc_message_type {
 	RRC_MESSAGE_TYPE_UL_CCCH,
 	RRC_MESSAGE_TYPE_DL_CCCH,
 	RRC_MESSAGE_TYPE_UL_DCCH,
-	RRC_MESSAGE_TYPE_DL_DCCH
+	RRC_MESSAGE_TYPE_DL_DCCH,
+	RRC_MESSAGE_TYPE_BCCH_FACH
 };
 
 #define MAX_RRC_FRAMES	64

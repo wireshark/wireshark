@@ -58,6 +58,7 @@ static dissector_handle_t rrc_ul_ccch_handle=NULL;
 static dissector_handle_t rrc_dl_ccch_handle=NULL;
 static dissector_handle_t rrc_ul_dcch_handle=NULL;
 static dissector_handle_t rrc_dl_dcch_handle=NULL;
+static dissector_handle_t rrc_bcch_fach_handle=NULL;
 static dissector_handle_t lte_rrc_ue_eutra_cap_handle=NULL;
 static dissector_handle_t lte_rrc_dl_dcch_handle=NULL;
 
@@ -159,6 +160,9 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case RRC_MESSAGE_TYPE_DL_DCCH:
 				call_dissector(rrc_dl_dcch_handle, tvb, pinfo, rrc_tree);
 				break;
+			case RRC_MESSAGE_TYPE_BCCH_FACH:
+				call_dissector(rrc_bcch_fach_handle, tvb, pinfo, rrc_tree);
+				break;
 			default:
 				;
 		}
@@ -229,6 +233,7 @@ proto_reg_handoff_rrc(void)
   rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
   lte_rrc_ue_eutra_cap_handle = find_dissector("lte-rrc.ue_eutra_cap");
   lte_rrc_dl_dcch_handle = find_dissector("lte-rrc.dl.dcch");
+  rrc_bcch_fach_handle = find_dissector("rrc.bcch.fach");
 }
 
 
