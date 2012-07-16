@@ -112,15 +112,9 @@ bytes_view_init(BytesView *bv)
 	bv->max_width = 0;
 }
 
-static void 
-#if GTK_CHECK_VERSION(3, 0, 0)
-bytes_view_destroy(GtkWidget *widget)
-#else
-bytes_view_destroy(GtkObject *object)
-#endif
+static void
+bytes_view_destroy(BytesView *bv)
 {
-	BytesView *bv = BYTES_VIEW(object);
-
 	if (bv->pd) {
 		g_free(bv->pd);
 		bv->pd = NULL;
@@ -145,9 +139,29 @@ bytes_view_destroy(GtkObject *object)
 		g_object_unref(bv->context);
 		bv->context = NULL;
 	}
+}
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void 
+bytes_view_destroy_widget(GtkWidget *widget)
+{
+	bytes_view_destroy(BYTES_VIEW(widget));
+
+	GTK_WIDGET_CLASS(parent_class)->destroy(widget);
+}
+
+#else
+
+static void
+bytes_view_destroy_object(GtkObject *object)
+{
+	bytes_view_destroy(BYTES_VIEW(object));
+
 	if (GTK_OBJECT_CLASS(parent_class)->destroy)
 		(*GTK_OBJECT_CLASS(parent_class)->destroy)(object);
 }
+
+#endif
 
 static void
 bytes_view_ensure_layout(BytesView *bv)
@@ -207,12 +221,15 @@ bytes_view_realize(GtkWidget *widget)
 	gtk_widget_set_window(widget, win);
 
 	gdk_window_set_user_data(win, widget);
+
+#if !GTK_CHECK_VERSION(3, 0, 0)	/* XXX, check */
 	gdk_window_set_back_pixmap(win, NULL, FALSE);
+#endif
 
 #if GTK_CHECK_VERSION (2, 20, 0)
 	gtk_widget_style_attach(widget);
 #else
-	widget->style = gtk_style_attach(widget->style, gtk_widget_get_window(widget));
+	widget->style = gtk_style_attach(widget->style, win);
 #endif
 	bytes_view_ensure_layout(bv);
 }
@@ -294,13 +311,13 @@ bytes_view_allocate(GtkWidget *widget, GtkAllocation *allocation)
 
 #if GTK_CHECK_VERSION(3, 0, 0)
 static void
-bytes_view_get_preferred_width(GtkWidget *widget, gint *minimum, gint *natural)
+bytes_view_get_preferred_width(GtkWidget *widget _U_, gint *minimum, gint *natural)
 {
 	*minimum = *natural = 200;
 }
 
 static void
-bytes_view_get_preferred_height(GtkWidget *widget, gint *minimum, gint *natural)
+bytes_view_get_preferred_height(GtkWidget *widget _U_, gint *minimum, gint *natural)
 {
 	*minimum = *natural = 90;
 }
@@ -725,7 +742,6 @@ bytes_view_render(BytesView *bv, cairo_t *cr)
 	const int old_max_width = bv->max_width;
 
 	int width, height;
-	GdkDrawable *draw_buf;
 	int y;
 	int off;
 
@@ -737,8 +753,12 @@ bytes_view_render(BytesView *bv, cairo_t *cr)
 
 	bytes_view_ensure_layout(bv);
 
-	draw_buf = gtk_widget_get_window(GTK_WIDGET(bv));
-	gdk_drawable_get_size(draw_buf, &width, &height);
+#if GTK_CHECK_VERSION(3, 0, 0)
+	width = gtk_widget_get_allocated_width(GTK_WIDGET(bv));
+	height = gtk_widget_get_allocated_height(GTK_WIDGET(bv));
+#else
+	gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(bv)), &width, &height);
+#endif
 
 	if (width < 32 + MARGIN || height < bv->fontsize)
 		return;
@@ -803,7 +823,7 @@ bytes_view_render_full(BytesView *bv)
 static gboolean
 bytes_view_draw(GtkWidget *widget, cairo_t *cr)
 {
-	bytes_view_render(bv, cr);
+	bytes_view_render(BYTES_VIEW(widget), cr);
 	return FALSE;
 }
 
@@ -817,8 +837,8 @@ bytes_view_expose(GtkWidget *widget, GdkEventExpose *event)
 
 	cr = gdk_cairo_create(gtk_widget_get_window(GTK_WIDGET(bv)));
 
-	gdk_cairo_rectangle(cr, &event->area);
-	/* gdk_cairo_area(cr, rectangle); */
+	/* gdk_cairo_rectangle(cr, &event->area); */
+	gdk_cairo_region(cr, event->region);
 	cairo_clip(cr);
 
 	bytes_view_render(bv, cr);
@@ -845,7 +865,7 @@ _gtk_adjustment_configure(GtkAdjustment *adj,
 	adj->page_size = page_size;
 	adj->step_increment = step_increment;
 
-	gtk_adjustment_changed(bv->vadj);
+	gtk_adjustment_changed(adj);
 }
 
 #else
@@ -990,9 +1010,9 @@ bytes_view_class_init(BytesViewClass *klass)
 	widget_class = (GtkWidgetClass *) klass;
 
 #if GTK_CHECK_VERSION(3, 0, 0)
-	widget_class->destroy = bytes_view_destroy;
+	widget_class->destroy = bytes_view_destroy_widget;
 #else
-	object_class->destroy = bytes_view_destroy;
+	object_class->destroy = bytes_view_destroy_object;
 #endif
 	widget_class->realize = bytes_view_realize;
 	widget_class->unrealize = bytes_view_unrealize;
@@ -1053,17 +1073,20 @@ bytes_view_get_type(void)
 			NULL /* value_table */
 		};
 
-		bytes_view_type = g_type_register_static(GTK_TYPE_WIDGET,
-							"BytesView",
-							&bytes_view_info,
-							(GTypeFlags)0);	
 #if GTK_CHECK_VERSION(3, 0, 0)
 		static const GInterfaceInfo scrollable_info = {
 			NULL,
 			NULL,
 			NULL
 		};
+#endif
 
+		bytes_view_type = g_type_register_static(GTK_TYPE_WIDGET,
+							"BytesView",
+							&bytes_view_info,
+							(GTypeFlags)0);	
+
+#if GTK_CHECK_VERSION(3, 0, 0)
 		g_type_add_interface_static(bytes_view_type,
 						GTK_TYPE_SCROLLABLE,
 						&scrollable_info);
