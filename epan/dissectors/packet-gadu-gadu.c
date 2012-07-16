@@ -69,6 +69,9 @@ static int hf_gadu_gadu_userdata_attr_name = -1;
 static int hf_gadu_gadu_userdata_attr_type = -1;
 static int hf_gadu_gadu_userdata_attr_value = -1;
 
+static int hf_gadu_gadu_typing_notify_type = -1;
+static int hf_gadu_gadu_typing_notify_uin = -1;
+
 static int hf_gadu_gadu_msg_uin = -1;
 static int hf_gadu_gadu_msg_sender = -1;
 static int hf_gadu_gadu_msg_recipient = -1;
@@ -101,7 +104,16 @@ static int hf_gadu_gadu_new_status_status = -1;
 static int hf_gadu_gadu_new_status_desc = -1;
 
 static int hf_gadu_gadu_userlist_request_type = -1;
+static int hf_gadu_gadu_userlist_version = -1;
+static int hf_gadu_gadu_userlist_format = -1;
 static int hf_gadu_gadu_userlist_reply_type = -1;
+
+static int hf_gadu_gadu_pubdir_request_type = -1;
+static int hf_gadu_gadu_pubdir_request_seq = -1;
+static int hf_gadu_gadu_pubdir_request_str = -1;
+static int hf_gadu_gadu_pubdir_reply_type = -1;
+static int hf_gadu_gadu_pubdir_reply_seq = -1;
+static int hf_gadu_gadu_pubdir_reply_str = -1;
 
 static int hf_gadu_gadu_welcome_seed = -1;
 
@@ -237,6 +249,8 @@ static const value_string gadu_gadu_packets_type_recv[] = {
 #define GG_OWN_DISCONNECT       0x62
 #define GG_NEW_STATUS105        0x63
 #define GG_NOTIFY105            0x78
+#define GG_ADD_NOTIFY105        0x7b
+#define GG_REMOVE_NOTIFY105     0x7c
 #define GG_LOGIN105             0x83
 
 static const value_string gadu_gadu_packets_type_send[] = {
@@ -274,6 +288,8 @@ static const value_string gadu_gadu_packets_type_send[] = {
 	GG_TYPE_VS(GG_OWN_DISCONNECT),
 	GG_TYPE_VS(GG_NEW_STATUS105),
 	GG_TYPE_VS(GG_NOTIFY105),
+	GG_TYPE_VS(GG_ADD_NOTIFY105),
+	GG_TYPE_VS(GG_REMOVE_NOTIFY105),
 	GG_TYPE_VS(GG_LOGIN105),
 	{ 0, NULL }
 };
@@ -334,6 +350,17 @@ static const value_string gadu_gadu_userlist_reply_type_vals[] = {
 	{ 0, NULL }
 };
 
+#define GG_USERLIST100_FORMAT_TYPE_NONE 0x00
+#define GG_USERLIST100_FORMAT_TYPE_GG70 0x01
+#define GG_USERLIST100_FORMAT_TYPE_GG100 0x02
+
+static const value_string gadu_gadu_userlist_request_format_vals[] = {
+	{ GG_USERLIST100_FORMAT_TYPE_NONE, "None" },
+	{ GG_USERLIST100_FORMAT_TYPE_GG70, "Classic (7.0)" },
+	{ GG_USERLIST100_FORMAT_TYPE_GG100, "XML (10.0)" },
+	{ 0, NULL }
+};
+
 /* XXX, add compatible libgadu versions? */
 static const value_string gadu_gadu_version_vals[] = {
 	{ 0x2e, "Gadu-Gadu 8.0 (build 8283)" },
@@ -367,6 +394,19 @@ static const value_string gadu_gadu_version_vals[] = {
 static const value_string gadu_gadu_dcc_type_vals[] = {
 	{ 1, "Voice transmission" },
 	{ 4, "File transmission" },
+	{ 0, NULL }
+};
+
+static const value_string gadu_gadu_typing_notify_type_vals[] = {
+	{ 1, "Typing started" },
+	{ 0, "Typing stopped" },
+	{ 0, NULL }
+};
+
+static const value_string gadu_gadu_pubdir_type_vals[] = {
+	{ 1, "Public directory write" },
+	{ 2, "Public directory read" },
+	{ 3, "Public directory search" },
 	{ 0, NULL }
 };
 
@@ -778,6 +818,21 @@ dissect_gadu_gadu_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+dissect_gadu_gadu_typing_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Typing notify");
+
+	/* XXX, when type > 1, it's length not type ! */
+	proto_tree_add_item(tree, hf_gadu_gadu_typing_notify_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_typing_notify_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	return offset;
+}
+
+static int
 dissect_gadu_gadu_msg_attr(tvbuff_t *tvb _U_, proto_tree *tree _U_, int offset)
 {
 	/* XXX, stub */
@@ -1152,6 +1207,37 @@ dissect_gadu_gadu_add_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+dissect_gadu_gadu_notify105_common(tvbuff_t *tvb, proto_tree *tree, int offset, char **puin)
+{
+	guint16 uin_len;
+	char *uin;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA); /* unknown 00 */
+	offset += 1;
+
+	uin_len = tvb_get_guint8(tvb, offset);
+	offset += 1;
+	uin = tvb_get_ephemeral_string_enc(tvb, offset, uin_len, ENC_ASCII | ENC_NA);
+	proto_tree_add_string(tree, hf_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
+	offset += uin_len;
+	if (puin)
+		*puin = uin;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_contact_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_add_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Notify list add (10.5)");
+
+	return dissect_gadu_gadu_notify105_common(tvb, tree, offset, NULL);
+}
+
+static int
 dissect_gadu_gadu_remove_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Notify list remove");
@@ -1163,6 +1249,14 @@ dissect_gadu_gadu_remove_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 1;
 
 	return offset;
+}
+
+static int
+dissect_gadu_gadu_remove_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Notify list remove (10.5)");
+
+	return dissect_gadu_gadu_notify105_common(tvb, tree, offset, NULL);
 }
 
 static int
@@ -1206,34 +1300,21 @@ dissect_gadu_gadu_notify_last(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_gadu_gadu_notify105(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-	proto_tree *contact_tree;
-	proto_item *ti;
-
 	col_set_str(pinfo->cinfo, COL_INFO, "Notify list (10.5)");
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 2) {
 		const int org_offset = offset;
 
-		guint16 uin_len;
+		proto_tree *contact_tree;
+		proto_item *ti;
+
 		char *uin;
 
 		ti = proto_tree_add_text(tree, tvb, offset, 0, "Contact: ");
 		contact_tree = proto_item_add_subtree(ti, ett_gadu_gadu_contact);
 
-	/* unknown 00 */
-		proto_tree_add_item(contact_tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA);
-		offset += 1;
-	/* uin */
-		uin_len = tvb_get_guint8(tvb, offset);
-		offset += 1;
-
-		uin = tvb_get_ephemeral_string_enc(tvb, offset, uin_len, ENC_ASCII | ENC_NA);
+		offset = dissect_gadu_gadu_notify105_common(tvb, contact_tree, offset, &uin);
 		proto_item_append_text(ti, "%s", uin);
-		proto_tree_add_string(contact_tree, hf_gadu_gadu_contact_uin_str, tvb, offset - 1, 1 + uin_len, uin);
-		offset += uin_len;
-	/* contact type */
-		proto_tree_add_item(contact_tree, hf_gadu_gadu_contact_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 1;
 
 		proto_item_set_len(ti, offset - org_offset);
 	}
@@ -1263,7 +1344,7 @@ dissect_gadu_gadu_welcome(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 }
 
 static int
-dissect_gadu_gadu_userlist80_compressed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_gadu_gadu_userlist_xml_compressed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	int remain = tvb_reported_length_remaining(tvb, offset);
 	tvbuff_t *uncomp_tvb;
@@ -1275,6 +1356,8 @@ dissect_gadu_gadu_userlist80_compressed(tvbuff_t *tvb, packet_info *pinfo, proto
 		proto_tree_add_text(tree, tvb, offset, remain, "Userlist XML data: [Decompression succeeded]");
 
 		add_new_data_source(pinfo, uncomp_tvb, "Uncompressed userlist");
+
+		/* XXX add DTD (pinfo->match_string) */
 		call_dissector_only(xml_handle, uncomp_tvb, pinfo, tree);
 	} else
 		proto_tree_add_text(tree, tvb, offset, remain, "Userlist XML data: [Error: Decompression failed] (or no libz)");
@@ -1288,6 +1371,7 @@ static int
 dissect_gadu_gadu_userlist_request80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	guint8 type;
+	proto_item *ti;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Userlist request (8.0)");
 
@@ -1295,9 +1379,43 @@ dissect_gadu_gadu_userlist_request80(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	proto_tree_add_item(tree, hf_gadu_gadu_userlist_request_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
+	ti = proto_tree_add_uint(tree, hf_gadu_gadu_userlist_format, tvb, 0, 0, GG_USERLIST100_FORMAT_TYPE_GG100);
+	PROTO_ITEM_SET_GENERATED(ti);
+
 	switch (type) {
 		case GG_USERLIST_PUT:
-			offset = dissect_gadu_gadu_userlist80_compressed(tvb, pinfo, tree, offset);
+			offset = dissect_gadu_gadu_userlist_xml_compressed(tvb, pinfo, tree, offset);
+			break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_userlist_request100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	guint8 type, format;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Userlist request (10.0)");
+
+	type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_gadu_gadu_userlist_request_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_userlist_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	format = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_gadu_gadu_userlist_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA);	/* 01 */
+	offset += 1;
+
+	switch (type) {
+		case GG_USERLIST_PUT:
+			if (format == GG_USERLIST100_FORMAT_TYPE_GG100)
+				offset = dissect_gadu_gadu_userlist_xml_compressed(tvb, pinfo, tree, offset);
 			break;
 	}
 
@@ -1317,9 +1435,51 @@ dissect_gadu_gadu_userlist_reply80(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	switch (type) {
 		case GG_USERLIST_GET_REPLY:
-			offset = dissect_gadu_gadu_userlist80_compressed(tvb, pinfo, tree, offset);
+			offset = dissect_gadu_gadu_userlist_xml_compressed(tvb, pinfo, tree, offset);
 			break;
 	}
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_userlist_reply100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	guint8 type, format;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Userlist reply (10.0)");
+
+	type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_gadu_gadu_userlist_reply_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_userlist_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	format = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_gadu_gadu_userlist_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_data, tvb, offset, 1, ENC_NA);	/* 01 */
+	offset += 1;
+
+	switch (type) {
+		case GG_USERLIST_GET_REPLY:
+			if (format == GG_USERLIST100_FORMAT_TYPE_GG100)
+				offset = dissect_gadu_gadu_userlist_xml_compressed(tvb, pinfo, tree, offset);
+			break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_userlist_version100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	col_set_str(pinfo->cinfo, COL_INFO, "Userlist version (10.0)");
+
+	proto_tree_add_item(tree, hf_gadu_gadu_userlist_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
 
 	return offset;
 }
@@ -1389,6 +1549,68 @@ dissect_gadu_gadu_dcc7_id_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	return offset;
 }
 
+static int
+dissect_gadu_gadu_pubdir50_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	int pos;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Public directory request");
+
+	proto_tree_add_item(tree, hf_gadu_gadu_pubdir_request_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_pubdir_request_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	/* XXX, link request sequence with reply sequence */
+
+	while ((pos = tvb_find_guint8(tvb, offset, -1, '\0')) > 0) {
+		/* XXX, display it better, field=value */
+		dissect_gadu_gadu_stringz_cp1250(tvb, hf_gadu_gadu_pubdir_request_str, tree, offset);
+		offset = pos + 1;
+	}
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_pubdir50_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	int pos;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "Public directory reply");
+
+	proto_tree_add_item(tree, hf_gadu_gadu_pubdir_reply_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_gadu_gadu_pubdir_reply_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	/* XXX, link reply sequence with request sequence */
+
+	while ((pos = tvb_find_guint8(tvb, offset, -1, '\0')) > 0) {
+		/* XXX, display it better, field=value */
+		dissect_gadu_gadu_stringz_cp1250(tvb, hf_gadu_gadu_pubdir_reply_str, tree, offset);
+		offset = pos + 1;
+	}
+
+	return offset;
+}
+
+static int
+dissect_gadu_gadu_xml_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	tvbuff_t *xml_tvb;
+	int ret;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "XML action message");
+
+	xml_tvb = tvb_new_subset_remaining(tvb, offset);
+
+	/* XXX add DTD (pinfo->match_string) */
+	ret = call_dissector_only(xml_handle, xml_tvb, pinfo, tree);
+
+	return offset + ret;
+}
+
 static void
 dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1397,15 +1619,7 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	guint32 pkt_type;
 
-	if (pinfo->srcport == pinfo->match_uint && pinfo->destport != pinfo->match_uint)
-		pinfo->p2p_dir = P2P_DIR_RECV;
-	else if (pinfo->srcport != pinfo->match_uint && pinfo->destport == pinfo->match_uint)
-		pinfo->p2p_dir = P2P_DIR_SENT;
-	else
-		return;
-
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gadu-Gadu");
-	col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO); /* XXX, remove, add separator when multiple PDU */
 
 	if (tree) {
 		proto_item *ti = proto_tree_add_item(tree, proto_gadu_gadu, tvb, 0, -1, ENC_NA);
@@ -1446,6 +1660,10 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case GG_USER_DATA:
 				offset = dissect_gadu_gadu_user_data(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_TYPING_NOTIFY:
+				offset = dissect_gadu_gadu_typing_notify(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
 			case GG_RECV_MSG:
@@ -1489,6 +1707,41 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_userlist_reply80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_USERLIST100_REPLY:
+				offset = dissect_gadu_gadu_userlist_reply100(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_USERLIST100_VERSION:
+				offset = dissect_gadu_gadu_userlist_version100(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_PUBDIR50_REPLY:
+				offset = dissect_gadu_gadu_pubdir50_reply(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_XML_ACTION:
+				offset = dissect_gadu_gadu_xml_action(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_STATUS:
+			case GG_PONG:
+			case GG_PING:
+			case GG_NOTIFY_REPLY:
+			case GG_USERLIST_REPLY:
+			case GG_NOTIFY_REPLY60:
+			case GG_NEED_EMAIL:
+			case GG_LOGIN_HASH_TYPE_INVALID:
+			case GG_NOTIFY_REPLY77:
+			case GG_DCC7_INFO:
+			case GG_DCC7_NEW:
+			case GG_DCC7_ACCEPT:
+			case GG_DCC7_REJECT:
+			case GG_DCC7_ID_ABORTED:
+			case GG_XML_EVENT:
+			case GG_STATUS80BETA:
+			case GG_NOTIFY_REPLY80BETA:
+			case GG_OWN_MESSAGE:
+			case GG_OWN_RESOURCE_INFO:
 			default:
 			{
 				const char *pkt_name = match_strval(pkt_type, gadu_gadu_packets_type_recv);
@@ -1535,12 +1788,24 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_add_notify(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_ADD_NOTIFY105:
+				offset = dissect_gadu_gadu_add_notify105(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
 			case GG_REMOVE_NOTIFY:
 				offset = dissect_gadu_gadu_remove_notify(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_REMOVE_NOTIFY105:
+				offset = dissect_gadu_gadu_remove_notify105(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
 			case GG_PING:
 				offset = dissect_gadu_gadu_ping(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_TYPING_NOTIFY:
+				offset = dissect_gadu_gadu_typing_notify(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
 			case GG_SEND_MSG:
@@ -1580,6 +1845,27 @@ dissect_gadu_gadu_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset = dissect_gadu_gadu_userlist_request80(tvb, pinfo, gadu_gadu_tree, offset);
 				break;
 
+			case GG_USERLIST100_REQUEST:
+				offset = dissect_gadu_gadu_userlist_request100(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_PUBDIR50_REQUEST:
+				offset = dissect_gadu_gadu_pubdir50_request(tvb, pinfo, gadu_gadu_tree, offset);
+				break;
+
+			case GG_PONG:
+			case GG_LOGIN_EXT:
+			case GG_LOGIN60:
+			case GG_USERLIST_REQUEST:
+			case GG_DCC7_INFO:
+			case GG_DCC7_ACCEPT:
+			case GG_DCC7_REJECT:
+			case GG_DCC7_ID_DUNNO1:
+			case GG_NEW_STATUS80BETA:
+			case GG_LOGIN80BETA:
+			case GG_OWN_DISCONNECT:
+			case GG_NEW_STATUS105:
+			case GG_LOGIN105:
 			default:
 			{
 				const char *pkt_name = match_strval(pkt_type, gadu_gadu_packets_type_send);
@@ -1610,6 +1896,16 @@ get_gadu_gadu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static int
 dissect_gadu_gadu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	if (pinfo->srcport == pinfo->match_uint && pinfo->destport != pinfo->match_uint)
+		pinfo->p2p_dir = P2P_DIR_RECV;
+	else if (pinfo->srcport != pinfo->match_uint && pinfo->destport == pinfo->match_uint)
+		pinfo->p2p_dir = P2P_DIR_SENT;
+	else
+		return 0;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gadu-Gadu");
+	col_clear(pinfo->cinfo, COL_INFO);
+
 	tcp_dissect_pdus(tvb, pinfo, tree, gadu_gadu_desegment, 8, get_gadu_gadu_pdu_len, dissect_gadu_gadu_pdu);
 	return tvb_length(tvb);
 }
@@ -1669,6 +1965,12 @@ proto_register_gadu_gadu(void)
 		},
 		{ &hf_gadu_gadu_userdata_attr_value,
 			{ "Attribute value", "gadu-gadu.user_data.attr_val", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_typing_notify_type,
+			{ "Typing notify type", "gadu-gadu.typing_notify.type", FT_UINT16, BASE_HEX, gadu_gadu_typing_notify_type_vals, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_typing_notify_uin,
+			{ "Typing notify recipient", "gadu-gadu.typing_notify.uin", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 	/* Message common */
 		{ &hf_gadu_gadu_msg_uin,
@@ -1742,10 +2044,16 @@ proto_register_gadu_gadu(void)
 		{ &hf_gadu_gadu_userlist_request_type,
 			{ "Request type", "gadu-gadu.userlist.request_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_request_type_vals, 0x00, NULL, HFILL }
 		},
+		{ &hf_gadu_gadu_userlist_version,
+			{ "Userlist version", "gadu-gadu.userlist.version", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_userlist_format,
+			{ "Userlist format", "gadu-gadu.userlist.format", FT_UINT8, BASE_HEX, gadu_gadu_userlist_request_format_vals, 0x00, NULL, HFILL }
+		},
 		{ &hf_gadu_gadu_userlist_reply_type,
 			{ "Reply type", "gadu-gadu.userlist.reply_type", FT_UINT32, BASE_HEX, gadu_gadu_userlist_reply_type_vals, 0x00, NULL, HFILL }
 		},
-	/* DCC7 */
+	/* Direct Connection */
 		{ &hf_dcc_type,
 			{ "Direct connection type", "gadu-gadu.dcc.type", FT_UINT32, BASE_HEX, gadu_gadu_dcc_type_vals, 0x00, NULL, HFILL }
 		},
@@ -1760,6 +2068,25 @@ proto_register_gadu_gadu(void)
 		},
 		{ &hf_dcc_filename,
 			{ "Direct connection filename", "gadu-gadu.dcc.filename", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+	/* Public Directory */
+		{ &hf_gadu_gadu_pubdir_request_type,
+			{ "Request type", "gadu-gadu.pubdir.request_type", FT_UINT8, BASE_HEX, gadu_gadu_pubdir_type_vals, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_pubdir_request_seq,
+			{ "Request sequence", "gadu-gadu.pubdir.request_seq", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_pubdir_request_str,
+			{ "Request string", "gadu-gadu.pubdir.request_str", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_pubdir_reply_type,
+			{ "Reply type", "gadu-gadu.pubdir.reply_type", FT_UINT8, BASE_HEX, gadu_gadu_pubdir_type_vals, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_pubdir_reply_seq,
+			{ "Reply sequence", "gadu-gadu.pubdir.reply_seq", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_gadu_gadu_pubdir_reply_str,
+			{ "Reply string", "gadu-gadu.pubdir.request_str", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 	/* GG_WELCOME */
 		{ &hf_gadu_gadu_welcome_seed,
