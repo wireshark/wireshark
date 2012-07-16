@@ -737,7 +737,7 @@ _bytes_view_find_pos(BytesView *bv, const int org_off, int search_x)
 }
 
 static void
-bytes_view_render(BytesView *bv, cairo_t *cr)
+bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 {
 	const int old_max_width = bv->max_width;
 
@@ -763,21 +763,24 @@ bytes_view_render(BytesView *bv, cairo_t *cr)
 	if (width < 32 + MARGIN || height < bv->fontsize)
 		return;
 
-	line = 0;
-	lines_max = (guint) -1;
-
-/*
 	if (area) {
 		line = area->y / bv->fontsize;
 		lines_max = 1 + (area->y + area->height) / bv->fontsize;
+	} else {
+		line = 0;
+		lines_max = (guint) -1;
 	}
- */
+	/* g_print("from %d to %d\n", line, lines_max); */
+
 	off = 0;
 	y = (bv->fontsize * line);
 
 	/* clear */
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[GTK_STATE_NORMAL]);
-	cairo_rectangle(cr, 0, 0, width, height);
+	if (area)
+		cairo_rectangle(cr, area->x, area->y, area->x + area->width, area->y + area->height);
+	else
+		cairo_rectangle(cr, 0, 0, width, height);
 	cairo_fill(cr);
 
 	if (bv->pd) {
@@ -815,7 +818,7 @@ bytes_view_render_full(BytesView *bv)
 	}
 
 	cr = gdk_cairo_create(gtk_widget_get_window(GTK_WIDGET(bv)));
-	bytes_view_render(bv, cr);
+	bytes_view_render(bv, cr, NULL);
 	cairo_destroy(cr);
 }
 
@@ -823,7 +826,11 @@ bytes_view_render_full(BytesView *bv)
 static gboolean
 bytes_view_draw(GtkWidget *widget, cairo_t *cr)
 {
-	bytes_view_render(BYTES_VIEW(widget), cr);
+	GdkRectangle area;
+
+	gdk_cairo_get_clip_rectangle(cr, &area);
+
+	bytes_view_render(BYTES_VIEW(widget), cr, &area);
 	return FALSE;
 }
 
@@ -837,11 +844,10 @@ bytes_view_expose(GtkWidget *widget, GdkEventExpose *event)
 
 	cr = gdk_cairo_create(gtk_widget_get_window(GTK_WIDGET(bv)));
 
-	/* gdk_cairo_rectangle(cr, &event->area); */
 	gdk_cairo_region(cr, event->region);
 	cairo_clip(cr);
 
-	bytes_view_render(bv, cr);
+	bytes_view_render(bv, cr, &event->area);
 
 	cairo_destroy(cr);
 	return FALSE;
@@ -862,8 +868,9 @@ _gtk_adjustment_configure(GtkAdjustment *adj,
 	adj->value = value;
 	adj->lower = lower;
 	adj->upper = upper;
-	adj->page_size = page_size;
 	adj->step_increment = step_increment;
+	adj->page_increment = page_increment;
+	adj->page_size = page_size;
 
 	gtk_adjustment_changed(adj);
 }
