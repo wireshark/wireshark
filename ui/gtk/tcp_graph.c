@@ -432,8 +432,8 @@ static struct graph *graph_new (void);
 static void graph_destroy (struct graph * );
 static void graph_initialize_values (struct graph * );
 static void graph_init_sequence (struct graph * );
-static void draw_element_line (struct graph * , struct element * );
-static void draw_element_ellipse (struct graph * , struct element * );
+static void draw_element_line (struct graph * , struct element * , cairo_t *cr);
+static void draw_element_ellipse (struct graph * , struct element * , cairo_t *cr);
 static void graph_display (struct graph * );
 static void graph_pixmaps_create (struct graph * );
 static void graph_pixmaps_switch (struct graph * );
@@ -1812,20 +1812,16 @@ typedef struct _tcp_scan_t {
 static int
 tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	static struct segment *segment=NULL;
 	tcp_scan_t *ts=(tcp_scan_t *)pct;
 	struct tcpheader *tcphdr=(struct tcpheader *)vip;
-
-	if(!segment){
-		segment=g_malloc(sizeof (struct segment));
-	}
-
 
 	if (compare_headers(&ts->current->ip_src, &ts->current->ip_dst,
 			    ts->current->th_sport, ts->current->th_dport,
 			    &tcphdr->ip_src, &tcphdr->ip_dst,
 			    tcphdr->th_sport, tcphdr->th_dport,
 			    ts->direction)) {
+
+		struct segment *segment = g_malloc(sizeof (struct segment));
 		segment->next = NULL;
 		segment->num = pinfo->fd->num;
 		segment->rel_secs = (guint32) pinfo->fd->rel_ts.secs;
@@ -1850,8 +1846,6 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 		if(pinfo->fd->num==ts->current->num){
 			ts->g->current = segment;
 		}
-
-		segment=NULL;
 	}
 
 	return 0;
@@ -2253,8 +2247,6 @@ static void graph_pixmap_draw (struct graph *g)
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_rectangle (cr, 0, 0, g->wp.width, g->wp.height);
 	cairo_fill (cr);
-	cairo_destroy (cr);
-	cr = NULL;
 
 	for (list=g->elists; list; list=list->next)
 		for (e=list->elements; e->type != ELMT_NONE; e++) {
@@ -2262,21 +2254,22 @@ static void graph_pixmap_draw (struct graph *g)
 			case ELMT_RECT:
 				break;
 			case ELMT_LINE:
-				draw_element_line (g, e);
+				draw_element_line (g, e, cr);
 				break;
 			case ELMT_ELLIPSE:
-				draw_element_ellipse (g, e);
+				draw_element_ellipse (g, e, cr);
 				break;
 			default:
 				break;
 			}
 		}
+
+	cairo_destroy (cr);
 }
 
-static void draw_element_line (struct graph *g, struct element *e)
+static void draw_element_line (struct graph *g, struct element *e, cairo_t *cr)
 {
 	int xx1, xx2, yy1, yy2;
-	cairo_t *cr;
 
 	debug(DBS_GRAPH_DRAWING) printf ("line element: (%.2f,%.2f)->(%.2f,%.2f), "
 				"seg %d ... ", e->p.line.dim.x1, e->p.line.dim.y1,
@@ -2313,11 +2306,6 @@ static void draw_element_line (struct graph *g, struct element *e)
 
 	g_assert(e->elment_color_p!=NULL);
 
-#if GTK_CHECK_VERSION(2,22,0)
-	cr = cairo_create (g->surface[1^g->displayed]);
-#else
-	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
-#endif
 	cairo_set_line_width (cr, 1.0);
 	if(e->elment_color_p!=NULL){
 		gdk_cairo_set_source_color (cr, e->elment_color_p);
@@ -2325,12 +2313,10 @@ static void draw_element_line (struct graph *g, struct element *e)
 	cairo_move_to(cr, xx1+0.5, yy1+0.5);
 	cairo_line_to(cr, xx2+0.5, yy2+0.5);
 	cairo_stroke(cr);
-	cairo_destroy(cr);
 }
 
-static void draw_element_ellipse (struct graph *g, struct element *e)
+static void draw_element_ellipse (struct graph *g, struct element *e, cairo_t *cr)
 {
-	cairo_t *cr;
 	gdouble w = e->p.ellipse.dim.width;
 	gdouble h = e->p.ellipse.dim.height;
 	gdouble x = e->p.ellipse.dim.x + g->geom.x - g->wp.x;
@@ -2338,16 +2324,10 @@ static void draw_element_ellipse (struct graph *g, struct element *e)
 
 	debug(DBS_GRAPH_DRAWING) printf ("ellipse: (x, y) -> (w, h): (%f, %f) -> (%f, %f)\n", x, y, w, h);
 
-#if GTK_CHECK_VERSION(2,22,0)
-	cr = cairo_create (g->surface[1^g->displayed]);
-#else
-	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
-#endif
 	cairo_translate (cr, x + w / 2., y + h / 2.);
 	cairo_scale (cr, w / 2., h / 2.);
 	cairo_arc (cr, 0., 0., 1., 0., 2 * G_PI);
 	cairo_fill(cr);
-	cairo_destroy(cr);
 }
 
 static void axis_pixmaps_create (struct axis *axis)
