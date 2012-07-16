@@ -593,7 +593,7 @@ proto_register_yami(void)
 void
 proto_reg_handoff_yami(void)
 {
-	static dissector_handle_t yami_handle;
+	static dissector_handle_t yami_handle = NULL;
 	static guint yami_tcp_port, yami_udp_port;
 
 	if (yami_handle) {
