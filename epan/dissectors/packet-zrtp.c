@@ -428,13 +428,13 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
     ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, TRUE);
     PROTO_ITEM_SET_GENERATED(ti);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, FALSE);
     PROTO_ITEM_SET_GENERATED(ti);
   } else {
     ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
                                           "0x%04x [incorrect, should be 0x%04x]", sent_crc, calc_crc);
     checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, FALSE);
     PROTO_ITEM_SET_GENERATED(ti);
     ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, TRUE);
     PROTO_ITEM_SET_GENERATED(ti);
