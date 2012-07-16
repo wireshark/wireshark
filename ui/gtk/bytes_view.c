@@ -34,7 +34,6 @@
 #endif
 
 #undef GTK_DISABLE_DEPRECATED
-#undef GSEAL_ENABLE
 
 #include <gtk/gtk.h>
 #include "ui/gtk/old-gtk-compat.h"
@@ -264,17 +263,17 @@ bytes_view_scroll(GtkWidget *widget, GdkEventScroll *event)
 	if (event->direction == GDK_SCROLL_UP) {	/* mouse wheel pageUp */
 		bytes_view_ensure_vadj(bv);
 
-		new_value = gtk_adjustment_get_value(bv->vadj) - (bv->vadj->page_increment / 10);
-		if (new_value < bv->vadj->lower)
-			new_value = bv->vadj->lower;
+		new_value = gtk_adjustment_get_value(bv->vadj) - (gtk_adjustment_get_page_increment(bv->vadj) / 10);
+		if (new_value < gtk_adjustment_get_lower(bv->vadj))
+			new_value = gtk_adjustment_get_lower(bv->vadj);
 		gtk_adjustment_set_value(bv->vadj, new_value);
 
 	} else if (event->direction == GDK_SCROLL_DOWN) {	/* mouse wheel pageDn */
 		bytes_view_ensure_vadj(bv);
 
-		new_value = gtk_adjustment_get_value(bv->vadj) + (bv->vadj->page_increment / 10);
-		if (new_value > (bv->vadj->upper - bv->vadj->page_size))
-			new_value = bv->vadj->upper - bv->vadj->page_size;
+		new_value = gtk_adjustment_get_value(bv->vadj) + (gtk_adjustment_get_page_increment(bv->vadj) / 10);
+		if (new_value > (gtk_adjustment_get_upper(bv->vadj) - gtk_adjustment_get_page_size(bv->vadj)))
+			new_value = gtk_adjustment_get_upper(bv->vadj) - gtk_adjustment_get_page_size(bv->vadj);
 		gtk_adjustment_set_value(bv->vadj, new_value);
 	}
 	return FALSE;
@@ -721,13 +720,12 @@ _bytes_view_find_pos(BytesView *bv, const int org_off, int search_x)
 }
 
 static void
-bytes_view_render(BytesView *bv, GdkRectangle *area)
+bytes_view_render(BytesView *bv, cairo_t *cr)
 {
 	const int old_max_width = bv->max_width;
 
 	int width, height;
 	GdkDrawable *draw_buf;
-	cairo_t *cr;
 	int y;
 	int off;
 
@@ -745,30 +743,21 @@ bytes_view_render(BytesView *bv, GdkRectangle *area)
 	if (width < 32 + MARGIN || height < bv->fontsize)
 		return;
 
+	line = 0;
+	lines_max = (guint) -1;
+
+/*
 	if (area) {
 		line = area->y / bv->fontsize;
 		lines_max = 1 + (area->y + area->height) / bv->fontsize;
-	} else {
-		line = 0;
-		lines_max = (guint) -1;
 	}
-
+ */
 	off = 0;
 	y = (bv->fontsize * line);
 
-	cr = gdk_cairo_create(draw_buf);
-	if (area) {
-		gdk_cairo_rectangle(cr, area);
-		/* gdk_cairo_area(cr, rectangle); */
-		cairo_clip(cr);
-	}
-
 	/* clear */
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[GTK_STATE_NORMAL]);
-	if (area)
-		cairo_rectangle(cr, area->x, area->y, area->x + area->width, area->y + area->height);
-	else
-		cairo_rectangle(cr, 0, 0, width, height);
+	cairo_rectangle(cr, 0, 0, width, height);
 	cairo_fill(cr);
 
 	if (bv->pd) {
@@ -791,8 +780,6 @@ bytes_view_render(BytesView *bv, GdkRectangle *area)
 		}
 	}
 
-	cairo_destroy(cr);
-
 	if (old_max_width != bv->max_width)
 		bytes_view_adjustment_set(bv);
 }
@@ -800,73 +787,130 @@ bytes_view_render(BytesView *bv, GdkRectangle *area)
 static void
 bytes_view_render_full(BytesView *bv)
 {
+	cairo_t *cr;
+
 	if (bv->adj_tag) {
 		g_source_remove(bv->adj_tag);
 		bv->adj_tag = 0;
 	}
-	bytes_view_render(bv, NULL);
+
+	cr = gdk_cairo_create(gtk_widget_get_window(GTK_WIDGET(bv)));
+	bytes_view_render(bv, cr);
+	cairo_destroy(cr);
 }
 
-static void
-bytes_view_paint(GtkWidget *widget, GdkRectangle *area)
+#if GTK_CHECK_VERSION(3, 0, 0)
+static gboolean
+bytes_view_draw(GtkWidget *widget, cairo_t *cr)
 {
-	BytesView *bv = BYTES_VIEW(widget);
-
-	if (area->x == 0 && area->y == 0 && area->height == widget->allocation.height && area->width == widget->allocation.width)
-		bytes_view_render_full(bv);
-	else
-		bytes_view_render(bv, area);
+	bytes_view_render(bv, cr);
+	return FALSE;
 }
+
+#else
 
 static gboolean 
 bytes_view_expose(GtkWidget *widget, GdkEventExpose *event)
 {
-	bytes_view_paint(widget, &event->area);
+	BytesView *bv = BYTES_VIEW(widget);
+	cairo_t *cr;
+
+	cr = gdk_cairo_create(gtk_widget_get_window(GTK_WIDGET(bv)));
+
+	gdk_cairo_rectangle(cr, &event->area);
+	/* gdk_cairo_area(cr, rectangle); */
+	cairo_clip(cr);
+
+	bytes_view_render(bv, cr);
+
+	cairo_destroy(cr);
 	return FALSE;
 }
+
+#endif
+
+#if !GTK_CHECK_VERSION(2, 14, 0)
+static void
+_gtk_adjustment_configure(GtkAdjustment *adj,
+                          gdouble        value,
+                          gdouble        lower,
+                          gdouble        upper,
+                          gdouble        step_increment,
+                          gdouble        page_increment,
+                          gdouble        page_size)
+{
+	adj->value = value;
+	adj->lower = lower;
+	adj->upper = upper;
+	adj->page_size = page_size;
+	adj->step_increment = step_increment;
+
+	gtk_adjustment_changed(bv->vadj);
+}
+
+#else
+
+#define _gtk_adjustment_configure(adj, val, low, up, step, page, size) \
+	gtk_adjustment_configure(adj, val, low, up, step, page, size)
+
+#endif
+
 
 static void 
 bytes_view_adjustment_set(BytesView *bv)
 {
-	if (bv->vadj) {
-		bv->vadj->lower = 0;
-		bv->vadj->upper = (int) (bv->len / bv->per_line);
-		if ((bv->len % bv->per_line))
-			bv->vadj->upper++;
+	GtkAllocation allocation;
+	double lower, upper, page_size, step_increment, page_increment, value;
 
+	if (bv->vadj == NULL || bv->hadj == NULL)
+		return;
+
+	if (bv->context == NULL) {
 		bytes_view_ensure_layout(bv);
+		/* bytes_view_ensure_layout will call bytes_view_adjustment_set() again */
+		return;
+	}
 
-		bv->vadj->page_size =
-			(GTK_WIDGET(bv)->allocation.height - bv->font_descent) / bv->fontsize;
-		bv->vadj->step_increment = 1;
-		bv->vadj->page_increment = bv->vadj->page_size;
+	gtk_widget_get_allocation(GTK_WIDGET(bv), &allocation);
 
-		if (bv->vadj->value > bv->vadj->upper - bv->vadj->page_size)
-			bv->vadj->value = bv->vadj->upper - bv->vadj->page_size;
+	if (bv->vadj) {
+		lower = 0;
+		upper = (int) (bv->len / bv->per_line);
+		if ((bv->len % bv->per_line))
+			upper++;
 
-		if (bv->vadj->value < 0)
-			bv->vadj->value = 0;
+		page_size = (allocation.height - bv->font_descent) / bv->fontsize;
+		page_increment = page_size;
+		step_increment = 1;
 
-		gtk_adjustment_changed(bv->vadj);
+		value = gtk_adjustment_get_value(bv->vadj);
+
+		if (value > upper - page_size)
+			value = upper - page_size;
+
+		if (value < 0)
+			value = 0;
+
+		_gtk_adjustment_configure(bv->vadj, value, lower, upper, step_increment, page_increment, page_size);
 	}
 
 	if (bv->hadj) {
-		bv->hadj->lower = 0;
-		bv->hadj->upper = bv->max_width;
+		lower = 0;
+		upper = bv->max_width;
 
-		bytes_view_ensure_layout(bv);
+		page_size = allocation.width;
+		page_increment = page_size;
+		step_increment = page_size / 10.0;
 
-		bv->hadj->page_size = (GTK_WIDGET(bv)->allocation.width);
-		bv->hadj->step_increment = bv->hadj->page_size / 10.0;
-		bv->hadj->page_increment = bv->hadj->page_size;
+		value = gtk_adjustment_get_value(bv->hadj);
 
-		if (bv->hadj->value > bv->hadj->upper - bv->hadj->page_size)
-			bv->hadj->value = bv->hadj->upper - bv->hadj->page_size;
+		if (value > upper - page_size)
+			value = upper - page_size;
 
-		if (bv->hadj->value < 0)
-			bv->hadj->value = 0;
+		if (value < 0)
+			value = 0;
 
-		gtk_adjustment_changed(bv->hadj);
+		_gtk_adjustment_configure(bv->hadj, value, lower, upper, step_increment, page_increment, page_size);
 	}
 }
 
@@ -959,8 +1003,13 @@ bytes_view_class_init(BytesViewClass *klass)
 	widget_class->size_request = bytes_view_size_request;
 #endif
 	widget_class->size_allocate = bytes_view_allocate;
-	/* XXX, ->draw instead of ->expose_event */
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+	widget_class->draw = bytes_view_draw;
+#else
 	widget_class->expose_event = bytes_view_expose;
+#endif
+
 	widget_class->scroll_event = bytes_view_scroll;
 
 #if GTK_CHECK_VERSION(3, 0, 0)
@@ -1096,8 +1145,8 @@ bytes_view_scroll_to_byte(BytesView *bv, int byte)
 
 	bytes_view_ensure_vadj(bv);
 
-	if (line > bv->vadj->upper - bv->vadj->page_size) {
-		line = (int)(bv->vadj->upper - bv->vadj->page_size);
+	if (line > gtk_adjustment_get_upper(bv->vadj) - gtk_adjustment_get_page_size(bv->vadj)) {
+		line = (int)(gtk_adjustment_get_upper(bv->vadj) - gtk_adjustment_get_page_size(bv->vadj));
 
 		if (line < 0)
 			line = 0;
