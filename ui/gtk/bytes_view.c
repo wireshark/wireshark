@@ -37,9 +37,11 @@
 
 #undef GTK_DISABLE_DEPRECATED
 #undef GSEAL_ENABLE
-#include <gtk/gtkmarshal.h>
 
 #include <gtk/gtk.h>
+#if !GTK_CHECK_VERSION(3, 0, 0)
+#include <gtk/gtkmarshal.h>
+#endif
 #include "ui/gtk/old-gtk-compat.h"
 
 #include <string.h>
