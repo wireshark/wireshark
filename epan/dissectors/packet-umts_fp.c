@@ -32,6 +32,8 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 
+#include <wsutil/crc7.h>
+
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
 #include "packet-umts_fp.h"
@@ -209,6 +211,7 @@ static dissector_handle_t mac_fdd_fach_handle;
 static dissector_handle_t mac_fdd_pch_handle;
 static dissector_handle_t mac_fdd_edch_handle;
 static dissector_handle_t mac_fdd_hsdsch_handle;
+static dissector_handle_t fp_handle;
 
 static proto_tree *top_level_tree = NULL;
 
@@ -3165,7 +3168,35 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     p_fp_info = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
 
     /* if no FP info is present, assume this is not FP over UDP */
-    if (!p_fp_info) return FALSE;
+    if (!p_fp_info) {
+		/* We only know the header length of control frames, so check that bit first */
+		int offset = 0, length;
+		guint8 oct, calc_crc = 0, crc;
+		unsigned char *buf;
+
+		oct = tvb_get_guint8(tvb, offset);
+		crc = oct & 0xfe;
+		if ((oct & 0x01) == 1){
+			/*
+			 * 6.3.2.1 Frame CRC
+			 * Description: It is the result of the CRC applied to the remaining part of the frame, 
+			 * i.e. from bit 0 of the first byte of the header (the FT IE) to bit 0 of the last byte of the payload, 
+			 * with the corresponding generator polynomial: G(D) = D7+D6+D2+1. See subclause 7.2.
+			 */
+			length =  tvb_length(tvb);
+			buf = ep_tvb_memdup(tvb, 0, length);
+			buf[0] = 01;
+
+			calc_crc = crc7update(calc_crc, buf, length);
+			if(calc_crc == crc){
+				/* assume this is FP, set conversatio dissector to catch the data frames too */
+				conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
+			    dissect_fp(tvb, pinfo, tree);
+				return TRUE;
+			}
+		}
+        return FALSE;
+	}
 
     /* if FP info is present, check that it really is an ethernet link */
     if (p_fp_info->link_type != FP_Link_Ethernet) {
@@ -4625,6 +4656,7 @@ void proto_reg_handoff_fp(void)
     mac_fdd_dch_handle    = find_dissector("mac.fdd.dch");
     mac_fdd_edch_handle   = find_dissector("mac.fdd.edch");
     mac_fdd_hsdsch_handle = find_dissector("mac.fdd.hsdsch");
+    fp_handle             = find_dissector("fp");
 
     heur_dissector_add("udp", heur_dissect_fp, proto_fp);
 }

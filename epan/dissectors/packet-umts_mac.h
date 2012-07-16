@@ -21,6 +21,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef PACKET_UMTS_MAC_H
+#define PACKET_UMTS_MAC_H
+
 /* Target Channel Type Field (TCTF) values */
 #define TCTF_CCCH_RACH_FDD      0x0
 #define TCTF_DCCH_DTCH_RACH_FDD 0x1
@@ -41,10 +44,30 @@
 #define MAC_CONTENT_DCCH    1
 #define MAC_CONTENT_PS_DTCH 2
 #define MAC_CONTENT_CS_DTCH 3
+#define MAC_CONTENT_CCCH    4
+
+/* Used for mapping id to string names*/
+#define MAC_PCCH    0
+#define MAC_CCCH    1
+#define MAC_CTCH    2
+#define MAC_DCCH    3
+#define MAC_DTCH    4
+#define MAC_BCCH    5
+#define MAC_MCCH    6
+#define MAC_MSCH    7
+#define MAC_MTCH    8
 
 #define MAX_MAC_FRAMES 64
 typedef struct umts_mac_info
 {
     gboolean ctmux[MAX_MAC_FRAMES];
     guint8 content[MAX_MAC_FRAMES];
+    guint8 lchid[MAX_MAC_FRAMES];       /*Makes displaying logical channel alot easier*/
+    guint8 macdflow_id[MAX_MAC_FRAMES]; /*Makes displaying logical channel alot easier*/
+    
+    gboolean fake_chid[MAX_MAC_FRAMES]; /*Indicate if the child ID is faked or not*/
+    guint pdu_len;                      /*Length of MAC PDU, same for all PDUs in one FP frame*/
+    guint8 trchid[MAX_MAC_FRAMES];      /*Makes displaying logical channel alot easier*/
 } umts_mac_info;
+
+#endif

@@ -29,10 +29,13 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 
+#include "packet-rrc.h"
 #include "packet-umts_fp.h"
-#include "packet-rlc.h"
 #include "packet-umts_mac.h"
+#include "packet-rlc.h"
+#include "packet-nbap.h"
 
 int proto_umts_mac = -1;
 extern int proto_fp;
@@ -61,6 +64,7 @@ static dissector_handle_t rlc_ccch_handle;
 static dissector_handle_t rlc_ctch_handle;
 static dissector_handle_t rlc_dcch_handle;
 static dissector_handle_t rlc_ps_dtch_handle;
+static dissector_handle_t rrc_handle;
 
 static const value_string rach_fdd_tctf_vals[] = {
     { TCTF_CCCH_RACH_FDD      , "CCCH over RACH (FDD)" },
@@ -85,15 +89,6 @@ static const value_string ueid_type_vals[] = {
     { 0, NULL }
 };
 
-#define MAC_PCCH    0
-#define MAC_CCCH    1
-#define MAC_CTCH    2
-#define MAC_DCCH    3
-#define MAC_DTCH    4
-#define MAC_BCCH    5
-#define MAC_MCCH    6
-#define MAC_MSCH    7
-#define MAC_MTCH    8
 static const value_string mac_logical_channel_vals[] = {
     { MAC_PCCH, "PCCH" },
     { MAC_CCCH, "CCCH" },
@@ -269,15 +264,17 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8         hdr, tctf;
-    guint16        bitoffs   = 0;
-    guint16        tctf_len, chan;
-    proto_tree    *fach_tree = NULL;
-    proto_item    *channel_type;
-    umts_mac_info *macinf;
-    fp_info       *fpinf;
-    rlc_info      *rlcinf;
-    proto_item    *ti        = NULL;
+    guint8          hdr, tctf;
+    guint16         bitoffs   = 0;
+    guint16         tctf_len, chan;
+    proto_tree      *fach_tree = NULL;
+    proto_item      *channel_type;
+    umts_mac_info   *macinf;
+    fp_info         *fpinf;
+    rlc_info        *rlcinf;
+    struct rrc_info *rrcinf;
+    proto_item      *ti = NULL;
+    gint c_t;
 
     hdr = tvb_get_guint8(tvb, 0);
 
@@ -320,9 +317,13 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             next_tvb = tvb_new_subset(tvb, 1, tvb_length_remaining(tvb, 1), -1);
             call_dissector(rlc_ccch_handle, next_tvb, pinfo, tree);
             break;
-        case TCTF_DCCH_DTCH_FACH_FDD:
-            switch (macinf->content[fpinf->cur_tb]) {
-                case MAC_CONTENT_DCCH:
+		case TCTF_DCCH_DTCH_FACH_FDD:			
+			/*Set RLC Mode based on the L-CHID derived from the C/T flag*/
+			c_t = tvb_get_bits8(tvb,bitoffs-4,4);
+			rlcinf->mode[fpinf->cur_tb] = lchId_rlc_map[c_t+1];
+
+			switch (macinf->content[fpinf->cur_tb]) {
+				case MAC_CONTENT_DCCH:
                     proto_item_append_text(ti, " (DCCH)");
                     channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
                     PROTO_ITEM_SET_GENERATED(channel_type);
@@ -354,9 +355,32 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             next_tvb = tvb_new_subset(tvb, 1, tvb_length_remaining(tvb, 1), -1);
             call_dissector(rlc_ctch_handle, next_tvb, pinfo, tree);
             break;
-        default:
-            proto_item_append_text(ti, " (Unknown FACH Content)");
-    }
+		case TCTF_BCCH_FACH_FDD:
+			proto_item_append_text(ti, " (BCCH)");
+			channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_BCCH);
+			PROTO_ITEM_SET_GENERATED(channel_type);
+		 
+			/*We need to skip the first two bits (the TCTF bits), and since there is no MAC header, send rest to RRC*/
+			next_tvb= tvb_new_octet_aligned(tvb, 2, (tvb_length(tvb)*8)-2);
+			add_new_data_source(pinfo, next_tvb, "Octet-Aligned BCCH Data");              
+
+			/* In this case skip RLC and call RRC immediately subdissector */
+			rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
+			if (!rrcinf) {
+				rrcinf = se_alloc0(sizeof(struct rrc_info));
+				rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
+				p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
+			}
+			call_dissector(rrc_handle, next_tvb, pinfo, tree);
+			break;
+		case TCTF_MSCH_FACH_FDD:
+		case TCTF_MCCH_FACH_FDD:
+		case TCTF_MTCH_FACH_FDD:
+		break;
+		 expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, " Unimplemented FACH Content type!");
+		default:
+			proto_item_append_text(ti, " (Unknown FACH Content)");
+	}
 }
 
 static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -596,5 +620,7 @@ proto_reg_handoff_umts_mac(void)
     rlc_ctch_handle    = find_dissector("rlc.ctch");
     rlc_dcch_handle    = find_dissector("rlc.dcch");
     rlc_ps_dtch_handle = find_dissector("rlc.ps_dtch");
+
+    rrc_handle = find_dissector("rrc");
 }
 

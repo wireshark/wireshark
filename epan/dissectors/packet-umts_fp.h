@@ -101,6 +101,9 @@ typedef struct fp_info
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
+    
+    guint  edch_lchId[MAX_EDCH_DDIS];	/* Logical Channel Id for E-DCH*/
+    
     guint8 edch_type;  /* 1 means T2 */
 
     gint cur_tb;    /* current transport block (required for dissecting of single TBs */
@@ -110,6 +113,7 @@ typedef struct fp_info
 
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
+    gint	hsdsch_macflowd_id;
     enum   fp_link_type link_type;
 } fp_info;
 
@@ -155,10 +159,12 @@ typedef struct
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
+    guint8  edch_lchId[MAX_EDCH_DDIS];
     guint8 edch_type;  /* 1 means T2 */
 
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
+    guint8 hsdsch_macdflow_id;
 } umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);

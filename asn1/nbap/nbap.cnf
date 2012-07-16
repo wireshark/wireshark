@@ -1,6 +1,8 @@
 # nbap.cnf
 # nbap conformation file
-# Copyright 2005 Anders Broman
+# Copyright 2005 - 2012 Anders Broman
+# Modified 2012 by Jacob Nordgren <jacob.nordgren@ericsson.com> and 
+# Rishie Sharma <rishie.sharma@ericsson.com>
 # $Id$
 
 #.OPT
@@ -648,10 +650,14 @@ nbap_dch_chnl_info[commonphysicalchannelid].next_dch = 0;
 nbap_dch_chnl_info[commontransportchannelid].next_dch = 0;
 
 #.FN_BODY E-DCH-MACdFlow-ID VAL_PTR = &e_dch_macdflow_id
+
 %(DEFAULT_BODY)s
 
+ 
 #.FN_BODY HSDSCH-MACdFlow-ID VAL_PTR = &hsdsch_macdflow_id
+
 %(DEFAULT_BODY)s
+hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;
 
 #.FN_BODY BindingID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
@@ -1087,6 +1093,7 @@ dch_id = 0xFFFFFFFF;
 			conversation_set_dissector(conversation, fp_handle);
 			if(actx->pinfo->link_dir==P2P_DIR_DL){
 				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+				
 				/* Fill in the data */
 				umts_fp_conversation_info->iface_type        = IuB_Interface;
 				umts_fp_conversation_info->division          = Division_FDD;
@@ -1099,6 +1106,8 @@ dch_id = 0xFFFFFFFF;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
+				
+				/*UPLINK*/
 				/* Set data for First or single channel */
 				umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[dch_id].num_ul_chans;
 				for (j = 0; j < num_tf; j++) {
@@ -1112,14 +1121,18 @@ dch_id = 0xFFFFFFFF;
 					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_tf_size[j] = nbap_dch_chnl_info[dch_id].dl_chan_tf_size[j];
 					umts_fp_conversation_info->fp_dch_channel_info[0].dl_chan_num_tbs[j] = nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[j];
 				}
-
+				
 				/* Set data for associated DCH's if we have any */
 				i = dch_id;
 				umts_fp_conversation_info->dchs_in_flow_list[0] = dch_id;
 				while(nbap_dch_chnl_info[i].next_dch != 0){
+					
+				
 					i = nbap_dch_chnl_info[i].next_dch;
 					umts_fp_conversation_info->num_dch_in_flow++;
-					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
+					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;	/*Set transport channel id*/
+					
+					/*Setting Logical Channel's for this DCH*/
 					/* Traffic flows per DCH(UL) */
 					umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].num_ul_chans = num_tf = nbap_dch_chnl_info[i].num_ul_chans;
 					for (j = 0; j < num_tf; j++) {
@@ -1138,6 +1151,9 @@ dch_id = 0xFFFFFFFF;
 				umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}
+			
+			nbap_debug1("Total number of chans for the flow will be: %%d", umts_fp_conversation_info->num_dch_in_flow);
+			
 		}
 
 
@@ -1183,6 +1199,7 @@ BindingID_port = 0;
 				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
+			
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
 				/* Set address for collection of DDI entries */
@@ -1223,6 +1240,8 @@ guint32 no_ddi_entries, i;
 	for (i = 0; i < no_ddi_entries; i++) {
 		p_conv_data->edch_ddi[i]			= nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i];
 		p_conv_data->edch_macd_pdu_size[i]	= nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i];
+
+		p_conv_data->edch_lchId[i]			=  nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]; /*lchId_type_table[nbap_edch_channel_info[e_dch_macdflow_id].lchId[i]];*/	
 		nbap_debug3("E-DCH-MACdFlow-Specific-InfoItem: e_dch_macdflow_id %%u edch_ddi %%u edch_macd_pdu_size %%u",
 			e_dch_macdflow_id, 
 			nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i],
@@ -1232,7 +1251,13 @@ guint32 no_ddi_entries, i;
 
 	p_conv_data->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 
-    p_conv_data->edch_type = 0;  /* 1 means T2 */
+	/* Figure out which type of E-DCH frame, based on DDI value (DDI = 0 => type 2)*/
+	if( 0 == e_dch_ddi_value ){
+		p_conv_data->edch_type = 1; /* 1 means T2 */
+	}else{ 
+    	
+		p_conv_data->edch_type = 0;  /* 1 means T2 */
+	}
 	/* use to display e_dch_macdflow_id */
 	p_conv_data->num_dch_in_flow = 1;
 	p_conv_data->dchs_in_flow_list[0] = e_dch_macdflow_id;
@@ -1267,6 +1292,15 @@ guint32 no_ddi_entries, i;
 	}
 	nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[num_items-1] = MACdPDU_Size;
 
+
+#.FN_BODY LogicalChannelID VAL_PTR = &logical_channel_id
+	/* Set logical channel id for this entry*/
+%(DEFAULT_BODY)s
+	
+
+	nbap_edch_channel_info[e_dch_macdflow_id].lchId[num_items-1] = logical_channel_id;
+
+
 #.FN_BODY RLC-Mode VAL_PTR = &rlc_mode
 	guint32 rlc_mode;
 
@@ -1280,6 +1314,8 @@ guint32 no_ddi_entries, i;
 			/* rLC-UM */
 			nbap_hsdsch_channel_info[hsdsch_macdflow_id].rlc_mode = FP_RLC_UM;
 			break;
+		default:
+			break;
 	}
 
 #.FN_BODY UE-Capability-Information/hSDSCH-Physical-Layer-Category  VAL_PTR = &hsdsch_physical_layer_category
@@ -1289,12 +1325,17 @@ guint32 no_ddi_entries, i;
 
 	nbap_hsdsch_channel_info[hsdsch_macdflow_id].hsdsch_physical_layer_category = hsdsch_physical_layer_category;
 
+#.FN_BODY HSDSCH-MACdFlows-Information
+	num_items = 0;
+	
+%(DEFAULT_BODY)s
+
 #.FN_BODY HSDSCH-MACdFlow-Specific-InfoItem
 
 	address 	dst_addr;
 	transportLayerAddress_ipv4 = 0;
 	BindingID_port = 0;
-
+	num_items++;
 %(DEFAULT_BODY)s
 
 	if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
@@ -1311,6 +1352,22 @@ guint32 no_ddi_entries, i;
 	nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port = BindingID_port;
 
 
+#.FN_BODY HSDSCH-MACdPDUSizeFormat
+	/*
+	* Set the channel entity i.e the type of the hsdch channels (if this is present entity = ehs)
+	*/
+int i;
+
+%(DEFAULT_BODY)s
+	/* */
+	for (i = 0; i < maxNrOfMACdFlows; i++) {
+		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
+			nbap_hsdsch_channel_info[i].entity = ehs;
+			nbap_debug1("Setting entity = ehs for HSDSCH channel: %%d\n",i);		
+		}
+	}
+
+
 #.FN_BODY HSDSCH-FDD-Information
 /*
  * Collect the information about the HSDSCH MACdFlows set up conversation(s) and set the conversation data.
@@ -1325,6 +1382,8 @@ guint32 no_ddi_entries, i;
 		for (i = 0; i < maxNrOfMACdFlows; i++) {
 			nbap_hsdsch_channel_info[i].crnc_port = 0;
 			nbap_hsdsch_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
+			/*XXX: Added 29 jun*/
+			nbap_hsdsch_channel_info[i].entity = entity_not_specified;	/* Maybe this should default to entity = hs*/
 		}
 	}
 
@@ -1367,15 +1426,24 @@ guint32 no_ddi_entries, i;
 					umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
 					SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
 					umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
-
+					
+					/*Added june 3, normally just the iterator variable*/
+					umts_fp_conversation_info->hsdsch_macdflow_id = i ; /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
+					
 					/* Cheat and use the DCH entries */
 					umts_fp_conversation_info->num_dch_in_flow++;
 					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
 
-					if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
-						umts_fp_conversation_info->hsdsch_entity = ehs;
+					/*XXX: Is this craziness, what is physical_layer? */					
+					if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
+						
+						if(nbap_hsdsch_channel_info[i].hsdsch_physical_layer_category > 12){
+							umts_fp_conversation_info->hsdsch_entity = ehs;
+						}else{
+							umts_fp_conversation_info->hsdsch_entity = hs;
+						}
 					}else{
-						umts_fp_conversation_info->hsdsch_entity = hs;
+						umts_fp_conversation_info->hsdsch_entity = nbap_hsdsch_channel_info[i].entity;
 					}
 					umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
 					set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
@@ -1384,6 +1452,85 @@ guint32 no_ddi_entries, i;
 		}
 	}
 
+#.FN_BODY Common-MACFlow-ID VAL_PTR = &common_macdflow_id
+
+%(DEFAULT_BODY)s
+
+
+/*hsdsch_macdflow_ids[num_items-1] = hsdsch_macdflow_id;*/
+/*THIS STUFF IST NOT DONE YET!*/
+#.FN_BODY CommonMACFlow-Specific-InfoItem
+	address 	dst_addr;
+	transportLayerAddress_ipv4 = 0;
+	BindingID_port = 0;
+	num_items++;
+	
+%(DEFAULT_BODY)s
+
+	if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
+	{
+		return offset;
+	}
+
+	dst_addr.type=AT_IPv4;
+	dst_addr.len=4;
+	dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
+
+	/* Set address for collection of common entries */
+	COPY_ADDRESS(&(nbap_common_channel_info[common_macdflow_id].crnc_address),&dst_addr);
+	nbap_common_channel_info[common_macdflow_id].crnc_port = BindingID_port;
+	
+	
+#.FN_BODY HSDSCH-Common-System-InformationFDD
+umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
+address 	null_addr;
+conversation_t   *conversation = NULL;
+
+int i;
+
+	if (!actx->pinfo->fd->flags.visited){
+		/* Set port to zero use that as an indication of wether we have data or not */
+		for (i = 0; i < maxNrOfCommonMACFlows; i++) {
+			nbap_common_channel_info[i].crnc_port = 0;
+			nbap_common_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
+			
+		}
+		
+	}
+%(DEFAULT_BODY)s
+
+	/* Set port to zero use that as an indication of wether we have data or not */
+	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+	for (i = 0; i < maxNrOfCommonMACFlows; i++) {
+		if (nbap_common_channel_info[i].crnc_port != 0){
+
+			conversation = find_conversation(actx->pinfo->fd->num, &(nbap_common_channel_info[i].crnc_address), &null_addr,
+                               PT_UDP,
+                               nbap_common_channel_info[i].crnc_port, 0, NO_ADDR_B);
+                               
+			if (conversation == NULL) {
+				conversation = conversation_new(actx->pinfo->fd->num, &(nbap_common_channel_info[i].crnc_address),
+					&null_addr, PT_UDP, nbap_common_channel_info[i].crnc_port,
+					0, NO_ADDR2|NO_PORT2);
+
+			/* Set dissector */
+			conversation_set_dissector(conversation, fp_handle);
+			/*Set NBAP configuration to lower layers*/
+			if(actx->pinfo->link_dir==P2P_DIR_DL){
+		
+				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+				umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
+				
+				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+			}
+		
+		}
+	
+
+		}
+	}
+	
+	
 
 #.REGISTER_NEW
 

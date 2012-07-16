@@ -39,7 +39,10 @@
 #include "packet-per.h"
 #include "packet-isup.h"
 #include "packet-umts_fp.h"
+#include "packet-umts_mac.h"
 #include "packet-rrc.h"
+#include "packet-rlc.h"
+#include "packet-nbap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -129,6 +132,7 @@ typedef struct
 	guint8		edch_ddi[MAX_EDCH_DDIS];
 	guint		edch_macd_pdu_size[MAX_EDCH_DDIS];
 	guint8		edch_type;  /* 1 means T2 */
+	guint8		lchId[MAX_EDCH_DDIS];	/*Logical channel ids.*/
 
 } nbap_edch_channel_info_t;
 
@@ -140,13 +144,25 @@ typedef struct
 	guint16				crnc_port;
 	enum fp_rlc_mode	rlc_mode;
 	guint32				hsdsch_physical_layer_category;
+	guint8				entity;	/* "ns" means type 1 and "ehs" means type 2, type 3 == ?*/
 } nbap_hsdsch_channel_info_t;
 
 nbap_hsdsch_channel_info_t nbap_hsdsch_channel_info[maxNrOfMACdFlows];
 
+typedef struct
+{
+	address 			crnc_address;
+	guint16				crnc_port;
+	enum fp_rlc_mode	rlc_mode;
+} nbap_common_channel_info_t;
+
+nbap_common_channel_info_t nbap_common_channel_info[maxNrOfMACdFlows];	/*TODO: Fix this!*/
+
 gint g_num_dch_in_flow;
 /* maxNrOfTFs					INTEGER ::= 32 */
 gint g_dchs_in_flow_list[maxNrOfTFs];
+
+gint hsdsch_macdflow_ids[maxNrOfMACdFlows];
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
 /* Global variables */
@@ -154,7 +170,8 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ddMode;
 static const gchar *ProcedureID;
-static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id, e_dch_ddi_value;
+static guint32 t_dch_id, dch_id, prev_dch_id, commonphysicalchannelid, e_dch_macdflow_id, hsdsch_macdflow_id=3, 
+	   e_dch_ddi_value,logical_channel_id,common_macdflow_id;
 static guint32 MACdPDU_Size, commontransportchannelid;
 static guint num_items;
 static gint paging_indications;
@@ -171,6 +188,16 @@ enum TransportFormatSet_type_enum
 
 enum TransportFormatSet_type_enum transportFormatSet_type;
 
+/****************************/
+/* GUI Stuff */
+typedef struct _attribute_type_t {
+  gchar* attribute_type;
+  gchar* attribute_desc;
+} attribute_type_t;
+static attribute_type_t* attribute_types = NULL;
+static guint num_attribute_types = 0;
+static GHashTable* attribute_types_hash = NULL;
+
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;
 static dissector_table_t nbap_extension_dissector_table;
@@ -183,6 +210,7 @@ static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_in
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 
 #include "packet-nbap-fn.c"
 
@@ -230,6 +258,30 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree);
 }
 
+static void
+attribute_types_initialize_cb(void)
+{
+}
+static void
+attribute_types_free_cb(void*r)
+{
+}
+static void
+attribute_types_update_cb(void *r, const char **err)
+{
+	g_warning("Running attr types update");
+
+
+}
+
+static void *
+attribute_types_copy_cb(void* n, const void* o, size_t siz _U_)
+{
+
+
+  return NULL;
+}
+
 /*--- proto_register_nbap -------------------------------------------*/
 void proto_register_nbap(void) {
 
@@ -260,7 +312,15 @@ void proto_register_nbap(void) {
 #include "packet-nbap-ettarr.c"
   };
 
-
+  /* UAT for header fields */
+ /* static uat_field_t custom_attribute_types_uat_fields[] = {
+     UAT_FLD_CSTRING(attribute_types, attribute_type, "Attribute type", "Attribute type"),
+     UAT_FLD_CSTRING(attribute_types, attribute_desc, "Description", "Description of the value matching type"),
+     UAT_END_FIELDS
+  };
+  */
+	/*uat_t *attributes_uat;*/
+	  
   /* Register protocol */
   proto_nbap = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
@@ -269,6 +329,27 @@ void proto_register_nbap(void) {
 
   /* Register dissector */
   register_dissector("nbap", dissect_nbap, proto_nbap);
+
+  /* Setting up GUI stuff*/
+    /* UAT */
+  /*attributes_uat = uat_new("Custom NBAP maps",
+                           sizeof(attribute_type_t),
+                           "custom_ldap_attribute_types",
+                           TRUE,
+                           (void*) &attribute_types,
+                           &num_attribute_types,
+                           UAT_CAT_FIELDS,
+                           NULL,
+                           attribute_types_copy_cb,
+                           attribute_types_update_cb,
+                           attribute_types_free_cb,
+                           attribute_types_initialize_cb,
+                           custom_attribute_types_uat_fields);*/
+
+  /*prefs_register_uat_preference(nbap_module, "custom_ldap_attribute_types",
+                                "Custom AttributeValue types",
+                                "A table to define custom LDAP attribute type values for which fields can be setup and used for filtering/data extraction etc.",
+                                attributes_uat);*/
 
   /* Register dissector tables */
   nbap_ies_dissector_table = register_dissector_table("nbap.ies", "NBAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
