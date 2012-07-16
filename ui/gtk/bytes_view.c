@@ -114,7 +114,11 @@ bytes_view_init(BytesView *bv)
 }
 
 static void 
+#if GTK_CHECK_VERSION(3, 0, 0)
+bytes_view_destroy(GtkWidget *widget)
+#else
 bytes_view_destroy(GtkObject *object)
+#endif
 {
 	BytesView *bv = BYTES_VIEW(object);
 
@@ -191,11 +195,16 @@ bytes_view_realize(GtkWidget *widget)
 	attributes.height = allocation.height;
 	attributes.wclass = GDK_INPUT_OUTPUT;
 	attributes.visual = gtk_widget_get_visual(widget);
-	attributes.colormap = gtk_widget_get_colormap(widget);
-
 	attributes.event_mask = gtk_widget_get_events(widget) | GDK_EXPOSURE_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK;
 
+#if !GTK_CHECK_VERSION(3, 0, 0)
+	attributes.colormap = gtk_widget_get_colormap(widget);
+
 	win = gdk_window_new(gtk_widget_get_parent_window(widget), &attributes, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP);
+#else
+	win = gdk_window_new(gtk_widget_get_parent_window(widget), &attributes, GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL);
+#endif
+
 	gtk_widget_set_window(widget, win);
 
 	gdk_window_set_user_data(win, widget);
@@ -284,12 +293,28 @@ bytes_view_allocate(GtkWidget *widget, GtkAllocation *allocation)
 	}
 }
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+static void
+bytes_view_get_preferred_width(GtkWidget *widget, gint *minimum, gint *natural)
+{
+	*minimum = *natural = 200;
+}
+
+static void
+bytes_view_get_preferred_height(GtkWidget *widget, gint *minimum, gint *natural)
+{
+	*minimum = *natural = 90;
+}
+
+#else
+
 static void 
 bytes_view_size_request(GtkWidget *widget _U_, GtkRequisition *requisition)
 {
 	requisition->width = 200;
 	requisition->height = 90;
 }
+#endif
 
 static GSList *
 _pango_runs_build(BytesView *bv, const char *str, int len)
@@ -927,16 +952,22 @@ bytes_view_class_init(BytesViewClass *klass)
 #endif
 	widget_class->realize = bytes_view_realize;
 	widget_class->unrealize = bytes_view_unrealize;
+#if GTK_CHECK_VERSION(3, 0, 0)
+	widget_class->get_preferred_width = bytes_view_get_preferred_width;
+	widget_class->get_preferred_height = bytes_view_get_preferred_height;
+#else
 	widget_class->size_request = bytes_view_size_request;
+#endif
 	widget_class->size_allocate = bytes_view_allocate;
+	/* XXX, ->draw instead of ->expose_event */
 	widget_class->expose_event = bytes_view_expose;
 	widget_class->scroll_event = bytes_view_scroll;
 
 #if GTK_CHECK_VERSION(3, 0, 0)
-	/* XXX - see
-
-		http://developer.gnome.org/gtk3/stable/GtkScrollable.html
-	*/
+	/* XXX, http://developer.gnome.org/gtk3/stable/GtkScrollable.html
+	 *
+	 *    connect to hadjustment/vadjustment properties? 
+	 */
 #else
 	klass->set_scroll_adjustments = bytes_view_set_scroll_adjustments;
 
@@ -972,11 +1003,22 @@ bytes_view_get_type(void)
 			(GInstanceInitFunc) bytes_view_init,
 			NULL /* value_table */
 		};
-	
+
 		bytes_view_type = g_type_register_static(GTK_TYPE_WIDGET,
 							"BytesView",
 							&bytes_view_info,
 							(GTypeFlags)0);	
+#if GTK_CHECK_VERSION(3, 0, 0)
+		static const GInterfaceInfo scrollable_info = {
+			NULL,
+			NULL,
+			NULL
+		};
+
+		g_type_add_interface_static(bytes_view_type,
+						GTK_TYPE_SCROLLABLE,
+						&scrollable_info);
+#endif
 	}
 	return bytes_view_type;
 }
