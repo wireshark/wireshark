@@ -421,28 +421,26 @@ preview_new(void)
     return table;
 }
 
+#ifndef USE_WIN32_FILE_DIALOGS
 /* Open a file */
-static void
-file_open_cmd(GtkWidget *w)
+static gboolean
+gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
 {
-#ifdef USE_WIN32_FILE_DIALOGS
-  win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
-#else /* USE_WIN32_FILE_DIALOGS */
   GtkWidget     *file_open_w;
   GtkWidget     *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb, *prev;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
-      "Wireshark: Read Filter",
+      "Wireshark: Display Filter",
       FALSE,
       FALSE,
     TRUE
   };
-  gchar         *cf_name, *s;
-  const gchar   *rfilter;
-  dfilter_t     *rfcode = NULL;
-  int            err;
+  gchar         *cf_name;
+
+  if (!file_name || !display_filter)
+    return FALSE;
 
   file_open_w = file_selection_new("Wireshark: Open Capture File",
                                    FILE_SELECTION_OPEN);
@@ -450,24 +448,28 @@ file_open_cmd(GtkWidget *w)
      so we cannot use the correct gtk_window_set_default_size() to resize it */
   gtk_widget_set_size_request(file_open_w, DEF_WIDTH, DEF_HEIGHT);
 
-  switch (prefs.gui_fileopen_style) {
-
-  case FO_STYLE_LAST_OPENED:
-    /* The user has specified that we should start out in the last directory
-       we looked in.  If we've already opened a file, use its containing
-       directory, if we could determine it, as the directory, otherwise
-       use the "last opened" directory saved in the preferences file if
-       there was one. */
-    /* This is now the default behaviour in file_selection_new() */
-    break;
-
-  case FO_STYLE_SPECIFIED:
-    /* The user has specified that we should always start out in a
-       specified directory; if they've specified that directory,
-       start out by showing the files in that dir. */
-    if (prefs.gui_fileopen_dir[0] != '\0')
-      file_selection_set_current_folder(file_open_w, prefs.gui_fileopen_dir);
-    break;
+  if (file_name->len > 0) {
+    file_selection_set_current_folder(file_open_w, file_name->str);
+  } else {
+    switch (prefs.gui_fileopen_style) {
+      
+      case FO_STYLE_LAST_OPENED:
+        /* The user has specified that we should start out in the last directory
+           we looked in.  If we've already opened a file, use its containing
+           directory, if we could determine it, as the directory, otherwise
+           use the "last opened" directory saved in the preferences file if
+           there was one. */
+        /* This is now the default behaviour in file_selection_new() */
+        break;
+    
+      case FO_STYLE_SPECIFIED:
+        /* The user has specified that we should always start out in a
+           specified directory; if they've specified that directory,
+           start out by showing the files in that dir. */
+        if (prefs.gui_fileopen_dir[0] != '\0')
+          file_selection_set_current_folder(file_open_w, prefs.gui_fileopen_dir);
+        break;
+    }
   }
 
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
@@ -496,6 +498,7 @@ file_open_cmd(GtkWidget *w)
   gtk_widget_set_tooltip_text(filter_bt, "Open the \"Display Filter\" dialog, to edit/apply filters");
 
   filter_te = gtk_entry_new();
+  gtk_entry_set_text(GTK_ENTRY(filter_te), display_filter->str);
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   g_signal_connect(filter_te, "changed",
@@ -547,92 +550,120 @@ file_open_cmd(GtkWidget *w)
   g_object_set_data(G_OBJECT(file_open_w), E_DFILTER_TE_KEY,
                     g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
 
+  cf_name = file_selection_run(file_open_w);
+  if (cf_name == NULL) {
+    /* User cancelled or closed the dialog. */
+    return FALSE;
+  }
+
+  g_string_printf(file_name, "%s", cf_name);
+  g_free(cf_name);
+  g_string_printf(display_filter, "%s", gtk_entry_get_text(GTK_ENTRY(filter_te)));
+
+  /* Set the global resolving variable */
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
+    gbl_resolv_flags.mac_name = TRUE;
+  else
+    gbl_resolv_flags.mac_name = FALSE;
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
+   gbl_resolv_flags.network_name = TRUE;
+  else
+   gbl_resolv_flags.network_name = FALSE;
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_resolv_cb)))
+    gbl_resolv_flags.transport_name = TRUE;
+  else
+    gbl_resolv_flags.transport_name = FALSE;
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(e_resolv_cb)))
+    gbl_resolv_flags.use_external_net_name_resolver = TRUE;
+  else
+    gbl_resolv_flags.use_external_net_name_resolver = FALSE;
+
+  /* We've crossed the Rubicon; get rid of the file selection box. */
+  window_destroy(GTK_WIDGET(file_open_w));
+
+}
+#endif /* USE_WIN32_FILE_DIALOGS */
+
+/* Open a file */
+
+/*
+ * <platform/>_open_file routines should upon entry...
+ *   Set the path and fill in the filename if the path+filename is provided.
+ *   Set the display filter if provided. Filter syntax should be checked.
+ *   Set the name resolution check boxes to match the global settings.
+ * ...and upon exit...
+ *   Return TRUE on "OK" and "FALSE" on "Cancel".
+ *   Set the global name resolution preferences on "OK".
+ *   Close the window.
+ */
+
+static void
+file_open_cmd(GtkWidget *w)
+{
+  GString   *file_name = g_string_new("");
+  GString   *display_filter = g_string_new("");
+  dfilter_t *rfcode = NULL;
+  int        err;
+
   /*
    * Loop until the user either selects a file or gives up.
    */
   for (;;) {
-    cf_name = file_selection_run(file_open_w);
-    if (cf_name == NULL) {
-      /* User cancelled or closed the dialog. */
-      return;
+#ifdef USE_WIN32_FILE_DIALOGS
+    if (win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), file_name, display_filter)) {
+#else /* USE_WIN32_FILE_DIALOGS */
+    if (gtk_open_file(top_level, file_name, display_filter)) {
+#endif /* USE_WIN32_FILE_DIALOGS */
+  
+      /* apply our filter */
+      if (dfilter_compile(display_filter->str, &rfcode)) {
+        cf_set_rfcode(&cfile, rfcode);
+      } else {
+        /* Not valid.  Tell the user, and go back and run the file
+           selection box again once they dismiss the alert. */
+        bad_dfilter_alert_box(top_level, display_filter->str);
+        continue;
+      }
+
+      /* Try to open the capture file. */
+      if (cf_open(&cfile, file_name->str, FALSE, &err) != CF_OK) {
+        /* We couldn't open it; don't dismiss the open dialog box,
+           just leave it around so that the user can, after they
+           dismiss the alert box popped up for the open error,
+           try again. */
+        if (rfcode != NULL)
+          dfilter_free(rfcode);
+          rfcode = NULL;
+        continue;
+      }
+
+      switch (cf_read(&cfile, FALSE)) {
+  
+        case CF_READ_OK:
+        case CF_READ_ERROR:
+          /* Just because we got an error, that doesn't mean we were unable
+             to read any of the file; we handle what we could get from the
+             file. */
+          break;
+    
+        case CF_READ_ABORTED:
+          /* The user bailed out of re-reading the capture file; the
+             capture file has been closed - just free the capture file name
+             string and return (without changing the last containing
+             directory). */
+          g_string_free(file_name, TRUE);
+          g_string_free(display_filter, TRUE);
+          return;
+      }
+      /* Save the name of the containing directory specified in the path name,
+         if any; we can write over cf_name, which is a good thing, given that
+         "get_dirname()" does write over its argument. */
+      set_last_open_dir(get_dirname(file_name->str));
     }
-
-    /* Get the specified read filter and try to compile it. */
-    rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
-    if (!dfilter_compile(rfilter, &rfcode)) {
-      /* Not valid.  Tell the user, and go back and run the file
-         selection box again once they dismiss the alert. */
-      bad_dfilter_alert_box(file_open_w, rfilter);
-      g_free(cf_name);
-      continue;
-    }
-
-    /* Try to open the capture file. */
-    if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
-      /* We couldn't open it; don't dismiss the open dialog box,
-         just leave it around so that the user can, after they
-         dismiss the alert box popped up for the open error,
-         try again. */
-      if (rfcode != NULL)
-        dfilter_free(rfcode);
-      g_free(cf_name);
-      continue;
-    }
-
-    /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
-       it closed the previous capture file, and thus destroyed any
-       previous read filter attached to "cf"). */
-    cfile.rfcode = rfcode;
-
-    /* Set the global resolving variable */
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(m_resolv_cb)))
-      gbl_resolv_flags.mac_name = TRUE;
-    else
-      gbl_resolv_flags.mac_name = FALSE;
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(n_resolv_cb)))
-     gbl_resolv_flags.network_name = TRUE;
-    else
-     gbl_resolv_flags.network_name = FALSE;
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(t_resolv_cb)))
-      gbl_resolv_flags.transport_name = TRUE;
-    else
-      gbl_resolv_flags.transport_name = FALSE;
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(e_resolv_cb)))
-      gbl_resolv_flags.use_external_net_name_resolver = TRUE;
-    else
-      gbl_resolv_flags.use_external_net_name_resolver = FALSE;
-
-    /* We've crossed the Rubicon; get rid of the file selection box. */
-    window_destroy(GTK_WIDGET(file_open_w));
-
-    switch (cf_read(&cfile, FALSE)) {
-
-    case CF_READ_OK:
-    case CF_READ_ERROR:
-      /* Just because we got an error, that doesn't mean we were unable
-         to read any of the file; we handle what we could get from the
-         file. */
-      break;
-
-    case CF_READ_ABORTED:
-      /* The user bailed out of re-reading the capture file; the
-         capture file has been closed - just free the capture file name
-         string and return (without changing the last containing
-         directory). */
-      g_free(cf_name);
-      return;
-    }
-
-    /* Save the name of the containing directory specified in the path name,
-       if any; we can write over cf_name, which is a good thing, given that
-       "get_dirname()" does write over its argument. */
-    s = get_dirname(cf_name);
-    set_last_open_dir(s);
-
-    g_free(cf_name);
+    g_string_free(file_name, TRUE);
+    g_string_free(display_filter, TRUE);
     return;
   }
-#endif /* USE_WIN32_FILE_DIALOGS */
 }
 
 void
@@ -2205,3 +2236,16 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   }
 #endif /* USE_WIN32_FILE_DIALOGS */
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */

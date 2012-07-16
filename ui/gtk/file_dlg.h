@@ -77,6 +77,15 @@ extern GtkWidget *file_selection_new(const gchar *title, file_selection_action_t
  */
 extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *filename);
 
+/** Set the current file for a file selection dialog.
+ *
+ * @param fs the file selection dialog from file_selection_new()
+ * @param filename the folder to set
+ * @return TRUE if the folder could be changed successfully
+ */
+#define file_selection_set_current_file(chooser, filename) \
+	gtk_file_chooser_set_filename(chooser, filename)
+
 /** Set the "extra" widget for a file selection dialog. This is needed to support 
  *  user-supplied options.
  *

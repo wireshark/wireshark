@@ -42,7 +42,7 @@ typedef enum {
  *
  * @param h_wnd HWND of the parent window.
  */
-gboolean win32_open_file (HWND h_wnd);
+gboolean win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter);
 
 /** Open the "Save As" dialog box.
  *
