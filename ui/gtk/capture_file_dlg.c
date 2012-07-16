@@ -452,7 +452,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
     file_selection_set_current_folder(file_open_w, file_name->str);
   } else {
     switch (prefs.gui_fileopen_style) {
-      
+
       case FO_STYLE_LAST_OPENED:
         /* The user has specified that we should start out in the last directory
            we looked in.  If we've already opened a file, use its containing
@@ -461,7 +461,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
            there was one. */
         /* This is now the default behaviour in file_selection_new() */
         break;
-    
+
       case FO_STYLE_SPECIFIED:
         /* The user has specified that we should always start out in a
            specified directory; if they've specified that directory,
@@ -498,7 +498,6 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   gtk_widget_set_tooltip_text(filter_bt, "Open the \"Display Filter\" dialog, to edit/apply filters");
 
   filter_te = gtk_entry_new();
-  gtk_entry_set_text(GTK_ENTRY(filter_te), display_filter->str);
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   g_signal_connect(filter_te, "changed",
@@ -507,6 +506,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   g_signal_connect(filter_te, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
   g_signal_connect(file_open_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
   colorize_filter_te_as_empty(filter_te);
+  gtk_entry_set_text(GTK_ENTRY(filter_te), display_filter->str);
   gtk_widget_show(filter_te);
   gtk_widget_set_tooltip_text(filter_te, "Enter a display filter.");
 
@@ -581,6 +581,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   /* We've crossed the Rubicon; get rid of the file selection box. */
   window_destroy(GTK_WIDGET(file_open_w));
 
+  return TRUE;
 }
 #endif /* USE_WIN32_FILE_DIALOGS */
 
@@ -598,7 +599,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
  */
 
 static void
-file_open_cmd(GtkWidget *w)
+file_open_cmd(GtkWidget *w _U_)
 {
   GString   *file_name = g_string_new("");
   GString   *display_filter = g_string_new("");
@@ -612,9 +613,9 @@ file_open_cmd(GtkWidget *w)
 #ifdef USE_WIN32_FILE_DIALOGS
     if (win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), file_name, display_filter)) {
 #else /* USE_WIN32_FILE_DIALOGS */
-    if (gtk_open_file(top_level, file_name, display_filter)) {
+    if (gtk_open_file(w, file_name, display_filter)) {
 #endif /* USE_WIN32_FILE_DIALOGS */
-  
+
       /* apply our filter */
       if (dfilter_compile(display_filter->str, &rfcode)) {
         cf_set_rfcode(&cfile, rfcode);
@@ -638,14 +639,14 @@ file_open_cmd(GtkWidget *w)
       }
 
       switch (cf_read(&cfile, FALSE)) {
-  
+
         case CF_READ_OK:
         case CF_READ_ERROR:
           /* Just because we got an error, that doesn't mean we were unable
              to read any of the file; we handle what we could get from the
              file. */
           break;
-    
+
         case CF_READ_ABORTED:
           /* The user bailed out of re-reading the capture file; the
              capture file has been closed - just free the capture file name
@@ -1034,7 +1035,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
   } else
 #endif
     capture_in_progress = FALSE;
-       
+
   if (prefs.gui_ask_unsaved) {
     if (cf->is_tempfile || capture_in_progress || cf->unsaved_changes) {
       /* This is a temporary capture file, or there's a capture in
@@ -1045,7 +1046,7 @@ do_file_close(capture_file *cf, gboolean from_quit, const char *before_what)
                                             GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
                                             GTK_MESSAGE_QUESTION,
                                             GTK_BUTTONS_NONE,
-                                            capture_in_progress ? 
+                                            capture_in_progress ?
                                                 "Do you want to stop the capture and save the captured packets%s?" :
                                                 "Do you want to save the captured packets%s?",
                                             before_what);
@@ -1364,7 +1365,7 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
            uninitialized. */
         g_assert_not_reached();
         return;
-      }      
+      }
 
       /* XXX - cf->filename might get freed out from under us, because
          the code path through which cf_save_packets() goes currently
@@ -1719,7 +1720,7 @@ do_file_save_as(capture_file *cf, gboolean must_support_comments,
          and return. */
       window_destroy(file_save_as_w);
       return;
-    }      
+    }
 
 #ifndef _WIN32
     /* If the file exists and it's user-immutable or not writable,
