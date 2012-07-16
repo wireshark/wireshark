@@ -40,16 +40,9 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-#include <string.h>
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
+#include <epan/emem.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
-
-void proto_reg_handoff_dmx_chan(void);
 
 static int proto_dmx_chan = -1;
 
@@ -62,8 +55,8 @@ static int ett_dmx_chan = -1;
  * Here are the global variables associated with the preferences for DMX
  */
 static gint global_disp_chan_val_type = 0;
-static gint global_disp_col_count = 16;
-static gint global_disp_chan_nr_type = 0;
+static gint global_disp_col_count     = 16;
+static gint global_disp_chan_nr_type  = 0;
 
 static void
 dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -72,24 +65,24 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		const char* chan_format[] = {
+		static const char *chan_format[]   = {
 			"%2u%% ",
 			"0x%02x ",
 			"%3u "
 		};
-		const char* string_format[] = {
+		static const char *string_format[] = {
 			"0x%03x: %s",
 			"%3u: %s"
 		};
 		emem_strbuf_t *chan_str = ep_strbuf_new_label("");
-		proto_item *item;
-		guint16 length,r,c,row_count;
-		guint8 v;
-		unsigned offset = 0;
+		proto_item    *item;
+		guint16        length,r,c,row_count;
+		guint8         v;
+		unsigned       offset   = 0;
 
-		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_chan, tvb,
+		proto_tree    *ti = proto_tree_add_item(tree, proto_dmx_chan, tvb,
 							offset, -1, FALSE);
-		proto_tree *dmx_chan_tree = proto_item_add_subtree(ti, ett_dmx_chan);
+		proto_tree    *dmx_chan_tree = proto_item_add_subtree(ti, ett_dmx_chan);
 
 		length = tvb_reported_length_remaining(tvb, offset);
 
@@ -123,7 +116,6 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		item = proto_tree_add_item(dmx_chan_tree, hf_dmx_chan_output_data_filter, tvb,
 						offset, length, ENC_NA );
 		PROTO_ITEM_SET_HIDDEN(item);
-		offset += length;
 	}
 }
 
@@ -198,7 +190,3 @@ proto_register_dmx_chan(void)
 					col_count, ENC_BIG_ENDIAN);
 }
 
-void
-proto_reg_handoff_dmx_chan(void)
-{
-}

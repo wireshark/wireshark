@@ -40,18 +40,9 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-#include <string.h>
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/prefs.h>
-#include <epan/strutil.h>
 
 #define DMX_SC_SIP    0xCF
-
-void proto_reg_handoff_dmx_sip(void);
 
 static int proto_dmx_sip = -1;
 
@@ -80,8 +71,8 @@ static int ett_dmx_sip = -1;
 static guint8
 dmx_sip_checksum(tvbuff_t *tvb, unsigned length)
 {
-	guint8 sum = DMX_SC_SIP;
-	unsigned i;
+	guint8    sum = DMX_SC_SIP;
+	unsigned  i;
 	for (i = 0; i < length; i++)
 		sum += tvb_get_guint8(tvb, i);
 	return sum;
@@ -94,9 +85,9 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		unsigned offset = 0;
-		unsigned byte_count;
-		unsigned checksum, checksum_shouldbe;
+		unsigned    offset = 0;
+		unsigned    byte_count;
+		unsigned    checksum, checksum_shouldbe;
 		proto_item *item;
 		proto_tree *checksum_tree;
 
@@ -314,7 +305,3 @@ proto_register_dmx_sip(void)
 	register_dissector("dmx-sip", dissect_dmx_sip, proto_dmx_sip);
 }
 
-void
-proto_reg_handoff_dmx_sip(void)
-{
-}

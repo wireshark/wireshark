@@ -40,19 +40,10 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-#include <string.h>
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/prefs.h>
-#include <epan/strutil.h>
 
-#define DMX_TEST_PACKET_SIZE 512
-#define DMX_TEST_VALUE 0x55
-
-void proto_reg_handoff_dmx_test(void);
+#define DMX_TEST_PACKET_SIZE  512
+#define DMX_TEST_VALUE       0x55
 
 static int proto_dmx_test = -1;
 
@@ -69,9 +60,9 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree != NULL) {
-		unsigned offset = 0;
-		unsigned size, i, test_data_is_ok;
-		proto_tree* test_data_tree;
+		unsigned    offset = 0;
+		unsigned    size, i, test_data_is_ok;
+		proto_tree *test_data_tree;
 		proto_item *item;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_test, tvb,
@@ -150,9 +141,4 @@ proto_register_dmx_test(void)
 	proto_register_field_array(proto_dmx_test, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("dmx-test", dissect_dmx_test, proto_dmx_test);
-}
-
-void
-proto_reg_handoff_dmx_test(void)
-{
 }

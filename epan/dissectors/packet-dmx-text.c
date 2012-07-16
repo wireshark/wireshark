@@ -40,16 +40,7 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-#include <string.h>
 #include <epan/packet.h>
-#include <epan/addr_resolv.h>
-#include <epan/prefs.h>
-#include <epan/strutil.h>
-
-void proto_reg_handoff_dmx_text(void);
 
 static int proto_dmx_text = -1;
 
@@ -85,7 +76,6 @@ dissect_dmx_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(dmx_text_tree, hf_dmx_text_string, tvb,
 							offset, size, ENC_BIG_ENDIAN);
-		offset += size;
 	}
 }
 
@@ -120,7 +110,3 @@ proto_register_dmx_text(void)
 	register_dissector("dmx-text", dissect_dmx_text, proto_dmx_text);
 }
 
-void
-proto_reg_handoff_dmx_text(void)
-{
-}
