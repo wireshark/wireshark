@@ -6587,9 +6587,9 @@ typedef struct _attribute_type_t {
   gchar* attribute_type;
   gchar* attribute_desc;
 } attribute_type_t;
-static attribute_type_t* attribute_types = NULL;
+/*static attribute_type_t* attribute_types = NULL;
 static guint num_attribute_types = 0;
-static GHashTable* attribute_types_hash = NULL;
+static GHashTable* attribute_types_hash = NULL;*/
 
 /* Dissector tables */
 static dissector_table_t nbap_ies_dissector_table;
@@ -54481,16 +54481,16 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree);
 }
 
-static void
+/*static void
 attribute_types_initialize_cb(void)
 {
 }
 static void
-attribute_types_free_cb(void*r)
+attribute_types_free_cb(void*r _U_)
 {
 }
 static void
-attribute_types_update_cb(void *r, const char **err)
+attribute_types_update_cb(void *r _U_, const char **err _U_)
 {
 	g_warning("Running attr types update");
 
@@ -54498,12 +54498,12 @@ attribute_types_update_cb(void *r, const char **err)
 }
 
 static void *
-attribute_types_copy_cb(void* n, const void* o, size_t siz _U_)
+attribute_types_copy_cb(void* n _U_, const void* o _U_, size_t siz _U_)
 {
 
 
   return NULL;
-}
+}*/
 
 /*--- proto_register_nbap -------------------------------------------*/
 void proto_register_nbap(void) {
