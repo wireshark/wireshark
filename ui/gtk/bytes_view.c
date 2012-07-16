@@ -77,16 +77,16 @@ struct _BytesView
 	int state;
 
 /* data */
-	int encoding;
-	int format;
-	guint8 *pd;
-	int len;
+	packet_char_enc encoding;	/* ASCII or EBCDIC */
+	bytes_view_type format;		/* bytes in hex or bytes as bits */
+	guint8 *pd;			/* packet data */
+	int len;			/* length of packet data in bytes */
 /* data-highlight */
 	int start[2];
 	int end[2];
 
-	int per_line;
-	int use_digits;
+	int per_line;			/* number of bytes shown per line */
+	int use_digits;			/* number of hex digits of byte offset */
 };
 
 #include "bytes_view.h"
