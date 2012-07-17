@@ -81,6 +81,10 @@ static int hf_dns_qry_qu = -1;
 static int hf_dns_srv_service = -1;
 static int hf_dns_srv_proto = -1;
 static int hf_dns_srv_name = -1;
+static int hf_dns_srv_priority = -1;
+static int hf_dns_srv_weight = -1;
+static int hf_dns_srv_port = -1;
+static int hf_dns_srv_target = -1;
 static int hf_dns_rr_name = -1;
 static int hf_dns_rr_type = -1;
 static int hf_dns_rr_class = -1;
@@ -1012,11 +1016,11 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
     /* The + 1 on the strings is to skip the leading '_' */
 
     proto_tree_add_string(rr_tree, hf_dns_srv_service, tvb, offset,
-                          namelen, srv_rr_info[0]+1);
+                          namelen, srv_rr_info[0]);
 
     if (srv_rr_info[1]) {
       proto_tree_add_string(rr_tree, hf_dns_srv_proto, tvb, offset,
-                            namelen, srv_rr_info[1]+1);
+                            namelen, srv_rr_info[1]);
 
       if (srv_rr_info[2]) {
         proto_tree_add_string(rr_tree, hf_dns_srv_name, tvb, offset,
@@ -2656,12 +2660,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item_append_text(trr,
                              ", priority %u, weight %u, port %u, target %s",
                              priority, weight, port, name_out);
-      proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Priority: %u", priority);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 2, 2, "Weight: %u", weight);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 4, 2, "Port: %u", port);
-      proto_tree_add_text(rr_tree, tvb, cur_offset + 6, target_len, "Target: %s",
-                          name_out);
-
+      proto_tree_add_uint(rr_tree, hf_dns_srv_priority, tvb, cur_offset, 2, priority);
+      proto_tree_add_uint(rr_tree, hf_dns_srv_weight, tvb, cur_offset + 2, 2, priority);
+      proto_tree_add_uint(rr_tree, hf_dns_srv_port, tvb, cur_offset + 4, 2, port);
+      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset + 6, target_len, name_out);
     }
     break;
 
@@ -3691,6 +3693,26 @@ proto_register_dns(void)
       { "Name", "dns.srv.name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Domain this resource record refers to", HFILL }},
+
+    { &hf_dns_srv_priority,
+      { "Priority", "dns.srv.priority",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_srv_weight,
+      { "Weight", "dns.srv.weight",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_srv_port,
+      { "Port", "dns.srv.port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_srv_target,
+      { "Target", "dns.srv.target",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_dns_rr_name,
       { "Name", "dns.resp.name",
