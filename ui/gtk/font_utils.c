@@ -232,9 +232,6 @@ user_font_apply(void) {
     /* load normal and bold font */
     new_r_font = pango_font_description_from_string(gui_font_name);
     if (new_r_font == NULL) {
-        /* We're no longer using the new fonts; unreference them. */
-        if (new_r_font != NULL)
-            pango_font_description_free(new_r_font);
         g_free(gui_font_name);
 
         /* We let our caller pop up a dialog box, as the error message
