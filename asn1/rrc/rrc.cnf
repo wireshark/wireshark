@@ -606,7 +606,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   proto_tree_add_unicode_string(tree, hf_index, hnbname_tvb, 0, -1,
                                 tvb_get_ephemeral_string_enc(hnbname_tvb, 0, tvb_length(hnbname_tvb), ENC_UTF_8 | ENC_NA));
 
-#.FN_BODY CN-DomainIdentity VAL_PTR = (guint32*)(&rrc_nas_sys_info_gsm_map_type)
+#.FN_BODY CN-DomainIdentity VAL_PTR = &rrc_nas_sys_info_gsm_map_type
 %(DEFAULT_BODY)s
 
 #.FN_BODY CN-InformationInfo/cn-CommonGSM-MAP-NAS-SysInfo
