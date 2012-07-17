@@ -449,7 +449,10 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   gtk_widget_set_size_request(file_open_w, DEF_WIDTH, DEF_HEIGHT);
 
   if (file_name->len > 0) {
-    file_selection_set_current_folder(file_open_w, file_name->str);
+    gchar *dirname = g_path_get_dirname(file_name->str);
+
+    file_selection_set_current_folder(file_open_w, dirname);
+    g_free(dirname);
   } else {
     switch (prefs.gui_fileopen_style) {
 
