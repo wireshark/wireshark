@@ -2661,7 +2661,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                              ", priority %u, weight %u, port %u, target %s",
                              priority, weight, port, name_out);
       proto_tree_add_uint(rr_tree, hf_dns_srv_priority, tvb, cur_offset, 2, priority);
-      proto_tree_add_uint(rr_tree, hf_dns_srv_weight, tvb, cur_offset + 2, 2, priority);
+      proto_tree_add_uint(rr_tree, hf_dns_srv_weight, tvb, cur_offset + 2, 2, weight);
       proto_tree_add_uint(rr_tree, hf_dns_srv_port, tvb, cur_offset + 4, 2, port);
       proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset + 6, target_len, name_out);
     }
