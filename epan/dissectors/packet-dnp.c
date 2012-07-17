@@ -2229,6 +2229,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             break;
 
           case AL_OBJ_TD:    /* Time and Date (Obj:50, Var:01) */
+          case AL_OBJ_TDR:   /* Time and Date at Last Recorded Time (Obj:50, Var:03) */
           case AL_OBJ_TDCTO: /* Time and Date CTO (Obj:51, Var:01) */
 
             dnp3_al_get_timestamp(&al_cto, tvb, data_pos);
