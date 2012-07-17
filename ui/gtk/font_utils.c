@@ -229,7 +229,7 @@ user_font_apply(void) {
         return FA_FONT_NOT_RESIZEABLE;
     }
 
-    /* load normal and bold font */
+    /* load normal font */
     new_r_font = pango_font_description_from_string(gui_font_name);
     if (new_r_font == NULL) {
         g_free(gui_font_name);
@@ -360,7 +360,7 @@ void font_init(void)
     try_to_get_windows_font_gtk2();
 #endif
 
-    /* Try to load the regular and boldface fixed-width fonts */
+    /* Try to load the regular fixed-width font */
     m_r_font = pango_font_description_from_string(prefs.gui_font_name);
     if (m_r_font == NULL) {
         /* XXX - pop this up as a dialog box? no */
