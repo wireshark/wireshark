@@ -519,7 +519,7 @@ void proto_register_sv(void) {
         "Data", HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 306 "../../asn1/sv/packet-sv-template.c"
+#line 305 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -536,7 +536,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 314 "../../asn1/sv/packet-sv-template.c"
+#line 313 "../../asn1/sv/packet-sv-template.c"
 	};
 
 	/* Register protocol */

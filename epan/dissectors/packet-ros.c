@@ -1243,7 +1243,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 490 "../../asn1/ros/packet-ros-template.c"
+#line 489 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1264,7 +1264,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 497 "../../asn1/ros/packet-ros-template.c"
+#line 496 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* Register protocol */

@@ -18245,7 +18245,7 @@ dissect_rnsap_INTEGER_0_37799(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_rnsap_INTEGER_M2147483648_2147483647(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }

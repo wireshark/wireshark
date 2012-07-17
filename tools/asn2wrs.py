@@ -3225,7 +3225,9 @@ class Type (Node):
     if str(minv).isdigit():
       minv += 'U'
     elif (str(minv)[0] == "-") and str(minv)[1:].isdigit():
-      if (long(minv) < -(2**31)):
+      if (long(minv) == -(2**31)):
+        minv = "G_MININT32"
+      elif (long(minv) < -(2**31)):
         minv = "G_GINT64_CONSTANT(%s)" % (str(minv))
     if str(maxv).isdigit():
       if (long(maxv) >= 2**32):

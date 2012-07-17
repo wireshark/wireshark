@@ -2092,7 +2092,7 @@ dissect_rrlp_INTEGER_M2097152_2097151(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_rrlp_INTEGER_M2147483648_2147483647(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -3027,7 +3027,7 @@ dissect_rrlp_GANSSCommonAssistData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_rrlp_TA0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -4424,7 +4424,7 @@ dissect_rrlp_GANSSEphemerisExtensionHeader(tvbuff_t *tvb _U_, int offset _U_, as
 static int
 dissect_rrlp_T_keplerW(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -4434,7 +4434,7 @@ dissect_rrlp_T_keplerW(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_rrlp_T_keplerM0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -4444,7 +4444,7 @@ dissect_rrlp_T_keplerM0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_rrlp_T_keplerI0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -4454,7 +4454,7 @@ dissect_rrlp_T_keplerI0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_rrlp_T_keplerOmega0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -4771,7 +4771,7 @@ dissect_rrlp_UTCmodelSet2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_rrlp_T_tauC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }
@@ -4799,7 +4799,7 @@ dissect_rrlp_UTCmodelSet3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_rrlp_T_utcA0wnt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
+                                                            G_MININT32, 2147483647U, NULL, FALSE);
 
   return offset;
 }

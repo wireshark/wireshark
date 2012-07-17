@@ -1003,7 +1003,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 356 "../../asn1/rtse/packet-rtse-template.c"
+#line 355 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1025,7 +1025,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 365 "../../asn1/rtse/packet-rtse-template.c"
+#line 364 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   module_t *rtse_module;
