@@ -55,6 +55,7 @@ static int proto_pkinit = -1;
 /*--- Included file: packet-pkinit-hf.c ---*/
 #line 1 "../../asn1/pkinit/packet-pkinit-hf.c"
 static int hf_pkinit_AuthPack_PDU = -1;           /* AuthPack */
+static int hf_pkinit_KRB5PrincipalName_PDU = -1;  /* KRB5PrincipalName */
 static int hf_pkinit_KDCDHKeyInfo_PDU = -1;       /* KDCDHKeyInfo */
 static int hf_pkinit_signedAuthPack = -1;         /* ContentInfo */
 static int hf_pkinit_trustedCertifiers = -1;      /* SEQUENCE_OF_TrustedCA */
@@ -70,6 +71,8 @@ static int hf_pkinit_cusec = -1;                  /* INTEGER */
 static int hf_pkinit_ctime = -1;                  /* KerberosTime */
 static int hf_pkinit_paNonce = -1;                /* INTEGER_0_4294967295 */
 static int hf_pkinit_paChecksum = -1;             /* Checksum */
+static int hf_pkinit_realm = -1;                  /* Realm */
+static int hf_pkinit_principalName = -1;          /* PrincipalName */
 static int hf_pkinit_dhSignedData = -1;           /* ContentInfo */
 static int hf_pkinit_encKeyPack = -1;             /* ContentInfo */
 static int hf_pkinit_subjectPublicKey = -1;       /* BIT_STRING */
@@ -89,6 +92,7 @@ static gint ett_pkinit_TrustedCA = -1;
 static gint ett_pkinit_AuthPack = -1;
 static gint ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier = -1;
 static gint ett_pkinit_PKAuthenticator = -1;
+static gint ett_pkinit_KRB5PrincipalName = -1;
 static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
 
@@ -97,6 +101,8 @@ static gint ett_pkinit_KDCDHKeyInfo = -1;
 
 static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
+static int dissect_KerberosV5Spec2_Realm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
+static int dissect_KerberosV5Spec2_PrincipalName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 
 /*--- Included file: packet-pkinit-fn.c ---*/
@@ -219,6 +225,21 @@ dissect_pkinit_AuthPack(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
+static const ber_sequence_t KRB5PrincipalName_sequence[] = {
+  { &hf_pkinit_realm        , BER_CLASS_CON, 0, 0, dissect_KerberosV5Spec2_Realm },
+  { &hf_pkinit_principalName, BER_CLASS_CON, 1, 0, dissect_KerberosV5Spec2_PrincipalName },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_KRB5PrincipalName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   KRB5PrincipalName_sequence, hf_index, ett_pkinit_KRB5PrincipalName);
+
+  return offset;
+}
+
+
 const value_string pkinit_PaPkAsRep_vals[] = {
   {   0, "dhSignedData" },
   {   1, "encKeyPack" },
@@ -274,6 +295,11 @@ static void dissect_AuthPack_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_pkinit_AuthPack(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkinit_AuthPack_PDU);
 }
+static void dissect_KRB5PrincipalName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkinit_KRB5PrincipalName(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkinit_KRB5PrincipalName_PDU);
+}
 static void dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -282,7 +308,7 @@ static void dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkinit-fn.c ---*/
-#line 55 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 57 "../../asn1/pkinit/packet-pkinit-template.c"
 
 int
 dissect_pkinit_PA_PK_AS_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
@@ -308,6 +334,18 @@ dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
   return offset;
 }
 
+static int
+dissect_KerberosV5Spec2_Realm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_krb5_realm(tree, tvb, offset, actx);
+  return offset;
+}
+
+static int
+dissect_KerberosV5Spec2_PrincipalName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
+  offset = dissect_krb5_cname(tree, tvb, offset, actx);
+  return offset;
+}
+
 
 /*--- proto_register_pkinit ----------------------------------------------*/
 void proto_register_pkinit(void) {
@@ -319,6 +357,10 @@ void proto_register_pkinit(void) {
 #line 1 "../../asn1/pkinit/packet-pkinit-hfarr.c"
     { &hf_pkinit_AuthPack_PDU,
       { "AuthPack", "pkinit.AuthPack",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkinit_KRB5PrincipalName_PDU,
+      { "KRB5PrincipalName", "pkinit.KRB5PrincipalName",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pkinit_KDCDHKeyInfo_PDU,
@@ -381,6 +423,14 @@ void proto_register_pkinit(void) {
       { "paChecksum", "pkinit.paChecksum",
         FT_NONE, BASE_NONE, NULL, 0,
         "Checksum", HFILL }},
+    { &hf_pkinit_realm,
+      { "realm", "pkinit.realm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkinit_principalName,
+      { "principalName", "pkinit.principalName",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkinit_dhSignedData,
       { "dhSignedData", "pkinit.dhSignedData",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -403,7 +453,7 @@ void proto_register_pkinit(void) {
         "KerberosTime", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
-#line 87 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 101 "../../asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* List of subtrees */
@@ -417,11 +467,12 @@ void proto_register_pkinit(void) {
     &ett_pkinit_AuthPack,
     &ett_pkinit_SEQUENCE_OF_AlgorithmIdentifier,
     &ett_pkinit_PKAuthenticator,
+    &ett_pkinit_KRB5PrincipalName,
     &ett_pkinit_PaPkAsRep,
     &ett_pkinit_KDCDHKeyInfo,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
-#line 92 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 106 "../../asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* Register protocol */
@@ -441,9 +492,10 @@ void proto_reg_handoff_pkinit(void) {
 #line 1 "../../asn1/pkinit/packet-pkinit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.2.3.1", dissect_AuthPack_PDU, proto_pkinit, "id-pkauthdata");
   register_ber_oid_dissector("1.3.6.1.5.2.3.2", dissect_KDCDHKeyInfo_PDU, proto_pkinit, "id-pkdhkeydata");
+  register_ber_oid_dissector("1.3.6.1.5.2.2", dissect_KRB5PrincipalName_PDU, proto_pkinit, "id-pkinit-san");
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/
-#line 107 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 121 "../../asn1/pkinit/packet-pkinit-template.c"
 }
 

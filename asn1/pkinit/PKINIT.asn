@@ -23,9 +23,7 @@
 
 KerberosV5-PK-INIT-SPEC {
            iso(1) identified-organization(3) dod(6) internet(1)
-           security(5) kerberosV5(2) modules(4) pkinit(0) } 
---           security(5) kerberosV5(2) modules(4) pkinit(TBD) }
---           TBD makes the asn2wrs compiler upset
+           security(5) kerberosV5(2) modules(4) pkinit(5) } 
 DEFINITIONS EXPLICIT TAGS ::= 
 BEGIN
 
@@ -114,10 +112,10 @@ PKAuthenticator ::= SEQUENCE {
 --    CertificateIndex ::= IssuerAndSerialNumber
 --
 --
---    KRB5PrincipalName ::= SEQUENCE {
---        realm                   [0] Realm,
---        principalName           [1] PrincipalName
---    }
+KRB5PrincipalName ::= SEQUENCE {
+    realm                   [0] Realm,
+    principalName           [1] PrincipalName
+}
 --
 --
 --    InitialVerifiedCAs ::= SEQUENCE OF SEQUENCE {
