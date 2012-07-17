@@ -1179,5 +1179,6 @@ proto_reg_handoff_bpdu(void)
   dissector_add_uint("llc.dsap", SAP_BPDU, bpdu_handle);
   dissector_add_uint("chdlctype", CHDLCTYPE_BPDU, bpdu_handle);
   dissector_add_uint("llc.cisco_pid", 0x010b, bpdu_handle);
+  dissector_add_uint("llc.cisco_pid", 0x010c, bpdu_handle);
   dissector_add_uint("ethertype", ETHERTYPE_STP, bpdu_handle);
 }
