@@ -287,7 +287,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     rlc_info      *rlcinf;
     struct rrc_info *rrcinf;
     proto_item    *ti        = NULL;
-	gint c_t;
+    gint c_t;
     hdr = tvb_get_guint8(tvb, 0);
 
     /* get target channel type field */
@@ -305,7 +305,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
-	
+
     if (!macinf || !fpinf) {
         proto_tree_add_text(fach_tree, tvb, 0, -1,
             "Cannot dissect MAC frame because per-frame info is missing");
@@ -331,13 +331,13 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             call_dissector(rlc_ccch_handle, next_tvb, pinfo, tree);
             break;
         case TCTF_DCCH_DTCH_FACH_FDD:
-			
-			/*Set RLC Mode based on the L-CHID derived from the C/T flag*/
-			c_t = tvb_get_bits8(tvb,bitoffs-4,4);
-			rlcinf->mode[fpinf->cur_tb] = lchId_rlc_map[c_t+1];
-			
-			switch (macinf->content[fpinf->cur_tb]) {
-		
+
+            /*Set RLC Mode based on the L-CHID derived from the C/T flag*/
+            c_t = tvb_get_bits8(tvb,bitoffs-4,4);
+            rlcinf->mode[fpinf->cur_tb] = lchId_rlc_map[c_t+1];
+
+            switch (macinf->content[fpinf->cur_tb]) {
+
                 case MAC_CONTENT_DCCH:
                     proto_item_append_text(ti, " (DCCH)");
                     channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
@@ -347,7 +347,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                     call_dissector(rlc_dcch_handle, next_tvb, pinfo, tree);
                     break;
                 case MAC_CONTENT_PS_DTCH:
-					proto_item_append_text(ti, " (PS DTCH)");
+                    proto_item_append_text(ti, " (PS DTCH)");
                     channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_DTCH);
                     PROTO_ITEM_SET_GENERATED(channel_type);
                     next_tvb = tvb_new_octet_aligned(tvb, bitoffs, fpinf->chan_tf_size[chan] - bitoffs);
@@ -377,29 +377,30 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             proto_item_append_text(ti, " (BCCH)");
             channel_type = proto_tree_add_uint(fach_tree, hf_mac_channel, tvb, 0, 0, MAC_BCCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
-         
-			/*We need to skip the first two bits (the TCTF bits), and since there is no MAC header, send rest to RRC*/
-            next_tvb= tvb_new_octet_aligned(tvb, 2, (tvb_length(tvb)*8)-2);
-            add_new_data_source(pinfo, next_tvb, "Octet-Aligned BCCH Data");              
 
-			/* In this case skip RLC and call RRC immediately subdissector */
-			rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
-			if (!rrcinf) {
-				rrcinf = se_alloc0(sizeof(struct rrc_info));
-				p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
-			}
-			rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
-			call_dissector(rrc_handle, next_tvb, pinfo, tree);
-			
-			break;
-		case TCTF_MSCH_FACH_FDD:
-		case TCTF_MCCH_FACH_FDD:
-		case TCTF_MTCH_FACH_FDD:
-		break;
-		 expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, " Unimplemented FACH Content type!");
+            /*We need to skip the first two bits (the TCTF bits), and since there is no MAC header, send rest to RRC*/
+            next_tvb= tvb_new_octet_aligned(tvb, 2, (tvb_length(tvb)*8)-2);
+            add_new_data_source(pinfo, next_tvb, "Octet-Aligned BCCH Data");
+
+            /* In this case skip RLC and call RRC immediately subdissector */
+            rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
+            if (!rrcinf) {
+                rrcinf = se_alloc0(sizeof(struct rrc_info));
+                p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
+            }
+            rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
+            call_dissector(rrc_handle, next_tvb, pinfo, tree);
+
+            break;
+        case TCTF_MSCH_FACH_FDD:
+        case TCTF_MCCH_FACH_FDD:
+        case TCTF_MTCH_FACH_FDD:
+            expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, " Unimplemented FACH Content type!");
+            break;
         default:
             proto_item_append_text(ti, " (Unknown FACH Content)");
             expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, " Unknown FACH Content");
+            break;
     }
 }
 
@@ -424,12 +425,12 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
     if (!macinf || !fpinf) {
-	if(!macinf){
-		g_warning("MACinf == NULL");	
-	}
-	if(!fpinf){
-		g_warning("fpinf == NULL");	
-	}
+    if(!macinf){
+        g_warning("MACinf == NULL");
+    }
+    if(!fpinf){
+        g_warning("fpinf == NULL");
+    }
        ti =  proto_tree_add_text(dch_tree, tvb, 0, -1,
             "Cannot dissect MAC frame because per-frame info is missing");
         expert_add_info_format(pinfo,ti,PI_DEBUG,PI_ERROR,"MAC frame missing frame information!");
@@ -454,68 +455,68 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     switch (macinf->content[pos]) {
         case MAC_CONTENT_DCCH:
             proto_item_append_text(ti, " (DCCH)");
-            
+
             /*Show logical channel id*/
             if(macinf->lchid[pos]!= 255){
-				channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-				PROTO_ITEM_SET_GENERATED(channel_type);
-				
-				if(macinf->fake_chid[pos]){
-					channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "This is a faked logical channel id!");
-					PROTO_ITEM_SET_GENERATED(channel_type);
-				}
-			}else{
-				channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
-				PROTO_ITEM_SET_GENERATED(channel_type);
-			}
-            
+                channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+                PROTO_ITEM_SET_GENERATED(channel_type);
+
+                if(macinf->fake_chid[pos]){
+                    channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "This is a faked logical channel id!");
+                    PROTO_ITEM_SET_GENERATED(channel_type);
+                }
+            }else{
+                channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
+                PROTO_ITEM_SET_GENERATED(channel_type);
+            }
+
             channel_type = proto_tree_add_uint(dch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
-            
-            		/*Transport channel printout*/
-			channel_type = proto_tree_add_uint(dch_tree, hf_mac_trch_id, tvb, 0, 0, macinf->trchid[pos]);
-				PROTO_ITEM_SET_GENERATED(channel_type);
+
+            /*Transport channel printout*/
+            channel_type = proto_tree_add_uint(dch_tree, hf_mac_trch_id, tvb, 0, 0, macinf->trchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
             call_dissector(rlc_dcch_handle, next_tvb, pinfo, tree);
             break;
         case MAC_CONTENT_PS_DTCH:
             proto_item_append_text(ti, " (PS DTCH)");
              /*Show logical channel id*/
             if(macinf->lchid[pos]!= 255){
-				channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-				PROTO_ITEM_SET_GENERATED(channel_type);
-			}else{
-				channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
-				PROTO_ITEM_SET_GENERATED(channel_type);
-			}
-			
+                channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+                PROTO_ITEM_SET_GENERATED(channel_type);
+            }else{
+                channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
+                PROTO_ITEM_SET_GENERATED(channel_type);
+            }
+
             channel_type = proto_tree_add_uint(dch_tree, hf_mac_channel, tvb, 0, 0, MAC_DTCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
             call_dissector(rlc_ps_dtch_handle, next_tvb, pinfo, tree);
             break;
         case MAC_CONTENT_CS_DTCH:
             proto_item_append_text(ti, " (CS DTCH)");
-			/*Show logical channel id*/
+            /*Show logical channel id*/
             if(macinf->lchid[pos]!= 255){
-				channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-				PROTO_ITEM_SET_GENERATED(channel_type);
-				if(macinf->fake_chid[pos]){
-					channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "This is a faked logical channel id!");
-					PROTO_ITEM_SET_GENERATED(channel_type);
-				}
-			}else{
-				channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
-				PROTO_ITEM_SET_GENERATED(channel_type);
-			}
-			
+                channel_type = proto_tree_add_uint(dch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+                PROTO_ITEM_SET_GENERATED(channel_type);
+                if(macinf->fake_chid[pos]){
+                    channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "This is a faked logical channel id!");
+                    PROTO_ITEM_SET_GENERATED(channel_type);
+                }
+            }else{
+                channel_type = proto_tree_add_text(dch_tree, tvb,0, 0, "Frame is missing logical channel");
+                PROTO_ITEM_SET_GENERATED(channel_type);
+            }
+
             channel_type = proto_tree_add_uint(dch_tree, hf_mac_channel, tvb, 0, 0, MAC_DTCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
-			
-			
-				
-			/*Transport channel printout*/
-			channel_type = proto_tree_add_uint(dch_tree, hf_mac_trch_id, tvb, 0, 0, macinf->trchid[pos]);
-			PROTO_ITEM_SET_GENERATED(channel_type);
-			
+
+
+
+            /*Transport channel printout*/
+            channel_type = proto_tree_add_uint(dch_tree, hf_mac_trch_id, tvb, 0, 0, macinf->trchid[pos]);
+            PROTO_ITEM_SET_GENERATED(channel_type);
+
             break;
         default:
             proto_item_append_text(ti, " (Unknown DCH Content)");
@@ -539,7 +540,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     edch_tree = proto_item_add_subtree(ti, ett_mac_edch);
 
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
-    
+
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
     if (!macinf|| !fpinf) {
         ti = proto_tree_add_text(edch_tree, tvb, 0, -1,
@@ -553,15 +554,15 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     switch (macinf->content[pos]) {
         case MAC_CONTENT_DCCH:
             proto_item_append_text(ti, " (DCCH)");
-            
+
             /*Show the logical channel id*/
             channel_type = proto_tree_add_uint(edch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-			PROTO_ITEM_SET_GENERATED(channel_type);
-         
+            PROTO_ITEM_SET_GENERATED(channel_type);
+
             channel_type = proto_tree_add_uint(edch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
-          
-            
+
+
             call_dissector(rlc_dcch_handle, tvb, pinfo, tree);
             break;
         case MAC_CONTENT_PS_DTCH:
@@ -569,8 +570,8 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
             /*Show the logical channel id*/
             channel_type = proto_tree_add_uint(edch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-			PROTO_ITEM_SET_GENERATED(channel_type);
-         
+            PROTO_ITEM_SET_GENERATED(channel_type);
+
             channel_type = proto_tree_add_uint(edch_tree, hf_mac_channel, tvb, 0, 0, MAC_DTCH);
             PROTO_ITEM_SET_GENERATED(channel_type);
 
@@ -582,9 +583,8 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             break;
         default:
             proto_item_append_text(ti, " (Unknown EDCH Content)");
-			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Unknown EDCH Content");
-	
-			break;
+            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR, "Unknown EDCH Content");
+            break;
     }
 }
 
@@ -613,7 +613,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
     pos = fpinf->cur_tb;
-    
+
     bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;
 
     if (!macinf) {
@@ -630,7 +630,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if ((bitoffs % 8) == 0) {
         next_tvb = tvb_new_subset_remaining(tvb, bitoffs/8);
     } else {
-        next_tvb = tvb_new_octet_aligned(tvb, bitoffs, macinf->pdu_len);	/*Get rid of possible padding in at the end?*/
+        next_tvb = tvb_new_octet_aligned(tvb, bitoffs, macinf->pdu_len);    /*Get rid of possible padding in at the end?*/
         add_new_data_source(pinfo, next_tvb, "Octet-Aligned HSDSCH Data");
     }
     switch (macinf->content[pos]) {
@@ -640,16 +640,16 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             PROTO_ITEM_SET_GENERATED(channel_type)*/
             /*Set the logical channel id if it exists */
             if(macinf->lchid[pos] != 255){
-				channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-				PROTO_ITEM_SET_GENERATED(channel_type);
-				if(macinf->fake_chid[pos]){
-					channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
-					PROTO_ITEM_SET_GENERATED(channel_type);
-				}
-			}else{
-				channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
-				PROTO_ITEM_SET_GENERATED(channel_type);
-			}
+                channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+                PROTO_ITEM_SET_GENERATED(channel_type);
+                if(macinf->fake_chid[pos]){
+                    channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
+                    PROTO_ITEM_SET_GENERATED(channel_type);
+                }
+            }else{
+                channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
+                PROTO_ITEM_SET_GENERATED(channel_type);
+            }
 
             /*Set the type of channel*/
             /*channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Logcial Channel Type: PS DTCH");
@@ -658,37 +658,37 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
 
             PROTO_ITEM_SET_GENERATED(channel_type);
-            
+
             /*Set the MACd-Flow ID*/
-			channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_macdflowd_id, tvb, 0, 0, macinf->macdflow_id[pos]);
+            channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_macdflowd_id, tvb, 0, 0, macinf->macdflow_id[pos]);
             PROTO_ITEM_SET_GENERATED(channel_type);
             call_dissector(rlc_dcch_handle, next_tvb, pinfo, tree);
             break;
         case MAC_CONTENT_PS_DTCH:
             proto_item_append_text(ti, " (PS DTCH)");
-            	
-			/*Set the logical channel id if it exists */
+
+            /*Set the logical channel id if it exists */
             if(macinf->lchid[pos] != 255){
-				channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
-				PROTO_ITEM_SET_GENERATED(channel_type);
-					if(macinf->fake_chid[pos]){
-					channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
-					PROTO_ITEM_SET_GENERATED(channel_type);
-				}
-			}else{
-				channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
-				PROTO_ITEM_SET_GENERATED(channel_type);
-			}
+                channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_lch_id, tvb, 0, 0, macinf->lchid[pos]);
+                PROTO_ITEM_SET_GENERATED(channel_type);
+                    if(macinf->fake_chid[pos]){
+                    channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "This is a faked logical channel id!");
+                    PROTO_ITEM_SET_GENERATED(channel_type);
+                }
+            }else{
+                channel_type = proto_tree_add_text(hsdsch_tree, tvb,0, 0, "Frame is missing logical channel");
+                PROTO_ITEM_SET_GENERATED(channel_type);
+            }
 
             /*Sets the channel type*/
             channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel, tvb, 0, 0, MAC_DTCH);
 
             PROTO_ITEM_SET_GENERATED(channel_type);
-            
+
             /*Set the MACd-Flow ID*/
-			channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_macdflowd_id, tvb, 0, 0, macinf->macdflow_id[pos]);
+            channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_macdflowd_id, tvb, 0, 0, macinf->macdflow_id[pos]);
             PROTO_ITEM_SET_GENERATED(channel_type);
-            
+
             call_dissector(rlc_ps_dtch_handle, next_tvb, pinfo, tree);
             break;
         case MAC_CONTENT_CS_DTCH:
@@ -743,22 +743,22 @@ proto_register_umts_mac(void)
           { "Logical Channel Type", "mac.logical_channel",
             FT_UINT16, BASE_DEC, VALS(mac_logical_channel_vals), 0, NULL, HFILL }
         },
-        
+
          { &hf_mac_channel_str,
           { "Logical Channel", "mac.logical_channel",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
-         { &hf_mac_channel_hsdsch, 
-			{ "MACd-FlowID", "mac.macd_flowid", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
+         { &hf_mac_channel_hsdsch,
+            { "MACd-FlowID", "mac.macd_flowid", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
         },
-        { &hf_mac_macdflowd_id, 
-			{ "MACd-FlowID", "mac.macd_flowid", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
+        { &hf_mac_macdflowd_id,
+            { "MACd-FlowID", "mac.macd_flowid", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
         },
-         { &hf_mac_lch_id, 
-			{ "Logical Channel ID", "mac.logical_channel_id", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
+         { &hf_mac_lch_id,
+            { "Logical Channel ID", "mac.logical_channel_id", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
         },
-        { &hf_mac_trch_id, 
-			{ "Transport Channel ID", "mac.transport_channel_id", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
+        { &hf_mac_trch_id,
+            { "Transport Channel ID", "mac.transport_channel_id", FT_UINT16, BASE_DEC, NULL, 0x0,  NULL, HFILL }
         },
     };
 
