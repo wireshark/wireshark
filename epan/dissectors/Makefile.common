@@ -133,17 +133,21 @@ ASN1_DISSECTOR_SRC = \
 	packet-inap.c \
 	packet-lcsap.c \
 	packet-logotypecertextn.c \
+	packet-lpp.c \
 	packet-lppa.c \
+	packet-lppe.c \
 	packet-lte-rrc.c \
 	packet-mms.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \
+	packet-nbap.c \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
 	packet-opsi.c \
 	packet-p22.c \
 	packet-p7.c \
 	packet-p772.c \
+	packet-pcap.c \
 	packet-pkcs1.c \
 	packet-pkinit.c \
 	packet-pkix1explicit.c \
@@ -157,6 +161,8 @@ ASN1_DISSECTOR_SRC = \
 	packet-qsig.c \
 	packet-ranap.c		\
 	packet-ros.c \
+	packet-rrc.c \
+	packet-rrlp.c \
 	packet-rtse.c \
 	packet-rua.c \
 	packet-s1ap.c		\
@@ -184,18 +190,12 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-gprscdr.c \
 	packet-gsm_map.c \
 	packet-ldap.c \
-	packet-lpp.c \
-	packet-lppe.c \
 	packet-m3ap.c \
-	packet-nbap.c \
 	packet-p1.c \
 	packet-parlay.c \
-	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pres.c \
 	packet-rnsap.c \
-	packet-rrc.c \
-	packet-rrlp.c \
 	packet-snmp.c \
 	packet-t124.c \
 	packet-t125.c \

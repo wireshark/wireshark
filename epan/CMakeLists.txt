@@ -219,17 +219,21 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-inap.c
 	dissectors/packet-lcsap.c
 	dissectors/packet-logotypecertextn.c
+	dissectors/packet-lpp.c
 	dissectors/packet-lppa.c
+	dissectors/packet-lppe.c
 	dissectors/packet-lte-rrc.c
 	dissectors/packet-mms.c
 	dissectors/packet-mpeg-audio.c
 	dissectors/packet-mpeg-pes.c
+	dissectors/packet-nbap.c
 	dissectors/packet-ns_cert_exts.c
 	dissectors/packet-ocsp.c
 	dissectors/packet-opsi.c
 	dissectors/packet-p22.c
 	dissectors/packet-p7.c
 	dissectors/packet-p772.c
+	dissectors/packet-pcap.c
 	dissectors/packet-pkcs1.c
 	dissectors/packet-pkinit.c
 	dissectors/packet-pkix1explicit.c
@@ -243,6 +247,8 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-qsig.c
 	dissectors/packet-ranap.c
 	dissectors/packet-ros.c
+	dissectors/packet-rrc.c
+	dissectors/packet-rrlp.c
 	dissectors/packet-rtse.c
 	dissectors/packet-rua.c
 	dissectors/packet-s1ap.c
@@ -268,18 +274,12 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-gprscdr.c
 	dissectors/packet-gsm_map.c
 	dissectors/packet-ldap.c
-	dissectors/packet-lpp.c
-	dissectors/packet-lppe.c
 	dissectors/packet-m3ap.c
-	dissectors/packet-nbap.c
 	dissectors/packet-p1.c
 	dissectors/packet-parlay.c
-	dissectors/packet-pcap.c
 	dissectors/packet-pkcs12.c
 	dissectors/packet-pres.c
 	dissectors/packet-rnsap.c
-	dissectors/packet-rrc.c
-	dissectors/packet-rrlp.c
 	dissectors/packet-snmp.c
 	dissectors/packet-t124.c
 	dissectors/packet-t125.c
