@@ -1997,7 +1997,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return FALSE;	/* no */
 
 	/* final check to see if the next SPDU, if present, is also valid */
-	if (tvb_length(tvb) > len) {
+	if (tvb_length(tvb) > 1+(guint) len) {
 	  type = tvb_get_guint8(tvb, offset + len + 1);
 	  /* check SPDU type */
 	  if (match_strval(type, ses_vals) == NULL) {
