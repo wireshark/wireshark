@@ -114,10 +114,10 @@ static const value_string packet_type_vals[] = {
 
 static void
 dissect_sender_array (proto_tree *clique_rm_tree, int hf_header, gint ett_header,
-    int hf_header_sender, tvbuff_t *tvb, gsize offset)
+    int hf_header_sender, tvbuff_t *tvb, int offset)
 {
   guint8 i, count;
-  gsize len;
+  int len;
   proto_item *ti;
   proto_tree *tree;
 
@@ -157,13 +157,13 @@ dissect_data_packet (proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
       tvb_length_remaining(tvb, offset), ENC_NA);
 }
 
-static gsize
+static int
 dissect_depends (proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti, *depend_item;
   proto_tree *tree, *depend_tree;
   guint8 i, count;
-  gsize len;
+  int len;
 
   count = tvb_get_guint8 (tvb, offset);
   len = 1 + count * 8;
