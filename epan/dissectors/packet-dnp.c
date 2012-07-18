@@ -2844,7 +2844,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
   {
     hidden_item = proto_tree_add_boolean(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
-                                         offset, 2, ENC_LITTLE_ENDIAN);
+                                         offset, 2, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
                                dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
