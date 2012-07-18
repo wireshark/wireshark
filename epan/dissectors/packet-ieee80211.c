@@ -16568,7 +16568,7 @@ proto_register_ieee80211 (void)
     "Invalid keys will be ignored.",
     "Valid key formats");
 
-    wep_uat = uat_new("WEP and WPA Decryption Keys",
+  wep_uat = uat_new("WEP and WPA Decryption Keys",
             sizeof(uat_wep_key_record_t),  /* record size */
             "80211_keys",               /* filename */
             TRUE,                       /* from_profile */
@@ -16582,11 +16582,11 @@ proto_register_ieee80211 (void)
             NULL,                       /* post update callback */
             wep_uat_flds);             /* UAT field definitions */
 
-    prefs_register_uat_preference(wlan_module,
-                                   "wep_key_table",
-                                   "Decryption Keys",
-                                   "WEP and pre-shared WPA keys",
-                                   wep_uat);
+  prefs_register_uat_preference(wlan_module,
+                                "wep_key_table",
+                                "Decryption Keys",
+                                "WEP and pre-shared WPA keys",
+                                wep_uat);
 }
 
 static void
