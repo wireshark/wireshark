@@ -1275,7 +1275,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
             /* get and display the partner address.  */
             if (tree) {
-                proto_tree_add_eui64(tree, hf_zbee_aps_cmd_partner, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(tree, hf_zbee_aps_cmd_partner, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             }
             offset += 8;
 
@@ -1399,7 +1399,7 @@ dissect_zbee_aps_request_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     /* Get and display the partner address. Only present on application master key. */
     if (key_type == ZBEE_APS_CMD_KEY_APP_MASTER) {
         if (tree) {
-            proto_tree_add_eui64(tree, hf_zbee_aps_cmd_partner, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_zbee_aps_cmd_partner, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
         offset += 8;
     }
