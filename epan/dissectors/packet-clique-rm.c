@@ -112,7 +112,7 @@ static const value_string packet_type_vals[] = {
    { 0,                 NULL                 }
 };
 
-static gsize
+static void
 dissect_sender_array (proto_tree *clique_rm_tree, int hf_header, gint ett_header,
     int hf_header_sender, tvbuff_t *tvb, gsize offset)
 {
@@ -131,12 +131,10 @@ dissect_sender_array (proto_tree *clique_rm_tree, int hf_header, gint ett_header
 
   for (i = 1; i <= count; i++, offset += 4)
     proto_tree_add_item(tree, hf_header_sender, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-  return len;
 }
 
 static void
-dissect_data_packet (proto_tree *clique_rm_tree, tvbuff_t *tvb, gsize offset)
+dissect_data_packet (proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti;
   proto_tree *tree;
@@ -160,7 +158,7 @@ dissect_data_packet (proto_tree *clique_rm_tree, tvbuff_t *tvb, gsize offset)
 }
 
 static gsize
-dissect_depends (proto_tree *clique_rm_tree, tvbuff_t *tvb, gsize offset)
+dissect_depends (proto_tree *clique_rm_tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti, *depend_item;
   proto_tree *tree, *depend_tree;
@@ -194,7 +192,7 @@ dissect_depends (proto_tree *clique_rm_tree, tvbuff_t *tvb, gsize offset)
 /* Code to actually dissect the packets */
 static void
 dissect_reliable_packet (proto_tree *clique_rm_tree, guint8 type,
-    tvbuff_t *tvb, gsize offset)
+    tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(clique_rm_tree, hf_clique_rm_packet_id, tvb, offset, 4,
      ENC_BIG_ENDIAN);
@@ -230,7 +228,7 @@ dissect_reliable_packet (proto_tree *clique_rm_tree, guint8 type,
 
 static void
 dissect_unreliable_packet (proto_tree *clique_rm_tree, guint8 type,
-  tvbuff_t *tvb, gsize offset)
+  tvbuff_t *tvb, int offset)
 {
   guint8 len;
 
@@ -270,7 +268,7 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 version = 0;
   guint8 type = 0;
-  gsize offset = 0;
+  int offset = 0;
 
   if (tvb_length (tvb) < 12)
     return FALSE;
