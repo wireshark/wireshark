@@ -465,6 +465,7 @@ netmon_set_pseudo_header_info(int pkt_encap,
 		 * "FCS length" of -2 means "NetMon weirdness".
 		 */
 		pseudo_header->ieee_802_11.fcs_len = -2;
+		pseudo_header->ieee_802_11.decrypted = FALSE;
 		break;
 	}
 }

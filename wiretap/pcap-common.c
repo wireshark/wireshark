@@ -1488,6 +1488,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		 * supplies an FCS?
 		 */
 		pseudo_header->ieee_802_11.fcs_len = -1;
+		pseudo_header->ieee_802_11.decrypted = FALSE;
 		pseudo_header->ieee_802_11.channel = 0;
 		pseudo_header->ieee_802_11.data_rate = 0;
 		pseudo_header->ieee_802_11.signal_level = 0;

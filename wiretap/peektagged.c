@@ -562,6 +562,7 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
 	    wth->phdr.len -= 4;
 	    wth->phdr.caplen -= 4;
 	}
+	wth->pseudo_header.ieee_802_11.decrypted = FALSE;
 	break;
 
     case WTAP_ENCAP_ETHERNET:
@@ -602,6 +603,7 @@ peektagged_seek_read(wtap *wth, gint64 seek_off,
 	    pseudo_header->ieee_802_11.fcs_len = 4;
 	else
 	    pseudo_header->ieee_802_11.fcs_len = 0;
+	pseudo_header->ieee_802_11.decrypted = FALSE;
 	break;
 
     case WTAP_ENCAP_ETHERNET:

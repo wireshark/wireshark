@@ -402,6 +402,7 @@ peekclassic_read_v7(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	case WTAP_ENCAP_IEEE_802_11_AIROPEEK:
 		wth->pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
+		wth->pseudo_header.ieee_802_11.decrypted = FALSE;
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
@@ -459,6 +460,7 @@ peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
 
 	case WTAP_ENCAP_IEEE_802_11_AIROPEEK:
 		pseudo_header->ieee_802_11.fcs_len = 0;		/* no FCS */
+		pseudo_header->ieee_802_11.decrypted = FALSE;
 		break;
 
 	case WTAP_ENCAP_ETHERNET:

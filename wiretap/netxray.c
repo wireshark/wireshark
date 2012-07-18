@@ -1228,6 +1228,8 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			} else
 				pseudo_header->ieee_802_11.fcs_len = 0;
 
+			pseudo_header->ieee_802_11.decrypted = FALSE;
+
 			pseudo_header->ieee_802_11.channel =
 			    hdr->hdr_2_x.xxx[12];
 			pseudo_header->ieee_802_11.data_rate =
