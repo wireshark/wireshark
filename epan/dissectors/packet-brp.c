@@ -178,7 +178,7 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case 2: /* Setup Response */
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
-            proto_tree_add_uint( brp_tree, hf_brp_stat, tvb, offset, 4, ENC_BIG_ENDIAN );
+            proto_tree_add_item( brp_tree, hf_brp_stat, tvb, offset, 4, ENC_BIG_ENDIAN );
             offset +=4;
             break;
 
