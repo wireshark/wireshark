@@ -344,7 +344,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 
         case TC_RSP:
 
-                proto_tree_add_uint(tree, hf_elcom_datarequest_result,
+                proto_tree_add_item(tree, hf_elcom_datarequest_result,
                                     tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
@@ -377,7 +377,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
         if (tvb_length_remaining(tvb, offset) <= 0)
                 return offset;
 
-        proto_tree_add_uint(tree, hf_elcom_datarequest_groupindex2, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_elcom_datarequest_groupindex2, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         if (tvb_length_remaining(tvb, offset) <= 0)
                 return offset;
