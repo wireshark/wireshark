@@ -31,7 +31,7 @@
 #ifndef TEXT_IMPORT_H
 #define TEXT_IMPORT_H
 
-#include "glib.h"
+#include <glib.h>
 #include "wtap.h"
 
 #define IMPORT_MAX_PACKET 64000

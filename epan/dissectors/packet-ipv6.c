@@ -53,7 +53,7 @@
 #include "packet-ip.h"
 
 #ifdef HAVE_GEOIP_V6
-#include "GeoIP.h"
+#include <GeoIP.h>
 #include <epan/geoip_db.h>
 #endif /* HAVE_GEOIP_V6 */
 

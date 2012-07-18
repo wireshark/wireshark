@@ -58,7 +58,7 @@
 #ifdef HAVE_LIBPORTAUDIO
 #include <math.h>
 #include <string.h>
-#include "portaudio.h"
+#include <portaudio.h>
 
 #include <gtk/gtk.h>
 

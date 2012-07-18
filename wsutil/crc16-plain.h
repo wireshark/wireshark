@@ -20,7 +20,7 @@
 #ifndef __CRC____PLAIN_H__
 #define __CRC____PLAIN_H__
 
-#include "glib.h"
+#include <glib.h>
 #include <stdlib.h>
 
 #ifdef __cplusplus

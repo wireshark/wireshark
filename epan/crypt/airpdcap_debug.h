@@ -59,7 +59,7 @@ void print_debug_line(CHAR *function, CHAR *msg, INT level);
 /* Debug section: internal function to print debug information						*/
 /*																										*/
 #ifdef	_DEBUG
-#include "stdio.h"
+#include <stdio.h>
 #include <time.h>
 
 /*	Debug level definition																		*/

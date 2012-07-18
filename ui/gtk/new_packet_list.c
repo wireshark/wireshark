@@ -29,7 +29,7 @@
 #include "config.h"
 #endif
 
-#include "string.h"
+#include <string.h>
 
 #include <stdio.h>
 #include <gtk/gtk.h>

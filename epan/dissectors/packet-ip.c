@@ -56,7 +56,7 @@
 #include "packet-ipsec.h"
 
 #ifdef HAVE_GEOIP
-#include "GeoIP.h"
+#include <GeoIP.h>
 #include <epan/geoip_db.h>
 #endif /* HAVE_GEOIP */
 

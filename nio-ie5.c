@@ -24,7 +24,7 @@
 #include <wininet.h>
 #include "nio-ie5.h"
 
-#include "glib.h"
+#include <glib.h>
 
 static HINTERNET internet = 0;
 

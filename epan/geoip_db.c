@@ -36,8 +36,8 @@
 #include <glib.h>
 
 #ifdef HAVE_GEOIP
-#include "GeoIP.h"
-#include "GeoIPCity.h"
+#include <GeoIP.h>
+#include <GeoIPCity.h>
 
 #include "geoip_db.h"
 #include "uat.h"

@@ -18,7 +18,7 @@
  * Modified 2009-03-16 not to include <stdint.h> as our Win32 environment
  * appears not to have it; we're using GLib types, instead.
  *****************************************************************************/
-#include "glib.h"
+#include <glib.h>
 #include "wsutil/crc16-plain.h"
 #include <stdlib.h>
 
