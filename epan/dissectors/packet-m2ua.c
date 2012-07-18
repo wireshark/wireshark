@@ -633,7 +633,7 @@ static const value_string action_values[] = {
 static void
 dissect_action_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_uint(parameter_tree, hf_action, parameter_tvb, ACTION_OFFSET, ACTION_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_action, parameter_tvb, ACTION_OFFSET, ACTION_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ACTION_OFFSET), action_values, "unknown"));
 }
 
