@@ -420,6 +420,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-classicstun.c
 	dissectors/packet-clearcase.c
 	dissectors/packet-clip.c
+	dissectors/packet-clique-rm.c
 	dissectors/packet-clnp.c
 	dissectors/packet-cmpp.c
 	dissectors/packet-cnip.c

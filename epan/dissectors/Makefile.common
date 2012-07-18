@@ -340,6 +340,7 @@ DISSECTOR_SRC = \
 	packet-classicstun.c	\
 	packet-clearcase.c	\
 	packet-clip.c		\
+	packet-clique-rm.c	\
 	packet-clnp.c		\
 	packet-cmpp.c		\
 	packet-cnip.c		\
