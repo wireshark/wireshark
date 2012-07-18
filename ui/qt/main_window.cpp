@@ -31,6 +31,7 @@
 
 #include <wiretap/wtap.h>
 
+#include "ui/alert_box.h"
 #include "ui/main_statusbar.h"
 
 #include "wireshark_application.h"
@@ -150,6 +151,8 @@ void MainWindow::captureFileReadStarted(const capture_file *cf) {
     ui->statusBar->popFileStatus();
     QString msg = QString(tr("Loading: %1")).arg(get_basename(cf->filename));
     ui->statusBar->pushFileStatus(msg);
+    ui->mainStack->setCurrentWidget(splitterV);
+    WiresharkApplication::processEvents();
 }
 
 void MainWindow::captureFileReadFinished(const capture_file *cf) {
@@ -283,51 +286,75 @@ build_file_save_type_list(GArray *savable_file_types) {
 
 void MainWindow::openCaptureFile(QString &cfPath)
 {
-    dfilter_t   *rfcode = NULL;
+    QString fileName = "";
+    QString displayFilter = "";
+    dfilter_t *rfcode = NULL;
+    int err;
 
-    if (cfPath.isEmpty()) {
-        QStringList cfNames;
-        CaptureFileDialog cfDlg(this);
+    capFile = NULL;
 
-        cfDlg.setLabelText(QFileDialog::FileName, tr("Wireshark: Open Capture File"));
-        cfDlg.setNameFilters(build_file_open_type_list());
-        cfDlg.setFileMode(QFileDialog::ExistingFile);
+    for (;;) {
 
-        if (cfDlg.exec()) {
-#ifdef Q_WS_WIN
-            // XXX - This doesn't happen until after the file is loaded.
-            // We should catch an event from cf_read instead.
-            ui->mainStack->setCurrentWidget(splitterV);
-#else // Q_WS_WIN
-            cfNames = cfDlg.selectedFiles();
-            if (cfNames.length() > 0) {
-                cfPath = cfNames[0];
+        if (cfPath.isEmpty()) {
+            CaptureFileDialog cfDlg(this, fileName, displayFilter);
+
+            if (cfDlg.exec()) {
+                if (dfilter_compile(displayFilter.toUtf8().constData(), &rfcode)) {
+                    cf_set_rfcode(&cfile, rfcode);
+                } else {
+                    /* Not valid.  Tell the user, and go back and run the file
+                       selection box again once they dismiss the alert. */
+                    //bad_dfilter_alert_box(top_level, display_filter->str);
+                    QMessageBox::warning(this, tr("Invalid Display Filter"),
+                                         QString("The filter expression ") +
+                                         displayFilter +
+                                         QString(" isn't a valid display filter. (") +
+                                         dfilter_error_msg + QString(")."),
+                                         QMessageBox::Ok);
+                    continue;
+                }
+                cfPath = fileName;
+            } else {
+                return;
             }
-#endif // Q_WS_WIN
         }
-    }
-
-#ifndef Q_WS_WIN
-    if (cfPath.length() > 0) {
-        int err;
 
         /* Try to open the capture file. */
         if (cf_open(&cfile, cfPath.toUtf8().constData(), FALSE, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,
-             just leave it around so that the user can, after they
-             dismiss the alert box popped up for the open error,
-             try again. */
+                       just leave it around so that the user can, after they
+                       dismiss the alert box popped up for the open error,
+                       try again. */
             if (rfcode != NULL)
                 dfilter_free(rfcode);
+            cfPath.clear();
+            continue;
+        }
+
+        capFile = &cfile;
+
+        switch (cf_read(&cfile, FALSE)) {
+
+        case CF_READ_OK:
+        case CF_READ_ERROR:
+            /* Just because we got an error, that doesn't mean we were unable
+               to read any of the file; we handle what we could get from the
+               file. */
+            break;
+
+        case CF_READ_ABORTED:
+            /* The user bailed out of re-reading the capture file; the
+               capture file has been closed - just free the capture file name
+               string and return (without changing the last containing
+               directory). */
             capFile = NULL;
             return;
-        } else {
-            ui->mainStack->setCurrentWidget(splitterV);
-            capFile = &cfile;
-            cf_read(&cfile, FALSE);
         }
+        break;
     }
-#endif // Q_WS_WIN
+    // get_dirname overwrites its path. Hopefully this isn't a problem.
+    set_last_open_dir(get_dirname(cfPath.toUtf8().data()));
+    dfComboBox->setEditText(displayFilter);
 }
 
 void MainWindow::recentActionTriggered() {

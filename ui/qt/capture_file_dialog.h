@@ -54,7 +54,11 @@ class CaptureFileDialog : public QFileDialog
 
     Q_OBJECT
 public:
-    explicit CaptureFileDialog(QWidget *parent = 0);
+    explicit CaptureFileDialog(QWidget *parent = NULL, QString &fileName = QString(), QString &displayFilter = QString());
+
+private:
+    QString &m_fileName;
+    QString &m_displayFilter;
 
 signals:
 

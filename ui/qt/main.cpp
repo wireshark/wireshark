@@ -917,10 +917,10 @@ int main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     epan_init(register_all_protocols,register_all_protocol_handoffs,
-              NULL, NULL, NULL, NULL, NULL, NULL
+              NULL, NULL,
 //              splash_update, (gpointer) splash_win,
-//              failure_alert_box,open_failure_alert_box,read_failure_alert_box,
-//              write_failure_alert_box
+              failure_alert_box,open_failure_alert_box,read_failure_alert_box,
+              write_failure_alert_box
               );
 
 //    splash_update(RA_LISTENERS, NULL, (gpointer)splash_win);

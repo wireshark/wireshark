@@ -35,6 +35,8 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
+//#include <QDebug>
+
 #ifdef Q_WS_WIN
 // All of these routines are required by file_dlg_win32.c.
 // We don't yet have a good place for them so we'll add them as stubs here.
@@ -103,14 +105,33 @@ extern void topic_cb(gpointer *widget, int topic) {
 // End stub routines
 #endif // Q_WS_WIN
 
-CaptureFileDialog::CaptureFileDialog(QWidget *parent) :
-    QFileDialog(parent)
+CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &fileName, QString &displayFilter) :
+    QFileDialog(parent), m_fileName(fileName), m_displayFilter(displayFilter)
 {
+#if !defined(Q_WS_WIN)
+    setLabelText(QFileDialog::FileName, tr("Wireshark: Open Capture File"));
+    setNameFilters(build_file_open_type_list());
+    setFileMode(QFileDialog::ExistingFile);
+#endif
 }
 
+
 #ifdef Q_WS_WIN
-int CaptureFileDialog::exec(){
-    return (int) win32_open_file(parentWidget()->effectiveWinId());
+int CaptureFileDialog::exec() {
+    GString *file_name = g_string_new(m_fileName.toUtf8().constData());
+    GString *display_filter = g_string_new(m_displayFilter.toUtf8().constData());
+    gboolean wof_status;
+
+    wof_status = win32_open_file(parentWidget()->effectiveWinId(), file_name, display_filter);
+    m_fileName.clear();
+    m_fileName.append(QString::fromUtf8(file_name->str));
+    m_displayFilter.clear();
+    m_displayFilter.append(QString::fromUtf8(display_filter->str));
+
+    g_string_free(file_name, TRUE);
+    g_string_free(display_filter, TRUE);
+
+    return (int) wof_status;
 }
 
 #endif

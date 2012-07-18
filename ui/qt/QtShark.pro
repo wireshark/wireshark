@@ -116,6 +116,7 @@ SOURCES_WS_C = \
     ../../tempfile.c      \
     ../../timestats.c     \
     ../../u3.c \
+    ../../ui/alert_box.c  \
     ../../ui/util.c  \
     ../../version_info.c
 

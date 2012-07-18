@@ -31,6 +31,8 @@
 
 #include "ui/progress_dlg.h"
 
+#include "wireshark_application.h"
+
 progdlg_t *
 delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
                             gboolean terminate_is_stop, gboolean *stop_flag,
@@ -170,7 +172,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
         /*
          * Flush out the update and process any input events.
          */
-//        WiresharkApplication::processEvents();
+        WiresharkApplication::processEvents();
     }
 
 /*
