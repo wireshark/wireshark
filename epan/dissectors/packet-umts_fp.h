@@ -22,6 +22,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
+#include <glib.h>
+
 /* Channel types */
 #define CHANNEL_RACH_FDD          1
 #define CHANNEL_RACH_TDD          2
@@ -165,6 +168,7 @@ typedef struct
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
     guint8 hsdsch_macdflow_id;
+    GSequence * ports;
 } umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);

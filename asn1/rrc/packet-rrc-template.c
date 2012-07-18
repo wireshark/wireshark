@@ -68,7 +68,7 @@ enum nas_sys_info_gsm_map {
   RRC_NAS_SYS_INFO_CN_COMMON
 };
 
-static guint32 rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
+static enum nas_sys_info_gsm_map rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
 /* Forward declarations */
 static int dissect_UE_RadioAccessCapabilityInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

@@ -2992,9 +2992,13 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			macinf->fake_chid[i] = TRUE;	/**/
 			macinf->macdflow_id[i] = p_fp_info->hsdsch_macflowd_id;	/*Save the flow ID (+1 to make it human readable (its zero indexed!))*/
-			/*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
-			rlcinf->mode[i] = hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];
-			/*macinf->ctmux[i] = TRUE;*/
+            /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
+            if(p_fp_info->hsdsch_macflowd_id > 15 || i > 64){
+                g_warning("paket nr: %d id:%d i:%d", pinfo->fd->num,p_fp_info->hsdsch_macflowd_id,i);
+                /*exit(0);*/
+            }
+            rlcinf->mode[i] = hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];
+            /*macinf->ctmux[i] = TRUE;*/
 			rlcinf->urnti[i] = p_fp_info->channel;
 			rlcinf->li_size[i] = RLC_LI_7BITS;
             rlcinf->ciphered[i] = FALSE;
@@ -3673,23 +3677,26 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Look for packet info! */
     p_fp_info = (struct fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
 
-    /* Check if we have converstaion info */
+    /* Check if we have conversation info */
     p_conv = (conversation_t *)find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
                                pinfo->ptype,
                                pinfo->destport, pinfo->srcport, NO_ADDR_B);
                                
                         
     if (p_conv) {
+         /*Find correct conversation, basically find the on thats closest to this frame*/
+         while(p_conv->next != NULL && p_conv->next->setup_frame < pinfo->fd->num){
+            p_conv = p_conv->next;
+         }
         p_conv_data = (umts_fp_conversation_info_t *)conversation_get_proto_data(p_conv, proto_fp);
-        if (p_conv_data) {
-	
+
+		if (p_conv_data) {
 			/*Figure out the direction of the link*/
             if (ADDRESSES_EQUAL(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
-				
-		
+
 				proto_item* item= proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
                                                        tvb, 0, 0, p_conv_data->ul_frame_number);
-             
+
                 PROTO_ITEM_SET_GENERATED(item);
                 /* CRNC -> Node B */
                 pinfo->link_dir=P2P_DIR_UL;

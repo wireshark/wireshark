@@ -35,6 +35,7 @@
 #include <epan/sctpppids.h>
 #include <epan/asn1.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 
 #include "packet-per.h"
 #include "packet-isup.h"
@@ -53,6 +54,9 @@
 #define PSNAME "NBAP"
 #define PFNAME "nbap"
 
+
+#define NBAP_IGNORE_PORT 255
+ 
 /* Debug */
 #if 0
 #define nbap_debug0(str) g_warning(str)
@@ -70,6 +74,7 @@
 dissector_handle_t fp_handle;
 static guint32	transportLayerAddress_ipv4;
 static guint16	BindingID_port;
+static guint32	com_context_id;
 
 #include "packet-nbap-val.h"
 
@@ -211,6 +216,8 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+/*Easy way to add hsdhsch binds for corner cases*/
+static void add_hsdsch_bind(packet_info * pinfo, proto_tree * tree);
 
 #include "packet-nbap-fn.c"
 
@@ -241,13 +248,74 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   if (!ProcedureID) return 0;
   return (dissector_try_string(nbap_proc_uout_dissector_table, ProcedureID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
+static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
+	address 	null_addr;
+	conversation_t *conversation = NULL;
+	umts_fp_conversation_info_t *umts_fp_conversation_info;
+	guint32 i;
 
+	if (pinfo->fd->flags.visited){
+		return;
+	}
+
+	/* Set port to zero use that as an indication of wether we have data or not */
+	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+	for (i = 0; i < maxNrOfMACdFlows; i++) {
+		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
+			conversation = find_conversation(pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
+                               PT_UDP,
+                               nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
+
+			
+			if (conversation == NULL) {
+				/* It's not part of any conversation - create a new one. */
+				conversation = conversation_new(pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address),
+					&null_addr, PT_UDP, nbap_hsdsch_channel_info[i].crnc_port,
+					0, NO_ADDR2|NO_PORT2);
+
+				/* Set dissector */
+				conversation_set_dissector(conversation, fp_handle);
+			
+				if(pinfo->link_dir==P2P_DIR_DL){
+					umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+					/* Fill in the HSDSCH relevant data */
+
+					umts_fp_conversation_info->iface_type        = IuB_Interface;
+					umts_fp_conversation_info->division          = Division_FDD;
+					umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
+					umts_fp_conversation_info->dl_frame_number   = 0;
+					umts_fp_conversation_info->ul_frame_number   = pinfo->fd->num;
+					SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
+					umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
+					
+					/*Added june 3, normally just the iterator variable*/
+					umts_fp_conversation_info->hsdsch_macdflow_id = i ; /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
+					
+					/* Cheat and use the DCH entries */
+					umts_fp_conversation_info->num_dch_in_flow++;
+					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
+
+					/*XXX: Is this craziness, what is physical_layer? */					
+					if(nbap_hsdsch_channel_info[i].entity == entity_not_specified ){
+						/*Error*/
+						expert_add_info_format(pinfo, tree, PI_MALFORMED,PI_ERROR, "HSDSCH Entity not specified!");
+					}else{
+						umts_fp_conversation_info->hsdsch_entity = nbap_hsdsch_channel_info[i].entity;
+					}
+					umts_fp_conversation_info->rlc_mode = nbap_hsdsch_channel_info[i].rlc_mode;
+					set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
+				}
+			}
+		}
+	}
+
+}
 static void
 dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item	*nbap_item = NULL;
 	proto_tree	*nbap_tree = NULL;
-
+	int i;
 	/* make entry in the Protocol column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBAP");
 
@@ -255,6 +323,11 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nbap_item = proto_tree_add_item(tree, proto_nbap, tvb, 0, -1, ENC_NA);
 	nbap_tree = proto_item_add_subtree(nbap_item, ett_nbap);
 
+	/*Do a little cleanup just as a precaution*/
+	for (i = 0; i < maxNrOfMACdFlows; i++) {
+		nbap_hsdsch_channel_info[i].entity = hs;
+	}
+	
 	dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree);
 }
 

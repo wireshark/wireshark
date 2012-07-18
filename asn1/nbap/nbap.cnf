@@ -4,8 +4,8 @@
 # Modified 2012 by Jacob Nordgren <jacob.nordgren@ericsson.com> and 
 # Rishie Sharma <rishie.sharma@ericsson.com>
 # $Id$
-
 #.OPT
+
 PER
 ALIGNED
 #.END
@@ -1073,6 +1073,12 @@ dch_id = 0xFFFFFFFF;
 		{
 			return offset;
 		}
+		
+		/*RBS might sometimes send a nonses bind, to indicate that no DCH is present*/
+		if(BindingID_port == NBAP_IGNORE_PORT){
+				return offset;
+		}
+		
 		SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
 		dst_addr.type=AT_IPv4;
@@ -1093,7 +1099,7 @@ dch_id = 0xFFFFFFFF;
 			conversation_set_dissector(conversation, fp_handle);
 			if(actx->pinfo->link_dir==P2P_DIR_DL){
 				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
-				
+
 				/* Fill in the data */
 				umts_fp_conversation_info->iface_type        = IuB_Interface;
 				umts_fp_conversation_info->division          = Division_FDD;
@@ -1146,6 +1152,7 @@ dch_id = 0xFFFFFFFF;
 						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_tf_size[j] = nbap_dch_chnl_info[i].dl_chan_tf_size[j];
 						umts_fp_conversation_info->fp_dch_channel_info[umts_fp_conversation_info->num_dch_in_flow].dl_chan_num_tbs[j] = nbap_dch_chnl_info[i].dl_chan_num_tbs[j];
 					}
+					
 				}
 				umts_fp_conversation_info->num_dch_in_flow++;
 				umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
@@ -1181,7 +1188,13 @@ BindingID_port = 0;
 			&null_addr, PT_UDP, BindingID_port,
 			0, NO_ADDR_B|NO_PORT_B);
 
-		if (conversation == NULL) {
+		/* We must also check if this port is about to be overriden, if thats the case we 
+		 * might already have a DCH entry on this port which should be overwritten
+		 */
+		if (conversation == NULL || ((umts_fp_conversation_info_t*)conversation_get_proto_data(conversation, proto_fp))->channel == CHANNEL_DCH) {
+			
+			
+		
 			/* It's not part of any conversation - create a new one. */
 			conversation = conversation_new(actx->pinfo->fd->num, &dst_addr,
 			    &null_addr, PT_UDP,BindingID_port ,
@@ -1206,10 +1219,12 @@ BindingID_port = 0;
 				COPY_ADDRESS(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
 				nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
 
+				/*Figure out if this is a reconfiguration. then we must steal DDI entries from previous*/
+				/* Can we always use old entries? they will be overwritten later? */
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}
-
-		}
+	}
+	
 
 #.FN_BODY E-DCH-MACdFlow-Specific-InfoItem
 umts_fp_conversation_info_t *p_conv_data = NULL;
@@ -1218,12 +1233,11 @@ conversation_t   *p_conv;
 guint32 no_ddi_entries, i;
 
 %(DEFAULT_BODY)s
-
 	if (actx->pinfo->fd->flags.visited)
 	{
 		return offset;
 	}
-    /* Check if we have converstaion info */
+    /* Check if we have conversation info */
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
     p_conv = find_conversation(actx->pinfo->fd->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
                                PT_UDP,
@@ -1326,11 +1340,36 @@ guint32 no_ddi_entries, i;
 	nbap_hsdsch_channel_info[hsdsch_macdflow_id].hsdsch_physical_layer_category = hsdsch_physical_layer_category;
 
 #.FN_BODY HSDSCH-MACdFlows-Information
-	num_items = 0;
-	
-%(DEFAULT_BODY)s
 
+	int protocol_ie_id;
+	guint32 i;
+	num_items = 0;
+	protocol_ie_id = ProtocolIE_ID;
+		
+		
+	/*Handle special cases, when the tree is weird, ie. no useful message appears in the tree, like HSDHSCH-Information-FDD */
+	switch(protocol_ie_id){
+			/*This flow must also be added*/
+			case id_HSDSCH_MACdFlows_to_Add:
+				if (!actx->pinfo->fd->flags.visited){
+				/* Set port to zero use that as an indication of wether we have data or not */
+					for (i = 0; i < maxNrOfMACdFlows; i++) {
+						nbap_hsdsch_channel_info[i].crnc_port = 0;
+						nbap_hsdsch_channel_info[i].rlc_mode = FP_RLC_MODE_UNKNOWN;
+						/*XXX: Added 29 jun*/
+						nbap_hsdsch_channel_info[i].entity = entity_not_specified;	/* Maybe this should default to entity = hs*/
+					}
+				}
+%(DEFAULT_BODY)s
+				add_hsdsch_bind(actx->pinfo,tree);
+				
+			break;
+			default:
+%(DEFAULT_BODY)s
+			break;
+		}
 #.FN_BODY HSDSCH-MACdFlow-Specific-InfoItem
+
 
 	address 	dst_addr;
 	transportLayerAddress_ipv4 = 0;
@@ -1338,11 +1377,11 @@ guint32 no_ddi_entries, i;
 	num_items++;
 %(DEFAULT_BODY)s
 
+	
 	if (actx->pinfo->fd->flags.visited||transportLayerAddress_ipv4==0||BindingID_port == 0)
 	{
 		return offset;
 	}
-
 	dst_addr.type=AT_IPv4;
 	dst_addr.len=4;
 	dst_addr.data=(guint8 *)&transportLayerAddress_ipv4;
@@ -1350,22 +1389,30 @@ guint32 no_ddi_entries, i;
 	/* Set address for collection of HSDSCH entries */
 	COPY_ADDRESS(&(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_address),&dst_addr);
 	nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port = BindingID_port;
+	
+	
+#.FN_BODY MAC-PDU-SizeExtended
+
+%(DEFAULT_BODY)s
+	if(nbap_hsdsch_channel_info[hsdsch_macdflow_id].crnc_port != 0){
+			nbap_hsdsch_channel_info[hsdsch_macdflow_id].entity = ehs;
+	}
 
 
 #.FN_BODY HSDSCH-MACdPDUSizeFormat
 	/*
-	* Set the channel entity i.e the type of the hsdch channels (if this is present entity = ehs)
+	* Set the channel entity i.e the type of the hsdsch channels (if this is present entity = ehs)
 	*/
 int i;
 
 %(DEFAULT_BODY)s
-	/* */
 	for (i = 0; i < maxNrOfMACdFlows; i++) {
 		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
 			nbap_hsdsch_channel_info[i].entity = ehs;
-			nbap_debug1("Setting entity = ehs for HSDSCH channel: %%d\n",i);		
 		}
+		
 	}
+	
 
 
 #.FN_BODY HSDSCH-FDD-Information
@@ -1392,6 +1439,7 @@ int i;
 	if (actx->pinfo->fd->flags.visited){
 		return offset;
 	}
+
 	/* Set port to zero use that as an indication of wether we have data or not */
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 	for (i = 0; i < maxNrOfMACdFlows; i++) {
@@ -1404,7 +1452,7 @@ int i;
                                PT_UDP,
                                nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
 
-
+			
 			if (conversation == NULL) {
 				/* It's not part of any conversation - create a new one. */
 				nbap_debug1("HSDSCH-MACdFlows-Information:Set up conv on Port %%u",nbap_hsdsch_channel_info[i].crnc_port);
@@ -1414,7 +1462,7 @@ int i;
 
 				/* Set dissector */
 				conversation_set_dissector(conversation, fp_handle);
-
+			
 				if(actx->pinfo->link_dir==P2P_DIR_DL){
 					umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
 					/* Fill in the HSDSCH relevant data */
@@ -1520,6 +1568,7 @@ int i;
 		
 				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
 				umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
+				umts_fp_conversation_info->division          = Division_FDD;
 				
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}
@@ -1530,7 +1579,15 @@ int i;
 		}
 	}
 	
-	
+#
+#Routines for figuring out a unique UE identification number (to track flows over changing channels)	
+#
+
+#.FN_BODY NodeB-CommunicationContextID VAL_PTR = &com_context_id
+%(DEFAULT_BODY)s
+#.FN_BODY CRNC-CommunicationContextID VAL_PTR = &com_context_id
+
+%(DEFAULT_BODY)s
 
 #.REGISTER_NEW
 
