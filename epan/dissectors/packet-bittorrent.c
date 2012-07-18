@@ -700,7 +700,7 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    case BITTORRENT_MESSAGE_PORT:
       /* port as payload */
-      proto_tree_add_uint(mtree, hf_bittorrent_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mtree, hf_bittorrent_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
 
    case BITTORRENT_MESSAGE_EXTENDED:
