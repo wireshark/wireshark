@@ -88,6 +88,10 @@
 #define SOCK_ADR_INFO_TO      0x8001
 #define SEQ_ADDRESS           0x8002
 
+/* Decoded I/O traffic enumeration */
+#define ENIP_IO_OFF           0
+#define ENIP_IO_SAFETY        1
+#define ENIP_IO_MOTION        2
 
 /* Initialize the protocol and registered fields */
 static int proto_enip = -1;
@@ -239,6 +243,32 @@ static int hf_qos_dscp_high = -1;
 static int hf_qos_dscp_low = -1;
 static int hf_qos_dscp_explicit = -1;
 
+static int hf_dlr_network_topology                    = -1;
+static int hf_dlr_network_status                      = -1;
+static int hf_dlr_ring_supervisor_status              = -1;
+static int hf_dlr_rsc_ring_supervisor_enable          = -1;
+static int hf_dlr_rsc_ring_supervisor_precedence      = -1;
+static int hf_dlr_rsc_beacon_interval                 = -1;
+static int hf_dlr_rsc_beacon_timeout                  = -1;
+static int hf_dlr_rsc_dlr_vlan_id                     = -1;
+static int hf_dlr_ring_faults_count                   = -1;
+static int hf_dlr_lanp1_dev_ip_addr                   = -1;
+static int hf_dlr_lanp1_dev_physical_address          = -1;
+static int hf_dlr_lanp2_dev_ip_addr                   = -1;
+static int hf_dlr_lanp2_dev_physical_address          = -1;
+static int hf_dlr_ring_protocol_participants_count    = -1;
+static int hf_dlr_rppl_dev_ip_addr                    = -1;
+static int hf_dlr_rppl_dev_physical_address           = -1;
+static int hf_dlr_asa_supervisor_ip_addr              = -1;
+static int hf_dlr_asa_supervisor_physical_address     = -1;
+static int hf_dlr_active_supervisor_precedence        = -1;
+static int hf_dlr_capability_flags                    = -1;
+static int hf_dlr_capflags_announce_base_node         = -1;
+static int hf_dlr_capflags_beacon_base_node           = -1;
+static int hf_dlr_capflags_reserved1                  = -1;
+static int hf_dlr_capflags_supervisor_capable         = -1;
+static int hf_dlr_capflags_reserved2                  = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_enip = -1;
 static gint ett_count_tree = -1;
@@ -252,6 +282,7 @@ static gint ett_tcpip_config_cap = -1;
 static gint ett_tcpip_config_control = -1;
 static gint ett_elink_interface_flags = -1;
 static gint ett_elink_icontrol_bits = -1;
+static gint ett_dlr_capability_flags = -1;
 
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_sud_table;
@@ -297,6 +328,17 @@ static int hf_dlr_soip = -1;
 static int hf_dlr_soreserved = -1;
 
 static gint ett_dlr = -1;
+
+static enum_val_t enip_io_dissector_types[] = {
+	{ "Off",	"Regular Ethernet/IP I/O data", ENIP_IO_OFF},
+	{ "CIP Safety", "CIP Safety",  ENIP_IO_SAFETY },
+	{ "CIP Motion", "CIP Motion",  ENIP_IO_MOTION },
+
+   { NULL, NULL, 0 }
+};
+
+/* decode I/O traffic as this type if ForwardOpen isn't captured */
+static gint default_io_dissector_type = ENIP_IO_OFF;
 
 /* Translate function to string - Encapsulation commands */
 static const value_string encap_cmd_vals[] = {
@@ -442,6 +484,33 @@ static const value_string enip_elink_admin_state_vals[] = {
    { 2,  "Disabled"        },
 
    { 0,  NULL              }
+};
+
+static const value_string enip_dlr_network_topology_vals[] = {
+   { 0,  "Linear"    },
+   { 1,  "Ring"      },
+
+   { 0,  NULL        }
+};
+
+static const value_string enip_dlr_network_status_vals[] = {
+   { 0,  "Normal" },
+   { 1,  "Ring Fault" },
+   { 2,  "Unexpected Loop Detected" },
+   { 3,  "Partial Network Failure" },
+   { 4,  "Rapid Fault/Restore Cycle" },
+
+   { 0,  NULL }
+};
+
+static const value_string enip_dlr_ring_supervisor_status_vals[] = {
+   { 0,  "Backup Ring Supervisor" },
+   { 1,  "Active Ring Supervisor" },
+   { 2,  "Ring Node" },
+   { 3,  "Non-DLR Topology" },
+   { 4,  "Cannot Support Parameters" },
+
+   { 0,  NULL }
 };
 
 /* Translate interface handle to string */
@@ -1229,7 +1298,117 @@ int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_
    return 4;
 }
 
-attribute_info_t enip_attribute_vals[29] = {
+int dissect_dlr_ring_supervisor_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   if (total_len < 12)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 4");
+      return total_len;
+   }
+
+   proto_tree_add_item(tree, hf_dlr_rsc_ring_supervisor_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rsc_ring_supervisor_precedence, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rsc_beacon_interval, tvb, offset+2, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rsc_beacon_timeout, tvb, offset+6, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_rsc_dlr_vlan_id, tvb, offset+10, 2, ENC_LITTLE_ENDIAN);
+   return 12;
+}
+
+int dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   if (total_len < 10)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 6");
+      return total_len;
+   }
+
+   proto_tree_add_item(tree, hf_dlr_lanp1_dev_ip_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_lanp1_dev_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   return 10;
+}
+
+int dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   if (total_len < 10)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 7");
+      return total_len;
+   }
+
+   proto_tree_add_item(tree, hf_dlr_lanp2_dev_ip_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_lanp2_dev_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   return 10;
+}
+
+int dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   int pos;
+
+   if (total_len % 10)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 9");
+      return total_len;
+   }
+
+   pos=0;
+   while( pos < total_len)
+   {
+	   proto_tree_add_item(tree, hf_dlr_lanp2_dev_ip_addr, tvb, offset+pos, 4, ENC_LITTLE_ENDIAN);
+	   proto_tree_add_item(tree, hf_dlr_lanp2_dev_physical_address, tvb, offset+pos+4, 6, ENC_LITTLE_ENDIAN);
+	   pos+=10;
+   }
+   return total_len;
+}
+
+int dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   if (total_len < 10)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 10");
+      return total_len;
+   }
+
+   proto_tree_add_item(tree, hf_dlr_asa_supervisor_ip_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_asa_supervisor_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   return 10;
+}
+
+int dissect_dlr_capability_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+
+{
+   proto_item* flag_item;
+   proto_tree* flag_tree;
+
+   if (total_len < 4)
+   {
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed DLR Attribute 12");
+      return total_len;
+   }
+
+   flag_item = proto_tree_add_item(tree, hf_dlr_capability_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   flag_tree = proto_item_add_subtree(flag_item, ett_dlr_capability_flags);
+
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_announce_base_node, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_beacon_base_node, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_reserved1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_supervisor_capable, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(flag_tree, hf_dlr_capflags_reserved2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+   return 4;
+}
+
+attribute_info_t enip_attribute_vals[41] = {
 
    /* TCP/IP object */
    {0xF5, FALSE,  1, "Status", cip_dissector_func, NULL, dissect_tcpip_status},
@@ -1264,7 +1443,21 @@ attribute_info_t enip_attribute_vals[29] = {
    {0x48, FALSE,  5, "DSCP Scheduled", cip_usint, &hf_qos_dscp_scheduled, NULL},
    {0x48, FALSE,  6, "DSCP High", cip_usint, &hf_qos_dscp_high, NULL},
    {0x48, FALSE,  7, "DSCP Low", cip_usint, &hf_qos_dscp_low, NULL},
-   {0x48, FALSE,  8, "DSCP Explicit", cip_usint, &hf_qos_dscp_explicit, NULL}
+   {0x48, FALSE,  8, "DSCP Explicit", cip_usint, &hf_qos_dscp_explicit, NULL},
+
+   /* DLR object */
+   {0x47, FALSE, 1, "Network Topology", cip_usint, &hf_dlr_network_topology, NULL},
+   {0x47, FALSE, 2, "Network Status", cip_usint, &hf_dlr_network_status, NULL},
+   {0x47, FALSE, 3, "Ring Supervisor Status", cip_usint, &hf_dlr_ring_supervisor_status, NULL},
+   {0x47, FALSE, 4, "Ring Supervisor Config", cip_dissector_func, NULL, dissect_dlr_ring_supervisor_config},
+   {0x47, FALSE, 5, "Ring Faults Count", cip_uint, &hf_dlr_ring_faults_count, NULL},
+   {0x47, FALSE, 6, "Last Active Node on Port 1", cip_dissector_func, NULL, dissect_dlr_last_active_node_on_port_1},
+   {0x47, FALSE, 7, "Last Active Node on Port 2", cip_dissector_func, NULL, dissect_dlr_last_active_node_on_port_2},
+   {0x47, FALSE, 8, "Ring Protocol Participants Count", cip_uint, &hf_dlr_ring_protocol_participants_count, NULL},
+   {0x47, FALSE, 9, "Ring Protocol Participants List", cip_dissector_func, NULL, dissect_dlr_ring_protocol_participants_list},
+   {0x47, FALSE, 10, "Active Supervisor Address", cip_dissector_func, NULL, dissect_dlr_active_supervisor_address},
+   {0x47, FALSE, 11, "Active Supervisor Precedence", cip_usint, &hf_dlr_active_supervisor_precedence, NULL},
+   {0x47, FALSE, 12, "Capability Flags", cip_dissector_func, NULL, dissect_dlr_capability_flags}
 
 };
 
@@ -1468,7 +1661,18 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                       }
                       else
                       {
-                         proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
+                         switch(default_io_dissector_type)
+                         {
+                         case ENIP_IO_SAFETY:
+                            call_dissector(cipsafety_handle, next_tvb, pinfo, dissector_tree);
+                            break;
+                         case ENIP_IO_MOTION:
+                            call_dissector(cipmotion_handle, next_tvb, pinfo, dissector_tree);
+                            break;
+                         default:
+                           proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
+                           break;
+                         }
                       }
                   }
                } /* End of if send unit data */
@@ -2739,8 +2943,132 @@ proto_register_enip(void)
       { &hf_qos_dscp_explicit,
         { "DSCP Explicit", "cip.qos.explicit",
           FT_UINT8, BASE_DEC, NULL, 0,
-          NULL, HFILL }}
+          NULL, HFILL }},
 
+      { &hf_dlr_network_topology,
+        { "Network Topology", "cip.dlr.network_topology",
+          FT_UINT8, BASE_DEC, enip_dlr_network_topology_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_network_status,
+        { "Network Status", "cip.dlr.network_status",
+          FT_UINT8, BASE_DEC, enip_dlr_network_status_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_ring_supervisor_status,
+        { "Ring Supervisor Status", "cip.dlr.ring_supervisor_status",
+          FT_UINT8, BASE_DEC, enip_dlr_ring_supervisor_status_vals, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rsc_ring_supervisor_enable,
+        { "Ring Supervisor Enable", "cip.dlr.rscconfig.supervisor_enable",
+          FT_BOOLEAN, 8, TFS(&tfs_true_false), 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rsc_ring_supervisor_precedence,
+        { "Ring Supervisor Precedence", "cip.dlr.rscconfig.supervisor_precedence",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rsc_beacon_interval,
+        { "Beacon Interval", "cip.dlr.rscconfig.beacon_interval",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rsc_beacon_timeout,
+        { "Beacon Timeout", "cip.dlr.rscconfig.beacon_timeout",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rsc_dlr_vlan_id,
+        { "DLR VLAN ID", "cip.dlr.rscconfig.dlr_vlan_id",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_ring_faults_count,
+        { "Ring Faults Count", "cip.dlr.ring_faults_count",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_lanp1_dev_ip_addr,
+        { "Device IP Address", "cip.dlr.lanp1.ip_addr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_lanp1_dev_physical_address,
+        { "Device Physical Address", "cip.dlr.lanp1.physical_address",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_lanp2_dev_ip_addr,
+        { "Device IP Address", "cip.dlr.lanp2.ip_addr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_lanp2_dev_physical_address,
+        { "Device Physical Address", "cip.dlr.lanp2.physical_address",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_ring_protocol_participants_count,
+        { "Participants Count", "cip.dlr.participants_count",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rppl_dev_ip_addr,
+        { "Device IP Address", "cip.dlr.rppl.ip_addr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_rppl_dev_physical_address,
+        { "Device Physical Address", "cip.dlr.rppl.physical_address",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_asa_supervisor_ip_addr,
+        { "Supervisor IP Address", "cip.dlr.asa.ip_addr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_asa_supervisor_physical_address,
+        { "Supervisor Physical Address", "cip.dlr.asa.physical_address",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_active_supervisor_precedence,
+        { "Active Supervisor Precedence", "cip.dlr.supervisor_precedence",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_capability_flags,
+        { "Capability Flags", "cip.dlr.capflags",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_dlr_capflags_announce_base_node,
+        { "Announce-based Ring Node", "cip.dlr.capflags.announce_based",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000001,
+          NULL, HFILL }},
+
+      { &hf_dlr_capflags_beacon_base_node,
+        { "Beacon-based Ring Node", "cip.dlr.capflags.beacon_based",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000002,
+          NULL, HFILL }},
+
+      { &hf_dlr_capflags_reserved1,
+        { "Reserved", "cip.dlr.capflags.reserved1",
+          FT_BOOLEAN, 32, NULL, 0x0000001C,
+          NULL, HFILL }},
+
+      { &hf_dlr_capflags_supervisor_capable,
+        { "Supervisor Capable", "cip.dlr.capflags.supervisor_capable",
+          FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x00000020,
+          NULL, HFILL }},
+
+      { &hf_dlr_capflags_reserved2, 
+        { "Reserved", "cip.dlr.capflags.reserved2",
+          FT_BOOLEAN, 32, NULL, 0xFFFFFFC0,
+          NULL, HFILL }}
    };
 
 
@@ -2757,7 +3085,8 @@ proto_register_enip(void)
       &ett_tcpip_config_cap,
       &ett_tcpip_config_control,
       &ett_elink_interface_flags,
-      &ett_elink_icontrol_bits
+      &ett_elink_icontrol_bits,
+      &ett_dlr_capability_flags
    };
 
    /* Setup list of header fields for DLR  See Section 1.6.1 for details*/
@@ -2925,6 +3254,12 @@ proto_register_enip(void)
                                   "Dissect 32-bit header in the T->O direction",
                                   "Determines whether all I/O connections will assume a 32-bit header in the T->O direction",
                                   &enip_TOrun_idle);
+
+	prefs_register_enum_preference(enip_module, "default_io_dissector",
+		                            "Dissect unidentified I/O traffic as",
+		                            "Decode all unidentified I/O traffic as this type",		                            &default_io_dissector_type,
+		                            enip_io_dissector_types,
+		                            FALSE);
 
    subdissector_sud_table = register_dissector_table("enip.sud.iface",
                                                      "SendUnitData.Interface Handle", FT_UINT32, BASE_HEX);

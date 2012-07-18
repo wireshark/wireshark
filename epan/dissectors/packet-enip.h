@@ -91,6 +91,6 @@ enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
 
 void enip_close_cip_connection( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
 
-extern attribute_info_t enip_attribute_vals[29];
+extern attribute_info_t enip_attribute_vals[41];
 
 #endif /* PACKET_ENIP_H */
