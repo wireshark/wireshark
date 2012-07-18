@@ -849,8 +849,8 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 		endlist = se_new(struct rlc_seqlist);
 		ch = rlc_channel_create(mode, pinfo);
 		if (ch == NULL) { /* DEBUG */
-			g_print("failed to assign channel\n");
-			exit(0);
+			REPORT_DISSECTOR_BUG("Failed to assign channel");
+			return NULL;
 		}
 
 		endlist->list = NULL;
