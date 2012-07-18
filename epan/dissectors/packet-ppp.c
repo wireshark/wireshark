@@ -4542,6 +4542,11 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* allocate a copy of the IP packet */
     ip_packet = tvb_memdup(tvb, 0, length);
+    /*
+     * make sure that we will be able to write the write the length information
+     * to the copy at least
+     */
+    tvb_ensure_bytes_exist (tvb, ip_hdr_len, 5);
 
     /* restore the proper values to the IP and UDP length fields */
     ip_packet[2] = length >> 8;
