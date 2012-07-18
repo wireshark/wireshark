@@ -663,6 +663,7 @@ file_open_cmd(GtkWidget *w _U_)
          if any; we can write over cf_name, which is a good thing, given that
          "get_dirname()" does write over its argument. */
       set_last_open_dir(get_dirname(file_name->str));
+      gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), display_filter->str);
     }
     g_string_free(file_name, TRUE);
     g_string_free(display_filter, TRUE);
