@@ -4521,8 +4521,8 @@ add_ff_measurement_pilot_int(proto_tree *tree, tvbuff_t *tvb, int offset)
 static guint
 add_ff_country_str(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_tree_add_string(tree, hf_ieee80211_ff_country_str, tvb, offset, 3,
-                        ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_country_str, tvb, offset, 3,
+                      ENC_ASCII);
   return 3;
 }
 
@@ -7332,7 +7332,7 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
              ENC_LITTLE_ENDIAN);
   proto_tree_add_item(cap_tree, hf_ieee80211_hta_pco_active, tvb, offset, 2,
              ENC_LITTLE_ENDIAN);
-  proto_tree_add_boolean(cap_tree, hf_ieee80211_hta_pco_phase, tvb, offset, 2,
+  proto_tree_add_item(cap_tree, hf_ieee80211_hta_pco_phase, tvb, offset, 2,
              ENC_LITTLE_ENDIAN);
   offset += 2;
 
@@ -8615,7 +8615,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         offset += 1;
 
         report_type = tvb_get_guint8(tvb, offset);
-        parent_item = proto_tree_add_uint(tree, hf_ieee80211_tag_measure_report_type, tvb, offset, 1, ENC_NA);
+        parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_measure_report_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         sub_tree = proto_item_add_subtree(parent_item, ett_tag_measure_report_type_tree);
         offset += 1;
 
