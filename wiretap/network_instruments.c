@@ -106,7 +106,7 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
-    packet_entry_header *packet_header, gboolean *decrypted_wireless, int *err, gchar **err_info);
+    packet_entry_header *packet_header, int *err, gchar **err_info);
 static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
     guint8 *pd, int length, int *err, char **err_info);
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
@@ -265,7 +265,6 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	gboolean decrypted_wireless;
     int header_bytes_consumed;
     int data_bytes_consumed;
     packet_entry_header packet_header;
@@ -275,8 +274,8 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         *data_offset = file_tell(wth->fh);
 
         /* process the packet header, including TLVs */
-        header_bytes_consumed = read_packet_header(wth->fh, &wth->pseudo_header, &packet_header, &decrypted_wireless, 
-            err, err_info);
+        header_bytes_consumed = read_packet_header(wth->fh, &wth->pseudo_header, &packet_header, err,
+            err_info);
         if (header_bytes_consumed <= 0)
             return FALSE;    /* EOF or error */
 
@@ -357,11 +356,6 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         return FALSE;
     }
 
-	/* clear the protected flag in the wireless header if needed */
-	if (decrypted_wireless && data_bytes_consumed > 1) {
-		*(buffer_start_ptr(wth->frame_buffer)+1) = (*(buffer_start_ptr(wth->frame_buffer)+1) & 0xbf);
-	}
-
     /* skip over any extra bytes following the frame data */
     if (!skip_to_next_packet(wth, packet_header.offset_to_next_packet,
             header_bytes_consumed + data_bytes_consumed, err, err_info)) {
@@ -376,17 +370,16 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-	gboolean decrypted_wireless;
     packet_entry_header packet_header;
     int offset;
-	int data_bytes_consumed;
+    int data_bytes_consumed;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
     /* process the packet header, including TLVs */
-    offset = read_packet_header(wth->random_fh, pseudo_header, &packet_header, &decrypted_wireless,
-		err, err_info);
+    offset = read_packet_header(wth->random_fh, pseudo_header, &packet_header, err,
+        err_info);
     if (offset <= 0)
         return FALSE;    /* EOF or error */
 
@@ -403,23 +396,18 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     }
 
     /* read the frame data */
-	data_bytes_consumed = read_packet_data(wth->random_fh, packet_header.offset_to_frame,
+    data_bytes_consumed = read_packet_data(wth->random_fh, packet_header.offset_to_frame,
         offset, pd, length, err, err_info);
     if (data_bytes_consumed < 0) {
         return FALSE;
     }
-
-	/* clear the protected flag in the wireless header if needed */
-	if (decrypted_wireless && data_bytes_consumed > 1) {
-		*(pd+1) = (*(pd+1) & 0xbf);
-	}
 
     return TRUE;
 }
 
 static int
 read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
-    packet_entry_header *packet_header, gboolean *decrypted_wireless, int *err, gchar **err_info)
+    packet_entry_header *packet_header, int *err, gchar **err_info)
 {
     int offset;
     int bytes_read;
@@ -498,11 +486,11 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
             }
             /* update the pseudo header */
             pseudo_header->ieee_802_11.fcs_len = 0;
+            /* set decryption status */
+            pseudo_header->ieee_802_11.decrypted = (wireless_header.conditions & WIRELESS_WEP_SUCCESS) != 0;
             pseudo_header->ieee_802_11.channel = wireless_header.frequency;
             pseudo_header->ieee_802_11.data_rate = wireless_header.rate;
             pseudo_header->ieee_802_11.signal_level = wireless_header.strengthPercent;
-			/* set decryption status */
-			*decrypted_wireless = (wireless_header.conditions & WIRELESS_WEP_SUCCESS) > 0;
             offset += bytes_read;
             break;
         default:

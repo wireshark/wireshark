@@ -10919,10 +10919,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       return;
     }
 
-  if (IS_PROTECTED(FCF_FLAGS(fcf)) && wlan_ignore_wep != WLAN_IGNORE_WEP_WO_IV) {
+  if (IS_PROTECTED(FCF_FLAGS(fcf))
+      && !pinfo->pseudo_header->ieee_802_11.decrypted
+      && wlan_ignore_wep != WLAN_IGNORE_WEP_WO_IV) {
     /*
-     * It's a WEP or WPA encrypted frame; dissect the protections parameters
-     * and decrypt the data, if we have a matching key. Otherwise display it as data.
+     * It's a WEP or WPA encrypted frame, and it hasn't already been
+     * decrypted; dissect the protections parameters and decrypt the data,
+     * if we have a matching key. Otherwise display it as data.
      */
 
     gboolean can_decrypt = FALSE;
