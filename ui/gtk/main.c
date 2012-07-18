@@ -3746,7 +3746,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
                          G_CALLBACK(top_level_key_pressed_cb), NULL );
 
     /* Vertical container for menu bar, toolbar(s), paned windows and progress/info box */
+#if BREAK_GTK3
     main_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 1, FALSE);
+#else
+    main_vbox = gtk_vbox_new(FALSE, 1);
+#endif
     gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 0);
     gtk_container_add(GTK_CONTAINER(top_level), main_vbox);
     gtk_widget_show(main_vbox);
