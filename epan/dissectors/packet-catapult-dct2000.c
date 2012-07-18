@@ -1380,13 +1380,15 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
     }
     else
     /* Always try lookup for now */
-    if (strncmp(protocol_name, "x2ap_r8_lte", strlen("x2ap_r8_lte")) == 0) {
+    if ((strncmp(protocol_name, "x2ap_r8_lte", strlen("x2ap_r8_lte")) == 0) ||
+        (strncmp(protocol_name, "x2ap_r9_lte", strlen("x2ap_r9_lte")) == 0)) {
 
         return find_dissector("x2ap");
     }
 
     else
-    if (strcmp(protocol_name, "gtpv2_r8_lte") == 0) {
+    if ((strcmp(protocol_name, "gtpv2_r8_lte") == 0) ||
+        (strcmp(protocol_name, "gtpv2_r9_lte") == 0)) {
         return find_dissector("gtpv2");
     }
 
@@ -2530,7 +2532,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             if (catapult_dct2000_dissect_lte_rrc &&
                 ((strcmp(protocol_name, "rrc_r8_lte") == 0) ||
-                 (strcmp(protocol_name, "rrcpdcpprim_r8_lte") == 0))) {
+                 (strcmp(protocol_name, "rrcpdcpprim_r8_lte") == 0) ||
+                 (strcmp(protocol_name, "rrc_r9_lte") == 0) ||
+                 (strcmp(protocol_name, "rrcpdcpprim_r9_lte") == 0))) {
 
                 /* Dissect proprietary header, then pass remainder
                    to RRC (depending upon direction and channel type) */
@@ -2539,7 +2543,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             else
-            if (((strcmp(protocol_name, "ccpri_r8_lte") == 0))) {
+            if ((strcmp(protocol_name, "ccpri_r8_lte") == 0) ||
+                (strcmp(protocol_name, "ccpri_r9_lte") == 0)) {
 
                 /* Dissect proprietary header, then pass remainder to lapb */
                 dissect_ccpri_lte(tvb, offset, pinfo, tree);
