@@ -1144,7 +1144,7 @@ rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
 			col_set_writable(pinfo->cinfo, FALSE);
 			break;
 		default:
-			return; /* abort */
+			return; /* stop dissecting */
 	}
 	if (msgtype != RRC_MESSAGE_TYPE_INVALID) {
 		struct rrc_info *rrcinf;
