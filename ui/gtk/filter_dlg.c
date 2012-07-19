@@ -425,12 +425,13 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     /* Container for each row of widgets */
     filter_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(filter_vb), 0);
-    gtk_container_add(GTK_CONTAINER(main_vb), filter_vb);
+    gtk_box_pack_start(GTK_BOX (main_vb), filter_vb, TRUE, TRUE, 0);
     gtk_widget_show(filter_vb);
 
     /* Top row: Buttons and filter list */
     top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
-    gtk_container_add(GTK_CONTAINER(filter_vb), top_hb);
+    gtk_box_pack_start(GTK_BOX (filter_vb), top_hb, TRUE, TRUE, 0);
+
     gtk_widget_show(top_hb);
 
     edit_fr = gtk_frame_new("Edit");
@@ -509,7 +510,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     /* row: Filter name entry */
     middle_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
+    gtk_box_pack_start(GTK_BOX (props_vb), middle_hb, TRUE, TRUE, 0);
     gtk_widget_show(middle_hb);
 
     name_lb = gtk_label_new("Filter name:");
@@ -524,7 +525,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     /* row: Filter text entry */
     bottom_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(props_vb), bottom_hb);
+    gtk_box_pack_start(GTK_BOX (props_vb), bottom_hb, TRUE, TRUE, 0);
     gtk_widget_show(bottom_hb);
 
     filter_lb = gtk_label_new("Filter string:");

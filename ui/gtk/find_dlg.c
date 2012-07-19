@@ -155,7 +155,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* */
   main_find_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), main_find_hb);
+  gtk_box_pack_start(GTK_BOX (main_vb), main_find_hb, TRUE, TRUE, 0);
   gtk_widget_show(main_find_hb);
 
 
@@ -171,7 +171,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* find type row */
   find_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(find_type_vb), find_type_hb);
+  gtk_box_pack_start(GTK_BOX (find_type_vb), find_type_hb, TRUE, TRUE, 0);
   gtk_widget_show(find_type_hb);
 
   find_type_lb = gtk_label_new("By:");
@@ -226,7 +226,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* */
   main_options_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), main_options_hb);
+  gtk_box_pack_start(GTK_BOX (main_vb), main_options_hb, TRUE, TRUE, 0);
   gtk_widget_show(main_options_hb);
 
 
@@ -274,12 +274,12 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   case_cb = gtk_check_button_new_with_mnemonic("Case sensitive");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(case_cb), !case_type);
-  gtk_container_add(GTK_CONTAINER(string_opt_vb), case_cb);
+  gtk_box_pack_start(GTK_BOX (string_opt_vb), case_cb, TRUE, TRUE, 0);
   gtk_widget_set_tooltip_text(case_cb, "Search by mixed upper/lower case?");
   gtk_widget_show(case_cb);
 
   combo_lb = gtk_label_new("Character set:");
-  gtk_container_add(GTK_CONTAINER(string_opt_vb), combo_lb);
+  gtk_box_pack_start(GTK_BOX (string_opt_vb), combo_lb, TRUE, TRUE, 0);
   gtk_misc_set_alignment(GTK_MISC(combo_lb), 0.0f, 0.5f);
   gtk_widget_show(combo_lb);
 
@@ -294,7 +294,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_cb), "ASCII Unicode");
 
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo_cb),0);
-  gtk_container_add(GTK_CONTAINER(string_opt_vb), combo_cb);
+  gtk_box_pack_start(GTK_BOX (string_opt_vb), combo_cb, TRUE, TRUE, 0);
 
   gtk_widget_show(combo_cb);
 

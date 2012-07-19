@@ -100,7 +100,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* File frame */
   file_fr = gtk_frame_new("File");
-  gtk_container_add(GTK_CONTAINER(main_vb), file_fr);
+  gtk_box_pack_start(GTK_BOX (main_vb), file_fr, TRUE, TRUE, 0);
   gtk_widget_show(file_fr);
 
   file_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -127,7 +127,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Data frame */
   data_fr = gtk_frame_new("Data");
-  gtk_container_add(GTK_CONTAINER(main_vb), data_fr);
+  gtk_box_pack_start(GTK_BOX (main_vb), data_fr, TRUE, TRUE, 0);
   gtk_widget_show(data_fr);
 
   data_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -172,7 +172,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Invoke frame */
   invoke_fr = gtk_frame_new("Invokes");
-  gtk_container_add(GTK_CONTAINER(main_vb), invoke_fr);
+  gtk_box_pack_start(GTK_BOX (main_vb), invoke_fr, TRUE, TRUE, 0);
   gtk_widget_show(invoke_fr);
 
   invoke_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -228,7 +228,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Return Results frame */
   rr_fr = gtk_frame_new("Return Results");
-  gtk_container_add(GTK_CONTAINER(main_vb), rr_fr);
+  gtk_box_pack_start(GTK_BOX (main_vb), rr_fr, TRUE, TRUE, 0);
   gtk_widget_show(rr_fr);
 
   rr_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -284,7 +284,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Totals frame */
   tot_fr = gtk_frame_new("Totals");
-  gtk_container_add(GTK_CONTAINER(main_vb), tot_fr);
+  gtk_box_pack_start(GTK_BOX (main_vb), tot_fr, TRUE, TRUE, 0);
   gtk_widget_show(tot_fr);
 
   tot_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
@@ -339,7 +339,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Button row. */
   bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_box_pack_start(GTK_BOX (main_vb), bbox, FALSE, TRUE, 0);
   gtk_widget_show(bbox);
 
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);

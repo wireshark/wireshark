@@ -252,7 +252,7 @@ filter_expression_save_dlg(gpointer data)
 
 	/* */
 	main_filter_save_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-	gtk_container_add(GTK_CONTAINER(main_vb), main_filter_save_hb);
+    gtk_box_pack_start(GTK_BOX (main_vb), main_filter_save_hb, TRUE, TRUE, 0);
 	gtk_widget_show(main_filter_save_hb);
 
 	/* Filter Save frame */
@@ -269,8 +269,8 @@ filter_expression_save_dlg(gpointer data)
 
 	/* filter_save type row */
 	filter_save_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-	gtk_container_add(GTK_CONTAINER(filter_save_type_vb),
-	    filter_save_type_hb);
+    gtk_box_pack_start(GTK_BOX (filter_save_type_vb), filter_save_type_hb, TRUE, TRUE, 0);
+
 	gtk_widget_show(filter_save_type_hb);
 
 	/* filter_save row */

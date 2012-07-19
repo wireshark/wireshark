@@ -169,7 +169,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
     gtk_container_add(GTK_CONTAINER(tw->win), main_vb);
 
-    gtk_container_add(GTK_CONTAINER(main_vb), txt_scrollw);
+    gtk_box_pack_start(GTK_BOX (main_vb), txt_scrollw, TRUE, TRUE, 0);
 
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                         GTK_SHADOW_IN);

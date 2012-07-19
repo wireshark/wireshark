@@ -464,7 +464,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
 					    GTK_SHADOW_IN);
 
-	gtk_container_add(GTK_CONTAINER(vbox), sw);
+	gtk_box_pack_start(GTK_BOX (vbox), sw, TRUE, TRUE, 0);
 
 	object_list->store = gtk_tree_store_new(EO_NUM_COLUMNS,
 						 G_TYPE_INT, G_TYPE_STRING,

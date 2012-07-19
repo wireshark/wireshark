@@ -63,7 +63,7 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Frame number row */
   fnumber_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), fnumber_hb);
+  gtk_box_pack_start(GTK_BOX (main_vb), fnumber_hb, TRUE, TRUE, 0);
   gtk_widget_show(fnumber_hb);
 
   fnumber_lb = gtk_label_new("Packet number:");
@@ -76,7 +76,8 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Button row: OK and cancel buttons */
   bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_box_pack_start(GTK_BOX (main_vb), bbox, TRUE, TRUE, 0);
+
   gtk_widget_show(bbox);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_JUMP_TO);

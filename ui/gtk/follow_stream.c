@@ -295,7 +295,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	/* Horizontal box for find label, entry field and up/down radio
 	   buttons */
 	find_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-	gtk_container_add(GTK_CONTAINER(main_vb), find_hb);
+	gtk_box_pack_start(GTK_BOX (main_vb), find_hb, TRUE, TRUE, 0);
 	gtk_widget_show(find_hb);
 
 	/* Find label */
@@ -312,7 +312,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	/* Buttons row */
 	buttons_row = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL,
 					 NULL);
-	gtk_container_add(GTK_CONTAINER(main_vb), buttons_row);
+	gtk_box_pack_start(GTK_BOX (main_vb), buttons_row, FALSE, TRUE, 0);
 	find_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_FIND);
 	cancel_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_CANCEL);
 
@@ -744,7 +744,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	} else {
 		stream_fr = gtk_frame_new("Stream Content");
 	}
-	gtk_container_add(GTK_CONTAINER(vbox), stream_fr);
+	gtk_box_pack_start(GTK_BOX (vbox), stream_fr, TRUE, TRUE, 0);
 	gtk_widget_show(stream_fr);
 
 	stream_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
