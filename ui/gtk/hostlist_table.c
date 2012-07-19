@@ -1646,7 +1646,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
     nb = gtk_notebook_new();
-    gtk_container_add(GTK_CONTAINER(vbox), nb);
+    gtk_box_pack_start(GTK_BOX(vbox), nb, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(nb), NB_PAGES_KEY, pages);
 
     page = 0;

@@ -454,7 +454,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     sw = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw),
                                         GTK_SHADOW_IN);
-    gtk_container_add(GTK_CONTAINER(container), sw);
+    gtk_box_pack_start(GTK_BOX(container), sw, TRUE, TRUE, 0);
 
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
