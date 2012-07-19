@@ -54,9 +54,14 @@ class CaptureFileDialog : public QFileDialog
 
     Q_OBJECT
 public:
-    explicit CaptureFileDialog(QWidget *parent = NULL, QString &fileName = QString(), QString &displayFilter = QString());
+    explicit CaptureFileDialog(QWidget *parent, QString &fileName, QString &displayFilter);
 
 private:
+#if !defined(Q_WS_WIN)
+    void append_file_type(QStringList &filters, int ft);
+    QStringList build_file_open_type_list(void);
+#endif // Q_WS_WIN
+
     QString &m_fileName;
     QString &m_displayFilter;
 
@@ -64,9 +69,7 @@ signals:
 
 public slots:
 
-#if defined(Q_WS_WIN)
     int exec();
-#endif
 };
 
 #endif // CAPTURE_FILE_DIALOG_H
