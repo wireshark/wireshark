@@ -29,6 +29,7 @@
 
 #include "wireshark_application.h"
 
+#include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 
 static progdlg_t *
@@ -39,25 +40,21 @@ common_create_progress_dlg(bool animate, const gpointer top_level_window,
     ProgressBar *pb;
     QWidget *main_window;
 
-    g_warning("ccpd %d  %p", animate, top_level_window);
     if (!top_level_window) {
         return NULL;
     }
 
-    g_warning("got tlw");
     main_window = qobject_cast<QWidget *>((QObject *)top_level_window);
 
     if (!main_window) {
         return NULL;
     }
 
-    g_warning("got mw");
     pb = main_window->findChild<ProgressBar *>();
 
     if (!pb) {
         return NULL;
     }
-    g_warning("got pb");
     return pb->show(animate, terminate_is_stop, stop_flag, value);
 }
 
@@ -130,14 +127,16 @@ progdlg_t * ProgressBar::show(bool animate, bool terminate_is_stop, gboolean *st
 
     setValue(value);
 
-    // http://stackoverflow.com/questions/3930904/how-to-animate-widget-transparency-in-qt4
     if (animate) {
-        QPropertyAnimation animate = new QPropertyAnimation(this, "windowOpacity", this);
+        QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(this);
+        this->setGraphicsEffect(effect);
 
-        animate.setDuration(2 * 1000);
-        animate.setStartValue(1);
-        animate.setEndValue(0);
-        animate.start();
+        QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity");
+
+        animation->setDuration(750);
+        animation->setStartValue(0.1);
+        animation->setEndValue(1.0);
+        animation->start();
     }
     QProgressBar::show();
 

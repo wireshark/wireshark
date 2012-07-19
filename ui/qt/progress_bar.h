@@ -41,6 +41,7 @@ struct progdlg {
 class ProgressBar : public QProgressBar
 {
     Q_OBJECT
+
 public:
     explicit ProgressBar(QWidget *parent = 0);
     progdlg_t *show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
