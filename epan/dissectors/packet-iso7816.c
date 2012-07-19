@@ -76,24 +76,41 @@ static const value_string iso7816_atr_init_char[] = {
     { 0, NULL }
 };
 
+#define INS_ERASE_BIN      0x0E
+#define INS_VRFY           0x20
+#define INS_MANAGE_CHANNEL 0x70
+#define INS_EXT_AUTH       0x82
+#define INS_SELECT_FILE    0xA4
+#define INS_READ_BIN       0xB0
+#define INS_READ_REC       0xB2
+#define INS_GET_RESP       0xC0
+#define INS_ENVELOPE       0xC2
+#define INS_GET_DATA       0xCA
+#define INS_WRITE_BIN      0xD0
+#define INS_WRITE_REC      0xD2
+#define INS_UPDATE_BIN     0xD6
+#define INS_PUT_DATA       0xDA
+#define INS_UPDATE_REC     0xDC
+#define INS_APPEND_REC     0xE2
+
 static const value_string iso7816_ins[] = {
     /* instructions defined in ISO 7816-4 */
-    { 0x0E, "Erase binary" },
-    { 0x20, "Verify" },
-    { 0x70, "Manage channel" },
-    { 0x82, "External authenticate" },
-    { 0xA4, "Select file" },
-    { 0xB0, "Read binary" },
-    { 0xB2, "Read records" },
-    { 0xC0, "Get response" },
-    { 0xC2, "Envelope" },
-    { 0xCA, "Get data" },
-    { 0xD0, "Write binary" },
-    { 0xD2, "Write record" },
-    { 0xD6, "Update binary" },
-    { 0xDA, "Put data" },
-    { 0xDC, "Update record" },
-    { 0xE2, "Append record" },
+    { INS_ERASE_BIN,      "Erase binary" },
+    { INS_VRFY,           "Verify" },
+    { INS_MANAGE_CHANNEL, "Manage channel" },
+    { INS_EXT_AUTH,       "External authenticate" },
+    { INS_SELECT_FILE,    "Select file" },
+    { INS_READ_BIN,       "Read binary" },
+    { INS_READ_REC,       "Read records" },
+    { INS_GET_RESP,       "Get response" },
+    { INS_ENVELOPE,       "Envelope" },
+    { INS_GET_DATA,       "Get data" },
+    { INS_WRITE_BIN,      "Write binary" },
+    { INS_WRITE_REC,      "Write record" },
+    { INS_UPDATE_BIN,     "Update binary" },
+    { INS_PUT_DATA,       "Put data" },
+    { INS_UPDATE_REC,     "Update record" },
+    { INS_APPEND_REC,     "Append record" },
     { 0, NULL }
 };
 
