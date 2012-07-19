@@ -131,7 +131,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
     gtk_text_buffer_set_text (buffer, buf_str, -1);
     g_free(buf_str);
   }
-  gtk_container_add(GTK_CONTAINER(vbox), view);
+  gtk_box_pack_start(GTK_BOX (vbox), view, FALSE, TRUE, 0);
   gtk_widget_show (view);
 
   /* Button row. */
@@ -208,7 +208,7 @@ edit_capture_dlg_launch (void)
     gtk_text_buffer_set_text (buffer, buf_str, -1);
     g_free(buf_str);
   }
-  gtk_container_add(GTK_CONTAINER(vbox), view);
+  gtk_box_pack_start(GTK_BOX (vbox), view, FALSE, TRUE, 0);
   gtk_widget_show (view);
 
   /* Button row. */

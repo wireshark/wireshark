@@ -328,7 +328,7 @@ dissector_tables_dlg_init(void)
     tmp = gtk_label_new("String tables");
     gtk_widget_show(tmp);
     hbox =  ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(hbox), tmp);
+    gtk_box_pack_start(GTK_BOX (hbox), tmp, FALSE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
     scrolled_window = scrolled_window_new(NULL, NULL);
@@ -343,7 +343,7 @@ dissector_tables_dlg_init(void)
     tmp = gtk_label_new("Integer tables");
     gtk_widget_show(tmp);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(hbox), tmp);
+    gtk_box_pack_start(GTK_BOX (hbox), tmp, FALSE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
     scrolled_window = scrolled_window_new(NULL, NULL);
@@ -358,7 +358,7 @@ dissector_tables_dlg_init(void)
     tmp = gtk_label_new("Heuristic tables");
     gtk_widget_show(tmp);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-    gtk_container_add(GTK_CONTAINER(hbox), tmp);
+    gtk_box_pack_start(GTK_BOX (hbox), tmp, FALSE, TRUE, 0);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
     scrolled_window = scrolled_window_new(NULL, NULL);

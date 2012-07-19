@@ -1848,6 +1848,7 @@ decode_add_notebook (GtkWidget *format_hb)
     /* Start a nootbook for flipping between sets of changes */
     notebook = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(format_hb), notebook);
+    gtk_box_pack_start(GTK_BOX (format_hb), notebook, FALSE, TRUE, 0);
     g_object_set_data(G_OBJECT(decode_w), E_NOTEBOOK, notebook);
 
     /* Add link level selection page */
