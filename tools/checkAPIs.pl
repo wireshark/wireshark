@@ -1431,7 +1431,8 @@ sub check_proto_tree_add_XXX_encoding($$)
 		if ($args =~ /,\s*ENC_/xos) {
 			if (!($func =~ /proto_tree_add_(item|bitmask|bits_item|bits_ret_val)/xos)
 			   ) {
-				print STDERR "Warning: ".$filename." uses $func with ENC_*.\n";
+				print STDERR "Error: ".$filename." uses $func with ENC_*.\n";
+				$errorCount++;
 
 				# Print out the function args to make it easier
 				# to find the offending code.  But first make
@@ -1538,6 +1539,7 @@ sub check_ett_registration($$)
 
         if (@unRegisteredEtts) {
                 print STDERR "Error: found these unregistered ett variables in ".$filename.": ".join(',', @unRegisteredEtts)."\n";
+                $errorCount++;
         }
 
 }
