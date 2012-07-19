@@ -16,4 +16,5 @@ EXTRA_DIST = \
 	Makefile.nmake \
 	Custom.nmake \
 	custom_plugins.txt	\
+	custom_mibs.txt	\
 	x64.nsh

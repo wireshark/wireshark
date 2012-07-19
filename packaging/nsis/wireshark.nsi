@@ -842,6 +842,7 @@ File "${SMI_DIR}\share\mibs\irtf\*"
 File "${SMI_DIR}\share\mibs\tubs\*"
 File "${SMI_DIR}\share\pibs\*"
 File "${SMI_DIR}\share\yang\*.yang"
+!include "custom_mibs.txt"
 SectionEnd
 !endif
 
