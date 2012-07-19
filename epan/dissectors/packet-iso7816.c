@@ -42,6 +42,7 @@ static int proto_iso7816 = -1;
 
 static int ett_iso7816 = -1;
 static int ett_iso7816_atr_td = -1;
+static int ett_iso7816_class = -1;
 
 static int hf_iso7816_atr_init_char = -1;
 static int hf_iso7816_atr_t0 = -1;
@@ -58,6 +59,8 @@ static int hf_iso7816_atr_t = -1;
 static int hf_iso7816_atr_hist_bytes = -1;
 static int hf_iso7816_atr_tck = -1;
 static int hf_iso7816_cla = -1;
+static int hf_iso7816_cla_sm = -1;
+static int hf_iso7816_cla_channel = -1;
 static int hf_iso7816_ins = -1;
 static int hf_iso7816_p1 = -1;
 static int hf_iso7816_p2 = -1;
@@ -73,6 +76,14 @@ static int hf_iso7816_sw2 = -1;
 static const value_string iso7816_atr_init_char[] = {
     { 0x3B, "Direct convention (A==0, Z==1, MSB==m9)" },
     { 0x3F, "Inverse convention (A==1, Z==0, MSB==m2)" },
+    { 0, NULL }
+};
+
+static const value_string iso7816_cla_sm[] = {
+    { 0x00, "No SM" },
+    { 0x01, "Proprietary SM" },
+    { 0x02, "SM, command header not authenticated" },
+    { 0x03, "SM, command header authenticated" },
     { 0, NULL }
 };
 
@@ -227,6 +238,65 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return offset;
 }
 
+/* return 1 if the class byte says that the APDU is in ISO7816 format
+    or -1 if the APDU is in proprietary format */
+static gint
+dissect_iso7816_class(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    gint        ret_fct = 1;
+    proto_item *class_item;
+    proto_tree *class_tree = NULL;
+    guint8      class;
+    proto_item *enc_item = NULL;
+    guint8      channel;
+    proto_item *ch_item;
+
+    class_item = proto_tree_add_item(tree, hf_iso7816_cla,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    class_tree = proto_item_add_subtree(class_item, ett_iso7816_class);
+
+    class = tvb_get_guint8(tvb, offset);
+
+    if (class>=0x10 && class<=0x7F) {
+        enc_item = proto_tree_add_text(class_tree,
+                tvb, offset, 1, "reserved for future use");
+    }
+    else if (class>=0xD0 && class<=0xFE) {
+        enc_item = proto_tree_add_text(class_tree,
+                tvb, offset, 1, "proprietary structure and coding");
+        ret_fct = -1;
+    }
+    else if (class==0xFF) {
+        enc_item = proto_tree_add_text(class_tree,
+                tvb, offset, 1, "reserved for Protocol Type Selection");
+    }
+    else {
+        enc_item = proto_tree_add_text(class_tree, tvb, offset, 1,
+                "structure and coding according to ISO/IEC 7816");
+
+        if (class>=0xA0 && class<=0xAF) {
+            proto_item_append_text(enc_item,
+                    " unless specified otherwise by the application context");
+        }
+
+        if (class<=0x0F || (class>=0x80 && class<=0xAF)) {
+            proto_tree_add_item(class_tree, hf_iso7816_cla_sm,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            channel = class & 0x03;
+            ch_item = proto_tree_add_item(class_tree, hf_iso7816_cla_channel,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (channel==0)
+                proto_item_append_text(ch_item, " (or unused)");
+        }
+    }
+
+    PROTO_ITEM_SET_GENERATED(enc_item);
+
+    return ret_fct;
+}
+
 static int
 dissect_iso7816_le(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
@@ -247,19 +317,30 @@ dissect_iso7816_le(
 static int
 dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    gint   ret;
     gint   offset = 0;
     guint8 ins;
     gint   body_len;
     guint8 lc;
 
 
-    proto_tree_add_item(tree, hf_iso7816_cla, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    ret = dissect_iso7816_class(tvb, offset, pinfo, tree);
+    if (ret==-1) {
+        /* the class byte says that the remaining APDU is not
+            in ISO7816 format */
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                "Command APDU using proprietary format");
+
+        return 1; /* we only dissected the class byte */
+    }
+    offset += ret;
+
     ins = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_iso7816_ins, tvb, offset, 1, ENC_BIG_ENDIAN);
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
             val_to_str_const(ins, iso7816_ins, "Unknown instruction"));
     offset++;
+
     proto_tree_add_item(tree, hf_iso7816_p1, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(tree, hf_iso7816_p2, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -435,6 +516,14 @@ proto_register_iso7816(void)
             { "Class", "iso7816.apdu.cla",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL , HFILL }
         },
+        { &hf_iso7816_cla_sm,
+            { "Secure Messaging", "iso7816.apdu.cla.sm",
+                FT_UINT8, BASE_HEX, VALS(iso7816_cla_sm), 0x0C, NULL , HFILL }
+        },
+        { &hf_iso7816_cla_channel,
+            { "Logical channel number", "iso7816.apdu.cla.channel",
+                FT_UINT8, BASE_HEX, NULL, 0x03, NULL , HFILL }
+        },
         { &hf_iso7816_ins,
             { "Instruction", "iso7816.apdu.ins",
                 FT_UINT8, BASE_HEX, VALS(iso7816_ins), 0, NULL, HFILL }
@@ -470,7 +559,8 @@ proto_register_iso7816(void)
     };
     static gint *ett[] = {
         &ett_iso7816,
-        &ett_iso7816_atr_td
+        &ett_iso7816_atr_td,
+        &ett_iso7816_class
     };
 
     proto_iso7816 = proto_register_protocol(
