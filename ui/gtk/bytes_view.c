@@ -33,7 +33,7 @@
 #include "config.h"
 #endif
 
-#undef GTK_DISABLE_DEPRECATED
+#undef GTK_DISABLE_DEPRECATED	/* for gtk_marshal_VOID__POINTER_POINTER */
 
 #include <gtk/gtk.h>
 #include "ui/gtk/old-gtk-compat.h"
@@ -200,6 +200,11 @@ bytes_view_realize(GtkWidget *widget)
 	GtkAllocation allocation;
 	GdkWindow *win;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+	GtkStyleContext *context;
+	GdkRGBA color;
+#endif
+
 	_gtk_widget_set_realized_true(widget);
 	bv = BYTES_VIEW(widget);
 
@@ -230,7 +235,12 @@ bytes_view_realize(GtkWidget *widget)
 	gdk_window_set_back_pixmap(win, NULL, FALSE);
 #endif
 
-#if GTK_CHECK_VERSION (2, 20, 0)
+#if GTK_CHECK_VERSION(3, 0, 0)
+	context = gtk_widget_get_style_context(widget);
+	/* gtk_style_context_add_class(context, GTK_STYLE_CLASS_VIEW); */
+	gtk_style_context_add_class(context, "entry");
+
+#elif GTK_CHECK_VERSION(2, 20, 0)
 	gtk_widget_style_attach(widget);
 #else
 	widget->style = gtk_style_attach(widget->style, win);
@@ -446,6 +456,11 @@ bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str
 	GSList *line_runs;
 	int str_width;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+	GtkStyleContext *context;
+	GdkRGBA bg_color, fg_color;
+#endif
+
 	if (len < 1)
 		return 0;
 
@@ -453,17 +468,31 @@ bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str
 
 	/* XXX, cliping */
 
-	if (bv->state != GTK_STATE_NORMAL) {
+#if GTK_CHECK_VERSION(3, 0, 0)
+	context = gtk_widget_get_style_context(GTK_WIDGET(bv));
+#endif
+
+	if (bv->state == GTK_STATE_SELECTED) {
 		str_width = _pango_runs_width(line_runs);
 
 		/* background */
+#if GTK_CHECK_VERSION(3, 0, 0)
+		gtk_style_context_get_background_color(context, GTK_STATE_FLAG_SELECTED, &bg_color);
+		gdk_cairo_set_source_rgba(cr, &bg_color);
+#else
 		gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[bv->state]);
+#endif
 		cairo_rectangle(cr, x, y - bv->font_ascent, str_width, bv->fontsize);
 		cairo_fill(cr);
 	}
 
 	/* text */
+#if GTK_CHECK_VERSION(3, 0, 0)
+	gtk_style_context_get_color(context, bv->state == GTK_STATE_SELECTED ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_NORMAL, &fg_color);
+	gdk_cairo_set_source_rgba(cr, &fg_color);
+#else
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->text[bv->state]);
+#endif
 	str_width = xtext_draw_layout_line(cr, x, y, line_runs)-x;
 
 	_pango_runs_free(line_runs);
@@ -752,6 +781,11 @@ bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 	guint line, lines_max;
 	guint lines_max_full;
 
+#if GTK_CHECK_VERSION(3, 0, 0)
+	GtkStyleContext *context;
+	GdkRGBA bg_color;
+#endif
+
 	if (!gtk_widget_get_realized(GTK_WIDGET(bv)))
 		return;
 
@@ -760,13 +794,11 @@ bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 #if GTK_CHECK_VERSION(3, 0, 0)
 	width = gtk_widget_get_allocated_width(GTK_WIDGET(bv));
 	height = gtk_widget_get_allocated_height(GTK_WIDGET(bv));
-#else
-#  if GTK_CHECK_VERSION(2,24,0)
+#elif GTK_CHECK_VERSION(2,24,0)
 	width = gdk_window_get_width(gtk_widget_get_window(GTK_WIDGET(bv)));
 	height = gdk_window_get_height(gtk_widget_get_window(GTK_WIDGET(bv)));
-#  else
+#else
 	gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(bv)), &width, &height);
-#  endif
 #endif
 
 	if (width < 32 + MARGIN || height < bv->fontsize)
@@ -785,7 +817,13 @@ bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 	y = (bv->fontsize * line);
 
 	/* clear */
+#if GTK_CHECK_VERSION(3, 0, 0)
+	context = gtk_widget_get_style_context(GTK_WIDGET(bv));
+	gtk_style_context_get_background_color(context, GTK_STATE_FLAG_NORMAL, &bg_color);
+	gdk_cairo_set_source_rgba(cr, &bg_color);
+#else
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[GTK_STATE_NORMAL]);
+#endif
 	if (area)
 		cairo_rectangle(cr, area->x, area->y, area->x + area->width, area->y + area->height);
 	else
