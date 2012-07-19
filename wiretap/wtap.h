@@ -468,6 +468,12 @@ struct atm_phdr {
 	guint32	aal5t_chksum;	/* checksum for AAL5 packet */
 };
 
+/* Packet "pseudo-header" for Nokia output */
+struct nokia_phdr	{
+	struct eth_phdr		eth;
+	guint8 stuff[4];	/* mysterious stuff */
+};
+
 /* Packet "pseudo-header" for the output from "wandsession", "wannext",
    "wandisplay", and similar commands on Lucent/Ascend access equipment. */
 
@@ -835,6 +841,7 @@ union wtap_pseudo_header {
 	struct i2c_phdr		i2c;
 	struct gsm_um_phdr	gsm_um;
 	struct nstr_phdr	nstr;
+	struct nokia_phdr	nokia;
 	struct llcp_phdr	llcp;
 };
 

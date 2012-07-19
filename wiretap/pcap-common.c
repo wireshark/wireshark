@@ -682,6 +682,11 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 #define NOKIAATM_LEN	4	/* length of the header */
 
 /*
+ * The link-layer header on Nokia IPSO packets.
+ */
+#define NOKIA_LEN	4	/* length of the header */
+
+/*
  * The fake link-layer header of IrDA packets as introduced by Jean Tourrilhes
  * to libpcap.
  */
@@ -856,6 +861,39 @@ pcap_read_nokiaatm_pseudoheader(FILE_T fh,
 	pseudo_header->atm.aal5t_u2u = 0;
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
+
+	return TRUE;
+}
+
+static gboolean
+pcap_read_nokia_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+{
+	guint8	phdr[NOKIA_LEN];
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+
+	/* backtrack to read the 4 mysterious bytes that aren't considered
+	* part of the packet size
+	*/
+	if (file_seek(fh, -NOKIA_LEN, SEEK_CUR, err) == -1)
+	{
+		*err = file_error(fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	bytes_read = file_read(phdr, NOKIA_LEN, fh);
+	if (bytes_read != NOKIA_LEN) {
+		*err = file_error(fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	memcpy(pseudo_header->nokia.stuff, phdr, NOKIA_LEN);
 
 	return TRUE;
 }
@@ -1472,6 +1510,15 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
+		if (file_type == WTAP_FILE_PCAP_NOKIA) {
+			/*
+			 * Nokia IPSO.  Psuedo header has already been read, but its not considered
+			 * part of the packet size, so reread it to store the data for later (when saving)
+			 */
+			if (!pcap_read_nokia_pseudoheader(fh, pseudo_header, err, err_info))
+				return -1;	/* Read error */
+		}
+
 		/*
 		 * We don't know whether there's an FCS in this frame or not.
 		 */

@@ -1014,7 +1014,9 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 		break;
 
 	case WTAP_FILE_PCAP_NOKIA:	/* old magic, extra crap at the end */
-		rec_hdr.ifindex = 0;
+		/* restore the "mysterious stuff" that came with the packet */
+		memcpy(&rec_hdr.ifindex, pseudo_header->nokia.stuff, 4);
+		/* not written */
 		rec_hdr.protocol = 0;
 		rec_hdr.pkt_type = 0;
 		rec_hdr.cpu1 = 0;
