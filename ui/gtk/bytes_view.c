@@ -238,7 +238,7 @@ bytes_view_realize(GtkWidget *widget)
 #if GTK_CHECK_VERSION(3, 0, 0)
 	context = gtk_widget_get_style_context(widget);
 	/* gtk_style_context_add_class(context, GTK_STYLE_CLASS_VIEW); */
-	gtk_style_context_add_class(context, "entry");
+	gtk_style_context_add_class(context, GTK_STYLE_CLASS_ENTRY);
 
 #elif GTK_CHECK_VERSION(2, 20, 0)
 	gtk_widget_style_attach(widget);
