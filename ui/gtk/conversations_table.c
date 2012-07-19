@@ -2785,7 +2785,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 
     nb = gtk_notebook_new();
-    gtk_box_pack_start(GTK_BOX (vbox), nb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (vbox), nb, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(nb), NB_PAGES_KEY, pages);
 
     page = 0;
@@ -2812,14 +2812,14 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
-    gtk_box_pack_start(GTK_BOX (hbox), resolv_cb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (hbox), resolv_cb, TRUE, TRUE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
     gtk_widget_set_tooltip_text(resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
                                  "Please note: The corresponding name resolution must be enabled.");
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(ct_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
-    gtk_box_pack_start(GTK_BOX (hbox), filter_cb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (hbox), filter_cb, TRUE, TRUE, 0);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_widget_set_tooltip_text(filter_cb, "Limit the list to conversations matching the current display filter.");
     g_signal_connect(filter_cb, "toggled", G_CALLBACK(ct_filter_toggle_dest), pages);

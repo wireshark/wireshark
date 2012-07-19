@@ -333,7 +333,7 @@ about_wireshark_page_new(void)
   g_free(message);
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
   gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
-  gtk_box_pack_start(GTK_BOX (main_box), msg_label, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (main_box), msg_label, TRUE, TRUE, 0);
 
 
   return main_box;

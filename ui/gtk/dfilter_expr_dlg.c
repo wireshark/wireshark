@@ -929,11 +929,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(main_hb), 5);
-    gtk_box_pack_start(GTK_BOX (main_vb), main_hb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (main_vb), main_hb, TRUE, TRUE, 0);
 
     field_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(field_vb), 5);
-    gtk_box_pack_start(GTK_BOX (main_hb), field_vb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (main_hb), field_vb, TRUE, TRUE, 0);
 
     field_tree_lb = gtk_label_new("Field name");
     gtk_misc_set_alignment(GTK_MISC(field_tree_lb), 0.0f, 0.0f);
@@ -961,7 +961,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     relation_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(relation_vb), 5);
-    gtk_box_pack_start(GTK_BOX (main_hb), relation_vb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (main_hb), relation_vb, TRUE, TRUE, 0);
 
     relation_label = gtk_label_new("Relation");
     gtk_misc_set_alignment(GTK_MISC(relation_label), 0.0f, 0.0f);
@@ -1036,7 +1036,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     /* value column */
     value_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(value_vb), 5);
-    gtk_box_pack_start(GTK_BOX (main_hb), value_vb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX (main_hb), value_vb, TRUE, TRUE, 0);
 
     value_label = gtk_label_new("Value");
     gtk_misc_set_alignment(GTK_MISC(value_label), 0.0f, 0.0f);

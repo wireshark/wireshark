@@ -1265,7 +1265,7 @@ capture_remote_cb(GtkWidget *w, gboolean focus_username)
 
   /* Authentication options frame */
   auth_fr = gtk_frame_new("Authentication");
-  gtk_box_pack_start(GTK_BOX (main_vb), auth_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (main_vb), auth_fr, TRUE, TRUE, 0);
 
   auth_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(auth_vb), 5);
@@ -1466,7 +1466,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Remote capture options */
   capture_fr = gtk_frame_new("Capture Options");
-  gtk_box_pack_start(GTK_BOX (main_vb), capture_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (main_vb), capture_fr, TRUE, TRUE, 0);
 
   capture_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), 5);
@@ -1475,18 +1475,18 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   nocap_rpcap_cb = gtk_check_button_new_with_mnemonic("Do not capture own RPCAP traffic");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(nocap_rpcap_cb),
           device.remote_opts.remote_host_opts.nocap_rpcap);
-  gtk_box_pack_start(GTK_BOX (capture_vb), nocap_rpcap_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (capture_vb), nocap_rpcap_cb, TRUE, TRUE, 0);
 
   datatx_udp_cb = gtk_check_button_new_with_mnemonic("Use UDP for data transfer");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(datatx_udp_cb),
           device.remote_opts.remote_host_opts.datatx_udp);
-  gtk_box_pack_start(GTK_BOX (capture_vb), datatx_udp_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (capture_vb), datatx_udp_cb, TRUE, TRUE, 0);
 
 
 #ifdef HAVE_PCAP_SETSAMPLING
   /* Sampling options */
   sampling_fr = gtk_frame_new("Sampling Options");
-  gtk_box_pack_start(GTK_BOX (main_vb), sampling_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (main_vb), sampling_fr, TRUE, TRUE, 0);
 
   sampling_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(sampling_vb), 5);
@@ -1989,7 +1989,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   /* Capture-related options frame */
   capture_fr = gtk_frame_new("Capture");
-  gtk_box_pack_start(GTK_BOX (main_vb), capture_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (main_vb), capture_fr, TRUE, TRUE, 0);
 
   capture_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), 5);
@@ -3253,7 +3253,7 @@ show_add_interfaces_dialog(void)
   tmp = gtk_label_new("Pipes");
   gtk_widget_show(tmp);
   hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX (hbox), tmp, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
 
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
@@ -3265,12 +3265,12 @@ show_add_interfaces_dialog(void)
   /* Container for each row of widgets */
   pipe_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(pipe_vb), 0);
-  gtk_box_pack_start(GTK_BOX (pipe_hb), pipe_vb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (pipe_hb), pipe_vb, TRUE, TRUE, 0);
   gtk_widget_show(pipe_vb);
 
   /* Top row: Buttons and pipe list */
   top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
-  gtk_box_pack_start(GTK_BOX (pipe_vb), top_hb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (pipe_vb), top_hb, TRUE, TRUE, 0);
   gtk_widget_show(top_hb);
 
   edit_fr = gtk_frame_new("");
@@ -3340,7 +3340,7 @@ show_add_interfaces_dialog(void)
   gtk_widget_show(props_vb);
 
   middle_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX (props_vb), middle_hb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (props_vb), middle_hb, TRUE, TRUE, 0);
   gtk_widget_show(middle_hb);
 
   pipe_lb = gtk_label_new("Pipe:");
@@ -3381,7 +3381,7 @@ show_add_interfaces_dialog(void)
   tmp = gtk_label_new("Local Interfaces");
   gtk_widget_show(tmp);
   hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX (hbox), tmp, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
   local_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
@@ -3447,7 +3447,7 @@ show_add_interfaces_dialog(void)
   tmp = gtk_label_new("Remote Interfaces");
   gtk_widget_show(tmp);
   hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_box_pack_start(GTK_BOX (hbox), tmp, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (hbox), tmp, TRUE, TRUE, 0);
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
 
   remote_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
@@ -3671,7 +3671,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Capture-related options frame */
   capture_fr = gtk_frame_new("Capture");
-  gtk_box_pack_start(GTK_BOX (main_vb), capture_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (main_vb), capture_fr, TRUE, TRUE, 0);
 
   capture_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(capture_vb), 5);
@@ -3821,7 +3821,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Capture file-related options frame */
   file_fr = gtk_frame_new("Capture File(s)");
-  gtk_box_pack_start(GTK_BOX (left_vb), file_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (left_vb), file_fr, TRUE, TRUE, 0);
 
   file_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(file_vb), 5);
@@ -3972,7 +3972,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Capture limits frame */
   limit_fr = gtk_frame_new("Stop Capture ...");
-  gtk_box_pack_start(GTK_BOX (left_vb), limit_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (left_vb), limit_fr, TRUE, TRUE, 0);
 
   limit_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(limit_vb), 5);
@@ -4052,7 +4052,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Display-related options frame */
   display_fr = gtk_frame_new("Display Options");
-  gtk_box_pack_start(GTK_BOX (right_vb), display_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (right_vb), display_fr, TRUE, TRUE, 0);
 
   display_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(display_vb), 5);
@@ -4067,7 +4067,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(sync_cb,
     "Using this option will show the captured packets immediately on the main screen. "
     "Please note: this will slow down capturing, so increased packet drops might appear.");
-  gtk_box_pack_start(GTK_BOX (display_vb), sync_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (display_vb), sync_cb, TRUE, TRUE, 0);
 
   /* "Auto-scroll live update" row */
   auto_scroll_cb = gtk_check_button_new_with_mnemonic("_Automatic scrolling in live capture");
@@ -4075,17 +4075,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(auto_scroll_cb,
     "This will scroll the \"Packet List\" automatically to the latest captured packet, "
     "when the \"Update List of packets in real time\" option is used.");
-  gtk_box_pack_start(GTK_BOX (display_vb), auto_scroll_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (display_vb), auto_scroll_cb, TRUE, TRUE, 0);
 
   /* "Hide capture info" row */
   hide_info_cb = gtk_check_button_new_with_mnemonic("_Hide capture info dialog");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_info_cb), !global_capture_opts.show_info);
   gtk_widget_set_tooltip_text(hide_info_cb, "Hide the capture info dialog while capturing.");
-  gtk_box_pack_start(GTK_BOX (display_vb), hide_info_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (display_vb), hide_info_cb, TRUE, TRUE, 0);
 
   /* Name Resolution frame */
   resolv_fr = gtk_frame_new("Name Resolution");
-  gtk_box_pack_start(GTK_BOX (right_vb), resolv_fr, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (right_vb), resolv_fr, TRUE, TRUE, 0);
 
   resolv_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(resolv_vb), 5);
@@ -4096,7 +4096,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
                 gbl_resolv_flags.mac_name);
   gtk_widget_set_tooltip_text(m_resolv_cb, "Perform MAC layer name resolution while capturing.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), m_resolv_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), m_resolv_cb, TRUE, TRUE, 0);
 
   t_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _transport name resolution");
@@ -4104,14 +4104,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 gbl_resolv_flags.transport_name);
   gtk_widget_set_tooltip_text(t_resolv_cb,
     "Perform transport layer name resolution while capturing.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), t_resolv_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), t_resolv_cb, TRUE, TRUE, 0);
 
   n_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Enable _network name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
                 gbl_resolv_flags.network_name);
   gtk_widget_set_tooltip_text(n_resolv_cb, "Perform network layer name resolution while capturing.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), n_resolv_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), n_resolv_cb, TRUE, TRUE, 0);
 
   e_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Use _external network name resolver");
@@ -4119,7 +4119,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 gbl_resolv_flags.use_external_net_name_resolver);
   gtk_widget_set_tooltip_text(e_resolv_cb,
                 "Use the (system's) configured name resolver (e.g., DNS) to resolve network names.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), e_resolv_cb, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), e_resolv_cb, TRUE, TRUE, 0);
 
   /* Button row: "Start", "Cancel" and "Help" buttons */
   bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_START, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
