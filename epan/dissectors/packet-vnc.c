@@ -403,12 +403,11 @@ static int hf_vnc_num_security_types = -1;
 static int hf_vnc_security_type = -1;
 static int hf_vnc_server_security_type = -1;
 static int hf_vnc_client_security_type = -1;
-static int hf_vnc_vendor_code = -1;
-static int hf_vnc_security_type_string = -1;
 static int hf_vnc_auth_challenge = -1;
 static int hf_vnc_auth_response = -1;
 static int hf_vnc_auth_result = -1;
 static int hf_vnc_auth_error = -1;
+static int hf_vnc_auth_error_length = -1;
 
 static int hf_vnc_share_desktop_flag = -1;
 static int hf_vnc_width = -1;
@@ -425,6 +424,7 @@ static int hf_vnc_server_green_shift = -1;
 static int hf_vnc_server_blue_shift = -1;
 static int hf_vnc_desktop_name = -1;
 static int hf_vnc_desktop_name_len = -1;
+static int hf_vnc_desktop_screen_num = -1;
 static int hf_vnc_desktop_screen_id = -1;
 static int hf_vnc_desktop_screen_x = -1;
 static int hf_vnc_desktop_screen_y = -1;
@@ -473,6 +473,7 @@ static int hf_vnc_update_req_width = -1;
 static int hf_vnc_update_req_height = -1;
 
 /* Client Set Encodings */
+static int hf_vnc_encoding_num = -1;
 static int hf_vnc_client_set_encodings_encoding_type = -1;
 
 /* Client Cut Text */
@@ -523,6 +524,7 @@ static int hf_vnc_tight_palette_num_colors = -1;
 static int hf_vnc_tight_palette_data = -1;
 
 /* Server Framebuffer Update */
+static int hf_vnc_rectangle_num = -1;
 static int hf_vnc_fb_update_x_pos = -1;
 static int hf_vnc_fb_update_y_pos = -1;
 static int hf_vnc_fb_update_width = -1;
@@ -727,10 +729,15 @@ process_tight_capabilities(proto_tree *tree,
 /* Returns true if this looks like a client or server version packet: 12 bytes, in the format "RFB xxx.yyy\n" .
 * Will check for the 12 bytes exact length, the 'RFB ' string and that it ends with a '\n'.
 * The exact 'xxx.yyy' is checked later, by trying to convert it to a double using g_ascii_strtod.
+* pinfo and tree are NULL when using this function to check the heuristics for dissection.  If we're 
+* checking the heuristics, we don't need to add expert_info, we just reject that packet as not
+* being a VNC packet.
 */
 static gboolean
-vnc_is_client_or_server_version_message(tvbuff_t *tvb)
+vnc_is_client_or_server_version_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	proto_item *bug_item;
+
 	if(tvb_length(tvb) != 12) {
 		return FALSE;
 	}
@@ -738,8 +745,28 @@ vnc_is_client_or_server_version_message(tvbuff_t *tvb)
 	if(tvb_strncaseeql(tvb, 0, "RFB ", 4) != 0) {
 		return FALSE;
 	}
+
 	/* 0x2e = '.'   0xa = '\n' */
-	if((tvb_get_guint8(tvb, 7) != 0x2e) || (tvb_get_guint8(tvb,11) != 0xa)) {
+	if (tvb_get_guint8(tvb, 7) != 0x2e) {
+		return FALSE;
+	}
+
+	if (tvb_get_guint8(tvb,11) != 0xa) {
+		if (tvb_get_guint8(tvb,11) == 0) {
+			/* Per bug 5469,  It appears that any VNC clients using gtk-vnc before [1] was
+			* fixed will exhibit the described protocol violation that prevents wireshark
+			* from dissecting the session. 
+			*
+			* [1] http://git.gnome.org/browse/gtk-vnc/commit/?id=bc9e2b19167686dd381a0508af1a5113675d08a2 
+			*/
+			if ((pinfo != NULL) && (tree != NULL)) {
+				bug_item = proto_tree_add_text(tree, tvb, -1, 0, "NULL found in greeting");
+				expert_add_info_format(pinfo, bug_item, PI_MALFORMED, PI_ERROR, "client -> server greeting must be 12 bytes (possible gtk-vnc bug)");
+			}
+
+			return TRUE;
+		}
+
 		return FALSE;
 	}
 
@@ -751,7 +778,7 @@ static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
 {
 	conversation_t *conversation;
 
-	if (vnc_is_client_or_server_version_message(tvb)) {
+	if (vnc_is_client_or_server_version_message(tvb, NULL, NULL)) {
 		conversation = conversation_new(pinfo->fd->num, &pinfo->src,
 						&pinfo->dst, pinfo->ptype,
 						pinfo->srcport,
@@ -774,6 +801,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	vnc_packet_t *per_packet_info;
 	gint num_tunnel_types;
 	gint num_auth_types;
+	proto_item* auth_item;
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
 
@@ -790,7 +818,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	switch(per_packet_info->state) {
 
 	case VNC_SESSION_STATE_SERVER_VERSION :
-		if (!vnc_is_client_or_server_version_message(tvb))
+		if (!vnc_is_client_or_server_version_message(tvb, pinfo, tree))
 			return TRUE; /* we still hope to get a SERVER_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
@@ -808,7 +836,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		break;
 
 	case VNC_SESSION_STATE_CLIENT_VERSION :
-		if (!vnc_is_client_or_server_version_message(tvb))
+		if (!vnc_is_client_or_server_version_message(tvb, pinfo, tree))
 			return TRUE; /* we still hope to get a CLIENT_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
@@ -957,7 +985,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			guint8 *vendor, *signature;
 			for (i = 0; i < 1; i++) {
 				auth_code = tvb_get_ntohl(tvb, offset);
-				proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+				auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				vendor = tvb_get_ephemeral_string(tvb, offset, 4);
 				process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
@@ -969,42 +997,36 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				switch(auth_code) {
 					case VNC_SECURITY_TYPE_NONE:
 						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "NOAUTH__") != 0)) {
-						/* TODO: create a Expert Info */
-							proto_tree_add_text(tree, tvb, offset, 0, "Authentication code does not match vendor or signature");
+							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
 						}
 						break;
 					case VNC_SECURITY_TYPE_VNC:
 						if ((g_ascii_strcasecmp(vendor, "STDV") != 0) || (g_ascii_strcasecmp(signature, "VNCAUTH_") != 0)) {
-						/* TODO: create a Expert Info */
-							proto_tree_add_text(tree, tvb, offset, 0, "Authentication code does not match vendor or signature");
+							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
 						}
 						break;
 					case VNC_SECURITY_TYPE_VENCRYPT:
 						if ((g_ascii_strcasecmp(vendor, "VENC") != 0) || (g_ascii_strcasecmp(signature, "VENCRYPT") != 0)) {
-						/* TODO: create a Expert Info */
-							proto_tree_add_text(tree, tvb, offset, 0, "Authentication code does not match vendor or signature");
+							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
 						}
 						break;
 					case VNC_SECURITY_TYPE_GTK_VNC_SASL:
 						if ((g_ascii_strcasecmp(vendor, "GTKV") != 0) || (g_ascii_strcasecmp(signature, "SASL____") != 0)) {
-						/* TODO: create a Expert Info */
-							proto_tree_add_text(tree, tvb, offset, 0, "Authentication code does not match vendor or signature");
+							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
 						}
 						break;
 					case VNC_TIGHT_AUTH_TGHT_ULGNAUTH:
 						if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "ULGNAUTH") != 0)) {
-						/* TODO: create a Expert Info */
-							proto_tree_add_text(tree, tvb, offset, 0, "Authentication code does not match vendor or signature");
+							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
 						}
 						break;
 					case VNC_TIGHT_AUTH_TGHT_XTRNAUTH:
 						if ((g_ascii_strcasecmp(vendor, "TGHT") != 0) || (g_ascii_strcasecmp(signature, "XTRNAUTH") != 0)) {
-						/* TODO: create a Expert Info */
-							proto_tree_add_text(tree, tvb, offset, 0, "Authentication code does not match vendor or signature");
+							expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_WARN, "Authentication code does not match vendor or signature");
 						}
 						break;
 					default:
-						proto_tree_add_text(tree, tvb, offset, 0, "Unknown TIGHT VNC authentication");
+						expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_ERROR, "Unknown TIGHT VNC authentication");
 						break;
 				}
 			}
@@ -1019,7 +1041,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	case VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY:
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication type selected by client");
 		auth_code = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+		auth_item = proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		switch(auth_code) {
 			case VNC_SECURITY_TYPE_NONE:
@@ -1046,7 +1068,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3;
 				break;
 			default:
-				proto_tree_add_text(tree, tvb, offset, 0, "Unknown authentication selected");
+				expert_add_info_format(pinfo, auth_item, PI_PROTOCOL, PI_ERROR, "Unknown authentication selected");
 				per_conversation_info->vnc_next_state = VNC_SESSION_STATE_TIGHT_UNKNOWN_PACKET3;
 				break;
 		}
@@ -1100,7 +1122,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		case 1 : /* Failed */
 			if(per_conversation_info->client_proto_ver >= 3.008) {
 				text_len = tvb_get_ntohl(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 4, "Length of authentication error: %d", text_len);
+				proto_tree_add_item(tree, hf_vnc_auth_error_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				proto_tree_add_item(tree, hf_vnc_auth_error, tvb,
@@ -1449,9 +1471,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 1; /* Skip over 1 byte of padding */
 
 	number_of_encodings = tvb_get_ntohs(tvb, *offset);
-
-	proto_tree_add_text(tree, tvb, *offset, 2,
-			    "Number of encodings: %d", number_of_encodings);
+	proto_tree_add_item(tree, hf_vnc_encoding_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
 	per_packet_info->preferred_encoding = -1;
@@ -1599,8 +1619,7 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 1;
 
 	num_rects = tvb_get_ntohs(tvb, *offset);
-	ti = proto_tree_add_text(tree, tvb, *offset, 2, "Number of rectangles: %d",
-				 num_rects);
+	ti = proto_tree_add_item(tree, hf_vnc_rectangle_num, tvb, *offset, 2, ENC_BIG_ENDIAN);
 
 	if (num_rects > 5000) {
 		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
@@ -1750,9 +1769,10 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 	proto_tree *screen_tree;
 
 	num_of_screens = tvb_get_guint8(tvb, *offset);
-	proto_tree_add_text(tree, tvb, *offset, 1, "Number of screens: %d", num_of_screens);
+	proto_tree_add_item(tree, hf_vnc_desktop_screen_num, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset += 1;
-	proto_tree_add_text(tree, tvb, *offset, 3, "Padding");
+	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_BIG_ENDIAN);
+
 	VNC_BYTES_NEEDED((guint32)(3 + (num_of_screens * 16)));
 	*offset += 3;
 	for(i = 1; i <= num_of_screens; i++) {
@@ -2699,16 +2719,6 @@ proto_register_vnc(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Tight compression, palette data for a rectangle", HFILL }
 		},
-		{ &hf_vnc_vendor_code,
-		  { "Vendor code", "vnc.vendor_code",
-		    FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Identifies the VNC server software's vendor", HFILL }
-		},
-		{ &hf_vnc_security_type_string,
-		  { "Security type string", "vnc.security_type_string",
-		    FT_STRING, BASE_NONE, NULL, 0x0,
-		    "Security type being used", HFILL }
-		},
 		{ &hf_vnc_auth_challenge,
 		  { "Authentication challenge", "vnc.auth_challenge",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -2725,6 +2735,11 @@ proto_register_vnc(void)
 		    NULL, HFILL }
 		},
 		{ &hf_vnc_auth_error,
+		  { "Length of authentication error", "vnc.auth_error_len",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Authentication error length (present only if the authentication result is fail", HFILL }
+		},
+		{ &hf_vnc_auth_error_length,
 		  { "Authentication error", "vnc.auth_error",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Authentication error (present only if the authentication result is fail", HFILL }
@@ -2798,6 +2813,11 @@ proto_register_vnc(void)
 		  { "Desktop name length", "vnc.desktop_name_len",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Length of desktop name in bytes", HFILL }
+		},
+		{ &hf_vnc_desktop_screen_num,
+		  { "Number of screens", "vnc.screen_num",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
 		},
 		{ &hf_vnc_desktop_screen_id,
 		  { "Screen ID", "vnc.screen_id",
@@ -2968,6 +2988,11 @@ proto_register_vnc(void)
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    "Position of mouse cursor on the y-axis", HFILL }
 		},
+		{ &hf_vnc_encoding_num,
+		  { "Number of encodings", "vnc.client_set_encodings_num",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Number of encodings used to send pixel data from server to client", HFILL }
+		},
 		{ &hf_vnc_client_set_encodings_encoding_type,
 		  { "Encoding type", "vnc.client_set_encodings_encoding_type",
 		    FT_INT32, BASE_DEC, VALS(encoding_types_vs), 0x0,
@@ -3017,6 +3042,12 @@ proto_register_vnc(void)
 		  { "Server Message Type", "vnc.server_message_type",
 		    FT_UINT8, BASE_DEC, VALS(vnc_server_message_types_vs), 0x0,
 		    "Message type from server", HFILL }
+		},
+
+		{ &hf_vnc_rectangle_num,
+		  { "Number of rectangles", "vnc.fb_update_num_rects",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    "Number of rectangles of this server framebuffer update", HFILL }
 		},
 
 		{ &hf_vnc_fb_update_x_pos,
