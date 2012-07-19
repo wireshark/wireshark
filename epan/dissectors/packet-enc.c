@@ -49,7 +49,7 @@ struct enchdr {
   guint32 spi;
   guint32 flags;
 };
-#define ENC_HDRLEN    sizeof(struct enchdr)
+#define BSD_ENC_HDRLEN    sizeof(struct enchdr)
 
 # define BSD_ENC_INET    2
 # define BSD_ENC_INET6   24
@@ -74,7 +74,7 @@ capture_enc(const guchar *pd, int len, packet_counts *ld)
 {
   guint32 af;
 
-  if (!BYTES_ARE_IN_FRAME(0, len, (int)ENC_HDRLEN)) {
+  if (!BYTES_ARE_IN_FRAME(0, len, (int)BSD_ENC_HDRLEN)) {
     ld->other++;
     return;
   }
@@ -83,11 +83,11 @@ capture_enc(const guchar *pd, int len, packet_counts *ld)
   switch (af) {
 
   case BSD_ENC_INET:
-    capture_ip(pd, ENC_HDRLEN, len, ld);
+    capture_ip(pd, BSD_ENC_HDRLEN, len, ld);
     break;
 
   case BSD_ENC_INET6:
-    capture_ipv6(pd, ENC_HDRLEN, len, ld);
+    capture_ipv6(pd, BSD_ENC_HDRLEN, len, ld);
     break;
 
   default:
@@ -122,7 +122,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_enc, tvb, 0,
-                                        ENC_HDRLEN,
+                                        BSD_ENC_HDRLEN,
                                         "Enc %s, SPI 0x%8.8x, %s%s%s%s",
                                         val_to_str(ench.af, af_vals, "unknown (%u)"),
                                         ench.spi,
@@ -146,7 +146,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Set the tvbuff for the payload after the header */
-  next_tvb = tvb_new_subset_remaining(tvb, ENC_HDRLEN);
+  next_tvb = tvb_new_subset_remaining(tvb, BSD_ENC_HDRLEN);
 
   switch (ench.af) {
 
