@@ -42,6 +42,8 @@
 #include "ui/progress_dlg.h"
 #include "ui/ui_util.h"
 
+#include "ui/gtk/old-gtk-compat.h"
+
 #include <epan/epan_dissect.h>
 #include <epan/column_info.h>
 #include <epan/column.h>
