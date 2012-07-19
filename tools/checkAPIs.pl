@@ -1414,6 +1414,7 @@ sub check_proto_tree_add_XXX_encoding($$)
 {
         my ($fileContentsRef, $filename) = @_;
         my @items;
+        my $errorCount = 0;
 
         @items = (${$fileContentsRef} =~ m/ (proto_tree_add_[_a-z0-9]+) \( ([^;]*) \) \s* ; /xsg);
 
@@ -1442,6 +1443,8 @@ sub check_proto_tree_add_XXX_encoding($$)
 			}
 		}
 	}
+
+	return $errorCount;
 }
 
 
@@ -1453,6 +1456,7 @@ sub check_ett_registration($$)
         my @ett_declarations;
         my %ett_registrations;
         my @unRegisteredEtts;
+        my $errorCount = 0;
 
         # A pattern to match ett variable names.  Obviously this assumes that
         # they start with ett_
@@ -1542,6 +1546,7 @@ sub check_ett_registration($$)
                 $errorCount++;
         }
 
+        return $errorCount;
 }
 
 # Given the file contents and a file name, check all of the hf entries for
@@ -1785,7 +1790,7 @@ while ($_ = $ARGV[0])
         # Remove all the C-comments and strings
         $fileContents =~ s {$commentAndStringRegex} []xog;
 
-        #check_ett_registration(\$fileContents, $filename);
+        #$errorCount += check_ett_registration(\$fileContents, $filename);
 
         if ($fileContents =~ m{ // }xo)
         {
@@ -1804,7 +1809,7 @@ while ($_ = $ARGV[0])
                 checkAddTextCalls(\$fileContents, $filename);
         }
 
-	check_proto_tree_add_XXX_encoding(\$fileContents, $filename);
+	$errorCount += check_proto_tree_add_XXX_encoding(\$fileContents, $filename);
 
         # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {
