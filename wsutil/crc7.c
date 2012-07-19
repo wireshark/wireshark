@@ -39,9 +39,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <stdint.h>
-
 #include <glib.h>
 #include "crc7.h"     /* include the header file generated with pycrc */
 
