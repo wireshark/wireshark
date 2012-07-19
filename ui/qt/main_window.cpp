@@ -322,9 +322,9 @@ void MainWindow::openCaptureFile(QString &cfPath)
         /* Try to open the capture file. */
         if (cf_open(&cfile, cfPath.toUtf8().constData(), FALSE, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,
-                       just leave it around so that the user can, after they
-                       dismiss the alert box popped up for the open error,
-                       try again. */
+               just leave it around so that the user can, after they
+               dismiss the alert box popped up for the open error,
+               try again. */
             if (rfcode != NULL)
                 dfilter_free(rfcode);
             cfPath.clear();
@@ -332,6 +332,7 @@ void MainWindow::openCaptureFile(QString &cfPath)
         }
 
         capFile = &cfile;
+        cfile.window = this;
 
         switch (cf_read(&cfile, FALSE)) {
 

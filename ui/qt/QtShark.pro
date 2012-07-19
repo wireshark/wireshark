@@ -86,7 +86,6 @@ win32:INCLUDEPATH += \
 # Is there any way to do this automatically?
 SOURCES_WS_C = \
     ../../airpcap_loader.c \
-    ../../ui/alert_box.c     \
     ../../capture-pcap-util.c     \
     ../../capture.c       \
     ../../capture_ifinfo.c \
@@ -147,7 +146,7 @@ SOURCES_QT_CPP = \
     packet_list.cpp \
     packet_list_model.cpp \
     packet_list_record.cpp \
-    progress_dialog.cpp \
+    progress_bar.cpp \
     proto_tree.cpp \
     qt_ui_utils.cpp \
     recent_file_status.cpp \
@@ -178,7 +177,7 @@ HEADERS_QT_CPP = \
     packet_list.h \
     packet_list_model.h \
     packet_list_record.h \
-    progress_dialog.h \
+    progress_bar.h \
     proto_tree.h \
     qt_ui_utils.h \
     qt_ui_utils.h \
@@ -311,3 +310,6 @@ TRANSLATIONS = \
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
 
 win32: QMAKE_CLEAN += *.pdb
+
+
+

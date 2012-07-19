@@ -36,6 +36,7 @@
 #include "ui/main_statusbar.h"
 
 #include <QSplitter>
+#include <QHBoxLayout>
 
 #ifdef HAVE_LIBPCAP
 #define DEF_READY_MESSAGE QObject::tr(" Ready to load or capture")
@@ -128,11 +129,25 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 {
     QSplitter *splitter = new QSplitter(this);
     QString readyMsg(DEF_READY_MESSAGE);
+    QWidget *infoProgress = new QWidget(this);
+    QHBoxLayout *infoProgressHB = new QHBoxLayout(infoProgress);
+    int pbMargin = infoProgressHB->contentsMargins().left();
 
+    infoProgressHB->setMargin(0);
+    infoProgressHB->setContentsMargins(0, 0, 0, 0);
+    m_progressBar.setStyleSheet(QString(
+                                "ProgressBar {"
+//                                "  margin-left: %1px;"
+                                "  max-width: 8em;"
+                                "}")
+                                .arg(pbMargin)
+                                );
     // XXX - Add the expert level icon
 
     m_infoStatus.setTemporaryContext(STATUS_CTX_TEMPORARY);
-    splitter->addWidget(&m_infoStatus);
+    infoProgressHB->addWidget(&m_infoStatus);
+    infoProgressHB->addWidget(&m_progressBar);
+    splitter->addWidget(infoProgress);
     splitter->addWidget(&m_packetStatus);
     splitter->addWidget(&m_profileStatus);
 

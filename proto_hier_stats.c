@@ -224,7 +224,8 @@ ph_stats_new(void)
 		   to get to the next progress bar step). */
 		if (progbar == NULL)
 			progbar = delayed_create_progress_dlg(
-			    "Computing", "protocol hierarchy statistics",
+			    cfile.window, "Computing",
+			    "protocol hierarchy statistics",
 			    TRUE, &stop_flag, &start_time, progbar_val);
 
 		/* Update the progress bar, but do it only N_PROGBAR_UPDATES

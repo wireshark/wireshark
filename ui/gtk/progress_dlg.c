@@ -49,7 +49,7 @@ struct progdlg {
 	GtkWidget *dlg_w;	/* top-level window widget */
 	GTimeVal   start_time;
 	GTimeVal   last_time;   /* last time it was updated */
-	
+
 	GtkLabel  *status_lb;
 	GtkLabel  *elapsed_lb;
 	GtkLabel  *time_left_lb;
@@ -83,7 +83,7 @@ struct progdlg {
  * be read.
  */
 progdlg_t *
-create_progress_dlg(const gchar *task_title, const gchar *item_title,
+create_progress_dlg(const gpointer top_level_window _U_, const gchar *task_title, const gchar *item_title,
                     gboolean terminate_is_stop, gboolean *stop_flag)
 {
     progdlg_t *dlg;
@@ -231,9 +231,9 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 }
 
 progdlg_t *
-delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
-                            gboolean terminate_is_stop, gboolean *stop_flag,
-                            const GTimeVal *start_time, gfloat progress)
+delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title,
+			    const gchar *item_title, gboolean terminate_is_stop,
+			    gboolean *stop_flag, const GTimeVal *start_time, gfloat progress)
 {
     GTimeVal    time_now;
     gdouble     delta_time;
@@ -289,7 +289,7 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
     if (progress >= (delta_time / (delta_time + min_display)))
         return NULL;
 
-    dlg = create_progress_dlg(task_title, item_title, terminate_is_stop,
+    dlg = create_progress_dlg(top_level_window, task_title, item_title, terminate_is_stop,
                               stop_flag);
 
     /*
@@ -351,21 +351,21 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 
 	/* calculate some timing values */
 	g_get_current_time(&time_now);
-	
+
 	delta_time = (time_now.tv_sec - dlg->last_time.tv_sec) * 1e6 +
 		time_now.tv_usec - dlg->last_time.tv_usec;
 
 	/* after the first time don't update more than every 100ms */
-	if (dlg->last_time.tv_sec && delta_time < 100*1000) 
+	if (dlg->last_time.tv_sec && delta_time < 100*1000)
 		return;
 
 	dlg->last_time = time_now;
 	delta_time = (time_now.tv_sec - dlg->start_time.tv_sec) * 1e6 +
 		time_now.tv_usec - dlg->start_time.tv_usec;
-		
+
 	ul_percentage = (gulong) (percentage * 100);
 	ul_elapsed = (gulong) (delta_time / 1000 / 1000);
-	
+
 	/* update labels */
 	g_snprintf(tmp, sizeof(tmp), "%lu%% of %s", ul_percentage, dlg->title);
 	gtk_window_set_title(GTK_WINDOW(dlg_w), tmp);

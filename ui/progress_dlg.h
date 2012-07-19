@@ -46,52 +46,56 @@ typedef struct progdlg progdlg_t;
  * needs in order to manipulate the dialog, and return a pointer to
  * it.
  *
- * @param task_title the task to do, e.g. "Loading"
- * @param item_title the item to do, e.g. "capture.cap"
+ * @param widget UI widget to associate with the progress dialog, e.g.
+ *   the main window.
+ * @param task_title The task to do, e.g. "Loading"
+ * @param item_title The item to do, e.g. "capture.cap"
  * @param terminate_is_stop TRUE if the operation can't be cancelled, just
  *   stopped (i.e., it has a "Stop" button and clicking it doesn't undo
  *   anything already done), FALSE if it can
- * @param stop_flag a pointer to a Boolean variable that will be
+ * @param stop_flag A pointer to a Boolean variable that will be
  *   set to TRUE if the user hits that button
- * @return the newly created progress dialog
+ * @return The newly created progress dialog
  */
-progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
+progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
     gboolean terminate_is_stop, gboolean *stop_flag);
 
 /**
  * Create a progress dialog, but only if it's not likely to disappear
  * immediately. This can be disconcerting for the user.
  *
- * @param task_title the task to do, e.g. "Loading"
- * @param item_title the item to do, e.g. "capture.cap"
+ * @param top_level The top-level window associated with the progress update.
+ *   May be NULL.
+ * @param task_title The task to do, e.g. "Loading"
+ * @param item_title The item to do, e.g. "capture.cap"
  * @param terminate_is_stop TRUE if the operation can't be cancelled, just
  *   stopped (i.e., it has a "Stop" button and clicking it doesn't undo
  *   anything already done), FALSE if it can
- * @param stop_flag a pointer to a Boolean variable that will be
+ * @param stop_flag A pointer to a Boolean variable that will be
  *   set to TRUE if the user hits that button
- * @param start_time a pointer to a GTimeVal structure which holds
+ * @param start_time A pointer to a GTimeVal structure which holds
  *   the time at which the caller started to process the data
- * @param progress the current progress (0..1)
- * @return the newly created progress dialog
+ * @param progress The current progress (0..1)
+ * @return The newly created progress dialog
  */
 progdlg_t *
-delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
+delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
     gboolean terminate_is_stop, gboolean *stop_flag,
     const GTimeVal *start_time, gfloat progress);
 
 /**
  * Update the progress information of the progress dialog box.
  *
- * @param dlg the progress dialog from create_progress_dlg()
- * @param percentage the current percentage value (0..1)
- * @param status the new status string to show, e.g. "3000KB of 6000KB"
+ * @param dlg The progress dialog from create_progress_dlg()
+ * @param percentage The current percentage value (0..1)
+ * @param status the New status string to show, e.g. "3000KB of 6000KB"
  */
 void update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status);
 
 /**
- * Destroy the progress bar.
+ * Destroy or hide the progress bar.
  *
- * @param dlg the progress dialog from create_progress_dlg()
+ * @param dlg The progress dialog from create_progress_dlg()
  */
 void destroy_progress_dlg(progdlg_t *dlg);
 

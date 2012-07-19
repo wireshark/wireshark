@@ -547,7 +547,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
 typedef struct progdlg _funnel_progress_window_t;
 
 static funnel_progress_window_t* funnel_new_progress_window(const gchar* label, const gchar* task, gboolean terminate_is_stop, gboolean *stop_flag) {
-    return (funnel_progress_window_t*)create_progress_dlg(label, task, terminate_is_stop, stop_flag);
+    return (funnel_progress_window_t*)create_progress_dlg(top_level, label, task, terminate_is_stop, stop_flag);
 }
 
 static void funnel_update_progress(funnel_progress_window_t* win, float pr, const gchar* task) {

@@ -839,7 +839,8 @@ packet_list_dissect_and_cache_all(PacketList *packet_list)
 			/*       allow certain "interupts" to happen during this code.  */
 			/*       (Note that the progress_dlg window is set to "modal"   */
 			/*        so that clicking on other windows is disabled).       */
-			progbar = delayed_create_progress_dlg("Construct", "Columns",
+			progbar = delayed_create_progress_dlg(gtk_widget_get_window(packet_list->view),
+							      "Construct", "Columns",
 							      TRUE, &progbar_stop_flag,
 							      &progbar_start_time, progbar_val);
 

@@ -36,6 +36,7 @@
 #include <QSplitter>
 #include "main_welcome.h"
 #include "display_filter_combo.h"
+#include "progress_bar.h"
 
 class QAction;
 
@@ -61,6 +62,9 @@ private:
     MainWelcome *mainWelcome;
     DisplayFilterCombo *dfComboBox;
     capture_file *capFile;
+
+signals:
+    void showProgress(progdlg_t **dlg_p, bool animate, const QString message, bool terminate_is_stop, bool *stop_flag, float pct);
 
 public slots:
     void captureFileReadStarted(const capture_file *cf);

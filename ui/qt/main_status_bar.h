@@ -1,4 +1,4 @@
-/* mainStatus_bar.h
+/* main_status_bar.h
  *
  * $Id$
  *
@@ -21,10 +21,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef MAINStatus_BAR_H
-#define MAINStatus_BAR_H
+#ifndef MAIN_STATUS_BAR_H
+#define MAIN_STATUS_BAR_H
 
 #include "label_stack.h"
+#include "progress_bar.h"
 
 #include <QStatusBar>
 
@@ -36,6 +37,7 @@ public:
 
 private:
     LabelStack m_infoStatus;
+    ProgressBar m_progressBar;
     LabelStack m_packetStatus;
     LabelStack m_profileStatus;
 
@@ -56,4 +58,4 @@ public slots:
     void popProfileStatus();
 };
 
-#endif // MAINStatus_BAR_H
+#endif // MAIN_STATUS_BAR_H

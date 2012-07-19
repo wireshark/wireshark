@@ -93,7 +93,7 @@ struct _PacketList
 	gint n_columns;
 	/**< Note: We need one extra column to store the entire PacketListRecord */
 	GType column_types[NUM_COL_FMTS+1];
-	GtkWidget *view; /**< @todo XXX - Does this really belong here?? */
+	GtkWidget *view;
 
 	gint sort_id;
 	GtkSortType sort_order;

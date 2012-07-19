@@ -118,6 +118,7 @@ typedef struct _capture_file {
 #ifdef WANT_PACKET_EDITOR
   GTree       *edited_frames;   /* BST with modified frames */
 #endif
+  gpointer     window;		/* Top-level window associated with file */
 } capture_file;
 
 extern void cap_file_init(capture_file *cf);

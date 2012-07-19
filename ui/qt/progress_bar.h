@@ -1,4 +1,4 @@
-/* progress_dialog.h
+/* progress_bar.h
  *
  * $Id$
  *
@@ -21,21 +21,39 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef PROGRESS_DIALOG_H
-#define PROGRESS_DIALOG_H
+#ifndef PROGRESS_BAR_H
+#define PROGRESS_BAR_H
 
-#include <QProgressDialog>
+#include <glib.h>
 
-class ProgressDialog : public QProgressDialog
+#include "ui/progress_dlg.h"
+
+#include <QProgressBar>
+
+class ProgressBar;
+
+// Define the structure describing a progress dialog.
+struct progdlg {
+    ProgressBar *progressBar;       // This progress bar
+    QWidget *topLevelWindow;	// Top-level window widget
+};
+
+class ProgressBar : public QProgressBar
 {
     Q_OBJECT
 public:
-    explicit ProgressDialog(QWidget *parent = 0);
+    explicit ProgressBar(QWidget *parent = 0);
+    progdlg_t *show(bool animate, bool terminate_is_stop, gboolean *stop_flag, int value);
 
-signals:
+private:
+    progdlg_t m_dlg;
+    QString m_message;
+    QString m_status;
+    bool m_terminate_is_stop;
+    gboolean *m_stop_flag;
 
 public slots:
 
 };
 
-#endif // PROGRESS_DIALOG_H
+#endif // PROGRESS_BAR_H

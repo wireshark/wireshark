@@ -580,10 +580,10 @@ cf_read(capture_file *cf, gboolean reloading)
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
         progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
         if (reloading)
-          progbar = delayed_create_progress_dlg("Reloading", name_ptr,
+          progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
                                                 TRUE, &stop_flag, &start_time, progbar_val);
         else
-          progbar = delayed_create_progress_dlg("Loading", name_ptr,
+          progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
                                                 TRUE, &stop_flag, &start_time, progbar_val);
       }
 
@@ -1193,7 +1193,7 @@ read_packet(capture_file *cf, dfilter_t *dfcode,
 
   /* Add this packet's link-layer encapsulation type to cf->linktypes, if
      it's not already there.
-     XXX - yes, this is O(N), so if every packet had a different 
+     XXX - yes, this is O(N), so if every packet had a different
      link-layer encapsulation type, it'd be O(N^2) to read the file, but
      there are probably going to be a small number of encapsulation types
      in a file. */
@@ -1347,7 +1347,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
        large file, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
     if (progbar == NULL) {
-      progbar = delayed_create_progress_dlg("Merging", "files",
+      progbar = delayed_create_progress_dlg(NULL, "Merging", "files",
         FALSE, &stop_flag, &start_time, progbar_val);
     }
 
@@ -1771,7 +1771,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
        large file, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
-      progbar = delayed_create_progress_dlg(action, action_item, TRUE,
+      progbar = delayed_create_progress_dlg(cf->window, action, action_item, TRUE,
                                             &stop_flag, &start_time,
                                             progbar_val);
 
@@ -1824,7 +1824,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     }
 
     if (redissect || refilter) {
-      /* If we're redissecting or refiltering then any frame dependencies 
+      /* If we're redissecting or refiltering then any frame dependencies
        * from the previous dissection/filtering are no longer valid.
        */
       fdata->flags.dependent_of_displayed = 0;
@@ -2101,7 +2101,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
        large file, we might take considerably longer than that standard
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
-      progbar = delayed_create_progress_dlg(string1, string2,
+      progbar = delayed_create_progress_dlg(cf->window, string1, string2,
                                             terminate_is_stop,
                                             &progbar_stop_flag,
                                             &progbar_start_time,
@@ -3358,7 +3358,7 @@ find_packet(capture_file *cf,
          large file, we might take considerably longer than that standard
          time in order to get to the next progress bar step). */
       if (progbar == NULL)
-         progbar = delayed_create_progress_dlg("Searching", title,
+         progbar = delayed_create_progress_dlg(cf->window, "Searching", title,
            FALSE, &stop_flag, &start_time, progbar_val);
 
       /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -3995,7 +3995,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
         progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-        progbar = delayed_create_progress_dlg("Rescanning", name_ptr,
+        progbar = delayed_create_progress_dlg(cf->window, "Rescanning", name_ptr,
                                               TRUE, &stop_flag, &start_time, progbar_val);
       }
 
@@ -4031,7 +4031,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
     /* Add this packet's link-layer encapsulation type to cf->linktypes, if
        it's not already there.
-       XXX - yes, this is O(N), so if every packet had a different 
+       XXX - yes, this is O(N), so if every packet had a different
        link-layer encapsulation type, it'd be O(N^2) to read the file, but
        there are probably going to be a small number of encapsulation types
        in a file. */
@@ -4404,7 +4404,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
           cf->packet_comment_count--;
         }
       }
-    }    
+    }
   }
   return CF_WRITE_OK;
 
