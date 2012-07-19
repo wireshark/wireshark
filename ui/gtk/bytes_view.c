@@ -202,7 +202,6 @@ bytes_view_realize(GtkWidget *widget)
 
 #if GTK_CHECK_VERSION(3, 0, 0)
 	GtkStyleContext *context;
-	GdkRGBA color;
 #endif
 
 	_gtk_widget_set_realized_true(widget);
