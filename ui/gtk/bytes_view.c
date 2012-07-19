@@ -64,9 +64,13 @@ struct _BytesView
 	int font_descent;
 	int fontsize;
 
-	gint adj_tag;
 	GtkAdjustment *vadj;
 	GtkAdjustment *hadj;
+#if GTK_CHECK_VERSION(3, 0, 0)
+	guint hscroll_policy : 1;
+	guint vscroll_policy : 1;
+#endif
+	gint adj_tag;
 	int max_width;
 
 	gboolean bold_highlight;
@@ -988,6 +992,9 @@ bytes_view_set_scroll_adjustments(BytesView *bv, GtkAdjustment *hadj, GtkAdjustm
 
 		g_signal_connect(bv->vadj, "value-changed", G_CALLBACK(bytes_view_adjustment_changed), bv);
 		need_adjust = TRUE;
+#if GTK_CHECK_VERSION(3, 0, 0)
+		g_object_notify(G_OBJECT(bv), "vadjustment");
+#endif
 	}
 
 	if (bv->hadj && (bv->hadj != hadj)) {
@@ -1000,11 +1007,82 @@ bytes_view_set_scroll_adjustments(BytesView *bv, GtkAdjustment *hadj, GtkAdjustm
 
 		g_signal_connect(bv->hadj, "value-changed", G_CALLBACK(bytes_view_adjustment_changed), bv);
 		need_adjust = TRUE;
+#if GTK_CHECK_VERSION(3, 0, 0)
+		g_object_notify(G_OBJECT(bv), "hadjustment");
+#endif
 	}
 
 	if (need_adjust)
 		bytes_view_adjustment_set(bv);
 }
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+enum {
+	PROP_0,
+	PROP_HADJUSTMENT,
+	PROP_VADJUSTMENT,
+	PROP_HSCROLL_POLICY,
+	PROP_VSCROLL_POLICY
+};
+
+static void
+bytes_view_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec)
+{
+	BytesView *bv = BYTES_VIEW(object);
+
+	switch (prop_id) {
+		case PROP_HADJUSTMENT:
+			bytes_view_set_scroll_adjustments(bv, g_value_get_object(value), bv->vadj);
+			break;
+
+		case PROP_VADJUSTMENT:
+			bytes_view_set_scroll_adjustments(bv, bv->hadj, g_value_get_object(value));
+			break;
+
+		case PROP_HSCROLL_POLICY:
+			bv->hscroll_policy = g_value_get_enum(value);
+			gtk_widget_queue_resize(GTK_WIDGET(bv));
+			break;
+
+		case PROP_VSCROLL_POLICY:
+			bv->vscroll_policy = g_value_get_enum(value);
+			gtk_widget_queue_resize(GTK_WIDGET(bv));
+			break;
+
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+			break;
+	}
+}
+
+static void
+bytes_view_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec)
+{
+	BytesView *bv = BYTES_VIEW(object);
+
+	switch (prop_id) {
+		case PROP_HADJUSTMENT:
+			g_value_set_object(value, bv->hadj);
+			break;
+
+		case PROP_VADJUSTMENT:
+			g_value_set_object(value, bv->vadj);
+			break;
+
+		case PROP_HSCROLL_POLICY:
+			g_value_set_enum(value, bv->hscroll_policy);
+			break;
+
+		case PROP_VSCROLL_POLICY:
+			g_value_set_enum(value, bv->vscroll_policy);
+			break;
+
+		default:
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+			break;
+	}
+}
+#endif
 
 static void 
 bytes_view_class_init(BytesViewClass *klass)
@@ -1045,10 +1123,20 @@ bytes_view_class_init(BytesViewClass *klass)
 	widget_class->scroll_event = bytes_view_scroll;
 
 #if GTK_CHECK_VERSION(3, 0, 0)
-	/* XXX, http://developer.gnome.org/gtk3/stable/GtkScrollable.html
-	 *
-	 *    connect to hadjustment/vadjustment properties? 
-	 */
+	{
+		GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+		gobject_class->set_property = bytes_view_set_property;
+		gobject_class->get_property = bytes_view_get_property;
+
+		/* XXX, move some code from widget->destroy to gobject->finalize? */
+		/* gobject_class->finalize = bytes_view_finalize; */
+
+		g_object_class_override_property(gobject_class, PROP_HADJUSTMENT,    "hadjustment");
+		g_object_class_override_property(gobject_class, PROP_VADJUSTMENT,    "vadjustment");
+		g_object_class_override_property(gobject_class, PROP_HSCROLL_POLICY, "hscroll-policy");
+		g_object_class_override_property(gobject_class, PROP_VSCROLL_POLICY, "vscroll-policy");
+	}
 #else
 	klass->set_scroll_adjustments = bytes_view_set_scroll_adjustments;
 
