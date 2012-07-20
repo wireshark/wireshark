@@ -39,10 +39,10 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-11.html">wnpa-sec-2012-11</ulink>
           </para>
           <para>
-            .
+            The PPP dissector could crash.
             <!-- Fixed in trunk: r43784 -->
             <!-- Fixed in trunk-1.8: r43839 -->
-            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.6: r43843 -->
             <!-- Fixed in trunk-1.4: r????? -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
@@ -129,6 +129,12 @@ Wireshark Info
           7488</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          WinPcap doesn't install if vcredist_x64 requires reboot.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7507">Bug
+          7507</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -155,7 +161,15 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+BOOTP,
+DVB-CI,
+H.248,
+IEEE 802.11,
+NAS EPS,
+NFS,
+PPP,
+SES,
+SNMP,
 
     </para>
     </section>
@@ -163,7 +177,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+Microsoft Network Monitor
 
     </para>
     </section>

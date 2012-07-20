@@ -275,6 +275,8 @@ FunctionEnd
 Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 ;Var WIRESHARK_UNINSTALL ;declare variable for holding the value of a registry key
 
+Var VCREDIST_FLAGS ; silent vs passive, norestart
+
 Section "-Required"
 ;-------------------------------------------
 
@@ -354,16 +356,26 @@ File "..\..\ipmap.html"
 !ifdef VCREDIST_EXE
 ; vcredist_x86.exe (MSVC V8) - copy and execute the redistributable installer
 File "${VCREDIST_EXE}"
-!if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 ; If the user already has the redistributable installed they will see a
 ; Big Ugly Dialog by default, asking if they want to uninstall or repair.
 ; Ideally we should add a checkbox for this somewhere. In the meantime,
-; just do a silent install.
-ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
-!else
-ExecWait '"$INSTDIR\vcredist_x64.exe" /q' $0
-!endif ; WIRESHARK_TARGET_PLATFORM
-DetailPrint "vcredist_x86 returned $0"
+; just do a "passive+norestart" install for MSVC 2010 and later and a
+; "silent" install otherwise.
+
+; http://blogs.msdn.com/b/astebner/archive/2010/10/20/10078468.aspx
+!searchparse /noerrors ${MSVC_VER_REQUIRED} "1400" VCREDIST_OLD_FLAGS "1500" VCREDIST_OLD_FLAGS
+!ifdef VCREDIST_OLD_FLAGS
+StrCpy $VCREDIST_FLAGS "/q"
+!else ; VCREDIST_OLD_FLAGS
+StrCpy $VCREDIST_FLAGS "/q /norestart"
+!endif ; VCREDIST_OLD_FLAGS
+
+ExecWait '"$INSTDIR\vcredist_${TARGET_MACHINE}.exe" $VCREDIST_FLAGS' $0
+DetailPrint "vcredist_${TARGET_MACHINE} returned $0"
+IntCmp $0 3010 redistReboot redistNoReboot
+redistReboot:
+SetRebootFlag true
+redistNoReboot:
 !else
 !ifdef MSVCR_DLL
 ; msvcr*.dll (MSVC V7 or V7.1) - simply copy the dll file
