@@ -781,7 +781,7 @@ static gboolean sip_is_known_request(tvbuff_t *tvb, int meth_offset,
 static gint sip_is_known_sip_header(gchar *header_name, guint header_len);
 static void dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset,
     guint meth_len, gint linelen);
-static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end);
+static void dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset);
 static void tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree);
 static guint sip_is_packet_resend(packet_info *pinfo,
 				gchar* cseq_method,
@@ -2196,7 +2196,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						offset, linelen, ENC_ASCII|ENC_NA);
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
-		dfilter_sip_status_line(tvb, reqresp_tree, pinfo, linelen);
+		dfilter_sip_status_line(tvb, reqresp_tree, pinfo, linelen, offset);
 		break;
 
 	case OTHER_LINE:
@@ -3209,6 +3209,14 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		tap_queue_packet(sip_tap, pinfo, stat_info);
 	}
 
+	/* Append a brief summary to the SIP root item */
+	if (stat_info->request_method) {
+		proto_item_append_text(ts, " (%s)", stat_info->request_method);
+	}
+	else {
+		proto_item_append_text(ts, " (%u)", stat_info->response_code);
+	}
+
 	return offset - orig_offset;
 }
 
@@ -3249,10 +3257,10 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
 
 /* Display filter for SIP Status-Line */
 static void
-dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int line_end)
+dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint line_end, gint offset)
 {
 	gint response_code = 0;
-	int offset, diag_len;
+	int diag_len;
 	tvbuff_t *next_tvb;
 
 	/*
@@ -3261,11 +3269,11 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 	 * We also know that we have a version string followed by a
 	 * space at the beginning of the line, for the same reason.
 	 */
-	response_code = atoi((char*)tvb_get_ephemeral_string(tvb, SIP2_HDR_LEN + 1, 3));
+	response_code = atoi((char*)tvb_get_ephemeral_string(tvb, offset + SIP2_HDR_LEN + 1, 3));
 
 	/* Add numerical response code to tree */
 	if (tree) {
-		proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, SIP2_HDR_LEN + 1,
+		proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset + SIP2_HDR_LEN + 1,
 		                    3, response_code);
 	}
 
