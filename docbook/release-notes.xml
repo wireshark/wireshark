@@ -40,14 +40,17 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-11.html">wnpa-sec-2012-11</ulink>
           </para>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.6: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221">Bug
-            7221</ulink>)
+            The PPP dissector could crash.
+            <!-- Fixed in trunk: r43784 -->
+            <!-- Fixed in trunk-1.8: r43839 -->
+            <!-- Fixed in trunk-1.6: r43843 -->
+            <!-- Fixed in trunk-1.4: r43870 -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>) -->
+            (<ulink url="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=680056">Debian bug
+            680056</ulink>) -->
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8.</para>
+          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
@@ -101,7 +104,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+PPP,
 
     </para>
     </section>
