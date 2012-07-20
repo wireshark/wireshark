@@ -312,7 +312,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	/* Buttons row */
 	buttons_row = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL,
 					 NULL);
-	gtk_box_pack_start(GTK_BOX (main_vb), buttons_row, FALSE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(main_vb), buttons_row, TRUE, TRUE, 0);
 	find_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_FIND);
 	cancel_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_CANCEL);
 

@@ -85,14 +85,14 @@ about_wireshark(GtkWidget *parent _U_, GtkWidget *main_vb)
   /*icon = xpm_to_widget_from_parent(parent, wssplash_xpm);*/
   icon = xpm_to_widget(wssplash_xpm);
 
-  gtk_box_pack_start(GTK_BOX (main_vb), icon, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), icon, TRUE, TRUE, 0);
 
 
   msg_label = gtk_label_new(title);
   message = g_strdup_printf("<span size=\"x-large\" weight=\"bold\">%s</span>", title);
   gtk_label_set_markup(GTK_LABEL(msg_label), message);
   g_free(message);
-  gtk_box_pack_start(GTK_BOX (main_vb), msg_label, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), msg_label, TRUE, TRUE, 0);
 }
 
 static void
@@ -137,11 +137,11 @@ splash_new(const char *message)
     about_wireshark(win, main_box);
 
     main_lb = gtk_label_new(message);
-	gtk_box_pack_start(GTK_BOX (main_box), main_lb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(main_box), main_lb, FALSE, TRUE, 0);
     g_object_set_data(G_OBJECT(win), "splash_label", main_lb);
 
     main_lb = gtk_label_new("");
-	gtk_box_pack_start(GTK_BOX (main_box), main_lb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(main_box), main_lb, FALSE, TRUE, 0);
     g_object_set_data(G_OBJECT(win), "protocol_label", main_lb);
 
     percentage_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);

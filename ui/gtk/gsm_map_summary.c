@@ -339,7 +339,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Button row. */
   bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-  gtk_box_pack_start(GTK_BOX (main_vb), bbox, FALSE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, TRUE, TRUE, 0);
   gtk_widget_show(bbox);
 
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
