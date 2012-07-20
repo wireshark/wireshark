@@ -1588,7 +1588,8 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_widget_override_color(label, GTK_STATE_NORMAL, &dgg->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &dgg->rgba_color);
+	/* XXX gtk_widget_override_color() takes flags not state */
 	gtk_widget_override_color(label, GTK_STATE_ACTIVE, &dgg->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &dgg->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_SELECTED, &dgg->rgba_color);

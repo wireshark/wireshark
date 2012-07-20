@@ -1255,8 +1255,8 @@ color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
     bg.blue     = blue / 65535.0;
     bg.alpha    = 1;
 
-    gtk_widget_override_color(w, GTK_STATE_NORMAL, &black);
-    gtk_widget_override_background_color(w, GTK_STATE_NORMAL, &bg);
+    gtk_widget_override_color(w, GTK_STATE_FLAG_NORMAL, &black);
+    gtk_widget_override_background_color(w, GTK_STATE_FLAG_NORMAL, &bg);
     gtk_widget_override_cursor(w, &black, &black);
 #else
     static GdkColor black = { 0, 0, 0, 0 };
@@ -1278,8 +1278,8 @@ colorize_filter_te_as_empty(GtkWidget *w)
 {
 #if GTK_CHECK_VERSION(3,0,0)
     /* use defaults */
-    gtk_widget_override_color(w, GTK_STATE_NORMAL, NULL);
-    gtk_widget_override_background_color(w, GTK_STATE_NORMAL, NULL);
+    gtk_widget_override_color(w, GTK_STATE_FLAG_NORMAL, NULL);
+    gtk_widget_override_background_color(w, GTK_STATE_FLAG_NORMAL, NULL);
     gtk_widget_override_cursor(w, NULL, NULL);
 #else    
     /* use defaults */

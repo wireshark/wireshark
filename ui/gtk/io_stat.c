@@ -2256,7 +2256,8 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_widget_override_color(label, GTK_STATE_NORMAL, &gio->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_FLAG_NORMAL, &gio->rgba_color);
+	/* XXX gtk_widget_override_color() takes flags not state */
 	gtk_widget_override_color(label, GTK_STATE_ACTIVE, &gio->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &gio->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_SELECTED, &gio->rgba_color);

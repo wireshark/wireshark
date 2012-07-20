@@ -784,10 +784,10 @@ create_new_color_filter(GtkButton *button, const char *filter)
   /* Use the default background and foreground colors as the colors. */
 #if GTK_CHECK_VERSION(3,0,0)
   context = gtk_widget_get_style_context (new_packet_list_get_widget());
-  gtk_style_context_get (context, GTK_STATE_NORMAL,
+  gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
                        "background-color", &rgba_bg_color,
                        NULL);
-  gtk_style_context_get (context, GTK_STATE_NORMAL,
+  gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
                        "color", &rgba_fg_color,
                        NULL);
   gdkRGBAcolor_to_color_t(&bg_color, rgba_bg_color);

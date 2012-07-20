@@ -514,7 +514,7 @@ static void create_drawing_area(struct graph *g)
 
 #if GTK_CHECK_VERSION(3,0,0)
     context = gtk_widget_get_style_context(g->drawing_area);
-    gtk_style_context_get(context, GTK_STATE_NORMAL,
+    gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL,
                        GTK_STYLE_PROPERTY_FONT, &g->font,
                        NULL);
 #else

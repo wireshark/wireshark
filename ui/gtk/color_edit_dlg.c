@@ -171,8 +171,8 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 #if GTK_CHECK_VERSION(3,0,0)
   color_t_to_gdkRGBAcolor(&bg_rgba_color, &colorf->bg_color);
   color_t_to_gdkRGBAcolor(&fg_rgba_color, &colorf->fg_color);
-  gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &bg_rgba_color);
-  gtk_widget_override_color(filt_name_entry, GTK_STATE_NORMAL, &fg_rgba_color);
+  gtk_widget_override_background_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &bg_rgba_color);
+  gtk_widget_override_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &fg_rgba_color);
 #else
   color_t_to_gdkcolor(&bg_color, &colorf->bg_color);
   color_t_to_gdkcolor(&fg_color, &colorf->fg_color);
@@ -394,10 +394,10 @@ edit_color_filter_ok_cb                (GtkButton       *button,
   dialog = (GtkWidget *)user_data;
 #if GTK_CHECK_VERSION(3,0,0)
   context = gtk_widget_get_style_context (filt_name_entry);
-  gtk_style_context_get (context, GTK_STATE_NORMAL,
+  gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
                        "background-color", &new_rgba_bg_color,
                        NULL);
-  gtk_style_context_get (context, GTK_STATE_NORMAL,
+  gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
                        "forground-color", &new_rgba_fg_color,
                        NULL);
 /* gdk_rgba_free (rgba_bg_color); */
@@ -608,9 +608,9 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 #if GTK_CHECK_VERSION(3,0,0)
     /* now apply the change to the fore/background */
     if (is_bg)
-      gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &new_rgba_color);
+      gtk_widget_override_background_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &new_rgba_color);
     else
-      gtk_widget_override_color(filt_name_entry, GTK_STATE_NORMAL, &new_rgba_color);
+      gtk_widget_override_color(filt_name_entry, GTK_STATE_FLAG_NORMAL, &new_rgba_color);
 #else
     /* now apply the change to the fore/background */
     if (is_bg)

@@ -602,7 +602,7 @@ void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 		GtkStyleContext *context;
 		GdkRGBA			*new_rgba_fg_color;
 		context = gtk_widget_get_style_context (prog_combo_box);
-		gtk_style_context_get (context, GTK_STATE_NORMAL,
+		gtk_style_context_get (context, GTK_STATE_FLAG_NORMAL,
 				 "color", &new_rgba_fg_color,
 				  NULL);
 

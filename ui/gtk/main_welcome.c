@@ -218,7 +218,7 @@ static gboolean
 welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_entered_bg);
+    gtk_widget_override_background_color(eb, GTK_STATE_FLAG_NORMAL, &rgba_topic_item_entered_bg);
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_entered_bg);
 #endif
@@ -231,7 +231,7 @@ static gboolean
 welcome_item_leave_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
+    gtk_widget_override_background_color(eb, GTK_STATE_FLAG_NORMAL, &rgba_topic_item_idle_bg);
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 #endif
@@ -258,7 +258,7 @@ welcome_button(const gchar *stock_item,
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_hb);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
+    gtk_widget_override_background_color(eb, GTK_STATE_FLAG_NORMAL, &rgba_topic_item_idle_bg);
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 #endif
@@ -356,7 +356,7 @@ welcome_header_new(void)
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_vb);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_header_bar_bg);
+    gtk_widget_override_background_color(eb, GTK_STATE_FLAG_NORMAL, &rgba_header_bar_bg);
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &header_bar_bg);
 #endif
@@ -430,7 +430,7 @@ welcome_topic_header_new(const char *header)
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_header_bg);
+    gtk_widget_override_background_color(eb, GTK_STATE_FLAG_NORMAL, &rgba_topic_header_bg);
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_header_bg);
 #endif
@@ -461,7 +461,7 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
     topic_eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(topic_eb), topic_vb);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(topic_eb, GTK_STATE_NORMAL, &rgba_topic_content_bg);
+    gtk_widget_override_background_color(topic_eb, GTK_STATE_FLAG_NORMAL, &rgba_topic_content_bg);
 #else
     gtk_widget_modify_bg(topic_eb, GTK_STATE_NORMAL, &topic_content_bg);
 #endif
@@ -650,7 +650,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *men
     /* event box */
     eb = gtk_event_box_new();
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
+    gtk_widget_override_background_color(eb, GTK_STATE_FLAG_NORMAL, &rgba_topic_item_idle_bg);
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 #endif
@@ -1239,7 +1239,7 @@ welcome_new(void)
     welcome_eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(welcome_eb), welcome_vb);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(welcome_eb, GTK_STATE_NORMAL, &rgba_welcome_bg);
+    gtk_widget_override_background_color(welcome_eb, GTK_STATE_FLAG_NORMAL, &rgba_welcome_bg);
 #else
     gtk_widget_modify_bg(welcome_eb, GTK_STATE_NORMAL, &welcome_bg);
 #endif
@@ -1256,7 +1256,7 @@ welcome_new(void)
     /* column capture */
     column_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_background_color(column_vb, GTK_STATE_NORMAL, &rgba_welcome_bg);
+    gtk_widget_override_background_color(column_vb, GTK_STATE_FLAG_NORMAL, &rgba_welcome_bg);
 #else
     gtk_widget_modify_bg(column_vb, GTK_STATE_NORMAL, &welcome_bg);
 #endif
