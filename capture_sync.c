@@ -224,8 +224,8 @@ win32strerror(DWORD error)
     size_t errlen;
     char *p;
 
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errbuf,
-                   ERRBUF_SIZE, NULL);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		   NULL, error, 0, errbuf, ERRBUF_SIZE, NULL);
 
     /*
      * "FormatMessage()" "helpfully" sticks CR/LF at the end of the

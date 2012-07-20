@@ -75,7 +75,17 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Cannot run tshark under tcp using decode-as format for syslog.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5241">Bug
+          5241</ulink>)
+        </para></listitem>
 
+        <listitem><para>
+          Netscreen - can't parse packet-header.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7340">Bug
+          7340</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
@@ -104,7 +114,12 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+DIAMETER,
 PPP,
+SNMP,
+Syslog,
+UDP-Lite,
+VMLAB,
 
     </para>
     </section>
@@ -112,7 +127,7 @@ PPP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+Juniper NetScreen
 
     </para>
     </section>

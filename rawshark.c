@@ -324,7 +324,7 @@ raw_pipe_open(const char *pipe_name)
 
             err = GetLastError();
             if (err != ERROR_PIPE_BUSY) {
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                               NULL, err, 0, (LPTSTR) &err_str, 0, NULL);
                 fprintf(stderr, "rawshark: \"%s\" could not be opened: %s (error %d)\n",
                         pipe_name, utf_16to8(err_str), err);
@@ -334,7 +334,7 @@ raw_pipe_open(const char *pipe_name)
 
             if (!WaitNamedPipe(utf_8to16(pipe_name), 30 * 1000)) {
                 err = GetLastError();
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                               NULL, err, 0, (LPTSTR) &err_str, 0, NULL);
                 fprintf(stderr, "rawshark: \"%s\" could not be waited for: %s (error %d)\n",
                         pipe_name, utf_16to8(err_str), err);

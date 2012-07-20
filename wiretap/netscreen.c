@@ -96,7 +96,7 @@ static gboolean empty_line(const gchar *line)
 static gboolean info_line(const gchar *line)
 {
 	int i=NETSCREEN_SPACES_ON_INFO_LINE;
-	
+
 	while (i-- > 0) {
 		if (isspace((guchar)*line)) {
 			line++;
@@ -209,7 +209,7 @@ int netscreen_open(wtap *wth, int *err, gchar **err_info _U_)
 	wth->subtype_read = netscreen_read;
 	wth->subtype_seek_read = netscreen_seek_read;
 	wth->tsprecision = WTAP_FILE_TSPREC_DSEC;
-	
+
 	return 1;
 }
 
@@ -263,7 +263,7 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
                  */
                 g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
                    buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
-                if (strncmp(dststr, cap_dst, 12) == 0) 
+                if (strncmp(dststr, cap_dst, 12) == 0)
 		        wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
                 else
 		        wth->phdr.pkt_encap = WTAP_ENCAP_PPP;
@@ -326,7 +326,7 @@ netscreen_seek_read (wtap *wth, gint64 seek_off,
 }
 
 /* Parses a packet record header. There are a few possible formats:
- * 
+ *
  * XXX list extra formats here!
 6843828.0: trust(o) len=98:00121ebbd132->00600868d659/0800
               192.168.1.1 -> 192.168.1.10/6
@@ -352,7 +352,7 @@ parse_netscreen_rec_hdr(wtap *wth, const char *line, char *cap_int,
 	char	direction[2];
 	char	cap_src[13];
 
-	if (sscanf(line, "%d.%d: %15[a-z0-9/:.](%1[io]) len=%d:%12s->%12s/",
+	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.-](%1[io]) len=%9d:%12s->%12s/",
 		   &sec, &dsec, cap_int, direction, &pkt_len, cap_src, cap_dst) < 5) {
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup("netscreen: Can't parse packet-header");
@@ -391,15 +391,15 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 		if (empty_line(line)) {
 			break;
 		}
-		
-		/* terminate the line before the ascii-data to prevent the 
-		 * parser from parsing one or more extra bytes from the 
+
+		/* terminate the line before the ascii-data to prevent the
+		 * parser from parsing one or more extra bytes from the
 		 * ascii-data.
 		 * Check for longer lines to prevent wireless hexdumps to
 		 * be cut in the middle (they can have 14 extra spaces
 		 * before the hex-data)
 		 */
-		if(strlen(line) != 98) 
+		if(strlen(line) != 98)
 			line[62] = '\0';
 		else
 			line[76] = '\0';
@@ -407,7 +407,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 		n = parse_single_hex_dump_line(line, buf, offset);
 
 		/* the smallest packet has a length of 6 bytes, if
-		 * the first hex-data is less then check whether 
+		 * the first hex-data is less then check whether
 		 * it is a info-line and act accordingly
 		 */
 		if (offset == 0 && n < 6) {
@@ -434,7 +434,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 		/* Adjust the offset to the data that was just added to the buffer */
 		offset += n;
 
-		/* If there was more hex-data than was announced in the len=x 
+		/* If there was more hex-data than was announced in the len=x
 		 * header, then then there must be an error in the file
 		 */
 		if(offset > pkt_len) {
