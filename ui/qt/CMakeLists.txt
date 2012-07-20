@@ -42,7 +42,7 @@ set(QTSHARK_H_SRC
 	monospace_font.h
 	packet_list.h
 	packet_list_model.h
-	progress_dialog.h
+	progress_bar.h
 	proto_tree.h
 	recent_file_status.h
 	simple_dialog_qt.h
@@ -74,7 +74,7 @@ set(QTSHARK_CPP_SRC
 	packet_list.cpp
 	packet_list_model.cpp
 	packet_list_record.cpp
-	progress_dialog.cpp
+	progress_bar.cpp
 	proto_tree.cpp
 	qt_ui_utils.cpp
 	recent_file_status.cpp
