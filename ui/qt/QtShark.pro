@@ -305,6 +305,7 @@ RESOURCES += \
     i18n.qrc
 
 TRANSLATIONS = \
+        qtshark_de.ts	\
         qtshark_fr.ts
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
