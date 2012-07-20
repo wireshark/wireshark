@@ -816,6 +816,7 @@ File "${STAGING_DIR}\plugins\${VERSION}\profinet.dll"
 File "${STAGING_DIR}\plugins\${VERSION}\unistim.dll"
 File "${STAGING_DIR}\plugins\${VERSION}\wimax.dll"
 File "${STAGING_DIR}\plugins\${VERSION}\wimaxasncp.dll"
+File "${STAGING_DIR}\plugins\${VERSION}\wimaxmacphy.dll"
 !include "custom_plugins.txt"
 SectionEnd
 

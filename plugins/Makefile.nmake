@@ -19,7 +19,8 @@ PLUGIN_LIST = \
 	stats_tree  \
 	unistim     \
 	wimax       \
-	wimaxasncp
+	wimaxasncp  \
+	wimaxmacphy
 
 
 all:

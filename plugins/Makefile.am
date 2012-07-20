@@ -35,7 +35,8 @@ SUBDIRS = $(_CUSTOM_SUBDIRS_) \
 	stats_tree \
 	unistim \
 	wimax \
-	wimaxasncp
+	wimaxasncp \
+	wimaxmacphy
 
 plugindir = @plugindir@
 

@@ -429,6 +429,7 @@ if(ENABLE_PLUGINS)
 		plugins/unistim
 		plugins/wimax
 		plugins/wimaxasncp
+		plugins/wimaxmacphy
 	)
 # It seems this stuff doesn't build with autofoo either...
 #	if(YAPP_FOUND)

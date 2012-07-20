@@ -264,6 +264,7 @@ wireshark.bsc: \
 	plugins\unistim\*.sbr		\
 	plugins\wimax\*.sbr		\
 	plugins\wimaxasncp\*.sbr	\
+	plugins\wimaxmacphy\*.sbr	\
 	ui\*.sbr			\
 	ui\cli\*.sbr			\
 	ui\gtk\*.sbr			\

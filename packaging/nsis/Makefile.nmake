@@ -58,6 +58,7 @@ PLUGINS= \
 	../../plugins/unistim/unistim.dll \
 	../../plugins/wimax/wimax.dll \
 	../../plugins/wimaxasncp/wimaxasncp.dll \
+	../../plugins/wimaxmacphy/wimaxmacphy.dll \
 	$(CUSTOM_PLUGINS)
 
 NSI=\
