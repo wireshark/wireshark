@@ -236,8 +236,8 @@ bytes_view_realize(GtkWidget *widget)
 
 #if GTK_CHECK_VERSION(3, 0, 0)
 	context = gtk_widget_get_style_context(widget);
-	/* gtk_style_context_add_class(context, GTK_STYLE_CLASS_VIEW); */
-	gtk_style_context_add_class(context, GTK_STYLE_CLASS_ENTRY);
+	gtk_style_context_add_class(context, GTK_STYLE_CLASS_VIEW);
+	/* gtk_style_context_add_class(context, GTK_STYLE_CLASS_ENTRY); */
 
 #elif GTK_CHECK_VERSION(2, 20, 0)
 	gtk_widget_style_attach(widget);
@@ -476,7 +476,7 @@ bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str
 
 		/* background */
 #if GTK_CHECK_VERSION(3, 0, 0)
-		gtk_style_context_get_background_color(context, GTK_STATE_FLAG_SELECTED, &bg_color);
+		gtk_style_context_get_background_color(context, GTK_STATE_FLAG_FOCUSED | GTK_STATE_FLAG_SELECTED, &bg_color);
 		gdk_cairo_set_source_rgba(cr, &bg_color);
 #else
 		gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[bv->state]);
@@ -487,7 +487,7 @@ bytes_view_flush_render(BytesView *bv, void *data, int x, int y, const char *str
 
 	/* text */
 #if GTK_CHECK_VERSION(3, 0, 0)
-	gtk_style_context_get_color(context, bv->state == GTK_STATE_SELECTED ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_NORMAL, &fg_color);
+	gtk_style_context_get_color(context, GTK_STATE_FLAG_FOCUSED | (bv->state == GTK_STATE_SELECTED ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_NORMAL), &fg_color);
 	gdk_cairo_set_source_rgba(cr, &fg_color);
 #else
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->text[bv->state]);
@@ -818,7 +818,7 @@ bytes_view_render(BytesView *bv, cairo_t *cr, GdkRectangle *area)
 	/* clear */
 #if GTK_CHECK_VERSION(3, 0, 0)
 	context = gtk_widget_get_style_context(GTK_WIDGET(bv));
-	gtk_style_context_get_background_color(context, GTK_STATE_FLAG_NORMAL, &bg_color);
+	gtk_style_context_get_background_color(context, GTK_STATE_FLAG_FOCUSED | GTK_STATE_FLAG_NORMAL, &bg_color);
 	gdk_cairo_set_source_rgba(cr, &bg_color);
 #else
 	gdk_cairo_set_source_color(cr, &gtk_widget_get_style(GTK_WIDGET(bv))->base[GTK_STATE_NORMAL]);
