@@ -106,9 +106,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Widgets are not properly expanded in GTK3.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7377">Bug
+          7377</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Find Next Mark duplicated on Edit Menu.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7445">Bug
           7445</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          DVB-CI/CI+: fix offset error in operator_info apdu.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7468">Bug
+          7468</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Unable to correctly identify IEC 61850 MMS packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7488">Bug
+          7488</ulink>)
         </para></listitem>
 
       </itemizedlist>

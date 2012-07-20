@@ -3412,6 +3412,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           if (!info_valid)
               break;
+          offset++;
           proto_tree_add_item(tree, hf_dvbci_cicam_onid,
                   tvb, offset, 2, ENC_BIG_ENDIAN);
           offset += 2;

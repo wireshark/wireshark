@@ -3533,7 +3533,7 @@ void main_widgets_rearrange(void) {
     if (second_pane_widget2 != NULL)
         gtk_paned_pack2(GTK_PANED(main_second_pane), second_pane_widget2, FALSE, FALSE);
 
-    gtk_container_add(GTK_CONTAINER(main_vbox), main_first_pane);
+    gtk_box_pack_start(GTK_BOX(main_vbox), main_first_pane, TRUE, TRUE, 0);
 
     /* welcome pane */
     gtk_box_pack_start(GTK_BOX(main_vbox), welcome_pane, TRUE, TRUE, 0);
