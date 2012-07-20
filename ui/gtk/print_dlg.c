@@ -679,7 +679,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   /*** hor box for range and format frames ***/
   packet_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), packet_hb);
+  gtk_box_pack_start(GTK_BOX(main_vb), packet_hb, TRUE, TRUE, 0);
   gtk_widget_show(packet_hb);
 
   /*** packet range frame ***/
@@ -710,7 +710,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(summary_cb), args->print_summary);
   g_signal_connect(summary_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
   gtk_widget_set_tooltip_text(summary_cb, "Output of a packet summary line, like in the packet list");
-  gtk_container_add(GTK_CONTAINER(format_vb), summary_cb);
+  gtk_box_pack_start(GTK_BOX(format_vb), summary_cb, TRUE, TRUE, 0);
   gtk_widget_show(summary_cb);
 
 
@@ -719,13 +719,13 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(details_cb), args->print_dissections != print_dissections_none);
   g_signal_connect(details_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
   gtk_widget_set_tooltip_text(details_cb, "Output format of the selected packet details (protocol tree).");
-  gtk_container_add(GTK_CONTAINER(format_vb), details_cb);
+  gtk_box_pack_start(GTK_BOX(format_vb), details_cb, TRUE, TRUE, 0);
   gtk_widget_show(details_cb);
 
   /*** packet details ***/
   details_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(details_hb), 0);
-  gtk_container_add(GTK_CONTAINER(format_vb), details_hb);
+  gtk_box_pack_start(GTK_BOX(format_vb), details_hb, TRUE, TRUE, 0);
   gtk_widget_show(details_hb);
 
   details_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 6, FALSE);
@@ -762,12 +762,12 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_cb), args->print_hex);
   g_signal_connect(hex_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
   gtk_widget_set_tooltip_text(hex_cb, "Add a hexdump of the packet data");
-  gtk_container_add(GTK_CONTAINER(format_vb), hex_cb);
+  gtk_box_pack_start(GTK_BOX(format_vb), hex_cb, TRUE, TRUE, 0);
   gtk_widget_show(hex_cb);
 
   /* seperator */
   sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
-  gtk_container_add(GTK_CONTAINER(format_vb), sep);
+  gtk_box_pack_start(GTK_BOX(format_vb), sep, TRUE, TRUE, 0);
   gtk_widget_show(sep);
 
   /* "Each packet on a new page" check button. */
@@ -775,7 +775,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(formfeed_cb), args->print_formfeed);
   gtk_widget_set_tooltip_text (formfeed_cb, "When checked, a new page will be used for each packet. "
       "This is done by adding a formfeed (or similar) between the packet outputs.");
-  gtk_container_add(GTK_CONTAINER(format_vb), formfeed_cb);
+  gtk_box_pack_start(GTK_BOX(format_vb), formfeed_cb, TRUE, TRUE, 0);
   gtk_widget_show(formfeed_cb);
 
 

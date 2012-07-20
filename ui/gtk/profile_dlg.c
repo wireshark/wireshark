@@ -801,12 +801,12 @@ profile_dialog_new(void)
   /* Container for each row of widgets */
   profile_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(profile_vb), 0);
-  gtk_container_add(GTK_CONTAINER(main_vb), profile_vb);
+  gtk_box_pack_start(GTK_BOX(main_vb), profile_vb, TRUE, TRUE, 0);
   gtk_widget_show(profile_vb);
 
   /* Top row: Buttons and profile list */
   top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
-  gtk_container_add(GTK_CONTAINER(profile_vb), top_hb);
+  gtk_box_pack_start(GTK_BOX(profile_vb), top_hb, TRUE, TRUE, 0);
   gtk_widget_show(top_hb);
 
   edit_fr = gtk_frame_new("Edit");
@@ -892,7 +892,7 @@ profile_dialog_new(void)
 
   /* row: Profile name entry */
   middle_hb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
+  gtk_box_pack_start(GTK_BOX(props_vb), middle_hb, TRUE, TRUE, 0);
   gtk_widget_show(middle_hb);
 
   name_lb = gtk_label_new("Profile name:");

@@ -615,7 +615,7 @@ not_supported:
 		GtkWidget *byte_view;
 		/* Byte view */
 		bv_nb_ptr = byte_view_new();
-		gtk_container_add(GTK_CONTAINER(frame_vbox), bv_nb_ptr);
+		gtk_box_pack_start(GTK_BOX(frame_vbox), bv_nb_ptr, TRUE, TRUE, 0);
 		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
 		gtk_widget_show(bv_nb_ptr);
 
@@ -628,7 +628,7 @@ not_supported:
 		GtkWidget *byte_view;
 		/* Appendix byte view */
 		bv_nb_ptr = byte_view_new();
-		gtk_container_add(GTK_CONTAINER(frame_vbox), bv_nb_ptr);
+		gtk_box_pack_start(GTK_BOX(frame_vbox), bv_nb_ptr, TRUE, TRUE, 0);
 		gtk_widget_set_size_request(bv_nb_ptr, -1, BV_SIZE);
 		gtk_widget_show(bv_nb_ptr);
 

@@ -298,7 +298,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
 
-	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
+	gtk_box_pack_start(GTK_BOX(main_vb), scr_win, TRUE, TRUE, 0);
 
 	error_string = register_tap_listener( cfg->tapname,
 					      st,

@@ -137,11 +137,11 @@ splash_new(const char *message)
     about_wireshark(win, main_box);
 
     main_lb = gtk_label_new(message);
-    gtk_box_pack_start(GTK_BOX(main_box), main_lb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(main_box), main_lb, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(win), "splash_label", main_lb);
 
     main_lb = gtk_label_new("");
-    gtk_box_pack_start(GTK_BOX(main_box), main_lb, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(main_box), main_lb, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(win), "protocol_label", main_lb);
 
     percentage_box = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);

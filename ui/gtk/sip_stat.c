@@ -612,17 +612,17 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     /* Initialise & show number of packets */
     sp->packets = 0;
     sp->packets_label = gtk_label_new("SIP stats (0 SIP packets)");
-    gtk_container_add(GTK_CONTAINER(main_vb), sp->packets_label);
+    gtk_box_pack_start(GTK_BOX(main_vb), sp->packets_label, TRUE, TRUE, 0);
 
     sp->resent_packets = 0;
     sp->resent_label = gtk_label_new("(0 resent packets)");
-    gtk_container_add(GTK_CONTAINER(main_vb), sp->resent_label);
+    gtk_box_pack_start(GTK_BOX(main_vb), sp->resent_label, TRUE, TRUE, 0);
     gtk_widget_show(sp->resent_label);
 
 
     /* Informational response frame */
     informational_fr = gtk_frame_new("Informational  SIP 1xx");
-    gtk_container_add(GTK_CONTAINER(main_vb), informational_fr);
+    gtk_box_pack_start(GTK_BOX(main_vb), informational_fr, TRUE, TRUE, 0);
 
     /* Information table (within that frame) */
     sp->informational_table = gtk_table_new(0, 2, FALSE);
@@ -630,35 +630,35 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
 
     /* Success table and frame */
     success_fr = gtk_frame_new	("Success         SIP 2xx");
-    gtk_container_add(GTK_CONTAINER(main_vb), success_fr);
+    gtk_box_pack_start(GTK_BOX(main_vb), success_fr, TRUE, TRUE, 0);
 
     sp->success_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(success_fr), sp->success_table);
 
     /* Redirection table and frame */
     redirection_fr = gtk_frame_new	("Redirection     SIP 3xx");
-    gtk_container_add(GTK_CONTAINER(main_vb), redirection_fr);
+    gtk_box_pack_start(GTK_BOX(main_vb), redirection_fr, TRUE, TRUE, 0);
 
     sp->redirection_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(redirection_fr), sp->redirection_table);
 
     /* Client Errors table and frame */
     client_errors_fr = gtk_frame_new("Client errors  SIP 4xx");
-    gtk_container_add(GTK_CONTAINER(main_vb), client_errors_fr);
+    gtk_box_pack_start(GTK_BOX(main_vb), client_errors_fr, TRUE, TRUE, 0);
 
     sp->client_error_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(client_errors_fr), sp->client_error_table);
 
     /* Server Errors table and frame */
     server_errors_fr = gtk_frame_new("Server errors  SIP 5xx");
-    gtk_container_add(GTK_CONTAINER(main_vb), server_errors_fr);
+    gtk_box_pack_start(GTK_BOX(main_vb), server_errors_fr, TRUE, TRUE, 0);
 
     sp->server_errors_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(server_errors_fr), sp->server_errors_table);
 
     /* Global Failures table and frame */
     global_failures_fr = gtk_frame_new("Global failures  SIP 6xx");
-    gtk_container_add(GTK_CONTAINER(main_vb), global_failures_fr);
+    gtk_box_pack_start(GTK_BOX(main_vb), global_failures_fr, TRUE, TRUE, 0);
 
     sp->global_failures_table = gtk_table_new(0, 2, FALSE);
     gtk_container_add(GTK_CONTAINER(global_failures_fr), sp->global_failures_table);
@@ -666,11 +666,11 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
 
     /* Separator between requests and responses */
     separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
-    gtk_container_add(GTK_CONTAINER(main_vb), separator);
+    gtk_box_pack_start(GTK_BOX(main_vb), separator, TRUE, TRUE, 0);
 
     /* Request table and frame */
     request_fr = gtk_frame_new("List of request methods");
-    gtk_container_add(GTK_CONTAINER(main_vb), request_fr);
+    gtk_box_pack_start(GTK_BOX(main_vb), request_fr, TRUE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(request_fr), 0);
 
     sp->request_box = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 10, FALSE);
@@ -680,7 +680,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
 	sp->max_setup_time =0;
 	sp->min_setup_time =0;
     sp->average_setup_time_label = gtk_label_new("(Not calculated)");
-    gtk_container_add(GTK_CONTAINER(main_vb), sp->average_setup_time_label);
+    gtk_box_pack_start(GTK_BOX(main_vb), sp->average_setup_time_label, TRUE, TRUE, 0);
     gtk_widget_show(sp->average_setup_time_label);
 
 

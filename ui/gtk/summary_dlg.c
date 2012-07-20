@@ -224,7 +224,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   table = gtk_table_new(1, 2, FALSE);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
   gtk_table_set_row_spacings(GTK_TABLE(table), 3);
-  gtk_container_add(GTK_CONTAINER(main_vb), table);
+  gtk_box_pack_start(GTK_BOX(main_vb), table, TRUE, TRUE, 0);
   row = 0;
 
 
@@ -265,16 +265,16 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 
   /* Capture file comment area */
-  comment_frame = gtk_frame_new ("Capture file comments");
-  gtk_frame_set_shadow_type (GTK_FRAME (comment_frame), GTK_SHADOW_ETCHED_IN);
-  gtk_container_add (GTK_CONTAINER (main_vb), comment_frame);
-  gtk_widget_show (comment_frame);
+  comment_frame = gtk_frame_new("Capture file comments");
+  gtk_frame_set_shadow_type(GTK_FRAME(comment_frame), GTK_SHADOW_ETCHED_IN);
+  gtk_box_pack_start(GTK_BOX(main_vb), comment_frame, TRUE, TRUE, 0);
+  gtk_widget_show(comment_frame);
 
   comment_vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
-  gtk_container_add (GTK_CONTAINER (comment_frame), comment_vbox);
-  gtk_widget_show (comment_vbox);
+  gtk_container_add(GTK_CONTAINER(comment_frame), comment_vbox);
+  gtk_widget_show(comment_vbox);
 
-  comment_view = gtk_text_view_new ();
+  comment_view = gtk_text_view_new();
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(comment_view), GTK_WRAP_WORD);
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (comment_view));
   if(summary.opt_comment == NULL) {
@@ -284,7 +284,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_text_buffer_set_text (buffer, buf_str, -1);
     g_free(buf_str);
   }
-  gtk_container_add(GTK_CONTAINER(comment_vbox), comment_view);
+  gtk_box_pack_start(GTK_BOX(comment_vbox), comment_view, TRUE, TRUE, 0);
   gtk_widget_show (comment_view);
 
   /*
@@ -401,12 +401,12 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tree_view_set_model(GTK_TREE_VIEW(treeview), GTK_TREE_MODEL(store));
   g_object_unref (store);
   gtk_container_add(GTK_CONTAINER(scrolled_window), treeview);
-  gtk_container_add(GTK_CONTAINER(main_vb),scrolled_window);
-  gtk_widget_show_all (scrolled_window);
+  gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
+  gtk_widget_show_all(scrolled_window);
   table = gtk_table_new(1, 2, FALSE);
   gtk_table_set_col_spacings(GTK_TABLE(table), 6);
   gtk_table_set_row_spacings(GTK_TABLE(table), 3);
-  gtk_container_add(GTK_CONTAINER(main_vb), table);
+  gtk_box_pack_start(GTK_BOX(main_vb), table, TRUE, TRUE, 0);
   row = 0;
 
 
@@ -444,7 +444,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Traffic */
   list = simple_list_new(4, titles);
-  gtk_container_add(GTK_CONTAINER(main_vb), list);
+  gtk_box_pack_start(GTK_BOX(main_vb), list, TRUE, TRUE, 0);
 
   /* Packet count */
   g_snprintf(string_buff, SUM_STR_MAX, "%i", summary.packet_count);
@@ -584,7 +584,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Button row. */
   bbox = dlg_button_row_new(GTK_STOCK_CANCEL, GTK_STOCK_OK, GTK_STOCK_HELP, NULL);
-  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, TRUE, TRUE, 0);
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(summary_dlg, cancel_bt, window_cancel_button_cb);

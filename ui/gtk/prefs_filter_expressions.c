@@ -121,7 +121,7 @@ filter_expressions_prefs_show(void) {
     list_sc = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(list_sc),
 	GTK_SHADOW_IN);
-    gtk_container_add(GTK_CONTAINER(list_vb), list_sc);
+    gtk_box_pack_start(GTK_BOX(list_vb), list_sc, TRUE, TRUE, 0);
     gtk_widget_show(list_sc);
 
     store = gtk_list_store_new(N_COLUMN,

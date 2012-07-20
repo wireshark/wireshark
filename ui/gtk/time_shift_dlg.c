@@ -136,7 +136,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Shift All Packets frame
    */
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_hb, TRUE, TRUE, 0);
   gtk_widget_show(main_hb);
 
   types_frame = gtk_frame_new(NULL);
@@ -179,7 +179,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Set Packet Number to Time frame
    */
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_hb, TRUE, TRUE, 0);
   gtk_widget_show(main_hb);
 
   types_frame = gtk_frame_new(NULL);
@@ -244,7 +244,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Set two Packet Numbers to Time frame and extrapolate
    */
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_hb, TRUE, TRUE, 0);
   gtk_widget_show(main_hb);
 
   types_frame = gtk_frame_new(NULL);
@@ -345,7 +345,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
    * Undo all shifts
    */
   main_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_hb, TRUE, TRUE, 0);
   gtk_widget_show(main_hb);
 
   types_frame = gtk_frame_new(NULL);
@@ -359,7 +359,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* time shift type row */
   undo_type_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
-  gtk_container_add(GTK_CONTAINER(types_vb), undo_type_hb);
+  gtk_box_pack_start(GTK_BOX(types_vb), undo_type_hb, TRUE, TRUE, 0);
   gtk_widget_show(undo_type_hb);
 
   /* time shift row */

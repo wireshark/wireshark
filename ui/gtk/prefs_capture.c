@@ -330,7 +330,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* create current options frame */
 	cur_opts_fr = gtk_frame_new("Interfaces");
-	gtk_container_add(GTK_CONTAINER(main_vb), cur_opts_fr);
+	gtk_box_pack_start(GTK_BOX(main_vb), cur_opts_fr, TRUE, TRUE, 0);
 	gtk_widget_show(cur_opts_fr);
 
 	/* create a scrolled window to pack the current options TreeView widget into */

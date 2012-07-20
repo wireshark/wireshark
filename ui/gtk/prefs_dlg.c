@@ -455,7 +455,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
 
   /* Top row: Preferences tree and notebook */
   top_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10, FALSE);
-  gtk_container_add(GTK_CONTAINER(cts.main_vb), top_hb);
+  gtk_box_pack_start(GTK_BOX(cts.main_vb), top_hb, TRUE, TRUE, 0);
   gtk_widget_show(top_hb);
 
   /* scrolled window on the left for the categories tree */
@@ -464,7 +464,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
                                    GTK_SHADOW_IN);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ct_sb),
                                  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(top_hb), ct_sb);
+  gtk_box_pack_start(GTK_BOX(top_hb), ct_sb, TRUE, TRUE, 0);
   gtk_widget_show(ct_sb);
   g_object_set_data(G_OBJECT(prefs_w), E_PREFSW_SCROLLW_KEY, ct_sb);
 
@@ -493,7 +493,7 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   g_object_set_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY, prefs_nb);
   gtk_notebook_set_show_tabs(GTK_NOTEBOOK(prefs_nb), FALSE);
   gtk_notebook_set_show_border(GTK_NOTEBOOK(prefs_nb), FALSE);
-  gtk_container_add(GTK_CONTAINER(top_hb), prefs_nb);
+  gtk_box_pack_start(GTK_BOX(top_hb), prefs_nb, TRUE, TRUE, 0);
   gtk_widget_show(prefs_nb);
 
   cts.page = 0;
