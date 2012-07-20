@@ -42,10 +42,6 @@ if (WERROR)
 	)
 endif()
 
-add_lex_files(PLUGIN_FILES
-	wimaxmacphy_dict.l
-)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 register_dissector_files(plugin.c
