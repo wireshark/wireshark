@@ -98,6 +98,7 @@ set(QTSHARK_QRC
 )
 
 set(QTSHARK_TS
+	qtshark_de.ts
 	qtshark_fr.ts
 )
 
