@@ -363,6 +363,7 @@ File "${VCREDIST_EXE}"
 ; "silent" install otherwise.
 
 ; http://blogs.msdn.com/b/astebner/archive/2010/10/20/10078468.aspx
+; "!if ${MSVC_VER_REQUIRED} >= 1600" doesn't work.
 !searchparse /noerrors ${MSVC_VER_REQUIRED} "1400" VCREDIST_OLD_FLAGS "1500" VCREDIST_OLD_FLAGS
 !ifdef VCREDIST_OLD_FLAGS
 StrCpy $VCREDIST_FLAGS "/q"
