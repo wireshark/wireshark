@@ -4185,9 +4185,13 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
 
     wtapng_section_t *shb_hdr = NULL;
     wtapng_iface_descriptions_t *idb_inf = NULL;
+    int encap;
 
     shb_hdr = wtap_file_get_shb_info(cf->wth);
     idb_inf = wtap_file_get_idb_info(cf->wth);
+
+    /* Determine what file encapsulation type we should use. */
+    encap = wtap_dump_file_encap_type(cf->linktypes);
 
     if (file_exists(fname)) {
       /* We're overwriting an existing file; write out to a new file,
@@ -4198,10 +4202,10 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
          we *HAVE* to do that, otherwise we're overwriting the file
          from which we're reading the packets that we're writing!) */
       fname_new = g_strdup_printf("%s~", fname);
-      pdh = wtap_dump_open_ng(fname_new, save_format, cf->lnk_t, cf->snap,
+      pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
                               compressed, shb_hdr, idb_inf, &err);
     } else {
-      pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
+      pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
                               compressed, shb_hdr, idb_inf, &err);
     }
     g_free(idb_inf);
@@ -4389,6 +4393,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   save_callback_args_t callback_args;
   wtapng_section_t *shb_hdr = NULL;
   wtapng_iface_descriptions_t *idb_inf = NULL;
+  int encap;
 
   cf_callback_invoke(cf_cb_file_export_specified_packets_started, (gpointer)fname);
 
@@ -4402,6 +4407,9 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
 
+  /* Determine what file encapsulation type we should use. */
+  encap = wtap_dump_file_encap_type(cf->linktypes);
+
   if (file_exists(fname)) {
     /* We're overwriting an existing file; write out to a new file,
        and, if that succeeds, rename the new file on top of the
@@ -4411,10 +4419,10 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        we *HAVE* to do that, otherwise we're overwriting the file
        from which we're reading the packets that we're writing!) */
     fname_new = g_strdup_printf("%s~", fname);
-    pdh = wtap_dump_open_ng(fname_new, save_format, cf->lnk_t, cf->snap,
+    pdh = wtap_dump_open_ng(fname_new, save_format, encap, cf->snap,
                             compressed, shb_hdr, idb_inf, &err);
   } else {
-    pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
+    pdh = wtap_dump_open_ng(fname, save_format, encap, cf->snap,
                             compressed, shb_hdr, idb_inf, &err);
   }
   g_free(idb_inf);

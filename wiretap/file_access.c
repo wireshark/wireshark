@@ -762,6 +762,25 @@ int wtap_get_num_file_types(void)
 }
 
 /*
+ * Given a GArray of WTAP_ENCAP_ types, return the per-file encapsulation
+ * type that would be needed to write out a file with those types.  If
+ * there's only one type, it's that type, otherwise it's
+ * WTAP_ENCAP_PER_PACKET.
+ */
+int
+wtap_dump_file_encap_type(const GArray *file_encaps)
+{
+	int encap;
+
+	encap = WTAP_ENCAP_PER_PACKET;
+	if (file_encaps->len == 1) {
+		/* OK, use the one-and-only encapsulation type. */
+		encap = g_array_index(file_encaps, gint, 0);
+	}
+	return encap;
+}
+
+/*
  * Return TRUE if a capture with a given GArray of WTAP_ENCAP_ types
  * can be written in a specified format, and FALSE if it can't.
  */
@@ -779,24 +798,24 @@ wtap_dump_can_write_encaps(int ft, const GArray *file_encaps)
 	}
 
 	/*
-	 * OK, we can write in that format; can we write out all the
-	 * specified encapsulation types in that format?
+	 * Is the required per-file encapsulation type supported?
+	 * This might be WTAP_ENCAP_PER_PACKET.
 	 */
-	if (file_encaps->len > 1) {
-		/*
-		 * We have more than one encapsulation type,
-		 * so that format needs to support
-		 * WTAP_ENCAP_PER_PACKET.
-		 */
-		if (!wtap_dump_can_write_encap(ft, WTAP_ENCAP_PER_PACKET))
-			return FALSE;
-	}
-
+	if (!wtap_dump_can_write_encap(ft, wtap_dump_file_encap_type(file_encaps)))
+		return FALSE;
+	
+	/*
+	 * Yes.  Are all the individual encapsulation types supported?
+	 */
 	for (i = 0; i < file_encaps->len; i++) {
 		if (!wtap_dump_can_write_encap(ft,
-		    g_array_index(file_encaps, int, i)))
+		    g_array_index(file_encaps, int, i))) {
+			/* No - one of them isn't. */
 			return FALSE;
+		}
 	}
+
+	/* Yes - we're OK. */
 	return TRUE;
 }
 
