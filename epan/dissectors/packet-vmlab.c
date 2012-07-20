@@ -146,7 +146,7 @@ proto_register_vmlab(void)
         { &hf_vmlab_flags_part1,    { "Unknown", "vmlab.unknown1",
             FT_UINT8, BASE_HEX,  NULL, 0xF8, NULL, HFILL }},
         { &hf_vmlab_flags_fragment, { "More Fragments", "vmlab.fragment",
-            FT_UINT8, BASE_NONE, VALS(fragment_vals), 0x04, NULL, HFILL }},
+            FT_UINT8, BASE_DEC, VALS(fragment_vals), 0x04, NULL, HFILL }},
         { &hf_vmlab_flags_part2,    { "Unknown", "vmlab.unknown2",
             FT_UINT8, BASE_HEX,  NULL, 0x03, NULL, HFILL }},
 

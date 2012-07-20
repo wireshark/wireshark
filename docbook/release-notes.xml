@@ -75,11 +75,41 @@ Wireshark Info
         </para></listitem>
 -->
 
-      <listitem><para>
-	Rearranging columns in preferences doesn't work on 64-bit Windows.
-	(<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
-	6077</ulink>)
-      </para></listitem>
+        <listitem><para>
+          Cannot run tshark under TCP using decode-as format for syslog.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5241">Bug
+          5241</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Unable to reassemble EAP-TLS fragments across multiple RADIUS packets (works on 1.2.15).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5735">Bug
+          5735</ulink>)
+        </para></listitem>
+
+	<listitem><para>
+	  Rearranging columns in preferences doesn't work on 64-bit Windows.
+	  (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
+	  6077</ulink>)
+	</para></listitem>
+
+        <listitem><para>
+          After fix for Bug 3046, after save-as then open you cannot see the packet list.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6640">Bug
+          6640</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Unhandled exception ( group=1, code=4) occurs when trying to capture in pdml file.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7333">Bug
+          7333</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Netscreen - Can't parse packet-header.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7340">Bug
+          7340</ulink>)
+        </para></listitem>
 
      </itemizedlist>
 
@@ -107,7 +137,15 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+DIAMETER,
+IEEE 802.11,
+MNDP,
 PPP,
+RADIUS,
+SNMP,
+Syslog,
+UDP-Lite,
+VMLAB,
 WiMax DL-MAP,
 WiMax UL-MAP,
 
@@ -117,7 +155,7 @@ WiMax UL-MAP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+Juniper NetScreen
 
     </para>
     </section>

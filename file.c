@@ -485,7 +485,7 @@ calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_s
 }
 
 cf_read_status_t
-cf_read(capture_file *cf, gboolean from_save)
+cf_read(capture_file *cf, gboolean reloading)
 {
   int         err;
   gchar       *err_info;
@@ -528,10 +528,10 @@ cf_read(capture_file *cf, gboolean from_save)
 
   name_ptr = get_basename(cf->filename);
 
-  if (from_save == FALSE)
-    cf_callback_invoke(cf_cb_file_read_started, cf);
+  if (reloading)
+    cf_callback_invoke(cf_cb_file_reload_started, cf);
   else
-    cf_callback_invoke(cf_cb_file_save_started, (gpointer)name_ptr);
+    cf_callback_invoke(cf_cb_file_read_started, cf);
 
   /* Find the size of the file. */
   size = wtap_file_size(cf->wth, NULL);
@@ -565,11 +565,11 @@ cf_read(capture_file *cf, gboolean from_save)
        */
       if ((progbar == NULL) && !(count % MIN_NUMBER_OF_PACKET)){
         progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
-        if (from_save == FALSE)
-          progbar = delayed_create_progress_dlg("Loading", name_ptr,
+        if (reloading)
+          progbar = delayed_create_progress_dlg("Reloading", name_ptr,
                                                 TRUE, &stop_flag, &start_time, progbar_val);
         else
-          progbar = delayed_create_progress_dlg("Saving", name_ptr,
+          progbar = delayed_create_progress_dlg("Loading", name_ptr,
                                                 TRUE, &stop_flag, &start_time, progbar_val);
       }
 
@@ -663,10 +663,10 @@ cf_read(capture_file *cf, gboolean from_save)
   cf->current_row = 0;
 
   new_packet_list_thaw();
-  if (from_save == FALSE)
-    cf_callback_invoke(cf_cb_file_read_finished, cf);
+  if (reloading)
+    cf_callback_invoke(cf_cb_file_reload_finished, cf);
   else
-    cf_callback_invoke(cf_cb_file_save_finished, cf);
+    cf_callback_invoke(cf_cb_file_read_finished, cf);
 
   /* If we have any displayed packets to select, select the first of those
      packets by making the first row the selected row. */
@@ -3790,7 +3790,6 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        correctly for the "no capture file open" state). */
     break;
       }
-      cf_callback_invoke(cf_cb_file_save_reload_finished, cf);
     }
   }
   return CF_OK;
@@ -4032,7 +4031,7 @@ cf_reload(capture_file *cf) {
   is_tempfile = cf->is_tempfile;
   cf->is_tempfile = FALSE;
   if (cf_open(cf, filename, is_tempfile, &err) == CF_OK) {
-    switch (cf_read(cf, FALSE)) {
+    switch (cf_read(cf, TRUE)) {
 
     case CF_READ_OK:
     case CF_READ_ERROR:

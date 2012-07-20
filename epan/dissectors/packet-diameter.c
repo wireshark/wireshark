@@ -1188,15 +1188,15 @@ RFC3588
 		NULL, FT_UINT16, BASE_DEC|BASE_EXT_STRING, &diameter_avp_data_addrfamily_vals_ext, 0);
 
 	reginfo(&(t->hf_ipv4), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s",name)),
+		alnumerize(ep_strdup_printf("diameter.%s.IPv4",name)),
 		NULL, FT_IPv4, BASE_NONE, NULL, 0);
 
 	reginfo(&(t->hf_ipv6), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s",name)),
+		alnumerize(ep_strdup_printf("diameter.%s.IPv6",name)),
 		NULL, FT_IPv6, BASE_NONE, NULL, 0);
 
 	reginfo(&(t->hf_other), ep_strdup_printf("%s Address",name),
-		alnumerize(ep_strdup_printf("diameter.%s",name)),
+		alnumerize(ep_strdup_printf("diameter.%s.Bytes",name)),
 		NULL, FT_BYTES, BASE_NONE, NULL, 0);
 
 	g_ptr_array_add(build_dict.ett,ettp);
@@ -1523,7 +1523,7 @@ dictionary_load(void)
 			if ( (strcase_equal(x->name,"avp-proto") && strcase_equal(x->key,a->name))
 				 || (a->type && strcase_equal(x->name,"type-proto") && strcase_equal(x->key,a->type))
 				 ) {
-				static avp_type_t proto_type = {"proto", proto_avp, proto_avp, FT_UINT32, BASE_NONE, build_proto_avp};
+				static avp_type_t proto_type = {"proto", proto_avp, proto_avp, FT_UINT32, BASE_HEX, build_proto_avp};
 				type =  &proto_type;
 
 				avp_data = x->value;

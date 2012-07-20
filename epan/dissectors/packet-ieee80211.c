@@ -12583,7 +12583,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_supp_rates,
      {"Supported Rates", "wlan_mgt.supported_rates",
-      FT_UINT8, BASE_NONE, VALS(ieee80211_supported_rates_vals), 0x0,
+      FT_UINT8, BASE_HEX, VALS(ieee80211_supported_rates_vals), 0x0,
       "In Mbit/sec, (B) for Basic Rates", HFILL }},
 
     {&hf_ieee80211_tag_fh_dwell_time,
@@ -14702,7 +14702,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_extended_capabilities_serv_int_granularity,
      {"Service Interval Granularity",
       "wlan_mgt.extcap.infoexchange.serv_int_granularity",
-      FT_UINT8, BASE_NONE, VALS(service_interval_granularity_vals), 0x000e,
+      FT_UINT8, BASE_DEC, VALS(service_interval_granularity_vals), 0x000e,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid,
@@ -15311,7 +15311,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_ext_supp_rates,
      {"Extented Supported Rates", "wlan_mgt.extented_supported_rates",
-      FT_UINT8, BASE_NONE, VALS(ieee80211_supported_rates_vals), 0x0,
+      FT_UINT8, BASE_HEX, VALS(ieee80211_supported_rates_vals), 0x0,
       "In Mbit/sec, (B) for Basic Rates", HFILL }},
 
     {&hf_ieee80211_sched_info,

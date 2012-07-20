@@ -1689,13 +1689,6 @@ main_cf_cb_field_unselected(capture_file *cf)
 }
 
 static void
-main_cf_cb_file_save_reload_finished(gpointer data _U_)
-{
-    set_display_filename(&cfile);
-    set_menus_for_capture_file(&cfile);
-}
-
-static void
 main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
@@ -1715,6 +1708,14 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
         main_cf_cb_file_read_finished(data);
         break;
+    case(cf_cb_file_reload_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload started");
+        main_cf_cb_file_read_started(data);
+        break;
+    case(cf_cb_file_reload_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
+        main_cf_cb_file_read_finished(data);
+        break;
     case(cf_cb_packet_selected):
         main_cf_cb_packet_selected(data);
         break;
@@ -1729,10 +1730,6 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_file_save_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save finished");
-        break;
-    case(cf_cb_file_save_reload_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
-        main_cf_cb_file_save_reload_finished(data);
         break;
     case(cf_cb_file_save_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");

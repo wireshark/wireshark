@@ -1624,7 +1624,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rad_info->req_time.nsecs = radius_call->req_time.nsecs;
 	}
 
-	if (tree && avplength > 0)
+	if (avplength > 0)
 	{
 		/* list the attribute value pairs */
 		avptf = proto_tree_add_text(radius_tree, tvb, HDR_LENGTH,

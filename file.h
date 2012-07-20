@@ -60,12 +60,13 @@ typedef enum {
     cf_cb_file_closed,
     cf_cb_file_read_started,
     cf_cb_file_read_finished,
+    cf_cb_file_reload_started,
+    cf_cb_file_reload_finished,
     cf_cb_packet_selected,
     cf_cb_packet_unselected,
     cf_cb_field_unselected,
     cf_cb_file_save_started,
     cf_cb_file_save_finished,
-    cf_cb_file_save_reload_finished,
     cf_cb_file_save_failed
 } cf_cbs;
 
