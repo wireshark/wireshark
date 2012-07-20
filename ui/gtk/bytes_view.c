@@ -921,6 +921,11 @@ _gtk_adjustment_configure(GtkAdjustment *adj,
 	gtk_adjustment_changed(adj);
 }
 
+#elif GTK_CHECK_VERSION(3, 0, 0)
+
+#define _gtk_adjustment_configure(adj, val, low, up, step, page, size) \
+	gtk_adjustment_configure(adj, val, low, MAX((up), (size)), step, page, size)
+
 #else
 
 #define _gtk_adjustment_configure(adj, val, low, up, step, page, size) \
