@@ -75,6 +75,42 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wireshark crashes on bootp filter.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7391">Bug
+          7391</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark &gt; 1.4 does not correctly read Association ID for PS Poll packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7429">Bug
+          7429</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Radius-EAP broken since 1.8.0 release.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7430">Bug
+          7430</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Single packet capture takes 10 CPU-seconds to decode (in dissect_rpc_?).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7436">Bug
+          7436</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SNMP incorrectly marks SNMPv3 &quot;discovery&quot; packet as malformed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7438">Bug
+          7438</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Find Next Mark duplicated on Edit Menu.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7445">Bug
+          7445</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>

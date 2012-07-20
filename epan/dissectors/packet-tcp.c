@@ -205,10 +205,8 @@ static int hf_tcp_option_mptcp_recv_key = -1;
 static int hf_tcp_option_mptcp_sender_rand = -1;
 static int hf_tcp_option_mptcp_sender_trunc_mac = -1;
 static int hf_tcp_option_mptcp_sender_mac = -1;
-static int hf_tcp_option_mptcp_data_ack4 = -1;
-static int hf_tcp_option_mptcp_data_ack8 = -1;
-static int hf_tcp_option_mptcp_data_seq_no4 = -1;
-static int hf_tcp_option_mptcp_data_seq_no8 = -1;
+static int hf_tcp_option_mptcp_data_ack = -1;
+static int hf_tcp_option_mptcp_data_seq_no = -1;
 static int hf_tcp_option_mptcp_subflow_seq_no = -1;
 static int hf_tcp_option_mptcp_data_lvl_len = -1;
 static int hf_tcp_option_mptcp_checksum = -1;
@@ -2567,21 +2565,21 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     ti = proto_tree_add_text(opt_tree, tvb, offset, optlen, "Multipath TCP");
     mptcp_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
 
-    proto_tree_add_item(mptcp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(mptcp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(mptcp_tree, hf_tcp_option_len, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(mptcp_tree, hf_tcp_option_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_subtype, tvb,
-                        offset, 1, ENC_NA);
+                        offset, 1, ENC_BIG_ENDIAN);
 
     subtype = tvb_get_guint8(tvb, offset) >> 4;
     proto_item_append_text(ti, ": %s", val_to_str(subtype, mptcp_subtype_vs, "Unknown (%d)"));
     switch (subtype) {
         case TCPOPT_MPTCP_MP_CAPABLE:
             proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_version, tvb,
-                        offset, 1, ENC_NA);
+                        offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             flags = tvb_get_guint8(tvb, offset);
@@ -2590,20 +2588,20 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
 
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_C_flag,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_S_flag,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             if (optlen == 12 || optlen == 20) {
                 proto_tree_add_item(mptcp_tree,
-                        hf_tcp_option_mptcp_sender_key, tvb, offset, 8, ENC_NA);
+                        hf_tcp_option_mptcp_sender_key, tvb, offset, 8, ENC_BIG_ENDIAN);
                 offset += 8;
             }
 
             if (optlen == 20) {
                 proto_tree_add_item(mptcp_tree,
-                        hf_tcp_option_mptcp_recv_key, tvb, offset, 8, ENC_NA);
+                        hf_tcp_option_mptcp_recv_key, tvb, offset, 8, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -2619,22 +2617,22 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
                     proto_tree_add_item(mptcp_flags_tree,
                             hf_tcp_option_mptcp_B_flag, tvb, offset,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
                     offset += 1;
 
                     proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_address_id, tvb, offset,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
                     offset += 1;
 
                     proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_recv_token, tvb, offset,
-                            4, ENC_NA);
+                            4, ENC_BIG_ENDIAN);
                     offset += 4;
 
                     proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_sender_rand, tvb, offset,
-                            4, ENC_NA);
+                            4, ENC_BIG_ENDIAN);
                     break;
 
                 case 16:
@@ -2647,22 +2645,22 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
                     proto_tree_add_item(mptcp_flags_tree,
                             hf_tcp_option_mptcp_B_flag, tvb, offset,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
                     offset += 1;
 
                     proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_address_id, tvb, offset,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
                     offset += 1;
 
                     proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_sender_trunc_mac, tvb, offset,
-                            8, ENC_NA);
+                            8, ENC_BIG_ENDIAN);
                     offset += 8;
 
                     proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_sender_rand, tvb, offset,
-                            4, ENC_NA);
+                            4, ENC_BIG_ENDIAN);
                     break;
 
                 case 24:
@@ -2670,7 +2668,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                     for (index = 0; index < 5; index++) {
                         proto_tree_add_item(mptcp_tree,
                                 hf_tcp_option_mptcp_sender_mac, tvb, offset,
-                                4, ENC_NA);
+                                4, ENC_BIG_ENDIAN);
                         offset += 4;
                     }
                     break;
@@ -2688,27 +2686,27 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
 
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_F_flag,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_m_flag,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_M_flag,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_a_flag,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_A_flag,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             if (flags & 1) {
                 if (flags & 2) {
                     proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_data_ack8, tvb, offset,
-                            8, ENC_NA);
+                            hf_tcp_option_mptcp_data_ack, tvb, offset,
+                            8, ENC_BIG_ENDIAN);
                     offset += 8;
                 } else {
                     proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_data_ack4, tvb, offset,
-                            4, ENC_NA);
+                            hf_tcp_option_mptcp_data_ack, tvb, offset,
+                            4, ENC_BIG_ENDIAN);
                     offset += 4;
                 }
             }
@@ -2716,46 +2714,46 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             if (flags & 4) {
                 if (flags & 8) {
                     proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_data_seq_no8, tvb, offset,
-                            8, ENC_NA);
+                            hf_tcp_option_mptcp_data_seq_no, tvb, offset,
+                            8, ENC_BIG_ENDIAN);
                     offset += 8;
                 } else {
                     proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_data_seq_no4, tvb, offset,
-                            4, ENC_NA);
+                            hf_tcp_option_mptcp_data_seq_no, tvb, offset,
+                            4, ENC_BIG_ENDIAN);
                     offset += 4;
                 }
 
                 proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_subflow_seq_no, tvb, offset,
-                            4, ENC_NA);
+                            4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_data_lvl_len, tvb, offset,
-                            2, ENC_NA);
+                            2, ENC_BIG_ENDIAN);
                 offset += 2;
 
                 proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_checksum, tvb, offset,
-                            2, ENC_NA);
+                            2, ENC_BIG_ENDIAN);
             }
             break;
 
         case TCPOPT_MPTCP_ADD_ADDR:
             proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_ipver, tvb, offset, 1, ENC_NA);
+                            hf_tcp_option_mptcp_ipver, tvb, offset, 1, ENC_BIG_ENDIAN);
             ipver = tvb_get_guint8(tvb, offset) & 0x0F;
             offset += 1;
 
             proto_tree_add_item(mptcp_tree,
-                    hf_tcp_option_mptcp_address_id, tvb, offset, 1, ENC_NA);
+                    hf_tcp_option_mptcp_address_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             switch (ipver) {
                 case 4:
                     proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_ipv4, tvb, offset, 4, ENC_NA);
+                            hf_tcp_option_mptcp_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                     break;
 
@@ -2771,7 +2769,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
             if (optlen % 4 == 2) {
                 proto_tree_add_item(mptcp_tree,
-                            hf_tcp_option_mptcp_port, tvb, offset, 2, ENC_NA);
+                            hf_tcp_option_mptcp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -2779,7 +2777,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             offset += 1;
             proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_address_id, tvb, offset,
-                            1, ENC_NA);
+                            1, ENC_BIG_ENDIAN);
             break;
 
         case TCPOPT_MPTCP_MP_PRIO:
@@ -2789,12 +2787,12 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
 
             proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_B_flag,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             if (optlen == 4) {
                 proto_tree_add_item(mptcp_tree,
-                        hf_tcp_option_mptcp_address_id, tvb, offset, 1, ENC_NA);
+                        hf_tcp_option_mptcp_address_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -2802,7 +2800,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             offset += 1;
             offset += 1;
             proto_tree_add_item(mptcp_tree,
-                    hf_tcp_option_mptcp_data_seq_no8, tvb, offset, 8, ENC_NA);
+                    hf_tcp_option_mptcp_data_seq_no, tvb, offset, 8, ENC_BIG_ENDIAN);
             break;
 
         default:
@@ -5154,19 +5152,11 @@ proto_register_tcp(void)
           { "Multipath TCP Sender's MAC", "tcp.options.mptcp.sendmac", FT_UINT32,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_data_ack4,
-          { "Multipath TCP Data ACK", "tcp.options.mptcp.dataack", FT_UINT32,
-            BASE_DEC, NULL, 0x0, NULL, HFILL}},
-
-        { &hf_tcp_option_mptcp_data_ack8,
+        { &hf_tcp_option_mptcp_data_ack,
           { "Multipath TCP Data ACK", "tcp.options.mptcp.dataack", FT_UINT64,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
-        { &hf_tcp_option_mptcp_data_seq_no4,
-          { "Multipath TCP Data Sequence Number", "tcp.options.mptcp.dataseqno", FT_UINT32,
-            BASE_DEC, NULL, 0x0, NULL, HFILL}},
-
-        { &hf_tcp_option_mptcp_data_seq_no8,
+        { &hf_tcp_option_mptcp_data_seq_no,
           { "Multipath TCP Data Sequence Number", "tcp.options.mptcp.dataseqno", FT_UINT64,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 

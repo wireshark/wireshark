@@ -1534,7 +1534,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/MarkAllDisplayedPackets",   NULL,               "Mark All Displayed Packets",           "<shift><control>M",    NULL,           G_CALLBACK(new_packet_list_mark_all_displayed_frames_cb) },
    { "/Edit/UnmarkAllDisplayedPackets", NULL,               "_Unmark All Displayed Packets",        "<alt><control>M",      NULL,           G_CALLBACK(new_packet_list_unmark_all_displayed_frames_cb) },
    { "/Edit/FindNextMark",              NULL,               "Find Next Mark",                       "<shift><control>N",    NULL,           G_CALLBACK(find_next_mark_cb) },
-   { "/Edit/FindPreviousMark",          NULL,               "Find Next Mark",                       "<shift><control>B",    NULL,           G_CALLBACK(find_prev_mark_cb) },
+   { "/Edit/FindPreviousMark",          NULL,               "Find Previous Mark",                   "<shift><control>B",    NULL,           G_CALLBACK(find_prev_mark_cb) },
 
    { "/Edit/IgnorePacket",              NULL,               "_Ignore Packet (toggle)",              "<control>X",           NULL,           G_CALLBACK(new_packet_list_ignore_frame_cb) },
     /*

@@ -1667,10 +1667,10 @@ proto_register_icmp(void)
       { "Address Family Identifier", "icmp.int_info.afi", FT_UINT16, BASE_DEC, NULL, 0x0, 
         "Address Family of the interface address", HFILL }},
     { &hf_icmp_int_info_ipv4,
-		{ "Source",		"icmp.int_info.ip", FT_IPv4, BASE_NONE, NULL, 0x0,
+		{ "Source",		"icmp.int_info.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
     { &hf_icmp_int_info_ipv6,
-		{ "Source",		"icmp.int_info.ip", FT_IPv6, BASE_NONE, NULL, 0x0,
+		{ "Source",		"icmp.int_info.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }}
   };
 

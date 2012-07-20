@@ -1320,9 +1320,10 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb)
 
 	if (! ( user_tvb && engine_tvb ) ) return NULL;
 
-	given_username_len = tvb_ensure_length_remaining(user_tvb,0);
+	given_username_len = tvb_length(user_tvb);
+	given_engine_len = tvb_length(engine_tvb);
+	if (! ( given_engine_len && given_username_len ) ) return NULL;
 	given_username = (guint8*)ep_tvb_memdup(user_tvb,0,-1);
-	given_engine_len = tvb_ensure_length_remaining(engine_tvb,0);
 	given_engine = (guint8*)ep_tvb_memdup(engine_tvb,0,-1);
 
 	for (a = localized_ues; a; a = a->next) {
@@ -2772,7 +2773,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1552 "../../asn1/snmp/packet-snmp-template.c"
+#line 1553 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3689,7 +3690,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2204 "../../asn1/snmp/packet-snmp-template.c"
+#line 2205 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3729,7 +3730,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2220 "../../asn1/snmp/packet-snmp-template.c"
+#line 2221 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 
