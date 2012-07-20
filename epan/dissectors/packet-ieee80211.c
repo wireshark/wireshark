@@ -8778,7 +8778,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
 
       if (frame_type_subtype == CTRL_PS_POLL)
-        proto_tree_add_uint(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, TRUE);
+        proto_tree_add_item(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
       else
         proto_tree_add_uint (hdr_tree, hf_ieee80211_did_duration, tvb, 2, 2,

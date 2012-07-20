@@ -907,20 +907,22 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    data needed only if you're building the protocol tree, if possible.
 
    Note, however, that you must fill in column information, create
-   conversations, reassemble packets, build any other persistent state
-   needed for dissection, and call subdissectors regardless of whether
-   "tree" is NULL or not.  This might be inconvenient to do without
-   doing most of the dissection work; the routines for adding items to
-   the protocol tree can be passed a null protocol tree pointer, in
-   which case they'll return a null item pointer, and
-   "proto_item_add_subtree()" returns a null tree pointer if passed a
-   null item pointer, so, if you're careful not to dereference any null
-   tree or item pointers, you can accomplish this by doing all the
-   dissection work.  This might not be as efficient as skipping that
-   work if you're not building a protocol tree, but if the code would
-   have a lot of tests whether "tree" is null if you skipped that work,
-   you might still be better off just doing all that work regardless of
-   whether "tree" is null or not.
+   conversations, reassemble packets, do calls to "expert" functions,
+   build any other persistent state needed for dissection, and call
+   subdissectors regardless of whether "tree" is NULL or not.
+
+   This might be inconvenient to do without doing most of the
+   dissection work; the routines for adding items to the protocol tree
+   can be passed a null protocol tree pointer, in which case they'll
+   return a null item pointer, and "proto_item_add_subtree()" returns
+   a null tree pointer if passed a null item pointer, so, if you're
+   careful not to dereference any null tree or item pointers, you can
+   accomplish this by doing all the dissection work.  This might not
+   be as efficient as skipping that work if you're not building a
+   protocol tree, but if the code would have a lot of tests whether
+   "tree" is null if you skipped that work, you might still be better
+   off just doing all that work regardless of whether "tree" is null
+   or not.
 
    Note also that there is no guarantee, the first time the dissector is
    called, whether "tree" will be null or not; your dissector must work

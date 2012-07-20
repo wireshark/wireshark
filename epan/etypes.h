@@ -401,6 +401,10 @@
 #endif						/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
 						/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
+#ifndef ETHERTYPE_CESOETH
+#define ETHERTYPE_CESOETH		0x88D8  /* Circuit Emulation Services over Ethernet (MEF 8) */
+#endif
+
 #ifndef ETHERTYPE_LLTD
 #define ETHERTYPE_LLTD			0x88D9  /* Link Layer Topology Discovery (LLTD) */
 #endif
@@ -419,6 +423,10 @@
 
 #ifndef ETHERTYPE_IEEE_802_1AH
 #define ETHERTYPE_IEEE_802_1AH  	0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
+#endif
+
+#ifndef ETHERTYPE_ELMI
+#define ETHERTYPE_ELMI			0x88EE  /* Ethernet Local Management Interface (E-LMI) (MEF16) */
 #endif
 
 #ifndef ETHERTYPE_MMRP

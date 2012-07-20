@@ -604,17 +604,6 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 }
 
 
-/* dissect a constrained IA5String that consists of the full ASCII set,
-   i.e. no FROM stuff limiting the alphabet
-*/
-guint32
-dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
-{
-	offset=dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, NULL);
-
-	return offset;
-}
-
 /* XXX we don't do >64k length strings   yet */
 static guint32
 dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_,const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
@@ -742,7 +731,8 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		/* ALIGNED PER does not do any remapping of chars if
 		   bitsperchar is 8
 		*/
-		if(bits_per_char==8){
+		/* If alphabet is not provided, do not do any remapping either */
+		if((bits_per_char==8) || (alphabet==NULL)){
 			buf[char_pos]=val;
 		} else {
 			if (val < alphabet_length){
@@ -797,6 +787,18 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_
     alphabet_ptr = sort_alphabet(sorted_alphabet, alphabet, alphabet_length);
   }
   return dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, alphabet_ptr, alphabet_length, value_tvb);
+}
+
+/* dissect a constrained IA5String that consists of the full ASCII set,
+   i.e. no FROM stuff limiting the alphabet
+*/
+guint32
+dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension)
+{
+	offset=dissect_per_restricted_character_string_sorted(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension,
+		NULL, 128, NULL);
+
+	return offset;
 }
 
 guint32

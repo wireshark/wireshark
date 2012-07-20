@@ -317,11 +317,23 @@ endif
 
 # Libraries and plugin flags with which to link wireshark.
 #
-# Note that Wireshark doesn't have to be linked with @GLIB_LIBS@, as
-# they are included in @GTK_LIBS@, and doesn't have to be linked with
-# @SOCKET_LIBS@ or @NSL_LIBS@, as those should also be included in
-# @GTK_LIBS@ (as those are also needed for X applications, and GTK+
-# applications are X applications).
+# Note that Wireshark, when built with a version of GTK+ that runs
+# atop X11, doesn't have to be linked with @SOCKET_LIBS@ or @NSL_LIBS@,
+# as those should also be included in @GTK_LIBS@ (as those are also
+# needed for X applications, and GTK+ applications are X applications
+# if the version of GTK+ they're built with runs atop X11).
+#
+# However, it *does* have to be linked with @GLIB_LIBS@; not all of
+# the necessary GLib libraries are included in @GTK_LIBS@.  To quote
+# Gentoo bug 423743 at
+#
+#	https://bugs.gentoo.org/show_bug.cgi?id=423743
+#
+# "The Makefile.am claims including GLIB_LIBS when linking wireshark is
+# unnecessary, because wireshark links to GTK_LIBS which is a superset.
+# It is not actually a superset: gmodule is included in GLIB_LIBS but
+# not in GTK_LIBS (unless accidentally on older glibs/gtks)."
+#
 wireshark_LDADD = \
 	gtk/libui.a			\
 	gtk/libui_dirty.a		\
@@ -333,7 +345,9 @@ wireshark_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@PCAP_LIBS@			\
-	@GTK_LIBS@ -lm			\
+	@GTK_LIBS@			\
+	@GLIB_LIBS@			\
+	-lm				\
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\

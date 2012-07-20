@@ -94,9 +94,21 @@ Wireshark Info
 	</para></listitem>
 
         <listitem><para>
+          Incorrect PER UNALIGNED decoding of IA5String.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6246">Bug
+          6246</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           After fix for Bug 3046, after save-as then open you cannot see the packet list.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6640">Bug
           6640</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Problem with Floating point (double-precision).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6917">Bug
+          6917</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -109,6 +121,36 @@ Wireshark Info
           Netscreen - Can't parse packet-header.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7340">Bug
           7340</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Assignment Request message is not decoded after Service handover parameter.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7360">Bug
+          7360</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark fails to link because of missing &#64;GLIB_LIBS&#64; reference in Makefile.am.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7427">Bug
+          7427</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark &gt; 1.4 does not correctly read Association ID for PS Poll packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7429">Bug
+          7429</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Single packet capture takes 10 CPU-seconds to decode (in dissect_rpc_?).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7436">Bug
+          7436</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SNMP incorrectly marks SNMPv3 &quot;discovery&quot; packet as malformed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7438">Bug
+          7438</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -137,9 +179,12 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+ASN.1 PER,
 DIAMETER,
+GSM BSSMAP,
 IEEE 802.11,
 MNDP,
+NFS,
 PPP,
 RADIUS,
 SNMP,

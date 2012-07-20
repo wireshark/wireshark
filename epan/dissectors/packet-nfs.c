@@ -4930,6 +4930,7 @@ dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* 
 	acc_req = civ->private_data;
 	/* Should never happen because ONC-RPC requires the call in order to dissect the reply. */
 	if (acc_req==NULL) {
+		/* XXX, when nfsv4 return offset+8? */
 		return offset+4;
 	}
 	if(nfsv4) {
@@ -6317,13 +6318,10 @@ dissect_nfs_lock_owner4(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Owner");
 
-	if (fitem)
-	{
-		newftree = proto_item_add_subtree(fitem, ett_nfs_lock_owner4);
+	newftree = proto_item_add_subtree(fitem, ett_nfs_lock_owner4);
 
-		offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
-		offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
-	}
+	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
+	offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
 
 	return offset;
 }
@@ -6340,15 +6338,10 @@ dissect_nfs_pathname4(tvbuff_t *tvb, int offset, proto_tree *tree)
 		"pathname components (%u)", comp_count);
 	offset += 4;
 
-	if (fitem)
-	{
-		newftree = proto_item_add_subtree(fitem, ett_nfs_pathname4);
+	newftree = proto_item_add_subtree(fitem, ett_nfs_pathname4);
 
-		for (i = 0; i < comp_count; i++)
-				offset = dissect_nfs_utf8string(tvb, offset, newftree,
-					hf_nfs_component4, NULL);
-	}
-
+	for (i = 0; i < comp_count; i++)
+		offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, NULL);
 	return offset;
 }
 
@@ -6394,11 +6387,7 @@ dissect_nfs_fsid4(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "%s", name);
 
-	if (fitem == NULL) return offset;
-
 	newftree = proto_item_add_subtree(fitem, ett_nfs_fsid4);
-
-	if (newftree == NULL) return offset;
 
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_fsid4_major,
 		offset);
@@ -6644,8 +6633,6 @@ dissect_nfs_fs_location4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "fs_location4");
 
-	if (fitem == NULL) return offset;
-
 	newftree = proto_item_add_subtree(fitem, ett_nfs_fs_location4);
 
 	offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs_server4, hf_nfs_server);
@@ -6662,8 +6649,6 @@ dissect_nfs_fs_locations4(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	proto_item *fitem = NULL;
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "%s", name);
-
-	if (fitem == NULL) return offset;
 
 	newftree = proto_item_add_subtree(fitem, ett_nfs_fs_locations4);
 
@@ -7822,33 +7807,28 @@ dissect_nfs_open_claim4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	if (fitem) {
-		newftree = proto_item_add_subtree(fitem, ett_nfs_open_claim4);
+	newftree = proto_item_add_subtree(fitem, ett_nfs_open_claim4);
 
+	switch(open_claim_type4)
+	{
+		case CLAIM_NULL:
+			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, name);
+			break;
 
-		switch(open_claim_type4)
-		{
-			case CLAIM_NULL:
-				offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, name);
-				break;
+		case CLAIM_PREVIOUS:
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_delegate_type, offset);
+			break;
 
-			case CLAIM_PREVIOUS:
-				offset = dissect_rpc_uint32(tvb, newftree,
-					hf_nfs_delegate_type, offset);
-				break;
+		case CLAIM_DELEGATE_CUR:
+			offset = dissect_nfs_open_claim_delegate_cur4(tvb, offset, newftree);
+			break;
 
-			case CLAIM_DELEGATE_CUR:
-				offset = dissect_nfs_open_claim_delegate_cur4(tvb, offset,
-					newftree);
-				break;
+		case CLAIM_DELEGATE_PREV:
+			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, NULL);
+			break;
 
-			case CLAIM_DELEGATE_PREV:
-				offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, NULL);
-				break;
-
-			default:
-				break;
-		}
+		default:
+			break;
 	}
 
 	return offset;
@@ -7916,18 +7896,16 @@ dissect_nfs_openflag4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset+0, 4, opentype4);
 	offset += 4;
 
-	if (fitem) {
-		newftree = proto_item_add_subtree(fitem, ett_nfs_opentype4);
+	newftree = proto_item_add_subtree(fitem, ett_nfs_opentype4);
 
-		switch(opentype4)
-		{
-			case OPEN4_CREATE:
-				offset = dissect_nfs_createhow4(tvb, offset, pinfo, newftree);
-				break;
+	switch(opentype4)
+	{
+		case OPEN4_CREATE:
+			offset = dissect_nfs_createhow4(tvb, offset, pinfo, newftree);
+			break;
 
-			default:
-				break;
-		}
+		default:
+			break;
 	}
 
 	return offset;
@@ -7987,11 +7965,8 @@ dissect_nfs_cb_client4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_cb_program, offset);
 	fitem = proto_tree_add_text(tree, tvb, offset, 0, "cb_location");
 
-	if (fitem)
-	{
-		cb_location = proto_item_add_subtree(fitem, ett_nfs_clientaddr4);
-		offset = dissect_nfs_clientaddr4(tvb, offset, cb_location);
-	}
+	cb_location = proto_item_add_subtree(fitem, ett_nfs_clientaddr4);
+	offset = dissect_nfs_clientaddr4(tvb, offset, cb_location);
 
 	return offset;
 }
@@ -8185,8 +8160,6 @@ dissect_nfs_change_info4(tvbuff_t *tvb, int offset,
 	offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_after,
 			offset);
 
-
-
 	return offset;
 }
 
@@ -8346,15 +8319,12 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 	fitem = proto_tree_add_text(tree, tvb, offset, 4 + bitmap_len * 4,
 					"%s", "operation mask");
 	offset += 4;
-	if (fitem == NULL) return offset;
 
 	newftree = proto_item_add_subtree(fitem, ett_nfs_bitmap4);
-	if (newftree == NULL) return offset;
 
 	if(bitmap_len)
 		bitmap = ep_alloc(bitmap_len * sizeof(guint32));
 
-	if (bitmap == NULL) return offset;
 	for (i = 0; i < bitmap_len; i++) {
 		bitmap[i] = tvb_get_ntohl(tvb, offset);
 		sl = 0x00000001;
@@ -8363,9 +8333,7 @@ dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
 			if (bitmap[i] & sl) {
 				op_fitem = proto_tree_add_uint(newftree,
 				hf_nfs_recc_attr, tvb, offset, 4, fattr);
-				if (op_fitem == NULL) break;
-					op_newftree = proto_item_add_subtree(op_fitem, ett_nfs_bitmap4);
-				if (op_newftree == NULL) break;
+				op_newftree = proto_item_add_subtree(op_fitem, ett_nfs_bitmap4);
 			}
 			sl <<= 1;
 		}
@@ -8540,27 +8508,23 @@ dissect_nfs_open_delegation4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset+0, 4, delegation_type);
 	offset += 4;
 
-	if (fitem) {
-		newftree = proto_item_add_subtree(fitem, ett_nfs_open_delegation4);
+	newftree = proto_item_add_subtree(fitem, ett_nfs_open_delegation4);
 
-		switch(delegation_type)
-		{
+	switch(delegation_type)
+	{
 		case OPEN_DELEGATE_NONE:
 			break;
 
 		case OPEN_DELEGATE_READ:
-			offset = dissect_nfs_open_read_delegation4(tvb, offset, pinfo,
-				newftree);
+			offset = dissect_nfs_open_read_delegation4(tvb, offset, pinfo, newftree);
 			break;
 
 		case OPEN_DELEGATE_WRITE:
-			offset = dissect_nfs_open_write_delegation4(tvb, offset, pinfo,
-				newftree);
+			offset = dissect_nfs_open_write_delegation4(tvb, offset, pinfo, newftree);
 			break;
 
 		default:
 			break;
-		}
 	}
 
 	return offset;
@@ -9574,19 +9538,15 @@ dissect_nfs_secinfo4_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		flavor);
 	offset += 4;
 
-	if (fitem)
+	switch(flavor)
 	{
-		switch(flavor)
-		{
 		case RPCSEC_GSS:
 			secftree = proto_item_add_subtree(fitem, ett_nfs_secinfo4_flavor_info);
-			if (secftree)
-				offset = dissect_nfs_rpcsec_gss_info(tvb, offset, secftree);
+			offset = dissect_nfs_rpcsec_gss_info(tvb, offset, secftree);
 			break;
 
 		default:
 			break;
-		}
 	}
 
 	return offset;
