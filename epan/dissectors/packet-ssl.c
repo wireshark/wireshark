@@ -718,7 +718,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ssl_tree = proto_item_add_subtree(ti, ett_ssl);
     }
     /* iterate through the records in this tvbuff */
-    while (tvb_reported_length_remaining(tvb, offset) != 0)
+    while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
         ssl_debug_printf("  record: offset = %d, reported_length_remaining = %d\n", offset, tvb_reported_length_remaining(tvb, offset));
 
@@ -1427,14 +1427,14 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
       return offset + available_bytes;
     }
 
-   /*
-     * Can we do reassembly?
+    /*
+     * Is the record header split across segment boundaries?
      */
-    if (ssl_desegment && pinfo->can_desegment) {
+    if (available_bytes < 5) {
         /*
-         * Yes - is the record header split across segment boundaries?
+         * Yes - can we do reassembly?
          */
-        if (available_bytes < 5) {
+        if (ssl_desegment && pinfo->can_desegment) {
             /*
              * Yes.  Tell the TCP dissector where the data for this
              * message starts in the data it handed us, and that we need
@@ -1446,6 +1446,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             *need_desegmentation = TRUE;
             return offset;
+        } else {
+            /* Not enough bytes available. Stop here. */
+            return offset + available_bytes;
         }
     }
 
@@ -1459,13 +1462,13 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     if (ssl_is_valid_content_type(content_type)) {
 
         /*
-         * Can we do reassembly?
+         * Is the record split across segment boundaries?
          */
-        if (ssl_desegment && pinfo->can_desegment) {
+        if (available_bytes < record_length + 5) {
             /*
-             * Yes - is the record split across segment boundaries?
+             * Yes - can we do reassembly?
              */
-            if (available_bytes < record_length + 5) {
+            if (ssl_desegment && pinfo->can_desegment) {
                 /*
                  * Yes.  Tell the TCP dissector where the data for this
                  * message starts in the data it handed us, and how many
@@ -1484,6 +1487,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
                 *need_desegmentation = TRUE;
                 return offset;
+            } else {
+                /* Not enough bytes available. Stop here. */
+                return offset + available_bytes;
             }
         }
 
@@ -3510,13 +3516,13 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     available_bytes = tvb_length_remaining(tvb, offset);
 
     /*
-     * Can we do reassembly?
+     * Is the record header split across segment boundaries?
      */
-    if (ssl_desegment && pinfo->can_desegment) {
+    if (available_bytes < record_length_length) {
         /*
-         * Yes - is the record header split across segment boundaries?
+         * Yes - can we do reassembly?
          */
-        if (available_bytes < record_length_length) {
+        if (ssl_desegment && pinfo->can_desegment) {
             /*
              * Yes.  Tell the TCP dissector where the data for this
              * message starts in the data it handed us, and that we need
@@ -3528,6 +3534,9 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             *need_desegmentation = TRUE;
             return offset;
+        } else {
+            /* Not enough bytes available. Stop here. */
+            return offset + available_bytes;
         }
     }
 
@@ -3548,13 +3557,13 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /*
-     * Can we do reassembly?
+     * Is the record split across segment boundaries?
      */
-    if (ssl_desegment && pinfo->can_desegment) {
+    if (available_bytes < (record_length_length + record_length)) {
         /*
-         * Yes - is the record split across segment boundaries?
+         * Yes - Can we do reassembly?
          */
-        if (available_bytes < (record_length_length + record_length)) {
+        if (ssl_desegment && pinfo->can_desegment) {
             /*
              * Yes.  Tell the TCP dissector where the data for this
              * message starts in the data it handed us, and how many
@@ -3565,6 +3574,9 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    - available_bytes;
             *need_desegmentation = TRUE;
             return offset;
+        } else {
+            /* Not enough bytes available. Stop here. */
+            return offset + available_bytes;
         }
     }
     offset += record_length_length;
