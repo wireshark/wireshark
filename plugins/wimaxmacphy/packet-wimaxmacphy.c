@@ -1165,7 +1165,7 @@ static guint dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, guint offset
         case 0x01:  /* AAS v1 */
 
             opt_item = proto_tree_add_text(tree, tvb, offset, 4, "Optional AAS Specific");
-            opt_tree = proto_item_add_subtree(item, ett_wimaxmacphy_dl_burst_opt_aas);
+            opt_tree = proto_item_add_subtree(opt_item, ett_wimaxmacphy_dl_burst_opt_aas);
 
             proto_tree_add_item(opt_tree, hf_wimaxmacphy_burst_opt_aas_preamble_modifier_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1182,7 +1182,7 @@ static guint dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, guint offset
         case 0x02:  /* MIMO v1 */
 
             opt_item = proto_tree_add_text(tree, tvb, offset, 4, "Optional MIMO Specific");
-            opt_tree = proto_item_add_subtree(item, ett_wimaxmacphy_dl_burst_opt_mimo);
+            opt_tree = proto_item_add_subtree(opt_item, ett_wimaxmacphy_dl_burst_opt_mimo);
 
             proto_tree_add_item(opt_tree, hf_wimaxmacphy_burst_opt_mimo_matrix_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1450,7 +1450,7 @@ static gint dissect_wimaxmacphy_ul_sub_burst_sub_allocation_specific_part(tvbuff
     case 0x61:  /* HARQ chase combining */
 
         opt_item = proto_tree_add_text(tree, tvb, offset, 4, "HARQ Chase Specific");
-        opt_tree = proto_item_add_subtree(item, ett_wimaxmacphy_ul_sub_burst_harq_chase);
+        opt_tree = proto_item_add_subtree(opt_item, ett_wimaxmacphy_ul_sub_burst_harq_chase);
 
         proto_tree_add_item(opt_tree, hf_wimaxmacphy_sub_burst_harq_chase_harq_channel_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -1468,7 +1468,7 @@ static gint dissect_wimaxmacphy_ul_sub_burst_sub_allocation_specific_part(tvbuff
     case 0x64:  /* MIMO chase combining */
 
         opt_item = proto_tree_add_text(tree, tvb, offset, 4, "MIMO Chase Specific");
-        opt_tree = proto_item_add_subtree(item, ett_wimaxmacphy_ul_sub_burst_mimo_chase);
+        opt_tree = proto_item_add_subtree(opt_item, ett_wimaxmacphy_ul_sub_burst_mimo_chase);
 
         proto_tree_add_item(opt_tree, hf_wimaxmacphy_sub_burst_mimo_chase_harq_channel_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -1820,7 +1820,7 @@ static guint dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, guint offset
         case 0x01:  /* AAS v1 */
 
             opt_item = proto_tree_add_text(tree, tvb, offset, 4, "Optional AAS Specific");
-            opt_tree = proto_item_add_subtree(item, ett_wimaxmacphy_ul_burst_opt_aas);
+            opt_tree = proto_item_add_subtree(opt_item, ett_wimaxmacphy_ul_burst_opt_aas);
 
             proto_tree_add_item(opt_tree, hf_wimaxmacphy_burst_opt_aas_preamble_modifier_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1837,7 +1837,7 @@ static guint dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, guint offset
         case 0x02:  /* MIMO v1 */
 
             opt_item = proto_tree_add_text(tree, tvb, offset, 4, "Optional MIMO Specific");
-            opt_tree = proto_item_add_subtree(item, ett_wimaxmacphy_ul_burst_opt_mimo);
+            opt_tree = proto_item_add_subtree(opt_item, ett_wimaxmacphy_ul_burst_opt_mimo);
 
             proto_tree_add_item(opt_tree, hf_wimaxmacphy_ul_burst_opt_mimo_matrix_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1943,16 +1943,16 @@ static guint dissect_wimaxmacphy_ul_zone_descriptor(tvbuff_t *tvb, guint offset,
         item = proto_tree_add_text(tree, tvb, offset, 4, "AAS Zone Specific");
         subtree = proto_item_add_subtree(item, ett_wimaxmacphy_ul_zone_aas);
 
-        proto_tree_add_item(tree, hf_wimaxmacphy_zone_preamble_configuration, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_wimaxmacphy_zone_preamble_configuration, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_wimaxmacphy_zone_preamble_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_wimaxmacphy_zone_preamble_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_wimaxmacphy_zone_sdma_supported_indication, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_wimaxmacphy_zone_sdma_supported_indication, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(tree, hf_wimaxmacphy_ul_zone_aas_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_wimaxmacphy_ul_zone_aas_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* ??? Algorithm Specific Information (per Zone Type) */
