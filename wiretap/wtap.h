@@ -1108,6 +1108,12 @@ gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);
 
 /**
+ * Given a GArray of WTAP_ENCAP_ types, return the per-file encapsulation
+ * type that would be needed to write out a file with those types.
+ */
+int wtap_dump_file_encap_type(const GArray *file_encaps);
+
+/**
  * Return TRUE if a capture with a given GArray of WTAP_ENCAP_ types
  * can be written in a specified format, and FALSE if it can't.
  */
