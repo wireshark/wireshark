@@ -82,9 +82,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Problem with Floating point (double-precision).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6917">Bug
+          6917</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Netscreen - can't parse packet-header.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7340">Bug
           7340</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark fails to link because of missing &#64;GLIB_LIBS&#64; reference in Makefile.am.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7427">Bug
+          7427</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Single packet capture takes 10 CPU-seconds to decode (in dissect_rpc_?).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7436">Bug
+          7436</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -115,6 +133,7 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 DIAMETER,
+NFS,
 PPP,
 SNMP,
 Syslog,
