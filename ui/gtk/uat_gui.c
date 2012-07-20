@@ -942,7 +942,7 @@ static GtkWidget* uat_window(void* u) {
 
 	hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
-	gtk_container_add(GTK_CONTAINER(rep->vbox), hbox);
+	gtk_box_pack_start(GTK_BOX(rep->vbox), hbox, TRUE, TRUE, 0);
 
 	vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);

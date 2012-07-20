@@ -103,7 +103,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* supported topics container */
   supported_nb = gtk_notebook_new();
-  gtk_container_add(GTK_CONTAINER(main_vb), supported_nb);
+  gtk_box_pack_start(GTK_BOX(main_vb), supported_nb, TRUE, TRUE, 0);
 
 
   /* protocol list */
