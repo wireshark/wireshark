@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/i18n">
-        <file>qtshark_fr.qm</file>
         <file>qtshark_de.qm</file>
+        <file>qtshark_fr.qm</file>
     </qresource>
 </RCC>
