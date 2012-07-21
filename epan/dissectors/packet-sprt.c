@@ -46,6 +46,271 @@
 
 #include "packet-sprt.h"
 
+
+/* for some "range_string"s, there's only one value in the range  */
+#define SPRT_VALUE_RANGE(a) a,a
+
+/* TODO - conversation states */
+#define SPRT_STATE_XXX_TODO 0
+
+#define SPRT_CONV_MAX_SETUP_METHOD_SIZE 12
+
+/* is DLCI field present in I_OCTET message?  See "DLCI enabled" in CONNECT message */
+typedef enum {
+    DLCI_UNKNOWN,
+    DLCI_PRESENT,
+    DLCI_ABSENT
+} i_octet_dlci_status_t;
+
+
+ /* Keep conversation info for one side of an SPRT conversation
+  * TODO - this needs to be bidirectional
+  */
+struct _sprt_conversation_info
+{
+    gchar    method[SPRT_CONV_MAX_SETUP_METHOD_SIZE + 1];
+    gboolean stream_started;
+    guint32  frame_number;         /* the frame where this conversation is started */
+
+    /* sequence numbers for each channel: */
+    guint32 seqnum[4];
+
+    /* are we using the DLCI field in I_OCTET messages?  See CONNECT message ("DLCI enabled") */
+    i_octet_dlci_status_t i_octet_dlci_status;
+    guint32 connect_frame_number; /* the CONNECT frame that tells us if the DLCI is enabled */
+
+    /* TODO - maintain state */
+
+};
+
+/* SPRT Message IDs: */
+#define SPRT_MODEM_RELAY_MSG_ID_NULL              0
+#define SPRT_MODEM_RELAY_MSG_ID_INIT              1
+#define SPRT_MODEM_RELAY_MSG_ID_XID_XCHG          2
+#define SPRT_MODEM_RELAY_MSG_ID_JM_INFO           3
+#define SPRT_MODEM_RELAY_MSG_ID_START_JM          4
+#define SPRT_MODEM_RELAY_MSG_ID_CONNECT           5
+#define SPRT_MODEM_RELAY_MSG_ID_BREAK             6
+#define SPRT_MODEM_RELAY_MSG_ID_BREAK_ACK         7
+#define SPRT_MODEM_RELAY_MSG_ID_MR_EVENT          8
+#define SPRT_MODEM_RELAY_MSG_ID_CLEARDOWN         9
+#define SPRT_MODEM_RELAY_MSG_ID_PROF_XCHG        10
+/* 11 -15 Reserved */
+#define SPRT_MODEM_RELAY_MSG_ID_RESERVED1_START  11
+#define SPRT_MODEM_RELAY_MSG_ID_RESERVED1_END    15
+/* Data */
+#define SPRT_MODEM_RELAY_MSG_ID_I_RAW_OCTET      16
+#define SPRT_MODEM_RELAY_MSG_ID_I_RAW_BIT        17
+#define SPRT_MODEM_RELAY_MSG_ID_I_OCTET          18
+#define SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT      19
+#define SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN       20
+#define SPRT_MODEM_RELAY_MSG_ID_I_FRAME          21
+#define SPRT_MODEM_RELAY_MSG_ID_I_OCTET_CS       22
+#define SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT_CS   23
+#define SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN_CS    24
+/* 25 - 99 Reserved */
+#define SPRT_MODEM_RELAY_MSG_ID_RESERVED2_START  25
+#define SPRT_MODEM_RELAY_MSG_ID_RESERVED2_END    99
+/* 100 - 127 Vendor-specific */
+#define SPRT_MODEM_RELAY_MSG_ID_VENDOR_START    100
+#define SPRT_MODEM_RELAY_MSG_ID_VENDOR_END      127
+
+
+/* error correcting protocol in XID_XCHG message: */
+#define SPRT_ECP_NO_LINK_LAYER_PROTO    0
+#define SPRT_ECP_V42_LAPM               1
+#define SPRT_ECP_ANNEX_AV42_1996        2
+/* 3 - 25 Reserved for ITU-T */
+#define SPRT_ECP_RESERVED_START         3
+#define SPRT_ECP_RESERVED_END           25
+
+
+/* category ID used in JM_INFO message: */
+#define SPRT_JM_INFO_CAT_ID_CALL_FUNCT          0x8
+#define SPRT_JM_INFO_CAT_ID_MOD_MODES           0xA
+#define SPRT_JM_INFO_CAT_ID_PROTOCOLS           0x5
+#define SPRT_JM_INFO_CAT_ID_PSTN_ACCESS         0xB
+#define SPRT_JM_INFO_CAT_ID_PCM_MODEM_AVAIL     0xE
+#define SPRT_JM_INFO_CAT_ID_CATEGORY_EXTENSION  0x0
+
+
+#define SPRT_JMINFO_TBC_CALL_FUNCT_PSTN_MULTIMEDIA_TERM     0x4
+#define SPRT_JMINFO_TBC_CALL_FUNCT_TEXTPHONE_ITU_T_REC_V18  0x2
+#define SPRT_JMINFO_TBC_CALL_FUNCT_VIDEOTEXT_ITU_T_REC_T101 0x6
+#define SPRT_JMINFO_TBC_CALL_FUNCT_TRANS_FAX_ITU_T_REC_T30  0x1
+#define SPRT_JMINFO_TBC_CALL_FUNCT_RECV_FAX_ITU_T_REC_T30   0x5
+#define SPRT_JMINFO_TBC_CALL_FUNCT_DATA_V_SERIES_MODEM_REC  0x3
+
+
+#define SPRT_JMINFO_TBC_PROTOCOL_LAPM_ITU_T_REC_V42     0x4
+
+
+/* selected modulations in CONNECT message: */
+#define SPRT_SELMOD_NULL             0
+#define SPRT_SELMOD_V92              1
+#define SPRT_SELMOD_V91              2
+#define SPRT_SELMOD_V90              3
+#define SPRT_SELMOD_V34              4
+#define SPRT_SELMOD_V32_BIS          5
+#define SPRT_SELMOD_V32              6
+#define SPRT_SELMOD_V22_BIS          7
+#define SPRT_SELMOD_V22              8
+#define SPRT_SELMOD_V17              9
+#define SPRT_SELMOD_V29             10
+#define SPRT_SELMOD_V27_TER         11
+#define SPRT_SELMOD_V26_TER         12
+#define SPRT_SELMOD_V26_BIS         13
+#define SPRT_SELMOD_V23             14
+#define SPRT_SELMOD_V21             15
+#define SPRT_SELMOD_BELL_212        16
+#define SPRT_SELMOD_BELL_103        17
+/* 18 - 30 Vendor-specific modulations */
+#define SPRT_SELMOD_VENDOR_START    18
+#define SPRT_SELMOD_VENDOR_END      30
+/* 31 - 63 Reserved for ITU-T */
+#define SPRT_SELMOD_RESERVED_START  31
+#define SPRT_SELMOD_RESERVED_END    63
+
+
+/* Compression direction in CONNECT message: */
+#define SPRT_COMPR_DIR_NO_COMPRESSION   0
+#define SPRT_COMPR_DIR_TRANSMIT         1
+#define SPRT_COMPR_DIR_RECEIVE          2
+#define SPRT_COMPR_DIR_BIDIRECTIONAL    3
+
+
+/* Selected compression modes in CONNECT message: */
+#define SPRT_SELECTED_COMPR_NONE             0
+#define SPRT_SELECTED_COMPR_V42_BIS          1
+#define SPRT_SELECTED_COMPR_V44              2
+#define SPRT_SELECTED_COMPR_MNP5             3
+/* 4 - 15 Reserved by ITU-T */
+#define SPRT_SELECTED_COMPR_RESERVED_START   4
+#define SPRT_SELECTED_COMPR_RESERVED_END    15
+
+
+/* Selected error correction modes in CONNECT message: */
+#define SPRT_SELECTED_ERR_CORR_V14_OR_NONE       0
+#define SPRT_SELECTED_ERR_CORR_V42_LAPM          1
+#define SPRT_SELECTED_ERR_CORR_ANNEX_AV42        2
+/* 3 - 15 Reserved for ITU-T */
+#define SPRT_SELECTED_ERR_CORR_RESERVED_START    3
+#define SPRT_SELECTED_ERR_CORR_RESERVED_END     15
+
+
+/* Break source protocol in BREAK message: */
+#define SPRT_BREAK_SRC_PROTO_V42_LAPM            0
+#define SPRT_BREAK_SRC_PROTO_ANNEX_AV42_1996     1
+#define SPRT_BREAK_SRC_PROTO_V14                 2
+/* 3 - 15 Reserved for ITU-T */
+#define SPRT_BREAK_SRC_PROTO_RESERVED_START      3
+#define SPRT_BREAK_SRC_PROTO_RESERVED_END       15
+
+
+#define SPRT_BREAK_TYPE_NOT_APPLICABLE                   0
+#define SPRT_BREAK_TYPE_DESTRUCTIVE_AND_EXPEDITED        1
+#define SPRT_BREAK_TYPE_NONDESTRUCTIVE_AND_EXPEDITED     2
+#define SPRT_BREAK_TYPE_NONDESTRUCTIVE_AND_NONEXPEDITED  3
+/* 4 - 15 Reserved for ITU-T */
+#define SPRT_BREAK_TYPE_RESERVED_START                   4
+#define SPRT_BREAK_TYPE_RESERVED_END                    15
+
+
+/* Modem relay info in MR_EVENT messages: */
+#define SPRT_MREVT_EVENT_ID_NULL                  0
+#define SPRT_MREVT_EVENT_ID_RATE_RENEGOTIATION    1
+#define SPRT_MREVT_EVENT_ID_RETRAIN               2
+#define SPRT_MREVT_EVENT_ID_PHYSUP                3
+/* 4 - 255 Reserved for ITU-T */
+#define SPRT_MREVT_EVENT_ID_RESERVED_START        4
+#define SPRT_MREVT_EVENT_ID_RESERVED_END        255
+
+
+#define SPRT_MREVT_REASON_CODE_NULL               0
+#define SPRT_MREVT_REASON_CODE_INIT               1
+#define SPRT_MREVT_REASON_CODE_RESPONDING         2
+/* 3 - 255 Undefined */
+#define SPRT_MREVT_REASON_CODE_RESERVED_START     3
+#define SPRT_MREVT_REASON_CODE_RESERVED_END     255
+
+
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_NULL                0
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_600                 1
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_1200                2
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_1600                3
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_2400                4
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_2743                5
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_3000                6
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_3200                7
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_3429                8
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_8000                9
+/* 10 - 254 Reserved for ITU-T */
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_RESERVED_START     10
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_RESERVED_END      254
+#define SPRT_MREVT_PHYS_LAYER_SYMBOL_RATE_UNSPECIFIED       255
+
+
+/* Cleardown reason codes: */
+#define SPRT_CLEARDOWN_RIC_UNKNOWN                     0
+#define SPRT_CLEARDOWN_RIC_PHYSICAL_LAYER_RELEASE      1
+#define SPRT_CLEARDOWN_RIC_LINK_LAYER_DISCONNECT       2
+#define SPRT_CLEARDOWN_RIC_DATA_COMPRESSION_DISCONNECT 3
+#define SPRT_CLEARDOWN_RIC_ABORT                       4
+#define SPRT_CLEARDOWN_RIC_ON_HOOK                     5
+#define SPRT_CLEARDOWN_RIC_NETWORK_LAYER_TERMINATION   6
+#define SPRT_CLEARDOWN_RIC_ADMINISTRATIVE              7
+
+
+/* PROF_XCHG messages (XID profile exchange for MR1): */
+#define SPRT_PROF_XCHG_SUPPORT_NO       0
+#define SPRT_PROF_XCHG_SUPPORT_YES      1
+#define SPRT_PROF_XCHG_SUPPORT_UNKNOWN  2
+
+
+/* DLCI field in I_OCTET: */
+#define SPRT_PAYLOAD_DLCI1_DTE2DTE                0
+#define SPRT_PAYLOAD_DLCI1_RESERVED_START         1
+#define SPRT_PAYLOAD_DLCI1_RESERVED_END          31
+#define SPRT_PAYLOAD_DLCI1_NOT_RESERVED_START    32
+#define SPRT_PAYLOAD_DLCI1_NOT_RESERVED_END      62
+#define SPRT_PAYLOAD_DLCI1_CTRLFN2CTRLFN         63
+
+#define SPRT_PAYLOAD_DLCI2_START                  0
+#define SPRT_PAYLOAD_DLCI2_END                  127
+
+/* Payload fields for I_CHAR_STAT_CS, etc.: */
+/* # of data bits */
+#define SPRT_PAYLOAD_D_0        0
+#define SPRT_PAYLOAD_D_1        1
+#define SPRT_PAYLOAD_D_2        2
+#define SPRT_PAYLOAD_D_3        3
+
+
+/* parity */
+#define SPRT_PAYLOAD_P_0    0
+#define SPRT_PAYLOAD_P_1    1
+#define SPRT_PAYLOAD_P_2    2
+#define SPRT_PAYLOAD_P_3    3
+#define SPRT_PAYLOAD_P_4    4
+#define SPRT_PAYLOAD_P_5    5
+#define SPRT_PAYLOAD_P_6    6
+#define SPRT_PAYLOAD_P_7    7
+
+
+/* # of stop bits */
+#define SPRT_PAYLOAD_S_0    0
+#define SPRT_PAYLOAD_S_1    1
+#define SPRT_PAYLOAD_S_2    2
+#define SPRT_PAYLOAD_S_3    3
+
+
+/* data frame state */
+#define SPRT_PAYLOAD_FR_0   0
+#define SPRT_PAYLOAD_FR_1   1
+#define SPRT_PAYLOAD_FR_2   2
+#define SPRT_PAYLOAD_FR_3   3
+
+
 /* Initialize the protocol & registered fields */
 static int proto_sprt =                         -1;
 
@@ -1203,52 +1468,52 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         p_conv_data = find_sprt_conversation_data(pinfo);
     }
 
-        proto_tree_add_item(sprt_tree, hf_sprt_header_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sprt_tree, hf_sprt_subsession_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
+    proto_tree_add_item(sprt_tree, hf_sprt_header_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sprt_tree, hf_sprt_subsession_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-        proto_tree_add_item(sprt_tree, hf_sprt_reserved_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sprt_tree, hf_sprt_payload_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
+    proto_tree_add_item(sprt_tree, hf_sprt_reserved_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sprt_tree, hf_sprt_payload_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-        proto_tree_add_item(sprt_tree, hf_sprt_transport_channel_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        ti = proto_tree_add_item(sprt_tree, hf_sprt_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-        if(tc == 0 && seqnum != 0)
-            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Should be 0 for transport channel 0");
+    proto_tree_add_item(sprt_tree, hf_sprt_transport_channel_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(sprt_tree, hf_sprt_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if(tc == 0 && seqnum != 0)
+        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Should be 0 for transport channel 0");
 
-        p_conv_data->seqnum[tc] = seqnum; /* keep track of seqnum values */
-        offset+=2;
+    p_conv_data->seqnum[tc] = seqnum; /* keep track of seqnum values */
+    offset+=2;
 
-        proto_tree_add_item(sprt_tree, hf_sprt_number_of_ack_fields, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sprt_tree, hf_sprt_base_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset+=2;
+    proto_tree_add_item(sprt_tree, hf_sprt_number_of_ack_fields, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sprt_tree, hf_sprt_base_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
 
-        if(noa) /* parse ack fields? There can be 0 - 3 */
+    if(noa) /* parse ack fields? There can be 0 - 3 */
+    {
+        ti = proto_tree_add_item(sprt_tree, hf_sprt_ack_field_items, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sprt_ack_field_tree = proto_item_add_subtree(ti, ett_sprt_ack_fields);
+
+        for(i = 0; i < noa; i++)
         {
-            ti = proto_tree_add_item(sprt_tree, hf_sprt_ack_field_items, tvb, offset, 2, ENC_BIG_ENDIAN);
-            sprt_ack_field_tree = proto_item_add_subtree(ti, ett_sprt_ack_fields);
-
-            for(i = 0; i < noa; i++)
-            {
-                proto_tree_add_item(sprt_ack_field_tree, hf_sprt_transport_channel_item, tvb, offset, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(sprt_ack_field_tree, hf_sprt_sequence_item, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
-            }
+            proto_tree_add_item(sprt_ack_field_tree, hf_sprt_transport_channel_item, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_ack_field_tree, hf_sprt_sequence_item, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
         }
+    }
 
-        /* put details in the info column */
-        col_append_fstr(pinfo->cinfo, COL_INFO, "TC=%u", tc);
-        if(tc != 0)
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq=%u", seqnum);
+    /* put details in the info column */
+    col_append_fstr(pinfo->cinfo, COL_INFO, "TC=%u", tc);
+    if(tc != 0)
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq=%u", seqnum);
 
-        /* dissect the payload, if any */
-        payload_length = tvb_length(tvb) - (6 + noa * 2); /* total sprt length - header stuff */
-        dissect_sprt_data(tvb, pinfo, p_conv_data, sprt_tree, offset, payload_length);
+    /* dissect the payload, if any */
+    payload_length = tvb_length(tvb) - (6 + noa * 2); /* total sprt length - header stuff */
+    dissect_sprt_data(tvb, pinfo, p_conv_data, sprt_tree, offset, payload_length);
 
-        if(noa)
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (ACK fields present)");
+    if(noa)
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (ACK fields present)");
 
-	return tvb_length(tvb);
+    return tvb_length(tvb);
 }
 
 
@@ -1257,1912 +1522,1912 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_sprt(void)
 {
-	module_t *sprt_module;
+    module_t *sprt_module;
 
-	static hf_register_info hf[] =
-	{
-		/* set up fields */
-		{
-			&hf_sprt_setup,
-			{
-				"Stream setup",
-				"sprt.setup",
-				FT_STRING,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Stream setup, method and frame number", HFILL
-			}
-		},
-		{
-			&hf_sprt_setup_frame,
-			{
-				"Setup frame",
-				"sprt.setup-frame",
-				FT_FRAMENUM,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Frame that set up this stream", HFILL
-			}
-		},
-		{
-			&hf_sprt_setup_method,
-			{
-				"Setup Method",
-				"sprt.setup-method",
-				FT_STRING,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Method used to set up this stream", HFILL
-			}
-		},
-		/* SPRT header fields: */
-		{
-			&hf_sprt_header_extension_bit,
-			{
-				"Header extension bit",
-				"sprt.x",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_set_notset),
-				0x80,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_subsession_id,
-			{
-				"Sub session ID",
-				"sprt.ssid",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x7F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_reserved_bit,
-			{
-				"Reserved bit",
-				"sprt.reserved",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_set_notset),
-				0x80,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_type,
-			{
-				"Payload type",
-				"sprt.pt",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x7F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_transport_channel_id,
-			{
-				"Transport channel ID",
-				"sprt.tc",
-				FT_UINT16,
-				BASE_DEC,
-				VALS(sprt_transport_channel_characteristics),
-				0xC000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_sequence_number,
-			{
-				"Sequence number",
-				"sprt.seq",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x3FFF,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_number_of_ack_fields,
-			{
-				"Number of ACK fields",
-				"sprt.noa",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0xC000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_base_sequence_number,
-			{
-				"Base sequence number",
-				"sprt.bsqn",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x3FFF,
-				NULL, HFILL
-			}
-		},
-		/* ACK fields, if any: */
-		{
-			&hf_sprt_ack_field_items, /* 0 to 3 items (TCN + SQN) */
-			{
-				"ACK fields",
-				"sprt.ack.field",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0xC000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_transport_channel_item,
-			{
-				"Transport control channel",
-				"sprt.tcn",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0xC000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_sequence_item,
-			{
-				"Sequence number",
-				"sprt.sqn",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x3FFF,
-				NULL, HFILL
-			}
-		},
-		/* SPRT payload, if any: */
-		{
-			&hf_sprt_payload,
-			{
-				"Payload (in bytes)",
-				"sprt.payload",
-				FT_UINT32,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_no_data,
-			{
-				"No payload",
-				"sprt.payload",
-				FT_NONE,
-				BASE_NONE,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_reserved_bit,
-			{
-				"Reserved bit",
-				"sprt.payload.reserved_bit",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_set_notset),
-				0x80,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_message_id,
-			{
-				"Payload message ID",
-				"sprt.payload.msgid",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_modem_relay_msg_id_name),
-				0x7F,
-				NULL, HFILL
-			}
-		},
-		/* SPRT payload fields, if any (depend on payload msgid): */
-		/* INIT message */
-		{
-			&hf_sprt_payload_msg_init_all_fields,
-			{
-				"Init message fields",
-				"sprt.payload.msg_init.all_fields",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0xFFFF, /* 0x0 */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_necrxch,
-			{
-				"NECRxCH",
-				"sprt.payload.msg_init.NECRxCH",
-				FT_BOOLEAN,
-				16,
-				NULL,
-				0x8000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_ecrxch,
-			{
-				"ECRxCH",
-				"sprt.payload.msg_init.ECRxCH",
-				FT_BOOLEAN,
-				16,
-				NULL,
-				0x4000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_xid_prof_exch,
-			{
-				"XID profile exchange",
-				"sprt.payload.msg_init.XID_profile_exch",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x2000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_assym_data_types,
-			{
-				"Assymetrical data types",
-				"sprt.payload.msg_init.assym_data_types",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x1000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_i_raw_bit,
-			{
-				"I_RAW-BIT",
-				"sprt.payload.msg_init.opt_moip_types_i_raw_bit",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x0800,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_i_frame,
-			{
-				"I_FRAME",
-				"sprt.payload.msg_init.opt_moip_types_i_frame",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x0400,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_i_char_stat,
-			{
-				"I_CHAR-STAT",
-				"sprt.payload.msg_init.opt_moip_types_i_char_stat",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x0200,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_i_char_dyn,
-			{
-				"I_CHAR-DYN",
-				"sprt.payload.msg_init.opt_moip_types_i_char_dyn",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x0100,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_i_octet_cs,
-			{
-				"I_OCTET-CS",
-				"sprt.payload.msg_init.opt_moip_types_i_octet_cs",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x0080,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_i_char_stat_cs,
-			{
-				"I_CHAR-STAT-CS",
-				"sprt.payload.msg_init.opt_moip_types_i_char_stat_cs",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x0040,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_i_char_dyn_cs,
-			{
-				"I_CHAR-DYN-CS",
-				"sprt.payload.msg_init.opt_moip_types_i_char_dyn_cs",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_supported_not_supported),
-				0x0020,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_init_opt_moip_types_reserved,
-			{
-				"Reserved for ITU-T",
-				"sprt.payload.msg_init.opt_moip_types_reserved",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0x001F,
-				NULL, HFILL
-			}
-		},
-		/* XID_XCHG message */
-		{
-			&hf_sprt_payload_msg_xidxchg_ecp,
-			{
-				"Error correcting protocol",
-				"sprt.payload.msg_xidxchg.ecp",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_ecp_name),
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr1_v42bis,
-			{
-				"V.42 bis",
-				"sprt.payload.msg_xidxchg.xidlr1_v42bis",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_supported_not_supported),
-				0x80,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr1_v44,
-			{
-				"V.44",
-				"sprt.payload.msg_xidxchg.xidlr1_v44",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_supported_not_supported),
-				0x40,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr1_mnp5,
-			{
-				"MNP5",
-				"sprt.payload.msg_xidxchg.xidlr1_mnp5",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_supported_not_supported),
-				0x20,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr1_reserved,
-			{
-				"Reserved for ITU-T",
-				"sprt.payload.msg_xidxchg.xidlr1_reserved",
-				FT_UINT8,
-				BASE_HEX,
-				NULL,
-				0x1F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr2_v42bis_compr_req,
-			{
-				"V.42bis data compression request",
-				"sprt.payload.msg_xidxchg.xidlr2_v42bis_compr_req",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr3and4_v42bis_num_codewords,
-			{
-				"V.42bis number of codewords",
-				"sprt.payload.msg_xidxchg.xidlr3and4_v42bis_num_codewords",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr5_v42bis_max_strlen,
-			{
-				"V.42bis maximum string length",
-				"sprt.payload.msg_xidxchg.xidlr5_v42bis_max_strlen",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr6_v44_capability,
-			{
-				"V.44 capability",
-				"sprt.payload.msg_xidxchg.xidlr6_v44_capability",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr7_v44_compr_req,
-			{
-				"V.44 data compression request",
-				"sprt.payload.msg_xidxchg.xidlr7_v44_compr_req",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr8and9_v44_num_codewords_trans,
-			{
-				"V.44 number of codewords in transmit direction",
-				"sprt.payload.msg_xidxchg.xidlr8and9_v44_num_codewords_trans",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr10and11_v44_num_codewords_recv,
-			{
-				"V.44 number of codewords in receive direction",
-				"sprt.payload.msg_xidxchg.xidlr10and11_v44_num_codewords_recv",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr12_v44_max_strlen_trans,
-			{
-				"V.44 maximum string length in transmit direction",
-				"sprt.payload.msg_xidxchg.xidlr12_v44_max_strlen_trans",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr13_v44_max_strlen_recv,
-			{
-				"V.44 maximum string length in receive direction",
-				"sprt.payload.msg_xidxchg.xidlr13_v44_max_strlen_recv",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr14and15_v44_history_len_trans,
-			{
-				"V.44 length of history in transmit direction",
-				"sprt.payload.msg_xidxchg.xidlr14and15_v44_history_len_trans",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_xidxchg_xidlr16and17_v44_history_len_recv,
-			{
-				"V.44 length of history in receive direction",
-				"sprt.payload.msg_xidxchg.xidlr16and17_v44_history_len_recv",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* JM_INFO message */
-		{
-			&hf_sprt_payload_msg_jminfo_category_data,
-			{
-				"Category data",
-				"sprt.payload.msg_jminfo.category_data",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0xFFFF,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_category_id,
-			{
-				"Category ID",
-				"sprt.payload.msg_jminfo.category_id",
-				FT_UINT16,
-				BASE_HEX,
-				VALS(sprt_jm_info_cat_id_name),
-				0xF000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_category_ext_info,
-			{
-				"Unrecognized category data",
-				"sprt.payload.msg_jminfo.category_ext_info",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0FFF,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_unk_category_info,
-			{
-				"Category extension data",
-				"sprt.payload.msg_jminfo.unk_category_info",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0FFF,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_category_leftover_bits,
-			{
-				"Leftover bits", /* "Category info leftover bits", */
-				"sprt.payload.msg_jminfo.category_leftover_bits",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0x01FF,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_call_function,
-			{
-				"Call function",
-				"sprt.payload.msg_jminfo.call_function",
-				FT_UINT16,
-				BASE_DEC,
-				VALS(sprt_jminfo_tbc_call_funct_name),
-				0x0E00,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v34_duplex,
-			{
-				"V.34 duplex",
-				"sprt.payload.msg_jminfo.mod_v34_duplex",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0800,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v34_half_duplex,
-			{
-				"V.34 half-duplex",
-				"sprt.payload.msg_jminfo.mod_v34_half_duplex",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0400,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v32bis_v32,
-			{
-				"V.32bis/V.32",
-				"sprt.payload.msg_jminfo.mod_v32bis_v32",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0200,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v22bis_v22,
-			{
-				"V.22bis/V.22",
-				"sprt.payload.msg_jminfo.mod_v22bis_v22",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0100,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v17,
-			{
-				"V.17",
-				"sprt.payload.msg_jminfo.mod_v17",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0080,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v29_half_duplex,
-			{
-				"V.29 half-duplex",
-				"sprt.payload.msg_jminfo.mod_v29_half_duplex",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0040,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v27ter,
-			{
-				"V.27ter",
-				"sprt.payload.msg_jminfo.mod_v27ter",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0020,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v26ter,
-			{
-				"V.26ter",
-				"sprt.payload.msg_jminfo.mod_v26ter",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0010,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v26bis,
-			{
-				"V.26bis",
-				"sprt.payload.msg_jminfo.mod_v16bis",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0008,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v23_duplex,
-			{
-				"V.23 duplex",
-				"sprt.payload.msg_jminfo.mod_v23_duplex",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0004,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v23_half_duplex,
-			{
-				"V.23 half-duplex",
-				"sprt.payload.msg_jminfo.mod_v23_half_duplex",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0002,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_mod_v21,
-			{
-				"V.21",
-				"sprt.payload.msg_jminfo.mod_v21",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0001,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_protocols,
-			{
-				"Protocols",
-				"sprt.payload.msg_jminfo.protocols",
-				FT_UINT16,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_jminfo_tbc_protocol_name),
-				0x0E00,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_pstn_access_call_dce_cell,
-			{
-				"Call DCE is on a cellular connection",
-				"sprt.payload.msg_jminfo.pstn_access_call_dce_cell",
-				FT_BOOLEAN,
-				16,
-				NULL,
-				0x0800,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_pstn_access_answ_dce_cell,
-			{
-				"Answer DCE is on a cellular connection",
-				"sprt.payload.msg_jminfo.pstn_access_answ_dce_cell",
-				FT_BOOLEAN,
-				16,
-				NULL,
-				0x0400,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_pstn_access_dce_on_digital_net,
-			{
-				"DCE is on a digital network connection",
-				"sprt.payload.msg_jminfo.pstn_access_dce_on_digital_net",
-				FT_BOOLEAN,
-				16,
-				NULL,
-				0x0200,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_pcm_modem_avail_v90_v92_analog,
-			{
-				"V.90 or V.92 analog modem availability",
-				"sprt.payload.msg_jminfo.pcm_modem_avail_v90_v92_analog",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0800,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_pcm_modem_avail_v90_v92_digital,
-			{
-				"V.90 or V.92 digital modem availability",
-				"sprt.payload.msg_jminfo.pcm_modem_avail_v90_v92_digital",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0400,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_jminfo_pcm_modem_avail_v91,
-			{
-				"V.91 modem availability",
-				"sprt.payload.msg_jminfo.pcm_modem_avail_v91",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0200,
-				NULL, HFILL
-			}
-		},
-		/* START_JM message has no additional fields */
-		/* CONNECT message */
-		{
-			&hf_sprt_payload_msg_connect_selmod,
-			{
-				"Selected modulation",
-				"sprt.payload.msg_connect.selmod",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_selmod_name),
-				0xFC,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_compr_dir,
-			{
-				"Compression direction",
-				"sprt.payload.msg_connect.compr_dir",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_comp_direction),
-				0x03,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_selected_compr,
-			{
-				"Selected compression",
-				"sprt.payload.msg_connect.selected_compr",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_selected_compr_name),
-				0xF0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_selected_err_corr,
-			{
-				"Selected error correction",
-				"sprt.payload.msg_connect.selected_err_corr",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_selected_err_corr_name),
-				0x0F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_tdsr,
-			{
-				"Transmit data signalling rate (bits/sec)",
-				"sprt.payload.msg_connect.tdsr",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_rdsr,
-			{
-				"Receive data signalling rate (bits/sec)",
-				"sprt.payload.msg_connect.rdsr",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_dlci_enabled,
-			{
-				"DLCI",
-				"sprt.payload.msg_connect.dlci_enabled",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_enabled_disabled),
-				0x8000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_avail_data_types,
-			{
-				"Available data types",
-				"sprt.payload.msg_connect.avail_data_types",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0x7FFF,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_adt_octet_no_format_no_dlci,
-			{
-				"Octet w/o formatting with no DLCI",
-				"sprt.payload.msg_connect.adt_octet_no_format_no_dlci",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x4000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_adt_i_raw_bit,
-			{
-				"I_RAW-BIT",
-				"sprt.payload.msg_connect.adt_i_raw_bit",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x2000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_adt_i_frame,
-			{
-				"I_FRAME",
-				"sprt.payload.msg_connect.adt_i_frame",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x1000,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_adt_i_char_stat,
-			{
-				"I_CHAR-STAT",
-				"sprt.payload.msg_connect.adt_i_char_stat",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0800,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_adt_i_char_dyn,
-			{
-				"I_CHAR-DYN",
-				"sprt.payload.msg_connect.adt_i_char_dyn",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0400,
-				NULL, HFILL
-			}
-		},
-		{ /* from V.150.1 amendment 2 (5-2006): */
-			&hf_sprt_payload_msg_connect_adt_i_octet_cs,
-			{
-				"I_OCTET-CS",
-				"sprt.payload.msg_connect.adt_i_octet_cs",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0200,
-				NULL, HFILL
-			}
-		},
-		{ /* from V.150.1 amendment 2 (5-2006): */
-			&hf_sprt_payload_msg_connect_adt_i_char_stat_cs,
-			{
-				"I_CHAR-STAT-CS",
-				"sprt.payload.msg_connect.adt_i_char_stat_cs",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0100,
-				NULL, HFILL
-			}
-		},
-		{ /* from V.150.1 amendment 2 (5-2006): */
-			&hf_sprt_payload_msg_connect_adt_i_char_dyn_cs,
-			{
-				"I_CHAR-DYN-CS",
-				"sprt.payload.msg_connect.adt_i_char_dyn_cs",
-				FT_BOOLEAN,
-				16,
-				TFS(&tfs_available_not_available),
-				0x0080,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_adt_reserved,
-			{
-				"Reserved for ITU-T",
-				"sprt.payload.msg_connect.adt_reserved",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0x007F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_compr_trans_dict_sz,
-			{
-				"Compression transmit dictionary size",
-				"sprt.payload.msg_connect.compr_trans_dict_sz",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_compr_recv_dict_sz,
-			{
-				"Compression receive dictionary size",
-				"sprt.payload.msg_connect.compr_recv_dict_sz",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_compr_trans_str_len,
-			{
-				"Compression transmit string length",
-				"sprt.payload.msg_connect.compr_trans_str_len",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_compr_recv_str_len,
-			{
-				"Compression receive string length",
-				"sprt.payload.msg_connect.compr_recv_str_len",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_compr_trans_hist_sz,
-			{
-				"Compression transmit history size",
-				"sprt.payload.msg_connect.compr_trans_hist_sz",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_connect_compr_recv_hist_sz,
-			{
-				"Compression receive history size",
-				"sprt.payload.msg_connect.compr_recv_hist_sz",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* BREAK message */
-		{
-			&hf_sprt_payload_msg_break_source_proto,
-			{
-				"Break source protocol",
-				"sprt.payload.msg_break.source_proto",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_break_src_proto_name),
-				0xF0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_break_type,
-			{
-				"Break type",
-				"sprt.payload.msg_break.type",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_break_type_name),
-				0x0F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_break_length,
-			{
-				"Break length (x10 msec)",
-				"sprt.payload.msg_break.length",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* BREAK_ACK message has no additional fields */
-		/* MR_EVENT message */
-		{
-			&hf_sprt_payload_msg_mr_event_id,
-			{
-				"Modem relay event ID",
-				"sprt.payload.msg_mr_event.id",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_mrevent_id_name),
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_reason_code,
-			{
-				"Reason code",
-				"sprt.payload.msg_mr_event.reason_code",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_mrevent_reason_code_name),
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_selmod,
-			{
-				"Selected modulation",
-				"sprt.payload.msg_mr_event.selmod",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_selmod_name),
-				0xFC,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_txsen,
-			{
-				"TxSEN",
-				"sprt.payload.msg_mr_event.txsen",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_enabled_disabled),
-				0x02,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_rxsen,
-			{
-				"RxSEN",
-				"sprt.payload.msg_mr_event.rxsen",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_enabled_disabled),
-				0x01,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_tdsr,
-			{
-				"Transmit data signalling rate (bits/sec)",
-				"sprt.payload.msg_mr_event.tdsr",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_rdsr,
-			{
-				"Receive data signalling rate (bits/sec)",
-				"sprt.payload.msg_mr_event.rdsr",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_txsr,
-			{
-				"Physical layer transmitter symbol rate (TxSR)",
-				"sprt.payload.msg_mr_event.txsr",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_mrevent_phys_layer_symbol_rate),
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_mr_evt_rxsr,
-			{
-				"Physical layer receiver symbol rate (RxSR)",
-				"sprt.payload.msg_mr_event.rxsr",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_mrevent_phys_layer_symbol_rate),
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* CLEARDOWN message */
-		{
-			&hf_sprt_payload_msg_cleardown_reason_code,
-			{
-				"Reason code",
-				"sprt.payload.msg_cleardown.reason_code",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_cleardown_reason),
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_cleardown_vendor_tag,
-			{
-				"Vendor tag",
-				"sprt.payload.msg_cleardown.vendor_tag",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_cleardown_vendor_info,
-			{
-				"Vendor info",
-				"sprt.payload.msg_cleardown.vendor_info",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* PROF_XCHG message */
-		{
-			&hf_sprt_payload_msg_profxchg_v42_lapm,
-			{
-				"V.42/LAPM protocol support",
-				"sprt.payload.msg_profxchg.v42_lapm",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_prof_xchg_support),
-				0xC0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_annex_av42,
-			{
-				"Annex A/V.42(1996) protocol support",
-				"sprt.payload.msg_profxchg.annex_av42",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_prof_xchg_support),
-				0x30,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_v44_compr,
-			{
-				"V.44 compression support",
-				"sprt.payload.msg_profxchg.v44_compr",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_prof_xchg_support),
-				0x0C,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_v42bis_compr,
-			{
-				"V.42bis compression support",
-				"sprt.payload.msg_profxchg.v42bis_compr",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_prof_xchg_support),
-				0x03,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_mnp5_compr,
-			{
-				"MNP5 compression support",
-				"sprt.payload.msg_profxchg.mnp5_compr",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_prof_xchg_support),
-				0xC0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_reserved,
-			{
-				"Reserved for ITU-T",
-				"sprt.payload.msg_profxchg.reserved",
-				FT_UINT8,
-				BASE_HEX,
-				NULL,
-				0x3F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr2_v42bis_compr_req,
-			{
-				"V.42bis data compression request",
-				"sprt.payload.msg_profxchg.xidlr2_v42bis_compr_req",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr3and4_v42bis_num_codewords,
-			{
-				"V.42bis number of codewords",
-				"sprt.payload.msg_profxchg.xidlr3and4_v42bis_num_codewords",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr5_v42bis_max_strlen,
-			{
-				"V.42bis maximum string length",
-				"sprt.payload.msg_profxchg.xidlr5_v42bis_max_strlen",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr6_v44_capability,
-			{
-				"V.44 capability",
-				"sprt.payload.msg_profxchg.xidlr6_v44_capability",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr7_v44_compr_req,
-			{
-				"V.44 data compression request",
-				"sprt.payload.msg_profxchg.xidlr7_v44_compr_req",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr8and9_v44_num_codewords_trans,
-			{
-				"V.44 number of codewords in transmit direction",
-				"sprt.payload.msg_profxchg.xidlr8and9_v44_num_codewords_trans",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr10and11_v44_num_codewords_recv,
-			{
-				"V.44 number of codewords in receive direction",
-				"sprt.payload.msg_profxchg.xidlr10and11_v44_num_codewords_recv",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr12_v44_max_strlen_trans,
-			{
-				"V.44 maximum string length in transmit direction",
-				"sprt.payload.msg_profxchg.xidlr12_v44_max_strlen_trans",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr13_v44_max_strlen_recv,
-			{
-				"V.44 maximum string length in receive direction",
-				"sprt.payload.msg_profxchg.xidlr13_v44_max_strlen_recv",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr14and15_v44_history_len_trans,
-			{
-				"V.44 length of history in transmit direction",
-				"sprt.payload.msg_profxchg.xidlr14and15_v44_history_len_trans",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_msg_profxchg_xidlr16and17_v44_history_len_recv,
-			{
-				"V.44 length of history in receive direction",
-				"sprt.payload.msg_profxchg.xidlr16and17_v44_history_len_recv",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* User data messages... */
-		/* I_OCTET message: need to use DLCI field (8 or 16 bits) if indicated by CONNECT message */
-		{
-			&hf_sprt_payload_i_octet_no_dlci,
-			{
-				"No DLCI field",
-				"sprt.payload.i_octet_no_dlci",
-				FT_NONE,
-				BASE_NONE,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_i_octet_dlci_presence_unknown,
-			{
-				"Not known if DLCI field is present",
-				"sprt.payload.i_octet_dlci_presence_unknown",
-				FT_NONE,
-				BASE_NONE,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_i_octet_dlci1,
-			{
-				"DLCI #1",
-				"sprt.payload.i_octet_dlci1",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_payload_dlci1),
-				0xFC,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_i_octet_cr,
-			{
-				"Command/response bit",
-				"sprt.payload.i_octet_cr",
-				FT_BOOLEAN,
-				8,
-				NULL,
-				0x02,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_i_octet_ea,
-			{
-				"Address field extension bit",
-				"sprt.payload.i_octet_ea",
-				FT_BOOLEAN,
-				8,
-				TFS(&sprt_payload_ea_bit),
-				0x01,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_i_octet_dlci2,
-			{
-				"DLCI #2",
-				"sprt.payload.i_octet_dlci2",
-				FT_UINT8,
-				BASE_DEC | BASE_RANGE_STRING,
-				RVALS(sprt_payload_dlci2),
-				0xFE,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_i_octet_dlci_setup_by_connect_frame,
-			{
-				"DLCI setup by CONNECT message at frame",
-				"sprt.payload.i_octet_dlci_setup_by_connect_frame",
-				FT_FRAMENUM,
-				BASE_NONE,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* fields for I_RAW_OCTET message (L; L,N) */
-		{
-			&hf_sprt_payload_rawoctet_n_field_present,
-			{
-				"N field",
-				"sprt.payload.rawoctet_n_field_present",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_present_absent),
-				0x80,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawoctet_l,
-			{
-				"L: # of octets in segment minus one",
-				"sprt.payload.rawoctet_l",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x7F,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawoctet_n,
-			{
-				"N: # of times octets appear in data minus 2",
-				"sprt.payload.rawoctet_n",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0xFF,
-				NULL, HFILL
-			}
-		},
-		/* fields for I_RAW_BIT (L; L,P; L,P,N) */
-		{
-			&hf_sprt_payload_rawbit_included_fields_l,
-			{
-				"Include field L only",
-				"sprt.payload.rawbit_included_fields_l",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0xC0, /* top two bits: 00 */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawbit_included_fields_lp,
-			{
-				"Include fields L, P",
-				"sprt.payload.rawbit_field_format_lp",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0xC0, /* top two bits: 01 */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawbit_included_fields_lpn,
-			{
-				"Include fields L, P, N",
-				"sprt.payload.rawbit_included_fields_lpn",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x80, /* top bit: 1 */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawbit_len_a,
-			{
-				"L: # of octets in segment",
-				"sprt.payload.rawbit_len_a",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x3F, /* six bits */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawbit_len_b,
-			{
-				"L: # of octets in segment",
-				"sprt.payload.rawbit_len_b",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x38, /* three bits */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawbit_len_c,
-			{
-				"L: # of octets in segment",
-				"sprt.payload.rawbit_len_c",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x78, /* four bits */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawbit_p,
-			{
-				"P: # of low-order bits in last octet that are not in segment",
-				"sprt.payload.rawbit_p",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x7, /* three bits */
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_rawbit_n,
-			{
-				"N: # of times octets appear in data minus 2",
-				"sprt.payload.rawbit_n",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0xFF, /* eight bits */
-				NULL, HFILL
-			}
-		},
-		/* fields in I_CHAR_STAT & I_CHAR_DYN messages */
-		{
-			&hf_sprt_payload_data_reserved_bit,
-			{
-				"Reserved bit",
-				"sprt.payload.reserved_bit",
-				FT_BOOLEAN,
-				8,
-				TFS(&tfs_set_notset),
-				0x80,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_data_num_data_bits,
-			{
-				"D: Number of data bits",
-				"sprt.payload.num_data_bits",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_payload_data_bits),
-				0x60,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_data_parity_type,
-			{
-				"P: Parity type",
-				"sprt.payload.parity_type",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_payload_parity),
-				0x1C,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_num_stop_bits,
-			{
-				"S: Number stop bits",
-				"sprt.payload.num_stop_bits",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_payload_stop_bits),
-				0x03,
-				NULL, HFILL
-			}
-		},
-		/* sequence field in I_OCTET_CS, I_CHAR_STAT_CS, & I_CHAR_DYN_CS messages */
-		{
-			&hf_sprt_payload_data_cs,
-			{
-				"Character sequence number",
-				"sprt.payload.cs",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-		/* fields for I_FRAME: */
-		{
-			&hf_sprt_payload_frame_reserved_bits,
-			{
-				"Reserved bits",
-				"sprt.payload.frame_reserved_bits",
-				FT_UINT8,
-				BASE_HEX,
-				NULL,
-				0xFC,
-				NULL, HFILL
-			}
-		},
-		{
-			&hf_sprt_payload_frame_state,
-			{
-				"Frame state",
-				"sprt.payload.frame_state",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(sprt_payload_frame_state),
-				0x03,
-				NULL, HFILL
-			}
-		},
-		/* just dump remaining payload data: */
-		{
-			&hf_sprt_payload_data,
-			{
-				"Payload data",
-				"sprt.payload.data",
-				FT_BYTES,
-				BASE_NONE,
-				NULL,
-				0x0,
-				NULL, HFILL
-			}
-		},
-	}; /* hf_register_info hf[] */
+    static hf_register_info hf[] =
+    {
+        /* set up fields */
+        {
+            &hf_sprt_setup,
+            {
+                "Stream setup",
+                "sprt.setup",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                "Stream setup, method and frame number", HFILL
+            }
+        },
+        {
+            &hf_sprt_setup_frame,
+            {
+                "Setup frame",
+                "sprt.setup-frame",
+                FT_FRAMENUM,
+                BASE_NONE,
+                NULL,
+                0x0,
+                "Frame that set up this stream", HFILL
+            }
+        },
+        {
+            &hf_sprt_setup_method,
+            {
+                "Setup Method",
+                "sprt.setup-method",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                "Method used to set up this stream", HFILL
+            }
+        },
+        /* SPRT header fields: */
+        {
+            &hf_sprt_header_extension_bit,
+            {
+                "Header extension bit",
+                "sprt.x",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_set_notset),
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_subsession_id,
+            {
+                "Sub session ID",
+                "sprt.ssid",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x7F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_reserved_bit,
+            {
+                "Reserved bit",
+                "sprt.reserved",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_set_notset),
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_type,
+            {
+                "Payload type",
+                "sprt.pt",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x7F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_transport_channel_id,
+            {
+                "Transport channel ID",
+                "sprt.tc",
+                FT_UINT16,
+                BASE_DEC,
+                VALS(sprt_transport_channel_characteristics),
+                0xC000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_sequence_number,
+            {
+                "Sequence number",
+                "sprt.seq",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x3FFF,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_number_of_ack_fields,
+            {
+                "Number of ACK fields",
+                "sprt.noa",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0xC000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_base_sequence_number,
+            {
+                "Base sequence number",
+                "sprt.bsqn",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x3FFF,
+                NULL, HFILL
+            }
+        },
+        /* ACK fields, if any: */
+        {
+            &hf_sprt_ack_field_items, /* 0 to 3 items (TCN + SQN) */
+            {
+                "ACK fields",
+                "sprt.ack.field",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0xC000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_transport_channel_item,
+            {
+                "Transport control channel",
+                "sprt.tcn",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0xC000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_sequence_item,
+            {
+                "Sequence number",
+                "sprt.sqn",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x3FFF,
+                NULL, HFILL
+            }
+        },
+        /* SPRT payload, if any: */
+        {
+            &hf_sprt_payload,
+            {
+                "Payload (in bytes)",
+                "sprt.payload",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_no_data,
+            {
+                "No payload",
+                "sprt.payload",
+                FT_NONE,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_reserved_bit,
+            {
+                "Reserved bit",
+                "sprt.payload.reserved_bit",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_set_notset),
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_message_id,
+            {
+                "Payload message ID",
+                "sprt.payload.msgid",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_modem_relay_msg_id_name),
+                0x7F,
+                NULL, HFILL
+            }
+        },
+        /* SPRT payload fields, if any (depend on payload msgid): */
+        /* INIT message */
+        {
+            &hf_sprt_payload_msg_init_all_fields,
+            {
+                "Init message fields",
+                "sprt.payload.msg_init.all_fields",
+                FT_UINT16,
+                BASE_HEX,
+                NULL,
+                0xFFFF, /* 0x0 */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_necrxch,
+            {
+                "NECRxCH",
+                "sprt.payload.msg_init.NECRxCH",
+                FT_BOOLEAN,
+                16,
+                NULL,
+                0x8000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_ecrxch,
+            {
+                "ECRxCH",
+                "sprt.payload.msg_init.ECRxCH",
+                FT_BOOLEAN,
+                16,
+                NULL,
+                0x4000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_xid_prof_exch,
+            {
+                "XID profile exchange",
+                "sprt.payload.msg_init.XID_profile_exch",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x2000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_assym_data_types,
+            {
+                "Assymetrical data types",
+                "sprt.payload.msg_init.assym_data_types",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x1000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_i_raw_bit,
+            {
+                "I_RAW-BIT",
+                "sprt.payload.msg_init.opt_moip_types_i_raw_bit",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x0800,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_i_frame,
+            {
+                "I_FRAME",
+                "sprt.payload.msg_init.opt_moip_types_i_frame",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x0400,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_i_char_stat,
+            {
+                "I_CHAR-STAT",
+                "sprt.payload.msg_init.opt_moip_types_i_char_stat",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x0200,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_i_char_dyn,
+            {
+                "I_CHAR-DYN",
+                "sprt.payload.msg_init.opt_moip_types_i_char_dyn",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x0100,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_i_octet_cs,
+            {
+                "I_OCTET-CS",
+                "sprt.payload.msg_init.opt_moip_types_i_octet_cs",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x0080,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_i_char_stat_cs,
+            {
+                "I_CHAR-STAT-CS",
+                "sprt.payload.msg_init.opt_moip_types_i_char_stat_cs",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x0040,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_i_char_dyn_cs,
+            {
+                "I_CHAR-DYN-CS",
+                "sprt.payload.msg_init.opt_moip_types_i_char_dyn_cs",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_supported_not_supported),
+                0x0020,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_init_opt_moip_types_reserved,
+            {
+                "Reserved for ITU-T",
+                "sprt.payload.msg_init.opt_moip_types_reserved",
+                FT_UINT16,
+                BASE_HEX,
+                NULL,
+                0x001F,
+                NULL, HFILL
+            }
+        },
+        /* XID_XCHG message */
+        {
+            &hf_sprt_payload_msg_xidxchg_ecp,
+            {
+                "Error correcting protocol",
+                "sprt.payload.msg_xidxchg.ecp",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_ecp_name),
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr1_v42bis,
+            {
+                "V.42 bis",
+                "sprt.payload.msg_xidxchg.xidlr1_v42bis",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_supported_not_supported),
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr1_v44,
+            {
+                "V.44",
+                "sprt.payload.msg_xidxchg.xidlr1_v44",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_supported_not_supported),
+                0x40,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr1_mnp5,
+            {
+                "MNP5",
+                "sprt.payload.msg_xidxchg.xidlr1_mnp5",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_supported_not_supported),
+                0x20,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr1_reserved,
+            {
+                "Reserved for ITU-T",
+                "sprt.payload.msg_xidxchg.xidlr1_reserved",
+                FT_UINT8,
+                BASE_HEX,
+                NULL,
+                0x1F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr2_v42bis_compr_req,
+            {
+                "V.42bis data compression request",
+                "sprt.payload.msg_xidxchg.xidlr2_v42bis_compr_req",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr3and4_v42bis_num_codewords,
+            {
+                "V.42bis number of codewords",
+                "sprt.payload.msg_xidxchg.xidlr3and4_v42bis_num_codewords",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr5_v42bis_max_strlen,
+            {
+                "V.42bis maximum string length",
+                "sprt.payload.msg_xidxchg.xidlr5_v42bis_max_strlen",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr6_v44_capability,
+            {
+                "V.44 capability",
+                "sprt.payload.msg_xidxchg.xidlr6_v44_capability",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr7_v44_compr_req,
+            {
+                "V.44 data compression request",
+                "sprt.payload.msg_xidxchg.xidlr7_v44_compr_req",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr8and9_v44_num_codewords_trans,
+            {
+                "V.44 number of codewords in transmit direction",
+                "sprt.payload.msg_xidxchg.xidlr8and9_v44_num_codewords_trans",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr10and11_v44_num_codewords_recv,
+            {
+                "V.44 number of codewords in receive direction",
+                "sprt.payload.msg_xidxchg.xidlr10and11_v44_num_codewords_recv",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr12_v44_max_strlen_trans,
+            {
+                "V.44 maximum string length in transmit direction",
+                "sprt.payload.msg_xidxchg.xidlr12_v44_max_strlen_trans",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr13_v44_max_strlen_recv,
+            {
+                "V.44 maximum string length in receive direction",
+                "sprt.payload.msg_xidxchg.xidlr13_v44_max_strlen_recv",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr14and15_v44_history_len_trans,
+            {
+                "V.44 length of history in transmit direction",
+                "sprt.payload.msg_xidxchg.xidlr14and15_v44_history_len_trans",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_xidxchg_xidlr16and17_v44_history_len_recv,
+            {
+                "V.44 length of history in receive direction",
+                "sprt.payload.msg_xidxchg.xidlr16and17_v44_history_len_recv",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* JM_INFO message */
+        {
+            &hf_sprt_payload_msg_jminfo_category_data,
+            {
+                "Category data",
+                "sprt.payload.msg_jminfo.category_data",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0xFFFF,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_category_id,
+            {
+                "Category ID",
+                "sprt.payload.msg_jminfo.category_id",
+                FT_UINT16,
+                BASE_HEX,
+                VALS(sprt_jm_info_cat_id_name),
+                0xF000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_category_ext_info,
+            {
+                "Unrecognized category data",
+                "sprt.payload.msg_jminfo.category_ext_info",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0FFF,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_unk_category_info,
+            {
+                "Category extension data",
+                "sprt.payload.msg_jminfo.unk_category_info",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0FFF,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_category_leftover_bits,
+            {
+                "Leftover bits", /* "Category info leftover bits", */
+                "sprt.payload.msg_jminfo.category_leftover_bits",
+                FT_UINT16,
+                BASE_HEX,
+                NULL,
+                0x01FF,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_call_function,
+            {
+                "Call function",
+                "sprt.payload.msg_jminfo.call_function",
+                FT_UINT16,
+                BASE_DEC,
+                VALS(sprt_jminfo_tbc_call_funct_name),
+                0x0E00,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v34_duplex,
+            {
+                "V.34 duplex",
+                "sprt.payload.msg_jminfo.mod_v34_duplex",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0800,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v34_half_duplex,
+            {
+                "V.34 half-duplex",
+                "sprt.payload.msg_jminfo.mod_v34_half_duplex",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0400,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v32bis_v32,
+            {
+                "V.32bis/V.32",
+                "sprt.payload.msg_jminfo.mod_v32bis_v32",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0200,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v22bis_v22,
+            {
+                "V.22bis/V.22",
+                "sprt.payload.msg_jminfo.mod_v22bis_v22",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0100,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v17,
+            {
+                "V.17",
+                "sprt.payload.msg_jminfo.mod_v17",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0080,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v29_half_duplex,
+            {
+                "V.29 half-duplex",
+                "sprt.payload.msg_jminfo.mod_v29_half_duplex",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0040,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v27ter,
+            {
+                "V.27ter",
+                "sprt.payload.msg_jminfo.mod_v27ter",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0020,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v26ter,
+            {
+                "V.26ter",
+                "sprt.payload.msg_jminfo.mod_v26ter",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0010,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v26bis,
+            {
+                "V.26bis",
+                "sprt.payload.msg_jminfo.mod_v16bis",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0008,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v23_duplex,
+            {
+                "V.23 duplex",
+                "sprt.payload.msg_jminfo.mod_v23_duplex",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0004,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v23_half_duplex,
+            {
+                "V.23 half-duplex",
+                "sprt.payload.msg_jminfo.mod_v23_half_duplex",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0002,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_mod_v21,
+            {
+                "V.21",
+                "sprt.payload.msg_jminfo.mod_v21",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0001,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_protocols,
+            {
+                "Protocols",
+                "sprt.payload.msg_jminfo.protocols",
+                FT_UINT16,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_jminfo_tbc_protocol_name),
+                0x0E00,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_pstn_access_call_dce_cell,
+            {
+                "Call DCE is on a cellular connection",
+                "sprt.payload.msg_jminfo.pstn_access_call_dce_cell",
+                FT_BOOLEAN,
+                16,
+                NULL,
+                0x0800,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_pstn_access_answ_dce_cell,
+            {
+                "Answer DCE is on a cellular connection",
+                "sprt.payload.msg_jminfo.pstn_access_answ_dce_cell",
+                FT_BOOLEAN,
+                16,
+                NULL,
+                0x0400,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_pstn_access_dce_on_digital_net,
+            {
+                "DCE is on a digital network connection",
+                "sprt.payload.msg_jminfo.pstn_access_dce_on_digital_net",
+                FT_BOOLEAN,
+                16,
+                NULL,
+                0x0200,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_pcm_modem_avail_v90_v92_analog,
+            {
+                "V.90 or V.92 analog modem availability",
+                "sprt.payload.msg_jminfo.pcm_modem_avail_v90_v92_analog",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0800,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_pcm_modem_avail_v90_v92_digital,
+            {
+                "V.90 or V.92 digital modem availability",
+                "sprt.payload.msg_jminfo.pcm_modem_avail_v90_v92_digital",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0400,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_jminfo_pcm_modem_avail_v91,
+            {
+                "V.91 modem availability",
+                "sprt.payload.msg_jminfo.pcm_modem_avail_v91",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0200,
+                NULL, HFILL
+            }
+        },
+        /* START_JM message has no additional fields */
+        /* CONNECT message */
+        {
+            &hf_sprt_payload_msg_connect_selmod,
+            {
+                "Selected modulation",
+                "sprt.payload.msg_connect.selmod",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_selmod_name),
+                0xFC,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_compr_dir,
+            {
+                "Compression direction",
+                "sprt.payload.msg_connect.compr_dir",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_comp_direction),
+                0x03,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_selected_compr,
+            {
+                "Selected compression",
+                "sprt.payload.msg_connect.selected_compr",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_selected_compr_name),
+                0xF0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_selected_err_corr,
+            {
+                "Selected error correction",
+                "sprt.payload.msg_connect.selected_err_corr",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_selected_err_corr_name),
+                0x0F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_tdsr,
+            {
+                "Transmit data signalling rate (bits/sec)",
+                "sprt.payload.msg_connect.tdsr",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_rdsr,
+            {
+                "Receive data signalling rate (bits/sec)",
+                "sprt.payload.msg_connect.rdsr",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_dlci_enabled,
+            {
+                "DLCI",
+                "sprt.payload.msg_connect.dlci_enabled",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_enabled_disabled),
+                0x8000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_avail_data_types,
+            {
+                "Available data types",
+                "sprt.payload.msg_connect.avail_data_types",
+                FT_UINT16,
+                BASE_HEX,
+                NULL,
+                0x7FFF,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_adt_octet_no_format_no_dlci,
+            {
+                "Octet w/o formatting with no DLCI",
+                "sprt.payload.msg_connect.adt_octet_no_format_no_dlci",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x4000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_adt_i_raw_bit,
+            {
+                "I_RAW-BIT",
+                "sprt.payload.msg_connect.adt_i_raw_bit",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x2000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_adt_i_frame,
+            {
+                "I_FRAME",
+                "sprt.payload.msg_connect.adt_i_frame",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x1000,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_adt_i_char_stat,
+            {
+                "I_CHAR-STAT",
+                "sprt.payload.msg_connect.adt_i_char_stat",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0800,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_adt_i_char_dyn,
+            {
+                "I_CHAR-DYN",
+                "sprt.payload.msg_connect.adt_i_char_dyn",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0400,
+                NULL, HFILL
+            }
+        },
+        { /* from V.150.1 amendment 2 (5-2006): */
+            &hf_sprt_payload_msg_connect_adt_i_octet_cs,
+            {
+                "I_OCTET-CS",
+                "sprt.payload.msg_connect.adt_i_octet_cs",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0200,
+                NULL, HFILL
+            }
+        },
+        { /* from V.150.1 amendment 2 (5-2006): */
+            &hf_sprt_payload_msg_connect_adt_i_char_stat_cs,
+            {
+                "I_CHAR-STAT-CS",
+                "sprt.payload.msg_connect.adt_i_char_stat_cs",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0100,
+                NULL, HFILL
+            }
+        },
+        { /* from V.150.1 amendment 2 (5-2006): */
+            &hf_sprt_payload_msg_connect_adt_i_char_dyn_cs,
+            {
+                "I_CHAR-DYN-CS",
+                "sprt.payload.msg_connect.adt_i_char_dyn_cs",
+                FT_BOOLEAN,
+                16,
+                TFS(&tfs_available_not_available),
+                0x0080,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_adt_reserved,
+            {
+                "Reserved for ITU-T",
+                "sprt.payload.msg_connect.adt_reserved",
+                FT_UINT16,
+                BASE_HEX,
+                NULL,
+                0x007F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_compr_trans_dict_sz,
+            {
+                "Compression transmit dictionary size",
+                "sprt.payload.msg_connect.compr_trans_dict_sz",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_compr_recv_dict_sz,
+            {
+                "Compression receive dictionary size",
+                "sprt.payload.msg_connect.compr_recv_dict_sz",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_compr_trans_str_len,
+            {
+                "Compression transmit string length",
+                "sprt.payload.msg_connect.compr_trans_str_len",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_compr_recv_str_len,
+            {
+                "Compression receive string length",
+                "sprt.payload.msg_connect.compr_recv_str_len",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_compr_trans_hist_sz,
+            {
+                "Compression transmit history size",
+                "sprt.payload.msg_connect.compr_trans_hist_sz",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_connect_compr_recv_hist_sz,
+            {
+                "Compression receive history size",
+                "sprt.payload.msg_connect.compr_recv_hist_sz",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* BREAK message */
+        {
+            &hf_sprt_payload_msg_break_source_proto,
+            {
+                "Break source protocol",
+                "sprt.payload.msg_break.source_proto",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_break_src_proto_name),
+                0xF0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_break_type,
+            {
+                "Break type",
+                "sprt.payload.msg_break.type",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_break_type_name),
+                0x0F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_break_length,
+            {
+                "Break length (x10 msec)",
+                "sprt.payload.msg_break.length",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* BREAK_ACK message has no additional fields */
+        /* MR_EVENT message */
+        {
+            &hf_sprt_payload_msg_mr_event_id,
+            {
+                "Modem relay event ID",
+                "sprt.payload.msg_mr_event.id",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_mrevent_id_name),
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_reason_code,
+            {
+                "Reason code",
+                "sprt.payload.msg_mr_event.reason_code",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_mrevent_reason_code_name),
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_selmod,
+            {
+                "Selected modulation",
+                "sprt.payload.msg_mr_event.selmod",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_selmod_name),
+                0xFC,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_txsen,
+            {
+                "TxSEN",
+                "sprt.payload.msg_mr_event.txsen",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_enabled_disabled),
+                0x02,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_rxsen,
+            {
+                "RxSEN",
+                "sprt.payload.msg_mr_event.rxsen",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_enabled_disabled),
+                0x01,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_tdsr,
+            {
+                "Transmit data signalling rate (bits/sec)",
+                "sprt.payload.msg_mr_event.tdsr",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_rdsr,
+            {
+                "Receive data signalling rate (bits/sec)",
+                "sprt.payload.msg_mr_event.rdsr",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_txsr,
+            {
+                "Physical layer transmitter symbol rate (TxSR)",
+                "sprt.payload.msg_mr_event.txsr",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_mrevent_phys_layer_symbol_rate),
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_mr_evt_rxsr,
+            {
+                "Physical layer receiver symbol rate (RxSR)",
+                "sprt.payload.msg_mr_event.rxsr",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_mrevent_phys_layer_symbol_rate),
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* CLEARDOWN message */
+        {
+            &hf_sprt_payload_msg_cleardown_reason_code,
+            {
+                "Reason code",
+                "sprt.payload.msg_cleardown.reason_code",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_cleardown_reason),
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_cleardown_vendor_tag,
+            {
+                "Vendor tag",
+                "sprt.payload.msg_cleardown.vendor_tag",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_cleardown_vendor_info,
+            {
+                "Vendor info",
+                "sprt.payload.msg_cleardown.vendor_info",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* PROF_XCHG message */
+        {
+            &hf_sprt_payload_msg_profxchg_v42_lapm,
+            {
+                "V.42/LAPM protocol support",
+                "sprt.payload.msg_profxchg.v42_lapm",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_prof_xchg_support),
+                0xC0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_annex_av42,
+            {
+                "Annex A/V.42(1996) protocol support",
+                "sprt.payload.msg_profxchg.annex_av42",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_prof_xchg_support),
+                0x30,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_v44_compr,
+            {
+                "V.44 compression support",
+                "sprt.payload.msg_profxchg.v44_compr",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_prof_xchg_support),
+                0x0C,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_v42bis_compr,
+            {
+                "V.42bis compression support",
+                "sprt.payload.msg_profxchg.v42bis_compr",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_prof_xchg_support),
+                0x03,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_mnp5_compr,
+            {
+                "MNP5 compression support",
+                "sprt.payload.msg_profxchg.mnp5_compr",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_prof_xchg_support),
+                0xC0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_reserved,
+            {
+                "Reserved for ITU-T",
+                "sprt.payload.msg_profxchg.reserved",
+                FT_UINT8,
+                BASE_HEX,
+                NULL,
+                0x3F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr2_v42bis_compr_req,
+            {
+                "V.42bis data compression request",
+                "sprt.payload.msg_profxchg.xidlr2_v42bis_compr_req",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr3and4_v42bis_num_codewords,
+            {
+                "V.42bis number of codewords",
+                "sprt.payload.msg_profxchg.xidlr3and4_v42bis_num_codewords",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr5_v42bis_max_strlen,
+            {
+                "V.42bis maximum string length",
+                "sprt.payload.msg_profxchg.xidlr5_v42bis_max_strlen",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr6_v44_capability,
+            {
+                "V.44 capability",
+                "sprt.payload.msg_profxchg.xidlr6_v44_capability",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr7_v44_compr_req,
+            {
+                "V.44 data compression request",
+                "sprt.payload.msg_profxchg.xidlr7_v44_compr_req",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr8and9_v44_num_codewords_trans,
+            {
+                "V.44 number of codewords in transmit direction",
+                "sprt.payload.msg_profxchg.xidlr8and9_v44_num_codewords_trans",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr10and11_v44_num_codewords_recv,
+            {
+                "V.44 number of codewords in receive direction",
+                "sprt.payload.msg_profxchg.xidlr10and11_v44_num_codewords_recv",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr12_v44_max_strlen_trans,
+            {
+                "V.44 maximum string length in transmit direction",
+                "sprt.payload.msg_profxchg.xidlr12_v44_max_strlen_trans",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr13_v44_max_strlen_recv,
+            {
+                "V.44 maximum string length in receive direction",
+                "sprt.payload.msg_profxchg.xidlr13_v44_max_strlen_recv",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr14and15_v44_history_len_trans,
+            {
+                "V.44 length of history in transmit direction",
+                "sprt.payload.msg_profxchg.xidlr14and15_v44_history_len_trans",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_msg_profxchg_xidlr16and17_v44_history_len_recv,
+            {
+                "V.44 length of history in receive direction",
+                "sprt.payload.msg_profxchg.xidlr16and17_v44_history_len_recv",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* User data messages... */
+        /* I_OCTET message: need to use DLCI field (8 or 16 bits) if indicated by CONNECT message */
+        {
+            &hf_sprt_payload_i_octet_no_dlci,
+            {
+                "No DLCI field",
+                "sprt.payload.i_octet_no_dlci",
+                FT_NONE,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_i_octet_dlci_presence_unknown,
+            {
+                "Not known if DLCI field is present",
+                "sprt.payload.i_octet_dlci_presence_unknown",
+                FT_NONE,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_i_octet_dlci1,
+            {
+                "DLCI #1",
+                "sprt.payload.i_octet_dlci1",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_payload_dlci1),
+                0xFC,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_i_octet_cr,
+            {
+                "Command/response bit",
+                "sprt.payload.i_octet_cr",
+                FT_BOOLEAN,
+                8,
+                NULL,
+                0x02,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_i_octet_ea,
+            {
+                "Address field extension bit",
+                "sprt.payload.i_octet_ea",
+                FT_BOOLEAN,
+                8,
+                TFS(&sprt_payload_ea_bit),
+                0x01,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_i_octet_dlci2,
+            {
+                "DLCI #2",
+                "sprt.payload.i_octet_dlci2",
+                FT_UINT8,
+                BASE_DEC | BASE_RANGE_STRING,
+                RVALS(sprt_payload_dlci2),
+                0xFE,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_i_octet_dlci_setup_by_connect_frame,
+            {
+                "DLCI setup by CONNECT message at frame",
+                "sprt.payload.i_octet_dlci_setup_by_connect_frame",
+                FT_FRAMENUM,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* fields for I_RAW_OCTET message (L; L,N) */
+        {
+            &hf_sprt_payload_rawoctet_n_field_present,
+            {
+                "N field",
+                "sprt.payload.rawoctet_n_field_present",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_present_absent),
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawoctet_l,
+            {
+                "L: # of octets in segment minus one",
+                "sprt.payload.rawoctet_l",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x7F,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawoctet_n,
+            {
+                "N: # of times octets appear in data minus 2",
+                "sprt.payload.rawoctet_n",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0xFF,
+                NULL, HFILL
+            }
+        },
+        /* fields for I_RAW_BIT (L; L,P; L,P,N) */
+        {
+            &hf_sprt_payload_rawbit_included_fields_l,
+            {
+                "Include field L only",
+                "sprt.payload.rawbit_included_fields_l",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0xC0, /* top two bits: 00 */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawbit_included_fields_lp,
+            {
+                "Include fields L, P",
+                "sprt.payload.rawbit_field_format_lp",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0xC0, /* top two bits: 01 */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawbit_included_fields_lpn,
+            {
+                "Include fields L, P, N",
+                "sprt.payload.rawbit_included_fields_lpn",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x80, /* top bit: 1 */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawbit_len_a,
+            {
+                "L: # of octets in segment",
+                "sprt.payload.rawbit_len_a",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x3F, /* six bits */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawbit_len_b,
+            {
+                "L: # of octets in segment",
+                "sprt.payload.rawbit_len_b",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x38, /* three bits */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawbit_len_c,
+            {
+                "L: # of octets in segment",
+                "sprt.payload.rawbit_len_c",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x78, /* four bits */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawbit_p,
+            {
+                "P: # of low-order bits in last octet that are not in segment",
+                "sprt.payload.rawbit_p",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0x7, /* three bits */
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_rawbit_n,
+            {
+                "N: # of times octets appear in data minus 2",
+                "sprt.payload.rawbit_n",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0xFF, /* eight bits */
+                NULL, HFILL
+            }
+        },
+        /* fields in I_CHAR_STAT & I_CHAR_DYN messages */
+        {
+            &hf_sprt_payload_data_reserved_bit,
+            {
+                "Reserved bit",
+                "sprt.payload.reserved_bit",
+                FT_BOOLEAN,
+                8,
+                TFS(&tfs_set_notset),
+                0x80,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_data_num_data_bits,
+            {
+                "D: Number of data bits",
+                "sprt.payload.num_data_bits",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_payload_data_bits),
+                0x60,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_data_parity_type,
+            {
+                "P: Parity type",
+                "sprt.payload.parity_type",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_payload_parity),
+                0x1C,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_num_stop_bits,
+            {
+                "S: Number stop bits",
+                "sprt.payload.num_stop_bits",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_payload_stop_bits),
+                0x03,
+                NULL, HFILL
+            }
+        },
+        /* sequence field in I_OCTET_CS, I_CHAR_STAT_CS, & I_CHAR_DYN_CS messages */
+        {
+            &hf_sprt_payload_data_cs,
+            {
+                "Character sequence number",
+                "sprt.payload.cs",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+        /* fields for I_FRAME: */
+        {
+            &hf_sprt_payload_frame_reserved_bits,
+            {
+                "Reserved bits",
+                "sprt.payload.frame_reserved_bits",
+                FT_UINT8,
+                BASE_HEX,
+                NULL,
+                0xFC,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_sprt_payload_frame_state,
+            {
+                "Frame state",
+                "sprt.payload.frame_state",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(sprt_payload_frame_state),
+                0x03,
+                NULL, HFILL
+            }
+        },
+        /* just dump remaining payload data: */
+        {
+            &hf_sprt_payload_data,
+            {
+                "Payload data",
+                "sprt.payload.data",
+                FT_BYTES,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+    }; /* hf_register_info hf[] */
 
-	/* setup protocol subtree array */
-	static gint *ett[] = {
-		&ett_sprt,
-		&ett_sprt_setup,
-		&ett_sprt_ack_fields,
-		&ett_payload,
-		&ett_init_msg_all_fields,
-		&ett_jminfo_msg_cat_data,
-		&ett_connect_msg_adt
-	};
+    /* setup protocol subtree array */
+    static gint *ett[] = {
+        &ett_sprt,
+        &ett_sprt_setup,
+        &ett_sprt_ack_fields,
+        &ett_payload,
+        &ett_init_msg_all_fields,
+        &ett_jminfo_msg_cat_data,
+        &ett_connect_msg_adt
+    };
 
-	/* register protocol name & description */
-	proto_sprt = proto_register_protocol("Simple Packet Relay Transport", "SPRT", "sprt");
+    /* register protocol name & description */
+    proto_sprt = proto_register_protocol("Simple Packet Relay Transport", "SPRT", "sprt");
 
-	/* required function calls to register the header fields and subtrees used */
-	proto_register_field_array(proto_sprt, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    /* required function calls to register the header fields and subtrees used */
+    proto_register_field_array(proto_sprt, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	/* register the dissector */
-	new_register_dissector("sprt", dissect_sprt, proto_sprt);
+    /* register the dissector */
+    new_register_dissector("sprt", dissect_sprt, proto_sprt);
 
-	sprt_module = prefs_register_protocol(proto_sprt, NULL);
+    sprt_module = prefs_register_protocol(proto_sprt, NULL);
 
-	/* preferences */
-	prefs_register_bool_preference(sprt_module, "show_setup_info",
-									"Show stream setup information",
-									"Where available, show which protocol and frame caused "
-									"this SPRT stream to be created",
-									&global_sprt_show_setup_info);
-	prefs_register_bool_preference(sprt_module, "show_dlci_info",
-									"Show DLCI in I_OCTET messages",
-									"Show the DLCI field in I_OCTET messages as well as the frame that "
-									"enabled/disabled the DLCI",
-									&global_sprt_show_dlci_info);
+    /* preferences */
+    prefs_register_bool_preference(sprt_module, "show_setup_info",
+                                    "Show stream setup information",
+                                    "Where available, show which protocol and frame caused "
+                                    "this SPRT stream to be created",
+                                    &global_sprt_show_setup_info);
+    prefs_register_bool_preference(sprt_module, "show_dlci_info",
+                                    "Show DLCI in I_OCTET messages",
+                                    "Show the DLCI field in I_OCTET messages as well as the frame that "
+                                    "enabled/disabled the DLCI",
+                                    &global_sprt_show_dlci_info);
 
 }
 
 void
 proto_reg_handoff_sprt(void)
 {
-	sprt_handle = find_dissector("sprt");
-	dissector_add_handle("udp.port", sprt_handle);
-	heur_dissector_add( "udp", dissect_sprt_heur, proto_sprt);
+    sprt_handle = find_dissector("sprt");
+    dissector_add_handle("udp.port", sprt_handle);
+    heur_dissector_add( "udp", dissect_sprt_heur, proto_sprt);
 }
