@@ -557,7 +557,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* SPRT might use the same port... */
         port_addr  = se_alloc(sizeof(guint32));
         *port_addr = port;
-        p_add_proto_data(pinfo->fd, proto_sprt, port_addr); 
+        p_add_proto_data(pinfo->fd, proto_sprt, port_addr);
       }
       if (rtcp_handle) {
         port++;
@@ -570,17 +570,17 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* add SPRT conversation */
-    if((!pinfo->fd->flags.visited) && is_sprt && (is_ipv4_addr || is_ipv6_addr)) {
+    if ((!pinfo->fd->flags.visited) && is_sprt && (is_ipv4_addr || is_ipv6_addr)) {
+      if (sprt_handle) {
         src_addr.data=(guint8*)&ipaddr;
-        if(sprt_handle) {
-            if(port == 0) {
-                sprt_add_address(pinfo, &src_addr,
-                        *(guint32*)p_get_proto_data(pinfo->fd, proto_sprt),
-                        0, "SDP", pinfo->fd->num); /* will use same port as RTP */
-            } else {
-                sprt_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
-            }
+        if (port == 0) {
+          sprt_add_address(pinfo, &src_addr,
+                           *(guint32*)p_get_proto_data(pinfo->fd, proto_sprt),
+                           0, "SDP", pinfo->fd->num); /* will use same port as RTP */
+        } else {
+          sprt_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
         }
+      }
     }
 
     /* Add t38 conversation, if available and only if no rtp */
@@ -1518,7 +1518,7 @@ typedef struct {
 #define SDP_PATH                3
 #define SDP_H248_ITEM           4
 #define SDP_CRYPTO              5
-#define SDP_SPRTMAP	            6
+#define SDP_SPRTMAP             6
 
 static const sdp_names_t sdp_media_attribute_names[] = {
   { "Unknown-name"},    /* 0 Pad so that the real headers start at index 1 */
@@ -1981,12 +1981,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   }
 }
 
-static void
-sdp_init_protocol(void)
-{
-   proto_sprt = proto_get_id_by_filter_name( "sprt" );
-}
-
 void
 proto_register_sdp(void)
 {
@@ -2368,9 +2362,6 @@ proto_register_sdp(void)
 
   key_mgmt_dissector_table = register_dissector_table("key_mgmt",
                                                       "Key Management", FT_STRING, BASE_NONE);
-
-  register_init_routine(&sdp_init_protocol);
-
   /*
    * Preferences registration
    */
@@ -2403,6 +2394,8 @@ proto_reg_handoff_sdp(void)
   sprt_handle   = find_dissector("sprt");
   h264_handle   = find_dissector("h264");
   mp4ves_handle = find_dissector("mp4ves");
+
+  proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));
 
   sdp_handle = find_dissector("sdp");
   dissector_add_string("media_type", "application/sdp", sdp_handle);

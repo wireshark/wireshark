@@ -117,11 +117,11 @@ struct _sprt_conversation_info
 
 
 /* error correcting protocol in XID_XCHG message: */
-#define SPRT_ECP_NO_LINK_LAYER_PROTO    0
-#define SPRT_ECP_V42_LAPM               1
-#define SPRT_ECP_ANNEX_AV42_1996        2
+#define SPRT_ECP_NO_LINK_LAYER_PROTO     0
+#define SPRT_ECP_V42_LAPM                1
+#define SPRT_ECP_ANNEX_AV42_1996         2
 /* 3 - 25 Reserved for ITU-T */
-#define SPRT_ECP_RESERVED_START         3
+#define SPRT_ECP_RESERVED_START          3
 #define SPRT_ECP_RESERVED_END           25
 
 
@@ -484,7 +484,7 @@ static int hf_sprt_payload_rawbit_n =                                           
 
 /* Preferences  */
 static gboolean global_sprt_show_setup_info = TRUE; /* show how this SPRT stream got started */
-static gboolean global_sprt_show_dlci_info = TRUE; /* show DLCI in I_OCTET messages, including setup frame (if we can) */
+static gboolean global_sprt_show_dlci_info  = TRUE; /* show DLCI in I_OCTET messages, including setup frame (if we can) */
 
 
 /* dissector handle */
@@ -510,29 +510,29 @@ static const value_string sprt_transport_channel_characteristics[] = {
 };
 
 static const range_string sprt_modem_relay_msg_id_name[] = {
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_NULL),           "NULL reserved for ITU-T" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_INIT),           "INIT" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_XID_XCHG),       "XID_XCHG" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_JM_INFO),        "JM_INFO" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_START_JM),       "START_JM" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_CONNECT),        "CONNECT" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_BREAK),          "BREAK" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_BREAK_ACK),      "BREAK_ACK" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_MR_EVENT),       "MR_EVENT" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_CLEARDOWN),      "CLEARDOWN" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_PROF_XCHG),      "PROF_XCHG" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_NULL),                                 "NULL reserved for ITU-T" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_INIT),                                 "INIT" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_XID_XCHG),                             "XID_XCHG" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_JM_INFO),                              "JM_INFO" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_START_JM),                             "START_JM" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_CONNECT),                              "CONNECT" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_BREAK),                                "BREAK" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_BREAK_ACK),                            "BREAK_ACK" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_MR_EVENT),                             "MR_EVENT" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_CLEARDOWN),                            "CLEARDOWN" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_PROF_XCHG),                            "PROF_XCHG" },
     { SPRT_MODEM_RELAY_MSG_ID_RESERVED1_START, SPRT_MODEM_RELAY_MSG_ID_RESERVED1_END, "Reserved for ITU-T" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_RAW_OCTET),    "I_RAW-OCTET" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_RAW_BIT),      "I_RAW-BIT" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_OCTET),        "I_OCTET" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT),    "I_CHAR-STAT" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN),     "I_CHAR-DYN" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_FRAME),        "I_FRAME" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_OCTET_CS),     "I_OCTET-CS" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT_CS), "I_CHAR-STAT-CS" },
-    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN_CS),  "I_CHAR-DYN-CS" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_RAW_OCTET),                          "I_RAW-OCTET" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_RAW_BIT),                            "I_RAW-BIT" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_OCTET),                              "I_OCTET" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT),                          "I_CHAR-STAT" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN),                           "I_CHAR-DYN" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_FRAME),                              "I_FRAME" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_OCTET_CS),                           "I_OCTET-CS" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT_CS),                       "I_CHAR-STAT-CS" },
+    { SPRT_VALUE_RANGE(SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN_CS),                        "I_CHAR-DYN-CS" },
     { SPRT_MODEM_RELAY_MSG_ID_RESERVED2_START, SPRT_MODEM_RELAY_MSG_ID_RESERVED2_END, "Reserved for ITU-T" },
-    { SPRT_MODEM_RELAY_MSG_ID_VENDOR_START, SPRT_MODEM_RELAY_MSG_ID_VENDOR_END, "Vendor-specific message" },
+    { SPRT_MODEM_RELAY_MSG_ID_VENDOR_START, SPRT_MODEM_RELAY_MSG_ID_VENDOR_END,       "Vendor-specific message" },
     { 0, 0, NULL }
 };
 
@@ -570,25 +570,25 @@ static const range_string sprt_jminfo_tbc_protocol_name[] = {
 };
 
 static const range_string sprt_selmod_name[] = {
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_NULL),       "NULL" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V92),        "V.92" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V91),        "V.91" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V90),        "V.90" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V34),        "V.34" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V32_BIS),    "V.32bis" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V32),        "V.32" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V22_BIS),    "V.22bis" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V22),        "V.22" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V17),        "V.17" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V29),        "V.29" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V27_TER),    "V.27ter" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V26_TER),    "V.26ter" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V26_BIS),    "V.26bis" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V23),        "V.23" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_V21),        "V.21" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_BELL_212),   "Bell 212" },
-    { SPRT_VALUE_RANGE(SPRT_SELMOD_BELL_103),   "Bell 103" },
-    { SPRT_SELMOD_VENDOR_START, SPRT_SELMOD_VENDOR_END, "Vendor-specific modulation" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_NULL),                   "NULL" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V92),                    "V.92" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V91),                    "V.91" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V90),                    "V.90" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V34),                    "V.34" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V32_BIS),                "V.32bis" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V32),                    "V.32" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V22_BIS),                "V.22bis" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V22),                    "V.22" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V17),                    "V.17" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V29),                    "V.29" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V27_TER),                "V.27ter" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V26_TER),                "V.26ter" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V26_BIS),                "V.26bis" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V23),                    "V.23" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_V21),                    "V.21" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_BELL_212),               "Bell 212" },
+    { SPRT_VALUE_RANGE(SPRT_SELMOD_BELL_103),               "Bell 103" },
+    { SPRT_SELMOD_VENDOR_START, SPRT_SELMOD_VENDOR_END,     "Vendor-specific modulation" },
     { SPRT_SELMOD_RESERVED_START, SPRT_SELMOD_RESERVED_END, "Reserved for ITU-T" },
     { 0, 0, NULL }
 };
@@ -669,14 +669,14 @@ static const range_string sprt_mrevent_phys_layer_symbol_rate[] = {
 };
 
 static const value_string sprt_cleardown_reason[] = {
-    { SPRT_CLEARDOWN_RIC_UNKNOWN,                   "Unknown/unspecified" },
-    { SPRT_CLEARDOWN_RIC_PHYSICAL_LAYER_RELEASE,    "Physical layer release" },
-    { SPRT_CLEARDOWN_RIC_LINK_LAYER_DISCONNECT,     "Link layer disconnect" },
-    { SPRT_CLEARDOWN_RIC_DATA_COMPRESSION_DISCONNECT,   "Data compression disconnect" },
-    { SPRT_CLEARDOWN_RIC_ABORT,                     "Abort" },
-    { SPRT_CLEARDOWN_RIC_ON_HOOK,                   "On hook" },
-    { SPRT_CLEARDOWN_RIC_NETWORK_LAYER_TERMINATION, "Network layer termination" },
-    { SPRT_CLEARDOWN_RIC_ADMINISTRATIVE,            "Administrative" },
+    { SPRT_CLEARDOWN_RIC_UNKNOWN,                     "Unknown/unspecified" },
+    { SPRT_CLEARDOWN_RIC_PHYSICAL_LAYER_RELEASE,      "Physical layer release" },
+    { SPRT_CLEARDOWN_RIC_LINK_LAYER_DISCONNECT,       "Link layer disconnect" },
+    { SPRT_CLEARDOWN_RIC_DATA_COMPRESSION_DISCONNECT, "Data compression disconnect" },
+    { SPRT_CLEARDOWN_RIC_ABORT,                       "Abort" },
+    { SPRT_CLEARDOWN_RIC_ON_HOOK,                     "On hook" },
+    { SPRT_CLEARDOWN_RIC_NETWORK_LAYER_TERMINATION,   "Network layer termination" },
+    { SPRT_CLEARDOWN_RIC_ADMINISTRATIVE,              "Administrative" },
     { 0, NULL }
 };
 
@@ -688,15 +688,15 @@ static const value_string sprt_prof_xchg_support[] = {
 };
 
 static const range_string sprt_payload_dlci1[] = {
-    { SPRT_VALUE_RANGE(SPRT_PAYLOAD_DLCI1_DTE2DTE),                         "DTE-to-DTE (V.24 interfaces) data" },
-    { SPRT_PAYLOAD_DLCI1_RESERVED_START, SPRT_PAYLOAD_DLCI1_RESERVED_END,   "Reserved for for ITU-T" },
-    { SPRT_PAYLOAD_DLCI1_NOT_RESERVED_START, SPRT_PAYLOAD_DLCI1_NOT_RESERVED_END,   "Not reserved for for ITU-T" },
-    { SPRT_VALUE_RANGE(SPRT_PAYLOAD_DLCI1_CTRLFN2CTRLFN),                   "Control-function to control-function information" },
+    { SPRT_VALUE_RANGE(SPRT_PAYLOAD_DLCI1_DTE2DTE),                               "DTE-to-DTE (V.24 interfaces) data" },
+    { SPRT_PAYLOAD_DLCI1_RESERVED_START,     SPRT_PAYLOAD_DLCI1_RESERVED_END,     "Reserved for for ITU-T" },
+    { SPRT_PAYLOAD_DLCI1_NOT_RESERVED_START, SPRT_PAYLOAD_DLCI1_NOT_RESERVED_END, "Not reserved for for ITU-T" },
+    { SPRT_VALUE_RANGE(SPRT_PAYLOAD_DLCI1_CTRLFN2CTRLFN),                         "Control-function to control-function information" },
     { 0, 0, NULL }
 };
 
 static const true_false_string sprt_payload_ea_bit[] = {
-    { "Last otcet of address feld", "Another octet of address field follows" }
+    { "Last octet of address field", "Another octet of address field follows" }
 };
 
 static const range_string sprt_payload_dlci2[] = {
@@ -755,7 +755,7 @@ static struct _sprt_conversation_info* find_sprt_conversation_data(packet_info *
                                 pinfo->srcport,
                                 pinfo->destport,
                                 NO_ADDR_B|NO_PORT_B);
-    if(p_conv)
+    if (p_conv)
     {
         p_conv_data = (struct _sprt_conversation_info*)conversation_get_proto_data(p_conv, proto_sprt);
     }
@@ -844,7 +844,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* look up the conversation & get the data */
     p_conv_data = find_sprt_conversation_data(pinfo);
 
-    if(!p_conv_data)
+    if (!p_conv_data)
     {
         proto_tree_add_string_format(tree, hf_sprt_setup, tvb, 0, 0, "", "No setup info found");
         return;
@@ -872,6 +872,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
+#if 0  /* XXX: The following doesn't actually dissect anything. Is dissect_sprt() supposed to be called ? */
 /* heuristic dissector */
 static gboolean
 dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
@@ -885,31 +886,31 @@ dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
      * a heuristic dissector called before us!
      */
 
-    if(tvb_length(tvb) < 6)
+    if (tvb_length(tvb) < 6)
         return FALSE; /* packet is waay to short */
 
     /* Get the fields in the first two octets */
     extension_bit = tvb_get_guint8(tvb, offset) & 0x7F;
-    if(extension_bit != 0) /* must be 0 */
+    if (extension_bit != 0) /* must be 0 */
         return FALSE;
 
     octet = tvb_get_guint8(tvb, offset + 1);
     reserved_bit = octet & 80;
     payload_type = octet & 0x7F;
-    if(reserved_bit != 0) /* must be 0 */
+    if (reserved_bit != 0) /* must be 0 */
         return FALSE;
-    if(payload_type < 96 || payload_type > 128) /* value within RTP dynamic payload type range */
+    if (payload_type < 96 || payload_type > 128) /* value within RTP dynamic payload type range */
         return FALSE;
 
     word = tvb_get_ntohs(tvb, offset + 2);
     tc = word >> 14;
     seqnum = word & 0x3F;
-    if((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
+    if ((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
         return FALSE;
 
     return TRUE;
 }
-
+#endif
 
 /* code to actually dissect the packet payload data */
 static int
@@ -926,7 +927,7 @@ dissect_sprt_data(tvbuff_t *tvb,
     guint8 selcompr, mr_event_id;
     guint16 word, category_count;
 
-    if(payload_length > 0)
+    if (payload_length > 0)
     {
         ti = proto_tree_add_uint(sprt_tree, hf_sprt_payload, tvb, offset, 1, payload_length);
         proto_item_set_len(ti, payload_length);
@@ -1053,7 +1054,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                     break;
                 }
                 offset += 2;
-            } while(tvb_length_remaining(tvb, offset) >= 2);
+            } while (tvb_length_remaining(tvb, offset) >= 2);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_START_JM:
             /* No additional content */
@@ -1074,10 +1075,10 @@ dissect_sprt_data(tvbuff_t *tvb,
             /* is DLCI enabled (used w/I_OCTET messages)? */
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_dlci_enabled, tvb, offset, 2, ENC_BIG_ENDIAN);
             /* have we previously seen a CONNECT msg in this conversation (i.e., do we know if DLCI is used w/I_OCTET?) */
-            if(p_conv_data->connect_frame_number == 0)
+            if (p_conv_data->connect_frame_number == 0)
             {
                 p_conv_data->connect_frame_number = pinfo->fd->num;
-                if(word & 0x8000)
+                if (word & 0x8000)
                 {
                     p_conv_data->i_octet_dlci_status = DLCI_PRESENT;
                 } else {
@@ -1099,7 +1100,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_connect_adt_i_char_dyn_cs, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(field_subtree, hf_sprt_payload_msg_connect_adt_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            if(selcompr != SPRT_SELECTED_COMPR_NONE &&
+            if (selcompr != SPRT_SELECTED_COMPR_NONE &&
                selcompr != SPRT_SELECTED_COMPR_MNP5)
             {
                 proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_compr_trans_dict_sz, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1111,7 +1112,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                 proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_compr_recv_str_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
             }
-            if(selcompr != SPRT_SELECTED_COMPR_NONE &&
+            if (selcompr != SPRT_SELECTED_COMPR_NONE &&
                selcompr != SPRT_SELECTED_COMPR_MNP5 &&
                selcompr != SPRT_SELECTED_COMPR_V42_BIS)
             {
@@ -1137,7 +1138,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset++;
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_evt_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            if(mr_event_id == SPRT_MREVT_EVENT_ID_PHYSUP)
+            if (mr_event_id == SPRT_MREVT_EVENT_ID_PHYSUP)
             {
                 proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_evt_selmod, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_evt_txsen, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1150,7 +1151,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                 /* The next two fields are "optional"
                  * they should only appear w/PHYSUP (MR_EVENT id = 3) messages, when TxSR and RxSR are true
                  */
-                if(tvb_reported_length_remaining(tvb, offset) >= 2)
+                if (tvb_reported_length_remaining(tvb, offset) >= 2)
                 {
                     proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_mr_evt_txsr, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
@@ -1203,7 +1204,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             octet = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_rawoctet_n_field_present, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_rawoctet_l, tvb, offset, 1, ENC_BIG_ENDIAN);
-            if(octet & 0x80) /* is N field present? */
+            if (octet & 0x80) /* is N field present? */
             {
                 proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_rawoctet_n, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
@@ -1247,7 +1248,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_OCTET: /* data */
-            if(global_sprt_show_dlci_info)
+            if (global_sprt_show_dlci_info)
             {
                 /* DLCI field may be 0, 1, or 2 bytes, depending on CONNECT message (see "DLCI enabled")...
                  * or UNKNOWN if we don't see the CONNECT message
@@ -1262,7 +1263,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                     offset++;
                     payload_length--;
                     /* check address extension... if ea bit == 0, then DLCI has another octet (see ITU-T V42 spec for more info) */
-                    if(!(octet & 0x01))
+                    if (!(octet & 0x01))
                     {
                         proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_i_octet_dlci2, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_i_octet_ea, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1406,7 +1407,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPRT");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if(tree)
+    if (tree)
     {
         /* create the trees */
         ti = proto_tree_add_item(tree, proto_sprt, tvb, 0, -1, ENC_NA);
@@ -1458,7 +1459,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get conversation data, or create it if not found */
     p_conv_data = find_sprt_conversation_data(pinfo);
-    if(!p_conv_data)
+    if (!p_conv_data)
     {
         sprt_add_address(pinfo,
             &pinfo->src, pinfo->srcport,
@@ -1478,7 +1479,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(sprt_tree, hf_sprt_transport_channel_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(sprt_tree, hf_sprt_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-    if(tc == 0 && seqnum != 0)
+    if (tc == 0 && seqnum != 0)
         expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Should be 0 for transport channel 0");
 
     p_conv_data->seqnum[tc] = seqnum; /* keep track of seqnum values */
@@ -1488,7 +1489,7 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(sprt_tree, hf_sprt_base_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
-    if(noa) /* parse ack fields? There can be 0 - 3 */
+    if (noa) /* parse ack fields? There can be 0 - 3 */
     {
         ti = proto_tree_add_item(sprt_tree, hf_sprt_ack_field_items, tvb, offset, 2, ENC_BIG_ENDIAN);
         sprt_ack_field_tree = proto_item_add_subtree(ti, ett_sprt_ack_fields);
@@ -1503,14 +1504,14 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* put details in the info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, "TC=%u", tc);
-    if(tc != 0)
+    if (tc != 0)
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq=%u", seqnum);
 
     /* dissect the payload, if any */
     payload_length = tvb_length(tvb) - (6 + noa * 2); /* total sprt length - header stuff */
     dissect_sprt_data(tvb, pinfo, p_conv_data, sprt_tree, offset, payload_length);
 
-    if(noa)
+    if (noa)
         col_append_fstr(pinfo->cinfo, COL_INFO, " (ACK fields present)");
 
     return tvb_length(tvb);
@@ -3429,5 +3430,7 @@ proto_reg_handoff_sprt(void)
 {
     sprt_handle = find_dissector("sprt");
     dissector_add_handle("udp.port", sprt_handle);
+#if 0 /* XXX: See note under dissect_sprt_heur() */
     heur_dissector_add( "udp", dissect_sprt_heur, proto_sprt);
+#endif
 }

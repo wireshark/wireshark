@@ -36,7 +36,6 @@
 
 #include <epan/packet.h>
 
-/* static gboolean dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree); */
 static int dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Initialize the protocol & registered fields
@@ -81,9 +80,6 @@ static int hf_v150fw_ric_info_cleardown_vendor_info =       -1;
 static int hf_v150fw_reserved =             -1; /* 5 bits */
 static int hf_v150fw_extension_len =        -1; /* 11 bits */
 static int hf_v150fw_remainder =            -1;
-
-/* dissector handle */
-static dissector_handle_t v150fw_handle;
 
 /* initialize the subtree pointers */
 static gint ett_v150fw = -1;
@@ -257,7 +253,7 @@ static const value_string v150fw_ric_info_cleardown_type[] = {
 };
 
 
-#if 0
+#if 0 /* XXX: The following doesn't actually dissect anything. Is dissect_v150fw() supposed to be called ? */
 static gboolean
 dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
@@ -352,33 +348,33 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         case V150FW_RIC_JM:
             ti = proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_mod_avail, tvb, offset, 2, ENC_BIG_ENDIAN);
             field_tree = proto_item_add_subtree(ti, ett_available_modulations);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_pcm_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v34_duplex, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v34_half_duplex, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v32_v32bis, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v22_v22bis, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v17, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v29_half_duplex, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v27ter, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v26ter, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v26bis, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v23_duplex, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v23_half_duplex, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v21, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v90_or_v92_analog, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_pcm_mode,           tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v34_duplex,         tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v34_half_duplex,    tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v32_v32bis,         tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v22_v22bis,         tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v17,                tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v29_half_duplex,    tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v27ter,             tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v26ter,             tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v26bis,             tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v23_duplex,         tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v23_half_duplex,    tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v21,                tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v90_or_v92_analog,  tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v90_or_v92_digital, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v91, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_v150fw_cm_jm_mod_avail_v91,                tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case V150FW_RIC_TIMEOUT:
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout_vendor, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout,                  tvb, offset,     1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_timeout_vendor,           tvb, offset + 1, 1, ENC_BIG_ENDIAN);
             break;
         case V150FW_RIC_CLEARDOWN:
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown_reserved, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown,                tvb, offset,     1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown_reserved,       tvb, offset + 1, 1, ENC_BIG_ENDIAN);
             break;
         default:
-            proto_tree_add_item(v150fw_tree, hf_v150fw_reason_id_code_info, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(v150fw_tree, hf_v150fw_reason_id_code_info,               tvb, offset,     2, ENC_BIG_ENDIAN);
             break;
         } /* switch(ric) */
         offset += 2;
@@ -398,7 +394,7 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             /* display optional extension fields */
             switch(ric) {
             case V150FW_RIC_CLEARDOWN: /* show vendor tag & vendor-specific info */
-                proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown_vendor_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown_vendor_tag,  tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(v150fw_tree, hf_v150fw_ric_info_cleardown_vendor_info, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 break;
             default:
@@ -810,8 +806,3 @@ proto_register_v150fw(void)
     new_register_dissector("v150fw", dissect_v150fw, proto_v150fw);
 }
 
-void
-proto_reg_handoff_v150fw(void)
-{
-    v150fw_handle = find_dissector("v150fw");
-}
