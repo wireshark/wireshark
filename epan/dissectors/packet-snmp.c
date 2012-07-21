@@ -3516,7 +3516,7 @@ void proto_register_snmp(void) {
         "SnmpEngineID", HFILL }},
     { &hf_snmp_contextName,
       { "contextName", "snmp.contextName",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_snmp_get_request,
       { "get-request", "snmp.get_request",
