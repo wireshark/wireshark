@@ -318,7 +318,7 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_item *ti;
     proto_tree *v150fw_tree, *field_tree;
     guint8 extb, ric;
-    guint16 ext_len;
+    guint16 ext_len = 0;
     gint payload_length;
     unsigned int offset = 0;
 
