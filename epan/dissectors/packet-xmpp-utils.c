@@ -50,7 +50,11 @@ xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info
     char *id;
 
     attr_id = xmpp_get_attr(packet, "id");
-    DISSECTOR_ASSERT(attr_id);
+
+    if (!attr_id) {
+        return;
+    }
+
     id = ep_strdup(attr_id->value);
 
     if (!pinfo->fd->flags.visited) {
@@ -92,13 +96,16 @@ xmpp_jingle_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_
 
 
         attr_id = xmpp_get_attr(packet, "id");
-        DISSECTOR_ASSERT(attr_id);
-
-        se_id = se_strdup(attr_id->value);
+        if (!attr_id) {
+            return;
+        }
 
         attr_sid = xmpp_get_attr(jingle_packet, "sid");
-        DISSECTOR_ASSERT(attr_sid);
+        if (!attr_sid) {
+            return;
+        }
 
+        se_id = se_strdup(attr_id->value);
         se_sid = se_strdup(attr_sid->value);
 
         se_tree_insert_string(xmpp_info->jingle_sessions, se_id, (void*) se_sid, EMEM_TREE_STRING_NOCASE);
@@ -126,14 +133,17 @@ xmpp_gtalk_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_i
         if(xmlns && strcmp(xmlns->value,"http://www.google.com/session") != 0)
             return;
 
-
         attr_id = xmpp_get_attr(packet, "id");
-        DISSECTOR_ASSERT(attr_id);
-
-        se_id = se_strdup(attr_id->value);
+        if (!attr_id) {
+            return;
+        }
 
         attr_sid = xmpp_get_attr(gtalk_packet, "id");
-        DISSECTOR_ASSERT(attr_sid);
+        if (!attr_sid) {
+            return;
+        }
+
+        se_id = se_strdup(attr_id->value);
         se_sid = se_strdup(attr_sid->value);
 
         se_tree_insert_string(xmpp_info->gtalk_sessions, se_id, (void*) se_sid, EMEM_TREE_STRING_NOCASE);
