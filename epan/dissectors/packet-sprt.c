@@ -1106,7 +1106,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         default:
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NAf);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         }
     } else {
