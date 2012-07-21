@@ -624,7 +624,7 @@ dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 
 	if(tvb_length(tvb) < 6)
-		return FALSE; /* packet is waay to short
+		return FALSE; /* packet is waay to short */
 
 	/* Get the fields in the first two octets */
 	extension_bit = tvb_get_guint8(tvb, offset) & 0x7F;

@@ -554,7 +554,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         set_rtp = TRUE;
         /* SPRT might use the same port... */
-        p_add_proto_data(pinfo->fd, proto_sprt, (void*)port); 
+        p_add_proto_data(pinfo->fd, proto_sprt, &port); 
       }
       if (rtcp_handle) {
         port++;
@@ -571,7 +571,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         src_addr.data=(guint8*)&ipaddr;
         if(sprt_handle) {
             if(port == 0) {
-                sprt_add_address(pinfo, &src_addr, (int)p_get_proto_data(pinfo->fd, proto_sprt), 0, "SDP", pinfo->fd->num); /* will use same port as RTP */
+                sprt_add_address(pinfo, &src_addr,
+                        *(guint32*)p_get_proto_data(pinfo->fd, proto_sprt),
+                        0, "SDP", pinfo->fd->num); /* will use same port as RTP */
             } else {
                 sprt_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
             }
