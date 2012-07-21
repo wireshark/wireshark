@@ -94,7 +94,6 @@ static int set_file_type_list(GtkWidget *combo_box, capture_file *cf,
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
 
 #define PREVIEW_TABLE_KEY       "preview_table_key"
-#define PREVIEW_FILENAME_KEY    "preview_filename_key"
 #define PREVIEW_FORMAT_KEY      "preview_format_key"
 #define PREVIEW_SIZE_KEY        "preview_size_key"
 #define PREVIEW_ELAPSED_KEY     "preview_elapsed_key"
@@ -112,7 +111,6 @@ static wtap *
 preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 {
     GtkWidget  *label;
-    gchar      *display_basename;
     wtap       *wth;
     int         err = 0;
     gchar      *err_info;
@@ -121,8 +119,6 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 
 
     /* init preview labels */
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
-    gtk_label_set_text(GTK_LABEL(label), "-");
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
@@ -137,11 +133,6 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     if(!cf_name) {
         return NULL;
     }
-
-    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
-    display_basename = g_filename_display_basename(cf_name);
-    gtk_label_set_text(GTK_LABEL(label), display_basename);
-    g_free(display_basename);
 
     if (test_for_directory(cf_name) == EISDIR) {
         label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
@@ -404,9 +395,6 @@ preview_new(void)
     gtk_table_set_row_spacings(GTK_TABLE(table), 3);
     row = 0;
 
-    label = add_string_to_table(table, &row, "Filename:", "-");
-    gtk_widget_set_size_request(label, DEF_WIDTH/3, -1);
-    g_object_set_data(G_OBJECT(table), PREVIEW_FILENAME_KEY, label);
     label = add_string_to_table(table, &row, "Format:", "-");
     g_object_set_data(G_OBJECT(table), PREVIEW_FORMAT_KEY, label);
     label = add_string_to_table(table, &row, "Size:", "-");
