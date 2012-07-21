@@ -181,13 +181,15 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key = &pinfo->srcport;
     transaction_id_key[2].length = (pinfo->src.len)>>2;
-    transaction_id_key[2].key = (void*)pinfo->src.data;
+    transaction_id_key[2].key = g_malloc(transaction_id_key[2].length);
+    memcpy(transaction_id_key[2].key, pinfo->src.data, transaction_id_key[2].length);
   }
   else {
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key = &pinfo->destport;
     transaction_id_key[2].length = (pinfo->dst.len)>>2;
-    transaction_id_key[2].key = (void*)pinfo->dst.data;
+    transaction_id_key[2].key = g_malloc(transaction_id_key[2].length);
+    memcpy(transaction_id_key[2].key, pinfo->dst.data, transaction_id_key[2].length);
   }
   transaction_id_key[3].length=0;
   transaction_id_key[3].key=NULL;
@@ -238,6 +240,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   else {
     reload_frame=se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
   }
+  g_free(transaction_id_key[2].key);
 
   if (!reload_frame) {
     /* create a "fake" pana_trans structure */
