@@ -325,7 +325,7 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     if(tree)
     {
         /* create the trees */
-        ti = proto_tree_add_item(tree, proto_v150fw, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_v150fw, tvb, 0, -1, ENC_NA);
         v150fw_tree = proto_item_add_subtree(ti, ett_v150fw);
 
         payload_length = tvb_length(tvb);

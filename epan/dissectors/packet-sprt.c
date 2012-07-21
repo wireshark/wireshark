@@ -979,7 +979,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                 payload_length--;
                 break;
             }
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_OCTET: /* data */
             if(global_sprt_show_dlci_info)
@@ -1020,7 +1020,7 @@ dissect_sprt_data(tvbuff_t *tvb,
                     break;
                 }
             }
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT: /* data */
             /* r: 1-bit reserved */
@@ -1034,7 +1034,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset++;
             payload_length--;
             /* octets */
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN: /* data */
             /* r: 1-bit reserved */
@@ -1048,7 +1048,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset++;
             payload_length--;
             /* octets */
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_FRAME: /* data */
             /* R: 6 reserved bits */
@@ -1058,7 +1058,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset++;
             payload_length--;
             /* octets */
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_OCTET_CS: /* data */
             /* CS: 2-byte character sequence number */
@@ -1067,7 +1067,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset += 2;
             payload_length -= 2;
             /* octets */
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_CHAR_STAT_CS: /* data */
             /* r: 1-bit reserved */
@@ -1085,7 +1085,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset += 2;
             payload_length -= 2;
             /* octets */
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         case SPRT_MODEM_RELAY_MSG_ID_I_CHAR_DYN_CS: /* data */
             /* r: 1-bit reserved */
@@ -1103,10 +1103,10 @@ dissect_sprt_data(tvbuff_t *tvb,
             offset += 2;
             payload_length -= 2;
             /* octets */
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NA);
             break;
         default:
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_data, tvb, offset, payload_length, ENC_NAf);
             break;
         }
     } else {
