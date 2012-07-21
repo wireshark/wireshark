@@ -1376,7 +1376,7 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
 /* If preview_file is NULL, disable the elements.  If not, enable and
  * show the preview info. */
 static gboolean
-preview_set_filename(HWND of_hwnd, gchar *preview_file) {
+preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     HWND        cur_ctrl;
     int         i;
     gboolean    enable = FALSE;
@@ -1398,125 +1398,128 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
     double      cur_time;
     gboolean    is_breaked = FALSE;
 
-    if (preview_file != NULL && strlen(preview_file) > 0) {
-        enable = TRUE;
-    }
-
-    for (i = EWFD_PT_FILENAME; i <= EWFD_PTX_ELAPSED; i++) {
+    for (i = EWFD_PT_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
         cur_ctrl = GetDlgItem(of_hwnd, i);
         if (cur_ctrl) {
-            EnableWindow(cur_ctrl, enable);
-        }
-    }
-
-    for (i = EWFD_PTX_FILENAME; i <= EWFD_PTX_ELAPSED; i++) {
-        cur_ctrl = GetDlgItem(of_hwnd, i);
-        if (cur_ctrl) {
+            EnableWindow(cur_ctrl, FALSE);
             SetWindowText(cur_ctrl, _T("-"));
         }
     }
 
-    if (enable) {
-        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FILENAME);
-        SetWindowText(cur_ctrl, utf_8to16(get_basename(preview_file)));
+    if (preview_file == NULL || strlen(preview_file) < 1) {
+        return FALSE;
+    }
 
-        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-        wth = wtap_open_offline(preview_file, &err, &err_info, TRUE);
-        if (cur_ctrl && wth == NULL) {
-            if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
-                SetWindowText(cur_ctrl, _T("unknown file format"));
-            } else {
-                SetWindowText(cur_ctrl, _T("error opening file"));
-            }
-            return FALSE;
-        }
+    /* Format */
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
+    if (test_for_directory(preview_file) == EISDIR) {
+        SetWindowText(cur_ctrl, _T("directory"));
+        return FALSE;
+    }
 
-        /* size */
-        filesize = wtap_file_size(wth, &err);
-        utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_FORMAT " bytes", filesize);
-        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
-        SetWindowText(cur_ctrl, string_buff);
-
-        /* type */
-        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-        SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
-
-        time(&time_preview);
-        while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-            phdr = wtap_phdr(wth);
-            cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
-            if(packet == 0) {
-                start_time  = cur_time;
-                stop_time = cur_time;
-            }
-            if (cur_time < start_time) {
-                start_time = cur_time;
-            }
-            if (cur_time > stop_time){
-                stop_time = cur_time;
-            }
-            packet++;
-            if(packet%100 == 0) {
-                time(&time_current);
-                if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
-                    is_breaked = TRUE;
-                    break;
-                }
-            }
-        }
-
-        if(err != 0) {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packet);
-            cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
-            SetWindowText(cur_ctrl, string_buff);
-            wtap_close(wth);
-            return TRUE;
-        }
-
-        /* packet count */
-        if(is_breaked) {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
+    wth = wtap_open_offline(preview_file, &err, &err_info, TRUE);
+    if (cur_ctrl && wth == NULL) {
+        if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+            SetWindowText(cur_ctrl, _T("unknown file format"));
         } else {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packet);
+            SetWindowText(cur_ctrl, _T("error opening file"));
         }
+        return FALSE;
+    }
+
+    /* Success! */
+    for (i = EWFD_PT_FORMAT; i <= EWFD_PTX_ELAPSED; i++) {
+        cur_ctrl = GetDlgItem(of_hwnd, i);
+        if (cur_ctrl) {
+            EnableWindow(cur_ctrl, TRUE);
+        }
+    }
+
+    /* Size */
+    filesize = wtap_file_size(wth, &err);
+    utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_FORMAT " bytes", filesize);
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
+    SetWindowText(cur_ctrl, string_buff);
+
+    /* Type */
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
+    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
+
+    time(&time_preview);
+    while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+        phdr = wtap_phdr(wth);
+        cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
+        if(packet == 0) {
+            start_time  = cur_time;
+            stop_time = cur_time;
+        }
+        if (cur_time < start_time) {
+            start_time = cur_time;
+        }
+        if (cur_time > stop_time){
+            stop_time = cur_time;
+        }
+        packet++;
+        if(packet%100 == 0) {
+            time(&time_current);
+            if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
+                is_breaked = TRUE;
+                break;
+            }
+        }
+    }
+
+    if(err != 0) {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packet);
         cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
         SetWindowText(cur_ctrl, string_buff);
-
-        /* first packet */
-        ti_time = (long)start_time;
-        ti_tm = localtime( &ti_time );
-        if(ti_tm) {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX,
-                     _T("%04d-%02d-%02d %02d:%02d:%02d"),
-                     ti_tm->tm_year + 1900,
-                     ti_tm->tm_mon + 1,
-                     ti_tm->tm_mday,
-                     ti_tm->tm_hour,
-                     ti_tm->tm_min,
-                     ti_tm->tm_sec);
-        } else {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("?"));
-        }
-        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FIRST_PKT);
-        SetWindowText(cur_ctrl, string_buff);
-
-        /* elapsed time */
-        elapsed_time = (unsigned int)(stop_time-start_time);
-        if(elapsed_time/86400) {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%02u days %02u:%02u:%02u"),
-            elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-        } else {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%02u:%02u:%02u"),
-            elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-        }
-        if(is_breaked) {
-            StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("unknown"));
-        }
-        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_ELAPSED);
-        SetWindowText(cur_ctrl, string_buff);
-
         wtap_close(wth);
+        return TRUE;
     }
+
+    /* Packet count */
+    if(is_breaked) {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
+    } else {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packet);
+    }
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
+    SetWindowText(cur_ctrl, string_buff);
+
+    /* First packet */
+    ti_time = (long)start_time;
+    ti_tm = localtime( &ti_time );
+    if(ti_tm) {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX,
+                 _T("%04d-%02d-%02d %02d:%02d:%02d"),
+                 ti_tm->tm_year + 1900,
+                 ti_tm->tm_mon + 1,
+                 ti_tm->tm_mday,
+                 ti_tm->tm_hour,
+                 ti_tm->tm_min,
+                 ti_tm->tm_sec);
+    } else {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("?"));
+    }
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FIRST_PKT);
+    SetWindowText(cur_ctrl, string_buff);
+
+    /* Elapsed time */
+    elapsed_time = (unsigned int)(stop_time-start_time);
+    if(elapsed_time/86400) {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%02u days %02u:%02u:%02u"),
+        elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    } else {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%02u:%02u:%02u"),
+        elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    }
+    if(is_breaked) {
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("unknown"));
+    }
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_ELAPSED);
+    SetWindowText(cur_ctrl, string_buff);
+
+    wtap_close(wth);
 
     return TRUE;
 
@@ -1616,7 +1619,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_EXTERNAL_NR_CB);
             SendMessage(cur_ctrl, BM_SETCHECK, gbl_resolv_flags.use_external_net_name_resolver, 0);
 
-            preview_set_filename(of_hwnd, NULL);
+            preview_set_file_info(of_hwnd, NULL);
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {
@@ -1645,8 +1648,8 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     /* This _almost_ works correctly. We need to handle directory
                        selections, etc. */
                     parent = GetParent(of_hwnd);
-                    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
-                    preview_set_filename(of_hwnd, utf_16to8(sel_name));
+                    CommDlg_OpenSave_GetFilePath(parent, sel_name, MAX_PATH);
+                    preview_set_file_info(of_hwnd, utf_16to8(sel_name));
                     break;
                 case CDN_HELP:
                     topic_cb(NULL, HELP_OPEN_WIN32_DIALOG);
@@ -1911,7 +1914,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
                     /* Check if trying to do 'save as' to the currently open file */
                     parent = GetParent(sf_hwnd);
-                    selected_size = CommDlg_OpenSave_GetSpec(parent, file_name16_selected, MAX_PATH);
+                    selected_size = CommDlg_OpenSave_GetFilePath(parent, file_name16_selected, MAX_PATH);
                     if (selected_size > 0) {
                         file_name8_selected = utf_16to8(file_name16_selected);
                         if (files_identical(cfile.filename, file_name8_selected)) {
@@ -2015,7 +2018,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
 
                     /* Check if trying to do 'save as' to the currently open file */
                     parent = GetParent(sf_hwnd);
-                    selected_size = CommDlg_OpenSave_GetSpec(parent, file_name16_selected, MAX_PATH);
+                    selected_size = CommDlg_OpenSave_GetFilePath(parent, file_name16_selected, MAX_PATH);
                     if (selected_size > 0) {
                         file_name8_selected = utf_16to8(file_name16_selected);
                         if (files_identical(cfile.filename, file_name8_selected)) {
@@ -2331,7 +2334,7 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             SendMessage(cur_ctrl, BM_SETCHECK, TRUE, 0);
             merge_action = merge_append;
 
-            preview_set_filename(mf_hwnd, NULL);
+            preview_set_file_info(mf_hwnd, NULL);
             break;
         case WM_NOTIFY:
             switch (notify->hdr.code) {
@@ -2357,8 +2360,8 @@ merge_file_hook_proc(HWND mf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     /* This _almost_ works correctly.  We need to handle directory
                        selections, etc. */
                     parent = GetParent(mf_hwnd);
-                    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
-                    preview_set_filename(mf_hwnd, utf_16to8(sel_name));
+                    CommDlg_OpenSave_GetFilePath(parent, sel_name, MAX_PATH);
+                    preview_set_file_info(mf_hwnd, utf_16to8(sel_name));
                     break;
                 case CDN_HELP:
                     topic_cb(NULL, HELP_MERGE_WIN32_DIALOG);
