@@ -72,4 +72,5 @@ WS_VAR_IMPORT const true_false_string tfs_allowed_not_allowed;
 WS_VAR_IMPORT const true_false_string tfs_not_allowed_allowed;
 WS_VAR_IMPORT const true_false_string tfs_accepted_not_accepted;
 WS_VAR_IMPORT const true_false_string tfs_detected_not_detected;
+WS_VAR_IMPORT const true_false_string tfs_available_not_available;
 #endif

@@ -74,6 +74,7 @@
 #include "packet-rtcp.h"
 #include "packet-t38.h"
 #include "packet-msrp.h"
+#include "packet-sprt.h"
 #include "packet-per.h"
 #include "packet-h245.h"
 #include "packet-h264.h"
@@ -82,6 +83,7 @@
 static dissector_handle_t rtp_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t t38_handle;
+static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
 static dissector_handle_t h264_handle;
 static dissector_handle_t mp4ves_handle;
@@ -89,6 +91,7 @@ static dissector_handle_t mp4ves_handle;
 static int sdp_tap = -1;
 
 static int proto_sdp = -1;
+static int proto_sprt = -1;
 
 /* preference globals */
 static gboolean global_sdp_establish_conversation = TRUE;
@@ -231,7 +234,6 @@ typedef struct {
   guint  auth_tag_len;           /* number of octets used for the Auth Tag in the RTP payload */
 } transport_info_t;
 
-
 /* MSRP transport info (as set while parsing path attribute) */
 static gboolean msrp_transport_address_set = FALSE;
 static guint32  msrp_ipaddr[4];
@@ -302,6 +304,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean    is_srtp      = FALSE;
   gboolean    is_t38       = FALSE;
   gboolean    is_msrp      = FALSE;
+  gboolean    is_sprt      = FALSE;
   gboolean    set_rtp      = FALSE;
   gboolean    is_ipv4_addr = FALSE;
   gboolean    is_ipv6_addr = FALSE;
@@ -501,9 +504,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                   (strcmp(transport_info.media_proto[n],"udptl") == 0));
         /* Check if media protocol is MSRP/TCP */
         is_msrp = (strcmp(transport_info.media_proto[n],"msrp/tcp") == 0);
-      }
+        /* Check if media protocol is SPRT */
+        is_sprt = ((strcmp(transport_info.media_proto[n],"UDPSPRT") == 0) ||
+                   (strcmp(transport_info.media_proto[n],"udpsprt") == 0));
+       }
     }
-
 
     if (transport_info.connection_address != NULL) {
       if (transport_info.connection_type != NULL) {
@@ -548,6 +553,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           transport_info.media[n].rtp_dyn_payload);
         }
         set_rtp = TRUE;
+        /* SPRT might use the same port... */
+        p_add_proto_data(pinfo->fd, proto_sprt, (void*)port); 
       }
       if (rtcp_handle) {
         port++;
@@ -557,6 +564,18 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           rtcp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
         }
       }
+    }
+
+    /* add SPRT conversation */
+    if((!pinfo->fd->flags.visited) && is_sprt && (is_ipv4_addr || is_ipv6_addr)) {
+        src_addr.data=(guint8*)&ipaddr;
+        if(sprt_handle) {
+            if(port == 0) {
+                sprt_add_address(pinfo, &src_addr, (int)p_get_proto_data(pinfo->fd, proto_sprt), 0, "SDP", pinfo->fd->num); /* will use same port as RTP */
+            } else {
+                sprt_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
+            }
+        }
     }
 
     /* Add t38 conversation, if available and only if no rtp */
@@ -1494,6 +1513,7 @@ typedef struct {
 #define SDP_PATH                3
 #define SDP_H248_ITEM           4
 #define SDP_CRYPTO              5
+#define SDP_SPRTMAP	            6
 
 static const sdp_names_t sdp_media_attribute_names[] = {
   { "Unknown-name"},    /* 0 Pad so that the real headers start at index 1 */
@@ -1502,6 +1522,7 @@ static const sdp_names_t sdp_media_attribute_names[] = {
   { "path"},            /* 3 */
   { "h248item"},        /* 4 */
   { "crypto"},          /* 5 */
+  { "sprt"},            /* 6 */
 };
 
 static gint find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, guint len)
@@ -1955,6 +1976,12 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   }
 }
 
+static void
+sdp_init_protocol(void)
+{
+   proto_sprt = proto_get_id_by_filter_name( "sprt" );
+}
+
 void
 proto_register_sdp(void)
 {
@@ -2337,6 +2364,8 @@ proto_register_sdp(void)
   key_mgmt_dissector_table = register_dissector_table("key_mgmt",
                                                       "Key Management", FT_STRING, BASE_NONE);
 
+  register_init_routine(&sdp_init_protocol);
+
   /*
    * Preferences registration
    */
@@ -2366,6 +2395,7 @@ proto_reg_handoff_sdp(void)
   rtcp_handle   = find_dissector("rtcp");
   msrp_handle   = find_dissector("msrp");
   t38_handle    = find_dissector("t38");
+  sprt_handle   = find_dissector("sprt");
   h264_handle   = find_dissector("h264");
   mp4ves_handle = find_dissector("mp4ves");
 

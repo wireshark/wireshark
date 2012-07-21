@@ -137,6 +137,9 @@ static dissector_handle_t classicstun_heur_handle;
 static dissector_handle_t t38_handle;
 static dissector_handle_t zrtp_handle;
 
+static dissector_handle_t sprt_handle;
+static dissector_handle_t v150fw_handle;
+
 static int rtp_tap = -1;
 
 static dissector_table_t rtp_pt_dissector_table;
@@ -204,11 +207,13 @@ static guint global_pkt_ccc_udp_port = 0;
 #define RTP0_INVALID 0
 #define RTP0_CLASSICSTUN    1
 #define RTP0_T38     2
+#define RTP0_SPRT    3
 
 static enum_val_t rtp_version0_types[] = {
 	{ "invalid", "Invalid or ZRTP packets", RTP0_INVALID },
 	{ "classicstun", "CLASSIC-STUN packets", RTP0_CLASSICSTUN },
 	{ "t38", "T.38 packets", RTP0_T38 },
+	{ "sprt", "SPRT packets", RTP0_SPRT },
 	{ NULL, NULL, 0 }
 };
 static gint global_rtp_version0_type = 0;
@@ -710,6 +715,10 @@ dissect_rtp_heur_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gbo
 				call_dissector_only(t38_handle, tvb, pinfo, tree);
 				return TRUE;
 
+			case RTP0_SPRT:
+				call_dissector_only(sprt_handle, tvb, pinfo, tree);
+				return TRUE;
+
 			case RTP0_INVALID:
 
 			default:
@@ -1177,6 +1186,10 @@ dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case RTP0_T38:
 			call_dissector(t38_handle, tvb, pinfo, tree);
+			return;
+
+		case RTP0_SPRT:
+			call_dissector(sprt_handle, tvb, pinfo, tree);
 			return;
 
 		case RTP0_INVALID:
@@ -2179,6 +2192,11 @@ proto_reg_handoff_rtp(void)
 		classicstun_heur_handle = find_dissector("classicstun-heur");
 		t38_handle = find_dissector("t38");
 		zrtp_handle = find_dissector("zrtp");
+
+		sprt_handle = find_dissector("sprt");
+		v150fw_handle = find_dissector("v150fw");
+
+		dissector_add_string("rtp_dyn_payload_type", "v150fw", v150fw_handle);
 
 		rtp_prefs_initialized = TRUE;
 	} else {

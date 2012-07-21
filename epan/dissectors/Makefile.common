@@ -1015,6 +1015,7 @@ DISSECTOR_SRC = \
 	packet-spice.c		\
 	packet-spp.c		\
 	packet-spray.c		\
+	packet-sprt.c		\
 	packet-srp.c		\
 	packet-srvloc.c		\
 	packet-sscf-nni.c	\
@@ -1086,6 +1087,7 @@ DISSECTOR_SRC = \
 	packet-user_encap.c	\
 	packet-uts.c		\
 	packet-v120.c		\
+	packet-v150fw.c		\
 	packet-v52.c		\
 	packet-v5ua.c		\
 	packet-v5ef.c		\
@@ -1463,6 +1465,7 @@ DISSECTOR_INCLUDES =	\
 	packet-smrse.h	\
 	packet-snmp.h	\
 	packet-spray.h	\
+	packet-sprt.h	\
 	packet-sscop.h \
 	packet-ssl.h	\
 	packet-ssl-utils.h	\

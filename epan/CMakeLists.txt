@@ -1094,6 +1094,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-spice.c
 	dissectors/packet-spp.c
 	dissectors/packet-spray.c
+	dissectors/packet-sprt.c
 	dissectors/packet-srp.c
 	dissectors/packet-srvloc.c
 	dissectors/packet-sscf-nni.c
@@ -1165,6 +1166,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-user_encap.c
 	dissectors/packet-uts.c
 	dissectors/packet-v120.c
+	dissectors/packet-v150fw.c
 	dissectors/packet-v52.c
 	dissectors/packet-v5dl.c
 	dissectors/packet-v5ef.c
