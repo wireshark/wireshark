@@ -312,6 +312,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32     ipaddr[4];
   gint        n, i;
 
+  guint32          *port_addr;
   sdp_packet_info  *sdp_pi;
   gchar            *unknown_encoding = ep_strdup("Unknown");
   struct srtp_info *srtp_info = NULL;
@@ -554,7 +555,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         set_rtp = TRUE;
         /* SPRT might use the same port... */
-        p_add_proto_data(pinfo->fd, proto_sprt, &port); 
+        port_addr  = se_alloc(sizeof(guint32));
+        *port_addr = port;
+        p_add_proto_data(pinfo->fd, proto_sprt, port_addr); 
       }
       if (rtcp_handle) {
         port++;
