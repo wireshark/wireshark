@@ -27,9 +27,7 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <math.h>
-#include <string.h>
 
 #if defined(GDK_DISABLE_DEPRECATED)
 # undef GDK_DISABLE_DEPRECATED
@@ -1202,12 +1200,13 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr)
     /* If line completely out of the area, we won't show it - OK */
     if ((xx1<0 && xx2<0) || (xx1>=g->wp.width && xx2>=g->wp.width) ||
                 (yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
-        debug(DBS_GRAPH_DRAWING) printf(" refusing: (%d,%d)->(%d,%d)\n",
-                                    xx1, yy1, xx2, yy2);
+        debug(DBS_GRAPH_DRAWING) printf(" refusing: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
         return;
     }
 
     /* If any remaining extremeties are outside, clip them to the edge */
+    /* TODO: this should take the distance out of bounds into account to
+       get the angle right.  Looks bad when really zoomed in (applies to tcp_graph too). */
     if (xx2 > g->wp.width-1) {
         xx2 = g->wp.width-1;
     }
@@ -1306,6 +1305,7 @@ static void axis_display(struct axis *axis)
     axis_pixmap_display(axis);
 }
 
+/* TODO: seeing fractions of a sequence numbers makes no sense. Fix! */
 static void v_axis_pixmap_draw(struct axis *axis)
 {
     struct graph *g = axis->g;
@@ -1411,6 +1411,8 @@ static void v_axis_pixmap_draw(struct axis *axis)
     cairo_destroy(cr);
 }
 
+/* TODO: natural time units are subframes (ms), so might be good to always
+   show 3 decimal places? */
 static void h_axis_pixmap_draw(struct axis *axis)
 {
     struct graph *g = axis->g;
@@ -2245,10 +2247,14 @@ static void graph_get_bounds(struct graph *g)
             tim = tmp->rel_secs + tmp->rel_usecs / 1000000.0;
             data_seq_cur = tmp->SN;
 
+            /* Want to include a little beyond end, so that cross on last SN
+               will (more likely) fit within bounds */
+            #define A_FEW_SUBFRAMES 0.005
+
             /* Initialise if first time seen */
             if (!data_frame_seen) {
                 data_tim_low    = tim;
-                data_tim_high   = tim+0.005;
+                data_tim_high   = tim + A_FEW_SUBFRAMES;
                 data_seq_low    = data_seq_cur;
                 data_seq_high   = data_seq_cur+1;
                 data_frame_seen = TRUE;
@@ -2256,7 +2262,7 @@ static void graph_get_bounds(struct graph *g)
 
             /* Update bounds after this frame */
             if (tim      < data_tim_low)  data_tim_low  = tim;
-            if (tim+0.02 > data_tim_high) data_tim_high = tim+0.005;
+            if (tim+0.02 > data_tim_high) data_tim_high = tim + A_FEW_SUBFRAMES;
             if (data_seq_cur < data_seq_low)    data_seq_low  = data_seq_cur;
             if (data_seq_cur+1 > data_seq_high) data_seq_high = data_seq_cur+1;
         }
@@ -2296,8 +2302,10 @@ static void graph_get_bounds(struct graph *g)
 
     g->bounds.x0     =  ((data_tim_low <= ack_tim_low   && data_frame_seen) || (!ack_frame_seen)) ? data_tim_low  : ack_tim_low;
     g->bounds.width  = (((data_tim_high >= ack_tim_high && data_frame_seen) || (!ack_frame_seen)) ? data_tim_high : ack_tim_high) - g->bounds.x0;
-    g->bounds.y0     =  ((data_seq_low <= ack_seq_low   && data_frame_seen) || (!ack_frame_seen)) ? data_seq_low  : ack_seq_low;
-    g->bounds.height = (((data_seq_high >= ack_seq_high && data_frame_seen) || (!ack_frame_seen)) ? data_seq_high : ack_seq_high) - g->bounds.y0;
+    g->bounds.y0     =  0;   /* We always want the overal bounds to go back down to SN=0 */
+    g->bounds.height = (((data_seq_high >= ack_seq_high && data_frame_seen) || (!ack_frame_seen)) ? data_seq_high : ack_seq_high);
+
+    printf("bounds: x0 = %f\n", g->bounds.x0);
 
     g->zoom.x = (g->geom.width - 1) / g->bounds.width;
     g->zoom.y = (g->geom.height -1) / g->bounds.height;
@@ -2408,16 +2416,17 @@ static void rlc_lte_make_elmtlist(struct graph *g)
             seq_cur = tmp->SN - seq_base;
 
             /* Work out positions around this SN */
+            #define DATA_CROSS_SIZE 2
             y = (g->zoom.y * seq_cur);
-            yy1 = y + 1;
-            yy2 = y - 1;
-            xx1 = x - 1;
-            xx2 = x + 1;
+            yy1 = y + DATA_CROSS_SIZE;
+            yy2 = y - DATA_CROSS_SIZE;
+            xx1 = x - DATA_CROSS_SIZE;
+            xx2 = x + DATA_CROSS_SIZE;
 
             if (data_seen) {
                 /* Line from previous data point (if any) */
                 e1->type = ELMT_LINE;
-                e1->parent = tmp;
+                e1->parent = tmp;     /* So line belongs to this frame... */
                 e1->elment_color_p = &g->style.seq_color;
                 e1->p.line.dim.x1 = previous_data_x;
                 e1->p.line.dim.y1 = previous_data_y;
@@ -2530,39 +2539,40 @@ static void rlc_lte_make_elmtlist(struct graph *g)
                     double nack_y = (g->zoom.y * tmp->NACKs[n]);
 
                     /* A red cross to show where the NACK is reported */
+                    #define NACK_CROSS_SIZE 8
                     e0->type = ELMT_LINE;
                     e0->parent = tmp;
                     e0->elment_color_p = &g->style.ack_color[1];
-                    e0->p.line.dim.x1 = x-8;
-                    e0->p.line.dim.y1 = nack_y-8;
-                    e0->p.line.dim.x2 = x+5;
-                    e0->p.line.dim.y2 = nack_y+8;
+                    e0->p.line.dim.x1 = x -NACK_CROSS_SIZE;
+                    e0->p.line.dim.y1 = nack_y - NACK_CROSS_SIZE;
+                    e0->p.line.dim.x2 = x + NACK_CROSS_SIZE;
+                    e0->p.line.dim.y2 = nack_y + NACK_CROSS_SIZE;
                     e0++;
 
                     e0->type = ELMT_LINE;
                     e0->parent = tmp;
                     e0->elment_color_p = &g->style.ack_color[1];
-                    e0->p.line.dim.x1 = x-8;
-                    e0->p.line.dim.y1 = nack_y+8;
-                    e0->p.line.dim.x2 = x+8;
-                    e0->p.line.dim.y2 = nack_y-8;
+                    e0->p.line.dim.x1 = x - NACK_CROSS_SIZE;
+                    e0->p.line.dim.y1 = nack_y + NACK_CROSS_SIZE;
+                    e0->p.line.dim.x2 = x + NACK_CROSS_SIZE;
+                    e0->p.line.dim.y2 = nack_y - NACK_CROSS_SIZE;
                     e0++;
 
                     e0->type = ELMT_LINE;
                     e0->parent = tmp;
                     e0->elment_color_p = &g->style.ack_color[1];
                     e0->p.line.dim.x1 = x;
-                    e0->p.line.dim.y1 = nack_y+8;
+                    e0->p.line.dim.y1 = nack_y + NACK_CROSS_SIZE;
                     e0->p.line.dim.x2 = x;
-                    e0->p.line.dim.y2 = nack_y-8;
+                    e0->p.line.dim.y2 = nack_y - NACK_CROSS_SIZE;
                     e0++;
 
                     e0->type = ELMT_LINE;
                     e0->parent = tmp;
                     e0->elment_color_p = &g->style.ack_color[1];
-                    e0->p.line.dim.x1 = x-8;
+                    e0->p.line.dim.x1 = x - NACK_CROSS_SIZE;
                     e0->p.line.dim.y1 = nack_y;
-                    e0->p.line.dim.x2 = x+8;
+                    e0->p.line.dim.x2 = x + NACK_CROSS_SIZE;
                     e0->p.line.dim.y2 = nack_y;
                     e0++;
                 }
@@ -2595,6 +2605,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     g->elists->next->elements = elements1;
 }
 
+/* TODO: currently broken */
 static void rlc_lte_toggle_time_origin(struct graph *g)
 {
     g->style.flags ^= TIME_ORIGIN;
