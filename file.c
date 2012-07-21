@@ -1525,14 +1525,10 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
     dftext = g_strdup(dftext);
     if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
-      gchar *safe_dftext = simple_dialog_format_message(dftext);
-      gchar *safe_dfilter_error_msg = simple_dialog_format_message(dfilter_error_msg);
       simple_message_box(ESD_TYPE_ERROR, NULL,
           "See the help for a description of the display filter syntax.",
           "\"%s\" isn't a valid display filter: %s",
-          safe_dftext, safe_dfilter_error_msg);
-      g_free(safe_dfilter_error_msg);
-      g_free(safe_dftext);
+          dftext, dfilter_error_msg);
       g_free(dftext);
       return CF_ERROR;
     }
