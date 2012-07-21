@@ -118,6 +118,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint32 relo_token;
   guint32 message_length=0;
   emem_tree_key_t transaction_id_key[4];
+  guint32 *key_save, len_save;
   guint32 sequence;
   guint effective_length;
   guint16 offset;
@@ -193,6 +194,10 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   }
   transaction_id_key[3].length=0;
   transaction_id_key[3].key=NULL;
+  /* The tree functions are destructive to this part of the key, so save the
+   * proper values here and restore them after each call. */
+  key_save = transaction_id_key[2].key;
+  len_save = transaction_id_key[2].length;
 
   if (!conversation) {
     conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -215,12 +220,16 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   if (!pinfo->fd->flags.visited) {
     if ((reload_frame =
            se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key)) == NULL) {
+      transaction_id_key[2].key    = key_save;
+      transaction_id_key[2].length = len_save;
       reload_frame = se_alloc(sizeof(reload_frame_t));
       reload_frame->data_frame = 0;
       reload_frame->ack_frame = 0;
       reload_frame->req_time = pinfo->fd->abs_ts;
       se_tree_insert32_array(reload_framing_info->transaction_pdus, transaction_id_key, (void *)reload_frame);
     }
+    transaction_id_key[2].key    = key_save;
+    transaction_id_key[2].length = len_save;
 
     /* check whether the message is a request or a response */
 
@@ -239,6 +248,8 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   }
   else {
     reload_frame=se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
+    transaction_id_key[2].key    = key_save;
+    transaction_id_key[2].length = len_save;
   }
   g_free(transaction_id_key[2].key);
 
