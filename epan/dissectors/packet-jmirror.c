@@ -2,6 +2,7 @@
  * Routines for Jmirror protocol packet disassembly
  * By Wayne Brassem <wbrassem@juniper.net>
  * Copyright 2009 Wayne Brassem
+ *           2012 Wayne Brassem - Correction to support IPv6 over PPP
  *
  * $Id$
  *
@@ -71,6 +72,7 @@ get_heuristic_handle(tvbuff_t *tvb)
 	 * IPv4 Header: 0100 0101 xxxx xx00                     ==> Pattern for standard IPv4 20-byte header
 	 * IPv6 Header: 0110 xxxx xxxx 0000 0000 0000 0000 0000 ==> Pattern for standard IPv6 header with no flow label
 	 * PPP/HDLC:    1111 1111 0000 0011 xx00 0000 0010 0001 ==> HDLC-like framing for PPP (FF 03 x0 21)
+	 * PPP/HDLC:	1111 1111 0000 0011 0000 0000 0101 0111	==> HDLC-like framing for PPP IPv6 (FF 03 00 57)
 	 */
 
 	if (!tvb_bytes_exist(tvb, offset, 4))
@@ -86,12 +88,16 @@ get_heuristic_handle(tvbuff_t *tvb)
 	if ( byte0 == 0x45 && ipv4_handle )
 		return ipv4_handle;
 
-	/* Look for IPv6 */
+	/* Look for IPv6 with no flow label */
 	else if ( hi_nibble(byte0) == 6 && lo_nibble(byte1) == 0 && byte2 == 0 && byte3 == 0 && ipv6_handle )
 		return ipv6_handle;
 
-	/* Look for PPP/HDLC */
+	/* Look for PPP/HDLC for LCP and IPv4 */
 	else if ( byte0 == 0xff && byte1 == 0x03 && lo_nibble(byte2) == 0 && byte3 == 0x21 && hdlc_handle )
+		return hdlc_handle;
+
+	/* Look for PPP/HDLC for IPv6 */
+	else if ( byte0 == 0xff && byte1 == 0x03 && byte2 == 0 && byte3 == 0x57 && hdlc_handle )
 		return hdlc_handle;
 
 	/* If it's something else entirely return nothing */
