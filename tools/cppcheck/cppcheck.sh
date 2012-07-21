@@ -26,34 +26,36 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-CUR_DIRECTORY="`dirname $0`"
-ORIGINAL_DIR="`pwd`"
-CPPCHECK_DIR="./tools/cppcheck"
-
 CPPCHECK=`which cppcheck`
+CPPCHECK_DIR=`dirname $0`
 
 THREADS=4
+QUIET="--quiet"
 SUPPRESSIONS="$CPPCHECK_DIR/suppressions"
 INCLUDES="$CPPCHECK_DIR/includes"
-TEMPLATE="<tr><td>{file}</td><td>{line}</td><td>{severity}</td><td>{message}</td><td>{id}</td></tr>"
+
+if [ $# -gt 0 ]; then
+    TEMPLATE="gcc"
+    TARGET=$*
+else
+    echo "<html><body><table border=1>"
+    echo "<tr><th>File</th><th>Line</th><th>Severity</th>"
+    echo "<th>Message</th><th>ID</th></tr>"
+    TEMPLATE="<tr><td>{file}</td><td>{line}</td><td>{severity}</td><td>{message}</td><td>{id}</td></tr>"
+    TARGET="."
+fi
 
 # Use a little-documented feature of the shell to pass SIGINTs only to the
 # child process (cppcheck in this case). That way the final 'echo' still
 # runs and we aren't left with broken HTML.
 trap : INT
 
-cd $CUR_DIRECTORY/../..
-
-echo "<html><body><table border=1>"
-echo "<tr><th>File</th><th>Line</th><th>Severity</th>"
-echo "<th>Message</th><th>ID</th></tr>"
-
-$CPPCHECK --quiet --force --enable=style    \
+$CPPCHECK --force --enable=style $QUIET     \
           --suppressions-list=$SUPPRESSIONS \
           --includes-file=$INCLUDES         \
           --template=$TEMPLATE              \
-          -j $THREADS . 2>&1
+          -j $THREADS $TARGET 2>&1
 
-echo "</table></body></html>"
-
-cd $ORIGINAL_DIR
+if [ $# -eq 0 ]; then
+    echo "</table></body></html>"
+fi
