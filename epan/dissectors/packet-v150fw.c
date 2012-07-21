@@ -41,7 +41,7 @@
 /* forward declaration we need below */
 void proto_reg_handoff_v150fw(void);
 
-static gboolean dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+/* static gboolean dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree); */
 static int dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Initialize the protocol & registered fields
@@ -53,7 +53,6 @@ static int hf_v150fw_event_id =				-1; /* 6 bits */
 static int hf_v150fw_force_response_bit =	-1;
 static int hf_v150fw_extension_bit =		-1;
 
-static int hf_v150fw_reason_id_code_only =					-1; /* 8 bits, only value is shown */
 static int hf_v150fw_reason_id_code =						-1; /* value & string */
 
 static int hf_v150fw_reason_id_code_info =					-1; /* 16 bits */
@@ -263,14 +262,13 @@ static const value_string v150fw_ric_info_cleardown_type[] = {
 };
 
 
-
+#if 0
 static gboolean
-dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
 	guint8 octet1;
-	guint16 word1;
 	guint8 extb, ric;
-	guint16 ric_info, reserved, ext_len;
+	guint16 ric_info;
 	gint payload_length = tvb_length(tvb);
 	unsigned int offset = 0;
 
@@ -288,13 +286,6 @@ dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 	if(extb && payload_length <= 6) /* ext bit is set, but no extension found? */
 		return FALSE;
-
-	if(extb && payload_length >= 6) /* get optional extension fields if extb is set to true */
-	{
-		word1 = tvb_get_ntohs(tvb, offset + 4);
-		reserved = word1 & 0xF800;
-		ext_len = word1 & 0x07FF;
-	}
 
 	if(ric == 0 || (ric >= 6 && ric <= 31)) /* values reserved for future use */
 		return FALSE;
@@ -323,16 +314,16 @@ dissect_v150fw_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	return TRUE;
 }
-
+#endif
 
 static int
-dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *v150fw_tree, *field_tree;
 	guint8 extb, ric;
-	guint16 ric_info, ext_len;
+	guint16 ext_len;
 	gint payload_length;
 	unsigned int offset = 0;
 
@@ -347,7 +338,6 @@ dissect_v150fw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Get fields needed for further dissection */
 		extb = tvb_get_guint8(tvb, offset) & 0x01; /* extension bit */
 		ric = tvb_get_guint8(tvb, offset + 1);
-		ric_info = tvb_get_ntohs(tvb, offset + 2);
 
 		if(extb && payload_length >= 6) /* get optional extension fields */
 			ext_len = tvb_get_ntohs(tvb, offset + 4) & 0x07FF;
@@ -822,7 +812,7 @@ proto_register_v150fw(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* register the dissector */
-	register_dissector("v150fw", dissect_v150fw, proto_v150fw);
+	new_register_dissector("v150fw", dissect_v150fw, proto_v150fw);
 }
 
 void

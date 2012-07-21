@@ -432,9 +432,7 @@ static const range_string sprt_payload_dlci1[] = {
 };
 
 static const true_false_string sprt_payload_ea_bit[] = {
-	"Last otcet of address feld",
-	"Another octet of address field follows"
-	
+    { "Last otcet of address feld", "Another octet of address field follows" }
 };
 
 static const range_string sprt_payload_dlci2[] = {
@@ -612,7 +610,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* heuristic dissector */
 static gboolean
-dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
 	guint8 octet, extension_bit, reserved_bit, payload_type;
 	guint16 word, tc, seqnum;
@@ -661,8 +659,8 @@ dissect_sprt_data(tvbuff_t *tvb,
 	proto_item *ti;
 	proto_tree *sprt_payload_tree, *field_subtree;
 	guint8 octet, payload_msgid, category_id;
-	guint8 three_bit_code, selcompr, mr_event_id;
-	guint16 word, category_info, category_count;
+	guint8 selcompr, mr_event_id;
+	guint16 word, category_count;
 
 	if(payload_length > 0)
 	{
@@ -740,8 +738,6 @@ dissect_sprt_data(tvbuff_t *tvb,
 			{
 				word = tvb_get_ntohs(tvb, offset);
 				category_id = (word >> 12);
-				category_info = (word & 0x0FFF);
-				three_bit_code = (word & 0x0E00) >> 9;
 
 				ti = proto_tree_add_uint_format_value(sprt_payload_tree, hf_sprt_payload_msg_jminfo_category_data, tvb, offset, 2, word,
 					"Item #%d: %s (0x%04x)", category_count, val_to_str(category_id, sprt_jm_info_cat_id_name, "Unknown"), category_id);
@@ -1127,15 +1123,14 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
-	proto_tree *sprt_tree;
-	proto_tree *sprt_ack_field_tree;
+	proto_tree *sprt_tree = NULL;
+	proto_tree *sprt_ack_field_tree = NULL;
 	guint16 word1;
 	unsigned int offset = 0;
 	guint payload_length;
 	struct _sprt_conversation_info *p_conv_data = NULL;
 	int i;
 
-	guint8 payload_type;
 	guint16 tc;
 	guint16 seqnum; /* 0 if TC = 0 or if no payload */
 	guint16 noa;
@@ -1191,8 +1186,6 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 
 	/* Get fields needed for further dissection */
-	payload_type = tvb_get_guint8(tvb, offset + 1) & 0x7F;
-
 	word1 = tvb_get_ntohs(tvb, offset + 2);
 	tc = (word1 & 0xC000) >> 14;
 	seqnum = word1 & 0x3FFF;
@@ -3152,7 +3145,7 @@ proto_register_sprt(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* register the dissector */
-	register_dissector("sprt", dissect_sprt, proto_sprt);
+	new_register_dissector("sprt", dissect_sprt, proto_sprt);
 
 	sprt_module = prefs_register_protocol(proto_sprt, NULL);
 
