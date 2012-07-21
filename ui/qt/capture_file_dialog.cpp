@@ -36,9 +36,17 @@
 #include "packet_list_record.h"
 #include "cfile.h"
 #include "ui/win32/file_dlg_win32.h"
+#else
+#include "../../epan/addr_resolv.h"
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QCheckBox>
 #endif
 
-//#include <QDebug>
+#include <QDebug>
 
 #ifdef Q_WS_WIN
 // All of these routines are required by file_dlg_win32.c.
@@ -112,9 +120,46 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &fileName, QString
     QFileDialog(parent), m_fileName(fileName), m_displayFilter(displayFilter)
 {
 #if !defined(Q_WS_WIN)
-    setLabelText(QFileDialog::FileName, tr("Wireshark: Open Capture File"));
+    setWindowTitle(tr("Wireshark: Open Capture File"));
     setNameFilters(build_file_open_type_list());
     setFileMode(QFileDialog::ExistingFile);
+
+    if (!m_fileName.isEmpty()) {
+        selectFile(m_fileName);
+    }
+
+    // Add extra widgets
+    // http://qt-project.org/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
+    setOption(QFileDialog::DontUseNativeDialog, true);
+    QGridLayout *fdGrid = qobject_cast<QGridLayout*>(layout());
+    QHBoxLayout *hBox = new QHBoxLayout();
+    QVBoxLayout *controlsBox = new QVBoxLayout();
+
+    QLabel *dfLabel = new QLabel("Display Filter:");
+    fdGrid->addWidget(dfLabel, fdGrid->rowCount(), 0, 1, 1);
+
+    m_displayFilterEdit = new DisplayFilterEdit(this, true);
+    m_displayFilterEdit->setText(m_displayFilter);
+    fdGrid->addWidget(m_displayFilterEdit, fdGrid->rowCount() - 1, 1, 1, 1);
+
+    fdGrid->addLayout(hBox, fdGrid->rowCount(), 1, 1, -1);
+    hBox->addLayout(controlsBox);
+
+    m_macRes.setText("Enable &MAC name resolution");
+    m_macRes.setChecked(gbl_resolv_flags.mac_name);
+    controlsBox->addWidget(&m_macRes);
+
+    m_transportRes.setText("Enable &transport name resolution");
+    m_transportRes.setChecked(gbl_resolv_flags.transport_name);
+    controlsBox->addWidget(&m_transportRes);
+
+    m_networkRes.setText("Enable &network name resolution");
+    m_networkRes.setChecked(gbl_resolv_flags.network_name);
+    controlsBox->addWidget(&m_networkRes);
+
+    m_externalRes.setText("Use &external name resolver");
+    m_externalRes.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
+    controlsBox->addWidget(&m_externalRes);
 #endif
 }
 
@@ -139,16 +184,21 @@ int CaptureFileDialog::exec() {
 
 #else // not Q_WS_WINDOWS
 int CaptureFileDialog::exec() {
-    QFileDialog::exec();
-
     m_fileName.clear();
     m_displayFilter.clear();
 
-    if (selectedFiles().length() > 0) {
+    if (QFileDialog::exec() && selectedFiles().length() > 0) {
         m_fileName.append(selectedFiles()[0]);
-        return 1;
+        m_displayFilter.append(m_displayFilterEdit->text());
+
+        gbl_resolv_flags.mac_name = m_macRes.isChecked();
+        gbl_resolv_flags.transport_name = m_transportRes.isChecked();
+        gbl_resolv_flags.network_name = m_networkRes.isChecked();
+        gbl_resolv_flags.use_external_net_name_resolver = m_externalRes.isChecked();
+
+        return QDialog::Accepted;
     } else {
-        return 0;
+        return QDialog::Rejected;
     }
 }
 

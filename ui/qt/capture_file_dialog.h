@@ -24,6 +24,8 @@
 #ifndef CAPTURE_FILE_DIALOG_H
 #define CAPTURE_FILE_DIALOG_H
 
+#include "display_filter_edit.h"
+
 #include <QFileDialog>
 
 class CaptureFileDialog : public QFileDialog
@@ -64,6 +66,12 @@ private:
 
     QString &m_fileName;
     QString &m_displayFilter;
+    QCheckBox m_macRes;
+    QCheckBox m_transportRes;
+    QCheckBox m_networkRes;
+    QCheckBox m_externalRes;
+
+    DisplayFilterEdit* m_displayFilterEdit;
 
 signals:
 
