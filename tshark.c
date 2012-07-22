@@ -3416,15 +3416,17 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     switch (output_action) {
 
     case WRITE_TEXT:
+      /* Only initialize the fields that are actually used in proto_tree_print.
+       * This is particularly important for .range, as that's heap memory which
+       * we would otherwise have to g_free().
       print_args.to_file = TRUE;
       print_args.format = print_format;
       print_args.print_summary = !verbose;
-      print_args.print_hex = verbose && print_hex;
       print_args.print_formfeed = FALSE;
-      print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
-
-      /* init the packet range */
       packet_range_init(&print_args.range);
+      */
+      print_args.print_hex = verbose && print_hex;
+      print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
 
       if (!proto_tree_print(&print_args, edt, print_stream))
         return FALSE;
