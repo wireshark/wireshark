@@ -24,7 +24,7 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # The data below has been assembled from the following sources:
 #
@@ -14765,6 +14765,9 @@
 00:50:C2:FC:50:00/36	SakuraSe               # Sakura Seiki Co.,Ltd.
 00:50:C2:FC:60:00/36	Critical               # Critical Link
 00:50:C2:FC:70:00/36	SercomRe               # SERCOM Regeltechniek
+00:50:C2:FC:80:00/36	FarSouth               # Far South Networks
+00:50:C2:FC:90:00/36	MehtaTec               # Mehta Tech, Inc.
+00:50:C2:FC:A0:00/36	Telemisi               # Telemisis Ltd
 00:50:C4	Imd
 00:50:C5	AdsTechn               # ADS Technologies, Inc
 00:50:C6	LoopTele               # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -17300,6 +17303,7 @@
 1C:84:64	FormosaW               # FORMOSA WIRELESS COMMUNICATION CORP.
 1C:8E:8E	DbCommun               # DB Communication & Systems Co., ltd.
 1C:8F:8A	PhaseMot               # Phase Motion Control SpA
+1C:94:92	RuagSchw               # RUAG Schweiz AG
 1C:95:5D	I-LaxEle               # I-LAX ELECTRONICS INC.
 1C:97:3D	PricomDe               # PRICOM Design
 1C:AA:07	Cisco                  # Cisco Systems
@@ -17402,6 +17406,7 @@
 24:49:7B	Innovati               # Innovative Converged Devices Inc
 24:5F:DF	Kyocera                # KYOCERA Corporation
 24:65:11	Avm                    # AVM GmbH
+24:69:4A	Jasmine                # Jasmine Systems Inc.
 24:76:7D	CiscoSpv               # Cisco SPVTG
 24:77:03	IntelCor               # Intel Corporate
 24:82:8A	ProwaveT               # Prowave Technologies Ltd.
@@ -17478,6 +17483,7 @@
 28:98:7B	SamsungE               # Samsung Electronics Co.,Ltd
 28:9A:4B	Steelser               # SteelSeries ApS
 28:9E:DF	DanfossT               # Danfoss Turbocor Compressors, Inc
+28:A1:86	Enblink
 28:A5:74	MillerEl               # Miller Electric Mfg. Co.
 28:AF:0A	SiriusXm               # Sirius XM Radio Inc
 28:B0:CC	XenyaDOO               # Xenya d.o.o.
@@ -17658,6 +17664,7 @@
 34:D2:C4	RenaPrin               # RENA GmbH Print Systeme
 34:D7:B4	Tributar               # Tributary Systems, Inc.
 34:DF:2A	FujikonI               # Fujikon Industrial Co.,Limited
+34:E0:CF	Zte                    # zte corporation
 34:E0:D7	Dongguan               # DONGGUAN QISHENG ELECTRONICS INDUSTRIAL CO., LTD
 34:EF:44	2wire
 34:EF:8B	NttCommu               # NTT Communications Corporation
@@ -17968,6 +17975,7 @@
 48:F3:17	Private
 48:F4:7D	Techvisi               # TechVision Holding  Internation Limited
 48:F7:F1	Alcatel-               # Alcatel-Lucent
+48:F8:B3	Cisco-Li               # Cisco-Linksys, LLC
 48:F8:E1	AlcatelL               # Alcatel Lucent WT
 48:FC:B8	Woodstre               # Woodstream Corporation
 4C:02:2E	CmrKorea               # CMR KOREA CO., LTD
@@ -18204,6 +18212,7 @@
 5C:4A:26	EnguityT               # Enguity Technology Corp
 5C:4C:A9	HuaweiDe               # Huawei Device Co., Ltd
 5C:50:15	Cisco                  # Cisco Systems
+5C:51:4F	IntelCor               # Intel Corporate
 5C:56:ED	3pleplay               # 3pleplay Electronics Private Limited
 5C:57:1A	ArrisGro               # ARRIS Group, Inc.
 5C:57:C8	Nokia                  # Nokia Corporation
@@ -18261,6 +18270,7 @@
 60:44:F5	EasyDigi               # Easy Digital Ltd.
 60:45:5E	LiptelSR               # Liptel s.r.o.
 60:45:BD	Microsof               # Microsoft
+60:46:16	XiamenVa               # XIAMEN VANN INTELLIGENT CO., LTD
 60:52:D0	FactsEng               # FACTS Engineering 
 60:54:64	EyedroGr               # Eyedro Green Solutions Inc.
 60:63:FD	Transcen               # Transcend Communication Beijing Co.,Ltd.
@@ -18371,6 +18381,7 @@
 64:BC:11	Combiq                 # CombiQ AB
 64:C5:AA	SouthAfr               # South African Broadcasting Corporation
 64:C6:AF	AxerraNe               # AXERRA Networks Ltd
+64:C9:44	LarkTech               # LARK Technologies, Inc
 64:D0:2D	NextGene               # Next Generation Integration (NGI)
 64:D1:A3	SitecomE               # Sitecom Europe BV
 64:D2:41	KeithKoe               # Keith & Koep GmbH
@@ -18388,6 +18399,7 @@
 64:ED:57	Motorola               # Motorola Mobility, Inc.
 64:ED:62	Woori                  # WOORI SYSTEMS Co., Ltd
 64:F2:42	GerdesAk               # Gerdes Aktiengesellschaft
+64:F5:0E	KinionTe               # Kinion Technology Company Limited
 64:F9:70	KenadeEl               # Kenade Electronics Technology Co.,LTD.
 64:F9:87	Avvasi                 # Avvasi Inc.
 64:FC:8C	Zonar                  # Zonar Systems
@@ -18397,6 +18409,7 @@
 68:15:D3	ZakladyE               # Zaklady Elektroniki i Mechaniki Precyzyjnej R&G S.A.
 68:16:05	AndElect               # Systems And Electronic Development FZCO
 68:1A:B2	Zte                    # zte corporation
+68:1C:A2	Rosewill               # Rosewill Inc.
 68:1F:D8	Advanced               # Advanced Telemetry
 68:23:4B	NihonDen               # Nihon Dengyo Kousaku
 68:43:52	Bhuu                   # Bhuu Limited
@@ -18407,6 +18420,7 @@
 68:5D:43	IntelCor               # Intel Corporate
 68:5E:6B	Powerray               # PowerRay Co., Ltd.
 68:63:59	Advanced               # Advanced Digital Broadcast SA
+68:69:F2	ComapSRO               # ComAp s.r.o.
 68:6E:23	Wi3                    # Wi3 Inc.
 68:72:51	Ubiquiti               # Ubiquiti Networks
 68:78:4C	NortelNe               # Nortel Networks
@@ -18469,6 +18483,7 @@
 6C:70:39	Novar                  # Novar GmbH 
 6C:81:FE	Mitsuba                # Mitsuba Corporation
 6C:83:36	SamsungE               # Samsung Electronics Co.,Ltd
+6C:88:14	IntelCor               # Intel Corporate
 6C:8C:DB	OtusTech               # Otus Technologies Ltd
 6C:8D:65	Wireless               # Wireless Glue Networks, Inc.
 6C:92:BF	InspurEl               # Inspur Electronic Information Industry Co.,Ltd.
@@ -18846,6 +18861,7 @@
 84:29:99	Apple                  # Apple Inc
 84:2B:2B	Dell                   # Dell Inc.
 84:2B:50	Huria                  # Huria Co.,Ltd.
+84:2B:BC	Modellei               # Modelleisenbahn GmbH
 84:30:E5	Skyhawke               # SkyHawke Technologies, LLC
 84:36:11	Hyungseu               # hyungseul publishing networks
 84:3A:4B	IntelCor               # Intel Corporate
@@ -19591,6 +19607,7 @@ B4:C8:10	UmpiElet               # UMPI Elettronica
 B4:CF:DB	Shenzhen               # Shenzhen Jiuzhou Electric Co.,LTD
 B4:D8:A9	Betterbo               # BetterBots
 B4:D8:DE	IotaComp               # iota Computing, Inc.
+B4:DF:FA	LitemaxE               # Litemax Electronics Inc.
 B4:E0:CD	IoTurbin               # IO Turbine, Inc.
 B4:E1:EB	Private
 B4:ED:19	PieDigit               # Pie Digital, Inc.
@@ -19616,6 +19633,7 @@ B8:3D:4E	Shenzhen               # Shenzhen Cultraview Digital Technology Co.,Ltd
 B8:41:5F	Asp                    # ASP AG
 B8:55:10	ZioncomE               # Zioncom Electronics (Shenzhen) Ltd.
 B8:58:10	Numera                 # NUMERA, INC.
+B8:5A:FE	HandaerC               # Handaer Communication Technology (Beijing) Co., Ltd
 B8:61:6F	AcctonWi               # Accton Wireless Broadband(AWB), Corp.
 B8:62:1F	Cisco                  # Cisco Systems
 B8:64:91	CkTeleco               # CK Telecom Ltd
@@ -19627,6 +19645,7 @@ B8:74:47	Converge               # Convergence Technologies
 B8:79:7E	SecureMe               # Secure Meters (UK) Limited
 B8:87:1E	GoodMind               # Good Mind Industries Co., Ltd.
 B8:88:E3	CompalIn               # COMPAL INFORMATION (KUNSHAN) CO., LTD
+B8:89:CA	IljinEle               # ILJIN ELECTRIC Co., Ltd.
 B8:8D:12	Apple                  # Apple, Inc.
 B8:8E:3A	Infinite               # Infinite Technologies JLT
 B8:8F:14	Analytic               # Analytica GmbH
@@ -20722,7 +20741,7 @@ FC:FB:FB	Cisco                  # Cisco Systems
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # The data below has been assembled from the following sources:
 #

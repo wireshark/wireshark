@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-07-13
+# 2012-07-19
 # 
 # Note
 # 
@@ -11547,7 +11547,7 @@ qmvideo	5689/tcp	# QM video network management  [Jamie_Lokier]                  
 qmvideo	5689/udp	# QM video network management  [Jamie_Lokier]                                     [Jamie_Lokier]                                            2006-05
 # protocol
 # 5690-5692            Unassigned
-rbsystem	5693/tcp	# Robert Bosch Data Transfer   [Robert_Bosch_GmbH]                                [Klaus_Warth]                                             2011-08-01
+rbsystem	5693/tcp	# Robert Bosch Data Transfer   [Robert_Bosch_GmbH]                                [Klaus_Warth]                                             2011-08-01   2012-07-17
 # 5693        udp    Reserved
 # 5694-5695            Unassigned
 kmip	5696/tcp	# Key Management               [OASIS_KMIP_Technical_Committee]                   [Robin_Cover]                                             2011-07-25
@@ -11689,7 +11689,11 @@ wherehoo	5859/udp	# WHEREHOO                     [Jim_Youll]                    
 # 5860-5862            Unassigned
 ppsuitemsg	5863/tcp	# PlanetPress Suite Messeng    [Yannick_Fortin]                                   [Yannick_Fortin]                                          2006-02
 ppsuitemsg	5863/udp	# PlanetPress Suite Messeng    [Yannick_Fortin]                                   [Yannick_Fortin]                                          2006-02
-# 5864-5882            Unassigned
+# 5864-5867            Unassigned
+diameters	5868/tcp	# Diameter over TLS/TCP        [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-dime-rfc3588bis-34]
+# 5868        udp    Reserved
+diameters	5868/sctp	# Diameter over DTLS/SCTP      [IESG]                                             [IETF_Chair]                                                                        [RFC-ietf-dime-rfc3588bis-34]
+# 5869-5882            Unassigned
 jute	5883/tcp	# Javascript Unit Test         [Mark_Ethan_Trostler]                              [Mark_Ethan_Trostler]                                     2011-11-23
 # Environment
 # 5884-5899            Unassigned
@@ -15543,7 +15547,12 @@ qdb2service	45825/udp	# Qpuncture Data Access        [Michael_Yun]              
 # 45826-45965           Unassigned
 ssr-servermgr	45966/tcp	# SSRServerMgr                 [Jeremy_Gilliat]                                   [Jeremy_Gilliat]
 ssr-servermgr	45966/udp	# SSRServerMgr                 [Jeremy_Gilliat]                                   [Jeremy_Gilliat]
-# 45967-46998           Unassigned
+# 45967-46997           Unassigned
+# Connection between a desktop
+sp-remotetablet	46998/tcp	# computer or server and a     [SOFTPRO_GmbH]                                     [Nils_Durner]                                             2012-07-19
+# signature tablet to capture
+# handwritten signatures
+# 46998       udp    Reserved
 mediabox	46999/tcp	# MediaBox Server              [Alexander_Graef]                                  [Alexander_Graef]                                         2004-11
 mediabox	46999/udp	# MediaBox Server              [Alexander_Graef]                                  [Alexander_Graef]                                         2004-11
 mbus	47000/tcp	# Message Bus                  [Dirk_Kutscher]                                    [Dirk_Kutscher]
@@ -15780,6 +15789,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Service
 # airdrop                        tcp    Airdrop                      [Apple_Inc]                                        [Marc_Krochmal_2]                                         2012-03-02                                                                               Defined TXT keys: flags, phash, ehash, cname
 # airport                               AirPort Base Station         [Bob_Bradley_2]                                    [Bob_Bradley_2]                                                                                                                                    Defined TXT keys: waMA;
+# airpreview                     tcp    Coda AirPreview              [Panic_Inc]                                        [Cabel_Sasser]                                            2012-07-19                                                                               Defined TXT keys: hasCamera, name, UUID
 # Defined TXT keys: mac=<MAC address> ip=<IP address>
 # airprojector                          AirProjector                 [Yoshinori_Nakayama]                               [Yoshinori_Nakayama]                                                                                                                               note=<Location> use=<Status> mainprog=<Main program version>
 # bootprog=<Boot program version>
@@ -17431,6 +17441,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Byron_Jones]                                             Byron Jones                                     mailto:byronj&bellsouth.net
 # [C_Enrique_Ortiz]                                         C. Enrique Ortiz                                mailto:eortiz&j2medeveloper.com                               2003-01
 # [C_Philip_Wood]                                           C. Philip Wood                                  mailto:cpw&lanl.gov
+# [Cabel_Sasser]                                            Cabel Sasser              Panic Inc.            mailto:cabel&panic.com                                        2012-07-19
 # [CaldSoft]                                                CaldSoft                                        mailto:development&caldsoft.co.uk                             2011-08-12
 # [Cameo_Systems_Inc]                                                                 Cameo Systems Inc.    mailto:craig&reversion.ca                                     2011-09-26
 # [Cameron_Colpitts]                                        Cameron Colpitts          Santorini, LLC        mailto:cameron&santorinillc.com                               2011-10-25
@@ -19279,7 +19290,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Klaus_Fellner]                                           Klaus Fellner                                   mailto:webmaster&segue.com
 # mailto:kfellner&segue.com
 # [Klaus_Schmidinger]                                       Klaus Schmidinger                               mailto:Klaus.Schmidinger&tvdr.de                              2010-03-31
-# [Klaus_Warth]                                             Klaus Warth                                     mailto:Klaus.Warth&heitec.de                                  2011-08-01
+# [Klaus_Warth]                                             Klaus Warth               Robert Bosch GmbH     mailto:Klaus.Warth&bosch.com                                  2012-07-17
 # [Klaus_Wolf]                                              Klaus Wolf                                      mailto:wolf&cobrow.com
 # [Koen_Schoofs]                                            Koen Schoofs                                    mailto:schoofs_koen&emc.com                                   2003-01
 # [Koich_Nakamura]                                          Koich Nakamura                                  mailto:naka&case.nm.fujitsu.co.jp
@@ -19968,6 +19979,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Nigel_Warren]                                            Nigel Warren                                    mailto:info&flyobjectspace.com                                2009-02-12
 # [Niklas_Weiss]                                            Niklas Weiss                                    mailto:n.weiss&d-trust.net                                    2004-11
 # [Nikolaus_Gerteis]                                        Nikolaus Gerteis                                mailto:ngerteis&apple.com
+# [Nils_Durner]                                             Nils Durner               SOFTPRO GmbH          mailto:Nils.Durner&softpro.de                                 2012-07-19
 # [Nimrod_Diamant]                                          Nimrod Diamant                                  mailto:nimrod.diamant&intel.com                               2005-02
 # [Nine_Technology_LLC]                                                               Nine Technology, LLC  mailto:astoev&ninetechnology.com                              2011-08-01
 # [Nir_Baroz]                                               Nir Baroz                                       mailto:nbaroz&encore.com
@@ -20044,6 +20056,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [PV_Shivkumar]                                            PV Shivkumar                                    mailto:p.shivkumar&oracle.com                                 2003-10
 # [P_T_K_Farrar]                                            P.T.K. Farrar                                   mailto:farrarp&teccon.co.uk
 # [P_V_Shivkumar]                                           P.V.Shivkumar                                   mailto:PSHIVKUM&us.oracle.com
+# [Panic_Inc]                                                                         Panic Inc.            mailto:cabel&panic.com                                        2012-07-19
 # [Panic_Ride]                                              Panic Ride                                      mailto:panicride&hao.org
 # [Paolo_Desii]                                             Paolo Desii               POWERSOFT S.R.L.      mailto:paolo.desii&powersoft.it                               2012-01-03
 # [Pat_Calhoun]                                             Pat Calhoun                                     mailto:CALHOUN&admin.eicon.qc.ca
@@ -20468,7 +20481,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Robert_Baldwin]                                          Robert Baldwin                                  mailto:baldwin&plusfive.com                                   2004-11
 # [Robert_Ball]                                             Robert Ball                                     mailto:rob.ball&ge.com                                        2008-03-26
 # [Robert_Banfill]                                          Robert Banfill                                  mailto:robert&banfill.net                                     2003-04
-# [Robert_Bosch_GmbH]                                       Thomas Beck               Robert Bosch GmbH     mailto:Thomas.Beck8&bosch.com                                 2011-08-01
+# [Robert_Bosch_GmbH]                                                                 Robert Bosch GmbH     mailto:Klaus.Warth&bosch.com                                  2012-07-17
 # [Robert_Boudrie]                                          Robert Boudrie                                  mailto:boudrie_rob&emc.com                                    2008-06-09
 # [Robert_Byrne]                                            Robert Byrne                                    mailto:robert.byrne&ie.abb.com                                2006-09
 # [Robert_C_Henningsga]                                     Robert C. Henningsgard                          mailto:rhenn_iana&laptwo.com
@@ -20826,6 +20839,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Smith_Micro_Software_Inc]                                                          Smith Micro Software, mailto:dsperling&smithmicro.com                               2011-10-10
 # Inc.
 # [SODATSW_spol]                                                                      SODATSW spol. s r.o.  mailto:info&sodatsw.cz                                        2012-05-31
+# [SOFTPRO_GmbH]                                                                      SOFTPRO GmbH          mailto:Dirk.Claussen&softpro.de                               2012-07-19
 # [softthere_com]                                                                     softthere.com         mailto:technical&softthere.com                                2011-10-17
 # [Software_Horizons_In]                                                              Software Horizons     mailto:oi2000&shorizons.com
 # Inc.
