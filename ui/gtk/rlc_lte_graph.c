@@ -2305,8 +2305,6 @@ static void graph_get_bounds(struct graph *g)
     g->bounds.y0     =  0;   /* We always want the overal bounds to go back down to SN=0 */
     g->bounds.height = (((data_seq_high >= ack_seq_high && data_frame_seen) || (!ack_frame_seen)) ? data_seq_high : ack_seq_high);
 
-    printf("bounds: x0 = %f\n", g->bounds.x0);
-
     g->zoom.x = (g->geom.width - 1) / g->bounds.width;
     g->zoom.y = (g->geom.height -1) / g->bounds.height;
 }
