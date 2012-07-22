@@ -49,6 +49,10 @@
 
 #include "epan/tvbparse.h"
 
+tvbparse_wanted_t *want_ignore;
+tvbparse_wanted_t *want_stream_end_tag;
+tvbparse_wanted_t *want_stream_end_with_ns;
+
 static void xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 static void xmpp_error_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element);
 
@@ -61,6 +65,34 @@ static void xmpp_message_subject(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 static void xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element);
 
 static void xmpp_features_mechanisms(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
+
+void
+xmpp_init_parsers(void)
+{
+    tvbparse_wanted_t *want_name;
+    tvbparse_wanted_t *want_stream_end;
+
+    want_name = tvbparse_chars(2,1,0,"abcdefghijklmnopqrstuvwxyz.-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",NULL,NULL,NULL);
+
+    want_stream_end_with_ns = tvbparse_set_seq(3, NULL, NULL, NULL,
+                                               want_name,
+                                               tvbparse_char(4, ":", NULL, NULL, NULL),
+                                               want_name,
+                                               NULL);
+
+    want_stream_end = tvbparse_set_oneof(5, NULL, NULL, NULL,
+                                         want_stream_end_with_ns,
+                                         want_name,
+                                         NULL);
+
+    want_ignore = tvbparse_chars(1,1,0," \t\r\n",NULL,NULL,NULL);
+
+    want_stream_end_tag = tvbparse_set_seq(6, NULL, NULL, NULL,
+                                           tvbparse_string(-1,"</",NULL,NULL,NULL),
+                                           want_stream_end,
+                                           tvbparse_char(-1,">",NULL,NULL,NULL),
+                                           NULL);
+}
 
 void
 xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet)
@@ -615,24 +647,7 @@ xmpp_stream_close(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo)
 {
     tvbparse_t        *tt;
     tvbparse_elem_t   *elem;
-    tvbparse_wanted_t *want_ignore = tvbparse_chars(1,1,0," \t\r\n",NULL,NULL,NULL);
-    tvbparse_wanted_t *want_name = tvbparse_chars(2,1,0,"abcdefghijklmnopqrstuvwxyz.-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",NULL,NULL,NULL);
-    tvbparse_wanted_t *want_stream_end_with_ns = tvbparse_set_seq(3, NULL, NULL, NULL,
-                                                                  want_name,
-                                                                  tvbparse_char(4, ":", NULL, NULL, NULL),
-                                                                  want_name,
-                                                                  NULL);
 
-    tvbparse_wanted_t *want_stream_end = tvbparse_set_oneof(5, NULL, NULL, NULL,
-                                                            want_stream_end_with_ns,
-                                                            want_name,
-                                                            NULL);
-
-    tvbparse_wanted_t *want_stream_end_tag = tvbparse_set_seq(6, NULL, NULL, NULL,
-                                                              tvbparse_string(-1,"</",NULL,NULL,NULL),
-                                                              want_stream_end,
-                                                              tvbparse_char(-1,">",NULL,NULL,NULL),
-                                                              NULL);
     tt = tvbparse_init(tvb,0,-1,NULL,want_ignore);
 
     if((elem = tvbparse_get(tt,want_stream_end_tag))!=NULL)

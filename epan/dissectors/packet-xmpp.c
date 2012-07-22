@@ -1407,6 +1407,8 @@ proto_register_xmpp(void) {
     proto_register_subtree_array(ett_unknown_ptr, array_length(ett_unknown_ptr));
 
     register_dissector("xmpp", dissect_xmpp, proto_xmpp);
+
+    xmpp_init_parsers();
 }
 
 void

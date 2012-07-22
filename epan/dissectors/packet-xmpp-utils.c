@@ -38,6 +38,7 @@
 #include <epan/dissectors/packet-xml.h>
 
 #include <packet-xmpp.h>
+#include <packet-xmpp-core.h>
 #include <packet-xmpp-utils.h>
 
 
@@ -534,7 +535,6 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
     xml_frame_t *child;
     xmpp_element_t *node = ep_alloc0(sizeof(xmpp_element_t));
 
-    tvbparse_wanted_t *want_ignore, *want_name, *want_scoped_name;
     tvbparse_t* tt;
     tvbparse_elem_t* elem;
 
@@ -564,14 +564,9 @@ xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbu
 
     node->offset = xml_frame->start_offset;
 
-    /*looking for element's names that looks like ns:tag_name*/
-    want_ignore = tvbparse_chars(-1,1,0," \t\r\n</",NULL,NULL,NULL);
-    want_name = tvbparse_chars(-1,1,0,"abcdefghijklmnopqrstuvwxyz.-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",NULL,NULL,NULL);
-    want_scoped_name = tvbparse_set_seq(-1, NULL, NULL, NULL, want_name, tvbparse_char(-1,":",NULL,NULL,NULL), want_name, NULL);
-
     tt = tvbparse_init(tvb,node->offset,-1,NULL,want_ignore);
 
-    if((elem = tvbparse_get(tt,want_scoped_name))!=NULL)
+    if((elem = tvbparse_get(tt,want_stream_end_with_ns))!=NULL)
     {
         node->default_ns_abbrev = tvb_get_ephemeral_string(elem->sub->tvb, elem->sub->offset, elem->sub->len);
     }
