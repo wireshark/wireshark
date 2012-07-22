@@ -641,11 +641,14 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ftp_data_tree = proto_item_add_subtree(ti, ett_ftp_data);
 
         /*
-         * XXX - if this is binary data, it'll produce
-         * a *really* long line.
+         * tvb_format_text() is very slow for long (binary...) lines, so limit to
+         * size that will actually be displayed.
+         *
+         * Not clear if its really worth doing this for binary data, as bytes are not
+         * even shown as hex!
          */
         proto_tree_add_text(ftp_data_tree, tvb, 0, data_length,
-            "FTP Data: %s", tvb_format_text(tvb, 0, data_length));
+            "FTP Data: %s", tvb_format_text(tvb, 0, MIN(data_length, ITEM_LABEL_LENGTH)));
     }
 }
 
