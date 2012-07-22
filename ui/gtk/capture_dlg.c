@@ -2706,7 +2706,8 @@ add_pipe_cb(gpointer w _U_)
     device.buffer       = 1;
 #endif
     device.active_dlt   = -1;
-    device.if_info.name = NULL;
+    device.locked       = FALSE;
+    device.if_info.name = g_strdup(g_save_file);
     device.if_info.description = NULL;
     device.if_info.addrs = NULL;
     device.if_info.loopback = FALSE;

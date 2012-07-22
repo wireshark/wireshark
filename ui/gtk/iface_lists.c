@@ -306,6 +306,10 @@ scan_local_interfaces(capture_options* capture_opts)
             device.links        = NULL;
             device.local        = TRUE;
             device.locked       = FALSE;
+            device.if_info.name = g_strdup(interface_opts.name);
+            device.if_info.description = g_strdup(interface_opts.descr);
+            device.if_info.addrs = NULL;
+            device.if_info.loopback = FALSE;
 
             g_array_append_val(capture_opts->all_ifaces, device);
             capture_opts->num_selected++;
