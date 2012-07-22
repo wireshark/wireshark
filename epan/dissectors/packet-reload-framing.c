@@ -118,6 +118,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint32 relo_token;
   guint32 message_length=0;
   emem_tree_key_t transaction_id_key[4];
+  guint32 *key_save, len_save;
   guint32 sequence;
   guint effective_length;
   guint16 offset;
@@ -177,22 +178,31 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   transaction_id_key[0].length = 1;
   transaction_id_key[0].key = &sequence; /* sequence number */
 
+  /* When the se_tree_* functions iterate through the keys, they
+   * perform pointer arithmetic with guint32s, so we have to divide
+   * our length fields by that to make things work, but we still want
+   * to g_malloc and memcpy the entire amounts, since those both operate
+   * in raw bytes. */
   if (type==DATA) {
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key = &pinfo->srcport;
-    transaction_id_key[2].length = (pinfo->src.len)>>2;
-    transaction_id_key[2].key = g_malloc(transaction_id_key[2].length);
-    memcpy(transaction_id_key[2].key, pinfo->src.data, transaction_id_key[2].length);
+    transaction_id_key[2].length = (pinfo->src.len) / sizeof(guint32);
+    transaction_id_key[2].key = g_malloc(pinfo->src.len);
+    memcpy(transaction_id_key[2].key, pinfo->src.data, pinfo->src.len);
   }
   else {
     transaction_id_key[1].length = 1;
     transaction_id_key[1].key = &pinfo->destport;
-    transaction_id_key[2].length = (pinfo->dst.len)>>2;
-    transaction_id_key[2].key = g_malloc(transaction_id_key[2].length);
-    memcpy(transaction_id_key[2].key, pinfo->dst.data, transaction_id_key[2].length);
+    transaction_id_key[2].length = (pinfo->dst.len) / sizeof(guint32);
+    transaction_id_key[2].key = g_malloc(pinfo->dst.len);
+    memcpy(transaction_id_key[2].key, pinfo->dst.data, pinfo->dst.len);
   }
   transaction_id_key[3].length=0;
   transaction_id_key[3].key=NULL;
+  /* The tree functions are destructive to this part of the key, so save the
+   * proper values here and restore them after each call. */
+  key_save = transaction_id_key[2].key;
+  len_save = transaction_id_key[2].length;
 
   if (!conversation) {
     conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -215,12 +225,16 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   if (!pinfo->fd->flags.visited) {
     if ((reload_frame =
            se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key)) == NULL) {
+      transaction_id_key[2].key    = key_save;
+      transaction_id_key[2].length = len_save;
       reload_frame = se_alloc(sizeof(reload_frame_t));
       reload_frame->data_frame = 0;
       reload_frame->ack_frame = 0;
       reload_frame->req_time = pinfo->fd->abs_ts;
       se_tree_insert32_array(reload_framing_info->transaction_pdus, transaction_id_key, (void *)reload_frame);
     }
+    transaction_id_key[2].key    = key_save;
+    transaction_id_key[2].length = len_save;
 
     /* check whether the message is a request or a response */
 
@@ -239,6 +253,8 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   }
   else {
     reload_frame=se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
+    transaction_id_key[2].key    = key_save;
+    transaction_id_key[2].length = len_save;
   }
   g_free(transaction_id_key[2].key);
 
