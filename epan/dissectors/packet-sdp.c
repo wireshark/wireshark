@@ -2251,12 +2251,12 @@ proto_register_sdp(void)
         "Format specific parameter(fmtp)", HFILL }
     },
     { &hf_ipbcp_version,
-      { "IPBCP Protocol Version", "ipbcp.version",
+      { "IPBCP Protocol Version", "sdp.ipbcp.version",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_ipbcp_type,
-      { "IPBCP Command Type", "ipbcp.command",
+      { "IPBCP Command Type", "sdp.ipbcp.command",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },

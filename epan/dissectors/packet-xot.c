@@ -357,15 +357,15 @@ proto_register_xot(void)
 			NULL, 0, "Length of X.25 over TCP packet", HFILL }},
 		/* These fields are in overlay with packet-x25.c */
 		{ &hf_x25_gfi,
-			{ "GFI", "x.25.gfi", FT_UINT16, BASE_DEC,
+			{ "GFI", "x25.gfi", FT_UINT16, BASE_DEC,
 			NULL, 0xF000, "General Format Identifier", HFILL }},
 
 		{ &hf_x25_lcn,
-			{ "Logical Channel", "x.25.lcn", FT_UINT16, BASE_DEC,
+			{ "Logical Channel", "x25.lcn", FT_UINT16, BASE_DEC,
 			NULL, 0x0FFF, "Logical Channel Number", HFILL }},
 
 		{ &hf_x25_type,
-			{ "Packet Type", "x.25.type", FT_UINT8, BASE_HEX,
+			{ "Packet Type", "x25.type", FT_UINT8, BASE_HEX,
 			VALS(vals_x25_type), 0x0, NULL, HFILL }},
 
 		{ &hf_xot_pvc_version,

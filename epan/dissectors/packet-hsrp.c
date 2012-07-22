@@ -775,12 +775,12 @@ void proto_register_hsrp(void)
                     "Standby group number which doesn't become the active router myself", HFILL }},
 
                 { &hf_hsrp2_md5_algorithm,
-                  { "MD5 Algorithm", "hsrp2._md5_algorithm",
+                  { "MD5 Algorithm", "hsrp2.md5_algorithm",
                     FT_UINT8, BASE_DEC, VALS(hsrp2_md5_algorithm_vals), 0x0,
                     "Hash Algorithm used by this group", HFILL }},
 
                 { &hf_hsrp2_md5_flags,
-                  { "MD5 Flags", "hsrp2._md5_flags",
+                  { "MD5 Flags", "hsrp2.md5_flags",
                     FT_UINT8, BASE_DEC, NULL, 0x0,
                     "Undefined", HFILL }},
 

@@ -161,7 +161,7 @@ void proto_register_hsr(void)
         },
 
         { &hf_hsr_sequence_nr,
-          { "Sequence number", "hsr.hsr_sequence_nr",
+          { "Sequence number", "hsr.sequence_nr",
             FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },

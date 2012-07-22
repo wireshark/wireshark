@@ -687,7 +687,7 @@ proto_register_frame(void)
 		    NULL, HFILL }},
 
 		{ &hf_comments_text,
-		  { "Comment", "comment",
+		  { "Comment", "frame.comment",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 	};

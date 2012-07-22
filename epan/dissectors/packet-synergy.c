@@ -461,7 +461,7 @@ proto_register_synergy(void)
 			{ "Key Id","synergy.keyreleased.keyid",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkup_keymodifiermask,
-			{ "Key Modifier Mask","synergykeyreleased.mask",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
+			{ "Key Modifier Mask","synergy.keyreleased.mask",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }
 		},
 		{ &hf_synergy_dkup_keybutton,
 			{ "Key Button","synergy.keyreleased.key",FT_UINT16, BASE_DEC, NULL, 0x0,NULL, HFILL }

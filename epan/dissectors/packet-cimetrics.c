@@ -92,12 +92,12 @@ proto_register_cimetrics(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_cimetrics_mstp_timer,
-			{ "Delta Time", "cimetrics_mstp.timer",
+			{ "Delta Time", "cimetrics.mstp_timer",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			"Milliseconds", HFILL }
 		},
 		{ &hf_cimetrics_mstp_value,
-			{ "8-bit value", "cimetrics_mstp.value",
+			{ "8-bit value", "cimetrics.mstp_value",
 			FT_UINT8, BASE_DEC, NULL, 0,
 			"value", HFILL }
 		}

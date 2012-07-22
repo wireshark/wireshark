@@ -2319,43 +2319,43 @@ proto_register_atalk(void)
 
   static hf_register_info hf_pap[] = {
     { &hf_pap_connid,
-      { "ConnID",       "pap.connid",   FT_UINT8,  BASE_DEC, NULL, 0x0,
+      { "ConnID",       "prap.connid",   FT_UINT8,  BASE_DEC, NULL, 0x0,
         "PAP connection ID", HFILL }},
 
     { &hf_pap_function,
-      { "Function",     "pap.function", FT_UINT8,  BASE_DEC|BASE_EXT_STRING, &pap_function_vals_ext, 0x0,
+      { "Function",     "prap.function", FT_UINT8,  BASE_DEC|BASE_EXT_STRING, &pap_function_vals_ext, 0x0,
         "PAP function", HFILL }},
 
     { &hf_pap_socket,
-      { "Socket",       "pap.socket",   FT_UINT8,  BASE_DEC, NULL, 0x0,
+      { "Socket",       "prap.socket",   FT_UINT8,  BASE_DEC, NULL, 0x0,
         "ATP responding socket number", HFILL }},
 
     { &hf_pap_quantum,
-      { "Quantum",      "pap.quantum",  FT_UINT8,  BASE_DEC, NULL, 0x0,
+      { "Quantum",      "prap.quantum",  FT_UINT8,  BASE_DEC, NULL, 0x0,
         "Flow quantum", HFILL }},
 
     { &hf_pap_waittime,
-      { "Wait time",    "pap.waittime",  FT_UINT16,  BASE_DEC, NULL, 0x0,
+      { "Wait time",    "prap.waittime",  FT_UINT16,  BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_pap_result,
-      { "Result",       "pap.result",  FT_UINT16,  BASE_DEC, NULL, 0x0,
+      { "Result",       "prap.result",  FT_UINT16,  BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_pap_seq,
-      { "Sequence",     "pap.seq",      FT_UINT16,  BASE_DEC, NULL, 0x0,
+      { "Sequence",     "prap.seq",      FT_UINT16,  BASE_DEC, NULL, 0x0,
         "Sequence number", HFILL }},
 
     { &hf_pap_status,
-      { "Status",       "pap.status",   FT_STRING,  BASE_NONE, NULL, 0x0,
+      { "Status",       "prap.status",   FT_STRING,  BASE_NONE, NULL, 0x0,
                 "Printer status", HFILL }},
 
     { &hf_pap_eof,
-      { "EOF",  "pap.eof", FT_BOOLEAN, BASE_NONE,
+      { "EOF",  "prap.eof", FT_BOOLEAN, BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
 
     { &hf_pap_pad,
-      { "Pad",          "pap.pad",              FT_NONE,   BASE_NONE, NULL, 0,
+      { "Pad",          "prap.pad",              FT_NONE,   BASE_NONE, NULL, 0,
                 "Pad Byte",     HFILL }},
 
   };
@@ -2409,7 +2409,7 @@ proto_register_atalk(void)
   proto_asp = proto_register_protocol("AppleTalk Session Protocol", "ASP", "asp");
   proto_register_field_array(proto_asp, hf_asp, array_length(hf_asp));
 
-  proto_pap = proto_register_protocol("Printer Access Protocol", "PAP", "apap");
+  proto_pap = proto_register_protocol("Printer Access Protocol", "PrAP", "prap");
   proto_register_field_array(proto_pap, hf_pap, array_length(hf_pap));
 
   proto_zip = proto_register_protocol("Zone Information Protocol", "ZIP", "zip");

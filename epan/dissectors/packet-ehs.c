@@ -1753,7 +1753,7 @@ proto_register_ehs(void)
 
       /* aos/los protocol data zone */
       { &hf_ehs_dz_aoslos_indicator,
-        { "AOS/LOS Indicator", "dz.aoslos_indicator",
+        { "AOS/LOS Indicator", "ehs.dz.aoslos_indicator",
           FT_UINT8, BASE_DEC, VALS(ehs_data_zone_aoslos_indicator), 0x03,
           NULL, HFILL }
       },
@@ -1761,133 +1761,133 @@ proto_register_ehs(void)
 
       /* udsm protocol data zone */
       { &hf_ehs_dz_udsm_ccsds_vs_bpdu,
-        { "CCSDS vs BPDU", "dz.udsm_ccsds_vs_bpdu",
+        { "CCSDS vs BPDU", "ehs.dz.udsm_ccsds_vs_bpdu",
           FT_UINT8, BASE_DEC, VALS(ehs_data_zone_udsm_ccsds_vs_bpdu), 0x80,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_unused1,
-        { "Unused 1", "dz.udsm_unused1",
+        { "Unused 1", "ehs.dz.udsm_unused1",
           FT_UINT8, BASE_DEC, NULL, 0x7f,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_unused2,
-        { "Unused 2", "dz.udsm_unused2",
+        { "Unused 2", "ehs.dz.udsm_unused2",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_unused3,
-        { "Unused 3", "dz.udsm_unused3",
+        { "Unused 3", "ehs.dz.udsm_unused3",
           FT_UINT16, BASE_DEC, NULL, 0xe000,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_gse_pkt_id,
-        { "GSE Pkt ID", "dz.udsm_gse_pkt_id",
+        { "GSE Pkt ID", "ehs.dz.udsm_gse_pkt_id",
           FT_BOOLEAN, 16, NULL, 0x1000,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_payload_vs_core,
-        { "Payload vs Core", "dz.udsm_payload_vs_core",
+        { "Payload vs Core", "ehs.dz.udsm_payload_vs_core",
           FT_UINT16, BASE_DEC, VALS(ehs_data_zone_udsm_payload_vs_core), 0x0800,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_apid,
-        { "APID", "dz.udsm_apid",
+        { "APID", "ehs.dz.udsm_apid",
           FT_UINT16, BASE_DEC, NULL, 0x07ff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_start_time_year,
-        { "Start Time Years since 1900", "dz.udsm_start_time_year",
+        { "Start Time Years since 1900", "ehs.dz.udsm_start_time_year",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_jday,
-        { "Start Time Julian Day", "dz.udsm_start_time_jday",
+        { "Start Time Julian Day", "ehs.dz.udsm_start_time_jday",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_hour,
-        { "Start Time Hour", "dz.udsm_start_time_hour",
+        { "Start Time Hour", "ehs.dz.udsm_start_time_hour",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_minute,
-        { "Start Time Minute", "dz.udsm_start_time_minute",
+        { "Start Time Minute", "ehs.dz.udsm_start_time_minute",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_second,
-        { "Start Time Second", "dz.udsm_start_time_second",
+        { "Start Time Second", "ehs.dz.udsm_start_time_second",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_stop_time_year,
-        { "Stop Time Years since 1900", "dz.udsm_stop_time_year",
+        { "Stop Time Years since 1900", "ehs.dz.udsm_stop_time_year",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_jday,
-        { "Stop Time Julian Day", "dz.udsm_stop_time_jday",
+        { "Stop Time Julian Day", "ehs.dz.udsm_stop_time_jday",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_hour,
-        { "Stop Time Hour", "dz.udsm_stop_time_hour",
+        { "Stop Time Hour", "ehs.dz.udsm_stop_time_hour",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_minute,
-        { "Stop Time Minute", "dz.udsm_stop_time_minute",
+        { "Stop Time Minute", "ehs.dz.udsm_stop_time_minute",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_second,
-        { "Stop Time Second", "dz.udsm_stop_time_second",
+        { "Stop Time Second", "ehs.dz.udsm_stop_time_second",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_unused4,
-        { "Unused 4", "dz.udsm_unused4",
+        { "Unused 4", "ehs.dz.udsm_unused4",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_pkts_xmtd,
-        { "Num Pkts Transmitted", "dz.udsm_num_pkts_xmtd",
+        { "Num Pkts Transmitted", "ehs.dz.udsm_num_pkts_xmtd",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_vcdu_seqerrs,
-        { "Num VCDU Sequence Errors", "dz.udsm_num_vcdu_seqerrs",
+        { "Num VCDU Sequence Errors", "ehs.dz.udsm_num_vcdu_seqerrs",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_pkt_seqerrs,
-        { "Num Packet Sequence Errors", "dz.udsm_num_pkt_seqerrs",
+        { "Num Packet Sequence Errors", "ehs.dz.udsm_num_pkt_seqerrs",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_pktlen_errors,
-        { "Num Pkt Length Errors", "dz.udsm_num_pktlen_errors",
+        { "Num Pkt Length Errors", "ehs.dz.udsm_num_pktlen_errors",
           FT_UINT16, BASE_DEC, NULL, 0xffff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_event,
-        { "UDSM Event Code", "dz.udsm_event",
+        { "UDSM Event Code", "ehs.dz.udsm_event",
           FT_UINT8, BASE_DEC, VALS(ehs_data_zone_udsm_event), 0xff,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_pkts_xmtd_rollover,
-        { "Num Pkts Transmitted Rollover Counter", "dz.udsm_num_pkts_xmtd_rollover",
+        { "Num Pkts Transmitted Rollover Counter", "ehs.dz.udsm_num_pkts_xmtd_rollover",
           FT_UINT8, BASE_DEC, NULL, 0xff,
           NULL, HFILL }
       },

@@ -578,5 +578,5 @@ void
 proto_reg_handoff_gsm_cbch(void)
 {
     data_handle = find_dissector("data");
-    cbs_handle  = find_dissector("gsm_cell_broadcast");
+    cbs_handle  = find_dissector("gsm_cbs");
 }

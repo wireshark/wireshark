@@ -513,7 +513,7 @@ proto_register_applemidi( void )
 			&hf_applemidi_unknown_data,
 			{
 				"Unknown Data",
-				"rtpmidi.unknown_data",
+				"applemidi.unknown_data",
 				FT_BYTES,
 				BASE_NONE,
 				NULL,

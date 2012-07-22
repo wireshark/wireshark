@@ -549,13 +549,13 @@ proto_register_cbs(void)
     };
 
     /* Register the protocol name and description */
-    proto_cell_broadcast = proto_register_protocol("GSM Cell Broadcast Service", "GSM Cell Broadcast Service", "gsm_cell_broadcast");
+    proto_cell_broadcast = proto_register_protocol("GSM Cell Broadcast Service", "GSM Cell Broadcast Service", "gsm_cbs");
 
     proto_register_field_array(proto_cell_broadcast, hf_cbs, array_length(hf_cbs));
     register_init_routine(gsm_cbs_message_reassembly_init);
 
     /* subdissector code */
-    register_dissector("gsm_cell_broadcast", dissect_gsm_cell_broadcast, proto_cell_broadcast);
+    register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);
     register_dissector("umts_cell_broadcast", dissect_umts_cell_broadcast_message, proto_cell_broadcast);
 
     /* subtree array */

@@ -82,7 +82,7 @@ proto_register_cert(void)
          */
         static hf_register_info hf[] = {
                 { &hf_cert,
-                { "Certificate", "cert", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL}},
+                { "Certificate", "pkix-cert.cert", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL}},
         };
 
         /* Setup protocol subtree array */

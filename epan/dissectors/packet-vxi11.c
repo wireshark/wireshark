@@ -880,7 +880,7 @@ proto_register_vxi11_core(void)
 
     proto_vxi11_core = proto_register_protocol("VXI-11 Core Protocol",
                                                "VXI-11 Core",
-                                               "vxi11core");
+                                               "vxi11_core");
     proto_register_field_array(proto_vxi11_core, vxi11_core_hf, array_length(vxi11_core_hf));
     proto_register_subtree_array(vxi11_core_ett, array_length(vxi11_core_ett));
 }
@@ -957,7 +957,7 @@ proto_register_vxi11_async(void)
 
     proto_vxi11_async = proto_register_protocol("VXI-11 Asynchronous Abort",
                                                 "VXI-11 Async",
-                                                "vxi11async");
+                                                "vxi11_async");
     proto_register_field_array(proto_vxi11_async, vxi11_async_hf, array_length(vxi11_async_hf));
     proto_register_subtree_array(vxi11_async_ett, array_length(vxi11_async_ett));
 }
@@ -1010,7 +1010,7 @@ proto_register_vxi11_intr(void)
 
     proto_vxi11_intr = proto_register_protocol("VXI-11 Interrupt",
                                                "VXI-11 Intr",
-                                               "vxi11intr");
+                                               "vxi11_intr");
     proto_register_field_array(proto_vxi11_intr, vxi11_intr_hf, array_length(vxi11_intr_hf));
     proto_register_subtree_array(vxi11_intr_ett, array_length(vxi11_intr_ett));
 }

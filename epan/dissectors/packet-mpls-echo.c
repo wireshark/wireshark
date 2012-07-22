@@ -1912,71 +1912,71 @@ proto_register_mpls_echo(void)
             "MPLS ECHO TLV DownStream Map Egress Interface Number", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_src_gid,
-          { "SRC GLOBAL ID", "mpls_echo_lspping.tlv.src.gid",
+          { "SRC GLOBAL ID", "mpls_echo.lspping.tlv.src.gid",
             FT_UINT32, BASE_DEC, NULL, 0x0, "LSP SRC  GID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_src_nid,
-          { "SRC NODE ID", "mpls_echo_lspping.tlv.src.nid",
+          { "SRC NODE ID", "mpls_echo.lspping.tlv.src.nid",
             FT_IPv4, BASE_NONE, NULL, 0x0, "LSP SRC NID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_src_tunnel_no,
-          { "SRC Tunnel Number", "mpls_echo_lspping.tlv.tunnel.no",
+          { "SRC Tunnel Number", "mpls_echo.lspping.tlv.tunnel.no",
             FT_UINT16, BASE_DEC, NULL, 0x0, "LSP FEC Tunnel Number", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_lsp_no,
-          { "SRC LSP Number", "mpls_echo_lspping.tlv.lsp.no",
+          { "SRC LSP Number", "mpls_echo.lspping.tlv.lsp.no",
             FT_UINT16, BASE_DEC, NULL, 0x0, "LSP FEC LSP  Number", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_dst_gid,
-          { "DST GLOBAL ID", "mpls_echo_lspping.tlv.dst.gid",
+          { "DST GLOBAL ID", "mpls_echo.lspping.tlv.dst.gid",
             FT_UINT32, BASE_DEC, NULL, 0x0, "LSP FEC DST  GID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_dst_nid,
-          { "DST NODE ID", "mpls_echo_lspping.tlv.dst.nid",
+          { "DST NODE ID", "mpls_echo.lspping.tlv.dst.nid",
             FT_IPv4, BASE_NONE, NULL, 0x0, "LSP FEC DST NID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_dst_tunnel_no,
-          { "DST Tunnel Number", "mpls_echo_lspping.tlv.dst.tunnel.no",
+          { "DST Tunnel Number", "mpls_echo.lspping.tlv.dst.tunnel.no",
             FT_UINT16, BASE_DEC, NULL, 0x0, "LSP FEC DST Tunnel Number", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_resv,
-          { "RESERVED", "mpls_echo_lspping.tlv.resv",
+          { "RESERVED", "mpls_echo.lspping.tlv.resv",
             FT_UINT16, BASE_DEC, NULL, 0x0, "RESERVED BITS", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_src_addr_gid,
-          { "Global ID", "mpls_echo_lspping.tlv.src.addr.gid",
+          { "Global ID", "mpls_echo.lspping.tlv.src.addr.gid",
             FT_UINT32, BASE_DEC, NULL, 0x0, "SRC ADDR TLV GID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_src_addr_nid,
-          { "Node ID", "mpls_echo_lspping.tlv.src.addr.nid",
+          { "Node ID", "mpls_echo.lspping.tlv.src.addr.nid",
             FT_IPv4, BASE_NONE, NULL, 0x0, "SRC ADDR TLV NID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_pw_serv_identifier,
-          { "Service identifier", "mpls_echo_lspping.tlv.pw.serv.identifier",
+          { "Service identifier", "mpls_echo.lspping.tlv.pw.serv.identifier",
             FT_UINT64, BASE_DEC, NULL, 0x0, "PW FEC Service identifier", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_pw_src_ac_id,
-          { "SRC AC ID", "mpls_echo_lspping.tlv.pw.src.ac.id",
+          { "SRC AC ID", "mpls_echo.lspping.tlv.pw.src.ac.id",
             FT_UINT32, BASE_DEC, NULL, 0x0, "PW FEC SRC AC ID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_pw_dst_ac_id,
-          { "DST AC ID", "mpls_echo_lspping.tlv.pw.dst.ac.id",
+          { "DST AC ID", "mpls_echo.lspping.tlv.pw.dst.ac.id",
             FT_UINT32, BASE_DEC, NULL, 0x0, "PW FEC DST AC ID", HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_pw_agi_type,
-          { "AGI TYPE", "mpls_echo_lspping.tlv.pw.agi.type",
+          { "AGI TYPE", "mpls_echo.lspping.tlv.pw.agi.type",
             FT_UINT8, BASE_DEC,NULL,0x0, "PW AGI TYPE",HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_pw_agi_len,
-          { "AGI Length", "mpls_echo_lspping.tlv.pw.agi.len",
+          { "AGI Length", "mpls_echo.lspping.tlv.pw.agi.len",
             FT_UINT8, BASE_DEC,NULL,0x0, "PW AGI LENGTH",HFILL}
         },
         { &hf_mpls_echo_lspping_tlv_pw_agi_val,
-          { "AGI VALUE", "mpls_echo_lspping.tlv.pw.agi.val",
+          { "AGI VALUE", "mpls_echo.lspping.tlv.pw.agi.val",
             FT_STRING, BASE_NONE,NULL,0x0, "PW AGI VALUE",HFILL}
                 },
 		{ &hf_mpls_echo_tlv_dd_map_mtu,
-			{ "MTU", "mpls_echo_.tlv.dd_map.mtu",
+			{ "MTU", "mpls_echo.lspping.tlv.dd_map.mtu",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "MPLS ECHO TLV Detailed Downstream Map MTU", HFILL}
 		},
 		{ &hf_mpls_echo_tlv_dd_map_addr_type,

@@ -1401,25 +1401,25 @@ proto_register_ntp(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_ntppriv_flags_r, {
-			"Response bit", "ntppriv.flags.r", FT_UINT8, BASE_DEC,
+			"Response bit", "ntp.priv.flags.r", FT_UINT8, BASE_DEC,
 			VALS(priv_r_types), NTPPRIV_R_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_flags_more, {
-			"More bit", "ntppriv.flags.more", FT_UINT8, BASE_DEC,
+			"More bit", "ntp.priv.flags.more", FT_UINT8, BASE_DEC,
 			NULL, NTPPRIV_MORE_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_auth_seq, {
-			"Auth, sequence", "ntppriv.auth_seq", FT_UINT8, BASE_DEC,
+			"Auth, sequence", "ntp.priv.auth_seq", FT_UINT8, BASE_DEC,
 			NULL, 0, "Auth bit, sequence number", HFILL }},
 		{ &hf_ntppriv_auth, {
-			"Auth bit", "ntppriv.auth", FT_UINT8, BASE_DEC,
+			"Auth bit", "ntp.priv.auth", FT_UINT8, BASE_DEC,
 			NULL, NTPPRIV_AUTH_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_seq, {
-			"Sequence number", "ntppriv.seq", FT_UINT8, BASE_DEC,
+			"Sequence number", "ntp.priv.seq", FT_UINT8, BASE_DEC,
 			NULL, NTPPRIV_SEQ_MASK, NULL, HFILL }},
 		{ &hf_ntppriv_impl, {
-			"Implementation", "ntppriv.impl", FT_UINT8, BASE_DEC,
+			"Implementation", "ntp.priv.impl", FT_UINT8, BASE_DEC,
 			VALS(priv_impl_types), 0, NULL, HFILL }},
 		{ &hf_ntppriv_reqcode, {
-			"Request code", "ntppriv.reqcode", FT_UINT8, BASE_DEC,
+			"Request code", "ntp.priv.reqcode", FT_UINT8, BASE_DEC,
 			VALS(priv_rc_types), 0, NULL, HFILL }}
 	};
 	static gint *ett[] = {

@@ -792,62 +792,62 @@ proto_register_bfd(void)
             "The Sequence Number is periodically incremented to prevent replay attacks", HFILL }
           },
          { &hf_mep_type,
-          { "Type", "mep.type",
+          { "Type", "bfd.mep.type",
             FT_UINT16, BASE_DEC, VALS(mplstp_mep_tlv_type_values), 0x0,
             "The type of the MEP Id", HFILL }
         },
         { &hf_mep_len,
-          { "Length", "mep.len",
+          { "Length", "bfd.mep.len",
             FT_UINT16, BASE_DEC, NULL , 0x0,
             "The length of the MEP Id", HFILL }
         },
         { &hf_mep_global_id,
-          { "Global Id", "mep.global.id",
+          { "Global Id", "bfd.mep.global.id",
             FT_UINT32, BASE_DEC, NULL , 0x0,
             "MPLS-TP  Global  MEP Id", HFILL }
         },
         { &hf_mep_node_id,
-          { "Node Id", "mep.node.id",
+          { "Node Id", "bfd.mep.node.id",
             FT_IPv4, BASE_NONE, NULL , 0x0,
             "MPLS-TP Node Identifier", HFILL }
         },
         { &hf_mep_interface_no,
-          { "Interface  Number", "mep.interface.no",
+          { "Interface  Number", "bfd.mep.interface.no",
             FT_UINT32, BASE_DEC, NULL , 0x0,
             "MPLS-TP Interface Number", HFILL }
         },
         { &hf_mep_tunnel_no,
-          { "Tunnel Number", "mep.tunnel.no",
+          { "Tunnel Number", "bfd.mep.tunnel.no",
             FT_UINT16, BASE_DEC, NULL , 0x0,
             NULL, HFILL }
         },
         { &hf_mep_lsp_no,
-          { "LSP Number", "mep.lsp.no",
+          { "LSP Number", "bfd.mep.lsp.no",
             FT_UINT16, BASE_DEC, NULL , 0x0,
             NULL, HFILL }
         },
         { &hf_mep_ac_id,
-          { "AC Id", "mep.ac.id",
+          { "AC Id", "bfd.mep.ac.id",
             FT_UINT32, BASE_DEC, NULL , 0x0,
             NULL, HFILL }
         },
         { &hf_mep_agi_type,
-          { "AGI TYPE", "mep.agi.type",
+          { "AGI TYPE", "bfd.mep.agi.type",
             FT_UINT8, BASE_DEC, NULL , 0x0,
             NULL, HFILL }
         },
         { &hf_mep_agi_len,
-          { "AGI Length", "mep.agi.len",
+          { "AGI Length", "bfd.mep.agi.len",
             FT_UINT8, BASE_DEC, NULL , 0x0,
             NULL, HFILL }
         },
         { &hf_mep_agi_val,
-           { "AGI value", "mep.agi.val",
+           { "AGI value", "bfd.mep.agi.val",
              FT_STRING, BASE_NONE, NULL , 0x0,
              NULL, HFILL }
         },
         { &hf_section_interface_no,
-          { "Interface Number", "mep.interface.no",
+          { "Interface Number", "bfd.mep.interface.no",
             FT_UINT32, BASE_DEC, NULL , 0x0,
             "MPLS-TP Interface Number", HFILL }
         }

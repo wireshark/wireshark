@@ -7114,27 +7114,27 @@ proto_register_smb2(void)
 		NULL, 0, "Resiliency reserved", HFILL }},
 
 	{ &hf_windows_sockaddr_family,
-		{ "Socket Family", "windows.sockaddr.family", FT_UINT16, BASE_DEC,
+		{ "Socket Family", "smb2.windows.sockaddr.family", FT_UINT16, BASE_DEC,
 		NULL, 0, "The socket address family (on windows)", HFILL }},
 
 	{ &hf_windows_sockaddr_port,
-		{ "Socket Port", "windows.sockaddr.port", FT_UINT16, BASE_DEC,
+		{ "Socket Port", "smb2.windows.sockaddr.port", FT_UINT16, BASE_DEC,
 		NULL, 0, "The socket address port", HFILL }},
 
 	{ &hf_windows_sockaddr_in_addr,
-		{ "Socket IPv4", "windows.sockaddr.in.addr", FT_IPv4, BASE_NONE,
+		{ "Socket IPv4", "smb2.windows.sockaddr.in.addr", FT_IPv4, BASE_NONE,
 		NULL, 0, "The IPv4 address", HFILL }},
 
 	{ &hf_windows_sockaddr_in6_flowinfo,
-		{ "IPv6 Flow Info", "windows.sockaddr.in6.flow_info", FT_UINT32, BASE_HEX,
+		{ "IPv6 Flow Info", "smb2.windows.sockaddr.in6.flow_info", FT_UINT32, BASE_HEX,
 		NULL, 0, "The socket IPv6 flow info", HFILL }},
 
 	{ &hf_windows_sockaddr_in6_addr,
-		{ "Socket IPv6", "windows.sockaddr.in6.addr", FT_IPv6, BASE_NONE,
+		{ "Socket IPv6", "smb2.windows.sockaddr.in6.addr", FT_IPv6, BASE_NONE,
 		NULL, 0, "The IPv6 address", HFILL }},
 
 	{ &hf_windows_sockaddr_in6_scope_id,
-		{ "IPv6 Scope ID", "windows.sockaddr.in6.scope_id", FT_UINT32, BASE_DEC,
+		{ "IPv6 Scope ID", "smb2.windows.sockaddr.in6.scope_id", FT_UINT32, BASE_DEC,
 		NULL, 0, "The socket IPv6 scope id", HFILL }},
 
 	{ &hf_smb2_ioctl_network_interface_next_offset,

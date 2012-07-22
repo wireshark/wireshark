@@ -201,15 +201,15 @@ proto_register_ssprotocol(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_message_type,      { "Type",   "ssprotocol.message_type",   FT_UINT8,  BASE_DEC,  VALS(message_type_values),  0x0, NULL, HFILL } },
-    { &hf_message_flags,     { "Flags",  "ssprotocol.message_flags",  FT_UINT8,  BASE_DEC,  NULL,                       0x0, NULL, HFILL } },
-    { &hf_message_length,    { "Length", "ssprotocol.message_length", FT_UINT16, BASE_DEC,  NULL,                       0x0, NULL, HFILL } },
-    { &hf_message_status,    { "Status", "ssprotocol.message_status", FT_UINT32, BASE_DEC,  NULL,                       0x0, NULL, HFILL } },
-    { &hf_message_reason,    { "Reason", "ssprotocol.message_reason", FT_UINT32, BASE_DEC,  VALS(notrdy_reason_values), 0x0, NULL, HFILL } },
-    { &hf_message_info,      { "Info",   "ssprotocol.message_info",   FT_STRING, BASE_NONE, NULL,                       0x0, NULL, HFILL } },
-    { &hf_message_data,      { "Data",   "ssprotocol.message_data",   FT_BYTES,  BASE_NONE, NULL,                       0x0, NULL, HFILL } },
-    { &hf_message_hash,      { "Hash",   "ssprotocol.message_hash",   FT_BYTES,  BASE_NONE, NULL,                       0x0, NULL, HFILL } },
-    { &hf_environment_u_bit, { "U-Bit",  "ssprotocol.environment_u_bit", FT_BOOLEAN, 8,TFS(&environment_u_bit), SSP_ENVIRONMENT_U_BIT, NULL, HFILL } }
+    { &hf_message_type,      { "Type",   "ssp.message_type",   FT_UINT8,  BASE_DEC,  VALS(message_type_values),  0x0, NULL, HFILL } },
+    { &hf_message_flags,     { "Flags",  "ssp.message_flags",  FT_UINT8,  BASE_DEC,  NULL,                       0x0, NULL, HFILL } },
+    { &hf_message_length,    { "Length", "ssp.message_length", FT_UINT16, BASE_DEC,  NULL,                       0x0, NULL, HFILL } },
+    { &hf_message_status,    { "Status", "ssp.message_status", FT_UINT32, BASE_DEC,  NULL,                       0x0, NULL, HFILL } },
+    { &hf_message_reason,    { "Reason", "ssp.message_reason", FT_UINT32, BASE_DEC,  VALS(notrdy_reason_values), 0x0, NULL, HFILL } },
+    { &hf_message_info,      { "Info",   "ssp.message_info",   FT_STRING, BASE_NONE, NULL,                       0x0, NULL, HFILL } },
+    { &hf_message_data,      { "Data",   "ssp.message_data",   FT_BYTES,  BASE_NONE, NULL,                       0x0, NULL, HFILL } },
+    { &hf_message_hash,      { "Hash",   "ssp.message_hash",   FT_BYTES,  BASE_NONE, NULL,                       0x0, NULL, HFILL } },
+    { &hf_environment_u_bit, { "U-Bit",  "ssp.environment_u_bit", FT_BOOLEAN, 8,TFS(&environment_u_bit), SSP_ENVIRONMENT_U_BIT, NULL, HFILL } }
   };
 
   /* Setup protocol subtree array */

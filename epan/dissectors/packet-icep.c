@@ -1430,7 +1430,7 @@ void proto_reg_handoff_icep(void)
 	}
 
 	if(icep_udp_port != 0 && old_icep_udp_port != icep_udp_port) {
-		dissector_add_uint("udp.port", icep_tcp_port, icep_udp_handle);
+		dissector_add_uint("udp.port", old_icep_udp_port, icep_udp_handle);
 	}
 
 	old_icep_udp_port = icep_udp_port;
