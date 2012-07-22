@@ -2590,7 +2590,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
         e0->elment_color_p = &g->style.ack_color[0];
         e0->p.line.dim.x1 = previous_status_x;
         e0->p.line.dim.y1 = previous_status_y;
-        e0->p.line.dim.x2 = previous_data_x;
+        e0->p.line.dim.x2 = g->bounds.width * g->zoom.x;  /* right edge of graph area */
         e0->p.line.dim.y2 = previous_status_y;
         e0++;
     }
