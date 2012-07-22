@@ -61,7 +61,7 @@ struct _PacketListRecord
 	/** The column text for some columns */
 	gchar **col_text;
 	/**< The length of the column text strings in 'col_text' */
-	guint *col_text_len;
+	gushort *col_text_len;
 
 	frame_data *fdata;
 
