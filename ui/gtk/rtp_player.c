@@ -570,7 +570,7 @@ static void
 update_progress_bar(gfloat fraction)
 {
 
-	if GTK_IS_PROGRESS_BAR(progress_bar)
+	if (GTK_IS_PROGRESS_BAR(progress_bar))
 		gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), fraction);
 
 	/* Force gtk to redraw the window before starting decoding the packet */

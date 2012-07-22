@@ -1203,9 +1203,7 @@ welcome_new(void)
     GtkWidget *topic_capture_to_fill;
     gchar     *label_text;
     GtkWidget *file_child_box;
-#ifdef _WIN32
-    DWORD chimney_enabled = 0;
-#endif
+
     /* prepare colors */
 #if 0
     /* Allocating color isn't necessary? */
