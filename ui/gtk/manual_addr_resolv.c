@@ -54,7 +54,8 @@ static void
 man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
 {
   GtkWidget   *addr_cb, *name_te, *resolv_cb;
-  const gchar *addr, *name;
+  const gchar *name;
+  gchar       *addr;
   gboolean     active, redissect = FALSE;
   addr_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "address");
   name_te = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "name");
@@ -67,11 +68,13 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
       GtkWidget *dialog = simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK,
 					 "Illegal IP address: \"%s\".", addr);
       simple_dialog_set_cb (dialog, man_addr_ill_addr_cb, NULL);
+      g_free(addr);
       return;
     } else {
       redissect = TRUE;
     }
   }
+  g_free(addr);
 
   resolv_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "resolv");
   active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolv_cb));
@@ -93,7 +96,7 @@ static void
 changed_cb(GtkWidget *w _U_, GtkWidget *ok_bt)
 {
   const gchar *name;
-  const gchar *addr;
+  gchar       *addr;
   GtkWidget   *addr_cb, *name_cb, *resolv_cb;
   gboolean    active;
 
@@ -106,6 +109,7 @@ changed_cb(GtkWidget *w _U_, GtkWidget *ok_bt)
   active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolv_cb));
 
   gtk_widget_set_sensitive (ok_bt, strlen(name) > 0 && strlen(addr) && active ? TRUE : FALSE);
+  g_free(addr);
 }
 
 void

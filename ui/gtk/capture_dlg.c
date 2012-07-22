@@ -485,6 +485,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
   if (strlen(filter_text) == 0) {
     colorize_filter_te_as_empty(filter_te);
+    g_free(filter_text);
     return;
   }
 
@@ -1136,7 +1137,7 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
   auth_null_rb = (GtkWidget *) g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_NULL_KEY);
   auth_passwd_rb = (GtkWidget *) g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_PASSWD_KEY);
   g_free(global_remote_opts.remote_host_opts.remote_host);
-  global_remote_opts.remote_host_opts.remote_host = g_strdup(hostname);
+  global_remote_opts.remote_host_opts.remote_host = hostname;
   g_free(global_remote_opts.remote_host_opts.remote_port);
   global_remote_opts.remote_host_opts.remote_port = g_strdup(gtk_entry_get_text(GTK_ENTRY(port_te)));
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auth_passwd_rb)))
@@ -1665,7 +1666,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   struct bpf_program fcode;
 
   GtkWidget *filter_cm;
-  const gchar *filter_text;
+  gchar     *filter_text;
   gpointer  ptr;
   int       dlt;
   GtkWidget *linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
@@ -1680,11 +1681,10 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
   g_mutex_lock(pcap_compile_mtx);
-  /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
 #ifdef PCAP_NETMASK_UNKNOWN
-  if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
+  if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
 #else
-  if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, 0) < 0) {
+  if (pcap_compile(pd, &fcode, filter_text, 1 /* Do optimize */, 0) < 0) {
 #endif
     g_mutex_unlock(pcap_compile_mtx);
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", pcap_geterr(pd));
@@ -1711,6 +1711,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     g_free(bpf_code_str);
     g_free(bpf_code_markup);
   }
+  g_free(filter_text);
 
   pcap_close(pd);
 }
@@ -1812,7 +1813,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   interface_t device;
   gpointer  ptr = NULL;
   int       dlt = -1;
-  const gchar *filter_text;
+  gchar    *filter_text;
 
   device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_interface);
   global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_interface);
@@ -1859,7 +1860,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   if (device.cfilter)
     g_free(device.cfilter);
   g_assert(filter_text != NULL);
-  device.cfilter = g_strdup(filter_text);
+  device.cfilter = filter_text;
 #ifdef HAVE_PCAP_CREATE
   device.monitor_mode_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
 #endif
