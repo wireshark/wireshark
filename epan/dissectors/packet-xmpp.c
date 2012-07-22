@@ -474,9 +474,9 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             proto_item *outin_item;
 
             if (out_packet)
-                outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_out, tvb, 0, 0, ENC_LITTLE_ENDIAN);
+                outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_out, tvb, 0, 0, TRUE);
             else
-                outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_in, tvb, 0, 0, ENC_LITTLE_ENDIAN);
+                outin_item = proto_tree_add_boolean(xmpp_tree, hf_xmpp_in, tvb, 0, 0, TRUE);
 
             PROTO_ITEM_SET_HIDDEN(outin_item);
 
