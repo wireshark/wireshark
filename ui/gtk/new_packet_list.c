@@ -1217,7 +1217,9 @@ new_packet_list_select_cb(GtkTreeView *tree_view, gpointer data _U_)
 	GtkTreeIter iter;
 	gint row;
 
-	selection = gtk_tree_view_get_selection(tree_view);
+	if ((selection = gtk_tree_view_get_selection(tree_view)) == NULL)
+		return;
+	
 	if (!gtk_tree_selection_get_selected(selection, NULL, &iter))
 		return;
 
