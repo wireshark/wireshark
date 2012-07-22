@@ -38,9 +38,6 @@
 #ifndef __CRC7__H__
 #define __CRC7__H__
 
-#include <stdlib.h>
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
