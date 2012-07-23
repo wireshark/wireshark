@@ -5884,9 +5884,16 @@ void proto_register_gtpv2(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
+		/* Bit 1 – PVI (Pre-emption Vulnerability): See 3GPP TS 29.212[29], 
+		 * clause 5.3.47 Pre-emption-Vulnerability AVP.
+		 * 5.3.47 Pre-emption-Vulnerability AVP
+		 * The following values are defined:
+		 * PRE-EMPTION_VULNERABILITY_ENABLED (0)
+		 * PRE-EMPTION_VULNERABILITY_DISABLED (1)
+		 */
         {&hf_gtpv2_bearer_qos_pvi,
          {"PVI (Pre-emption Vulnerability)", "gtpv2.bearer_qos_pvi",
-          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_pl,
@@ -5894,9 +5901,16 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC, NULL, 0x3c,
           NULL, HFILL}
         },
+		/* Bit 7 – PCI (Pre-emption Capability): See 3GPP TS 29.212[29], clause 5.3.46 Pre-emption-Capability AVP. 
+		 * clause 5.3.46 Pre-emption-Capability AVP.
+		 * 5.3.46 Pre-emption-Capability AVP
+		 * The following values are defined:
+		 * PRE-EMPTION_CAPABILITY_ENABLED (0)
+		 * PRE-EMPTION_CAPABILITY_DISABLED (1)
+		 */
         {&hf_gtpv2_bearer_qos_pci,
          {"PCI (Pre-emption Capability)", "gtpv2.bearer_qos_pci",
-          FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40,
+          FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_qos_label_qci,

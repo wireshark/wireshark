@@ -44,6 +44,7 @@ WS_VAR_IMPORT const true_false_string tfs_true_false;
 WS_VAR_IMPORT const true_false_string tfs_yes_no;
 WS_VAR_IMPORT const true_false_string tfs_set_notset;
 WS_VAR_IMPORT const true_false_string tfs_enabled_disabled;
+WS_VAR_IMPORT const true_false_string tfs_disabled_enabled;
 WS_VAR_IMPORT const true_false_string tfs_ok_error;
 WS_VAR_IMPORT const true_false_string tfs_error_ok;
 WS_VAR_IMPORT const true_false_string tfs_success_fail;
