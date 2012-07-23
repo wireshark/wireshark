@@ -43,7 +43,7 @@ Wireshark Info
             <!-- Fixed in trunk: r43784 -->
             <!-- Fixed in trunk-1.8: r43839 -->
             <!-- Fixed in trunk-1.6: r43843 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r43870 -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
             ????</ulink>) -->
             (<ulink url="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=680056">Debian bug
@@ -161,15 +161,20 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+BACapp,
 BOOTP,
+DCERPC SPOOLSS,
 DVB-CI,
 H.248,
 IEEE 802.11,
+Jmirror,
 NAS EPS,
 NFS,
 PPP,
+RELOAD Framing,
 SES,
 SNMP,
+XMPP
 
     </para>
     </section>

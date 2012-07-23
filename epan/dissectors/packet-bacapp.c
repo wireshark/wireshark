@@ -2554,7 +2554,7 @@ BACnetUnconfirmedServiceChoice [] = {
     { 6, "timeSynchronization"},
     { 7, "who-Has"},
     { 8, "who-Is"},
-    { 9, "utcTimeSynchonization"},
+    { 9, "utcTimeSynchronization"},
     { 0, NULL}
 };
 
@@ -7161,7 +7161,7 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
     const gchar* label = NULL;
 
     fTagHeader (tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
-    label = ep_strdup_printf( "%s: ", val_to_str_const( tag_no, VALS(BACnetPropertyStates), "unknown-"+tag_no ));
+	label = ep_strdup_printf( "%s: ", val_to_str_const( tag_no, VALS(BACnetPropertyStates), "Unknown State" ));
 
     switch (tag_no) {
     case 0:
@@ -7174,7 +7174,7 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
         if ( (tag_no > BACnetPropertyStatesEnums_Size) ||
             VALS(BACnetPropertyStatesEnums[tag_no].valstr) == NULL)
         {
-            offset = fEnumeratedTag(tvb, pinfo, tree, offset, "Unknown State: ", NULL);
+            offset = fEnumeratedTag(tvb, pinfo, tree, offset, label, NULL);
             /* don't use Abstract type here because it is context tagged and therefore we don't know app type */
         }
         else
@@ -9760,6 +9760,7 @@ fUnconfirmedServiceRequest  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     case 5: /* unconfirmedTextMessage */
         offset = fUnconfirmedTextMessageRequest(tvb, pinfo, tree, offset);
         break;
+    case 206: /* utc-time-synchronization-recipients */
     case 6: /* timeSynchronization */
         offset = fTimeSynchronizationRequest  (tvb, pinfo, tree, offset);
         break;
