@@ -2233,7 +2233,7 @@ dissect_gtpv2_delay_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void
 dissect_gtpv2_bearer_ctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    int         offset = 0; 
+    int         offset = 0;
     tvbuff_t   *new_tvb;
     proto_tree *grouped_tree;
 
@@ -5884,13 +5884,13 @@ void proto_register_gtpv2(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
-		/* Bit 1 – PVI (Pre-emption Vulnerability): See 3GPP TS 29.212[29], 
-		 * clause 5.3.47 Pre-emption-Vulnerability AVP.
-		 * 5.3.47 Pre-emption-Vulnerability AVP
-		 * The following values are defined:
-		 * PRE-EMPTION_VULNERABILITY_ENABLED (0)
-		 * PRE-EMPTION_VULNERABILITY_DISABLED (1)
-		 */
+        /* Bit 1 - PVI (Pre-emption Vulnerability): See 3GPP TS 29.212[29],
+         * clause 5.3.47 Pre-emption-Vulnerability AVP.
+         * 5.3.47 Pre-emption-Vulnerability AVP
+         * The following values are defined:
+         * PRE-EMPTION_VULNERABILITY_ENABLED (0)
+         * PRE-EMPTION_VULNERABILITY_DISABLED (1)
+         */
         {&hf_gtpv2_bearer_qos_pvi,
          {"PVI (Pre-emption Vulnerability)", "gtpv2.bearer_qos_pvi",
           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x01,
@@ -5901,13 +5901,13 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC, NULL, 0x3c,
           NULL, HFILL}
         },
-		/* Bit 7 – PCI (Pre-emption Capability): See 3GPP TS 29.212[29], clause 5.3.46 Pre-emption-Capability AVP. 
-		 * clause 5.3.46 Pre-emption-Capability AVP.
-		 * 5.3.46 Pre-emption-Capability AVP
-		 * The following values are defined:
-		 * PRE-EMPTION_CAPABILITY_ENABLED (0)
-		 * PRE-EMPTION_CAPABILITY_DISABLED (1)
-		 */
+        /* Bit 7 - PCI (Pre-emption Capability): See 3GPP TS 29.212[29], clause 5.3.46 Pre-emption-Capability AVP.
+         * clause 5.3.46 Pre-emption-Capability AVP.
+         * 5.3.46 Pre-emption-Capability AVP
+         * The following values are defined:
+         * PRE-EMPTION_CAPABILITY_ENABLED (0)
+         * PRE-EMPTION_CAPABILITY_DISABLED (1)
+         */
         {&hf_gtpv2_bearer_qos_pci,
          {"PCI (Pre-emption Capability)", "gtpv2.bearer_qos_pci",
           FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x40,
