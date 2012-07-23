@@ -92,9 +92,12 @@ EXTRA_DIST = \
 	colorfilters2js.pl				\
 	compare-abis.sh					\
 	checkAPIs.pl					\
+	cppcheck/cppcheck.sh				\
+	cppcheck/includes				\
+	cppcheck/suppressions				\
 	dfilter-test.py 				\
 	extract_asn1_from_spec.pl			\
-	fix-encoding-args.pl	\
+	fix-encoding-args.pl				\
 	fixhf.pl					\
 	ftsanity.py					\
 	fuzz-test.sh					\
