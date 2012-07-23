@@ -154,7 +154,6 @@ static gboolean cap_order = TRUE;           /* Report if packets are in chronolo
 static gboolean cap_file_hashes = TRUE;     /* Calculate file hashes */
 #endif
 
-#define USE_GOPTION = 1
 #ifdef USE_GOPTION
 static gboolean cap_help = FALSE;
 static gboolean table_report = FALSE;
