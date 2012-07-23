@@ -146,6 +146,7 @@ static dissector_table_t rtp_pt_dissector_table;
 static dissector_table_t rtp_dyn_pt_dissector_table;
 
 static dissector_table_t rtp_hdr_ext_dissector_table;
+static dissector_table_t rtp_hdr_ext_rfc5285_dissector_table;
 
 /* RTP header fields             */
 static int proto_rtp           = -1;
@@ -183,6 +184,7 @@ static int hf_rtp_setup_method = -1;
 static gint ett_rtp       = -1;
 static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
+static gint ett_hdr_ext_rfc5285 = -1;
 static gint ett_rtp_setup = -1;
 static gint ett_rtp_rfc2198 = -1;
 static gint ett_rtp_rfc2198_hdr = -1;
@@ -203,6 +205,11 @@ static gint ett_pkt_ccc = -1;
 /* PacketCable CCC port preference */
 static guint global_pkt_ccc_udp_port = 0;
 
+/* RFC 5285 Header extensions */
+static int hf_rtp_ext_rfc5285_id = -1;
+static int hf_rtp_ext_rfc5285_length = -1;
+static int hf_rtp_ext_rfc5285_appbits = -1;
+static int hf_rtp_ext_rfc5285_data = -1;
 
 #define RTP0_INVALID 0
 #define RTP0_CLASSICSTUN    1
@@ -1131,7 +1138,108 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *rtp_hext_tree )
+{
+	proto_item *ti = NULL;
+	proto_tree *rtp_hext_rfc5285_tree = NULL;
+	guint ext_offset = 0, start_ext_offset;
+
+	while (ext_offset < tvb_length (tvb)) {
+		guint8 ext_hdr_hdr;
+		guint8 ext_id;
+		guint8 ext_length;
+		tvbuff_t *subtvb = NULL;
+
+		/* Skip bytes with the value 0, they are padding */
+		start_ext_offset = ext_offset;
+		while (tvb_get_guint8 (tvb, ext_offset) == 0) {
+			if (ext_offset >= tvb_length (tvb))
+				return;
+			ext_offset ++;
+		}
+
+		/* Add padding */
+		if (ext_offset > start_ext_offset)
+			proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, ext_offset, ext_offset-start_ext_offset, ENC_NA );
+
+		ext_hdr_hdr = tvb_get_guint8 (tvb, ext_offset);
+		ext_id = ext_hdr_hdr >> 4;
+
+		/* 15 is for future extensibility, ignore length, etc and stop processing packet if it shows up */
+		if (ext_id == 15)
+			return;
+
+		ext_length = (ext_hdr_hdr & 0x0F) + 1;
+		if (rtp_hext_tree) {
+			ti = proto_tree_add_text(rtp_hext_tree, tvb, ext_offset, ext_length + 1, "RFC 5285 Header Extension (One-Byte Header)");
+			rtp_hext_rfc5285_tree = proto_item_add_subtree( ti, ett_hdr_ext_rfc5285);
+
+			proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_id, tvb, ext_offset, 1, ext_id);
+			proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_length, tvb, ext_offset, 1, ext_length);
+		}
+		ext_offset ++;
+
+		subtvb = tvb_new_subset(tvb, ext_offset, ext_length, ext_length);
+		if (!dissector_try_uint (rtp_hdr_ext_rfc5285_dissector_table, ext_id, subtvb, pinfo, rtp_hext_rfc5285_tree)) {
+			if (rtp_hext_tree) 
+				proto_tree_add_item(rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_data, subtvb, 0, ext_length, ENC_NA );
+		}
+
+		ext_offset += ext_length;
+	}
+}
+
+
+static void
+dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
+    guint8 id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtp_hext_tree)
+{
+	proto_item *ti = NULL;
+	proto_tree *rtp_hext_rfc5285_tree = NULL;
+	guint ext_offset = 0, start_ext_offset;
+
+	while (ext_offset + 2 < tvb_length (tvb)) {
+		guint8 ext_id;
+		guint8 ext_length;
+		tvbuff_t *subtvb = NULL;
+
+		/* Skip bytes with the value 0, they are padding */
+		start_ext_offset = ext_offset;
+		while (tvb_get_guint8 (tvb, ext_offset) == 0) {
+			if (ext_offset + 2 >= tvb_length (tvb))
+				return;
+			ext_offset ++;
+		}
+		/* Add padding */
+		if (ext_offset > start_ext_offset)
+			proto_tree_add_item(rtp_hext_tree, hf_rtp_padding_data, tvb, ext_offset, ext_offset-start_ext_offset, ENC_NA );
+
+		ext_id = tvb_get_guint8 (tvb, ext_offset);
+		ext_length = tvb_get_guint8 (tvb, ext_offset + 1);
+
+		if (rtp_hext_tree) {
+			ti = proto_tree_add_text(rtp_hext_tree, tvb, ext_offset, ext_length + 2, "RFC 5285 Header Extension (Two-Byte Header)");
+			rtp_hext_rfc5285_tree = proto_item_add_subtree( ti, ett_hdr_ext_rfc5285);
+
+			proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_appbits, parent_tvb, id_offset + 1, 1, id & 0x000F);
+			proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_id, tvb, ext_offset, 1, ext_id);
+			proto_tree_add_uint( rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_length, tvb, ext_offset + 1, 1, ext_length);
+		}
+
+		ext_offset += 2;
+
+		subtvb = tvb_new_subset(tvb, ext_offset, ext_length, ext_length);
+		if (ext_length && !dissector_try_uint (rtp_hdr_ext_rfc5285_dissector_table, ext_id, subtvb, pinfo, rtp_hext_rfc5285_tree)) {
+			proto_tree_add_item(rtp_hext_rfc5285_tree, hf_rtp_ext_rfc5285_data, subtvb, 0, ext_length, ENC_NA );
+		}
+
+		ext_offset += ext_length;
+	}
+}
+
+static void
+dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti            = NULL;
 	proto_tree *rtp_tree      = NULL;
@@ -1418,10 +1526,24 @@ dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* pass interpretation of header extension to a registered subdissector */
 			newtvb = tvb_new_subset(tvb, offset, hdr_extension * 4, hdr_extension * 4);
 			if ( !(dissector_try_uint(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree)) ) {
-				hdrext_offset = offset;
-				for ( i = 0; i < hdr_extension; i++ ) {
-					if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
-					hdrext_offset += 4;
+
+				/* 0xBEDE is defined by RFC 5215 as a header
+				 * extension with a one byte header
+				 */
+				if (hdr_extension_id == 0xBEDE) {
+					dissect_rtp_hext_rfc5215_onebyte (newtvb, pinfo, rtp_hext_tree);
+ 				}
+				else if ((hdr_extension_id & 0xFFF0) == 0x1000) {
+					dissect_rtp_hext_rfc5215_twobytes(tvb,
+						offset - 4, hdr_extension_id, newtvb,
+						pinfo, rtp_hext_tree);
+				}
+			 	else {
+					hdrext_offset = offset;
+					for ( i = 0; i < hdr_extension; i++ ) {
+						if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
+						hdrext_offset += 4;
+					}
 				}
 			}
 			offset += hdr_extension * 4;
@@ -1854,7 +1976,7 @@ proto_register_rtp(void)
 				"Defined by profile",
 				"rtp.ext.profile",
 				FT_UINT16,
-				BASE_DEC,
+				BASE_HEX_DEC,
 				NULL,
 				0x0,
 				NULL, HFILL
@@ -2028,6 +2150,58 @@ proto_register_rtp(void)
 				NULL, HFILL
 			}
 		},
+		{
+			&hf_rtp_ext_rfc5285_id,
+			{
+				"Identifier",
+				"rtp.ext.rfc5285.id",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"RFC 5285 Header Extension Identifier",
+				HFILL
+			}
+		},
+		{
+			&hf_rtp_ext_rfc5285_length,
+			{
+				"Length",
+				"rtp.ext.rfc5285.len",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"RFC 5285 Header Extension length",
+				HFILL
+			}
+		},
+		{
+			&hf_rtp_ext_rfc5285_appbits,
+			{
+				"Application Bits",
+				"rtp.ext.rfc5285.appbits",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"RFC 5285 2-bytes header application bits",
+				HFILL
+			}
+		},
+		{
+			&hf_rtp_ext_rfc5285_data,
+			{
+				"Extension Data",
+				"rtp.ext.rfc5285.data",
+				FT_BYTES,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"RFC 5285 Extension Data",
+				HFILL
+			}
+		},
 
 		/* reassembly stuff */
 		{&hf_rtp_fragments,
@@ -2108,6 +2282,7 @@ proto_register_rtp(void)
 		&ett_rtp,
 		&ett_csrc_list,
 		&ett_hdr_ext,
+		&ett_hdr_ext_rfc5285,
 		&ett_rtp_setup,
 		&ett_rtp_rfc2198,
 		&ett_rtp_rfc2198_hdr,
@@ -2129,44 +2304,45 @@ proto_register_rtp(void)
 	rtp_tap = register_tap("rtp");
 
 	rtp_pt_dissector_table = register_dissector_table("rtp.pt",
-	                                                  "RTP payload type", FT_UINT8, BASE_DEC);
+									"RTP payload type", FT_UINT8, BASE_DEC);
 	rtp_dyn_pt_dissector_table = register_dissector_table("rtp_dyn_payload_type",
-							      "Dynamic RTP payload type", FT_STRING, BASE_NONE);
+									"Dynamic RTP payload type", FT_STRING, BASE_NONE);
 
 
 	rtp_hdr_ext_dissector_table = register_dissector_table("rtp_hdr_ext",
-	                               "RTP header extension", FT_UINT32, BASE_HEX);
-
+									"RTP header extension", FT_UINT32, BASE_HEX);
+	rtp_hdr_ext_rfc5285_dissector_table = register_dissector_table("rtp.ext.rfc5285.id",
+									"RTP Generic header extension (RFC 5285)", FT_UINT8, BASE_DEC);
 	rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 
 	prefs_register_bool_preference(rtp_module, "show_setup_info",
-	                               "Show stream setup information",
-	                               "Where available, show which protocol and frame caused "
-	                               "this RTP stream to be created",
-	                               &global_rtp_show_setup_info);
+									"Show stream setup information",
+									"Where available, show which protocol and frame caused "
+									"this RTP stream to be created",
+									&global_rtp_show_setup_info);
 
 	prefs_register_bool_preference(rtp_module, "heuristic_rtp",
-	                               "Try to decode RTP outside of conversations",
-	                               "If call control SIP/H323/RTSP/.. messages are missing in the trace, "
-	                               "RTP isn't decoded without this",
-	                               &global_rtp_heur);
+									"Try to decode RTP outside of conversations",
+									"If call control SIP/H323/RTSP/.. messages are missing in the trace, "
+									"RTP isn't decoded without this",
+									&global_rtp_heur);
 
 	prefs_register_bool_preference(rtp_module, "desegment_rtp_streams",
-				       "Allow subdissector to reassemble RTP streams",
-				       "Whether subdissector can request RTP streams to be reassembled",
-				       &desegment_rtp);
+									"Allow subdissector to reassemble RTP streams",
+									"Whether subdissector can request RTP streams to be reassembled",
+									&desegment_rtp);
 
 	prefs_register_enum_preference(rtp_module, "version0_type",
-	                               "Treat RTP version 0 packets as",
-	                               "If an RTP version 0 packet is encountered, it can be treated as "
-				       "an invalid or ZRTP packet, a CLASSIC-STUN packet, or a T.38 packet",
-	                               &global_rtp_version0_type,
-	                               rtp_version0_types, FALSE);
+									"Treat RTP version 0 packets as",
+									"If an RTP version 0 packet is encountered, it can be treated as "
+									"an invalid or ZRTP packet, a CLASSIC-STUN packet, or a T.38 packet",
+									&global_rtp_version0_type,
+									rtp_version0_types, FALSE);
 	prefs_register_uint_preference(rtp_module,
-				       "rfc2198_payload_type", "Payload Type for RFC2198",
-				       "Payload Type for RFC2198 Redundant Audio Data",
-				       10,
-				       &rtp_rfc2198_pt);
+									"rfc2198_payload_type", "Payload Type for RFC2198",
+									"Payload Type for RFC2198 Redundant Audio Data",
+									10,
+									&rtp_rfc2198_pt);
 
 	register_init_routine(rtp_fragment_init);
 }
