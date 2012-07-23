@@ -108,7 +108,7 @@ enum
 #define NUM_COLS 7
 #define NUM_GRAPH_ITEMS 100000
 #define MAX_YSCALE 16
-#define AUTO_MAX_YSCALE_INDEX 0
+#define DEFAULT_YSCALE_INDEX 0 /* AUTO_MAX_YSCALE */
 #define AUTO_MAX_YSCALE 0
 #define MAX_GRAPHS 4
 #define GRAPH_FWD_JITTER 0
@@ -123,7 +123,7 @@ static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 static const char *graph_descr[4] = {"Fwd Jitter", "Fwd Difference", "Rvr Jitter", "Rvr Difference"};
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
-#define DEFAULT_TICK_INTERVAL_VALUES_INDEX 1
+#define DEFAULT_TICK_VALUE_INDEX 1
 static guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000 };
 typedef struct _dialog_graph_graph_item_t {
 	guint32 value;
@@ -147,11 +147,12 @@ typedef struct _dialog_graph_graph_t {
 
 typedef struct _dialog_graph_t {
 	gboolean needs_redraw;
-	gint32 interval_index; /* index into tick_interval_values array */
 	gint32 interval;       /* measurement interval in ms */
 	guint32 last_interval;
 	guint32 max_interval;  /* XXX max_interval and num_items are redundant */
 	guint32 num_items;
+	double start_time;
+
 	struct _dialog_graph_graph_t graph[MAX_GRAPHS];
 	GtkWidget *window;
 	GtkWidget *draw_area;
@@ -164,11 +165,8 @@ typedef struct _dialog_graph_t {
 	GtkWidget *scrollbar;
 	int surface_width;
 	int surface_height;
-	int pixels_per_tick_index; /* index into pixels_per_tick array */
 	int pixels_per_tick;
-	int max_y_units_index;     /* index into yscale_max array      */
 	int max_y_units;
-	double start_time;
 } dialog_graph_t;
 
 typedef struct _dialog_data_t {
@@ -1641,7 +1639,6 @@ static void yscale_select(GtkWidget *item, gpointer data)
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-	user_data->dlg.dialog_graph.max_y_units_index=i;
 	user_data->dlg.dialog_graph.max_y_units=yscale_max[i];
 	dialog_graph_redraw(user_data);
 }
@@ -1654,7 +1651,6 @@ static void pixels_per_tick_select(GtkWidget *item, gpointer data)
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-	user_data->dlg.dialog_graph.pixels_per_tick_index=i;
 	user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[i];
 	dialog_graph_redraw(user_data);
 }
@@ -1667,7 +1663,6 @@ static void tick_interval_select(GtkWidget *item, gpointer data)
 
 	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
-	user_data->dlg.dialog_graph.interval_index=i;
 	user_data->dlg.dialog_graph.interval=tick_interval_values[i];
 	cf_retap_packets(&cfile);
 	dialog_graph_redraw(user_data);
@@ -1693,7 +1688,7 @@ create_yscale_max_menu_items(user_data_t* user_data)
 		}
 		 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.max_y_units_index);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_YSCALE_INDEX);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), user_data);
 
 	return combo_box;
@@ -1713,7 +1708,7 @@ create_pixels_per_tick_menu_items(user_data_t *user_data)
 		g_snprintf(str, sizeof(str), "%u", pixels_per_tick[i]);
 		 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.pixels_per_tick_index);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PIXELS_PER_TICK_INDEX);
 
 	g_signal_connect(combo_box, "changed", G_CALLBACK(pixels_per_tick_select), user_data);
 
@@ -1742,7 +1737,7 @@ create_tick_interval_menu_items(user_data_t *user_data)
 		}
 		 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
 	}
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.interval_index);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_TICK_VALUE_INDEX);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(tick_interval_select), user_data);
 
 	return combo_box;
@@ -3563,8 +3558,7 @@ void iax2_analysis(
 
 	/* init dialog_graph */
 	user_data->dlg.dialog_graph.needs_redraw=TRUE;
-	user_data->dlg.dialog_graph.interval_index=DEFAULT_TICK_INTERVAL_VALUES_INDEX;
-	user_data->dlg.dialog_graph.interval=tick_interval_values[DEFAULT_TICK_INTERVAL_VALUES_INDEX];
+	user_data->dlg.dialog_graph.interval=tick_interval_values[DEFAULT_TICK_VALUE_INDEX];
 	user_data->dlg.dialog_graph.draw_area=NULL;
 #if GTK_CHECK_VERSION(2,22,0)
 	user_data->dlg.dialog_graph.surface=NULL;
@@ -3575,9 +3569,7 @@ void iax2_analysis(
 	user_data->dlg.dialog_graph.scrollbar_adjustment=NULL;
 	user_data->dlg.dialog_graph.surface_width=500;
 	user_data->dlg.dialog_graph.surface_height=200;
-	user_data->dlg.dialog_graph.pixels_per_tick_index=DEFAULT_PIXELS_PER_TICK_INDEX;
 	user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK_INDEX];
-	user_data->dlg.dialog_graph.max_y_units_index=AUTO_MAX_YSCALE_INDEX;
 	user_data->dlg.dialog_graph.max_y_units=AUTO_MAX_YSCALE;
 	user_data->dlg.dialog_graph.last_interval=0xffffffff;
 	user_data->dlg.dialog_graph.max_interval=0;
