@@ -1,645 +1,611 @@
 ------------------------------------------------------------------------
-r41976 | cmaynard | 2012-04-06 22:30:48 -0700 (Fri, 06 Apr 2012) | 2 lines
+r42785 | gerald | 2012-05-22 10:12:13 -0700 (Tue, 22 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.6/config.nmake
+   M /trunk-1.6/configure.in
+   M /trunk-1.6/debian/changelog
+   M /trunk-1.6/debian/wireshark-common.files
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/Makefile.am
+   M /trunk-1.6/make-version.pl
+   M /trunk-1.6/version.conf
+   M /trunk-1.6/wiretap/Makefile.am
+
+1.6.8 → 1.6.9.
+
+------------------------------------------------------------------------
+r42788 | gerald | 2012-05-22 11:47:19 -0700 (Tue, 22 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.6/epan/Makefile.am
+   A /trunk-1.6/tools/git-compare-abis.sh
+   M /trunk-1.6/wiretap/Makefile.am
+
+Copy over ABI checking code from the trunk.
+
+------------------------------------------------------------------------
+r42789 | gerald | 2012-05-22 13:26:16 -0700 (Tue, 22 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.6/abi-descriptor.template
+
+More ABI check backporting.
+
+------------------------------------------------------------------------
+r42815 | pascal | 2012-05-23 14:54:53 -0700 (Wed, 23 May 2012) | 11 lines
+Changed paths:
+   M /trunk-1.6/plugins/wimax/msg_dlmap.c
+   M /trunk-1.6/plugins/wimax/msg_ulmap.c
+
+Backported from trunk:
+
+------------------------------------------------------------------------
+r37890 | etxrab | 2011-07-04 16:57:12 +0200 (lun. 04 juil. 2011) | 4 lignes
+
+From Kluchnikov Ivan:
+Wrong length of items in wimax Compressed DL-MAP and UL-MAP.
+
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6067
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r42852 | morriss | 2012-05-25 08:54:19 -0700 (Fri, 25 May 2012) | 7 lines
+Changed paths:
+   M /trunk-1.6/aclocal-fallback/gtk-2.0.m4
+   M /trunk-1.6/configure.in
+
+Don't allow users to try to use GTK3 in the 1.6 trunk.
+
+Also tell users that we're looking for GTK+ versions < 3.0 (backport of
+r39699)
+
+Based on https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7280
+
+------------------------------------------------------------------------
+r42858 | gerald | 2012-05-25 16:09:58 -0700 (Fri, 25 May 2012) | 2 lines
+Changed paths:
+   M /trunk-1.6/Makefile.nmake
+   M /trunk-1.6/config.nmake
+   M /trunk-1.6/packaging/nsis/Makefile.nmake
+   M /trunk-1.6/packaging/nsis/wireshark.nsi
+   M /trunk-1.6/tools/win32-setup.sh
+   M /trunk-1.6/tools/win64-setup.sh
+
+Use the OBS GTK+ bundle.
+
+------------------------------------------------------------------------
+r42863 | gerald | 2012-05-27 07:34:01 -0700 (Sun, 27 May 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-05-27]
+------------------------------------------------------------------------
+r42931 | gerald | 2012-05-30 14:50:57 -0700 (Wed, 30 May 2012) | 20 lines
+Changed paths:
+   M /trunk-1.6/epan/prefs.c
+
+Copy over the prefs.c portion of r42930 so that the recently updated
+GLib won't trigger bug 7265.
+
+  ------------------------------------------------------------------------
+  r42930 | gerald | 2012-05-30 14:42:24 -0700 (Wed, 30 May 2012) | 10 lines
+  Changed paths:
+     M /trunk/epan/prefs.c
+     M /trunk/test/suite-capture.sh
+
+  In recent versions of GLib (test with 2.32) g_log_default_handler
+  helpfully ignores G_LOG_LEVEL_INFO and G_LOG_LEVEL_DEBUG messages by
+  default. If the console_log_level preference includes either of those
+  two levels set the G_MESSAGES_DEBUG environment variable so that those
+  messages are printed.
+
+  Add checks for various console log messages to the stdin capture suite.
+
+  Fixes bug 7265.
+  ------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r42934 | gerald | 2012-05-30 16:10:52 -0700 (Wed, 30 May 2012) | 3 lines
+Changed paths:
+   M /trunk-1.6/epan/prefs.c
+
+Add some needed parenthesis as pointed out by Jakub and the OS X
+builders.
+
+------------------------------------------------------------------------
+r42954 | gerald | 2012-05-31 16:34:40 -0700 (Thu, 31 May 2012) | 2 lines
 Changed paths:
    M /trunk-1.6/docbook/release-notes.xml
 
-Remove <listitem></listitem> added in r41940 by way of some sort of copy/paste gone wrong.
+Mention that you can get certification.
 
 ------------------------------------------------------------------------
-r41982 | gerald | 2012-04-08 07:33:50 -0700 (Sun, 08 Apr 2012) | 1 line
+r43021 | gerald | 2012-06-03 07:34:06 -0700 (Sun, 03 Jun 2012) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2012-06-03]
+------------------------------------------------------------------------
+r43165 | gerald | 2012-06-08 14:23:25 -0700 (Fri, 08 Jun 2012) | 4 lines
+Changed paths:
+   M /trunk-1.6/epan/Makefile.am
+   M /trunk-1.6/wiretap/Makefile.am
+   M /trunk-1.6/wsutil/Makefile.am
+
+Use separate commands in the dumpabi recipes instead a big huge long
+chain. If abi-compliance-checker fails print the contents of its
+log file.
+
+------------------------------------------------------------------------
+r43168 | gerald | 2012-06-08 15:43:50 -0700 (Fri, 08 Jun 2012) | 2 lines
+Changed paths:
+   M /trunk-1.6/epan/Makefile.am
+   M /trunk-1.6/wiretap/Makefile.am
+   M /trunk-1.6/wsutil/Makefile.am
+
+Make sure ln happens in the right directory.
+
+------------------------------------------------------------------------
+r43260 | wmeier | 2012-06-14 11:20:13 -0700 (Thu, 14 Jun 2012) | 33 lines
+Changed paths:
+   M /trunk-1.6/epan/proto.c
+
+Copy SVN #43150, #43184, #43186 (with some manual intervention) to 1.6 branch
+
+------------------------------------------------------------------------
+r43150 | wmeier | 2012-06-07 17:10:02 -0400 (Thu, 07 Jun 2012) | 11 lines
+
+Don't crash in 'proto_registrar_dump_values' if BASE_EXT_STRING and no extended string.
+Note: this shows up when doing 'tshark -G values'.
+
+BASE_EXT_STRING with a missing extended string does *not* cause issues
+with the normal display code:
+
+ToDo (eventually): Add some code to enforce requirement that hf[] entries with BASE_EXT_STRING
+(or BASE_RANGE_STRING) set must also have a 'strings' value.
+
+
+
+------------------------------------------------------------------------
+r43184 | wmeier | 2012-06-10 11:10:11 -0400 (Sun, 10 Jun 2012) | 5 lines
+
+Fix bug wherein values in a custom column aren't displayed as a value_string (when appropriate).
+Essentially: BASE_CUSTOM is "base_display_e value" (like BASE_DEC) *not* a bit-mask
+ (like BASE_EXT_STRING).
+Bug introduced in SVN #39902
+
+------------------------------------------------------------------------
+r43186 | wmeier | 2012-06-10 15:23:50 -0400 (Sun, 10 Jun 2012) | 3 lines
+
+Fix "BASE_CUSTOM field is incorrectly formatted when applied as a column".
+Resolves Bug #6671 - https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6671
+
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+r43309 | gerald | 2012-06-17 07:34:03 -0700 (Sun, 17 Jun 2012) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/manuf
 
-[Automatic manuf, services and enterprise-numbers update for 2012-04-08]
+[Automatic manuf, services and enterprise-numbers update for 2012-06-17]
 ------------------------------------------------------------------------
-r41995 | cmaynard | 2012-04-09 11:22:05 -0700 (Mon, 09 Apr 2012) | 2 lines
+r43310 | gerald | 2012-06-17 08:04:26 -0700 (Sun, 17 Jun 2012) | 1 line
 Changed paths:
-   M /trunk-1.6/epan/dissectors/packet-ip.c
+   M /trunk-1.6/services
 
-Set the minimum length of the Internet Timestamp option to 4 bytes instead of 5.  RFC 791 only states that the smallest legal value of the pointer is 5, not the smallest size for the option itself.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7043
-
+[Automatic manuf, services and enterprise-numbers update for 2012-06-17]
 ------------------------------------------------------------------------
-r42003 | pascal | 2012-04-10 01:18:54 -0700 (Tue, 10 Apr 2012) | 6 lines
+r43454 | gerald | 2012-06-24 08:04:28 -0700 (Sun, 24 Jun 2012) | 1 line
 Changed paths:
-   M /trunk-1.6/epan/dissectors/packet-bootp.c
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/manuf
+   M /trunk-1.6/services
 
-From Michael Mann:
-use suboption length instead of option length to terminate option 82 dissection in BOOTP
-
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7047
-
-
+[Automatic manuf, services and enterprise-numbers update for 2012-06-24]
 ------------------------------------------------------------------------
-r42058 | guy | 2012-04-13 17:13:50 -0700 (Fri, 13 Apr 2012) | 7 lines
-Changed paths:
-   M /trunk-1.6/gtk/capture_dlg.c
-
-The combo box for the interface name is *NOT* a combo box that only
-allows you to select one of the items in the list, so it is *NOT* an
-error if there's no entry selected.  Just skip the capture filter check
-in that case.
-
-Fixes bug 7049.
-
-------------------------------------------------------------------------
-r42068 | guy | 2012-04-14 10:31:02 -0700 (Sat, 14 Apr 2012) | 15 lines
-Changed paths:
-   M /trunk-1.6/wiretap/k12.c
-
-Backported from the trunk:
-
-------------------------------------------------------------------------
-r42067 | guy | 2012-04-14 10:20:22 -0700 (Sat, 14 Apr 2012) | 4 lines
-
-More double-free fixes - destroy_k12_file_data() frees its argument, so
-calling g_free() on that argument after calling destroy_k12_file_data()
-is always an error.
-------------------------------------------------------------------------
-r42062 | etxrab | 2012-04-14 00:53:22 -0700 (Sat, 14 Apr 2012) | 1 line
-
-From From Evan Huus: Potential double-free while importing k12xx *.rf5
-files https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7084
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r42071 | guy | 2012-04-14 10:46:08 -0700 (Sat, 14 Apr 2012) | 7 lines
+r43503 | guy | 2012-06-26 22:22:55 -0700 (Tue, 26 Jun 2012) | 12 lines
 Changed paths:
    M /trunk-1.6/dumpcap.c
 
-Copied from the trunk:
+Copy over r43501 from the trunk:
+
+  ------------------------------------------------------------------------
+  r43501 | guy | 2012-06-26 22:13:06 -0700 (Tue, 26 Jun 2012) | 7 lines
+
+  Don't supply a fallback error message for pcap_open() unless it actually
+  fails.
+
+  This may clear up the problem most recently reported in bug 7021 after
+  the crash was fixed, where the capture starts successfully but an error
+  dialog pops up.
 
 ------------------------------------------------------------------------
-r42070 | guy | 2012-04-14 10:45:03 -0700 (Sat, 14 Apr 2012) | 2 lines
-
-From Evan Huus: add a missing free.  Fixes bug 7092.
-
-------------------------------------------------------------------------
-r42075 | guy | 2012-04-14 14:55:52 -0700 (Sat, 14 Apr 2012) | 11 lines
+r43513 | wmeier | 2012-06-27 11:11:41 -0700 (Wed, 27 Jun 2012) | 17 lines
 Changed paths:
-   M /trunk-1.6/gtk/capture_dlg.c
+   M /trunk-1.6/gtk/dfilter_expr_dlg.c
 
-Get the filter text box before we even look at the link-layer header
-types, and bail if we dn't have one.
-
-Fix the comment for the "selected link-layer header type is unsupported"
-case, and colorize the text box as empty in that case.
-
-Use "Unknown" rather than "not supported" for the dummy link-layer
-header type entry we add if we don't have a list of link-layer header
-types; at least for pipes, we don't, and *can't*, know what link-layer
-header type we'll see.
+Copy r42301 & r43507 from trunk:
 
 ------------------------------------------------------------------------
-r42084 | gerald | 2012-04-15 07:34:00 -0700 (Sun, 15 Apr 2012) | 1 line
+r42301 | darkjames | 2012-04-27 16:35:17 -0400 (Fri, 27 Apr 2012) | 2 lines
+
+Fix sigsegv in filter expression dialog when user clicked on some BASE_CUSTOM field.
+
+------------------------------------------------------------------------
+r43507 | wmeier | 2012-06-27 09:57:39 -0400 (Wed, 27 Jun 2012) | 7 lines
+
+Fix for "predefined values sometimes missing in Display Filter Expression window.
+
+See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7413
+
+Essentially: BASE_CUSTOM was being used as a mask rather than a field value.
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43553 | gerald | 2012-07-01 08:04:29 -0700 (Sun, 01 Jul 2012) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/manuf
    M /trunk-1.6/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-04-15]
+[Automatic manuf, services and enterprise-numbers update for 2012-07-01]
 ------------------------------------------------------------------------
-r42106 | pascal | 2012-04-17 04:49:04 -0700 (Tue, 17 Apr 2012) | 3 lines
-Changed paths:
-   M /trunk-1.6/config.nmake
-   M /trunk-1.6/epan/dissectors/packet-nfs.c
-
-Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7127 :
-Remove an extra entry in nfsv4_operation_ett array
-
-------------------------------------------------------------------------
-r42107 | pascal | 2012-04-17 04:53:04 -0700 (Tue, 17 Apr 2012) | 2 lines
-Changed paths:
-   M /trunk-1.6/config.nmake
-
-Revert file committed by error
-
-------------------------------------------------------------------------
-r42120 | guy | 2012-04-17 19:49:37 -0700 (Tue, 17 Apr 2012) | 11 lines
-Changed paths:
-   M /trunk-1.6/doc/wireshark.pod.template
-   M /trunk-1.6/wiretap/5views.c
-   M /trunk-1.6/wiretap/file_access.c
-
-Pick up changes from the trunk:
-
-------------------------------------------------------------------------
-r42119 | guy | 2012-04-17 19:48:23 -0700 (Tue, 17 Apr 2012) | 6 lines
-
-If we see a 5View time-stamped header with a bad key, make sure we
-return the right error code and information string.
-
-InfoVista bought Accellent Group, and, at least according to the
-InfoVista Web site, it's "5View", not "5Views".
-
-------------------------------------------------------------------------
-r42193 | gerald | 2012-04-22 07:33:58 -0700 (Sun, 22 Apr 2012) | 1 line
+r43613 | gerald | 2012-07-08 08:04:26 -0700 (Sun, 08 Jul 2012) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/manuf
    M /trunk-1.6/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-04-22]
+[Automatic manuf, services and enterprise-numbers update for 2012-07-08]
 ------------------------------------------------------------------------
-r42331 | guy | 2012-04-28 20:39:11 -0700 (Sat, 28 Apr 2012) | 13 lines
-Changed paths:
-   M /trunk-1.6/packaging/macosx/Info.plist.in
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r42328 | guy | 2012-04-28 19:27:08 -0700 (Sat, 28 Apr 2012) | 8 lines
-
-  Make the extension lower case.
-
-  Say "Pcap" rather than "Libpcap" - pcap format is used by WinPcap as
-  well (and it's also read and written by this library called Wiretap
-  :-)).
-
-  Add an additional entry for pcap-NG.
-
-------------------------------------------------------------------------
-r42332 | guy | 2012-04-28 20:40:30 -0700 (Sat, 28 Apr 2012) | 9 lines
-Changed paths:
-   M /trunk-1.6/packaging/nsis/wireshark.nsi
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r42329 | guy | 2012-04-28 19:38:55 -0700 (Sat, 28 Apr 2012) | 4 lines
-
-  Add .ntar as a suffix (some pcap-ng files use it).
-
-  Sort the suffixes alphabetically.
-
-------------------------------------------------------------------------
-r42334 | gerald | 2012-04-29 07:33:59 -0700 (Sun, 29 Apr 2012) | 1 line
+r43723 | gerald | 2012-07-15 08:04:31 -0700 (Sun, 15 Jul 2012) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/manuf
    M /trunk-1.6/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-04-29]
+[Automatic manuf, services and enterprise-numbers update for 2012-07-15]
 ------------------------------------------------------------------------
-r42336 | guy | 2012-04-29 10:33:03 -0700 (Sun, 29 Apr 2012) | 8 lines
+r43843 | gerald | 2012-07-19 17:58:16 -0700 (Thu, 19 Jul 2012) | 17 lines
 Changed paths:
-   M /trunk-1.6/wiretap/file_access.c
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-ppp.c
 
-Copy over revisions from the trunk, with manual intervention:
+Copy over r43784 from the trunk:
 
   ------------------------------------------------------------------------
-  r42330 | guy | 2012-04-28 19:49:17 -0700 (Sat, 28 Apr 2012) | 3 lines
+  r43784 | rbalint | 2012-07-18 08:14:45 -0700 (Wed, 18 Jul 2012) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ppp.c
 
-  Add ".dmp" as a suffix for pcap files of various flavors.  Add ".ntar"
-  as a suffix for pcap-ng files.
+  Fix crash in PPP dissector
+
+  Make sure that there is enough space allocated for PPP encapsulated CRTP
+  packet's header.
+  The bug can be triggered on an x86_64 system using the cpature file attached to
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=680056
+  ------------------------------------------------------------------------
+
+Update the release notes.
 
 ------------------------------------------------------------------------
-r42369 | guy | 2012-04-30 17:11:40 -0700 (Mon, 30 Apr 2012) | 15 lines
+r43867 | gerald | 2012-07-20 11:52:56 -0700 (Fri, 20 Jul 2012) | 134 lines
 Changed paths:
+   M /trunk-1.6/AUTHORS
+   M /trunk-1.6/asn1/snmp/packet-snmp-template.c
+   M /trunk-1.6/capture_sync.c
+   M /trunk-1.6/docbook/release-notes.xml
    M /trunk-1.6/epan/dissectors/packet-diameter.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r42200 | wmeier | 2012-04-22 18:36:57 -0700 (Sun, 22 Apr 2012) | 7 lines
-
-  It's not kosher to alloc and init a GArray ourselves instead of calling
-  g_array_new().
-
-  Fixes Bug #7138 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7138)
-
-  A puzzle: why did the buildbot fuzz-testing only start failing on this on 04/18/2012
-            since the bug has existed for quite some time ?
-
-(This should fix the crashes we're seeing in the 1.6 buildbot.)
-
-------------------------------------------------------------------------
-r42374 | guy | 2012-05-01 01:27:24 -0700 (Tue, 01 May 2012) | 13 lines
-Changed paths:
-   M /trunk-1.6/epan/dissectors/packet-ansi_a.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r42129 | etxrab | 2012-04-18 04:12:15 -0700 (Wed, 18 Apr 2012) | 4 lines
-
-  Fix Bug 7119 ANSI MAP infinite loop.
-  Make conumed a guint16 to avoid wrapping add expert items.
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7119
-
-(in the hopes that it'll fix the latest 1.6 buildbot crashes; it was
-already scheduled for backporting).
-
-------------------------------------------------------------------------
-r42449 | gerald | 2012-05-06 07:33:58 -0700 (Sun, 06 May 2012) | 1 line
-Changed paths:
-   M /trunk-1.6/epan/enterprise-numbers
-   M /trunk-1.6/manuf
-   M /trunk-1.6/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-05-06]
-------------------------------------------------------------------------
-r42451 | guy | 2012-05-06 10:12:49 -0700 (Sun, 06 May 2012) | 20 lines
-Changed paths:
-   M /trunk-1.6/epan/dissectors/packet-bthci_evt.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r42116 | guy | 2012-04-17 16:08:23 -0700 (Tue, 17 Apr 2012) | 4 lines
-
-  Might as well make the loop indices just guint; the generated code's
-  unlikely to be worse, and could be better on the 32-bit-and-bigger
-  machines on which Wireshark runs.
-
-  ------------------------------------------------------------------------
-  r42114 | etxrab | 2012-04-17 14:09:10 -0700 (Tue, 17 Apr 2012) | 1 line
-
-  From Evan Huus: We were using guint8s as loop counters based on field
-  lengths, and they were overflowing/wrapping falsely. Making them
-  guint16s fixes the problem. Bug 7122 -HCIEVT infinite loop
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7122
-
-This should fix the fuzz failures that started showing up on the 1.6
-buildbot.
-
-------------------------------------------------------------------------
-r42613 | gerald | 2012-05-13 07:33:58 -0700 (Sun, 13 May 2012) | 1 line
-Changed paths:
-   M /trunk-1.6/epan/enterprise-numbers
-   M /trunk-1.6/manuf
-   M /trunk-1.6/services
-
-[Automatic manuf, services and enterprise-numbers update for 2012-05-13]
-------------------------------------------------------------------------
-r42665 | gerald | 2012-05-16 14:27:25 -0700 (Wed, 16 May 2012) | 17 lines
-Changed paths:
-   M /trunk-1.6/ChangeLog
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-slowprotocols.c
-
-Copy over r41741 from the trunk:
-
-  ------------------------------------------------------------------------
-  r41741 | morriss | 2012-03-22 17:53:58 -0700 (Thu, 22 Mar 2012) | 9 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-slowprotocols.c
-
-  From Elliot Parsons via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6983 :
-
-  In the packet-slowprotocols dissector, there is a bug in the event notification
-  dissector. The code uses the incorrect value to skip past the data of a vendor
-  specific notification.
-
-  The attached patch file sets the offset to increment by raw_octet, which
-  corrects the issue.
-  ------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r42666 | gerald | 2012-05-16 14:30:10 -0700 (Wed, 16 May 2012) | 12 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-ltp.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r42121 | etxrab | 2012-04-17 22:24:32 -0700 (Tue, 17 Apr 2012) | 1 line
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ltp.c
-
-  From Evan Huus: Catch impossible sub-field counts. Fixes LTP infinite loop https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7124
-  ------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r42667 | gerald | 2012-05-16 14:37:18 -0700 (Wed, 16 May 2012) | 12 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-assa_r3.c
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r42122 | etxrab | 2012-04-17 22:29:02 -0700 (Tue, 17 Apr 2012) | 1 line
-  Changed paths:
-     M /trunk/epan/dissectors/packet-assa_r3.c
-
-  From Evan Huus: There were two cases where we could underflow an unsigned subtraction, leading to huge values and near-infinite loops. Catch them and add an expert_info warning that the packet is bad. Also fix some other expert_info messages to hang off of the right dissection tree. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7125
-  ------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r42669 | gerald | 2012-05-16 15:42:28 -0700 (Wed, 16 May 2012) | 60 lines
-Changed paths:
-   M /trunk-1.6/configure.in
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-icmp.c
-   M /trunk-1.6/epan/dissectors/packet-icmp.h
-   M /trunk-1.6/epan/dissectors/packet-icmpv6.c
-   M /trunk-1.6/epan/emem.c
-   M /trunk-1.6/epan/emem.h
-   M /trunk-1.6/tap-icmpstat.c
-   M /trunk-1.6/tap-icmpv6stat.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r42407 | morriss | 2012-05-03 18:33:58 -0700 (Thu, 03 May 2012) | 14 lines
-  Changed paths:
-     M /trunk/epan/emem.c
-
-  Partial fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221
-  (emem alignment problems on SPARC) :
-
-  Add the room for the pointer to the next (from r31577) *before* calculating
-  the canary+pad: that way the complete allocation
-  (allocation+canary_ptr+canary+pad) will end on an 8-byte boundary (as was the
-  case before r31577).
-
-  This only solves the alignment problem when using canaries (i.e., not, by
-  default, se_ allocations).
-
-  (And, yes, this is ignoring the 16-byte alignment requirements of long
-  doubles.)
-  ------------------------------------------------------------------------
-  r42431 | morriss | 2012-05-04 14:56:32 -0700 (Fri, 04 May 2012) | 15 lines
-  Changed paths:
-     M /trunk/configure.in
-     M /trunk/epan/emem.c
-     M /trunk/epan/emem.h
-
-  The rest of the fix for https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221
-  (emem alignment problems on SPARC) :
-
-  Have emem use 8-byte alignment when we need it.
-
-  Since I can't seem to write code that which reliably (across GCC versions and
-  optimization levels) determines if 8-byte alignment is needed for doubles,
-  "when" is defined as "if we're compiling for a CPU other than i386."
-
-  Windows doesn't need a check because it's either i386 or 64-bit (x86_64 or
-  maybe ia64--both of which get 8-byte alignment from G_MEM_ALIGN).
-
-  (And, yes, all of this is ignoring the 16-byte alignment requirements of long
-  doubles.)
-  ------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r42393 | cmaynard | 2012-05-02 18:48:59 -0700 (Wed, 02 May 2012) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-icmp.c
-     M /trunk/epan/dissectors/packet-icmp.h
-     M /trunk/epan/dissectors/packet-icmpv6.c
-     M /trunk/ui/cli/tap-icmpstat.c
-     M /trunk/ui/cli/tap-icmpv6stat.c
-
-  From Klaus Heckelmann via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7221: Avoid wireshark crash on platforms where an 8 byte alignment is required by changing the resp_time field in the icmp_transaction_t from a double to an nstime_t.
-  ------------------------------------------------------------------------
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r42670 | gerald | 2012-05-16 16:17:25 -0700 (Wed, 16 May 2012) | 41 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-dns.c
-   M /trunk-1.6/epan/dissectors/packet-gtp.c
-   M /trunk-1.6/epan/dissectors/packet-mpls.c
-   M /trunk-1.6/epan/dissectors/packet-pw-eth.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r41979 | pascal | 2012-04-08 06:10:45 -0700 (Sun, 08 Apr 2012) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-gtp.c
-
-  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7042 :
-  Handle properly filler and do not remove last digit
-  ------------------------------------------------------------------------
-  r41984 | pascal | 2012-04-08 09:03:21 -0700 (Sun, 08 Apr 2012) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-gtp.c
-
-  As suggested by Jakub, always update the digit value when the nibble is outside [0;9] range
-  ------------------------------------------------------------------------
-  r42108 | pascal | 2012-04-17 05:44:04 -0700 (Tue, 17 Apr 2012) | 5 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-dns.c
-
-  From Bertho Stultiens:
-  Use certificate values from RFC 4398
-  From me: rename fields according to RFC and update references to RFC
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7130
-  ------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r42112 | etxrab | 2012-04-17 13:49:56 -0700 (Tue, 17 Apr 2012) | 1 line
-  Changed paths:
-     M /trunk/epan/dissectors/packet-mpls.c
-     M /trunk/epan/dissectors/packet-pw-eth.c
-
-  From Francesco Fondelli: fixes up issue 1) and 3) described in the bug report https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7089
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r42671 | gerald | 2012-05-16 16:22:35 -0700 (Wed, 16 May 2012) | 21 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-asf.c
-
-Copy over r42113 and r42115 with manual intervention:
-
-  ------------------------------------------------------------------------
-  r42113 | etxrab | 2012-04-17 14:00:56 -0700 (Tue, 17 Apr 2012) | 1 line
-  Changed paths:
-     M /trunk/epan/dissectors/packet-asf.c
-
-  From Evan Huus: Break from the loop if the length is zero. Fix  [Bug 7120] ASF infinite loop https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7120
-  ------------------------------------------------------------------------
-  r42115 | guy | 2012-04-17 15:36:50 -0700 (Tue, 17 Apr 2012) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-asf.c
-
-  Flag too-short TLVs with an expert info item - and treat any TLV length
-  less than 4 as "too short", as the TLV length includes the type and
-  length fields.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r42672 | gerald | 2012-05-16 16:57:14 -0700 (Wed, 16 May 2012) | 60 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-megaco.c
+   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.6/epan/dissectors/packet-mndp.c
    M /trunk-1.6/epan/dissectors/packet-radius.c
-   M /trunk-1.6/plugins/opcua/opcua_simpletypes.c
-   M /trunk-1.6/wiretap/csids.c
-   M /trunk-1.6/wiretap/wtap.h
+   M /trunk-1.6/epan/dissectors/packet-snmp.c
+   M /trunk-1.6/epan/dissectors/packet-syslog.c
+   M /trunk-1.6/epan/dissectors/packet-udp.c
+   M /trunk-1.6/epan/dissectors/packet-vmlab.c
+   M /trunk-1.6/epan/filesystem.c
+   M /trunk-1.6/file.c
+   M /trunk-1.6/file.h
+   M /trunk-1.6/gtk/main.c
+   M /trunk-1.6/gtk/main_statusbar.c
+   M /trunk-1.6/radius/dictionary.3gpp
+   M /trunk-1.6/rawshark.c
+   M /trunk-1.6/wiretap/netscreen.c
 
 Copy over revisions from the trunk:
 
   ------------------------------------------------------------------------
-  r42123 | alagoutte | 2012-04-18 00:22:12 -0700 (Wed, 18 Apr 2012) | 14 lines
-  Changed paths:
-     M /trunk/wiretap/wtap.h
-
-  From Colus Tang via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7134
-  Unable to display the correct IEEE802.11 MCS data rates due to header definition
-
-  The problem is due to the ieee_802_11_phdr.data_rate is defined as guint8,
-  since this variable is counting number of 0.5Mbps units, any datarates which is
-  higher than 255Mbps would get wrapped up.  In the above example, only the lower
-  8bit value will be put into the ieee_802_11_phdr which is 0x04 and result in
-  the incorrect 2Mbps display.
-
-  There are 802.11n WLAN product is capable to transmit @450Mbps, we should fix
-  this data_rate from guint8 to guint16.
-
-  #BACKPORT
-  ------------------------------------------------------------------------
-  r42144 | guy | 2012-04-19 16:19:10 -0700 (Thu, 19 Apr 2012) | 2 lines
-  Changed paths:
-     M /trunk/wiretap/csids.c
-
-  Don't byte-swap bytes that aren't there.
-  ------------------------------------------------------------------------
-  r42388 | cmaynard | 2012-05-02 13:37:59 -0700 (Wed, 02 May 2012) | 4 lines
+  r42899 | darkjames | 2012-05-29 13:01:25 -0700 (Tue, 29 May 2012) | 5 lines
   Changed paths:
      M /trunk/epan/dissectors/packet-radius.c
 
-  Properly decrypt user-password according to http://tools.ietf.org/html/rfc2865#section-5.2
-  This fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6779
-  #BACKPORT
-  ------------------------------------------------------------------------
+  Fix bug #5735
 
-Copy over with manual intervention:
-
+  dissect_attribute_value_pairs() should be also called with NULL tree.
+  Broken from r29964.
   ------------------------------------------------------------------------
-  r42258 | etxrab | 2012-04-26 06:22:40 -0700 (Thu, 26 Apr 2012) | 4 lines
+  r43050 | wmeier | 2012-06-03 18:09:56 -0700 (Sun, 03 Jun 2012) | 17 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-megaco.c
+     M /trunk/radius/dictionary.3gpp
 
-  From Bodo Petermann:
-  Megaco parser problem with LF in header.
+  From René Scheibe:
 
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7198
+  "
+  I just noticed when upgrading from 1.2.15 to 1.6.8 that the file
+  dictionary.3gpp now contains an invalid entry. There is a typo (3GGP
+  instead of 3GPP) and the decoding is incorrect too.
+
+  wireshark:
+  ATTRIBUTE   3GGP-IMEISV   20   octets
+
+  freeradius:
+  ATTRIBUTE   3GPP-IMEISV   20   string
+  "
+
+  http://www.wireshark.org/lists/wireshark-dev/201206/msg00021.html
   ------------------------------------------------------------------------
-  r42437 | pascal | 2012-05-04 21:57:40 -0700 (Fri, 04 May 2012) | 4 lines
+  r43139 | darkjames | 2012-06-06 12:59:55 -0700 (Wed, 06 Jun 2012) | 4 lines
   Changed paths:
-     M /trunk/plugins/opcua/opcua_simpletypes.c
+     M /trunk/wiretap/netscreen.c
 
-  From Nhi Nguyen:
-  OPC UA bytestring node id decoding is wrong
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7226
+  Fix bug #7340
+
+  interface name can also contain hyphen (v1-untrust, v1-trust).
   ------------------------------------------------------------------------
+  r43166 | morriss | 2012-06-08 15:23:11 -0700 (Fri, 08 Jun 2012) | 10 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-diameter.c
 
+  Don't register 3 (IPAddress) hf's with the same abbreviation but with 3
+  different types; instead use different abbreviations (filters).
 
-Update the release notes.
+  This is in order to prevent running into
 
-------------------------------------------------------------------------
-r42673 | gerald | 2012-05-16 17:16:07 -0700 (Wed, 16 May 2012) | 20 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2402
 
-Copy over with manual intervention:
-
+  and seg-faulting when someone applies a filter of, for example,
+  diameter.Framed-IP-Address .
   ------------------------------------------------------------------------
-  r42631 | gerald | 2012-05-15 12:13:10 -0700 (Tue, 15 May 2012) | 10 lines
+  r43174 | cmaynard | 2012-06-09 08:43:08 -0700 (Sat, 09 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-syslog.c
+
+  Allow syslog to work with "Decode As" for TCP.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5241
+  ------------------------------------------------------------------------
+  r43176 | cmaynard | 2012-06-09 10:08:46 -0700 (Sat, 09 Jun 2012) | 3 lines
   Changed paths:
      M /trunk/epan/dissectors/packet-ieee80211.c
 
-  From Evan Huus via bug 6805:
+  Do not use BASE_NONE for FT_UINT8 types.
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7333 (I think).
+  ------------------------------------------------------------------------
+  r43178 | cmaynard | 2012-06-09 10:51:30 -0700 (Sat, 09 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-mndp.c
 
-  Look before we loop
+  Do not use BASE_NONE for FT_*INT* types.
+  ------------------------------------------------------------------------
+  r43179 | cmaynard | 2012-06-09 10:56:08 -0700 (Sat, 09 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/asn1/snmp/packet-snmp-template.c
+     M /trunk/epan/dissectors/packet-diameter.c
+     M /trunk/epan/dissectors/packet-snmp.c
+     M /trunk/epan/dissectors/packet-vmlab.c
 
-  Check the value of various key count parameters against the size of their
-  parent tag *before* we start looping on them.
+  Do not use BASE_NONE for FT_*INT* types.
+  ------------------------------------------------------------------------
+  r43187 | cmaynard | 2012-06-10 12:43:40 -0700 (Sun, 10 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-udp.c
 
-  Stick an expert error on the field and bound the loop at a sane point if the
-  count is bogus.
+  Fix UDP-Lite checksum verification bug introduced with r40387 and reported by "answer" via http://ask.wireshark.org/questions/11798/is-udp-lite-checksum-correct-ipv6
+  There is a difference between the UDP and UDP-Lite pseudo header that wasn't realized when r40387 was committed.  Details of the difference in http://tools.ietf.org/html/rfc3828#section-3.2
+  ------------------------------------------------------------------------
+  r43191 | cmaynard | 2012-06-10 17:53:23 -0700 (Sun, 10 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/AUTHORS
+
+  Remove duplicate entry.
   ------------------------------------------------------------------------
 
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r42764 | guy | 2012-05-21 20:52:12 -0700 (Mon, 21 May 2012) | 12 lines
+  Changed paths:
+     M /trunk/file.c
+     M /trunk/file.h
+     M /trunk/ui/gtk/main.c
+     M /trunk/ui/gtk/main_statusbar.c
+     M /trunk/ui/qt/wireshark_application.cpp
+
+  The GUI's state machine requires that, when reloading a capture after a
+  save, we post capture file callback events similar to the ones posted
+  when reading a capture - otherwise, the reload will leave the welcome
+  screen up.
+
+  Rename cf_cb_file_save_reload_finished to cf_cb_file_reload_finished,
+  add a cf_cb_file_reload_started callback, have them work similarly to
+  read_finished and read_started except that the reload uses "Reloading"
+  in the progress bar and status bar.
+
+  Clean up some indentation while we're at it.
+  ------------------------------------------------------------------------
+  ------------------------------------------------------------------------
+  r43172 | cmaynard | 2012-06-08 20:41:23 -0700 (Fri, 08 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/capture_sync.c
+     M /trunk/epan/filesystem.c
+     M /trunk/rawshark.c
+
+  Be sure to specify FORMAT_MESSAGE_IGNORE_INSERTS in the dwFlags arg to all FormatMessage() calls where FORMAT_MESSAGE_FROM_SYSTEM is also specified.  (Ref: http://blogs.msdn.com/b/oldnewthing/archive/2007/11/28/6564257.aspx)
+  ------------------------------------------------------------------------
+
+
 Update the release notes.
 
 ------------------------------------------------------------------------
-r42674 | gerald | 2012-05-16 17:32:11 -0700 (Wed, 16 May 2012) | 5 lines
+r43869 | gerald | 2012-07-20 12:31:41 -0700 (Fri, 20 Jul 2012) | 110 lines
 Changed paths:
+   M /trunk-1.6/Makefile.am
+   M /trunk-1.6/asn1/snmp/packet-snmp-template.c
+   M /trunk-1.6/doc/README.developer
    M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-bacapp.c
-
-Copy over packet-bacapp.c r42323 from the trunk. This includes r42053 (which
-fixes bug 7121) along with a bunch of other changes.
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r42680 | gerald | 2012-05-17 10:42:49 -0700 (Thu, 17 May 2012) | 1 line
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-ethertype.c
+   M /trunk-1.6/epan/dissectors/packet-gsm_a_bssmap.c
    M /trunk-1.6/epan/dissectors/packet-ieee80211.c
+   M /trunk-1.6/epan/dissectors/packet-nfs.c
+   M /trunk-1.6/epan/dissectors/packet-per.c
+   M /trunk-1.6/epan/dissectors/packet-snmp.c
+   M /trunk-1.6/epan/etypes.h
+   M /trunk-1.6/epan/ftypes/ftype-double.c
+   M /trunk-1.6/gtk/main_proto_draw.c
 
-Add a missing chunk from r42631.
-------------------------------------------------------------------------
-r42701 | gerald | 2012-05-17 15:55:15 -0700 (Thu, 17 May 2012) | 2 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r43203 | pascal | 2012-06-11 06:54:06 -0700 (Mon, 11 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-per.c
+
+  Use restricted character string decoding for IA5String type
+  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6246
+  ------------------------------------------------------------------------
+  r43212 | darkjames | 2012-06-11 12:27:57 -0700 (Mon, 11 Jun 2012) | 4 lines
+  Changed paths:
+     M /trunk/epan/ftypes/ftype-double.c
+
+  Fix bug 6917
+
+  strtod() is locale-aware, change it to g_ascii_strtod()
+  ------------------------------------------------------------------------
+  r43214 | pascal | 2012-06-11 13:12:17 -0700 (Mon, 11 Jun 2012) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-gsm_a_bssmap.c
+
+  From Alexander via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7360 :
+  Service handover IE is not correctly dissected
+  ------------------------------------------------------------------------
+  r43224 | wmeier | 2012-06-12 06:03:05 -0700 (Tue, 12 Jun 2012) | 2 lines
+  Changed paths:
+     M /trunk/doc/README.developer
+
+  Note that calls to "expert" functions should not be under 'if (tree)'.
+  ------------------------------------------------------------------------
+  r43576 | darkjames | 2012-07-05 14:09:34 -0700 (Thu, 05 Jul 2012) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-nfs.c
+
+  Fix bug #7436
+
+  offset returned from dissect_nfs_open_claim4, dissect_nfs_openflag4 were different
+  when we were building tree and where we didn't.
+  Fix other similar cases.
+  ------------------------------------------------------------------------
+
+
+Copy over with manual intervention:
+
+  ------------------------------------------------------------------------
+  r43277 | darkjames | 2012-06-15 16:04:59 -0700 (Fri, 15 Jun 2012) | 5 lines
+  Changed paths:
+     M /trunk/ui/gtk/main_proto_draw.c
+
+  highlight_field: use passed GtkTreeView for proto_tree_draw.
+
+  highlight_field() is also called when we open packet in new window and we click some bytes,
+  it caused redrawing packet details in *main window* but with protocol tree from (possibly) another frame.
+  ------------------------------------------------------------------------
+  r43556 | alagoutte | 2012-07-03 05:28:06 -0700 (Tue, 03 Jul 2012) | 10 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ieee80211.c
+
+  From report of Dennis Mendoza via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7429
+  Wireshark > 1.4 does not correctly read Association ID for PS Poll packets
+
+  Wireless Frame with subtype 0x1a don't interpret the Association ID (always 0).
+
+  Fix :
+  proto_tree_add_uint() wasn't changed to proto_tree_add_item()
+
+  #BACKPORT
+  ------------------------------------------------------------------------
+  r43561 | guy | 2012-07-03 13:12:50 -0700 (Tue, 03 Jul 2012) | 18 lines
+  Changed paths:
+     M /trunk/Makefile.am
+
+  As per Gentoo bug 423743
+
+  	https://bugs.gentoo.org/show_bug.cgi?id=423743
+
+  "The Makefile.am claims including GLIB_LIBS when linking wireshark is
+  unnecessary, because wireshark links to GTK_LIBS which is a superset.
+  It is not actually a superset: gmodule is included in GLIB_LIBS but
+  not in GTK_LIBS (unless accidentally on older glibs/gtks)."
+
+  so we must explicitly link with GLIB_LIBS.
+
+  Update the comment to reflect that - and to reflect that GTK+ doesn't
+  necessarily run atop X11 - while we're at it.
+
+  Fixes bug 7427.
+
+  #BACKPORT
+  ------------------------------------------------------------------------
+  r43648 | pascal | 2012-07-10 08:43:03 -0700 (Tue, 10 Jul 2012) | 3 lines
+  Changed paths:
+     M /trunk/asn1/snmp/packet-snmp-template.c
+     M /trunk/epan/dissectors/packet-snmp.c
+
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7438 :
+  Do not call tvb_ensure_length_remaining on an empty tvb
+  ------------------------------------------------------------------------
+  r43850 | jake | 2012-07-19 23:26:35 -0700 (Thu, 19 Jul 2012) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ethertype.c
+     M /trunk/epan/etypes.h
+
+  Add some relevant ethertypes.
+  ------------------------------------------------------------------------
+
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r42725 | gerald | 2012-05-20 07:34:01 -0700 (Sun, 20 May 2012) | 1 line
+r43886 | pascal | 2012-07-21 03:13:58 -0700 (Sat, 21 Jul 2012) | 10 lines
+Changed paths:
+   M /trunk-1.6/asn1/snmp/snmp.cnf
+   M /trunk-1.6/epan/dissectors/packet-snmp.c
+
+Copy over r43883 from trunk:
+
+------------------------------------------------------------------------
+r43883 | pascal | 2012-07-21 10:50:32 +0200 (sam. 21 juil. 2012) | 3 lignes
+
+Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7508 :
+Display snmp.contextName as FT_STRING
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r43913 | gerald | 2012-07-22 08:04:40 -0700 (Sun, 22 Jul 2012) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/manuf
    M /trunk-1.6/services
 
-[Automatic manuf, services and enterprise-numbers update for 2012-05-20]
+[Automatic manuf, services and enterprise-numbers update for 2012-07-22]
 ------------------------------------------------------------------------
-r42749 | gerald | 2012-05-21 09:14:46 -0700 (Mon, 21 May 2012) | 2 lines
+r43933 | gerald | 2012-07-23 09:23:47 -0700 (Mon, 23 Jul 2012) | 2 lines
 Changed paths:
-   M /trunk-1.6/plugins/mate/mate.h
-   M /trunk-1.6/plugins/mate/mate_runtime.c
-   M /trunk-1.6/plugins/mate/mate_util.c
-   M /trunk-1.6/plugins/mate/mate_util.h
+   M /trunk-1.6/docbook/release-notes.xml
 
-Revert r40547 which increased the minimum version of GLib.
-
-------------------------------------------------------------------------
-r42750 | gerald | 2012-05-21 09:15:40 -0700 (Mon, 21 May 2012) | 16 lines
-Changed paths:
-   M /trunk-1.6/wiretap/file_wrappers.c
-
-Copy over r42714 from the trunk:
-
-  ------------------------------------------------------------------------
-  r42714 | darkjames | 2012-05-19 06:27:43 -0700 (Sat, 19 May 2012) | 7 lines
-  Changed paths:
-     M /trunk/wiretap/file_wrappers.c
-
-  Z_BLOCK was added in zlib-1.2.0.5
-
-  Pass Z_NO_FLUSH to inflate() when Z_BLOCK is not defined,
-  just in case also disable fast seeking when it's not defined.
-
-  References: http://www.wireshark.org/lists/wireshark-dev/201205/msg00145.html 
-  ------------------------------------------------------------------------
-
+Update the release notes.
 
 ------------------------------------------------------------------------
