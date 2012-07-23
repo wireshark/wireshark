@@ -119,7 +119,8 @@ my %APIs = (
                 'fopen',
                 'freopen',
                 # Misc
-                'tmpnam'        # use mkstemp
+                'tmpnam',       # use mkstemp
+		'_snwprintf'	# use StringCchPrintf
                 ] },
 
         # APIs that SHOULD NOT be used in Wireshark (any more)
