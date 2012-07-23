@@ -1178,6 +1178,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-vlan.c
 	dissectors/packet-vmlab.c
 	dissectors/packet-vnc.c
+	dissectors/packet-vntag.c
 	dissectors/packet-vrrp.c
 	dissectors/packet-vssmonitoring.c
 	dissectors/packet-vtp.c
