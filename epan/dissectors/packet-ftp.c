@@ -58,7 +58,6 @@ static int hf_ftp_active_nat = -1;
 
 static gint ett_ftp = -1;
 static gint ett_ftp_reqresp = -1;
-static gint ett_ftp_data = -1;
 
 static dissector_handle_t ftpdata_handle;
 
@@ -625,7 +624,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *ti, *ftp_data_tree;
+    proto_item *ti;
     int         data_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP-DATA");
@@ -634,21 +633,29 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tvb_reported_length(tvb));
 
     if (tree) {
+        gboolean is_text = TRUE;
+        gint  check_chars, i;
         data_length = tvb_length(tvb);
 
-        ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1,
-            ENC_NA);
-        ftp_data_tree = proto_item_add_subtree(ti, ett_ftp_data);
+        ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1, ENC_NA);
 
-        /*
-         * tvb_format_text() is very slow for long (binary...) lines, so limit to
-         * size that will actually be displayed.
-         *
-         * Not clear if its really worth doing this for binary data, as bytes are not
-         * even shown as hex!
-         */
-        proto_tree_add_text(ftp_data_tree, tvb, 0, data_length,
-            "FTP Data: %s", tvb_format_text(tvb, 0, MIN(data_length, ITEM_LABEL_LENGTH)));
+        /* Check the first few chars to see whether it looks like a text file or not */
+        check_chars = MIN(10, data_length);
+        for (i=0; i < check_chars; i++) {
+            if (!isprint(tvb_get_guint8(tvb, i))) {
+                is_text = FALSE;
+                break;
+            }
+        }
+                
+        if (is_text) {
+            /* Show as string, but don't format more text than will be displayed */
+            proto_item_append_text(ti, " (%s)", tvb_format_text(tvb, 0, MIN(data_length, ITEM_LABEL_LENGTH)));
+        }
+        else {
+            /* Assume binary, just show the number of bytes */
+            proto_item_append_text(ti, " (%u bytes data)", data_length);
+        }
     }
 }
 
@@ -719,8 +726,7 @@ proto_register_ftp(void)
     };
     static gint *ett[] = {
         &ett_ftp,
-        &ett_ftp_reqresp,
-        &ett_ftp_data,
+        &ett_ftp_reqresp
     };
 
     proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP",
