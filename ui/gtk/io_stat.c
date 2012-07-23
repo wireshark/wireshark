@@ -142,7 +142,7 @@ typedef struct _io_item_t {
 
 typedef struct _io_stat_graph_t {
 	struct _io_stat_t *io;
-	io_item_t items[NUM_IO_ITEMS];
+	gpointer items[NUM_IO_ITEMS];
 	int plot_style;
 	gboolean display;
 	GtkWidget *display_button;
@@ -214,7 +214,7 @@ io_stat_reset(io_stat_t *io)
 	for(i=0;i<MAX_GRAPHS;i++){
 		for(j=0;j<NUM_IO_ITEMS;j++){
 			io_item_t *ioi;
-			ioi=&io->graphs[i].items[j];
+			ioi=io->graphs[i].items[j];
 
 			ioi->frames=0;
 			ioi->bytes=0;
@@ -299,7 +299,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	}
 
 	/* Point to the appropriate io_item_t struct */
-	it = &graph->items[idx];
+	it = graph->items[idx];
 
 	/* Set the first and last frame num in current interval matching the target field+filter  */
 	if (it->first_frame_in_invl == 0) {
@@ -413,10 +413,13 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 						pt = t;
 					}
 					while(t){
-						graph->items[j].time_tot.nsecs += (int) (pt * 1000);
-						if(graph->items[j].time_tot.nsecs > 1000000000){
-							graph->items[j].time_tot.secs++;
-							graph->items[j].time_tot.nsecs -= 1000000000;
+						io_item_t *item;
+
+						item = (io_item_t*)graph->items[j];
+						item->time_tot.nsecs += (int) (pt * 1000);
+						if(item->time_tot.nsecs > 1000000000){
+							item->time_tot.secs++;
+							item->time_tot.nsecs -= 1000000000;
 						}
 
 						if(j==0){
@@ -485,7 +488,7 @@ get_it_value(io_stat_t *io, int graph, int idx)
 	io_item_t *it;
 	guint32 interval;
 
-	it = &io->graphs[graph].items[idx];
+	it = io->graphs[graph].items[idx];
 
 	switch(io->count_type){
 	case COUNT_TYPE_FRAMES:
@@ -1377,7 +1380,7 @@ static void
 iostat_init(const char *optarg _U_, void* userdata _U_)
 {
 	io_stat_t *io;
-	int i=0;
+	int i=0, j=0;
 	static GdkColor col[MAX_GRAPHS] = {
 		{0,	0x0000,	0x0000,	0x0000}, /* Black */
 		{0,	0xffff,	0x0000,	0x0000}, /* Red */
@@ -1396,7 +1399,7 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 #endif
 	GString *error_string;
 
-	io=g_malloc(sizeof(io_stat_t));
+	io=g_new(io_stat_t,1);
 	io->needs_redraw=TRUE;
 	io->interval=tick_interval_values[DEFAULT_TICK_VALUE_INDEX];
 	io->window=NULL;
@@ -1439,13 +1442,17 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 		io->graphs[i].advanced_buttons=NULL;
 		io->graphs[i].io=io;
 
-		io->graphs[i].args=g_malloc(sizeof(construct_args_t));
+		io->graphs[i].args=g_new(construct_args_t,1);
 		io->graphs[i].args->title = NULL;
 		io->graphs[i].args->wants_apply_button=TRUE;
 		io->graphs[i].args->activate_on_ok=TRUE;
 		io->graphs[i].args->modal_and_transient=FALSE;
 
 		io->graphs[i].filter_bt=NULL;
+
+		for(j=0;j<NUM_IO_ITEMS;j++){
+			io->graphs[i].items[j] = g_new(io_item_t,1);
+		}
 	}
 	io_stat_reset(io);
 
@@ -1476,7 +1483,7 @@ static void
 draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 {
 	io_stat_t *io = user_data;
-	int i;
+	int i,j;
 	GtkWidget *save_bt = g_object_get_data(G_OBJECT(io->window), "save_bt");
 	surface_info_t *surface_info = g_object_get_data(G_OBJECT(save_bt), "surface-info");
 
@@ -1493,6 +1500,10 @@ draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 
 			g_free(io->graphs[i].args);
 			io->graphs[i].args=NULL;
+			for(j=0;j<NUM_IO_ITEMS;j++){
+				g_free(io->graphs[i].items[j]);
+				io->graphs[i].items[j]=NULL;
+			}
 		}
 	}
 	g_free(io);
@@ -1550,7 +1561,7 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 		for(i=0; i<MAX_GRAPHS; i++) {
 			graph = &io->graphs[i];
 			if(graph->display) {
-				it = &graph->items[interval];
+				it = graph->items[interval];
 				if (event->button==1) {
 					if(frame_num==0 || (it->first_frame_in_invl < frame_num))
 						frame_num = it->first_frame_in_invl;
