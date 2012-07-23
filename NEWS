@@ -1,4 +1,4 @@
-Wireshark 1.8.0 Release Notes
+Wireshark 1.8.1 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,121 +12,72 @@ What's New
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed.
+
+     o wnpa-sec-2012-11
+
+       The PPP dissector could crash. (Debian bug 680056) -->
+
+       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+
+     o wnpa-sec-2012-12
+
+       The NFS dissector could use excessive amounts of CPU. (Bug
+       7436)
+
+       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+
    The following bugs have been fixed:
 
-     o When saving the displayed packets, packets which are
-       dependencies (e.g., due to reassembly) of the displayed
-       packets are included in the list of saved packets ([1]Bug
-       3315).
+     o Wireshark crashes on bootp filter. (Bug 7391)
 
-     o Rearranging columns in preferences doesn't work on 64-bit
-       Windows. ([2]Bug 6077)
+     o Wireshark > 1.4 does not correctly read Association ID for PS
+       Poll packets. (Bug 7429)
+
+     o Radius-EAP broken since 1.8.0 release. (Bug 7430)
+
+     o SNMP incorrectly marks SNMPv3 "discovery" packet as malformed.
+       (Bug 7438)
+
+     o Widgets are not properly expanded in GTK3. (Bug 7377)
+
+     o Find Next Mark duplicated on Edit Menu. (Bug 7445)
+
+     o DVB-CI/CI+: fix offset error in operator_info apdu. (Bug 7468)
+
+     o Unable to correctly identify IEC 61850 MMS packets. (Bug 7488)
+
+     o WinPcap doesn't install if vcredist_x64 requires reboot. (Bug
+       7507)
 
   New and Updated Features
 
-   The following features are new (or have been significantly
-   updated) since version 1.6:
-
-     o Wireshark supports capturing from multiple interfaces at once.
-
-     o You can now add, edit, and save packet and capture file
-       annotations.
-
-     o Wireshark, TShark, and their associated utilities now save
-       files using the pcap-ng file format by default. (Your copy of
-       Wireshark might still use the pcap file format if pcap-ng is
-       disabled in your preferences.)
-
-     o Decryption key management for IEEE 802.11, IPsec, and ISAKMP
-       is easier.
-
-     o OID resolution is now supported on 64-bit Windows.
-
-     o The "Save As" menu item has been split into "Save As", which
-       lets you save a file using a different filename and "Export
-       Specified Packets", which lets you have more control over
-       which packets are saved.
-
-     o TCP fast retransmissions are now indicated as an expert info
-       note, rather than a warning, just as TCP retransmissions are.
-
-     o TCP window updates are no longer colorized as "Bad TCP".
-
-     o TShark's command-line options have changed. The previously
-       undocumented -P option is now -2 option for performing a
-       two-pass analysis; the former -S option is now the -P option
-       for printing packets even if writing to a file, and the -S
-       option is now used to specify a different line separator
-       between packets.
-
-     o GeoIP IPv6 databases are now supported.
+   There are no new features in this release.
 
   New Protocol Support
 
-   Aastra Signalling Protocol (AASP), ActiveMQ OpenWire, Bandwidth
-   Reservation Protocol (BRP), Bazaar, Binary Floor Control Protocol,
-   BitTorrent DHT, C12.22, CANopen, CIP Motion, CIP Safety, Cisco
-   FabricPath MiM, DMX Channel Data, DMX SIP, DMX Test, DMX Text,
-   DMX, DVB Application Information Table, DVB Bouquet Association
-   Table, DVB Event Information Table, DVB MultiProtocol
-   Encapsulation (DVB-MPE), DVB Network Information Table, DVB
-   Service Description Table, DVB Time and Date Table, DVB Time
-   Offset Table, DVB/ETSI IP Data Cast (IPDC) Electronic Service
-   Guide (ESG), ECP VDP, EIA-709.1 (LonTalk), EIA-852 (CN/IP), ELCOM,
-   Ericsson A-bis OML (OM 2000), Ericsson HDLC, Ericsson Proprietary
-   PCAP, ETSI CAT, ETV-AM Data, ETV-AM EISS Section, Flight Message
-   Transfer Protocol (FMTP), Gadu-Gadu, GEO-Mobile Radio (1) BCCH,
-   GEO-Mobile Radio (1) Common, GEO-Mobile Radio (1) DTAP, GEO-Mobile
-   Radio (1) Radio Resource, Gluster Callback, Gluster CLI, Gluster
-   Dump, Gluster Portmap, GlusterD, GlusterFS Callback, GlusterFS
-   Handshake, GlusterFS, GSM A-bis OML, GSM CBCH, GSM Cell Broadcast
-   Service, GSM SIM, H.248.2, Hadoop Distributed File System (HDFS),
-   HART/IP, Hazelcast, HDFS Data, High bandwidth Digital Content
-   Protection (HDCP), High-availability Seamless Redundancy (HSR),
-   HomePlug AV, HSR/PRP, IEEE 1722.1, ISO 7816, ixveriwave, Kismet
-   drone/server protocol, KristalliNet, LCS-AP, Link Access
-   Procedure, Satellite channel (LAPSat), LLRP, LTE Positioning
-   Protocol A (LPPa), LTE Positioning Protocol, M3 Application
-   Protocol (M3AP), MAC Address Acquisition Protocol, MBMS
-   synchronisation protocol, Microsoft Credential Security Support
-   Provider (CredSSP), MoldUDP, MoldUDP64, MPEG Conditional Access,
-   MPEG descriptors, MPEG DSM-CC, MPEG Program Association Table
-   (PAT), MPEG Program Map Table, MPEG Section, MPLS Packet Loss and
-   Delay Measurement, MPLS-TP Protection State Coordination, Multiple
-   VLAN Registration Protocol (MRVP), Netfilter LOG, NOE, NXP MiFare,
-   NXP PN532, Open IPTV Forum openSAFETY, Performance Co-Pilot (PCP),
-   PPI Sensor, RDP, RTP-MIDI, SBc Application Part (SBc-AP),
-   SDH/SONET, Solaris IP over InfiniBand, Sony FeliCa, T.124, UA
-   (Universal Alcatel), UA3G, UASIP, UAUDP, USB Integrated Circuit
-   Card Interface Device Class (CCID), V5 Data Link Layer (V5DL), V5
-   Envelope Function (V5EF), Virtual eXtensible Local Area Network
-   (VXLAN), VSS-Monitoring, Vuze DHT, WaveAgent, WebSocket, WSE
-   Remote Ethernet, XMCP, YAMI
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
-   Too many protocols have been updated to list here.
+   BACapp, BOOTP, DCERPC SPOOLSS, DVB-CI, H.248, IEEE 802.11,
+   Jmirror, NAS EPS, NFS, PPP, RELOAD Framing, SES, SNMP, XMPP
 
   New and Updated Capture File Support
 
-   Aethra Telecommunications' PC108, Catapult DCT2000, Citrix
-   NetScaler, Cisco Secure IDS IPLog, Endace ERF, Gammu DCT3, Generic
-   MIME, IBM iSeries, InfoVista 5View, Ixia IxVeriWave, LANalyzer,
-   Microsoft NetMon, MPEG2-TS, Network Instruments Observer, Nokia
-   DCT3, pcap, pcap-ng, Solaris snoop, TamoSoft CommView, Tektronix
-   K12xx, XML
+   Microsoft Network Monitor
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [3]http://www.wireshark.org/download.html.
+   http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages.
    You can usually install or upgrade Wireshark using the package
    management system specific to that platform. A list of third-party
-   packages can be found on the [4]download page on the Wireshark web
+   packages can be found on the download page on the Wireshark web
    site.
 
 File Locations
@@ -138,64 +89,41 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([5]Bug
-   1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
 
-   The BER dissector might infinitely loop. ([6]Bug 1516)
+   The BER dissector might infinitely loop. (Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
-   ([7]Bug 1814)
+   (Bug 1814)
 
    Filtering tshark captures with display filters (-R) no longer
-   works. ([8]Bug 2234)
+   works. (Bug 2234)
 
    The 64-bit Windows installer does not support Kerberos decryption.
-   ([9]Win64 development page)
+   (Win64 development page)
 
-   Application crash when changing real-time option. ([10]Bug 4035)
+   Application crash when changing real-time option. (Bug 4035)
 
-   Hex pane display issue after startup. ([11]Bug 4056)
+   Hex pane display issue after startup. (Bug 4056)
 
-   Packet list rows are oversized. ([12]Bug 4357)
+   Packet list rows are oversized. (Bug 4357)
 
-   Summary pane selected frame highlighting not maintained. ([13]Bug
+   Summary pane selected frame highlighting not maintained. (Bug
    4445)
 
    Wireshark and TShark will display incorrect delta times in some
-   cases. ([14]Bug 4985)
+   cases. (Bug 4985)
 
 Getting Help
 
-   Community support is available on [15]Wireshark's Q&A site and on
-   the wireshark-users mailing list. Subscription information and
-   archives for all of Wireshark's mailing lists can be found on
-   [16]the web site.
+   Community support is available on Wireshark's Q&A site and on the
+   wireshark-users mailing list. Subscription information and
+   archives for all of Wireshark's mailing lists can be found on the
+   web site.
 
    Official Wireshark training and certification are available from
-   [17]Wireshark University.
+   Wireshark University.
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [18]Wireshark web site.
-
-References
-
-   Visible links
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3315
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077
-   3. http://www.wireshark.org/download.html
-   4. http://www.wireshark.org/download.html#thirdparty
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   9. https://wiki.wireshark.org/Development/Win64
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  15. http://ask.wireshark.org/
-  16. http://www.wireshark.org/lists/
-  17. http://www.wiresharktraining.com/
-  18. http://www.wireshark.org/faq.html
+   A complete FAQ is available on the Wireshark web site.
