@@ -95,6 +95,8 @@ static dissector_handle_t rtcp_handle;
 
 /* add dissector table to permit sub-protocol registration */
 static dissector_table_t rtcp_dissector_table;
+static dissector_table_t rtcp_psfb_dissector_table;
+static dissector_table_t rtcp_rtpfb_dissector_table;
 
 static const value_string rtcp_version_vals[] =
 {
@@ -361,7 +363,7 @@ static const value_string rtcp_psfb_fmt_vals[] =
     {   3,  "Reference Picture Selection Indication"},
     {   4,  "Full Intra Request (FIR) Command"},
     {   5,  "Temporal-Spatial Trade-off Request (TSTR)"},
-    {   6,  "Temporal-Spatial Trade-off Notification (TSTN"},
+    {   6,  "Temporal-Spatial Trade-off Notification (TSTN)"},
     {   7,  "Video Back Channel Message (VBCM)"},
     {  15,  "Application Layer Feedback"},
     {  31,  "Reserved for future extensions"},
@@ -854,7 +856,7 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto
 
 
 static int
-dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
+dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, packet_info *pinfo )
 {
     unsigned int counter;
     unsigned int rtcp_rtpfb_fmt;
@@ -883,6 +885,18 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_media_source, tvb, offset, 4, ENC_BIG_ENDIAN );
     offset += 4;
 
+    /* Check if we have a type specific dissector,
+     * if we do, just return from here
+     */
+    if (packet_length > 12 &&
+        dissector_get_uint_handle (rtcp_rtpfb_dissector_table, rtcp_rtpfb_fmt)) {
+      tvbuff_t *subtvb = tvb_new_subset(tvb, offset, packet_length - 12, packet_length - 12);
+
+      if (dissector_try_uint (rtcp_rtpfb_dissector_table, rtcp_rtpfb_fmt,
+              subtvb, pinfo, rtcp_tree))
+        return start_offset + packet_length;
+    }
+
     /* Transport-Layer Feedback Message Elements */
     counter = 0;
     while ((offset - start_offset) < packet_length) {
@@ -904,7 +918,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
 }
 static int
 dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
-           int packet_length )
+    int packet_length, packet_info *pinfo )
 {
     unsigned int  counter;
     unsigned int  num_fci;
@@ -2908,10 +2922,10 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
                 break;
             case RTCP_RTPFB:
-                offset = dissect_rtcp_rtpfb( tvb, offset, rtcp_tree, ti );
+              offset = dissect_rtcp_rtpfb( tvb, offset, rtcp_tree, ti, pinfo );
                 break;
             case RTCP_PSFB:
-                offset = dissect_rtcp_psfb( tvb, offset, rtcp_tree, packet_length );
+              offset = dissect_rtcp_psfb( tvb, offset, rtcp_tree, packet_length, pinfo );
                 break;
             default:
                 /*
@@ -5008,7 +5022,8 @@ proto_register_rtcp(void)
 
     /* Register table for sub-dissetors */
     rtcp_dissector_table = register_dissector_table("rtcp.app.name", "RTCP Application Name", FT_STRING, BASE_NONE);
-
+    rtcp_psfb_dissector_table = register_dissector_table("rtcp.psfb.fmt", "RTCP Payload Specific Feedback Message Format", FT_UINT8, BASE_DEC);
+    rtcp_rtpfb_dissector_table = register_dissector_table("rtcp.rtpfb.fmt", "RTCP Generic RTP Feedback Message Format", FT_UINT8, BASE_DEC);
 }
 
 void
