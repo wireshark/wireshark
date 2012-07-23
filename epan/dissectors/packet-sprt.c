@@ -871,47 +871,6 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-
-#if 0  /* XXX: The following doesn't actually dissect anything. Is dissect_sprt() supposed to be called ? */
-/* heuristic dissector */
-static gboolean
-dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_)
-{
-    guint8 octet, extension_bit, reserved_bit, payload_type;
-    guint16 word, tc, seqnum;
-    unsigned int offset = 0;
-
-    /* This is a heuristic dissector, which means we get all the UDP
-     * traffic not sent to a known dissector and not claimed by
-     * a heuristic dissector called before us!
-     */
-
-    if (tvb_length(tvb) < 6)
-        return FALSE; /* packet is waay to short */
-
-    /* Get the fields in the first two octets */
-    extension_bit = tvb_get_guint8(tvb, offset) & 0x7F;
-    if (extension_bit != 0) /* must be 0 */
-        return FALSE;
-
-    octet = tvb_get_guint8(tvb, offset + 1);
-    reserved_bit = octet & 80;
-    payload_type = octet & 0x7F;
-    if (reserved_bit != 0) /* must be 0 */
-        return FALSE;
-    if (payload_type < 96 || payload_type > 128) /* value within RTP dynamic payload type range */
-        return FALSE;
-
-    word = tvb_get_ntohs(tvb, offset + 2);
-    tc = word >> 14;
-    seqnum = word & 0x3F;
-    if ((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
-        return FALSE;
-
-    return TRUE;
-}
-#endif
-
 /* code to actually dissect the packet payload data */
 static int
 dissect_sprt_data(tvbuff_t *tvb,
@@ -1517,7 +1476,44 @@ dissect_sprt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return tvb_length(tvb);
 }
 
+/* heuristic dissector */
+static gboolean
+dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 octet, extension_bit, reserved_bit, payload_type;
+    guint16 word, tc, seqnum;
+    unsigned int offset = 0;
 
+    /* This is a heuristic dissector, which means we get all the UDP
+     * traffic not sent to a known dissector and not claimed by
+     * a heuristic dissector called before us!
+     */
+
+    if (tvb_length(tvb) < 6)
+        return FALSE; /* packet is waay to short */
+
+    /* Get the fields in the first two octets */
+    extension_bit = tvb_get_guint8(tvb, offset) & 0x7F;
+    if (extension_bit != 0) /* must be 0 */
+        return FALSE;
+
+    octet = tvb_get_guint8(tvb, offset + 1);
+    reserved_bit = octet & 80;
+    payload_type = octet & 0x7F;
+    if (reserved_bit != 0) /* must be 0 */
+        return FALSE;
+    if (payload_type < 96 || payload_type > 128) /* value within RTP dynamic payload type range */
+        return FALSE;
+
+    word = tvb_get_ntohs(tvb, offset + 2);
+    tc = word >> 14;
+    seqnum = word & 0x3F;
+    if ((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
+        return FALSE;
+
+    dissect_sprt(tvb, pinfo, tree);
+    return TRUE;
+}
 
 /* register the protocol with Wireshark */
 void
@@ -3430,7 +3426,6 @@ proto_reg_handoff_sprt(void)
 {
     sprt_handle = find_dissector("sprt");
     dissector_add_handle("udp.port", sprt_handle);
-#if 0 /* XXX: See note under dissect_sprt_heur() */
+
     heur_dissector_add( "udp", dissect_sprt_heur, proto_sprt);
-#endif
 }
