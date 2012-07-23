@@ -138,9 +138,8 @@ main(int argc, char **argv)
 		epan_cleanup();
 		exit(2);
 	}
-	printf("dfilter ptr = 0x%08x\n", GPOINTER_TO_INT(df));
 
-	printf("\n\n");
+	printf("\n");
 
 	if (df == NULL)
 		printf("Filter is empty\n");

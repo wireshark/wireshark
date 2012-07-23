@@ -1,8 +1,28 @@
-$Id$
+(This is a consolidation of documentation written by stig, sahlberg, and gram)
 
-XXX - move this file to epan?
+What is the display filter system?
+==================================
+The display filter system allows the user to select packets by testing
+for values in the proto_tree that wireshark constructs for that packet.
+Every proto_item in the proto_tree has an 'abbrev' field
+and a 'type' field, which tells the display filter engine the name
+of the field and its type (what values it can hold).
 
-1. How the Display Filter Engine works.
+For example, this is the definition of the ip.proto field from packet-ip.c:
+
+{ &hf_ip_proto,
+      { "Protocol", "ip.proto", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+              &ipproto_val_ext, 0x0, NULL, HFILL }},
+
+This definition says that "ip.proto" is the display-filter name for
+this field, and that its field-type is FT_UINT8.
+
+For the diplay filter system has 3 major parts to it:
+
+    1. A type system (field types, or "ftypes")
+    2. A parser, to convert a user's query to an internal representation
+    3. An engine that uses the internal representation to select packets.
+
 
 code:
 epan/dfilter/* - the display filter engine, including
@@ -11,14 +31,215 @@ epan/dfilter/* - the display filter engine, including
 epan/ftypes/* - the definitions of the various FT_* field types.
 epan/proto.c   - proto_tree-related routines
 
-1.1 Parsing text.
+
+The field type system
+=====================
+The field type system is stored in epan/ftypes.
+
+The proto_tree system #includes ftypes.h, which gives it the ftenum
+definition, which is the enum of all possible ftypes:
+
+/* field types */
+enum ftenum {
+    FT_NONE,        /* used for text labels with no value */
+    FT_PROTOCOL,
+    FT_BOOLEAN,     /* TRUE and FALSE come from <glib.h> */
+    FT_UINT8,
+    FT_UINT16,
+    FT_UINT24,      /* really a UINT32, but displayed as3 hex-digits if FD_HEX*/
+    FT_UINT32,
+    FT_UINT64,
+    etc., etc.
+}
+
+It also provides the defintion of fvalue_t, the struct that holds the *value*
+that corresponds to the type. each proto_item (proto_node) holds an fvalue_t
+due to having a field_info struct (defined in proto.h).
+
+The fvalue_t is mostly just a gigantic union of possible C-language types
+(as opposed to FT_* types):
+
+typedef struct _fvalue_t {
+        ftype_t *ftype;
+        union {
+                /* Put a few basic types in here */
+                guint32         uinteger;
+                gint32          sinteger;
+                guint64         integer64;
+                gdouble         floating;
+                gchar           *string;
+                guchar          *ustring;
+                GByteArray      *bytes;
+                ipv4_addr       ipv4;
+                ipv6_addr       ipv6;
+                e_guid_t        guid;
+                nstime_t        time;
+                tvbuff_t        *tvb;
+                GRegex          *re;
+        } value;
+
+        /* The following is provided for private use
+         * by the fvalue. */
+        gboolean        fvalue_gboolean1;
+
+} fvalue_t;
+
+
+Defining a field type
+---------------------
+The ftype system itself is designed to be modular, so that new field types
+can be added when necessary.
+
+Each field type must implement an ftype_t structure, also defined in
+ftypes.h. This is the way a field type is registered with the ftype engine.
+
+If you take a look at ftype-integer.c, you will see that it provides
+an ftype_register_integers() function, that fills in many such ftype_t
+structs. It creates one for each integer type: FT_UINT8, FT_UINT16,
+FT_UINT32, etc.
+
+The ftype_t struct defines the things needed for the ftype:
+
+    * it's ftenum value
+    * a string representation of the FT name ("FT_UINT8")
+    * how much data it consumes in the packet
+    * how to store that value in an fvalue_t: new(), free(),
+        various value-related funtions
+    * how to compare that value against another
+    * how to slice that value (strings an byte ranges can be sliced)
+
+Using an fvalue_t
+-----------------
+Once the value of a field is stored in an fvalue_t (stored in
+each proto_item via field_info), it's easy to use those values,
+thanks to the various fvalue_*() functions defind in ftypes.h.
+
+Functions like fvalue_get(), fvalue_eq(), etc., are all generic
+interfaces to get information about the field's value. They work
+on any field type because of the ftype_t struct, which is the lookup
+table that the field-type engine uses to work with any field type.
+
+The display filter parser
+=========================
+The display filter parser (along with the comparison engine)
+is stored in epan/dfilter.
 
 The scanner/parser pair read the string representing the display filter
 and convert it into a very simple syntax tree.  The syntax tree is very
 simple in that it is possible that many of the nodes contain unparsed
 chunks of text from the display filter.
 
-1.1 Enhancing the syntax tree.
+There are four phases to parsing a users's request:
+
+ 1. Scanning the string for dfilter syntax
+ 2. Parsing the keywords according to the dfilter grammar, into a
+        syntax tree
+ 3. Doing a semantic check of the nodes in that syntax tree
+ 4. Convering the syntax tree into a series of DFVM byte codes
+
+The dfilter_compile() function, in epan/dfilter/dfilter.c,
+runs these 4 phases. The end result is a dfwork_t object (dfw), that
+can be passe dto dfilter_apply() to actually run the display filter
+against a set of proto_tree's.
+
+
+Scanning the display filter string
+----------------------------------
+epan/dfilter/scanner.l is the lex scanner for finding keywords
+in the user's display filter string.
+
+It's operation is simple. It finds the special punction and comparison
+operators ("==", "!=", "eq", "ne", etc.), it finds slice operaions
+( "[0:1]" ), quoted strings, IP addresses, numbers, and any other "special"
+keywords or string types.
+
+Anything it doesn't know how to handle is passed to to grammar parser
+as an unparsed string (TOKEN_UNPARSED). This includes field names. The
+scanner does not interpret any protocol field names at all.
+
+The scanner has to return a token type (TOKEN_*, and in many cases,
+a value. The value will be an stnode_t struct, which is a syntax
+tree node object. Since the final storage of the parse will
+be in a syntax tree, it is convenient for the scanner to fill in
+syntax tree nodes with values when it can.
+
+The stnode_t definition is in epan/dfilter/syntax-tree.h
+
+
+Parsing the keywords according to the dfilter grammar
+-----------------------------------------------------
+The grammar parser is implemented with the 'lemon' tool,
+rather than the traditional yacc or bison grammar parser,
+as lemon grammars were found to be easier to work with. The
+lemon parser specification (epan/dfilter/grammar.lemon) is
+much easier to read than its bison counterpart would be,
+thanks to lemon's feature of being able to name fields, rather
+then using numbers ($1, $2, etc.)
+
+The lemon tool is located in tools/lemon in the wireshark
+distribution.
+
+An on-line introduction to lemon is available at:
+
+http://www.sqlite.org/src/doc/trunk/doc/lemon.html
+
+The grammar specifies which type of constructs are possible
+within the dfilter language ("dfilter-lang")
+
+A "expression" in dfilter-lang can be a relational test or a logical test.
+
+A relational test compares a value against another, which is usually
+a field (or a slice of a field) against some static value, like:
+
+    ip.proto == 1
+    eth.dst != ff:ff:ff:ff:ff:ff
+
+A logical test combines other expressions with "and", "or", and "not".
+
+At the end of the grammatical parsing, the dfw object will
+have a valid syntax tree, pointed at by dfw->st_root.
+
+If there is a error in the sytax, the parser will call dfilter_fail()
+with an appropriate error message, which the UI will need to report
+to the user.
+
+The syntax tree system
+----------------------
+The syntax tree is created as a result of running the lemon-based
+grammar parser on the scanned tokens. The syntax tree code
+is in epan/dfilter/syntax-tree* and epan/dfilter/sttree-*. It too
+uses a set of code modules that implement differnet syntax node types,
+similar to how the field-type system registers a set of ftypes
+with a central engine.
+
+Each node (stnode_t) in the syntax tree has a type (sttype).
+These sttypes are very much related to ftypes (field types), but there
+is not a one-to-one correspondence. The syntax tree nodes are slightly
+high-level. For example, there is only a single INTEGER sttype, unlike
+the ftype system that has a type for UINT64, UINT32, UINT16, UINT8, etc.
+
+typedef enum {
+        STTYPE_UNINITIALIZED,
+        STTYPE_TEST,
+        STTYPE_UNPARSED,
+        STTYPE_STRING,
+        STTYPE_FIELD,
+        STTYPE_FVALUE,
+        STTYPE_INTEGER,
+        STTYPE_RANGE,
+        STTYPE_FUNCTION,
+        STTYPE_NUM_TYPES
+} sttype_id_t;
+
+
+The root node of the syntax tree is the main test or comparison
+being done.
+
+Semantic Check
+--------------
+After the parsing is done and a syntax tree is available, the
+code in semcheck.c does a semantic check of what is in the syntax
+tree.
 
 The semantics of the simple syntax tree are checked to make sure that
 the fields that are being compared are being compared to appropriate
@@ -29,8 +250,27 @@ During the process of checking the semantics, the simple syntax tree is
 fleshed out and no longer contains nodes with unparsed information.  The
 syntax tree is no longer in its simple form, but in its complete form.
 
-1.2 Converting to DFVM bytecode.
+For example, if the dfilter is slicing a field and comparing
+against a set of bytes, semcheck.c has to check that the field
+in question can indeed be sliced.
 
+Or, can a field be compared against a certain type of value (string,
+integer, float, IPv4 address, etc.)
+
+The semcheck code also makes adjustments to the syntax tree
+when it needs to. The parser sometimes stores raw, unparsed strings
+in the syntax tree, and semcheck has toto convert them to
+certain types. For example, the display filter may contain
+a value_string string (the "enum" type that protocols can use
+to define the possible textual descriptions of numeric fields), and
+semcheck will convert that value_string string into the correct
+integer value.
+
+Truth be told, the semcheck.c code is a bit disorganized, and could
+be re-designed & re-written.
+
+DFVM Byte Codes
+---------------
 The syntax tree is analyzed to create a sequence of bytecodes in the
 "DFVM" language.  "DFVM" stands for Display Filter Virtual Machine.  The
 DFVM is similar in spirit, but not in definition, to the BPF VM that
@@ -42,8 +282,27 @@ a list of VM bytecodes than to attempt to filter packets directly from
 the syntax tree.  (heh...  no measurement has been made to support this
 supposition)
 
-1.3 Filtering.
+The DFVM opcodes are defind in epan/dfilter/dfvm.h (dfvm_opcode_t).
+Similar to how the BPF opcode system works in libpcap, there is a
+limtied set of opcodes. They operate by loading values from the
+proto_tree into registers, loading pre-defined values into
+registers, and comparing them. The opcodes are checked in sequence, and
+there are only 2 branching opcodes: IF_TRUE_GOTO and IF_FALSE_GOTO.
+Both of these can only branch forwards, and never backwards. In this way
+sets of DFVM instructions will never get into an infinite loop.
 
+The epan/dfilter/gencode.c code converts the syntax tree
+into a set of dvfm instructions.
+
+The constants that are in the DFVM instructions (the constant
+values that the user is checking against) are pre-loaded
+into registers via the dvfm_init_const() call, and stored
+in the dfilter_t structure for when the display filter is
+actually applied.
+
+
+DFVM Engine
+===========
 Once the DFVM bytecode has been produced, it's a simple matter of
 running the DFVM engine against the proto_tree from the packet
 dissection, using the DFVM bytecodes as instructions.  If the DFVM
@@ -53,8 +312,80 @@ field_info structures that are interesting to the display filter.  This
 makes lookup of those field_info structures during the filtering process
 faster.
 
-1.4 Display Filter Functions.
+The dfilter_apply() function runs a single pre-compiled
+display filter against a single proto_tree function, and returns
+TRUE or FALSE, meaning that the filter matched or not.
 
+That function calls dfvm_apply(), which runs across the DFVM
+instructions, loading protocol field values into DFVM registers
+and doing the comparisons.
+
+There is a top-level Makefile target called 'dftest' which
+builds a 'dftest' executable that will print out the DFVM
+bytecode for any display filter given on the command-line.
+To build it, run:
+
+$ make dftest
+
+To use it, give it the display filter on the command-line:
+
+$ ./dftest 'ip.addr == 127.0.0.1'
+Filter: "ip.addr == 127.0.0.1"
+
+Constants:
+00000 PUT_FVALUE        127.0.0.1 <FT_IPv4> -> reg#1
+
+Instructions:
+00000 READ_TREE         ip.addr -> reg#0
+00001 IF-FALSE-GOTO     3
+00002 ANY_EQ            reg#0 == reg#1
+00003 RETURN
+
+
+The output shows the original display filter, then the opcodes
+that put constant values into registers. The registers are
+numbered, and are shown in the output as "reg#n", where 'n' is the
+identifying number.
+
+Then the instructions are shown. These are the instructions
+which are run for each proto_tree.
+
+This is what happens in this example:
+
+00000 READ_TREE         ip.addr -> reg#0
+
+Any ip.addr fields in the proto_tree are loaded into register 0. Yes,
+multiple values can be loaded into a single register. As a result
+of this READ_TREE, the accumulator will hold TRUE or FALSE, indicating
+if any field's value was loaded, or not.
+
+00001 IF-FALSE-GOTO     3
+
+If the load failed because there were no ip.addr fields
+in the proto_tree, then we jump to instruction 3.
+
+00002 ANY_EQ            reg#0 == reg#1
+
+This checks to see if any of the fields in register 0 
+(which has the pre-loaded constant value of 127.0.0.1) are equal
+to any of the fields in register 1 (which are all of the ip.addr
+fields in the proto tree). The resulting value in the
+accumulator will be TRUE if any of the fields match, or FALSE
+if none match.
+
+00003 RETURN
+
+This returns the accumulator's value, either TRUE or FALSE.
+
+In addition to dftest, there is also a tools/dfilter-test script
+which is a unit-test script for the display filter engine.
+It makes use of text2pcap and tshark to run specific display
+filters against specific captures (embedded within dfilter-test).
+
+
+
+Display Filter Functions
+========================
 You define a display filter function by adding an entry to
 the df_functions table in epan/dfilter/dfunctions.c. The record struct
 is defined in dfunctions.h, and shown here:
@@ -115,3 +446,153 @@ The "stnode_t" is the syntax-tree node representing that parameter.
 If everything is okay with the value of that stnode_t, your function
 does nothing --- it merely returns. If something is wrong, however,
 it should THROW a TypeError exception.
+
+
+Example: add an 'in' display filter operation
+=============================================
+
+This example has been discussed on wireshark-dev in April 2004. It illustrates
+how a more complex operation can be added to the display filter language.
+
+Question:
+
+	If I want to add an 'in' display filter operation, I need to define
+	several things. This can happen in different ways. For instance,
+	every value from the "in" value collection will result in a test.
+	There are 2 options here, either a test for a single value:
+
+		(x in {a b c})
+
+	or a test for a value in a given range:
+
+		(x in {a ... z})
+
+	or even a combination of both. The former example can be reduced to:
+
+		((x == a) or (x == b) or (x == c))
+
+	while the latter can be reduced to
+
+		((x >= MIN(a, z)) and (x <= MAX(a, z)))
+
+	I understand that I can replace "x in {" with the following steps:
+	first store x in the "in" test buffer, then add "(" to the display
+	filter expression internally.
+
+	Similarly I can replace the closing brace "}" with the following
+	steps: release x from the "in" test buffer and then add ")"
+	to the display filter expression internally.
+
+	How could I do this?
+
+Answer:
+
+	This could be done in grammar.lemon. The grammar would produce
+	syntax tree nodes, combining them with "or", when it is given
+	tokens that represent the "in" syntax.
+
+	It could also be done later in the process, maybe in
+	semcheck.c. But if you can do it earlier, in grammar.lemon,
+	then you shouldn't have to worry about modifying anything in
+	semcheck.c, as the syntax tree that is passed to semcheck.c
+	won't contain any new type of operators... just lots of nodes
+	combined with "or".
+
+How to add an operator FOO to the display filter language?
+==========================================================
+
+Go to wireshark/epan/dfilter/
+
+Edit grammar.lemon and add the operator. Add the operator FOO and the
+test logic (defining TEST_OP_FOO).
+
+Edit scanner.l and add the operator name(s) hence defining
+TOKEN_TEST_FOO. Also update the simple() or add the new operand's code.
+
+Edit sttype-test.h and add the TEST_OP_FOO to the list of test operations.
+
+Edit sttype-test.c and add TEST_OP_FOO to the num_operands() method.
+
+Edit gencode.c, add TEST_OP_FOO in the gen_test() method by defining
+ANY_FOO.
+
+Edit dfvm.h and add ANY_FOO to the enum dfvm_opcode_t structure.
+
+Edit dfvm.c and add ANY_FOO to dfvm_dump() (for the dftest display filter
+test binary), to dfvm_apply() hence defining the methods fvalue_foo().
+
+Edit semcheck.c and look at the check_relation_XXX() methods if they
+still apply to the foo operator; if not, amend the code. Start from the
+check_test() method to discover the logic.
+
+Go to wireshark/epan/ftypes/
+
+Edit ftypes.h and declare the fvalue_foo(), ftype_can_foo() and
+fvalue_foo() methods. Add the cmp_foo() method to the struct _ftype_t.
+
+This is the first time that a make in wireshark/epan/dfilter/ can
+succeed. If it fails, then some code in the previously edited files must
+be corrected.
+
+Edit ftypes.c and define the fvalue_foo() method with its associated
+logic. Define also the ftype_can_foo() and fvalue_foo() methods.
+
+Edit all ftype-*.c files and add the required fvalue_foo() methods.
+
+This is the point where you should be able to compile without errors in
+wireshark/epan/ftypes/. If not, first fix the errors.
+
+Go to wireshark/epan/ and run make. If this one succeeds, then we're
+almost done as no errors should occur here.
+
+Go to wireshark/ and run make. One thing to do is make dftest and see
+if you can construct valid display filters with your new operator. Or
+you may want to move directly to the generation of wireshark.
+
+Look also at wireshark/gtk/dfilter_expr_dlg.c and edit the display filter
+expression generator.
+
+How to add a new test to dfilter-test.py
+========================================
+If you need a new packet, create an instance of Packet()
+inside dfilter-test.py, and add its hexdump as you see in the
+existing Packet instances.
+
+Add a method to run your tests to an existing class which is
+a sub-class of Test, or add your own new sub-class of Test.
+The 'tests' field in each class must list the test methods that
+are to be called. Each test must return the result of:
+
+    self.DFilterCount(packet_object, dfilter_text, expected_count)
+
+If you have added a new sub-class of Test, it must be added
+to the global all_tests variable.
+
+Then, simply run "dfilter-test.py". You can run the tests
+in a single Test sub-class by naming that sub-class on the
+dfilter-test.py command-line, like:
+
+$ ./tools/dfilter-test.py TVB
+Note: Bytes test does not yet test FT_INT64.
+Note: Scanner test does not yet test embedded double-quote.
+TVB
+        ck_eq_1 ... OK
+        ck_slice_1 ... OK
+        ck_slice_2 ... OK
+        ck_slice_3 ... OK
+        ck_contains_1 ... OK
+        ck_contains_2 ... OK
+        ck_contains_3 ... OK
+        ck_contains_4 ... OK
+        ck_contains_5 ... OK
+
+
+Total Tests Run: 9
+Total Tests Succeeded: 9
+Total Tests Failed: 0
+
+
+Note that dfilter-test.py should be run from the top of the
+wireshark distribution, so it knows where to find the default
+text2pcap and tshark executables.
+
