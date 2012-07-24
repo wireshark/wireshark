@@ -124,11 +124,10 @@ typedef enum {
 /** User requested one of "Apply as Filter" or "Prepare a Filter" functions
  *  by menu or context menu of protocol tree.
  *
- * @param widget parent widget
  * @param data parent widget
  * @param action the function to use
  */
-extern void match_selected_ptree_cb(GtkWidget *widget, gpointer data, MATCH_SELECTED_E action);
+extern void match_selected_ptree_cb(gpointer data, MATCH_SELECTED_E action);
 
 /** "Copy ..." action type. */
 typedef enum {
@@ -167,11 +166,10 @@ extern void colorize_selected_ptree_cb(GtkWidget *w, gpointer data, guint8 filt_
 /** User requested one of "Apply as Filter" or "Prepare a Filter" functions
  *  by context menu of packet list.
  *
- * @param widget parent widget (unused)
  * @param data parent widget
  * @param action the function to use
  */
-extern void match_selected_plist_cb(GtkWidget *widget, gpointer data, MATCH_SELECTED_E action);
+extern void match_selected_plist_cb(gpointer data, MATCH_SELECTED_E action);
 
 /** User requested "Quit" by menu or toolbar.
  *

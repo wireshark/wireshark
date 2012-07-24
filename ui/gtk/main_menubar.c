@@ -474,87 +474,87 @@ goto_previous_frame_conversation_cb(GtkAction *action _U_, gpointer user_data _U
 /*Apply a filter */
 
 static void
-tree_view_menu_apply_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_apply_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/Selected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_apply_not_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/NotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_and_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_apply_and_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/AndSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_or_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_apply_or_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/OrSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_apply_and_not_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/AndNotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
-tree_view_menu_apply_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_apply_or_not_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ApplyAsFilter/OrNotSelected");
-    match_selected_ptree_cb( widget , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 /* Prepare a filter */
 static void
-tree_view_menu_prepare_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_prepare_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/Selected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE);
 }
 
 static void
-tree_view_menu_prepare_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_prepare_not_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/NotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_NOT);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_NOT);
 }
 
 static void
-tree_view_menu_prepare_and_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_prepare_and_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/AndSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_AND);
 }
 
 static void
-tree_view_menu_prepare_or_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_prepare_or_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/OrSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_OR);
 }
 
 static void
-tree_view_menu_prepare_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_prepare_and_not_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/AndNotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_AND_NOT);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_AND_NOT);
 }
 
 static void
-tree_view_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/PrepareaFilter/OrNotSelected");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_OR_NOT);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_OR_NOT);
 }
 
 static void
@@ -576,9 +576,10 @@ copy_value_cb(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-copy_as_filter_cb(GtkAction *action _U_, gpointer user_data)
+copy_as_filter_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-    match_selected_ptree_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static void
@@ -1987,73 +1988,73 @@ packet_list_menu_set_ref_time_cb(GtkAction *action _U_, gpointer user_data)
 static void
 packet_list_menu_apply_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb( NULL /* widget _U_ */, user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
 packet_list_menu_apply_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
 packet_list_menu_apply_and_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
 packet_list_menu_apply_or_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
 packet_list_menu_apply_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 
 static void
 packet_list_menu_apply_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
+    match_selected_plist_cb(user_data,MATCH_SELECTED_OR_NOT|MATCH_SELECTED_APPLY_NOW);
 }
 /* Prepare a filter */
 static void
 packet_list_menu_prepare_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE);
 }
 
 static void
 packet_list_menu_prepare_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_NOT);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_NOT);
 }
 
 static void
 packet_list_menu_prepare_and_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_AND);
 }
 
 static void
 packet_list_menu_prepare_or_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_OR);
 }
 
 static void
 packet_list_menu_prepare_and_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_AND_NOT);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_AND_NOT);
 }
 
 static void
 packet_list_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb(  NULL /* widget _U_ */ , user_data, MATCH_SELECTED_OR_NOT);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_OR_NOT);
 }
 
 static void
@@ -2441,7 +2442,7 @@ packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
 static void
 packet_list_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
 {
-    match_selected_plist_cb( NULL /* widget _U_ */ , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+    match_selected_plist_cb(user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static void
@@ -2562,10 +2563,10 @@ tree_view_menu_copy_value(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data)
+tree_view_menu_copy_as_flt(GtkAction *action _U_, gpointer user_data _U_)
 {
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/Copy/AsFilter");
-    match_selected_ptree_cb( widget , user_data, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
+	/* match_selected_ptree_cb needs the popup_menu_object to get the right object E_DFILTER_TE_KEY */
+    match_selected_ptree_cb( popup_menu_object, MATCH_SELECTED_REPLACE|MATCH_SELECTED_COPY_ONLY);
 }
 
 static const char *ui_desc_packet_list_heading_menu_popup =
