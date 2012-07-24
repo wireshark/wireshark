@@ -410,6 +410,11 @@ void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
 
     debug(DBS_FENTRY) puts("rlc_lte_graph_cb()");
 
+    /* Can we choose an RLC channel from the selected frame? */
+    if (!select_rlc_lte_session(&cfile, &current)) {
+        return;
+    }
+
     if (!(g = graph_new())) {
         return;
     }
@@ -417,11 +422,9 @@ void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
     refnum++;
     graph_initialize_values(g);
 
-    if (!select_rlc_lte_session(&cfile, &current)) {
-        return;
-    }
-
+    /* Get our list of segments from the packet list */
     graph_segment_list_get(g);
+
     create_gui(g);
     graph_init_sequence(g);
 }
