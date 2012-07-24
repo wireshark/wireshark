@@ -1292,11 +1292,11 @@ col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const
       col_set_delta_time_dis(fd, cinfo, col);
       break;
 
-    case TS_UTC:
+    case COL_UTC_TIME:
       col_set_utc_time(fd, cinfo, col);
       break;
 
-    case TS_UTC_WITH_DATE:
+    case COL_UTC_DATE_TIME:
       col_set_utc_date_time(fd, cinfo, col);
       break;
 
