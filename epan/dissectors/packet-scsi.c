@@ -128,7 +128,16 @@ static int hf_scsi_paramlen                     = -1;
 static int hf_scsi_paramlen16                   = -1;
 static int hf_scsi_modesel_flags                = -1;
 static int hf_scsi_modesns_pc                   = -1;
-static int hf_scsi_spcpagecode                  = -1;
+static int hf_scsi_modepage_ps			= -1;
+static int hf_scsi_modepage_spf			= -1;
+static int hf_scsi_modepage_plen		= -1;
+static int hf_scsi_modepage_tcmos		= -1;
+static int hf_scsi_modepage_scsip		= -1;
+static int hf_scsi_modepage_ialuae		= -1;
+static int hf_scsi_modepage_icp			= -1;
+static int hf_scsi_modepage_msdl		= -1;
+static int hf_scsi_spc_pagecode                 = -1;
+static int hf_scsi_spc_subpagecode              = -1;
 static int hf_scsi_sbcpagecode                  = -1;
 static int hf_scsi_sscpagecode                  = -1;
 static int hf_scsi_smcpagecode                  = -1;
@@ -2808,40 +2817,62 @@ dissect_scsi_blockdescs(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static gboolean
 dissect_scsi_spc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
-                          proto_tree *tree, guint offset, guint8 pcode)
+                          proto_tree *tree, guint offset, guint8 pcode, guint8 spf, guint8 subpcode)
 {
     guint8 flags, proto;
 
     switch (pcode) {
     case SCSI_SPC_MODEPAGE_CTL:
-        flags = tvb_get_guint8(tvb, offset+2);
-        proto_tree_add_item(tree, hf_scsi_modesns_tst, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(tree, tvb, offset+2, 1,
-                            "Global Logging Target Save Disable: %u, Report Log Exception Condition: %u",
-                            (flags & 0x2) >> 1, (flags & 0x1));
-        flags = tvb_get_guint8(tvb, offset+3);
-        proto_tree_add_item(tree, hf_scsi_modesns_qmod, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_scsi_modesns_qerr, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(tree, tvb, offset+3, 1, "Disable Queuing: %u",
-                            flags & 0x1);
-        flags = tvb_get_guint8(tvb, offset+4);
-        proto_tree_add_item(tree, hf_scsi_modesns_rac, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_scsi_modesns_tas, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(tree, tvb, offset+4, 1,
-                            "SWP: %u, RAERP: %u, UAAERP: %u, EAERP: %u",
-                            (flags & 0x8) >> 3, (flags & 0x4) >> 2,
-                            (flags & 0x2) >> 1, (flags & 0x1));
-        proto_tree_add_text(tree, tvb, offset+5, 1, "Autoload Mode: 0x%x",
-                            tvb_get_guint8(tvb, offset+5) & 0x7);
-        proto_tree_add_text(tree, tvb, offset+6, 2,
-                            "Ready AER Holdoff Period: %u ms",
-                            tvb_get_ntohs(tvb, offset+6));
-        proto_tree_add_text(tree, tvb, offset+8, 2,
-                            "Busy Timeout Period: %u ms",
-                            tvb_get_ntohs(tvb, offset+8)*100);
-        proto_tree_add_text(tree, tvb, offset+10, 2,
-                            "Extended Self-Test Completion Time: %u",
-                            tvb_get_ntohs(tvb, offset+10));
+        if (!spf) {
+            /* standard page for control */
+            flags = tvb_get_guint8(tvb, offset+2);
+            proto_tree_add_item(tree, hf_scsi_modesns_tst, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_text(tree, tvb, offset+2, 1,
+                                "Global Logging Target Save Disable: %u, Report Log Exception Condition: %u",
+                                (flags & 0x2) >> 1, (flags & 0x1));
+            flags = tvb_get_guint8(tvb, offset+3);
+            proto_tree_add_item(tree, hf_scsi_modesns_qmod, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_scsi_modesns_qerr, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_text(tree, tvb, offset+3, 1, "Disable Queuing: %u",
+                                flags & 0x1);
+            flags = tvb_get_guint8(tvb, offset+4);
+            proto_tree_add_item(tree, hf_scsi_modesns_rac, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_scsi_modesns_tas, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_text(tree, tvb, offset+4, 1,
+                                "SWP: %u, RAERP: %u, UAAERP: %u, EAERP: %u",
+                                (flags & 0x8) >> 3, (flags & 0x4) >> 2,
+                                (flags & 0x2) >> 1, (flags & 0x1));
+            proto_tree_add_text(tree, tvb, offset+5, 1, "Autoload Mode: 0x%x",
+                                tvb_get_guint8(tvb, offset+5) & 0x7);
+            proto_tree_add_text(tree, tvb, offset+6, 2,
+                                "Ready AER Holdoff Period: %u ms",
+                                tvb_get_ntohs(tvb, offset+6));
+            proto_tree_add_text(tree, tvb, offset+8, 2,
+                                "Busy Timeout Period: %u ms",
+                                tvb_get_ntohs(tvb, offset+8)*100);
+            proto_tree_add_text(tree, tvb, offset+10, 2,
+                                "Extended Self-Test Completion Time: %u",
+                                tvb_get_ntohs(tvb, offset+10));
+        } else {
+            switch (subpcode) {
+            case 1:
+                /* control extension subpage */
+                proto_item_append_text(tree, " Control Extension");
+
+		/* TCMOS SCSIP IALUAE */
+                proto_tree_add_item(tree, hf_scsi_modepage_tcmos, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_scsi_modepage_scsip, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tree, hf_scsi_modepage_ialuae, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+
+		/* Initial Command Priority */
+                proto_tree_add_item(tree, hf_scsi_modepage_icp, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
+
+		/* Maximum Sense Data Length */
+                proto_tree_add_item(tree, hf_scsi_modepage_msdl, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
+
+                break;
+            }
+        }
         break;
     case SCSI_SPC_MODEPAGE_DISCON:
         proto_tree_add_text(tree, tvb, offset+2, 1, "Buffer Full Ratio: %u",
@@ -2935,7 +2966,7 @@ dissect_scsi_spc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static gboolean
 dissect_scsi_sbc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
-                          proto_tree *tree, guint offset, guint8 pcode)
+                          proto_tree *tree, guint offset, guint8 pcode, guint8 spf _U_, guint8 subpcode _U_)
 {
     guint8 flags;
 
@@ -3081,7 +3112,7 @@ static const value_string compression_algorithm_vals[] = {
 static gboolean
 dissect_scsi_ssc2_modepage(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
                            proto_tree *tree _U_, guint offset _U_,
-                           guint8 pcode)
+                           guint8 pcode, guint8 spf _U_, guint8 subpcode _U_)
 {
     guint8 flags;
 
@@ -3199,7 +3230,7 @@ dissect_scsi_ssc2_modepage(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 static gboolean
 dissect_scsi_mmc5_modepage(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
-                           proto_tree *tree _U_, guint offset _U_, guint8 pcode)
+                           proto_tree *tree _U_, guint offset _U_, guint8 pcode, guint8 spf _U_, guint8 subpcode _U_)
 {
     guint8  flags;
     guint8  i;
@@ -3331,7 +3362,7 @@ dissect_scsi_mmc5_modepage(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 static gboolean
 dissect_scsi_smc_modepage(tvbuff_t *tvb, packet_info *pinfo _U_,
-                          proto_tree *tree, guint offset, guint8 pcode)
+                          proto_tree *tree, guint offset, guint8 pcode, guint8 spf _U_, guint8 subpcode _U_)
 {
     guint8 flags;
     guint8 param_list_len;
@@ -3441,16 +3472,23 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
                       proto_tree *scsi_tree, guint offset,
                       scsi_device_type devtype)
 {
-    guint8              pcode, plen;
+    guint16             plen;
+    guint8		pcode, spf, subpcode = 0;
     proto_tree         *tree;
     proto_item         *ti;
     const value_string *modepage_val;
     int                 hf_pagecode;
     gboolean (*dissect_modepage)(tvbuff_t *, packet_info *, proto_tree *,
-                                 guint, guint8);
+                                 guint, guint8, guint8, guint8);
 
-    pcode = tvb_get_guint8(tvb, offset);
-    plen = tvb_get_guint8(tvb, offset+1);
+    pcode = tvb_get_guint8(tvb, offset) & SCSI_MS_PCODE_BITS;
+    spf   = tvb_get_guint8(tvb, offset) & 0x40;
+    if (spf) {
+        subpcode = tvb_get_guint8(tvb, offset + 1);
+        plen = tvb_get_ntohs(tvb, offset + 2);
+    } else {
+        plen = tvb_get_guint8(tvb, offset + 1);
+    }
 
     if (match_strval(pcode & SCSI_MS_PCODE_BITS,
                      scsi_spc_modepage_val) == NULL) {
@@ -3491,24 +3529,30 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
              * "Unknown (XXX)", which is what we want.
              */
             modepage_val = scsi_spc_modepage_val;
-            hf_pagecode = hf_scsi_spcpagecode;
+            hf_pagecode = hf_scsi_spc_pagecode;
             dissect_modepage = dissect_scsi_spc_modepage;
             break;
         }
     } else {
         modepage_val = scsi_spc_modepage_val;
-        hf_pagecode = hf_scsi_spcpagecode;
+        hf_pagecode = hf_scsi_spc_pagecode;
         dissect_modepage = dissect_scsi_spc_modepage;
     }
-    ti = proto_tree_add_text(scsi_tree, tvb, offset, plen+2, "%s Mode Page",
+
+    ti = proto_tree_add_text(scsi_tree, tvb, offset, plen + spf ? 4 : 2, "%s Mode Page",
                              val_to_str(pcode & SCSI_MS_PCODE_BITS,
                                         modepage_val, "Unknown (0x%08x)"));
     tree = proto_item_add_subtree(ti, ett_scsi_page);
-    proto_tree_add_text(tree, tvb, offset, 1, "PS: %u", (pcode & 0x80) >> 7);
-
+    proto_tree_add_item(tree, hf_scsi_modepage_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_scsi_modepage_spf, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_pagecode, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_text(tree, tvb, offset+1, 1, "Page Length: %u",
-                        plen);
+
+    if (spf) {
+        proto_tree_add_item(tree, hf_scsi_spc_subpagecode, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_scsi_modepage_plen, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    } else { 
+        proto_tree_add_item(tree, hf_scsi_modepage_plen, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    }
 
     if (!tvb_bytes_exist(tvb, offset, plen)) {
         /* XXX - why not just drive on and throw an exception? */
@@ -3516,7 +3560,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!(*dissect_modepage)(tvb, pinfo, tree, offset,
-                             (guint8) (pcode & SCSI_MS_PCODE_BITS))) {
+                             pcode, spf, subpcode)) {
         proto_tree_add_text(tree, tvb, offset+2, plen,
                             "Unknown Page");
     }
@@ -3757,11 +3801,11 @@ dissect_scsi_pagecode(tvbuff_t *tvb, packet_info *pinfo _U_,
             break;
 
         default:
-            hf_pagecode = hf_scsi_spcpagecode;
+            hf_pagecode = hf_scsi_spc_pagecode;
             break;
         }
     } else {
-        hf_pagecode = hf_scsi_spcpagecode;
+        hf_pagecode = hf_scsi_spc_pagecode;
     }
     proto_tree_add_uint(tree, hf_pagecode, tvb, offset, 1, pcode);
 }
@@ -5150,7 +5194,10 @@ proto_register_scsi(void)
         { &hf_scsi_modesns_pc,
           {"Page Control", "scsi.mode.pc", FT_UINT8, BASE_DEC,
            VALS(scsi_modesns_pc_val), 0xC0, NULL, HFILL}},
-        { &hf_scsi_spcpagecode,
+        { &hf_scsi_spc_subpagecode,
+          {"SubPage Code", "scsi.mode.spc.subpagecode", FT_UINT8, BASE_HEX,
+           NULL, 0, NULL, HFILL}},
+        { &hf_scsi_spc_pagecode,
           {"SPC-2 Page Code", "scsi.mode.spc.pagecode", FT_UINT8, BASE_HEX,
            VALS(scsi_spc_modepage_val), 0x3F, NULL, HFILL}},
         { &hf_scsi_sbcpagecode,
@@ -5738,6 +5785,30 @@ proto_register_scsi(void)
         { &hf_scsi_block_limits_mwsl,
           {"Maximum Write Same Length", "scsi.sbc.bl.mwsl", FT_UINT64, BASE_DEC, NULL, 0,
            NULL, HFILL}},
+        { &hf_scsi_modepage_ps,
+          {"PS", "scsi.spc.modepage.ps", FT_BOOLEAN, 8, NULL, 0x80,
+           NULL, HFILL}},
+        { &hf_scsi_modepage_spf,
+          {"SPF", "scsi.spc.modepage.spf", FT_BOOLEAN, 8, NULL, 0x40,
+           NULL, HFILL}},
+        { &hf_scsi_modepage_plen,
+          {"Page Length", "scsi.spc.modepage.plen", FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}},
+	{ &hf_scsi_modepage_tcmos,
+          {"TCMOS", "scsi.spc.modepage.tcmos", FT_BOOLEAN, 8, NULL, 0x04,
+           NULL, HFILL}},
+	{ &hf_scsi_modepage_scsip,
+          {"SCSIP", "scsi.spc.modepage.scsip", FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}},
+	{ &hf_scsi_modepage_ialuae,
+          {"IALUAE", "scsi.spc.modepage.ialuae", FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}},
+        { &hf_scsi_modepage_icp,
+          {"Initial Command Priority", "scsi.spc.modepage.icp", FT_UINT8, BASE_DEC,
+	   NULL, 0x0f, NULL, HFILL}},
+        { &hf_scsi_modepage_msdl,
+          {"Maximum Sense Data Length", "scsi.spc.modepage.msdl", FT_UINT8, BASE_DEC,
+	   NULL, 0, NULL, HFILL}},
     };
 
     /* Setup protocol subtree array */
