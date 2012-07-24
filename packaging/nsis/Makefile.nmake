@@ -202,6 +202,7 @@ NSIS_FLAGS=\
 	rm -f $(UNINSTALL_INSTALLER)
 	$(MAKENSIS) $(NSIS_FLAGS) uninstall.nsi
 	$(UNINSTALL_INSTALLER)
+	rm -f $(UNINSTALL_INSTALLER)
 
 uninstall-exe : ..\..\uninstall.exe
 
