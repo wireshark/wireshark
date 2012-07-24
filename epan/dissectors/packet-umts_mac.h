@@ -64,10 +64,12 @@ typedef struct umts_mac_info
     guint8 content[MAX_MAC_FRAMES];
     guint8 lchid[MAX_MAC_FRAMES];       /*Makes displaying logical channel alot easier*/
     guint8 macdflow_id[MAX_MAC_FRAMES]; /*Makes displaying logical channel alot easier*/
-    
+
     gboolean fake_chid[MAX_MAC_FRAMES]; /*Indicate if the child ID is faked or not*/
     guint pdu_len;                      /*Length of MAC PDU, same for all PDUs in one FP frame*/
     guint8 trchid[MAX_MAC_FRAMES];      /*Makes displaying logical channel alot easier*/
 } umts_mac_info;
+
+tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb, packet_info *pinfo, guint8 lchid, int offset, guint8 ss, guint16 tsn, int sdu_no, guint8 no_sdus, guint16 maclength);
 
 #endif

@@ -73,6 +73,33 @@ static dissector_handle_t rlc_dcch_handle;
 static dissector_handle_t rlc_ps_dtch_handle;
 static dissector_handle_t rrc_handle;
 
+/* MAC-is reassembly */
+typedef struct {
+    guint32 frame_num;
+    guint16 tsn;
+    guint8 * data;
+    guint32 length;
+    tvbuff_t * tvb;
+} mac_is_sdu;
+typedef struct {
+    guint8 * data;
+    guint32 length;
+    guint32 frame_num;
+} mac_is_fragment;
+static GHashTable * mac_is_sdus = NULL;
+static GHashTable * mac_is_fragments = NULL;
+
+static gboolean mac_is_sdu_equal(gconstpointer a, gconstpointer b)
+{
+	const mac_is_sdu *x = a, *y = b;
+	return x->frame_num == y->frame_num && x->tsn == y->tsn;
+}
+
+static guint mac_is_sdu_hash(gconstpointer key)
+{
+	const mac_is_sdu *sdu = key;
+	return (sdu->frame_num << 6) | sdu->tsn;
+}
 
 static const value_string rach_fdd_tctf_vals[] = {
     { TCTF_CCCH_RACH_FDD      , "CCCH over RACH (FDD)" },
@@ -525,6 +552,115 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 }
 
+static void init_frag(tvbuff_t * tvb, mac_is_fragment ** mifref, guint length, guint32 frame_num, guint offset)
+{
+    *mifref = g_new(mac_is_fragment, 1);
+    (*mifref)->length = length;
+    (*mifref)->data = g_malloc(length);
+    (*mifref)->frame_num = frame_num;
+    tvb_memcpy(tvb, (*mifref)->data, offset, length);
+}
+
+static tvbuff_t * reassemble(tvbuff_t * tvb, mac_is_fragment ** mifref, guint frame_num, guint16 tsn, guint maclength, guint offset, gboolean reverse)
+{
+    mac_is_sdu * sdu;
+    mac_is_fragment * mif = *mifref;
+
+    sdu = se_new(mac_is_sdu);
+    if (reverse) {
+        sdu->frame_num = mif->frame_num;
+        sdu->tsn = tsn-1;
+    } else {
+        sdu->frame_num = frame_num;
+        sdu->tsn = tsn;
+    }
+    sdu->length = mif->length + maclength;
+    sdu->data = se_alloc(sdu->length);
+
+    if (reverse == FALSE) {
+        memcpy(sdu->data, mif->data, mif->length);
+        tvb_memcpy(tvb, sdu->data+mif->length, offset, maclength);
+    } else {
+        tvb_memcpy(tvb, sdu->data, offset, maclength);
+        memcpy(sdu->data+maclength, mif->data, mif->length);
+    }
+    g_free(mif->data);
+    g_free(mif);
+    sdu->tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->length, sdu->length);
+    g_hash_table_insert(mac_is_sdus, sdu, NULL);
+    *mifref = NULL; /* Reset the pointer. */
+    return sdu->tvb;
+}
+
+static tvbuff_t * get_sdu(tvbuff_t * tvb, packet_info * pinfo, guint16 tsn)
+{
+    gpointer orig_key = NULL;
+    mac_is_sdu sdu_lookup_key;
+    sdu_lookup_key.frame_num = pinfo->fd->num;
+    sdu_lookup_key.tsn = tsn;
+
+    if (g_hash_table_lookup_extended(mac_is_sdus, &sdu_lookup_key, &orig_key, NULL)) {
+        mac_is_sdu * sdu = orig_key;
+        sdu->tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->length, sdu->length);
+        add_new_data_source(pinfo, sdu->tvb, "Reassembled MAC-is SDU");
+        return sdu->tvb;
+    }
+    return NULL;
+}
+
+tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb, packet_info *pinfo, guint8 lchid, int offset, guint8 ss, guint16 tsn, int sdu_no, guint8 no_sdus, guint16 maclength)
+{
+    /* Get fragment table for this logical channel. */
+    mac_is_fragment ** fragments = g_hash_table_lookup(mac_is_fragments, GINT_TO_POINTER((gint)lchid));
+    /* If this is the first time we see this channel. */
+    if (fragments == NULL) {
+        /* Create new table */
+        fragments = se_alloc_array(mac_is_fragment*, 64);
+        memset(fragments, 0, sizeof(mac_is_fragment*)*64);
+        g_hash_table_insert(mac_is_fragments, GINT_TO_POINTER((gint)lchid), fragments);
+    }
+
+    /* If in first scan-through. */
+    if (pinfo->fd->flags.visited == FALSE) {
+        /* If first SDU is last segment of previous. A tail. */
+        if (sdu_no == 0 && (ss & 1) == 1) {
+            /* If no one has inserted the head for our tail yet. */
+            if (fragments[tsn] == NULL) {
+                init_frag(tvb, &fragments[tsn], maclength, pinfo->fd->num, offset);
+            /* If there is a head, attach a tail to it and return. */
+            } else {
+                return reassemble(tvb, &(fragments[tsn]), pinfo->fd->num, tsn, maclength, offset, FALSE);
+            }
+        }
+        /* If last SDU is first segment of next. A head. */
+        else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
+            /* If there is no tail yet, store away a head for a future tail. */
+            if (fragments[(tsn+1) % 64] == NULL) {
+                init_frag(tvb, &(fragments[(tsn+1)%64]), maclength, pinfo->fd->num, offset);
+            /* If there already is a tail for our head here, attach it. */
+            } else {
+                return reassemble(tvb, &fragments[(tsn+1)%64], pinfo->fd->num, tsn, maclength, offset, TRUE);
+            }
+        /* If our SDU is not fragmented. */
+        } else {
+            DISSECTOR_ASSERT((sdu_no == 0) ? (ss&1) == 0 : ((sdu_no == no_sdus-1) ? (ss&2) == 0 : TRUE));
+            return tvb_new_subset(tvb, offset, maclength, -1);
+        }
+    /* If clicking on a packet. */
+    } else {
+        /* If first SDU is last segment of previous. A tail. */
+        if (sdu_no == 0 && (ss & 1) == 1) {
+            return get_sdu(tvb, pinfo, tsn);
+        /* If last SDU is first segment of next. A head. */
+        } else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
+            return NULL; /* Do not give heads any data. */
+        } else {
+            return tvb_new_subset(tvb, offset, maclength, -1);
+        }
+    }
+    return NULL;
+}
+
 static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree    *edch_tree = NULL;
@@ -700,6 +836,18 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 }
 
+static void mac_init(void)
+{
+	if (mac_is_sdus != NULL) {
+		g_hash_table_destroy(mac_is_sdus);
+	}
+    if (mac_is_fragments != NULL) {
+        g_hash_table_destroy(mac_is_fragments);
+    }
+	mac_is_sdus = g_hash_table_new(mac_is_sdu_hash, mac_is_sdu_equal);
+    mac_is_fragments = g_hash_table_new(g_direct_hash, g_direct_equal);
+}
+
 void
 proto_register_umts_mac(void)
 {
@@ -772,6 +920,8 @@ proto_register_umts_mac(void)
     register_dissector("mac.fdd.dch", dissect_mac_fdd_dch, proto_umts_mac);
     register_dissector("mac.fdd.edch", dissect_mac_fdd_edch, proto_umts_mac);
     register_dissector("mac.fdd.hsdsch", dissect_mac_fdd_hsdsch, proto_umts_mac);
+
+    register_init_routine(mac_init);
 }
 
 void
