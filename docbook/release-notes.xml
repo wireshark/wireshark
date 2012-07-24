@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.8.1">
+<!ENTITY WiresharkCurrentVersion "1.8.2">
 
 ]>
 
@@ -36,39 +36,18 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-11.html">wnpa-sec-2012-11</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-13.html">wnpa-sec-2012-13</ulink>
           </para>
           <para>
-            The PPP dissector could crash.
-            <!-- Fixed in trunk: r43784 -->
-            <!-- Fixed in trunk-1.8: r43839 -->
-            <!-- Fixed in trunk-1.6: r43843 -->
-            <!-- Fixed in trunk-1.4: r43870 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>) -->
-            (<ulink url="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=680056">Debian bug
-            680056</ulink>) -->
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-12.html">wnpa-sec-2012-12</ulink>
-          </para>
-          <para>
-            The NFS dissector could use excessive amounts of CPU.
-            <!-- Fixed in trunk: r43576 -->
-            <!-- Fixed in trunk-1.8: r43840 -->
-            <!-- Fixed in trunk-1.6: r43869 -->
-            <!-- Fixed in trunk-1.4: r43872 -->
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.8: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7436">Bug
             7436</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.</para>
+          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
@@ -93,60 +72,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-          Wireshark crashes on bootp filter.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7391">Bug
-          7391</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark &gt; 1.4 does not correctly read Association ID for PS Poll packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7429">Bug
-          7429</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Radius-EAP broken since 1.8.0 release.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7430">Bug
-          7430</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SNMP incorrectly marks SNMPv3 &quot;discovery&quot; packet as malformed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7438">Bug
-          7438</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Widgets are not properly expanded in GTK3.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7377">Bug
-          7377</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Find Next Mark duplicated on Edit Menu.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7445">Bug
-          7445</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          DVB-CI/CI+: fix offset error in operator_info apdu.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7468">Bug
-          7468</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Unable to correctly identify IEC 61850 MMS packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7488">Bug
-          7488</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          WinPcap doesn't install if vcredist_x64 requires reboot.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7507">Bug
-          7507</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -174,20 +99,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-BACapp,
-BOOTP,
-DCERPC SPOOLSS,
-DVB-CI,
-H.248,
-IEEE 802.11,
-Jmirror,
-NAS EPS,
-NFS,
-PPP,
-RELOAD Framing,
-SES,
-SNMP,
-XMPP
+.
 
     </para>
     </section>
@@ -195,7 +107,7 @@ XMPP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Microsoft Network Monitor
+.
 
     </para>
     </section>
