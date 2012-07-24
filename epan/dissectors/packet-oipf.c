@@ -36,8 +36,6 @@
 
 static int proto_oipf_ciplus = -1;
 
-static dissector_handle_t oipf_ciplus_handle;
-
 static gint ett_oipf_ciplus = -1;
 
 static int hf_oipf_ciplus_cmd_id = -1;
@@ -168,14 +166,17 @@ proto_register_oipf(void)
     proto_register_field_array(proto_oipf_ciplus, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    oipf_ciplus_handle =
-        new_create_dissector_handle(dissect_oipf_ciplus, proto_oipf_ciplus);
 }
 
 
 void
 proto_reg_handoff_oipf(void)
 {
+    dissector_handle_t oipf_ciplus_handle;
+
+    oipf_ciplus_handle =
+        new_create_dissector_handle(dissect_oipf_ciplus, proto_oipf_ciplus);
+
     dissector_add_string("dvb-ci.sas.app_id_str",
             sas_app_id_str_oipf, oipf_ciplus_handle);
 }
