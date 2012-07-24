@@ -2126,7 +2126,7 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
   proto_tree_add_item(tree, hf_artnet_rdm_address, tvb,
 		      offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
-  
+
   /* check for old version that included the 0xCC startcode
    * The 0xCC will never be the first byte of the RDM packet
    */
@@ -2134,10 +2134,10 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *
 
   if (sc == 0xCC) {
     proto_tree_add_item(tree, hf_artnet_rdm_sc, tvb,
-		      offset, 1, ENC_BIG_ENDIAN); 
+		      offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
   }
-  
+
   size = tvb_reported_length_remaining(tvb, offset);
 
   save_info=col_get_writable(pinfo->cinfo);
@@ -3964,13 +3964,13 @@ proto_register_artnet(void) {
         "artnet.rdm.address",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
-    
+
     { &hf_artnet_rdm_sc,
       { "Startcode",
         "artnet.rdm.sc",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
-	
+
     { &hf_artnet_rdm_rdmver,
       { "RDM Version",
         "artnet.rdm.rdmver",
@@ -4397,7 +4397,7 @@ dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* if the header matches, dissect it */
   dissect_artnet(tvb, pinfo, tree);
-  
+
   return TRUE;
 }
 
@@ -4408,7 +4408,7 @@ void
 proto_reg_handoff_artnet(void) {
   static gboolean artnet_initialized = FALSE;
   static dissector_handle_t artnet_handle;
- 
+
   if(!artnet_initialized) {
 	artnet_handle = create_dissector_handle(dissect_artnet,proto_artnet);
 	dissector_add_handle("udp.port", artnet_handle);
