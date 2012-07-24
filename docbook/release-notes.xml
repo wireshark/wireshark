@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.9">
+<!ENTITY WiresharkCurrentVersion "1.6.10">
 
 ]>
 
@@ -36,39 +36,18 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-11.html">wnpa-sec-2012-11</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-13.html">wnpa-sec-2012-13</ulink>
           </para>
           <para>
-            The PPP dissector could crash.
-            <!-- Fixed in trunk: r43784 -->
-            <!-- Fixed in trunk-1.8: r43839 -->
-            <!-- Fixed in trunk-1.6: r43843 -->
-            <!-- Fixed in trunk-1.4: r43870 -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>) -->
-            (<ulink url="http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=680056">Debian bug
-            680056</ulink>) -->
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-12.html">wnpa-sec-2012-12</ulink>
-          </para>
-          <para>
-            The NFS dissector could use excessive amounts of CPU.
-            <!-- Fixed in trunk: r43576 -->
-            <!-- Fixed in trunk-1.8: r43840 -->
-            <!-- Fixed in trunk-1.6: r43869 -->
-            <!-- Fixed in trunk-1.4: r43872 -->
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.8: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7436">Bug
             7436</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.</para>
+          <para>Versions affected: 1.4.0 to 1.4.14, 1.6.0 to 1.6.9, 1.8.0 to 1.8.1.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
@@ -94,77 +73,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Cannot run tshark under TCP using decode-as format for syslog.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5241">Bug
-          5241</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Unable to reassemble EAP-TLS fragments across multiple RADIUS packets (works on 1.2.15).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5735">Bug
-          5735</ulink>)
-        </para></listitem>
-
-	<listitem><para>
-	  Rearranging columns in preferences doesn't work on 64-bit Windows.
-	  (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
-	  6077</ulink>)
-	</para></listitem>
-
-        <listitem><para>
-          Incorrect PER UNALIGNED decoding of IA5String.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6246">Bug
-          6246</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          After fix for Bug 3046, after save-as then open you cannot see the packet list.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6640">Bug
-          6640</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Problem with Floating point (double-precision).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6917">Bug
-          6917</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Unhandled exception ( group=1, code=4) occurs when trying to capture in pdml file.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7333">Bug
-          7333</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Netscreen - Can't parse packet-header.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7340">Bug
-          7340</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Assignment Request message is not decoded after Service handover parameter.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7360">Bug
-          7360</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark fails to link because of missing &#64;GLIB_LIBS&#64; reference in Makefile.am.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7427">Bug
-          7427</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark &gt; 1.4 does not correctly read Association ID for PS Poll packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7429">Bug
-          7429</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SNMP incorrectly marks SNMPv3 &quot;discovery&quot; packet as malformed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7438">Bug
-          7438</ulink>)
-        </para></listitem>
 
      </itemizedlist>
 
@@ -192,20 +100,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-ASN.1 PER,
-DIAMETER,
-GSM BSSMAP,
-IEEE 802.11,
-MNDP,
-NFS,
-PPP,
-RADIUS,
-SNMP,
-Syslog,
-UDP-Lite,
-VMLAB,
-WiMax DL-MAP,
-WiMax UL-MAP
+.
 
     </para>
     </section>
@@ -213,7 +108,7 @@ WiMax UL-MAP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Juniper NetScreen
+.
 
     </para>
     </section>
