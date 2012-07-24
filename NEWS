@@ -1,0 +1,119 @@
+Wireshark 1.4.14 Release Notes
+
+   ------------------------------------------------------------------
+
+What is Wireshark?
+
+   Wireshark is the world's most popular network protocol analyzer.
+   It is used for troubleshooting, analysis, development and
+   education.
+
+What's New
+
+  Bug Fixes
+
+   The following vulnerabilities have been fixed.
+
+     o wnpa-sec-2012-11
+
+       The PPP dissector could crash. (Debian bug 680056)
+
+       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+
+       CVE-2012-4048
+
+     o wnpa-sec-2012-12
+
+       The NFS dissector could use excessive amounts of CPU. (Bug
+       7436)
+
+       Versions affected: 1.4.0 to 1.4.13, 1.6.0 to 1.6.8, 1.8.0.
+
+       CVE-2012-4049
+
+   The following bugs have been fixed:
+
+     o Cannot run tshark under tcp using decode-as format for syslog.
+       (Bug 5241)
+
+     o Problem with Floating point (double-precision). (Bug 6917)
+
+     o Netscreen - can't parse packet-header. (Bug 7340)
+
+     o Wireshark fails to link because of missing @GLIB_LIBS@
+       reference in Makefile.am. (Bug 7427)
+
+  New and Updated Features
+
+   There are no new features in this release.
+
+  New Protocol Support
+
+   There are no new protocols in this release.
+
+  Updated Protocol Support
+
+   DIAMETER, NFS, PPP, SNMP, Syslog, UDP-Lite, VMLAB
+
+  New and Updated Capture File Support
+
+   Juniper NetScreen
+
+Getting Wireshark
+
+   Wireshark source code and installation packages are available from
+   http://www.wireshark.org/download.html.
+
+  Vendor-supplied Packages
+
+   Most Linux and Unix vendors supply their own Wireshark packages.
+   You can usually install or upgrade Wireshark using the package
+   management system specific to that platform. A list of third-party
+   packages can be found on the download page on the Wireshark web
+   site.
+
+File Locations
+
+   Wireshark and TShark look in several different locations for
+   preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+   These locations vary from platform to platform. You can use
+   About->Folders to find the default locations on your system.
+
+Known Problems
+
+   Wireshark might make your system disassociate from a wireless
+   network on OS X 10.4. (Bug 1315)
+
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
+
+   The BER dissector might infinitely loop. (Bug 1516)
+
+   Capture filters aren't applied when capturing from named pipes.
+   (Bug 1814)
+
+   Filtering tshark captures with display filters (-R) no longer
+   works. (Bug 2234)
+
+   The 64-bit Windows installer does not ship with the same libraries
+   as the 32-bit installer. (Bug 3610)
+
+   Hex pane display issue after startup. (Bug 4056)
+
+   Packet list rows are oversized. (Bug 4357)
+
+   Summary pane selected frame highlighting not maintained. (Bug
+   4445)
+
+Getting Help
+
+   Community support is available on Wireshark's Q&A site and on the
+   wireshark-users mailing list. Subscription information and
+   archives for all of Wireshark's mailing lists can be found on the
+   web site.
+
+   Official Wireshark training and certification are available from
+   Wireshark University.
+
+Frequently Asked Questions
+
+   A complete FAQ is available on the Wireshark web site.
