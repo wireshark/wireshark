@@ -160,6 +160,7 @@ static const value_string message_types[] = {
     { LLRP_TYPE_CUSTOM_MESSAGE,                  "Custom Message"                  },
     { 0,                                          NULL                             }
 };
+static value_string_ext message_types_ext = VALUE_STRING_EXT_INIT(message_types);
 
 /* Versions */
 #define LLRP_VERS_1_0_1 0x01
@@ -216,7 +217,8 @@ static const value_string config_request[] = {
     { LLRP_CONF_EVENTS_AND_REPORTS,             "Events and Reports"             },
     { 0,                                         NULL                            }
 };
-   
+static value_string_ext config_request_ext = VALUE_STRING_EXT_INIT(config_request);
+
 /* TLV Parameter Types */
 #define LLRP_TLV_UTC_TIMESTAMP           128
 #define LLRP_TLV_UPTIME                  129
@@ -412,6 +414,7 @@ static const value_string tlv_type[] = {
     { LLRP_TLV_RF_SURVEY_FREQ_CAP,      "RF Survey Frequency Capabilities"               },
     { 0,                                 NULL                                            }
 };
+static value_string_ext tlv_type_ext = VALUE_STRING_EXT_INIT(tlv_type);
 
 /* TV Parameter Types */
 #define LLRP_TV_ANTENNA_ID               1
@@ -481,6 +484,7 @@ static const value_string tv_type[] = {
     { LLRP_TV_C1G2_XPC_W2,             "C1G2 XPC W2"                   },
     { 0,                                NULL                           }
 };
+static value_string_ext tv_type_ext = VALUE_STRING_EXT_INIT(tv_type);
 
 /* Misc */
 #define LLRP_ROSPEC_ALL      0
@@ -495,9 +499,9 @@ static void
 dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint offset)
 {
-    guint8 has_length;
-    guint16 len, type;
-    guint real_len;
+    guint8      has_length;
+    guint16     len, type;
+    guint       real_len;
     proto_item *ti;
     proto_tree *param_tree;
 
@@ -613,9 +617,9 @@ static void
 dissect_llrp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint16 type, guint offset)
 {
-    guint8  requested_data;
-    guint16 antenna_id, gpi_port, gpo_port;
-    guint32 spec_id;
+    guint8      requested_data;
+    guint16     antenna_id, gpi_port, gpo_port;
+    guint32     spec_id;
     proto_item *ti;
 
     switch (type)
@@ -826,9 +830,9 @@ dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *llrp_tree;
-    guint16 type;
-    guint32 len;
-    guint offset = 0;
+    guint16     type;
+    guint32     len;
+    guint       offset = 0;
 
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < LLRP_LEN_MIN)
@@ -842,7 +846,7 @@ dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_ntohs(tvb, offset) & 0x03FF;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
-                    val_to_str(type, message_types, "Unknown Type: %d"));
+                    val_to_str_ext(type, &message_types_ext, "Unknown Type: %d"));
 
     ti = proto_tree_add_item(tree, proto_llrp, tvb, offset, -1, ENC_NA);
     llrp_tree = proto_item_add_subtree(ti, ett_llrp);
@@ -864,7 +868,7 @@ dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(llrp_tree, hf_llrp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if (match_strval(type, message_types))
+    if (match_strval_ext(type, &message_types_ext))
         dissect_llrp_message(tvb, pinfo, llrp_tree, type, offset);
 
     return tvb_length(tvb);
@@ -873,14 +877,14 @@ dissect_llrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_llrp(void)
 {
-    /* Setup list of header fields  See Section 1.6.1 for details*/
+    /* Setup list of header fields  See Section 1.6.1 for details */
     static hf_register_info hf[] = {
         { &hf_llrp_version,
         { "Version", "llrp.version", FT_UINT8, BASE_DEC, VALS(llrp_versions), 0x1C,
           NULL, HFILL }},
 
         { &hf_llrp_type,
-        { "Type", "llrp.type", FT_UINT16, BASE_DEC, VALS(message_types), 0x03FF,
+        { "Type", "llrp.type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &message_types_ext, 0x03FF,
           NULL, HFILL }},
 
         { &hf_llrp_length,
@@ -904,7 +908,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_req_conf,
-        { "Requested Configuration", "llrp.req_conf", FT_UINT8, BASE_DEC, VALS(config_request), 0,
+        { "Requested Configuration", "llrp.req_conf", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &config_request_ext, 0,
           NULL, HFILL }},
 
         { &hf_llrp_rospec,
@@ -936,11 +940,11 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_tlv_type,
-        { "Type", "llrp.tlv_type", FT_UINT16, BASE_DEC, VALS(tlv_type), 0x03FF,
+        { "Type", "llrp.tlv_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &tlv_type_ext, 0x03FF,
           "The type of TLV.", HFILL }},
 
         { &hf_llrp_tv_type,
-        { "Type", "llrp.tv_type", FT_UINT8, BASE_DEC, VALS(tv_type), 0x7F,
+        { "Type", "llrp.tv_type", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &tv_type_ext, 0x7F,
           "The type of TV.", HFILL }},
 
         { &hf_llrp_tlv_len,
