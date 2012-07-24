@@ -30,7 +30,8 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-
+#include <epan/emem.h>
+#include <epan/strutil.h>
 
 #define ETHERNET_INTERFACE      1
 #define WLAN_INTERFACE          2
@@ -44,9 +45,6 @@
 
 #define WA_V2_PAYLOAD_OFFSET    40
 #define WA_V3_PAYLOAD_OFFSET    44
-
-/* Forward declaration we need below */
-void proto_reg_handoff_waveagent(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_waveagent = -1;
@@ -180,23 +178,10 @@ static gint ett_waveagent = -1;
 static gint ett_statechange = -1;
 static gint ett_phytypes = -1;
 static gint ett_fsflags = -1;
-static gint ett_scindex0 = -1;
-static gint ett_scindex1 = -1;
-static gint ett_scindex2 = -1;
-static gint ett_scindex3 = -1;
-static gint ett_scindex4 = -1;
-static gint ett_scindex5 = -1;
-static gint ett_scindex6 = -1;
-static gint ett_scindex7 = -1;
-static gint ett_bss0 = -1;
-static gint ett_bss1 = -1;
-static gint ett_bss2 = -1;
-static gint ett_bss3 = -1;
-static gint ett_bss4 = -1;
-static gint ett_bss5 = -1;
-static gint ett_bss6 = -1;
-static gint ett_bss7 = -1;
+static gint ett_scindex[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };  /* NUM_STATE_CHANGES */
+static gint ett_bss[8]     = { -1, -1, -1, -1, -1, -1, -1, -1 };  /* NUM_BSS           */
 static gint ett_relaymessage = -1;
+
 
 static const value_string control_words[] = {
     { 0x01, "Receive, Count, Discard"},
@@ -217,11 +202,11 @@ static const value_string control_words[] = {
     { 0x2f, "Stats Response"},
     { 0x30, "Interface Info Response"},
     { 0x31, "Interface Change Info Response"},
+    { 0x32, "OID Response"},  /* XXX: is this correct ? entry originally located after 0x41 */
     { 0x3e, "Relay Message"},
     { 0x3f, "Relay Response"},
     { 0x40, "Client Connect Request"},
     { 0x41, "Client Disconnect Request"},
-    { 0x32, "OID Response"},
     { 0x80, "Capabilities Request"},
     { 0x81, "Capabilities Response"},
     { 0x82, "Reserve Request"},
@@ -236,13 +221,14 @@ static const value_string control_words[] = {
     { 0x8f, "Command Response"},
     { 0, NULL},
 };
+static value_string_ext control_words_ext = VALUE_STRING_EXT_INIT(control_words);
 
 /* Dissects the WLAN interface stats structure */
 static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tree, tvbuff_t *tvb)
 {
     proto_item *phy_types;
     proto_tree *phy_types_tree;
-    guint32 phy_types_bitfield, noise_floor;
+    guint32     phy_types_bitfield, noise_floor;
 
     proto_tree_add_item(parent_tree,
         hf_waveagent_ifwlanbssid, tvb, starting_offset, 6, ENC_NA);
@@ -264,7 +250,7 @@ static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tr
             hf_waveagent_ifwlannoise, tvb, starting_offset + 48, 4, ENC_BIG_ENDIAN);
     }
     else {
-        proto_tree_add_int_format(parent_tree, 
+        proto_tree_add_int_format(parent_tree,
             hf_waveagent_ifwlannoise, tvb, starting_offset + 48, 4, noise_floor,
             "WLAN Interface Noise Floor (dBm): Not Reported");
     }
@@ -297,17 +283,6 @@ static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tr
 
 static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree, tvbuff_t *tvb, guint32 control_word, guint8 version)
 {
-    guint32 if_type, if_status, flags_bitfield;
-    guint8 iLoop, isr, n, ret;
-    guint32 offset, delta, num_bss_entries, st_index[NUM_STATE_CHANGES], bss_array[NUM_BSS];
-    proto_tree *st_change_index_tree[NUM_STATE_CHANGES], *fs_flags;
-    proto_tree *bss_tree[NUM_BSS], *fs_flags_tree;
-    proto_item *stIndex[NUM_STATE_CHANGES], *bssIndex[NUM_BSS];
-    const guint8 *tag_data_ptr;
-    guint32 tag_len;
-    char out_buff[SHORT_STR];
-    char print_buff[SHORT_STR];
-
     switch (control_word)
     {
         case 0x11:   /* Flow start message */
@@ -354,7 +329,9 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
             break;
 
-        case 0x30:   /* Interface stats response */
+        case 0x30: {  /* Interface stats response */
+            guint32 if_type;
+
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
 
@@ -409,23 +386,19 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 hf_waveagent_ifdhcpserver, tvb, starting_offset + 284, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_ifgateway, tvb, starting_offset + 308, 4, ENC_BIG_ENDIAN);
+                hf_waveagent_ifgateway,    tvb, starting_offset + 308, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_ifdnsserver, tvb, starting_offset + 332, 4, ENC_BIG_ENDIAN);
+                hf_waveagent_ifdnsserver,  tvb, starting_offset + 332, 4, ENC_BIG_ENDIAN);
 
             break;
+        }
 
-        case 0x31:   /* Interface change info response */
-            /* Create the array of subtree elements for the state change array */
-            st_index[0] = ett_scindex0;
-            st_index[1] = ett_scindex1;
-            st_index[2] = ett_scindex2;
-            st_index[3] = ett_scindex3;
-            st_index[4] = ett_scindex4;
-            st_index[5] = ett_scindex5;
-            st_index[6] = ett_scindex6;
-            st_index[7] = ett_scindex7;
+        case 0x31:  {  /* Interface change info response */
+            guint32 offset;
+            guint32 if_type;
+            guint32 delta;
+            guint32 iLoop;
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
@@ -439,7 +412,11 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             delta = 156;
 
             for (iLoop = 0; iLoop < NUM_STATE_CHANGES; iLoop++) {
-                int current_offset;
+                proto_item *stIndex;
+                proto_tree *st_change_index_tree;
+                guint32     if_status;
+                int         current_offset;
+
                 current_offset = offset + iLoop * delta;
 
                 /* Check to see if the interface entry is valid */
@@ -447,41 +424,41 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 if (if_status == 0) continue;  /* No entry at this index, keep going */
 
                 /* Add index specific trees to hide the details */
-                stIndex[iLoop] = proto_tree_add_uint_format_value(parent_tree, 
+                stIndex = proto_tree_add_uint_format_value(parent_tree,
                     hf_waveagent_ifwlanl2status, tvb, current_offset, 4, if_status, "Interface state change %d", iLoop);
 
-                st_change_index_tree[iLoop] = proto_item_add_subtree(stIndex[iLoop], st_index[iLoop]);
+                st_change_index_tree = proto_item_add_subtree(stIndex, ett_scindex[iLoop]);
 
                 if (if_type == WLAN_INTERFACE) {
-                    proto_tree_add_item(st_change_index_tree[iLoop],
+                    proto_tree_add_item(st_change_index_tree,
                         hf_waveagent_ifwlanl2status, tvb, current_offset, 4, ENC_BIG_ENDIAN);
                 } else {
-                    proto_tree_add_item(st_change_index_tree[iLoop],
+                    proto_tree_add_item(st_change_index_tree,
                         hf_waveagent_ifethl2status, tvb, current_offset, 4, ENC_BIG_ENDIAN);
                 }
 
-                proto_tree_add_item(st_change_index_tree[iLoop],
+                proto_tree_add_item(st_change_index_tree,
                     hf_waveagent_ifl3status, tvb, current_offset + 4, 4, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(st_change_index_tree[iLoop],
+                proto_tree_add_item(st_change_index_tree,
                     hf_waveagent_iflinkspeed, tvb, current_offset + 8, 4, ENC_BIG_ENDIAN);
 
                 if (if_type == WLAN_INTERFACE) {
-                    dissect_wlan_if_stats(current_offset + 12, st_change_index_tree[iLoop], tvb);
+                    dissect_wlan_if_stats(current_offset + 12, st_change_index_tree, tvb);
                 }
 
-                proto_tree_add_item(st_change_index_tree[iLoop],
+                proto_tree_add_item(st_change_index_tree,
                     hf_waveagent_snap, tvb, current_offset + 108, 8, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(st_change_index_tree[iLoop],
+                proto_tree_add_item(st_change_index_tree,
                     hf_waveagent_ifiptype, tvb, current_offset + 116, 2, ENC_BIG_ENDIAN);
 
                 if (tvb_get_ntohs(tvb, current_offset + 116) == IPV4_TYPE) {
-                    proto_tree_add_item(st_change_index_tree[iLoop],
+                    proto_tree_add_item(st_change_index_tree,
                         hf_waveagent_ifipv4, tvb, current_offset + 124, 4, ENC_BIG_ENDIAN);  /* grab the last 4 bytes of the IP address field */
                 }
                 else {
-                    proto_tree_add_item(st_change_index_tree[iLoop],
+                    proto_tree_add_item(st_change_index_tree,
                         hf_waveagent_ifipv6, tvb, current_offset + 124, 16, ENC_NA);
                 }
 
@@ -489,6 +466,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             }
 
             break;
+        }
 
         case 0x32:   /* OID response */
             proto_tree_add_item(parent_tree,
@@ -502,96 +480,108 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
             break;
 
-        case 0x2e:   /* scan results response message */
+        case 0x2e: {  /* scan results response message */
+            guint32        offset;
+            proto_item    *pi;
+            guint32        num_bss_entries;
+            guint32        tag_len;
+            guint32        delta;
+            guint32        iLoop;
+            emem_strbuf_t *sb;
+
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
 
-            bss_array[0] = ett_bss0;
-            bss_array[1] = ett_bss1;
-            bss_array[2] = ett_bss2;
-            bss_array[3] = ett_bss3;
-            bss_array[4] = ett_bss4;
-            bss_array[5] = ett_bss5;
-            bss_array[6] = ett_bss6;
-            bss_array[7] = ett_bss7;
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_totalbssid, tvb, starting_offset + 4, 4, ENC_BIG_ENDIAN);
 
-            num_bss_entries = tvb_get_ntohl(tvb, starting_offset + 8);
-
-            proto_tree_add_item(parent_tree,
+            pi = proto_tree_add_item(parent_tree,
                 hf_waveagent_returnedbssid, tvb, starting_offset + 8, 4, ENC_BIG_ENDIAN);
 
+            num_bss_entries = tvb_get_ntohl(tvb, starting_offset + 8);
+
+            if (num_bss_entries > NUM_BSS) {
+                proto_item_append_text(pi, " [**Too large: Limiting to " STRINGIFY(NUM_BSS) "]");
+                num_bss_entries = NUM_BSS;
+            }
             /* Add 4 bytes of pad for the offset */
 
             offset = starting_offset + 16;
-            delta = 148;
+            delta  = 148;
+
+            sb = ep_strbuf_sized_new(8, SHORT_STR);
 
             for (iLoop = 0; iLoop < num_bss_entries; iLoop++)
             {
-                int current_offset;
+                proto_item *bssIndex;
+                proto_tree *bss_tree;
+                int         current_offset;
+
+                ep_strbuf_truncate(sb, 0);
+
                 current_offset = offset + iLoop * delta;
 
-                bssIndex[iLoop] = proto_tree_add_item(parent_tree,
+                bssIndex = proto_tree_add_item(parent_tree,
                     hf_waveagent_scanssid, tvb, current_offset, 32, ENC_ASCII|ENC_NA);
 
-                bss_tree[iLoop] = proto_item_add_subtree(bssIndex[iLoop], bss_array[iLoop]);
+                bss_tree = proto_item_add_subtree(bssIndex, ett_bss[iLoop]);
 
                 tag_len = tvb_get_ntohl(tvb, current_offset + 52);
 
-                if (tag_len > 0) {
+                if (tag_len != 0) {
+                    const guint8  *tag_data_ptr;
+                    guint8         isr;
+
                     tag_data_ptr = tvb_get_ptr (tvb, offset + 36, tag_len);
 
-                    for (isr = 0, n = 0; isr < tag_len; isr++) {
+                    for (isr = 0; isr < tag_len; isr++) {
                         if (tag_data_ptr[isr] == 0xFF){
-                            proto_tree_add_string (bss_tree[iLoop], hf_waveagent_ifwlansupprates, tvb, offset + 36 + isr,
-                                1, "BSS requires support for mandatory features of HT PHY (IEEE 802.11 - Clause 20)");
+                            proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, offset + 36 + isr,
+                                                   1,
+                                                   "BSS requires support for mandatory features of HT PHY (IEEE 802.11"
+                                                   " - Clause 20)");
                         } else {
-                            ret = g_snprintf (print_buff + n, SHORT_STR - n, "%2.1f%s ",
+                            ep_strbuf_append_printf(sb, "%2.1f%s ",
                                       (tag_data_ptr[isr] & 0x7F) * 0.5,
                                       (tag_data_ptr[isr] & 0x80) ? "(B)" : "");
-                            if (ret >= SHORT_STR - n) {
-                                /* ret = <buf_size> or greater. means buffer truncated */
-                                break;
-                            }
-                            n += ret;
+
                         }
                     }
-
-                    g_snprintf (out_buff, SHORT_STR, "%s [Mbit/sec]", print_buff);
+                    ep_strbuf_append(sb, " [Mbit/sec]");
                 }
                 else {
-                    g_snprintf (out_buff, SHORT_STR, "Not defined");
+                    ep_strbuf_append(sb, "Not defined");
                 }
 
-                proto_tree_add_string (bss_tree[iLoop], hf_waveagent_ifwlansupprates, tvb, offset + 36,
-                    tag_len, out_buff);
+                proto_tree_add_string (bss_tree, hf_waveagent_ifwlansupprates, tvb, offset + 36,
+                    tag_len, sb->str);
 
-                proto_tree_add_item(bss_tree[iLoop],
+                proto_tree_add_item(bss_tree,
                     hf_waveagent_scanbssid, tvb, current_offset + 56, 6, ENC_NA);
 
-                proto_tree_add_item(bss_tree[iLoop],
+                proto_tree_add_item(bss_tree,
                     hf_waveagent_ifwlancapabilities, tvb, current_offset + 62, 2, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(bss_tree[iLoop],
+                proto_tree_add_item(bss_tree,
                     hf_waveagent_ifwlanrssi, tvb, current_offset + 64, 4, ENC_BIG_ENDIAN);
 
                 /*  For now this is just a 4 byte pad, so comment it out...  */
-        /* 				proto_tree_add_item(bss_tree[iLoop],
+#if 0
+                proto_tree_add_item(bss_tree,
                     hf_waveagent_ifwlansigquality, tvb, current_offset + 68, 4, ENC_BIG_ENDIAN);
-        */
-                proto_tree_add_item(bss_tree[iLoop],
+#endif
+                proto_tree_add_item(bss_tree,
                     hf_waveagent_ifwlanchannel, tvb, current_offset + 72, 4, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(bss_tree[iLoop],
+                proto_tree_add_item(bss_tree,
                     hf_waveagent_ifwlanprivacy, tvb, current_offset + 76, 4, ENC_BIG_ENDIAN);
 
-                proto_tree_add_item(bss_tree[iLoop],
+                proto_tree_add_item(bss_tree,
                     hf_waveagent_ifwlanbssmode, tvb, current_offset + 80, 4, ENC_BIG_ENDIAN);
             }
-
             break;
+        }
 
         case 0x2f:   /* Stats response message */
             if (version < 3) {
@@ -665,7 +655,8 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             proto_tree_add_item(parent_tree,
                 hf_waveagent_snap, tvb, starting_offset + 132, 8, ENC_BIG_ENDIAN);
 
-        /*                proto_tree_add_item(parent_tree,
+#if 0
+            proto_tree_add_item(parent_tree,
                 hf_waveagent_tstamp1, tvb, 140, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
@@ -706,7 +697,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_avgremdelta, tvb, 192, 4, ENC_BIG_ENDIAN);
-        */
+#endif
             proto_tree_add_item(parent_tree,
                 hf_waveagent_rx1pl, tvb, starting_offset + 284, 8, ENC_BIG_ENDIAN);
 
@@ -759,7 +750,12 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
             break;
 
-        case 0x40:
+        case 0x40: {
+            guint32 offset;
+            guint32 delta;
+            guint32 iLoop;
+            guint32 num_bss_entries;
+
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
 
@@ -795,6 +791,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 hf_waveagent_connectattempts, tvb, starting_offset + 154, 4, ENC_BIG_ENDIAN);
 
             break;
+        }
 
         case 0x41:
             proto_tree_add_item(parent_tree,
@@ -869,7 +866,11 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
             break;
 
-        case 0x85:    /* Flow setup */
+        case 0x85: {   /* Flow setup */
+            proto_tree *fs_flags;
+            proto_tree *fs_flags_tree;
+            guint32     flags_bitfield;
+
             if (version < 3) {
                 proto_tree_add_item(parent_tree,
                     hf_waveagent_rxflownum, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
@@ -927,6 +928,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
             }
 
             break;
+        }
 
         case 0x8b:
             proto_tree_add_item(parent_tree,
@@ -962,7 +964,7 @@ static guint32 dissect_wa_header(guint32 starting_offset, proto_item *parent_tre
     guint32 wa_payload_offset;
 
     proto_tree_add_item(parent_tree,
-        hf_waveagent_controlword, tvb, 30+starting_offset, 2, ENC_BIG_ENDIAN); 
+        hf_waveagent_controlword, tvb, 30+starting_offset, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(parent_tree,
         hf_waveagent_payloadlen, tvb, 20+starting_offset, 4, ENC_BIG_ENDIAN);
@@ -995,65 +997,49 @@ static guint32 dissect_wa_header(guint32 starting_offset, proto_item *parent_tre
     return wa_payload_offset;
 }
 
-/* Code to actually dissect the packets */
+/* Dissect the packets */
 static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
-/* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti, *rmi;
     proto_tree *waveagent_tree, *relay_message_tree, *payload_tree;
-    guint8 signature_start, signature_end;
-    guint8 version;
-    guint32 magic_number;
-    guint32 control_word, paylen;
-    guint32 wa_payload_offset;
+    guint8      signature_start, signature_end;
+    guint8      version;
+    guint32     magic_number;
+    guint32     control_word, paylen;
+    guint32     wa_payload_offset;
 
-/*  First, if at all possible, do some heuristics to check if the packet cannot
- *  possibly belong to your protocol.  This is especially important for
- *  protocols directly on top of TCP or UDP where port collisions are
- *  common place (e.g., even though your protocol uses a well known port,
- *  someone else may set up, for example, a web server on that port which,
- *  if someone analyzed that web server's traffic in Wireshark, would result
- *  in Wireshark handing an HTTP packet to your dissector).  For example:
- */
     /* Check that there's enough data */
     if (tvb_length(tvb) < 52 )
         return 0;
 
     signature_start = tvb_get_guint8(tvb, 0);
-    signature_end = tvb_get_guint8(tvb, 15);
-    version = ((tvb_get_ntohl(tvb, 16) & 0xF0000000) >> 28 == 1) ? 3 : 2;       /* Mask version bit off */ 
-    magic_number = tvb_get_ntohl(tvb, 16) & 0x0FFFFFFF;  /* Mask magic number off */
+    signature_end   = tvb_get_guint8(tvb, 15);
+    version         = ((tvb_get_ntohl(tvb, 16) & 0xF0000000) >> 28 == 1) ? 3 : 2;       /* Mask version bit off */
+    magic_number    = tvb_get_ntohl(tvb, 16) & 0x0FFFFFFF;  /* Mask magic number off */
 
-    /* Get some values from the packet header, probably using tvb_get_*() */
-    if ( (signature_start != 0xcc && signature_start !=0xdd) ||
-         signature_end != 0xE2 || magic_number != 0x0F87C3A5 ) 
+    if ( ((signature_start != 0xcc) && (signature_start !=0xdd)) ||
+         (signature_end != 0xE2) || (magic_number != 0x0F87C3A5) )
         /*  This packet does not appear to belong to WaveAgent.
          *  Return 0 to give another dissector a chance to dissect it.
          */
         return 0;
 
-/* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "WA");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "WA");
+    col_clear(pinfo->cinfo, COL_INFO);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-        col_clear(pinfo->cinfo, COL_INFO);
-
-
-/* Grab the control word, parse the WaveAgent payload accordingly */
+    /* Grab the control word, parse the WaveAgent payload accordingly */
 
     control_word = tvb_get_ntohl(tvb, 28);
-    paylen = tvb_get_ntohl(tvb, 20);
-        
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%x)", 
-        val_to_str_const(control_word, control_words, "Unknown"), control_word);
+    paylen       = tvb_get_ntohl(tvb, 20);
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%x)",
+        val_to_str_ext_const(control_word, &control_words_ext, "Unknown"), control_word);
 
     if (tree) {
-/* create display subtree for the protocol */
-        ti = proto_tree_add_protocol_format(tree, proto_waveagent, tvb, 0, -1, 
+        /* create display subtree for the protocol */
+        ti = proto_tree_add_protocol_format(tree, proto_waveagent, tvb, 0, -1,
                         "WaveAgent, %s (0x%x), Payload Length %u Bytes",
-                        val_to_str_const(control_word, control_words, "Unknown"), control_word, paylen);
+                        val_to_str_ext_const(control_word, &control_words_ext, "Unknown"), control_word, paylen);
 
         waveagent_tree = proto_item_add_subtree(ti, ett_waveagent);
 
@@ -1071,9 +1057,11 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             /* Parse control_word of the relay message */
             control_word = tvb_get_ntohl(tvb, wa_payload_offset+12+28);
-                rmi = proto_tree_add_none_format(waveagent_tree, hf_waveagent_relaymessagest, tvb, wa_payload_offset+12+28, 0,
-                                    "Relayed WaveAgent Message, %s (0x%x)",
-                                                    val_to_str_const(control_word, control_words, "Unknown"), control_word);
+                rmi = proto_tree_add_none_format(waveagent_tree, hf_waveagent_relaymessagest,
+                                                 tvb, wa_payload_offset+12+28, 0,
+                                                 "Relayed WaveAgent Message, %s (0x%x)",
+                                                 val_to_str_ext_const(control_word, &control_words_ext, "Unknown"),
+                                                 control_word);
 
             relay_message_tree = proto_item_add_subtree(rmi, ett_relaymessage);
 
@@ -1088,17 +1076,21 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return tvb_length(tvb);
 }
 
-/* Register the protocol with Wireshark */
+static gboolean dissect_waveagent_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    return (dissect_waveagent(tvb, pinfo, tree) > 0) ? TRUE : FALSE;
+}
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
 
+#if 0
 static const value_string status_values[] = {
     { 0, "OK" },
     { 1, "In Use" },
     { 0, NULL }
 };
+#endif
+
+/* Register the protocol with Wireshark */
 
 void proto_register_waveagent(void)
 {
@@ -1238,79 +1230,79 @@ void proto_register_waveagent(void)
     /* START: General purpose message fields - used in multiple messages */
         { &hf_waveagent_controlword,
         { "Control Word", "waveagent.cword",
-        FT_UINT16, BASE_HEX, VALS(control_words), 0x0,
+        FT_UINT16, BASE_HEX | BASE_EXT_STRING, &control_words_ext, 0x0,
         NULL, HFILL } },
 
         { &hf_waveagent_payloadlen,
         { "Payload Length", "waveagent.paylen",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_transnum,
         { "Transaction Number", "waveagent.transnum",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rtoken,
         { "Reservation Token", "waveagent.rtoken",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_flowid,
         { "Flow ID", "waveagent.flowid",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_capstatus,
         { "Capabilities Status", "waveagent.capstatus",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_protocolversion,
         { "Protocol Version", "waveagent.protocolversion",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_capimpl,
         { "Capabilities Implementation", "waveagent.capimpl",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_sigsequencenum,
         { "Signature Sequence Number", "waveagent.sigsequencenum",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_id,
         { "ID", "waveagent.id",
         FT_STRING, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_bindtag,
         { "Binding Tag", "waveagent.bindtag",
         FT_STRING, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_version,
         { "Version", "waveagent.version",
         FT_STRING, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_brokerip,
         { "Broker IP address", "waveagent.brokerip",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_brokerport,
         { "Broker Port", "waveagent.brokerport",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_bindlevel,
         { "Binding Level", "waveagent.bindlevel",
         FT_UINT32, BASE_DEC, VALS(binding_levels), 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_bindport,
         { "Binding Port", "waveagent.bindport",
         FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1321,8 +1313,8 @@ void proto_register_waveagent(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
     /* END: General purpose message fields - used in multiple messages */
-            
-    /* START: Capabilities response fields (specific to this message, other general fields are also used) */        
+
+    /* START: Capabilities response fields (specific to this message, other general fields are also used) */
         { &hf_waveagent_capabilities2,
         { "Additional Capabilities", "waveagent.capabilities2",
         FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1337,161 +1329,161 @@ void proto_register_waveagent(void)
         { "Mask of Active Interfaces", "waveagent.ifmask",
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL } },
-    /* END: Capabilities response fields (specific to this message, other general fields are also used) */        
+    /* END: Capabilities response fields (specific to this message, other general fields are also used) */
 
-    /* START: Command response message fields */        
+    /* START: Command response message fields */
         { &hf_waveagent_commandstatus,
         { "Status of Previous Command", "waveagent.cmdstat",
         FT_INT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_syserrno,
         { "System Error Number", "waveagent.syserrno",
         FT_INT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_statusstring,
         { "Status Message", "waveagent.statmsg",
         FT_STRING, 0, NULL, 0x0,
         NULL, HFILL } },
-    /* END: Command response message fields */        
-            
+    /* END: Command response message fields */
+
     /* START: Stats response message fields */
         { &hf_waveagent_rxdatapckts,
         { "Received Data Packets", "waveagent.rxdpkts",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxdatabytes,
         { "Received Data Bytes", "waveagent.rxdbytes",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxpcktrate,
         { "Received Data Packet Rate (pps)", "waveagent.rxpktrate",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxbyterate,
         { "Received Byte Rate", "waveagent.rxbyterate",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_txdatapckts,
         { "Transmitted Data Packets", "waveagent.txdpkts",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_txdatabytes,
         { "Transmitted Data Bytes", "waveagent.txdbytes",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_txpcktrate,
         { "Transmitted Data Packet Rate (pps)", "waveagent.txpktrate",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_txbyterate,
         { "Transmitted Byte Rate", "waveagent.txbyterate",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_looppckts,
         { "Loopback Packets", "waveagent.looppckts",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_loopbytes,
         { "Loopback Bytes", "waveagent.loopbytes",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxctlpckts,
         { "Received Control Packets", "waveagent.rxctlpkts",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxctlbytes,
         { "Received Control Bytes", "waveagent.rxctlbytes",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_txctlpckts,
         { "Transmitted Control Packets", "waveagent.txctlpkts",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_txctlbytes,
         { "Transmitted Control Bytes", "waveagent.txctlbytes",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_unknowncmds,
         { "Unknown Commands", "waveagent.unkcmds",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_snap,
         { "Time Snap for Counters", "waveagent.snap",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_appstate,
         { "TCP State", "waveagent.state",
         FT_UINT32, BASE_DEC, VALS(tcp_states), 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_state,
         { "Application State", "waveagent.appstate",
         FT_UINT32, BASE_DEC, VALS(app_states), 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rx1pl,
         { "Instances of single packet loss", "waveagent.rx1pl",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rx2pl,
         { "Instances of 2 sequential packets lost", "waveagent.rx2pl",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rx3pl,
         { "Instances of 3 sequential packets lost", "waveagent.rx3pl",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rx4pl,
         { "Instances of 4 sequential packets lost", "waveagent.rx4pl",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rx5pl,
         { "Instances of 5 sequential packets lost", "waveagent.rx5pl",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxoospkts,
         { "Instances of out-of-sequence packets", "waveagent.rxoospkts",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxmeanlatency,
         { "Rx Mean latency", "waveagent.rxmeanlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxminlatency,
         { "Rx Minimum latency", "waveagent.rxminlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_rxmaxlatency,
         { "Rx Maximum latency", "waveagent.rxmaxlatency",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_jitter,
         { "Jitter (microseconds)", "waveagent.jitter",
         FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -1548,32 +1540,32 @@ void proto_register_waveagent(void)
         { "Received Flow Number", "waveagent.rxflownum",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_mode,
         { "WaveAgent Mode", "waveagent.trafficmode",
         FT_UINT8, BASE_DEC, VALS(wa_modes), 0x03,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_endpointtype,
         { "WaveAgent Endpoint Type", "waveagent.endpointtype",
         FT_UINT8, BASE_DEC, VALS(wa_endpointtypes), 0x0c,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_remoteport,
         { "Remote port", "waveagent.remoteport",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_remoteaddr,
         { "Remote address", "waveagent.remoteaddr",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_dscp,
         { "DSCP Setting", "waveagent.dscp",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_fsflags,
         { "Flow Setup Flags", "waveagent.fsflags",
         FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -1588,23 +1580,23 @@ void proto_register_waveagent(void)
         FT_BOOLEAN, 4, NULL, 0x02, NULL, HFILL } },
 
     /* END: Flow setup message */
-            
+
     /* START: Flow start message fields */
         { &hf_waveagent_payfill,
         { "Payload Fill", "waveagent.payfill",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_paysize,
         { "WaveAgent Payload Size (bytes)", "waveagent.paysize",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_avgrate,
         { "Average Rate (header + payload + trailer bytes/s)", "waveagent.avgrate",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_totalframes,
         { "Total Frames", "waveagent.totalframes",
         FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1617,12 +1609,12 @@ void proto_register_waveagent(void)
         { "Starting Index of BSSID list for reporting", "waveagent.bssidstartindex",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_bssidstopindex,
         { "Ending Index of BSSID list for reporting", "waveagent.bssidstopindex",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
     /* END: Scan results request (0x23) fields */
 
     /* START: WLAN Interface stats fields */
@@ -1630,12 +1622,12 @@ void proto_register_waveagent(void)
         { "WLAN Interface Connected to BSSID", "waveagent.ifwlanbssid",
         FT_ETHER, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifwlanssid,
         { "WLAN Interface Connected to SSID", "waveagent.ifwlanssid",
         FT_STRING, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifwlanrssi,
         { "WLAN Interface RSSI", "waveagent.ifwlanrssi",
         FT_INT32, BASE_DEC, NULL, 0x0,
@@ -1683,22 +1675,22 @@ void proto_register_waveagent(void)
         { "Interface type", "waveagent.iftype",
         FT_UINT32, BASE_DEC, VALS(if_types), 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifdescription,
         { "Name/Description of the adapter", "waveagent.ifdescription",
         FT_STRING, 0, NULL, 0x0,
         NULL, HFILL } },
-     
+
         { &hf_waveagent_ifmacaddr,
         { "Interface MAC Address", "waveagent.ifmacaddr",
         FT_ETHER, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_iflinkspeed,
         { "Interface Link Speed (kbps)", "waveagent.iflinkspeed",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifdhcp,
         { "Interface DHCP Enabled", "waveagent.ifdhcp",
         FT_UINT32, BASE_DEC, VALS(no_yes), 0x0,
@@ -1708,47 +1700,47 @@ void proto_register_waveagent(void)
         { "Interface IP Type", "waveagent.ifiptype",
         FT_UINT32, BASE_DEC, VALS(ip_types), 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifipv4,
         { "Interface Bound to IP Address", "waveagent.ifipv4",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifipv6,
         { "Interface Bound to IP Address", "waveagent.ifipv6",
         FT_IPv6, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifdhcpserver,
         { "Interface DHCP Server Address", "waveagent.ifdhcpserver",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifgateway,
         { "Interface Gateway", "waveagent.ifgateway",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifdnsserver,
         { "Interface DNS Server Address", "waveagent.ifdnsserver",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifethl2status,
         { "Ethernet L2 Interface Status", "waveagent.ifethl2status",
         FT_UINT32, BASE_DEC, VALS(if_eth_states), 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifwlanl2status,
         { "WLAN L2 Interface Status", "waveagent.ifwlanl2status",
         FT_UINT32, BASE_DEC, VALS(if_wlan_states), 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifl3status,
         { "L3 Interface Status", "waveagent.ifl3status",
         FT_UINT32, BASE_DEC, VALS(if_l3_states), 0x0,
         NULL, HFILL } },
-            
+
     /* END: Interface stats response (0x2d) fields */
 
     /* START: Scan results response (0x2e) fields */
@@ -1766,12 +1758,12 @@ void proto_register_waveagent(void)
         { "BSSID", "waveagent.scanbssid",
         FT_ETHER, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_scanssid,
         { "SSID", "waveagent.scanssid",
         FT_STRING, 0, NULL, 0x0,
         NULL, HFILL } },
-            
+
         { &hf_waveagent_ifwlansupprates,
         { "Supported Rates", "waveagent.ifwlansupportedrates",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1880,60 +1872,34 @@ void proto_register_waveagent(void)
         &ett_statechange,
         &ett_phytypes,
         &ett_fsflags,
-        &ett_scindex0,
-        &ett_scindex1,
-        &ett_scindex2,
-        &ett_scindex3,
-        &ett_scindex4,
-        &ett_scindex5,
-        &ett_scindex6,
-        &ett_scindex7,
-        &ett_bss0,
-        &ett_bss1,
-        &ett_bss2,
-        &ett_bss3,
-        &ett_bss4,
-        &ett_bss5,
-        &ett_bss6,
-        &ett_bss7,
+        &ett_scindex[0],
+        &ett_scindex[1],
+        &ett_scindex[2],
+        &ett_scindex[3],
+        &ett_scindex[4],
+        &ett_scindex[5],
+        &ett_scindex[6],
+        &ett_scindex[7],
+        &ett_bss[0],
+        &ett_bss[1],
+        &ett_bss[2],
+        &ett_bss[3],
+        &ett_bss[4],
+        &ett_bss[5],
+        &ett_bss[6],
+        &ett_bss[7],
         &ett_relaymessage,
     };
 
-/* Register the protocol name and description */
-    proto_waveagent = proto_register_protocol("WaveAgent",
-        "waveagent", "waveagent");
+    proto_waveagent = proto_register_protocol(
+        "WaveAgent", "waveagent", "waveagent");
 
-/* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_waveagent, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
 
 
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This exact format is required because a script is used to find these
-   routines and create the code that calls these routines.
-
-   This function is also called by preferences whenever "Apply" is pressed
-   (see prefs_register_protocol above) so it should accommodate being called
-   more than once.
-*/
-
 void proto_reg_handoff_waveagent(void)
 {
-    static gboolean inited = FALSE;
-
-    if (!inited) {
-
-        /*  Use new_create_dissector_handle() to indicate that dissect_waveagent()
-         *  returns the number of bytes it dissected (or 0 if it thinks the packet
-         *  does not belong to WaveAgent).
-         */
-        new_create_dissector_handle(dissect_waveagent,
-                                    proto_waveagent);
-        heur_dissector_add("udp", dissect_waveagent, proto_waveagent);
-
-        inited = TRUE;
-    }
+    heur_dissector_add("udp", dissect_waveagent_heur, proto_waveagent);
 }
-
-
