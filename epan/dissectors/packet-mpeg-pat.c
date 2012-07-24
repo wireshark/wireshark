@@ -123,7 +123,8 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	packet_mpeg_sect_crc(tvb, pinfo, mpeg_pat_tree, 0, offset);
+	offset += packet_mpeg_sect_crc(tvb, pinfo, mpeg_pat_tree, 0, offset);
+	proto_item_set_len(ti, offset);
 }
 
 
