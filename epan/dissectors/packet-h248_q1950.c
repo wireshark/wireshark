@@ -319,14 +319,14 @@ static const value_string h248_pkg_bt_props_vals[] = {
 	{ 0, NULL}
 };
 
-static const  value_string h248_pkg_bt_tunopt_vals[] _U_ = {
+static const  value_string h248_pkg_bt_tunopt_vals[]  = {
 	{ 1, "1 (In the same message as the command response to the command which generated the bearer control tunnel)"},
 	{ 2, "2 (Tunnel message at any time)"},
 	{ 3, "NO"},
 	{ 0, NULL}
 };
 
-static const h248_pkg_param_t h248_pkg_bt_props[] _U_ = {
+static const h248_pkg_param_t h248_pkg_bt_props[] = {
 	{ 0x0001, &hf_h248_pkg_bt_tunopt, h248_param_ber_integer, &implicit },
 	{ 0, NULL, NULL, NULL}
 };
@@ -371,8 +371,8 @@ static h248_package_t h248_pkg_bct = {
 	h248_pkg_bt_sigs_vals,
 	h248_pkg_bt_evt_vals,
 	NULL,
-	NULL,						/* Properties */
-	h248_pkg_bt_signals,			/* signals */
+	h248_pkg_bt_props,			/* Properties */
+	h248_pkg_bt_signals,		/* signals */
 	h248_pkg_bt_events,			/* events */
 	NULL						/* statistics */
 };
@@ -530,13 +530,14 @@ void proto_register_q1950(void) {
 			FT_UINT32, BASE_HEX, VALS(h248_pkg_RII_vals), 0, "This property indicates that the provided bearer network connection relates to an Idle Bearer.", HFILL }
 		},
 
+		/* A.7 Bearer control tunnelling package */
 		{ &hf_h248_pkg_bt,
 			{ "BT (Bearer control Tunneling)", "h248.pkg.BT",
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bt_tunopt,
 			{ "Tunnelling Options", "h248.pkg.BT.TunOpt",
-				FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+				FT_UINT32, BASE_DEC, VALS(h248_pkg_bt_tunopt_vals), 0, NULL, HFILL }
 		},
 		{ &hf_h248_pkg_bt_tind,
 			{ "tind (Tunnel INDication)", "h248.pkg.BT.TIND",
