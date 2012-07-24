@@ -37,7 +37,6 @@
 /* Initialize protocol and registered fields */
 static int proto_bfcp = -1;
 static gboolean  bfcp_enable_heuristic_dissection = FALSE;
-static dissector_handle_t bfcp_handle;
 
 
 static int hf_bfcp_transaction_initiator = -1;
@@ -344,6 +343,8 @@ void proto_reg_handoff_bfcp(void)
 	 */
 	if (!prefs_initialized)
 	{
+		dissector_handle_t bfcp_handle;
+
 		heur_dissector_add("tcp", dissect_bfcp, proto_bfcp);
 		heur_dissector_add("udp", dissect_bfcp, proto_bfcp);
 		bfcp_handle = new_create_dissector_handle(dissect_bfcp, proto_bfcp);
