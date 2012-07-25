@@ -1642,7 +1642,6 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	frame_data *fdata;
 
 	if(CS_CSV == copy_type) {
 		text = g_string_new("\"");
@@ -1656,7 +1655,6 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 		if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 			return;
 
-		fdata = new_packet_list_get_record(model, &iter);
 		for(col = 0; col < cfile.cinfo.num_cols; ++col) {
 			if(col != 0) {
 				if(CS_CSV == copy_type) {
