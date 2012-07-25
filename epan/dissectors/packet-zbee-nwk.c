@@ -1852,7 +1852,7 @@ void proto_reg_handoff_zbee_nwk(void)
 {
     /* Find the other dissectors we need. */
     data_handle     = find_dissector("data");
-    aps_handle      = find_dissector("zbee.aps");
+    aps_handle      = find_dissector("zbee_aps");
 
     /* Register our dissector with IEEE 802.15.4 */
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur, proto_zbee_nwk);
