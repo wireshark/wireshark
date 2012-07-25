@@ -14,6 +14,30 @@
         <source>Wireshark: Open Capture File</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Display Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable &amp;MAC name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable &amp;transport name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable &amp;network name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use &amp;external name resolver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterCombo</name>
@@ -35,6 +59,10 @@
     <message>
         <source>Invalid filter</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Enter a display filter %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -164,6 +192,70 @@
     <message>
         <source>Clear Menu</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ManuelPages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RawShark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dumpcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mergecap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Editcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text2cap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FAQ&apos;s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wiki</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample Captures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About Wireshark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ask (Q&amp;&amp;A)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

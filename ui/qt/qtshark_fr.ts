@@ -10,6 +10,44 @@
     </message>
 </context>
 <context>
+    <name>CaptureFileDialog</name>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="123"/>
+        <source>Wireshark: Open Capture File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="138"/>
+        <source>Display Filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="148"/>
+        <source>Enable &amp;MAC name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="152"/>
+        <source>Enable &amp;transport name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="156"/>
+        <source>Enable &amp;network name resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="160"/>
+        <source>Use &amp;external name resolver</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_file_dialog.cpp" line="248"/>
+        <source>All Files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DisplayFilterCombo</name>
     <message>
         <location filename="display_filter_combo.cpp" line="42"/>
@@ -20,18 +58,23 @@
 <context>
     <name>DisplayFilterEdit</name>
     <message>
-        <location filename="display_filter_edit.cpp" line="89"/>
+        <location filename="display_filter_edit.cpp" line="95"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Appliquer un filtre d&apos;affichage %1 &lt;%2/&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="92"/>
+        <location filename="display_filter_edit.cpp" line="90"/>
         <source>Display filter entry</source>
         <oldsource>Dispaly filter entry</oldsource>
         <translation>Filtre d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="284"/>
+        <location filename="display_filter_edit.cpp" line="93"/>
+        <source>Enter a display filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="305"/>
         <source>Invalid filter</source>
         <translation>Filtre invalide</translation>
     </message>
@@ -86,6 +129,8 @@
     <name>MainWindow</name>
     <message>
         <location filename="main_window.ui" line="14"/>
+        <location filename="main_window.ui" line="237"/>
+        <location filename="main_window.ui" line="247"/>
         <source>Wireshark</source>
         <translation></translation>
     </message>
@@ -110,87 +155,167 @@
         <translation>Capture</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="121"/>
+        <location filename="main_window.ui" line="84"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="88"/>
+        <source>ManuelPages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="153"/>
         <source>toolBar</source>
         <translation>Barre d&apos;outils</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="132"/>
+        <location filename="main_window.ui" line="164"/>
         <source>Open</source>
         <translation>Ouvrir</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="135"/>
+        <location filename="main_window.ui" line="167"/>
         <source>Ctrl+O</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="140"/>
+        <location filename="main_window.ui" line="172"/>
         <source>Quit</source>
         <translation>Quitter</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="143"/>
+        <location filename="main_window.ui" line="175"/>
         <source>Ctrl+Q</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="148"/>
+        <location filename="main_window.ui" line="180"/>
         <source>Interfaces</source>
         <translation>Interfaces</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="161"/>
+        <location filename="main_window.ui" line="193"/>
         <source>Start</source>
         <translation>Démarrer</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="164"/>
+        <location filename="main_window.ui" line="196"/>
         <source>Start capturing packets</source>
         <translation>Démarrer la capture de paquet</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="167"/>
+        <location filename="main_window.ui" line="199"/>
         <source>Ctrl+K</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="176"/>
+        <location filename="main_window.ui" line="208"/>
         <source>Stop</source>
         <translation>Arrêter</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="179"/>
+        <location filename="main_window.ui" line="211"/>
         <source>Stop capturing packets</source>
         <translation>Arrêter la capturer de paquet</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="184"/>
+        <location filename="main_window.ui" line="216"/>
         <source>Close</source>
         <translation>Fermer</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="187"/>
+        <location filename="main_window.ui" line="219"/>
         <source>Ctrl+W</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="195"/>
+        <location filename="main_window.ui" line="227"/>
         <source>No files found</source>
         <translation>Pas de fichier trouvé</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="151"/>
+        <location filename="main_window.ui" line="232"/>
+        <source>Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="242"/>
+        <source>Wireshark Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="252"/>
+        <source>RawShark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="257"/>
+        <source>Dumpcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="262"/>
+        <source>Mergecap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="267"/>
+        <source>Editcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="272"/>
+        <source>Text2cap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="277"/>
+        <source>Website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="282"/>
+        <source>FAQ&apos;s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="287"/>
+        <source>Downloads</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="292"/>
+        <source>Wiki</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="297"/>
+        <source>Sample Captures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="302"/>
+        <source>About Wireshark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="307"/>
+        <source>Ask (Q&amp;&amp;A)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="152"/>
         <source>Loading: %1</source>
         <translation>Chargement: %1</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="292"/>
-        <source>Wireshark: Open Capture File</source>
-        <translation></translation>
+        <location filename="main_window.cpp" line="259"/>
+        <source>Invalid Display Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="382"/>
+        <location filename="main_window.cpp" line="368"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
@@ -216,37 +341,37 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="main_status_bar.cpp" line="41"/>
+        <location filename="main_status_bar.cpp" line="42"/>
         <source> Ready to load or capture</source>
         <translation> Prêt pour ouvrir ou capturer</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="43"/>
+        <location filename="main_status_bar.cpp" line="44"/>
         <source> Ready to load file</source>
         <translation> Prêt pour ouvrir un fichier</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="96"/>
+        <location filename="main_status_bar.cpp" line="97"/>
         <source>Packets: %1 Displayed: %2 Marked: %3</source>
         <translation>Paquets: %1 Affichés: %2 Marqués: %3</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="101"/>
+        <location filename="main_status_bar.cpp" line="102"/>
         <source> Dropped: %1</source>
         <translation> Supprimé: %1</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="104"/>
+        <location filename="main_status_bar.cpp" line="105"/>
         <source> Ignored: %1</source>
         <translation> Ignoré: %1</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="109"/>
+        <location filename="main_status_bar.cpp" line="110"/>
         <source> Load time: %1:%2.%3</source>
         <translation> Temps de Chargement: %1:%2.%3</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="120"/>
+        <location filename="main_status_bar.cpp" line="121"/>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
     </message>
