@@ -528,9 +528,15 @@ tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
 	sdufrag = sdu->frags;
 	offset = 0;
 	while (sdufrag) {
-		proto_tree_add_uint_format(frag_tree, hf_rlc_frag, tvb, offset,
-			sdufrag->len, sdufrag->frame_num, "Frame: %u, payload %u-%u (%u bytes) (Seq: %u)",
-			sdufrag->frame_num, offset, offset + sdufrag->len - 1, sdufrag->len, sdufrag->seq);
+		if (sdufrag->len > 0) {
+			proto_tree_add_uint_format(frag_tree, hf_rlc_frag, tvb, offset,
+				sdufrag->len, sdufrag->frame_num, "Frame: %u, payload: %u-%u (%u bytes) (Seq: %u)",
+				sdufrag->frame_num, offset, offset + sdufrag->len - 1, sdufrag->len, sdufrag->seq);
+		} else {
+			proto_tree_add_uint_format(frag_tree, hf_rlc_frag, tvb, offset,
+				sdufrag->len, sdufrag->frame_num, "Frame: %u, payload: none (0 bytes) (Seq: %u)",
+				sdufrag->frame_num, sdufrag->seq);
+		}
 		offset += sdufrag->len;
 		sdufrag = sdufrag->next;
 	}
@@ -830,7 +836,7 @@ static struct rlc_seqlist * get_endlist(packet_info * pinfo, struct rlc_channel 
 	return endlist;
 }
 
-static void reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist, struct rlc_channel * ch_lookup, guint16 start, guint end)
+static void reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist, struct rlc_channel * ch_lookup, guint16 start, guint16 end)
 {
 	GList * element = NULL;
 	struct rlc_sdu * sdu = rlc_sdu_create();
@@ -899,7 +905,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 
 	/* If already done reassembly */
 	if (pinfo->fd->flags.visited) {
-		if (tree) {
+		if (tree && len > 0) {
 			if (endlist->list && endlist->list->next) {
 				gint16 start = (GPOINTER_TO_INT(endlist->list->data) + 1) % 4096;
 				gint16 end = GPOINTER_TO_INT(endlist->list->next->data);
@@ -918,15 +924,22 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 					reassemble_sequence(frags, endlist, &ch_lookup, start, end);
 				} else {
 					if (end >= 0 && end < 4096 && frags[end]) {
-						proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence (%u->%u [packet %u]), could not find %u.", start, end, frags[end]->frame_num, missing);
+						proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence (%d->%d [packet %u]), could not find %d.", start, end, frags[end]->frame_num, missing);
 					} else {
-						proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence (%u->%u [could not determine packet]), could not find %u.", start, end, missing);
+						proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence (%d->%d [could not determine packet]), could not find %d.", start, end, missing);
 					}
 					expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Did not perform reassembly because of previous unfinished sequence.");
 				}
 			} else if (endlist->list) {
-				/*gint16 end = *((gint16*)endlist->list->data);
-				g_warning("Gave up at seq %d", end);*/
+				gint16 end = GPOINTER_TO_INT(endlist->list->data);
+				if (end >= 0 && end < 4096 && frags[end]) {
+					proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [packet %d]).", end, frags[end]->frame_num);
+				} else {
+					proto_tree_add_text(tree, tvb, 0, 0, "Did not perform reassembly because of unfinished sequence, found lingering endpoint (%d [could not determine packet]).", end);
+				}
+				expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Lingering endpoint.");
+			} else {
+				expert_add_info_format(pinfo, NULL, PI_REASSEMBLE, PI_ERROR, "Unknown error.");
 			}
 		}
 		return NULL; /* If already done reassembly and no SDU found, too bad */
@@ -990,7 +1003,15 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 			if (element) {
 				endlist->list = g_list_remove_link(endlist->list, element);
 			}
-			frags[start] = NULL;
+			frags[start] = frags[start]->next;
+
+			/* If frags[start] is not NULL now, then that means that there was
+			 * another fragment with the same seq number because of LI. If we
+			 * don't decrease the endpoint by 1 then that fragment will be
+			 * skipped and all hell will break lose. */
+			if (frags[start] != NULL) {
+				endlist->list->data = GINT_TO_POINTER(start-1);
+			}
 			/* NOTE: frags[start] is se_alloced and will remain until file closes, we would want to free it here. */
 			return NULL;
 		}
@@ -1213,7 +1234,7 @@ rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tr
 		if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
 			/* padding, must be last LI */
 			if (tree) {
-				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_NA);
+				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, tvb_length_remaining(tvb, offs), ENC_NA);
 			}
 			offs += tvb_length_remaining(tvb, offs);
 		} else if ((!li_is_on_2_bytes && (li[i].li == 0x7c)) || (li[i].li == 0x7ffc)) {

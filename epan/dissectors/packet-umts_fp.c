@@ -33,6 +33,7 @@
 #include <epan/conversation.h>
 
 #include <wsutil/crc7.h>
+#include <wsutil/crc16-plain.h>
 
 #include "packet-umts_mac.h"
 #include "packet-rlc.h"
@@ -224,6 +225,7 @@ static proto_tree *top_level_tree = NULL;
 /* Variables used for preferences */
 static gboolean preferences_call_mac_dissectors = TRUE;
 static gboolean preferences_show_release_info = TRUE;
+static gboolean preferences_payload_checksum = TRUE;
 
 /* E-DCH (T1) channel header information */
 struct edch_t1_subframe_info
@@ -441,7 +443,7 @@ static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                              fp_info *p_fp_info, int offset);
 static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
                                             proto_tree *tree, guint8 dch_crc_present,
-                                            int offset);
+                                            int offset, guint header_length);
 /* Dissect common control messages */
 static int dissect_common_outer_loop_power_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                                    int offset, struct fp_info *p_fp_info);
@@ -862,11 +864,10 @@ dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-
 static void
 dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree, guint8 dch_crc_present,
-                                int offset)
+                                int offset, guint header_length)
 {
     int         crc_size = 0;
     int         remain   = tvb_length_remaining(tvb, offset);
@@ -888,8 +889,20 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (crc_size) {
-        proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size,
+        proto_item * pi = proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size,
                             ENC_BIG_ENDIAN);
+        if (preferences_payload_checksum) {
+            guint16 calc_crc, read_crc;
+            calc_crc = crc16_8005_noreflect_noxor(tvb_get_string(tvb, header_length, offset-header_length), offset-header_length);
+            read_crc = tvb_get_bits16(tvb, offset*8, 16, FALSE);
+
+            if (calc_crc == read_crc) {
+                proto_item_append_text(pi, " [correct]");
+            } else {
+                proto_item_append_text(pi, " [incorrect, should be %x]", calc_crc);
+                expert_add_info_format(pinfo, pi, PI_CHECKSUM, PI_WARN, "Bad payload checksum.");
+            }
+        }
     }
 }
 
@@ -1312,8 +1325,8 @@ dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
     }
 
-    /* Spare Extension */
-    dissect_spare_extension_and_crc(tvb, pinfo, tree, 0, offset);
+    /* There is no Spare Extension nor payload crc in common control!? */
+    /*dissect_spare_extension_and_crc(tvb, pinfo, tree, 0, offset, 0);*/
 }
 
 
@@ -1347,6 +1360,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item *received_sync_ul_timing_deviation_ti = NULL;
         proto_item *rx_timing_deviation_ti               = NULL;
         guint16     rx_timing_deviation                  = 0;
+        guint header_length = 0;
 
         /* DATA */
 
@@ -1384,7 +1398,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
-
+        header_length = offset;
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_rach_handle);
 
@@ -1555,7 +1569,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -1583,7 +1597,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
         guint8 cfn;
-
+        guint header_length = 0;
         /* DATA */
 
         /* CFN */
@@ -1601,10 +1615,9 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_float(tree, hf_fp_transmit_power_level, tvb, offset, 1,
                              (float)(int)(tvb_get_guint8(tvb, offset)) / 10);
         offset++;
-
+        header_length = offset;
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_fach_handle);
-
         /* New IE flags (if it looks as though they are present) */
         if ((p_fp_info->release == 7) &&
             (tvb_length_remaining(tvb, offset) > 2)) {
@@ -1620,7 +1633,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -1648,6 +1661,7 @@ dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
         guint8 cfn;
+        guint header_length = 0;
 
         /* DATA */
 
@@ -1698,12 +1712,12 @@ dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  (float)(int)(tvb_get_guint8(tvb, offset)) / 10);
             offset++;
         }
-
+        header_length = offset;
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, NULL);
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -1733,6 +1747,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint cfn;
         guint16 rx_timing_deviation;
         proto_item *rx_timing_deviation_ti;
+        guint header_length = 0;
 
         /* DATA */
 
@@ -1752,7 +1767,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         rx_timing_deviation_ti = proto_tree_add_item(tree, hf_fp_rx_timing_deviation,
                                                      tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-
+        header_length = offset;
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, NULL);
 
@@ -1781,7 +1796,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -1811,6 +1826,7 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
     }
     else {
+        guint header_length = 0;
         /* DATA */
 
         /* 12-bit CFN value */
@@ -1828,7 +1844,7 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* 5-bit TFI */
         proto_tree_add_item(tree, hf_fp_pch_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-
+        header_length = offset;
         /* Optional paging indications */
         if (paging_indication) {
             proto_item *ti;
@@ -1844,7 +1860,7 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_pch_handle);
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -1872,6 +1888,7 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     else {
         guint cfn;
+        guint header_length = 0;
 
         /* DATA */
 
@@ -1890,7 +1907,7 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
                             tvb_get_guint8(tvb, offset) * 3);
         offset++;
-
+        header_length = offset; /* XXX this might be wrong */
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, NULL);
 
@@ -1898,7 +1915,7 @@ dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset = dissect_crci_bits(tvb, pinfo, tree, p_fp_info, offset);
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -2294,8 +2311,8 @@ dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             break;
     }
 
-    /* Spare Extension */
-    dissect_spare_extension_and_crc(tvb, pinfo, tree, 0, offset);
+    /* There is no Spare Extension nor payload crc in control frame!? */
+    /*dissect_spare_extension_and_crc(tvb, pinfo, tree, 0, offset);*/
 }
 
 /*******************************/
@@ -2306,6 +2323,7 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     gboolean is_control_frame;
     guint8   cfn;
+    guint header_length = 0;
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2338,7 +2356,7 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
-
+        header_length = offset;
         /* Dissect TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_dch_handle);
 
@@ -2355,7 +2373,7 @@ dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Spare extension and payload CRC (optional) */
         dissect_spare_extension_and_crc(tvb, pinfo, tree,
-                                        p_fp_info->dch_crc_present, offset);
+                                        p_fp_info->dch_crc_present, offset, header_length);
     }
 }
 
@@ -2400,6 +2418,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint  total_pdus = 0;
         guint  total_bits = 0;
         gboolean dissected = FALSE;
+        guint header_length = 0;
 
         /* FSN */
         proto_tree_add_item(tree, hf_fp_edch_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2520,7 +2539,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Tree should cover entire subframe header */
             proto_item_set_len(subframe_header_ti, offset - start_offset);
         }
-
+        header_length = offset;
         /* EDCH subframes */
         for (n=0; n < number_of_subframes; n++) {
             int i;
@@ -2669,7 +2688,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Spare extension and payload CRC (optional) */
         dissect_spare_extension_and_crc(tvb, pinfo, tree,
-                                        p_fp_info->dch_crc_present, offset);
+                                        p_fp_info->dch_crc_present, offset, header_length);
     }
 }
 
@@ -2689,6 +2708,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     gint     bit_offset;
     proto_item *subframe_macis_descriptors_ti = NULL;
     static struct edch_t2_subframe_info subframes[16];
+    guint header_length = 0;
 
     /* User Buffer size */
     proto_tree_add_bits_item(tree, hf_fp_edch_user_buffer_size, tvb, offset*8,
@@ -2833,7 +2853,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                                "Frame contains %u MAC-is SDUs - header said there would be %u!",
                                macis_sdus_found, (guint16)total_macis_sdus);
     }
-
+    header_length = offset;
     /* Now PDUs */
     for (n=0; n < number_of_subframes; n++) {
 
@@ -2946,7 +2966,7 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
     /* Spare extension and payload CRC (optional) */
     dissect_spare_extension_and_crc(tvb, pinfo, tree,
-                                    p_fp_info->dch_crc_present, offset);
+                                    p_fp_info->dch_crc_present, offset, header_length);
 }
 
 
@@ -2960,6 +2980,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             int offset, struct fp_info *p_fp_info)
 {
     gboolean is_control_frame;
+    guint header_length = 0;
 
     /* Header CRC */
     proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3029,6 +3050,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
+        header_length = offset;
 
 		/************************/
 		/*Configure the pdus*/
@@ -3112,7 +3134,7 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -3146,6 +3168,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         gboolean drt_present = FALSE;
         gboolean fach_present = FALSE;
         guint16 user_buffer_size;
+        guint16 header_length = 0;
         int n;
         guint j;
 
@@ -3273,7 +3296,9 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             }
         }
 
-
+        if (header_length == 0) {
+            header_length = offset;
+        }
         /**********************************************/
         /* Optional fields indicated by earlier flags */
         if (drt_present) {
@@ -3320,7 +3345,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
 
         /* Spare Extension and Payload CRC */
-        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset, header_length);
     }
 }
 
@@ -4943,6 +4968,10 @@ void proto_register_fp(void)
                                    "Call MAC dissector for payloads",
                                    "Call MAC dissector for payloads",
                                    &preferences_call_mac_dissectors);
+
+    /* Determines whether or not to validate FP payload checksums */
+    prefs_register_bool_preference(fp_module, "payload_checksum", "Validate FP payload checksums", "Validate FP payload checksums", &preferences_payload_checksum);
+
 
 }
 
