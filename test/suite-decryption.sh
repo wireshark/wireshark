@@ -115,7 +115,7 @@ decryption_step_zigbee() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
 		-r captures/sample_control4_2012-03-24.pcap \
 		-Tfields -e data.data \
-		-R zbee.aps \
+		-R zbee_aps \
 		| grep "30:67:63:63:38:65:20:63:34:2e:64:6d:2e:74:76:20" > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
