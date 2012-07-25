@@ -1397,335 +1397,335 @@ void proto_register_zbee_zdp(void)
 {
     static hf_register_info hf[] = {
         { &hf_zbee_zdp_seqno,
-        { "Sequence Number",            "zbee.zdp.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Sequence Number",            "zbee_zdp.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_length,
-        { "Length",                     "zbee.zdp.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Length",                     "zbee_zdp.length", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_ext_addr,
-        { "Extended Address",           "zbee.zdp.ext_addr", FT_EUI64, BASE_NONE, NULL, 0x0,
+        { "Extended Address",           "zbee_zdp.ext_addr", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_device,
-        { "Device",                     "zbee.zdp.device", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Device",                     "zbee_zdp.device", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_req_type,
-        { "Request Type",               "zbee.zdp.req_type", FT_UINT8, BASE_DEC, VALS(zbee_zdp_req_types), 0x0,
+        { "Request Type",               "zbee_zdp.req_type", FT_UINT8, BASE_DEC, VALS(zbee_zdp_req_types), 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_index,
-        { "Index",                      "zbee.zdp.index", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Index",                      "zbee_zdp.index", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_status,
-        { "Status",                     "zbee.zdp.status", FT_UINT8, BASE_DEC, VALS(zbee_zdp_status_names), 0x0,
+        { "Status",                     "zbee_zdp.status", FT_UINT8, BASE_DEC, VALS(zbee_zdp_status_names), 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_endpoint,
-        { "Endpoint",                   "zbee.zdp.endpoint", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Endpoint",                   "zbee_zdp.endpoint", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_ep_count,
-        { "Endpoint Count",             "zbee.zdp.ep_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Endpoint Count",             "zbee_zdp.ep_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_profile,
-        { "Profile",                    "zbee.zdp.profile", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Profile",                    "zbee_zdp.profile", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_addr_mode,
-        { "Address Mode",               "zbee.zdp.addr_mode", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Address Mode",               "zbee_zdp.addr_mode", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_cluster,
-        { "Cluster",                    "zbee.zdp.cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Cluster",                    "zbee_zdp.cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_table_size,
-        { "Table Size",                 "zbee.zdp.table_size", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Table Size",                 "zbee_zdp.table_size", FT_UINT16, BASE_DEC, NULL, 0x0,
             "Number of entries in the table.", HFILL }},
 
         { &hf_zbee_zdp_table_count,
-        { "Table Count",                "zbee.zdp.table_count", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Table Count",                "zbee_zdp.table_count", FT_UINT16, BASE_DEC, NULL, 0x0,
             "Number of table entries included in this message.", HFILL }},
 
         { &hf_zbee_zdp_in_count,
-        { "Input Cluster Count",        "zbee.zdp.in_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Input Cluster Count",        "zbee_zdp.in_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_out_count,
-        { "Output Cluster Count",       "zbee.zdp.out_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Output Cluster Count",       "zbee_zdp.out_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_in_cluster,
-        { "Input Cluster",              "zbee.zdp.in_cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Input Cluster",              "zbee_zdp.in_cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_out_cluster,
-        { "Output Cluster",             "zbee.zdp.out_cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Output Cluster",             "zbee_zdp.out_cluster", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_assoc_device_count,
-        { "Associated Device Count",    "zbee.zdp.assoc_device_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Associated Device Count",    "zbee_zdp.assoc_device_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_assoc_device,
-        { "Associated Device",          "zbee.zdp.assoc_device", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Associated Device",          "zbee_zdp.assoc_device", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_cinfo_alt_coord,
-        { "Alternate Coordinator",      "zbee.zdp.cinfo.alt_coord", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_ALT_COORD,
+        { "Alternate Coordinator",      "zbee_zdp.cinfo.alt_coord", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_ALT_COORD,
             "Indicates that the device is able to operate as a PAN coordinator.", HFILL }},
 
         { &hf_zbee_zdp_cinfo_ffd,
-        { "Full-Function Device",       "zbee.zdp.cinfo.ffd", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_FFD,
+        { "Full-Function Device",       "zbee_zdp.cinfo.ffd", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_FFD,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_cinfo_power,
-        { "AC Power",                   "zbee.zdp.cinfo.power", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_POWER,
+        { "AC Power",                   "zbee_zdp.cinfo.power", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_POWER,
             "Indicates this device is using AC/Mains power.", HFILL }},
 
         { &hf_zbee_zdp_cinfo_idle_rx,
-        { "Rx On When Idle",            "zbee.zdp.cinfo.power", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_IDLE_RX,
+        { "Rx On When Idle",            "zbee_zdp.cinfo.power", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_IDLE_RX,
             "Indicates the receiver is active when the device is idle.", HFILL }},
 
         { &hf_zbee_zdp_cinfo_security,
-        { "Security Capability",        "zbee.zdp.cinfo.security", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_SECURITY,
+        { "Security Capability",        "zbee_zdp.cinfo.security", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_SECURITY,
             "Indicates this device is capable of performing encryption/decryption.", HFILL }},
 
         { &hf_zbee_zdp_cinfo_alloc,
-        { "Allocate Short Address",     "zbee.zdp.cinfo.alloc", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_ALLOC,
+        { "Allocate Short Address",     "zbee_zdp.cinfo.alloc", FT_BOOLEAN, 8, NULL, ZBEE_CINFO_ALLOC,
             "Flag requesting the parent to allocate a short address for this device.", HFILL }},
 
         { &hf_zbee_zdp_server_pri_trust,
-        { "Primary Trust Center",       "zbee.zdp.server.pri_trust", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_PRIMARY_TRUST,
+        { "Primary Trust Center",       "zbee_zdp.server.pri_trust", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_PRIMARY_TRUST,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_bak_trust,
-        { "Backup Trust Center",        "zbee.zdp.server.bak_trust", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_TRUST,
+        { "Backup Trust Center",        "zbee_zdp.server.bak_trust", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_TRUST,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_pri_bind,
-        { "Primary Binding Table Cache","zbee.zdp.server.pri_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_PRIMARY_BIND,
+        { "Primary Binding Table Cache","zbee_zdp.server.pri_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_PRIMARY_BIND,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_bak_bind,
-        { "Backup Binding Table Cache", "zbee.zdp.server.bak_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_BIND,
+        { "Backup Binding Table Cache", "zbee_zdp.server.bak_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_BIND,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_pri_disc,
-        { "Primary Discovery Cache",    "zbee.zdp.server.pri_disc", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_PRIMARY_DISC,
+        { "Primary Discovery Cache",    "zbee_zdp.server.pri_disc", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_PRIMARY_DISC,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_server_bak_disc,
-        { "Backup Discovery Cache",     "zbee.zdp.server.bak_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_DISC,
+        { "Backup Discovery Cache",     "zbee_zdp.server.bak_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_DISC,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_type,
-        { "Type",                       "zbee.zdp.node.type", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_NODE_TYPE,
+        { "Type",                       "zbee_zdp.node.type", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_NODE_TYPE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_complex,
-        { "Complex Descriptor",         "zbee.zdp.node.complex", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_COMPLEX,
+        { "Complex Descriptor",         "zbee_zdp.node.complex", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_COMPLEX,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_user,
-        { "User Descriptor",            "zbee.zdp.node.user", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_USER,
+        { "User Descriptor",            "zbee_zdp.node.user", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_USER,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_868,
-        { "868MHz Band",                "zbee.zdp.node.freq.868mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_868MHZ,
+        { "868MHz Band",                "zbee_zdp.node.freq.868mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_868MHZ,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_900,
-        { "900MHz Band",                "zbee.zdp.node.freq.900mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_900MHZ,
+        { "900MHz Band",                "zbee_zdp.node.freq.900mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_900MHZ,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_2400,
-        { "2.4GHz Band",                "zbee.zdp.node.freq.2400mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_2400MHZ,
+        { "2.4GHz Band",                "zbee_zdp.node.freq.2400mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_2400MHZ,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_manufacturer,
-        { "Manufacturer Code",          "zbee.zdp.node.manufacturer", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Manufacturer Code",          "zbee_zdp.node.manufacturer", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_max_buffer,
-        { "Max Buffer Size",            "zbee.zdp.node.max_buffer", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Max Buffer Size",            "zbee_zdp.node.max_buffer", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_max_transfer,
-        { "Max Transfer Size",          "zbee.zdp.node.max_transfer", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Max Transfer Size",          "zbee_zdp.node.max_transfer", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_mode,
-        { "Mode",                       "zbee.zdp.power.mode", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_POWER_MODE,
+        { "Mode",                       "zbee_zdp.power.mode", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_POWER_MODE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_avail_ac,
-        { "Available AC Power",         "zbee.zdp.power.avail.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_AC,
+        { "Available AC Power",         "zbee_zdp.power.avail.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_AC,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_avail_recharge,
-        { "Available Rechargeable Battery", "zbee.zdp.power.avail.rech", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_RECHARGEABLE,
+        { "Available Rechargeable Battery", "zbee_zdp.power.avail.rech", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_RECHARGEABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_avail_dispose,
-        { "Available Disposeable Battery",  "zbee.zdp.power.avail.disp", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_DISPOSEABLE,
+        { "Available Disposeable Battery",  "zbee_zdp.power.avail.disp", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_AVAIL_DISPOSEABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_source_ac,
-        { "Using AC Power",             "zbee.zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_AC,
+        { "Using AC Power",             "zbee_zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_AC,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_source_recharge,
-        { "Using Rechargeable Battery", "zbee.zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_RECHARGEABLE,
+        { "Using Rechargeable Battery", "zbee_zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_RECHARGEABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_source_dispose,
-        { "Using Disposeable Battery",  "zbee.zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_DISPOSEABLE,
+        { "Using Disposeable Battery",  "zbee_zdp.power.source.ac", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_POWER_SOURCE_DISPOSEABLE,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_power_level,
-        { "Level",                      "zbee.zdp.power.level", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_POWER_LEVEL,
+        { "Level",                      "zbee_zdp.power.level", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_POWER_LEVEL,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_simple_app_device,
-        { "Application Device",         "zbee.zdp.app.device", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Application Device",         "zbee_zdp.app.device", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_simple_app_version,
-        { "Application Version",        "zbee.zdp.app.version", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Application Version",        "zbee_zdp.app.version", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_complex_length,
-        { "Complex Descriptor Length",  "zbee.zdp.complex_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Complex Descriptor Length",  "zbee_zdp.complex_length", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_complex,
-        { "Complex Descriptor",         "zbee.zdp.complex", FT_STRING, BASE_NONE, NULL, 0x0,
+        { "Complex Descriptor",         "zbee_zdp.complex", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_user,
-        { "User Descriptor",            "zbee.zdp.user", FT_STRING, BASE_NONE, NULL, 0x0,
+        { "User Descriptor",            "zbee_zdp.user", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_user_length,
-        { "User Descriptor Length",     "zbee.zdp.user_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "User Descriptor Length",     "zbee_zdp.user_length", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_simple_length,
-        { "Simple Descriptor Length",   "zbee.zdp.simple_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Simple Descriptor Length",   "zbee_zdp.simple_length", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_disc_node_size,
-        { "Node Descriptor Size",       "zbee.zdp.node_size", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Node Descriptor Size",       "zbee_zdp.node_size", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_disc_power_size,
-        { "Power Descriptor Size",      "zbee.zdp.power_size", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Power Descriptor Size",      "zbee_zdp.power_size", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_cache,
-        { "Cache",                      "zbee.zdp.cache", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Cache",                      "zbee_zdp.cache", FT_UINT16, BASE_HEX, NULL, 0x0,
             "Address of the device containing the discovery cache.", HFILL }},
 
         { &hf_zbee_zdp_disc_ep_count,
-        { "Active Endpoint Count",      "zbee.zdp.ep_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Active Endpoint Count",      "zbee_zdp.ep_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_disc_simple_count,
-        { "Simple Descriptor Count",    "zbee.zdp.simple_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Simple Descriptor Count",    "zbee_zdp.simple_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_disc_simple_size,
-        { "Simple Descriptor Size",     "zbee.zdp.simple_size", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Simple Descriptor Size",     "zbee_zdp.simple_size", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_target,
-        { "Target",                     "zbee.zdp.target", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Target",                     "zbee_zdp.target", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_target64,
-        { "Target",                     "zbee.zdp.target64", FT_EUI64, BASE_NONE, NULL, 0x0,
+        { "Target",                     "zbee_zdp.target64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_target_ep,
-        { "Target Endpoint",            "zbee.zdp.target_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Target Endpoint",            "zbee_zdp.target_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_replacement,
-        { "Replacement",                "zbee.zdp.replacement", FT_EUI64, BASE_NONE, NULL, 0x0,
+        { "Replacement",                "zbee_zdp.replacement", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_replacement_ep,
-        { "Replacement Endpoint",       "zbee.zdp.replacement_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Replacement Endpoint",       "zbee_zdp.replacement_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_src,
-        { "Source",                     "zbee.zdp.bind.src", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Source",                     "zbee_zdp.bind.src", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_src64,
-        { "Source",                     "zbee.zdp.bind.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
+        { "Source",                     "zbee_zdp.bind.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_src_ep,
-        { "Source Endpoint",            "zbee.zdp.bind.src_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Source Endpoint",            "zbee_zdp.bind.src_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_dst,
-        { "Destination",                "zbee.zdp.bind.dst", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Destination",                "zbee_zdp.bind.dst", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_dst64,
-        { "Destination",                "zbee.zdp.bind.dst64", FT_EUI64, BASE_NONE, NULL, 0x0,
+        { "Destination",                "zbee_zdp.bind.dst64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_bind_dst_ep,
-        { "Destination Endpoint",       "zbee.zdp.bind.dst_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Destination Endpoint",       "zbee_zdp.bind.dst_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_duration,
-        { "Duration",                   "zbee.zdp.duration", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Duration",                   "zbee_zdp.duration", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_leave_children,
-        { "Remove Children",            "zbee.zdp.leave.children", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { "Remove Children",            "zbee_zdp.leave.children", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_leave_rejoin,
-        { "Rejoin",                     "zbee.zdp.leave.rejoin", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { "Rejoin",                     "zbee_zdp.leave.rejoin", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_significance,
-        { "Significance",               "zbee.zdp.significance", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Significance",               "zbee_zdp.significance", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_scan_count,
-        { "Scan Count",                 "zbee.zdp.scan_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Scan Count",                 "zbee_zdp.scan_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_update_id,
-        { "Update ID",                  "zbee.zdp.update_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Update ID",                  "zbee_zdp.update_id", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_manager,
-        { "Network Manager",            "zbee.zdp.manager", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { "Network Manager",            "zbee_zdp.manager", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_tx_total,
-        { "Total Transmissions",        "zbee.zdp.tx_total", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Total Transmissions",        "zbee_zdp.tx_total", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_tx_fail,
-        { "Failed Transmissions",       "zbee.zdp.tx_fail", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Failed Transmissions",       "zbee_zdp.tx_fail", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_channel_count,
-        { "Channel List Count",         "zbee.zdp.channel_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Channel List Count",         "zbee_zdp.channel_count", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }}
     };
 
@@ -1758,12 +1758,12 @@ void proto_register_zbee_zdp(void)
     };
 
     /* Register ZigBee ZDP protocol with Wireshark. */
-    proto_zbee_zdp = proto_register_protocol("ZigBee Device Profile", "ZigBee ZDP", "zbee.zdp");
+    proto_zbee_zdp = proto_register_protocol("ZigBee Device Profile", "ZigBee ZDP", "zbee_zdp");
     proto_register_field_array(proto_zbee_zdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZDP dissector. */
-    register_dissector("zbee.zdp", dissect_zbee_zdp, proto_zbee_zdp);
+    register_dissector("zbee_zdp", dissect_zbee_zdp, proto_zbee_zdp);
 } /* proto_register_zbee_zdp */
 
 /*FUNCTION:------------------------------------------------------
@@ -1785,6 +1785,6 @@ void proto_reg_handoff_zbee_zdp(void)
     data_handle     = find_dissector("data");
 
     /* Register our dissector with the ZigBee application dissectors. */
-    zdp_handle = find_dissector("zbee.zdp");
+    zdp_handle = find_dissector("zbee_zdp");
     dissector_add_uint("zbee.profile", ZBEE_ZDP_PROFILE, zdp_handle);
 } /* proto_reg_handoff_zbee_zdp */

@@ -774,9 +774,9 @@
 #define ZBEE_MFG_GENUS          "Genus Power Infrastructures Limited"
 
 /* Protocol Abbreviations */
-#define ZBEE_PROTOABBREV_NWK    "zbee.nwk"
-#define ZBEE_PROTOABBREV_APS    "zbee.aps"
-#define ZBEE_PROTOABBREV_APF    "zbee.apf"
+#define ZBEE_PROTOABBREV_NWK    "zbee_nwk"
+#define ZBEE_PROTOABBREV_APS    "zbee_aps"
+#define ZBEE_PROTOABBREV_APF    "zbee_apf"
 
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);

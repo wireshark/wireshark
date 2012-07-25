@@ -1533,280 +1533,280 @@ void proto_register_zbee_nwk(void)
     static hf_register_info hf[] = {
 
             { &hf_zbee_nwk_frame_type,
-            { "Frame Type",             "zbee.nwk.frame_type", FT_UINT16, BASE_HEX, VALS(zbee_nwk_frame_types),
+            { "Frame Type",             "zbee_nwk.frame_type", FT_UINT16, BASE_HEX, VALS(zbee_nwk_frame_types),
                 ZBEE_NWK_FCF_FRAME_TYPE, NULL, HFILL }},
 
             { &hf_zbee_nwk_proto_version,
-            { "Protocol Version",       "zbee.nwk.proto_version", FT_UINT16, BASE_DEC, NULL, ZBEE_NWK_FCF_VERSION,
+            { "Protocol Version",       "zbee_nwk.proto_version", FT_UINT16, BASE_DEC, NULL, ZBEE_NWK_FCF_VERSION,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_discover_route,
-            { "Discover Route",         "zbee.nwk.discovery", FT_UINT16, BASE_HEX, VALS(zbee_nwk_discovery_modes),
+            { "Discover Route",         "zbee_nwk.discovery", FT_UINT16, BASE_HEX, VALS(zbee_nwk_discovery_modes),
                 ZBEE_NWK_FCF_DISCOVER_ROUTE,
                 "Determines how route discovery may be handled, if at all.", HFILL }},
 
             { &hf_zbee_nwk_multicast,
-            { "Multicast",              "zbee.nwk.multicast", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_MULTICAST,
+            { "Multicast",              "zbee_nwk.multicast", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_MULTICAST,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_security,
-            { "Security",               "zbee.nwk.security", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_SECURITY,
+            { "Security",               "zbee_nwk.security", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_SECURITY,
                 "Whether or not security operations are performed on the network payload.", HFILL }},
 
             { &hf_zbee_nwk_source_route,
-            { "Source Route",           "zbee.nwk.src_route", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_SOURCE_ROUTE,
+            { "Source Route",           "zbee_nwk.src_route", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_SOURCE_ROUTE,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_ext_dst,
-            { "Destination",            "zbee.nwk.ext_dst", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_EXT_DEST,
+            { "Destination",            "zbee_nwk.ext_dst", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_EXT_DEST,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_ext_src,
-            { "Extended Source",        "zbee.nwk.ext_src", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_EXT_SOURCE,
+            { "Extended Source",        "zbee_nwk.ext_src", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_EXT_SOURCE,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_dst,
-            { "Destination",            "zbee.nwk.dst", FT_UINT16, BASE_HEX, NULL, 0x0,
+            { "Destination",            "zbee_nwk.dst", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_src,
-            { "Source",                 "zbee.nwk.src", FT_UINT16, BASE_HEX, NULL, 0x0,
+            { "Source",                 "zbee_nwk.src", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_radius,
-            { "Radius",                 "zbee.nwk.radius", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Radius",                 "zbee_nwk.radius", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Number of hops remaining for a range-limited broadcast packet.", HFILL }},
 
             { &hf_zbee_nwk_seqno,
-            { "Sequence Number",        "zbee.nwk.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Sequence Number",        "zbee_nwk.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_mcast_mode,
-            { "Multicast Mode",         "zbee.nwk.multicast.mode", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_MCAST_MODE,
+            { "Multicast Mode",         "zbee_nwk.multicast.mode", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_MCAST_MODE,
                 "Controls whether this packet is permitted to be routed through non-members of the multicast group.",
                 HFILL }},
 
             { &hf_zbee_nwk_mcast_radius,
-            { "Non-Member Radius",      "zbee.nwk.multicast.radius", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_MCAST_RADIUS,
+            { "Non-Member Radius",      "zbee_nwk.multicast.radius", FT_UINT8, BASE_DEC, NULL, ZBEE_NWK_MCAST_RADIUS,
                 "Limits the range of multicast packets when being routed through non-members.", HFILL }},
 
             { &hf_zbee_nwk_mcast_max_radius,
-            { "Max Non-Member Radius",  "zbee.nwk.multicast.max_radius", FT_UINT8, BASE_DEC, NULL,
+            { "Max Non-Member Radius",  "zbee_nwk.multicast.max_radius", FT_UINT8, BASE_DEC, NULL,
                 ZBEE_NWK_MCAST_MAX_RADIUS, NULL, HFILL }},
 
             { &hf_zbee_nwk_dst64,
-            { "Destination",   "zbee.nwk.dst64", FT_EUI64, BASE_NONE, NULL, 0x0,
+            { "Destination",   "zbee_nwk.dst64", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_src64,
-            { "Extended Source",        "zbee.nwk.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
+            { "Extended Source",        "zbee_nwk.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_src64_origin,
-            { "Origin",        "zbee.nwk.src64.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            { "Origin",        "zbee_nwk.src64.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_relay_count,
-            { "Relay Count",            "zbee.nwk.relay.count", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Relay Count",            "zbee_nwk.relay.count", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Number of entries in the relay list.", HFILL }},
 
             { &hf_zbee_nwk_relay_index,
-            { "Relay Index",            "zbee.nwk.relay.index", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Relay Index",            "zbee_nwk.relay.index", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Number of relays required to route to the source device.", HFILL }},
 
             { &hf_zbee_nwk_cmd_id,
-            { "Command Identifier",     "zbee.nwk.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_nwk_cmd_names), 0x0,
+            { "Command Identifier",     "zbee_nwk.cmd.id", FT_UINT8, BASE_HEX, VALS(zbee_nwk_cmd_names), 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_addr,
-            { "Address",                "zbee.nwk.cmd.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
+            { "Address",                "zbee_nwk.cmd.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_id,
-            { "Route ID",               "zbee.nwk.cmd.route.id", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Route ID",               "zbee_nwk.cmd.route.id", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "A sequence number for routing commands.", HFILL }},
 
             { &hf_zbee_nwk_cmd_route_dest,
-            { "Destination",            "zbee.nwk.cmd.route.dest", FT_UINT16, BASE_HEX, NULL, 0x0,
+            { "Destination",            "zbee_nwk.cmd.route.dest", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_orig,
-            { "Originator",             "zbee.nwk.cmd.route.orig", FT_UINT16, BASE_HEX, NULL, 0x0,
+            { "Originator",             "zbee_nwk.cmd.route.orig", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_resp,
-            { "Responder",              "zbee.nwk.cmd.route.resp", FT_UINT16, BASE_HEX, NULL, 0x0,
+            { "Responder",              "zbee_nwk.cmd.route.resp", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_dest_ext,
-            { "Extended Destination",   "zbee.nwk.cmd.route.dest_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
+            { "Extended Destination",   "zbee_nwk.cmd.route.dest_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_orig_ext,
-            { "Extended Originator",    "zbee.nwk.cmd.route.orig_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
+            { "Extended Originator",    "zbee_nwk.cmd.route.orig_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_resp_ext,
-            { "Extended Responder",     "zbee.nwk.cmd.route.resp_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
+            { "Extended Responder",     "zbee_nwk.cmd.route.resp_ext", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_cost,
-            { "Path Cost",              "zbee.nwk.cmd.route.cost", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Path Cost",              "zbee_nwk.cmd.route.cost", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "A value specifying the efficiency of this route.", HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_repair,
-            { "Route Repair",           "zbee.nwk.cmd.route.opts.repair", FT_BOOLEAN, 8, NULL,
+            { "Route Repair",           "zbee_nwk.cmd.route.opts.repair", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_ROUTE_OPTION_REPAIR,
                 "Flag identifying whether the route request command was to repair a failed route.", HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_multicast,
-            { "Multicast",              "zbee.nwk.cmd.route.opts.mcast", FT_BOOLEAN, 8, NULL,
+            { "Multicast",              "zbee_nwk.cmd.route.opts.mcast", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_ROUTE_OPTION_MCAST,
                 "Flag identifying this as a multicast route request.", HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_dest_ext,
-            { "Extended Destination",   "zbee.nwk.cmd.route.opts.dest_ext", FT_BOOLEAN, 8, NULL,
+            { "Extended Destination",   "zbee_nwk.cmd.route.opts.dest_ext", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_ROUTE_OPTION_DEST_EXT, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_resp_ext,
-            { "Extended Responder",   "zbee.nwk.cmd.route.opts.resp_ext", FT_BOOLEAN, 8, NULL,
+            { "Extended Responder",   "zbee_nwk.cmd.route.opts.resp_ext", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_ROUTE_OPTION_RESP_EXT, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_orig_ext,
-            { "Extended Originator",    "zbee.nwk.cmd.route.opts.orig_ext", FT_BOOLEAN, 8, NULL,
+            { "Extended Originator",    "zbee_nwk.cmd.route.opts.orig_ext", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_ROUTE_OPTION_ORIG_EXT, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_route_opt_many_to_one,
-            { "Many-to-One Discovery",  "zbee.nwk.cmd.route.opts.many2one", FT_UINT8, BASE_HEX,
+            { "Many-to-One Discovery",  "zbee_nwk.cmd.route.opts.many2one", FT_UINT8, BASE_HEX,
                 VALS(zbee_nwk_cmd_route_many_modes), ZBEE_NWK_CMD_ROUTE_OPTION_MANY_MASK,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_nwk_status,
-            { "Status Code",            "zbee.nwk.cmd.status", FT_UINT8, BASE_HEX, VALS(zbee_nwk_status_codes), 0x0,
+            { "Status Code",            "zbee_nwk.cmd.status", FT_UINT8, BASE_HEX, VALS(zbee_nwk_status_codes), 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_leave_rejoin,
-            { "Rejoin",                 "zbee.nwk.cmd.leave.rejoin", FT_BOOLEAN, 8, NULL,
+            { "Rejoin",                 "zbee_nwk.cmd.leave.rejoin", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_LEAVE_OPTION_REJOIN, "Flag instructing the device to rejoin the network.", HFILL }},
 
             { &hf_zbee_nwk_cmd_leave_request,
-            { "Request",                "zbee.nwk.cmd.leave.request", FT_BOOLEAN, 8, NULL,
+            { "Request",                "zbee_nwk.cmd.leave.request", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_LEAVE_OPTION_REQUEST,
                 "Flag identifying the direction of this command. 1=Request, 0=Indication", HFILL }},
 
             { &hf_zbee_nwk_cmd_leave_children,
-            { "Remove Children",        "zbee.nwk.cmd.leave.children", FT_BOOLEAN, 8, NULL,
+            { "Remove Children",        "zbee_nwk.cmd.leave.children", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_LEAVE_OPTION_CHILDREN,
                 "Flag instructing the device to remove its children in addition to itself.", HFILL }},
 
             { &hf_zbee_nwk_cmd_relay_count,
-            { "Relay Count",            "zbee.nwk.cmd.relay_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Relay Count",            "zbee_nwk.cmd.relay_count", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Number of relays required to route to the destination.", HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_alt_coord,
-            { "Alternate Coordinator",  "zbee.nwk.cmd.cinfo.alt_coord", FT_BOOLEAN, 8, NULL,
+            { "Alternate Coordinator",  "zbee_nwk.cmd.cinfo.alt_coord", FT_BOOLEAN, 8, NULL,
                 IEEE802154_CMD_CINFO_ALT_PAN_COORD,
                 "Indicates that the device is able to operate as a PAN coordinator.", HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_type,
-            { "Full-Function Device",   "zbee.nwk.cmd.cinfo.ffd", FT_BOOLEAN, 8, NULL,
+            { "Full-Function Device",   "zbee_nwk.cmd.cinfo.ffd", FT_BOOLEAN, 8, NULL,
                 IEEE802154_CMD_CINFO_DEVICE_TYPE, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_power,
-            { "AC Power",               "zbee.nwk.cmd.cinfo.power", FT_BOOLEAN, 8, NULL,
+            { "AC Power",               "zbee_nwk.cmd.cinfo.power", FT_BOOLEAN, 8, NULL,
                 IEEE802154_CMD_CINFO_POWER_SRC, "Indicates this device is using AC/Mains power.", HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_idle_rx,
-            { "Rx On When Idle",        "zbee.nwk.cmd.cinfo.power", FT_BOOLEAN, 8, NULL,
+            { "Rx On When Idle",        "zbee_nwk.cmd.cinfo.power", FT_BOOLEAN, 8, NULL,
                 IEEE802154_CMD_CINFO_IDLE_RX,
                 "Indicates the receiver is active when the device is idle.", HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_security,
-            { "Security Capability",    "zbee.nwk.cmd.cinfo.security", FT_BOOLEAN, 8, NULL,
+            { "Security Capability",    "zbee_nwk.cmd.cinfo.security", FT_BOOLEAN, 8, NULL,
                 IEEE802154_CMD_CINFO_SEC_CAPABLE,
                 "Indicates this device is capable of performing encryption/decryption.", HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_alloc,
-            { "Allocate Short Address", "zbee.nwk.cmd.cinfo.alloc", FT_BOOLEAN, 8, NULL,
+            { "Allocate Short Address", "zbee_nwk.cmd.cinfo.alloc", FT_BOOLEAN, 8, NULL,
                 IEEE802154_CMD_CINFO_ALLOC_ADDR,
                 "Flag requesting the parent to allocate a short address for this device.", HFILL }},
 
             { &hf_zbee_nwk_cmd_rejoin_status,
-            { "Status",                 "zbee.nwk.cmd.rejoin_status", FT_UINT8, BASE_HEX,
+            { "Status",                 "zbee_nwk.cmd.rejoin_status", FT_UINT8, BASE_HEX,
                 VALS(zbee_nwk_rejoin_codes), 0x0, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_link_last,
-            { "Last Frame",             "zbee.nwk.cmd.link.last", FT_BOOLEAN, 8, NULL,
+            { "Last Frame",             "zbee_nwk.cmd.link.last", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_LINK_OPTION_LAST_FRAME,
                 "Flag indicating the last in a series of link status commands.", HFILL }},
 
             { &hf_zbee_nwk_cmd_link_first,
-            { "First Frame",            "zbee.nwk.cmd.link.first", FT_BOOLEAN, 8, NULL,
+            { "First Frame",            "zbee_nwk.cmd.link.first", FT_BOOLEAN, 8, NULL,
                 ZBEE_NWK_CMD_LINK_OPTION_FIRST_FRAME,
                 "Flag indicating the first in a series of link status commands.", HFILL }},
 
             { &hf_zbee_nwk_cmd_link_count,
-            { "Link Status Count",      "zbee.nwk.cmd.link.count", FT_UINT8, BASE_DEC, NULL,
+            { "Link Status Count",      "zbee_nwk.cmd.link.count", FT_UINT8, BASE_DEC, NULL,
                 ZBEE_NWK_CMD_LINK_OPTION_COUNT_MASK, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_report_type,
-            { "Report Type",            "zbee.nwk.cmd.report.type", FT_UINT8, BASE_HEX,
+            { "Report Type",            "zbee_nwk.cmd.report.type", FT_UINT8, BASE_HEX,
                 VALS(zbee_nwk_report_types), ZBEE_NWK_CMD_NWK_REPORT_ID_MASK, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_report_count,
-            { "Report Information Count",   "zbee.nwk.cmd.report.count", FT_UINT8, BASE_DEC, NULL,
+            { "Report Information Count",   "zbee_nwk.cmd.report.count", FT_UINT8, BASE_DEC, NULL,
                 ZBEE_NWK_CMD_NWK_REPORT_COUNT_MASK, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_update_type,
-            { "Update Type",            "zbee.nwk.cmd.update.type", FT_UINT8, BASE_HEX,
+            { "Update Type",            "zbee_nwk.cmd.update.type", FT_UINT8, BASE_HEX,
                 VALS(zbee_nwk_update_types), ZBEE_NWK_CMD_NWK_UPDATE_ID_MASK, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_update_count,
-            { "Update Information Count",   "zbee.nwk.cmd.update.count", FT_UINT8, BASE_DEC, NULL,
+            { "Update Information Count",   "zbee_nwk.cmd.update.count", FT_UINT8, BASE_DEC, NULL,
                 ZBEE_NWK_CMD_NWK_UPDATE_COUNT_MASK, NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_update_id,
-            { "Update ID",              "zbee.nwk.cmd.update.id", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Update ID",              "zbee_nwk.cmd.update.id", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_cmd_epid,
-            { "Extended PAN ID",        "zbee.nwk.cmd.epid", FT_EUI64, BASE_NONE, NULL, 0x0,
+            { "Extended PAN ID",        "zbee_nwk.cmd.epid", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_beacon_protocol,
-            { "Protocol ID",            "zbee.beacon.protocol", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Protocol ID",            "zbee_beacon.protocol", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_beacon_stack_profile,
-            { "Stack Profile",          "zbee.beacon.profile", FT_UINT8, BASE_HEX,
+            { "Stack Profile",          "zbee_beacon.profile", FT_UINT8, BASE_HEX,
                 VALS(zbee_nwk_stack_profiles), 0x0, NULL, HFILL }},
 
             { &hf_zbee_beacon_version,
-            { "Protocol Version",       "zbee.beacon.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Protocol Version",       "zbee_beacon.version", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_beacon_router_capacity,
-            { "Router Capacity", "zbee.beacon.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            { "Router Capacity", "zbee_beacon.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "Whether the device can accept join requests from routing capable devices.", HFILL }},
 
             { &hf_zbee_beacon_depth,
-            { "Device Depth",           "zbee.beacon.depth", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Device Depth",           "zbee_beacon.depth", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "The tree depth of the device, 0 indicates the network coordinator.", HFILL }},
 
             { &hf_zbee_beacon_end_device_capacity,
-            { "End Device Capacity",        "zbee.beacon.end_dev", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            { "End Device Capacity",        "zbee_beacon.end_dev", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 "Whether the device can accept join requests from ZigBee end devices.", HFILL }},
 
             { &hf_zbee_beacon_epid,
-            { "Extended PAN ID",        "zbee.beacon.ext_panid", FT_EUI64, BASE_NONE, NULL, 0x0,
+            { "Extended PAN ID",        "zbee_beacon.ext_panid", FT_EUI64, BASE_NONE, NULL, 0x0,
                 "Extended PAN identifier.", HFILL }},
 
             { &hf_zbee_beacon_tx_offset,
-            { "Tx Offset",              "zbee.beacon.tx_offset", FT_UINT32, BASE_DEC, NULL, 0x0,
+            { "Tx Offset",              "zbee_beacon.tx_offset", FT_UINT32, BASE_DEC, NULL, 0x0,
                 "The time difference between a device and its parent's beacon.", HFILL }},
 
             { &hf_zbee_beacon_update_id,
-            { "Update ID",              "zbee.beacon.update_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Update ID",              "zbee_beacon.update_id", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }}
     };
 
@@ -1831,7 +1831,7 @@ void proto_register_zbee_nwk(void)
 
     /* Register the dissectors with Wireshark. */
     register_dissector(ZBEE_PROTOABBREV_NWK, dissect_zbee_nwk, proto_zbee_nwk);
-    register_dissector("zbee.beacon", dissect_zbee_beacon, proto_zbee_nwk);
+    register_dissector("zbee_beacon", dissect_zbee_beacon, proto_zbee_nwk);
 
     /* Register the Security dissector. */
     zbee_security_register(NULL, proto_zbee_nwk);
