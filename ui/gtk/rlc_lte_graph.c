@@ -1308,18 +1308,20 @@ static void axis_display(struct axis *axis)
     axis_pixmap_display(axis);
 }
 
-/* TODO: seeing fractions of a sequence numbers makes no sense. Fix! */
+/* These show sequence numbers.  Avoid subdividing whole numbers. */
 static void v_axis_pixmap_draw(struct axis *axis)
 {
     struct graph *g = axis->g;
     int i;
     double major_tick;
-    int not_disp, rdigits, offset, imin, imax;
-    double bottom, top, j, fl, corr;
+    int not_disp, offset, imin, imax;
+    double bottom, top, fl, corr;
     PangoLayout *layout;
     cairo_t *cr;
 
     debug(DBS_FENTRY) puts("v_axis_pixmap_draw()");
+
+    /* Work out extent of axis */
     bottom = (g->geom.height - (g->wp.height + g->wp.y + (-g->geom.y))) /
                     (double )g->geom.height * g->bounds.height;
     bottom += axis->min;
@@ -1327,14 +1329,6 @@ static void v_axis_pixmap_draw(struct axis *axis)
                     (double )g->geom.height * g->bounds.height;
     top += axis->min;
     axis_compute_ticks(axis, bottom, top, AXIS_VERTICAL);
-
-    j = axis->major - floor(axis->major);
-    for (rdigits=0; rdigits<=6; rdigits++) {
-        j *= 10;
-        if (j<=0.000001)
-            break;
-        j = j - floor(j);
-    }
 
     not_disp = 1 ^ axis->displayed;
 
@@ -1378,7 +1372,8 @@ static void v_axis_pixmap_draw(struct axis *axis)
         cairo_line_to(cr, axis->s.width - 1, y+0.5);
         cairo_stroke(cr);
 
-        g_snprintf(desc, sizeof(desc), "%.*f", rdigits, i*axis->major + fl);
+        /* Won't be showing any decimal places here... */
+        g_snprintf(desc, sizeof(desc), "%.*f", 0, i*axis->major + fl);
         layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
         pango_layout_get_pixel_size(layout, &w, &h);
         cairo_move_to(cr, axis->s.width-14-4-w, y - h/2);
@@ -1413,6 +1408,7 @@ static void v_axis_pixmap_draw(struct axis *axis)
     }
     cairo_destroy(cr);
 }
+
 
 /* TODO: natural time units are subframes (ms), so might be good to always
    show 3 decimal places? */
@@ -1566,6 +1562,10 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
         j = 0;
 
     axis->major = steps[j] * pow(10, i);
+    if (dir == AXIS_VERTICAL) {
+        /* But don't divide further than whole sequence numbers */
+        axis->major = MAX(axis->major, 1.0);
+    }
 
     debug(DBS_AXES_TICKS) printf("zoom=%.1f, x=%f -> i=%d -> ms=%d -> j=%d ->"
             " axis->major=%f\n", zoom, x, i, ms, j, axis->major);
@@ -1574,12 +1574,20 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
     jj = j;
     ii = i;
     axis_ticks_down(&ii, &jj);
-    axis->minor = steps[jj] * pow(10, ii);
-    /* we don't want minors if they would be less than 10 pixels apart */
-    if (axis->minor*zoom < 10) {
-        debug(DBS_AXES_TICKS) printf("refusing axis->minor of %f: "
-                    "axis->minor*zoom == %f\n", axis->minor, axis->minor*zoom);
+
+    if ((dir == AXIS_VERTICAL) && (axis->major <= 1)) {
+        /* Ddon't subdivide whole sequence numbers */
         axis->minor = 0;
+    }
+    else {
+        axis->minor = steps[jj] * pow(10, ii);
+        /* We don't want minors if they would be less than 10 pixels apart */
+        if (axis->minor*zoom < 10) {
+            debug(DBS_AXES_TICKS) printf("refusing axis->minor of %f: "
+                                         "axis->minor*zoom == %f\n",
+                                         axis->minor, axis->minor*zoom);
+            axis->minor = 0;
+        }
     }
 
     check_needed = TRUE;
