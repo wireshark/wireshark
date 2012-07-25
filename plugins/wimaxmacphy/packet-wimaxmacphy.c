@@ -367,7 +367,9 @@ static const value_string wimaxmacphy_message_type_vals[] =
     { 17,  "Reserved (OFDMA SS)"},
     { 0,    NULL}
 };
+#if 0 /* XXX: 'thsark -G values' gives warning on Windows' */
 static value_string_ext wimaxmacphy_message_type_vals_ext = VALUE_STRING_EXT_INIT(wimaxmacphy_message_type_vals);
+#endif
 
 /* ------------------------------------------------------------------------- */
 /* error code field coding, for all but TXSTART.indication
@@ -778,8 +780,10 @@ static const value_string wimaxmacphy_modulation_fec_code_type_vals[]=
     { 52, "64-QAM(LDPC) 5/6"},
     { 0,  NULL}
 };
+#if 0 /* XXX: 'thsark -G values' gives warning on Windows' */
 static value_string_ext wimaxmacphy_modulation_fec_code_type_vals_ext =
     VALUE_STRING_EXT_INIT(wimaxmacphy_modulation_fec_code_type_vals);
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -2414,7 +2418,10 @@ dissect_wimaxmacphy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                tvb, offset, 1, ENC_BIG_ENDIAN);
 
     primitive_tree = proto_item_add_subtree(item, ett_wimaxmacphy_primitive);
+#if 0
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(message_type, &wimaxmacphy_message_type_vals_ext, "Unknown"));
+#endif
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_type, wimaxmacphy_message_type_vals, "Unknown"));
     offset += 1;
 
     switch(message_type)
@@ -2524,8 +2531,12 @@ proto_register_wimaxmacphy(void)
                     "Message Type",
                     "wimaxmacphy.hdr_message_type",
                     FT_UINT8,
+#if 0
                     BASE_HEX | BASE_EXT_STRING,
                     &wimaxmacphy_message_type_vals_ext,
+#endif
+                    BASE_HEX,
+                    VALS(wimaxmacphy_message_type_vals),
                     0x0,
                     NULL,
                     HFILL
@@ -3879,8 +3890,12 @@ proto_register_wimaxmacphy(void)
                     "Modulation/FEC Code Type",
                     "wimaxmacphy.burst_modulation_fec_code_type",
                     FT_UINT8,
+#if 0
                     BASE_DEC | BASE_EXT_STRING,
                     &wimaxmacphy_modulation_fec_code_type_vals_ext,
+#endif
+                    BASE_DEC,
+                    VALS(wimaxmacphy_modulation_fec_code_type_vals),
                     0x0,
                     NULL,
                     HFILL
@@ -5480,6 +5495,7 @@ proto_reg_handoff_wimaxmacphy(void)
 
     if (!inited) {
         wimaxmacphy_handle = new_create_dissector_handle(dissect_wimaxmacphy, proto_wimaxmacphy);
+        dissector_add_handle("udp.port", wimaxmacphy_handle); /* for 'decode as' */
         inited = TRUE;
     }
 
