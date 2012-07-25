@@ -717,33 +717,25 @@ codecs::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-ui\libui.lib:
+ui:: help config.h svnversion.h doxygen
 	cd ui
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
 
-ui:: help config.h svnversion.h doxygen ui\libui.lib
-
-ui\gtk\libgtkui.lib:
+gtk:: help config.h svnversion.h doxygen
 	cd ui/gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui.lib
 	cd ../..
 
-gtk:: help config.h svnversion.h doxygen ui\gtk\libgtkui.lib
-
-ui\win32\libgtkui_win32.lib:
+win32::
 	cd ui/win32
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui_win32.lib
 	cd ../..
 
-win32:: ui\win32\libgtkui_win32.lib
-
-ui\cli\libcliui.lib:
+cli:: help config.h svnversion.h doxygen
 	cd ui/cli
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcliui.lib
 	cd ../..
-
-cli:: help config.h svnversion.h doxygen ui\cli\libcliui.lib
 
 epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
 	cd epan
