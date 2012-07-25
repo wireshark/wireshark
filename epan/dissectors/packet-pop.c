@@ -145,21 +145,16 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   frame_data_p = p_get_proto_data(pinfo->fd, proto_pop);
 
-  if (!frame_data_p) {
+  conversation = find_or_create_conversation(pinfo);
+  data_val = conversation_get_proto_data(conversation, proto_pop);
+  if (!data_val) {
 
-    conversation = find_or_create_conversation(pinfo);
+     /*
+      * No conversation - create one and attach it.
+      */
+     data_val = se_alloc0(sizeof(struct pop_data_val));
 
-    data_val = conversation_get_proto_data(conversation, proto_pop);
-
-    if (!data_val) {
-
-      /*
-       * No - create one and attach it.
-       */
-      data_val = se_alloc0(sizeof(struct pop_data_val));
-
-      conversation_add_proto_data(conversation, proto_pop, data_val);
-    }
+     conversation_add_proto_data(conversation, proto_pop, data_val);
   }
 
   /* Are we doing TLS? */
