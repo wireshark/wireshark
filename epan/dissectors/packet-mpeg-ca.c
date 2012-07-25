@@ -63,16 +63,14 @@ dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint offset = 0, length = 0;
 
-	proto_item *ti = NULL;
-	proto_tree *mpeg_ca_tree = NULL;
+	proto_item *ti;
+	proto_tree *mpeg_ca_tree;
 
 	/* The TVB should start right after the section_length in the Section packet */
 
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Conditional Access Table (CA)");
 
 	if (!tree)
-
 		return;
 
 	ti = proto_tree_add_item(tree, proto_mpeg_ca, tvb, offset, -1, ENC_NA);
@@ -109,27 +107,32 @@ proto_register_mpeg_ca(void)
 
 		{ &hf_mpeg_ca_reserved, {
 			"Reserved", "mpeg_ca.reserved",
-			FT_UINT24, BASE_HEX, NULL, MPEG_CA_RESERVED_MASK, NULL, HFILL
+			FT_UINT24, BASE_HEX, NULL, MPEG_CA_RESERVED_MASK,
+                        NULL, HFILL
 		} },
 
 		{ &hf_mpeg_ca_version_number, {
 			"Version Number", "mpeg_ca.version",
-			FT_UINT24, BASE_HEX, NULL, MPEG_CA_VERSION_NUMBER_MASK, NULL, HFILL
+			FT_UINT24, BASE_HEX, NULL, MPEG_CA_VERSION_NUMBER_MASK,
+                        NULL, HFILL
 		} },
 
 		{ &hf_mpeg_ca_current_next_indicator, {
 			"Current/Next Indicator", "mpeg_ca.cur_next_ind",
-			FT_UINT24, BASE_HEX, VALS(mpeg_ca_cur_next_vals), MPEG_CA_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+			FT_UINT24, BASE_HEX, VALS(mpeg_ca_cur_next_vals), MPEG_CA_CURRENT_NEXT_INDICATOR_MASK,
+                        NULL, HFILL
 		} },
 
 		{ &hf_mpeg_ca_section_number, {
 			"Section Number", "mpeg_ca.sect_num",
-			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+			FT_UINT8, BASE_DEC, NULL, 0,
+                        NULL, HFILL
 		} },
 
 		{ &hf_mpeg_ca_last_section_number, {
 			"Last Section Number", "mpeg_ca.last_sect_num",
-			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+			FT_UINT8, BASE_DEC, NULL, 0,
+                        NULL, HFILL
 		} },
 
 	};
