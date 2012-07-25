@@ -659,6 +659,10 @@ void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 
 	debug(DBS_FENTRY) puts ("tcp_graph_cb()");
 
+	if (!select_tcpip_session (&cfile, &current)) {
+		return;
+	}
+
 	if (! (g = graph_new()))
 		return;
 
@@ -666,9 +670,6 @@ void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 	graph_initialize_values (g);
 
 	g->type = graph_type;
-	if (!select_tcpip_session (&cfile, &current)) {
-		return;
-	}
 
 	graph_segment_list_get(g);
 	create_gui(g);
