@@ -598,7 +598,9 @@ static int hf_gsm_a_ecsd_multi_slot_class = -1;
 static int hf_gsm_a_8_psk_struct_present = -1;
 static int hf_gsm_a_8_psk_struct = -1;
 static int hf_gsm_a_modulation_capability = -1;
+static int hf_gsm_a_8_psk_rf_power_capability_1_present = -1;
 static int hf_gsm_a_8_psk_rf_power_capability_1 = -1;
+static int hf_gsm_a_8_psk_rf_power_capability_2_present = -1;
 static int hf_gsm_a_8_psk_rf_power_capability_2 = -1;
 static int hf_gsm_a_gsm_400_band_info_present = -1;
 static int hf_gsm_a_gsm_400_bands_supported = -1;
@@ -2404,10 +2406,10 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     guint8      length;
     proto_tree *subtree;
     proto_item *item;
-    guint32     bits_left, target_bit_offset;
+    guint32     bits_left, target_bit_offset, old_bit_offset;
     guint64     multi_bnd_sup_fields, rsupport, multislotCapability;
     guint64     msMeasurementCapability, msPosMethodCapPresent;
-    guint64     ecsdMultiSlotCapability, eightPskStructPresent;
+    guint64     ecsdMultiSlotCapability, eightPskStructPresent, eightPskStructRfPowerCapPresent;
     guint64     gsm400BandInfoPresent, gsm850AssocRadioCapabilityPresent;
     guint64     gsm1900AssocRadioCapabilityPresent, dtmEGprsMultiSlotInfoPresent;
     guint64     dtmEgprsMultiSlotClassPresent, singleBandSupport;
@@ -2605,20 +2607,37 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     if (eightPskStructPresent == 1)
     {
         /* Extract 8-PSK struct */
-        item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
+        item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, -1, ENC_BIG_ENDIAN);
         subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
+        old_bit_offset = bit_offset;
 
         /* Extract Modulation Capability */
         proto_tree_add_bits_item(subtree, hf_gsm_a_modulation_capability, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset = bit_offset + 1;
 
         /* Extract 8_PSK RF Power Capability 1 */
-        proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_1, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-        bit_offset = bit_offset + 2;
+        proto_tree_add_bits_ret_val(subtree, hf_gsm_a_8_psk_rf_power_capability_1_present, tvb, bit_offset,
+                                    1, &eightPskStructRfPowerCapPresent, ENC_BIG_ENDIAN);
+        bit_offset = bit_offset + 1;
+        if (eightPskStructRfPowerCapPresent == 1)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_1, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            bit_offset = bit_offset + 2;
+        }
 
         /* Extract 8_PSK RF Power Capability 2 */
-        proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-        bit_offset = bit_offset + 2;
+        proto_tree_add_bits_ret_val(subtree, hf_gsm_a_8_psk_rf_power_capability_2_present, tvb, bit_offset,
+                                    1, &eightPskStructRfPowerCapPresent, ENC_BIG_ENDIAN);
+        bit_offset = bit_offset + 1;
+        if (eightPskStructRfPowerCapPresent == 1)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            bit_offset = bit_offset + 2;
+        }
+        length = (guint8)((bit_offset - old_bit_offset)>>3);
+        if ((bit_offset - old_bit_offset) & 0x07)
+            length++;
+        proto_item_set_len(item, length);
     }
 
     /* { 0 | 1 < GSM 400 Bands Supported : { 01 | 10 | 11 } >
@@ -3831,9 +3850,19 @@ proto_register_gsm_a_common(void)
         FT_BOOLEAN, BASE_NONE, TFS(&modulation_capability_vals), 0x00,
         NULL, HFILL}
     },
+    { &hf_gsm_a_8_psk_rf_power_capability_1_present,
+        { "8-PSK RF Power Capability 1 present", "gsm_a.classmark3.8_psk_rf_power_capability_1_present",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
+        NULL, HFILL}
+    },
     { &hf_gsm_a_8_psk_rf_power_capability_1,
         { "8-PSK RF Power Capability 1", "gsm_a.classmark3.8_psk_rf_power_capability_1",
         FT_UINT8, BASE_HEX, VALS(eight_psk_rf_power_capability_vals), 0x00,
+        NULL, HFILL}
+    },
+    { &hf_gsm_a_8_psk_rf_power_capability_2_present,
+        { "8-PSK RF Power Capability 2 present", "gsm_a.classmark3.8_psk_rf_power_capability_2_present",
+        FT_BOOLEAN, BASE_NONE, TFS(&true_false_vals), 0x00,
         NULL, HFILL}
     },
     { &hf_gsm_a_8_psk_rf_power_capability_2,
