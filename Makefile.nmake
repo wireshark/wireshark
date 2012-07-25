@@ -288,7 +288,7 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui ui\gtk ui\win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res image\file_dlg_win32.res
@@ -297,7 +297,7 @@ wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui ui\gt
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 
-tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui ui\cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) ui\cli\libcliui.lib ui\libui.lib image\tshark.res
@@ -717,25 +717,33 @@ codecs::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-ui:: help config.h svnversion.h doxygen
+ui\libui.lib:
 	cd ui
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
 
-gtk:: help config.h svnversion.h doxygen
+ui:: help config.h svnversion.h doxygen ui\libui.lib
+
+ui\gtk\libgtkui.lib:
 	cd ui/gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui.lib
 	cd ../..
 
-win32::
+gtk:: help config.h svnversion.h doxygen ui\gtk\libgtkui.lib
+
+ui\win32\libgtkui_win32.lib:
 	cd ui/win32
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui_win32.lib
 	cd ../..
 
-cli:: help config.h svnversion.h doxygen
+win32:: ui\win32\libgtkui_win32.lib
+
+ui\cli\libcliui.lib:
 	cd ui/cli
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcliui.lib
 	cd ../..
+
+cli:: help config.h svnversion.h doxygen ui\cli\libcliui.lib
 
 epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
 	cd epan
