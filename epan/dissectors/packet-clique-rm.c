@@ -303,8 +303,8 @@ dissect_clique_rm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ENC_BIG_ENDIAN);
     offset++;
 
-    ti = proto_tree_add_item(clique_rm_tree, hf_clique_rm_type, tvb, offset, 1,
-       ENC_BIG_ENDIAN);
+    proto_tree_add_item(clique_rm_tree, hf_clique_rm_type, tvb, offset, 1,
+        ENC_BIG_ENDIAN);
     offset++;
 
    if (check_col(pinfo->cinfo, COL_INFO))
