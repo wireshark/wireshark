@@ -29,7 +29,6 @@
 #endif
 
 #include <glib.h>
-#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
