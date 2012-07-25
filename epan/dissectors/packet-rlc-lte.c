@@ -1276,7 +1276,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
     }
 
     /* Create space for frame state_report */
-    p_report_in_frame = se_alloc(sizeof(sequence_analysis_report));
+    p_report_in_frame = se_alloc0(sizeof(sequence_analysis_report));
 
 
     /* Deal with according to channel mode */
@@ -1775,7 +1775,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
     if (((1024 + p_channel_status->previousSequenceNumber+1 - ack_sn) % 1024) > 512) {
 
         /* Set result */
-        p_report_in_frame = se_alloc(sizeof(sequence_analysis_report));
+        p_report_in_frame = se_alloc0(sizeof(sequence_analysis_report));
         p_report_in_frame->state = ACK_Out_of_Window;
         p_report_in_frame->previousFrameNum = p_channel_status->previousFrameNum;
         p_report_in_frame->sequenceExpected = p_channel_status->previousSequenceNumber;
