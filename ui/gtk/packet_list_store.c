@@ -128,8 +128,6 @@ static void packet_list_sortable_set_default_sort_func(GtkTreeSortable
 static gboolean packet_list_sortable_has_default_sort_func(GtkTreeSortable
 							   *sortable);
 static void packet_list_sortable_init(GtkTreeSortableIface *iface);
-static gint packet_list_compare_records(gint sort_id _U_, PacketListRecord *a,
-					PacketListRecord *b);
 static void packet_list_resort(PacketList *packet_list);
 static void packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *record, gboolean dissect_columns, gboolean dissect_color );
 
@@ -247,6 +245,8 @@ packet_list_tree_model_init(GtkTreeModelIface *iface)
 static void
 packet_list_init(PacketList *packet_list)
 {
+	gint i, j;
+
 	/* To check whether an iter belongs to our model. */
 	packet_list->stamp = g_random_int();
 
@@ -257,6 +257,16 @@ packet_list_init(PacketList *packet_list)
 	packet_list->columnized = FALSE;
 	packet_list->sort_id = 0; /* defaults to first column for now */
 	packet_list->sort_order = GTK_SORT_ASCENDING;
+
+	packet_list->col_to_text = g_new(int, packet_list->n_cols);
+	for (i = 0, j = 0; i < packet_list->n_cols; i++) {
+		if (!col_based_on_frame_data(&cfile.cinfo, i)) {
+			packet_list->col_to_text[i] = j;
+			j++;
+		} else
+			packet_list->col_to_text[i] = -1;
+	}
+	packet_list->n_text_cols = j;
 
 #ifdef NEW_PACKET_LIST_STATISTICS
 	packet_list->const_strings = 0;
@@ -390,17 +400,20 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	g_return_if_fail(PACKET_LIST_RECORD_INDEX_VALID(packet_list->visible_rows, record->visible_pos));
 
 	if (column >= 0 && column < packet_list->n_cols) {
+		int text_column;
+
 		g_value_init(value, G_TYPE_STRING);
 
 		if (!record->columnized || !record->colorized)
 			packet_list_dissect_and_cache_record(packet_list, record, !record->columnized, !record->colorized);
 
-		if (col_based_on_frame_data(&cfile.cinfo, column)) {
+		text_column = packet_list->col_to_text[column];
+		if (text_column == -1) { /* column based on frame_data */
 			col_fill_in_frame_data(record->fdata, &cfile.cinfo, column, FALSE);
 			g_value_set_string(value, cfile.cinfo.col_data[column]);
 		} else {
 			g_return_if_fail(record->col_text);
-			g_value_set_string(value, record->col_text[column]);
+			g_value_set_string(value, record->col_text[text_column]);
 		}
 
 	} else if (column == packet_list->n_cols) {
@@ -652,8 +665,8 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	newrecord = se_alloc(sizeof(PacketListRecord));
 	newrecord->columnized   = FALSE;
 	newrecord->colorized    = FALSE;
-	newrecord->col_text_len = se_alloc0(sizeof(*newrecord->col_text_len) * packet_list->n_cols);
-	newrecord->col_text     = se_alloc0(sizeof(*newrecord->col_text) * packet_list->n_cols);
+	newrecord->col_text_len = se_alloc0(sizeof(*newrecord->col_text_len) * packet_list->n_text_cols);
+	newrecord->col_text     = se_alloc0(sizeof(*newrecord->col_text) * packet_list->n_text_cols);
 	newrecord->fdata        = fdata;
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
 
@@ -684,12 +697,13 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	return newrecord->visible_pos;
 }
 
-void
+static void
 packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo)
 {
 	PacketListRecord *record;
 	gchar *str;
 	size_t col_text_len;
+	int text_col;
 
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
@@ -702,8 +716,10 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 
 	g_assert((record->col_text != NULL)&&(record->col_text_len != NULL));
 
-	if (record->col_text[col] != NULL)
-		/* TODO: Column already contains a value. Bail out */
+	text_col = packet_list->col_to_text[col];
+
+	/* Column based on frame_data or it already contains a value */
+	if (text_col == -1 || record->col_text[text_col] != NULL)
 		return;
 
 	switch (cfile.cinfo.col_fmt[col]) {
@@ -738,8 +754,8 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 					col_text_len = G_MAXUSHORT;
 
 				/* This is a constant string, so we don't have to copy it */
-				record->col_text[col] = (gchar *) cinfo->col_data[col];
-				record->col_text_len[col] = (gushort) col_text_len;
+				record->col_text[text_col] = (gchar *) cinfo->col_data[col];
+				record->col_text_len[text_col] = (gushort) col_text_len;
 #ifdef NEW_PACKET_LIST_STATISTICS
 				++packet_list->const_strings;
 #endif
@@ -752,9 +768,9 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 			if (col_text_len > G_MAXUSHORT)
 				col_text_len = G_MAXUSHORT;
 
-			record->col_text_len[col] = (gushort) col_text_len;
-			if (!record->col_text_len[col]) {
-				record->col_text[col] = "";
+			record->col_text_len[text_col] = (gushort) col_text_len;
+			if (!record->col_text_len[text_col]) {
+				record->col_text[text_col] = "";
 #ifdef NEW_PACKET_LIST_STATISTICS
 				++packet_list->const_strings;
 #endif
@@ -769,7 +785,7 @@ packet_list_change_record(PacketList *packet_list, guint row, gint col, column_i
 			} else {
 				str = g_string_chunk_insert_const (packet_list->string_pool, (const gchar *)cinfo->col_data[col]);
 			}
-			record->col_text[col] = str;
+			record->col_text[text_col] = str;
 			break;
 	}
 }
@@ -971,7 +987,7 @@ packet_list_sortable_has_default_sort_func(GtkTreeSortable *sortable _U_)
 }
 
 static gint
-packet_list_compare_custom(gint sort_id, PacketListRecord *a, PacketListRecord *b)
+packet_list_compare_custom(gint sort_id, gint text_sort_id, PacketListRecord *a, PacketListRecord *b)
 {
 	header_field_info *hfi;
 
@@ -988,8 +1004,8 @@ packet_list_compare_custom(gint sort_id, PacketListRecord *a, PacketListRecord *
 		    (hfi->type == FT_RELATIVE_TIME)))
 	  {
 		/* Attempt to convert to numbers */
-		double num_a = atof(a->col_text[sort_id]);
-		double num_b = atof(b->col_text[sort_id]);
+		double num_a = atof(a->col_text[text_sort_id]);
+		double num_b = atof(b->col_text[text_sort_id]);
 
 		if (num_a < num_b)
 			return -1;
@@ -999,37 +1015,35 @@ packet_list_compare_custom(gint sort_id, PacketListRecord *a, PacketListRecord *
 			return frame_data_compare(a->fdata, b->fdata, COL_NUMBER);
 	  }
 
-	return strcmp(a->col_text[sort_id], b->col_text[sort_id]);
+	return strcmp(a->col_text[text_sort_id], b->col_text[text_sort_id]);
 }
 
 static gint
-_packet_list_compare_records(gint sort_id, PacketListRecord *a,
-				PacketListRecord *b)
+_packet_list_compare_records(gint sort_id, gint text_sort_id, PacketListRecord *a, PacketListRecord *b)
 {
 	g_assert(a->col_text);
 	g_assert(b->col_text);
-	g_assert(a->col_text[sort_id]);
-	g_assert(b->col_text[sort_id]);
+	g_assert(a->col_text[text_sort_id]);
+	g_assert(b->col_text[text_sort_id]);
 
-	if(a->col_text[sort_id] == b->col_text[sort_id])
+	if(a->col_text[text_sort_id] == b->col_text[text_sort_id])
 		return 0; /* no need to call strcmp() */
 
 	if (cfile.cinfo.col_fmt[sort_id] == COL_CUSTOM) {
-		return packet_list_compare_custom (sort_id, a, b);
+		return packet_list_compare_custom (sort_id, text_sort_id, a, b);
 	}
-	return strcmp(a->col_text[sort_id], b->col_text[sort_id]);
+	return strcmp(a->col_text[text_sort_id], b->col_text[text_sort_id]);
 }
 
 static gint
-packet_list_compare_records(gint sort_id, PacketListRecord *a,
-				PacketListRecord *b)
+packet_list_compare_records(gint sort_id, gint text_sort_id, PacketListRecord *a, PacketListRecord *b)
 {
 	gint ret;
 
-	if (col_based_on_frame_data(&cfile.cinfo, sort_id))
+	if (text_sort_id == -1)	/* based on frame_data ? */
 		return frame_data_compare(a->fdata, b->fdata, cfile.cinfo.col_fmt[sort_id]);
 
-	ret = _packet_list_compare_records(sort_id, a, b);
+	ret = _packet_list_compare_records(sort_id, text_sort_id, a, b);
 	if (ret == 0)
 		ret = a->fdata->num - b->fdata->num;
 	return ret;
@@ -1040,10 +1054,11 @@ packet_list_qsort_physical_compare_func(PacketListRecord **a, PacketListRecord *
 				   PacketList *packet_list)
 {
 	gint ret;
+	gint sort_id = packet_list->sort_id;
 
 	g_assert((a) && (b) && (packet_list));
 
-	ret = packet_list_compare_records(packet_list->sort_id, *a, *b);
+	ret = packet_list_compare_records(sort_id, packet_list->col_to_text[sort_id], *a, *b);
 
 	/* Swap -1 and 1 if sort order is reverse */
 	if(ret != 0 && packet_list->sort_order == GTK_SORT_DESCENDING)
@@ -1168,11 +1183,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		if (dissect_columns) {
 			col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
 
-			for(col = 0; col < cinfo->num_cols; ++col) {
-				/* Skip columns based on frame_data because we already store those. */
-				if (!col_based_on_frame_data(cinfo, col))
-					packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
-			}
+			for(col = 0; col < cinfo->num_cols; ++col)
+				packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
 			record->columnized = TRUE;
 		}
 		if (dissect_color) {
@@ -1207,11 +1219,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		/* "Stringify" non frame_data vals */
 		epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);
 
-		for(col = 0; col < cinfo->num_cols; ++col) {
-			/* Skip columns based on frame_data because we already store those. */
-			if (!col_based_on_frame_data(cinfo, col))
-				packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
-		}
+		for(col = 0; col < cinfo->num_cols; ++col)
+			packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
 	}
 
 	if (dissect_columns)
@@ -1237,6 +1246,8 @@ packet_list_reset_colorized(PacketList *packet_list)
 const char*
 packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 {
+	int text_col;
+
 	g_return_val_if_fail(packet_list != NULL, NULL);
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), NULL);
 	/* We need real column here, so not packet_list->n_cols+1 */
@@ -1245,7 +1256,9 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 	if (PACKET_LIST_RECORD_COUNT(packet_list->visible_rows) == 0)
 		return "";
 
-	if (col_based_on_frame_data(&cfile.cinfo, col)) {
+	text_col = packet_list->col_to_text[col];
+
+	if (text_col == -1) {	/* column based on frame data */
 		PacketListRecord *record;
 		guint vis_idx;
 
@@ -1285,9 +1298,9 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 
 		for(vis_idx = 0; vis_idx < PACKET_LIST_RECORD_COUNT(packet_list->visible_rows); ++vis_idx) {
 			record = PACKET_LIST_RECORD_GET(packet_list->visible_rows, vis_idx);
-			if (record->col_text_len[col] > widest_column_len) {
-				widest_column_str = record->col_text[col];
-				widest_column_len = record->col_text_len[col];
+			if (record->col_text_len[text_col] > widest_column_len) {
+				widest_column_str = record->col_text[text_col];
+				widest_column_len = record->col_text_len[text_col];
 			}
 		}
 

@@ -67,7 +67,9 @@ struct _PacketList
 	/** Has the entire file been columnized? */
 	gboolean columnized;
 
-	gint n_cols;	/* copy of cfile.cinfo.num_cols */
+	gint n_cols;		/* copy of cfile.cinfo.num_cols */
+	gint n_text_cols;	/* number of cols not based on frame, which we need to store text */
+	gint *col_to_text;	/* mapping from column number to col_text index, when -1 column is based on frame_data */
 	GtkWidget *view;
 
 	gint sort_id;
@@ -96,7 +98,6 @@ void new_packet_list_store_clear(PacketList *packet_list);
 guint packet_list_recreate_visible_rows(PacketList *packet_list);
 gboolean packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter);
 gint packet_list_append_record(PacketList *packet_list, frame_data *fdata);
-void packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo);
 gboolean packet_list_do_packet_list_dissect_and_cache_all(PacketList *packet_list, gint sort_col_id);
 void packet_list_reset_colorized(PacketList *packet_list);
 const char* packet_list_get_widest_column_string(PacketList *packet_list, gint col);
