@@ -50,14 +50,14 @@ static void
 dissect_dvb_tot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	guint offset = 0, descriptor_len = 0, descriptor_end = 0;
+	guint       offset = 0;
+	guint       descriptor_len, descriptor_end;
 
-	proto_item *ti = NULL;
-	proto_tree *dvb_tot_tree = NULL;
+	proto_item *ti;
+	proto_tree *dvb_tot_tree;
 
-	nstime_t utc_time;
+	nstime_t    utc_time;
 
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Time Offset Table (TOT)");
 
 	if (!tree)

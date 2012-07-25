@@ -45,12 +45,11 @@ dissect_dvb_tdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint offset = 0;
 
-	proto_item *ti = NULL;
-	proto_tree *dvb_tdt_tree = NULL;
+	proto_item *ti;
+	proto_tree *dvb_tdt_tree;
 
-	nstime_t utc_time;
+	nstime_t    utc_time;
 
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Time and Date Table (TDT)");
 
 	if (!tree)

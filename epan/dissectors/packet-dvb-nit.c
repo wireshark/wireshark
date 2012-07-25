@@ -81,16 +81,16 @@ static void
 dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	guint offset = 0, descriptor_end = 0, ts_end = 0;
+	guint       offset = 0;
+	guint       ts_desc_len, descriptor_end, ts_end;
 
-	guint16 tsid = 0, ts_desc_len = 0;
+	guint16     tsid;
 
-	proto_item *ti = NULL;
-	proto_tree *dvb_nit_tree = NULL;
-	proto_item *tsi = NULL;
-	proto_tree *dvb_nit_ts_tree = NULL;
+	proto_item *ti;
+	proto_tree *dvb_nit_tree;
+	proto_item *tsi;
+	proto_tree *dvb_nit_ts_tree;
 
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Network Information Table (NIT)");
 
 	if (!tree)
@@ -101,21 +101,21 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += packet_mpeg_sect_header(tvb, offset, dvb_nit_tree, NULL, NULL);
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_id,                 tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_version_number, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_current_next_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved1,                  tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_version_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_current_next_indicator,     tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_section_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_last_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_last_section_number,        tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved2,                  tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_network_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	descriptor_end = offset + (tvb_get_ntohs(tvb, offset) & DVB_NIT_NETWORK_DESCRIPTORS_LENGTH_MASK);
 	offset += 2;
@@ -123,7 +123,7 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while (offset < descriptor_end)
 		offset += proto_mpeg_descriptor_dissect(tvb, offset, dvb_nit_tree);
 
-	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved3, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved3,                    tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_transport_stream_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	ts_end = offset + (tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_STREAM_LOOP_LENGTH_MASK);
 	offset += 2;
@@ -141,7 +141,7 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_reserved4, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_reserved4,                    tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(dvb_nit_ts_tree, hf_dvb_nit_transport_descriptors_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		descriptor_end = offset + (tvb_get_ntohs(tvb, offset) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK);
 		offset += 2;

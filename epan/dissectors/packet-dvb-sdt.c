@@ -101,17 +101,17 @@ static void
 dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	guint offset = 0, length = 0, descriptor_end = 0;
-	guint16 svc_id = 0, descriptor_len = 0;
+	guint       offset = 0, length = 0;
+        guint       descriptor_len, descriptor_end;
+	guint16     svc_id;
 
-	proto_item *ti = NULL;
-	proto_tree *dvb_sdt_tree = NULL;
-	proto_item *si = NULL;
-	proto_tree *dvb_sdt_service_tree = NULL;
+	proto_item *ti;
+	proto_tree *dvb_sdt_tree;
+	proto_item *si;
+	proto_tree *dvb_sdt_service_tree;
 
 	/* The TVB should start right after the section_length in the Section packet */
 
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Service Description Table (SDT)");
 
 	if (!tree)
@@ -123,25 +123,25 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += packet_mpeg_sect_header(tvb, offset, dvb_sdt_tree, &length, NULL);
 	length -= 4;
 
-	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_transport_stream_id,    tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_version_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_reserved1,              tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_version_number,         tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_current_next_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	offset += 1;
 
-	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_section_number,         tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
 
-	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_last_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_last_section_number,    tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
 
-	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_original_network_id,    tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset++;
+	proto_tree_add_item(dvb_sdt_tree, hf_dvb_sdt_reserved2,              tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
 
 
 	if (offset >= length)
@@ -154,17 +154,17 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		si = proto_tree_add_text(dvb_sdt_tree, tvb, offset, 5, "Service 0x%04hx", svc_id);
 		dvb_sdt_service_tree = proto_item_add_subtree(si, ett_dvb_sdt_service);
 
-		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_service_id,                 tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_eit_schedule_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_reserved3,                  tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_eit_schedule_flag,          tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_eit_present_following_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		offset += 1;
 
-		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_running_status, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_free_ca_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_descriptors_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_running_status,             tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_free_ca_mode,               tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_descriptors_loop_length,    tvb, offset, 2, ENC_BIG_ENDIAN);
 		descriptor_len = tvb_get_ntohs(tvb, offset) & DVB_SDT_DESCRIPTORS_LOOP_LENGTH_MASK;
 		offset += 2;
 
