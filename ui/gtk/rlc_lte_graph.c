@@ -1199,6 +1199,8 @@ static void graph_pixmap_draw(struct graph *g)
             }
         }
     }
+    /* Make sure any remaining lines get drawn */
+    cairo_stroke(cr_lines);
 
     cairo_destroy(cr_lines);
 }
@@ -1215,6 +1217,8 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
 
     /* Set our new colour (if changed) */
     if (new_color != NULL) {
+        /* First draw any previous lines with old colour */
+        cairo_stroke(cr);
         gdk_cairo_set_source_color(cr, new_color);
     }
 
@@ -1254,7 +1258,6 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     /* Draw from first position to second */
     cairo_move_to(cr, xx1+0.5, yy1+0.5);
     cairo_line_to(cr, xx2+0.5, yy2+0.5);
-    cairo_stroke(cr);
 }
 
 static void axis_pixmaps_create(struct axis *axis)
