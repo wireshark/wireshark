@@ -191,6 +191,37 @@ void MainWindow::captureFileClosing(const capture_file *cf) {
 //    gtk_widget_show(expert_info_none);
 }
 
+/* Help Menu */
+void MainWindow::on_actionHelpWebsite_triggered() {
+
+    QDesktopServices::openUrl(QUrl("http://www.wireshark.org"));
+}
+
+void MainWindow::on_actionHelpFAQ_triggered() {
+
+    QDesktopServices::openUrl(QUrl("http://www.wireshark.org/faq.html"));
+}
+
+void MainWindow::on_actionHelpAsk_triggered() {
+
+    QDesktopServices::openUrl(QUrl("http://ask.wireshark.org"));
+}
+
+void MainWindow::on_actionHelpDownloads_triggered() {
+
+    QDesktopServices::openUrl(QUrl("http://www.wireshark.org/download.html"));
+}
+
+void MainWindow::on_actionHelpWiki_triggered() {
+
+    QDesktopServices::openUrl(QUrl("http://wiki.wireshark.org"));
+}
+
+void MainWindow::on_actionHelpSampleCaptures_triggered() {
+
+    QDesktopServices::openUrl(QUrl("http://wiki.wireshark.org/SampleCaptures"));
+}
+
 void MainWindow::captureFileClosed(const capture_file *cf) {
     if (cf != capFile) return;
     packets_bar_update();

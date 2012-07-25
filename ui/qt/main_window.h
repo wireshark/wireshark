@@ -77,6 +77,12 @@ private slots:
     void updateRecentFiles();
     void openCaptureFile(QString& cfPath = *new QString());
     void recentActionTriggered();
+    void on_actionHelpWebsite_triggered();
+    void on_actionHelpFAQ_triggered();
+    void on_actionHelpAsk_triggered();
+    void on_actionHelpDownloads_triggered();
+    void on_actionHelpWiki_triggered();
+    void on_actionHelpSampleCaptures_triggered();
 };
 
 
