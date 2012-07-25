@@ -136,6 +136,13 @@ static gint ett_dns_mac = -1;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
+/* Added to be able to configure DNS ports. */
+static dissector_handle_t dns_tcp_handle;
+static dissector_handle_t dns_udp_handle;
+
+static range_t *global_dns_tcp_port_range;
+static range_t *global_dns_udp_port_range;
+
 /* desegmentation of DNS over TCP */
 static gboolean dns_desegment = TRUE;
 
@@ -158,8 +165,7 @@ typedef struct _dns_conv_info_t {
 /* DNS structs and definitions */
 
 /* Ports used for DNS. */
-#define UDP_PORT_DNS              53
-#define TCP_PORT_DNS              53
+#define DEFAULT_DNS_PORT_RANGE   "53"
 #define SCTP_PORT_DNS             53
 #define UDP_PORT_MDNS           5353
 #define TCP_PORT_MDNS           5353
@@ -3550,6 +3556,75 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    dissect_dns_tcp_pdu);
 }
 
+static void
+tcp_range_delete_callback(guint32 port)
+{
+  dissector_delete_uint("tcp.port", port, dns_tcp_handle);
+}
+
+static void
+udp_range_delete_callback(guint32 port)
+{
+  dissector_delete_uint("udp.port", port, dns_udp_handle);
+}
+
+static void
+tcp_range_add_callback(guint32 port)
+{
+  dissector_add_uint("tcp.port", port, dns_tcp_handle);
+}
+
+static void
+udp_range_add_callback(guint32 port)
+{
+  dissector_add_uint("udp.port", port, dns_udp_handle);
+}
+
+void
+proto_reg_handoff_dns(void)
+{
+  dissector_handle_t dns_sctp_handle;
+  dissector_handle_t mdns_udp_handle;
+  dissector_handle_t llmnr_udp_handle;
+
+  static range_t *dns_tcp_port_range;
+  static range_t *dns_udp_port_range;
+
+  static gboolean Initialized = FALSE;
+
+  if (!Initialized) {
+    dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
+    dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
+    Initialized    = TRUE;
+
+  } else {
+    range_foreach(dns_tcp_port_range, tcp_range_delete_callback);
+    range_foreach(dns_udp_port_range, udp_range_delete_callback);
+    g_free(dns_tcp_port_range);
+    g_free(dns_udp_port_range);
+  }
+    
+  dns_tcp_port_range = range_copy(global_dns_tcp_port_range);
+  dns_udp_port_range = range_copy(global_dns_udp_port_range);
+  range_foreach(dns_tcp_port_range, tcp_range_add_callback);
+  range_foreach(dns_udp_port_range, udp_range_add_callback);
+
+  dns_sctp_handle  = create_dissector_handle(dissect_dns_sctp, proto_dns);
+  mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_dns);
+  llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_dns);
+
+  dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
+  dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+  dissector_add_uint("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
+  dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_sctp_handle);
+#if 0
+  dissector_add_uint("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_sctp_handle);
+#endif
+
+  gssapi_handle  = find_dissector("gssapi");
+  ntlmssp_handle = find_dissector("ntlmssp");
+}
+
 void
 proto_register_dns(void)
 {
@@ -3933,7 +4008,22 @@ proto_register_dns(void)
   proto_register_field_array(proto_dns, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  dns_module = prefs_register_protocol(proto_dns, NULL);
+  /* Set default ports */
+  range_convert_str(&global_dns_tcp_port_range, DEFAULT_DNS_PORT_RANGE, MAX_TCP_PORT);
+  range_convert_str(&global_dns_udp_port_range, DEFAULT_DNS_PORT_RANGE, MAX_UDP_PORT);
+
+  dns_module = prefs_register_protocol(proto_dns, proto_reg_handoff_dns);
+
+  prefs_register_range_preference(dns_module, "tcp.ports", "DNS TCP ports",
+                                  "TCP ports to be decoded as DNS (default: "
+                                  DEFAULT_DNS_PORT_RANGE ")",
+                                  &global_dns_tcp_port_range, MAX_TCP_PORT);
+
+  prefs_register_range_preference(dns_module, "udp.ports", "DNS UDP Ports",
+                                  "UDP ports to be decoded as DNS (default: "
+                                  DEFAULT_DNS_PORT_RANGE ")",
+                                  &global_dns_udp_port_range, MAX_UDP_PORT);
+
   prefs_register_bool_preference(dns_module, "desegment_dns_messages",
     "Reassemble DNS messages spanning multiple TCP segments",
     "Whether the DNS dissector should reassemble messages spanning multiple TCP segments."
@@ -3943,32 +4033,4 @@ proto_register_dns(void)
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE);
 }
 
-void
-proto_reg_handoff_dns(void)
-{
-  dissector_handle_t dns_udp_handle;
-  dissector_handle_t dns_tcp_handle;
-  dissector_handle_t dns_sctp_handle;
-  dissector_handle_t mdns_udp_handle;
-  dissector_handle_t llmnr_udp_handle;
 
-  dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
-  dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
-  dns_sctp_handle = create_dissector_handle(dissect_dns_sctp, proto_dns);
-  mdns_udp_handle = create_dissector_handle(dissect_mdns_udp, proto_dns);
-  llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_dns);
-
-  dissector_add_uint("udp.port", UDP_PORT_DNS, dns_udp_handle);
-  dissector_add_uint("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
-  dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
-  dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
-  dissector_add_uint("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
-  dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_sctp_handle);
-#if 0
-  dissector_add_uint("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_sctp_handle);
-#endif
-
-  gssapi_handle = find_dissector("gssapi");
-  ntlmssp_handle = find_dissector("ntlmssp");
-
-}
