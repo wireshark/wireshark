@@ -55,6 +55,11 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+/* TODO:
+   - bring back crosshairs (always on?)
+   - fix gradiant of lines that lie partially outside of the visible graph
+   - fix (or completlely delete) 'time origin'
+*/
 
 /* initialize_axis() */
 #define AXIS_HORIZONTAL		0
@@ -279,7 +284,7 @@ static struct graph *graph_new(void);
 static void graph_destroy(struct graph * );
 static void graph_initialize_values(struct graph * );
 static void graph_init_sequence(struct graph * );
-static void draw_element_line(struct graph * , struct element * ,  cairo_t * );
+static void draw_element_line(struct graph * , struct element * ,  cairo_t * , GdkColor *new_color);
 static void graph_display(struct graph * );
 static void graph_pixmaps_create(struct graph * );
 static void graph_pixmaps_switch(struct graph * );
@@ -1141,6 +1146,8 @@ static void graph_pixmap_draw(struct graph *g)
     cairo_t *cr;
 
     cairo_t *cr_lines;
+    GdkColor *current_color = NULL;
+    GdkColor *color_to_set = NULL;
 
     debug(DBS_FENTRY) puts("graph_display()");
     not_disp = 1 ^ g->displayed;
@@ -1172,7 +1179,18 @@ static void graph_pixmap_draw(struct graph *g)
         for (e=list->elements; e->type != ELMT_NONE; e++) {
             switch (e->type) {
                 case ELMT_LINE:
-                    draw_element_line(g, e, cr_lines);
+                    /* Work out if we need to change colour */
+                    if (current_color == e->elment_color_p) {
+                        /* No change needed */
+                        color_to_set = NULL;
+                    }
+                    else {
+                        /* Changing colour */
+                        current_color = color_to_set = e->elment_color_p;
+                    }
+
+                    /* Draw the line */
+                    draw_element_line(g, e, cr_lines, color_to_set);
                     break;
 
                 default:
@@ -1185,7 +1203,8 @@ static void graph_pixmap_draw(struct graph *g)
     cairo_destroy(cr_lines);
 }
 
-static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr)
+static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
+                              GdkColor *new_color)
 {
     int xx1, xx2, yy1, yy2;
 
@@ -1193,6 +1212,11 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr)
         printf("\nline element: (%.2f,%.2f)->(%.2f,%.2f), seg %d ...\n",
                e->p.line.dim.x1, e->p.line.dim.y1,
                e->p.line.dim.x2, e->p.line.dim.y2, e->parent->num);
+
+    /* Set our new colour (if changed) */
+    if (new_color != NULL) {
+        gdk_cairo_set_source_color(cr, new_color);
+    }
 
     /* Map point into graph area, and round to nearest int */
     xx1 = (int )rint(e->p.line.dim.x1 + g->geom.x - g->wp.x);
@@ -1226,14 +1250,6 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr)
     debug(DBS_GRAPH_DRAWING) printf("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
 
     g_assert(e->elment_color_p!=NULL);
-
-    /* Set our colour (if chosen) */
-    /* TODO: would be nice to only set when changed, as its slow.  Simply maintaining
-       a static GdkColor* won't work though, as need to set again when get new
-       cairo_t* ... */
-    if (e->elment_color_p!=NULL) {
-        gdk_cairo_set_source_color(cr, e->elment_color_p);
-    }
 
     /* Draw from first position to second */
     cairo_move_to(cr, xx1+0.5, yy1+0.5);
