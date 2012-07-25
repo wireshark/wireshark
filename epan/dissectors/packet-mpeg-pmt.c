@@ -117,22 +117,23 @@ static const value_string mpeg_pmt_stream_type_vals[] = {
 	{ 0xC0, "ETV-AM EISS Signaling" },
 	{ 0x00, NULL }
 };
+static value_string_ext mpeg_pmt_stream_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_pmt_stream_type_vals);
 
 static void
 dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	guint offset = 0, length = 0, descriptor_end = 0;
-	guint16 prog_info_len = 0, es_info_len = 0, pid = 0;
+	guint   offset = 0, length = 0;
+	guint   descriptor_end, prog_info_len, es_info_len;
+	guint16 pid;
 
-	proto_item *ti = NULL;
-	proto_tree *mpeg_pmt_tree = NULL;
-	proto_item *si = NULL;
-	proto_tree *mpeg_pmt_stream_tree = NULL;
+	proto_item *ti;
+	proto_tree *mpeg_pmt_tree;
+	proto_item *si;
+	proto_tree *mpeg_pmt_stream_tree;
 
 	/* The TVB should start right after the section_length in the Section packet */
 
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "Program Map Table (PMT)");
 
 	if (!tree)
@@ -179,15 +180,15 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		si = proto_tree_add_text(mpeg_pmt_tree, tvb, offset, 5 + es_info_len, "Stream PID=0x%04hx", pid);
 		mpeg_pmt_stream_tree = proto_item_add_subtree(si, ett_mpeg_pmt_stream);
 
-		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_type,		tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_reserved1, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_elementary_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_reserved1,		tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_elementary_pid,	tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_es_info_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_reserved2,		tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_es_info_length,	tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		descriptor_end = offset + es_info_len;
@@ -259,7 +260,7 @@ proto_register_mpeg_pmt(void)
 
 		{ &hf_mpeg_pmt_stream_type, {
 			"Stream type", "mpeg_pmt.stream.type",
-			FT_UINT8, BASE_HEX, VALS(mpeg_pmt_stream_type_vals), 0, NULL, HFILL
+			FT_UINT8, BASE_HEX | BASE_EXT_STRING, &mpeg_pmt_stream_type_vals_ext, 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_pmt_stream_reserved1, {
