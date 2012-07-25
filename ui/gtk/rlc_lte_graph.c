@@ -59,6 +59,7 @@
    - bring back crosshairs (always on?)
    - fix gradiant of lines that lie partially outside of the visible graph
    - fix (or completlely delete) 'time origin'
+   - middle-button + shift isn't zooming out
 */
 
 /* initialize_axis() */
@@ -273,7 +274,6 @@ static void create_gui(struct graph * );
 static void create_drawing_area(struct graph * );
 static void callback_toplevel_destroy(GtkWidget * , gpointer );
 static void callback_create_help(GtkWidget * , gpointer );
-static void update_zoom_spins(struct graph * );
 static rlc_lte_tap_info *select_rlc_lte_session(capture_file *, struct segment * );
 static int compare_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
                            guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
@@ -323,7 +323,6 @@ static gboolean expose_event(GtkWidget * , GdkEventExpose * , gpointer );
 static gboolean button_press_event(GtkWidget * , GdkEventButton * , gpointer );
 static gboolean button_release_event(GtkWidget * , GdkEventButton * , gpointer );
 static gboolean key_press_event(GtkWidget * , GdkEventKey * , gpointer );
-static gboolean key_release_event(GtkWidget * , GdkEventKey * , gpointer );
 static void graph_initialize(struct graph *);
 static void graph_get_bounds(struct graph *);
 static void graph_read_config(struct graph *);
@@ -496,8 +495,6 @@ static void create_drawing_area(struct graph *g)
     g_signal_connect(g->toplevel, "destroy", G_CALLBACK(callback_toplevel_destroy), g);
     /* why doesn't drawing area send key_press_signals? */
     g_signal_connect(g->toplevel, "key_press_event", G_CALLBACK(key_press_event), g);
-    g_signal_connect(g->toplevel, "key_release_event", G_CALLBACK(key_release_event),
-                       g);
     gtk_widget_set_events(g->toplevel,
                               GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
 
@@ -609,12 +606,6 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
     gtk_widget_show_all(toplevel);
     window_present(toplevel);
 }
-
-
-static void update_zoom_spins(struct graph *g _U_)
-{
-}
-
 
 static struct graph *graph_new(void)
 {
@@ -1442,14 +1433,13 @@ static void h_axis_pixmap_draw(struct axis *axis)
     cairo_t *cr;
 
     debug(DBS_FENTRY) puts("h_axis_pixmap_draw()");
-    left = (g->wp.x-g->geom.x) /
-                    (double)g->geom.width * g->bounds.width;
+    left = (g->wp.x-g->geom.x) / (double)g->geom.width * g->bounds.width;
     left += axis->min;
-    right = (g->wp.x-g->geom.x+g->wp.width) /
-                    (double)g->geom.width * g->bounds.width;
+    right = (g->wp.x-g->geom.x+g->wp.width) / (double)g->geom.width * g->bounds.width;
     right += axis->min;
     axis_compute_ticks(axis, left, right, AXIS_HORIZONTAL);
 
+    /* Work out how many decimal places should be shown */
     j = axis->major - floor(axis->major);
     for (rdigits=0; rdigits<=6; rdigits++) {
         j *= 10;
@@ -1561,7 +1551,7 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
 
     debug((DBS_FENTRY | DBS_AXES_TICKS)) puts("axis_compute_ticks()");
     debug(DBS_AXES_TICKS)
-        printf("x0=%f xmax=%f dir=%s\n", x0,xmax, dir?"VERTICAL":"HORIZONTAL");
+        printf("x0=%f xmax=%f dir=%s\n", x0,xmax, dir? "VERTICAL" : "HORIZONTAL");
 
     zoom = axis_zoom_get(axis, dir);
     x = xmax-x0;
@@ -1823,7 +1813,6 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
                 g->zoom.x, g->zoom.y);
 #endif
 
-    update_zoom_spins(g);
     graph_element_lists_make(g);
     graph_pixmaps_create(g);
     graph_title_pixmap_create(g);
@@ -1958,7 +1947,6 @@ static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
     graph_display(g);
     axis_display(g->y_axis);
     axis_display(g->x_axis);
-    update_zoom_spins(g);
 }
 
 static void do_zoom_keyboard(struct graph *g)
@@ -2045,7 +2033,6 @@ static void do_zoom_keyboard(struct graph *g)
     graph_display(g);
     axis_display(g->y_axis);
     axis_display(g->x_axis);
-    update_zoom_spins(g);
 }
 
 static void do_zoom_in_keyboard(struct graph *g)
@@ -2201,12 +2188,6 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
         default:
             break;
     }
-    return TRUE;
-}
-
-/* TODO: just lost this function and don't register for its handler? */
-static gboolean key_release_event(GtkWidget *widget _U_, GdkEventKey *event _U_, gpointer user_data _U_)
-{
     return TRUE;
 }
 
