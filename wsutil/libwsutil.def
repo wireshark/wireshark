@@ -31,6 +31,7 @@ crc16_x25_ccitt
 
 ; crc16-plain.c
 crc16_plain_update
+crc16_8005_noreflect_noxor
 
 ; crc32.c
 crc32_ccitt

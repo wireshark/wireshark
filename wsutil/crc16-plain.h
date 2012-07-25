@@ -79,6 +79,26 @@ static inline crc16_plain_t crc16_plain_finalize(crc16_plain_t crc)
     return crc ^ 0x0000;
 }
 
+/* Generated on Tue Jul 24 09:08:46 2012,
+ * by pycrc v0.7.10, http://www.tty1.net/pycrc/
+ * using the configuration:
+ *    Width        = 16
+ *    Poly         = 0x8005
+ *    XorIn        = 0x0000
+ *    ReflectIn    = False
+ *    XorOut       = 0x0000
+ *    ReflectOut   = False
+ *    Algorithm    = table-driven
+ *
+ * Calculate the crc-16 (x^16 + x^15 + x^2 + 1) value for data. Note that this
+ * CRC is not equal to crc16_plain.
+ *
+ * \param data     Pointer to a buffer of \a data_len bytes.
+ * \param data_len Number of bytes in the \a data buffer.
+ * \return         The crc value.
+ *****************************************************************************/
+guint16 crc16_8005_noreflect_noxor(const guint8 *data, guint64 data_len);
+
 
 #ifdef __cplusplus
 }           /* closing brace for extern "C" */
