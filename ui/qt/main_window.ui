@@ -47,7 +47,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -79,9 +79,41 @@
     <addaction name="actionStartCapture"/>
     <addaction name="actionStopCapture"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <widget class="QMenu" name="menuHelpManuelPages">
+     <property name="title">
+      <string>ManuelPages</string>
+     </property>
+     <addaction name="actionHelpMPWireshark"/>
+     <addaction name="actionHelpMPWireshark_Filter"/>
+     <addaction name="separator"/>
+     <addaction name="actionHelpMPWireshark2"/>
+     <addaction name="actionHelpMPRawShark"/>
+     <addaction name="actionHelpMPDumpcap"/>
+     <addaction name="actionHelpMPMergecap"/>
+     <addaction name="actionHelpMPEditcap"/>
+     <addaction name="actionHelpMPText2cap"/>
+    </widget>
+    <addaction name="actionHelpContents"/>
+    <addaction name="menuHelpManuelPages"/>
+    <addaction name="separator"/>
+    <addaction name="actionHelpWebsite"/>
+    <addaction name="actionHelpFAQ"/>
+    <addaction name="actionHelpAsk"/>
+    <addaction name="actionHelpDownloads"/>
+    <addaction name="separator"/>
+    <addaction name="actionHelpWiki"/>
+    <addaction name="actionHelpSampleCaptures"/>
+    <addaction name="separator"/>
+    <addaction name="actionHelpAbout"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuCapture"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="sizePolicy">
@@ -193,6 +225,86 @@
    </property>
    <property name="text">
     <string>No files found</string>
+   </property>
+  </action>
+  <action name="actionHelpContents">
+   <property name="text">
+    <string>Contents</string>
+   </property>
+  </action>
+  <action name="actionHelpMPWireshark">
+   <property name="text">
+    <string>Wireshark</string>
+   </property>
+  </action>
+  <action name="actionHelpMPWireshark_Filter">
+   <property name="text">
+    <string>Wireshark Filter</string>
+   </property>
+  </action>
+  <action name="actionHelpMPWireshark2">
+   <property name="text">
+    <string>Wireshark</string>
+   </property>
+  </action>
+  <action name="actionHelpMPRawShark">
+   <property name="text">
+    <string>RawShark</string>
+   </property>
+  </action>
+  <action name="actionHelpMPDumpcap">
+   <property name="text">
+    <string>Dumpcap</string>
+   </property>
+  </action>
+  <action name="actionHelpMPMergecap">
+   <property name="text">
+    <string>Mergecap</string>
+   </property>
+  </action>
+  <action name="actionHelpMPEditcap">
+   <property name="text">
+    <string>Editcap</string>
+   </property>
+  </action>
+  <action name="actionHelpMPText2cap">
+   <property name="text">
+    <string>Text2cap</string>
+   </property>
+  </action>
+  <action name="actionHelpWebsite">
+   <property name="text">
+    <string>Website</string>
+   </property>
+  </action>
+  <action name="actionHelpFAQ">
+   <property name="text">
+    <string>FAQ's</string>
+   </property>
+  </action>
+  <action name="actionHelpDownloads">
+   <property name="text">
+    <string>Downloads</string>
+   </property>
+  </action>
+  <action name="actionHelpWiki">
+   <property name="text">
+    <string>Wiki</string>
+   </property>
+  </action>
+  <action name="actionHelpSampleCaptures">
+   <property name="text">
+    <string>Sample Captures</string>
+   </property>
+  </action>
+  <action name="actionHelpAbout">
+   <property name="text">
+    <string>About Wireshark</string>
+   </property>
+  </action>
+  <action name="actionHelpAsk">
+   <property name="text">
+    <string>Ask (Q&amp;&amp;A)</string>
    </property>
   </action>
  </widget>
