@@ -57,17 +57,17 @@ static void
 dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto,
 	int hf_filter_info, int hf_reserved )
 {
-	tvbuff_t *sub_tvb;
-	guint offset = 0;
-	proto_item *ti = NULL;
-	proto_item *pi = NULL;
-	proto_tree *etv_tree = NULL;
+	tvbuff_t   *sub_tvb;
+	guint       offset = 0;
+	proto_item *ti;
+	proto_item *pi;
+	proto_tree *etv_tree;
 	proto_item *items[PACKET_MPEG_SECT_PI__SIZE];
-	gboolean ssi;
-	guint reserved;
-	guint8 reserved2;
-	guint16 filter_info;
-	guint sect_len;
+	gboolean    ssi;
+	guint       reserved;
+	guint8      reserved2;
+	guint16     filter_info;
+	guint       sect_len;
 
 	ti = proto_tree_add_item(tree, proto, tvb, offset, -1, ENC_NA);
 	etv_tree = proto_item_add_subtree(ti, ett_etv);
@@ -128,7 +128,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
 					"Invalid reserved2 bits (should all be 0)");
 	}
-	offset++;
+	offset += 1;
 
 	sub_tvb = tvb_new_subset(tvb, offset, sect_len-7, sect_len-7);
 	call_dissector(dsmcc_handle, sub_tvb, pinfo, tree);
@@ -142,9 +142,8 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 static void
 dissect_etv_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	col_clear(pinfo->cinfo, COL_PROTOCOL);
-	col_set_str(pinfo->cinfo, COL_INFO, "ETV DDB");
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETV-DDB");
+	col_set_str(pinfo->cinfo, COL_INFO, "ETV DDB");
 	dissect_etv_common(tvb, pinfo, tree, proto_etv_ddb, hf_etv_ddb_filter_info,
 		hf_etv_ddb_reserved);
 }
@@ -153,9 +152,8 @@ dissect_etv_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_etv_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	col_clear(pinfo->cinfo, COL_PROTOCOL);
-	col_set_str(pinfo->cinfo, COL_INFO, "ETV DII");
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETV-DII");
+	col_set_str(pinfo->cinfo, COL_INFO, "ETV DII");
 	dissect_etv_common(tvb, pinfo, tree, proto_etv_dii, hf_etv_dii_filter_info,
 		hf_etv_dii_reserved);
 }
@@ -213,7 +211,6 @@ proto_reg_handoff_etv(void)
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DII_SECTION, etv_dii_handle);
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DDB_SECTION, etv_ddb_handle);
 	dsmcc_handle = find_dissector("mp2t-dsmcc");
-	data_handle = find_dissector("data");
+	data_handle  = find_dissector("data");
 }
-
 
