@@ -36,62 +36,62 @@
 #define KDSP_PORT 2502
 #define FRAME_HEADER_LEN 12
 
-#define HELLO 1
-#define STRING 2
-#define CAPPACKET 3
+#define HELLO      1
+#define STRING     2
+#define CAPPACKET  3
 #define CHANNELSET 4
-#define SOURCE 5
-#define REPORT 6
+#define SOURCE     5
+#define REPORT     6
 
-#define CPT_FLAG 0x80000000
-#define GPS_FLAG 0x00000002
+#define CPT_FLAG   0x80000000
+#define GPS_FLAG   0x00000002
 #define RADIO_FLAG 0x00000001
 
-#define RADIO_ACCURACY_FLAG 0x000000
-#define RADIO_FREQ_MHZ_FLAG 0x000000
-#define RADIO_SIGNAL_DBM_FLAG 0x000000
-#define RADIO_NOISE_DBM_FLAG 0x000000
-#define RADIO_CARRIER_FLAG 0x000000
-#define RADIO_ENCODING_FLAG 0x000000
-#define RADIO_DATARATE_FLAG 0x000000
+#define RADIO_ACCURACY_FLAG    0x000000
+#define RADIO_FREQ_MHZ_FLAG    0x000000
+#define RADIO_SIGNAL_DBM_FLAG  0x000000
+#define RADIO_NOISE_DBM_FLAG   0x000000
+#define RADIO_CARRIER_FLAG     0x000000
+#define RADIO_ENCODING_FLAG    0x000000
+#define RADIO_DATARATE_FLAG    0x000000
 #define RADIO_SIGNAL_RSSI_FLAG 0x000000
-#define RADIO_NOISE_RSSI_FLAG 0x000000
+#define RADIO_NOISE_RSSI_FLAG  0x000000
 
-#define GPS_FIX_FLAG 0x000000
-#define GPS_LAT_FLAG 0x000000
-#define GPS_LON_FLAG 0x000000
-#define GPS_ALT_FLAG 0x000000
-#define GPS_SPD_FLAG 0x000000
-#define GPS_HEADING_FLAG 0x000000
+#define GPS_FIX_FLAG      0x000000
+#define GPS_LAT_FLAG      0x000000
+#define GPS_LON_FLAG      0x000000
+#define GPS_ALT_FLAG      0x000000
+#define GPS_SPD_FLAG      0x000000
+#define GPS_HEADING_FLAG  0x000000
 
-#define DATA_UUID_FLAG 0x000000
+#define DATA_UUID_FLAG    0x000000
 #define DATA_PACKLEN_FLAG 0x000000
-#define DATA_TVSEC_FLAG 0x000000
-#define DATA_TVUSEC_FLAG 0x000000
-#define DATA_DLT_FLAG 0x000000
+#define DATA_TVSEC_FLAG   0x000000
+#define DATA_TVUSEC_FLAG  0x000000
+#define DATA_DLT_FLAG     0x000000
 
-#define CH_UUID_FLAG 0x00000001
-#define CH_CMD_FLAG 0x00000002
-#define CH_CURCH_FLAG 0x00000004
-#define CH_HOP_FLAG 0x00000008
-#define CH_NUMCH_FLAG 0x00000010
-#define CH_CHANNELS_FLAG 0x00000020
-#define CH_DWELL_FLAG 0x00000040
-#define CH_RATE_FLAG 0x00000080
-#define CH_HOPDWELL_FLAG 0x00000100
+#define CH_UUID_FLAG      0x00000001
+#define CH_CMD_FLAG       0x00000002
+#define CH_CURCH_FLAG     0x00000004
+#define CH_HOP_FLAG       0x00000008
+#define CH_NUMCH_FLAG     0x00000010
+#define CH_CHANNELS_FLAG  0x00000020
+#define CH_DWELL_FLAG     0x00000040
+#define CH_RATE_FLAG      0x00000080
+#define CH_HOPDWELL_FLAG  0x00000100
 
-#define SRC_UUID_FLAG 0x00000001
-#define SRC_INVALID_FLAG 0x00000002
-#define SRC_NAMESTR_FLAG 0x00000004
-#define SRC_INTSTR_FLAG 0x00000008
-#define SRC_TYPESTR_FLAG 0x00000010
-#define SRC_HOP_FLAG 0x00000020
-#define SRC_DWELL_FLAG 0x00000040
-#define SRC_RATE_FLAG 0x00000080
+#define SRC_UUID_FLAG     0x00000001
+#define SRC_INVALID_FLAG  0x00000002
+#define SRC_NAMESTR_FLAG  0x00000004
+#define SRC_INTSTR_FLAG   0x00000008
+#define SRC_TYPESTR_FLAG  0x00000010
+#define SRC_HOP_FLAG      0x00000020
+#define SRC_DWELL_FLAG    0x00000040
+#define SRC_RATE_FLAG     0x00000080
 
-#define REPORT_UUID_FLAG 0x000000
-#define REPORT_FLAGS_FLAG 0x000000
-#define REPORT_HOP_TM_SEC_FLAG 0x000000
+#define REPORT_UUID_FLAG        0x000000
+#define REPORT_FLAGS_FLAG       0x000000
+#define REPORT_HOP_TM_SEC_FLAG  0x000000
 #define REPORT_HOP_TM_USEC_FLAG 0x000000
 
 void proto_reg_handoff_kdsp(void);
@@ -225,31 +225,31 @@ static gint ett_ch_data = -1;
 static guint
 get_kdsp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  return (guint)tvb_get_ntohl(tvb, offset+8) + FRAME_HEADER_LEN; /* length is at offset 8 */
+  return tvb_get_ntohl(tvb, offset+8) + FRAME_HEADER_LEN; /* length is at offset 8 */
 }
 
 /* This method dissects fully reassembled messages */
 static void
 dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  guint32 command = 0;
   guint32 offset = 0;
-  guint32 length = 0;
-  guint32 numChan = 0;
-  guint32 bitmap = 0;
-  guint16 type = 0;
+  guint32 command;
+  guint32 length;
+  guint32 numChan;
+  guint32 bitmap;
+  guint16 type;
   guint32 i;
 
-  tvbuff_t *ieee80211_tvb = NULL;
-  proto_item *kdsp_item = NULL;
-  proto_tree *kdsp_tree = NULL;
-  proto_item *sub_item = NULL;
-  proto_tree *sub_tree = NULL;
+  tvbuff_t   *ieee80211_tvb;
+  proto_item *kdsp_item;
+  proto_tree *kdsp_tree;
+  proto_item *sub_item;
+  proto_tree *sub_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  command = (guint32)tvb_get_ntohl(tvb, 4);
+  command = tvb_get_ntohl(tvb, 4);
   col_add_fstr(pinfo->cinfo, COL_INFO, "Command %s; ",
                val_to_str(command, packettypenames, "Unknown (0x%02x)"));
   col_set_fence(pinfo->cinfo, COL_INFO);
@@ -264,60 +264,60 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          val_to_str(command, packettypenames, "Unknown (0x%02x)"));
 
   proto_tree_add_item(kdsp_tree, hf_kdsp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-  length = (guint32)tvb_get_ntohl(tvb, offset);
+  length = tvb_get_ntohl(tvb, offset);
   offset += 4;
 
-  if(command == HELLO){
-    proto_tree_add_item(kdsp_tree, hf_kdsp_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+  if (command == HELLO) {
+    proto_tree_add_item(kdsp_tree, hf_kdsp_version,  tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_server_version,
-                        tvb, offset, 32, ENC_ASCII|ENC_NA);
+                                                     tvb, offset, 32, ENC_ASCII|ENC_NA);
     offset +=32;
     proto_tree_add_item(kdsp_tree, hf_kdsp_hostname, tvb, offset, 32, ENC_ASCII|ENC_NA);
     /*offset +=32;*/
   }
-  else if(command == STRING){
+  else if (command == STRING) {
     proto_tree_add_item(kdsp_tree, hf_kdsp_str_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_str_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_str_len,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_str_msg, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_str_msg,   tvb, offset, -1, ENC_ASCII|ENC_NA);
   }
-  else if(command == CAPPACKET){
+  else if (command == CAPPACKET) {
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_cpt_bitmap);
-    proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_cpt, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_gps, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_cpt,   tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_gps,   tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_kdsp_cpt_flag_radio, tvb, offset, 4, ENC_BIG_ENDIAN);
     bitmap = tvb_get_ntohl(tvb, offset);
     offset +=4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_offset,    tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
-    if(bitmap & RADIO_FLAG){
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (bitmap & RADIO_FLAG) {
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       proto_tree_add_item(kdsp_tree, hf_kdsp_radio_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_accuracy, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_accuracy,       tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_freq_mhz, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_freq_mhz,       tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_signal_dbm, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_signal_dbm,     tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_noise_dbm, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_noise_dbm,      tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_carrier, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_carrier,        tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_encoding, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_encoding,       tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_datarate, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_datarate,       tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_signal_rssi, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_signal_rssi,    tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_noise_rssi, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_radio_noise_rssi,     tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
     }
-    if(bitmap & GPS_FLAG){
+    if (bitmap & GPS_FLAG) {
       proto_tree_add_item(kdsp_tree, hf_kdsp_gps_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       proto_tree_add_item(kdsp_tree, hf_kdsp_gps_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -335,60 +335,60 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(kdsp_tree, hf_kdsp_gps_heading, tvb, offset, 12, ENC_NA);
       offset += 12;
     }
-    if(bitmap & CPT_FLAG){
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (bitmap & CPT_FLAG) {
+      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_data_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_uuid, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_uuid,                tvb, offset, 16, ENC_NA);
       offset += 16;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_packet_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_packet_len,          tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_tv_sec, tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_tv_sec,              tvb, offset, 8, ENC_BIG_ENDIAN);
       offset += 8;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_tv_usec, tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_tv_usec,             tvb, offset, 8, ENC_BIG_ENDIAN);
       offset += 8;
-      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_dlt, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_dlt,                 tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     }
     ieee80211_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(ieee80211_handle, ieee80211_tvb, pinfo, tree);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "KDSP");
   }
-  else if(command == CHANNELSET){
+  else if (command == CHANNELSET) {
     proto_tree_add_item(kdsp_tree, hf_kdsp_ch_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_ch_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_ch_bitmap);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_uuid, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_cmd, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_curch, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_hop, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_numch, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_channels, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_dwell, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_hopdwell, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_uuid,        tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_cmd,         tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_curch,       tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_hop,         tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_numch,       tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_channels,    tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_dwell,       tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_rate,        tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_hopdwell,    tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_uuid, tvb, offset, 16, ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_uuid,            tvb, offset, 16, ENC_NA);
     offset += 16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_cmd, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_cmd,             tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_cur_ch, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_cur_ch,          tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_hop, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_hop,             tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_num_ch, tvb, offset, 2, ENC_BIG_ENDIAN);
-    numChan = (guint16)tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_num_ch,          tvb, offset, 2, ENC_BIG_ENDIAN);
+    numChan = tvb_get_ntohs(tvb, offset);
     offset += 2;
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_ch_data, tvb, offset, 2046, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_ch_data);
 
-    for(i = 0; i<numChan; i++){
-      type = (guint16)tvb_get_ntohs(tvb, offset);
+    for(i = 0; i<numChan; i++) {
+      type = tvb_get_ntohs(tvb, offset);
       type = type >> 15;
-      if(!type){/* Highest bit (1 << 15) == 0 if channel */
-        proto_tree_add_item(sub_tree, hf_kdsp_ch_ch, tvb, offset, 2, ENC_BIG_ENDIAN);
+      if (!type) {/* Highest bit (1 << 15) == 0 if channel */
+        proto_tree_add_item(sub_tree, hf_kdsp_ch_ch,    tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(sub_tree, hf_kdsp_ch_dwell, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 6;
@@ -396,59 +396,57 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       else{/* Highest bit (1 << 15) == 1 if range */
         proto_tree_add_item(sub_tree, hf_kdsp_ch_start, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(sub_tree, hf_kdsp_ch_end, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_kdsp_ch_end,   tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(sub_tree, hf_kdsp_ch_width, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(sub_tree, hf_kdsp_ch_iter, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_kdsp_ch_iter,  tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
       }
     }
     offset = length+FRAME_HEADER_LEN-4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_ch_rate,     tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(kdsp_tree, hf_kdsp_ch_ch_dwell, tvb, offset, 2, ENC_BIG_ENDIAN);
     /*offset += 2;*/
    }
-  else if(command == SOURCE){
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+  else if (command == SOURCE) {
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_length,        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset +=2;
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_ch_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_ch_bitmap);
-    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_uuid, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_kdsp_ch_flag_uuid,          tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_bitmap,        tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_uuid, tvb, offset, 16, ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_uuid,          tvb, offset, 16, ENC_NA);
     offset += 16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_invalidate,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_invalidate,    tvb, offset, 2, ENC_BIG_ENDIAN);
     offset +=2;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_name,          tvb, offset, 16, ENC_ASCII|ENC_NA);
     offset +=16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_interface,
-                        tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_interface,     tvb, offset, 16, ENC_ASCII|ENC_NA);
     offset += 16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_type, tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_type,          tvb, offset, 16, ENC_ASCII|ENC_NA);
     offset +=16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_hop, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_hop,           tvb, offset, 1, ENC_BIG_ENDIAN);
     offset +=1;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_dwell, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_dwell,         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_rate,          tvb, offset, 2, ENC_BIG_ENDIAN);
     /*offset += 2;*/
   }
-  else if(command == REPORT){
-    proto_tree_add_item(kdsp_tree, hf_kdsp_report_hdr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+  else if (command == REPORT) {
+    proto_tree_add_item(kdsp_tree, hf_kdsp_report_hdr_len,        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(kdsp_tree, hf_kdsp_report_content_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_report_uuid, tvb, offset, 16, ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_report_uuid,           tvb, offset, 16, ENC_NA);
     offset += 16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_report_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_report_flags,          tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_report_hop_tm_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_report_hop_tm_sec,     tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_report_hop_tm_usec, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_report_hop_tm_usec,    tvb, offset, 4, ENC_BIG_ENDIAN);
     /*offset += 4;*/
 
   }
@@ -993,10 +991,10 @@ proto_reg_handoff_kdsp(void)
   static gboolean initialized = FALSE;
   static guint tcp_port;
 
-  if(!initialized) {
+  if (!initialized) {
     kdsp_handle = create_dissector_handle(dissect_kdsp, proto_kdsp);
     ieee80211_handle = find_dissector("wlan");
-  }else{
+  } else {
     dissector_delete_uint("tcp.port", tcp_port, kdsp_handle);
   }
 
