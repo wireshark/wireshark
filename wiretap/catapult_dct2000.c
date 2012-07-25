@@ -303,7 +303,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
         static gchar linebuff[MAX_LINE_LENGTH+1];
         gchar aal_header_chars[AAL_HEADER_CHARS];
         gchar context_name[MAX_CONTEXT_NAME];
-        guint8 context_port;
+        guint8 context_port = 0;
         gchar protocol_name[MAX_PROTOCOL_NAME+1];
         gchar variant_name[MAX_VARIANT_DIGITS+1];
         gchar outhdr_name[MAX_OUTHDR_NAME+1];
