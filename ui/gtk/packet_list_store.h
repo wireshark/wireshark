@@ -67,9 +67,7 @@ struct _PacketList
 	/** Has the entire file been columnized? */
 	gboolean columnized;
 
-	gint n_columns;
-	/**< Note: We need one extra column to store the entire PacketListRecord */
-	GType column_types[NUM_COL_FMTS+1];
+	gint n_cols;	/* copy of cfile.cinfo.num_cols */
 	GtkWidget *view;
 
 	gint sort_id;

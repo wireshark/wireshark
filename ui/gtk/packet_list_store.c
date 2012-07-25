@@ -247,19 +247,10 @@ packet_list_tree_model_init(GtkTreeModelIface *iface)
 static void
 packet_list_init(PacketList *packet_list)
 {
-	guint i;
-
-	for(i = 0; i < (guint)cfile.cinfo.num_cols; i++) {
-		/* We get the packetlist record for all columns */
-		packet_list->column_types[i] = G_TYPE_STRING;
-	}
-
 	/* To check whether an iter belongs to our model. */
 	packet_list->stamp = g_random_int();
 
-	/* Note: We need one extra column to store the entire PacketListRecord */
-	packet_list->column_types[i] = G_TYPE_POINTER;
-	packet_list->n_columns = (guint)cfile.cinfo.num_cols+1;
+	packet_list->n_cols = cfile.cinfo.num_cols;
 	packet_list->physical_rows = g_ptr_array_new();
 	packet_list->visible_rows = g_ptr_array_new();
 
@@ -299,7 +290,8 @@ packet_list_get_n_columns(GtkTreeModel *tree_model)
 {
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), 0);
 
-	return PACKET_LIST(tree_model)->n_columns;
+	/* Note: We need one extra column to store the entire frame_data */
+	return PACKET_LIST(tree_model)->n_cols + 1;
 }
 
 static GType
@@ -308,11 +300,16 @@ packet_list_get_column_type(GtkTreeModel *tree_model, gint idx)
 	PacketList *packet_list;
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), G_TYPE_INVALID);
 	packet_list = PACKET_LIST(tree_model);
-	/* Note: We use one extra column to store the entire PacketListRecord */
-	g_return_val_if_fail(idx < packet_list->n_columns &&
-				 idx >= 0, G_TYPE_INVALID);
 
-	return packet_list->column_types[idx];
+	/* Note: We use one extra column to store the entire frame_data */
+	g_return_val_if_fail(idx >= 0 && idx < packet_list->n_cols + 1, G_TYPE_INVALID);
+
+	if (idx >= 0 && idx < packet_list->n_cols)
+		return G_TYPE_STRING;
+	else if (idx == packet_list->n_cols)
+		return G_TYPE_POINTER;
+	else
+		return G_TYPE_INVALID;
 }
 
 static gboolean
@@ -379,46 +376,36 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 {
 	PacketListRecord *record;
 	PacketList *packet_list;
-	GType type;
 
 	g_return_if_fail(PACKETLIST_IS_LIST(tree_model));
 	g_return_if_fail(iter != NULL);
 
 	packet_list = PACKET_LIST(tree_model);
-	/* Note: We use one extra column to store the entire PacketListRecord */
-	g_return_if_fail(column < packet_list->n_columns);
+	/* Note: We use one extra column to store the entire frame_data */
+	g_return_if_fail(column >= 0 && column < packet_list->n_cols + 1);
 
 	record = (PacketListRecord*) iter->user_data;
 
 	g_return_if_fail(PACKET_LIST_RECORD_INDEX_VALID(packet_list->physical_rows, record->physical_pos));
 	g_return_if_fail(PACKET_LIST_RECORD_INDEX_VALID(packet_list->visible_rows, record->visible_pos));
 
-	type = packet_list->column_types[column];
-	g_value_init(value, type);
+	if (column >= 0 && column < packet_list->n_cols) {
+		g_value_init(value, G_TYPE_STRING);
 
-	/* XXX Probably the switch should be on column or
-	 * should we allways return the pointer and read the data as required??
-	 * If we use FOREGROUND_COLOR_COL etc we'll need a couple of "internal" columns
-	 */
-	switch(type){
-		case G_TYPE_POINTER:
-			g_value_set_pointer(value, record->fdata);
-			break;
-		case G_TYPE_STRING:
-			if (!record->columnized || !record->colorized)
-				packet_list_dissect_and_cache_record(packet_list, record, !record->columnized, !record->colorized);
+		if (!record->columnized || !record->colorized)
+			packet_list_dissect_and_cache_record(packet_list, record, !record->columnized, !record->colorized);
 
-			if (col_based_on_frame_data(&cfile.cinfo, column)) {
-				col_fill_in_frame_data(record->fdata, &cfile.cinfo, column, FALSE);
-				g_value_set_string(value, cfile.cinfo.col_data[column]);
-			} else {
-				g_return_if_fail(record->col_text);
-				g_value_set_string(value, record->col_text[column]);
-			}
-			break;
-		default:
-			g_warning (G_STRLOC ": Unsupported type (%s) retrieved.", g_type_name (value->g_type));
-			break;
+		if (col_based_on_frame_data(&cfile.cinfo, column)) {
+			col_fill_in_frame_data(record->fdata, &cfile.cinfo, column, FALSE);
+			g_value_set_string(value, cfile.cinfo.col_data[column]);
+		} else {
+			g_return_if_fail(record->col_text);
+			g_value_set_string(value, record->col_text[column]);
+		}
+
+	} else if (column == packet_list->n_cols) {
+		g_value_init(value, G_TYPE_POINTER);
+		g_value_set_pointer(value, record->fdata);
 	}
 }
 
@@ -665,8 +652,8 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	newrecord = se_alloc(sizeof(PacketListRecord));
 	newrecord->columnized   = FALSE;
 	newrecord->colorized    = FALSE;
-	newrecord->col_text_len = se_alloc0(sizeof(*newrecord->col_text_len) * cfile.cinfo.num_cols);
-	newrecord->col_text     = se_alloc0(sizeof(*newrecord->col_text) * cfile.cinfo.num_cols);
+	newrecord->col_text_len = se_alloc0(sizeof(*newrecord->col_text_len) * packet_list->n_cols);
+	newrecord->col_text     = se_alloc0(sizeof(*newrecord->col_text) * packet_list->n_cols);
 	newrecord->fdata        = fdata;
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
 
@@ -1252,7 +1239,8 @@ packet_list_get_widest_column_string(PacketList *packet_list, gint col)
 {
 	g_return_val_if_fail(packet_list != NULL, NULL);
 	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), NULL);
-	g_return_val_if_fail(col < packet_list->n_columns && col >= 0, NULL);
+	/* We need real column here, so not packet_list->n_cols+1 */
+	g_return_val_if_fail(col >= 0 && col < packet_list->n_cols, NULL);
 
 	if (PACKET_LIST_RECORD_COUNT(packet_list->visible_rows) == 0)
 		return "";
