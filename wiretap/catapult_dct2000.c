@@ -389,7 +389,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             if (!is_comment) {
                 /****************************************************/
                 /* Copy data into buffer, converting from ascii hex */
-                for (n=0; n <= data_chars; n+=2) {
+                for (n=0; n < data_chars; n+=2) {
                     frame_buffer[stub_offset + n/2] =
                         hex_byte_from_chars(linebuff+dollar_offset+n);
                 }
@@ -397,7 +397,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             else {
                 /***********************************************************/
                 /* Copy packet data into buffer, just copying ascii chars  */
-                for (n=0; n <= data_chars; n++) {
+                for (n=0; n < data_chars; n++) {
                     frame_buffer[stub_offset + n] = linebuff[dollar_offset+n];
                 }
             }
