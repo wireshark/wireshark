@@ -852,19 +852,19 @@ create_view_and_model(void)
 	return packetlist->view;
 }
 
-static PacketListRecord *
+static frame_data *
 new_packet_list_get_record(GtkTreeModel *model, GtkTreeIter *iter)
 {
-	PacketListRecord *record;
-	/* The last column is reserved for the entire PacketListRecord */
+	frame_data *fdata;
+	/* The last column is reserved for frame_data */
 	gint record_column = gtk_tree_model_get_n_columns(model)-1;
 
 	gtk_tree_model_get(model, iter,
 			   record_column,
-			   &record,
+			   &fdata,
 			   -1);
 
-	return record;
+	return fdata;
 }
 
 void
@@ -1147,11 +1147,9 @@ new_packet_list_select_row_from_data(frame_data *fdata_needle)
 		return FALSE;
 
 	do {
-		PacketListRecord *record;
 		frame_data *fdata;
 
-		record = new_packet_list_get_record(model, &iter);
-		fdata = record->fdata;
+		fdata = new_packet_list_get_record(model, &iter);
 
 		if(fdata == fdata_needle) {
 			scroll_to_and_select_iter(model, NULL, &iter);
@@ -1268,7 +1266,7 @@ new_packet_list_get_event_row_column(GdkEventButton *event_button,
 		GtkTreeIter iter;
 		GList *cols;
 		gint *indices;
-		PacketListRecord *record;
+		frame_data *fdata;
 
 		/* Fetch indices */
 		gtk_tree_model_get_iter(model, &iter, path);
@@ -1279,8 +1277,8 @@ new_packet_list_get_event_row_column(GdkEventButton *event_button,
 		gtk_tree_path_free(path);
 
 		/* Fetch physical row */
-		record = new_packet_list_get_record(model, &iter);
-		*physical_row = record->fdata->num;
+		fdata = new_packet_list_get_record(model, &iter);
+		*physical_row = fdata->num;
 
 		/* Fetch column */
 		/* XXX -doesn't work if columns are re-arranged? */
@@ -1299,16 +1297,16 @@ new_packet_list_get_row_data(gint row)
 {
 	GtkTreePath *path = gtk_tree_path_new();
 	GtkTreeIter iter;
-	PacketListRecord *record;
+	frame_data *fdata;
 
 	gtk_tree_path_append_index(path, row-1);
 	gtk_tree_model_get_iter(GTK_TREE_MODEL(packetlist), &iter, path);
 
-	record = new_packet_list_get_record(GTK_TREE_MODEL(packetlist), &iter);
+	fdata = new_packet_list_get_record(GTK_TREE_MODEL(packetlist), &iter);
 
 	gtk_tree_path_free(path);
 
-	return record->fdata;
+	return fdata;
 }
 
 static void
@@ -1317,25 +1315,13 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 {
 	guint col_num = GPOINTER_TO_INT(data);
 	frame_data *fdata;
-	const gchar *cell_text;
-	PacketListRecord *record;
+	gchar *cell_text;
 
-	record = new_packet_list_get_record(model, iter);
-	fdata = record->fdata;
-
-	if (!record->columnized || !record->colorized) {
-		packet_list_dissect_and_cache_iter(packetlist, iter,
-									  !record->columnized,
-									  !record->colorized);
-	}
-
-	g_assert(record->col_text);
-
-	if (col_based_on_frame_data(&cfile.cinfo, col_num)) {
-		col_fill_in_frame_data(fdata, &cfile.cinfo, col_num, FALSE);
-		cell_text = cfile.cinfo.col_data[col_num];
-	}else
-		cell_text = record->col_text[col_num];
+	gtk_tree_model_get(model, iter, 
+			col_num, &cell_text, 
+			/* The last column is reserved for frame_data */
+			gtk_tree_model_get_n_columns(model)-1, &fdata,
+			-1);
 
 	g_assert(cell_text);
 
@@ -1375,6 +1361,7 @@ show_cell_data_func(GtkTreeViewColumn *col _U_, GtkCellRenderer *renderer,
 			 "background-set", FALSE,
 			 NULL);
 	}
+	g_free(cell_text);
 }
 
 void
@@ -1475,16 +1462,16 @@ new_packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	PacketListRecord *record;
+	frame_data *fdata;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	/* model is filled with the current model as a convenience. */
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	record = new_packet_list_get_record(model, &iter);
+	fdata = new_packet_list_get_record(model, &iter);
 
-	set_frame_mark(!record->fdata->flags.marked, record->fdata);
+	set_frame_mark(!fdata->flags.marked, fdata);
 	mark_frames_ready();
 }
 
@@ -1551,15 +1538,15 @@ new_packet_list_ignore_frame_cb(GtkWidget *w _U_, gpointer data _U_)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	PacketListRecord *record;
+	frame_data *fdata;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	/* model is filled with the current model as a convenience. */
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	record = new_packet_list_get_record(model, &iter);
-	set_frame_ignore(!record->fdata->flags.ignored, record->fdata);
+	fdata = new_packet_list_get_record(model, &iter);
+	set_frame_ignore(!fdata->flags.ignored, fdata);
 	redissect_packets();
 }
 
@@ -1646,20 +1633,6 @@ new_packet_list_get_column_id (gint col_num)
 	return col_id;
 }
 
-static gboolean
-get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_text)
-{
-	gint col_id = new_packet_list_get_column_id (col_num);
-
-	if (col_based_on_frame_data(&cfile.cinfo, col_id)) {
-		col_fill_in_frame_data(record->fdata, &cfile.cinfo, col_id, FALSE);
-		*cell_text = g_strdup(cfile.cinfo.col_data[col_id]);
-	}else
-		*cell_text = g_strdup(record->col_text[col_id]);
-
-	return TRUE;
-}
-
 void
 new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 {
@@ -1669,7 +1642,7 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	PacketListRecord *record;
+	frame_data *fdata;
 
 	if(CS_CSV == copy_type) {
 		text = g_string_new("\"");
@@ -1683,7 +1656,7 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 		if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 			return;
 
-		record = new_packet_list_get_record(model, &iter);
+		fdata = new_packet_list_get_record(model, &iter);
 		for(col = 0; col < cfile.cinfo.num_cols; ++col) {
 			if(col != 0) {
 				if(CS_CSV == copy_type) {
@@ -1692,10 +1665,11 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 					g_string_append_c(text, '\t');
 				}
 			}
-			if(get_col_text_from_record( record, col, &celltext)){
-				g_string_append(text,celltext);
-				g_free(celltext);
-			}
+
+			gtk_tree_model_get(model, &iter, new_packet_list_get_column_id(col), &celltext, -1);
+			g_string_append(text,celltext);
+			g_free(celltext);
+
 		}
 		if(CS_CSV == copy_type) {
 			g_string_append_c(text,'"');
@@ -1711,16 +1685,16 @@ new_packet_list_get_packet_comment(void)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	PacketListRecord *record;
+	frame_data *fdata;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	/* model is filled with the current model as a convenience. */
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return NULL;
 
-	record = new_packet_list_get_record(model, &iter);
+	fdata = new_packet_list_get_record(model, &iter);
 
-	return record->fdata->opt_comment;
+	return fdata->opt_comment;
 }
 
 void
@@ -1730,18 +1704,18 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
-	PacketListRecord *record;
+	frame_data *fdata;
 
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
 	/* model is filled with the current model as a convenience. */
 	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
 		return;
 
-	record = new_packet_list_get_record(model, &iter);
+	fdata = new_packet_list_get_record(model, &iter);
 
 	/* Check if the comment has changed */
-	if (record->fdata->opt_comment) {
-		if (strcmp(record->fdata->opt_comment, new_packet_comment) == 0) {
+	if (fdata->opt_comment) {
+		if (strcmp(fdata->opt_comment, new_packet_comment) == 0) {
 			g_free(new_packet_comment);
 			return;
 		}
@@ -1754,7 +1728,7 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	}
 
 	/* The comment has changed, let's update it */
-	cf_update_packet_comment(&cfile, record->fdata, new_packet_comment);
+	cf_update_packet_comment(&cfile, fdata, new_packet_comment);
 
 	/* Update the main window, as we now have unsaved changes. */
 	main_update_for_unsaved_changes(&cfile);

@@ -54,6 +54,28 @@
 
 #include "globals.h"
 
+/** PacketListRecord: represents a row */
+typedef struct _PacketListRecord {
+	/** The column text for some columns */
+	gchar **col_text;
+	/**< The length of the column text strings in 'col_text' */
+	gushort *col_text_len;
+
+	frame_data *fdata;
+
+	/** Has this record been columnized? */
+	gboolean columnized;
+	/** Has this record been colorized? */
+	gboolean colorized;
+
+	/* admin stuff used by the custom list model */
+	/** position within the physical array */
+	guint physical_pos;
+	/** position within the visible array */
+	gint visible_pos;
+
+} PacketListRecord;
+
 static void packet_list_init(PacketList *pkg_tree);
 static void packet_list_class_init(PacketListClass *klass);
 static void packet_list_tree_model_init(GtkTreeModelIface *iface);
@@ -380,11 +402,19 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	 */
 	switch(type){
 		case G_TYPE_POINTER:
-			g_value_set_pointer(value, record);
+			g_value_set_pointer(value, record->fdata);
 			break;
 		case G_TYPE_STRING:
-			g_return_if_fail(record->col_text);
-			g_value_set_string(value, record->col_text[column]);
+			if (!record->columnized || !record->colorized)
+				packet_list_dissect_and_cache_record(packet_list, record, !record->columnized, !record->colorized);
+
+			if (col_based_on_frame_data(&cfile.cinfo, column)) {
+				col_fill_in_frame_data(record->fdata, &cfile.cinfo, column, FALSE);
+				g_value_set_string(value, cfile.cinfo.col_data[column]);
+			} else {
+				g_return_if_fail(record->col_text);
+				g_value_set_string(value, record->col_text[column]);
+			}
 			break;
 		default:
 			g_warning (G_STRLOC ": Unsupported type (%s) retrieved.", g_type_name (value->g_type));
@@ -1111,21 +1141,6 @@ packet_list_recreate_visible_rows(PacketList *packet_list)
 	}
 
 	return vis_idx;
-}
-
-void
-packet_list_dissect_and_cache_iter(PacketList *packet_list, GtkTreeIter *iter, gboolean dissect_columns, gboolean dissect_color)
-{
-	PacketListRecord *record;
-
-	g_return_if_fail(packet_list != NULL);
-	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
-	g_return_if_fail(iter != NULL);
-	g_return_if_fail(iter->user_data != NULL);
-
-	record = iter->user_data;
-
-	packet_list_dissect_and_cache_record(packet_list, record, dissect_columns, dissect_color);
 }
 
 static void
