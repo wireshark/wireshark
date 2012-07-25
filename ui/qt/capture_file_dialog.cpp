@@ -135,7 +135,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &fileName, QString
     QHBoxLayout *hBox = new QHBoxLayout();
     QVBoxLayout *controlsBox = new QVBoxLayout();
 
-    QLabel *dfLabel = new QLabel("Display Filter:");
+    QLabel *dfLabel = new QLabel(tr("Display Filter:"));
     fdGrid->addWidget(dfLabel, fdGrid->rowCount(), 0, 1, 1);
 
     m_displayFilterEdit = new DisplayFilterEdit(this, true);
@@ -145,19 +145,19 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &fileName, QString
     fdGrid->addLayout(hBox, fdGrid->rowCount(), 1, 1, -1);
     hBox->addLayout(controlsBox);
 
-    m_macRes.setText("Enable &MAC name resolution");
+    m_macRes.setText(tr("Enable &MAC name resolution"));
     m_macRes.setChecked(gbl_resolv_flags.mac_name);
     controlsBox->addWidget(&m_macRes);
 
-    m_transportRes.setText("Enable &transport name resolution");
+    m_transportRes.setText(tr("Enable &transport name resolution"));
     m_transportRes.setChecked(gbl_resolv_flags.transport_name);
     controlsBox->addWidget(&m_transportRes);
 
-    m_networkRes.setText("Enable &network name resolution");
+    m_networkRes.setText(tr("Enable &network name resolution"));
     m_networkRes.setChecked(gbl_resolv_flags.network_name);
     controlsBox->addWidget(&m_networkRes);
 
-    m_externalRes.setText("Use &external name resolver");
+    m_externalRes.setText(tr("Use &external name resolver"));
     m_externalRes.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
     controlsBox->addWidget(&m_externalRes);
 #endif
@@ -245,7 +245,7 @@ QStringList CaptureFileDialog::build_file_open_type_list(void) {
 
 
     /* Add the "All Files" entry. */
-    filters << QString("All Files (*.*)");
+    filters << QString(tr("All Files (*.*)"));
 
     /* Include all the file types Wireshark supports. */
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
