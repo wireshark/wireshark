@@ -2287,8 +2287,10 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 gboolean rlc_is_ciphered(packet_info * pinfo){
+#if 0
 		int i;
 		i = pinfo->fd->num;
+#endif
 		return global_rlc_ciphered;
 	}
 
