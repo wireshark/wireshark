@@ -783,10 +783,10 @@ view_menu_reset_coloring_cb(GtkAction *action, gpointer user_data)
 /*
  * TODO Move this menu to capture_if_dlg.c ?
  */
+#ifdef HAVE_LIBPCAP
 static void
 capture_cb(GtkAction *action, gpointer user_data)
 {
-#ifdef HAVE_LIBPCAP
     const gchar *action_name;
     const gchar *name;
 
@@ -821,8 +821,14 @@ capture_cb(GtkAction *action, gpointer user_data)
     }
 
     fprintf (stderr, "Warning capture_cb unknown action: %s/n",action_name);
-#endif /* HAVE_LIBPCAP */
 }
+#else
+static void
+capture_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    return;
+}
+#endif /* HAVE_LIBPCAP */
 
 static void
 help_menu_cont_cb(GtkAction *action _U_, gpointer user_data _U_)
