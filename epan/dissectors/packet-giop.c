@@ -3166,7 +3166,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   header->rep_status = reply_status;   /* save for sub dissector */
 
   /* Do we have a body */
-  if (tvb_reported_length_remaining(tvb, offset))
+  if (tvb_reported_length_remaining(tvb, offset) > 0)
           dissect_reply_body(tvb, offset, pinfo, reply_tree, stream_is_big_endian,
                         reply_status, header,tree);
 
@@ -4054,7 +4054,13 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
   if (header.flags & GIOP_MESSAGE_FLAGS_ZIOP_ENABLED)
   {
-    payload_tvb = tvb_child_uncompress(tvb, tvb, GIOP_HEADER_SIZE, tvb_length_remaining(tvb, GIOP_HEADER_SIZE ) );
+    gint rem_len;
+
+    rem_len = tvb_length_remaining(tvb, GIOP_HEADER_SIZE);
+    if (rem_len <= 0)
+      return;
+
+    payload_tvb = tvb_child_uncompress(tvb, tvb, GIOP_HEADER_SIZE, rem_len);
     if (payload_tvb) {
       add_new_data_source (pinfo, payload_tvb, "decompressed Content");
     } else {
