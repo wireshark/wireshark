@@ -1187,8 +1187,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		return;	/* error reading the frame */
 	}
 
-	create_proto_tree = (color_filters_used() && dissect_color) ||
-						(have_custom_cols(cinfo) && dissect_columns);
+	create_proto_tree = (dissect_color && color_filters_used()) ||
+						(dissect_columns && have_custom_cols(cinfo));
 
 	epan_dissect_init(&edt,
 					  create_proto_tree,
