@@ -1579,7 +1579,7 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
     debug(DBS_AXES_TICKS) printf("zoom=%.1f, x=%f -> i=%d -> ms=%d -> j=%d ->"
             " axis->major=%f\n", zoom, x, i, ms, j, axis->major);
 
-    /* let's compute minor ticks */
+    /* Compute minor ticks */
     jj = j;
     ii = i;
     axis_ticks_down(&ii, &jj);
@@ -1890,29 +1890,41 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 }
 #endif
 
+/* TODO: merge this and do_zoom_keyboard() */
 static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
 {
     int cur_width = g->geom.width, cur_height = g->geom.height;
     struct { double x, y; } factor;
 
     if (g->zoom.flags & ZOOM_OUT) {
-        if (g->zoom.flags & ZOOM_HLOCK)
+        if (g->zoom.flags & ZOOM_HLOCK) {
             factor.x = 1.0;
-        else
+        }
+        else {
             factor.x = 1 / g->zoom.step_x;
-        if (g->zoom.flags & ZOOM_VLOCK)
+        }
+
+        if (g->zoom.flags & ZOOM_VLOCK) {
             factor.y = 1.0;
-        else
+        }
+        else {
             factor.y = 1 / g->zoom.step_y;
+        }
     } else {
-        if (g->zoom.flags & ZOOM_HLOCK)
+        if (g->zoom.flags & ZOOM_HLOCK) {
             factor.x = 1.0;
-        else
+        }
+        else {
             factor.x = g->zoom.step_x;
-        if (g->zoom.flags & ZOOM_VLOCK)
+        }
+
+        /* Don't zoom in too far vertically  (limit to around 90 pixels / SN) */
+        if ((g->zoom.flags & ZOOM_VLOCK) || (g->geom.height >= 90000)) {
             factor.y = 1.0;
-        else
+        }
+        else {
             factor.y = g->zoom.step_y;
+        }
     }
 
     g->geom.width = (int )rint(g->geom.width * factor.x);
@@ -1976,6 +1988,7 @@ static void do_zoom_keyboard(struct graph *g)
         else
             /* Not locked, so divide by step_x */
             factor.x = 1 / g->zoom.step_x;
+
         if (g->zoom.flags & ZOOM_VLOCK)
             factor.y = 1.0;
         else
@@ -1990,11 +2003,15 @@ static void do_zoom_keyboard(struct graph *g)
         else
             /* Not locked, so factor x is step_x */
             factor.x = g->zoom.step_x;
-        if (g->zoom.flags & ZOOM_VLOCK)
+
+        /* Don't zoom in too far vertically (limit to around 90 pixels / SN) */
+        if ((g->zoom.flags & ZOOM_VLOCK) || (g->geom.height >= 90000)) {
             factor.y = 1.0;
-        else
+        }
+        else {
             /* Not locked, so factor y is step_y */
             factor.y = g->zoom.step_y;
+        }
     }
 
     /* Multiply by x and y factors */
