@@ -17,7 +17,7 @@ For example, this is the definition of the ip.proto field from packet-ip.c:
 This definition says that "ip.proto" is the display-filter name for
 this field, and that its field-type is FT_UINT8.
 
-For the diplay filter system has 3 major parts to it:
+The diplay filter system has 3 major parts to it:
 
     1. A type system (field types, or "ftypes")
     2. A parser, to convert a user's query to an internal representation
@@ -53,7 +53,7 @@ enum ftenum {
 }
 
 It also provides the defintion of fvalue_t, the struct that holds the *value*
-that corresponds to the type. each proto_item (proto_node) holds an fvalue_t
+that corresponds to the type. Each proto_item (proto_node) holds an fvalue_t
 due to having a field_info struct (defined in proto.h).
 
 The fvalue_t is mostly just a gigantic union of possible C-language types
@@ -100,13 +100,13 @@ FT_UINT32, etc.
 
 The ftype_t struct defines the things needed for the ftype:
 
-    * it's ftenum value
+    * its ftenum value
     * a string representation of the FT name ("FT_UINT8")
     * how much data it consumes in the packet
     * how to store that value in an fvalue_t: new(), free(),
         various value-related funtions
     * how to compare that value against another
-    * how to slice that value (strings an byte ranges can be sliced)
+    * how to slice that value (strings and byte ranges can be sliced)
 
 Using an fvalue_t
 -----------------
@@ -139,8 +139,8 @@ There are four phases to parsing a users's request:
 
 The dfilter_compile() function, in epan/dfilter/dfilter.c,
 runs these 4 phases. The end result is a dfwork_t object (dfw), that
-can be passe dto dfilter_apply() to actually run the display filter
-against a set of proto_tree's.
+can be passed to dfilter_apply() to actually run the display filter
+against a set of proto_trees.
 
 
 Scanning the display filter string
@@ -149,7 +149,7 @@ epan/dfilter/scanner.l is the lex scanner for finding keywords
 in the user's display filter string.
 
 It's operation is simple. It finds the special punction and comparison
-operators ("==", "!=", "eq", "ne", etc.), it finds slice operaions
+operators ("==", "!=", "eq", "ne", etc.), it finds slice operations
 ( "[0:1]" ), quoted strings, IP addresses, numbers, and any other "special"
 keywords or string types.
 
@@ -176,7 +176,7 @@ much easier to read than its bison counterpart would be,
 thanks to lemon's feature of being able to name fields, rather
 then using numbers ($1, $2, etc.)
 
-The lemon tool is located in tools/lemon in the wireshark
+The lemon tool is located in tools/lemon in the Wireshark
 distribution.
 
 An on-line introduction to lemon is available at:
@@ -259,7 +259,7 @@ integer, float, IPv4 address, etc.)
 
 The semcheck code also makes adjustments to the syntax tree
 when it needs to. The parser sometimes stores raw, unparsed strings
-in the syntax tree, and semcheck has toto convert them to
+in the syntax tree, and semcheck has to convert them to
 certain types. For example, the display filter may contain
 a value_string string (the "enum" type that protocols can use
 to define the possible textual descriptions of numeric fields), and
