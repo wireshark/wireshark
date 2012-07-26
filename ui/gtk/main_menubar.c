@@ -1348,32 +1348,30 @@ static const char *ui_desc_menubar =
  * GCallback callback;          The function to call when the action is activated.
  *
  */
-#if 0
-   { "/Analyze/ApplyasFilter",                  NULL,                           "Apply as Filter",      NULL,                   NULL,               NULL },
 
-   { "/Analyze/ApplyasFilter/Selected",         NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_apply_selected_cb) },
-   { "/Analyze/ApplyasFilter/NotSelected",      NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_apply_not_selected_cb) },
-   { "/Analyze/ApplyasFilter/AndSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_selected_cb) },
-   { "/Analyze/ApplyasFilter/OrSelected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_selected_cb) },
-   { "/Analyze/ApplyasFilter/AndNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_apply_and_not_selected_cb) },
-   { "/Analyze/ApplyasFilter/OrNotSelected",    NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_apply_or_not_selected_cb) },
+/*
+ * TODO Move this menu to capture_if_dlg.c
+ * eg put a "place holder" in the UI description and
+ * make a call from main_menubar.c i.e build_capture_menu()
+ * ad do the UI stuff there.
+ */
+static const GtkActionEntry capture_menu_entries[] = {
+   { "/Capture",                    NULL,                               "_Capture",             NULL,            NULL,    NULL },
+   { "/Capture/Interfaces",         WIRESHARK_STOCK_CAPTURE_INTERFACES, "_Interfaces...",       "<control>I",    NULL,    G_CALLBACK(capture_cb) },
+   { "/Capture/Options",            WIRESHARK_STOCK_CAPTURE_OPTIONS,    "_Options...",          "<control>K",    NULL,    G_CALLBACK(capture_cb) },
+   { "/Capture/Start",              WIRESHARK_STOCK_CAPTURE_START,      "_Start",               "<control>E",    NULL,    G_CALLBACK(capture_cb) },
+   { "/Capture/Stop",               WIRESHARK_STOCK_CAPTURE_STOP,       "S_top",                "<control>E",    NULL,    G_CALLBACK(capture_cb) },
+   { "/Capture/Restart",            WIRESHARK_STOCK_CAPTURE_RESTART,    "_Restart",             "<control>R",    NULL,    G_CALLBACK(capture_cb) },
+   { "/Capture/CaptureFilters",     WIRESHARK_STOCK_CAPTURE_FILTER,     "Capture _Filters...",  NULL,            NULL,    G_CALLBACK(capture_cb) },
+   { "/Capture/RefreshInterfaces",  GTK_STOCK_REFRESH,                  "Refresh Interfaces",   NULL,            NULL,    G_CALLBACK(capture_cb) },
+};
 
-   { "/Analyze/PrepareaFilter",                 NULL, "Prepare a Filter",       NULL, NULL, NULL },
-   { "/Analyze/PrepareaFilter/Selected",        NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(tree_view_menu_prepare_selected_cb) },
-   { "/Analyze/PrepareaFilter/NotSelected",     NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(tree_view_menu_prepare_not_selected_cb) },
-   { "/Analyze/PrepareaFilter/AndSelected",     NULL, UTF8_HORIZONTAL_ELLIPSIS " _and Selected",        NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_selected_cb) },
-   { "/Analyze/PrepareaFilter/OrSelected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " _or Selected",     NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_selected_cb) },
-   { "/Analyze/PrepareaFilter/AndNotSelected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " a_nd not Selected",    NULL, NULL, G_CALLBACK(tree_view_menu_prepare_and_not_selected_cb) },
-   { "/Analyze/PrepareaFilter/OrNotSelected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " o_r not Selected", NULL, NULL, G_CALLBACK(tree_view_menu_prepare_or_not_selected_cb) },
-
-#endif
 static const GtkActionEntry main_menu_bar_entries[] = {
   /* Top level */
   { "/File",                    NULL,                              "_File",              NULL,                   NULL,           NULL },
   { "/Edit",                    NULL,                              "_Edit",              NULL,                   NULL,           NULL },
   { "/View",                    NULL,                              "_View",              NULL,                   NULL,           NULL },
   { "/Go",                      NULL,                              "_Go",                NULL,                   NULL,           NULL },
-  { "/Capture",                 NULL,                              "_Capture",           NULL,                   NULL,           NULL },
   { "/Analyze",                 NULL,                              "_Analyze",           NULL,                   NULL,           NULL },
   { "/Statistics",              NULL,                              "_Statistics",        NULL,                   NULL,           NULL },
   { "/Telephony",               NULL,                              "Telephon_y",         NULL,                   NULL,           NULL },
@@ -1553,19 +1551,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Go/PreviousPacketInConversation",            GTK_STOCK_GO_UP,        "Previous Packet In Conversation",                  "<control>comma",                   NULL,               G_CALLBACK(goto_previous_frame_conversation_cb) },
    { "/Go/NextPacketInConversation",                GTK_STOCK_GO_DOWN,      "Next Packet In Conversation",                      "<control>period",              NULL,               G_CALLBACK(goto_next_frame_conversation_cb) },
 
-/*
- * TODO Move this menu to capture_if_dlg.c
- * eg put a "place holder" in the UI description and
- * make a call from main_menubar.c i.e build_capture_menu()
- * ad do the UI stuff there.
- */
-   { "/Capture/Interfaces",         WIRESHARK_STOCK_CAPTURE_INTERFACES, "_Interfaces...",       "<control>I",                   NULL,               G_CALLBACK(capture_cb) },
-   { "/Capture/Options",            WIRESHARK_STOCK_CAPTURE_OPTIONS,    "_Options...",          "<control>K",                   NULL,               G_CALLBACK(capture_cb) },
-   { "/Capture/Start",              WIRESHARK_STOCK_CAPTURE_START,      "_Start",               "<control>E",                   NULL,               G_CALLBACK(capture_cb) },
-   { "/Capture/Stop",               WIRESHARK_STOCK_CAPTURE_STOP,       "S_top",                "<control>E",                   NULL,               G_CALLBACK(capture_cb) },
-   { "/Capture/Restart",            WIRESHARK_STOCK_CAPTURE_RESTART,    "_Restart",             "<control>R",                   NULL,               G_CALLBACK(capture_cb) },
-   { "/Capture/CaptureFilters",     WIRESHARK_STOCK_CAPTURE_FILTER,     "Capture _Filters...",  NULL,                           NULL,               G_CALLBACK(capture_cb) },
-   { "/Capture/RefreshInterfaces",  GTK_STOCK_REFRESH,                  "Refresh Interfaces",  NULL,                           NULL,               G_CALLBACK(capture_cb) },
 
    { "/Analyze/DisplayFilters",     WIRESHARK_STOCK_DISPLAY_FILTER,     "_Display Filters...",  NULL,                           NULL,               G_CALLBACK(dfilter_dialog_cb) },
 
@@ -3427,15 +3412,21 @@ menus_init(void) {
 
         /* main */
         main_menu_bar_action_group = gtk_action_group_new ("MenuActionGroup");
+
         gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
                                     main_menu_bar_entries,                              /* an array of action descriptions */
                                     G_N_ELEMENTS(main_menu_bar_entries),                /* the number of entries */
                                     NULL);                                              /* data to pass to the action callbacks */
-
-        /* Add the filter menu items */
+        /* Add the capture menu actions */
         gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
-                                    (gpointer)apply_prepare_filter_action_entries,     /* an array of action descriptions */
-                                    G_N_ELEMENTS(apply_prepare_filter_action_entries), /* the number of entries */
+                                    capture_menu_entries,                               /* an array of action descriptions */
+                                    G_N_ELEMENTS(capture_menu_entries),                 /* the number of entries */
+                                    NULL);                                              /* data to pass to the action callbacks */
+
+        /* Add the filter menu actions */
+        gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
+                                    (gpointer)apply_prepare_filter_action_entries,      /* an array of action descriptions */
+                                    G_N_ELEMENTS(apply_prepare_filter_action_entries),  /* the number of entries */
                                     popup_menu_object);                                 /* data to pass to the action callbacks */
 
         gtk_action_group_add_toggle_actions(main_menu_bar_action_group,                 /* the action group */
