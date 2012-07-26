@@ -1151,6 +1151,9 @@ static const value_string isup_calling_partys_category_value[] = {
   /* q.763-200212Amd2 */
   { 14,                                 "IEPS call marking for preferential call set up"},
   { PAYPHONE,                           "payphone"},
+  /* q.763-200212Amd3 */
+  { 16,                                 "Mobile terminal located in the home PLMN"},
+  { 17,                                 "Mobile terminal located in a visited PLMN"},
   { 0,                                 NULL}};
 value_string_ext isup_calling_partys_category_value_ext = VALUE_STRING_EXT_INIT(isup_calling_partys_category_value);
 
