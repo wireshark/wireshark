@@ -55,6 +55,7 @@
 #define PFNAME "rrc"
 
 extern int proto_fp;	/*Handler to FP*/
+GTree * hsdsch_muxed_flows;
 
 
 static dissector_handle_t gsm_a_dtap_handle;

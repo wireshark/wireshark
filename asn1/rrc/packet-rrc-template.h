@@ -47,5 +47,5 @@ typedef struct rrc_info
 } rrc_info;
 
 
-GTree * hsdsch_muxed_flows;
+extern GTree * hsdsch_muxed_flows;
 #endif  /* PACKET_RRC_H */
