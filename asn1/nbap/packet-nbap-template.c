@@ -159,6 +159,7 @@ typedef struct
 	address 			crnc_address;
 	guint16				crnc_port;
 	enum fp_rlc_mode	rlc_mode;
+
 } nbap_common_channel_info_t;
 
 nbap_common_channel_info_t nbap_common_channel_info[maxNrOfMACdFlows];	/*TODO: Fix this!*/
@@ -168,6 +169,9 @@ gint g_num_dch_in_flow;
 gint g_dchs_in_flow_list[maxNrOfTFs];
 
 gint hsdsch_macdflow_ids[maxNrOfMACdFlows];
+
+gint hrnti;
+
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
 /* Global variables */
@@ -434,6 +438,7 @@ void proto_register_nbap(void) {
 }
 
 
+
 /*--- proto_reg_handoff_nbap ---------------------------------------*/
 void
 proto_reg_handoff_nbap(void)
@@ -443,6 +448,9 @@ proto_reg_handoff_nbap(void)
 	nbap_handle = find_dissector("nbap");
 	fp_handle = find_dissector("fp");
 	dissector_add_uint("sctp.ppi", NBAP_PAYLOAD_PROTOCOL_ID, nbap_handle);
+#ifdef EXTRA_PPI
+		dissector_add_uint("sctp.ppi", 17, nbap_handle);
+#endif
 	dissector_add_handle("sctp.port", nbap_handle);  /* for "decode-as" */
 
 #include "packet-nbap-dis-tab.c"

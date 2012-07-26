@@ -719,6 +719,10 @@ transportFormatSet_type = NBAP_CPCH;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
+				
+	/*Save unique UE-identifier */
+				/*umts_fp_conversation_info->com_context_id = com_context_id;
+				*/
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
@@ -910,7 +914,10 @@ transportFormatSet_type = NBAP_CPCH;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
-
+				/*Save unique UE-identifier */
+				/*umts_fp_conversation_info->com_context_id = com_context_id;
+				*/
+				
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				/* Set data for First or single channel */
@@ -1052,6 +1059,13 @@ guint32 TransportBlockSize;
 		}
 	}
 
+#Handle when DCHs get modified
+#.FN_BODY FDD-DCHs-to-ModifyItem
+
+%(DEFAULT_BODY)s
+	/*g_warning("im going to modify dch_id: %%d and t_dch_id: %%d", dch_id, t_dch_id);
+	*/
+
 #.FN_BODY RL-Specific-DCH-Info-Item/dCH-id
 
 %(DEFAULT_BODY)s
@@ -1113,6 +1127,9 @@ dch_id = 0xFFFFFFFF;
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
 				
+				/*Save unique UE-identifier */
+				umts_fp_conversation_info->com_context_id = com_context_id;
+
 				/*UPLINK*/
 				/* Set data for First or single channel */
 				umts_fp_conversation_info->fp_dch_channel_info[0].num_ul_chans = num_tf = nbap_dch_chnl_info[dch_id].num_ul_chans;
@@ -1215,6 +1232,10 @@ BindingID_port = 0;
 			
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
+				/*TODO: Fix this (make it better)*/
+				if(BindingID_port == 1968){
+					umts_fp_conversation_info->urnti = 4711; 
+				}
 				/* Set address for collection of DDI entries */
 				COPY_ADDRESS(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
 				nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
@@ -1478,6 +1499,9 @@ int i;
 					/*Added june 3, normally just the iterator variable*/
 					umts_fp_conversation_info->hsdsch_macdflow_id = i ; /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
 					
+					/*Added july 2012*/
+					umts_fp_conversation_info->com_context_id = com_context_id;
+
 					/* Cheat and use the DCH entries */
 					umts_fp_conversation_info->num_dch_in_flow++;
 					umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
@@ -1530,6 +1554,16 @@ int i;
 	
 	
 #.FN_BODY HSDSCH-Common-System-InformationFDD
+/*
+ * 5.1.6 High Speed Downlink Shared Channels
+ * The Data Transfer procedure is used to transfer a HS-DSCH DATA FRAME (TYPE 1, TYPE 2 [FDD and 1.28Mcps
+ * TDD - or TYPE3]) from the CRNC to a Node B. HS-DSCH DATA FRAME TYPE 2 is selected if the IE HS-DSCH
+ * MAC-d PDU Size Format in NBAP (TS 25.433 [6]) is present and set to "Flexible MAC-d PDU Size" [FDD and
+ * 1.28Mcps TDD - or if the IE HS-DSCH Common System Information is present and the UE is in Cell_FACH state. HS-
+ * DSCH DATA FRAME TYPE 3 is selected if the IE HS-DSCH Paging System Information in NBAP (TS 25.433 [6]) is
+ * present and the UE is in Cell_PCH state or URA_PCH state]. HS-DSCH DATA FRAME TYPE 1 is selected in any
+ * other case.
+ */
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
 address 	null_addr;
 conversation_t   *conversation = NULL;
@@ -1567,9 +1601,23 @@ int i;
 			if(actx->pinfo->link_dir==P2P_DIR_DL){
 		
 				umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
+				/*Select frame type = 3 according to paragraph 5.1.6 in 3GPP TS 25.435*/
 				umts_fp_conversation_info->channel = CHANNEL_HSDSCH_COMMON;
 				umts_fp_conversation_info->division          = Division_FDD;
 				
+				umts_fp_conversation_info->dl_frame_number   = 0;
+				umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
+				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &nbap_common_channel_info[i].crnc_address);
+				umts_fp_conversation_info->crnc_port         = nbap_common_channel_info[i].crnc_port;
+					
+				/*umts_fp_conversation_info->hsdsch_macdflow_id = i ;*/ /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
+				umts_fp_conversation_info->common_macdflow_id = common_macdflow_id;
+					
+				umts_fp_conversation_info->hsdsch_entity = ehs;
+				
+				umts_fp_conversation_info->num_dch_in_flow++;
+				umts_fp_conversation_info->dchs_in_flow_list[umts_fp_conversation_info->num_dch_in_flow -1] = i;
+					
 				set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 			}
 		
@@ -1577,7 +1625,11 @@ int i;
 	
 
 		}
+
 	}
+#This guy should perhaps also be impletemend, hsdsch frame type 3
+#.FN_BODY HSDSCH-Paging-System-InformationFDD	
+	g_warning("HS-DSCH Type 3 NOT Implemented!");
 	
 #
 #Routines for figuring out a unique UE identification number (to track flows over changing channels)	
@@ -1586,9 +1638,28 @@ int i;
 #.FN_BODY NodeB-CommunicationContextID VAL_PTR = &com_context_id
 %(DEFAULT_BODY)s
 #.FN_BODY CRNC-CommunicationContextID VAL_PTR = &com_context_id
-
 %(DEFAULT_BODY)s
 
+#.FN_BODY HSDSCH-RNTI	VAL_PTR = &hrnti
+umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;
+address 	null_addr;
+conversation_t   *conversation = NULL;
+int i;
+%(DEFAULT_BODY)s
+
+	/*Find the conversations assoicated with the HS-DSCH flows in this packet and set proper H-RNTI*/
+	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+	for (i = 0; i < maxNrOfMACdFlows; i++) {
+		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
+			conversation = find_conversation(actx->pinfo->fd->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
+                               PT_UDP,
+                               nbap_hsdsch_channel_info[i].crnc_port, 0, NO_ADDR_B);
+			if(conversation != NULL){
+				umts_fp_conversation_info = (umts_fp_conversation_info_t *)conversation_get_proto_data(conversation, proto_fp);
+				umts_fp_conversation_info->hrnti = hrnti;
+			}
+         }
+     }
 #.REGISTER_NEW
 
 #NBAP-PROTOCOL-IES

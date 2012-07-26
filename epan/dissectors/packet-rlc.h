@@ -113,3 +113,8 @@ typedef struct rlc_info
 /* RLC PDU. Following this tag comes the actual RLC PDU (there is no length, the PDU
    continues until the end of the frame) */
 #define RLC_PAYLOAD_TAG         0x01
+
+
+/*Tells other functions if this packet i chipered or not*/
+gboolean rlc_is_chipered(packet_info * pinfo); 
+

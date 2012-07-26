@@ -136,6 +136,7 @@ static const value_string mac_logical_channel_vals[] = {
     { MAC_MCCH, "MCCH" },
     { MAC_MSCH, "MSCH" },
     { MAC_MTCH, "MTCH" },
+    { MAC_N_A, "N/A" },
     { 0, NULL }
 };
 
@@ -229,7 +230,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     fp_info       *fpinf;
     rlc_info      *rlcinf;
     proto_item    *ti        = NULL;
-
+	guint8			c_t;
     /* RACH TCTF is always 2 bit */
     tctf = tvb_get_bits8(tvb, 0, 2);
     bitoffs += 2;
@@ -270,6 +271,11 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             call_dissector(rlc_ccch_handle, next_tvb, pinfo, tree);
             break;
         case TCTF_DCCH_DTCH_RACH_FDD:
+        
+            /*Set RLC Mode/MAC content based on the L-CHID derived from the C/T flag*/
+            c_t = tvb_get_bits8(tvb,bitoffs-4,4);
+            rlcinf->mode[fpinf->cur_tb] = lchId_rlc_map[c_t+1];
+            macinf->content[chan] = lchId_type_table[c_t+1];
             switch (macinf->content[chan]) {
                 case MAC_CONTENT_DCCH:
                     proto_item_append_text(ti, " (DCCH)");
@@ -362,7 +368,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             /*Set RLC Mode based on the L-CHID derived from the C/T flag*/
             c_t = tvb_get_bits8(tvb,bitoffs-4,4);
             rlcinf->mode[fpinf->cur_tb] = lchId_rlc_map[c_t+1];
-
+            macinf->content[fpinf->cur_tb] = lchId_type_table[c_t+1];
             switch (macinf->content[fpinf->cur_tb]) {
 
                 case MAC_CONTENT_DCCH:
@@ -416,6 +422,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
             }
             rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
+         
             call_dissector(rrc_handle, next_tvb, pinfo, tree);
 
             break;
@@ -467,7 +474,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (macinf->ctmux[pos]) {
         if(rlcinf){
-            rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4);
+            rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4)+1;
         }
         /*Add CT flag to GUI*/
         proto_tree_add_bits_item(dch_tree, hf_mac_ct, tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -723,7 +730,71 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             break;
     }
 }
+/**
+* Dissect hsdsch_common channel.
+*
+* This will dissect hsdsch common channels, we handle this seperately
+* since we might have to deal with MAC-ehs and or MAC-c headers 
+* (in the MAC PDU).
+*
+* @param tvb
+* @param pinfo
+* @param tree
+* @return Void.
+*/
+#if 0
+static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_tree    *hsdsch_tree = NULL;
+    /*proto_item    *channel_type;
+    */
+    fp_info       *fpinf;
+    umts_mac_info *macinf;
+    guint16        pos;
+  /*  guint8         bitoffs=0;
+    tvbuff_t      *next_tvb;
+    */
+    proto_item    *ti  = NULL;
+    
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
+    
+    ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
+    hsdsch_tree = proto_item_add_subtree(ti, ett_mac_hsdsch);
 
+	fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
+	macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+	
+	 if (!macinf) {
+        proto_tree_add_text(hsdsch_tree, tvb, 0, -1,
+            "Cannot dissect MAC frame because per-frame info is missing");
+        expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Cannot dissect MAC frame because per-frame info is missing");
+        return;
+    }
+    pos = fpinf->cur_tb;
+    switch(macinf->content[pos]){
+		/*In this case we don't have a MAC-c header 9.2.1.4*/
+		
+		/*
+		case MAC_CONTENT_CCCH:
+			
+		break;
+		case MAC_CONTENT_PCCH:
+			
+		break;
+		
+		case MAC_CONTENT_BCCH:
+			
+		break;
+*/
+		default:
+		
+			proto_item_append_text(ti, " (Unknown HSDSCH-Common Content)");
+			expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Unknown HSDSCH-Common Content");
+		break;
+	}
+
+}
+#endif
 /* to avoid unnecessary re-alignment, the 4 bit padding prepended to the HSDSCH in FP type 1
  * are handled in the MAC layer
  * If the C/T field is present, 'bitoffs' will be 8 (4 bit padding and 4 bit C/T) and
@@ -737,10 +808,13 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     fp_info       *fpinf;
     umts_mac_info *macinf;
     guint16        pos;
-    guint8         bitoffs;
+    guint8         bitoffs=0;
     tvbuff_t      *next_tvb;
     proto_item    *ti          = NULL;
-
+    rlc_info * rlcinf;
+    
+    /*struct rrc_info	*rrcinf = NULL;
+    */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
     ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
@@ -748,9 +822,42 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     fpinf  = (fp_info *)p_get_proto_data(pinfo->fd, proto_fp);
     macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
+    
+    
     pos = fpinf->cur_tb;
-
-    bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;
+#if 0
+    if(pinfo->fd->num == 48 /*|| pinfo->fd->num == 594*/){
+		           
+            rrcinf = p_get_proto_data(pinfo->fd, proto_rrc);
+            if (!rrcinf) {
+                rrcinf = se_alloc0(sizeof(struct rrc_info));
+                p_add_proto_data(pinfo->fd, proto_rrc, rrcinf);
+            }
+            rrcinf->msgtype[fpinf->cur_tb] = RRC_MESSAGE_TYPE_BCCH_FACH;
+            
+            
+	               next_tvb = tvb_new_subset(tvb, 0, tvb_length_remaining(tvb, 1), -1);
+            call_dissector(rrc_handle, next_tvb, pinfo, tree);
+            return;
+	}
+	    if(FALSE /*pinfo->fd->num == 594 || pinfo->fd->num == 594*/){
+		
+                              proto_item_append_text(ti, " (DCCH)");
+                    channel_type = proto_tree_add_uint(hsdsch_tree, hf_mac_channel, tvb, 0, 0, MAC_DCCH);
+                    PROTO_ITEM_SET_GENERATED(channel_type);
+                     next_tvb = tvb_new_subset(tvb, 0, tvb_length_remaining(tvb, 0), tvb_length_remaining(tvb, 0));
+                    add_new_data_source(pinfo, next_tvb, "Octet-Aligned DCCH Data");
+                    call_dissector(rlc_dcch_handle, next_tvb, pinfo, tree);
+            
+	      
+            
+            if(FALSE){
+				 dissect_mac_fdd_hsdsch_common(tvb, pinfo, tree);
+			}
+            return;
+	}
+#endif
+    bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;	/*No MAC-d header for type 2*/
 
     if (!macinf) {
         proto_tree_add_text(hsdsch_tree, tvb, 0, -1,
@@ -758,17 +865,27 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Cannot dissect MAC frame because per-frame info is missing");
         return;
     }
-    if (macinf->ctmux[pos]) {
-        proto_tree_add_bits_item(hsdsch_tree, hf_mac_ct, tvb, 0, 4, ENC_BIG_ENDIAN);
+    if (macinf->ctmux[pos]) {	/*The 4'st bits are padding*/
+        proto_tree_add_bits_item(hsdsch_tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
+        
+        /*Sets the proper lchid, for later layers.*/
+        macinf->lchid[pos] = tvb_get_bits8(tvb,bitoffs,4)+1;
+        macinf->fake_chid[pos] = FALSE;
+        macinf->content[pos] = lchId_type_table[macinf->lchid[pos]];	/*Lookup MAC content*/
+        
+        rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
+        rlcinf->rbid[pos] = macinf->lchid[pos];
+        rlcinf->mode[pos] =  lchId_rlc_map[macinf->lchid[pos]];	/*Look up RLC mode*/
         bitoffs += 4;
     }
 
-    if ((bitoffs % 8) == 0) {
+   if ((bitoffs % 8) == 0) {
         next_tvb = tvb_new_subset_remaining(tvb, bitoffs/8);
     } else {
         next_tvb = tvb_new_octet_aligned(tvb, bitoffs, macinf->pdu_len);    /*Get rid of possible padding in at the end?*/
         add_new_data_source(pinfo, next_tvb, "Octet-Aligned HSDSCH Data");
     }
+
     switch (macinf->content[pos]) {
         case MAC_CONTENT_DCCH:
             proto_item_append_text(ti, " (DCCH)");

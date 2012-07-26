@@ -26,6 +26,7 @@
 #define PACKET_RRC_H
 
 #include <epan/asn1.h>	/* Needed for non asn1 dissectors?*/
+
 extern int proto_rrc;
 #include "packet-rrc-exp.h"
 
@@ -44,5 +45,9 @@ typedef struct rrc_info
 {
 	enum rrc_message_type msgtype[MAX_RRC_FRAMES];
 } rrc_info;
+/*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
+#define	MAX_NUM_HSDHSCH_MACDFLOW 8
+guint8 num_chans_per_flow[MAX_NUM_HSDHSCH_MACDFLOW];
 
+GTree * hsdsch_muxed_flows;
 #endif  /* PACKET_RRC_H */

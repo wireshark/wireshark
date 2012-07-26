@@ -34,11 +34,14 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/conversation.h>
+#include <epan/expert.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"
+#include "packet-umts_fp.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4049: compiler limit : terminating line number emission" */
@@ -50,6 +53,9 @@
 #define PNAME  "Radio Resource Control (RRC) protocol"
 #define PSNAME "RRC"
 #define PFNAME "rrc"
+
+extern int proto_fp;	/*Handler to FP*/
+
 
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t rrc_ue_radio_access_cap_info_handle=NULL;
@@ -118,10 +124,14 @@ static const true_false_string rrc_eutra_feat_group_ind_4_val = {
   "Undefined - Supported",
   "Undefined - Not supported"
 };
+static int flowd,type;
+
+static tvbuff_t * hrnti;
 
 #include "packet-rrc-fn.c"
 
 #include "packet-rrc.h"
+
 
 static void
 dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -167,6 +177,31 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				;
 		}
 	}
+}
+gint rrc_key_cmp(gconstpointer a_ptr, gconstpointer b_ptr, gpointer ignore _U_){
+	if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
+		return  -1;
+	}
+	return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
+}
+void rrc_free_key(gpointer key _U_){
+			/*Key's should be de allocated elsewhere.*/
+
+	}
+void rrc_free_value(gpointer value ){
+			g_free(value);
+	}
+void rrc_init(void){
+	
+	/*Cleanup*/
+	if(hsdsch_muxed_flows){
+		g_tree_destroy(hsdsch_muxed_flows);
+	}
+	/*Initialize*/
+	hsdsch_muxed_flows = g_tree_new_full(rrc_key_cmp,
+                       NULL,      /* data pointer, optional */
+                       rrc_free_key,
+                       rrc_free_value);
 }
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_rrc(void) {
@@ -216,6 +251,10 @@ void proto_register_rrc(void) {
 
 #include "packet-rrc-dis-reg.c"
 
+
+
+
+	register_init_routine(rrc_init);
 }
 
 

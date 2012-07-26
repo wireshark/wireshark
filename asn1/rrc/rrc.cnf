@@ -656,5 +656,70 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
   }
   rrc_nas_sys_info_gsm_map_type = RRC_NAS_SYS_INFO_CN_COMMON;
 
+/*Here we try to figure out which HS-DSCH channels are multiplexed*/
+/*TODO: Should this also be made under r7?*/
+#.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type
+
+    gint *flowd_p;
+    gint *cur_val=NULL;
+    guint16 hr=0;
+	
+	%(DEFAULT_BODY)s
+	
+	/*TODO: This should probably be done better*/
+	if(type == 4){	/*If this is type HS-DSCH*/
+		num_chans_per_flow[flowd]++;
+		
+
+		if(num_chans_per_flow[flowd] > 1 ){
+			
+			if(hrnti == NULL){
+				expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Did not detect any H-RNTI ");
+			}	
+			else{
+				/*Read the H-RNTI value*/
+				hr = tvb_get_bits16(hrnti,0,16,FALSE);
+			}
+			/*If it doesnt exists, insert it*/
+			if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr))) == NULL ){
+				
+				flowd_p = (guint*)g_malloc0(sizeof(gint*));  
+				*flowd_p = (1<<flowd);	/*Set the bit to mark it as true*/
+				g_tree_insert(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr), flowd_p);
+			
+			}else{
+				*cur_val = (1<<flowd) | *cur_val; 
+					
+			}
+		
+		}
+
+	}
+	
+	
+#.FN_BODY DL-LogicalChannelMapping-r5 
+	
+	%(DEFAULT_BODY)s
+	
+#.FN_BODY DL-LogicalChannelMapping-r7
+	
+	%(DEFAULT_BODY)s
+#.FN_BODY LogicalChannelIdentity 
+	
+		%(DEFAULT_BODY)s
+		
+#.FN_BODY MAC-d-FlowIdentity VAL_PTR = &flowd
+	%(DEFAULT_BODY)s
+	
+#.FN_BODY SRB_InformationSetupList2_r6
+	
+	%(DEFAULT_BODY)s
+	/*Clear memory*/
+	memset(num_chans_per_flow,0,sizeof(guint8));
+	
+#.FN_BODY  H_RNTI VAL_PTR = &hrnti
+
+	
+	
 #.END
 

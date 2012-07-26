@@ -58,11 +58,17 @@ static gboolean global_rlc_perform_reassemby = TRUE;
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_headers_expected = FALSE;
 
+
 /* Heuristic dissection */
 static gboolean global_rlc_heur = FALSE;
 
+/* Preferences to expect chipered data*/
+static gboolean global_rlc_chipered = FALSE;
+
 /* Stop trying to do reassembly if this is true. */
 static gboolean fail = FALSE;
+
+
 
 /* fields */
 static int hf_rlc_seq = -1;
@@ -452,20 +458,6 @@ static int special_cmp(gconstpointer a, gconstpointer b)
 	}
 }
 
-/* callback function to use for g_hash_table_foreach_remove()
- * always return TRUE (=always delete the entry)
- * this is required for backwards compatibility
- * with older versions of glib which do not have
- * a g_hash_table_remove_all() (because of this,
- * hashtables are emptied using g_hash_table_foreach_remove()
- * in conjunction with this function)
- */
-static gboolean
-free_table_entry(gpointer key _U_, gpointer value _U_, gpointer user_data _U_)
-{
-	return TRUE;
-}
-
 /* "Value destroy" function called each time an entry is removed
  *  from the sequence_table hash.
  * It frees the GList pointed to by the entry.
@@ -490,12 +482,9 @@ fragment_table_init(void)
 		g_hash_table_destroy(endpoints);
 	}
 	if (reassembled_table) {
-		g_hash_table_foreach_remove(reassembled_table, free_table_entry, NULL);
 		g_hash_table_destroy(reassembled_table);
 	}
 	if (sequence_table) {
-		/* Note: "value destroy" function will be called for each removed hash table entry */
-		g_hash_table_foreach_remove(sequence_table, free_table_entry, NULL);
 		g_hash_table_destroy(sequence_table);
 	}
 	if (duplicate_table) {
@@ -776,6 +765,8 @@ reassemble_data(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *fr
 	temp = sdu->frags;
 	while (temp && ((offs + temp->len) <= sdu->len)) {
 		memcpy(sdu->data + offs, temp->data, temp->len);
+		g_free(temp->data);
+		temp->data = NULL;
 		/* mark this fragment in reassembled table */
 		g_hash_table_insert(reassembled_table, temp, sdu);
 
@@ -1024,9 +1015,9 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 			if (frags[start] == NULL) {
 				if (MIN((start-seq+4096)%4096, (seq-start+4096)%4096) >= 1028) {
 					g_warning(
-"Setting fail flag because RLC fragment with sequence number %u was too far \
-away from an unfinished sequence (%u->%u). The missing sequence number is %u. \
-The most recently complete sequence ended in packet %u.", seq, 0, end, start, 0);
+"Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
+too far away from an unfinished sequence (%u->%u). The missing sequence number \
+is %u. The most recently complete sequence ended in packet %u.", pinfo->fd->num, seq, 0, end, start, 0);
 					fail = TRUE; /* If it has gone too far, give up */
 					return NULL;
 				}
@@ -1041,8 +1032,8 @@ The most recently complete sequence ended in packet %u.", seq, 0, end, start, 0)
 		 * this endpoint is too large, set fail flag. */
 		if (MIN((first-seq+4096)%4096, (seq-first+4096)%4096) >= 1028) {
 			g_warning(
-"Setting fail flag because RLC fragment with sequence number %u was too far \
-away from an unfinished sequence with start %u and without end.", seq, first);
+"Packet %u. Setting fail flag because RLC fragment with sequence number %u was \
+too far away from an unfinished sequence with start %u and without end.", pinfo->fd->num, seq, first);
 		fail = TRUE; /* Give up if things have gone too far. */
 		return NULL;
 		}
@@ -2295,6 +2286,12 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return TRUE;
 }
 
+gboolean rlc_is_chipered(packet_info * pinfo){
+		int i;
+		i = pinfo->fd->num;
+		return global_rlc_chipered;
+	}
+
 void
 proto_register_rlc(void)
 {
@@ -2480,6 +2477,12 @@ proto_register_rlc(void)
 		"When enabled, if data is not present, don't report as an error, but instead "
 		"add expert info to indicate that headers were omitted",
 		&global_rlc_headers_expected);
+
+
+	prefs_register_bool_preference(rlc_module, "chipered_data",
+		"Chipered data",
+		"When enabled, rlc will assume all data is chipered and won't process it ",
+		&global_rlc_chipered);
 
 	register_init_routine(fragment_table_init);
 }

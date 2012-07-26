@@ -56,6 +56,7 @@
 #define MAC_MCCH    6
 #define MAC_MSCH    7
 #define MAC_MTCH    8
+#define	MAC_N_A		9
 
 #define MAX_MAC_FRAMES 64
 typedef struct umts_mac_info

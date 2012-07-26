@@ -111,13 +111,16 @@ typedef struct fp_info
 
     gint cur_tb;    /* current transport block (required for dissecting of single TBs */
     gint cur_chan;  /* current channel, required to retrieve the correct channel configuration for UMTS MAC */
-
+	gint com_context_id;	/*Identifies a single UE in the network*/
     guint16 srcport, destport;
 
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
     gint	hsdsch_macflowd_id;
+#define MAX_NUM_HSDHSCH_MACDFLOW	8
+    gboolean hsdhsch_macfdlow_is_mux[MAX_NUM_HSDHSCH_MACDFLOW];
     enum   fp_link_type link_type;
+    guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
 } fp_info;
 
 /* From NBAC-Constants.asn */
@@ -144,6 +147,7 @@ typedef struct
     guint32 ul_frame_number;            /* the frame where this conversation is started from Node B */
     address crnc_address;
     guint16 crnc_port;
+	gint com_context_id;	/*Identifies a single UE in the network*/
 
     /* For PCH channel */
     gint paging_indications;
@@ -168,7 +172,15 @@ typedef struct
     /* HSDSCH Related data */
     enum   fp_hsdsch_entity hsdsch_entity;
     guint8 hsdsch_macdflow_id;
-    GSequence * ports;
+
+    guint8 hsdsch_num_chans_per_flow[MAX_NUM_HSDHSCH_MACDFLOW];
+    
+	/*HSDSCH Common related data*/
+	guint8 common_macdflow_id;
+		
+	guint urnti;	/*Used for tracking a "sequence" over diffrent transport channels*/
+	guint hrnti;	/*Used for tracking a HS-DSCH flow*/
 } umts_fp_conversation_info_t;
 
 void set_umts_fp_conv_data(conversation_t *conversation, umts_fp_conversation_info_t *umts_fp_conversation_info);
+
