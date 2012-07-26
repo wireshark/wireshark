@@ -65,11 +65,6 @@ typedef struct _PacketListRecord {
 
 	frame_data *fdata;
 
-	/** Has this record been columnized? */
-	gboolean columnized;
-	/** Has this record been colorized? */
-	gboolean colorized;
-
 	/* admin stuff used by the custom list model */
 #ifdef PACKET_PARANOID_CHECKS
 	/** position within the physical array */
@@ -77,6 +72,11 @@ typedef struct _PacketListRecord {
 #endif
 	/** position within the visible array */
 	gint visible_pos;
+
+	/** Has this record been columnized? */
+	guint columnized : 1;
+	/** Has this record been colorized? */
+	guint colorized : 1;
 
 } PacketListRecord;
 
