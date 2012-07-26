@@ -54,6 +54,8 @@
 
 #include "globals.h"
 
+/* #define PACKET_PARANOID_CHECKS */
+
 /** PacketListRecord: represents a row */
 typedef struct _PacketListRecord {
 	/** The column text for some columns */
@@ -69,8 +71,10 @@ typedef struct _PacketListRecord {
 	gboolean colorized;
 
 	/* admin stuff used by the custom list model */
+#ifdef PACKET_PARANOID_CHECKS
 	/** position within the physical array */
 	guint physical_pos;
+#endif
 	/** position within the visible array */
 	gint visible_pos;
 
@@ -396,7 +400,9 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 
 	record = (PacketListRecord*) iter->user_data;
 
+#ifdef PACKET_PARANOID_CHECKS
 	g_return_if_fail(PACKET_LIST_RECORD_INDEX_VALID(packet_list->physical_rows, record->physical_pos));
+#endif
 	g_return_if_fail(PACKET_LIST_RECORD_INDEX_VALID(packet_list->visible_rows, record->visible_pos));
 
 	if (column >= 0 && column < packet_list->n_cols) {
@@ -438,7 +444,9 @@ packet_list_iter_next_visible(PacketList *packet_list, PacketListRecord *record)
 	nextrecord = PACKET_LIST_RECORD_GET(packet_list->visible_rows, next_visible_pos);
 
 	g_assert(nextrecord->visible_pos == (record->visible_pos + 1));
+#ifdef PACKET_PARANOID_CHECKS
 	g_assert(nextrecord->physical_pos >= (record->physical_pos + 1));
+#endif
 
 	return nextrecord;
 }
@@ -668,7 +676,9 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 	newrecord->col_text_len = se_alloc0(sizeof(*newrecord->col_text_len) * packet_list->n_text_cols);
 	newrecord->col_text     = se_alloc0(sizeof(*newrecord->col_text) * packet_list->n_text_cols);
 	newrecord->fdata        = fdata;
+#ifdef PACKET_PARANOID_CHECKS
 	newrecord->physical_pos = PACKET_LIST_RECORD_COUNT(packet_list->physical_rows);
+#endif
 
 	if (fdata->flags.passed_dfilter || fdata->flags.ref_time) {
 		newrecord->visible_pos = PACKET_LIST_RECORD_COUNT(packet_list->visible_rows);
@@ -1080,7 +1090,9 @@ packet_list_resort(PacketList *packet_list)
 
 	for(phy_idx = 0, vis_idx = 0; phy_idx < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows); ++phy_idx) {
 		record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, phy_idx);
+#ifdef PACKET_PARANOID_CHECKS
 		record->physical_pos = phy_idx;
+#endif
 		g_assert(record->visible_pos >= -1);
 		if (record->visible_pos >= 0) {
 			g_assert(record->fdata->flags.passed_dfilter || record->fdata->flags.ref_time);
