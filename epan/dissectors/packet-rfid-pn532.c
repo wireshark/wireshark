@@ -61,177 +61,186 @@ static int hf_pn532_14443b_app_data = -1;
 static int hf_pn532_14443b_proto_info = -1;
 
 /* Diagnose hardware status */
-#define DIAGNOSE_REQ  		0x00
-#define DIAGNOSE_RSP 		0x01
+#define DIAGNOSE_REQ               0x00
+#define DIAGNOSE_RSP               0x01
 
 /* Get Firmware Version */
-#define GET_FIRMWARE_VERSION_REQ    0x02
-#define GET_FIRMWARE_VERSION_RSP    0x03
+#define GET_FIRMWARE_VERSION_REQ   0x02
+#define GET_FIRMWARE_VERSION_RSP   0x03
 
-#define GET_GENERAL_STATUS	0x04
+#define GET_GENERAL_STATUS         0x04
 
 /* Read from a chipset register */
-#define READ_REGISTER_REQ	0x06
-#define READ_REGISTER_RSP	0x07
+#define READ_REGISTER_REQ          0x06
+#define READ_REGISTER_RSP          0x07
 
 /* Write Register */
-#define WRITE_REGISTER_REQ	0x08
-#define WRITE_REGISTER_RSP	0x09
+#define WRITE_REGISTER_REQ         0x08
+#define WRITE_REGISTER_RSP         0x09
 
-#define READ_GPIO		0x0C
-#define WRITE_GPIO		0x0E
-#define SET_SERIAL_BAUD_RATE	0x10
-#define SET_PARAMETERS		0x12
-#define SAM_CONFIGURATION	0x14
-#define POWER_DOWN   		0x16
+#define READ_GPIO                  0x0C
+#define WRITE_GPIO                 0x0E
+#define SET_SERIAL_BAUD_RATE       0x10
+#define SET_PARAMETERS             0x12
+#define SAM_CONFIGURATION          0x14
+#define POWER_DOWN                 0x16
 
 /* RF Communication Commands */
-#define RF_CONFIGURATION_REQ  	0x32
-#define RF_CONFIGURATION_RSP  	0x33
+#define RF_CONFIGURATION_REQ       0x32
+#define RF_CONFIGURATION_RSP       0x33
 
-#define RF_REGULATION_TEST  	0x58
+#define RF_REGULATION_TEST         0x58
 
 /* - Initiator Commands - */
-#define IN_JUMP_FOR_DEP  	0x56
-#define IN_JUMP_FOR_PSL  	0x46
+#define IN_JUMP_FOR_PSL            0x46
+#define IN_JUMP_FOR_DEP            0x56
 
 /* List targets (tags) in the field */
 #define IN_LIST_PASSIVE_TARGET_REQ 0x4A
 #define IN_LIST_PASSIVE_TARGET_RSP 0x4B
 
-#define IN_ATR 			0x50
-#define IN_PSL 			0x4E
+#define IN_ATR                     0x50
+#define IN_PSL                     0x4E
 
 /* Data Exchange */
-#define IN_DATA_EXCHANGE_REQ	0x40
-#define IN_DATA_EXCHANGE_RSP	0x41
+#define IN_DATA_EXCHANGE_REQ       0x40
+#define IN_DATA_EXCHANGE_RSP       0x41
 
 /* Communicate through */
-#define IN_COMMUNICATE_THRU_REQ	0x42
-#define IN_COMMUNICATE_THRU_RSP	0x43
+#define IN_COMMUNICATE_THRU_REQ    0x42
+#define IN_COMMUNICATE_THRU_RSP    0x43
 
 /* Deselect target token */
-#define IN_DESELECT_REQ		0x44
-#define IN_DESELECT_RSP		0x45
+#define IN_DESELECT_REQ            0x44
+#define IN_DESELECT_RSP            0x45
 
 /* Release target token */
-#define IN_RELEASE_REQ		0x52
-#define IN_RELEASE_RSP		0x53
+#define IN_RELEASE_REQ             0x52
+#define IN_RELEASE_RSP             0x53
 
 /* Select target token */
-#define IN_SELECT_REQ	  	0x54
-#define IN_SELECT_RSP	  	0x55
+#define IN_SELECT_REQ              0x54
+#define IN_SELECT_RSP              0x55
 
 /* Auto/long-time polling*/
-#define IN_AUTO_POLL_REQ	0x60
-#define IN_AUTO_POLL_RSP	0x61
+#define IN_AUTO_POLL_REQ           0x60
+#define IN_AUTO_POLL_RSP           0x61
 
 /* Target Commands */
-#define TG_INIT_AS_TARGET	0x8C
-#define TG_SET_GENERAL_BYTES	0x92
-#define TG_GET_DATA		0x86
-#define TG_SET_DATA		0x8E
-#define TG_SET_METADATA		0x94
-#define TG_GET_INITIATOR_CMD	0x88
-#define TG_RESP_TO_INITIATOR	0x90
-#define TG_GET_TARGET_STATUS	0x8A
+#define TG_GET_DATA                0x86
+#define TG_GET_INITIATOR_CMD       0x88
+#define TG_GET_TARGET_STATUS       0x8A
+#define TG_INIT_AS_TARGET          0x8C
+#define TG_SET_DATA                0x8E
+#define TG_RESP_TO_INITIATOR       0x90
+#define TG_SET_GENERAL_BYTES       0x92
+#define TG_SET_METADATA            0x94
+
 
 /* TFI (Frame Identifier) Directions */
-#define HOST_TO_PN532 		0xD4
-#define PN532_TO_HOST		0xD5
+#define HOST_TO_PN532              0xD4
+#define PN532_TO_HOST              0xD5
 
 /* Baud rate and modulation types */
-#define ISO_IEC_14443A_106	0x00
-#define FELICA_212		0x01
-#define FELICA_424		0x02
-#define ISO_IEC_14443B_106	0x03
-#define JEWEL_14443A_106	0x04
+#define ISO_IEC_14443A_106         0x00
+#define FELICA_212                 0x01
+#define FELICA_424                 0x02
+#define ISO_IEC_14443B_106         0x03
+#define JEWEL_14443A_106           0x04
 
 /* Error codes */
-#define NO_ERROR		0x00
-#define UNACCEPTABLE_CMD	0x27
+#define NO_ERROR                   0x00
+#define UNACCEPTABLE_CMD           0x27
 
+/* XXX: re-arranged from defs above to be in ascending order by value */
 static const value_string pn532_commands[] = {
-    {DIAGNOSE_REQ,		"Diagnose"},
-    {DIAGNOSE_RSP,		"Diagnose (Response)"},
-    
+    {DIAGNOSE_REQ,               "Diagnose"},
+    {DIAGNOSE_RSP,               "Diagnose (Response)"},
+
     /* Discover the device's firmware version */
-    {GET_FIRMWARE_VERSION_REQ,	"GetFirmwareVersion"},
-    {GET_FIRMWARE_VERSION_RSP,	"GetFirmwareVersion (Response)"},
+    {GET_FIRMWARE_VERSION_REQ,   "GetFirmwareVersion"},
+    {GET_FIRMWARE_VERSION_RSP,   "GetFirmwareVersion (Response)"},
 
-    {GET_GENERAL_STATUS,	"GetGeneralStatus"},
-    
+    {GET_GENERAL_STATUS,         "GetGeneralStatus"},
+
     /* Read from a chipset register */
-    {READ_REGISTER_REQ,	"ReadRegister"},
-    {READ_REGISTER_RSP,	"ReadRegister (Response)"},
-    
-    /* Write to a chipset register */
-    {WRITE_REGISTER_REQ,	"WriteRegister"},
-    {WRITE_REGISTER_RSP,	"WriteRegister (Response)"},    
-    
-    {READ_GPIO,		"ReadGPIO"},
-    {WRITE_GPIO,		"WriteGPIO"},
-    {SET_SERIAL_BAUD_RATE,	"SetSerialBaudRate"},
-    {SET_PARAMETERS,		"SetParameters"},
-    {SAM_CONFIGURATION,		"SAMConfiguration"},
-    {POWER_DOWN,		"PowerDown"},
-    
-    /* RF Configuration */
-    {RF_CONFIGURATION_REQ,	"RFConfiguration"},
-    {RF_CONFIGURATION_RSP,	"RFConfiguration (Response)"},
+    {READ_REGISTER_REQ,          "ReadRegister"},
+    {READ_REGISTER_RSP,          "ReadRegister (Response)"},
 
-    {RF_REGULATION_TEST,	"RFRegulationTest"},
-    {IN_JUMP_FOR_DEP,		"InJumpForDEP"},
-    {IN_JUMP_FOR_PSL,		"InJumpForPSL"},
+    /* Write to a chipset register */
+    {WRITE_REGISTER_REQ,         "WriteRegister"},
+    {WRITE_REGISTER_RSP,         "WriteRegister (Response)"},
+
+    {READ_GPIO,                  "ReadGPIO"},
+    {WRITE_GPIO,                 "WriteGPIO"},
+    {SET_SERIAL_BAUD_RATE,       "SetSerialBaudRate"},
+    {SET_PARAMETERS,             "SetParameters"},
+    {SAM_CONFIGURATION,          "SAMConfiguration"},
+    {POWER_DOWN,                 "PowerDown"},
+
+    /* RF Configuration */
+    {RF_CONFIGURATION_REQ,       "RFConfiguration"},
+    {RF_CONFIGURATION_RSP,       "RFConfiguration (Response)"},
+
+    /* Data Exchange */
+    {IN_DATA_EXCHANGE_REQ,       "InDataExchange"},
+    {IN_DATA_EXCHANGE_RSP,       "InDataExchange (Response)"},
+
+    /* Communicate through */
+    {IN_COMMUNICATE_THRU_REQ,    "InCommunicateThru"},
+    {IN_COMMUNICATE_THRU_RSP,    "InCommunicateThru (Response)"},
+
+    /* Deselect the target token */
+    {IN_DESELECT_REQ,            "InDeselect"},
+    {IN_DESELECT_RSP,            "InDeselect (Response)"},
+
+    /* - Initiator Commands - */
+    {IN_JUMP_FOR_PSL,            "InJumpForPSL"},
 
     /* List tags in the proximity of the reader's field */
     {IN_LIST_PASSIVE_TARGET_REQ, "InListPassiveTarget"},
     {IN_LIST_PASSIVE_TARGET_RSP, "InListPassiveTarget (Response)"},
 
-    {IN_ATR,			"InATR"},
-    {IN_PSL,			"InPSL"},
-    
-    /* Data Exchange */
-    {IN_DATA_EXCHANGE_REQ,	"InDataExchange"},
-    {IN_DATA_EXCHANGE_RSP,	"InDataExchange (Response)"},    
+    {IN_PSL,                     "InPSL"},
+    {IN_ATR,                     "InATR"},
 
-    /* Communicate through */
-    {IN_COMMUNICATE_THRU_REQ,	"InCommunicateThru"},
-    {IN_COMMUNICATE_THRU_RSP,	"InCommunicateThru (Response)"},
-
-    /* Deselect the target token */
-    {IN_DESELECT_REQ,		"InDeselect"},
-    {IN_DESELECT_RSP,		"InDeselect (Response)"},
-    
     /* Release the target token */
-    {IN_RELEASE_REQ,		"InRelease"},
-    {IN_RELEASE_RSP,		"InRelease (Response)"},
-    
-    /* Select target token */
-    {IN_SELECT_REQ,		"InSelect"},
-    {IN_SELECT_RSP,		"InSelect (Response)"},
-    
-    /* Automatic/long-time polling */
-    {IN_AUTO_POLL_REQ,		"InAutoPoll"},
-    {IN_AUTO_POLL_RSP,		"InAutoPoll (Response)"},
+    {IN_RELEASE_REQ,             "InRelease"},
+    {IN_RELEASE_RSP,             "InRelease (Response)"},
 
-    {TG_INIT_AS_TARGET,		"TgInitAsTarget"},
-    {TG_SET_GENERAL_BYTES,	"TgSetGeneralBytes"},
-    {TG_GET_DATA,		"TgGetData"},
-    {TG_SET_DATA,		"TgSetData"},
-    {TG_SET_METADATA,		"TgSetMetaData"},
-    {TG_GET_INITIATOR_CMD,	"TgGetInitiatorCommand"},
-    {TG_RESP_TO_INITIATOR,	"TgResponseToInitiator"},
-    {TG_GET_TARGET_STATUS,	"TgGetTargetStatus"},
+    /* Select target token */
+    {IN_SELECT_REQ,              "InSelect"},
+    {IN_SELECT_RSP,              "InSelect (Response)"},
+
+    /* - Initiator Commands - */
+    {IN_JUMP_FOR_DEP,            "InJumpForDEP"},
+
+    /* RF Communication Commands */
+    {RF_REGULATION_TEST,         "RFRegulationTest"},
+
+    /* Automatic/long-time polling */
+    {IN_AUTO_POLL_REQ,           "InAutoPoll"},
+    {IN_AUTO_POLL_RSP,           "InAutoPoll (Response)"},
+
+    /* Target Commands */
+    {TG_GET_DATA,                "TgGetData"},
+    {TG_GET_INITIATOR_CMD,       "TgGetInitiatorCommand"},
+    {TG_GET_TARGET_STATUS,       "TgGetTargetStatus"},
+    {TG_INIT_AS_TARGET,          "TgInitAsTarget"},
+    {TG_SET_DATA,                "TgSetData"},
+    {TG_RESP_TO_INITIATOR,       "TgResponseToInitiator"},
+    {TG_SET_GENERAL_BYTES,       "TgSetGeneralBytes"},
+    {TG_SET_METADATA,            "TgSetMetaData"},
 
     /* End of commands */
     {0x00, NULL}
 };
+static value_string_ext pn532_commands_ext = VALUE_STRING_EXT_INIT(pn532_commands);
 
 /* TFI - 1 byte frame identifier; specifying direction of communication */
 static const value_string pn532_directions[] = {
-    {HOST_TO_PN532,		"Host to PN532"},
-    {PN532_TO_HOST,		"PN532 to Host"},
+    {HOST_TO_PN532,             "Host to PN532"},
+    {PN532_TO_HOST,             "PN532 to Host"},
 
     /* End of directions */
     {0x00, NULL}
@@ -239,8 +248,8 @@ static const value_string pn532_directions[] = {
 
 /* Error/status codes */
 static const value_string pn532_errors[] = {
-    {NO_ERROR,		"No Error"},
-    {UNACCEPTABLE_CMD,	"Unacceptable Command"},
+    {NO_ERROR,          "No Error"},
+    {UNACCEPTABLE_CMD,  "Unacceptable Command"},
 
     /* End of errors */
     {0x00, NULL}
@@ -248,11 +257,11 @@ static const value_string pn532_errors[] = {
 
 /* Baud rates and modulation types */
 static const value_string pn532_brtypes[] = {
-    {ISO_IEC_14443A_106,	"ISO/IEC 14443-A at 106 kbps"},
-    {FELICA_212,		"FeliCa at 212 kbps"},
-    {FELICA_424,		"FeliCa at 424 kbps"},
-    {ISO_IEC_14443B_106,	"ISO/IEC 14443-B at 106 kbps"},
-    {JEWEL_14443A_106,		"InnoVision Jewel/Topaz at 106 kbps"},
+    {ISO_IEC_14443A_106,        "ISO/IEC 14443-A at 106 kbps"},
+    {FELICA_212,                "FeliCa at 212 kbps"},
+    {FELICA_424,                "FeliCa at 424 kbps"},
+    {ISO_IEC_14443B_106,        "ISO/IEC 14443-B at 106 kbps"},
+    {JEWEL_14443A_106,          "InnoVision Jewel/Topaz at 106 kbps"},
 
     /* End of directions */
     {0x00, NULL}
@@ -271,8 +280,8 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 {
     proto_item *item;
     proto_tree *pn532_tree;
-    guint8 cmd;
-    tvbuff_t *next_tvb = NULL;
+    guint8      cmd;
+    tvbuff_t   *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN532");
     col_set_str(pinfo->cinfo, COL_INFO, "PN532 Packet");
@@ -287,234 +296,234 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
     /* Direction byte */
     cmd = tvb_get_guint8(tvb, 1);
 
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, pn532_commands, "Unknown"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(cmd, &pn532_commands_ext, "Unknown"));
 
     switch (cmd) {
 
     /* Device Diagnosis Request */
     case DIAGNOSE_REQ:
-	break;
+        break;
 
     /* Device Diagnosis Response */
     case DIAGNOSE_RSP:
-	break;
-	
+        break;
+
     /* Device Firmware Version Request */
     case GET_FIRMWARE_VERSION_REQ:
-	break;
-	
+        break;
+
     /* Device Firmware Version Response */
     case GET_FIRMWARE_VERSION_RSP:
-	proto_tree_add_item(pn532_tree, hf_pn532_ic_version, tvb, 2, 1, ENC_NA);
-	proto_tree_add_item(pn532_tree, hf_pn532_fw_version, tvb, 3, 1, ENC_NA);
-	proto_tree_add_item(pn532_tree, hf_pn532_fw_revision, tvb, 4, 1, ENC_NA);
-	proto_tree_add_item(pn532_tree, hf_pn532_fw_support, tvb, 5, 1, ENC_NA);
-	break;
+        proto_tree_add_item(pn532_tree, hf_pn532_ic_version,  tvb, 2, 1, ENC_NA);
+        proto_tree_add_item(pn532_tree, hf_pn532_fw_version,  tvb, 3, 1, ENC_NA);
+        proto_tree_add_item(pn532_tree, hf_pn532_fw_revision, tvb, 4, 1, ENC_NA);
+        proto_tree_add_item(pn532_tree, hf_pn532_fw_support,  tvb, 5, 1, ENC_NA);
+        break;
 
     case GET_GENERAL_STATUS:
-	break;
+        break;
 
     case READ_REGISTER_REQ:
-	break;
+        break;
 
     case READ_REGISTER_RSP:
-	break;
-	
+        break;
+
     case WRITE_REGISTER_REQ:
-	break;
-	
+        break;
+
     case WRITE_REGISTER_RSP:
-	break;
-	
+        break;
+
     case READ_GPIO:
-	break;
+        break;
 
     case WRITE_GPIO:
-	break;
+        break;
 
     case SET_SERIAL_BAUD_RATE:
-	break;
+        break;
 
     case SET_PARAMETERS:
-	break;
+        break;
 
     case SAM_CONFIGURATION:
-	break;
+        break;
 
     case POWER_DOWN:
-	break;
+        break;
 
     case RF_CONFIGURATION_REQ:
-	break;
+        break;
 
     case RF_CONFIGURATION_RSP:
-	break;
+        break;
 
     case RF_REGULATION_TEST:
-	break;
+        break;
 
     case IN_JUMP_FOR_DEP:
-	break;
+        break;
 
     case IN_JUMP_FOR_PSL:
-	break;
+        break;
 
-	/* List targets (tags) in the field */
+        /* List targets (tags) in the field */
     case IN_LIST_PASSIVE_TARGET_REQ:
 
-	/* Maximum number of supported tags */
-	proto_tree_add_item(pn532_tree, hf_pn532_MaxTg, tvb, 2, 1, ENC_BIG_ENDIAN);
+        /* Maximum number of supported tags */
+        proto_tree_add_item(pn532_tree, hf_pn532_MaxTg, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-	/* Modulation and Baud Rate Type */
-	proto_tree_add_item(pn532_tree, hf_pn532_BrTy, tvb, 3, 1, ENC_BIG_ENDIAN);
+        /* Modulation and Baud Rate Type */
+        proto_tree_add_item(pn532_tree, hf_pn532_BrTy, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-	/* Attempt to dissect FeliCa payloads */
-	if (tvb_get_guint8(tvb, 3) == FELICA_212 || tvb_get_guint8(tvb, 3) == FELICA_424) {
+        /* Attempt to dissect FeliCa payloads */
+        if ((tvb_get_guint8(tvb, 3) == FELICA_212) || (tvb_get_guint8(tvb, 3) == FELICA_424)) {
 
-	    next_tvb = tvb_new_subset_remaining(tvb, 4);
-	    call_dissector(felica_handle, next_tvb, pinfo, tree);
+            next_tvb = tvb_new_subset_remaining(tvb, 4);
+            call_dissector(felica_handle, next_tvb, pinfo, tree);
 
-	}
+        }
 
-	break;
+        break;
 
     case IN_LIST_PASSIVE_TARGET_RSP:
-	proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, 2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-	/* Probably an ISO/IEC 14443-B tag */
-	if (tvb_reported_length(tvb) == 20) {
+        /* Probably an ISO/IEC 14443-B tag */
+        if (tvb_reported_length(tvb) == 20) {
 
-	    /* Add the PUPI */
-	    proto_tree_add_item(pn532_tree, hf_pn532_14443b_pupi, tvb, 5, 4, ENC_BIG_ENDIAN);
+            /* Add the PUPI */
+            proto_tree_add_item(pn532_tree, hf_pn532_14443b_pupi, tvb, 5, 4, ENC_BIG_ENDIAN);
 
-	    /* Add the Application Data */
-	    proto_tree_add_item(pn532_tree, hf_pn532_14443b_app_data, tvb, 9, 4, ENC_BIG_ENDIAN);
+            /* Add the Application Data */
+            proto_tree_add_item(pn532_tree, hf_pn532_14443b_app_data, tvb, 9, 4, ENC_BIG_ENDIAN);
 
-	    /* Add the Protocol Info */
-	    proto_tree_add_item(pn532_tree, hf_pn532_14443b_proto_info, tvb, 13, 3, ENC_BIG_ENDIAN);
-	}
+            /* Add the Protocol Info */
+            proto_tree_add_item(pn532_tree, hf_pn532_14443b_proto_info, tvb, 13, 3, ENC_BIG_ENDIAN);
+        }
 
-	/* Probably one of:
-	 * a MiFare DESFire card (23 bytes),
-	 * an MF UltraLight tag (17 bytes)
-	 * an MF Classic card with a 4 byte UID (14 bytes) */
+        /* Probably one of:
+         * a MiFare DESFire card (23 bytes),
+         * an MF UltraLight tag (17 bytes)
+         * an MF Classic card with a 4 byte UID (14 bytes) */
 
-	if (tvb_reported_length(tvb) == 23 || (tvb_reported_length(tvb) == 17) || (tvb_reported_length(tvb) == 14)) {
+        if ((tvb_reported_length(tvb) == 23) || (tvb_reported_length(tvb) == 17) || (tvb_reported_length(tvb) == 14)) {
 
-	    /* Add the ATQA/SENS_RES */
-	    proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
+            /* Add the ATQA/SENS_RES */
+            proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
 
-	    /* Add the SAK/SEL_RES value */
-	    proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
+            /* Add the SAK/SEL_RES value */
+            proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
 
-	    /* Add the UID */
-	    if (tvb_reported_length(tvb) != 14) {
-		proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
+            /* Add the UID */
+            if (tvb_reported_length(tvb) != 14) {
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
 
-		/* Probably MiFare DESFire, or some other 14443-A card with an ATS value/7 byte UID */
-		if (tvb_reported_length(tvb) == 23) {
+                /* Probably MiFare DESFire, or some other 14443-A card with an ATS value/7 byte UID */
+                if (tvb_reported_length(tvb) == 23) {
 
-		    /* Add the ATS value */
-		    proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats, tvb, 16, 5, ENC_BIG_ENDIAN);
-		}
-	    }
-	    /* Probably MiFare Classic with a 4 byte UID */
-	    else {
-		proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 7, 4, ENC_BIG_ENDIAN);
-	    }
+                    /* Add the ATS value */
+                    proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats, tvb, 16, 5, ENC_BIG_ENDIAN);
+                }
+            }
+            /* Probably MiFare Classic with a 4 byte UID */
+            else {
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 7, 4, ENC_BIG_ENDIAN);
+            }
 
-	}
+        }
 
-	/* See if we've got a FeliCa payload with a System Code */
-	if (tvb_reported_length(tvb) == 26) {
+        /* See if we've got a FeliCa payload with a System Code */
+        if (tvb_reported_length(tvb) == 26) {
 
-	    /* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
-	    proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
+            /* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
+            proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
 
-	    /* Use the length value (20?) at position 4, and skip the Status Word (9000) at the end */
-	    next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
-	    call_dissector(felica_handle, next_tvb, pinfo, tree);
-	}
+            /* Use the length value (20?) at position 4, and skip the Status Word (9000) at the end */
+            next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
+            call_dissector(felica_handle, next_tvb, pinfo, tree);
+        }
 
-	break;
+        break;
 
     case IN_ATR:
-	break;
+        break;
 
     case IN_PSL:
-	break;
+        break;
 
     case IN_DATA_EXCHANGE_REQ:
-	break;
-	
+        break;
+
     case IN_DATA_EXCHANGE_RSP:
-	break;
+        break;
 
     case IN_COMMUNICATE_THRU_REQ:
-	break;
-	
+        break;
+
     /* Deselect a token */
     case IN_DESELECT_REQ:
-	/* Logical target number */
-	proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
-	break;
+        /* Logical target number */
+        proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
+        break;
 
     case IN_DESELECT_RSP:
-	proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
-	break;
+        proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
+        break;
 
     /* Release a token */
     case IN_RELEASE_REQ:
-	/* Logical target number */
-	proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
-	break;
+        /* Logical target number */
+        proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
+        break;
 
     case IN_RELEASE_RSP:
-	proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
-	break;
+        proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
+        break;
 
     /* Select a token */
     case IN_SELECT_REQ:
-	/* Logical target number */
-	proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
-	break;
+        /* Logical target number */
+        proto_tree_add_item(pn532_tree, hf_pn532_Tg, tvb, 2, 1, ENC_BIG_ENDIAN);
+        break;
 
     case IN_SELECT_RSP:
-	proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
-	break;
+        proto_tree_add_item(pn532_tree, hf_pn532_error, tvb, 2, 1, ENC_BIG_ENDIAN);
+        break;
 
     case IN_AUTO_POLL_REQ:
-	break;
+        break;
 
     case IN_AUTO_POLL_RSP:
-	break;
+        break;
 
     case TG_INIT_AS_TARGET:
-	break;
+        break;
 
     case TG_SET_GENERAL_BYTES:
-	break;
+        break;
 
     case TG_GET_DATA:
-	break;
+        break;
 
     case TG_SET_DATA:
-	break;
+        break;
 
     case TG_SET_METADATA:
-	break;
+        break;
 
     case TG_GET_INITIATOR_CMD:
-	break;
+        break;
 
     case TG_RESP_TO_INITIATOR:
-	break;
+        break;
 
     case TG_GET_TARGET_STATUS:
-	break;
+        break;
 
     default:
-	break;
+        break;
     }
 }
 
@@ -522,67 +531,67 @@ void proto_register_pn532(void)
 {
     static hf_register_info hf[] = {
 
-	{&hf_pn532_command,
-	 {"Command", "pn532.cmd", FT_UINT8, BASE_HEX,
-	  VALS(pn532_commands), 0x0, NULL, HFILL}},
-	{&hf_pn532_direction,
-	 {"Direction", "pn532.tfi", FT_UINT8, BASE_HEX,
-	  VALS(pn532_directions), 0x0, NULL, HFILL}},
-	{&hf_pn532_error,
-	 {"Error Code", "pn532.error", FT_UINT8, BASE_HEX,
-	  VALS(pn532_errors), 0x0, NULL, HFILL}},
-	{&hf_pn532_BrTy,
-	 {"Baud Rate and Modulation", "pn532.BrTy", FT_UINT8, BASE_HEX,
-	  VALS(pn532_brtypes), 0x0, NULL, HFILL}},
-	{&hf_pn532_MaxTg,
-	 {"Maximum Number of Targets", "pn532.MaxTg", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_Tg,
-	 {"Logical Target Number", "pn532.Tg", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	  {&hf_pn532_NbTg,
-	 {"Number of Targets", "pn532.NbTg", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_payload_length,
-	 {"Payload Length", "pn532.payload.length", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_ic_version,
-	 {"Integrated Circuit Version", "pn532.ic.version", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_fw_version,
-	 {"Firmware Version", "pn532.fw.version", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_fw_revision,
-	 {"Firmware Revision", "pn532.fw.revision", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_fw_support,
-	 {"Firmware Support", "pn532.fw.support", FT_INT8, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_14443a_sak,
-	 {"ISO/IEC 14443-A SAK", "pn532.iso.14443a.sak", FT_UINT8, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_14443a_atqa,
-	 {"ISO/IEC 14443-A ATQA", "pn532.iso.14443a.atqa", FT_UINT16, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_14443a_uid,
-	 {"ISO/IEC 14443-A UID", "pn532.iso.14443a.uid", FT_UINT64, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_14443a_ats,
-	 {"ISO/IEC 14443-A ATS", "pn532.iso.14443a.ats", FT_UINT64, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_14443b_pupi,
-	 {"ISO/IEC 14443-B PUPI", "pn532.iso.14443b.pupi", FT_UINT64, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_14443b_app_data,
-	 {"ISO/IEC 14443-B Application Data", "pn532.iso.14443b.app.data", FT_UINT64, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL}},
-	{&hf_pn532_14443b_proto_info,
-	 {"ISO/IEC 14443-B Protocol Info", "pn532.iso.14443b.protocol.info", FT_UINT64, BASE_HEX,
-	  NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_command,
+         {"Command", "pn532.cmd", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+          &pn532_commands_ext, 0x0, NULL, HFILL}},
+        {&hf_pn532_direction,
+         {"Direction", "pn532.tfi", FT_UINT8, BASE_HEX,
+          VALS(pn532_directions), 0x0, NULL, HFILL}},
+        {&hf_pn532_error,
+         {"Error Code", "pn532.error", FT_UINT8, BASE_HEX,
+          VALS(pn532_errors), 0x0, NULL, HFILL}},
+        {&hf_pn532_BrTy,
+         {"Baud Rate and Modulation", "pn532.BrTy", FT_UINT8, BASE_HEX,
+          VALS(pn532_brtypes), 0x0, NULL, HFILL}},
+        {&hf_pn532_MaxTg,
+         {"Maximum Number of Targets", "pn532.MaxTg", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_Tg,
+         {"Logical Target Number", "pn532.Tg", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+          {&hf_pn532_NbTg,
+         {"Number of Targets", "pn532.NbTg", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_payload_length,
+         {"Payload Length", "pn532.payload.length", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_ic_version,
+         {"Integrated Circuit Version", "pn532.ic.version", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_fw_version,
+         {"Firmware Version", "pn532.fw.version", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_fw_revision,
+         {"Firmware Revision", "pn532.fw.revision", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_fw_support,
+         {"Firmware Support", "pn532.fw.support", FT_INT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443a_sak,
+         {"ISO/IEC 14443-A SAK", "pn532.iso.14443a.sak", FT_UINT8, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443a_atqa,
+         {"ISO/IEC 14443-A ATQA", "pn532.iso.14443a.atqa", FT_UINT16, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443a_uid,
+         {"ISO/IEC 14443-A UID", "pn532.iso.14443a.uid", FT_UINT64, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443a_ats,
+         {"ISO/IEC 14443-A ATS", "pn532.iso.14443a.ats", FT_UINT64, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443b_pupi,
+         {"ISO/IEC 14443-B PUPI", "pn532.iso.14443b.pupi", FT_UINT64, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443b_app_data,
+         {"ISO/IEC 14443-B Application Data", "pn532.iso.14443b.app.data", FT_UINT64, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
+        {&hf_pn532_14443b_proto_info,
+         {"ISO/IEC 14443-B Protocol Info", "pn532.iso.14443b.protocol.info", FT_UINT64, BASE_HEX,
+          NULL, 0x0, NULL, HFILL}},
     };
 
     static gint *ett[] = {
-	&ett_pn532
+        &ett_pn532
     };
 
     proto_pn532 = proto_register_protocol("NXP PN532", "PN532", "pn532");
@@ -597,7 +606,7 @@ void proto_register_pn532(void)
 /* Handler registration */
 void proto_reg_handoff_pn532(void)
 {
-    data_handle = find_dissector("data");
+    data_handle   = find_dissector("data");
     felica_handle = find_dissector("felica");
 }
 
