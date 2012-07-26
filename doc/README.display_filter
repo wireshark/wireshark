@@ -17,7 +17,7 @@ For example, this is the definition of the ip.proto field from packet-ip.c:
 This definition says that "ip.proto" is the display-filter name for
 this field, and that its field-type is FT_UINT8.
 
-The diplay filter system has 3 major parts to it:
+The display filter system has 3 major parts to it:
 
     1. A type system (field types, or "ftypes")
     2. A parser, to convert a user's query to an internal representation
@@ -52,7 +52,7 @@ enum ftenum {
     etc., etc.
 }
 
-It also provides the defintion of fvalue_t, the struct that holds the *value*
+It also provides the definition of fvalue_t, the struct that holds the *value*
 that corresponds to the type. Each proto_item (proto_node) holds an fvalue_t
 due to having a field_info struct (defined in proto.h).
 
@@ -104,7 +104,7 @@ The ftype_t struct defines the things needed for the ftype:
     * a string representation of the FT name ("FT_UINT8")
     * how much data it consumes in the packet
     * how to store that value in an fvalue_t: new(), free(),
-        various value-related funtions
+        various value-related functions
     * how to compare that value against another
     * how to slice that value (strings and byte ranges can be sliced)
 
@@ -112,7 +112,7 @@ Using an fvalue_t
 -----------------
 Once the value of a field is stored in an fvalue_t (stored in
 each proto_item via field_info), it's easy to use those values,
-thanks to the various fvalue_*() functions defind in ftypes.h.
+thanks to the various fvalue_*() functions defined in ftypes.h.
 
 Functions like fvalue_get(), fvalue_eq(), etc., are all generic
 interfaces to get information about the field's value. They work
@@ -129,13 +129,13 @@ and convert it into a very simple syntax tree.  The syntax tree is very
 simple in that it is possible that many of the nodes contain unparsed
 chunks of text from the display filter.
 
-There are four phases to parsing a users's request:
+There are four phases to parsing a user's request:
 
  1. Scanning the string for dfilter syntax
  2. Parsing the keywords according to the dfilter grammar, into a
         syntax tree
  3. Doing a semantic check of the nodes in that syntax tree
- 4. Convering the syntax tree into a series of DFVM byte codes
+ 4. Converting the syntax tree into a series of DFVM byte codes
 
 The dfilter_compile() function, in epan/dfilter/dfilter.c,
 runs these 4 phases. The end result is a dfwork_t object (dfw), that
@@ -148,7 +148,7 @@ Scanning the display filter string
 epan/dfilter/scanner.l is the lex scanner for finding keywords
 in the user's display filter string.
 
-It's operation is simple. It finds the special punction and comparison
+Its operation is simple. It finds the special function and comparison
 operators ("==", "!=", "eq", "ne", etc.), it finds slice operations
 ( "[0:1]" ), quoted strings, IP addresses, numbers, and any other "special"
 keywords or string types.
@@ -186,7 +186,7 @@ http://www.sqlite.org/src/doc/trunk/doc/lemon.html
 The grammar specifies which type of constructs are possible
 within the dfilter language ("dfilter-lang")
 
-A "expression" in dfilter-lang can be a relational test or a logical test.
+An "expression" in dfilter-lang can be a relational test or a logical test.
 
 A relational test compares a value against another, which is usually
 a field (or a slice of a field) against some static value, like:
@@ -199,7 +199,7 @@ A logical test combines other expressions with "and", "or", and "not".
 At the end of the grammatical parsing, the dfw object will
 have a valid syntax tree, pointed at by dfw->st_root.
 
-If there is a error in the sytax, the parser will call dfilter_fail()
+If there is an error in the syntax, the parser will call dfilter_fail()
 with an appropriate error message, which the UI will need to report
 to the user.
 
@@ -208,7 +208,7 @@ The syntax tree system
 The syntax tree is created as a result of running the lemon-based
 grammar parser on the scanned tokens. The syntax tree code
 is in epan/dfilter/syntax-tree* and epan/dfilter/sttree-*. It too
-uses a set of code modules that implement differnet syntax node types,
+uses a set of code modules that implement different syntax node types,
 similar to how the field-type system registers a set of ftypes
 with a central engine.
 
@@ -282,9 +282,9 @@ a list of VM bytecodes than to attempt to filter packets directly from
 the syntax tree.  (heh...  no measurement has been made to support this
 supposition)
 
-The DFVM opcodes are defind in epan/dfilter/dfvm.h (dfvm_opcode_t).
+The DFVM opcodes are defined in epan/dfilter/dfvm.h (dfvm_opcode_t).
 Similar to how the BPF opcode system works in libpcap, there is a
-limtied set of opcodes. They operate by loading values from the
+limited set of opcodes. They operate by loading values from the
 proto_tree into registers, loading pre-defined values into
 registers, and comparing them. The opcodes are checked in sequence, and
 there are only 2 branching opcodes: IF_TRUE_GOTO and IF_FALSE_GOTO.
