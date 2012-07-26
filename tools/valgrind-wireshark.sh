@@ -33,27 +33,29 @@ COMMAND=tshark
 COMMAND_ARGS="-nVxr"
 COMMAND_ARGS2=
 
-while getopts ":b:ltwce" OPTCHAR ; do
+while getopts ":2b:C:ltwce" OPTCHAR ; do
     case $OPTCHAR in
+        2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
+        C) COMMAND_ARGS="-C $OPTARG $COMMAND_ARGS" ;;
         l) LEAK_CHECK="--leak-check=full" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
-	w) COMMAND=wireshark
-	   COMMAND_ARGS="-nr" ;;
-	c) COMMAND=capinfos
-	   COMMAND_ARGS="" ;;
-	e) COMMAND=editcap
-	   COMMAND_ARGS="-E 0.02"
-	   # We don't care about the output of editcap
-	   COMMAND_ARGS2="/dev/null" ;;
+        w) COMMAND=wireshark
+           COMMAND_ARGS="-nr" ;;
+        c) COMMAND=capinfos
+           COMMAND_ARGS="" ;;
+        e) COMMAND=editcap
+           COMMAND_ARGS="-E 0.02"
+           # We don't care about the output of editcap
+           COMMAND_ARGS2="/dev/null" ;;
     esac
 done
 shift $(($OPTIND - 1))
 
 if [ $# -ne 1 ]
 then
-	printf "Usage: $0 [-b bin_dir] [-l] [-t] [-w] /path/to/file.pcap\n"
-	exit 1
+    printf "Usage: $0 [-2] [-b bin_dir] [-C config_profile] [-l] [-t] [-w] /path/to/file.pcap\n"
+    exit 1
 fi
 
 if [ "$BIN_DIR" = "." ]; then

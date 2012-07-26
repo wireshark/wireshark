@@ -37,6 +37,9 @@ TWO_PASS=
 # Specific config profile ?
 CONFIG_PROFILE=
 
+# Run under valgrind ?
+VALGRIND=0
+
 # These may be set to your liking
 # Stop the child process if it's running longer than x seconds
 MAX_CPU_TIME=900
@@ -60,14 +63,15 @@ ERR_PROB=0.02
 
 
 # To do: add options for file names and limits
-while getopts ":b:d:e:C:Pp:" OPTCHAR ; do
+while getopts ":2b:d:e:gC:p:" OPTCHAR ; do
     case $OPTCHAR in
+        2) TWO_PASS="-2 " ;;
         b) BIN_DIR=$OPTARG ;;
         C) CONFIG_PROFILE="-C $OPTARG " ;;
         d) TMP_DIR=$OPTARG ;;
         e) ERR_PROB=$OPTARG ;;
+        g) VALGRIND=1 ;;
         p) MAX_PASSES=$OPTARG ;;
-        P) TWO_PASS="-P " ;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -88,12 +92,20 @@ ulimit -c unlimited
 
 ### usually you won't have to change anything below this line ###
 
-# TShark arguments (you won't have to change these)
-# n Disable network object name resolution
-# V Print a view of the details of the packet rather than a one-line summary of the packet
-# x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
-# r Read packet data from the following infile
-TSHARK_ARGS="${CONFIG_PROFILE}${TWO_PASS}-nVxr"
+if [ $VALGRIND -eq 1 ]; then
+    RUNNER="$BIN_DIR/tools/valgrind-wireshark.sh"
+    RUNNER_ARGS="${CONFIG_PROFILE}${TWO_PASS}"
+else
+    # Not using valgrind, use regular tshark.
+    # TShark arguments (you won't have to change these)
+    # n Disable network object name resolution
+    # V Print a view of the details of the packet rather than a one-line summary of the packet
+    # x Cause TShark to print a hex and ASCII dump of the packet data after printing the summary or details
+    # r Read packet data from the following infile
+    RUNNER="$TSHARK"
+    RUNNER_ARGS="${CONFIG_PROFILE}${TWO_PASS}-nVxr"
+fi
+
 
 NOTFOUND=0
 for i in "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
@@ -136,7 +148,7 @@ HOWMANY="forever"
 if [ $MAX_PASSES -gt 0 ]; then
         HOWMANY="$MAX_PASSES passes"
 fi
-echo "Running $TSHARK with args: $TSHARK_ARGS ($HOWMANY)"
+echo "Running $RUNNER with args: $RUNNER_ARGS ($HOWMANY)"
 echo ""
 
 # Clean up on <ctrl>C, etc
@@ -218,6 +230,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	fi
 
 	DISSECTOR_BUG=0
+	VG_ERR_CNT=0
 
 	"$EDITCAP" -E $ERR_PROB "$CF" $TMP_DIR/$TMP_FILE > /dev/null 2>&1
 	if [ $? -ne 0 ] ; then
@@ -229,14 +242,22 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
 	    fi
 	fi
 
-	"$TSHARK" $TSHARK_ARGS $TMP_DIR/$TMP_FILE \
+	"$RUNNER" $RUNNER_ARGS $TMP_DIR/$TMP_FILE \
 	    > /dev/null 2>> $TMP_DIR/$ERR_FILE
 	RETVAL=$?
+
 	# Uncomment the next two lines to enable dissector bug
 	# checking.
 	#grep -i "dissector bug" $TMP_DIR/$ERR_FILE \
 	#    > /dev/null 2>&1 && DISSECTOR_BUG=1
-	if [ \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 \) -a $DONE -ne 1 ] ; then
+
+	if [ $VALGRIND -eq 1 ]; then
+	    VG_ERR_CNT="`grep "ERROR SUMMARY:" $TMP_DIR/$ERR_FILE | cut -f4 -d' '`"
+	fi
+
+	if [ \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 \) \
+	    -a $DONE -ne 1 ] ; then
+
 	    echo ""
 	    echo " ERROR"
 	    echo -e "Processing failed.  Capture info follows:\n"
