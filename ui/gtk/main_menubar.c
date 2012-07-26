@@ -784,7 +784,7 @@ view_menu_reset_coloring_cb(GtkAction *action, gpointer user_data)
  * TODO Move this menu to capture_if_dlg.c ?
  */
 static void
-capture_cb(GtkAction *action _U_, gpointer user_data _U_)
+capture_cb(GtkAction *action, gpointer user_data)
 {
 #ifdef HAVE_LIBPCAP
     const gchar *action_name;
@@ -4045,7 +4045,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
 
     action_group = gtk_action_group_new ("recent-files-group");
 
-    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);
+    submenu_recent_files = gtk_ui_manager_get_widget(ui_manager, MENU_RECENT_FILES_PATH);
     if(!submenu_recent_files){
         g_warning("add_recent_items: No submenu_recent_files found, path= MENU_RECENT_FILES_PATH");
     }
