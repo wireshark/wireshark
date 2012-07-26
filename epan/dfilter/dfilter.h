@@ -28,7 +28,6 @@
 /* Passed back to user */
 typedef struct _dfilter_t dfilter_t;
 
-#include <epan/epan.h>
 #include <epan/proto.h>
 
 #ifdef __cplusplus
