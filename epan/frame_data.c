@@ -308,8 +308,15 @@ frame_data_cleanup(frame_data *fdata)
     g_slist_free(fdata->pfd);
     fdata->pfd = NULL;
   }
+
+  /* XXX, frame_data_cleanup() is called when redissecting (rescan_packets()),
+   *      which might be triggered by lot of things, like: preferences change, setting manual address resolve, etc.. (grep by redissect_packets)
+   *      fdata->opt_comment can be set by user, which we must not discard when redissecting.
+   */
+#if 0
   if (fdata->opt_comment) {
     g_free(fdata->opt_comment);
     fdata->opt_comment = NULL;
   }
+#endif
 }
