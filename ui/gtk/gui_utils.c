@@ -122,7 +122,6 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
     GList            *ws_icon_list=NULL;
     GdkPixbuf        *icon;
 
-
     icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon16_xpm);
     ws_icon_list = g_list_append (ws_icon_list, icon);
     icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon32_xpm);
@@ -131,7 +130,12 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
     ws_icon_list = g_list_append (ws_icon_list, icon);
     icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon64_xpm);
     ws_icon_list = g_list_append (ws_icon_list, icon);
+
     gtk_window_set_icon_list(GTK_WINDOW(win), ws_icon_list);
+
+    g_list_foreach(ws_icon_list, (GFunc) g_object_unref, NULL);
+    g_list_free(ws_icon_list);
+
     /* set icon by name, this allows us to use even SVG icon if it is present */
     gtk_window_set_icon_name(GTK_WINDOW(win), "wireshark");
 #endif
