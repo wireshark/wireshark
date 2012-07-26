@@ -371,9 +371,13 @@ packet_list_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 {
 	GtkTreePath *path;
 	PacketListRecord *record;
+	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), NULL);
+	packet_list = PACKET_LIST(tree_model);
+
 	g_return_val_if_fail(iter != NULL, NULL);
+	g_return_val_if_fail(iter->stamp == packet_list->stamp, NULL);
 	g_return_val_if_fail(iter->user_data != NULL, NULL);
 
 	record = (PacketListRecord*) iter->user_data;
@@ -392,9 +396,12 @@ packet_list_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter, gint column,
 	PacketList *packet_list;
 
 	g_return_if_fail(PACKETLIST_IS_LIST(tree_model));
-	g_return_if_fail(iter != NULL);
-
 	packet_list = PACKET_LIST(tree_model);
+
+	g_return_if_fail(iter != NULL);
+	g_return_if_fail(iter->stamp == packet_list->stamp);
+	g_return_if_fail(iter->user_data != NULL);
+
 	/* Note: We use one extra column to store the entire frame_data */
 	g_return_if_fail(column >= 0 && column < packet_list->n_cols + 1);
 
@@ -459,13 +466,13 @@ packet_list_iter_next(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
+	packet_list = PACKET_LIST(tree_model);
 
 	if(iter == NULL)
 		return FALSE;
 
+	g_return_val_if_fail(iter->stamp == packet_list->stamp, FALSE);
 	g_return_val_if_fail(iter->user_data, FALSE);
-
-	packet_list = PACKET_LIST(tree_model);
 
 	record = (PacketListRecord*) iter->user_data;
 	nextrecord = packet_list_iter_next_visible(packet_list, record);
@@ -485,15 +492,15 @@ packet_list_iter_children(GtkTreeModel *tree_model, GtkTreeIter *iter,
 {
 	PacketList *packet_list;
 
-	g_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
+	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
+	packet_list = PACKET_LIST(tree_model);
 
 	/* This is a list, nodes have no children. */
-	if(parent)
+	if(parent) {
+		g_return_val_if_fail(parent->stamp == packet_list->stamp, FALSE);
+		g_return_val_if_fail(parent->user_data, FALSE);
 		return FALSE;
-
-	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
-
-	packet_list = PACKET_LIST(tree_model);
+	}
 
 	/* No rows => no first row */
 	if(PACKET_LIST_RECORD_COUNT(packet_list->visible_rows) == 0)
@@ -518,8 +525,6 @@ packet_list_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), 0);
-	g_return_val_if_fail(iter == NULL || iter->user_data != NULL, 0);
-
 	packet_list = PACKET_LIST(tree_model);
 
 	if(!iter) {
@@ -527,6 +532,8 @@ packet_list_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 		return PACKET_LIST_RECORD_COUNT(packet_list->visible_rows);
 	}
 	else {
+		g_return_val_if_fail(iter->stamp == packet_list->stamp, 0);
+		g_return_val_if_fail(iter->user_data, 0);
 		/* Lists have zero children */
 		return 0;
 	}
@@ -540,12 +547,14 @@ packet_list_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter,
 	PacketList *packet_list;
 
 	g_return_val_if_fail(PACKETLIST_IS_LIST(tree_model), FALSE);
-
 	packet_list = PACKET_LIST(tree_model);
 
 	/* A list only has top-level rows */
-	if(parent)
+	if(parent) {
+		g_return_val_if_fail(parent->stamp == packet_list->stamp, FALSE);
+		g_return_val_if_fail(parent->user_data, FALSE);
 		return FALSE;
+	}
 
 	/* Special case: if parent == NULL, set iter to n-th top-level row. */
 	if(!PACKET_LIST_RECORD_INDEX_VALID(packet_list->visible_rows, n))
@@ -619,6 +628,9 @@ new_packet_list_store_clear(PacketList *packet_list)
 
 	packet_list->columnized = FALSE;
 
+	/* Generate new number */
+	packet_list->stamp = g_random_int();
+
 #ifdef NEW_PACKET_LIST_STATISTICS
 	g_warning("Const strings: %u", packet_list->const_strings);
 	packet_list->const_strings = 0;
@@ -642,24 +654,6 @@ packet_list_row_inserted(PacketList *packet_list, guint pos)
 	gtk_tree_model_row_inserted(GTK_TREE_MODEL(packet_list), path, &iter);
 
 	gtk_tree_path_free(path);
-}
-
-gboolean
-packet_list_visible_record(PacketList *packet_list, GtkTreeIter *iter)
-{
-	PacketListRecord *record;
-
-	g_return_val_if_fail(PACKETLIST_IS_LIST(packet_list), FALSE);
-
-	if(iter == NULL || iter->user_data == NULL)
-		return FALSE;
-
-	record = (PacketListRecord*) iter->user_data;
-
-	g_return_val_if_fail(record, FALSE);
-	g_return_val_if_fail(record->fdata, FALSE);
-
-	return (record->fdata->flags.passed_dfilter || record->fdata->flags.ref_time);
 }
 
 gint
