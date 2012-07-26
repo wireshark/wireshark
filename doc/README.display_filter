@@ -3,7 +3,7 @@
 What is the display filter system?
 ==================================
 The display filter system allows the user to select packets by testing
-for values in the proto_tree that wireshark constructs for that packet.
+for values in the proto_tree that Wireshark constructs for that packet.
 Every proto_item in the proto_tree has an 'abbrev' field
 and a 'type' field, which tells the display filter engine the name
 of the field and its type (what values it can hold).
@@ -547,7 +547,7 @@ almost done as no errors should occur here.
 
 Go to wireshark/ and run make. One thing to do is make dftest and see
 if you can construct valid display filters with your new operator. Or
-you may want to move directly to the generation of wireshark.
+you may want to move directly to the generation of Wireshark.
 
 Look also at wireshark/gtk/dfilter_expr_dlg.c and edit the display filter
 expression generator.
@@ -593,6 +593,6 @@ Total Tests Failed: 0
 
 
 Note that dfilter-test.py should be run from the top of the
-wireshark distribution, so it knows where to find the default
+Wireshark distribution, so it knows where to find the default
 text2pcap and tshark executables.
 
