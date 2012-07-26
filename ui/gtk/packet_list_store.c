@@ -704,11 +704,6 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 	size_t col_text_len;
 	int text_col;
 
-	g_return_if_fail(packet_list);
-	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
-
-	g_assert((record->col_text != NULL)&&(record->col_text_len != NULL));
-
 	text_col = packet_list->col_to_text[col];
 
 	/* Column based on frame_data or it already contains a value */
@@ -1148,6 +1143,11 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	gboolean create_proto_tree;
 	union wtap_pseudo_header pseudo_header; /* Packet pseudo_header */
 	guint8 pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
+
+	g_return_if_fail(packet_list);
+	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
+
+	g_assert((record->col_text != NULL)&&(record->col_text_len != NULL));
 
 	/* XXX: Does it work to check if the record is already columnized/colorized ?
 	 *      i.e.: test record->columnized and record->colorized and just return
