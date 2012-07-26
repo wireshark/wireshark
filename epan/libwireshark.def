@@ -22,8 +22,8 @@ airpdcap_ctx                    DATA
 AirPDcapDestroyContext
 AirPDcapInitContext
 analyze_q708_ispc
-ansi_a_bsmap_strings     DATA
-ansi_a_dtap_strings     DATA
+ansi_a_bsmap_strings            DATA
+ansi_a_dtap_strings             DATA
 ansi_a_ios401_bsmap_strings     DATA
 ansi_a_ios401_dtap_strings      DATA
 ansi_a_ios501_bsmap_strings     DATA
@@ -139,10 +139,10 @@ dcerpc_get_transport_salt
 dcerpc_hooks_init_protos        DATA
 dcerpc_init_uuid
 dcerpc_uuids                    DATA
-dcom_hresult_vals                               DATA
+dcom_hresult_vals               DATA
 dcom_interface_find
 dcom_interface_new
-dcom_variant_type_vals                  DATA
+dcom_variant_type_vals          DATA
 decode_bitfield_value
 decode_bits_in_field
 decode_boolean_bitfield
@@ -348,7 +348,7 @@ dissector_try_heuristic
 dissector_try_string
 dissector_try_uint
 draw_tap_listeners
-dscp_vals                                               DATA
+dscp_vals                     DATA
 dtbl_entry_get_handle
 dtbl_entry_get_initial_handle
 EBCDIC_to_ASCII
@@ -365,7 +365,7 @@ emem_tree_lookup32_array
 emem_tree_lookup32_array_le
 emem_tree_lookup32_le
 emem_tree_lookup_string
-empty_tcp_stream           DATA
+empty_tcp_stream              DATA
 elem_lv
 elem_t
 elem_tlv
@@ -449,7 +449,7 @@ file_open_error_message
 file_write_error_message
 files_identical
 filesystem_opt
-pfilter_expression_head		DATA
+pfilter_expression_head         DATA
 filter_expression_new
 find_circuit
 find_codec
@@ -952,9 +952,9 @@ rpc_roundup
 rtcp_add_address
 rtp_add_address
 rtp_free_hash_dyn_payload
-rtp_payload_type_short_vals_ext    DATA
+rtp_payload_type_short_vals_ext     DATA
 rtp_payload_type_vals_ext           DATA
-rtsp_status_code_vals				DATA
+rtsp_status_code_vals               DATA
 running_in_build_directory
 rval_to_str
 sccp_message_type_acro_values           DATA
@@ -1042,7 +1042,7 @@ sua_co_class_type_acro_values   DATA
 swaptab
 t30_facsimile_control_field_vals_short  DATA
 t30_facsimile_control_field_vals        DATA
-t38_T30_data_vals                   DATA
+t38_T30_data_vals               DATA
 t38_T30_indicator_vals          DATA
 t38_add_address
 T_h323_message_body_vals        DATA
