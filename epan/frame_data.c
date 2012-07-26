@@ -304,8 +304,12 @@ frame_data_set_after_dissect(frame_data *fdata,
 void
 frame_data_cleanup(frame_data *fdata)
 {
-  if (fdata->pfd)
+  if (fdata->pfd) {
     g_slist_free(fdata->pfd);
-
-  fdata->pfd = NULL;
+    fdata->pfd = NULL;
+  }
+  if (fdata->opt_comment) {
+    g_free(fdata->opt_comment);
+    fdata->opt_comment = NULL;
+  }
 }
