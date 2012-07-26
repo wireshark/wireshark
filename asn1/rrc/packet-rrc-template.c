@@ -127,6 +127,9 @@ static const true_false_string rrc_eutra_feat_group_ind_4_val = {
 static int flowd,type;
 
 static tvbuff_t * hrnti;
+/*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
+#define	MAX_NUM_HSDHSCH_MACDFLOW 8
+static guint8 num_chans_per_flow[MAX_NUM_HSDHSCH_MACDFLOW];
 
 #include "packet-rrc-fn.c"
 

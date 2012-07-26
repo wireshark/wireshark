@@ -62,8 +62,8 @@ static gboolean global_rlc_headers_expected = FALSE;
 /* Heuristic dissection */
 static gboolean global_rlc_heur = FALSE;
 
-/* Preferences to expect chipered data*/
-static gboolean global_rlc_chipered = FALSE;
+/* Preferences to expect ciphered data*/
+static gboolean global_rlc_ciphered = FALSE;
 
 /* Stop trying to do reassembly if this is true. */
 static gboolean fail = FALSE;
@@ -1465,7 +1465,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 	pos = fpinf->cur_tb;
-	if (rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) {
+	if (global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 			"Cannot dissect RLC frame because it is ciphered");
 		col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
@@ -1882,7 +1882,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 	pos = fpinf->cur_tb;
-	if (rlcinf->ciphered[pos] == TRUE && rlcinf->deciphered[pos] == FALSE) {
+	if (global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 		"Cannot dissect RLC frame because it is ciphered");
 		col_append_str(pinfo->cinfo, COL_INFO, "[Ciphered Data]");
@@ -2286,10 +2286,10 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return TRUE;
 }
 
-gboolean rlc_is_chipered(packet_info * pinfo){
+gboolean rlc_is_ciphered(packet_info * pinfo){
 		int i;
 		i = pinfo->fd->num;
-		return global_rlc_chipered;
+		return global_rlc_ciphered;
 	}
 
 void
@@ -2479,10 +2479,10 @@ proto_register_rlc(void)
 		&global_rlc_headers_expected);
 
 
-	prefs_register_bool_preference(rlc_module, "chipered_data",
-		"Chipered data",
-		"When enabled, rlc will assume all data is chipered and won't process it ",
-		&global_rlc_chipered);
+	prefs_register_bool_preference(rlc_module, "ciphered_data",
+		"Ciphered data",
+		"When enabled, rlc will assume all data is ciphered and won't process it ",
+		&global_rlc_ciphered);
 
 	register_init_routine(fragment_table_init);
 }

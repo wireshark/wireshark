@@ -634,7 +634,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     chan+1, n+1, p_fp_info->chan_tf_size[chan]);
             }
 
-            if (preferences_call_mac_dissectors && !rlc_is_chipered(pinfo) && data_handle &&
+            if (preferences_call_mac_dissectors && !rlc_is_ciphered(pinfo) && data_handle &&
                 (p_fp_info->chan_tf_size[chan] > 0)) {
                 tvbuff_t *next_tvb;
                 proto_item *item;
@@ -642,7 +642,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if(p_fp_info->is_uplink){
                     item = proto_tree_add_item(data_tree, hf_fp_crci[n%8], tvb, (crci_bit_offset/8)+(n/8), 1, ENC_BIG_ENDIAN);
                     PROTO_ITEM_SET_GENERATED(item);
-					
+
 					if( p_fp_info->channel == CHANNEL_RACH_FDD){	/*In RACH we don't have any QE field, hence go back 8 bits.*/
 						crci_bit = tvb_get_bits8(tvb,crci_bit_offset+(n/8)-8,1);
 					}else{
@@ -669,8 +669,8 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             }
             /*Encrypted data, show message*/
-            else if(rlc_is_chipered(pinfo)){
-				expert_add_info_format(pinfo,tree_ti,PI_UNDECODED,PI_NOTE,"Chipered data, dissection stopped.");
+            else if(rlc_is_ciphered(pinfo)){
+				expert_add_info_format(pinfo,tree_ti,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
 			}
             num_tbs++;
 
@@ -743,15 +743,15 @@ dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          ENC_NA);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
         }
-        if (preferences_call_mac_dissectors && !rlc_is_chipered(pinfo)) {
+        if (preferences_call_mac_dissectors && !rlc_is_ciphered(pinfo)) {
             tvbuff_t *next_tvb;
             next_tvb = tvb_new_subset(tvb, offset + bit_offset/8,
                                       ((bit_offset % 8) + length + 7)/8, -1);
             call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
             dissected = TRUE;
         } /*Encrypted data, show message*/
-        else if(rlc_is_chipered(pinfo)){
-			expert_add_info_format(pinfo,pdus_ti,PI_UNDECODED,PI_NOTE,"Chipered data, dissection stopped.");
+        else if(rlc_is_ciphered(pinfo)){
+			expert_add_info_format(pinfo,pdus_ti,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
 		}
 
         /* Advance bit offset */
@@ -809,19 +809,19 @@ dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
 
         }
-     
-		if (preferences_call_mac_dissectors && !rlc_is_chipered(pinfo)) {
-			  
+
+		if (preferences_call_mac_dissectors && !rlc_is_ciphered(pinfo)) {
+
 			tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, -1);
-			
-		
+
+
 			fpi->cur_tb = pdu;	/*Set proper pdu index for MAC and higher layers*/
 			call_dissector(mac_fdd_hsdsch_handle, next_tvb, pinfo, top_level_tree);
 			dissected = TRUE;
 		}
 		 /*Encrypted data, show message*/
-        else if(rlc_is_chipered(pinfo)){
-				expert_add_info_format(pinfo,pdus_ti,PI_UNDECODED,PI_NOTE,"Chipered data, dissection stopped.");
+        else if(rlc_is_ciphered(pinfo)){
+				expert_add_info_format(pinfo,pdus_ti,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
 		}
         /* Advance offset */
         offset += length;
@@ -1384,7 +1384,7 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item *rx_timing_deviation_ti               = NULL;
         guint16     rx_timing_deviation                  = 0;
 		guint header_length = 0;
-		
+
         /* DATA */
 
         /* CFN */
@@ -1421,9 +1421,9 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
-        
+
 		header_length = offset;
-		
+
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_rach_handle);
 
@@ -1623,7 +1623,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         guint8 cfn;
 		guint header_length = 0;
-		
+
         /* DATA */
 
         /* CFN */
@@ -1642,7 +1642,7 @@ dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              (float)(int)(tvb_get_guint8(tvb, offset)) / 10);
         offset++;
 		header_length = offset;
-		
+
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &mac_fdd_fach_handle);
 
@@ -1690,7 +1690,7 @@ dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else {
         guint8 cfn;
 		guint header_length = 0;
-        
+
         /* DATA */
 
         /* CFN */
@@ -1776,7 +1776,7 @@ dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint16 rx_timing_deviation;
         proto_item *rx_timing_deviation_ti;
 		guint header_length = 0;
-		
+
         /* DATA */
 
         /* CFN */
@@ -2481,7 +2481,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                     number_of_subframes, is_common);
             return;
         }
-        
+
 		header_length = offset;
         /* EDCH subframe header list */
         for (n=0; n < number_of_subframes; n++) {
@@ -2646,7 +2646,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 for (macd_idx = 0; macd_idx < subframes[n].number_of_mac_d_pdus[i]; macd_idx++) {
 
-                    if (preferences_call_mac_dissectors && !rlc_is_chipered(pinfo)) {
+                    if (preferences_call_mac_dissectors && !rlc_is_ciphered(pinfo)) {
                         tvbuff_t *next_tvb;
                         pinfo->fd->subnum = macd_idx; /* set subframe number to current TB */
                         /* create new TVB and pass further on */
@@ -2677,8 +2677,8 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     }
                     else {
 						 /*Encrypted data, show message*/
-						if(rlc_is_chipered(pinfo)){
-							expert_add_info_format(pinfo,tree,PI_UNDECODED,PI_NOTE,"Chipered data, dissection stopped.");
+						if(rlc_is_ciphered(pinfo)){
+							expert_add_info_format(pinfo,tree,PI_UNDECODED,PI_NOTE,"Ciphered data, dissection stopped.");
 						}
                         /* Just add as a MAC-d PDU */
                         proto_tree_add_item(maces_tree, hf_fp_mac_d_pdu, tvb,
@@ -3092,13 +3092,13 @@ dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			macinf->macdflow_id[i] = p_fp_info->hsdsch_macflowd_id;	/*Save the flow ID (+1 to make it human readable (its zero indexed!))*/
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
 			rlcinf->mode[i] = hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];
-		
-          
+
+
 			/*Check if this is multiplexed (signaled by RRC)*/
-            if( !rlc_is_chipered(pinfo) && p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ){
+            if( !rlc_is_ciphered(pinfo) && p_fp_info->hsdhsch_macfdlow_is_mux[p_fp_info->hsdsch_macflowd_id] ){
 				macinf->ctmux[i] = TRUE;
 			}else if(p_fp_info->hsdsch_macflowd_id == 0){  			/*MACd-flow = 0 is often SRB */
-				expert_add_info_format(pinfo,NULL,PI_PROTOCOL,PI_NOTE,"Found MACd-Flow = 0 and  not MUX detected. (This might be SRB)");				
+				expert_add_info_format(pinfo,NULL,PI_PROTOCOL,PI_NOTE,"Found MACd-Flow = 0 and  not MUX detected. (This might be SRB)");
 			}else{
 					macinf->ctmux[i] = FALSE;	/*Either it's multiplexed and not signled or its not MUX*/
 			}
@@ -3369,7 +3369,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				rlcinf->rbid[j] = (guint8)lchid[n]+1;
 				rlcinf->urnti[j] = p_fp_info->channel;	/*We need to fake urnti*/
 			}
-		
+
             /* Add PDU block header subtree */
             offset = dissect_macd_pdu_data_type_2(tvb, pinfo, tree, offset,
                                                   (guint16)pdu_length[n],
@@ -3567,7 +3567,7 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /* Now read the MAC-d/c PDUs for each block using info from headers */
         for (n=0; n < number_of_pdu_blocks; n++) {
 			for(j=0;j<no_of_pdus[n];j++){
-			
+
 					if(lchid[n] == 0xF){	/*If all bits are set, then this is BCCH or PCCH according to: 25.435 paragraph: 6.2.7.31*/
 						/*BCCH, then we have a MAC-ehs header*/
 						/*PCCH then we don't have any MAC-c header */
@@ -3578,33 +3578,33 @@ void dissect_hsdsch_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 				/*Configure (signal to lower layers) the PDU!*/
 					macinf->content[j] = lchId_type_table[lchid[n]+1];/*hsdsch_macdflow_id_mac_content_map[p_fp_info->hsdsch_macflowd_id];*/ /*MAC_CONTENT_PS_DTCH;*/
 					macinf->lchid[j] = (guint8)lchid[n]+1;	/*Add 1 since C/T is zero indexed? ie C/T =0 => L-CHID = 1*/
-					
+
 					macinf->macdflow_id[j] = p_fp_info->hsdsch_macflowd_id;
-				
+
 					/*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
-					
+
 					rlcinf->mode[j] = RLC_TM;/*lchId_rlc_map[lchid[n]+1];*//*hsdsch_macdflow_id_rlc_map[p_fp_info->hsdsch_macflowd_id];*/
-				
+
 					macinf->ctmux[n] = TRUE;	/*This is handled already in FP*/
 					rlcinf->li_size[j] = RLC_LI_7BITS;
 					/*rlcinf->ciphered[j] = FALSE;*/
 					rlcinf->deciphered[j] = FALSE;
 					rlcinf->rbid[j] = (guint8)lchid[n]+1;
 					rlcinf->urnti[j] = p_fp_info->channel;	/*We need to fake urnti*/
-				
+
 			}
             /* Add PDU block header subtree */
             offset = dissect_macd_pdu_data_type_2(tvb, pinfo, tree, offset,
                                                   (guint16)pdu_length[n],
                                                   (guint16)no_of_pdus[n],p_fp_info);
-                                                  
-                                           
+
+
         }
 
         /* Spare Extension and Payload CRC */
         dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset,0);
     }
-	
+
 }
 static gboolean
 heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3698,7 +3698,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
     rlc_info *rlcinf;
 	guint8 fake_lchid=0;
 	gint *cur_val=NULL;
-   
+
     fpi = se_new0(fp_info);
     p_add_proto_data(pinfo->fd, proto_fp, fpi);
 
@@ -3739,7 +3739,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
             rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[p_conv_data->hsdsch_macdflow_id];
-			
+
 			if(fpi->hsdsch_entity == hs){
 				for(i=0; i<MAX_NUM_HSDHSCH_MACDFLOW; i++){
 					if((cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)p_conv_data->hrnti))) != NULL){
@@ -3749,7 +3749,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 					}else{
 						fpi->hsdhsch_macfdlow_is_mux[i] = FALSE;
 					}
-							
+
 				}
 			}
             /* Make configurable ?(available in NBAP?) */
@@ -3954,7 +3954,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             rlcinf->deciphered[0] = FALSE;
             p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
             break;
-         
+
         case CHANNEL_RACH_FDD:
             fpi->num_chans = p_conv_data->num_dch_in_flow;
             if (is_control_frame) {
@@ -5248,9 +5248,9 @@ void proto_register_fp(void)
                                    "Call MAC dissector for payloads",
                                    "Call MAC dissector for payloads",
                                    &preferences_call_mac_dissectors);
-     /* Determines whether or not to validate FP payload checksums */ 	 
-	prefs_register_bool_preference(fp_module, "payload_checksum", 
-									"Validate FP payload checksums", 
+     /* Determines whether or not to validate FP payload checksums */
+	prefs_register_bool_preference(fp_module, "payload_checksum",
+									"Validate FP payload checksums",
 									"Validate FP payload checksums",
 									&preferences_payload_checksum);
 
