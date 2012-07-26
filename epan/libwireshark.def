@@ -873,6 +873,7 @@ proto_tree_get_parent
 proto_tree_get_root
 proto_tree_move_item
 proto_tree_set_appendix
+proto_unregister_field
 protocols_module                DATA
 ptvcursor_new
 ptvcursor_add
