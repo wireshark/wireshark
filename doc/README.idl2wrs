@@ -9,17 +9,17 @@ What is it ?
 As you have probably guessed from the name, "idl2wrs" takes a
 user specified IDL file and attempts to build a dissector that
 can decode the IDL traffic over GIOP. The resulting file is
-"C" code, that should compile okay as an wireshark dissector.
+"C" code that should compile okay as a wireshark dissector.
 
 idl2wrs basically parses the data struct given to it by
 the omniidl compiler, and using the GIOP API available in packet-giop.[ch],
-generates  get_CDR_xxx calls to decode the CORBA traffic on the wire.
+generates get_CDR_xxx calls to decode the CORBA traffic on the wire.
 
 It consists of 4 main files.
 
 README.idl2wrs     - This document
-wireshark_be.py     - The main compiler backend
-wireshark_gen.py    - A helper class, that generates the C code.
+wireshark_be.py    - The main compiler backend
+wireshark_gen.py   - A helper class that generates the C code.
 idl2wrs            - A simple shell script wrapper that the end user should
                      use to generate the dissector from the IDL file(s).
 
@@ -53,9 +53,9 @@ need the following.
 2. omniidl from the omniORB package must be available.
    http://omniorb.sourceforge.net/
 
-3  Of course you need wireshark installed to compile the
-   code an tweak it if required. idl2wrs is part of the 
-   standard Wireshark distribution
+3. Of course you need wireshark installed to compile the
+   code and tweak it if required. idl2wrs is part of the 
+   standard Wireshark distribution.
 
 
 Procedure
@@ -94,12 +94,12 @@ steps 3 or 4 instead.
    and that will leave you with heuristic dissection.
 
 
-5. Copy the resulting C code to your wireshark src directory, edit the 2 make
-   files to include the packet-test-idl.c
+5. Copy the resulting C code to your wireshark src directory, edit the
+   following files to include the packet-test-idl.c
  
-   cp packet-test-idl.c /dir/where/wireshark/lives/
-   edit Makefile.am
-   edit Makefile.nmake
+   cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/
+   edit epan/dissectors/Makefile.common
+   edit epan/CMakeLists.txt
 
 6. Run configure
 
@@ -117,7 +117,7 @@ TODO
 
 1. Exception code not generated  (yet), but can be added manually.
 2. Enums not converted to symbolic values (yet), but can be added manually.
-3. Add command line options etc
+3. Add command line options, etc.
 4. More I am sure :-)
 
 
