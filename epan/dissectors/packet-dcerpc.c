@@ -1560,8 +1560,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
            proto_tree_add_item() with the appropriate ENC_ value? */
         /* XXX - should this ever be used with something that's *not*
            an FT_STRING? */
-        s = tvb_get_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
-
+        s = tvb_get_ephemeral_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
         if (tree && buffer_len) {
             hfinfo = proto_registrar_get_nth(hfindex);
             tvb_ensure_bytes_exist(tvb, offset, buffer_len);
@@ -1573,6 +1572,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                     buffer_len, DREP_ENC_INTEGER(drep));
             }
         }
+
     } else {
         /*
          * "tvb_get_ephemeral_string()" throws an exception if the entire string
@@ -1750,8 +1750,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
            proto_tree_add_item() with the appropriate ENC_ value? */
         /* XXX - should this ever be used with something that's *not*
            an FT_STRING? */
-        s = tvb_get_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
-
+        s = tvb_get_ephemeral_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
         if (tree && buffer_len) {
             hfinfo = proto_registrar_get_nth(hfindex);
             tvb_ensure_bytes_exist(tvb, offset, buffer_len);
@@ -1763,6 +1762,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                     buffer_len, DREP_ENC_INTEGER(drep));
             }
         }
+
     } else {
         /*
          * "tvb_get_ephemeral_string()" throws an exception if the entire string

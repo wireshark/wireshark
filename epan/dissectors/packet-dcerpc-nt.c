@@ -170,6 +170,7 @@ dissect_null_term_wstring(tvbuff_t *tvb, int offset,
 	/* tvb_get_ephemeral_string didn't want the length with the 0*/
 	s = tvb_get_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
 	proto_tree_add_string(tree, hf_index, tvb, offset, len, s);
+	g_free(s);
 
 	return tmp_offset;
 }
