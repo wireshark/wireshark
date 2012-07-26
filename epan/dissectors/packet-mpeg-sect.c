@@ -80,7 +80,6 @@ enum {
 
 /* From ETSI EN 301 790 */
 enum {
-
 	TID_RMT = 0x41, /* Conflict with TID_NIT_OTHER */
 	TID_SCT = 0xA0,
 	TID_FCT,
@@ -153,23 +152,23 @@ static const value_string mpeg_sect_table_id_vals[] = {
 gint
 packet_mpeg_sect_mjd_to_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time)
 {
-    gint   bcd_time_offset;     /* start offset of the bcd time in the tvbuff */
-    guint8 hour, min, sec;
+	gint   bcd_time_offset;     /* start offset of the bcd time in the tvbuff */
+	guint8 hour, min, sec;
 
-    if (!utc_time)
-        return -1;
+	if (!utc_time)
+		return -1;
 
-    nstime_set_zero(utc_time);
-    utc_time->secs  = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
-    bcd_time_offset = offset+2;
-    hour            = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
-    min             = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
-    sec             = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
-    if (hour>23 || min>59 || sec>59)
-        return -1;
+	nstime_set_zero(utc_time);
+	utc_time->secs  = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
+	bcd_time_offset = offset+2;
+	hour            = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
+	min             = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
+	sec             = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
+	if (hour>23 || min>59 || sec>59)
+		return -1;
 
-    utc_time->secs += hour*3600 + min*60 + sec;
-    return 5;
+	utc_time->secs += hour*3600 + min*60 + sec;
+	return 5;
 }
 
 guint
@@ -270,7 +269,7 @@ packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 					PI_ERROR, "Invalid CRC" );
 	}
 
-   return 4;
+	return 4;
 }
 
 
@@ -278,12 +277,12 @@ static void
 dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint     offset           = 0;
-	guint8   table_id         = 0;
 	guint    section_length   = 0;
 	gboolean syntax_indicator = FALSE;
+	guint8   table_id;
 
-	proto_item *ti = NULL;
-	proto_tree *mpeg_sect_tree = NULL;
+	proto_item *ti;
+	proto_tree *mpeg_sect_tree;
 
 	table_id = tvb_get_guint8(tvb, offset);
 
@@ -292,16 +291,16 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	/* If no dissector is registered, use the common one */
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%02x", table_id);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%02x", table_id);
 
-        ti = proto_tree_add_item(tree, proto_mpeg_sect, tvb, offset, -1, ENC_NA);
-        mpeg_sect_tree = proto_item_add_subtree(ti, ett_mpeg_sect);
+	ti = proto_tree_add_item(tree, proto_mpeg_sect, tvb, offset, -1, ENC_NA);
+	mpeg_sect_tree = proto_item_add_subtree(ti, ett_mpeg_sect);
 
-        proto_item_append_text(ti, " Table_ID=0x%02x", table_id);
+	proto_item_append_text(ti, " Table_ID=0x%02x", table_id);
 
-        packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
-                                &section_length, &syntax_indicator);
+	packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
+				&section_length, &syntax_indicator);
 
 	if (syntax_indicator)
 		packet_mpeg_sect_crc(tvb, pinfo, mpeg_sect_tree, 0, (section_length-1));
@@ -352,7 +351,7 @@ proto_register_mpeg_sect(void)
 	mpeg_sect_module = prefs_register_protocol(proto_mpeg_sect, NULL);
 
 	prefs_register_bool_preference(mpeg_sect_module,
-                "verify_crc",
+		"verify_crc",
 		"Verify the section CRC",
 		"Whether the section dissector should verify the CRC",
 		&mpeg_sect_check_crc);

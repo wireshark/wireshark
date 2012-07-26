@@ -31,7 +31,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-mpeg-sect.h>
 
@@ -125,14 +124,14 @@ static const range_string aid_control_code_values[] = {
 static guint
 dissect_etv_bif_platform_ids(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	proto_tree *platform_tree = NULL;
+	proto_tree *platform_tree;
 	proto_item *pi;
 
 	pi = proto_tree_add_text(tree, tvb, offset, 15, "Platform Id");
 	platform_tree = proto_item_add_subtree(pi, ett_eiss_platform_id);
 	proto_tree_add_item(platform_tree, hf_pdtHWManufacturer, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(platform_tree, hf_pdtHWModel, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(platform_tree, hf_pdtHWModel,	 tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	proto_tree_add_item(platform_tree, hf_pdtHWVersionMajor, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -140,30 +139,29 @@ dissect_etv_bif_platform_ids(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	offset++;
 	proto_tree_add_item(platform_tree, hf_pdtSWManufacturer, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(platform_tree, hf_pdtSWModel, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(platform_tree, hf_pdtSWModel,	 tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	proto_tree_add_item(platform_tree, hf_pdtSWVersionMajor, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	proto_tree_add_item(platform_tree, hf_pdtSWVersionMinor, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(platform_tree, hf_pdtProfile, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(platform_tree, hf_pdtProfile,	 tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	return 15;
 }
 
 static guint
-dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-				guint offset)
+dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
 	proto_item *pi;
 	proto_tree *sub_tree;
-	guint tag;
+	guint       tag;
 
 	tag = tvb_get_guint8(tvb, offset);
 
 	if (0xe0 == tag) {
-		guint8 total_length;
+		guint total_length;
 
 		total_length = tvb_get_guint8(tvb, offset+1);
 		pi = proto_tree_add_text(tree, tvb, offset, (2+total_length),
@@ -221,8 +219,8 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					offset, 4, ENC_BIG_ENDIAN);
 		return 6;
 	} else if (0xe2 == tag) {
-		guint16 tmp;
-		tvbuff_t *payload = NULL;
+		guint     tmp;
+		tvbuff_t *payload;
 
 		tmp = tvb_get_ntohs(tvb, offset+1);
 		pi = proto_tree_add_text(tree, tvb, offset, (3+tmp),
@@ -260,20 +258,19 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint offset = 0, packet_length, sect_len;
-	proto_item *ti = NULL;
-	proto_item *pi = NULL;
-	proto_tree *eiss_tree = NULL;
+	guint       offset = 0, packet_length, sect_len;
+	proto_item *ti;
+	proto_item *pi;
+	proto_tree *eiss_tree;
 	proto_item *items[PACKET_MPEG_SECT_PI__SIZE];
-	gboolean ssi;
-	guint reserved;
-	guint8 reserved2;
-	guint8 sect_num, last_sect_num;
+	gboolean    ssi;
+	guint       reserved;
+	guint8      reserved2;
+	guint8      sect_num, last_sect_num;
 
 	guint16 eiss_application_type;
 	guint8 platform_id_length;
 
-	col_clear(pinfo->cinfo, COL_PROTOCOL);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EISS");
 
 	ti = proto_tree_add_item(tree, proto_eiss, tvb, offset, -1, ENC_NA);
@@ -329,24 +326,24 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					"Invalid section_number (must be <= last_section_number)");
 	}
 	offset++;
-	proto_tree_add_item(eiss_tree, hf_eiss_last_section_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(eiss_tree, hf_eiss_last_section_number,     tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(eiss_tree, hf_eiss_protocol_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(eiss_tree, hf_eiss_protocol_version_major,  tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(eiss_tree, hf_eiss_protocol_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(eiss_tree, hf_eiss_protocol_version_minor,  tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	eiss_application_type = tvb_get_ntohs(tvb, offset);
-	pi = proto_tree_add_item(eiss_tree, hf_eiss_application_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(eiss_tree, hf_eiss_application_type,   tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (8 != eiss_application_type) {
 		PROTO_ITEM_SET_GENERATED(pi);
 		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
 					"Invalid application_type (must be 0x0008)");
 	}
 	offset += 2;
-	proto_tree_add_item(eiss_tree, hf_eiss_organisation_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(eiss_tree, hf_eiss_organisation_id,         tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(eiss_tree, hf_eiss_application_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(eiss_tree, hf_eiss_application_id,          tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	platform_id_length = tvb_get_guint8(tvb, offset);
@@ -372,7 +369,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (0 < packet_length) {
-		proto_tree *eiss_desc_tree = NULL;
+		proto_tree *eiss_desc_tree;
 		pi = proto_tree_add_text(eiss_tree, tvb, offset,
 					packet_length-offset,
 					"%s", "EISS Descriptor(s)");
