@@ -450,7 +450,6 @@ static int special_cmp(gconstpointer a, gconstpointer b)
 			return -1;
 		}
 	}
-	return (p < q)? -1 : (p > q)? 1 : 0;
 }
 
 /* callback function to use for g_hash_table_foreach_remove()
