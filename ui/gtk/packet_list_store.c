@@ -698,21 +698,14 @@ packet_list_append_record(PacketList *packet_list, frame_data *fdata)
 }
 
 static void
-packet_list_change_record(PacketList *packet_list, guint row, gint col, column_info *cinfo)
+packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gint col, column_info *cinfo)
 {
-	PacketListRecord *record;
 	gchar *str;
 	size_t col_text_len;
 	int text_col;
 
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
-
-	g_assert(row < PACKET_LIST_RECORD_COUNT(packet_list->physical_rows));
-
-	record = PACKET_LIST_RECORD_GET(packet_list->physical_rows, row);
-
-	g_assert(record->physical_pos == row);
 
 	g_assert((record->col_text != NULL)&&(record->col_text_len != NULL));
 
@@ -1184,7 +1177,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 			col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
 
 			for(col = 0; col < cinfo->num_cols; ++col)
-				packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
+				packet_list_change_record(packet_list, record, col, cinfo);
 			record->columnized = TRUE;
 		}
 		if (dissect_color) {
@@ -1220,7 +1213,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);
 
 		for(col = 0; col < cinfo->num_cols; ++col)
-			packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
+			packet_list_change_record(packet_list, record, col, cinfo);
 	}
 
 	if (dissect_columns)
