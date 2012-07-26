@@ -818,11 +818,6 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree == NULL)
         return;
 
-    if ((pinfo != NULL) && (pinfo->fd->num == 11))
-    {
-        int x = 11;
-    }
-
     if (match_strval(frmtyp, frame_type) == NULL) {
         /*
          * Unknown message type.
@@ -1114,7 +1109,7 @@ eventnum(tvbuff_t *tvb, int offset, proto_tree *pt)
     if (event)
         proto_tree_add_item(pt, hf_gryphon_eventnum, tvb, offset, 1, ENC_BIG_ENDIAN);
     else
-        proto_tree_add_uint_format_value(pt, hf_gryphon_eventnum, tvb, offset, 1, 
+        proto_tree_add_uint_format_value(pt, hf_gryphon_eventnum, tvb, offset, 1,
 	        0, "Event numbers: All");
     proto_tree_add_item(pt, hf_gryphon_reserved3, tvb, offset+1, 3, ENC_BIG_ENDIAN);
     offset += 4;
@@ -1144,7 +1139,7 @@ cmd_setfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
     length =  tvb_get_guint8(tvb, offset+4) + tvb_get_guint8(tvb, offset+5)
         + tvb_get_ntohs(tvb, offset+6);
 
-    proto_tree_add_uint_format_value(pt, hf_gryphon_setfilt, tvb, offset, 4, 
+    proto_tree_add_uint_format_value(pt, hf_gryphon_setfilt, tvb, offset, 4,
         flag, "%s%s", ((flag) ? "Pass" : "Block"), ((length == 0) ? " all" : ""));
     proto_tree_add_uint(pt, hf_gryphon_setfilt_length, tvb, offset+4, 4, length);
     offset += 8;
@@ -1221,7 +1216,7 @@ cmd_modfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
     if (filter_handle)
         proto_tree_add_item(pt, hf_gryphon_modfilt, tvb, offset, 1, ENC_BIG_ENDIAN);
     else
-        proto_tree_add_uint_format_value(pt, hf_gryphon_modfilt, tvb, offset, 1, 
+        proto_tree_add_uint_format_value(pt, hf_gryphon_modfilt, tvb, offset, 1,
 	        0, "Filter handles: all");
 
     proto_tree_add_item(pt, hf_gryphon_modfilt_action, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1239,7 +1234,7 @@ resp_filthan(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree_add_item(pt, hf_gryphon_filthan, tvb, offset, 1, ENC_BIG_ENDIAN);
     for (i = 1; i <= handles; i++){
         handle = tvb_get_guint8(tvb, offset+i);
-        proto_tree_add_uint_format_value(pt, hf_gryphon_filthan_id, tvb, offset+i, 1, 
+        proto_tree_add_uint_format_value(pt, hf_gryphon_filthan_id, tvb, offset+i, 1,
         handle, "Handle %d: %u", i, handle);
     }
     padding = 3 - (handles + 1 + 3) % 4;
@@ -1439,7 +1434,7 @@ cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
 
     if (tvb_get_ntohl(tvb, offset) == 0xFFFFFFFF)
-        proto_tree_add_uint_format_value(pt, hf_gryphon_sched_num_iterations, tvb, offset, 4, 
+        proto_tree_add_uint_format_value(pt, hf_gryphon_sched_num_iterations, tvb, offset, 4,
 	        0, "Number of iterations: \"infinite\"");
     else
         proto_tree_add_item(pt, hf_gryphon_sched_num_iterations, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1533,19 +1528,19 @@ resp_blm_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x /= 100, x % 100);
+	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_current_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x /= 100, x % 100);
+	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_peak_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x /= 100, x % 100);
+	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
     x = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint_format_value(pt, hf_gryphon_blm_data_historic_peak_bus_load, tvb,
-	        offset, 2, x, "%d.%02d%%", x /= 100, x % 100);
+	        offset, 2, x, "%d.%02d%%", x / 100, x % 100);
     offset += 2;
 
     return offset;
@@ -1607,7 +1602,7 @@ cmd_addresp(tvbuff_t *tvb, int offset, proto_tree *pt)
         } else {
             actionType = 0;
         }
-        
+
         proto_tree_add_item(tree, hf_gryphon_addresp_action_period, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 
@@ -1668,7 +1663,7 @@ cmd_modresp(tvbuff_t *tvb, int offset, proto_tree *pt)
         proto_tree_add_uint_format_value(pt, hf_gryphon_modresp_handle, tvb,
 	            offset, 1, dest, "Response handles: all on channel %c", dest);
     else
-        proto_tree_add_uint_format_value(pt, hf_gryphon_modresp_handle, tvb, offset, 1, 
+        proto_tree_add_uint_format_value(pt, hf_gryphon_modresp_handle, tvb, offset, 1,
 	        0, "Response handles: all");
 
     proto_tree_add_item(pt, hf_gryphon_modresp_action, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1814,7 +1809,7 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
     if (offset < msglen + hdr_stuff) {
         string = tvb_get_ephemeral_stringz(tvb, offset, &length);
         if (length > 1) {
-            proto_tree_add_string(pt, hf_gryphon_start_arguments, tvb, offset, 
+            proto_tree_add_string(pt, hf_gryphon_start_arguments, tvb, offset,
                 length, string);
             offset += length;
 
@@ -2014,7 +2009,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
                 ids--;
             }
         } else {
-            proto_tree_add_uint_format_value(pt, hf_gryphon_usdt_ext_address, tvb, offset+3, 1, 
+            proto_tree_add_uint_format_value(pt, hf_gryphon_usdt_ext_address, tvb, offset+3, 1,
 	            0, "Using extended addressing for the single, internally defined, ID");
             offset += 4;
         }
@@ -2027,7 +2022,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 
             size = tvb_get_ntohl (tvb, offset);
             localItem = proto_tree_add_item(localTree, hf_gryphon_usdt_block_size, tvb, offset, 4, ENC_BIG_ENDIAN);
-            localTree = proto_item_add_subtree (localItem, ett_gryphon_usdt_data_block);            
+            localTree = proto_item_add_subtree (localItem, ett_gryphon_usdt_data_block);
             if (size == 0) {
                 proto_item_set_len(localItem, 16);
             } else {
@@ -2112,17 +2107,17 @@ cmd_init_strat (tvbuff_t *tvb, int offset, proto_tree *pt)
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     reset_limit = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_uint_format_value(pt, hf_gryphon_init_strat_reset_limit, tvb, offset, 4, 
+    proto_tree_add_uint_format_value(pt, hf_gryphon_init_strat_reset_limit, tvb, offset, 4,
         reset_limit, "Reset Limit = %u messages", reset_limit);
     offset += 4;
     msglen -= 4;
     for (index = 1; msglen; index++, offset++, msglen--) {
         value = tvb_get_guint8(tvb, offset);
         if (value)
-            proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1, 
+            proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1,
 	            value/4, "Delay %d = %.2f seconds", index, value/4);
         else
-            proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1, 
+            proto_tree_add_float_format_value(pt, hf_gryphon_init_strat_delay, tvb, offset, 1,
 	            0, "Delay %d = infinite", index);
     }
 
@@ -2196,7 +2191,7 @@ blm_mode(tvbuff_t *tvb, int offset, proto_tree *pt)
         tree = proto_item_add_subtree (item, ett_gryphon_blm_mode);
         milliseconds = tvb_get_ntohl(tvb, offset);
 
-        proto_tree_add_uint_format_value(pt, hf_gryphon_blm_mode_avg_period, tvb, offset, 4, 
+        proto_tree_add_uint_format_value(pt, hf_gryphon_blm_mode_avg_period, tvb, offset, 4,
             milliseconds, "Averaging period: %d.%03d seconds", milliseconds/1000, milliseconds%1000);
         break;
     case 2:
@@ -2673,13 +2668,13 @@ proto_register_gryphon(void)
           { "Transmit options", "gryphon.usdt.transmit_options_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_usdt_transmit_options_flags_echo,
-          { "Echo long transmit messages back to the client", "gryphon.usdt.transmit_options_flags.echo", 
+          { "Echo long transmit messages back to the client", "gryphon.usdt.transmit_options_flags.echo",
                 FT_BOOLEAN, 8, TFS(&yes_no), 0x01, NULL, HFILL }},
         { &hf_gryphon_usdt_transmit_options_action,
           { "Transmit Action", "gryphon.usdt.transmit_options_flags.action", FT_UINT8, BASE_DEC, VALS(xmit_opt_vals), 0x06,
                 NULL, HFILL }},
         { &hf_gryphon_usdt_transmit_options_send_done,
-          { "Send a USDT_DONE event when the last frame of a multi-frame USDT message is transmitted", 
+          { "Send a USDT_DONE event when the last frame of a multi-frame USDT message is transmitted",
                 "gryphon.usdt.transmit_options_flags.send_done", FT_BOOLEAN, 8, TFS(&yes_no), 0x08, NULL, HFILL }},
         { &hf_gryphon_usdt_receive_options_flags,
           { "Receive options", "gryphon.usdt.receive_options_flags", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -2688,10 +2683,10 @@ proto_register_gryphon(void)
           { "Receive Action", "gryphon.usdt.receive_options_flags.action", FT_UINT8, BASE_DEC, VALS(recv_opt_vals), 0x03,
                 NULL, HFILL }},
         { &hf_gryphon_usdt_receive_options_firstframe,
-          { "Send a USDT_FIRSTFRAME event when the first frame of a multi-frame USDT message is received", 
+          { "Send a USDT_FIRSTFRAME event when the first frame of a multi-frame USDT message is received",
             "gryphon.usdt.receive_options_flags.firstframe",  FT_BOOLEAN, 8, TFS(&yes_no), 0x04, NULL, HFILL }},
         { &hf_gryphon_usdt_receive_options_lastframe,
-          { "Send a USDT_LASTFRAME event when the first frame of a multi-frame USDT message is received", 
+          { "Send a USDT_LASTFRAME event when the first frame of a multi-frame USDT message is received",
              "gryphon.usdt.receive_options_flags.lastframe", FT_BOOLEAN, 8, TFS(&yes_no), 0x08, NULL, HFILL }},
         { &hf_gryphon_usdt_ext_address,
           { "Using extended addressing for", "gryphon.usdt.ext_address", FT_UINT8, BASE_DEC, NULL, 0x0,
