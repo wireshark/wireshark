@@ -378,7 +378,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static int
-dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean heur_check)
 {
 	guint       captured_length;
 	guint16     msg_type;
@@ -417,6 +417,17 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* STUN Channel Data message ? */
 	if (msg_type & 0xC000) {
+		if (heur_check) {
+			/* If the packet is being dissected through heuristics, ensure there
+			 * is already a STUN conversation because the heuristics are otherwise
+			 * rather weak
+			 */
+			if (find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+					pinfo->ptype, pinfo->srcport,
+					pinfo->destport, 0) == NULL)
+				return 0;
+		}
+
 		return dissect_stun_message_channel_data(tvb, pinfo, tree, msg_type, msg_length);
 	}
 
@@ -996,13 +1007,13 @@ case EVEN_PORT:
 static int
 dissect_stun_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	return dissect_stun_message(tvb, pinfo, tree);
+	return dissect_stun_message(tvb, pinfo, tree, FALSE);
 }
 
 static void
 dissect_stun_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_stun_message(tvb, pinfo, tree);
+	dissect_stun_message(tvb, pinfo, tree, FALSE);
 }
 
 static void
@@ -1015,7 +1026,7 @@ dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_stun_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (dissect_stun_message(tvb, pinfo, tree) == 0) {
+	if (dissect_stun_message(tvb, pinfo, tree, TRUE) == 0) {
 		/*
 		 * It wasn't a valid STUN message, and wasn't
 		 * dissected as such.
@@ -1271,8 +1282,10 @@ proto_reg_handoff_stun(void)
 	dissector_add_uint("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
 	dissector_add_uint("udp.port", UDP_PORT_STUN, stun_udp_handle);
 
-	heur_dissector_add("udp",  dissect_stun_heur, proto_stun);
-	heur_dissector_add("tcp",  dissect_stun_heur, proto_stun);
+	/* Used for "Decode As" in case STUN negotiation isn't captured */
+	dissector_add_handle("tcp.port", stun_tcp_handle);
+	dissector_add_handle("udp.port", stun_udp_handle);
+
 	heur_dissector_add("stun", dissect_stun_heur, proto_stun);
 
 	data_handle = find_dissector("data");

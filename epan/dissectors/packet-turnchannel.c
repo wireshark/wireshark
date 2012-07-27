@@ -216,11 +216,13 @@ proto_reg_handoff_turnchannel(void)
 	turnchannel_tcp_handle = create_dissector_handle(dissect_turnchannel_tcp, proto_turnchannel);
 	turnchannel_udp_handle = find_dissector("turnchannel");
 
-	dissector_add_handle("tcp.port", turnchannel_tcp_handle);   /* for decode-as */
-	dissector_add_handle("udp.port", turnchannel_udp_handle);   /* ...           */
+	/* Used for "Decode As" in case STUN negotiation isn't captured */
+	dissector_add_handle("tcp.port", turnchannel_tcp_handle);
+	dissector_add_handle("udp.port", turnchannel_udp_handle);
 
-	heur_dissector_add("udp", dissect_turnchannel_heur, proto_turnchannel);
-	heur_dissector_add("tcp", dissect_turnchannel_heur, proto_turnchannel);
+	/* TURN negoiation is handled through STUN2 dissector (packet-stun.c),
+	   so only it should be able to determine if a packet is a TURN packet */
+	heur_dissector_add("stun", dissect_turnchannel_heur, proto_turnchannel);
 
 	data_handle = find_dissector("data");
 }
