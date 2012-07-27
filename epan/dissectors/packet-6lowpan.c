@@ -2548,10 +2548,7 @@ proto_register_6lowpan(void)
     /* Register preferences. */
     prefs_module = prefs_register_protocol(proto_6lowpan, prefs_6lowpan_apply);
     for (i = 0; i < LOWPAN_CONTEXT_COUNT; i++) {
-        GString *pref_name, *pref_title, *pref_desc;
-        pref_name = g_string_new("");
-        pref_title = g_string_new("");
-        pref_desc = g_string_new("");
+        char *pref_name, *pref_title;
 
         /*
          * Inspired by the IEEE 802.11 dissector - the preferences are expecting
@@ -2560,15 +2557,11 @@ proto_register_6lowpan(void)
          * and leave them allocated. OMG, an intentional memory leak; I must be
          * an evil developer. Good thing we have MMU's in this day and age.
          */
-        g_string_printf(pref_name, "context%d", i);
-        g_string_printf(pref_title, "Context %d", i);
-        g_string_printf(pref_desc, "IPv6 prefix to use for stateful address decompression.");
-        prefs_register_string_preference(prefs_module, pref_name->str, pref_title->str,
-            pref_desc->str, &lowpan_context_prefs[i]);
-        /* Don't free the ->str */
-        g_string_free(pref_name, FALSE);
-        g_string_free(pref_title, FALSE);
-        g_string_free(pref_desc, FALSE);
+        pref_name = g_strdup_printf("context%d", i);
+        pref_title = g_strdup_printf("Context %d", i);
+        prefs_register_string_preference(prefs_module, pref_name, pref_title, 
+            "IPv6 prefix to use for stateful address decompression.",
+            &lowpan_context_prefs[i]);
     }
 } /* proto_register_6lowpan */
 
