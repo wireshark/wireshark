@@ -70,7 +70,7 @@ NSI=\
 	AdditionalTasksPage.ini \
 	WinPcapPage.ini
 
-UNINSTALL_INSTALLER = ..\..\wireshark-gtk2\uninstall_installer.exe
+UNINSTALL_INSTALLER = $(STAGING_DIR)\uninstall_installer.exe
 
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
