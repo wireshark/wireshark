@@ -2056,6 +2056,35 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
         /* Loop over all IDB:s that appear before any packets */
         while (1) {
+                /* peek at next block */
+                /* Try to read the (next) block header */
+                saved_offset = file_tell(wth->fh);
+                errno = WTAP_ERR_CANT_READ;
+                bytes_read = file_read(&bh, sizeof bh, wth->fh);
+                if (bytes_read == 0) {
+                        pcapng_debug0("No more IDBs available...");
+                        break;
+                }
+                if (bytes_read != sizeof bh) {
+                        *err = file_error(wth->fh, err_info);
+                        pcapng_debug3("pcapng_open:  Check for more IDB:s, file_read() returned %d instead of %u, err = %d.", bytes_read, (unsigned int)sizeof bh, *err);
+                        if (*err == 0)
+                                *err = WTAP_ERR_SHORT_READ;
+                        return -1;
+                }
+
+                /* go back to where we were */
+                file_seek(wth->fh, saved_offset, SEEK_SET, err);
+
+                if (pn.byte_swapped) {
+                        bh.block_type         = BSWAP32(bh.block_type);
+                }
+
+                pcapng_debug1("pcapng_open: Check for more IDB:s block_type 0x%x", bh.block_type);
+
+                if (bh.block_type != BLOCK_TYPE_IDB) {
+                        break;  /* No more IDB:s */
+                }
                 bytes_read = pcapng_read_block(wth->fh, FALSE, &pn, &wblock, err, err_info);
                 if (bytes_read == 0) {
                         pcapng_debug0("No more IDBs available...");
@@ -2068,7 +2097,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                                 *err = WTAP_ERR_SHORT_READ;
                         return -1;
                 }
-
                 int_data.wtap_encap = wblock.data.if_descr.wtap_encap;
                 int_data.time_units_per_second = wblock.data.if_descr.time_units_per_second;
                 int_data.link_type = wblock.data.if_descr.link_type;
@@ -2102,42 +2130,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
                 g_array_append_val(pcapng->interface_data, interface_data);
                 pcapng->number_of_interfaces++;
+                pcapng->read_idbs = FALSE;
 
                 pcapng_debug2("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i", wth->number_of_interfaces, int_data.wtap_encap);
-
-                /* peek at next block */
-                /* Try to read the (next) block header */
-                saved_offset = file_tell(wth->fh);
-                errno = WTAP_ERR_CANT_READ;
-                bytes_read = file_read(&bh, sizeof bh, wth->fh);
-                if (bytes_read == 0) {
-                        pcapng_debug0("No more IDBs available...");
-                        break;
-                }
-                if (bytes_read != sizeof bh) {
-                        *err = file_error(wth->fh, err_info);
-                        pcapng_debug3("pcapng_open:  Check for more IDB:s, file_read() returned %d instead of %u, err = %d.", bytes_read, (unsigned int)sizeof bh, *err);
-                        if (*err == 0)
-                                *err = WTAP_ERR_SHORT_READ;
-                        return -1;
-                }
-
-                /* go back to where we were */
-                file_seek(wth->fh, saved_offset, SEEK_SET, err);
-
-                if (pn.byte_swapped) {
-                        bh.block_type         = BSWAP32(bh.block_type);
-                }
-
-                pcapng_debug1("pcapng_open: Check for more IDB:s block_type 0x%x", bh.block_type);
-
-                if (bh.block_type != BLOCK_TYPE_IDB) {
-                        break;  /* No more IDB:s */
-                }
         }
-
-        pcapng->read_idbs = FALSE;
-
         return 1;
 }
 
