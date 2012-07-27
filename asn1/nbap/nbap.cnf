@@ -106,6 +106,7 @@ ProtocolIE-ContainerPairList
   ProcedureID = ep_strdup_printf("%s/%s",
                                  val_to_str(ProcedureCode, VALS(nbap_ProcedureCode_vals), "unknown(%u)"),
                                  val_to_str(ddMode, VALS(nbap_DdMode_vals), "unknown(%u)"));
+	crcn_context_present = FALSE; /*Reset CRNC Com context present flag.*/
 #.END
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
@@ -720,9 +721,8 @@ transportFormatSet_type = NBAP_CPCH;
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 				
-	/*Save unique UE-identifier */
-				/*umts_fp_conversation_info->com_context_id = com_context_id;
-				*/
+				/*Save unique UE-identifier */
+				umts_fp_conversation_info->com_context_id = crcn_context_present ? 1337 : 1;
 
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
@@ -915,8 +915,8 @@ transportFormatSet_type = NBAP_CPCH;
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 				/*Save unique UE-identifier */
-				/*umts_fp_conversation_info->com_context_id = com_context_id;
-				*/
+				umts_fp_conversation_info->com_context_id = crcn_context_present ? com_context_id : 1;
+				
 				
 				/* DCH's in this flow */
 				umts_fp_conversation_info->dch_crc_present = g_nbap_msg_info_for_fp.dch_crc_present;
@@ -1230,12 +1230,22 @@ BindingID_port = 0;
 				SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &dst_addr);
 				umts_fp_conversation_info->crnc_port         = BindingID_port;
 			
+				
 				umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
-
-				/*TODO: Fix this (make it better)*/
-				if(BindingID_port == 1968){
-					umts_fp_conversation_info->urnti = 4711; 
+				
+				
+				if(crcn_context_present){
+					umts_fp_conversation_info->com_context_id = com_context_id;
+				}else{
+					nbap_com_context_id * cur_val;
+					if((cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) != NULL){
+						umts_fp_conversation_info->com_context_id = cur_val->crnc_context;
+					}else{
+						expert_add_info_format(actx->pinfo, NULL, PI_MALFORMED, PI_WARN, "Couldn't not set Comunication Context-ID, fragments over reconfigured channels might fail");
+					}
 				}
+				
+				
 				/* Set address for collection of DDI entries */
 				COPY_ADDRESS(&(nbap_edch_channel_info[e_dch_macdflow_id].crnc_address),&dst_addr);
 				nbap_edch_channel_info[e_dch_macdflow_id].crnc_port = BindingID_port;
@@ -1635,10 +1645,27 @@ int i;
 #Routines for figuring out a unique UE identification number (to track flows over changing channels)	
 #
 
-#.FN_BODY NodeB-CommunicationContextID VAL_PTR = &com_context_id
-%(DEFAULT_BODY)s
 #.FN_BODY CRNC-CommunicationContextID VAL_PTR = &com_context_id
 %(DEFAULT_BODY)s
+crcn_context_present = TRUE;
+
+#.FN_BODY NodeB-CommunicationContextID VAL_PTR = &node_b_com_context_id
+/*Set up and map that maps Node-B ids to CRNC ids, since often you only have one of them present in nbap*/
+nbap_com_context_id *cur_val;
+
+%(DEFAULT_BODY)s
+
+	/*If both are avaible we can update the map*/
+if(crcn_context_present){
+	
+				if( (cur_val=g_tree_lookup(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id))) == NULL ){
+					
+					cur_val = g_malloc(sizeof(nbap_com_context_id));
+					cur_val->crnc_context = com_context_id;
+					cur_val->frame_num = actx->pinfo->fd->num;
+					g_tree_insert(com_context_map, GINT_TO_POINTER((gint)node_b_com_context_id), cur_val);
+				}
+	}
 
 #.FN_BODY HSDSCH-RNTI	VAL_PTR = &hrnti
 umts_fp_conversation_info_t *umts_fp_conversation_info = NULL;

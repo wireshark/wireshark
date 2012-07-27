@@ -640,13 +640,16 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *item;
                 /* If this is DL we should not care about crci bits (since they dont exists)*/
                 if(p_fp_info->is_uplink){
-                    item = proto_tree_add_item(data_tree, hf_fp_crci[n%8], tvb, (crci_bit_offset/8)+(n/8), 1, ENC_BIG_ENDIAN);
-                    PROTO_ITEM_SET_GENERATED(item);
+
 
 					if( p_fp_info->channel == CHANNEL_RACH_FDD){	/*In RACH we don't have any QE field, hence go back 8 bits.*/
 						crci_bit = tvb_get_bits8(tvb,crci_bit_offset+(n/8)-8,1);
+						item = proto_tree_add_item(data_tree, hf_fp_crci[n%8], tvb, (crci_bit_offset/8)+(n/8)-8, 1, ENC_BIG_ENDIAN);
+						PROTO_ITEM_SET_GENERATED(item);
 					}else{
 						crci_bit = tvb_get_bits8(tvb,crci_bit_offset+(n/8),1);
+						item = proto_tree_add_item(data_tree, hf_fp_crci[n%8], tvb, (crci_bit_offset/8)+(n/8), 1, ENC_BIG_ENDIAN);
+						PROTO_ITEM_SET_GENERATED(item);
 					}
                 }
 
@@ -2659,10 +2662,9 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         macinf->content[macd_idx] = lchId_type_table[lchid]; 	/*Set the proper Content type for the mac layer.*/
                         macinf->lchid[macd_idx] = lchid;
 						rlcinf->mode[macd_idx] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
-
-						/***************/
-						/* FIXME: This is probably wrong, but im writing it anyways*/
-						rlcinf->urnti[macd_idx] = p_fp_info->channel;
+						
+						/* Set U-RNTI to ComuncationContext signaled from nbap*/
+						rlcinf->urnti[macd_idx] = p_fp_info->com_context_id;
 						rlcinf->rbid[macd_idx] = lchid; /*subframes[n].ddi[i];*/	/*Save the DDI value for RLC*/
 						/*g_warning("========Setting RBID:%d for lchid:%d",subframes[n].ddi[i],lchid);*/
 						/* rlcinf->mode[0] = RLC_AM;*/
@@ -2967,8 +2969,8 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                 macinf->lchid[sdu_no] = lchid;
                 rlcinf->mode[sdu_no] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
 
-                /* FIXME: This is probably wrong, but im writing it anyways*/
-                rlcinf->urnti[sdu_no] = p_fp_info->channel;
+                
+                rlcinf->urnti[sdu_no] = 1 ; /*p_fp_info->com_context_id;*/
                 rlcinf->rbid[sdu_no] = lchid; /*subframes[n].ddi[i];*/	/*Save the DDI value for RLC*/
                 rlcinf->li_size[sdu_no] = RLC_LI_7BITS;
                 rlcinf->ciphered[sdu_no] = FALSE;
@@ -3262,6 +3264,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         col_append_fstr(pinfo->cinfo, COL_INFO, "  User-Buffer-Size=%u", user_buffer_size);
 
 
+
         /********************************************************************/
         /* Now read number_of_pdu_blocks header entries                     */
         for (n=0; n < number_of_pdu_blocks; n++) {
@@ -3367,7 +3370,7 @@ dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				rlcinf->ciphered[j] = FALSE;
 				rlcinf->deciphered[j] = FALSE;
 				rlcinf->rbid[j] = (guint8)lchid[n]+1;
-				rlcinf->urnti[j] = p_fp_info->channel;	/*We need to fake urnti*/
+				rlcinf->urnti[j] = p_fp_info->com_context_id;	/*We need to fake urnti*/
 			}
 
             /* Add PDU block header subtree */
@@ -3716,7 +3719,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
      * differentiate 'lower' UDP layer from 'user data' UDP layer */
     fpi->srcport = pinfo->srcport;
     fpi->destport = pinfo->destport;
-
+	fpi->com_context_id = p_conv_data->com_context_id;
+	
     if (pinfo->link_dir==P2P_DIR_UL) {
         fpi->is_uplink = TRUE;
     } else {
@@ -3740,8 +3744,9 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             /*Figure out RLC_MODE based on MACd-flow-ID, basically MACd-flow-ID = 0 then its SRB0 == UM else AM*/
             rlcinf->mode[0] = hsdsch_macdflow_id_rlc_map[p_conv_data->hsdsch_macdflow_id];
 
-			if(fpi->hsdsch_entity == hs){
+			if(fpi->hsdsch_entity == hs && !rlc_is_ciphered(pinfo)){
 				for(i=0; i<MAX_NUM_HSDHSCH_MACDFLOW; i++){
+					/*Figure out if this channel is multiplexed (signaled from RRC)*/
 					if((cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)p_conv_data->hrnti))) != NULL){
 						j = 1 << i;
 						fpi->hsdhsch_macfdlow_is_mux[i] = j & *cur_val;
@@ -3772,7 +3777,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             }*/
             /* rbid[MAX_RLC_CHANS] */
             /* For RLC re-assembly to work we need to fake urnti */
-            rlcinf->urnti[0] = fpi->channel;
+            rlcinf->urnti[0] = fpi->com_context_id;
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
             rlcinf->deciphered[0] = FALSE;
@@ -3801,7 +3806,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 
 
             /* For RLC re-assembly to work we need to fake urnti */
-            rlcinf->urnti[0] = fpi->channel;
+            rlcinf->urnti[0] = fpi->com_context_id;
            /* rlcinf->mode[0] = RLC_AM;*/
             rlcinf->li_size[0] = RLC_LI_7BITS;
             rlcinf->ciphered[0] = FALSE;
@@ -3907,13 +3912,13 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                             /************************/
                         }
 
-                        /*FIXME: NBAP should signal this?*/
-                        /*Set rlc info*/
-                        rlcinf->urnti[j+chan] = fpi->channel;	/*Faked URNTI*/
+                        /*** Set rlc info ***/
+                        rlcinf->urnti[j+chan] = p_conv_data->com_context_id;
                         rlcinf->li_size[j+chan] = RLC_LI_7BITS;
-                        rlcinf->ciphered[j+chan] = FALSE;
                         rlcinf->deciphered[j+chan] = FALSE;
-
+                        
+					
+						
                         /*Step over this TB and it's C/T flag.*/
                         tb_bit_off += tb_size+4;
                     }
@@ -3967,12 +3972,17 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
             offset = 2;
             /* set MAC data */
             macinf = se_new0(umts_mac_info);
-            macinf->ctmux[0]   = 1;
-            macinf->content[0] = MAC_CONTENT_DCCH;
             rlcinf = se_new0(rlc_info);
+            for( chan = 0; chan < fpi->num_chans; chan++ ){
+				    macinf->ctmux[chan]   = 1;
+					macinf->content[chan] = MAC_CONTENT_DCCH;
+					rlcinf->urnti[chan] = fpi->com_context_id;	/*Note that MAC probably will change this*/
+			}
+
+            
 
             p_add_proto_data(pinfo->fd, proto_umts_mac, macinf);
-            	p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
+            p_add_proto_data(pinfo->fd, proto_rlc, rlcinf);
             break;
         case CHANNEL_HSDSCH_COMMON:
         		rlcinf = se_new0(rlc_info);
@@ -4235,7 +4245,9 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case CHANNEL_HSDSCH_COMMON:
 
+			if(FALSE)
 			dissect_hsdsch_common_channel_info(tvb,pinfo, tree,offset, p_fp_info);
+
 			expert_add_info_format(pinfo, NULL, PI_DEBUG, PI_ERROR, "HSDSCH COMMON - Not implemented!");
 
             break;

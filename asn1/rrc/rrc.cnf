@@ -711,13 +711,13 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 #.FN_BODY MAC-d-FlowIdentity VAL_PTR = &flowd
 	%(DEFAULT_BODY)s
 	
-#.FN_BODY SRB_InformationSetupList2_r6
+#.FN_BODY SRB-InformationSetupList2-r6
 	
 	%(DEFAULT_BODY)s
 	/*Clear memory*/
 	memset(num_chans_per_flow,0,sizeof(guint8));
 	
-#.FN_BODY  H_RNTI VAL_PTR = &hrnti
+#.FN_BODY H-RNTI VAL_PTR = &hrnti
 
 	
 	

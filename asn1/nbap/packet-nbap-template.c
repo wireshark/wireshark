@@ -172,6 +172,17 @@ gint hsdsch_macdflow_ids[maxNrOfMACdFlows];
 
 gint hrnti;
 
+guint node_b_com_context_id;
+
+/*Stuff for mapping NodeB-Comuncation Context ID to CRNC Comuncation Context ID*/
+typedef struct com_ctxt_{
+		/*guint	nodeb_context;*/
+		guint	crnc_context;
+		guint	frame_num;
+}nbap_com_context_id;
+gboolean crcn_context_present = FALSE;
+GTree * com_context_map;
+
 struct _nbap_msg_info_for_fp g_nbap_msg_info_for_fp;
 
 /* Global variables */
@@ -314,6 +325,32 @@ static void add_hsdsch_bind(packet_info *pinfo, proto_tree * tree){
 	}
 
 }
+static gint nbap_key_cmp(gconstpointer a_ptr, gconstpointer b_ptr, gpointer ignore _U_){
+	if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
+		return  -1;
+	}
+	return GPOINTER_TO_INT(a_ptr) < GPOINTER_TO_INT(b_ptr);
+}
+static void nbap_free_key(gpointer key ){
+			g_free(key);
+
+	}
+static void nbap_free_value(gpointer value ){
+			g_free(value);
+	}
+	
+static void nbap_init(void){
+	
+	/*Cleanup*/
+	if(com_context_map){
+		g_tree_destroy(com_context_map);
+	}
+	/*Initialize*/
+	com_context_map = g_tree_new_full(nbap_key_cmp,
+                       NULL,      /* data pointer, optional */
+                       nbap_free_key,
+                       nbap_free_value);
+}
 static void
 dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -429,16 +466,19 @@ void proto_register_nbap(void) {
                                 attributes_uat);*/
 
   /* Register dissector tables */
-  nbap_ies_dissector_table = register_dissector_table("nbap.ies", "NBAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
-  nbap_extension_dissector_table = register_dissector_table("nbap.extension", "NBAP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);
-  nbap_proc_imsg_dissector_table = register_dissector_table("nbap.proc.imsg", "NBAP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_STRING, BASE_NONE);
-  nbap_proc_sout_dissector_table = register_dissector_table("nbap.proc.sout", "NBAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_STRING, BASE_NONE);
-  nbap_proc_uout_dissector_table = register_dissector_table("nbap.proc.uout", "NBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_STRING, BASE_NONE);
+	nbap_ies_dissector_table = register_dissector_table("nbap.ies", "NBAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
+	nbap_extension_dissector_table = register_dissector_table("nbap.extension", "NBAP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);
+	nbap_proc_imsg_dissector_table = register_dissector_table("nbap.proc.imsg", "NBAP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_STRING, BASE_NONE);
+	nbap_proc_sout_dissector_table = register_dissector_table("nbap.proc.sout", "NBAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_STRING, BASE_NONE);
+	nbap_proc_uout_dissector_table = register_dissector_table("nbap.proc.uout", "NBAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_STRING, BASE_NONE);
 
+
+	register_init_routine(nbap_init);
 }
 
-
-
+/*
+#define	EXTRA_PPI 1
+*/
 /*--- proto_reg_handoff_nbap ---------------------------------------*/
 void
 proto_reg_handoff_nbap(void)

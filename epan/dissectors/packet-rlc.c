@@ -1465,6 +1465,8 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 	pos = fpinf->cur_tb;
+		proto_tree_add_text(tree,tvb,0,0,"U-RNTI: %d", rlcinf->urnti[pos]);
+
 	if (global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 			"Cannot dissect RLC frame because it is ciphered");
@@ -1881,7 +1883,11 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 			"Cannot dissect RLC frame because per-frame info is missing");
 		return;
 	}
+	
 	pos = fpinf->cur_tb;
+	
+	
+	proto_tree_add_text(tree,tvb,0,0,"U-RNTI e: %d", rlcinf->urnti[pos]);
 	if (global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 		"Cannot dissect RLC frame because it is ciphered");

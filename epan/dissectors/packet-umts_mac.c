@@ -177,21 +177,23 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     proto_tree *tree, guint16 bitoffs, fp_info *fpinf, umts_mac_info *macinf, rlc_info  *rlcinf)
 {
     guint8 ueid_type;
-
+	
     ueid_type = tvb_get_bits8(tvb, bitoffs, 2);
     proto_tree_add_bits_item(tree, hf_mac_ueid_type, tvb, bitoffs, 2, ENC_BIG_ENDIAN);
     bitoffs += 2;
     if (ueid_type == MAC_UEID_TYPE_URNTI) {
         proto_tree_add_bits_item(tree, hf_mac_urnti, tvb, bitoffs, 32, ENC_BIG_ENDIAN);
+        rlcinf->urnti[fpinf->cur_tb] = tvb_get_bits32(tvb, bitoffs, 32,FALSE);
         bitoffs += 32;
     } else if (ueid_type == MAC_UEID_TYPE_CRNTI) {
         proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, 4, 16, ENC_BIG_ENDIAN);
+        rlcinf->urnti[fpinf->cur_tb] = tvb_get_bits16(tvb, bitoffs, 16,FALSE);
         bitoffs += 16;
     }
 
     if (macinf->ctmux[fpinf->cur_tb]) {
         if(rlcinf){
-            rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4);
+            rlcinf->rbid[fpinf->cur_tb] = tvb_get_bits8(tvb, bitoffs, 4)+1;
         }
         proto_tree_add_bits_item(tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
         bitoffs += 4;
@@ -274,8 +276,9 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         
             /*Set RLC Mode/MAC content based on the L-CHID derived from the C/T flag*/
             c_t = tvb_get_bits8(tvb,bitoffs-4,4);
-            rlcinf->mode[fpinf->cur_tb] = lchId_rlc_map[c_t+1];
+            rlcinf->mode[chan] = lchId_rlc_map[c_t+1];
             macinf->content[chan] = lchId_type_table[c_t+1];
+            rlcinf->rbid[chan] = c_t+1;
             switch (macinf->content[chan]) {
                 case MAC_CONTENT_DCCH:
                     proto_item_append_text(ti, " (DCCH)");
