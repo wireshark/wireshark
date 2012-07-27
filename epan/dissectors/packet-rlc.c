@@ -870,10 +870,12 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 	struct rlc_seqlist * endlist = NULL;
 	GList * element = NULL;
 
-	rlc_channel_assign(&ch_lookup, mode, pinfo);
+	if (rlc_channel_assign(&ch_lookup, mode, pinfo) == -1) {
+		return NULL;
+	}
 	rlc_frag_assign(&frag_lookup, mode, pinfo, seq, num_li);
 	#if RLC_ADD_FRAGMENT_DEBUG_PRINT
-		g_print("paket: %d, kanal (%d %d %d %d %d %d %d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->fd->num, ch_lookup.cid, ch_lookup.dir, ch_lookup.li_size, ch_lookup.link, ch_lookup.mode, ch_lookup.rbid, ch_lookup.urnti, ch_lookup.vci, ch_lookup.vpi, seq, num_li, offset);
+		g_print("packet: %d, channel (%d %d %d %d %d %d %d %d %d) seq: %u, num_li: %u, offset: %u, \n", pinfo->fd->num, ch_lookup.cid, ch_lookup.dir, ch_lookup.li_size, ch_lookup.link, ch_lookup.mode, ch_lookup.rbid, ch_lookup.urnti, ch_lookup.vci, ch_lookup.vpi, seq, num_li, offset);
 	#endif
 	/* look for an already assembled SDU */
 	if (g_hash_table_lookup_extended(reassembled_table, &frag_lookup, &orig_key, &value)) {
@@ -1061,7 +1063,6 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 	    &orig_frag, &orig_sdu))
 		return NULL;
 
-	frag = orig_frag;
 	sdu = orig_sdu;
 	if (!sdu || !sdu->data)
 		return NULL;
@@ -1465,7 +1466,6 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 	pos = fpinf->cur_tb;
-		proto_tree_add_text(tree,tvb,0,0,"U-RNTI: %d", rlcinf->urnti[pos]);
 
 	if (global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
@@ -1887,7 +1887,6 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	pos = fpinf->cur_tb;
 	
 	
-	proto_tree_add_text(tree,tvb,0,0,"U-RNTI e: %d", rlcinf->urnti[pos]);
 	if (global_rlc_ciphered) {
 		proto_tree_add_text(tree, tvb, 0, -1,
 		"Cannot dissect RLC frame because it is ciphered");
