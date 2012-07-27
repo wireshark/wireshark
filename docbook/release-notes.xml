@@ -73,6 +73,9 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+	  Wireshark may not run on Windows due to missing DLLs.
+        </para></listitem>
 
      </itemizedlist>
 
