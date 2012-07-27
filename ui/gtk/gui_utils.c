@@ -565,12 +565,20 @@ GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
 }
 #endif
 
+static GtkWidget *_gtk_image_new_from_pixbuf_unref(GdkPixbuf *pixbuf) {
+    GtkWidget *widget;
+
+    widget = gtk_image_new_from_pixbuf(pixbuf);
+    g_object_unref(pixbuf);
+    return widget;
+}
+
 /* convert an xpm to a GtkWidget */
 GtkWidget *xpm_to_widget(const char ** xpm) {
     GdkPixbuf *pixbuf;
 
     pixbuf = gdk_pixbuf_new_from_xpm_data(xpm);
-    return gtk_image_new_from_pixbuf(pixbuf);
+    return _gtk_image_new_from_pixbuf_unref(pixbuf);
 }
 
 /* Convert an pixbuf data to a GtkWidget */
@@ -579,7 +587,7 @@ GtkWidget *pixbuf_to_widget(const char * pb_data) {
     GdkPixbuf *pixbuf;
 
     pixbuf = gdk_pixbuf_new_from_inline (-1, pb_data, FALSE, NULL);
-    return gtk_image_new_from_pixbuf(pixbuf);
+    return _gtk_image_new_from_pixbuf_unref(pixbuf);
 }
 
 /*
