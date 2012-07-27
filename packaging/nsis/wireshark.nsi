@@ -857,29 +857,46 @@ File "..\..\wireshark-gtk2\libgtk-win32-2.0-0.dll"
 File "..\..\wireshark-gtk2\libatk-1.0-0.dll"
 File "..\..\wireshark-gtk2\libpango-1.0-0.dll"
 File "..\..\wireshark-gtk2\libpangowin32-1.0-0.dll"
+
 !ifdef NEED_CAIRO_DLL
 File "..\..\wireshark-gtk2\libcairo-2.dll"
 File "..\..\wireshark-gtk2\libpangocairo-1.0-0.dll"
 !endif
-!ifdef NEED_LIBPNG_DLL
-File "..\..\wireshark-gtk2\${PNG_DLL}"
+!ifdef NEED_EXPAT_DLL
+File "..\..\wireshark-gtk2\${EXPAT_DLL}"
 !endif
-!ifdef NEED_LIBTIFF_DLL
-File "..\..\wireshark-gtk2\${TIFF_DLL}"
+!ifdef NEED_FFI_DLL
+File "..\..\wireshark-gtk2\${FFI_DLL}"
 !endif
-!ifdef NEED_LIBJPEG_DLL
-File "..\..\wireshark-gtk2\${JPEG_DLL}"
+!ifdef NEED_FONTCONFIG_DLL
+File "..\..\wireshark-gtk2\${FONTCONFIG_DLL}"
 !endif
 !ifdef NEED_FREETYPE_DLL
 File "..\..\wireshark-gtk2\libpangoft2-1.0-0.dll"
 File "..\..\wireshark-gtk2\${FREETYPE_DLL}"
 !endif
-!ifdef NEED_FONTCONFIG_DLL
-File "..\..\wireshark-gtk2\${FONTCONFIG_DLL}"
+!ifdef NEED_JASPER_DLL
+File "..\..\wireshark-gtk2\${JASPER_DLL}"
 !endif
-!ifdef NEED_EXPAT_DLL
-File "..\..\wireshark-gtk2\${EXPAT_DLL}"
+!ifdef NEED_JPEG_DLL
+File "..\..\wireshark-gtk2\${JPEG_DLL}"
 !endif
+!ifdef NEED_LZMA_DLL
+File "..\..\wireshark-gtk2\${LZMA_DLL}"
+!endif
+!ifdef NEED_PIXMAN_DLL
+File "..\..\wireshark-gtk2\${PIXMAN_DLL}"
+!endif
+!ifdef NEED_PNG_DLL
+File "..\..\wireshark-gtk2\${PNG_DLL}"
+!endif
+!ifdef NEED_TIFF_DLL
+File "..\..\wireshark-gtk2\${TIFF_DLL}"
+!endif
+!ifdef NEED_XML_DLL
+File "..\..\wireshark-gtk2\${XML_DLL}"
+!endif
+
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
 
