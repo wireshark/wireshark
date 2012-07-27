@@ -1780,7 +1780,7 @@ static int dissect_redirserviceprovider(tvbuff_t *tvb, packet_info *pinfo, proto
   proto_tree_add_item(local_tree,  hf_reload_length_uint16, tvb, offset,2, ENC_BIG_ENDIAN);
   local_offset += 2;
 
-  local_offset += dissect_redirserviceproviderdata(tvb, pinfo, local_tree, offset+local_offset, length_field);
+  dissect_redirserviceproviderdata(tvb, pinfo, local_tree, offset+local_offset, length_field);
 
   return (2+length_field);
 }
@@ -2119,7 +2119,7 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
   proto_item *ti_storeddata;
   proto_tree *storeddata_tree;
   guint32     storeddata_length;
-  guint32     local_offset = 0;
+  guint32     local_offset;
 
   int hf =  hf_reload_storeddata;
 
@@ -2128,7 +2128,6 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
   }
 
   storeddata_length = tvb_get_ntohl(tvb, offset);
-  local_offset += 4;
 
   if (storeddata_length + 4 > length) {
     ti_storeddata = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
@@ -2140,7 +2139,7 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
   ti_storeddata = proto_tree_add_item(tree, hf, tvb, offset, 4 + storeddata_length, ENC_NA);
   storeddata_tree = proto_item_add_subtree(ti_storeddata, ett_reload_storeddata);
 
-  proto_tree_add_uint(storeddata_tree, hf_reload_length_uint32, tvb, offset + local_offset, 4, storeddata_length);
+  proto_tree_add_uint(storeddata_tree, hf_reload_length_uint32, tvb, offset, 4, storeddata_length);
   local_offset += 4;
   {
     guint64 storage_time;
@@ -2496,7 +2495,6 @@ dissect_storeddataspecifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         indices_offset += dissect_arrayrange(tvb, indices_tree, offset + local_offset + indices_offset);
         nIndices++;
       }
-      local_offset += indices_length;
       proto_item_append_text(ti_indices, ": %d elements", nIndices);
     }
     break;
@@ -2518,7 +2516,6 @@ dissect_storeddataspecifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         keys_offset += local_increment;
         nKeys++;
       }
-      local_offset += keys_length;
       proto_item_append_text(ti_keys, "(%d keys)", nKeys);
 
     }
@@ -2581,7 +2578,6 @@ dissect_fetchreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
     nSpecifiers++;
     specifiers_offset += specifiers_increment;
   }
-  local_offset += specifiers_length;
   proto_item_append_text(ti_specifiers, ": %d elements", nSpecifiers);
 
   return (1+ resourceid_length+ 2 + specifiers_length);
@@ -3037,7 +3033,7 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
   proto_tree *local_tree;
   guint16     local_offset = 0;
   guint16     local_length = 0;
-  guint16     kind;
+  guint16     kindid;
 
   local_length = 2 + tvb_get_ntohs(tvb, offset+2);
   ti_local = proto_tree_add_item(tree, hf_reload_diagnosticinfo, tvb, offset, local_length+4, ENC_NA);
@@ -3048,8 +3044,8 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
   proto_tree_add_item(local_tree, hf_reload_length_uint16, tvb, offset+local_offset, 2, ENC_BIG_ENDIAN);
   local_offset += 2;
 
-  kind = tvb_get_ntohs(tvb, offset);
-  switch(kind) {
+  kindid = tvb_get_ntohs(tvb, offset);
+  switch(kindid) {
   case DIAGNOSTICKINDID_STATUS_INFO:
     proto_tree_add_item(local_tree, hf_reload_diagnosticinfo_congestion_status, tvb, offset+local_offset, 1, ENC_BIG_ENDIAN);
     break;
@@ -3110,7 +3106,8 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
       proto_tree_add_item(instances_per_kindid_tree, hf_reload_diagnosticinfo_instancesstored_instances,
                           tvb, offset+local_offset+instances_offset+4, 8, ENC_BIG_ENDIAN);
       instances = tvb_get_ntoh64(tvb, offset+local_offset+instances_offset+4);
-      proto_item_append_text(ti_instances_per_kindid, ": %s/%" G_GINT64_MODIFIER "d", kind->name,instances);
+      proto_item_append_text(ti_instances_per_kindid, ": %s/%" G_GINT64_MODIFIER "d",
+          ((kind != NULL) && (kind->name != NULL)) ? kind->name : "UNKNOWN KIND", instances);
       instances_offset += 12;
       nElements++;
     }
@@ -3895,7 +3892,6 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
     }
     proto_item_append_text(ti_extensions, " (%d elements)", nExtensions);
   }
-  offset += extensions_length;
 
   return ( 2 + 4 + message_body_length + 4 + extensions_length);
 }
