@@ -1238,17 +1238,20 @@ static void init_xml_names(void) {
 	}
 
 	if (test_for_directory(dirname) == EISDIR) {
-
 		if ((dir = OPENDIR_OP(dirname)) != NULL) {
+			GString* errors = g_string_new("");
+
 			while ((file = DIRGETNEXT_OP(dir)) != NULL) {
 				guint namelen;
 				filename = GETFNAME_OP(file);
 
 				namelen = (int)strlen(filename);
 				if ( namelen > 4 && ( g_ascii_strcasecmp(filename+(namelen-4),".dtd")  == 0 ) ) {
-					GString* errors = g_string_new("");
-					GString* preparsed = dtd_preparse(dirname, filename, errors);
+					GString* preparsed;
 					dtd_build_data_t* dtd_data;
+
+					g_string_truncate(errors, 0);
+					preparsed = dtd_preparse(dirname, filename, errors);
 
 					if (errors->len) {
 						report_failure("Dtd Preparser in file %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,errors->str);
@@ -1269,11 +1272,11 @@ static void init_xml_names(void) {
 
 					if (errors->len) {
 						report_failure("Dtd Registration in file: %s%c%s: %s",dirname,G_DIR_SEPARATOR,filename,errors->str);
-						g_string_free(errors,TRUE);
 						continue;
 					}
 				}
 			}
+			g_string_free(errors,TRUE);
 
 			CLOSEDIR_OP(dir);
 		}
