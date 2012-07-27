@@ -1694,7 +1694,6 @@ PIDL_dissect_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
     }
 
-    g_free(s);
     return offset;
 }
 

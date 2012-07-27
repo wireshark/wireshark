@@ -1033,8 +1033,6 @@ SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_key, TRUE, &key_name);
 
-	CLEANUP_PUSH(g_free, key_name);
-
 	offset = dissect_ndr_cvstring(
 		tvb, offset, pinfo, tree, drep, sizeof(guint16),
 		hf_printerdata_value, TRUE, &value_name);
@@ -1042,9 +1040,6 @@ SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s/%s",
 				key_name, value_name);
-
-	CLEANUP_CALL_AND_POP;
-	g_free(value_name);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_printerdata_type, NULL);
@@ -4349,8 +4344,6 @@ SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO) && name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
 
-	g_free(name);
-
 	return offset;
 }
 
@@ -4400,8 +4393,6 @@ SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (check_col(pinfo->cinfo, COL_INFO) && name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", name);
-
-	g_free(name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_form_level, &level);
@@ -5368,8 +5359,6 @@ SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", value_name);
-
-	g_free(value_name);
 
 	return offset;
 }
@@ -6688,8 +6677,6 @@ SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", kn);
 	}
 
-	g_free(key_name);
-
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_needed, NULL);
 
@@ -6745,8 +6732,6 @@ SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
-
-	g_free(key_name);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
