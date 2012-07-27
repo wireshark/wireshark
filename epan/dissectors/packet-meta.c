@@ -60,6 +60,7 @@
 #define META_TYPE_UINT32           4
 #define META_TYPE_UINT64           5
 #define META_TYPE_STRING          16
+
 /* item ids */
 #define META_ID_NULL               0
 #define META_ID_DIRECTION          1
@@ -154,11 +155,13 @@ static const value_string meta_schema_vals[] = {
 static const value_string meta_proto_vals[] = {
     { META_PROTO_DXT_ETHERNET,      "Ethernet without FCS" },
     { META_PROTO_DXT_ETHERNET_CRC,  "Ethernet with FCS" },
+    { META_PROTO_DXT_ATM,           "ATM" },
+    { META_PROTO_DXT_ERF_AAL5,      "ERF AAL5" },
+    /* XXX: META_PROTO_DXT_M3UA ? */
+    /* XXX: META_PROTO_DXT_NBAP ? */
+    { META_PROTO_DXT_ATM_AAL2,      "ATM AAL2" },
     { META_PROTO_DXT_FP_HINT,       "FP Hint" },
     { META_PROTO_DXT_HDLC,          "HDLC" },
-    { META_PROTO_DXT_ERF_AAL5,      "ERF AAL5" },
-    { META_PROTO_DXT_ATM_AAL2,      "ATM AAL2" },
-    { META_PROTO_DXT_ATM,           "ATM" },
     { META_PROTO_DXT_CONTAINER,     "DXT CONTAINER" },
     { META_PROTO_DXT_FP_CAPTURE,    "FP CAPTURE" },
     { META_PROTO_DXT_UTRAN_CAPSULE, "UTRAN CAPSULE" },
