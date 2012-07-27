@@ -164,6 +164,7 @@ static const value_string meta_proto_vals[] = {
     { META_PROTO_DXT_UTRAN_CAPSULE, "UTRAN CAPSULE" },
     { 0, NULL }
 };
+static value_string_ext meta_proto_vals_ext = VALUE_STRING_EXT_INIT(meta_proto_vals);
 
 static const value_string meta_type_vals[] = {
     { META_TYPE_NONE,       "NONE" },
@@ -201,6 +202,7 @@ static const value_string meta_id_vals[] = {
     { META_ID_CALLED,       "Called Station ID" },
     { 0, NULL }
 };
+static value_string_ext meta_id_vals_ext = VALUE_STRING_EXT_INIT(meta_id_vals);
 
 #define META_AAL5PROTO_MTP3     2
 #define META_AAL5PROTO_NS       3
@@ -223,7 +225,8 @@ static const value_string meta_direction_vals[] = {
 static guint16 skip_item(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint16 offs)
 {
     guint16     id;
-    guint8      type, len, aligned_len, total_len;
+    guint8      type;
+    guint16     len, aligned_len, total_len;
     proto_tree *item_tree;
     proto_item *subti;
 
@@ -253,18 +256,19 @@ static guint16 skip_item(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinf
 static guint16 evaluate_meta_item_pcap(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo, guint16 offs)
 {
     guint16     id;
-    guint8      type, len, aligned_len, total_len;
+    guint8      type;
+    guint16     len, aligned_len, total_len;
     proto_tree *item_tree;
     proto_item *subti;
     /* field values */
     guint8      dir;
     guint64     ts;
 
-    id = tvb_get_letohs(tvb, offs); offs += 2;
-    type = tvb_get_guint8(tvb, offs); offs++;
-    len = tvb_get_guint8(tvb, offs); offs++;
+    id          = tvb_get_letohs(tvb, offs); offs += 2;
+    type        = tvb_get_guint8(tvb, offs); offs++;
+    len         = tvb_get_guint8(tvb, offs); offs++;
     aligned_len = (len + 3) & 0xfffc;
-    total_len = aligned_len + 4; /* 4: id, type, len fields */
+    total_len   = aligned_len + 4; /* 4: id, type, len fields */
 
     switch (id) {
         case META_ID_DIRECTION:
@@ -305,7 +309,8 @@ static guint16 evaluate_meta_item_pcap(proto_tree *meta_tree, tvbuff_t *tvb, pac
 static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo, guint16 offs)
 {
     guint16             id;
-    guint8              type, len, aligned_len, total_len;
+    guint8              type;
+    guint16             len, aligned_len, total_len;
     proto_tree         *item_tree;
     proto_item         *subti;
     /* field values */
@@ -316,13 +321,13 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
     sscop_payload_info *p_sscop_info;
     const gchar        *imsi_str, *imei_str;
     proto_item         *cell_item, *imsi_item, *imei_item;
-    proto_tree         *cell_tree = NULL, *imsi_tree = NULL, *imei_tree = NULL;
+    proto_tree         *cell_tree, *imsi_tree, *imei_tree;
 
-    id = tvb_get_letohs(tvb, offs); offs += 2;
-    type = tvb_get_guint8(tvb, offs); offs++;
-    len = tvb_get_guint8(tvb, offs); offs++;
+    id          = tvb_get_letohs(tvb, offs); offs += 2;
+    type        = tvb_get_guint8(tvb, offs); offs++;
+    len         = tvb_get_guint8(tvb, offs); offs++;
     aligned_len = (len + 3) & 0xfffc;
-    total_len = aligned_len + 4; /* 4: id, type, len fields */
+    total_len   = aligned_len + 4; /* 4: id, type, len fields */
 
     switch (id) {
         case META_ID_DIRECTION:
@@ -483,6 +488,7 @@ static gint32 evaluate_meta_items(guint16 schema, tvbuff_t *tvb, packet_info *pi
 {
     gint16 item_len;
     gint32 total_len = 0;
+
     while (total_len < header_length) {
         switch (schema) {
             case META_SCHEMA_DXT:
@@ -609,41 +615,161 @@ proto_register_meta(void)
 {
     static hf_register_info hf[] = {
         /* metadata header */
-        { &hf_meta_schema, { "Schema", "meta.schema", FT_UINT16, BASE_DEC, VALS(meta_schema_vals), 0, NULL, HFILL } },
-        { &hf_meta_hdrlen, { "Header Length", "meta.hdrlen", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_proto, { "Protocol", "meta.proto", FT_UINT16, BASE_DEC, VALS(meta_proto_vals), 0, NULL, HFILL } },
-        { &hf_meta_reserved, { "Reserved", "meta.reserved", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_meta_schema,
+          { "Schema", "meta.schema",
+            FT_UINT16, BASE_DEC, VALS(meta_schema_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_hdrlen,
+          { "Header Length", "meta.hdrlen",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_proto,
+          { "Protocol", "meta.proto",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &meta_proto_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_reserved,
+          { "Reserved", "meta.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
 
         /* general meta item */
-        { &hf_meta_item, { "Unknown Item", "meta.item", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_id, { "Item ID", "meta.item.id", FT_UINT16, BASE_HEX, VALS(meta_id_vals), 0x0, NULL, HFILL } },
-        { &hf_meta_item_type, { "Item Type", "meta.item.type", FT_UINT8, BASE_HEX, VALS(meta_type_vals), 0x0, NULL, HFILL } },
-        { &hf_meta_item_len, { "Item Length", "meta.item.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_data, { "Item Data", "meta.item.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_meta_item,
+          { "Unknown Item", "meta.item",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_id,
+          { "Item ID", "meta.item.id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &meta_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_type,
+          { "Item Type", "meta.item.type",
+            FT_UINT8, BASE_HEX, VALS(meta_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_len,
+          { "Item Length", "meta.item.len",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_data,
+          { "Item Data", "meta.item.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
 
         /* specific meta items */
-        { &hf_meta_item_direction, { "Direction", "meta.direction", FT_UINT8, BASE_DEC, VALS(meta_direction_vals), 0, NULL, HFILL } },
-        { &hf_meta_item_ts, { "Timestamp", "meta.timestamp", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_phylinkid, { "Physical Link ID", "meta.phylinkid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_nsapi, { "NSAPI", "meta.nsapi", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_imsi_digits, { "IMSI digits", "meta.imsi_digits", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_imsi_value, { "IMSI value", "meta.imsi_value", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_imei_digits, { "IMEI digits", "meta.imei_digits", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_imei_value, { "IMEI value", "meta.imei_value", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_signaling, { "Signaling", "meta.signaling", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_incomplete, { "Incomplete", "meta.incomplete", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_deciphered, { "Deciphered", "meta.deciphered", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_apn, { "APN", "meta.apn", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_rat, { "RAT", "meta.rat", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_aal5proto, { "AAL5 Protocol Type", "meta.aal5proto", FT_UINT8, BASE_DEC, VALS(meta_aal5proto_vals), 0, NULL, HFILL } },
-        { &hf_meta_item_cell, { "Mobile Cell", "meta.cell", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_meta_item_direction,
+          { "Direction", "meta.direction",
+            FT_UINT8, BASE_DEC, VALS(meta_direction_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_ts,
+          { "Timestamp", "meta.timestamp",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_phylinkid,
+          { "Physical Link ID", "meta.phylinkid",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_nsapi,
+          { "NSAPI", "meta.nsapi",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_imsi_digits,
+          { "IMSI digits", "meta.imsi_digits",
+            FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_imsi_value,
+          { "IMSI value", "meta.imsi_value",
+            FT_UINT64, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_imei_digits,
+          { "IMEI digits", "meta.imei_digits",
+            FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_imei_value,
+          { "IMEI value", "meta.imei_value",
+            FT_UINT64, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_signaling,
+          { "Signaling", "meta.signaling",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_incomplete,
+          { "Incomplete", "meta.incomplete",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_deciphered,
+          { "Deciphered", "meta.deciphered",
+            FT_BOOLEAN, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_apn,
+          { "APN", "meta.apn",
+            FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_rat,
+          { "RAT", "meta.rat",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_aal5proto,
+          { "AAL5 Protocol Type", "meta.aal5proto",
+            FT_UINT8, BASE_DEC, VALS(meta_aal5proto_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_cell,
+          { "Mobile Cell", "meta.cell",
+            FT_UINT64, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
 
-        { &hf_meta_item_localdevid, { "Local Device ID", "meta.localdevid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_remotedevid, { "Remote Device ID", "meta.remotedevid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_tapgroupid, { "Tap Group ID", "meta.tapgroupid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_tlli, { "TLLI", "meta.tlli", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_calling, { "Calling Station ID", "meta.calling", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_called, { "Called Station ID", "meta.called", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_meta_item_localdevid,
+          { "Local Device ID", "meta.localdevid",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_remotedevid,
+          { "Remote Device ID", "meta.remotedevid",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_tapgroupid,
+          { "Tap Group ID", "meta.tapgroupid",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_tlli,
+          { "TLLI", "meta.tlli",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_calling,
+          { "Calling Station ID", "meta.calling",
+            FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_meta_item_called,
+          { "Called Station ID", "meta.called",
+            FT_STRINGZ, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -670,16 +796,16 @@ proto_reg_handoff_meta(void)
 #if 0   /* enable once WTAP_ENCAP_META exists */
     dissector_handle_t meta_handle;
 
-    meta_handle = find_dissector("meta");
+    meta_handle          = find_dissector("meta");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_META, meta_handle);
 #endif
-    data_handle = find_dissector("data");
-    alcap_handle = find_dissector("alcap");
-    atm_untrunc_handle = find_dissector("atm_untruncated");
-    nbap_handle = find_dissector("nbap");
-    sscf_nni_handle = find_dissector("sscf-nni");
-    ethwithfcs_handle = find_dissector("eth_withfcs");
+    data_handle          = find_dissector("data");
+    alcap_handle         = find_dissector("alcap");
+    atm_untrunc_handle   = find_dissector("atm_untruncated");
+    nbap_handle          = find_dissector("nbap");
+    sscf_nni_handle      = find_dissector("sscf-nni");
+    ethwithfcs_handle    = find_dissector("eth_withfcs");
     ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
-    fphint_handle = find_dissector("fp_hint");
-    mtp2_handle = find_dissector("mtp2");
+    fphint_handle        = find_dissector("fp_hint");
+    mtp2_handle          = find_dissector("mtp2");
 }
