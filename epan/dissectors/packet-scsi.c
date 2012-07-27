@@ -5836,7 +5836,7 @@ proto_register_scsi(void)
             NULL, 0, "Logical Unit Number", HFILL }},
         { &hf_scsi_bus,
           { "BUS", "scsi.bus", FT_UINT8, BASE_DEC,
-            NULL, 0x3f, "BUS", HFILL }},
+            NULL, 0x3f, NULL, HFILL }},
         { &hf_scsi_lun_address_mode,
           { "Address Mode", "scsi.lun.address_mode", FT_UINT8, BASE_DEC,
           VALS(scsi_lun_address_mode_vals), 0xc0, "Addressing mode for the LUN", HFILL }},
