@@ -96,20 +96,12 @@ struct segment {
     guint8          direction;
 };
 
-struct rect {
-    double x, y, width, height;
-};
-
 struct line {
     double x1, y1, x2, y2;
 };
 
 struct irect {
     int x, y, width, height;
-};
-
-struct ipoint {
-    int x, y;
 };
 
 typedef enum {
@@ -192,16 +184,13 @@ struct zooms {
     double step_x, step_y;
     struct zoom initial;
 #define ZOOM_OUT				(1 << 0)
-#define ZOOM_HLOCK				(1 << 1)
-#define ZOOM_VLOCK				(1 << 2)
-#define ZOOM_STEPS_SAME			(1 << 3)
-#define ZOOM_STEPS_KEEP_RATIO	(1 << 4)
+#define ZOOM_STEPS_SAME			(1 << 1)
+#define ZOOM_STEPS_KEEP_RATIO	(1 << 2)
     int flags;
 };
 
 
 struct graph {
-    struct graph *next;
 #define GRAPH_DESTROYED				(1 << 0)
 #define GRAPH_INIT_ON_TYPE_CHANGE	(1 << 1)
     int flags;
@@ -1890,36 +1879,22 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 }
 #endif
 
-/* TODO: merge this and do_zoom_keyboard() */
+/* TODO: merge this and do_zoom_keyboard()? */
 static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
 {
     int cur_width = g->geom.width, cur_height = g->geom.height;
     struct { double x, y; } factor;
 
     if (g->zoom.flags & ZOOM_OUT) {
-        if (g->zoom.flags & ZOOM_HLOCK) {
-            factor.x = 1.0;
-        }
-        else {
-            factor.x = 1 / g->zoom.step_x;
-        }
-
-        if (g->zoom.flags & ZOOM_VLOCK) {
-            factor.y = 1.0;
-        }
-        else {
-            factor.y = 1 / g->zoom.step_y;
-        }
+        /* Zoom out */
+        factor.x = 1 / g->zoom.step_x;
+        factor.y = 1 / g->zoom.step_y;
     } else {
-        if (g->zoom.flags & ZOOM_HLOCK) {
-            factor.x = 1.0;
-        }
-        else {
-            factor.x = g->zoom.step_x;
-        }
+        /* Zoom in */
+        factor.x = g->zoom.step_x;
 
         /* Don't zoom in too far vertically  (limit to around 90 pixels / SN) */
-        if ((g->zoom.flags & ZOOM_VLOCK) || (g->geom.height >= 90000)) {
+        if (g->geom.height >= 90000) {
             factor.y = 1.0;
         }
         else {
@@ -1927,8 +1902,11 @@ static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
         }
     }
 
+    /* Multiply by x and y factors */
     g->geom.width = (int )rint(g->geom.width * factor.x);
     g->geom.height = (int )rint(g->geom.height * factor.y);
+
+    /* Clip to space if necessary */
     if (g->geom.width < g->wp.width)
         g->geom.width = g->wp.width;
     if (g->geom.height < g->wp.height)
@@ -1955,6 +1933,7 @@ static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
             g->geom.width, g->geom.height, g->wp.x, g->wp.y, g->wp.width,
             g->wp.height, g->zoom.x, g->zoom.y);
 #endif
+
     graph_element_lists_make(g);
     graph_display(g);
     axis_display(g->y_axis);
@@ -1983,29 +1962,16 @@ static void do_zoom_keyboard(struct graph *g)
 
         /**********************/
         /* Zooming OUT        */
-        if (g->zoom.flags & ZOOM_HLOCK)
-            factor.x = 1.0;
-        else
-            /* Not locked, so divide by step_x */
-            factor.x = 1 / g->zoom.step_x;
-
-        if (g->zoom.flags & ZOOM_VLOCK)
-            factor.y = 1.0;
-        else
-            /* Not locked, so divide by step_y */
-            factor.y = 1 / g->zoom.step_y;
+        factor.x = 1 / g->zoom.step_x;
+        factor.y = 1 / g->zoom.step_y;
     } else {
 
         /**********************/
         /* Zooming IN         */
-        if (g->zoom.flags & ZOOM_HLOCK)
-            factor.x = 1.0;
-        else
-            /* Not locked, so factor x is step_x */
-            factor.x = g->zoom.step_x;
+        factor.x = g->zoom.step_x;
 
         /* Don't zoom in too far vertically (limit to around 90 pixels / SN) */
-        if ((g->zoom.flags & ZOOM_VLOCK) || (g->geom.height >= 90000)) {
+        if (g->geom.height >= 90000) {
             factor.y = 1.0;
         }
         else {
@@ -2339,10 +2305,6 @@ static void graph_get_bounds(struct graph *g)
 
 
 
-/*
- * rlc-lte time-sequence graph
- */
-
 static void graph_read_config(struct graph *g)
 {
     /* Black */
@@ -2660,30 +2622,4 @@ static int rint(double x)
     return(i);
 }
 #endif
-
-static tap_param rlc_lte_graph_params[] = {
-    { PARAM_FILTER, "Filter", NULL }
-};
-
-static void gtk_rlc_lte_graph_init(const char *optarg _U_, void *userdata _U_)
-{
-    rlc_lte_graph_cb(NULL, NULL);
-}
-
-static tap_param_dlg rlc_lte_graph_dlg = {
-    "LTE RLC Graph",
-    "rlc-lte,graph",
-    gtk_rlc_lte_graph_init,
-    -1,
-    G_N_ELEMENTS(rlc_lte_graph_params),
-    rlc_lte_graph_params
-};
-
-
-/* Register this tap listener (need void on own so line register function found) */
-void
-register_tap_listener_rlc_lte_graph(void)
-{
-    register_dfilter_stat(&rlc_lte_graph_dlg, "_LTE/RLC _Graph", REGISTER_STAT_GROUP_TELEPHONY);
-}
 
