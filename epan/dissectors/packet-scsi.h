@@ -210,6 +210,8 @@ void dissect_scsi_payload (tvbuff_t *, packet_info *, proto_tree *,
                            guint32 relative_offset);
 void dissect_scsi_snsinfo (tvbuff_t *, packet_info *, proto_tree *, guint, guint, itlq_nexus_t *, itl_nexus_t *);
 
+void dissect_scsi_lun(proto_tree *, tvbuff_t *, guint);
+
 WS_VAR_IMPORT const value_string scsi_mmc_vals[];
 
 extern const int *cdb_control_fields[6];

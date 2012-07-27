@@ -117,7 +117,6 @@ static int hf_scsi_alloclen32                   = -1;
 static int hf_scsi_time                         = -1;
 static int hf_scsi_request_frame                = -1;
 static int hf_scsi_response_frame               = -1;
-static int hf_scsi_lun                          = -1;
 static int hf_scsi_status                       = -1;
 static int hf_scsi_spcopcode                    = -1;
 static int hf_scsi_inquiry_flags                = -1;
@@ -173,8 +172,9 @@ static int hf_scsi_inq_version_desc             = -1;
 static int hf_scsi_inq_devtype                  = -1;
 static int hf_scsi_inq_rmb                      = -1;
 static int hf_scsi_inq_version                  = -1;
-static int hf_scsi_rluns_lun                    = -1;
-static int hf_scsi_rluns_multilun               = -1;
+static int hf_scsi_lun_address_mode             = -1;
+static int hf_scsi_lun                          = -1;
+static int hf_scsi_bus                          = -1;
 static int hf_scsi_modesns_errrep               = -1;
 static int hf_scsi_modesns_tst                  = -1;
 static int hf_scsi_modesns_qmod                 = -1;
@@ -345,6 +345,7 @@ static gint ett_scsi_log_param = -1;
 static gint ett_scsi_fragments = -1;
 static gint ett_scsi_fragment = -1;
 static gint ett_persresv_control = -1;
+static gint ett_scsi_lun = -1;
 
 static int scsi_tap = -1;
 
@@ -434,6 +435,13 @@ static const value_string scsi_spc_vals[] = {
     {SCSI_SPC_WRITEBUFFER        , "Write Buffer"},
     {SCSI_SPC_VARLENCDB          , "Variable Length CDB"},
     {0, NULL},
+};
+
+static const value_string scsi_lun_address_mode_vals[] = {
+    { 0, "Single Level LUN Structure" },
+    { 1, "Flat Space Addressing Method" },
+    { 3, "Extended Logical Unit Addressing" },
+    { 0, NULL }
 };
 
 static const value_string provisioning_vals[] = {
@@ -4179,6 +4187,36 @@ dissect_spc_reportdeviceidentifier(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 }
 
 void
+dissect_scsi_lun(proto_tree *tree, tvbuff_t *tvb, guint offset) {
+    proto_item *ti = proto_tree_add_text(tree, tvb, offset, 8, "LUN: ");
+    proto_tree *tt = proto_item_add_subtree(ti, ett_scsi_lun);
+    guint8 address_mode;
+    guint16 lun = 0;
+
+    address_mode = tvb_get_guint8(tvb, offset) >> 6;
+    proto_tree_add_item(tt, hf_scsi_lun_address_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    switch (address_mode) {
+    case 0:
+        proto_tree_add_item(tt, hf_scsi_bus, tvb, offset, 1, ENC_BIG_ENDIAN);
+        lun = tvb_get_guint8(tvb, offset + 1);
+        proto_tree_add_uint(tt, hf_scsi_lun, tvb, offset + 1, 1, lun);
+        break;
+    case 1:
+        lun = tvb_get_ntohs(tvb, offset) & 0x3fff;
+        proto_tree_add_uint(tt, hf_scsi_lun, tvb, offset, 2, lun);
+        break;
+/*
+    This mode is complex. Lets implement it if/once we see this mode used in the wild.
+    case 3:
+        break;
+ */
+    }
+
+    proto_item_append_text(ti, "%d (%s)", lun, val_to_str(address_mode, scsi_lun_address_mode_vals, "Unknown Address Mode:%d"));
+}
+
+void
 dissect_spc_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_,
                        proto_tree *tree, guint offset,
                        gboolean isreq, gboolean iscdb, guint payload_len _U_,
@@ -4208,12 +4246,7 @@ dissect_spc_reportluns(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset_v += 8;
 
         while(listlen>0) {
-            if (!tvb_get_guint8(tvb_v, offset_v))
-                proto_tree_add_item(tree, hf_scsi_rluns_lun, tvb_v, offset_v+1, 1,
-                                    ENC_BIG_ENDIAN);
-            else
-                proto_tree_add_item(tree, hf_scsi_rluns_multilun, tvb_v, offset_v,
-                                    8, ENC_NA);
+            dissect_scsi_lun(tree, tvb_v, offset_v);
             offset_v+=8;
             listlen-=8;
         }
@@ -5129,11 +5162,6 @@ void
 proto_register_scsi(void)
 {
     static hf_register_info hf[] = {
-        /* 16 bit to print something useful for weirdo
-           volume set addressing hosts */
-        { &hf_scsi_lun,
-          {"LUN", "scsi.lun", FT_UINT16, BASE_HEX,
-           NULL, 0x0, NULL, HFILL}},
         { &hf_scsi_status,
           { "Status", "scsi.status", FT_UINT8, BASE_HEX,
             VALS(scsi_status_val), 0, "SCSI command status value", HFILL }},
@@ -5386,12 +5414,6 @@ proto_register_scsi(void)
         { &hf_scsi_inq_rdf,
           {"Response Data Format", "scsi.inquiry.rdf", FT_UINT8, BASE_DEC, VALS(inq_rdf_vals), 0x0f,
            NULL, HFILL}},
-        { &hf_scsi_rluns_lun,
-          {"LUN", "scsi.reportluns.lun", FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
-           HFILL}},
-        { &hf_scsi_rluns_multilun,
-          {"Multi-level LUN", "scsi.reportluns.mlun", FT_BYTES, BASE_NONE, NULL,
-           0x0, NULL, HFILL}},
         { &hf_scsi_modesns_errrep,
           {"MRIE", "scsi.mode.mrie", FT_UINT8, BASE_HEX,
            VALS(scsi_modesns_mrie_val), 0x0F, NULL, HFILL}},
@@ -5809,6 +5831,15 @@ proto_register_scsi(void)
         { &hf_scsi_modepage_msdl,
           {"Maximum Sense Data Length", "scsi.spc.modepage.msdl", FT_UINT8, BASE_DEC,
 	   NULL, 0, NULL, HFILL}},
+        { &hf_scsi_lun,
+          { "LUN", "scsi.lun", FT_UINT16, BASE_DEC,
+            NULL, 0, "Logical Unit Number", HFILL }},
+        { &hf_scsi_bus,
+          { "BUS", "scsi.bus", FT_UINT8, BASE_DEC,
+            NULL, 0x3f, "BUS", HFILL }},
+        { &hf_scsi_lun_address_mode,
+          { "Address Mode", "scsi.lun.address_mode", FT_UINT8, BASE_DEC,
+          VALS(scsi_lun_address_mode_vals), 0xc0, "Addressing mode for the LUN", HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -5829,7 +5860,8 @@ proto_register_scsi(void)
         &ett_scsi_log_param,
         &ett_scsi_fragments,
         &ett_scsi_fragment,
-        &ett_persresv_control
+        &ett_persresv_control,
+        &ett_scsi_lun
     };
     module_t *scsi_module;
 
