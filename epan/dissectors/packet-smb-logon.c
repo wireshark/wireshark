@@ -946,11 +946,11 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 1;
 
 	if (cmd<LOGON_LAST_CMD) {
-		offset = (dissect_smb_logon_cmds[cmd])(tvb, pinfo,
+		(dissect_smb_logon_cmds[cmd])(tvb, pinfo,
 		    smb_logon_tree, offset);
 	} else {
 		/* unknown command */
-		offset = dissect_smb_unknown(tvb, pinfo, smb_logon_tree,
+		dissect_smb_unknown(tvb, pinfo, smb_logon_tree,
 		    offset);
 	}
 }

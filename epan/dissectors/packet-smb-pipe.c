@@ -2761,7 +2761,6 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 				trp->aux_data_descrip =
 				    g_strdup(aux_data_descrip);
 			}
-			offset += descriptor_len;
 		}
 
 		/* reset offset, we now start dissecting the data area */
@@ -2882,12 +2881,10 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			}
 		} else {
 			/* rest of the parameters */
-			offset = dissect_response_parameters(p_tvb, offset,
+			dissect_response_parameters(p_tvb, offset,
 			    pinfo, tree, trp->param_descrip, lanman->resp,
 			    &has_data, &has_ent_count, &ent_count);
 
-			/* reset offset, we now start dissecting the data area */
-			offset = 0;
 			/* data */
 			if (d_tvb && tvb_reported_length(d_tvb) > 0) {
 				/*
@@ -3639,7 +3636,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 */
 			break;
 		}
-		offset += 2;
 	} else {
 		/*
 		 * This is either a response or a pipe transaction with
@@ -3755,7 +3751,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			offset += 2;
 			proto_tree_add_item(pipe_tree, hf_pipe_peek_status,
 			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
 		}
 		break;
 
@@ -3766,7 +3761,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		if (!smb_info->request) {
 			if (p_tvb == NULL)
 				return FALSE;
-			offset = dissect_ipc_state(p_tvb, pipe_tree, 0, FALSE);
+			dissect_ipc_state(p_tvb, pipe_tree, 0, FALSE);
 		}
 		break;
 
@@ -3777,7 +3772,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		if (smb_info->request) {
 			if (p_tvb == NULL)
 				return FALSE;
-			offset = dissect_ipc_state(p_tvb, pipe_tree, 0, TRUE);
+			dissect_ipc_state(p_tvb, pipe_tree, 0, TRUE);
 		}
 		break;
 
@@ -3793,7 +3788,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			info_level = tvb_get_letohs(p_tvb, offset);
 			proto_tree_add_uint(pipe_tree, hf_pipe_getinfo_info_level,
 			    p_tvb, offset, 2, info_level);
-			offset += 2;
 			if (!pinfo->fd->flags.visited)
 				tri->info_level = info_level;
 		} else {
@@ -3843,7 +3837,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (d_tvb == NULL)
 				return FALSE;
 
-			offset = dissect_file_data(d_tvb, pipe_tree, 0,
+			dissect_file_data(d_tvb, pipe_tree, 0,
 			    (guint16) tvb_reported_length(d_tvb),
 			    (guint16) tvb_reported_length(d_tvb));
 		}
@@ -3855,7 +3849,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			if (d_tvb == NULL)
 				return FALSE;
 
-			offset = dissect_file_data(d_tvb, pipe_tree,
+			dissect_file_data(d_tvb, pipe_tree,
 			    offset, (guint16) tvb_reported_length(d_tvb),
 			    (guint16) tvb_reported_length(d_tvb));
 		} else {
@@ -3864,7 +3858,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			proto_tree_add_item(pipe_tree,
 			    hf_pipe_write_raw_bytes_written,
 			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset += 2;
 		}
 		break;
 	}

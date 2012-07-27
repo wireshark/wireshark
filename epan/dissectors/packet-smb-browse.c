@@ -461,7 +461,6 @@ dissect_election_criterion(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 	/* election os */
 	dissect_election_criterion_os(tvb, tree, offset);
-	offset += 1;
 
 }
 
@@ -702,7 +701,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 			    hf_mb_server_name : hf_server_comment,
 			tvb, offset, namelen, ENC_ASCII|ENC_NA);
-		offset += namelen;
 		break;
 	}
 	case BROWSE_REQUEST_ANNOUNCE: {
@@ -720,7 +718,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(
 				pinfo->cinfo, COL_INFO, " %s", computer_name);
-		offset += namelen;
 		break;
 	}
 
@@ -748,7 +745,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_server_name,
 			tvb, offset, namelen, ENC_ASCII|ENC_NA);
-		offset += namelen;
 		break;
 
 	case BROWSE_BACKUP_LIST_REQUEST:
@@ -758,7 +754,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* backup requested token */
 		proto_tree_add_item(tree, hf_backup_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
 		break;
 
 	case BROWSE_BACKUP_LIST_RESPONSE:
@@ -786,7 +781,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_mb_server_name,
 			tvb, offset, namelen, ENC_ASCII|ENC_NA);
-		offset += namelen;
 		break;
 
 	case BROWSE_RESETBROWSERSTATE_ANNOUNCEMENT: {
@@ -805,7 +799,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 				       offset, 1, reset_cmd);
 		proto_tree_add_boolean(sub_tree, hf_mb_reset_stop, tvb,
 				       offset, 1, reset_cmd);
-		offset += 1;
 		break;
 	}
 
@@ -814,7 +807,6 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_browser_to_promote,
 			tvb, offset, namelen, ENC_ASCII|ENC_NA);
-		offset += namelen;
 		break;
 	}
 }
@@ -923,7 +915,6 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 			    hf_mb_server_name : hf_server_comment,
 			tvb, offset, namelen, ENC_ASCII|ENC_NA);
-		offset += namelen;
 		break;
 	}
 }
