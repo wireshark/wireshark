@@ -1013,9 +1013,9 @@ install-generated-files:
 	xcopy ".\wsutil\libwsutil.dll" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.lib" xcopy ".\wsutil\libwsutil.lib" $(INSTALL_DIR) /d
 	if exist ".\wsutil\libwsutil.pdb" xcopy ".\wsutil\libwsutil.pdb" $(INSTALL_DIR) /d
-	if exist wireshark.exe copy wireshark.exe $(INSTALL_DIR)\wireshark.exe
-	if exist wireshark.pdb copy wireshark.pdb $(INSTALL_DIR)\wireshark.pdb
-	if exist wireshark.bsc copy wireshark.bsc $(INSTALL_DIR)\wireshark.bsc
+	if exist wireshark.exe xcopy wireshark.exe $(INSTALL_DIR) /d
+	if exist wireshark.pdb xcopy wireshark.pdb $(INSTALL_DIR) /d
+	if exist wireshark.bsc xcopy wireshark.bsc $(INSTALL_DIR) /d
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d

@@ -69,7 +69,7 @@ NSI=\
 	AdditionalTasksPage.ini \
 	WinPcapPage.ini
 
-UNINSTALL_INSTALLER = ..\..\wireshark-gtk2\uninstall_installer.exe
+UNINSTALL_INSTALLER = $(STAGING_DIR)\uninstall_installer.exe
 
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
@@ -197,14 +197,15 @@ NSIS_FLAGS=\
 	/DHHC_DIR="$(HHC_DIR)"
 !ENDIF
 
-..\..\uninstall.exe : $(NSI)
+$(STAGING_DIR)\uninstall.exe : $(NSI)
 	rm -f $(UNINSTALL_INSTALLER)
 	$(MAKENSIS) $(NSIS_FLAGS) uninstall.nsi
 	$(UNINSTALL_INSTALLER)
+	rm -f $(UNINSTALL_INSTALLER)
 
-uninstall-exe : ..\..\uninstall.exe
+uninstall-exe : $(STAGING_DIR)\uninstall.exe
 
-wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake ..\..\uninstall.exe
+wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake $(STAGING_DIR)\uninstall.exe
 	$(MAKENSIS) $(NSIS_FLAGS) wireshark.nsi
 
 clean:
