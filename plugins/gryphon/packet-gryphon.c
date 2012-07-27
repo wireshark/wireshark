@@ -977,11 +977,10 @@ decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item  *item, *item1;
     proto_tree  *tree, *tree1;
-    int         hdrsize, datasize, extrasize, hdrbits, msgsize, padding, mode;
+    int         hdrsize, datasize, extrasize, msgsize, padding, mode;
     nstime_t    timestamp;
 
     hdrsize   = tvb_get_guint8(tvb, offset+0);
-    hdrbits   = tvb_get_guint8(tvb, offset+1);
     datasize  = tvb_get_ntohs(tvb, offset+2);
     extrasize = tvb_get_guint8(tvb, offset+4);
     padding   = 3 - (hdrsize + datasize + extrasize + 3) % 4;
@@ -1787,10 +1786,10 @@ resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
     for (i = 1; i <= count; i++) {
         item = proto_tree_add_text(pt, tvb, offset, 112, "Program %u", i);
         tree = proto_item_add_subtree (item, ett_gryphon_pgm_list);
-        proto_tree_add_item(pt, hf_gryphon_list_name, tvb, offset, 32, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tree, hf_gryphon_list_name, tvb, offset, 32, ENC_NA|ENC_ASCII);
         offset += 32;
 
-        proto_tree_add_item(pt, hf_gryphon_list_description, tvb, offset, 80, ENC_NA|ENC_ASCII);
+        proto_tree_add_item(tree, hf_gryphon_list_description, tvb, offset, 80, ENC_NA|ENC_ASCII);
         offset += 80;
     }
     return offset;
