@@ -29,6 +29,10 @@
 
 #include <wiretap/wtap.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  * Definition of data structure to hold time values with nanosecond resolution
  */
@@ -102,5 +106,9 @@ extern double nstime_to_sec(const nstime_t *nstime);
 
 /** converts wtap_nstime to double, time base is seconds */
 extern double wtap_nstime_to_sec(const struct wtap_nstime *nstime);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __NSTIME_H__  */

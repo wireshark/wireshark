@@ -37,13 +37,18 @@
 #include "cfile.h"
 #include "ui/win32/file_dlg_win32.h"
 #else
+#include <errno.h>
 #include "../../epan/addr_resolv.h"
+#include "../../epan/prefs.h"
+#include "../../epan/filesystem.h"
+#include "../../epan/nstime.h"
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QFileInfo>
 #endif
 
 #include <QDebug>
@@ -134,32 +139,71 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &fileName, QString
     QGridLayout *fdGrid = qobject_cast<QGridLayout*>(layout());
     QHBoxLayout *hBox = new QHBoxLayout();
     QVBoxLayout *controlsBox = new QVBoxLayout();
+    QGridLayout *previewGrid = new QGridLayout();
+    QLabel *lbl;
 
-    QLabel *dfLabel = new QLabel(tr("Display Filter:"));
-    fdGrid->addWidget(dfLabel, fdGrid->rowCount(), 0, 1, 1);
+    fdGrid->addWidget(new QLabel(tr("Display Filter:")), fdGrid->rowCount(), 0, 1, 1);
 
     m_displayFilterEdit = new DisplayFilterEdit(this, true);
     m_displayFilterEdit->setText(m_displayFilter);
     fdGrid->addWidget(m_displayFilterEdit, fdGrid->rowCount() - 1, 1, 1, 1);
 
     fdGrid->addLayout(hBox, fdGrid->rowCount(), 1, 1, -1);
+
+    // Filter and resolution controls
     hBox->addLayout(controlsBox);
 
-    m_macRes.setText(tr("Enable &MAC name resolution"));
+    m_macRes.setText(tr("&MAC name resolution"));
     m_macRes.setChecked(gbl_resolv_flags.mac_name);
     controlsBox->addWidget(&m_macRes);
 
-    m_transportRes.setText(tr("Enable &transport name resolution"));
+    m_transportRes.setText(tr("&Transport name resolution"));
     m_transportRes.setChecked(gbl_resolv_flags.transport_name);
     controlsBox->addWidget(&m_transportRes);
 
-    m_networkRes.setText(tr("Enable &network name resolution"));
+    m_networkRes.setText(tr("&Network name resolution"));
     m_networkRes.setChecked(gbl_resolv_flags.network_name);
     controlsBox->addWidget(&m_networkRes);
 
-    m_externalRes.setText(tr("Use &external name resolver"));
+    m_externalRes.setText(tr("&External name resolver"));
     m_externalRes.setChecked(gbl_resolv_flags.use_external_net_name_resolver);
     controlsBox->addWidget(&m_externalRes);
+
+    // Preview
+    hBox->addLayout(previewGrid);
+
+    previewGrid->setColumnStretch(0, 0);
+    previewGrid->setColumnStretch(1, 10);
+
+    lbl = new QLabel("Format:");
+    previewGrid->addWidget(lbl, 0, 0);
+    previewGrid->addWidget(&m_previewFormat, 0, 1);
+    m_previewLabels << lbl << &m_previewFormat;
+
+    lbl = new QLabel("Size:");
+    previewGrid->addWidget(lbl, 1, 0);
+    previewGrid->addWidget(&m_previewSize, 1, 1);
+    m_previewLabels << lbl << &m_previewSize;
+
+    lbl = new QLabel("Packets:");
+    previewGrid->addWidget(lbl, 2, 0);
+    previewGrid->addWidget(&m_previewPackets, 2, 1);
+    m_previewLabels << lbl << &m_previewPackets;
+
+    lbl = new QLabel("First Packet:");
+    previewGrid->addWidget(lbl, 3, 0);
+    previewGrid->addWidget(&m_previewFirst, 3, 1);
+    m_previewLabels << lbl << &m_previewFirst;
+
+    lbl = new QLabel("Elapsed Time:");
+    previewGrid->addWidget(lbl, 4, 0);
+    previewGrid->addWidget(&m_previewElapsed, 4, 1);
+    m_previewLabels << lbl << &m_previewElapsed;
+
+    connect(this, SIGNAL(currentChanged(const QString &)), this, SLOT(preview(const QString &)));
+
+    preview("");
+
 #endif
 }
 
@@ -257,6 +301,138 @@ QStringList CaptureFileDialog::build_file_open_type_list(void) {
 
     return filters;
 }
+
+/* do a preview run on the currently selected capture file */
+void CaptureFileDialog::preview(const QString & path)
+{
+    wtap        *wth;
+    int          err = 0;
+    gchar       *err_info;
+    gint64       data_offset;
+    const struct wtap_pkthdr *phdr;
+    double       start_time = 0; /* seconds, with nsec resolution */
+    double       stop_time = 0;  /* seconds, with nsec resolution */
+    double       cur_time;
+    unsigned int packets = 0;
+    bool         timed_out = FALSE;
+    time_t       time_preview;
+    time_t       time_current;
+    time_t       ti_time;
+    struct tm   *ti_tm;
+    unsigned int elapsed_time;
+
+    // Follow the same steps as ui/win32/file_dlg_win32.c
+
+    foreach (QLabel *lbl, m_previewLabels) {
+        lbl->setEnabled(false);
+    }
+
+    m_previewFormat.setText(tr("-"));
+    m_previewSize.setText(tr("-"));
+    m_previewPackets.setText(tr("-"));
+    m_previewFirst.setText(tr("-"));
+    m_previewElapsed.setText(tr("-"));
+
+    if (path.length() < 1) {
+        return;
+    }
+
+    if (test_for_directory(path.toUtf8().data()) == EISDIR) {
+        m_previewFormat.setText(tr("directory"));
+        return;
+    }
+
+    wth = wtap_open_offline(path.toUtf8().data(), &err, &err_info, TRUE);
+    if (wth == NULL) {
+        if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+            m_previewFormat.setText(tr("unknown file format"));
+        } else {
+            m_previewFormat.setText(tr("error opening file"));
+        }
+        return;
+    }
+
+    // Success!
+    foreach (QLabel *lbl, m_previewLabels) {
+        lbl->setEnabled(true);
+    }
+
+    // Format
+    m_previewFormat.setText(QString::fromUtf8(wtap_file_type_string(wtap_file_type(wth))));
+
+    // Size
+    m_previewSize.setText(QString("%1 bytes").arg(wtap_file_size(wth, &err)));
+
+    time(&time_preview);
+    while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+        phdr = wtap_phdr(wth);
+        cur_time = wtap_nstime_to_sec(&phdr->ts);
+        if(packets == 0) {
+            start_time = cur_time;
+            stop_time = cur_time;
+        }
+        if (cur_time < start_time) {
+            start_time = cur_time;
+        }
+        if (cur_time > stop_time){
+            stop_time = cur_time;
+        }
+
+        packets++;
+        if(packets%1000 == 0) {
+            /* do we have a timeout? */
+            time(&time_current);
+            if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
+                timed_out = TRUE;
+                break;
+            }
+        }
+    }
+
+    if(err != 0) {
+        m_previewPackets.setText(QString("error after reading %1 packets").arg(packets));
+        return;
+    }
+
+    // Packet count
+    if(timed_out) {
+        m_previewPackets.setText(QString("more than %1 (preview timeout)").arg(packets));
+    } else {
+        m_previewPackets.setText(QString("%1").arg(packets));
+    }
+
+    // First packet
+    ti_time = (long)start_time;
+    ti_tm = localtime( &ti_time );
+    if(ti_tm) {
+        m_previewFirst.setText(QString().sprintf(
+                 "%04d-%02d-%02d %02d:%02d:%02d",
+                 ti_tm->tm_year + 1900,
+                 ti_tm->tm_mon + 1,
+                 ti_tm->tm_mday,
+                 ti_tm->tm_hour,
+                 ti_tm->tm_min,
+                 ti_tm->tm_sec
+                 ));
+    } else {
+        m_previewFirst.setText(tr("?"));
+    }
+
+    // Elapsed time
+    elapsed_time = (unsigned int)(stop_time-start_time);
+    if(timed_out) {
+        m_previewElapsed.setText(tr("unknown"));
+    } else if(elapsed_time/86400) {
+        m_previewElapsed.setText(QString().sprintf("%02u days %02u:%02u:%02u",
+                elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60));
+    } else {
+        m_previewElapsed.setText(QString().sprintf("%02u:%02u:%02u",
+                elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60));
+    }
+
+    wtap_close(wth);
+}
+
 #endif // Q_WS_WINDOWS
 
 #if 0

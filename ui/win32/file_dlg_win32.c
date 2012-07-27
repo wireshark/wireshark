@@ -1410,7 +1410,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
         return FALSE;
     }
 
-    /* Format */
+    /* Format: directory */
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
     if (test_for_directory(preview_file) == EISDIR) {
         SetWindowText(cur_ctrl, _T("directory"));
@@ -1435,15 +1435,15 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
         }
     }
 
+    /* Format */
+    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
+    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
+
     /* Size */
     filesize = wtap_file_size(wth, &err);
     utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_FORMAT " bytes", filesize);
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
     SetWindowText(cur_ctrl, string_buff);
-
-    /* Type */
-    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
@@ -1477,7 +1477,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
         return TRUE;
     }
 
-    /* Packet count */
+    /* Packets */
     if(is_breaked) {
         StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
     } else {

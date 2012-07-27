@@ -71,6 +71,13 @@ private:
     QCheckBox m_networkRes;
     QCheckBox m_externalRes;
 
+    QLabel m_previewFormat;
+    QLabel m_previewSize;
+    QLabel m_previewPackets;
+    QLabel m_previewFirst;
+    QLabel m_previewElapsed;
+    QList<QLabel *> m_previewLabels;
+
     DisplayFilterEdit* m_displayFilterEdit;
 
 signals:
@@ -78,6 +85,11 @@ signals:
 public slots:
 
     int exec();
+
+private slots:
+#if !defined(Q_WS_WIN)
+    void preview(const QString & path);
+#endif // Q_WS_WIN
 };
 
 #endif // CAPTURE_FILE_DIALOG_H
