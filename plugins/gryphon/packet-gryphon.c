@@ -977,10 +977,11 @@ decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item  *item, *item1;
     proto_tree  *tree, *tree1;
-    int         hdrsize, datasize, extrasize, msgsize, padding, mode;
+    int         hdrsize, datasize, extrasize, /* hdrbits, */ msgsize, padding, mode;
     nstime_t    timestamp;
 
     hdrsize   = tvb_get_guint8(tvb, offset+0);
+    /* hdrbits   = tvb_get_guint8(tvb, offset+1); */
     datasize  = tvb_get_ntohs(tvb, offset+2);
     extrasize = tvb_get_guint8(tvb, offset+4);
     padding   = 3 - (hdrsize + datasize + extrasize + 3) % 4;
