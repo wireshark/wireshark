@@ -950,6 +950,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                         wblock->data.packet.cap_len             = epb.captured_len;
                         wblock->data.packet.packet_len          = epb.packet_len;
                 }
+                pcapng_debug3("pcapng_read_packet_block: EPB on interface_id %d, cap_len %d, packet_len %d",
+                              wblock->data.packet.interface_id, wblock->data.packet.cap_len, wblock->data.packet.packet_len);
         } else {
                 /*
                  * Is this block long enough to be a PB?
@@ -986,6 +988,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                         wblock->data.packet.cap_len             = pb.captured_len;
                         wblock->data.packet.packet_len          = pb.packet_len;
                 }
+                pcapng_debug3("pcapng_read_packet_block: PB on interface_id %d, cap_len %d, packet_len %d",
+                              wblock->data.packet.interface_id, wblock->data.packet.cap_len, wblock->data.packet.packet_len);
         }
 
         /*
@@ -1003,6 +1007,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         } else {
                 block_total_length = bh->block_total_length;
         }
+        pcapng_debug1("pcapng_read_packet_block: block_total_length %d", block_total_length);
 
         /*
          * Is this block long enough to hold the packet data?
