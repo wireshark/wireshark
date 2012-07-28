@@ -338,9 +338,13 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     /* we start a new capture file, close the old one (if we had one before). */
     /* (we can only have an open capture file in real_time_mode!) */
     if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
-        capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
-        cf_finish_tail(capture_opts->cf, &err);
-        cf_close(capture_opts->cf);
+        if(capture_opts->real_time_mode) {
+            capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
+            cf_finish_tail(capture_opts->cf, &err);
+            cf_close(capture_opts->cf);
+        } else {
+            capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
+        }
     }
     g_free(capture_opts->save_file);
     is_tempfile = FALSE;
@@ -367,6 +371,8 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
       capture_opts->save_file = NULL;
       return FALSE;
     }
+  } else {
+    capture_callback_invoke(capture_cb_capture_prepared, capture_opts);
   }
 
   if(capture_opts->show_info) {
