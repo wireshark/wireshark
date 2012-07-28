@@ -603,12 +603,12 @@ static void dissect_dereg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	ep_strbuf_truncate(reasonflags_strbuf, 0);
 	reason_flag = tvb_get_guint8(tvb, offset);
 
-	if(reason_flag & SASP_DEREG_REQ_NOREASON_FLAG)
+	if((reason_flag & SASP_DEREG_REQ_REASON_LEARNED) == 0)
 	{
 		ep_strbuf_append_printf(reasonflags_strbuf, "%s%s",first_flag ? "" : ", ",fstr[0]);
 		first_flag=FALSE;
 	}
-	if(reason_flag & SASP_DEREG_REQ_REASON_LEARNED)
+	else
 	{
 		ep_strbuf_append_printf(reasonflags_strbuf, "%s%s",first_flag ? "" : ", ",fstr[1]);
 		first_flag=FALSE;
