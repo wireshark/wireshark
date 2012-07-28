@@ -992,7 +992,11 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         " %s - %s",
                         val_to_str_const(octet & 0x7F, t30_facsimile_control_field_vals_short, "<unknown>"),
                         val_to_str(octet & 0x7F, t30_facsimile_control_field_vals, "<unknown>") );
-
+    /*
+        TODO: VS Code Analysis makes a good point - several of these commands can't get detected while
+        the m.s.b. is masked off! (e.g. T30_FC_DTC is 0x81).  I couldn't readily work out from the T.30
+        spec why this masking is being done...
+    */
     switch (octet & 0x7F) {
     case T30_FC_DIS:
     case T30_FC_DTC:
