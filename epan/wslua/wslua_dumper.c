@@ -291,12 +291,17 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
 
     if (! ba) WSLUA_ARG_ERROR(Dumper_dump,BYTEARRAY,"must be a ByteArray");
 
-    pkthdr.ts.secs = (unsigned)floor(ts);
+    memset(&pkthdr, 0, sizeof(pkthdr));
+
+    pkthdr.ts.secs  = (unsigned)floor(ts);
     pkthdr.ts.nsecs = (unsigned)floor((ts - (double)pkthdr.ts.secs) * 1000000000);
 
-    pkthdr.len  = ba->len;
-    pkthdr.caplen  = ba->len;
+    pkthdr.len       = ba->len;
+    pkthdr.caplen    = ba->len;
     pkthdr.pkt_encap = DUMPER_ENCAP(d);
+
+    /* TODO: Can we get access to pinfo->fd->opt_comment here somehow? We
+     * should be copying it to pkthdr.opt_comment if we can. */
 
     if (! wtap_dump(d, &pkthdr, ph->wph, ba->data, &err)) {
         luaL_error(L,"error while dumping: %s",
@@ -370,11 +375,16 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 
     tvb = data_src->tvb;
 
-    pkthdr.ts.secs = lua_pinfo->fd->abs_ts.secs;
-    pkthdr.ts.nsecs = lua_pinfo->fd->abs_ts.nsecs;
-    pkthdr.len  = tvb_reported_length(tvb);
-    pkthdr.caplen  = tvb_length(tvb);
+    memset(&pkthdr, 0, sizeof(pkthdr));
+
+    pkthdr.ts.secs   = lua_pinfo->fd->abs_ts.secs;
+    pkthdr.ts.nsecs  = lua_pinfo->fd->abs_ts.nsecs;
+    pkthdr.len       = tvb_reported_length(tvb);
+    pkthdr.caplen    = tvb_length(tvb);
     pkthdr.pkt_encap = lua_pinfo->fd->lnk_t;
+
+    if (lua_pinfo->fd->opt_comment)
+        pkthdr.opt_comment = ep_strdup(lua_pinfo->fd->opt_comment);
 
     data = ep_tvb_memdup(tvb,0,pkthdr.caplen);
 
