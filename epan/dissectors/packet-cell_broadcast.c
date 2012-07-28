@@ -309,12 +309,13 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    guint8 sms_encoding, total_pages, current_page;
    guint32       offset = 0;
-   guint32       len, msg_key;
-   proto_item     *cbs_page_item = NULL;
+   guint         len;
+   guint32       msg_key;
+   proto_item    *cbs_page_item = NULL;
    proto_tree    *cbs_page_tree = NULL;
-   guint16 serial_number, message_id;
-   tvbuff_t *cbs_page_tvb = NULL;
-   tvbuff_t *cbs_msg_tvb = NULL;
+   guint16       serial_number, message_id;
+   tvbuff_t      *cbs_page_tvb = NULL;
+   tvbuff_t      *cbs_msg_tvb = NULL;
    fragment_data * frag_data = NULL;
 
    len = tvb_length(tvb);
@@ -343,7 +344,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      {
         proto_item *item = proto_tree_add_text(cbs_page_tree, tvb, offset, -1, "Cell Broadcast Page Contents");
         proto_tree *cbs_page_subtree = proto_item_add_subtree(item, ett_gsm_cbs_page_content);
-        gint len = tvb_length(cbs_page_tvb);
+        len = tvb_length(cbs_page_tvb);
         proto_tree_add_string(cbs_page_subtree, hf_gsm_cbs_page_content, cbs_page_tvb, 0, len, tvb_get_ephemeral_string(cbs_page_tvb, 0, len));
      }
      if (total_pages == 1)
@@ -366,7 +367,6 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    }
    if (cbs_msg_tvb != NULL)
    {
-      guint16 len;
       proto_item     *cbs_msg_item = NULL;
       proto_tree    *cbs_msg_tree = NULL;
 
