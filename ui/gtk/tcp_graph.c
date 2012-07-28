@@ -745,15 +745,14 @@ static void create_drawing_area (struct graph *g)
                        G_CALLBACK(button_press_event), g);
 	g_signal_connect(g->drawing_area, "button_release_event",
                        G_CALLBACK(button_release_event), g);
-#if USE_CROSSHAIR_CURSOR
-#else
+#if !USE_CROSSHAIR_CURSOR
 	g_signal_connect(g->drawing_area, "motion_notify_event",
                        G_CALLBACK(motion_notify_event), g);
 	g_signal_connect(g->drawing_area, "leave_notify_event",
                        G_CALLBACK(leave_notify_event), g);
 	g_signal_connect(g->drawing_area, "enter_notify_event",
                        G_CALLBACK(enter_notify_event), g);
-#endif /* USE_CROSSHAIR_CURSOR */
+#endif /* !USE_CROSSHAIR_CURSOR */
 	g_signal_connect(g->toplevel, "destroy", G_CALLBACK(callback_toplevel_destroy), g);
 	/* why doesn't drawing area send key_press_signals? */
 	g_signal_connect(g->toplevel, "key_press_event", G_CALLBACK(key_press_event), g);
@@ -813,8 +812,7 @@ static void create_drawing_area (struct graph *g)
 					   NULL);
 #else
 	g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
-#endif
-#if !GTK_CHECK_VERSION(3,0,0)
+
 	colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
 	if (!xor_gc) {
 		xor_gc = gdk_gc_new (gtk_widget_get_window(g->drawing_area));

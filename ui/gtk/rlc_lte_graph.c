@@ -511,8 +511,7 @@ static void create_drawing_area(struct graph *g)
                        NULL);
 #else
     g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
-#endif
-#if !GTK_CHECK_VERSION(3,0,0)
+
     colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
     if (!xor_gc) {
         xor_gc = gdk_gc_new(gtk_widget_get_window(g->drawing_area));
