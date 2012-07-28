@@ -188,7 +188,6 @@ static gboolean dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_item *ti;
 		gint        read = 0;
 		gint        length;
-		guint8      first_byte;
 		guint8      attribute_type;
 
 		first_byte = tvb_get_guint8(tvb, BFCP_OFFSET_PAYLOAD + read_attr);
