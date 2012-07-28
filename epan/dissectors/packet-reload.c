@@ -2508,7 +2508,6 @@ dissect_storeddataspecifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       int         nKeys       = 0;
       ti_keys = proto_tree_add_item(tree, hf_reload_storeddataspecifier_keys, tvb, offset+local_offset, 2+keys_length, ENC_NA);
       keys_tree =  proto_item_add_subtree(ti_keys, ett_reload_storeddataspecifier_keys);
-      local_offset += 2;
       while (keys_offset < keys_length) {
         guint32 local_increment;
         local_increment = dissect_opaque(tvb, pinfo, keys_tree, hf_reload_dictionarykey, offset, 2, keys_length-keys_offset);
