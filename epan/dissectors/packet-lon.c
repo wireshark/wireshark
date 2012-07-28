@@ -47,7 +47,7 @@ static const value_string pdu_fmt_vs[]=
 	{0, NULL}
 };
 
-static const value_string addr_fmt[]=
+static const value_string addr_fmt_vs[]=
 {
 	{0x00, "Broadcast (0)"},
 	{0x01, "Multicast (1)"},
@@ -56,7 +56,7 @@ static const value_string addr_fmt[]=
 	{0, NULL}
 };
 
-static const value_string domain_length[]=
+static const value_string domain_length_vs[]=
 {
 	{0x00, "0 bit"},
 	{0x01, "8 bit"},
@@ -65,7 +65,7 @@ static const value_string domain_length[]=
 	{0, NULL}
 };
 
-static const value_string tpdu_type[]=
+static const value_string tpdu_type_vs[]=
 {
 	{0x00, "ACKD"},
 	{0x01, "UnACKD_RPT"},
@@ -75,7 +75,7 @@ static const value_string tpdu_type[]=
 	{0, NULL}
 };
 
-static const value_string spdu_type[]=
+static const value_string spdu_type_vs[]=
 {
 	{0x00, "REQUEST"},
 	{0x02, "RESPONSE"},
@@ -84,14 +84,14 @@ static const value_string spdu_type[]=
 	{0, NULL}
 };
 
-static const value_string authpdu_type[]=
+static const value_string authpdu_type_vs[]=
 {
 	{0x00, "CHALLENGE"},
 	{0x02, "REPLY"},
 	{0, NULL}
 };
 
-static const value_string nm_code[]=
+static const value_string nm_code_vs[]=
 {
 	{0x61, "NM_QUERY_ID"},
 	{0x62, "NM_RESPOND_TO_QUERY"},
@@ -116,7 +116,7 @@ static const value_string nm_code[]=
 	{ 0, NULL}
 };
 
-static const value_string nd_code[]=
+static const value_string nd_code_vs[]=
 {
 	{0x51, "ND_QUERY_STATUS"},
 	{0x52, "ND_PROXY_COMMAND"},
@@ -512,12 +512,12 @@ proto_register_lon(void)
 		},
 		{&hf_lon_npdu_addr_fmt,
 			{"Address format", "lon.addrfmt",
-			FT_UINT8, BASE_HEX, VALS(addr_fmt), 0x0c,
+			FT_UINT8, BASE_HEX, VALS(addr_fmt_vs), 0x0c,
 			NULL, HFILL }
 		},
 		{&hf_lon_npdu_dom_len,
 			{"Domain length", "lon.domainlen",
-			FT_UINT8, BASE_HEX, VALS(domain_length), 0x03,
+			FT_UINT8, BASE_HEX, VALS(domain_length_vs), 0x03,
 			NULL, HFILL }
 		},
 		{&hf_lon_addr_srcsub,
@@ -577,7 +577,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_tpdu_tpdu_type,
 			{"TPDU type", "lon.tpdu_type",
-			FT_UINT8, BASE_HEX, VALS(tpdu_type), 0x70,
+			FT_UINT8, BASE_HEX, VALS(tpdu_type_vs), 0x70,
 			NULL, HFILL }
 		},
 		{&hf_lon_trans_no,
@@ -592,7 +592,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_spdu_spdu_type,
 			{"SPDU type", "lon.spdu_type",
-			FT_UINT8, BASE_HEX, VALS(spdu_type), 0x70,
+			FT_UINT8, BASE_HEX, VALS(spdu_type_vs), 0x70,
 			NULL, HFILL }
 		},
 		{&hf_lon_mlen,
@@ -617,7 +617,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_authpdu_authpdu_type,
 			{"AuthPDU type", "lon.authpdu_type",
-			FT_UINT8, BASE_HEX, VALS(authpdu_type), 0x2,
+			FT_UINT8, BASE_HEX, VALS(authpdu_type_vs), 0x2,
 			NULL, HFILL }
 		},
 		{&hf_lon_nv,
@@ -652,7 +652,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_nm_code,
 			{"Code", "lon.code",
-			FT_UINT8, BASE_HEX, VALS(nm_code), 0xff,
+			FT_UINT8, BASE_HEX, VALS(nm_code_vs), 0xff,
 			NULL, HFILL }
 		},
 		{&hf_lon_nd,
@@ -662,7 +662,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_nd_code,
 			{"Code", "lon.code",
-			FT_UINT8, BASE_HEX, VALS(nd_code), 0xff,
+			FT_UINT8, BASE_HEX, VALS(nd_code_vs), 0xff,
 			NULL, HFILL }
 		},
 		{&hf_lon_ff,
