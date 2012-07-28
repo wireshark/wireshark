@@ -47,6 +47,7 @@
 
 #define XMPP_PORT 5222
 
+static dissector_handle_t ssl_handle;
 static dissector_handle_t xml_handle;
 
 int proto_xmpp = -1;
@@ -406,11 +407,21 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     col_clear(pinfo->cinfo, COL_INFO);
 
+    conversation = find_or_create_conversation(pinfo);
+    xmpp_info = conversation_get_proto_data(conversation, proto_xmpp);
+
+    if (xmpp_info && xmpp_info->ssl_proceed &&
+            xmpp_info->ssl_proceed < pinfo->fd->num)
+    {
+        call_dissector(ssl_handle, tvb, pinfo, tree);
+        return;
+    }
+
     /*if tree == NULL then xmpp_item and xmpp_tree will also NULL*/
     xmpp_item = proto_tree_add_item(tree, proto_xmpp, tvb, 0, -1, ENC_NA);
     xmpp_tree = proto_item_add_subtree(xmpp_item, ett_xmpp);
 
-    call_dissector(xml_handle,tvb,pinfo,xmpp_tree);
+    call_dissector(xml_handle, tvb, pinfo, xmpp_tree);
 
     /* If XML dissector is disabled, we can't do much */
     if (!proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(xml_handle))))
@@ -437,18 +448,16 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if(!xml_frame)
         return;
 
-    conversation = find_or_create_conversation(pinfo);
-    xmpp_info = conversation_get_proto_data(conversation, proto_xmpp);
-
     if (!xmpp_info) {
         xmpp_info = se_alloc(sizeof (xmpp_conv_info_t));
         xmpp_info->req_resp = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_req_resp");
         xmpp_info->jingle_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_jingle_sessions");
         xmpp_info->ibb_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_ibb_sessions");
         xmpp_info->gtalk_sessions = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "xmpp_gtalk_sessions");
+        xmpp_info->ssl_start   = 0;
+        xmpp_info->ssl_proceed = 0;
         conversation_add_proto_data(conversation, proto_xmpp, (void *) xmpp_info);
     }
-
 
     if (pinfo->match_uint == pinfo->destport)
         out_packet = TRUE;
@@ -507,9 +516,9 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             } else if (strcmp(packet->name, "features") == 0) {
                 xmpp_features(xmpp_tree, tvb, pinfo, packet);
             } else if (strcmp(packet->name, "starttls") == 0) {
-                xmpp_starttls(xmpp_tree, tvb, pinfo, packet);
+                xmpp_starttls(xmpp_tree, tvb, pinfo, packet, xmpp_info);
             }else if (strcmp(packet->name, "proceed") == 0) {
-                xmpp_proceed(xmpp_tree, tvb, pinfo, packet);
+                xmpp_proceed(xmpp_tree, tvb, pinfo, packet, xmpp_info);
             }else {
                 xmpp_proto_tree_show_first_child(xmpp_tree);
                 expert_add_info_format(pinfo, xmpp_tree, PI_UNDECODED, PI_NOTE, "Unknown packet: %s", packet->name);
@@ -1414,6 +1423,8 @@ proto_register_xmpp(void) {
 void
 proto_reg_handoff_xmpp(void) {
     static dissector_handle_t xmpp_handle;
+
+    ssl_handle = find_dissector("ssl");
 
     xml_handle  = find_dissector("xml");
 

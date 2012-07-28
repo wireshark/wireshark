@@ -114,6 +114,8 @@ typedef struct _xmpp_conv_info_t {
     emem_tree_t *jingle_sessions;
     emem_tree_t *ibb_sessions;
     emem_tree_t *gtalk_sessions;
+    guint32      ssl_start;
+    guint32      ssl_proceed;
 } xmpp_conv_info_t;
 
 /** Struct conatins frame numbers (request frame(IQ set/get) and

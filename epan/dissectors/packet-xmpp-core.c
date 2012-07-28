@@ -702,7 +702,8 @@ xmpp_features_mechanisms(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xm
 }
 
 void
-xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet)
+xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+        xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info)
 {
     proto_item *tls_item;
     proto_tree *tls_tree;
@@ -716,12 +717,21 @@ xmpp_starttls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
     tls_item = proto_tree_add_item(tree, hf_xmpp_starttls, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     tls_tree = proto_item_add_subtree(tls_item, ett_xmpp_starttls);
 
+    if (xmpp_info->ssl_start && xmpp_info->ssl_start != pinfo->fd->num) {
+        expert_add_info_format(pinfo, tls_item, PI_PROTOCOL, PI_WARN,
+                "Already saw STARTTLS in frame %u", xmpp_info->ssl_start);
+    }
+    else {
+        xmpp_info->ssl_start = pinfo->fd->num;
+    }
+
     xmpp_display_attrs(tls_tree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(tls_tree, packet, pinfo, tvb, NULL, 0);
 }
 
 void
-xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet)
+xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+        xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info)
 {
     proto_item *proceed_item;
     proto_tree *proceed_tree;
@@ -734,6 +744,19 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
     proceed_item = proto_tree_add_item(tree, hf_xmpp_proceed, tvb, packet->offset, packet->length, ENC_BIG_ENDIAN);
     proceed_tree = proto_item_add_subtree(proceed_item, ett_xmpp_proceed);
+
+    if (!xmpp_info->ssl_start) {
+        expert_add_info_format(pinfo, proceed_item, PI_PROTOCOL, PI_WARN,
+                "Haven't seen a STARTTLS, did the capture start in the middle of a session?");
+    }
+
+    if (xmpp_info->ssl_proceed && xmpp_info->ssl_proceed != pinfo->fd->num) {
+        expert_add_info_format(pinfo, proceed_item, PI_PROTOCOL, PI_WARN,
+                "Already saw PROCEED in frame %u", xmpp_info->ssl_proceed);
+    }
+    else {
+        xmpp_info->ssl_proceed = pinfo->fd->num;
+    }
 
     xmpp_display_attrs(proceed_tree, packet, pinfo, tvb, attrs_info, array_length(attrs_info));
     xmpp_display_elems(proceed_tree, packet, pinfo, tvb, NULL, 0);
