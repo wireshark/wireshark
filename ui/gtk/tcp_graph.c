@@ -432,7 +432,7 @@ static struct graph *graph_new (void);
 static void graph_destroy (struct graph * );
 static void graph_initialize_values (struct graph * );
 static void graph_init_sequence (struct graph * );
-static void draw_element_line (struct graph * , struct element * , cairo_t *cr);
+static void draw_element_line (struct graph * , struct element * , cairo_t *cr, GdkColor *new_color);
 static void draw_element_ellipse (struct graph * , struct element * , cairo_t *cr);
 static void graph_display (struct graph * );
 static void graph_pixmaps_create (struct graph * );
@@ -2236,6 +2236,8 @@ static void graph_pixmap_draw (struct graph *g)
 	struct element *e;
 	int not_disp;
 	cairo_t *cr;
+	GdkColor *current_line_color = NULL;
+	GdkColor *color_to_set = NULL;
 
 	debug(DBS_FENTRY) puts ("graph_display()");
 	not_disp = 1 ^ g->displayed;
@@ -2253,28 +2255,54 @@ static void graph_pixmap_draw (struct graph *g)
 		for (e=list->elements; e->type != ELMT_NONE; e++) {
 			switch (e->type) {
 			case ELMT_RECT:
+				current_line_color = NULL;
 				break;
+
 			case ELMT_LINE:
-				draw_element_line (g, e, cr);
+				/* Work out if we need to change colour */
+				if (current_line_color == e->elment_color_p) {
+					/* No change needed */
+					color_to_set = NULL;
+				}
+				else {
+					/* Changing colour */
+					current_line_color = color_to_set = e->elment_color_p;
+				}
+				draw_element_line (g, e, cr, color_to_set);
 				break;
+
 			case ELMT_ELLIPSE:
+				current_line_color = NULL;
 				draw_element_ellipse (g, e, cr);
 				break;
+
 			default:
 				break;
 			}
 		}
 
+	/* Make sure any remaining lines get drawn */
+	cairo_stroke (cr);
+
 	cairo_destroy (cr);
 }
 
-static void draw_element_line (struct graph *g, struct element *e, cairo_t *cr)
+static void draw_element_line (struct graph *g, struct element *e, cairo_t *cr,
+                               GdkColor *new_color)
 {
 	int xx1, xx2, yy1, yy2;
 
 	debug(DBS_GRAPH_DRAWING) printf ("line element: (%.2f,%.2f)->(%.2f,%.2f), "
 				"seg %d ... ", e->p.line.dim.x1, e->p.line.dim.y1,
 				e->p.line.dim.x2, e->p.line.dim.y2, e->parent->num);
+
+	/* Set our new colour (if changed) */
+	if (new_color != NULL) {
+		/* First draw any previous lines with old colour */
+		cairo_stroke(cr);
+		gdk_cairo_set_source_color(cr, new_color);
+	}
+
 	xx1 = (int )rint (e->p.line.dim.x1 + g->geom.x - g->wp.x);
 	xx2 = (int )rint (e->p.line.dim.x2 + g->geom.x - g->wp.x);
 	yy1 = (int )rint ((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
@@ -2307,13 +2335,8 @@ static void draw_element_line (struct graph *g, struct element *e, cairo_t *cr)
 
 	g_assert(e->elment_color_p!=NULL);
 
-	cairo_set_line_width (cr, 1.0);
-	if(e->elment_color_p!=NULL){
-		gdk_cairo_set_source_color (cr, e->elment_color_p);
-	}
 	cairo_move_to(cr, xx1+0.5, yy1+0.5);
 	cairo_line_to(cr, xx2+0.5, yy2+0.5);
-	cairo_stroke(cr);
 }
 
 static void draw_element_ellipse (struct graph *g, struct element *e, cairo_t *cr)
