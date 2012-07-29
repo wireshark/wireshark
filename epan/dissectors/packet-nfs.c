@@ -691,8 +691,8 @@ static enum_val_t nfs_fhandle_types[] = {
 static gint default_nfs_fhandle_type=FHT_UNKNOWN;
 
 typedef struct nfs_fhandle_data {
-    int len;
-    const unsigned char *fh;
+	int len;
+	const unsigned char *fh;
 } nfs_fhandle_data_t;
 
 /* For dissector helpers which take a "levels" argument to indicate how
@@ -1106,7 +1106,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 		nfs_full_name_snoop(parent_nns, len, name, pos);
 		if(*name){
 			/* make sure components are '/' separated */
-                    *pos += g_snprintf(*pos, (*len+1) - (gulong)(*pos-*name), "%s%s", ((*pos)[-1]!='/')?"/":"", nns->name);
+			*pos += g_snprintf(*pos, (*len+1) - (gulong)(*pos-*name), "%s%s", ((*pos)[-1]!='/')?"/":"", nns->name);
 			DISSECTOR_ASSERT((*pos-*name) <= *len);
 		}
 		return;
@@ -1285,7 +1285,7 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	if (tree) {
 		proto_tree_add_boolean(tree, hf_nfs_fh_endianness, tvb,
-                        0, fhlen, little_endian);
+			0, fhlen, little_endian);
 	}
 
 	/* We are fairly sure, that when found==FALSE, the following code will
@@ -2217,7 +2217,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 	/* Display the entire filehandle */
 	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, ENC_NA);
 
-    	/* 	On Celerra if fhlen = 32, it's an NFSv3 filehandle */
+	/* 	On Celerra if fhlen = 32, it's an NFSv3 filehandle */
 	if (fhlen == 32) {
 		/* Create a "File/Dir" subtree: bytes 0 thru 15 of the 32-byte file handle 	 */
 		{
@@ -2403,9 +2403,9 @@ dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame)
 	if(nfd && nfd->len){
 		tvbuff_t *tvb;
 		tvb = tvb_new_real_data(nfd->fh, nfd->len, nfd->len);
-                /* There's no need to call add_new_data_source() since
-                   dissect_fhandle(), in the the 'hidden' case, never refers
-                   to the tvb when displaying a field based on the tvb */
+		/* There's no need to call add_new_data_source() since
+		   dissect_fhandle(), in the the 'hidden' case, never refers
+		   to the tvb when displaying a field based on the tvb */
 		dissect_fhandle_data(tvb, 0, pinfo, tree, nfd->len, TRUE, NULL);
 		tvb_free(tvb);
 	}
@@ -2947,8 +2947,7 @@ dissect_sattr(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 
 /* RFC 1094, Page 17 */
 static int
-dissect_filename(tvbuff_t *tvb, int offset,
-    proto_tree *tree, int hf, char **string_ret)
+dissect_filename(tvbuff_t *tvb, int offset, proto_tree *tree, int hf, char **string_ret)
 {
 	offset = dissect_rpc_string(tvb, tree, hf, offset, string_ret);
 	return offset;
@@ -3614,8 +3613,7 @@ static const value_string nfsv2_proc_vals[] = {
 
 /* RFC 1813, Page 15 */
 static int
-dissect_filename3(tvbuff_t *tvb, int offset,
-    proto_tree *tree, int hf, char **string_ret)
+dissect_filename3(tvbuff_t *tvb, int offset, proto_tree *tree, int hf, char **string_ret)
 {
 	offset = dissect_rpc_string(tvb, tree, hf, offset, string_ret);
 	return offset;
@@ -6301,8 +6299,7 @@ dissect_nfs_utf8string(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_nfs_deviceid4(tvbuff_t *tvb, int offset,
-                     proto_tree *tree)
+dissect_nfs_deviceid4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_nfs_deviceid4, tvb, offset, 16, ENC_NA);
 	offset += 16;
@@ -6310,8 +6307,7 @@ dissect_nfs_deviceid4(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_nfs_sessionid4(tvbuff_t *tvb, int offset,
-                     proto_tree *tree)
+dissect_nfs_sessionid4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_nfs_sessionid4, tvb, offset, 16, ENC_NA);
 	offset += 16;
@@ -7031,7 +7027,7 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			"Huge bitmap length: %u", bitmap_len);
 		THROW(ReportedBoundsError);
 	}
-        tvb_ensure_bytes_exist(tvb, offset, 4 + bitmap_len * 4);
+	tvb_ensure_bytes_exist(tvb, offset, 4 + bitmap_len * 4);
 	fitem = proto_tree_add_text(tree, tvb, offset, 4 + bitmap_len * 4,
 		"%s", "attrmask");
 	offset += 4;
@@ -8563,7 +8559,7 @@ static int
 dissect_nfs_rpcsec_gss_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
-            hf_nfs_sec_oid4, FALSE, 0, FALSE, NULL, NULL);
+		hf_nfs_sec_oid4, FALSE, 0, FALSE, NULL, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_qop4, offset);
 	offset = dissect_rpc_uint32(tvb, tree,
 		hf_nfs_secinfo_rpcsec_gss_info_service, offset);
@@ -9212,7 +9208,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_LOOKUP:
-                    /*name_offset=offset;*/
+			/*name_offset=offset;*/
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 								hf_nfs_component4, &name);
 			if (nfs_file_name_snooping){
@@ -9332,8 +9328,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_utf8string(tvb, offset, newftree,
 				hf_nfs_component4, &dest_name);
 			g_string_append_printf (op_summary[ops_counter].optext, " From: %s To: %s",
-                                                source_name ? source_name : "Unknown",
-                                                dest_name ? dest_name : "Unknown");
+						source_name ? source_name : "Unknown",
+						dest_name ? dest_name : "Unknown");
 			break;
 
 		case NFS4_OP_RENEW:
@@ -10038,7 +10034,7 @@ dissect_nfs4_compound_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (status != NFS4_OK)
 		col_append_fstr(pinfo->cinfo, COL_INFO," Status: %s",
-                                val_to_str_ext(status, &names_nfs_nfsstat4_ext, "Unknown error:%u"));
+				val_to_str_ext(status, &names_nfs_nfsstat4_ext, "Unknown error:%u"));
 
 	return offset;
 }
@@ -10297,38 +10293,38 @@ static gint ett_nfs_cb_refcalls = -1;
 static gint ett_nfs_cb_illegal = -1;
 
 static const value_string names_nfs_cb_operation[] = {
-        {       NFS4_OP_CB_GETATTR,                             "CB_GETATTR" },
-        {       NFS4_OP_CB_RECALL,                              "CB_RECALL"     },
-        {       NFS4_OP_CB_LAYOUTRECALL,                        "CB_LAYOUTRECALL" },
-        {       NFS4_OP_CB_NOTIFY,                              "CB_NOTIFY" },
-        {       NFS4_OP_CB_PUSH_DELEG,                          "CB_PUSH_DELEG" },
-        {       NFS4_OP_CB_RECALL_ANY,                          "CB_RECALL_ANY" },
-        {       NFS4_OP_CB_RECALLABLE_OBJ_AVAIL,                "CB_RECALLABLE_OBJ_AVAIL" },
-        {       NFS4_OP_CB_RECALL_SLOT,                         "CB_RECALL_SLOT"},
-        {       NFS4_OP_CB_SEQUENCE,                            "CB_SEQUENCE"   },
-        {       NFS4_OP_CB_WANTS_CANCELLED,                     "CB_WANTS_CANCELLED" },
-        {       NFS4_OP_CB_NOTIFY_LOCK,                         "CB_NOTIFY_LOCK"},
-        {       NFS4_OP_CB_NOTIFY_DEVICEID,                     "CB_NOTIFY_DEVICEID"    },
-        {       NFS4_OP_CB_ILLEGAL,                             "CB_ILLEGAL"},
-        {       0,      NULL }
+	{	NFS4_OP_CB_GETATTR,				"CB_GETATTR" },
+	{	NFS4_OP_CB_RECALL,				"CB_RECALL"	},
+	{	NFS4_OP_CB_LAYOUTRECALL,			"CB_LAYOUTRECALL" },
+	{	NFS4_OP_CB_NOTIFY,				"CB_NOTIFY" },
+	{	NFS4_OP_CB_PUSH_DELEG,				"CB_PUSH_DELEG" },
+	{	NFS4_OP_CB_RECALL_ANY,				"CB_RECALL_ANY" },
+	{	NFS4_OP_CB_RECALLABLE_OBJ_AVAIL,		"CB_RECALLABLE_OBJ_AVAIL" },
+	{	NFS4_OP_CB_RECALL_SLOT,				"CB_RECALL_SLOT"},
+	{	NFS4_OP_CB_SEQUENCE,				"CB_SEQUENCE"	},
+	{	NFS4_OP_CB_WANTS_CANCELLED,			"CB_WANTS_CANCELLED" },
+	{	NFS4_OP_CB_NOTIFY_LOCK,				"CB_NOTIFY_LOCK"},
+	{	NFS4_OP_CB_NOTIFY_DEVICEID,			"CB_NOTIFY_DEVICEID"	},
+	{	NFS4_OP_CB_ILLEGAL,				"CB_ILLEGAL"},
+	{	0,	NULL }
 };
 static value_string_ext names_nfs_cb_operation_ext = VALUE_STRING_EXT_INIT(names_nfs_cb_operation);
 
 static gint *nfs_cb_operation_ett[] =
 {
-         &ett_nfs_cb_getattr,
-         &ett_nfs_cb_recall,
-         &ett_nfs_cb_layoutrecall,
-         &ett_nfs_cb_notify,
-         &ett_nfs_cb_pushdeleg,
-         &ett_nfs_cb_recallany,
-         &ett_nfs_cb_recallableobjavail,
-         &ett_nfs_cb_recallslot,
-         &ett_nfs_cb_sequence,
-         &ett_nfs_cb_wantscancelled,
-         &ett_nfs_cb_notifylock,
-         &ett_nfs_cb_notifydeviceid,
-         &ett_nfs_cb_illegal
+	&ett_nfs_cb_getattr,
+	&ett_nfs_cb_recall,
+	&ett_nfs_cb_layoutrecall,
+	&ett_nfs_cb_notify,
+	&ett_nfs_cb_pushdeleg,
+	&ett_nfs_cb_recallany,
+	&ett_nfs_cb_recallableobjavail,
+	&ett_nfs_cb_recallslot,
+	&ett_nfs_cb_sequence,
+	&ett_nfs_cb_wantscancelled,
+	&ett_nfs_cb_notifylock,
+	&ett_nfs_cb_notifydeviceid,
+	&ett_nfs_cb_illegal
 };
 
 static int
@@ -10399,7 +10395,7 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	ops = tvb_get_ntohl(tvb, offset+0);
 
 	fitem = proto_tree_add_text(tree, tvb, offset, 4, "Operations (count: %u)", ops);
-        offset += 4;
+	offset += 4;
 
 	if (fitem)
 	  	ftree = proto_item_add_subtree(fitem, ett_nfs_cb_argop);
@@ -10484,7 +10480,7 @@ dissect_nfs_cb_compound_call(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 static int
 dissect_nfs_cb_resop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  	guint32 ops, ops_counter;
+ 	guint32 ops, ops_counter;
 	guint32 opcode;
 	proto_item *fitem;
 	proto_tree *ftree = NULL;
@@ -10579,17 +10575,17 @@ dissect_nfs_cb_compound_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static const vsff nfs_cb_proc[] = {
-        { 0, "CB_NULL",
+	{ 0, "CB_NULL",
 	  dissect_nfs3_null_call, dissect_nfs3_null_reply },
-        { 1, "CB_COMPOUND",
+	{ 1, "CB_COMPOUND",
 	  dissect_nfs_cb_compound_call, dissect_nfs_cb_compound_reply },
-        { 0, NULL, NULL, NULL }
+	{ 0, NULL, NULL, NULL }
 };
 
 static const value_string nfs_cb_proc_vals[] = {
-        { 0, "CB_NULL" },
-        { 1, "CB_COMPOUND" },
-        { 0, NULL }
+	{ 0, "CB_NULL" },
+	{ 1, "CB_COMPOUND" },
+	{ 0, NULL }
 };
 
 void reg_callback(int cbprog)
@@ -11898,9 +11894,9 @@ proto_register_nfs(void)
 			"slot ID", "nfs.slotid4", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
-                { &hf_nfs_high_slotid4, {
-                        "high slot id", "nfs.high.slotid4", FT_UINT32, BASE_DEC,
-                        NULL, 0, NULL, HFILL }},
+		{ &hf_nfs_high_slotid4, {
+			"high slot id", "nfs.high.slotid4", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_target_high_slotid4, {
 			"target high slot id", "nfs.target.high.slotid4", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
