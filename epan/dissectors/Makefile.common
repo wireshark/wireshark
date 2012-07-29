@@ -463,6 +463,7 @@ DISSECTOR_SRC = \
 	packet-dtp.c		\
 	packet-dtpt.c		\
 	packet-dua.c		\
+	packet-dvb-s2-bb.c	\
 	packet-dvb-data-mpe.c	\
 	packet-dvb-ait.c	\
 	packet-dvb-bat.c	\
