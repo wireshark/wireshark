@@ -168,6 +168,7 @@ static const value_string modeadapt_modcods[] = {
     {31, "reserved"},
     { 0, NULL}
 };
+static value_string_ext modeadapt_modcods_ext = VALUE_STRING_EXT_INIT(modeadapt_modcods);
 
 #define DVB_S2_MODEADAPT_PILOTS_MASK	0x20
 static const true_false_string tfs_modeadapt_pilots = {
@@ -442,6 +443,7 @@ static const value_string modeadapt_esno[] = {
     {255, ">30.750"},
     {  0, NULL}
 };
+static value_string_ext modeadapt_esno_ext = VALUE_STRING_EXT_INIT(modeadapt_esno);
 
 /* fourth byte */
 #define DVB_S2_MODEADAPT_OFFS_FNO	           3
@@ -901,12 +903,12 @@ void proto_register_dvb_s2_modeadapt(void)
          },
         {&hf_dvb_s2_modeadapt_acm_modcod, {
                                            "Modcod indicator", "dvb-s2_modeadapt.acmcmd.modcod",
-                                           FT_UINT8, BASE_DEC, VALS(modeadapt_modcods), DVB_S2_MODEADAPT_MODCODS_MASK,
+                                           FT_UINT8, BASE_DEC|BASE_EXT_STRING, &modeadapt_modcods_ext, DVB_S2_MODEADAPT_MODCODS_MASK,
                                            "Modcod", HFILL}
          },
         {&hf_dvb_s2_modeadapt_cni, {
                                     "Carrier to Noise [dB]", "dvb-s2_modeadapt.cni",
-                                    FT_UINT8, BASE_DEC, VALS(modeadapt_esno), 0x0,
+                                    FT_UINT8, BASE_DEC|BASE_EXT_STRING, &modeadapt_esno_ext, 0x0,
                                     "CNI", HFILL}
          },
         {&hf_dvb_s2_modeadapt_frameno, {
@@ -1024,7 +1026,7 @@ void proto_register_dvb_s2_modeadapt(void)
          },
         {&hf_dvb_s2_gse_proto, {
                                 "Protocol", "dvb-s2_gse.proto",
-                                FT_UINT16, BASE_HEX | BASE_RANGE_STRING, &gse_proto, 0x0,
+                                FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(gse_proto), 0x0,
                                 "Protocol Type", HFILL}
          },
         {&hf_dvb_s2_gse_label6, {
