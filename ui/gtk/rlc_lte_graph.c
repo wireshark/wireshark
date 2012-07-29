@@ -58,7 +58,6 @@
 /* TODO:
    - bring back crosshairs (always on?)
    - fix gradiant of lines that lie partially outside of the visible graph
-   - fix (or completlely delete) 'time origin'
    - middle-button + shift isn't zooming out
 */
 
@@ -71,6 +70,8 @@
 #define MOUSE_BUTTON_LEFT	1
 #define MOUSE_BUTTON_MIDDLE	2
 #define MOUSE_BUTTON_RIGHT	3
+
+#define MAX_PIXELS_PER_SN   90
 
 extern int proto_rlc_lte;
 
@@ -160,16 +161,11 @@ struct style_rlc_lte {
 };
 
 /* style flags */
-#define SEQ_ORIGIN			0x1
-/* show absolute sequence numbers (not differences from isn) */
-#define SEQ_ORIGIN_ZERO		0x1
-#define SEQ_ORIGIN_ISN		0x0
 #define TIME_ORIGIN			0x10
 /* show time from beginning of capture as opposed to time from beginning
  * of the connection */
 #define TIME_ORIGIN_CAP		0x10
-#define TIME_ORIGIN_CONN	0x0
-
+#define TIME_ORIGIN_CONN	0x00
 
 struct bounds {
     double x0, y0, width, height;
@@ -604,6 +600,7 @@ static struct graph *graph_new(void)
 
     g->x_axis = (struct axis * )g_malloc0(sizeof(struct axis));
     g->y_axis = (struct axis * )g_malloc0(sizeof(struct axis));
+
     g->x_axis->g = g;
     g->x_axis->flags = 0;
     g->x_axis->flags |= AXIS_ORIENTATION;
@@ -611,6 +608,7 @@ static struct graph *graph_new(void)
     g->x_axis->s.height = HAXIS_INIT_HEIGHT;
     g->x_axis->p.x = VAXIS_INIT_WIDTH;
     g->x_axis->p.height = HAXIS_INIT_HEIGHT;
+
     g->y_axis->g = g;
     g->y_axis->flags = 0;
     g->y_axis->flags &= ~AXIS_ORIENTATION;
@@ -665,7 +663,9 @@ static void graph_initialize(struct graph *g)
     debug(DBS_FENTRY) puts("graph_initialize()");
     graph_get_bounds(g);
 
-    g->x_axis->min = 0;
+    /* Want to start with absolute times, rather than being relative to 0 */
+    g->x_axis->min = g->bounds.x0;
+
     g->y_axis->min = 0;
 
     graph_read_config(g);
@@ -1892,8 +1892,8 @@ static void do_zoom_mouse(struct graph *g, GdkEventButton *event)
         /* Zoom in */
         factor.x = g->zoom.step_x;
 
-        /* Don't zoom in too far vertically  (limit to around 90 pixels / SN) */
-        if (g->geom.height >= 90000) {
+        /* Don't zoom in too far vertically */
+        if (g->geom.height >= (g->bounds.height * MAX_PIXELS_PER_SN)) {
             factor.y = 1.0;
         }
         else {
@@ -1969,8 +1969,8 @@ static void do_zoom_keyboard(struct graph *g)
         /* Zooming IN         */
         factor.x = g->zoom.step_x;
 
-        /* Don't zoom in too far vertically (limit to around 90 pixels / SN) */
-        if (g->geom.height >= 90000) {
+        /* Don't zoom in too far vertically */
+        if (g->geom.height >= (g->bounds.height * MAX_PIXELS_PER_SN)) {
             factor.y = 1.0;
         }
         else {
@@ -2134,7 +2134,7 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 
     switch (event->keyval) {
         case 't':
-            /* TODO: this function is currently broken.... */
+            /* Toggle betwee showing the time starting at 0, or time in capture */
             toggle_time_origin(g);
             break;
         case 'r':
@@ -2324,7 +2324,8 @@ static void graph_read_config(struct graph *g)
     g->style.ack_color[1].green=0x2222;
     g->style.ack_color[1].blue=0x2222;
 
-    g->style.flags = 0;
+    /* Time origin should be shown as time in capture by default */
+    g->style.flags = TIME_ORIGIN_CAP;
 
     g->elists->next = (struct element_list *)g_malloc(sizeof(struct element_list));
     g->elists->next->next = NULL;
@@ -2592,7 +2593,7 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     g->elists->next->elements = elements1;
 }
 
-/* TODO: currently broken */
+/* Toggle betwee showing the time starting at 0, or time in capture */
 static void rlc_lte_toggle_time_origin(struct graph *g)
 {
     g->style.flags ^= TIME_ORIGIN;
