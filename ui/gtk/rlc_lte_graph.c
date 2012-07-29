@@ -57,8 +57,6 @@
 
 /* TODO:
    - bring back crosshairs (always on?)
-   - fix gradiant of lines that lie partially outside of the visible graph
-   - middle-button + shift isn't zooming out
 */
 
 /* initialize_axis() */
@@ -1198,27 +1196,14 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     yy2 = (int )rint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
 
     /* If line completely out of the area, we won't show it - OK */
-    if ((xx1<0 && xx2<0) || (xx1>=g->wp.width && xx2>=g->wp.width) ||
-                (yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
+    if ((xx1<0 && xx2<0) || (xx1>=g->wp.width  && xx2>=g->wp.width) ||
+        (yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
         debug(DBS_GRAPH_DRAWING) printf(" refusing: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
         return;
     }
 
-    /* If any remaining extremeties are outside, clip them to the edge */
-    /* TODO: this should take the distance out of bounds into account to
-       get the angle right.  Looks bad when really zoomed in (applies to tcp_graph too). */
-    if (xx2 > g->wp.width-1) {
-        xx2 = g->wp.width-1;
-    }
-    if (xx1 < 0) {
-        xx1 = 0;
-    }
-    if (yy2 > g->wp.height-1) {
-        yy2 = g->wp.height-1;
-    }
-    if (yy1 < 0) {
-        yy1 = 0;
-    }
+    /* If one end of the line is out of bounds, don't worry. Cairo will
+       clip the line to the outside of g->wp at the correct angle! */
 
     debug(DBS_GRAPH_DRAWING) printf("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
 
@@ -2172,6 +2157,9 @@ static void restore_initial_graph_view(struct graph *g)
     g->geom.x = g->wp.x;
     g->geom.y = g->wp.y;
     graph_init_sequence(g);
+
+    /* Set flags so that mouse zoom will zoom in (zooming out is not possible!) */
+    g->zoom.flags &= ~ZOOM_OUT;
 }
 
 /* Walk the segment list, totalling up data PDUs, status ACKs and NACKs */
