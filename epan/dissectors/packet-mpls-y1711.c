@@ -102,20 +102,19 @@ static const value_string y1711_defect_type_vals[] = {
 static int
 dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree      *mpls_y1711_tree = NULL;
     struct mplsinfo *mplsinfo        = pinfo->private_data;
-    proto_item      *ti              = NULL;
-    int              functype        = -1;
     int              offset          = 0;
-    tvbuff_t        *data_tvb        = NULL;
+    proto_item      *ti;
+    proto_tree      *mpls_y1711_tree;
+    int              functype;
+    tvbuff_t        *data_tvb;
 
+    static const guint8 allone[]  = { 0xff, 0xff };
+    static const guint8 allzero[] = { 0x00, 0x00, 0x00, 0x00, 0x00,
+                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                      0x00, 0x00, 0x00, 0x00, 0x00,
+                                      0x00, 0x00, 0x00, 0x00, 0x00 };
 
-    const guint8 allone[]  = { 0xff, 0xff };
-    const guint8 allzero[] = { 0x00, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x00, 0x00, 0x00, 0x00,
-                               0x00, 0x00, 0x00, 0x00, 0x00 };
-    
     functype = tvb_get_guint8(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
                     (functype == 0x01) ? "CV" :
@@ -139,11 +138,11 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return tvb_reported_length(tvb);
     }
 
+    if (!tree)
+        return tvb_reported_length(tvb);
+
     ti = proto_tree_add_text(tree, tvb, offset, 44, "Y.1711 OAM");
     mpls_y1711_tree = proto_item_add_subtree(ti, ett_mpls_y1711);
-
-    if (!mpls_y1711_tree)
-        return tvb_reported_length(tvb);
 
     /* checks for exp, bos and ttl encoding */
     if (mplsinfo->label != LABEL_OAM_ALERT)
