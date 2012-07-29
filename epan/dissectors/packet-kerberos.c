@@ -1599,7 +1599,7 @@ static const true_false_string krb5_kdcoptions_renewable_ok = {
 };
 static const true_false_string krb5_kdcoptions_enc_tkt_in_skey = {
     "ENCrypt TKT in SKEY",
-    "Do NOT encrypt the tkt inside the skey"
+    "Do NOT encrypt the tkt using the skey"
 };
 static const true_false_string krb5_kdcoptions_renew = {
     "This is a request to RENEW a ticket",
