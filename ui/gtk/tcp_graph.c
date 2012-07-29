@@ -2266,6 +2266,8 @@ static void graph_pixmap_draw (struct graph *g)
 					/* Changing colour */
 					current_line_color = color_to_set = e->elment_color_p;
 				}
+
+				/* Draw the line */
 				draw_element_line (g, e, cr, color_to_set);
 				break;
 
@@ -2315,20 +2317,18 @@ static void draw_element_line (struct graph *g, struct element *e, cairo_t *cr,
 		yy2=yy1;
 		yy1=tmp;
 	}
-	if ((xx1<0 && xx2<0) || (xx1>=g->wp.width && xx2>=g->wp.width) ||
-				(yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
+
+	/* If line completely out of the area, we won't show it  */
+	if ((xx1<0 && xx2<0) || (xx1>=g->wp.width &&  xx2>=g->wp.width) ||
+	    (yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
 		debug(DBS_GRAPH_DRAWING) printf (" refusing: (%d,%d)->(%d,%d)\n",
 									xx1, yy1, xx2, yy2);
 		return;
 	}
-	if (xx2 > g->wp.width-1)
-		xx2 = g->wp.width-1;
-	if (xx1 < 0)
-		xx1 = 0;
-	if (yy2 > g->wp.height-1)
-		yy2 = g->wp.height-1;
-	if (yy1 < 0)
-		yy1 = 0;
+
+	/* If one end of the line is out of bounds, don't worry. Cairo will
+	   clip the line to the outside of g->wp at the correct angle! */
+
 	debug(DBS_GRAPH_DRAWING) printf ("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2,yy2);
 
 	g_assert(e->elment_color_p!=NULL);
