@@ -468,8 +468,8 @@ mpls_pm_build_cinfo(tvbuff_t *tvb, packet_info *pinfo, const char *str_pmt,
         sid2 = tvb_get_guint8(tvb, offset + 9);
         sid1 = tvb_get_guint8(tvb, offset + 10);
         sid0 = tvb_get_guint8(tvb, offset + 11) & 0xC0;
-        *sid = ((guint32) sid0 >> 6) | ((guint32) sid1 >> 8) |
-               ((guint32) sid2 >> 16) | ((guint32) sid3 >> 24);
+        *sid = ((guint32)sid0 >> 6)  | ((guint32)sid1 << 8) |
+               ((guint32)sid2 << 16) | ((guint32)sid3 << 24);
     }
 
     col_clear(pinfo->cinfo, COL_PROTOCOL);
