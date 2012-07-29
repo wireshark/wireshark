@@ -14,7 +14,11 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-07-19
+# 2012-07-26
+# 
+# Experts
+# 
+# Joe Touch; Markku Kojo, Eliot Lear, Allison Mankin, Kumiko Ono, Martin Stiemerling
 # 
 # Note
 # 
@@ -11798,7 +11802,10 @@ ldss	6087/tcp	# Local Download Sharing       [Clifford_Heath]                   
 # Service
 ldss	6087/udp	# Local Download Sharing       [Clifford_Heath]                                   [Clifford_Heath]                                          2006-05
 # Service
-# 6088-6098            Unassigned
+doglms	6088/tcp	# SuperDog License Manager     [SafeNet]                                          [Rob_Tao]                                                 2012-07-26
+doglms-notify	6088/udp	# SuperDog License Manager     [SafeNet]                                          [Rob_Tao]                                                 2012-07-26
+# Notifier
+# 6089-6098            Unassigned
 raxa-mgmt	6099/tcp	# RAXA Management              [Sukanta_Ganguly]                                  [Sukanta_Ganguly]
 # 6099        udp    Reserved
 synchronet-db	6100/tcp	# SynchroNet-db                [Arne_Haugland]                                    [Arne_Haugland]
@@ -12856,7 +12863,7 @@ silhouette	7500/udp	# Silhouette User              [Anthony_Payne]              
 ovbus	7501/tcp	# HP OpenView Bus Daemon       [David_M_Rhodes]                                   [David_M_Rhodes]
 ovbus	7501/udp	# HP OpenView Bus Daemon       [David_M_Rhodes]                                   [David_M_Rhodes]
 # 7502-7507            Unassigned
-adcp	7508/tcp	# Automation Device            [Holger_Sachs]                                     [Holger_Sachs]                                            2011-05-27
+adcp	7508/tcp	# Automation Device            [Festo_AG]                                         [Joerg_Ullmann]                                           2011-05-27   2012-07-26
 # Configuration Protocol
 # 7508        udp    Reserved
 acplt	7509/tcp	# ACPLT - process automation   [Henning_Mersch]                                   [Henning_Mersch]                                          2010-12-07
@@ -13972,8 +13979,12 @@ davsrcs	9802/udp	# WebDAV Source TLS/SSL        [Rob_Isaac]                     
 sapv1	9875/tcp	# Session Announcement v1                                                                                                                                             [RFC2974]
 sapv1	9875/udp	# Session Announcement v1                                                                                                                                             [RFC2974]
 sd	9876/tcp	# Session Director             [Van_Jacobson]                                     [Van_Jacobson]
-sd	9876/udp	# Session Director             [Van_Jacobson]                                     [Van_Jacobson]
-# 9877-9887            Unassigned
+# 9877               Unassigned
+# The KX509 Kerberized                                                                                                                                                                                                               Historically, this service has been referred to as
+kca-service	9878/udp	# Certificate Issuance         [IESG]                                             [IETF_Chair]                                              2012-07-12                [RFC-hotz-kx509-06]                                            "kca_service", but this service name does not meet the
+# Protocol in Use in 2012                                                                                                                                                                                                            registry requirements.
+# 9878        tcp    Reserved
+# 9879-9887            Unassigned
 cyborg-systems	9888/tcp	# CYBORG Systems               [Malcolm_Graham]                                   [Malcolm_Graham]
 cyborg-systems	9888/udp	# CYBORG Systems               [Malcolm_Graham]                                   [Malcolm_Graham]
 # Port for Cable network
@@ -18244,6 +18255,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Felisa_Ares]                                             Felisa Ares                                     mailto:faa06&tid.es                                           2003-04
 # [Ferdi_Ladeira]                                           Ferdi Ladeira             Fraxion Software      mailto:f.lad.mail&gmail.com                                   2012-03-21
 # [Ferruccio_Barletta]                                      Ferruccio Barletta                              mailto:ferruccio.barletta&compaq.com
+# [Festo_AG]                                                                          Festo AG & Co. KG     mailto:Software-Support&de.festo.com                          2012-07-26
 # [Fieldbus_Foundation]                                     Fieldbus Foundation                             mailto:dave.glanzer&fieldbus.org                              2002-10
 # [Filip_Zawadiak]                                          Filip Zawadiak            DOMIQ Sp. z o.o.      mailto:fzawadiak&domiq.pl                                     2011-08-29
 # [Filippo_Fadda]                                           Filippo Fadda                                   mailto:fadda&osway.com                                        2003-08
@@ -18576,7 +18588,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Holger_Kruse]                                            Holger Kruse                                    mailto:holger&rebol.net
 # [Holger_Lochner]                                          Holger Lochner                                  mailto:holger.lochner&daimler.com                             2011-04-06
 # [Holger_Reif]                                             Holger Reif                                     mailto:Holger.Reif&prakinf.tu-ilmenau.de
-# [Holger_Sachs]                                            Holger Sachs                                    mailto:hlsa&de.festo.com                                      2011-05-27
 # [Hong_Jungkih]                                            Hong, Jungkih                                   mailto:jungkih.hong&samsung.com                               2010-09-20
 # [Horizon_Digital_Ente]                                                              Horizon Digital       mailto:info&hde.co.jp
 # Enterprise Inc.
@@ -18957,6 +18968,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Joerg_Niehoff]                                           Joerg Niehoff                                   mailto:joerg.niehoff&alcatel-ke.de
 # [Joerg_Paulus]                                            Joerg Paulus                                    mailto:tech&nicetec.de
 # [Joerg_Schneider]                                         Joerg Schneider                                 mailto:joerg.s.schneider&daimler.com                          2011-01-26
+# [Joerg_Ullmann]                                           Joerg Ullmann             Festo AG & Co. KG     mailto:jgu&de.festo.com                                       2012-07-26
 # [Johan_Deleu]                                             Johan Deleu                                     mailto:johan.deleu&alcatel.be                                 2002-02
 # [Johan_Eriksson]                                          Johan Eriksson                                  mailto:johan&marimba.com                                      2002-04
 # [Johan_Kool]                                              Johan Kool                                      mailto:johan&koolistov.net
@@ -20470,6 +20482,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # LLC
 # [Rob_Robertson]                                           Rob Robertson                                   mailto:rob&gangrene.berkeley.edu
 # [Rob_Scott]                                               Rob Scott                                       mailto:rscott&rs.com                                          2007-05
+# [Rob_Tao]                                                 Rob Tao                   SafeNet               mailto:rtao&safenet-inc.com                                   2012-07-26
 # [Rob_Versluis]                                            Rob Versluis                                    mailto:r.j.versluis&rocrail.net                               2011-05-23
 # [Rob_Ward]                                                Rob Ward                                        mailto:RobWard&microsoft.com                                  2008-05-02
 # [Rob_Williams]                                            Rob Williams                                    mailto:rob.williams&microsoft.com                             2009-02-17
@@ -20672,6 +20685,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Sabu_Das]                                                Sabu Das                                        mailto:sabud&zicomsecure.com                                  2003-06
 # [Sachin_Desai]                                            Sachin Desai                                    mailto:sachin&clairmail.com
 # [Sachin_Sheth]                                            Sachin Sheth              Microsoft Corporation mailto:sachins&microsoft.com                                  2012-06-27
+# [SafeNet]                                                                           SafeNet               mailto:rtao&safenet-inc.com                                   2012-07-26
 # [Sailalong_Software]                                      Sailalong Software                              mailto:CustomerService&sailalong.com
 # [Salvo_Nassisi]                                           Salvo Nassisi                                   mailto:sdtech&tin.it
 # [Sam_Borman]                                              Sam Borman                                      mailto:sam_borman&uk.ibm.com
