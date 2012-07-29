@@ -312,7 +312,6 @@ static void graph_initialize(struct graph *);
 static void graph_get_bounds(struct graph *);
 static void graph_read_config(struct graph *);
 static void rlc_lte_make_elmtlist(struct graph *);
-static void rlc_lte_toggle_time_origin(struct graph *);
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 static int rint(double );	/* compiler template for Windows */
@@ -323,43 +322,34 @@ static int rint(double );	/* compiler template for Windows */
  * use original mouse button controls
  */
 
-/* #define ORIGINAL_WIN32_BUTTONS 1 */
-
 /* XXX - what about OS X? */
 static char helptext[] =
     "Here's what you can do:\n"
     "\n"
-#ifdef ORIGINAL_WIN32_BUTTONS
-    "   <Ctrl>-Left Mouse Button		selects segment under cursor in Wireshark's packet list\n"
-    "\n"
-    "   Left Mouse Button			zooms in (towards area under mouse pointer)\n"
-    "   <Shift>-Left Mouse Button		zooms out\n"
-#else /* !ORIGINAL_WIN32_BUTTONS */
-    "   Left Mouse Button			selects segment under cursor in Wireshark's packet list\n"
-    "\n"
-    "   Middle Mouse Button			zooms in (towards area under cursor)\n"
-    "   <Shift>-Middle Mouse Button	zooms out\n"
-#endif
+    "   Left Mouse Button             selects segment under cursor in Wireshark's packet list\n"
+    "   Middle Mouse Button           zooms in (towards area under cursor)\n"
+    "   <Shift>-Middle Mouse Button	  zooms out\n"
     "\n"
     "\n"
-    "   'i' or '+'			zoom in (towards area under mouse pointer)\n"
-    "   'o' or '-'			zoom out\n"
-    "   'r' or <Home>	restore graph to initial state (zoom out max)\n"
+    "   'i' or '+'       zoom in (towards area under mouse pointer)\n"
+    "   'o' or '-'       zoom out\n"
+    "   'r' or <Home>    restore graph to initial state (zoom out max)\n"
+    "   't'              toggle time axis to being at zero, or to use time in capture\n"
     "\n"
-    "   <Left>			move view left by 100 pixels (if zoomed in)\n"
-    "   <Right>		move view right 100 pixels (if zoomed in)\n"
-    "   <Up>			move view up by 100 pixels (if zoomed in)\n"
-    "   <Down>		move view down by 100 pixels (if zoomed in)\n"
+    "   <Left>           move view left by 100 pixels (if zoomed in)\n"
+    "   <Right>          move view right 100 pixels (if zoomed in)\n"
+    "   <Up>             move view up by 100 pixels (if zoomed in)\n"
+    "   <Down>           move view down by 100 pixels (if zoomed in)\n"
     "\n"
-    "   <Shift><Left>	move view left by 10 pixels (if zoomed in)\n"
-    "   <Shift><Right>	move view right 10 pixels (if zoomed in)\n"
-    "   <Shift><Up>	move view up by 10 pixels (if zoomed in)\n"
-    "   <Shift><Down>	move view down by 10 pixels (if zoomed in)\n"
+    "   <Shift><Left>    move view left by 10 pixels (if zoomed in)\n"
+    "   <Shift><Right>   move view right 10 pixels (if zoomed in)\n"
+    "   <Shift><Up>      move view up by 10 pixels (if zoomed in)\n"
+    "   <Shift><Down>    move view down by 10 pixels (if zoomed in)\n"
     "\n"
-    "   <Ctrl><Left>	move view left by 1 pixel (if zoomed in)\n"
-    "   <Ctrl><Right>	move view right 1 pixel (if zoomed in)\n"
-    "   <Ctrl><Up>	move view up by 1 pixel (if zoomed in)\n"
-    "   <Ctrl><Down>	move view down by 1 pixel (if zoomed in)\n"
+    "   <Ctrl><Left>     move view left by 1 pixel (if zoomed in)\n"
+    "   <Ctrl><Right>    move view right 1 pixel (if zoomed in)\n"
+    "   <Ctrl><Up>       move view up by 1 pixel (if zoomed in)\n"
+    "   <Ctrl><Down>     move view down by 1 pixel (if zoomed in)\n"
 ;
 
 static void set_busy_cursor(GdkWindow *w)
@@ -561,7 +551,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
     GtkTextBuffer *buf;
 
     toplevel = dlg_window_new("Help for LTE RLC graphing");
-    gtk_window_set_default_size(GTK_WINDOW(toplevel), 500, 400);
+    gtk_window_set_default_size(GTK_WINDOW(toplevel), 520, 500);
 
     vbox = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 0, FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
@@ -2080,25 +2070,11 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
     debug(DBS_FENTRY) puts("button_press_event()");
 
     if (event->button == MOUSE_BUTTON_RIGHT) {
-#ifdef ORIGINAL_WIN32_BUTTONS
-                /* Windows mouse control:        */
-                /* [<ctrl>-left] - select packet */
-                /* [left] - zoom in              */
-                /* [<shift>-left] - zoom out     */
-    } else if (event->button == MOUSE_BUTTON_LEFT) {
-        if (event->state & GDK_CONTROL_MASK) {
-            graph_select_segment(g, (int)event->x, (int)event->y);
-        } else {
-#else /* !ORIGINAL_WIN32_BUTTONS */
+        /* Doing nothing... */
     } else if (event->button == MOUSE_BUTTON_MIDDLE) {
-#endif
         do_zoom_mouse(g, event);
-#ifndef ORIGINAL_WIN32_BUTTONS
     } else if (event->button == MOUSE_BUTTON_LEFT) {
         graph_select_segment(g, (int )event->x, (int )event->y);
-#else /* ORIGINAL_WIN32_BUTTONS*/
-        }
-#endif
     }
 
     unset_busy_cursor(gtk_widget_get_window(g->drawing_area), FALSE);
@@ -2173,9 +2149,19 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
     return TRUE;
 }
 
+/* Toggle between showing the time starting at 0, or time in capture */
 static void toggle_time_origin(struct graph *g)
 {
-    rlc_lte_toggle_time_origin(g);
+    g->style.flags ^= TIME_ORIGIN;
+
+    if ((g->style.flags & TIME_ORIGIN) == TIME_ORIGIN_CAP) {
+        g->x_axis->min = g->bounds.x0;
+    }
+    else {
+        g->x_axis->min = 0;
+    }
+
+    /* Redraw the axis */
     axis_display(g->x_axis);
 }
 
@@ -2593,19 +2579,6 @@ static void rlc_lte_make_elmtlist(struct graph *g)
     g->elists->next->elements = elements1;
 }
 
-/* Toggle betwee showing the time starting at 0, or time in capture */
-static void rlc_lte_toggle_time_origin(struct graph *g)
-{
-    g->style.flags ^= TIME_ORIGIN;
-
-    if ((g->style.flags & TIME_ORIGIN) == TIME_ORIGIN_CAP) {
-        g->x_axis->min = g->bounds.x0;
-    }
-    else {
-        g->x_axis->min = 0;
-    }
-}
-
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 /* replacement of Unix rint() for Windows */
@@ -2619,7 +2592,7 @@ static int rint(double x)
     if (sig == 1) {
         i = i * -1;
     }
-    return(i);
+    return i;
 }
 #endif
 
