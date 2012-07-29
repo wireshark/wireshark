@@ -60,6 +60,7 @@ static int hf_mpls_y1711_bip16 = -1;
 static gint ett_mpls_y1711 = -1;
 
 static dissector_handle_t mpls_y1711_handle;
+static dissector_handle_t data_handle;
 
 static const value_string y1711_function_type_vals[] = {
     {0x00, "Reserved"                               },
@@ -106,34 +107,25 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item      *ti              = NULL;
     int              functype        = -1;
     int              offset          = 0;
+    tvbuff_t        *data_tvb        = NULL;
+
 
     const guint8 allone[]  = { 0xff, 0xff };
     const guint8 allzero[] = { 0x00, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00 };
-
-    /*
-     * if called with main tree == null just set col info with func type
-     * string and return
-     */
-    if (!tree) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            if (tvb_bytes_exist(tvb, offset, 1)) {
-                functype = tvb_get_guint8(tvb, offset);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
-                                (functype == 0x01) ? "CV" :
-                                (functype == 0x02) ? "FDI" :
-                                (functype == 0x03) ? "BDI" :
-                                (functype == 0x07) ? "FDD" :
-                                "reserved/unknown");
-            }
-        }
-        return 0;
-    }
+    
+    functype = tvb_get_guint8(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (Y.1711: %s)",
+                    (functype == 0x01) ? "CV" :
+                    (functype == 0x02) ? "FDI" :
+                    (functype == 0x03) ? "BDI" :
+                    (functype == 0x07) ? "FDD" :
+                    "reserved/unknown");
 
     /* sanity checks */
-    if (!tvb_bytes_exist(tvb, offset, 44)) {
+    if (tvb_reported_length(tvb) < 44) {
         /*
          * ITU-T Y.1711, 5.3: PDUs must have a minimum payload length of
          * 44 bytes
@@ -141,14 +133,17 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(tree, tvb, offset, -1,
                             "Error: must have a minimum payload "
                             "length of 44 bytes");
-        return 0;
+        data_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(data_handle, data_tvb, pinfo, tree);
+
+        return tvb_reported_length(tvb);
     }
 
     ti = proto_tree_add_text(tree, tvb, offset, 44, "Y.1711 OAM");
     mpls_y1711_tree = proto_item_add_subtree(ti, ett_mpls_y1711);
 
     if (!mpls_y1711_tree)
-        return 0;
+        return tvb_reported_length(tvb);
 
     /* checks for exp, bos and ttl encoding */
     if (mplsinfo->label != LABEL_OAM_ALERT)
@@ -425,6 +420,8 @@ proto_reg_handoff_mpls_y1711(void)
     dissector_add_uint("mpls.label",
                        LABEL_OAM_ALERT /* 14 */,
                        mpls_y1711_handle);
+
+    data_handle = find_dissector("data");
 }
 
 /*
