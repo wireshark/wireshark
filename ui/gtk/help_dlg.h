@@ -45,6 +45,7 @@ typedef enum {
     ONLINEPAGE_SAMPLE_CAPTURES,
     ONLINEPAGE_SECURITY,
     ONLINEPAGE_CHIMNEY,
+    ONLINEPAGE_ASK,
 
     /* local manual pages */
     LOCALPAGE_MAN_WIRESHARK = 100,

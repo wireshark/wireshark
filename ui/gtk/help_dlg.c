@@ -162,6 +162,9 @@ topic_online_url(topic_action_e action)
     case(ONLINEPAGE_FAQ):
         return "http://www.wireshark.org/faq.html";
         break;
+    case(ONLINEPAGE_ASK):
+        return "http://ask.wireshark.org";
+        break;
     case(ONLINEPAGE_SAMPLE_FILES):
         return "http://wiki.wireshark.org/SampleCaptures";
         break;

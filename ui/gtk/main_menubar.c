@@ -843,6 +843,12 @@ help_menu_faq_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static void
+help_menu_ask_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+    topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_ASK));
+}
+
+static void
 help_menu_wireshark_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK));
@@ -1287,6 +1293,7 @@ static const char *ui_desc_menubar =
 "      <separator/>\n"
 "      <menuitem name='Website' action='/Help/Website'/>\n"
 "      <menuitem name='FAQs' action='/Help/FAQs'/>\n"
+"      <menuitem name='Ask' action='/Help/ASK'/>\n"
 "      <menuitem name='Downloads' action='/Help/Downloads'/>\n"
 "      <separator/>\n"
 "      <menuitem name='Wiki' action='/Help/Wiki'/>\n"
@@ -1735,6 +1742,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Help/Website",               GTK_STOCK_HOME,                 "Website",              NULL,                           NULL,               G_CALLBACK(help_menu_Website_cb) },
    { "/Help/FAQs",                  NULL,                           "FAQ's",                NULL,                           NULL,               G_CALLBACK(help_menu_faq_cb) },
+   { "/Help/ASK",             NULL,                           "Ask (Q&A)",            NULL,                           NULL,               G_CALLBACK(help_menu_ask_cb) },
    { "/Help/Downloads",             NULL,                           "Downloads",            NULL,                           NULL,               G_CALLBACK(help_menu_Downloads_cb) },
    { "/Help/Wiki",                  WIRESHARK_STOCK_WIKI,           "Wiki",                 NULL,                           NULL,               G_CALLBACK(help_menu_Wiki_cb) },
    { "/Help/SampleCaptures",        NULL,                           "Sample Captures",      NULL,                           NULL,               G_CALLBACK(help_menu_SampleCaptures_cb) },
