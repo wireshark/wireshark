@@ -1092,7 +1092,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 		*pos = *name;
 
 		*pos += g_snprintf(*pos, (*len)+1, "%s", nns->name);
-		g_assert((*pos-*name) <= *len);
+		DISSECTOR_ASSERT((*pos-*name) <= *len);
 		return;
 	}
 
@@ -1107,7 +1107,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, char **name, char **pos)
 		if(*name){
 			/* make sure components are '/' separated */
                     *pos += g_snprintf(*pos, (*len+1) - (gulong)(*pos-*name), "%s%s", ((*pos)[-1]!='/')?"/":"", nns->name);
-			g_assert((*pos-*name) <= *len);
+			DISSECTOR_ASSERT((*pos-*name) <= *len);
 		}
 		return;
 	}
