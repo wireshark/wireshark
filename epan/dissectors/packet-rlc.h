@@ -21,6 +21,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef PACKET_RLC_H
+#define PACKET_RLC_H
+
 /* Do not change enum order and append only to keep
    backward compatibility with UDP framing format */
 enum rlc_mode {
@@ -118,3 +121,4 @@ typedef struct rlc_info
 /*Tells other functions if this packet i ciphered or not*/
 gboolean rlc_is_ciphered(packet_info * pinfo);
 
+#endif /* PACKET_RLC_H */
