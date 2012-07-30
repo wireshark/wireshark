@@ -385,6 +385,8 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
   gint len;
 
   len = tvb_length_remaining (tvb, offset);
+  if (len <= 0)
+    return;
 
   if (check_col (pinfo->cinfo, COL_INFO)) {
     col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
