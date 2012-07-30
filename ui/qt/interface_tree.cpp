@@ -46,6 +46,9 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     header()->setVisible(false);
     setRootIsDecorated(false);
     setUniformRowHeights(true);
+#ifdef Q_WS_MAC
+    setAttribute(Qt::WA_MacShowFocusRect, false);
+#endif
     setAccessibleName(tr("Welcome screen list"));
 
     setStyleSheet(

@@ -138,6 +138,9 @@ MainWelcome::MainWelcome(QWidget *parent) :
             "}"
             );
     m_recent_files.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+#ifdef Q_WS_MAC
+    m_recent_files.setAttribute(Qt::WA_MacShowFocusRect, false);
+#endif
     m_recent_files.setTextElideMode(Qt::ElideLeft);
     column->addWidget(&m_recent_files);
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
