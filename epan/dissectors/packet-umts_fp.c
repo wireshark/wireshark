@@ -120,9 +120,6 @@ static int hf_fp_edch_macis_descriptors = -1;
 static int hf_fp_edch_macis_lchid = -1;
 static int hf_fp_edch_macis_length = -1;
 static int hf_fp_edch_macis_flag = -1;
-static int hf_fp_edch_macis_tsn = -1;
-static int hf_fp_edch_macis_ss = -1;
-static int hf_fp_edch_macis_sdu = -1;
 
 static int hf_fp_frame_seq_nr = -1;
 static int hf_fp_hsdsch_pdu_block_header = -1;
@@ -208,7 +205,6 @@ static int ett_fp_edch_subframe_header = -1;
 static int ett_fp_edch_subframe = -1;
 static int ett_fp_edch_maces = -1;
 static int ett_fp_edch_macis_descriptors = -1;
-static int ett_fp_edch_macis_pdu = -1;
 static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
 static int ett_fp_hsdsch_pdu_block_header = -1;
@@ -218,6 +214,7 @@ static dissector_handle_t mac_fdd_rach_handle;
 static dissector_handle_t mac_fdd_fach_handle;
 static dissector_handle_t mac_fdd_pch_handle;
 static dissector_handle_t mac_fdd_edch_handle;
+static dissector_handle_t mac_fdd_edch_type2_handle;
 static dissector_handle_t mac_fdd_hsdsch_handle;
 static dissector_handle_t fp_handle;
 
@@ -2892,104 +2889,20 @@ dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
         /* MAC-is PDU */
         for (pdu_no=0; pdu_no < subframes[n].number_of_mac_is_pdus; pdu_no++) {
-            int sdu_no;
-            guint8 ss, tsn;
-            guint32 subframe_bytes = 0;
-            proto_item *ti;
+            int i;
+            guint length = 0;
+            umts_mac_is_info * mac_is_info = se_new(umts_mac_is_info);
 
-            proto_item *macis_pdu_ti;
-            proto_tree *macis_pdu_tree;
-            umts_mac_info * macinf = (umts_mac_info *)p_get_proto_data(pinfo->fd, proto_umts_mac);
-            rlc_info * rlcinf = (rlc_info *)p_get_proto_data(pinfo->fd, proto_rlc);
-
-            /* Add subframe header subtree */
-            macis_pdu_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe_header, tvb, offset, 0,
-                                                        "", "MAC-is PDU (SFN=%u PDU %u)",
-                                                        subframes[n].subframe_number, pdu_no+1);
-            macis_pdu_tree = proto_item_add_subtree(macis_pdu_ti, ett_fp_edch_macis_pdu);
-
-
-            /* SS */
-            ss = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_ss, tvb, offset, 1, ENC_BIG_ENDIAN);
-            switch (ss) {
-                case 0:
-                    if (subframes[n].number_of_mac_is_sdus[pdu_no] > 1) {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The first MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The last MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU.");
-                    } else {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU.");
-                    }
-                    break;
-                case 1:
-                    if (subframes[n].number_of_mac_is_sdus[pdu_no] > 1) {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The last MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The first MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU.");
-                    } else {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU.");
-                    }
-                    break;
-                case 2:
-                    if (subframes[n].number_of_mac_is_sdus[pdu_no] > 1) {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The first MAC-is SDU of the MAC-is PDU is a complete MAC-d PDU or MAC-c PDU. The last MAC-is SDU of the MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
-                    } else {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU of the MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
-                    }
-                    break;
-                case 3:
-                    if (subframes[n].number_of_mac_is_sdus[pdu_no] > 1) {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The first MAC-is SDU of the MAC-is PDU is the last segment of a MAC-d PDU or MAC-c PDU and the last MAC-is SDU of MAC-is PDU is the first segment of a MAC-d PDU or MAC-c PDU.");
-                    } else {
-                        proto_tree_add_text(macis_pdu_tree, tvb, offset, 1, "SS interpretation: The MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU.");
-                    }
-                    break;
+            mac_is_info->number_of_mac_is_sdus = subframes[n].number_of_mac_is_sdus[pdu_no];
+            DISSECTOR_ASSERT(subframes[n].number_of_mac_is_sdus[pdu_no] <= MAX_MAC_FRAMES);
+            for (i = 0; i < subframes[n].number_of_mac_is_sdus[pdu_no]; i++) {
+                mac_is_info->sdulength[i] = subframes[n].mac_is_length[pdu_no][i];
+                mac_is_info->lchid[i] = subframes[n].mac_is_lchid[pdu_no][i];
+                length += subframes[n].mac_is_length[pdu_no][i];
             }
-
-            /* TSN */
-            tsn = tvb_get_bits8(tvb, offset*8+2, 6);
-            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_tsn, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-            offset++;
-
-
-            /* MAC-is SDUs (i.e. MACd PDUs) */
-            for (sdu_no=0; sdu_no < subframes[n].number_of_mac_is_sdus[pdu_no]; sdu_no++) {
-                tvbuff_t * asm_tvb;
-                guint lchid = subframes[n].mac_is_lchid[pdu_no][sdu_no] + 1;
-                ti = proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_sdu, tvb,
-                                         offset,
-                                         subframes[n].mac_is_length[pdu_no][sdu_no],
-                                         ENC_NA);
-                proto_item_append_text(ti, " (%s Len=%u): %s",
-                                       val_to_str_const(subframes[n].mac_is_lchid[pdu_no][sdu_no], lchid_vals, "Unknown"),
-                                       subframes[n].mac_is_length[pdu_no][sdu_no],
-                                       tvb_bytes_to_str(tvb, offset, subframes[n].mac_is_length[pdu_no][sdu_no]));
-
-                /*Set up information needed for MAC and lower layers*/
-                macinf->content[sdu_no] = lchId_type_table[lchid];     /*Set the proper Content type for the mac layer.*/
-                macinf->lchid[sdu_no] = lchid;
-                rlcinf->mode[sdu_no] = lchId_rlc_map[lchid]; /* Set RLC mode by lchid to RLC_MODE map in nbap.h */
-
-                
-                rlcinf->urnti[sdu_no] = 1 ; /*p_fp_info->com_context_id;*/
-                rlcinf->rbid[sdu_no] = lchid; /*subframes[n].ddi[i];*/    /*Save the DDI value for RLC*/
-                rlcinf->li_size[sdu_no] = RLC_LI_7BITS;
-                rlcinf->ciphered[sdu_no] = FALSE;
-                rlcinf->deciphered[sdu_no] = FALSE;
-                p_fp_info->cur_tb = sdu_no;    /*Set the transport block index (NOTE: This and not subnum is used in MAC dissector!)*/
-
-                asm_tvb = mac_is_add_fragment(tvb, pinfo, lchid, offset, ss, tsn, sdu_no, subframes[n].number_of_mac_is_sdus[pdu_no], subframes[n].mac_is_length[pdu_no][sdu_no]);
-                if (asm_tvb != NULL) {
-                    call_dissector(mac_fdd_edch_handle, asm_tvb, pinfo, top_level_tree);
-                }
-
-                offset += subframes[n].mac_is_length[pdu_no][sdu_no];
-                subframe_bytes += subframes[n].mac_is_length[pdu_no][sdu_no];
-            }
-
-            proto_item_append_text(macis_pdu_ti, " - SS=%u TSN=%u (%u bytes in %u SDUs)",
-                                   ss, tsn, subframe_bytes, subframes[n].number_of_mac_is_sdus[pdu_no]);
-
-            proto_item_set_len(macis_pdu_ti, 1+subframe_bytes);
-            total_bytes += subframe_bytes;
+            p_add_proto_data(pinfo->fd, proto_umts_mac, mac_is_info);
+            call_dissector(mac_fdd_edch_type2_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, top_level_tree);
+            offset += length + 1; /* XXX TODO this is wrong if TSN is 14 bits (then it is +2) */
         }
     }
 
@@ -3915,9 +3828,9 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                         rlcinf->urnti[j+chan] = p_conv_data->com_context_id;
                         rlcinf->li_size[j+chan] = RLC_LI_7BITS;
                         rlcinf->deciphered[j+chan] = FALSE;
-                        
-                    
-                        
+
+
+
                         /*Step over this TB and it's C/T flag.*/
                         tb_bit_off += tb_size+4;
                     }
@@ -4681,27 +4594,6 @@ void proto_register_fp(void)
                 "Indicates if another entry follows", HFILL
               }
             },
-            { &hf_fp_edch_macis_ss,
-              { "SS",
-                /* TODO: VALS */
-                "fp.edch.mac-is.tsn", FT_UINT8, BASE_HEX, 0, 0xc0,
-                "Segmentation Status", HFILL
-              }
-            },
-            { &hf_fp_edch_macis_tsn,
-              { "TSN",
-                "fp.edch.mac-is.tsn", FT_UINT8, BASE_DEC, 0, 0x3f,
-                "Transmission Sequence Number", HFILL
-              }
-            },
-            { &hf_fp_edch_macis_sdu,
-              { "MAC-is SDU",
-                "fp.edch.mac-is.sdu", FT_NONE, BASE_NONE, NULL, 0x0,
-                NULL, HFILL
-              }
-            },
-
-
             { &hf_fp_frame_seq_nr,
               { "Frame Seq Nr",
                 "fp.frame-seq-nr", FT_UINT8, BASE_DEC, 0, 0xf0,
@@ -5228,7 +5120,6 @@ void proto_register_fp(void)
         &ett_fp_edch_subframe,
         &ett_fp_edch_maces,
         &ett_fp_edch_macis_descriptors,
-        &ett_fp_edch_macis_pdu,
         &ett_fp_hsdsch_new_ie_flags,
         &ett_fp_rach_new_ie_flags,
         &ett_fp_hsdsch_pdu_block_header,
@@ -5275,6 +5166,7 @@ void proto_reg_handoff_fp(void)
     mac_fdd_pch_handle    = find_dissector("mac.fdd.pch");
     mac_fdd_dch_handle    = find_dissector("mac.fdd.dch");
     mac_fdd_edch_handle   = find_dissector("mac.fdd.edch");
+    mac_fdd_edch_type2_handle   = find_dissector("mac.fdd.edch.type2");
     mac_fdd_hsdsch_handle = find_dissector("mac.fdd.hsdsch");
     fp_handle             = find_dissector("fp");
 

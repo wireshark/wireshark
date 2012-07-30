@@ -71,6 +71,11 @@ typedef struct umts_mac_info
     guint8 trchid[MAX_MAC_FRAMES];      /*Makes displaying logical channel alot easier*/
 } umts_mac_info;
 
-tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb, packet_info *pinfo, guint8 lchid, int offset, guint8 ss, guint16 tsn, int sdu_no, guint8 no_sdus, guint16 maclength);
+typedef struct
+{
+	guint number_of_mac_is_sdus;
+	guint8 lchid[MAX_MAC_FRAMES];
+	gint sdulength[MAX_MAC_FRAMES];
+} umts_mac_is_info;
 
 #endif

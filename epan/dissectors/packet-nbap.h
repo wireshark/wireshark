@@ -32,9 +32,6 @@
 #ifndef PACKET_NBAP_H
 #define PACKET_NBAP_H
 
-#include "packet-rlc.h"
-#include "packet-umts_mac.h"
-
 /*
  * Ericsson specific mapping for various dissector settings.
  * Must be altered for other equipment. 
