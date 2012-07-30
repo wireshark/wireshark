@@ -179,16 +179,13 @@ struct zooms {
     double x, y;
     double step_x, step_y;
     struct zoom initial;
-#define ZOOM_OUT				(1 << 0)
-#define ZOOM_STEPS_SAME			(1 << 1)
-#define ZOOM_STEPS_KEEP_RATIO	(1 << 2)
+#define ZOOM_OUT            (1 << 0)
     int flags;
 };
 
 
 struct graph {
-#define GRAPH_DESTROYED				(1 << 0)
-#define GRAPH_INIT_ON_TYPE_CHANGE	(1 << 1)
+#define GRAPH_DESTROYED             (1 << 0)
     int flags;
     GtkWidget *toplevel;	/* keypress handler needs this */
     GtkWidget *drawing_area;
@@ -474,8 +471,8 @@ static void create_drawing_area(struct graph *g)
 #if GTK_CHECK_VERSION(3,0,0)
     context = gtk_widget_get_style_context(g->drawing_area);
     gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL,
-                       GTK_STYLE_PROPERTY_FONT, &g->font,
-                       NULL);
+                          GTK_STYLE_PROPERTY_FONT, &g->font,
+                          NULL);
 #else
     g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
 
@@ -502,8 +499,6 @@ static void create_drawing_area(struct graph *g)
 #endif
 
     g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event), g);
-
-    /* puts("exiting create_drawing_area()"); */
 }
 
 static void callback_toplevel_destroy(GtkWidget *widget _U_, gpointer data)
@@ -590,7 +585,9 @@ static void graph_initialize_values(struct graph *g)
     g->geom.y = g->wp.y = TITLEBAR_HEIGHT;
     g->flags = 0;
     g->zoom.x = g->zoom.y = 1.0;
-    g->zoom.step_x = g->zoom.step_y = 1.2;
+
+    /* Zooming in step - set same for both dimensions */
+    g->zoom.step_x = g->zoom.step_y = 1.1;
     g->zoom.flags = 0;
 }
 
@@ -1701,9 +1698,7 @@ static int line_detect_collision(struct element *e, int x, int y)
 static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)	 
 {
     struct graph *g = user_data;
-    struct {
-        double x, y;
-    } zoom;
+    struct zoom new_zoom;
     int cur_g_width, cur_g_height;
     int cur_wp_width, cur_wp_height;
 
@@ -1718,16 +1713,14 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
     g->y_axis->p.height = g->wp.height + g->wp.y;
     g->y_axis->s.height = g->wp.height;
     g->x_axis->p.y = g->y_axis->p.height;
-    zoom.x = (double )g->wp.width / cur_wp_width;
-    zoom.y = (double )g->wp.height / cur_wp_height;
+    new_zoom.x = (double)g->wp.width / cur_wp_width;
+    new_zoom.y = (double)g->wp.height / cur_wp_height;
     cur_g_width = g->geom.width;
     cur_g_height = g->geom.height;
-    g->geom.width = (int )rint(g->geom.width * zoom.x);
-    g->geom.height = (int )rint(g->geom.height * zoom.y);
-    g->zoom.x = (double )(g->geom.width - 1) / g->bounds.width;
-    g->zoom.y = (double )(g->geom.height -1) / g->bounds.height;
-    /* g->zoom.initial.x = g->zoom.x; */
-    /* g->zoom.initial.y = g->zoom.y; */
+    g->geom.width = (int)rint(g->geom.width * new_zoom.x);
+    g->geom.height = (int)rint(g->geom.height * new_zoom.y);
+    g->zoom.x = (double)(g->geom.width - 1) / g->bounds.width;
+    g->zoom.y = (double)(g->geom.height -1) / g->bounds.height;
 
     g->geom.x = (int)(g->wp.x - (double)g->geom.width/cur_g_width * (g->wp.x - g->geom.x));	 
     g->geom.y = (int)(g->wp.y - (double)g->geom.height/cur_g_height * (g->wp.y - g->geom.y));
@@ -1751,6 +1744,7 @@ static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event,
     axis_pixmaps_switch(g->x_axis);
     v_axis_pixmap_draw(g->y_axis);
     axis_pixmaps_switch(g->y_axis);
+
     return TRUE;
 }
 
