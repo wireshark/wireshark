@@ -5197,6 +5197,34 @@ proto_register_subtree_array(gint *const *indices, const int num_indices)
 	}
 }
 
+static int
+label_fill_descr(char *label_str, const header_field_info *hfinfo, const char *text, const char *descr)
+{
+	gint ret;
+
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s (%s)", hfinfo->name, text, descr);
+	if (ret >= ITEM_LABEL_LENGTH) {
+		/* Uh oh, we don't have enough room. Tell the user that the field is truncated. */
+		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s [truncated]: %s (%s)", hfinfo->name, text, descr);
+	}
+
+	return ret;
+}
+
+static int
+label_fill(char *label_str, const header_field_info *hfinfo, const char *text)
+{
+	gint ret;
+
+	ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, text);
+	if (ret >= ITEM_LABEL_LENGTH) {
+		/* Uh oh, we don't have enough room. Tell the user that the field is truncated. */
+		ret = g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s [truncated]: %s", hfinfo->name, text);
+	}
+
+	return ret;
+}
+
 void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
@@ -5208,7 +5236,6 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	e_guid_t	  *guid;
 	guint32		   n_addr; /* network-order IPv4 address */
 	const gchar	  *name;
-	int		   ret;	   /*tmp return value */
 
 	if (!fi) {
 		if (label_str)
@@ -5232,23 +5259,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			bytes = fvalue_get(&fi->value);
-			if (bytes) {
-				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-					"%s: %s", hfinfo->name,
-					 bytes_to_str(bytes, fvalue_length(&fi->value)));
-				if (ret >= ITEM_LABEL_LENGTH) {
-					/* Uh oh, we don't have enough room.  Tell the
-					 *	user that the field is truncated.
-					 */
-					g_snprintf(label_str, ITEM_LABEL_LENGTH,
-						   "%s [truncated]: %s",
-						   hfinfo->name,
-						   bytes_to_str(bytes, fvalue_length(&fi->value)));
-				}
-			}
-			else {
-				g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: <MISSING>", hfinfo->name);
-			}
+			label_fill(label_str, hfinfo, 
+					(bytes) ? bytes_to_str(bytes, fvalue_length(&fi->value)) : "<MISSING>");
 			break;
 
 		/* Four types of integers to take care of:
@@ -5301,8 +5313,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s", hfinfo->name,
+			label_fill(label_str, hfinfo, 
 				   abs_time_to_str(fvalue_get(&fi->value), hfinfo->display, TRUE));
 			break;
 
@@ -5321,8 +5332,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_ETHER:
 			bytes = fvalue_get(&fi->value);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s (%s)", hfinfo->name,
+			label_fill_descr(label_str, hfinfo,
 				   get_ether_name(bytes),
 				   ether_to_str(bytes));
 			break;
@@ -5330,44 +5340,37 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IPv4:
 			ipv4 = fvalue_get(&fi->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s (%s)", hfinfo->name,
+			label_fill_descr(label_str, hfinfo,
 				   get_hostname(n_addr),
 				   ip_to_str((guint8*)&n_addr));
 			break;
 
 		case FT_IPv6:
 			bytes = fvalue_get(&fi->value);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s (%s)", hfinfo->name,
+			label_fill_descr(label_str, hfinfo,
 				   get_hostname6((struct e_in6_addr *)bytes),
 				   ip6_to_str((struct e_in6_addr*)bytes));
 			break;
 
 		case FT_GUID:
 			guid = fvalue_get(&fi->value);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s", hfinfo->name,
-				    guid_to_str(guid));
+			label_fill(label_str, hfinfo, guid_to_str(guid));
 			break;
 
 		case FT_OID:
 			bytes = fvalue_get(&fi->value);
 			name = oid_resolved_from_encoded(bytes, fvalue_length(&fi->value));
 			if (name) {
-				g_snprintf(label_str, ITEM_LABEL_LENGTH,
-					"%s: %s (%s)", hfinfo->name,
+				label_fill_descr(label_str, hfinfo,
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)), name);
 			} else {
-				g_snprintf(label_str, ITEM_LABEL_LENGTH,
-					"%s: %s", hfinfo->name,
+				label_fill(label_str, hfinfo, 
 					 oid_encoded2string(bytes, fvalue_length(&fi->value)));
 			}
 			break;
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %s (%s)", hfinfo->name,
+			label_fill_descr(label_str, hfinfo,
 				   get_eui64_name(integer64),
 				   eui64_to_str(integer64));
 			break;
@@ -5375,17 +5378,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
-			ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-					 "%s: %s", hfinfo->name,
-					 format_text(bytes, strlen(bytes)));
-			if (ret >= ITEM_LABEL_LENGTH) {
-				/* Uh oh, we don't have enough room.  Tell the
-				 *	user that the field is truncated.
-				 */
-				g_snprintf(label_str, ITEM_LABEL_LENGTH,
-					   "%s [truncated]: %s", hfinfo->name,
-					   format_text(bytes, strlen(bytes)));
-			}
+			label_fill(label_str, hfinfo, format_text(bytes, strlen(bytes)));
 			break;
 
 		default:
@@ -5513,7 +5506,7 @@ fill_label_uint(field_info *fi, gchar *label_str)
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
-		g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
+		label_fill(label_str, hfinfo, tmp);
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_uint_vals_format(hfinfo);
@@ -5580,7 +5573,7 @@ fill_label_int(field_info *fi, gchar *label_str)
 
 		DISSECTOR_ASSERT(fmtfunc);
 		fmtfunc(tmp, value);
-		g_snprintf(label_str, ITEM_LABEL_LENGTH, "%s: %s", hfinfo->name, tmp);
+		label_fill(label_str, hfinfo, tmp);
 	}
 	else if (hfinfo->strings) {
 		format = hfinfo_int_vals_format(hfinfo);
