@@ -40,6 +40,7 @@
  * National variants
  * French ISUP Specification: SPIROU 1998 - 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
  * Israeli ISUP Specification: excertp (for BCM messsage) found in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4231 .
+ * Russian national ISUP-R 2000: RD 45.217-2001 book 4
  */
 
 #ifdef HAVE_CONFIG_H
@@ -62,8 +63,9 @@
 #include <packet-mtp3.h>
 
 #define ISUP_ITU_STANDARD_VARIANT 0
-#define ISUP_FRENCH_VARIANT 1
+#define ISUP_FRENCH_VARIANT  1
 #define ISUP_ISRAELI_VARIANT 2
+#define ISUP_RUSSIAN_VARIANT 3
 
 static gint isup_standard = ITU_STANDARD;
 /* Preference standard or national ISUP variants */
@@ -384,6 +386,93 @@ static const value_string israeli_isup_message_type_value[] = {
   { 0,                                  NULL}};
 static value_string_ext israeli_isup_message_type_value_ext = VALUE_STRING_EXT_INIT(israeli_isup_message_type_value);
 
+#define RUSSIAN_CLEAR_CALLING_LINE 252
+#define RUSSIAN_RINGING            255
+
+static const value_string russian_isup_message_type_value[] = {
+  { MESSAGE_TYPE_INITIAL_ADDR,                "Initial address"},
+  { MESSAGE_TYPE_SUBSEQ_ADDR,                 "Subsequent address"},
+  { MESSAGE_TYPE_INFO_REQ,                    "Information request (national use)"},
+  { MESSAGE_TYPE_INFO,                        "Information (national use)"},
+  { MESSAGE_TYPE_CONTINUITY,                  "Continuity"},
+  { MESSAGE_TYPE_ADDR_CMPL,                   "Address complete"},
+  { MESSAGE_TYPE_CONNECT,                     "Connect"},
+  { MESSAGE_TYPE_FORW_TRANS,                  "Forward transfer"},
+  { MESSAGE_TYPE_ANSWER,                      "Answer"},
+
+  { 0x0a,                                     "Reserved (used in 1984 version)"},
+  { 0x0b,                                     "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_RELEASE,                     "Release"},
+  { MESSAGE_TYPE_SUSPEND,                     "Suspend"},
+  { MESSAGE_TYPE_RESUME,                      "Resume"},
+  { MESSAGE_TYPE_REL_CMPL,                    "Release complete"},
+  { MESSAGE_TYPE_CONT_CHECK_REQ,              "Continuity check request"},
+  { MESSAGE_TYPE_RESET_CIRCUIT,               "Reset Circuit"},
+  { MESSAGE_TYPE_BLOCKING,                    "Blocking"},
+  { MESSAGE_TYPE_UNBLOCKING,                  "Unblocking"},
+  { MESSAGE_TYPE_BLOCK_ACK,                   "Blocking acknowledgement"},
+  { MESSAGE_TYPE_UNBLOCK_ACK,                 "Unblocking acknowledgment"},
+  { MESSAGE_TYPE_CIRC_GRP_RST,                "Circuit group reset"},
+  { MESSAGE_TYPE_CIRC_GRP_BLCK,               "Circuit group blocking"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL,               "Circuit group unblocking"},
+  { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "Circuit group blocking acknowledgement"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "Circuit group unblocking acknowledgement"},
+
+  { 28,                                      "Reserved (used in 1988 version)"},
+  { 29,                                      "Reserved (used in 1988 version)"},
+  { 30,                                      "Reserved (used in 1988 version)"},
+
+  { MESSAGE_TYPE_FACILITY_REQ,                "Facility request"},
+  { MESSAGE_TYPE_FACILITY_ACC,                "Facility accepted"},
+  { MESSAGE_TYPE_FACILITY_REJ,                "Facility reject"},
+
+  { 34,                                      "Reserved (used in 1984 version)"},
+  { 35,                                      "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_LOOP_BACK_ACK,               "Loop back acknowledgement (national use)"},
+
+  { 37,                                      "Reserved (used in 1984 version)"},
+  { 38,                                      "Reserved (used in 1984 version)"},
+  { 39,                                      "Reserved (used in 1984 version)"},
+
+  { MESSAGE_TYPE_PASS_ALONG,                  "Pass-along (national use)"},
+  { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "Circuit group reset acknowledgement"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY,                "Circuit group query (national use)"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY_RSP,            "Circuit group query response (national use)"},
+  { MESSAGE_TYPE_CALL_PROGRSS,                "Call progress"},
+  { MESSAGE_TYPE_USER2USER_INFO,              "User-to-user information"},
+  { MESSAGE_TYPE_UNEQUIPPED_CIC,              "Unequipped CIC (national use)"},
+  { MESSAGE_TYPE_CONFUSION,                   "Confusion"},
+  { MESSAGE_TYPE_OVERLOAD,                    "Overload (national use)"},
+  { MESSAGE_TYPE_CHARGE_INFO,                 "Charge information (national use)"},
+  { MESSAGE_TYPE_NETW_RESRC_MGMT,             "Network resource management"},
+  { MESSAGE_TYPE_FACILITY,                    "Facility"},
+  { MESSAGE_TYPE_USER_PART_TEST,              "User part test"},
+  { MESSAGE_TYPE_USER_PART_AVAIL,             "User part available"},
+  { MESSAGE_TYPE_IDENT_REQ,                   "Identification request"},
+  { MESSAGE_TYPE_IDENT_RSP,                   "Identification response"},
+  { MESSAGE_TYPE_SEGMENTATION,                "Segmentation"},
+
+  { 57,                                       "Reserved (used in B-ISUP)"},
+  { 58,                                       "Reserved (used in B-ISUP)"},
+  { 59,                                       "Reserved (used in B-ISUP)"},
+  { 60,                                       "Reserved (used in B-ISUP)"},
+  { 61,                                       "Reserved (used in B-ISUP)"},
+
+  { 63,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
+  { MESSAGE_TYPE_LOOP_PREVENTION,             "Loop prevention"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,           "Application transport"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,            "Pre-release information"},
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "Subsequent Directory Number (national use)"},
+  { RUSSIAN_CLEAR_CALLING_LINE,               "Clear Calling Line"}, /* 252 */
+  { RUSSIAN_RINGING,                          "Ringing"},            /* 255 */
+
+  { 0,                                  NULL}};
+static value_string_ext russian_isup_message_type_value_ext = VALUE_STRING_EXT_INIT(russian_isup_message_type_value);
+
 static const value_string ansi_isup_message_type_value[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,                "Initial address"},
   { MESSAGE_TYPE_SUBSEQ_ADDR,                 "Subsequent address"},
@@ -690,6 +779,91 @@ static const value_string israeli_isup_message_type_value_acro[] = {
   { ISRAELI_CHARGE_ACK,                       "CAM"},
   { 0,                                  NULL}};
 value_string_ext israeli_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(israeli_isup_message_type_value_acro);
+
+/* Same as above but in acronym form (for the Info column) */
+static const value_string russian_isup_message_type_value_acro[] = {
+  { MESSAGE_TYPE_INITIAL_ADDR,                "IAM"},
+  { MESSAGE_TYPE_SUBSEQ_ADDR,                 "SAM"},
+  { MESSAGE_TYPE_INFO_REQ,                    "INR"},
+  { MESSAGE_TYPE_INFO,                        "INF"},
+  { MESSAGE_TYPE_CONTINUITY,                  "COT"},
+  { MESSAGE_TYPE_ADDR_CMPL,                   "ACM"},
+  { MESSAGE_TYPE_CONNECT,                     "CON"},
+  { MESSAGE_TYPE_FORW_TRANS,                  "FOT"},
+  { MESSAGE_TYPE_ANSWER,                      "ANM"},
+
+  { 0x0a,                                     "Reserved"},
+  { 0x0b,                                     "Reserved"},
+
+  { MESSAGE_TYPE_RELEASE,                     "REL"},
+  { MESSAGE_TYPE_SUSPEND,                     "SUS"},
+  { MESSAGE_TYPE_RESUME,                      "RES"},
+  { MESSAGE_TYPE_REL_CMPL,                    "RLC"},
+  { MESSAGE_TYPE_CONT_CHECK_REQ,              "CCR"},
+  { MESSAGE_TYPE_RESET_CIRCUIT,               "RSC"},
+  { MESSAGE_TYPE_BLOCKING,                    "BLO"},
+  { MESSAGE_TYPE_UNBLOCKING,                  "UBL"},
+  { MESSAGE_TYPE_BLOCK_ACK,                   "BLA"},
+  { MESSAGE_TYPE_UNBLOCK_ACK,                 "UBLA"},
+  { MESSAGE_TYPE_CIRC_GRP_RST,                "GRS"},
+  { MESSAGE_TYPE_CIRC_GRP_BLCK,               "CGB"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL,               "CGU"},
+  { MESSAGE_TYPE_CIRC_GRP_BL_ACK,             "CGBA"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,           "CGUA"},
+
+  { 28,                                      "Reserved"},
+  { 29,                                      "Reserved"},
+  { 30,                                      "Reserved"},
+
+  { MESSAGE_TYPE_FACILITY_REQ,                "FAR"},
+  { MESSAGE_TYPE_FACILITY_ACC,                "FAA"},
+  { MESSAGE_TYPE_FACILITY_REJ,                "FRJ"},
+
+  { 34,                                      "Reserved"},
+  { 35,                                      "Reserved"},
+
+  { MESSAGE_TYPE_LOOP_BACK_ACK,               "LPA"},
+
+  { 37,                                      "Reserved"},
+  { 38,                                      "Reserved"},
+  { 39,                                      "Reserved"},
+
+  { MESSAGE_TYPE_PASS_ALONG,                  "PAM"},
+  { MESSAGE_TYPE_CIRC_GRP_RST_ACK,            "GRA"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY,                "CQM"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY_RSP,            "CQR"},
+  { MESSAGE_TYPE_CALL_PROGRSS,                "CPG"},
+  { MESSAGE_TYPE_USER2USER_INFO,              "UUI"},
+  { MESSAGE_TYPE_UNEQUIPPED_CIC,              "UCIC"},
+  { MESSAGE_TYPE_CONFUSION,                   "CFN"},
+  { MESSAGE_TYPE_OVERLOAD,                    "OLM"},
+  { MESSAGE_TYPE_CHARGE_INFO,                 "CRG"},
+  { MESSAGE_TYPE_NETW_RESRC_MGMT,             "NRM"},
+  { MESSAGE_TYPE_FACILITY,                    "FAC"},
+  { MESSAGE_TYPE_USER_PART_TEST,              "UPT"},
+  { MESSAGE_TYPE_USER_PART_AVAIL,             "UPA"},
+  { MESSAGE_TYPE_IDENT_REQ,                   "IDR"},
+  { MESSAGE_TYPE_IDENT_RSP,                   "IDS"},
+  { MESSAGE_TYPE_SEGMENTATION,                "SGM"},
+
+  { 57,                                       "Reserved"},
+  { 58,                                       "Reserved"},
+  { 59,                                       "Reserved"},
+  { 60,                                       "Reserved"},
+  { 61,                                       "Reserved"},
+
+  { 63,                                       "Unknown"},
+  { 63,                                       "Unknown"},
+
+  { MESSAGE_TYPE_LOOP_PREVENTION,             "LOP"},
+  { MESSAGE_TYPE_APPLICATION_TRANS,           "APM"},
+  { MESSAGE_TYPE_PRE_RELEASE_INFO,            "PRI"},
+  { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "SDN"},
+  { RUSSIAN_CLEAR_CALLING_LINE,               "CCL"},  /* 252 */
+  { RUSSIAN_RINGING,                          "RNG"},  /* 255 */
+  { 0,                                  NULL}};
+value_string_ext russian_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(russian_isup_message_type_value_acro);
+
 
   /* Same as above but in acronym form (for the Info column) */
 static const value_string ansi_isup_message_type_value_acro[] = {
@@ -1156,6 +1330,48 @@ static const value_string isup_calling_partys_category_value[] = {
   { 17,                                 "Mobile terminal located in a visited PLMN"},
   { 0,                                 NULL}};
 value_string_ext isup_calling_partys_category_value_ext = VALUE_STRING_EXT_INIT(isup_calling_partys_category_value);
+
+static const value_string russian_isup_calling_partys_category_value[] = {
+  { UNKNOWN_AT_THIS_TIME,               "Category unknown at this time (national use)"},
+  { OPERATOR_FRENCH,                    "operator, language French"},
+  { OPERATOR_ENGLISH,                   "operator, language English"},
+  { OPERATOR_GERMAN,                    "operator, language German"},
+  { OPERATOR_RUSSIAN,                   "operator, language Russian"},
+  { OPERATOR_SPANISH,                   "operator, language Spanish"},
+
+  { 6,                                  "Operator, language by mutual agreement by Administration"},
+  { 7,                                  "Operator, language by mutual agreement by Administration"},
+  { 8,                                  "Operator, language by mutual agreement by Administration"},
+  { 9,                                  "National Operator"},
+
+  { ORDINARY_CALLING_SUBSCRIBER,        "ordinary calling subscriber"},
+  { CALLING_SUBSCRIBER_WITH_PRIORITY,   "calling subscriber with priority"},
+  { DATA_CALL,                          "data call (voice band data)"},
+  { TEST_CALL,                          "test call"},
+  /* q.763-200212Amd2 */
+  { 14,                                 "IEPS call marking for preferential call set up"},
+  { PAYPHONE,                           "payphone"},
+  /* q.763-200212Amd3 */
+  { 16,                                 "Mobile terminal located in the home PLMN"},
+  { 17,                                 "Mobile terminal located in a visited PLMN"},
+
+  { 0xe0,                                 "Reserved (Sub.Category 0)"},
+  { 0xe1,                                 "Hotel subscriber"},
+  { 0xe2,                                 "Charge free subscriber"},
+  { 0xe3,                                 "Subscriber with special service access"},
+  { 0xe4,                                 "Local subscriber"},
+  { 0xe5,                                 "Local coinbox"},
+  { 0xf0,                                 "Automatic call of category I"},
+  { 0xf1,                                 "Semiautomatic call of category I"},
+  { 0xf2,                                 "Automatic call of category II"},
+  { 0xf3,                                 "Semiautomatic call of category II"},
+  { 0xf4,                                 "Automatic call of category III"},
+  { 0xf5,                                 "Semiautomatic call of category III"},
+  { 0xf6,                                 "Automatic call of category IV"},
+  { 0xf7,                                 "Semiautomatic call of category IV"},
+
+  { 0,                                 NULL}};
+value_string_ext russian_isup_calling_partys_category_value_ext = VALUE_STRING_EXT_INIT(russian_isup_calling_partys_category_value);
 
 #define CVR_RSP_IND_FAILURE     0
 #define CVR_RSP_IND_SUCCESS     1
@@ -1963,6 +2179,7 @@ static int hf_isup_forw_call_qor_attempt_indicator = -1;
 static int hf_isup_forw_call_sccp_method_indicator = -1;
 
 static int hf_isup_calling_partys_category = -1;
+static int hf_russian_isup_calling_partys_category = -1;
 
 static int hf_isup_transmission_medium_requirement = -1;
 
@@ -2301,7 +2518,7 @@ dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, 
   guint8 nature_of_connection_ind;
 
   nature_of_connection_ind = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint(parameter_tree, hf_isup_satellite_indicator, parameter_tvb, 0,NATURE_OF_CONNECTION_IND_LENGTH, nature_of_connection_ind);
+  proto_tree_add_item(parameter_tree, hf_isup_satellite_indicator, parameter_tvb, 0,NATURE_OF_CONNECTION_IND_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint(parameter_tree, hf_isup_continuity_check_indicator, parameter_tvb, 0,NATURE_OF_CONNECTION_IND_LENGTH, nature_of_connection_ind);
   proto_tree_add_boolean(parameter_tree, hf_isup_echo_control_device_indicator, parameter_tvb, 0,  NATURE_OF_CONNECTION_IND_LENGTH, nature_of_connection_ind);
 
@@ -2335,14 +2552,30 @@ dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb,proto_tre
  Dissector Parameter Calling Party's Category
  */
 static void
-dissect_isup_calling_partys_category_parameter(tvbuff_t *parameter_tvb,proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_calling_partys_category_parameter(tvbuff_t *parameter_tvb,proto_tree *parameter_tree, proto_item *parameter_item, guint8 itu_isup_variant)
 {
   guint8 calling_partys_category;
 
   calling_partys_category = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_uint(parameter_tree, hf_isup_calling_partys_category, parameter_tvb, 0, CALLING_PRTYS_CATEGORY_LENGTH, calling_partys_category);
 
-  proto_item_set_text(parameter_item, "Calling Party's category: 0x%x (%s)", calling_partys_category, val_to_str_ext_const(calling_partys_category, &isup_calling_partys_category_value_ext, "reserved/spare"));
+  if(itu_isup_variant == ISUP_RUSSIAN_VARIANT){
+      proto_tree_add_uint(parameter_tree, hf_russian_isup_calling_partys_category, parameter_tvb, 0, CALLING_PRTYS_CATEGORY_LENGTH, calling_partys_category);
+
+      proto_item_set_text(parameter_item, "Calling Party's category: 0x%x (%s)", 
+          calling_partys_category, 
+          val_to_str_ext_const(calling_partys_category, 
+          &russian_isup_calling_partys_category_value_ext, 
+          "reserved/spare"));
+
+  }else{
+      proto_tree_add_uint(parameter_tree, hf_isup_calling_partys_category, parameter_tvb, 0, CALLING_PRTYS_CATEGORY_LENGTH, calling_partys_category);
+
+      proto_item_set_text(parameter_item, "Calling Party's category: 0x%x (%s)", 
+          calling_partys_category, 
+          val_to_str_ext_const(calling_partys_category, 
+          &isup_calling_partys_category_value_ext, 
+          "reserved/spare"));
+  }
 }
 
 
@@ -4742,6 +4975,65 @@ dissect_isup_original_isc_point_code_parameter(tvbuff_t *parameter_tvb, proto_tr
 }
 /* ------------------------------------------------------------------
   Dissector Parameter Generic notification indicator
+
+3.25 Generic notification indicator
+
+a) Extension indicator (ext.)
+0 information continues in the next octet
+1 last octet
+
+b) Notification indicator
+0 0 0 0 0 0 0 user suspended
+0 0 0 0 0 0 1 user resumed
+0 0 0 0 0 1 0 bearer service change
+0 0 0 0 0 1 1 encoded component discriminator for extension to ASN.1 (used in DSS1)
+0 0 0 0 1 0 0 call completion delay
+
+1 0 0 0 0 0 1
+to
+0 0 0 0 1 0 1 reserved
+
+1 0 0 0 0 1 0 conference established
+1 0 0 0 0 1 1 conference disconnected
+1 0 0 0 1 0 0 other party added
+1 0 0 0 1 0 1 isolated
+1 0 0 0 1 1 0 reattached
+1 0 0 0 1 1 1 other party isolated
+1 0 0 1 0 0 0 other party reattached
+1 0 0 1 0 0 1 other party split
+1 0 0 1 0 1 0 other party disconnected
+1 0 0 1 0 1 1 conference floating
+
+1 0 1 1 1 1 1
+to
+1 0 0 1 1 0 0 reserved
+
+1 1 0 0 0 0 0 call is a waiting call
+
+1 1 0 0 1 1 1
+to
+1 1 0 0 0 0 1 reserved
+
+1 1 0 1 0 0 0 diversion activated (used in DSS1)
+1 1 0 1 0 0 1 call transfer, alerting
+1 1 0 1 0 1 0 call transfer, active
+
+
+
+1 1 1 1 0 0 0
+to
+1 1 0 1 0 1 1
+reserved
+1 1 1 1 0 0 1 remote hold
+1 1 1 1 0 1 0 remote retrieval
+1 1 1 1 0 1 1 call is diverting
+
+
+
+1 1 1 1 1 1 1
+to
+1 1 1 1 1 0 0
+reserved
  */
 static void
 dissect_isup_generic_notification_indicator_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
@@ -5886,7 +6178,7 @@ dissect_isup_unknown_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_it
   Dissector all optional parameters
 */
 static void
-dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *pinfo, proto_tree *isup_tree)
+dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
   gint offset = 0;
@@ -5952,7 +6244,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
             dissect_isup_optional_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_CALLING_PRTY_CATEG:
-            dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item, itu_isup_variant);
             break;
           case PARAM_TYPE_CALLING_PARTY_NR:
             dissect_isup_calling_party_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -6194,7 +6486,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *p
   TODO: Actullay make this dissect ANSI :) - It's still plain old ITU for now
 */
 static void
-dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *pinfo, proto_tree *isup_tree)
+dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
   gint offset = 0;
@@ -6259,7 +6551,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_in
             dissect_isup_optional_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_CALLING_PRTY_CATEG:
-            dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item, itu_isup_variant);
             break;
           case PARAM_TYPE_CALLING_PARTY_NR:
             dissect_isup_calling_party_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -6591,7 +6883,7 @@ dissect_ansi_isup_circuit_reservation_message(tvbuff_t *message_tvb, proto_tree 
   Dissector Message Type Initial address message
  */
 static gint
-dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tree, guint8 itu_isup_variant)
 { proto_item* parameter_item;
   proto_tree* parameter_tree;
   tvbuff_t *parameter_tvb;
@@ -6640,7 +6932,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
                              val_to_str_ext_const(parameter_type, &isup_parameter_type_value_ext, "unknown"));
   actual_length = tvb_ensure_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(CALLING_PRTYS_CATEGORY_LENGTH, actual_length),CALLING_PRTYS_CATEGORY_LENGTH);
-  dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item, itu_isup_variant);
   offset += CALLING_PRTYS_CATEGORY_LENGTH;
 
   switch (isup_standard) {
@@ -7430,7 +7722,7 @@ dissect_israeli_traffic_change_message(tvbuff_t *message_tvb, proto_tree *isup_t
 
 /* ------------------------------------------------------------------ */
 static void
-dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
+dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
 {
   isup_tap_rec_t *tap_rec;
 
@@ -7463,7 +7755,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
    /* distinguish between message types:*/
     switch (message_type) {
         case MESSAGE_TYPE_INITIAL_ADDR:
-        offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree);
+        offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree, itu_isup_variant);
         opt_part_possible = TRUE;
         break;
         case MESSAGE_TYPE_SUBSEQ_ADDR:
@@ -7570,7 +7862,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
                                                 val_to_str_ext_const(pa_message_type, &isup_message_type_value_acro_ext, "reserved"),
                                                 pa_message_type);
         pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
-        dissect_ansi_isup_message(parameter_tvb, pinfo, pass_along_tree);
+        dissect_ansi_isup_message(parameter_tvb, pinfo, pass_along_tree, itu_isup_variant);
         break;
         }
         case MESSAGE_TYPE_CIRC_GRP_RST_ACK:
@@ -7679,7 +7971,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
        offset += opt_parameter_pointer;
        optional_parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
-       dissect_ansi_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
+       dissect_ansi_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree, itu_isup_variant);
      }
      else
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "No optional parameter present (Pointer: %u)", opt_parameter_pointer);
@@ -7731,6 +8023,11 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                                  "Message type: %s (%u)",
                                  val_to_str_ext_const(message_type, &israeli_isup_message_type_value_ext, "reserved"),
                                  message_type);
+  case ISUP_RUSSIAN_VARIANT:
+      proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
+                                 "Message type: %s (%u)",
+                                 val_to_str_ext_const(message_type, &russian_isup_message_type_value_ext, "reserved"),
+                                 message_type);
       break;
   }
 
@@ -7746,7 +8043,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   /* distinguish between message types:*/
   switch (message_type) {
     case MESSAGE_TYPE_INITIAL_ADDR:
-        offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree);
+        offset += dissect_isup_initial_address_message(parameter_tvb, isup_tree, itu_isup_variant);
         opt_part_possible = TRUE;
         break;
     case MESSAGE_TYPE_SUBSEQ_ADDR:
@@ -7887,8 +8184,16 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
     case MESSAGE_TYPE_CHARGE_INFO:
         /* do nothing since format is a national matter */
         bufferlength = tvb_length_remaining(message_tvb, offset);
-        if (bufferlength != 0)
-            proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+        if (bufferlength != 0){
+            switch(itu_isup_variant){
+            case ISUP_RUSSIAN_VARIANT:
+                proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+                break;
+            default:
+                proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Format is a national matter");
+                break;
+            }
+        }
         break;
     case MESSAGE_TYPE_NETW_RESRC_MGMT:
         /* no dissector necessary since no mandatory parameters included */
@@ -7978,6 +8283,22 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                     break;
                 }
                 break;
+            case ISUP_RUSSIAN_VARIANT:
+                switch (message_type) {
+                case RUSSIAN_CLEAR_CALLING_LINE:
+                    /* no dissector necessary since no mandatory parameters included */
+                    break;
+                case RUSSIAN_RINGING:
+                    /* no dissector necessary since no mandatory parameters included */
+                    opt_part_possible = TRUE;
+                    break;
+                default:
+                    bufferlength = tvb_length_remaining(message_tvb, offset);
+                    if (bufferlength != 0)
+                        proto_tree_add_text(isup_tree, parameter_tvb, 0, bufferlength, "Unknown Message type (possibly reserved/used in former ISUP version)");
+                    break;
+                }
+                break;
         }
         break;
     }
@@ -7989,7 +8310,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
        offset += opt_parameter_pointer;
        optional_parameter_tvb = tvb_new_subset_remaining(message_tvb, offset);
-       dissect_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree);
+       dissect_isup_optional_parameter(optional_parameter_tvb, pinfo, isup_tree, itu_isup_variant);
      }
      else
        proto_tree_add_uint_format(isup_tree, hf_isup_pointer_to_start_of_optional_part, message_tvb, offset, PARAMETER_POINTER_LENGTH, opt_parameter_pointer, "No optional parameter present (Pointer: %u)", opt_parameter_pointer);
@@ -8050,7 +8371,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint_format(isup_tree, hf_isup_cic, tvb, CIC_OFFSET, CIC_LENGTH, cic, "CIC: %u", cic);
           }
           message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
-          dissect_ansi_isup_message(message_tvb, pinfo, isup_tree);
+          dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT);
       break;
     default:
       isup_standard = ITU_STANDARD;
@@ -8062,6 +8383,10 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           case ISUP_ISRAELI_VARIANT:
                   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(Israeli)");
                   used_value_string_ext = &israeli_isup_message_type_value_acro_ext;
+                  break;
+          case ISUP_RUSSIAN_VARIANT:
+                  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(Russian)");
+                  used_value_string_ext = &russian_isup_message_type_value_acro_ext;
                   break;
           default:
                   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP(ITU)");
@@ -8177,7 +8502,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                       }
 
                       message_tvb = tvb_new_subset_remaining(tvb, 0);
-                      dissect_ansi_isup_message(message_tvb, pinfo, isup_tree);
+                      dissect_ansi_isup_message(message_tvb, pinfo, isup_tree, ISUP_ITU_STANDARD_VARIANT);
                       return;
       } else if(strstr(content_type_parameter_str,"spirou")) {
               isup_standard = ITU_STANDARD;
@@ -8379,6 +8704,11 @@ proto_register_isup(void)
     { &hf_isup_calling_partys_category,
       { "Calling Party's category",  "isup.calling_partys_category",
         FT_UINT8, BASE_HEX|BASE_EXT_STRING, &isup_calling_partys_category_value_ext, 0x0,
+        NULL, HFILL }},
+
+	{ &hf_russian_isup_calling_partys_category,
+      { "Calling Party's category",  "isup.russian.calling_partys_category",
+        FT_UINT8, BASE_HEX, VALS(isup_calling_partys_category_value), 0x0,
         NULL, HFILL }},
 
     { &hf_isup_transmission_medium_requirement,
@@ -9297,6 +9627,7 @@ proto_register_isup(void)
     {"ITU Standard",              "ITU Standard",              ISUP_ITU_STANDARD_VARIANT},
     {"French national Standard",  "French national Standard",  ISUP_FRENCH_VARIANT},
     {"Israeli national Standard", "Israeli national Standard", ISUP_ISRAELI_VARIANT},
+    {"Russian national Standard", "Russian national Standard", ISUP_RUSSIAN_VARIANT},
     {NULL, NULL, -1}
   };
 
