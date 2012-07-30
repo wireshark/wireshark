@@ -837,12 +837,14 @@ set(DISSECTOR_SRC
 	dissectors/packet-meta.c
 	dissectors/packet-mgcp.c
 	dissectors/packet-mikey.c
+	dissectors/packet-mim.c
 	dissectors/packet-mime-encap.c
 	dissectors/packet-miop.c
 	dissectors/packet-mip.c
 	dissectors/packet-mip6.c
 	dissectors/packet-mmse.c
 	dissectors/packet-mndp.c
+	dissectors/packet-mojito.c
 	dissectors/packet-moldudp.c
 	dissectors/packet-moldudp64.c
 	dissectors/packet-mongo.c
@@ -1139,7 +1141,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-tpncp.c
 	dissectors/packet-tr.c
 	dissectors/packet-trill.c
-	dissectors/packet-mim.c
 	dissectors/packet-trmac.c
 	dissectors/packet-tsp.c
 	dissectors/packet-tte.c

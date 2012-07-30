@@ -758,12 +758,14 @@ DISSECTOR_SRC = \
 	packet-meta.c		\
 	packet-mgcp.c		\
 	packet-mikey.c		\
+	packet-mim.c		\
 	packet-mime-encap.c	\
 	packet-miop.c		\
 	packet-mip.c		\
 	packet-mip6.c		\
 	packet-mmse.c		\
 	packet-mndp.c		\
+	packet-mojito.c     \
 	packet-moldudp.c    \
 	packet-moldudp64.c  \
 	packet-mongo.c		\
@@ -1060,7 +1062,6 @@ DISSECTOR_SRC = \
 	packet-tpncp.c		\
 	packet-tr.c		\
 	packet-trill.c		\
-	packet-mim.c		\
 	packet-trmac.c		\
 	packet-tsp.c		\
 	packet-tte.c		\
