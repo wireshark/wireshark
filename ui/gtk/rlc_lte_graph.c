@@ -298,6 +298,7 @@ static void axis_destroy(struct axis * );
 static int get_label_dim(struct axis * , int , double );
 static void toggle_time_origin(struct graph * );
 static void restore_initial_graph_view(struct graph *g);
+static gboolean configure_event(GtkWidget * , GdkEventConfigure * , gpointer );
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
 #else
@@ -499,6 +500,8 @@ static void create_drawing_area(struct graph *g)
         gdk_gc_set_foreground(xor_gc, &color);
     }
 #endif
+
+    g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event), g);
 
     /* puts("exiting create_drawing_area()"); */
 }
@@ -1693,6 +1696,64 @@ static int line_detect_collision(struct element *e, int x, int y)
     else
         return FALSE;
 }
+
+
+static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)	 
+{
+    struct graph *g = user_data;
+    struct {
+        double x, y;
+    } zoom;
+    int cur_g_width, cur_g_height;
+    int cur_wp_width, cur_wp_height;
+
+    debug(DBS_FENTRY) puts("configure_event()");
+
+    cur_wp_width = g->wp.width;
+    cur_wp_height = g->wp.height;
+    g->wp.width = event->width - g->y_axis->p.width - RMARGIN_WIDTH;
+    g->wp.height = event->height - g->x_axis->p.height - g->wp.y;
+    g->x_axis->s.width = g->wp.width;
+    g->x_axis->p.width = g->wp.width + RMARGIN_WIDTH;
+    g->y_axis->p.height = g->wp.height + g->wp.y;
+    g->y_axis->s.height = g->wp.height;
+    g->x_axis->p.y = g->y_axis->p.height;
+    zoom.x = (double )g->wp.width / cur_wp_width;
+    zoom.y = (double )g->wp.height / cur_wp_height;
+    cur_g_width = g->geom.width;
+    cur_g_height = g->geom.height;
+    g->geom.width = (int )rint(g->geom.width * zoom.x);
+    g->geom.height = (int )rint(g->geom.height * zoom.y);
+    g->zoom.x = (double )(g->geom.width - 1) / g->bounds.width;
+    g->zoom.y = (double )(g->geom.height -1) / g->bounds.height;
+    /* g->zoom.initial.x = g->zoom.x; */
+    /* g->zoom.initial.y = g->zoom.y; */
+
+    g->geom.x = (int)(g->wp.x - (double)g->geom.width/cur_g_width * (g->wp.x - g->geom.x));	 
+    g->geom.y = (int)(g->wp.y - (double)g->geom.height/cur_g_height * (g->wp.y - g->geom.y));
+#if 0
+    printf("configure: graph: (%d,%d), (%d,%d); viewport: (%d,%d), (%d,%d); "
+                 "zooms: (%f,%f)\n", g->geom.x, g->geom.y, g->geom.width,
+                 g->geom.height, g->wp.x, g->wp.y, g->wp.width, g->wp.height,
+                 g->zoom.x, g->zoom.y);
+#endif
+
+    graph_element_lists_make(g);
+    graph_pixmaps_create(g);
+    graph_title_pixmap_create(g);
+    axis_pixmaps_create(g->y_axis);
+    axis_pixmaps_create(g->x_axis);
+    /* we don't do actual drawing here; we leave it to expose handler */
+    graph_pixmap_draw(g);
+    graph_pixmaps_switch(g);
+    graph_title_pixmap_draw(g);
+    h_axis_pixmap_draw(g->x_axis);
+    axis_pixmaps_switch(g->x_axis);
+    v_axis_pixmap_draw(g->y_axis);
+    axis_pixmaps_switch(g->y_axis);
+    return TRUE;
+}
+
 
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean
