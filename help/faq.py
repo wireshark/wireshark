@@ -455,9 +455,9 @@ question("""Can Wireshark read capture files from {your favorite network
 analyzer}?""")
 
 answer("""
-Support for particular protocols is added to Wireshark as a result of
-people contributing that support; no formal plans for adding support for
-particular protocols in particular future releases exist.
+Support for particular capture file formats is added to Wireshark as a result
+of people contributing that support; no formal plans for adding support for
+particular capture file formats in particular future releases exist.
 
 <br />
 
