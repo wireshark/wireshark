@@ -96,9 +96,11 @@ static int hf_mojito_storestatuscode_code = -1;
 static int hf_mojito_storestatuscode_kuid = -1;
 static int hf_mojito_storestatuscode_secondary_kuid = -1;
 static int hf_mojito_requestload = -1;
+#if 0
 static int hf_mojito_startflag = -1;
 static int hf_mojito_endflag = -1;
 static int hf_mojito_priorityflag = -1;
+#endif
 static int hf_mojito_opcode_data = -1;
 
 /* Initialize the subtree pointers */
@@ -497,12 +499,11 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static void
-dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_tree *sc_tree;
 	proto_item *sc_item;
-	guint8 i, 
-		   contactcount = tvb_get_guint8(tvb, offset);
+	guint8 i, contactcount = tvb_get_guint8(tvb, offset);
 	guint16 dhtvaluelength;
 	int start_offset;
 
@@ -570,7 +571,7 @@ dissect_mojito_find_node_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
-dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_tree *kuid_tree;
 	proto_item *kuid_item;
@@ -1077,7 +1078,7 @@ void
 proto_reg_handoff_mojito(void)
 {
 	static gboolean initialized = FALSE;
-	static guint old_mojito_udp_port = 0;
+	static int old_mojito_udp_port = 0;
 	static dissector_handle_t mojito_handle;
 
 	if (!initialized) {
