@@ -56,7 +56,9 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 /* TODO:
-   - bring back crosshairs (always on?)
+   - bring back crosshairs (always on?).  If they really don't work well with
+     Cairo, maybe add a label (or use title) giving continuous coordinates
+     of mouse cursor?
 */
 
 /* initialize_axis() */
@@ -200,7 +202,6 @@ struct graph {
 #endif
     int displayed;			/* which of both pixmaps is on screen right now */
 
-    const char **title;
     /* Next 4 attribs describe the graph in natural units, before any scaling.
      * For example, if we want to display graph of TCP conversation that
      * started 112.309845 s after beginning of the capture and ran until
@@ -297,7 +298,6 @@ static void axis_destroy(struct axis * );
 static int get_label_dim(struct axis * , int , double );
 static void toggle_time_origin(struct graph * );
 static void restore_initial_graph_view(struct graph *g);
-static gboolean configure_event(GtkWidget * , GdkEventConfigure * , gpointer );
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
 #else
@@ -362,24 +362,12 @@ static void set_busy_cursor(GdkWindow *w)
 #endif
 }
 
-static void unset_busy_cursor(GdkWindow *w, gboolean cross)
+static void unset_busy_cursor(GdkWindow *w)
 {
-    GdkCursor* cursor;
-
-    if (cross){
-        cursor = gdk_cursor_new(GDK_CROSSHAIR);
-        gdk_window_set_cursor(w, cursor);
-        gdk_flush();
-#if GTK_CHECK_VERSION(3,0,0)
-        g_object_unref(cursor);
-#else
-        gdk_cursor_unref(cursor);
-#endif
-    }else{
-        gdk_window_set_cursor(w, NULL);
-        gdk_flush();
-    }
+    gdk_window_set_cursor(w, NULL);
+    gdk_flush();
 }
+
 void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     struct segment current;
@@ -455,12 +443,6 @@ static void create_drawing_area(struct graph *g)
 #else
     g_signal_connect(g->drawing_area, "expose_event", G_CALLBACK(expose_event), g);
 #endif
-    /* this has to be done later, after the widget has been shown */
-    /*
-    g_signal_connect(g->drawing_area,"configure_event", G_CALLBACK(configure_event),
-        g);
-     */
-
     g_signal_connect(g->drawing_area, "button_press_event",
                        G_CALLBACK(button_press_event), g);
     g_signal_connect(g->drawing_area, "button_release_event",
@@ -469,7 +451,7 @@ static void create_drawing_area(struct graph *g)
     /* why doesn't drawing area send key_press_signals? */
     g_signal_connect(g->toplevel, "key_press_event", G_CALLBACK(key_press_event), g);
     gtk_widget_set_events(g->toplevel,
-                              GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
+                          GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
 
     gtk_widget_set_events(g->drawing_area,
                                GDK_EXPOSURE_MASK
@@ -483,7 +465,7 @@ static void create_drawing_area(struct graph *g)
     gtk_container_add(GTK_CONTAINER(g->toplevel), g->drawing_area);
     gtk_widget_show(g->toplevel);
 
-    /* in case we didn't get what we asked for */
+    /* In case we didn't get what we asked for */
     gtk_widget_get_allocation(GTK_WIDGET(g->drawing_area), &widget_alloc);
     g->wp.width = widget_alloc.width - g->wp.x - RMARGIN_WIDTH;
     g->wp.height = widget_alloc.height - g->wp.y - g->x_axis->s.height;
@@ -516,19 +498,6 @@ static void create_drawing_area(struct graph *g)
         }
         gdk_gc_set_foreground(xor_gc, &color);
     }
-
-    /* this is probably quite an ugly way to get rid of the first configure
-     * event
-     * immediately after gtk_widget_show (window) drawing_area gets a configure
-     * event which is handled during the next return to gtk_main which is
-     * probably the gdk_gc_new() call. configure handler calls
-     * graph_element_lists_make() which is not good because the graph struct is
-     * not fully set up yet - namely we're not sure about actual geometry
-     * and we don't have the GC's at all. so we just postpone installation
-     * of configure handler until we're ready to deal with it.
-     */
-#endif
-    g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event), g);
 
     /* puts("exiting create_drawing_area()"); */
 }
@@ -653,7 +622,6 @@ static void graph_initialize(struct graph *g)
 
     /* Want to start with absolute times, rather than being relative to 0 */
     g->x_axis->min = g->bounds.x0;
-
     g->y_axis->min = 0;
 
     graph_read_config(g);
@@ -684,7 +652,6 @@ static void graph_destroy(struct graph *g)
 #endif /* GTK_CHECK_VERSION(2,22,0) */
     g_free(g->x_axis);
     g_free(g->y_axis);
-    g_free((gpointer)(g->title) );
     graph_segment_list_free(g);
     graph_element_lists_free(g);
 
@@ -761,7 +728,6 @@ tapall_rlc_lte_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, co
 }
 
 
-
 /* Here we collect all the external data we will ever need */
 static void graph_segment_list_get(struct graph *g)
 {
@@ -776,10 +742,10 @@ static void graph_segment_list_get(struct graph *g)
      * we only filter for LTE RLC here for speed and do the actual compare
      * in the tap listener
      */
-    ts.current=&current;
-    ts.g=g;
-    ts.last=NULL;
-    error_string=register_tap_listener("rlc-lte", &ts, "rlc-lte", 0, NULL, tapall_rlc_lte_packet, NULL);
+    ts.current = &current;
+    ts.g = g;
+    ts.last = NULL;
+    error_string = register_tap_listener("rlc-lte", &ts, "rlc-lte", 0, NULL, tapall_rlc_lte_packet, NULL);
     if (error_string){
         fprintf(stderr, "wireshark: Couldn't register rlc_lte_graph tap: %s\n",
                 error_string->str);
@@ -803,7 +769,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 {
     int n;
     gboolean is_unique = TRUE;
-    th_t *th=pct;
+    th_t *th = pct;
     rlc_lte_tap_info *header = (rlc_lte_tap_info*)vip;
 
     /* Check new header details against any/all stored ones */
@@ -825,7 +791,6 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 
     return 0;
 }
-
 
 
 /* XXX should be enhanced so that if we have multiple RLC channels in the same MAC frame
@@ -955,7 +920,6 @@ static void graph_element_lists_initialize(struct graph *g)
 static void graph_element_lists_make(struct graph *g)
 {
     debug(DBS_FENTRY) puts("graph_element_lists_make()");
-
     rlc_lte_make_elmtlist(g);
 }
 
@@ -989,13 +953,15 @@ static void graph_title_pixmap_create(struct graph *g)
         g_object_unref(g->title_pixmap);
 
     g->title_pixmap = gdk_pixmap_new(gtk_widget_get_window(g->drawing_area),
-                            g->x_axis->p.width, g->wp.y, -1);
+                                     g->x_axis->p.width, g->wp.y, -1);
 #endif
 }
 
 static void graph_title_pixmap_draw(struct graph *g)
 {
     int i;
+    gint w, h;
+    PangoLayout *layout;
     cairo_t *cr;
 
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1007,16 +973,12 @@ static void graph_title_pixmap_draw(struct graph *g)
     cairo_rectangle(cr, 0, 0,  g->x_axis->p.width, g->wp.y);
     cairo_fill(cr);
 
-    for (i=0; g->title[i]; i++) {
-        gint w, h;
-        PangoLayout *layout;
-        layout = gtk_widget_create_pango_layout(g->drawing_area,
-                                                g->title[i]);
-        pango_layout_get_pixel_size(layout, &w, &h);
-        cairo_move_to(cr, g->wp.width/2 - w/2, 20 + i*(h+3));
-        pango_cairo_show_layout(cr, layout);
-        g_object_unref(G_OBJECT(layout));
-    }
+    layout = gtk_widget_create_pango_layout(g->drawing_area, "");
+    pango_layout_get_pixel_size(layout, &w, &h);
+    cairo_move_to(cr, g->wp.width/2 - w/2, 20 + i*(h+3));
+    pango_cairo_show_layout(cr, layout);
+    g_object_unref(G_OBJECT(layout));
+
     cairo_destroy(cr);
 }
 
@@ -1080,7 +1042,7 @@ static void graph_display(struct graph *g)
 {
     set_busy_cursor(gtk_widget_get_window(g->drawing_area));
     graph_pixmap_draw(g);
-    unset_busy_cursor(gtk_widget_get_window(g->drawing_area), FALSE);
+    unset_busy_cursor(gtk_widget_get_window(g->drawing_area));
     graph_pixmaps_switch(g);
     graph_pixmap_display(g);
 }
@@ -1195,7 +1157,7 @@ static void draw_element_line(struct graph *g, struct element *e, cairo_t *cr,
     yy1 = (int )rint((g->geom.height-1-e->p.line.dim.y1) + g->geom.y-g->wp.y);
     yy2 = (int )rint((g->geom.height-1-e->p.line.dim.y2) + g->geom.y-g->wp.y);
 
-    /* If line completely out of the area, we won't show it - OK */
+    /* If line completely out of the area, we won't show it  */
     if ((xx1<0 && xx2<0) || (xx1>=g->wp.width  && xx2>=g->wp.width) ||
         (yy1<0 && yy2<0) || (yy1>=g->wp.height && yy2>=g->wp.height)) {
         debug(DBS_GRAPH_DRAWING) printf(" refusing: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
@@ -1502,7 +1464,6 @@ static void axis_pixmap_display(struct axis *axis)
     cairo_rectangle(cr, axis->p.x, axis->p.y, axis->p.width, axis->p.height);
     cairo_fill(cr);
     cairo_destroy(cr);
-
 }
 
 static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int dir)
@@ -1573,7 +1534,7 @@ static void axis_compute_ticks(struct axis *axis, double x0, double xmax, int di
                 axis->minor*zoom/dim);
 
         /* corrections: if majors are less than majthresh[dir] times label
-        * dimension apart, we need to use bigger ones */
+         * dimension apart, we need to use bigger ones */
         if (axis->major*zoom / dim < majthresh[dir]) {
             axis_ticks_up(&ii, &jj);
             axis->minor = axis->major;
@@ -1731,65 +1692,6 @@ static int line_detect_collision(struct element *e, int x, int y)
         return TRUE;
     else
         return FALSE;
-}
-
-
-static gboolean configure_event(GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)
-{
-    struct graph *g = user_data;
-    struct {
-        double x, y;
-    } zoom;
-    int cur_g_width, cur_g_height;
-    int cur_wp_width, cur_wp_height;
-
-    debug(DBS_FENTRY) puts("configure_event()");
-
-    cur_wp_width = g->wp.width;
-    cur_wp_height = g->wp.height;
-    g->wp.width = event->width - g->y_axis->p.width - RMARGIN_WIDTH;
-    g->wp.height = event->height - g->x_axis->p.height - g->wp.y;
-    g->x_axis->s.width = g->wp.width;
-    g->x_axis->p.width = g->wp.width + RMARGIN_WIDTH;
-    g->y_axis->p.height = g->wp.height + g->wp.y;
-    g->y_axis->s.height = g->wp.height;
-    g->x_axis->p.y = g->y_axis->p.height;
-    zoom.x = (double )g->wp.width / cur_wp_width;
-    zoom.y = (double )g->wp.height / cur_wp_height;
-    cur_g_width = g->geom.width;
-    cur_g_height = g->geom.height;
-    g->geom.width = (int )rint(g->geom.width * zoom.x);
-    g->geom.height = (int )rint(g->geom.height * zoom.y);
-    g->zoom.x = (double )(g->geom.width - 1) / g->bounds.width;
-    g->zoom.y = (double )(g->geom.height -1) / g->bounds.height;
-    /* g->zoom.initial.x = g->zoom.x; */
-    /* g->zoom.initial.y = g->zoom.y; */
-
-    g->geom.x = (int) (g->wp.x - (double)g->geom.width/cur_g_width *
-                            (g->wp.x - g->geom.x));
-    g->geom.y = (int) (g->wp.y - (double)g->geom.height/cur_g_height *
-                            (g->wp.y - g->geom.y));
-#if 0
-    printf("configure: graph: (%d,%d), (%d,%d); viewport: (%d,%d), (%d,%d); "
-                "zooms: (%f,%f)\n", g->geom.x, g->geom.y, g->geom.width,
-                g->geom.height, g->wp.x, g->wp.y, g->wp.width, g->wp.height,
-                g->zoom.x, g->zoom.y);
-#endif
-
-    graph_element_lists_make(g);
-    graph_pixmaps_create(g);
-    graph_title_pixmap_create(g);
-    axis_pixmaps_create(g->y_axis);
-    axis_pixmaps_create(g->x_axis);
-    /* we don't do actual drawing here; we leave it to expose handler */
-    graph_pixmap_draw(g);
-    graph_pixmaps_switch(g);
-    graph_title_pixmap_draw(g);
-    h_axis_pixmap_draw(g->x_axis);
-    axis_pixmaps_switch(g->x_axis);
-    v_axis_pixmap_draw(g->y_axis);
-    axis_pixmaps_switch(g->y_axis);
-    return TRUE;
 }
 
 #if GTK_CHECK_VERSION(3,0,0)
@@ -2062,7 +1964,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
         graph_select_segment(g, (int )event->x, (int )event->y);
     }
 
-    unset_busy_cursor(gtk_widget_get_window(g->drawing_area), FALSE);
+    unset_busy_cursor(gtk_widget_get_window(g->drawing_area));
     return TRUE;
 }
 
@@ -2181,8 +2083,6 @@ static void get_data_control_counts(struct graph *g, int *data, int *acks, int *
     }
 }
 
-
-
 /* Determine "bounds"
  *  Essentially: look for lowest/highest time and seq in the list of segments
  *  Not currently trying to work out the upper bound of the window, as we
@@ -2276,8 +2176,6 @@ static void graph_get_bounds(struct graph *g)
     g->zoom.y = (g->geom.height -1) / g->bounds.height;
 }
 
-
-
 static void graph_read_config(struct graph *g)
 {
     /* Black */
@@ -2305,9 +2203,6 @@ static void graph_read_config(struct graph *g)
     g->elists->next->next = NULL;
     g->elists->next->elements = NULL;
 
-    g->title = (const char ** )g_malloc(2 * sizeof(char *));
-    g->title[0] = "RLC LTE Sequence Graph";
-    g->title[1] = NULL;
     g->y_axis->label = (const char ** )g_malloc(3 * sizeof(char * ));
     g->y_axis->label[0] = "Number";
     g->y_axis->label[1] = "Sequence";
@@ -2558,7 +2453,6 @@ static void rlc_lte_make_elmtlist(struct graph *g)
         e0->p.line.dim.y2 = previous_status_y;
         e0++;
     }
-
 
     /* Complete both element lists */
     e0->type = ELMT_NONE;
