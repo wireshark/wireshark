@@ -2004,7 +2004,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 
             localTree = proto_item_add_subtree (localItem, ett_gryphon_usdt_data);
             while (ids) {
-                proto_tree_add_item(pt, hf_gryphon_usdt_ext_address_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(localTree, hf_gryphon_usdt_ext_address_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 ids--;
             }
@@ -2191,7 +2191,7 @@ blm_mode(tvbuff_t *tvb, int offset, proto_tree *pt)
         tree = proto_item_add_subtree (item, ett_gryphon_blm_mode);
         milliseconds = tvb_get_ntohl(tvb, offset);
 
-        proto_tree_add_uint_format_value(pt, hf_gryphon_blm_mode_avg_period, tvb, offset, 4,
+        proto_tree_add_uint_format_value(tree, hf_gryphon_blm_mode_avg_period, tvb, offset, 4,
             milliseconds, "Averaging period: %d.%03d seconds", milliseconds/1000, milliseconds%1000);
         break;
     case 2:
