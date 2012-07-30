@@ -115,14 +115,30 @@ MainWelcome::MainWelcome(QWidget *parent) :
     grid->addLayout(column, 1, 1, Qt::AlignTop);
     grid->setColumnStretch(1, 70);
 
-    heading = new QLabel(tr("<h1>Files</h1>"));
+    heading = new QLabel(tr("<h1>Recent Files</h1>"));
     column->addWidget(heading);
 
     m_recent_files.setStyleSheet(
             "QListWidget {"
             "  border: 0;"
             "}"
+            "QListWidget::item {"
+            "  padding-top: 0.1em;"
+            "  padding-bottom: 0.1em;"
+            "}"
+            "QListWidget::item::first {"
+            "  padding-top: 0;"
+            "}"
+            "QListWidget::item::last {"
+            "  padding-bottom: 0;"
+            "}"
+            "QListWidget::item::hover {"
+            "  background-color: palette(highlight);"
+            "  color: palette(highlighted-text);"
+            "}"
             );
+    m_recent_files.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_recent_files.setTextElideMode(Qt::ElideLeft);
     column->addWidget(&m_recent_files);
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     connect(&m_recent_files, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
@@ -162,17 +178,18 @@ void MainWelcome::updateRecentFiles() {
         itemLabel.append(" (");
         if (ri->accessible) {
             if (ri->size/1024/1024/1024 > 10) {
-                itemLabel.append(QString("%1 GB)").arg(ri->size/1024/1024/1024));
+                itemLabel.append(QString("%1 GB").arg(ri->size/1024/1024/1024));
             } else if (ri->size/1024/1024 > 10) {
-                itemLabel.append(QString("%1 MB)").arg(ri->size/1024/1024));
+                itemLabel.append(QString("%1 MB").arg(ri->size/1024/1024));
             } else if (ri->size/1024 > 10) {
-                itemLabel.append(QString("%1 KB)").arg(ri->size/1024));
+                itemLabel.append(QString("%1 KB").arg(ri->size/1024));
             } else {
                 itemLabel.append(QString("%1 Bytes").arg(ri->size));
             }
         } else {
-            itemLabel.append(tr("not found)"));
+            itemLabel.append(tr("not found"));
         }
+        itemLabel.append(")");
         rfFont.setItalic(!ri->accessible);
         rfItem = m_recent_files.item(rfRow);
         rfItem->setText(itemLabel);
