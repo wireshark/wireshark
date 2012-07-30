@@ -852,7 +852,7 @@ static void dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_
                            ss, tsn, subframe_bytes, mac_is_info->number_of_mac_is_sdus);
 
     proto_item_set_len(pi, 1+subframe_bytes);
-    //total_bytes += subframe_bytes;
+    /*total_bytes += subframe_bytes;*/
 }
 
 static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
