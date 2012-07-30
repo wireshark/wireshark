@@ -683,7 +683,7 @@ HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 			/*If it doesnt exists, insert it*/
 			if( (cur_val=g_tree_lookup(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr))) == NULL ){
 				
-				flowd_p = (guint*)g_malloc0(sizeof(gint*));  
+				flowd_p = (guint*)g_malloc0(sizeof(gint));  
 				*flowd_p = (1<<flowd);	/*Set the bit to mark it as true*/
 				g_tree_insert(hsdsch_muxed_flows, GINT_TO_POINTER((gint)hr), flowd_p);
 			
