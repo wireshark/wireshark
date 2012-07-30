@@ -200,6 +200,9 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, QString &fileName, QString
     previewGrid->addWidget(&m_previewElapsed, 4, 1);
     m_previewLabels << lbl << &m_previewElapsed;
 
+    // Grow the dialog to account for the extra widgets.
+    resize(width(), height() + hBox->minimumSize().height() + m_displayFilterEdit->minimumSize().height());
+
     connect(this, SIGNAL(currentChanged(const QString &)), this, SLOT(preview(const QString &)));
 
     preview("");
