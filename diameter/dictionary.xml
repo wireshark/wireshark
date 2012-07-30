@@ -5835,6 +5835,30 @@
 		2408 MME-Realm DiameterIdentity
 		Note: The AVP codes from 2409 to 2499 are reserved for TS 29.173
 		-->
+		
+		<avp name="Serving-Node" code="2401" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="SGSN-Number"/>
+				<gavp name="MME-Name"/>
+				<gavp name="MME-Realm"/>
+				<gavp name="MSC-Number"/>
+				<gavp name="3GPP-AAA-Server-Name"/>
+				<gavp name="LCS-Capabilities-Sets"/>
+				<gavp name="GMLC-Address"/>
+			</grouped>
+		</avp>
+		<avp name="MME-Name" code="2402" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="MSC-Number" code="2403" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="LCS-Capabilities-Sets" code="2304" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>	
+		<avp name="MME-Realm" code="2408" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
 
 		<avp name="Location-Type" code="2500" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Enumerated"/>
@@ -5901,7 +5925,11 @@
 			<enum name="NOT_ALLOWED" code="4"/>
 		</avp>
 
-		<!-- 2513	Accuracy-Fulfilment-Indicator	Enumerated -->
+		<avp name="Accuracy-Fulfilment-Indicator" code="2513" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="REQUESTED_ACCURACY_FULFILLED" code="0"/>
+			<enum name="REQUESTED_ACCURACY_NOT_FULFILLED" code="1"/>
+		</avp>
 
 		<avp name="Age-Of-Location-Estimate" code="2514" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -6081,6 +6109,7 @@
 	<application id="16777266"	name="3GPP Gxx"			uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm"></application>
 	<application id="16777269"	name="Ericsson HSI"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
 	<application id="16777272"	name="3GPP S6b"			uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm"></application>
+	<application id="16777291"	name="3GPP SLh"			uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588"></application>
 	<application id="16777292"	name="3GPP SGmb"		uri="http://www.3gpp.org/ftp/Specs/html-info/29061.htm"></application>
 	<application id="16777302"	name="3GPP Sy"			uri="http://www.3gpp.org/ftp/Specs/html-info/29219.htm"></application>
 	<application id="16777304"	name="Ericsson Sy"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
